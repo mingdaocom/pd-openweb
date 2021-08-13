@@ -6,7 +6,7 @@
 
 :boom: :boom: :boom: 2021.08.31 源代码正式开放
 
-[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/private-deployment-web.svg)](https://github.com/mingdaocom/private-deployment-web/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/private-deployment-web)](https://github.com/mingdaocom/private-deployment-web/issues) [![star](https://img.shields.io/github/stars/mingdaocom/private-deployment-web)](https://github.com/mingdaocom/private-deployment-web/stargazers)
+[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/private-deployment-openweb.svg)](https://github.com/mingdaocom/private-deployment-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/private-deployment-openweb)](https://github.com/mingdaocom/private-deployment-openweb/issues) 
 
 [![Stargazers over time](https://starchart.cc/mingdaocom/private-deployment.svg)](https://starchart.cc/mingdaocom/private-deployment-openweb)
 
