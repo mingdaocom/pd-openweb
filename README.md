@@ -8,7 +8,7 @@
 
 [![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/private-deployment-openweb.svg)](https://github.com/mingdaocom/private-deployment-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/private-deployment-openweb)](https://github.com/mingdaocom/private-deployment-openweb/issues) 
 
-[![Stargazers over time](https://starchart.cc/mingdaocom/private-deployment.svg)](https://starchart.cc/mingdaocom/private-deployment-openweb)
+[![Stargazers over time](https://starchart.cc/mingdaocom/private-deployment-openweb.svg)](https://starchart.cc/mingdaocom/private-deployment-openweb)
 
 ## 开发
 
