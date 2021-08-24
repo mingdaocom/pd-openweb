@@ -6,15 +6,15 @@
 
 :boom: :boom: :boom: **2021.08.31 源代码正式开放**
 
-[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/private-deployment-openweb.svg)](https://github.com/mingdaocom/private-deployment-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/private-deployment-openweb)](https://github.com/mingdaocom/private-deployment-openweb/issues) 
+[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) 
 
-[![Stargazers over time](https://starchart.cc/mingdaocom/private-deployment-openweb.svg)](https://starchart.cc/mingdaocom/private-deployment-openweb)
+[![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
 
 ## 开发
 
 环境要求：开发机器内存需要大于 8G，依赖 Node.js 环境（12.18.3+）。
 
-注意事项：**使用的源代码版本需要与私有部署版本保持一致（依赖服务端 API），否则接口可能出现不兼容的情况；另外一旦选择二次开发，就可能存在无法平滑升级到未来新版本的风险。**
+注意事项：**使用的源代码版本需要与部署的私有部署版本保持一致（依赖服务端 API，部署私有版可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html) ），否则接口可能出现不兼容的情况；另外一旦选择二次开发，就可能存在无法平滑升级到未来新版本的风险。**
 
 ---
 
@@ -22,7 +22,7 @@
 
 1. 克隆项目到本地  
    ```
-   git clone git@github.com:mingdaocom/private-deployment-openweb.git
+   git clone git@github.com:mingdaocom/pd-openweb.git
    ```
 
 1. 安装依赖包，执行 `npm install` 或 `yarn`
@@ -33,7 +33,7 @@
    "start": "cross-env API_SERVER=http://172.17.30.60:8880/wwwapi/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main"
    ```
 
-您需要将 `API_SERVER` 参数值修改为自己部署的明道云私有版对应的 API 地址。开发时构建工具会将 API 请求代理到配置的 `API_SERVER` 地址，替换完成后执行 `npm start`，项目构建完成后会自动打开页面。
+您需要将 `API_SERVER` 参数值修改为自己部署的明道云私有版对应的 API 地址（格式为： `${系统访问地址}/wwwapi`）。开发时构建工具会将 API 请求代理到配置的 `API_SERVER` 地址，替换完成后执行 `npm start`，项目构建完成后会自动打开页面。
 
 ## 发布
 
