@@ -1,20 +1,19 @@
-# 明道云私有部署版 - Web 端
+﻿# 明道云私有部署版 - Web 端
 
-<img src="https://user-images.githubusercontent.com/7261408/82203093-67ae1600-9935-11ea-8cd9-89b61b47b38f.png" alt="logo" height="100px" align="right" />
+<img src="https://user-images.githubusercontent.com/7261408/82203093-67ae1600-9935-11ea-8cd9-89b61b47b38f.png" alt="logo" height="80px" align="right" />
 
 彻底开放前端个性化能力，打造专属的视觉效果与定制化功能。
 
 [![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) 
 
+**使用的源代码版本需要与部署的私有部署版本保持一致（部署私有版可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html)，v2.8.0+），否则接口可能出现不兼容的情况；另外一旦选择二次开发，就可能存在无法平滑升级到未来新版本的风险。**
+
+
 [![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
 
 ## 开发
 
-环境要求：开发机器内存需要大于 8G，依赖 Node.js 环境（12.18.3+）。
-
-注意事项：**使用的源代码版本需要与部署的私有部署版本保持一致（依赖服务端 API，部署私有版可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html) ），否则接口可能出现不兼容的情况；另外一旦选择二次开发，就可能存在无法平滑升级到未来新版本的风险。**
-
----
+**环境要求：开发机器内存需要大于 8G，依赖 Node.js 环境（12.18.3+）**
 
 本项目仅包含前端部分，与后端完全通过 API 通信，运行前需确保好后端服务正常。
 
