@@ -9,7 +9,7 @@
 **注意：** 使用的源代码版本需要与部署的明道云版本保持一致（部署可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html)，v2.8.0+），否则接口可能出现不兼容的情况；另外一旦选择二次开发，服务端版本升级后，Web 端需要同步合并匹配的源码版本来实现整体升级。
 
 
-[![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg?v=1)](https://starchart.cc/mingdaocom/pd-openweb)
+[![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
 
 ## 开发
 
