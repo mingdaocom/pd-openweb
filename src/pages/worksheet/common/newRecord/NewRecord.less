@@ -1,0 +1,99 @@
+.workSheetNewRecord {
+  .customFieldsCon {
+    position: relative;
+  }
+  .newRecordLinkIcon {
+    cursor: pointer;
+    font-size: 22px;
+    margin-left: 4px;
+    color: #bdbdbd;
+  }
+  .mui-dialog-header {
+    padding: 10px !important;
+  }
+  .mui-dialog-body {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+  .mui-dialog-body > .mui-formcontainer {
+    margin-top: 32px;
+  }
+  .footerBox {
+    .loadingMask {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 2;
+      > div {
+        position: relative;
+        top: 50%;
+        margin-top: -22px;
+      }
+    }
+    .saveAndContinueBtn {
+      color: #757575;
+      background: #fff;
+      border: 1px solid #bdbdbd;
+      line-height: 34px;
+      &:hover {
+        color: #2196f3;
+        border-color: #2196f3;
+      }
+    }
+
+    .continue {
+      line-height: 36px;
+    }
+  }
+}
+
+.newRecordLink .publishSwitch {
+  width: 35px;
+  height: 18px;
+  .dot {
+    width: 14px;
+    height: 14px;
+  }
+  &.Switch--on {
+    background-color: #4caf50;
+    .dot {
+      left: 18px;
+    }
+  }
+}
+
+.mobileNewRecordDialog {
+  height: 95%;
+  overflow: hidden;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+
+  .btnsWrapper {
+    height: 50px;
+    border-top: 1px solid #ccc;
+    background-color: #fff;
+    padding: 0 10px;
+    box-sizing: border-box;
+
+    .flexRow {
+      justify-content: flex-end;
+    }
+    .am-button {
+      height: 36px;
+      line-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .am-button,
+    .am-button::before,
+    .am-button-active::before {
+      font-size: 15px;
+      border-radius: 50px;
+    }
+  }
+}

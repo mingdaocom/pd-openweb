@@ -1,0 +1,25 @@
+.mui-timemenu-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+
+  li {
+    font-size: 13px;
+    line-height: 20px;
+    padding: 0 6px;
+    text-align: center;
+    cursor: pointer;
+    &:hover {
+      background-color: #eee;
+    }
+    &.current {
+      color: #fff;
+    }
+    &.disabled {
+      background-color: #f5f5f5;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+  }
+}

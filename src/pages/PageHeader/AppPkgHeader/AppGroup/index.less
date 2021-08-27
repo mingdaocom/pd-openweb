@@ -1,0 +1,38 @@
+@delColor: #f44336;
+.delAppItemDialog {
+  .mui-dialog-default-title {
+    color: @delColor !important;
+  }
+  .btnBox {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    button {
+      width: 90px;
+      line-height: 36px;
+      padding: 0;
+      text-align: center;
+      background-color: #fff;
+      border-radius: 4px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+    .btnCancel {
+      background-color: transparent;
+      &:hover {
+        color: #2196f3;
+      }
+    }
+    .btnOk {
+      color: #fff;
+      background-color: #bdbdbd;
+    }
+    .btnDel {
+      background-color: @delColor;
+      &:hover {
+        background-color: darken(@delColor, 10%);
+      }
+    }
+  }
+}

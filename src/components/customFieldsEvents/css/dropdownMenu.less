@@ -1,0 +1,126 @@
+.customContentBox .dropdownMenu {
+  display: block;
+  list-style-type: none;
+  padding: 6px 0;
+  margin: 0;
+  width: 220px;
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+  user-select: none;
+
+  .scroll {
+    max-height: 256px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  li {
+    padding: 6px 15px;
+    font-size: 13px;
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+    cursor: pointer;
+    box-sizing: initial;
+    &:not(:hover) {
+      background-color: #fff !important;
+    }
+
+    span {
+      display: block;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      float: left;
+    }
+
+    i.icon {
+      font-size: 20px;
+      line-height: 20px;
+      vertical-align: middle;
+      color: rgba(0, 0, 0, 0.5);
+      float: right;
+    }
+
+    &:hover {
+      background-color: #0094f2;
+      color: #fff;
+
+      i.icon {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    &.divider {
+      height: 13px;
+      padding: 0;
+      position: relative;
+      cursor: default;
+      &:after {
+        content: '';
+        display: block;
+        height: 1px;
+        width: 100%;
+        background-color: #ddd;
+        position: absolute;
+        left: 0;
+        top: 6px;
+      }
+      &:hover,
+      &.active {
+        background-color: transparent;
+        color: transparent;
+      }
+    }
+    &.dropdownHeader {
+      color: #999;
+      cursor: default;
+      &:hover,
+      &.active {
+        background-color: transparent;
+        color: #999;
+      }
+    }
+    &.dropdownNav {
+      color: #757575;
+      cursor: default;
+      padding: 4px 15px;
+
+      i.icon {
+        float: none;
+      }
+
+      &.back {
+        cursor: pointer;
+        i.icon {
+          float: left;
+        }
+      }
+
+      &:hover,
+      &.active {
+        background-color: transparent;
+        color: #757575;
+
+        i.icon {
+          color: #757575;
+        }
+      }
+    }
+    &.disabled {
+      background-color: #f1f1f1;
+      color: #999;
+      cursor: not-allowed;
+      &:hover,
+      &.active {
+        background-color: #f1f1f1;
+        color: #999;
+      }
+    }
+  }
+}

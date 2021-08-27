@@ -1,0 +1,16 @@
+﻿{{? it.isLoading}}
+    <p class="listTip">加载中...</p>
+{{?? it.list.length === 0}}
+    <p class="listTip">无搜索结果</p>
+{{??}}
+    {{~it.list :item:index}}
+        <div class="ThemeBGColor3">
+            <div class="listItem" data-key="{{! index.toString()}}">
+                {{? item.headUrl}}
+                    <img src="{{! item.headUrl}}" alt="">
+                {{?}}
+                <span class="itemName ellipsis">{{! item.value}}</span>
+            </div>
+        </div>
+    {{~}}
+{{?}}

@@ -1,0 +1,27 @@
+.ming.Menu {
+  position: absolute;
+  width: 180px;
+  padding: 5px 0;
+  border-radius: 3px;
+  background: white;
+  z-index: 11;
+  box-shadow: @shadow2;
+
+  &-hidden {
+    display: none;
+  }
+}
+
+.MenuBox {
+  background: white;
+  box-shadow: @shadow2;
+  padding: 5px 0;
+  border-radius: 3px;
+  z-index: 11;
+  width: 100%;
+  .ming.Menu {
+    position: relative;
+    box-shadow: none;
+    padding: 0;
+  }
+}

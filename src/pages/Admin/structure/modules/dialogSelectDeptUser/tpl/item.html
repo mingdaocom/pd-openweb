@@ -1,0 +1,23 @@
+﻿{{? it.list && it.list.length }}
+{{? it.isFirst }}
+<div class="nano h100">
+    <ul class="nano-content">
+{{?}}
+        {{~it.list:user}}
+        <li class="userItem">
+            <label>
+                {{var checked = user.accountId && it.selectedUsers.indexOf(user.accountId) > -1;}}
+                <input type="checkbox" class="userCheckbox" data-accountid="{{= user.accountId}}" {{= checked ? 'checked' : ''}}>
+                <img class="circle userAvatar InlineBlock" src="{{= user.avatar}}" alt="{{!user.fullname || ''}}">
+                <span class="userName overflow_ellipsis">{{!user.fullname || ''}}</span>
+                <span class="profession overflow_ellipsis">{{!user.job || ''}}</span>
+            </label>
+        </li>
+        {{~}}
+{{? it.isFirst }}
+    </ul>
+</div>
+{{?}}
+{{?? it.isFirst }}
+<div class="TxtCenter">{{=_l('暂无数据')}}</div>
+{{?}}

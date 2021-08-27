@@ -1,0 +1,23 @@
+@import "./input.less";
+
+.mui-time {
+  position: relative;
+
+  .mui-timemenu {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    visibility: hidden;
+    &.show {
+      visibility: visible;
+    }
+  }
+  &.right-edge .mui-timemenu {
+    left: auto;
+    right: 0;
+  }
+  &.bottom-edge .mui-timemenu {
+    top: auto;
+    bottom: 100%;
+  }
+}

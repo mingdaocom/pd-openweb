@@ -1,0 +1,113 @@
+.animation {
+  transition: all 0.25s;
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.bgDarken {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.flexCenterHeight {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.commonUserHandleWrap {
+  .flexCenterHeight;
+  position: relative;
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.1);
+  .appPkgHeaderSearch {
+    // .animation;
+    z-index: 16;
+    cursor: pointer;
+  }
+  input.globalSearch {
+    box-sizing: border-box;
+    height: 36px;
+    padding: 0px 28px;
+    border-radius: 36px;
+    border: 1px #ddd solid;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.03);
+    &:hover,
+    &:focus {
+      background-color: rgba(0, 0, 0, 0.05);
+      .searchIcon {
+        color: #bdbdbd;
+      }
+    }
+    &::-webkit-input-placeholder {
+      font-size: 12px;
+      color: #9e9e9e;
+    }
+    &::-moz-placeholder {
+      font-size: 12px;
+      color: #9e9e9e;
+    }
+    &::-moz-placeholder {
+      font-size: 12px;
+      color: #9e9e9e;
+    }
+    &::-ms-input-placeholder {
+      font-size: 12px;
+      color: #9e9e9e;
+    }
+  }
+  form.nativeHeaderForm {
+    position: relative;
+    height: auto !important;
+    .searchIcon {
+      top: 8px;
+    }
+  }
+  .searchIcon {
+    position: absolute;
+    margin-left: 7px;
+    color: #9e9e9e;
+  }
+
+  .workflowHelpIconWrap {
+    // .animation;
+    margin: 0 20px;
+    .icon {
+      color: rgba(0, 0, 0, 0.6);
+    }
+    &:hover {
+      .icon {
+        color: rgba(0, 0, 0, 0.7);
+      }
+    }
+  }
+  .addOperationIconWrap {
+    // .animation;
+    .icon {
+      color: #1e88e5;
+    }
+    &:hover {
+      .icon {
+        color: darken(#1e88e5, 10%);
+      }
+    }
+  }
+}
+.pageHeadUser {
+  padding: 0 !important;
+  &.commonHeaderUser {
+    .Tooltip-arrow {
+      left: initial;
+      right: 16px !important;
+    }
+  }
+}

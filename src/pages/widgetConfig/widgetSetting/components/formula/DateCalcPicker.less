@@ -1,0 +1,101 @@
+.columnSelectDropdown {
+  position: relative;
+  box-sizing: border-box;
+  height: 36px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  .mui-datetime-base {
+    width: 240px;
+    height: 34px;
+    display: inline-block;
+  }
+  .selectedDate {
+    padding: 0 12px;
+    height: 34px;
+    line-height: 34px;
+    font-size: 13px;
+  }
+  .remove {
+    line-height: 34px;
+    margin-right: 8px;
+    font-size: 20px;
+    color: #bdbdbd;
+    &:hover {
+      color: #9e9e9e;
+    }
+  }
+  .rightIcon {
+    background-color: #F5F5F5;
+    border-left: 1px solid #ddd;
+    font-size: 20px;
+    color: #757575;
+    height: 34px;
+    line-height: 33px;
+    padding: 0 7px;
+  }
+  .controlItem {
+    box-sizing: border-box;
+    display: inline-block;
+    margin: 5px 6px;
+    font-size: 12px;
+    height: 24px;
+    line-height: 22px;
+    border: 1px solid #2196F3;
+    border-radius: 12px;
+    overflow: hidden;
+    .controlIcon {
+      display: none;
+    }
+    .controlName {
+      display: inline-block;
+      max-width: 80px;
+      padding: 0 10px;
+      color: #2196F3;
+      background-color: #f2f9ff;
+    }
+    .controlValue {
+      display: inline-block;
+      max-width: 115px;
+      padding: 0 10px;
+      color: #fff;
+      background-color: #2196F3;
+    }
+    &.error {
+      border-color: #F44336;
+      background-color: rgba(244, 67, 54, 0.06);
+      color: #F44336;
+      padding: 0 10px;
+    }
+  }
+  .empty {
+    font-size: 13px;
+    color: #BDBDBD;
+    padding-left: 15px;
+    margin: 7px 0;
+  }
+}
+
+.dateCalcDropdown {
+  li.Item .Item-content:hover {
+    .controlItem {
+      .controlIcon, .controlValue {
+        color: #fff;
+      }
+    }
+  }
+  .controlItem {
+    font-size: 14px;
+    .controlIcon {
+      font-size: 16px;
+      color: #9e9e9e;
+      margin-right: 12px;
+    }
+    .controlName {
+      margin-right: 12px;
+    }
+    .controlValue {
+      color: #9e9e9e;
+    }
+  }
+}

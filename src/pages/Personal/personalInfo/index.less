@@ -1,0 +1,203 @@
+.personalInfoContainer {
+  flex: 1;
+  min-height: 0;
+  margin: 16px;
+  padding: 40px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  overflow-x: hidden;
+  border-radius: 4px;
+  .moreBadges {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    text-align: center;
+  }
+  .myAcquireBadges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .myAcquireBadges .badgeItem {
+    // float: left;
+    position: relative;
+    width: 40px;
+    text-align: left;
+    margin-right: 10px;
+    margin-top: 10px;
+  }
+  .myBadgeCount {
+    position: absolute;
+    top: 18px;
+    left: 22px;
+    border: 1px #f5f5f5 solid;
+    background-color: #ffffff;
+    color: #9e9e9e;
+    -moz-border-radius: 4px 4px 4px 4px;
+    -webkit-border-radius: 4px 4px 4px 4px;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
+    -webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
+    -moz-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
+  }
+  .myBadgeCount span {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  .personalTop {
+    padding-bottom: 40px;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    .accountHeadBox,
+    .personalEmblem {
+      flex: 1;
+      min-width: 0;
+    }
+    .editfullNameInput {
+      width: 100%;
+      border: 1px solid #2999F3;
+      border-radius: 3px;
+      height: 32px;
+      line-height: 30px;
+      padding: 6px 12px;
+      box-sizing: border-box;
+    }
+    .accountHeadBox {
+      display: flex;
+      align-items: center;
+      margin-right: 30px;
+    }
+    .userImage {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+      .hoverAvatar {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.4);
+        text-align: center;
+        line-height: 85px;
+        color: #ffffff;
+        z-index: 2;
+      }
+      &:hover {
+        .hoverAvatar {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .passwordProgress {
+    max-width: 223px;
+  }
+
+  .eduOrWorkItemBox {
+    width: 60%;
+    border-radius: 3px;
+    padding: 20px;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    cursor: pointer;
+    .itemOption {
+      display: none;
+    }
+    &:hover {
+      box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16);
+      .itemDate {
+        display: none;
+      }
+      .itemOption {
+        display: block;
+      }
+    }
+    .itemHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .itemName {
+        width: 60%;
+      }
+      .itemDate,
+      .itemOption {
+        width: 40%;
+        padding-left: 16px;
+        box-sizing: border-box;
+        text-align: right;
+      }
+    }
+    .flexWrap {
+      display: flex;
+      word-break: break-all;
+      margin-top: 6px;
+    }
+  }
+
+  .detailContainer,
+  .infoContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 0;
+    .itemLabel {
+      width: 80px;
+      text-align: left;
+      display: inline-block;
+    }
+    .freeTag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background-color: rgba(71, 177, 75, 0.08);
+      color: #47b14b;
+      font-weight: bold;
+    }
+    .accountTag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background-color: rgba(255, 154, 0, 0.08);
+      color: #ff9a00;
+      font-weight: bold;
+    }
+    .flexCenter {
+      display: flex;
+      align-items: center;
+    }
+  }
+  .infoContainer {
+    width: 60%;
+  }
+  .detailContainer {
+    width: 40%;
+  }
+}
+.optionListBadges {
+  width: 164px;
+  padding: 6px 0;
+  border-radius: 3px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+  background-color: #fff;
+  .optionListItem {
+    padding-left: 24px;
+    line-height: 36px;
+    cursor: pointer;
+    &:hover {
+      background-color: #2196f3;
+      color: #fff;
+    }
+  }
+}

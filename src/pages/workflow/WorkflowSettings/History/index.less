@@ -1,0 +1,339 @@
+@pendingColor: #2196f3;
+@failColor: #f44336;
+@suspendColor: #ffa340;
+@completedColor: #01ca83;
+@pendingBgColor: #e7f3fd;
+@failBgColor: #fdebe9;
+@suspendBgColor: #fff5eb;
+@completedBgColor: #e5f9f1;
+
+.workflowHistoryWrap {
+  margin-top: 20px;
+  .lastPublishInfo {
+    width: 960px;
+    display: flex;
+    margin: 10px auto 20px;
+    color: #757575;
+    font-size: 14px;
+    .restoreWrap {
+      margin-left: 15px;
+      border-bottom: 1px dashed #757575;
+      cursor: pointer;
+    }
+  }
+  .workflowHistoryContentWrap {
+    max-width: 960px;
+    margin: 0 auto 20px;
+    box-sizing: border-box;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    .historyHeader {
+      display: flex;
+      align-items: center;
+      padding: 24px;
+      .historyHeaderStatusDropdown {
+        display: flex;
+        height: 36px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        padding: 0 5px;
+        width: 112px;
+        margin-right: 10px;
+        .arrow {
+          margin-left: 15px;
+        }
+      }
+      .filterTimeRange {
+        width: 280px;
+        height: 36px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 170px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        .placeholder {
+          color: #bdbdbd;
+        }
+      }
+    }
+    .historyList {
+      padding: 0 24px;
+      &.littleData {
+        li:last-child {
+          border-bottom: none;
+        }
+      }
+      .triggerData {
+        margin-right: 24px;
+      }
+      .noMoreDataText {
+        padding: 15px 0;
+        text-align: center;
+      }
+    }
+    .clearFilter {
+      margin-left: 24px;
+      cursor: pointer;
+    }
+    .emptyListWrap {
+      padding: 100px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .imgWrap {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: url("./emptyList.png") no-repeat center center;
+        background-size: cover;
+      }
+      .text {
+        margin-top: 24px;
+      }
+    }
+    .moreDataWrap {
+      padding: 20px 0;
+    }
+    .moreData {
+      box-sizing: border-box;
+      width: 98px;
+      line-height: 38px;
+      margin: 0 auto;
+      color: #2196f3;
+      background-color: #fff;
+      border: 1px solid #2196f3;
+      border-radius: 3px;
+      text-align: center;
+      cursor: pointer;
+      &:hover {
+        background-color: #2196f3;
+        color: #fff;
+      }
+    }
+    ul.historyListTitle {
+      display: flex;
+      padding: 8px 24px;
+      border-bottom: 1px solid #ddd;
+      .status,
+      .time {
+        min-width: 160px;
+      }
+      .triggerData {
+        margin-right: 24px;
+      }
+    }
+    li.historyListItem {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 0;
+      cursor: pointer;
+      .status,
+      .triggerTime {
+        min-width: 160px;
+      }
+    }
+
+    .historyStatus {
+      display: flex;
+      align-items: center;
+      .statusText {
+        font-weight: 600;
+      }
+      .historyStatusIcon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-right: 10px;
+        .icon {
+          color: #fff;
+        }
+
+        .statusIcon-pending {
+          margin-left: 10px;
+          width: 0;
+          height: 0;
+          border: 1px solid transparent;
+          border-width: 8px 10px;
+          border-left-color: #fff;
+        }
+        .statusIcon-completed {
+          width: 4px;
+          height: 12px;
+          border: 2px solid #fff;
+          border-top-color: transparent;
+          border-left-color: transparent;
+        }
+        &.pending {
+          background-color: @pendingColor;
+        }
+        &.fail {
+          background-color: @failColor;
+        }
+        &.suspend,
+        &.overrule,
+        &.filter {
+          background-color: @suspendColor;
+          .icon {
+            margin-right: 4px;
+          }
+        }
+        &.completed {
+          background-color: @completedColor;
+        }
+      }
+    }
+    .historyDetailWrap {
+      .header {
+        padding: 0 24px;
+        line-height: 60px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        .backText {
+          margin-left: 10px;
+        }
+      }
+      .detailContent {
+        padding: 24px;
+        .itemInfo {
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          height: 90px;
+          border-radius: 6px;
+          .title {
+            margin-left: 40px;
+            font-weight: 550;
+          }
+        }
+        .logWrap {
+          .logTitle {
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+            font-weight: 550;
+          }
+          .logList {
+            li {
+              display: flex;
+              align-items: center;
+              padding: 20px 0;
+              border-bottom: 1px solid #ddd;
+              &:last-child {
+                border: none;
+              }
+              .placeholder {
+                width: 160px;
+              }
+              .operationTime {
+                min-width: 160px;
+                .leaveTime {
+                  margin-top: 12px;
+                }
+              }
+              .flowItemHistory {
+                min-width: 120px;
+              }
+              .operationPerson {
+                flex: 3;
+                .info {
+                  margin-top: 12px;
+                }
+              }
+              .overrule,
+              .filter {
+                color: @suspendColor;
+              }
+              .fail {
+                color: @failColor;
+              }
+
+              .originNode {
+                display: flex;
+                align-items: center;
+                flex: 2;
+                min-width: 0;
+                .nodeName {
+                  margin-left: 12px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .workflowNodeIconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    min-width: 22px;
+  }
+  .instanceContent {
+    padding: 22px 24px 0;
+    margin-bottom: -10px;
+    .instanceContentBox {
+      background:#f5f5f5;
+      border-radius: 3px;
+      padding: 0 12px;
+      align-items: center;
+      height: 44px;
+    }
+  }
+}
+
+.historyBox {
+  width: 480px;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  padding: 12px 0;
+  min-height: 140px;
+  max-height: 500px;
+  position: absolute;
+  z-index: 1;
+  margin-top: 5px;
+  left: 50%;
+  margin-left: -240px;
+  .historyReleaseItem {
+    height: 40px;
+    align-items: center;
+    padding: 0 29px 0 12px;
+    margin: 0 12px;
+    color: #333;
+    &:hover {
+      .icon-restore2 {
+        visibility: visible;
+      }
+    }
+    &:not(.noBG):hover {
+      background: #f2f2f2;
+      .w250 {
+        color: #2196f3;
+      }
+    }
+    .icon-restore2 {
+      visibility: hidden;
+    }
+    .w250 {
+      width: 250px;
+    }
+    .flexRow {
+      align-items: center;
+    }
+    .historyReleaseItemActive {
+      font-size: 12px;
+      color: #2196f3;
+      padding: 4px 8px;
+      margin-left: 10px;
+      border-radius: 9px;
+      background: rgba(33, 150, 243, 0.12);
+    }
+  }
+}

@@ -1,0 +1,122 @@
+@prefixClass: Calendar;
+@input-box-height: 35px;
+@datepicker-border: 1px solid @grayLighter;
+
+.@{prefixClass}-picker-input-separator {
+  display: inline-block;
+  margin: 0 6px;
+}
+
+.@{prefixClass}-range.@{prefixClass}-waingAble {
+  .@{prefixClass}-error-end-day.@{prefixClass}-selected-day {
+    .@{prefixClass}-date {
+      background-color: @dangerColor;
+    }
+  }
+  .@{prefixClass}-timepicker-btn.warning .TimePicker-input {
+    border-color: @dangerColor;
+  }
+}
+
+.@{prefixClass}-range {
+  width: 494px;
+
+  .@{prefixClass}-selected-day .@{prefixClass}-date {
+    color: #fff !important;
+    background-color: @themeColor3;
+  }
+
+  .@{prefixClass}-cell {
+    position: relative;
+  }
+  .@{prefixClass}-cell-bg {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 2px;
+    right: 0;
+    bottom: 2px;
+  }
+
+  .@{prefixClass}-cell:first-child,
+  .@{prefixClass}-start-of-month,
+  .@{prefixClass}-selected-start-day {
+    .@{prefixClass}-cell-bg {
+      left: 4px;
+      border-bottom-left-radius: 12px;
+      border-top-left-radius: 12px;
+    }
+  }
+
+  .@{prefixClass}-cell:last-child,
+  .@{prefixClass}-end-of-month,
+  .@{prefixClass}-selected-end-day {
+    .@{prefixClass}-cell-bg {
+      right: 4px;
+      border-bottom-right-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+  }
+
+  &-footer {
+    position: relative;
+    &-basic {
+      padding: 8px 15px;
+      text-align: right;
+    }
+    &-divide {
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      left: 246px;
+      margin-left: -1px;
+      background-color: @grayLighter;
+      position: absolute;
+    }
+    &-timepicker {
+      display: flex;
+      text-align: left;
+      .@{prefixClass}-timepicker-title {
+        margin-left: 15px;
+      }
+      &-left {
+        flex: 1;
+        display: inline-block;
+        .ming-Calendar-timepicker {
+          padding-left: 15px;
+        }
+      }
+
+      &-right {
+        flex: 1;
+        display: inline-block;
+      }
+    }
+  }
+
+  &-part {
+    width: 246px;
+    position: relative;
+    border-right: @datepicker-border;
+  }
+
+  &-left {
+    float: left;
+  }
+
+  &-right {
+    float: right;
+  }
+
+  .@{prefixClass}-date-panel::after {
+    content: '.';
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+
+  .@{prefixClass}-in-range-cell.@{prefixClass}-disabled-cell {
+    background-color: #fff;
+  }
+}

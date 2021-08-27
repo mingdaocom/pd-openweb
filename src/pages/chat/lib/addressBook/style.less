@@ -1,0 +1,369 @@
+.contacts-dialog-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 18px;
+  z-index: 1;
+}
+
+.contacts-dialog {
+  overflow: hidden;
+  height: 570px;
+  display: flex;
+  flex-flow: row nowrap;
+  .contacts-sidebar {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 200px;
+    flex: 0 0 auto;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-flow: column nowrap;
+    .invite-btn {
+      // override ming.Button
+      padding: 0;
+      min-height: 32px;
+      font-size: 13px;
+      line-height: 32px;
+      min-height: 32px;
+      text-align: center;
+    }
+    .invite-dropdown {
+      .icon {
+        color: #999;
+      }
+    }
+    .contacts-tabs {
+      height: 100%;
+      flex: 1 1 auto;
+      box-sizing: border-box;
+      position: relative;
+      .dividor {
+        margin: 6px 0 6px 24px;
+        border-top: 1px solid #ddd;
+      }
+    }
+    .inbox-apps {
+      position: absolute;
+      bottom: 5px;
+      width: 100%;
+    }
+    .list-header,
+    .list-item {
+      &:not(.list-item-active):hover {
+        background: #fafafa;
+      }
+      padding: 0 24px;
+      font-size: 13px;
+      line-height: 40px;
+      height: 40px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .list-arrow {
+      font-size: 12px;
+      margin-left: -17px;
+      margin-right: 3px;
+    }
+    .list-item {
+      &-active {
+        background-color: #e0e0e0;
+      }
+      .item-tip {
+        &:after {
+          white-space: pre-wrap !important;
+          width: 100px !important;
+        }
+        color: rgba(0, 0, 0, 0.2);
+        &:hover {
+          color: rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+  .contacts-list {
+    min-width: 230px;
+    max-width: 230px;
+    box-sizing: border-box;
+    display: flex;
+    flex-flow: column nowrap;
+    border-right: 1px solid #f5f5f5;
+    .contacts-search {
+      padding-top: 16px;
+      padding-bottom: 5px;
+      display: flex;
+      align-items: center;
+      padding-left: 14px;
+      &-wrapper {
+        padding: 6px 5px 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 17px;
+        flex: 1 0 0%;
+        display: flex;
+      }
+      &-input {
+        border: none;
+        outline: none;
+        flex: 1 0 0px;
+        width: 0px;
+      }
+      &-addbtn {
+        flex: 0 0 auto;
+      }
+    }
+    &-content {
+      flex: 1 0 0px;
+      height: 100%;
+      position: relative;
+      .list-packet {
+        padding: 10px 14px 4px;
+        &-name {
+          max-width: 150px;
+        }
+        &.fixed {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: #fff;
+          border-bottom: 1px solid #ddd;
+          z-index: 1;
+        }
+      }
+      .list-item {
+        &:hover {
+          background: #fafafa;
+        }
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        line-height: 44px;
+        height: 44px;
+        padding: 0 14px;
+        &-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+        }
+        &-name {
+          flex: 1 0 0%;
+          padding-left: 10px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      }
+      .list-item.disabled {
+        &-name {
+          flex: 0 0 auto;
+        }
+        .group-tip {
+          flex: 1 0 auto;
+        }
+      }
+    }
+  }
+  .contacts-detail {
+    position: relative;
+    flex: 1 0 0%;
+    .border-top {
+      border-top: 1px solid #f5f5f5;
+    }
+    .border-bottom {
+      border-bottom: 1px solid #f5f5f5;
+    }
+    &-wrapper {
+      padding: 24px;
+    }
+    .detail-header {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      &-avatar {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        align-self: flex-start;
+        &.disabled {
+          opacity: 0.5;
+        }
+      }
+      &-info {
+        flex: 1 0 0%;
+        padding-left: 14px;
+        .user-info {
+          max-width: 280px;
+        }
+      }
+    }
+    .detail-btns {
+      .detail-btn {
+        font-size: 12px;
+        padding: 7px 20px;
+        border-radius: 18px;
+        display: inline-block;
+        background: #f0f0f0;
+        color: #fff;
+        &:hover {
+          background: #e3e3e3;
+        }
+      }
+    }
+    .detail-info-row {
+      margin: 8px 0;
+    }
+    .detail-card {
+      display: flex;
+      flex-flow: row wrap;
+      padding: 7px 0;
+      .detail-info-row {
+        flex: 0 0 100%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .detail-info-row.half {
+        flex: 0 0 50%;
+      }
+    }
+    .detail-tabs {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      border-bottom: 1px solid #f5f5f5;
+      .detail-tab {
+        flex: 1 0 33%;
+        max-width: 33%;
+        box-sizing: border-box;
+        margin-bottom: -1px;
+        border-bottom: 2px solid transparent;
+      }
+      .detail-tab-border {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 5px;
+        border-bottom: 2px solid transparent;
+      }
+    }
+    .detail-null {
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      align-items: center;
+      .detail-null-icon {
+        font-size: 128px;
+        color: #e0e0e0;
+      }
+      .icon-chat-person {
+        font-size: 100px;
+        margin-bottom: 4px;
+      }
+    }
+  }
+  .contacts-add-friend {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    &-icon {
+      font-size: 60px;
+      color: #f78c00;
+      margin-bottom: 20px;
+    }
+  }
+  .contacts-new-friends {
+    flex: 1 0 0%;
+    position: relative;
+    .chooseInvite {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      width: 450px;
+      padding-top: 0;
+    }
+    .list-header {
+      font-size: 15px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .list-content {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      text-align: Left;
+      .userItem {
+        padding: 8px 0;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        .avatar {
+          width: 30px;
+          height: 30px;
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+  .contacts-apps {
+    flex: 1 0 0%;
+    padding: 10px 0;
+    &-item {
+      &:hover {
+        background-color: #fafafa;
+      }
+      padding-left: 16px;
+      height: 50px;
+      line-height: 50px;
+      cursor: pointer;
+      > span {
+        vertical-align: middle;
+      }
+    }
+    &-icon {
+      width: 36px;
+      height: 36px;
+      margin-right: 16px;
+      display: inline-block;
+    }
+  }
+  .list-null {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    color: #757575;
+    &-icon {
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      &.newfriends {
+        background: no-repeat url("./images/no_newfriends.png") center center;
+        background-size: 120px;
+      }
+      &.search {
+        background: no-repeat url("./images/no_search_result.png") center center;
+        width: 60px;
+        height: 60px;
+        border-radius: 0;
+        padding-bottom: 10px;
+      }
+    }
+  }
+  .nano {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+  }
+}

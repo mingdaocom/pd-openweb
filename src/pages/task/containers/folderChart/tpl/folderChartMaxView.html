@@ -1,0 +1,36 @@
+﻿{{var maxH = '';}}
+{{var isScroll = it.type === 2 && it.listSize > 16;}}
+{{?isScroll}}
+    {{maxH = 'style="height:' + it.listSize * 30 + 'px;margin-top: 0;"';}}
+{{?}}
+<div class="folderChartBox">
+    <div class="folderChartBoxModel flexRow">
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                <span class="overflow_ellipsis">{{=it.title}}</span><span data-tip="{{=it.tipTitle}}"><i class="icon-task-folder-message"></i></span>
+            </div>
+            {{?it.type === 1 || it.type === 4}}
+            <ul class="folderChartTime" id="maxViewUpdateTime">
+                <span class="folderChartTimeTxt">{{=it.activeTime}}</span>
+                <li class="{{=it.activeBtn === 0 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}" data-type='6'>7{{= _l('天')}}</li>
+                <li class="{{=it.activeBtn === 1 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}" data-type='13'>14{{= _l('天')}}</li>
+                <li class="{{=it.activeBtn === 2 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}" data-type='29'>30{{= _l('天')}}</li>
+                <li class="{{=it.activeBtn === 3 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}" data-type='custom'>{{= _l('自定义')}}</li>
+            </ul>
+            {{?}}
+            {{?it.type === 2}}
+            <div class="folderChartChargeBox">
+                <i class="{{=it.sort === 'desc' ? 'icon-descending-order' : 'icon-ascending-order'}} folderChartChargeSort"></i>
+                <span class="folderChartChargeBtn"><span class="folderChartChargeTxt">{{=it.isAuto ? _l('所有负责人') : _l('已选择%0人', it.chargeAccountIDs.length)}}</span><i class="icon-arrow-down-border"></i></span>
+            </div>
+            {{?}}
+            {{?isScroll}}
+            <div class="folderChartMaxHeight">
+            {{?}}
+            <div class="folderChartModel {{=it.type === 3 ? 'folderChartUpdateHeight' : ''}}" id="folderChartsMax" {{=maxH !== '' ? maxH : ''}}>{{=LoadDiv()}}</div>
+            {{?isScroll}}
+            </div>
+            {{?}}
+        </div>
+    </div>
+</div>

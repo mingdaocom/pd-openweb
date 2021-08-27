@@ -1,0 +1,623 @@
+.createCalendar_container {
+  .header {
+    margin-left: 26px;
+  }
+  .dialogContent {
+    padding: 0 !important;
+  }
+  .createCalendarBox {
+    position: relative;
+    padding: 0 82px 0 116px;
+  }
+  .inputBox {
+    padding-right: 26px;
+  }
+  .createCalendarLabel {
+    color: #9e9e9e;
+    font-size: 14px;
+    text-align: right;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 96px;
+    height: 20px;
+    line-height: 20px;
+  }
+  .repeatDialogMain .createCalendarLabel {
+    width: 76px;
+  }
+  #txtCalendarName {
+    height: 38px;
+    width: 100%;
+    padding: 8px;
+    border-width: 1px;
+    border-style: solid;
+  }
+  .infoInput:not(:focus):not(:hover) {
+    border-color: #9e9e9e !important;
+  }
+  .createCalendarTitle .createCalendarLabel {
+    top: 9px;
+  }
+  .createCalendarTitle .calendarColorModel {
+    width: 23px;
+    height: 23px;
+    position: absolute;
+    top: 7px;
+    right: 40px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .createCalendarTitle .calendarColorRed {
+    background: #d34e5e;
+  }
+  .createCalendarTitle .calendarColorViolet {
+    background: #9b559e;
+  }
+  .createCalendarTitle .calendarColorBrown {
+    background: #af653c;
+  }
+  .createCalendarTitle .calendarColorOrange {
+    background: #ff9800;
+  }
+  .createCalendarTitle .calendarColorBlue {
+    background: #0066cc;
+  }
+  .createCalendarTitle .calendarColorGreen {
+    background: #0aa610;
+  }
+  .createCalendarTitle .calendarColorYellow {
+    background: #ffeb3b;
+  }
+  .createCalendarTitle .icon-arrow-down-border {
+    font-size: 16px;
+    color: #fff;
+  }
+  .createCalendarTitle .icon-arrow-down-border:before {
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .createCalendarTitle .calendarColorMain {
+    padding: 6px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    right: 26px;
+    top: 38px;
+    background: #fff;
+    display: none;
+    z-index: 100;
+  }
+  .createCalendarTitle .calendarColorMain li {
+    height: 36px;
+    line-height: 36px;
+    width: 124px;
+    padding-right: 14px;
+    padding-left: 24px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    position: relative;
+  }
+  .createCalendarTitle .calendarColorMain .selectIcon {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    font-size: 16px;
+    border: none;
+  }
+  .createCalendarTitle .calendarColorMain li:not(:hover) {
+    background: #fff !important;
+  }
+  .createCalendarTitle .calendarColorMain li.selected {
+    background: #fff !important;
+  }
+  .createCalendarTitle .calendarColorMain li:not(.selected) span {
+    color: #333 !important;
+  }
+  .createCalendarTitle .calendarColorMain li:hover:not(.selected) {
+    color: #fff;
+  }
+  .createCalendarTitle .calendarColorMain li:hover:not(.selected) span {
+    color: #fff !important;
+  }
+  .createCalendarTitle .calendarColorMain li i {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #fff;
+    margin-right: 12px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 9px;
+    border-radius: 3px;
+  }
+  .calendarTime {
+    margin-top: 25px;
+    color: #9e9e9e;
+  }
+  #txtBeginDatebox,
+  #txtEndDatebox {
+    position: relative;
+    width: 90px;
+    height: 19px;
+    display: inline-block;
+  }
+  /* 加入起止时间和提醒的hover效果 */
+  #txtBeginDatebox:not(:hover) input:not(:focus),
+  #txtBeginDatebox:not(:hover) input:not(:focus) + span,
+  #txtBeginTimeCreate:not(:hover):not(:focus),
+  #txtEndDatebox:not(:hover) input:not(:focus),
+  #txtEndDatebox:not(:hover) input:not(:focus) + span,
+  #txtEndTimeCreate:not(:hover):not(:focus),
+  #remindTextCreate:not(:hover):not(:focus) {
+    color: #666 !important;
+  }
+  .calendarRemind .titleLink:not(.titleClick) span {
+    color: #666 !important;
+  }
+  #txtBeginDate,
+  #txtEndDate {
+    width: 80px;
+    line-height: 16px;
+    border: 0;
+    cursor: pointer;
+  }
+  .txtTimeStyle {
+    padding: 0 2px;
+    width: 36px;
+    height: 16px;
+    margin-left: 4px;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #333;
+    cursor: pointer;
+    box-sizing: initial;
+  }
+  .dateAlone {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  .calendarTime .timezone {
+    height: 28px;
+    line-height: 28px;
+    width: 50px;
+    text-align: center;
+    position: absolute;
+    border-width: 1px;
+    border-style: solid;
+    box-sizing: border-box;
+    top: -5px;
+    right: 26px;
+    cursor: pointer;
+  }
+  .calendarTime .timezone:not(:hover):not(.selected) {
+    color: #9e9e9e !important;
+    border-color: #9e9e9e !important;
+  }
+  .calendarTime .bgImageLink {
+    position: absolute;
+    right: -4px;
+    top: -2px;
+    font-size: 24px !important;
+    color: #333;
+  }
+  .calendarRemind {
+    margin-top: 25px;
+  }
+  .calendarRemind .bgImageLink,
+  .calendarRemind .bgImageClick {
+    font-size: 24px !important;
+  }
+  .remindTextLable {
+    vertical-align: top;
+    display: inline-block;
+    color: #9e9e9e;
+  }
+  .calendarRemind .remindText {
+    text-align: center;
+    line-height: 1;
+    width: 40px;
+    height: 16px;
+    border-radius: 0;
+    padding: 0;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #333;
+    vertical-align: top;
+    margin-top: 2px;
+  }
+  .calendarRemind .customSelect {
+    margin-top: -5px;
+  }
+  .calendarRemind .customSelect .txtBox,
+  .repeatDialogMain .customSelect .txtBox {
+    font-size: 14px;
+  }
+  .calendarRemind .customSelect .title {
+    padding-left: 0;
+  }
+  .calendarTabs {
+    margin-top: 20px;
+  }
+  .calendarTabs span {
+    border-bottom: 1px solid #9e9e9e;
+    margin-right: 36px;
+    cursor: pointer;
+  }
+  .calendarTabs span:not(:hover) {
+    border-color: #9e9e9e !important;
+    color: #9e9e9e !important;
+  }
+  .calendarPrivate {
+    margin-top: 30px;
+    height: 24px;
+  }
+  .calendarPrivate label {
+    color: #9e9e9e;
+    font-size: 14px;
+    margin-left: -76px;
+  }
+  .calendarPrivate .iconHelp {
+    color: #999;
+    width: 14px;
+    height: 14px;
+    margin-left: 12px;
+  }
+  .calendarPrivate .iconHelp:after {
+    width: 217px;
+    word-break: break-all;
+    white-space: normal;
+  }
+  .chekboxIcon {
+    position: relative;
+    width: 16px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .chekboxIcon input[type='checkbox'] {
+    visibility: hidden;
+  }
+  .chekboxIcon:before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    width: 4px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-top-width: 0;
+    border-left-width: 0;
+    z-index: 1;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+  .chekboxIcon:after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 0px;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    -webkit-transition: 240ms;
+    -o-transition: 240ms;
+    -ms-transform: 240ms;
+    -moz-transform: 240ms;
+    transition: 240ms;
+    background: white;
+    border: 1px solid #ccc;
+  }
+  .calendarPrivate .isPrivateLabel:hover {
+    color: #666;
+  }
+  .calendarPrivate .isPrivateLabel:hover .chekboxIcon:after {
+    border-color: #9e9e9e !important;
+  }
+  .chekboxIcon.checked:after {
+    background-color: #2196f3 !important;
+    border-color: #2196f3 !important;
+  }
+  #repeatContent {
+    margin-top: 15px;
+    color: #9e9e9e;
+  }
+  #repeatContent .createCalendarLabel {
+    cursor: pointer;
+  }
+  #repeatContent .createCalendarLabel span {
+    vertical-align: top;
+    margin-right: 12px;
+    cursor: pointer;
+  }
+  #repeatContent .repeatResultText {
+    margin-right: 10px;
+  }
+  #addCalendarMembers {
+    margin-top: 15px;
+  }
+  #addCalendarMembers .createCalendarLabel {
+    top: 4px;
+  }
+  .createAddMemberBox .imgMemberBox .imgWidth,
+  .createAddMemberBox .imgMemberBox {
+    width: 32px;
+    height: 32px;
+  }
+  .createAddMemberBox .imgMemberBox {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .createAddMemberBox .removeMember {
+    cursor: pointer;
+    display: none;
+    vertical-align: top;
+    width: 32px;
+    height: 32px;
+    background-color: #666;
+    position: absolute;
+    margin-right: -32px;
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    opacity: 0.7;
+  }
+  .createAddMemberBox .imgMemberBox:hover .removeMember {
+    display: inline-block !important;
+  }
+  .createAddMemberBox .removeMember .Icon {
+    display: inline-block;
+    vertical-align: top;
+    height: 7px;
+    margin-top: 8px;
+  }
+  .createAddMemberBox .busyIcon {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #de2c00;
+    top: 18px;
+    left: 18px;
+    border-radius: 50%;
+    display: none;
+  }
+  .createAddMemberBox .imgMemberBusy .busyIcon {
+    display: block;
+  }
+  .createAddMemberBox .busyIcon:before {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 6px;
+    background-color: #fff;
+    position: absolute;
+    top: 3px;
+    left: 7px;
+  }
+  .createAddMemberBox .busyIcon:after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 2px;
+    background-color: #fff;
+    position: absolute;
+    top: 10px;
+    left: 7px;
+  }
+  .createAddMember {
+    font-size: 32px;
+    display: inline-block;
+    height: 26px;
+    vertical-align: top;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .createAddMember:not(:hover) {
+    color: #9e9e9e !important;
+  }
+  .txtAddress {
+    height: 40px;
+  }
+  #createCalendarDesc,
+  #addressContent {
+    margin-top: 20px;
+  }
+  #createCalendarDesc .createCalendarLabel,
+  #addressContent .createCalendarLabel {
+    top: 10px;
+  }
+  .createCalendarDesc,
+  .txtAddress {
+    width: 100%;
+    border: 1px solid #9e9e9e;
+    padding: 7px;
+    line-height: 24px;
+    resize: none;
+  }
+  .addAttachmentBtn {
+    margin-top: 10px;
+    display: inline-block;
+    cursor: pointer;
+  }
+  #createCalendarAttachment_updater {
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  #createCalendarAttachment_updater .uploadDocList,
+  #createCalendarAttachment_updater .uploadPicList {
+    margin-left: 0;
+  }
+  .repeatDialogMain li {
+    padding-left: 90px;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    position: relative;
+  }
+  .repeatDialogMain li .createCalendarLabel {
+    top: 15px;
+  }
+  .repeatDialogMain .customSelect {
+    height: 30px;
+    line-height: 30px;
+    vertical-align: top;
+    margin-top: 14px;
+  }
+  .repeatDialogMain .customSelect .borderRadius5 {
+    padding: 0;
+  }
+  .repeatDialogMain #csList {
+    margin-left: -15px !important;
+  }
+  #repetitionFrequency,
+  .txtOverCount,
+  .txtOverDate {
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    padding: 2px;
+    border: 1px solid #9e9e9e;
+    text-align: center;
+    vertical-align: top;
+    margin: 13px 2px 0;
+    box-sizing: initial;
+  }
+  .repeatTypeGroup {
+    display: inline-block;
+    vertical-align: top;
+    margin: 6px 0 0 10px;
+  }
+  .repeatTypeGroupBtn {
+    width: 38px;
+    height: 36px;
+    float: left;
+    display: inline-block;
+    border-width: 1px 1px 1px 0;
+    border-style: solid;
+    border-color: #9e9e9e;
+    background-color: #fff;
+    outline: none;
+    line-height: initial;
+  }
+  .repeatTypeGroupBtn.ThemeBGColor3 {
+    color: #fff;
+  }
+  .repeatTypeGroupBtn:first-child {
+    border-left: 1px solid #9e9e9e;
+    border-radius: 3px 0 0 3px;
+  }
+  .repeatTypeGroupBtn:last-child {
+    border-radius: 0 3px 3px 0;
+  }
+  #overCount,
+  #overTime {
+    margin-left: 10px;
+    display: none;
+  }
+  .txtOverDate {
+    width: 80px;
+  }
+  #repeatDialogMain {
+    margin-bottom: 0 !important;
+  }
+  #updateRepeatBtn {
+    cursor: pointer;
+  }
+  #updateRepeatBtn:not(:hover) .repeatOperate {
+    visibility: hidden;
+  }
+  .createCalendarOperator {
+    text-align: right;
+    padding: 26px 0;
+    padding-right: 26px;
+  }
+  #calendarSubmitBtn {
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    font-size: 15px;
+    padding: 0 35px;
+    color: #fff;
+    cursor: pointer;
+  }
+  /*名片层调整*/
+  [id^='imgMemberMessage_'] .userContentBox {
+    min-height: 154px;
+  }
+}
+
+.businessCardSite {
+  .hoverMemberContainer {
+    z-index: 99999;
+    top: 0;
+    left: 240px;
+    position: absolute;
+    padding: 0 5px;
+  }
+  .hoverMember {
+    width: 249px;
+    min-height: 154px;
+    box-sizing: border-box;
+    color: #999;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 7px #bbb;
+    -moz-box-shadow: 0 0 7px #bbb;
+    -webkit-box-shadow: 0 0 7px #bbb;
+    padding: 10px 0px 10px 13px;
+    position: relative;
+    -moz-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  .hoverMember .memberCalendars {
+    width: 233px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    bottom: 33px;
+    top: 33px;
+  }
+  .hoverMember .arrow_down_shadow {
+    position: absolute;
+    left: 30px;
+  }
+  .hoverMember .memberCalendarTime {
+    width: 150px;
+    display: inline-block;
+  }
+  .hoverMember .memberCalendarName {
+    max-width: 67px;
+    vertical-align: top;
+    word-break: break-all;
+  }
+  .hoverMember .memberCalendarName a {
+    width: 100%;
+  }
+  .hoverMember .loobCalendars {
+    position: absolute;
+    bottom: 11px;
+    left: 12px;
+  }
+  .UploadFiles-attachmentProgress {
+    display: none;
+  }
+}
+
+.createCalendar_container .UploadFiles-attachmentProgress {
+  display: none;
+}
+
+.allDay {
+  padding: 30px 110px 0 110px;
+}

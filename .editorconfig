@@ -1,0 +1,21 @@
+﻿root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+trim_trailing_white_space_on_save = true
+# fuck windows
+charset = utf-8-bom
+indent_style = space
+
+[*.{cs,aspx,ascx,html,htm,tpl}]
+indent_size = 4
+[*.{js,jsx,ts,tsx,css,less}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{**/*.json,Jenkinsfile}]
+charset = utf-8

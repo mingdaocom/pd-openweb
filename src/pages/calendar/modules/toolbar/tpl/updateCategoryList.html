@@ -1,0 +1,8 @@
+﻿{{var listClass = "";}}
+{{~it:category}}
+    {{listClass = window.localStorage.getItem("categorys") !== null ? (window.localStorage.getItem("categorys").indexOf(category.catID) >= 0 ? 'icon-calendar-check' : 'icon-calendar-nocheck') : 'icon-calendar-check';}}
+    <li class="allowDrop" catid="{{!category.catID}}">
+      <i class="{{!it.colorClass(category.color,'list')}} iconTickM"></i>
+      <span class="iconTickStyle {{!listClass}} ThemeColor9"></span><span class="ThemeColor10">{{!category.catName}}</span>
+    </li>
+{{~}}

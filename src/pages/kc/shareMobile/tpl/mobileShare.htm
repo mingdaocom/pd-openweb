@@ -1,0 +1,77 @@
+﻿<div class="mobileShareCon {{! (it.isIOS ? 'ios' : 'android')}}">
+    <div class="header">
+        {{? md.global.Account && md.global.Account.accountId}}
+            <img class="headImage" src={{!md.global.Account.avatar}} alt="">
+        {{?}}
+    </div>
+    {{? it.overDue}}
+
+    <div class="main">
+        <div class="file">
+            <div class="fileIcon fileIcon-doc">
+            </div>
+            <p class="fileName">
+                {{=_l('链接已失效')}}
+            </p>
+        </div>
+        <p class="deadline">
+            {{=_l('链接有效期至%0', it.deadLineStr)}}
+        </p>
+    </div>
+    {{??}}
+        <div class="main">
+            {{? it.isPicture}}
+            <a class="previewImage" target="_blank">
+                <img src="" alt="" />
+            </a>
+            {{??}}
+                <div class="file">
+                    <div class="fileIcon {{! it.iconClass }}">
+                        {{? it.canPreview && !it.isIOS }}
+                        <span class="preview">
+                            {{!(it.isIOS ? _l('打开') : _l('预览'))}}
+                        </span>
+                        {{?}}
+                    </div>
+                    <p class="fileName">
+                        <span class="content ellipsis">{{! it.node.name}}</span>{{! (it.node.ext === '' ? it.node.ext : '.' + it.node.ext)}}
+                    </p>
+                    <div class="operate">
+                        {{? it.isIOS}}
+                            <div class="openIniOS">
+                                {{=_l('打开')}} ({{! it.size }})
+                            </div>
+                        {{?}}
+                        <div class="saveToMingDao">
+                            {{=_l('保存')}}
+                        </div>
+                        {{? !it.isIOS}}
+                            <div class="downloadBtn">
+                                {{=_l('下载')}} ({{! it.size }})
+                            </div>
+                        {{?}}
+                    </div>
+                </div>
+            {{?}}
+            {{? it.deadLineStr}}
+            <p class="deadline  {{! it.isPicture ? 'pic' : ''}}">
+                {{=_l('链接有效期至%0', it.deadLineStr)}}
+            </p>
+            {{?}}
+        </div>
+    {{?}}
+    <div class="footer">
+        {{? it.isPicture}}
+            <div class="operate">
+                {{? !it.isIOS}}
+                    <div class="downloadBtn">
+                        {{=_l('下载')}} ({{! it.size }})
+                    </div>
+                {{?}}
+                <div class="saveToMingDao">
+                    {{=_l('保存')}}
+                </div>
+            </div>
+        {{?}}
+    </div>
+</div>

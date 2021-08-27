@@ -1,0 +1,15 @@
+﻿<table id="refuserBox" class="w100">
+    <tr>
+        <td id="refuserstd">
+            <input name="reason" checked="checked" type="radio" id="radtimeClash" value="{{=_l('时间与行程冲突')}}" /><label class="radtimeClashLbl" class="rdo" for="radtimeClash">{{=_l('时间与行程冲突')}}</label>
+            <input type="radio" name="reason" id="radNotPart" value="{{=_l('不需要参加')}}" /><label class="radNotPartLbl" class="rdo" for="radNotPart">{{=_l('不需要参加')}}</label>
+            <input type="radio" name="reason" id="radNotReason" value="{{=_l('无理由')}}" /><label class="radNotReasonLbl" class="rdo" for="radNotReason">{{=_l('无理由')}}</label>
+            <input type="radio" name="reason" id="radOther" value="{{=_l('其他')}}" /><label class="radOtherLbl" class="rdo" for="radOther">{{=_l('其他')}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td class="txtrefuseBox">
+            <textarea id="txtrefuseReason" class="ming TextArea Hidden w100" placeholder="输入您不能参加的理由"></textarea>
+        </td>
+    </tr>
+</table>

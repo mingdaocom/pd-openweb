@@ -1,0 +1,212 @@
+.upload {
+  position: relative;
+  .title {
+    text-align: left;
+    font-size: 17px;
+    letter-spacing: 0px;
+    color: #333333;
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid #f5f5f5;
+    padding: 0 24px;
+    .closeBtnN {
+      float: right;
+      margin-top: 15px;
+      cursor: pointer;
+      color: #9e9e9e;
+      &:hover {
+        color: #2196f3;
+      }
+    }
+  }
+  .uploadBoxCon {
+    height: 100%;
+    overflow: auto;
+  }
+  .uploadCon {
+    padding: 24px;
+    min-height: 630px;
+    .tiTop {
+      height: 20px;
+      line-height: 20px;
+      text-align: left;
+      letter-spacing: 0px;
+      color: #333333;
+      font-size: 14px;
+      font-weight: bold;
+      .num {
+        display: inline-block;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #707070;
+        text-align: center;
+        margin-right: 12px;
+        font-size: 12px;
+        font-weight: normal;
+      }
+    }
+    .btnTable {
+      height: 40px;
+      line-height: 40px;
+      background: #ecf6fe;
+      border-radius: 3px;
+      text-align: center;
+      color: #2196f3;
+      font-weight: bold;
+      &:hover {
+        color: #117cd1;
+        background: #e4f2fe;
+      }
+    }
+    .uploadBtn {
+      background: #fff;
+      border-radius: 3px;
+      border: 1px dashed #9e9e9e;
+      text-align: center;
+      padding: 35px 0;
+      .icon-file {
+        font-size: 65px;
+      }
+      .wordIcon {
+        // color: #2196f3;
+        width: 50px;
+        height: 57px;
+        display: block;
+        margin: 0 auto;
+        background: url(./img/word.png);
+        background-size: 100%;
+      }
+      #editorFiles {
+        margin-top: 32px;
+        display: inline-block;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #2196f3;
+        border-radius: 16px;
+        color: #2196f3;
+        padding: 0 22px;
+        line-height: 32px;
+        height: 32px;
+        cursor: pointer;
+        &:hover {
+          background: #2196f3 0% 0% no-repeat padding-box;
+          border: 1px solid #2196f3;
+          color: #fff;
+        }
+      }
+      .form {
+        // width: 100%;
+        // // display: inline-block;
+        // text-align: center;
+        color: #212121;
+        margin-top: 20px;
+      }
+      .downLoad {
+        cursor: pointer;
+        color: #2196f3;
+        margin-left: 10px;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+      &.loading {
+        color: #333;
+        // background-color: #fff;
+        // padding: 0 32px;
+        // border: 1px dashed #9e9e9e;
+        // .per {
+        //   vertical-align: top;
+        //   margin-left: 16px;
+        // }
+        .lineBox {
+          margin-top: 34px;
+          display: inline-block;
+          width: 200px;
+          height: 6px;
+          background: #eaeaea 0% 0% no-repeat padding-box;
+          border-radius: 3px;
+          position: relative;
+          line-height: 1;
+          .line {
+            display: inline-block;
+            width: 0px;
+            background: #2196f3 0% 0% no-repeat padding-box;
+            border-radius: 3px;
+            height: 6px;
+            transition: all 0.6s ease-out;
+            position: absolute;
+            left: 0;
+            top: 0;
+          }
+          // .text {
+          //   position: absolute;
+          //   left: 0;
+          //   top: 10px;
+          // }
+        }
+        .closeIcon {
+          margin-left: 24px;
+          color: #bdbdbd;
+          font-size: 13px;
+        }
+      }
+    }
+    .desc {
+      font: Regular 13px/29px FZLanTingHeiS;
+      letter-spacing: 0px;
+      color: #f51744;
+    }
+  }
+  .activeBox {
+    position: absolute;
+    padding: 15px 24px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    height: 66px;
+    background: #f5f5f5 0% 0% no-repeat padding-box;
+    span {
+      height: 36px;
+      text-align: center;
+      background: #fff 0% 0% no-repeat padding-box;
+      border-radius: 2px;
+      padding: 9px 40px;
+      display: inline-block;
+      cursor: pointer;
+      &.sure {
+        background: #2196f3 0% 0% no-repeat padding-box;
+        color: #fff;
+        border: 1px solid #2196f3;
+        &:hover {
+          border: 1px solid #1465c0;
+          background: #1465c0 0% 0% no-repeat padding-box;
+        }
+        &.disa {
+          background-color: #d6d5d5;
+          border: 1px solid #d6d5d5;
+          cursor: no-drop;
+          &:hover {
+            color: #fff;
+            border: 1px solid #d6d5d5;
+            background: #d6d5d5;
+          }
+        }
+      }
+      &.cancle {
+        margin-left: 16px;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #2196f3;
+        color: #2196f3;
+        &:hover {
+          color: #1465c0;
+          border: 1px solid #1465c0;
+        }
+      }
+    }
+  }
+  #fileForm {
+    display: none;
+  }
+}

@@ -1,0 +1,200 @@
+
+.myProcessWrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  background-color: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+
+  .filterContentWrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    &.filterContentExtend {
+      .processFilterDrawerWrapper {
+        opacity: 1 !important;
+        margin-left: 0 !important;
+      }
+    }
+
+    &.filterContentClose {
+      .processFilterDrawerWrapper {
+        opacity: 0 !important;
+        margin-left: -280px !important;
+      }
+    }
+  }
+
+  .header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+
+    .title {
+      padding-left: 20px;
+      .icon {
+        color: #607D8B;
+        font-size: 21px;
+      }
+      span {
+        color: #333333;
+        font-size: 17px;
+        margin-left: 7px;
+      }
+    }
+    .close {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 20px;
+      align-items: center;
+    }
+  }
+
+  .statesTab {
+    flex: 4;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .item {
+      color: #757575;
+      font-size: 14px;
+      padding: 0 25px;
+      cursor: pointer;
+      position: relative;
+      line-height: 50px;
+      &:before {
+        content: '';
+        width: 100%;
+        height: 3px;
+        background-color: #2196F3;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        display: none;
+      }
+      &:hover {
+        color: #333;
+      }
+      &.active {
+        &.item {
+          color: #333;
+        }
+        &:before {
+          display: block;
+        }
+      }
+    }
+    .count {
+      color: #757575;
+      margin-left: 8px;
+    }
+    .red {
+      color: #F44336;
+      padding: 1px 8px;
+      border-radius: 20px;
+      background-color: #fce4e3;
+    }
+  }
+
+  .withoutData {
+    // width: 100%;
+    // height: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .icnoWrapper {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background-color: #EFEFEF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon {
+      color: #BDBDBD;
+      font-size: 90px;
+    }
+    span {
+      color: #9E9E9E;
+      margin-top: 22px;
+    }
+  }
+
+  .filterWrapper {
+    font-size: 15px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+
+    .allRead {
+      color: #757575;
+      padding: 3px 15px 3px 9px;
+      border-radius: 25px;
+      &:hover {
+        color: #2196F3;
+        background-color: #2196F333;
+      }
+    }
+  }
+
+  .filterNav {
+    font-size: 13px;
+    border-radius: 4px;
+    background-color: #EAEAEA;
+    padding: 3px;
+    margin-right: 20px;
+    .item {
+      color: #757575;
+      padding: 3px 23px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .active {
+      color: #2196F3;
+      border-radius: 4px;
+      background-color: #fff;
+    }
+  }
+  .processFilterTarget {
+    padding: 5px 12px 5px 15px;
+    margin-right: 10px;
+    .icon-close {
+      color: #2196f3;
+      &:hover {
+        color: #2094f3b3;
+      }
+    }
+    &.active {
+      color: #2196f3 !important;
+      border-radius: 3px;
+      background-color: #e4eff5;
+    }
+  }
+
+  .filterWrapper, .content {
+    min-width: 1000px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+
+  .spaceBetween {
+    justify-content: space-between;
+  }
+
+  .content {
+    flex: 1;
+    height: 100%;
+  }
+}

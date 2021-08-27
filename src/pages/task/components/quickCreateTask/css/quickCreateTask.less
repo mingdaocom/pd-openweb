@@ -1,0 +1,135 @@
+﻿.AppTask {
+  .createNewSingle {
+    line-height: 45px;
+    position: relative;
+    display: -webkit-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    min-width: 370px;
+    height: 45px;
+  }
+  .createNewSingle .markTasks {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin: 14px 5px 0 17px;
+    cursor: pointer;
+    background: url(../images/markComUnTask.png) no-repeat 0 0;
+    background-size: 26px;
+  }
+  .createNewSingle .markTasks2 {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-top: 14px;
+    margin-left: 35px;
+    cursor: pointer;
+    background: url(../images/markComUnTask.png) no-repeat 0 0;
+    background-size: 26px;
+  }
+  .createNewSingle .chargeImg {
+    width: 26px;
+    height: 26px;
+    margin-top: 11px;
+    margin-right: 9px;
+    vertical-align: top;
+  }
+  .createNewSingle .txtSingleName {
+    height: 22px;
+    margin-top: 12px;
+    margin-right: 15px;
+    margin-left: 8px;
+    vertical-align: top;
+    border: 0;
+    background-color: transparent;
+    -webkit-flex: 1;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+  }
+  .createNewSingle .taskStar {
+    font-size: 20px;
+    display: inline-block;
+    float: right;
+    margin-top: 13px;
+    margin-right: 15px;
+    cursor: pointer;
+    vertical-align: top;
+    color: #99a1ab;
+  }
+  .createNewSingle .icon-task-star.taskStar {
+    color: #fbc02d;
+  }
+  .createNewSingle .createSingleDate {
+    font-size: 19px;
+    display: inline-block;
+    float: right;
+    margin-top: 14px;
+    margin-right: 21px;
+    cursor: pointer;
+    vertical-align: top;
+    color: #99a1ab;
+  }
+  .createNewSingle .createSingleDate.selDate {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .createNewSingle .stageBox {
+    line-height: 4;
+    position: relative;
+    z-index: 2;
+    float: right;
+  }
+  .stageBox .showStage {
+    font-size: 18px;
+    display: inline-block;
+    margin-right: 18px;
+    cursor: pointer;
+    color: #99a1ab;
+  }
+  .stageBox .showStage:hover,
+  .calendarBox .icon-bellSchedule:hover {
+    color: #0091ea;
+  }
+  .stageBox .stageDrop {
+    position: absolute;
+    top: 38px;
+    left: -134px;
+    display: none;
+    overflow-y: auto;
+    width: 180px;
+    max-height: 257px;
+    padding: 5px 0;
+    background-color: #fff;
+  }
+  .stageBox .stageDrop li {
+    line-height: 32px;
+    width: 100%;
+    height: 32px;
+    padding-right: 5px;
+    padding-left: 12px;
+    vertical-align: top;
+  }
+  .stageBox .stageDrop li:hover {
+    cursor: pointer;
+    color: #fff;
+    background-color: #0091ea;
+  }
+  .stageBox .stageDrop li.selected {
+    color: #0091ea;
+    background-color: #fff;
+  }
+  .createNewSingle .calendarBox {
+    height: 40px;
+  }
+  .quickCreateBtn {
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    display: inline-block;
+  }
+  .quickCreateBtn:not(:hover) {
+    color: #333 !important;
+  }
+}

@@ -1,0 +1,119 @@
+
+.chartDataSource {
+  width: 250px;
+  border-left: 1px solid #ececec;
+  padding: 24px 0;
+  background-color: #fff;
+  transition: width 0.2s;
+
+  &.small {
+    width: 50px;
+  }
+
+  .horizontalPaddingWrapper {
+    padding: 0 16px;
+  }
+
+  .sheetInfoWrapper, .timeWrapper {
+    padding: 7px 12px;
+    border-radius: 4px;
+    background-color: #F5F5F5FF;
+    .removeViewId {
+      color: #ff000099;
+    }
+  }
+
+  .searchControlWrapper {
+    padding: 8px 5px;
+    border-bottom: 1px solid #DDDDDDFF;
+    input {
+      color: #202020;
+      border: none;
+    }
+    .icon-close:hover {
+      color: #2196F3 !important;
+    }
+  }
+
+  .chartCollapse {
+    .active {
+      color: #2196F3 !important;
+    }
+    .ant-collapse-item {
+      border: none !important;
+    }
+    .ant-collapse-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 0 !important;
+    }
+    .ant-collapse-content-box {
+      padding-left: 23px !important;
+    }
+    .axisControlItem {
+      .icon-settings, .icon-trash {
+        display: none;
+      }
+      &:hover {
+        background-color: #F5F5F5FF;
+        .icon-settings, .icon-trash {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .icon-add:hover {
+    color: #2196F3 !important;
+  }
+}
+
+.chartSheetModal {
+  .selectWorksheetCommon {
+    .icon-arrow-down-border {
+      margin-right: 7px;
+    }
+    .aroundList {
+      position: fixed;
+      width: 512px;
+      left: 50%;
+      margin-left: -256px;
+    }
+  }
+}
+
+.chartTimeModal {
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.10);
+  overflow-y: auto;
+  .scopeDataItem {
+    padding: 6px 13px;
+  }
+  .scopeDataItem:hover {
+    background-color: #F5F5F5FF;
+  }
+  .active {
+    background-color: #2196f333 !important;
+    .icon-done {
+      color: #2196F3;
+    }
+  }
+  .rangePickerInput {
+    width: 186px;
+  }
+  .ant-picker-input input {
+    text-align: center;
+  }
+  .ant-picker-range-separator {
+    padding: 0 2px 0 0;
+  }
+  .chartInput .ant-input-suffix {
+    display: none !important;
+  }
+}
+
+.rangeDayOverlayMenu .active {
+  color: #fff;
+  background-color: #2196f3;
+}

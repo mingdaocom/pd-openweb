@@ -1,0 +1,476 @@
+﻿#calendarEdit {
+  // override dialog css
+  .noHeader {
+    display: none;
+  }
+  .dialogContent {
+    padding: 0;
+  }
+}
+
+.calendarDetail {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  // padding-bottom: 56px;
+
+  display: flex;
+  flex-direction: column;
+  .calendarMainContent {
+    flex: 1;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  &.noPadding {
+    padding-bottom: 0;
+  }
+}
+
+.calendarAction {
+  @updateColor: #ffb74d;
+  @confirmColor: #02c983;
+
+  overflow: hidden;
+  transition: height 300ms ease-in;
+  height: 0;
+
+  .calendarActionWrapper {
+    padding: 9px 0;
+  }
+
+  &.action-bar-active {
+    height: 48px;
+  }
+
+  .actionHint {
+    color: #fff;
+    padding-left: 16px;
+    font-size: 14px;
+    line-height: 30px;
+  }
+  .Button--link:hover {
+    text-decoration: underline !important;
+  }
+  .ghostBtn {
+    &,
+    &:hover {
+      border: 1px solid #fff !important;
+      color: #000 !important;
+      background: #fff !important;
+    }
+  }
+  &.updateCalendar {
+    background-color: @updateColor;
+    .ghostBtn {
+      &:hover {
+        color: @updateColor!important;
+      }
+    }
+  }
+  &.confirmCalendar {
+    background-color: @confirmColor;
+    .ghostBtn {
+      &:hover {
+        color: @confirmColor!important;
+      }
+    }
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 25px;
+  .categoryContainer,
+  .calendarOperations {
+    flex: 0 0 auto;
+  }
+  .calendarOperations {
+    .calMoreOp {
+      display: inline-block;
+      height: 36px;
+      line-height: 36px;
+    }
+    [class*="icon"] {
+      color: #999;
+    }
+  }
+  .calendarNameInput {
+    &.Textarea {
+      font-size: 17px;
+      border: none;
+      line-height: 26px;
+      padding: 5px 15px;
+      vertical-align: bottom;
+    }
+    flex: 1 0 0%;
+  }
+  .categoryContainer {
+    height: 16px;
+    line-height: 16px;
+    .categoryArrow {
+      color: #fff;
+      font-size: 14px;
+      line-height: 16px;
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-left: -16px;
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+  .calendarNameInput .Input {
+    border: none;
+    width: 100%;
+    font-size: 17px;
+  }
+  .calendarCatInput {
+    margin-top: -1px;
+    vertical-align: middle;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    &.calendarColorRed {
+      background: #f44336;
+    }
+    &.calendarColorViolet {
+      background: #9c27b0;
+    }
+    &.calendarColorBrown {
+      background: #795548;
+    }
+    &.calendarColorOrange {
+      background: #ff9800;
+    }
+    &.calendarColorBlue {
+      background: #1e88e5;
+    }
+    &.calendarColorGreen {
+      background: #4caf50;
+    }
+    &.calendarColorYellow {
+      background: #ffeb3b;
+    }
+    &.calendarColorYellow {
+      background: #ffeb3b;
+    }
+    &.calendarColorHide {
+      display: none;
+    }
+  }
+}
+
+.calendarMainPart {
+  margin-top: 8px;
+  padding: 10px 16px;
+  // override ming-ui padding on dropdown
+  .Dropdown--input {
+    padding: 0 !important;
+  }
+  .calBox {
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    font-size: 13px;
+    border-radius: 3px;
+  }
+  .calRow {
+    display: flex;
+    .calIcon {
+      color: #9e9e9e;
+      flex: 0 0 auto;
+      padding: 12px 16px 0;
+    }
+    .calLine {
+      flex: 1 0 0%;
+      line-height: 42px;
+    }
+    &:not(:last-child) {
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .FormControl {
+      display: inline-block;
+    }
+    .formLabel {
+      margin-right: 15px;
+    }
+  }
+  .intervalBox,
+  .remindBox,
+  .recurCountBox {
+    -webkit-appearance: none;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background-color: transparent;
+    text-align: center;
+    width: 20px;
+    cursor: pointer;
+    &:not(:hover) {
+      border-color: #ccc !important;
+    }
+  }
+  .untilDateBox {
+    border-bottom: 1px solid #ccc;
+    &:not(:hover) {
+      border-color: #ccc !important;
+    }
+  }
+  .calendarDate {
+    transition: height 300ms ease-out;
+
+    &.isEditing {
+      background-color: #f9f9f9;
+      .formLabel {
+        color: #9e9e9e;
+      }
+    }
+    .calLine {
+      line-height: 32px;
+    }
+    .editWrapper {
+      border-bottom: 2px dotted #ddd;
+      padding-bottom: 4px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .weekDaysContainer {
+      margin-left: 5px;
+      .weekday {
+        margin-left: 5px;
+        display: inline-block;
+        padding: 2px 3px;
+        line-height: 15px;
+        cursor: pointer;
+        background-color: #fff;
+        &.ThemeBGColor3 {
+          color: #fff !important;
+        }
+      }
+    }
+  }
+  .calendarAddress {
+    .calLine {
+      display: flex;
+    }
+    .addressContainer {
+      display: flex;
+      flex: 1 0 0%;
+      line-height: initial;
+      align-items: center;
+      .addressBox {
+        flex: 1 0 0%;
+        padding: 12px 0;
+        font-size: 13px;
+        -webkit-appearance: none;
+        border: none;
+        background: transparent;
+      }
+    }
+  }
+  .calendarMember {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    line-height: 42px;
+    .memberBox {
+      flex: 1 0 0%;
+      display: flex;
+      flex-wrap: wrap;
+      .membersContainer {
+        flex: 0 0 100%;
+        display: flex;
+        flex-wrap: wrap;
+        .memberItem {
+          width: 120px;
+        }
+      }
+      .addCalendarMember {
+        padding-right: 20px;
+        display: flex;
+        align-items: center;
+        color: #999;
+        cursor: pointer;
+        .addBtn {
+          margin-top: -2px;
+        }
+      }
+      .memberItem {
+        display: flex;
+        align-items: center;
+        position: relative;
+        .memberAvatar {
+          width: 26px;
+          border-radius: 50%;
+        }
+        .memberName {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          padding-left: 8px;
+          max-width: 72px;
+          display: block;
+        }
+        .memberStatus {
+          width: 14px;
+          height: 14px;
+          font-size: 0;
+          display: block;
+          background: url("../images/iconState.png") no-repeat 0 0;
+          background-size: 42px 14px;
+          margin-top: 12px;
+          margin-left: -8px;
+          position: relative;
+          z-index: 1;
+          &.confirmed {
+            background-size: 42px 14px;
+          }
+          &.unConfirmed {
+            background-position: -28px 0;
+          }
+          &.refused {
+            background-position: -14px 0;
+          }
+        }
+      }
+    }
+  }
+  .calendarSummary {
+    .calLine {
+      line-height: 1.5;
+    }
+    .summaryBox {
+      padding: 12px 0;
+      width: 100%;
+    }
+    .Textarea {
+      font-size: 13px;
+      vertical-align: top;
+      padding: 0;
+      -webkit-appearance: none;
+      border: none;
+      background: transparent;
+    }
+    .attachmentBox {
+      padding: 10px 0;
+    }
+  }
+  .calendarPrivate {
+    margin-left: 17px;
+    label {
+      /* fix tip is covered */
+      overflow: visible;
+    }
+    .privateTip::after {
+      width: 230px;
+      white-space: normal;
+      word-break: break-all;
+    }
+  }
+}
+
+.calendarComments {
+  .calendarTabList {
+    position: relative;
+    height: 35px;
+    padding: 0 25px;
+    color: #aaa;
+    border-bottom: 1px #ccc solid;
+    text-align: center;
+    .calendarTab {
+      float: left;
+      width: 90px;
+      height: 35px;
+      line-height: 35px;
+      cursor: pointer;
+    }
+    .bottomLine {
+      position: absolute;
+      bottom: -1px;
+      left: 25px;
+      width: 90px;
+      height: 2px;
+      margin-top: 16px;
+      transition: all 0.15s ease-in;
+    }
+  }
+  .commentsContainer {
+    padding: 0 20px 0 33px;
+  }
+}
+
+.calendarCommenter {
+  padding: 10px 10px 10px 21px;
+  background: #fff;
+  box-sizing: border-box;
+  border-top: 1px solid #ccc;
+  .commenterBox {
+    border-color: #ddd !important;
+    margin-left: 42px;
+    margin-right: 42px;
+    .commentBox:not(.autoHeight) {
+      background-color: #f8f8f8 !important;
+      .txtComment {
+        background-color: #f8f8f8 !important;
+        color: #9e9e9e;
+      }
+    }
+    .uploadAttaachmentsContainer {
+      overflow: auto;
+      max-height: 310px;
+    }
+  }
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    vertical-align: bottom;
+  }
+  .calendarTopicCount {
+    display: block;
+    padding-top: 8px;
+    color: #9e9e9e;
+  }
+}
+
+.calendarBusinessCard {
+  .messageDivBtn {
+    width: 100%;
+    display: flex;
+    position: relative;
+    & span {
+      text-align: center;
+      cursor: pointer;
+      display: inline-block;
+      flex: 1;
+      box-sizing: border-box;
+      &:hover {
+        color: #0066cc;
+      }
+    }
+    .messageDivPerson {
+      border-left: 1px solid #ccc;
+    }
+  }
+  .cardContentDesc {
+    position: relative;
+    .messageDivContentState {
+      position: absolute;
+      right: 10px;
+      bottom: 0;
+    }
+    .messageRefuse {
+      color: #e0e0e0;
+    }
+    .messageSubmit {
+      color: #00b106;
+    }
+    .messageNosubmit {
+      color: #ff9c00;
+      background: #fff;
+      padding-left: 8px;
+    }
+    .contentItem:last-of-type {
+      max-width: 175px;
+    }
+  }
+}

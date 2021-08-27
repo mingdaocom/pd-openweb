@@ -1,0 +1,559 @@
+.printTem {
+  .printContent {
+    font-family: 'Arial,Microsoft YaHei,SimHei,SimSun' !important;
+    color: #000;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 18px 36px;
+    .companyName {
+      text-align: center;
+      font-size: 13px;
+      font-weight: normal;
+      color: #000;
+    }
+    .titleContent {
+      display: flex;
+      vertical-align: middle;
+      height: 80px;
+      .logo {
+        flex: 1;
+        padding-top: 10px;
+      }
+      .reqTitle {
+        width: 280px;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin: 8px 0;
+        line-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 64px;
+        white-space: break-spaces;
+      }
+      .qrCode {
+        flex: 1;
+        text-align: right;
+      }
+    }
+    .createBy {
+      h6 {
+        font-weight: bold;
+        margin: 0;
+        word-break: break-word;
+      }
+      .sysBox {
+        span {
+          display: inline-block;
+          width: 33.33%;
+          vertical-align: top;
+        }
+      }
+      .sysBox1 {
+        span {
+          display: block;
+          text-align: left;
+        }
+      }
+      .sysBox2 {
+        span {
+          display: inline-block;
+          width: 50%;
+          text-align: left;
+          &:last-child {
+            text-align: right;
+          }
+        }
+      }
+      .sysBox3 {
+        span {
+          display: inline-block;
+          width: 33.33%;
+          text-align: center;
+          &:first-child {
+            text-align: left;
+          }
+          &:last-child {
+            text-align: right;
+          }
+        }
+      }
+    }
+    .listControls {
+      overflow: hidden;
+      width: 100%;
+      border-top: 1px solid #dddddd;
+      .controlDiv {
+        width: 100%;
+        border-bottom: 1px solid #dddddd;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        display: table;
+        &.splitLine {
+          border-bottom: 1px solid #757575;
+          .title {
+            padding-top: 24px;
+            font-size: 15px;
+            font-weight: bold;
+            padding-left: 0;
+            width: 100%;
+          }
+        }
+        &.remark {
+          //备注字段无标题
+          span.value {
+            padding: 5px !important;
+            width: 100% !important;
+          }
+        }
+        .richText {
+          ol {
+            list-style-type: decimal;
+            li {
+              list-style-position: outside;
+              list-style: decimal;
+            }
+          }
+          ul {
+            list-style-type: disc;
+            li {
+              list-style-position: outside;
+              list-style: disc;
+            }
+          }
+          span {
+            padding: 0 !important;
+          }
+          img {
+            max-width: 100%;
+          }
+        }
+        span {
+          padding: 5px 0;
+          line-height: 1.5;
+          vertical-align: top;
+          &.title {
+            padding-left: 5px;
+            display: inline-block;
+            width: 78px;
+            box-sizing: border-box;
+            // font-weight: bold;
+            vertical-align: top;
+            word-break: break-word;
+          }
+          &.value {
+            display: inline-block;
+            padding-left: 24px;
+            padding-right: 5px;
+            box-sizing: border-box;
+            width: calc(~'100% - 78px');
+            word-break: break-word;
+            white-space: pre-wrap;
+          }
+          &.value2 {
+            word-break: break-word;
+          }
+        }
+        .half {
+          vertical-align: top;
+          display: table-cell;
+        }
+        .half + .half {
+          border-left: 1px solid #dddddd;
+        }
+      }
+    }
+    .signatureContentWrapper {
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      width: 700px;
+      margin-left: auto;
+      > div {
+        width: 168px;
+        height: 100px;
+        img {
+          width: 100%;
+        }
+      }
+    }
+    .relaList {
+      .list {
+        display: flex;
+        .listText {
+          flex: 1;
+          padding-right: 22px;
+          > div {
+            margin-top: 5px;
+            word-break: break-word;
+            .listRight {
+              display: inline-block;
+              vertical-align: top;
+            }
+          }
+          .tit {
+            display: inline-block;
+          }
+          .con {
+            display: inline-block;
+          }
+        }
+        .cover {
+          width: 100px;
+          height: 100px;
+        }
+        &.borderTop {
+          padding-top: 10px;
+          margin-top: 10px;
+          border-top: 1px solid #ddd;
+        }
+      }
+    }
+    .relationsTitle {
+      margin-top: 24px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+      line-height: 24px;
+      font-weight: bold;
+      &.tableP {
+        border-bottom: 0px;
+        margin-bottom: 0px;
+      }
+      ul {
+        float: right;
+      }
+      ul > li {
+        border: 1px solid #bdbdbd;
+        height: 24px;
+        padding: 0 14px;
+        line-height: 24px;
+        display: inline-block;
+        color: #bdbdbd;
+        cursor: pointer;
+        font-weight: normal;
+        margin-left: -1px;
+        z-index: 0;
+        position: relative;
+        &.current {
+          border: 1px solid #2196f3;
+          color: #2196f3;
+          z-index: 1;
+        }
+        &:hover {
+          color: #2196f3;
+        }
+        &:first-child {
+          border-top-left-radius: 3px;
+          border-bottom-left-radius: 3px;
+        }
+        &:last-child {
+          border-top-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+        }
+      }
+      @media print {
+        ul {
+          display: none;
+        }
+      }
+    }
+    .relationsList {
+      margin-bottom: 24px;
+      .listCon {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+        h5 {
+          margin-top: 5px;
+          padding-left: 5px;
+          font-weight: normal;
+          color: #000;
+        }
+      }
+      .relationsListLi {
+        margin-top: 5px;
+        .title {
+          padding-left: 5px;
+          display: inline-block;
+          width: 78px;
+          box-sizing: border-box;
+          // font-weight: bold;
+          vertical-align: top;
+          word-break: break-word;
+        }
+        .value {
+          display: inline-block;
+          padding-left: 24px;
+          padding-right: 5px;
+          box-sizing: border-box;
+          width: calc(~'100% - 78px');
+          word-break: break-word;
+          white-space: pre-wrap;
+          .richText {
+            img {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+  .ant-table {
+    font-size: 12px;
+    color: #000;
+  }
+  .ant-table table {
+    border-radius: 0px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    border-right: 0px !important;
+    border-left: 0px;
+  }
+  .relationsTable + .controlDiv {
+    margin-top: 24px;
+  }
+  .relationsList + .controlDiv,
+  .relationsTable + .controlDiv {
+    border-top: 1px solid #ddd;
+  }
+  .ant-table tbody > tr.ant-table-row:hover > td {
+    background: #fff;
+  }
+  .ant-table thead > tr > th,
+  .ant-table tbody > tr > td,
+  .ant-table tfoot > tr > th,
+  .ant-table tfoot > tr > td {
+    padding: 5px;
+    border: 1px solid #ddd;
+  }
+  .ant-table-thead > tr > th {
+    background: #fafafa !important;
+  }
+  .ant-table tbody > tr:last-child > td {
+    border-bottom: 0;
+  }
+  .ant-table-container table > thead > tr:first-child th:first-child,
+  .ant-table-container table > thead > tr:first-child th:last-child,
+  .ant-table-container {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+  .ant-table.ant-table-bordered thead > tr > th,
+  .ant-table.ant-table-bordered tbody > tr > td {
+    border-top: 0px;
+    border-right: 0px !important;
+    color: #000;
+    font-weight: normal;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .ant-table-container table > thead > tr:first-child th:first-child,
+  .ant-table.ant-table-bordered tbody > tr > td:first-child {
+    border-left: 0px;
+  }
+  .ant-table-container table > thead > tr:first-child th:last-child,
+  .ant-table.ant-table-bordered tbody > tr > td:last-child {
+    border-right: 0px !important;
+  }
+  .ant-table.ant-table-bordered .ant-table-container {
+    border-left: 0px;
+    border: 0px;
+    border-right: 0px !important;
+    border-bottom: 0px;
+  }
+  .relationsTable {
+    overflow: hidden;
+    &.noData {
+      .ant-table-tbody {
+        display: none;
+      }
+    }
+  }
+  @media print {
+    .react-resizable-handle {
+      display: none;
+    }
+    .ant-table .ant-table-container::before,
+    .ant-table .ant-table-container::after {
+      display: none;
+    }
+    .ant-table table {
+      border-radius: 0px;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      border-right: 0px !important;
+      border-left: 0px !important;
+    }
+    img {
+      display: inline-block !important;
+      // page-break-before: auto!important;
+      // page-break-after: always!important;
+      page-break-inside: avoid !important;
+    }
+  }
+  .recordAttachments {
+    .recordAttachmentPictures {
+      margin-top: -4px;
+      overflow: hidden;
+      .pictureAttachment {
+        box-sizing: border-box;
+        float: left;
+        width: 50%;
+        .imgCon {
+          max-width: 100%;
+          max-height: 158px;
+          margin: 10px auto;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          img {
+            max-width: 100%;
+            max-height: 158px;
+          }
+        }
+        &:nth-child(2n) {
+          padding-left: 10px;
+        }
+        &:nth-child(2n + 1) {
+          clear: both;
+          padding-right: 10px;
+        }
+      }
+      &.bottomNoLine {
+        margin-bottom: -9px;
+      }
+    }
+  }
+  .react-resizable {
+    position: relative;
+    background-clip: padding-box;
+  }
+
+  .react-resizable-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    bottom: 0;
+    right: -5px;
+    cursor: col-resize;
+    z-index: 1;
+  }
+  thead > tr > th.orderNumber .react-resizable-handle,
+  thead > tr > th:last-child .react-resizable-handle {
+    cursor: initial;
+  }
+  .ant-table-cell {
+    .recordAttachments .recordAttachmentPictures {
+      .pictureAttachment {
+        float: initial;
+        position: relative;
+        vertical-align: top;
+        display: inline-block;
+        width: 148px;
+        padding-right: 8px;
+        .imgCon {
+          max-width: 140px;
+          img {
+            max-width: 140px;
+          }
+        }
+        &:nth-child(2n + 1) {
+          clear: initial;
+        }
+        &:nth-child(2n) {
+          padding-left: 0;
+        }
+      }
+    }
+  }
+  .worksTable {
+    margin-top: 24px;
+    .workDetail {
+      .workPersons {
+        margin-top: 10px;
+        table {
+          width: 100%;
+          border-spacing: 0;
+          tr:first-child {
+            th {
+              border-top: 1px solid #333;
+              background-color: #fafafa;
+            }
+          }
+          th {
+            height: 26px;
+            border: 1px solid #ddd;
+            border-right: 0;
+            text-align: left;
+            padding: 5px;
+            font-weight: normal;
+          }
+          th:first-child {
+            border-left: 0;
+          }
+          .person {
+            width: 25%;
+          }
+          .todo {
+            width: 22%;
+          }
+          .time {
+            width: 19%;
+          }
+          .opinion {
+            width: 300px;
+            white-space: pre-wrap;
+          }
+          td {
+            border: 1px solid #ddd;
+            border-right: 0;
+            border-top: 0;
+            height: 26px;
+            word-wrap: break-word;
+            word-break: break-word;
+            padding: 5px;
+            box-sizing: border-box;
+            text-align: left;
+          }
+          td:first-child {
+            border-left: 0;
+          }
+          tr:last-child {
+            td {
+              border-bottom: 1px solid #333;
+            }
+          }
+          tr.countersign {
+            td {
+              border-bottom: 0;
+            }
+          }
+          tr.countersign:last-child {
+            td {
+              border-bottom: 1px solid #ddd !important;
+            }
+          }
+          tr.endCountersign {
+            td {
+              border-bottom: 1px solid #ddd !important;
+            }
+          }
+        }
+      }
+    }
+  }
+  .ant-table.ant-table-bordered thead > tr > th,
+  .ant-table.ant-table-bordered tbody > tr > td {
+    &.borderLine {
+      border-right: 2px solid #2196f3 !important;
+    }
+  }
+  .infoSignature {
+    height: 100px;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+  }
+}

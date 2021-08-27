@@ -1,0 +1,207 @@
+
+.appHomeMobile {
+  background: #fff;
+
+  #containerBg {
+    background: #fff;
+  }
+
+  .processWrapper {
+    padding: 20px;
+    border-bottom: 5px solid #f5f5f5;
+    .processItem, .processNotice {
+      font-size: 15px;
+      justify-content: center;
+    }
+    .processItem {
+      border-right: 1px solid #E0E0E0;
+    }
+    .icon {
+      color: #2196F3;
+    }
+    .count {
+      color: #fff;
+      line-height: 18px;
+      border-radius: 24px;
+      padding: 0px 5px;
+      justify-content: center;
+      background-color: #F44336;
+      margin-left: 5px;
+    }
+    .waitingExamineSign {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      background-color: #F44336;
+      position: absolute;
+      right: 5px;
+      top: 2px;
+    }
+  }
+
+  .guideWrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    .guide {
+      position: absolute;
+      border-radius: 8px;
+      box-shadow: rgba(0, 0, 0, 0.8) 0px 0px 0px 1000px;
+    }
+    .guide1 {
+      width: 46%;
+      height: 115px;
+      top: 130px;
+      left: 2%;
+    }
+    .guide2 {
+      width: 25%;
+      height: 115px;
+      top: 135px;
+      right: 26%;
+    }
+    .guideImg {
+      width: 68px;
+      left: 41px;
+      top: 273px;
+    }
+    .textImg {
+      width: 95%;
+      top: 379px;
+      right: 0;
+    }
+    .okImg {
+      width: 80px;
+      right: 20px;
+      top: 470px;
+    }
+    .guide2Img {
+      width: 68px;
+      right: 33%;
+      top: 273px;
+    }
+    .text2Img {
+      width: 88%;
+      top: 380px;
+      left: 20px;
+    }
+    .ok2Img {
+      width: 80px;
+      right: 50px;
+      top: 430px;
+    }
+  }
+
+  .justifyContentCenter {
+    justify-content: center;
+  }
+
+  body {
+    background: #fff;
+
+    #app {
+      .listConBox {
+        display: flex;
+        flex-direction: column;
+        .content {
+          flex: 1;
+          overflow-y: scroll;
+          padding-bottom: 32px;
+        }
+
+        .appCon {
+          width: 100%;
+          padding: 0 6px;
+          box-sizing: border-box;
+
+          .myAppItemWrap {
+            width: 25%;
+            height: 120px;
+
+            .myAppItem {
+              width: 56px;
+              text-align: center;
+              vertical-align: middle;
+              align-items: center;
+              margin: 0 auto;
+
+              .myAppItemDetail {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                color: #fff;
+                font-size: 32px;
+                text-align: center;
+
+                .Icon {
+                  vertical-align: middle;
+                }
+                .icon-plus {
+                  color: #8e8e8e;
+                  font-size: 20px;
+                }
+              }
+
+              .contentText {
+                display: -webkit-box;
+                /* autoprefixer: off */
+                -webkit-box-orient: vertical;
+                /* autoprefixer: on */
+                -webkit-line-clamp: 2;
+                text-overflow: ellipsis;
+                word-break: break-all;
+                width: 100%;
+                overflow: hidden;
+                text-align: center;
+              }
+            }
+          }
+        }
+
+        .appBelongInfo {
+          display: inline-block;
+          align-items: center;
+          margin-left: 12px;
+          padding: 0 12px 0 10px;
+          border-radius: 14px;
+          line-height: 28px;
+          text-align: center;
+          font-size: 12px;
+          background-color: #f5f5f5;
+
+          span {
+            color: #757575;
+            margin-left: 4px;
+          }
+
+          .purchase {
+            color: #2196f3;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .addApp {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      margin-top: 10px;
+      border-radius: 25px;
+      background-color: #2196F3;
+    }
+
+    .createInfoModal {
+      .am-modal-body {
+        display: none;
+      }
+    }
+  }
+
+  .errPageCon {
+    padding: 0 88px;
+  }
+}

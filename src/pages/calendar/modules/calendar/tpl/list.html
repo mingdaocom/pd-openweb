@@ -1,0 +1,42 @@
+﻿{{?it.restCalCount || it.calendars}}
+    {{? it.isFirst}}
+    <div class="calendarListHeader">
+        <ul>
+            <li>
+                <div class="calendarListColor">{{! _l('分类')}}</div>
+                <div class="calendarListDate">{{!_l('日期')}}</div>
+                <div class="calendarListTime">{{!_l('时间')}}</div>
+                <div class="calendarListName">{{!_l('发起人')}}</div>
+                <div class="calendarListTitle">{{!_l('事件')}}</div>
+                <div class="Clear"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="calendarList">
+    {{?}}
+        {{~it.calendars:calendar:i}}
+            <div class="calendarListModel">
+                <ul>
+                    <li data-id="{{!calendar.eventID }}" data-time="{{!moment(calendar.start).format('YYYY-MM-DD')}}" data-recurtime="{{=calendar.recurTime ? moment(calendar.recurTime).toISOString() : ''}}" data-time-ms="{{!new Date(calendar.start).getTime() }}" class="pointer" data-istask="{{=calendar.isTask}}">
+                        <div class="calendarListColor"><span class="{{!it.colorClass(calendar.backgroundColor) }}"></span></div>
+                        <div class="calendarListDate">{{=moment(calendar.start).format('MMMDo')}}</div>
+                        <div class="calendarListTime">{{?calendar.allDay}}{{!_l('全天') }}{{??}}{{!moment(calendar.startTime).format('HH:mm')}} - {{!moment(calendar.endTime).format('HH:mm')}}{{?}}</div>
+                        <div class="calendarListName">{{!calendar.createUserName }}</div>
+                        <div class="calendarListTitle">{{!calendar.title }}</div>
+                    </li>
+                </ul>
+            </div>
+        {{~}}
+    {{? it.isFirst}}
+        <div class="calendarListMore {{? it.restCalCount === 0}}Hidden{{?}}">
+            <a href="javascript:void(0);" id="calendarListMore" queryend="{{!it.queryEnd }}" restcalcount="{{!it.restCalCount }}">{{!_l('更多日程...')}}</a> {{!_l('至')}} <span id="calendarListMoreData">{{!it.queryEnd }}</span>
+        </div>
+    </div>
+    {{?}}
+{{??}}
+    <div class="calendarNoList">
+        {{!_l('未找到今后的日程列表') }}<br />
+        {{!_l('您可以创建新日程或使用快捷键') }}<span class="calendarNoListC">C</span>{{!_l('创建') }}<br />
+        <span class="calendarNoListBtn pointer">{{!_l('创建新日程') }}</span>
+    </div>
+{{?}}

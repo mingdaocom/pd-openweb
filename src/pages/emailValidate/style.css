@@ -1,0 +1,60 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #f5f5f5;
+  position: relative;
+}
+
+.staticPageForm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -300px;
+  margin-top: -200px;
+}
+
+/*按钮样式*/
+
+.btn {
+  color: white;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 14px;
+  border: 0px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btnEnabled {
+  background-color: #2196f3;
+  cursor: pointer;
+  transition: background-color 0.5s;
+}
+
+.btnEnabled:hover {
+  background-color: #42a5f5;
+  transition: background-color 0.5s;
+}
+
+.main {
+  width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.logoContainer {
+  width: 100px;
+  height: 30px;
+  margin: 0 auto;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  background-image: url(./logo.png);
+}

@@ -1,0 +1,153 @@
+﻿@charset 'UTF-8';
+.AppTask {
+  .singleFolderTask li {
+    line-height: 46px;
+    position: relative;
+    min-height: 46px;
+  }
+  .singleFolderTask .singleTreeTask {
+    min-height: 46px;
+    cursor: pointer;
+  }
+  .singleFolderTask > li {
+    border-bottom: 1px #ccc solid;
+    background-color: #fff;
+  }
+  .singleFolderTask li .markTaskHover,
+  .singleFolderTask li .markTask {
+    display: inline-block;
+  }
+  .singleFolderTask .treeMark {
+    display: inline-block;
+    width: 20px;
+    margin-left: 9px;
+    vertical-align: top;
+  }
+  #taskList .singleFolderTask .taskListName {
+    position: inherit;
+    padding-right: 40px;
+    padding-left: 5px;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+  }
+  #taskList .singleFolderTask .taskListNameBox {
+    position: absolute;
+    right: 0;
+    left: 0;
+  }
+  .singleFolderTask .nodeSwitch {
+    display: block;
+    width: 13px;
+    height: 14px;
+    margin-top: 17px;
+    margin-left: 14px;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: top;
+    background: url(../images/treeFold.png) no-repeat 0 200px;
+    background-size: 13px 55px;
+  }
+  .singleFolderTask .nodeSwitch.on {
+    background-position: 0 0;
+  }
+  .singleFolderTask .nodeSwitch.on:hover {
+    background-position: 0 -14px;
+  }
+  .singleFolderTask .nodeSwitch.off {
+    background-position: 0 -28px;
+  }
+  .singleFolderTask .nodeSwitch.off:hover {
+    background-position: 0 -42px;
+  }
+  .operation .taskStar {
+    font-size: 20px;
+    display: inline-block;
+    visibility: hidden;
+    margin: 13px 13px 0 0;
+    vertical-align: top;
+    color: #99a1ab;
+  }
+  .singleTreeTask:hover .taskStar.icon-star-hollow {
+    visibility: visible;
+  }
+  .operation .taskStar.icon-task-star {
+    visibility: visible;
+    color: #fbc02d;
+  }
+  /* line */
+  .singleTreeTask .joinLine {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    height: 17px;
+    border-left: 1px #cfcfcf solid;
+  }
+  .singleTreeTask .joinLineSub {
+    left: 20px;
+  }
+  .singleSubFolderTask.tLine {
+    border: 0;
+    border-left: 1px #cfcfcf solid;
+  }
+  .singleTreeTask .subJoinLine {
+    display: inline-block;
+    width: 15px;
+    height: 12px;
+    margin-top: 23px;
+    vertical-align: top;
+    border-top: 1px #cfcfcf solid;
+  }
+  .singleTreeTask .subNoneNode {
+    width: 5px;
+    margin-top: 23px;
+    border-top: 1px #cfcfcf solid;
+  }
+  .singleTreeTask .nodeCircleSmall {
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin-top: 19px;
+    border: 1px solid #cfcfcf;
+    background-color: #f8f8f8;
+  }
+  .singleTreeTask .joinPrevLine {
+    position: absolute;
+    top: -1px;
+    left: 16px;
+    height: 24px;
+    border-left: 1px #cfcfcf solid;
+  }
+  .singleSubFolderTask .nodeSwitch {
+    margin-left: 0;
+  }
+  .singleTreeTask .chargeTd {
+    display: inline-block;
+  }
+  .tVLine {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 22px;
+    left: 16px;
+    border-left: 1px #ccc solid;
+  }
+  .tVLine.tVTop {
+    top: 28px;
+  }
+  .tliLine {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 16px;
+    border-left: 1px #ccc solid;
+  }
+  .treeLoadingSingleTask {
+    margin-top: -32px;
+  }
+  .treeLoadingSingleTask .TxtCenter {
+    margin: 0 !important;
+  }
+}

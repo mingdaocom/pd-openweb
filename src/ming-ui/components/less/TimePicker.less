@@ -1,0 +1,126 @@
+@input-width: 70px;
+@input-height: 32px; // 输入框的高度
+// 选项
+@select-height: 184px;
+@select-placeholder-height: 160px; //下拉选项末尾空白高度
+@select-item-width: 70px;
+@select-item-height: 24px;
+@select-item-padding-left: 10px;
+
+@ptimepicker-radius: 3px; // 圆角
+@timpicker-font: 14px; // 字体大小
+@timpicker-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+
+.TimePicker {
+  &--disabled {
+  }
+  // 输入框
+  input {
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    height: @input-height;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: @timpicker-font;
+    &:hover {
+      border-color: #bbb;
+    }
+    &:focus {
+      border-color: @themeColor3;
+    }
+  }
+  // 时间选择器输入框
+  &-input {
+    color: @grayDarker;
+    font-size: @timpicker-font;
+    width: @input-width;
+    border-radius: @ptimepicker-radius;
+  }
+  // 下拉面板输入框
+  &-panel-input {
+    width: @select-item-width*2;
+    border-top-left-radius: @ptimepicker-radius;
+    border-top-right-radius: @ptimepicker-radius;
+  }
+  // 尺寸
+  &-panel--small {
+    .TimePicker-panel-input {
+      width: @select-item-width;
+    }
+  }
+  &-panel--large {
+    .TimePicker-panel-input {
+      width: @select-item-width*3;
+    }
+  }
+  &-panel-container {
+    box-shadow: @timpicker-shadow;
+  }
+  &-panel-input-container {
+    position: relative;
+    display: inline-block;
+  }
+  &-input-clear {
+    position: absolute;
+    font-size: 16px;
+    cursor: pointer;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: @gray;
+    &:hover {
+      color: @grayDark;
+    }
+  }
+  // 下拉面板
+  &-panel {
+    position: relative;
+    display: flex;
+    background-color: #fff;
+    border-bottom-left-radius: @ptimepicker-radius;
+    border-bottom-right-radius: @ptimepicker-radius;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    &-item {
+      flex: 1;
+    }
+    &-item + &-item {
+      border-left: 1px solid #ddd;
+    }
+  }
+  // 下拉选项
+  &-select {
+    height: @select-height;
+    overflow-y: scroll;
+  }
+  &-select-placeholder {
+    height: @select-placeholder-height;
+  }
+  &-select-item {
+    cursor: pointer;
+    color: @grayDark;
+    text-align: left;
+    font-size: @timpicker-font;
+    padding-left: @select-item-padding-left;
+    height: @select-item-height;
+    line-height: @select-item-height;
+    &:hover {
+      color: #fff;
+      background-color: @themeColor3;
+      &.actived {
+        color: #fff;
+      }
+      &.disabled {
+        color: @grayLight;
+        background-color: #fff;
+      }
+    }
+    &.actived {
+      color: @themeColor3;
+    }
+    &.disabled {
+      color: @grayLight;
+    }
+  }
+}

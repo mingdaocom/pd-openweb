@@ -1,0 +1,63 @@
+
+
+.k2ShareNodeDialog .nodeName .name{
+  max-width: 370px;
+  display: inline-block;
+}
+.k2ShareNodeDialog .nodeName .ext{
+  max-width: 60px;
+  display: inline-block;
+}
+.k2ShareNodeDialog .statusFlag{
+  height: 30px;
+  line-height: 30px;
+  margin: 8px 0;
+}
+.k2ShareNodeDialog .statusFlag .icon-task-responsible{
+  font-size: 20px;
+  color: #7fc367;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.k2ShareNodeDialog .sharedLinks{
+  height: 40px;
+  line-height: 40px;
+}
+.k2ShareNodeDialog .sharedLinks .linkUrl{
+  border: 1px #999 solid;
+  border-radius: 3px;
+  width: 276px;
+  height: 26px;
+  line-height: 26px;
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 6px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+.k2ShareNodeDialog .sharedLinks .linkUrl::selection {
+  color: #333;
+  background: #bbdef7;
+}
+.k2ShareNodeDialog .sharedLinks .btnBootstrap{
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  width: 70px;
+  border-radius: 3px;
+  color: #fff;
+}
+.k2ShareNodeDialog .sharedSetting{
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px #999 dashed;
+}
+.k2ShareNodeDialog .sharedSetting .settingUL{
+  margin-left: 94px;
+  margin-top: -3px;
+}
+.k2ShareNodeDialog .sharedSetting .settingUL li{
+  height: 28px;
+  line-height: 28px;
+}

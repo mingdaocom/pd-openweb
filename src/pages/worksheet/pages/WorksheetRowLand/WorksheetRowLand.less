@@ -1,0 +1,50 @@
+.worksheetRowLand {
+  position: relative;
+  height: 100%;
+  padding: 20px 32px;
+  overflow-x: auto;
+  .backBtn {
+    text-decoration: none;
+    padding: 5px;
+  }
+  .dialogBodyBox {
+    overflow: hidden;
+  }
+  .workSheetRecordInfo {
+    overflow: auto;
+    position: relative;
+    max-width: 1600px;
+    min-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    .recordHeader {
+      padding-right: 24px;
+    }
+    .excelTitle {
+      .prevRecordBtn,
+      .nextRecordBtn {
+        display: none;
+      }
+    }
+    .recordInfoBox {
+      .excelTitle {
+        background-color: #f5f5f5;
+        .Right {
+          height: 55px;
+        }
+      }
+    }
+    .discussLogFile {
+      background-color: #f5f5f5;
+    }
+    .worksheetCancelBtn,
+    .leftButtonBox,
+    .rightButtonBox {
+      display: none;
+    }
+  }
+}

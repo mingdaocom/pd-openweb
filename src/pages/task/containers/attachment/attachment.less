@@ -1,0 +1,339 @@
+﻿.AppTask {
+  .attachmentBox {
+    padding: 0 !important;
+  }
+  .attachmentMain {
+    margin-top: 15px;
+    position: relative;
+    .listCreateNew {
+      margin: 0 20px;
+    }
+  }
+  .listCreateNew {
+    height: 310px;
+    padding-top: 130px;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-sizing: initial;
+  }
+  .listCreateNew .creatNewContent {
+    font-size: 16px;
+    line-height: 30px;
+    width: 325px;
+    margin: 0 auto;
+    cursor: pointer;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.4);
+  }
+  /*toolbar*/
+  .attachmentBar {
+    width: 100%;
+    padding: 6px 20px;
+    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    height: 42px;
+    min-height: 42px;
+  }
+  .switchView {
+    position: absolute;
+    top: 0;
+    right: 30px;
+    font-size: 20px;
+  }
+  .switchView:not(:hover) {
+    color: #999 !important;
+  }
+  .switchView .switchViewBtn {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 10px;
+  }
+  /*列表视图*/
+  .taskAttachmentList {
+    height: 100%;
+    position: relative;
+    user-select: none;
+    padding: 0 20px;
+  }
+  .attachmentheader {
+    height: 38px;
+    line-height: 38px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #ededed;
+    border-radius: 3px 3px 0 0;
+    color: #999;
+    font-size: 13px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  }
+  .attachmentName {
+    margin-left: 20px;
+    font-size: 13px;
+  }
+  .attachmentTask {
+    margin-left: 38px;
+    width: 280px;
+    font-size: 13px;
+  }
+  .attachmentTask:not(:hover) {
+    color: #999 !important;
+  }
+  .attachmentDate {
+    margin-left: 38px;
+    width: 138px;
+    color: #999;
+  }
+  .attachmentPerson {
+    width: 100px;
+  }
+  .taskAttachmentList .taskAttachmentListBox {
+    position: absolute;
+    top: 39px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    padding: 0 20px;
+  }
+  .taskAttachmentListBox ul {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 3px 3px;
+  }
+  .taskAttachmentListBox li {
+    width: 100%;
+    height: 48px;
+    line-height: 48px;
+    background-color: #fff;
+    border-bottom: 1px solid #ededed;
+  }
+  .taskAttachmentListBox li:last-child {
+    border-radius: 0 0 3px 3px;
+    border-bottom: 0;
+  }
+  .taskAttachmentListBox li:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+  }
+  .attachmentPerson .taskFolderAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: top;
+    margin: 12px 0 0 7px;
+  }
+  .attachmentPerson .attachmentListOperation {
+    cursor: pointer;
+    width: 20px;
+    transform: rotate(90deg);
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 18px;
+    margin-left: 40px;
+  }
+  .attachmentPerson .attachmentListOperation:not(:hover) {
+    color: #a6a6a6 !important;
+  }
+  .attachmentNameBox {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+  }
+  .attachmentNameBox .attachmentImg {
+    width: 32px;
+    height: 32px;
+    margin-top: 8px;
+    margin-right: 10px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+  }
+  .attachmentNameBox .attachmentImg img {
+    max-width: 32px;
+    max-height: 32px;
+    display: block;
+    margin: 0 auto;
+  }
+  .attachmentNameBox .attachmentImg .attachmentType {
+    width: 28px;
+    height: 32px;
+  }
+  .taskThumbnailImg .attachmentType {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    background-size: 42px 48px !important;
+    background-position: 50%;
+  }
+  .attachmentNameBox .attachmentExt {
+    min-width: 33px;
+  }
+  /*缩略图*/
+  .taskThumbnail {
+    min-width: 830px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow: auto;
+    padding: 0 20px;
+  }
+  .taskThumbnail li {
+    width: 16.5%;
+    float: left;
+    height: 208px;
+    margin-bottom: 12px;
+    padding: 0 6px;
+  }
+  .taskThumbnail li:hover {
+    cursor: pointer;
+  }
+  .taskThumbnailBox {
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+  }
+  .taskThumbnailBox:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  }
+  .taskThumbnailBox:hover .taskThumbnailOperation {
+    display: block;
+  }
+  .taskThumbnail li:hover .taskThumbnailImg img {
+    opacity: 0.9;
+  }
+  .taskThumbnailImg {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    background-color: #ddd;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  .taskThumbnailImg img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+  .taskThumbnailContent {
+    width: 100%;
+    padding: 0 8px 0 36px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .taskThumbnailContent .taskFolderAvatar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  .taskThumbnailTitle {
+    width: 100%;
+    padding-top: 8px;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: -moz-box;
+    display: flex;
+    display: -webkit-flex;
+  }
+  .taskThumbnailTitle .overflow_ellipsis {
+    font-size: 13px;
+    height: 20px;
+    line-height: 20px;
+  }
+  .taskThumbnailTitle .taskSuffix {
+    height: 20px;
+    line-height: 20px;
+    min-width: 36px;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -moz-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+  }
+  .taskThumbnailName {
+    width: 100%;
+    line-height: 20px;
+    height: 20px;
+    margin-top: 3px;
+  }
+  .taskThumbnailName:not(:hover) {
+    color: #9e9e9e !important;
+  }
+  .taskThumbnailOperation {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    cursor: pointer;
+    width: 20px;
+    transform: rotate(90deg);
+    background: #fff;
+    text-align: right;
+    display: none;
+  }
+  .taskThumbnailOperation:not(:hover) {
+    color: #a6a6a6 !important;
+  }
+  #attachmentOperation {
+    position: absolute;
+    z-index: 1000;
+    background: #fff;
+    border-radius: 5px;
+    padding: 5px 0;
+    width: 105px;
+  }
+  #attachmentOperation li {
+    height: 32px;
+    line-height: 32px;
+    text-indent: 15px;
+  }
+  #attachmentOperation li:not(:hover) {
+    background: #fff !important;
+  }
+  #attachmentOperation li:hover {
+    color: #fff;
+    cursor: pointer;
+  }
+  .operationActive {
+    display: inline-block !important;
+    color: #757575 !important;
+  }
+  .attachmentNoData {
+    text-align: center;
+    line-height: 35px;
+  }
+  .attachmentNoDataBG {
+    background-image: url('./images/noData.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70px 85px;
+    width: 150px;
+    height: 150px;
+    margin: -10px auto 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+  }
+
+  @media screen and (max-width: 1440px) {
+    .taskThumbnail li {
+      width: 19.8%;
+    }
+  }
+  @media screen and (max-width: 1340px) {
+    .taskThumbnail li {
+      width: 24.8%;
+    }
+  }
+}

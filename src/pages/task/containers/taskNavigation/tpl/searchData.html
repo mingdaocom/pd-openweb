@@ -1,0 +1,9 @@
+﻿<li class="searchTask selected" data-type="task"><span class="icon-search" title="{{=_l('搜索')}}"></span>{{!_l('搜索和“%0”相关的任务',it.keywords)}}&gt;</li>
+{{~it.folders:folder }}
+    <!-- 项目 -->
+    <li class="searchFolders" data-type="folder" data-id="{{=folder.folderID}}"><i class="icon-project-new"></i>{{!folder.folderName }}</li>
+{{~}}
+{{~it.labels:label }}
+    <!-- 标签 -->
+    <li class="searchCategorys" data-type="category" data-id="{{=label.categoryID}}"><i class="icon-task-label"></i>{{!label.categoryName }}</li>
+{{~}}

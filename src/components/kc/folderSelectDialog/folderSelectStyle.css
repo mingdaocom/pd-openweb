@@ -1,0 +1,433 @@
+﻿#folderSelectDialog {
+}
+/*#folderSelectDialog ul li{
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+}*/
+
+#folderSelectDialog .folderContent {
+
+}
+
+#folderSelectDialog .folderContent .folderUrl {
+    margin: -4px 0 4px;
+    font-size: 14px;
+    height: 30px;
+    overflow-x:hidden;
+}
+#folderSelectDialog .folderContent .folderUrl .positionUrl{
+    transition:all 1s ease;
+}
+#folderSelectDialog .folderContent .folderNode {
+    border: 0px solid #ccc;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    margin: 0 -24px;
+    padding: 4px 24px;
+    overflow: hidden;
+    overflow-y: auto;
+    box-sizing:border-box;
+    min-height: 300px;
+    max-height: 380px;
+}
+#folderSelectDialog .folderContent .folderNode .project{
+
+}
+#folderSelectDialog .folderContent .folderNode .project.myFiles{
+  margin-top: 5px;
+}
+#folderSelectDialog .folderContent .folderNode .project .projectName, #folderSelectDialog .folderContent .folderNode .homeNetWork{
+    padding: 10px 0 5px 14px;
+    display: inline-block;
+    max-width: 300px;
+}
+#folderSelectDialog .folderContent .folderNode .project > i{
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor:pointer;
+    color: #666;
+}
+#folderSelectDialog .folderContent .animated {
+    -webkit-transition:all 1s ease;
+    transition:all 1s ease;
+}
+#folderSelectDialog .folderContent .folderNode .project .initFlop{
+    transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+}
+#folderSelectDialog .folderContent .folderNode .flop{
+    transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+}
+#folderSelectDialog .folderNode .nodeList {
+    width: 100%;
+    font-size: 0px;
+    position:relative;
+}
+
+#folderSelectDialog .folderUrl .disable{
+    cursor: initial !important;
+    color: #9e9e9e !important;
+}
+
+#folderSelectDialog .folderUrl .levelName {
+    cursor: pointer;
+    display: inline-block;
+}
+#folderSelectDialog .folderUrl .levelName:not(.ThemeColor3):hover{
+  text-decoration:none!important;
+}
+#folderSelectDialog .folderUrl .levelName:nth-child(3){
+    max-width: 130px !important;
+}
+
+#folderSelectDialog .folderUrl .levelName:not(.flex){
+    max-width: 84px;
+}
+#folderSelectDialog .folderUrl .levelName:hover{
+    text-decoration:underline;
+}
+#folderSelectDialog .folderUrl .operation{
+    display:none;
+    padding-left:15px;
+    box-sizing: border-box;
+    color: #7d7d7d;
+    font-size:0px;
+}
+#folderSelectDialog .folderUrl .operation .createFolder,#folderSelectDialog .folderUrl .operation .icon-search{
+    vertical-align:middle;
+    color: #7d7d7d;
+    opacity: .8;
+}
+#folderSelectDialog .folderUrl .operation .createFolder:hover,#folderSelectDialog .folderUrl .operation .icon-search:hover{
+  opacity:1;
+}
+#folderSelectDialog .folderUrl .operation .createFolder{
+    font-size: 18px;
+    cursor: pointer;
+}
+#folderSelectDialog .folderUrl .operation .icon-search{
+    font-size:16px;
+    cursor:pointer;
+    background-color:#fff;
+    display: inline-block;
+    height: 22px;
+    width: 24px;
+    line-height: 22px;
+}
+#folderSelectDialog .folderUrl .operation .folderSearch{
+    display: inline-block;
+    margin-right: 12px;
+    margin-left:12px;
+    box-sizing: border-box;
+    height: 30px;
+    line-height: 30px;
+}
+#folderSelectDialog .folderUrl .operation .searchFolder{
+    margin-right: -14px;
+    padding: 2px 0px 2px 0px;
+    vertical-align: middle;
+    width: 0px;
+    border-width: 0px;
+    border-bottom: 1px solid #7d7d7d;
+    font-size: 13px;
+}
+.folderNode .nodeList .nodeItem , .folderNode .nodeList .addNewFolder, .folderNode .nodeList .nullItem {
+    box-sizing: border-box;
+    height: 46px;
+    line-height: 46px;
+    cursor: pointer;
+}
+#folderSelectDialog .folderNode .nodeList .nullItem{
+    font-size:12px;
+    background-color:#f9f9f9;
+    padding-left:56px;
+}
+.folderNode .nodeList .addNewFolder .editBox{
+    margin-left: 15px;
+    vertical-align: middle;
+    width: 160px;
+    height: 20px;
+    line-height: 20px;
+    background: #fff;
+    border:0;
+    margin-top: 3px;
+    color:#7d7d7d;
+    padding: 0;
+    user-select: auto !important;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem:not(.ThemeBGColor3) .customSelect {
+    z-index:1000 !important;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem .leftContent {
+    /*float:left;*/
+    display:inline-block;
+    font-size:0;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem .visibleType {
+    float:right;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem .noChange{
+    float:right;
+    margin-right:10px;
+    font-size:12px;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem:hover {
+    background-color: #f8f8f8;
+}
+
+#folderSelectDialog .folderNode .nodeList .nodeItem .nodeName {
+    margin-left: 15px;
+    font-size: 12px;
+    vertical-align: middle;
+    max-width: 230px;
+    display: inline-block;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem:not([nodeType="2"]) .nodeName:hover{
+    text-decoration:underline;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem .nodeExt {
+    display:inline-block;
+    font-size: 12px;
+    vertical-align: middle;
+    min-width:20px;
+    max-width: 45px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#folderSelectDialog .folderNode .nodeList .nodeItem .nodeType, .folderNode .nodeList .addNewFolder .nodeType {
+    height: 32px;
+    width: 29px;
+    vertical-align: middle;
+    margin-left: 10px;
+    display: inline-block;
+    font-size: 20px;
+}
+#folderSelectDialog .folderNode .nodeList .nodeItem .icon-attachment{margin:5px -5px 0 15px;}
+#folderSelectDialog .folderNode .nodeList .nodeItem .fileIcon-folder{margin-top:-4px;}
+#folderSelectDialog .colorWhite {
+    color: #fff;
+}
+
+#folderSelectDialog .folderNode .nodeList .nodeItem .customSelect {
+    float:right;
+    /*position: static !important;*/
+}
+#folderSelectDialog .nodeList .nodeItem .customSelect .csList {
+    left:inherit;
+    right:0;
+}
+#folderSelectDialog .nodeList .nodeItem .customSelect .csList ul li {
+    box-sizing: border-box;
+    text-align:right;
+}
+#folderSelectDialog .noItemBox {
+    -webkit-box-shadow: 0px 2px 10px 0px rgba(245,68,68,1);
+    -moz-box-shadow: 0px 2px 10px 0px rgba(245,68,68,1);
+    box-shadow: 0px 2px 10px 0px rgba(245,68,68,1);
+}
+
+#folderSelectDialog .folderNode .nullData {
+    /*padding: 15px 15px;*/
+    text-align: center;
+    margin-top: 10px;
+    width:100%;
+}
+
+#folderSelectDialog .selectedHint {
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    margin-top:8px;
+    padding:0 15px;
+    overflow:hidden;
+    display: none !important;
+}
+
+/*#folderSelectDialog .selectedHint .selectedTitle {
+    width: 56px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+#folderSelectDialog .selectedHint .selectedItem {
+    display: inline-block;
+    width: 369px;
+    border: 1px solid #bdbdbd;
+    height: 28px;
+    line-height: 28px;
+    vertical-align: middle;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 8px;
+    padding-left: 5px;
+}*/
+#folderSelectDialog .selectedHint .selectedItem{
+    font-size:12px;
+
+}
+
+#folderSelectDialog .selectedHint .selectedItem .item {
+   margin-right:10px;
+   background-color: #9c9c9c;
+   padding: 4px;
+   border-radius: 3px;
+}
+#folderSelectDialog .selectedHint .selectedItem .itemName {
+   max-width: 196px;
+   display: inline-block;
+}
+
+#folderSelectDialog .folderNode .nodeItem .searchPath{
+    min-width: 40px;
+    opacity:.5;
+    text-align: right;
+    padding-left: 15px;
+}
+#folderSelectDialog .folderNode .nodeItem .searchPath span{
+    display:inline-block;
+}
+#folderSelectDialog .folderNode .nodeItem .searchPath span:not(.felx){
+  max-width:60px;
+}
+#folderSelectDialog .folderNode .nodeItem .searchPath .rootName{
+    max-width:50px;
+}
+#folderSelectDialog .folderNode .nodeItem .searchPath .above{
+    text-align:left;
+}
+#folderSelectDialog .folderNode .nodeItem .statusIcon{
+    width: 26px;
+    margin: 0 8px;
+    text-align: center;
+    display:inline-block;
+    position:relative;
+}
+/* #folderSelectDialog .folderNode .nodeItem .sharePer:after {
+    content: '';
+    position: absolute;
+    display: inline-block;
+    width: 100%;
+    height: 4px;
+    left: 0;
+    bottom: -4px;
+} */
+#folderSelectDialog .folderNode .nodeItem .statusIcon > i{
+    vertical-align:middle;
+}
+#folderSelectDialog .folderNode .nodeItem .statusIcon > i:not(.ThemeColor3){
+    opacity:.5;
+}
+/*分享权限*/
+#folderSelectDialog  .sharePermision{
+    position: absolute;
+    display: none;
+    left: 20px;
+    bottom: 6px;
+    width: 270px;
+    background-color:#fff;
+    box-shadow: 0 4px 7px rgba(0,0,0,.2);
+    border: 1px solid #f1f1f1;
+    z-index:1005;
+    border-radius: 3px;
+}
+#folderSelectDialog  .contraryTaskBoxShadow{
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.13), 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+#folderSelectDialog  .contraryShareShadow{
+    -webkit-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.1);
+    box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.1);
+}
+#folderSelectDialog .sharePermision .shareList{
+    padding: 8px 0;
+}
+#folderSelectDialog .sharePermision ul li{
+    /*height:28px;*/
+    /*line-height:28px;*/
+    font-size: 14px;
+    text-align:left;
+    padding: 5px 16px;
+    overflow: hidden;
+}
+#folderSelectDialog .sharePermision ul li .desc{
+  margin: 2px 0px 5px 0;
+  line-height: 1.2em;
+  color: #bdbdbd;
+  font-size: 12px;
+}
+#folderSelectDialog .sharePermision ul li .visibleName .ownerName {
+  display: inline-block;
+  max-width: 104px;
+}
+#folderSelectDialog .sharePermision ul li .visibleName .companyName {
+  display: inline-block;
+  max-width: 132px;
+}
+#folderSelectDialog .sharePermision ul li:not(.ThemeColor3):hover{
+     background-color: #f8f8f8;
+     cursor:pointer;
+ }
+#folderSelectDialog .sharePermision ul li .selectSpan
+ {
+    font-size: 14px;
+    width: 32px;
+    text-align: center;
+    display: inline-block;
+ }
+
+ #folderSelectDialog .nodeVisibleType {
+    position: relative;
+    top: 16px;
+    height: 0;
+    box-sizing: border-box;
+    line-height: 24px;
+    color: #333;
+}
+
+#folderSelectDialog .nodeVisibleType .visibleTypeIcon {
+  width: 22px;
+  height: 22px;
+  margin-right: 10px;
+  border-radius: 22px;
+  border: 1px solid #ccc;
+  display: inline-block;
+  font-size: 18px;
+  text-align: center;
+  line-height: 20px;
+  color: #9e9e9e;
+}
+
+#folderSelectDialog .nodeVisibleType .danger {
+  border-color: #FD423E !important;
+  color: #FD423E !important;
+}
+
+#folderSelectDialog .nodeVisibleType .updateTypeBtn {
+  margin-left: 8px;
+}
+
+#folderSelectDialog .nodeVisibleType .updateTypeBtn:hover {
+  text-decoration: underline;
+}
+
+#folderSelectDialog .footer {
+  margin-top: 10px !important;
+}
+
+#folderSelectDialog .footer a {
+  z-index: 2;
+  position: relative;
+}

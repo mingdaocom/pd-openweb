@@ -1,0 +1,16 @@
+﻿<div class="mobileShareDialog">
+    <div class="urlQrCode">
+        <span class="clipLoader ThemeColor8"></span>
+    </div>
+    <div class="tip">
+        {{! it.targetText + _l('，') + it.tip }}
+    </div>
+    <div class="fileName ellipsis">
+        {{! it.fileName}}
+    </div>
+    {{? it.attachmentType === 2 }}
+    <div class="deadline">
+        {{=_l('下载链接有效期%0小时', 48)}}
+    </div>
+    {{?}}
+</div>

@@ -1,0 +1,298 @@
+#app,
+body,
+html {
+  height: 100%;
+}
+.setDescDialog {
+  .mui-dialog-footer {
+    padding-top: 0 !important;
+  }
+  input {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    color: #333;
+    border-radius: 3px;
+    border: #ccc 1px solid;
+    box-sizing: border-box;
+    padding: 0 8px;
+    &:focus {
+      border: #2196f3 1px solid;
+    }
+  }
+}
+
+.loadingDia {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  color: #fff;
+  width: 208px;
+  padding: 10px 20px;
+  font-size: 13px;
+  .loading {
+    width: 50px;
+    display: inline-block;
+    margin-right: 20px;
+    .MdLoader {
+      .MdLoader-path {
+        stroke: #e3f2fd;
+      }
+    }
+  }
+}
+
+.worksheetApiHeader {
+  font-size: 17px;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  line-height: 50px;
+
+  .appIconWrapIcon {
+    display: inline-block;
+    border-radius: 4px;
+    color: #fff;
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+  }
+
+  .appName {
+    display: inline;
+  }
+}
+
+.worksheetApiSide {
+  width: 280px;
+  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.15);
+  background: #f0f0f0;
+  box-sizing: border-box;
+  padding: 12px 0;
+
+  .loadingSkeleton {
+    background-color: #f0f0f0;
+  }
+
+  .worksheetApiMenuItem {
+    font-size: 14px;
+    padding-left: 39px;
+    height: 40px;
+    line-height: 40px;
+    cursor: pointer;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    &:hover {
+      background-color: #f8f8f8;
+    }
+    &.active {
+      color: #2196f3;
+      background-color: #fff;
+      border-top-color: #eaeaea;
+      border-bottom-color: #eaeaea;
+      border-right: 1px solid #fff;
+    }
+  }
+
+  .worksheetApiMenuTitle {
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 35px;
+    height: 40px;
+    line-height: 40px;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    border-right: 1px solid #eaeaea;
+
+    &:hover {
+      background-color: #f8f8f8;
+    }
+    &.active {
+      color: #2196f3;
+      background-color: #fff;
+      border-top: 1px solid #eaeaea;
+      border-bottom: 1px solid #eaeaea;
+      border-right: 1px solid #fff;
+    }
+  }
+
+  .worksheetApiMenu {
+    .pLeft39 {
+      padding-left: 39px !important;
+    }
+
+    .pLeft58 {
+      padding-left: 58px !important;
+    }
+
+    .worksheetApiMenuTitle {
+      padding-left: 20px;
+    }
+
+    .worksheetApiMenuItem {
+      padding-left: 39px;
+      font-weight: normal;
+    }
+  }
+}
+
+.noDataApi {
+  background: #fff;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.worksheetApiLine {
+  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+}
+
+.worksheetApiContent1 {
+  background: #fff;
+  padding: 48px 32px 48px 40px;
+  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+
+  .w32 {
+    flex: 32;
+    word-break: break-all;
+  }
+  .w25 {
+    flex: 25;
+    word-break: break-all;
+  }
+  .w22 {
+    flex: 22;
+    word-break: break-all;
+  }
+  .w30 {
+    flex: 30;
+    word-break: break-all;
+  }
+  .w12 {
+    flex: 12;
+    word-break: break-all;
+  }
+  .w8 {
+    flex: 8;
+    word-break: break-all;
+  }
+  .w18 {
+    flex: 18;
+    word-break: break-all;
+  }
+  .w14 {
+    flex: 14;
+    word-break: break-all;
+  }
+
+  .w36 {
+    flex: 36;
+    word-break: break-all;
+  }
+
+  .w46 {
+    flex: 46;
+    word-break: break-all;
+  }
+
+  .w50 {
+    flex: 50;
+    word-break: break-all;
+  }
+
+  .flexRowHeight {
+    min-height: 50px;
+    align-items: center;
+  }
+  .addSecretKey {
+    color: #2196f3;
+    &:hover {
+      color: #1482dd;
+    }
+  }
+  .moreOptionTrigger {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 150px;
+    z-index: 1;
+    background: #fff;
+    padding: 5px 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+    li {
+      box-sizing: border-box;
+      width: 100%;
+      line-height: 36px;
+      display: inline-block;
+      vertical-align: bottom;
+      height: 36px;
+      padding-left: 10px;
+      white-space: nowrap;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      color: #333;
+      -webkit-transition: none;
+      transition: none;
+      cursor: pointer;
+      &:hover {
+        color: #fff;
+        background-color: #1e88e5;
+      }
+    }
+  }
+  .worksheetApiBorder {
+    border: 1px solid #ddd;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border-radius: 2px;
+  }
+}
+
+.worksheetApiContent2 {
+  background: #303336;
+  padding: 48px 40px 48px 32px;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+
+  .react-json-view {
+    background: transparent !important;
+  }
+}
+
+.errorBox {
+  margin: 200px auto;
+  font-weight: 500;
+  font-size: 16px;
+  span {
+    color: #f6335d;
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    text-align: center;
+    line-height: 95px;
+    font-size: 50px;
+    margin: 0 auto 24px;
+  }
+}
+
+.worksheetApiScroll {
+  a {
+    text-decoration: none;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+}

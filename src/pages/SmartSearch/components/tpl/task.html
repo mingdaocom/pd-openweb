@@ -1,0 +1,33 @@
+﻿<div class="task">
+    <div class="title ThemeColor3 Font18 mTop10" type="task">
+        <div class="left Font16 GrayB8 Hand" type="task">
+            <span class="Left icon-calendar-check Font18 paddRight10 LineHeight26"></span>
+             {{= _l('任务') }}
+             <span class="pRight15 count Font12">{{= it.task.count }}</span>
+         </div>
+     </div>
+    <div class="Clear"></div>
+    <ul>
+        {{~it.task.taskList:taskList:i}}
+        <li>
+            <div class="info mLeft30 textNowrap">
+                <a href="/apps/task/task_{{= taskList.taskID }}" target="_blank">{{= it.contentStr(taskList).content.replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+            </div>
+            <div class="userOp mLeft20 TxtLeft textNowrap">
+                <a href="/user_{{= taskList.taskAccountID }}" target="_blank" data-userid="{{= taskList.taskAccountID }}" class="Gray_8"> {{=_l('创建人')}}{{= it.htmlEncodeReg(taskList.taskUserName).replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+            </div>
+            <div class="Left mLeft20 taskSummart textNowrap">{{= it.contentStr(taskList).taskSummart }}</div>
+            <div class="date">{{= taskList.taskCreateTime }}</div>
+            <div class="companyName">{{=it.companyName(taskList.companyName)}}</div>
+            <div class="Clear"></div>
+        </li>
+        {{~}}
+        <div class="mTop10"></div>
+        {{?it.task.count > 5}}
+            <li class="noneBorder">
+                <div class="ThemeColor3 showAll" type="task">{{=(_l('查看所有“%0”的结果', it.searchKeyword()))}}>
+                </div>
+            </li>
+        {{?}}
+  </ul>
+</div>

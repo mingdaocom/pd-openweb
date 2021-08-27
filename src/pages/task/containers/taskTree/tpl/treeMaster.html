@@ -1,0 +1,109 @@
+﻿{{?it.deep == 0}}
+    {{~it.data.stages:stage}}
+        {{ var tasks=stage.tasks || [], taskcount=stage.count; }}
+        {{? it.pageIndex==1 }}
+        <div class="taskListStageName">
+            <i class="arrow-down"></i>
+            <span data-stageid="{{=stage.id}}" class="listFolderNameText boderRadAll_3  overflow_ellipsis" title="{{!stage.name}}" >{{!stage.name }}</span>
+            <span class="stageTaskCount">{{=taskcount || ''}}</span>
+        </div>
+        <div class="listStageTaskContent">
+            {{#def.treeNode:{ tasks:tasks, deep:it.deep } }}
+        </div>
+        {{??}}
+            {{#def.treeNode:{ tasks:tasks, deep:it.deep } }}
+        {{?}}
+    {{~}}
+{{??}}
+    {{#def.treeNode:{ tasks:it.data, deep:it.deep } }}
+{{?}}
+
+{{## def.treeNode:param:
+{{var tasks=param.tasks;}}
+{{var taskCount=tasks.length,maxCount = taskCount - 1; }}
+{{var deep = param.deep, newDeep = deep+1;}}
+{{var statusObj;}}
+{{var pLeft=20 * deep; }}
+{{?deep==0 && it.pageIndex==1 || deep!=0 && !it.isNew}}
+<ul class="{{=deep==0?'singleFolderTask':'singleSubFolderTask'}}  {{=deep>1?'sub Relative ':'' }} ">
+{{?}}
+    {{~tasks:task:j}}
+    {{?task.charge}}
+    {{ statusObj=it.formatStatus(task.status,task.locked,task.auth);  }}
+    {{ var taskTime = it.formatTaskTime(task.status == 1, task.startTime, task.deadline, task.actualStartTime, task.completeTime);}}
+    {{?deep == 0}}
+    <li data-taskid="{{=task.taskID }}" class="{{=it.isNew && j != maxCount?'tLine':''}}" data-deep="{{=newDeep}}" data-auth="{{=statusObj.auth }}" data-stageid="{{=task.stageID}}">
+        {{?it.isNew && j != maxCount}}
+        <div class="tliLine" style="left:{{=pLeft}}px;"></div>
+        {{?}}
+    {{??}}
+        {{?(taskCount == 1 ||  j == maxCount) && !it.isNew}}
+        <li data-taskid="{{=task.taskID }}" data-deep="{{=newDeep}}" data-auth="{{=statusObj.auth }}" data-stageid="{{=task.stageID}}">
+        {{??}}
+        <li data-taskid="{{=task.taskID }}" data-deep="{{=newDeep}}" class="tLine" data-auth="{{=statusObj.auth }}" data-stageid="{{=task.stageID}}">
+        <div class="tliLine" style="left:{{=pLeft}}px;"></div>
+        {{?}}
+    {{?}}
+        <div class="singleTreeTask" data-taskid="{{=task.taskID }}" style="padding-left:{{=pLeft}}px;">
+        {{?deep != 0 }}
+            <span class="subJoinLine"></span>
+            {{?task.subCount}}
+            <span class="nodeSwitch on"></span>
+            {{??}}
+            <span class="InlineBlockTop subNoneNode"></span>
+            <span class="nodeCircleSmall circle "></span>
+            {{?}}
+
+            {{?(taskCount == 1 || j == maxCount) && !it.isNew}}
+            <div class="joinPrevLine" style="left:{{=pLeft}}px;"></div>
+            {{?}}
+        {{??}}
+            <span class="nodeSwitch {{=task.subCount?'on':''}}"></span>
+        {{?}}
+            <span class="treeMark">
+                <span class="markTask {{=statusObj.style }}" tip="{{=statusObj.tip }}"></span>
+            </span>
+            <div class="taskListName">
+                <div class="Relative">
+                    <div class="taskListNameBox">
+                        {{?task.colorTags && task.colorTags.length}}
+                        <div class="colorTagsDiv">
+                            {{~task.colorTags:tag}}
+                            <span class="colorTagCircle" style="background:{{=tag.color}}"></span> {{~}}
+                        </div>
+                        {{?}}
+                        <span class="overflow_ellipsis spanName boxSizing {{=task.status==1?'completeTask':''}}" title="{{!task.taskName }}">{{!task.taskName}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="operation">
+                {{?task.subCount}}
+                <span class="taskTagsBG">
+                    <i class="icon-task-card" tip="{{=_l('子任务')}}"></i>
+                    <span class="subCounts"><span class="completeCount">{{=task.completedNum > task.subCount ? task.subCount : task.completedNum}}</span>/<span class="subCount">{{=task.subCount || ''}}</span></span>
+                </span>
+                {{?}}
+                {{? task.totalItemCount > 0}}
+                <span class="taskTagsBG mLeft10">
+                    <i class="icon-task-list Font14 cardColor" tip="{{=_l('检查清单')}}"></i>
+                    <span class="mLeft5 cardColor">{{=task.totalCompletedItemCount}}/{{=task.totalItemCount}}</span>
+                </span>
+                {{?}}
+                <span class="taskListDate mLeft10 {{=taskTime ? '' : 'mp0'}}">
+                    <span class="deteLine" data-start="{{=task.startTime}}" data-end="{{=task.deadline}}" data-actdate="{{=task.actualStartTime}}" data-comdate="{{=task.completeTime}}">{{=taskTime}}</span>
+                </span>
+                <span class="chargeTd TxtCenter">
+                    <img class="circle chargeImg {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" src="{{=task.charge.avatar}}" data-auth="{{=task.auth}}" data-id="{{=task.charge.accountID}}">
+                </span>
+                <i class="taskStar {{=task.star ? 'icon-task-star':'icon-star-hollow' }}"></i>
+            </div>
+        </div>
+    </li>
+    {{??}}
+      {{console.log(task);}}
+    {{?}}
+    {{~}}
+{{?deep==0 && it.pageIndex==1 || deep!=0 && !it.isNew}}
+</ul>
+{{?}}
+#}}

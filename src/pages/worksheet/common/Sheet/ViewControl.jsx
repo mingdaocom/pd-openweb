@@ -1,0 +1,381 @@
+import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import styled from 'styled-components';
+import { last } from 'lodash';
+import cx from 'classnames';
+import { Tooltip } from 'ming-ui';
+import ViewConfig from 'worksheet/common/ViewConfig';
+import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
+import { exportSheet } from 'worksheet/common/ExportSheet';
+import ViewItems from 'worksheet/components/ViewItems';
+import Pagination from 'worksheet/components/Pagination';
+import { navigateTo } from 'src/router/navigateTo';
+import {
+  refreshSheet,
+  updateView,
+  updateViews,
+  saveView,
+  loadCustomButtons,
+  updateCustomButtons,
+} from 'worksheet/redux/actions';
+import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
+import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
+const Con = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: revert;
+  flex-shrink: 0;
+  height: 37px;
+  padding: 0 20px 0 14px;
+  overflow: hidden;
+`;
+
+function ViewControl(props) {
+  const {
+    appId,
+    groupId,
+    view,
+    viewId,
+    isCharge,
+    filters,
+    quickFilter,
+    worksheetInfo,
+    controls,
+    views,
+    sheetSwitchPermit,
+    sheetViewData,
+    sheetFetchParams,
+    sheetViewConfig,
+    buttons,
+    sheetButtons,
+    viewConfigVisible,
+    setViewConfigVisible,
+  } = props;
+  // funcs
+  const {
+    changePageIndex,
+    changePageSize,
+    refreshSheet,
+    saveView,
+    updateView,
+    updateViews,
+    loadCustomButtons,
+    updateCustomButtons,
+    addMultiRelateHierarchyControls,
+  } = props;
+  const { worksheetId, projectId } = worksheetInfo;
+  const { count, rowsSummary } = sheetViewData;
+  const { pageIndex, pageSize } = sheetFetchParams;
+  const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
+  const [createCustomBtnVisible, setCreateCustomBtnVisible] = useState();
+  const [showFastFilter, setShowFastFilter] = useState();
+  const [createBtnIsEdit, setCreateBtnIsEdit] = useState();
+  const [activeBtnId, setActiveBtnId] = useState();
+  const [activeFastFilterId, setActiveFastFilterId] = useState();
+  const [btnDataInfo, setActiveBtnIdInfo] = useState();
+  useEffect(() => {
+    setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
+  }, [activeBtnId, sheetButtons]);
+  return (
+    <Con>
+      <ViewItems
+        sheetSwitchPermit={sheetSwitchPermit}
+        isCharge={isCharge}
+        appId={appId}
+        viewList={views}
+        worksheetControls={controls}
+        currentViewId={viewId}
+        worksheetId={worksheetId}
+        updateCurrentView={data => {
+          saveView(viewId, _.pick(data, data.editAttrs || []));
+        }}
+        changeViewDisplayType={data => {
+          saveView(viewId, data);
+        }}
+        updateViewList={newViews => {
+          updateViews(newViews);
+        }}
+        onAddView={(newViews, newView) => {
+          updateViews(newViews);
+          if (Number(newView.viewType) === 0) {
+            setViewConfigVisible(true);
+          }
+          navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
+        }}
+        onShare={() => {
+          import('src/components/shareAttachment/shareAttachment').then(share => {
+            const params = {
+              id: worksheetId,
+              viewId: viewId,
+              appSectionId: groupId,
+              shareRange: view.shareRange,
+              appId,
+              ext: '',
+              name: view.name,
+              dialogTitle: _('分享视图'),
+              attachmentType: 3,
+              node: {
+                canChangeSharable: isCharge,
+              },
+            };
+            share.default(params, {
+              updateView: value => {
+                updateView(Object.assign({}, view, value));
+              },
+            });
+          });
+        }}
+        onExport={() => {
+          exportSheet({
+            sheetHiddenColumns,
+            allCount: count,
+            allWorksheetIsSelected,
+            appId: appId,
+            exportView: view,
+            worksheetId: worksheetId,
+            projectId: projectId,
+            searchArgs: filters,
+            selectRowIds: sheetSelectedRows.map(item => item.rowid),
+            columns: controls.filter(item => {
+              return (
+                !_.find(view.controls, hideId => item.controlId === hideId) &&
+                item.controlPermissions &&
+                item.controlPermissions[0] === '1' &&
+                item.type !== 14
+              );
+            }),
+            downLoadUrl: worksheetInfo.downLoadUrl,
+            worksheetSummaryTypes: rowsSummary.types,
+            quickFilter,
+          });
+        }}
+        onRemoveView={(newViewList, newViewId) => {
+          if (newViewId === viewId) {
+            const firstView = newViewList[0];
+            navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${firstView.viewId}`);
+            updateViews(newViewList);
+          } else {
+            updateViews(newViewList);
+          }
+        }}
+        onViewConfigVisible={() => {
+          setViewConfigVisible(true);
+        }}
+        onSelectView={selectedView => {
+          navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`);
+        }}
+      />
+      <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
+        <i
+          className={cx('icon icon-task-later refresh Gray_bd Font18 pointer ThemeHoverColor3 mTop2')}
+          onClick={() => {
+            refreshSheet(view);
+          }}
+        />
+      </Tooltip>
+      {Number(view && view.viewType) === 0 && (
+        <Pagination
+          className="pagination"
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          allCount={count}
+          changePageSize={changePageSize}
+          changePageIndex={changePageIndex}
+          onPrev={() => {
+            changePageIndex(pageIndex - 1);
+          }}
+          onNext={() => {
+            changePageIndex(pageIndex + 1);
+          }}
+        />
+      )}
+      {viewConfigVisible && (
+        <ViewConfig
+          appId={appId}
+          currentSheetInfo={worksheetInfo}
+          view={view}
+          projectId={projectId}
+          worksheetId={worksheetId}
+          worksheetControls={controls}
+          onClickAwayExceptions={[
+            '.ChooseWidgetDialogWrap',
+            '.dropConOption',
+            '.dropdownTrigger',
+            '.worksheetFilterColumnOptionList',
+            '.selectUserBox',
+            '#dialogBoxSelectUser_container',
+            '.PositionContainer-wrapper',
+            '.deleteCustomBtnDialog',
+            '.mui-dialog-container',
+            '.createCustomBtnCon',
+            '.showBtnFilterDialog',
+            '.doubleConfirmDialog',
+            '.appointDialog',
+            '.chooseWidgetDialog',
+            '.rc-trigger-popup',
+            '.fullScreenCurtain',
+            '.errerDialogForAppoint',
+            '.mobileDepartmentPickerDialog',
+            '.selectUserFromAppDialog',
+            '.addHierarchyRelate',
+            '.hideControlsWrap',
+            '.ant-cascader-menus',
+            '.ant-tree-select-dropdown',
+            '#chat',
+            '.boxEditFastFilter',
+            '.boxEditFastFilterCover'
+          ]}
+          onClickAway={() => setViewConfigVisible(false)}
+          columns={controls.filter(item => {
+            return item.viewDisplay || !('viewDisplay' in item);
+          })}
+          onClose={() => setViewConfigVisible(false)}
+          updateCurrentView={data => {
+            saveView(viewId, _.pick(data, data.editAttrs || []));
+            if ((_.get(data, 'viewControls') || []).length > (_.get(view, 'viewControls') || []).length) {
+              addMultiRelateHierarchyControls(data.viewControls.slice(-1).map(item => item.worksheetId));
+            }
+          }}
+          showCreateCustomBtnFn={(value, isEdit, btnId) => {
+            setCreateCustomBtnVisible(value);
+            setCreateBtnIsEdit(isEdit);
+            setActiveBtnId(btnId);
+          }}
+          setFastFilter={(value, controlId) => {
+            setShowFastFilter(value);
+            setActiveFastFilterId(controlId);
+          }}
+          viewId={viewId}
+          btnList={sheetButtons}
+          btnData={buttons}
+          refreshFn={(worksheetId, appId, viewId, rowId) => {
+            loadCustomButtons({ worksheetId, appId, viewId, rowId });
+          }}
+        />
+      )}
+      {createCustomBtnVisible && (
+        <CreateCustomBtn
+          onClickAwayExceptions={[
+            '.ChooseWidgetDialogWrap',
+            '.showBtnFilterDialog',
+            '.doubleConfirmDialog',
+            '.appointDialog',
+            '.chooseWidgetDialog',
+            '.rc-trigger-popup',
+            '.fullScreenCurtain',
+            '.errerDialogForAppoint',
+            '.mobileDepartmentPickerDialog',
+            '#dialogBoxSelectUser_container',
+            '.selectUserFromAppDialog',
+            '.selectUserBox',
+            '.dropdownTrigger',
+            '.worksheetFilterColumnOptionList',
+            '.PositionContainer-wrapper',
+            '.mui-dialog-container',
+            '.mdAlertDialog',
+            '.ant-cascader-menus',
+            '.ant-tree-select-dropdown',
+          ]}
+          onClickAway={() => setCreateCustomBtnVisible(false)}
+          isEdit={createBtnIsEdit}
+          onClose={() => setCreateCustomBtnVisible(false)}
+          columns={controls
+            .filter(item => {
+              return item.viewDisplay || !('viewDisplay' in item);
+            })
+            .map(control => redefineComplexControl(control))}
+          btnId={activeBtnId}
+          btnDataInfo={btnDataInfo}
+          btnList={sheetButtons}
+          projectId={projectId}
+          view={view}
+          worksheetControls={controls}
+          currentSheetInfo={worksheetInfo}
+          viewId={viewId}
+          appId={appId}
+          worksheetId={worksheetId}
+          workflowId={''}
+          refreshFn={(worksheetId, appId, viewId, rowId) => {
+            loadCustomButtons({ worksheetId, appId, viewId, rowId });
+          }}
+          updateCustomButtons={updateCustomButtons}
+        />
+      )}
+      {showFastFilter && (
+        <EditFastFilter
+          view={view}
+          worksheetControls={controls}
+          onClickAwayExceptions={['.addControlDrop']}
+          showFastFilter={showFastFilter}
+          onClickAway={() => setShowFastFilter(false)}
+          activeFastFilterId={activeFastFilterId}
+          onClose={() => {
+            setShowFastFilter(false);
+          }}
+          setActiveFastFilterId={id => {
+            setActiveFastFilterId(id);
+          }}
+          updateCurrentView={data => {
+            // console.log(data)
+            saveView(viewId, _.pick(data, data.editAttrs || []));
+          }}
+        />
+      )}
+    </Con>
+  );
+}
+
+ViewControl.propTypes = {
+  appId: PropTypes.string,
+  worksheetInfo: PropTypes.shape({}),
+  controls: PropTypes.arrayOf(PropTypes.shape({})),
+  groupId: PropTypes.string,
+  isCharge: PropTypes.bool,
+  sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
+  view: PropTypes.shape({}),
+  viewId: PropTypes.string,
+  views: PropTypes.arrayOf(PropTypes.shape({})),
+  updateView: PropTypes.func,
+  updateViews: PropTypes.func,
+  refreshSheet: PropTypes.func,
+  changePageIndex: PropTypes.func,
+  changePageSize: PropTypes.func,
+};
+
+export default connect(
+  state => ({
+    views: state.sheet.views,
+    sheetList: state.sheet.sheetList,
+    app: state.sheet.app,
+    worksheetInfo: state.sheet.worksheetInfo,
+    filters: state.sheet.filters,
+    quickFilter: state.sheet.quickFilter,
+    controls: state.sheet.controls,
+    sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
+    // sheetview
+    sheetViewData: state.sheet.sheetview.sheetViewData,
+    sheetFetchParams: state.sheet.sheetview.sheetFetchParams,
+    sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
+    buttons: state.sheet.buttons,
+    sheetButtons: state.sheet.sheetButtons,
+  }),
+  dispatch =>
+    bindActionCreators(
+      {
+        changePageSize,
+        changePageIndex,
+        refreshSheet,
+        saveView,
+        updateView,
+        updateViews,
+        loadCustomButtons,
+        updateCustomButtons,
+        addMultiRelateHierarchyControls,
+      },
+      dispatch,
+    ),
+)(ViewControl);

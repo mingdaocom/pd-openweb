@@ -1,0 +1,168 @@
+.registerContainerCon {
+  background-color: #f2f5f7;
+}
+
+.registerContainerCon .showLangChangeBottom {
+  margin-bottom: 0;
+}
+
+.registerContainerCon p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.registerBox a {
+  text-decoration: none;
+}
+
+.registerBox .registerContainer {
+  max-width: 420px;
+  padding: 48px 48px 23px;
+  box-sizing: border-box;
+  margin: 80px auto 0;
+  background: #ffffff;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  min-height: 578px;
+  position: relative;
+}
+
+@media screen and (max-width: 414px) {
+  .registerBox {
+    padding: 46px 16px;
+  }
+
+  .registerBox .registerContainer {
+    margin: 0;
+    padding: 48px 24px 23px;
+  }
+}
+
+.registerBox .registerContainer .loadingLine {
+  height: 3px;
+  width: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #2196f3;
+  animation-name: fadeMove;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeMove {
+  from {
+    width: 10px;
+    left: 0;
+  }
+
+  50% {
+    width: 100px;
+    left: 40%;
+  }
+
+  to {
+    width: 10px;
+    left: 386px;
+  }
+}
+
+@media screen and (max-width: 414px) {
+  .registerContainer {
+    margin: 0;
+  }
+}
+
+.registerBox .registerContainer .titleHeader .title {
+  text-align: left;
+  font-size: 20px;
+  color: #333333;
+}
+
+.registerBox .registerContainer .titleHeader .title span {
+  display: block;
+  width: 8px;
+  height: 3px;
+  background: #2196f3;
+  margin-top: 12px;
+}
+
+.registerBox .registerContainer .termsText {
+  margin-top: 13px;
+  font-size: 14px;
+}
+
+.registerBox .registerContainer .termsText .terms {
+  color: #2196f3;
+  text-decoration: none;
+}
+
+.registerBox .registerContainer .btnForRegister {
+  font-weight: 600;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  display: block;
+  background: #2296f3;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #fff;
+  margin-top: 32px;
+  text-align: center;
+}
+.registerBox .registerContainer .btnSendVerifyCode {
+  background: #2296f3;
+}
+
+.registerBox .btnForRegister:hover,
+.registerBox .btnSendVerifyCode:hover {
+  background: #1182dd;
+}
+
+.registerBox .btnForRegister:active,
+.registerBox .btnSendVerifyCode:active {
+  background: #1585dd;
+}
+
+.registerBox .registerContainer .line {
+  width: 100%;
+  height: 0px;
+  border: 1px solid rgba(240, 240, 240, 1);
+  opacity: 1;
+  display: block;
+  margin-top: 50px;
+}
+
+.registerBox .registerContainer .line.mTopH {
+  margin-top: 130px;
+}
+
+.registerBox .registerContainer .btnUseOldAccount {
+  font-size: 14px;
+  color: #2196f3;
+  display: block;
+  margin: 20px auto 0;
+  text-align: center;
+}
+.registerBox .registerContainer .btnUseOldAccount .textG,
+.registerBox .registerContainer .btnUseOldAccount .textG:hover {
+  color: #757575;
+}
+.registerBox .registerContainer .btnUseOldAccount .textB {
+  color: #2196f3;
+}
+.registerBox .registerContainer .btnUseOldAccount .textB:hover {
+  color: #1182dd;
+}
+.registerBox .registerContainer .termsText .terms:hover {
+  color: #1182dd;
+}
+
+.registerBox .registerContainer .passThis {
+  display: inline-block;
+  margin: 32px auto;
+}

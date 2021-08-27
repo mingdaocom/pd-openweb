@@ -1,0 +1,67 @@
+﻿.linkView .fixed {
+  table-layout: fixed;
+}
+.linkView .picArea {
+  width: 160px;
+  height: 118px;
+  background: white;
+  border: 1px solid #dfdfdf;
+}
+
+.linkView .picList {
+  width: 140px;
+  height: 100px;
+  margin: 10px;
+  overflow: hidden;
+  background-color: #fff;
+}
+.linkView .picList {
+  width: 140px;
+  height: 100px;
+  margin: 10px;
+  overflow: hidden;
+  background-color: #fff;
+}
+.linkView .picList td {
+  width: 120px;
+  height: 80px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0px;
+}
+.linkView .picList td img {
+  max-width: 140px;
+  width: expression(this.width>140? '140px': false);
+}
+
+.linkView .thumbPages {
+  margin-top: -32px;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+  background-color: #d1d1d1;
+  _filter: alpha(opacity=40);
+  opacity: 0.4;
+}
+.linkView .thumbPages a:hover {
+  text-decoration: none;
+}
+.linkView .linkTitle {
+  width: 330px;
+}
+.linkView .linkOperator {
+  line-height: 22px;
+}
+.linkView .linkContent {
+  margin: 0px 10px;
+  padding-bottom: 10px;
+}
+.linkView .linkDesc {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+.linkView .withLinkImg {
+  margin: 0px;
+  margin-top: 5px;
+  margin-right: 5px;
+}

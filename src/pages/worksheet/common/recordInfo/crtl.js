@@ -1,0 +1,375 @@
+import {
+  getRowByID,
+  updateWorksheetRow,
+  deleteWorksheetRows,
+  getWorksheetBtns,
+  updateRowRelationRows,
+  getControlRules,
+  getWorksheetInfo as getWorksheetInfoApi,
+} from 'src/api/worksheet';
+import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
+
+export function getWorksheetInfo(...args) {
+  return getWorksheetInfoApi(...args);
+}
+
+export function loadRecord({ appId, viewId, worksheetId, recordId, getType = 1, instanceId, workId, getRules }) {
+  return new Promise((resolve, reject) => {
+    const apiargs = {
+      worksheetId,
+      rowId: recordId,
+      getType,
+      appId,
+      viewId,
+      getTemplate: true,
+      checkView: true,
+    };
+    if (instanceId && workId) {
+      apiargs.getType = 9;
+      apiargs.instanceId = instanceId;
+      apiargs.workId = workId;
+    }
+    let promise;
+    if (!getRules) {
+      promise = $.when(getRowByID(apiargs));
+    } else {
+      promise = $.when(
+        getRowByID(apiargs),
+        getControlRules({
+          worksheetId,
+          type: 1, // 1字段显隐
+        }),
+      );
+    }
+    promise
+      .then((row, rules) => {
+        if (row.resultCode === 1) {
+          if (instanceId && workId && !viewId) {
+            // 工作流调用
+            row.receiveControls = row.receiveControls.map(c => Object.assign({}, c, { fieldPermission: '111' }));
+          }
+          resolve(rules ? { ...row, rules } : row);
+        } else {
+          reject(row);
+        }
+      })
+      .fail(reject);
+  });
+}
+
+export function updateRecord(
+  {
+    appId,
+    viewId,
+    getType,
+    worksheetId,
+    recordId,
+    projectId,
+    instanceId,
+    workId,
+    data,
+    updateControlIds,
+    triggerUniqueError,
+    updateSuccess,
+  },
+  callback = () => {},
+) {
+  const updatedControls = data
+    .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
+    .map(formatControlToServer);
+  const apiargs = {
+    appId,
+    viewId,
+    getType,
+    worksheetId,
+    rowId: recordId,
+    newOldControl: updatedControls,
+    projectID: projectId,
+  };
+  if (instanceId && workId) {
+    apiargs.getType = 9;
+    apiargs.instanceId = instanceId;
+    apiargs.workId = workId;
+  }
+  updateWorksheetRow(apiargs)
+    .then(res => {
+      if (res && res.data) {
+        callback(null, res.data);
+        if (typeof updateSuccess === 'function') {
+          updateSuccess(
+            [recordId],
+            _.assign({}, ...updatedControls.map(control => ({ [control.controlId]: res.data[control.controlId] }))),
+            res.data,
+          );
+        }
+      } else {
+        if (res.resultCode === 11) {
+          triggerUniqueError(res.badData);
+        } else {
+          alert(_l('保存失败，请稍后重试'), 2);
+        }
+      }
+    })
+    .fail(err => {
+      callback(err);
+      alert(_l('保存失败，请稍后重试'), 2);
+    });
+}
+
+export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell }) {
+  return new Promise((resolve, reject) => {
+    updateWorksheetRow({
+      appId,
+      viewId,
+      worksheetId: worksheetId,
+      rowId: recordId,
+      newOldControl: [cell],
+    }).then(data => {
+      if (!data.data) {
+        if (data.resultCode === 11) {
+          alert(_l('编辑失败，%0不允许重复', cell.controlName || ''), 3);
+        } else {
+          alert(_l('编辑失败'), 3);
+        }
+        reject();
+      } else {
+        resolve(data.data);
+      }
+    });
+  });
+}
+
+export function deleteRecord({ worksheetId, recordId, viewId, appId }) {
+  return new Promise((resolve, reject) => {
+    deleteWorksheetRows({
+      worksheetId,
+      rowIds: [recordId],
+      viewId,
+      appId,
+    })
+      .then(data => {
+        if (data.isSuccess) {
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .fail(reject);
+  });
+}
+
+export class RecordApi {
+  constructor({ appId, worksheetId, viewId, recordId }) {
+    this.baseArgs = {
+      appId,
+      worksheetId,
+      viewId,
+      rowId: recordId,
+    };
+  }
+
+  getWorksheetBtns(options) {
+    return new Promise((resolve, reject) => {
+      getWorksheetBtns(_.assign({}, this.baseArgs, options))
+        .then(data => {
+          resolve(data);
+        })
+        .fail(err => {
+          reject(err);
+        });
+    });
+  }
+}
+
+export function updateRelateRecords({
+  appId,
+  viewId,
+  recordId,
+  worksheetId,
+  instanceId,
+  workId,
+  controlId,
+  isAdd,
+  recordIds,
+}) {
+  return new Promise((resolve, reject) => {
+    const args = {
+      worksheetId,
+      appId,
+      viewId,
+      rowId: recordId,
+      controlId,
+      isAdd,
+      rowIds: recordIds,
+    };
+    if (instanceId && workId) {
+      args.instanceId = instanceId;
+      args.workId = workId;
+    }
+    updateRowRelationRows(args)
+      .then(data => {
+        if (data.isSuccess) {
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .fail(reject);
+  });
+}
+
+function isOwner(ownerAccount, formdata) {
+  let accountsOfOwner = [];
+  let isSettingOwner = false;
+  if (ownerAccount && ownerAccount.accountId === md.global.Account.accountId) {
+    return true;
+  }
+  try {
+    accountsOfOwner = formdata
+      .filter(c => c.type === 26 && c.userPermission === 2)
+      .map(u => JSON.parse(u.value))
+      .filter(c => c && c.length);
+  } catch (err) {}
+  accountsOfOwner.forEach(accounts => {
+    accounts.forEach(account => {
+      if (account.accountId === md.global.Account.accountId) {
+        isSettingOwner = true;
+      }
+    });
+  });
+  return isSettingOwner;
+}
+
+export function updateRecordOwner({ worksheetId, recordId, accountId }) {
+  return new Promise((resolve, reject) => {
+    updateWorksheetRow({
+      worksheetId,
+      rowId: recordId,
+      getType: 3,
+      newOldControl: [{ controlId: 'ownerid', type: 26, value: accountId }],
+    })
+      .then(res => {
+        if (res && res.data) {
+          const account = JSON.parse(res.data.ownerid)[0];
+          resolve({
+            account,
+            record: res.data,
+          });
+        } else {
+          reject();
+        }
+      })
+      .fail(reject);
+  });
+}
+
+export function handleChangeOwner({ recordId, ownerAccountId, projectId, target, changeOwner }) {
+  $(target).quickSelectUser({
+    sourceId: recordId,
+    projectId: projectId,
+    showQuickInvite: false,
+    showMoreInvite: false,
+    isTask: false,
+    includeUndefinedAndMySelf: true,
+    filterAccountIds: [ownerAccountId],
+    offset: {
+      top: 16,
+      left: 0,
+    },
+    zIndex: 10001,
+    SelectUserSettings: {
+      unique: true,
+      projectId: projectId,
+      filterAccountIds: [ownerAccountId],
+      callback(users) {
+        if (users[0].accountId === md.global.Account.accountId) {
+          users[0].fullname = md.global.Account.fullname;
+        }
+        changeOwner(users, users[0].accountId);
+      },
+    },
+    selectCb(users) {
+      if (users[0].accountId === md.global.Account.accountId) {
+        users[0].fullname = md.global.Account.fullname;
+      }
+      changeOwner(users, users[0].accountId);
+    },
+  });
+}
+
+export async function handleShare({ isCharge, appId, worksheetId, viewId, recordId }, callback) {
+  try {
+    const row = await getRowByID({ appId, worksheetId, viewId, rowId: recordId });
+    let recordTitle = getTitleTextFromControls(row.receiveControls);
+    let allowChange = isCharge || isOwner(row.ownerAccount, row.receiveControls);
+    let shareRange = row.shareRange;
+    import('src/components/shareAttachment/shareAttachment').then(share => {
+      const params = {
+        name: recordTitle,
+        dialogTitle: _l('分享记录'),
+        appId,
+        viewId,
+        id: worksheetId,
+        rowId: recordId,
+        ext: '',
+        attachmentType: 4,
+        canChangeSharable: allowChange,
+        visibleType: shareRange,
+      };
+      share.default(params, {
+        updateShareRangeOfRecord: callback,
+      });
+    });
+  } catch (err) {
+    alert(_l('分享失败'));
+    console.log(err);
+  }
+}
+
+export async function handleCreateTask({ appId, worksheetId, viewId, recordId }) {
+  try {
+    const row = await getRowByID({ appId, worksheetId, viewId, rowId: recordId });
+    let recordTitle = getTitleTextFromControls(row.receiveControls);
+    const source = appId + '|' + worksheetId + '|' + viewId + '|' + recordId;
+    require(['createTask'], createTask => {
+      createTask.index({
+        TaskName: recordTitle || _l('未命名'),
+        MemberArray: _.isEmpty(row.ownerAccount) ? [] : [row.ownerAccount],
+        worksheetAndRowId: source,
+        isFromPost: true,
+        ProjectID: row.projectId,
+      });
+    });
+  } catch (err) {
+    alert(_l('创建任务失败'));
+    console.log(err);
+  }
+}
+
+export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {
+  if (!appId) {
+    const res = await getWorksheetInfo({ worksheetId });
+    appId = res.appId;
+  }
+  if (viewId) {
+    window.open(`/app/${appId}/${worksheetId}/${viewId}/row/${recordId}`);
+  } else {
+    window.open(`/app/${appId}/${worksheetId}/row/${recordId}`);
+  }
+}
+
+export function handleCustomWidget(worksheetId) {
+  getWorksheetInfo({ worksheetId }).then(({ name, templateId, projectId, appId, groupId }) => {
+    getCustomWidgetUri({
+      sourceName: name,
+      templateId,
+      sourceId: worksheetId,
+      projectId,
+      appconfig: {
+        appId,
+        appSectionId: groupId,
+      },
+    });
+  });
+}

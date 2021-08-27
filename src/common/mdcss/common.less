@@ -1,0 +1,60 @@
+@addItemBg: #f5f5f5;
+@addItemColor: #a7a7a7;
+@addItemHoverBgColor: #efefef;
+.addItem(@size:90px, @borderSize:4px) {
+  width: @size;
+  height: @size;
+  position: relative;
+  border-radius: 50%;
+  background-color: @addItemBg;
+  color: @addItemColor;
+  transition: all 0.25s;
+  cursor: pointer;
+  &:hover {
+    background-color: @addItemHoverBgColor;
+  }
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+  &::before {
+    width: floor(@size / 3);
+    border-top: @borderSize solid;
+    margin: (-@borderSize / 2) 0 0 floor(-@size / 6);
+  }
+  &::after {
+    height: floor(@size / 3);
+    border-left: @borderSize solid;
+    margin: floor(-@size / 6) 0 0 (-@borderSize / 2);
+  }
+}
+
+.circle(@size: 88px) {
+  width: @size;
+  height: @size;
+  border-radius: 50%;
+}
+
+.flexCenter {
+  display: flex;
+  align-items: center;
+}
+
+.crossCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hoverText {
+  &:hover {
+    cursor: pointer;
+    color: #2196f3;
+    i {
+      color: #2196f3;
+    }
+  }
+}

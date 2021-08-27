@@ -1,0 +1,35 @@
+{{~it.list :group}}
+<li
+    class="
+        Hand
+        groupItem
+        {{= group.type }}
+        {{= (group.disabled ? 'disabled' : '')}}
+        {{= group.id_str }}
+    "
+    data-id-str="{{= group.id_str }}"
+    data-type="{{= group.type }}"
+    data-groupid="{{=group.id}}"
+>
+<label class="ThemeBGColor3">
+    <input type="checkbox"  {{= group.disabled ? 'disabled' : '' }} />
+    {{? it.mostUsed && (group.type === 'allproject') }}
+        {{! _l('所有同事') }}
+        <span class="companyName ellipsis">{{! group.value}}</span>
+    {{??}}
+        <span class="groupName ellipsis">{{! group.value}}</span>
+    {{?}}
+    {{? group.disabled }}
+        {{! _l('（到期）') }}
+    {{?}}
+    {{? it.mostUsed && (group.type === 'normal') }}
+        <span class="groupInfo" data-groupId="{{=group.id}}"></span>
+    {{?}}
+    {{? group.type === 'radio' }}
+        <span class="radioInfo tip-bottom-left" data-tip="{{=_l('通知全员并置顶本动态') }}">
+            <i class="icon icon-help"></i>
+        </span>
+    {{?}}
+</label>
+</li>
+{{~}}

@@ -1,0 +1,990 @@
+﻿html {
+  -webkit-font-smoothing: antialiased;
+}
+
+/*#SmartSearch {position:relative;z-index:11;}*/
+#SmartSearch table {
+  border: 1px solid #9a9a9a;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+}
+
+#SmartSearch td {
+  vertical-align: middle;
+}
+
+#SmartSearch a, #SmartSearch a:hover {
+  text-decoration: none;
+}
+
+#SmartSearchText {
+  border: 0px;
+  width: 179px;
+  height: 29px;
+  line-height: 29px;
+  overflow: hidden;
+  padding-left: 8px;
+  color: #999;
+  -moz-border-radius: 2px;
+}
+
+#containerBg {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  z-index: -1;
+}
+
+.fixedContainer {
+  position: fixed;
+}
+
+.relativeContainer {
+  position: relative;
+}
+
+/*Ò³½Å*/
+#footer {
+  padding-top: 60px;
+  text-align: center;
+  height: 105px;
+  margin: 0 auto;
+  width: 1000px;
+}
+
+#footer .notice {
+  color: #b2b2b2;
+  float: left;
+  margin-left: 2px;
+}
+
+.followWeixinQrCode {
+  width: 98px;
+  height: 98px;
+  padding: 1px;
+}
+
+/*±íÇé*/
+.msgExpandDiv .faceBtn {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-position: left bottom !important;
+  cursor: pointer;
+}
+
+#main {
+  width: 1000px;
+  max-width: 1000px;
+  padding: 0 0px;
+  font-size: 0;
+  margin: 0px auto;
+}
+
+.overLimi_130 {
+  width: expression(this.width > 130 ? "130px":true);
+  max-width: 130px;
+}
+
+.shadow {
+  -moz-box-shadow: 0px 0px 6px #e0e0e0;
+  -webkit-box-shadow: 0px 0px 6px #e0e0e0;
+  box-shadow: 0px 0px 6px #e0e0e0;
+}
+
+.z-depth-1, nav, .card-panel, .card {
+  box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
+}
+
+.z-depth-1-half {
+  box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.12), 0 4px 15px 0 rgba(0, 0, 0, 0.10);
+}
+
+.z-depth-2 {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.18), 0 6px 20px 0 rgba(0, 0, 0, 0.12);
+}
+
+.z-depth-3 {
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.20), 0 17px 50px 0 rgba(0, 0, 0, 0.12);
+}
+
+.z-depth-4, .modal {
+  box-shadow: 0 16px 28px 0 rgba(0, 0, 0, 0.19), 0 25px 55px 0 rgba(0, 0, 0, 0.14);
+}
+
+.z-depth-5 {
+  box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.18), 0 40px 77px 0 rgba(0, 0, 0, 0.15);
+}
+
+.z-depth-6 {
+  box-shadow: 0 0px 16px 0px rgba(0, 0, 0, 0.2);
+}
+
+.tipBoxShadow {
+  box-shadow: 0 3px 10px 2px rgba(0, 0, 0, 0.16), 0 5px 20px 4px rgba(0, 0, 0, 0.1);
+  -weblit-box-shadow: 0 3px 10px 2px rgba(0, 0, 0, 0.16), 0 5px 20px 4px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 3px 10px 2px rgba(0, 0, 0, 0.16), 0 5px 20px 4px rgba(0, 0, 0, 0.1);
+  -ms-box-shadow: 0 3px 10px 2px rgba(0, 0, 0, 0.16), 0 5px 20px 4px rgba(0, 0, 0, 0.1);
+}
+
+.taskBoxShadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  position: relative;
+  background-color: #fff;
+  border-radius: 4px;
+  display: block;
+}
+
+.card:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.hide {
+  display: none !important;
+}
+
+.left {
+  float: left !important;
+}
+
+.right {
+  float: right !important;
+}
+
+.leftAlign {
+  text-align: left;
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.center, .centerAlign {
+  text-align: center;
+}
+
+.valignWrapper {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.valignWrapper .valign {
+  display: block;
+}
+
+.borderBox {
+  box-sizing: border-box;
+}
+
+input[type="radio"], input[type="radio"]:before, input[type="radio"]:after, input[type="checkbox"], input[type="checkbox"]:before, input[type="checkbox"]:after {
+  box-sizing: border-box;
+  vertical-align: middle;
+  border: 1px solid #ccc;
+}
+
+input[type="radio"] {
+  position: relative;
+  margin-top: 5px;
+  margin-right: 4px;
+  vertical-align: -4px;
+  border: none;
+  background-color: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+input[type="radio"]:focus {
+  outline: none;
+}
+
+input[type="radio"]:before, input[type="radio"]:after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-top: -3px;
+  border-radius: 50%;
+  -webkit-transition: 240ms;
+  -o-transition: 240ms;
+  -ms-transition: 240ms;
+  -moz-transition: 240ms;
+  transition: 240ms;
+}
+
+input[type="radio"]:before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: #2196f3 !important;
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  -o-transform: scale(0);
+  -moz-transform: scale(0);
+  transform: scale(0);
+}
+
+input[type="radio"]:checked:before {
+  -webkit-transform: scale(0.7);
+  -ms-transform: scale(0.7);
+  -o-transform: scale(0.7);
+  -moz-transform: scale(0.7);
+  transform: scale(0.7);
+}
+
+input[type="radio"]:disabled:checked:before {
+  background-color: #bbbbbb !important;
+}
+
+input[type="radio"]:checked:after {
+  border-color: #2196f3 !important;
+}
+
+input[type="radio"]:disabled:after, input[type="radio"]:disabled:checked:after {
+  border-color: #bbbbbb !important;
+}
+
+input[type="checkbox"] {
+  position: relative; /*vertical-align: -4px;*/
+  border: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+}
+
+input[type="checkbox"]:after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-top: -2px;
+  margin-right: 5px;
+  border-radius: 2px;
+  -webkit-transition: 240ms;
+  -o-transition: 240ms;
+  -ms-transform: 240ms;
+  -moz-transform: 240ms;
+  transition: 240ms;
+  background: white;
+}
+
+input[type="checkbox"]:checked:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6px;
+  width: 6px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-top-width: 0;
+  border-left-width: 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:checked:after {
+  background-color: #2196f3 !important;
+  border-color: #2196f3 !important;
+}
+
+input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled:after {
+  border-color: #bbbbbb !important;
+}
+
+input[type="checkbox"]:disabled:checked:after {
+  background-color: #bbbbbb !important;
+  border-color: transparent !important;
+}
+
+@-webkit-keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    -webkit-transform: rotate(0deg) scale(1);
+    -moz-transform: rotate(0deg) scale(1);
+    -o-transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    -ms-transform: rotate(180deg) scale(0.8);
+    -webkit-transform: rotate(180deg) scale(0.8);
+    -moz-transform: rotate(180deg) scale(0.8);
+    -o-transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    -ms-transform: rotate(360deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+}
+
+@-moz-keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    -webkit-transform: rotate(0deg) scale(1);
+    -moz-transform: rotate(0deg) scale(1);
+    -o-transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    -ms-transform: rotate(180deg) scale(0.8);
+    -webkit-transform: rotate(180deg) scale(0.8);
+    -moz-transform: rotate(180deg) scale(0.8);
+    -o-transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    -ms-transform: rotate(360deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+}
+
+@-o-keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    -webkit-transform: rotate(0deg) scale(1);
+    -moz-transform: rotate(0deg) scale(1);
+    -o-transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    -ms-transform: rotate(180deg) scale(0.8);
+    -webkit-transform: rotate(180deg) scale(0.8);
+    -moz-transform: rotate(180deg) scale(0.8);
+    -o-transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    -ms-transform: rotate(360deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+}
+
+@-ms-keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    -ms-transform: rotate(180deg) scale(0.8);
+    -webkit-transform: rotate(180deg) scale(0.8);
+    -moz-transform: rotate(180deg) scale(0.8);
+    -o-transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    -ms-transform: rotate(360deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes clipLoader {
+  0% {
+    transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    -webkit-transform: rotate(0deg) scale(1);
+    -moz-transform: rotate(0deg) scale(1);
+    -o-transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+    -ms-transform: rotate(180deg) scale(0.8);
+    -webkit-transform: rotate(180deg) scale(0.8);
+    -moz-transform: rotate(180deg) scale(0.8);
+    -o-transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    -ms-transform: rotate(360deg) scale(1);
+    -webkit-transform: rotate(360deg) scale(1);
+    -moz-transform: rotate(360deg) scale(1);
+    -o-transform: rotate(360deg) scale(1);
+  }
+}
+
+.clipLoader {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-bottom-color: transparent !important;
+  background: transparent !important;
+  animation: clipLoader 0.75s 0s infinite linear;
+  -webkit-animation: clipLoader 0.75s 0s infinite linear;
+  -ms-animation: clipLoader 0.75s 0s infinite linear;
+  -moz-animation: clipLoader 0.75s 0s infinite linear;
+  -o-animation: clipLoader 0.75s 0s infinite linear;
+  animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -webkit-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+}
+
+.fileIcon-folder {
+  background: url('newfileIcons/folder.svg') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-folderShared {
+  background: url('newfileIcons/folderShared.svg') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-myfile {
+  background: url('newfileIcons/folder.svg') no-repeat;
+  width: 249px;
+  height: 205px;
+}
+
+.fileIcon-7z {
+  background: url('newfileIcons/rar.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ai {
+  background: url('newfileIcons/ai.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-doc {
+  background: url('newfileIcons/doc.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-excel {
+  background: url('newfileIcons/xls.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-img {
+  background: url('newfileIcons/jpg.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-link {
+  background: url('newfileIcons/url.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mmap {
+  background: url('newfileIcons/mmap.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-pdf {
+  background: url('newfileIcons/pdf.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ppt {
+  background: url('newfileIcons/ppt.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-psd {
+  background: url('newfileIcons/psd.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-rar {
+  background: url('newfileIcons/rar.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-txt {
+  background: url('newfileIcons/txt.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-vsd {
+  background: url('newfileIcons/vsd.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-word {
+  background: url('newfileIcons/docx.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mdy {
+  background: url('newfileIcons/mdy.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-xmind {
+  background: url('newfileIcons/xmind.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-zip {
+  background: url('newfileIcons/rar.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-aep {
+  background: url('newfileIcons/aep.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-apk {
+  background: url('newfileIcons/apk.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ascx {
+  background: url('newfileIcons/ascx.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-db {
+  background: url('newfileIcons/db.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-dmg {
+  background: url('newfileIcons/dmg.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-dwg {
+  background: url('newfileIcons/dwg.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-eps {
+  background: url('newfileIcons/eps.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-exe {
+  background: url('newfileIcons/exe.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-html {
+  background: url('newfileIcons/html.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-indd {
+  background: url('newfileIcons/indd.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-iso {
+  background: url('newfileIcons/iso.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-key {
+  background: url('newfileIcons/key.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-ma {
+  background: url('newfileIcons/ma.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-max {
+  background: url('newfileIcons/max.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mp3 {
+  background: url('newfileIcons/mp3.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-mp4 {
+  background: url('newfileIcons/mp4.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-numbers {
+  background: url('newfileIcons/numbers.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-obj {
+  background: url('newfileIcons/obj.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-pages {
+  background: url('newfileIcons/pages.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-prt {
+  background: url('newfileIcons/prt.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-rp {
+  background: url('newfileIcons/rp.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-skp {
+  background: url('newfileIcons/skp.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-xd {
+  background: url('newfileIcons/xd.svg') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-worksheet {
+  background: url('newfileIcons/ic_file_worksheet.svg') no-repeat;
+}
+
+.fileIcon-folder.antiIcon {
+  background: url('antiFileIcons/folder.svg') no-repeat;
+  background-color: #F6F7F9;
+}
+
+.fileIcon-folderShared.antiIcon {
+  background: url('antiFileIcons/folderShared.svg') no-repeat;
+  background-color: #F6F7F9;
+}
+
+.fileIcon-myfile.antiIcon {
+  background: url('antiFileIcons/folder.svg') no-repeat;
+  background-color: #F6F7F9;
+}
+
+.fileIcon-7z.antiIcon {
+  background: url('antiFileIcons/rar.svg') no-repeat;
+  background-color: #FCC930;
+}
+
+.fileIcon-ai.antiIcon {
+  background: url('antiFileIcons/ai.svg') no-repeat;
+  background-color: #F37C22;
+}
+
+.fileIcon-doc.antiIcon {
+  background: url('antiFileIcons/doc.svg') no-repeat;
+  background-color: #ACACAC;
+}
+
+.fileIcon-excel.antiIcon {
+  background: url('antiFileIcons/xls.svg') no-repeat;
+  background-color: #65B940;
+}
+
+.fileIcon-img.antiIcon {
+  background: url('antiFileIcons/jpg.svg') no-repeat;
+  background-color: #FC5830;
+}
+
+.fileIcon-link.antiIcon {
+  background: url('antiFileIcons/url.svg') no-repeat;
+  background-color: #1EAAF1;
+}
+
+.fileIcon-mmap.antiIcon {
+  background: url('antiFileIcons/mmap.svg') no-repeat;
+  background-color: #D13135;
+}
+
+.fileIcon-pdf.antiIcon {
+  background: url('antiFileIcons/pdf.svg') no-repeat;
+  background-color: #D13135;
+}
+
+.fileIcon-ppt.antiIcon {
+  background: url('antiFileIcons/ppt.svg') no-repeat;
+  background-color: #F57C00;
+}
+
+.fileIcon-psd.antiIcon {
+  background: url('antiFileIcons/psd.svg') no-repeat;
+  background-color: #5465FC;
+}
+
+.fileIcon-rar.antiIcon {
+  background: url('antiFileIcons/rar.svg') no-repeat;
+  background-color: #FDCA07;
+}
+
+.fileIcon-txt.antiIcon {
+  background: url('antiFileIcons/txt.svg') no-repeat;
+  background-color: #29D3B2;
+}
+
+.fileIcon-vsd.antiIcon {
+  background: url('antiFileIcons/vsd.svg') no-repeat;
+  background-color: #448AFF;
+}
+
+.fileIcon-word.antiIcon {
+  background: url('antiFileIcons/docx.svg') no-repeat;
+  background-color: #448AFF;
+}
+
+.fileIcon-mdy.antiIcon {
+  background: url('antiFileIcons/mdy.svg') no-repeat;
+  background-color: #448AFF;
+}
+
+.fileIcon-xmind.antiIcon {
+  background: url('antiFileIcons/xmind.svg') no-repeat;
+  background-color: #D32F2F;
+}
+
+.fileIcon-zip.antiIcon {
+  background: url('antiFileIcons/rar.svg') no-repeat;
+  background-color: #FDD745;
+}
+
+.fileIcon-aep.antiIcon {
+  background: url('antiFileIcons/aep.svg') no-repeat;
+  background-color: #7757BC;
+}
+
+.fileIcon-apk.antiIcon {
+  background: url('antiFileIcons/apk.svg') no-repeat;
+  background-color: #62BB37;
+}
+
+.fileIcon-ascx.antiIcon {
+  background: url('antiFileIcons/ascx.svg') no-repeat;
+  background-color: #29D3B2;
+}
+
+.fileIcon-db.antiIcon {
+  background: url('antiFileIcons/db.svg') no-repeat;
+  background-color: #29D3B2;
+}
+
+.fileIcon-dmg.antiIcon {
+  background: url('antiFileIcons/dmg.svg') no-repeat;
+  background-color: #718BC8;
+}
+
+.fileIcon-dwg.antiIcon {
+  background: url('antiFileIcons/dwg.svg') no-repeat;
+  background-color: #D32F2F;
+}
+
+.fileIcon-eps.antiIcon {
+  background: url('antiFileIcons/eps.svg') no-repeat;
+  background-color: #F57C00;
+}
+
+.fileIcon-exe.antiIcon {
+  background: url('antiFileIcons/exe.svg') no-repeat;
+  background-color: #718BC8;
+}
+
+.fileIcon-html.antiIcon {
+  background: url('antiFileIcons/html.svg') no-repeat;
+  background-color: #03A9F4;
+}
+
+.fileIcon-indd.antiIcon {
+  background: url('antiFileIcons/indd.svg') no-repeat;
+  background-color: #C11187;
+}
+
+.fileIcon-iso.antiIcon {
+  background: url('antiFileIcons/iso.svg') no-repeat;
+  background-color: #718BC8;
+}
+
+.fileIcon-key.antiIcon {
+  background: url('antiFileIcons/key.svg') no-repeat;
+  background-color: #448AFF;
+}
+
+.fileIcon-ma.antiIcon {
+  background: url('antiFileIcons/ma.svg') no-repeat;
+  background-color: #009497;
+}
+
+.fileIcon-max.antiIcon {
+  background: url('antiFileIcons/max.svg') no-repeat;
+  background-color: #546E7A;
+}
+
+.fileIcon-mp3.antiIcon {
+  background: url('antiFileIcons/mp3.svg') no-repeat;
+  background-color: #FF40B6;
+}
+
+.fileIcon-mp4.antiIcon {
+  background: url('antiFileIcons/mp4.svg') no-repeat;
+  background-color: #7757BC;
+}
+
+.fileIcon-numbers.antiIcon {
+  background: url('antiFileIcons/numbers.svg') no-repeat;
+  background-color: #62BB37;
+}
+
+.fileIcon-obj.antiIcon {
+  background: url('antiFileIcons/obj.svg') no-repeat;
+  background-color: #03A9F4;
+}
+
+.fileIcon-pages.antiIcon {
+  background: url('antiFileIcons/pages.svg') no-repeat;
+  background-color: #F57C00;
+}
+
+.fileIcon-prt.antiIcon {
+  background: url('antiFileIcons/prt.svg') no-repeat;
+  background-color: #009497;
+}
+
+.fileIcon-rp.antiIcon {
+  background: url('antiFileIcons/rp.svg') no-repeat;
+  background-color: #AA00FF;
+}
+
+.fileIcon-skp.antiIcon {
+  background: url('antiFileIcons/skp.svg') no-repeat;
+  background-color: #AA00FF;
+}
+
+.fileIcon-xd.antiIcon {
+  background: url('antiFileIcons/xd.svg') no-repeat;
+  background-color: #C11187;
+}
+
+.fileIcon-folder, .fileIcon-folderShared, .fileIcon-myfile, .fileIcon-7z, .fileIcon-ai, .fileIcon-doc, .fileIcon-excel, .fileIcon-img, .fileIcon-link, .fileIcon-mmap, .fileIcon-pdf, .fileIcon-ppt, .fileIcon-psd, .fileIcon-rar, .fileIcon-txt, .fileIcon-vsd, .fileIcon-word, .fileIcon-mdy, .fileIcon-xmind, .fileIcon-zip,
+.fileIcon-aep, .fileIcon-apk, .fileIcon-ascx, .fileIcon-db, .fileIcon-dmg, .fileIcon-dwg, .fileIcon-eps, .fileIcon-exe, .fileIcon-html, .fileIcon-indd, .fileIcon-iso, .fileIcon-key, .fileIcon-ma, .fileIcon-max, .fileIcon-mp3, .fileIcon-mp4, .fileIcon-numbers, .fileIcon-obj, .fileIcon-pages, .fileIcon-prt, .fileIcon-rp, .fileIcon-skp, .fileIcon-xd, .fileIcon-worksheet  {
+  display: inline-block;
+  -webkit-background-size: cover !important;
+  background-size: cover !important;
+  overflow: hidden;
+  text-indent: -9999px;
+  text-align: left;
+}
+
+.boxSizing {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.flexColumn {
+  display: -ms-flexbox;
+  display: flex;
+  display: -webkit-flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+.flexRow {
+  display: -ms-flexbox;
+  display: flex;
+  display: -webkit-flex;
+  min-width: 0;
+}
+
+.flex {
+  -webkit-flex: 1;
+  flex: 1;
+  -ms-flex: 1;
+}
+
+.rc-trigger-popup-mask {
+  background-color: rgba(0, 0, 0, 0) !important;
+}

@@ -1,0 +1,111 @@
+.batchOperateCon {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 2;
+  padding: 0 10px;
+  top: 50px;
+  width: 100%;
+  height: 75px;
+  line-height: initial;
+  box-sizing: border-box;
+  background-color: #fff;
+  .selected {
+    margin-top: 12px;
+    .selectedStatus {
+      font-size: 17px;
+      margin-left: 12px;
+      font-weight: bold;
+      color: #333;
+    }
+  }
+  .operate {
+    margin-top: 5px;
+  }
+  .iconText {
+    .icon {
+      margin: 0 6px;
+    }
+    .icon-arrow-down-border {
+      vertical-align: middle;
+      font-size: 13px;
+      margin: 0 0 0 3px;
+    }
+  }
+  .defaultPrint {
+    margin-bottom: 5px;
+  }
+  .printList {
+    padding-top: 5px;
+    border-top: 1px solid #ddd;
+    max-height: 280px;
+    overflow-y: auto;
+    &.noBorder {
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+  .customButtonExecCon {
+    position: relative;
+    .splitter {
+      display: inline-block;
+      border: 1px solid #ccc;
+      height: 12px;
+      vertical-align: middle;
+      margin: 0 14px 0px 12px;
+    }
+    .expandBtn {
+      cursor: pointer;
+    }
+    .customButtonsList {
+      margin: 4px 34px;
+      max-height: 500px;
+      overflow: auto;
+      .customBtnItem {
+        .icon {
+          margin-left: 0px;
+        }
+      }
+    }
+    .icon-arrow-down-border {
+      vertical-align: middle;
+      font-size: 13px;
+      margin: 0 0 0 3px;
+    }
+  }
+  .customButtonsList {
+    .empty {
+      padding: 4px 10px;
+      color: #9e9e9e;
+    }
+  }
+  .delete {
+    .text,
+    .icon {
+      color: #ff6d6c;
+    }
+    &:hover {
+      .text,
+      .icon {
+        color: #ff5553;
+      }
+    }
+  }
+}
+.batchOperateCon-enter {
+  transform: translate3d(0, -75px, 0);
+}
+
+.batchOperateCon-enter.batchOperateCon-enter-active {
+  transform: translate3d(0, 0, 0);
+  transition: transform 200ms linear;
+}
+
+.batchOperateCon-leave {
+  transform: translate3d(0, 0, 0);
+}
+
+.batchOperateCon-leave.batchOperateCon-leave-active {
+  transform: translate3d(0, -75px, 0);
+  transition: transform 100ms linear;
+}

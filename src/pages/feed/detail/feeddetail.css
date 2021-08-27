@@ -1,0 +1,11 @@
+﻿.AppFeedDetail .main {
+  border: 0px !important;
+}
+
+.AppFeedDetail .postCard {
+  margin-top: 0 !important;
+}
+
+.Feeddetail-errorIcon {
+  color: rgb(255, 145, 0);
+}

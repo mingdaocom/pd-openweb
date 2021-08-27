@@ -1,0 +1,384 @@
+﻿.tpLoginContent {
+  a {
+    color: #2196f3;
+  }
+
+  a:hover {
+    text-decoration: none;
+    color: #1565c0;
+  }
+
+  .themeColor {
+    color: #2196f3;
+  }
+
+  dl,
+  dd,
+  dt {
+    margin: 0;
+    padding: 0;
+  }
+
+  button,
+  input {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 0px;
+  }
+
+  button,
+  input:focus {
+    outline: none;
+  }
+
+  input:-moz-placeholder,
+  textarea:-moz-placeholder {
+    color: #a1a1a1;
+    opacity: 1;
+    display: inline-block;
+  }
+
+  input::-moz-placeholder,
+  textarea::-moz-placeholder {
+    color: #a1a1a1;
+    opacity: 1;
+    display: inline-block;
+  }
+
+  input:-ms-input-placeholder,
+  textarea:-ms-input-placeholder {
+    color: #a1a1a1;
+    display: inline-block;
+  }
+
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    color: #a1a1a1;
+  }
+
+  .passwordIcon {
+    background: url('./images/passwordIcon2x.png') no-repeat 16px 13px;
+    background-size: 11px;
+  }
+
+  .passwordShowIcon {
+    background: url('./images/passwordShowIcon2x.png') no-repeat center center;
+    background-size: 15px;
+  }
+
+  .passwordHiddenIcon {
+    background: url('./images/passwordHiddenIcon2x.png') no-repeat center center;
+    background-size: 15px;
+  }
+
+  .rightIcon {
+    background: url('./images/rightIcon2x.png') no-repeat center center;
+    width: 16px;
+    height: 44px;
+    display: inline-block;
+    background-size: 12px;
+  }
+
+  .errorIcon {
+    background: url('./images/errorIcon2x.png') no-repeat center center;
+    width: 16px;
+    height: 44px;
+    display: inline-block;
+    background-size: 12px;
+  }
+
+  /*heard*/
+  .header .content {
+    margin-top: 80px;
+    text-align: center;
+  }
+
+  .header .content .logoContainer {
+    height: 40px;
+  }
+
+  .header .content .mingdaoLogo {
+    height: 35px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    background-image: url(./images/logo.png);
+  }
+
+  .contianerBGStyle {
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
+    -weblit-box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
+    -ms-box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
+  }
+
+  .changeAccountType {
+    position: absolute;
+    top: 0px;
+    line-height: 44px;
+    right: 10px;
+    cursor: pointer;
+    color: #2196f3;
+    z-index: 21;
+  }
+
+  .changeAccountType:hover {
+    color: #1565c0;
+  }
+
+  /*按钮样式*/
+  .btn {
+    color: white;
+    height: 44px;
+    text-align: center;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    font-size: 14px;
+    border: 0px;
+    width: 100%;
+  }
+
+  .btnEnabled {
+    background-color: #2196f3;
+    cursor: pointer;
+    -webkit-transition: background-color 0.5s;
+    transition: background-color 0.5s;
+  }
+
+  .btnEnabled:hover {
+    background-color: #42a5f5;
+    -webkit-transition: background-color 0.5s;
+    transition: background-color 0.5s;
+  }
+
+  .btnDisabled {
+    background-color: #ccc;
+    cursor: default;
+  }
+
+  /*提示文字区域*/
+  .warnningDiv {
+    padding: 7px 17px;
+    line-height: 20px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background-clip: padding-box;
+  }
+
+  .warnningRed {
+    background: #ffd0d0;
+    color: #ce4040;
+  }
+
+  .warnningGreen {
+    background: #72d26e;
+    color: #fff;
+  }
+
+  /*输入框*/
+  .formText {
+    width: 100%;
+    height: 44px;
+    font-size: 12px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid #bbb;
+    box-sizing: border-box;
+    padding-left: 12px;
+    padding-right: 5px;
+  }
+
+  /**
+  创建企业网络，网络规模人数dropdown
+  tpl/companyInfo.html
+*/
+  .formText .wrapperDropdown {
+    z-index: 1;
+    line-height: 44px;
+    height: 42px;
+    margin-left: 12px;
+    color: #333;
+  }
+
+  .formText .wrapperDropdown .wrapperDropdownArrowDown {
+    top: 18px;
+  }
+
+  .formText .wrapperDropdown .dropdown {
+    left: -13px;
+  }
+
+  .formText .wrapperDropdown .dropdownText {
+    width: 280px;
+  }
+  /*******/
+
+  .formText:not(.readonlyFormText):focus {
+    background-color: #faffbd;
+    border-color: #2196f3;
+  }
+
+  .readonlyFormText {
+    background-color: #efefef;
+  }
+
+  .fromTextIndex {
+    padding-left: 40px;
+  }
+
+  .formTextIndexEnd {
+    padding-right: 90px;
+  }
+
+  .main .container {
+    width: 392px;
+    margin: 0px auto;
+    margin-top: 45px;
+  }
+
+  .inputContainer {
+    color: #969696;
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+
+  .inputContainer.noProgressMarginTop {
+    margin-top: 50px;
+  }
+
+  .inputContainer .itemTitle {
+    font-size: 18px;
+    text-align: center;
+    padding-bottom: 20px;
+    color: black;
+    word-wrap: break-word;
+  }
+
+  .inputDiv {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .inputDiv .noticeFlag {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    display: none;
+  }
+
+  .inputDiv .shortFormText {
+    width: 66%;
+  }
+
+  .inputDiv .btnSendVerifyCode {
+    width: 30%;
+    font-size: 12px;
+  }
+
+  .inputDiv .showPassword {
+    width: 18px;
+    cursor: pointer;
+    height: 44px;
+    line-height: 44px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    position: absolute;
+    right: 10px;
+    top: 0;
+  }
+
+  /*customSelect 样式重写*/
+  .customSelect {
+    width: 100%;
+  }
+
+  .customSelect .spanShow {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .customSelect .txtBox,
+  .customSelect .spanShow {
+    height: 42px !important;
+    line-height: 42px !important;
+  }
+
+  .customSelect .csList {
+    top: 44px !important;
+    max-height: 240px !important;
+  }
+
+  .customSelect .normalBorder {
+    border: 1px #bbb solid !important;
+  }
+
+  .customSelect .hoverBorder {
+    border: 1px #2196f3 solid !important;
+    background-color: #fff5c0 !important;
+  }
+
+  .intl-tel-input .country-list {
+    width: 332px;
+    white-space: normal !important;
+  }
+
+  /*mdDialog*/
+  #accountVerifyDialog .dialogCloseBtn:before {
+    content: 'X';
+  }
+
+  .checkIcon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .unCheckedIcon {
+    background: url(./images/unCheckedIcon.png) no-repeat;
+  }
+
+  .checkedIcon {
+    background: url(./images/checkedIcon.png) no-repeat;
+  }
+
+  @media screen and (max-width: 500px) {
+    body {
+      background: none;
+      background-color: #eef1f6;
+    }
+
+    .header .content {
+      margin-top: 30px;
+    }
+
+    .main .container {
+      width: 94%;
+      margin: auto;
+      margin-top: 35px;
+    }
+
+    .inputContainer {
+      padding: 30px 15px;
+    }
+
+    .inputContainer.noProgressMarginTop {
+      margin-top: 30px;
+    }
+
+    .formText {
+      font-size: 13px;
+    }
+  }
+}

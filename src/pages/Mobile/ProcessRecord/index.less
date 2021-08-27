@@ -1,0 +1,434 @@
+@activeColor: #2196f3;
+@refuseColor: #f44336;
+@passColor: #4CAF50;
+@submitColor: #1e88e5;
+
+.sheetProcessRowRecord {
+  height: 100%;
+  background-color: #fff;
+  box-sizing: border-box;
+  .header {
+    padding: 12px 15px 10px !important;
+    margin-bottom: 10px;
+    .icon-workflow, .icon-more_horiz, .icon-chat {
+      color: @activeColor;
+    }
+  }
+  .justifyCenter {
+    justify-content: center;
+  }
+  .sheetName {
+    color: #757575;
+    background-color: #F5F5F5;
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 10px;
+    .icon {
+      margin-right: 7px;
+    }
+  }
+  .title {
+    color: #000;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    .value {
+      flex: 1;
+      width: 0;
+    }
+    .icon {
+      color: @activeColor;
+      font-size: 24px;
+    }
+  }
+  .customFieldsContainer {
+    padding: 20px 20px;
+  }
+  .saveWrapper {
+    padding: 0 20px 20px;
+    background-color: #fff;
+    .save {
+      color: #fff;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 23px;
+      font-size: 15px;
+      border-radius: 25px;
+      background-color: #108ee9;
+    }
+  }
+  .footerHandle {
+    width: 100%;
+    height: 50px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    align-items: center;
+    background-color: #fff;
+    z-index: 1;
+
+    .headerBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      border: 1px solid #DDDDDD;
+      margin: 0 10px;
+      height: 36px;
+      .icon {
+        font-size: 18px;
+        margin-right: 5px;
+      }
+      &.overrule {
+        color: @refuseColor;
+      }
+      &.submit, &.revoke, &.pass {
+        color: @activeColor;
+      }
+      &.disable {
+        background-color: #f8f8f8;
+      }
+    }
+  }
+  .viewTabs {
+    height: 0;
+    &.edit .am-tabs-tab-bar-wrap {
+      display: none;
+    }
+    .am-tabs-default-bar-tab {
+      font-size: 13px;
+      width: auto !important;
+      border-bottom: none !important;
+      padding: 0 12px !important;
+      max-width: 120px;
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      &:after {
+        content: none !important;
+      }
+    }
+    .am-tabs-pane-wrap-inactive {
+      height: auto;
+    }
+    .am-tabs-default-bar-tab-active {
+      &:before {
+        content: '';
+        height: 4px;
+        background-color: #108ee9;
+        width: 16px;
+        margin-left: -8px;
+        position: absolute;
+        left: 50%;
+        bottom: 3px;
+        border-radius: 4px;
+      }
+    }
+    .am-tabs-default-bar-underline {
+      display: none;
+    }
+  }
+  .hideAddWrapper .addWrapper {
+    display: none;
+  }
+}
+
+.workflowStepListWrapper {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  
+  .am-drawer-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .workflowStepHeader {
+    height: 55px;
+    background: #fff;
+    align-items: center;
+    padding: 0 17px;
+    box-sizing: border-box;
+    border-bottom: 2px solid #ddd;
+
+    .workflowStepIcon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .am-drawer-sidebar {
+    background-color: #fff;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stepList {
+    padding: 0 17px;
+  }
+
+  .step {
+    &:last-child {
+      .pointerLine {
+        width: 0;
+      }
+    }
+
+    .stepItem {
+      margin-left: 14px;
+      padding: 12px 0;
+    }
+
+    .signTypeWrap {
+      padding: 16px 0 0 12px;
+
+      span {
+        color: #757575;
+      }
+
+      .signType {
+        margin-left: 4px;
+      }
+    }
+
+    .userName {
+      height: 17px;
+      line-height: 17px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .stepName {
+      &.edit {
+        color: #2196f3;
+      }
+
+      &.approve {
+        color: #2196f3;
+      }
+
+      &.notice {
+        color: #2196f3;
+      }
+    }
+
+    .stepContentWrap {
+      border-radius: 5px;
+      background-color: #F8F8F8;
+    }
+
+    .stepContent {
+      align-items: center;
+
+      &:last-child {
+        .stepDetail {
+          border-bottom: 0;
+        }
+      }
+
+      .avatarBox {
+        padding: 16px;
+        padding-right: 0;
+        align-self: flex-start;
+      }
+
+      .stepDetail {
+        margin-left: 10px;
+        line-height: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #ddd;
+
+        .timeAction {
+          margin-top: 8px;
+          align-items: center;
+          flex-wrap: wrap;
+          font-size: 12px;
+
+          .action-5 {
+            color: @refuseColor;
+          }
+
+          .action-4 {
+            color: @passColor;
+          }
+        }
+
+        .action {
+          color: #757575;
+          margin-left: 5px;
+        }
+
+        .info {
+          margin-top: 8px;
+          color: #757575;
+          word-break: break-all;
+          padding-right: 10px;
+          font-size: 12px;
+
+          .modifiedFieldInfo {
+            margin-left: 8px;
+          }
+
+          .triggerField {
+            margin-left: 4px;
+          }
+          
+          .infoSignature {
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.12);
+            border-radius: 4px;
+            height: 100px;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+          }
+        }
+
+        .waitInfo {
+          margin-bottom: 6px;
+        }
+
+        .current {
+          color: @activeColor;
+          margin-bottom: 0;
+        }
+
+        .pass {
+          color: @passColor;
+        }
+
+        .refuse {
+          color: @refuseColor;
+        }
+      }
+    }
+  }
+
+  .flowPointer {
+    align-items: center;
+    width: 20px;
+    transform: translateY(14px);
+
+    .pointerItem {
+      width: 11px;
+      height: 11px;
+      flex-shrink: 0;
+      background-color: @activeColor;
+      border-radius: 50%;
+
+      &.edit,
+      &.approve,
+      &.notice {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        margin-top: 0px;
+        flex: 0 0 20px;
+        background-color: #fff;
+
+        &:after {
+          content: "";
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+        }
+      }
+
+      &.edit {
+        box-shadow: 0 0 10px 1px #2196f3;
+
+        &:after {
+          background: #2196f3;
+        }
+      }
+
+      &.approve {
+        box-shadow: 0 0 10px 1px #2196f3;
+
+        &:after {
+          background: #2196f3;
+        }
+      }
+
+      &.notice {
+        box-shadow: 0 0 10px 1px #2196f3;
+
+        &:after {
+          background: #2196f3;
+        }
+      }
+    }
+
+    .pointerLine {
+      width: 1px;
+      height: 100%;
+      background-color: #ddd;
+    }
+  }
+}
+
+.otherActionWrapper {
+  height: 300px;
+  &.signatureWrapper {
+    height: 450px;
+  }
+  .am-textarea-item {
+    padding: 16px;
+  }
+  .am-textarea-control, textarea {
+    height: 100%;
+  }
+  .actionBtnWrapper {
+    height: 50px;
+    align-items: center;
+  }
+  .actionBtn {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    border: 1px solid #DDDDDD;
+    margin: 0 10px;
+  }
+  .ok {
+    color: #fff;
+    border-color: @activeColor;
+    background-color: @activeColor;
+  }
+  .signature {
+    width: 100%;
+  }
+  .backFlowNodesHeader {
+    .left, .right {
+      display: flex;
+      color: #2196F3;
+      font-size: 16px;
+      align-items: center;
+    }
+    .am-flexbox-item.left {
+      justify-content: flex-start;
+    }
+    .title {
+      color: #000;
+      font-size: 17px;
+    }
+    .am-flexbox-item.right {
+      justify-content: flex-end;
+    }
+  }
+  .backFlowNodesList {
+    .icon-ok {
+      color: #2196F3;
+    }
+  }
+}

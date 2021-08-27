@@ -1,0 +1,23 @@
+/*编辑动态*/
+.editUpdaterDialog .editUpdaterUploadMore {
+  background-color: #fafafa;
+  border: 1px solid #f0f0f0;
+  padding: 7px;
+  margin-top: 5px;
+}
+.editUpdaterDialog .SelectAllGroup {
+  display: inline-block;
+  text-align: left;
+}
+.postOperatorListContainer .Menu {
+  z-index: 2;
+}
+.fastCreateTaskSchedule {
+  z-index: 2;
+  padding: 5px 0;
+  background-color: #fff;
+  border: 1px solid #d5d5d5;
+  position: absolute;
+  display: block;
+  border-radius: 5px;
+}

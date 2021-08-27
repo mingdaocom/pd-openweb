@@ -1,0 +1,82 @@
+.commentBox {
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 3px;
+
+  &.autoHeight {
+    // overflow: visible;
+    // height: auto;
+    box-shadow: 0 0 5px currentColor;
+  }
+
+  .commentAttachmentsBox {
+    padding: 0 5px;
+    margin-bottom: 5px;
+  }
+
+  .txtComment {
+    transition: height 0.2s ease-in-out;
+    width: 100%;
+    resize: none;
+    border: 0;
+    padding: 8px 4px 6px 10px;
+    box-sizing: border-box;
+    background-color: transparent;
+    color: #333;
+  }
+
+  .commentActionsBox {
+    display: flex;
+    margin: 0 5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top: 1px solid #ccc;
+  }
+
+  .commentIconBtn {
+    font-size: 16px;
+    margin-left: 10px;
+    line-height: 32px;
+    color: #aaa;
+  }
+
+  .hoverRelayBtn {
+    cursor: pointer;
+    &:not(:hover) {
+      color: #ccc !important;
+    }
+  }
+
+  .commentAttachBtn {
+    color: #aaa;
+  }
+
+  .commentActionsBox > .ming.Checkbox {
+    display: inline-block;
+    margin-left: 10px;
+    vertical-align: top;
+    margin-top: 7px;
+  }
+
+  .commentSelectGroup {
+    line-height: 32px;
+  }
+
+  .commentSubmit {
+    height: 32px;
+    line-height: 32px;
+    min-height: 32px;
+    min-width: 80px;
+    padding: 0;
+  }
+  .uploadAttaachmentsContainer {
+    margin: 0 5px;
+  }
+  .UploadFiles-wrapper {
+    padding-top: 0 !important;
+    .UploadFiles-arrow {
+      top: -16px;
+    }
+  }
+}

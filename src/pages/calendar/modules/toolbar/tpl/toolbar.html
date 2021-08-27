@@ -1,0 +1,17 @@
+﻿<ul id="sortable" class="ThemeBorderColor7">
+    <li id="workCalendar">
+        <i class="iconTickBlue iconTickM"></i>
+        <span class="iconTickStyle {{!it.isWorkCalendar ? 'icon-calendar-check' : 'icon-calendar-nocheck'}} ThemeColor9"></span><span class="ThemeColor10">{{=_l('工作日程')}}</span>
+    </li>
+    <li id="taskCalendar">
+        <i class="iconTickGreen iconTickM"></i>
+        <span class="iconTickStyle {{!it.isTaskCalendar ? 'icon-calendar-check' : 'icon-calendar-nocheck'}} ThemeColor9"></span><span id="filterTaskType" data-tasktype="{{!it.filterTaskType}}"><span class="filterTaskTypeName ThemeColor10">{{? it.filterTaskType == 1}}{{=_l('参与的任务')}}{{?? it.filterTaskType == 2}}{{=_l('负责的任务')}}{{??}}{{=_l('托付的任务')}}{{?}}</span><i class="icon-arrow-down-border ThemeColor10"></i></span>
+        <div class="filterTaskTypeList">
+            <ul>
+                <li><i class="filterTaskTypeListIcon" data-tasktype="1"></i><span>{{=_l('参与的任务')}}</span></li>
+                <li><i class="filterTaskTypeListIcon" data-tasktype="2"></i><span>{{=_l('负责的任务')}}</span></li>
+                <li><i class="filterTaskTypeListIcon" data-tasktype="3"></i><span>{{=_l('托付的任务')}}</span></li>
+            </ul>
+        </div>
+    </li>
+</ul>

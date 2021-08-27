@@ -1,0 +1,222 @@
+﻿.relationControlBox {
+  height: 100%;
+  .relationControlTypeName {
+    font-size: 16px;
+    margin-left: 24px;
+    padding-top: 20px;
+  }
+  .relationControlBar {
+    width: 145px;
+    background: #fafafa;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    .relationControlType {
+      margin-top: 15px;
+      li {
+        height: 48px;
+        line-height: 48px;
+        font-size: 14px;
+        cursor: pointer;
+        &:hover:not(.active) {
+          background: #f5f5f5;
+        }
+        &.active {
+          background: #e0e0e0;
+        }
+        i {
+          width: 16px;
+          display: inline-block;
+          color: #8f9093;
+          vertical-align: top;
+          margin: 16px 8px 0 20px;
+          font-size: 16px;
+          &.icon-task_custom_today {
+            font-size: 17px;
+            margin-top: 15px;
+          }
+        }
+      }
+    }
+  }
+  .relationControlClose {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    &:not(:hover) {
+      color: #999 !important;
+    }
+  }
+  .relationControlSearch {
+    margin: 0 24px 0 15px;
+    position: relative;
+    padding-top: 12px;
+    i {
+      font-size: 18px;
+      position: absolute;
+      top: 27px;
+      left: 5px;
+      color: #9e9e9e;
+    }
+    input {
+      width: 100%;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 10px 0 30px;
+      box-sizing: border-box;
+      border: none;
+      font-size: 13px;
+      border-bottom: 1px solid #f4f4f4;
+    }
+  }
+  .relationControlSort {
+    font-size: 13px;
+    color: #9e9e9e;
+    margin-left: 24px;
+    height: 47px;
+    line-height: 47px;
+  }
+  .relationControlList {
+    overflow-x: hidden;
+    overflow-y: auto;
+    li {
+      height: 42px;
+      line-height: 42px;
+      padding: 0 24px;
+      box-sizing: border-box;
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+      &:hover:not(.ThemeBGColor3) {
+        background: #f5f5f5;
+      }
+      &:not(.ThemeBGColor3) {
+        color: #333;
+        i {
+          color: #9e9e9e;
+        }
+      }
+      .relationControlItem {
+        position: absolute;
+        top: 0;
+        left: 24px;
+        right: 24px;
+        bottom: 0;
+        align-items: center;
+      }
+      i {
+        font-size: 16px;
+        &.relationControlIcon {
+          min-width: 18px;
+          width: 18px;
+          height: 20px;
+        }
+      }
+      .overflow_ellipsis {
+        margin-left: 10px;
+      }
+      .userAvarar {
+        margin-left: 20px;
+        img {
+          display: inline-block;
+          vertical-align: top;
+        }
+      }
+    }
+  }
+  .listMore {
+    font-size: 13px;
+    margin-left: 24px;
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+    line-height: 42px;
+    &:not(:hover) {
+      color: #9e9e9e !important;
+    }
+  }
+  .listDate {
+    font-size: 15px;
+    margin-left: 24px;
+    padding: 15px 0 10px;
+    .listDateGray {
+      color: #9e9e9e;
+    }
+  }
+  .relationControNull {
+    margin-top: 106px;
+    color: #949494;
+    font-size: 14px;
+    text-align: center;
+    .relationControNullIcon {
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background: #f5f5f5;
+      text-align: center;
+      margin: 0 auto 16px;
+      i {
+        font-size: 50px;
+        color: #9e9e9e;
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 28px;
+      }
+    }
+    .relationControNull {
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+      margin: 0 auto 16px;
+      background-image: url('../images/noList.png');
+      background-size: 48px 56px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
+  .relationControlFooter {
+    position: relative;
+    margin-top: 10px;
+    height: 32px;
+    line-height: 32px;
+    padding-bottom: 20px;
+    font-size: 14px;
+    text-align: right;
+    margin-right: 24px;
+    box-sizing: initial;
+    .relationControlCreate {
+      position: absolute;
+      left: 24px;
+      top: 0;
+      font-size: 15px;
+      cursor: pointer;
+      i {
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 8px;
+        margin-right: 4px;
+      }
+    }
+    .relationControlCancel {
+      display: inline-block;
+      cursor: pointer;
+      &:not(:hover) {
+        color: #9e9e9e !important;
+      }
+    }
+    .relationControlSave {
+      display: inline-block;
+      cursor: pointer;
+      padding: 0 30px;
+      color: #fff;
+      border-radius: 3px;
+      margin-left: 40px;
+      &.relationDisable {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

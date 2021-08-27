@@ -1,0 +1,41 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-8-5 9:16:26 ├F10: AM┤+08:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: i18n.POTGenerator\n"
+
+#: Disabled references:1
+msgid "应用在钉钉PC端打开方式"
+msgstr ""
+
+#: Disabled references:1
+msgid "打开后，填写者在提交数据前需要输入\n验证码，用于防止恶意或重复数据提交。"
+msgstr ""
+
+#: Disabled references:1
+msgid "a.[用户]获取用户邮箱信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "d.[消息]以应用的身份发消息"
+msgstr ""
+
+#: Disabled references:1
+msgid "f.[通讯录]以应用身份访问通讯录（历史版本）"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择一个单选类型的字段，数据将按照此字段中的选项分组显示在看板中。支持字段：单选、多选、等级、人员、关联表记录（单条）"
+msgstr ""
+
+#: Disabled references:1
+msgid "每个选项单列一行,将所有不重复项加为新的选项"
+msgstr ""
+
+#: Disabled references:1
+msgid "应用于所有记录中的按钮，无法从当前视图中删除"
+msgstr ""
+

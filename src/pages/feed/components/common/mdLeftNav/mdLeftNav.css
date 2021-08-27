@@ -1,0 +1,159 @@
+.mdLeftNav {
+  position: fixed;
+  z-index: 6;
+  left: 0;
+  top: 50px;
+  bottom: 0;
+  width: 250px;
+  font-size: 12px;
+}
+.mdLeftNav .List-body {
+  min-height: 60px;
+}
+.mdLeftNav .iconList li {
+  font-size: 13px;
+}
+.mdLeftNav .List:not(.Menu) > ul > .Item {
+  height: 40px !important;
+  line-height: 40px !important;
+  overflow: hidden;
+}
+.mdLeftNav .folderProjectItem .Item {
+  transition: height 0.6s, opacity 0.6s;
+}
+.mdLeftNav .folderProjectTitle {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  padding: 0 40px 0 15px;
+}
+.mdLeftNav .folderProjectTitle > i {
+  display: inline-block;
+  font-size: 14px;
+  margin: 5px;
+  width: 20px;
+  text-align: center;
+}
+.mdLeftNav .folderProjectTitle > i:first-child {
+  margin-left: 16px;
+  margin-right: 15px;
+  text-align: left;
+  font-size: 20px;
+}
+
+.mdLeftNav .folderProjectTitle .contentName {
+  font-size: 13px;
+}
+.mdLeftNav .folderProjectTitle .contentName .companyName {
+  max-width: 137px;
+}
+.mdLeftNav .folderProjectTitle .contentName span {
+  display: inline-block;
+  vertical-align: middle;
+}
+.mdLeftNav .folderProjectTitle .clipLoader {
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  margin: 12px;
+}
+.mdLeftNav .folderProjectTitle .slide {
+  visibility: hidden;
+  cursor: pointer !important;
+  position: absolute;
+  right: 10px;
+  top: 0px;
+  line-height: 40px;
+}
+.mdLeftNav .folderProjectTitle:hover .slide {
+  visibility: visible;
+}
+
+.mdLeftNav .folderProjectTitle.isLoading {
+  padding-right: 65px;
+}
+.mdLeftNav .folderProjectTitle.isLoading .slide {
+  right: 35px;
+}
+/*.mdLeftNav .folderProjectTitle .slide:before {
+  content: '隐藏';
+}
+.mdLeftNav .folderProjectTitle.folded .slide:before {
+  content: '展开';
+}*/
+
+.mdLeftNav .List:not(.Menu) > ul > .Item.folded {
+  height: 0 !important;
+  opacity: 0;
+}
+.mdLeftNav .avatarList.expire .folderProjectTitle,
+.mdLeftNav .folderListOfProject.expire .folderProjectTitle,
+.mdLeftNav .folderListOfProject.expire .folderListName {
+  opacity: 0.5;
+}
+.mdLeftNav .folderListOfProject.expire .folderItem {
+  animation: none;
+}
+.mdLeftNav .avatarList .Item-content {
+  padding-left: 50px !important;
+}
+.mdLeftNav .avatarList .avatar {
+  position: absolute;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  top: 8px;
+  left: 15px;
+}
+.mdLeftNav .Splitter {
+  margin: 6px 0;
+  padding: 0;
+  height: 0;
+  border: none;
+  border-top: 1px solid #fff;
+}
+.mdLeftNav .panelHead {
+  height: 32px;
+  line-height: 32px;
+  color: #fff;
+  padding-left: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.mdLeftNav .panelHead .panelIcon {
+  font-size: 24px;
+  line-height: 32px;
+  margin-right: 15px;
+  margin-left: auto;
+}
+.mdLeftNav .panelHead .panelIcon:hover {
+  color: white;
+}
+.mdLeftNav .nano {
+  flex: 1;
+}
+
+.mdLeftNav .nullData {
+  margin: 17px 0;
+  color: rgba(255, 255, 255, 0.87);
+  text-align: center;
+  opacity: 0.9;
+}
+.mdLeftNav .nullData span {
+  position: relative;
+}
+.mdLeftNav .nullData .arrow {
+  transform: rotate(90deg);
+  display: inline-block;
+  position: absolute;
+  top: -17px;
+  right: -28px;
+  font-size: 24px;
+}

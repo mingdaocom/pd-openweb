@@ -1,0 +1,59 @@
+﻿<ul class="userList mBottom5">
+    {{? it.prefixUsers}}
+    {{~ it.prefixUsers:user:index }}
+        {{var isHide = index > 1;}}
+        {{#def.buildUser:user}}
+    {{~}}
+
+    {{?isHide}}
+    <li class="listTip mBottom5 mTop5 ThemeColor3 ThemeHoverColor2 listTipMore pointer">{{=_l('更多')}}</li>
+    {{?}}
+
+    {{isHide = false;}}
+    {{?}}
+    {{? it.isCooperation }}
+    <li class="listTip mBottom5 mTop5">{{=it.tip.cooperate}}</li>
+    {{?}}
+    {{~ it.users:user}}
+        {{#def.buildUser:user}}
+    {{~}}
+    {{? it.users.length == 0 && it.isCooperation }}
+    <li class="nullTip">
+        {{= it.isCooperation? _l('没有经常协作的联系人'):_l('没有符合条件的联系人') }}
+    </li>
+    {{?? it.users.length  == 0 }}
+    <li class="nullTip">
+        {{= _l('暂无结果') }}
+    </li>
+    {{?}}
+</ul>
+
+{{##def.buildUser:user:
+    <li class="userItem {{=isHide ? 'Hidden' : ''}}" data-accountid="{{=user.accountId}}">
+        {{? user.avatarhtml}}
+            {{=user.avatarhtml}}
+        {{??}}
+            <img src="{{=user.avatar}}" class="circle userHead"/>
+        {{?}}
+        {{? it.includeUndefinedAndMySelf && user.accountId === md.global.Account.accountId }}
+        <div class="userInfo">
+            <div>
+                <span class="userName overflow_ellipsis Gray" title="{{= _l('我自己') }}">
+                    {{= _l('我自己') }}
+                </span>
+            </div>
+        </div>
+        {{??}}
+        <div class="userInfo">
+            <div class="userName overflow_ellipsis Gray" title="{{!user.fullname || ''}}">
+                {{!user.fullname || ''}}
+            </div>
+            <div class="userCompany overflow_ellipsis Gray_bd Font12">
+                {{! user.job || user.profession ||''}}
+                {{=(user.job || user.profession) && user.companyName ? ' / ' : ''}}
+                {{! user.companyName || ''}}
+            </div>
+        </div>
+        {{?}}
+    </li>
+#}}

@@ -1,0 +1,103 @@
+.worksheetConfigHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  padding-right: 15px;
+  z-index: 10;
+  height: 50px;
+  line-height: 50px;
+  background-color: #fff;
+
+  .tabs {
+    position: absolute;
+    left: 50%;
+    margin-left: -116px;
+    font-size: 14px;
+  }
+
+  .goback {
+    display: inline-block;
+    width: 20px;
+    padding: 0 20px;
+    font-size: 0;
+    height: 50px;
+    color: #757575;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: #333;
+    }
+
+    i.icon {
+      font-size: 16px;
+      line-height: 50px;
+    }
+  }
+
+  .editDetailWrap {
+    display: flex;
+    flex: 1;
+    font-size: 16px;
+    margin-left: 12px;
+  }
+  .customHeadBox {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-height: 0;
+  }
+  .customCancel,
+  .customSave {
+    display: inline-block;
+    margin-left: 10px;
+    height: 34px;
+    line-height: 34px;
+    vertical-align: middle;
+    margin-top: 8px;
+    width: 88px;
+    text-align: center;
+  }
+
+  .customCancel:not(:hover) {
+    color: #ccc !important;
+  }
+
+  .closeConfigPage.Button {
+    margin-right: 10px;
+    color: #9e9e9e;
+    background: #f5f5f5;
+    transition: all 0.25s;
+    &:hover {
+      background: #eaeaea;
+    }
+  }
+  .customSave {
+    color: #fff;
+    border-radius: 3px;
+  }
+
+  .btnLoading {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 8px solid #fff;
+    color: #fff;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: rotate 2s infinite;
+  }
+}
+
+@keyframes rotate {
+  form {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

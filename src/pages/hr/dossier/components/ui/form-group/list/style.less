@@ -1,0 +1,18 @@
+@import '../../../lib/styles/clearfix.less';
+
+/**
+* component List
+* prefix: .dossier-user-form-list
+*/
+.dossier-user-form-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: -8px;
+  &:after {
+    content: '';
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}

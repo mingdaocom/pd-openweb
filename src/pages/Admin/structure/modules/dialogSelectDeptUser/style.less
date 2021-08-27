@@ -1,0 +1,56 @@
+.selectDepartmentUserContainer {
+  &_search {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    .searchIcon {
+      font-size: 20px;
+      color: #999;
+      margin: 0 5px;
+    }
+    .searchInput {
+      flex: 1 0 0;
+      border: none;
+      outline: none;
+      height: 30px;
+      line-height: 30px;
+    }
+    .searchClose {
+      font-size: 14px;
+      color: #999;
+      margin: 0 5px;
+      display: none;
+      cursor: pointer;
+    }
+  }
+  .selectDepartmentUserContent {
+    margin-top: 15px;
+    height: 350px;
+    .userItem {
+      &:hover {
+        background-color: #b9e0ff;
+      }
+      padding: 2px 0;
+      margin: 4px 0;
+      .userCheckbox,
+      .userAvatar,
+      .userName,
+      .profession {
+        vertical-align: middle;
+      }
+      .userAvatar {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+      }
+      .userName {
+        width: 130px;
+        padding-right: 10px;
+      }
+      .profession {
+        width: 160px;
+      }
+    }
+  }
+}

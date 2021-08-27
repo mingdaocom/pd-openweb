@@ -1,0 +1,59 @@
+@containerWidth: 480px;
+@transitionTime: 0.25s;
+
+.Discussion {
+  width: @containerWidth;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #fff;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+  z-index: 12;
+  >div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .discussLogFile {
+    width: 100%;
+    background-color: #fff;
+
+    .header {
+      height: 50px;
+      padding-top: 10px;
+      span {
+        font-size: 16px !important;
+        padding: 0 5px 8px;
+      }
+    }
+
+    .WorkSheetCommentList {
+      padding-top: 10px;
+    }
+  }
+  .mentions-input-box {
+    width: 100% !important;
+  }
+  .UploadFiles-arrow {
+    display: none;
+  }
+
+
+  &-enter {
+    right: -@containerWidth;
+  }
+  &-enter&-enter-active {
+    right: 0;
+    transition: right @transitionTime;
+  }
+  &-leave {
+    right: 0;
+  }
+  &-leave&-leave-active {
+    right: -@containerWidth;
+    transition: right @transitionTime;
+  }
+}

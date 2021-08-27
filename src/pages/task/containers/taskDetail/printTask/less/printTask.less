@@ -1,0 +1,55 @@
+﻿#printTask {
+  .printMessage {
+    color: #9e9e9e;
+  }
+  .printOperation li {
+    position: relative;
+    width: 50%;
+    margin-top: 8px;
+    padding: 3px 0;
+    display: inline-block;
+    .overflow_ellipsis {
+      max-width: 180px;
+      vertical-align: top;
+    }
+  }
+  .printOperation .checkOperation,
+  .printOperation .checkOperationDisabled {
+    font-size: 14px;
+    display: inline-block;
+    vertical-align: top;
+    color: #333;
+    cursor: pointer;
+    .operationCheckbox {
+      font-size: 12px;
+      border-radius: 2px;
+      color: #fff;
+      margin-right: 8px;
+      border-width: 1px;
+      border-style: solid;
+      margin-top: 2px;
+      display: inline-block;
+      vertical-align: top;
+    }
+    &:not(.checked) {
+      .operationCheckbox {
+        border-color: #ccc !important;
+        background: #fff !important;
+      }
+    }
+    .operationTips {
+      color: #9e9e9e;
+      &:after {
+        width: 170px;
+        white-space: normal;
+      }
+    }
+  }
+  .printOperation .checkOperationDisabled {
+    cursor: default;
+    .operationCheckbox {
+      background: #ccc !important;
+      border-color: #ccc !important;
+    }
+  }
+}

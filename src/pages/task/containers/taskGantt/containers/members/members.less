@@ -1,0 +1,66 @@
+.taskGanttContainer {
+  .ganttMembers {
+    width: 164px;
+    overflow: hidden;
+    box-shadow: 1px 0 6px rgba(0, 0, 0, 0.12);
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+
+    > .flexColumn {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+    }
+
+    header {
+      padding: 0 12px;
+      border-bottom: 1px solid rgba(117, 117, 117, 0.15);
+      height: 48px;
+      line-height: 48px;
+      box-sizing: border-box;
+      font-size: 13px;
+      color: #757575;
+      position: relative;
+      width: 164px;
+      i {
+        position: absolute;
+        top: 15px;
+        right: 12px;
+        &:not(:hover) {
+          color: #757575 !important;
+        }
+      }
+    }
+
+    .ganttMembersList {
+      overflow: scroll;
+      width: 200px;
+      &::-webkit-scrollbar {
+        height: 10px;
+      }
+      li {
+        width: 140px;
+        padding: 8px 12px 2px;
+        min-height: 30px;
+        line-height: 24px;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(117, 117, 117, 0.15);
+        box-sizing: initial;
+        &:last-child {
+          border-bottom-width: 0;
+        }
+        .ganttMembersAvatar {
+          display: inline-block !important;
+          vertical-align: top;
+          margin-right: 8px;
+          cursor: default;
+        }
+        .overflow_ellipsis {
+          vertical-align: top;
+          max-width: 80px;
+        }
+      }
+    }
+  }
+}

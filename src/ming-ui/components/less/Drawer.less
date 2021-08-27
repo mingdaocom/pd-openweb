@@ -1,0 +1,25 @@
+﻿.ming.Drawer {
+  width: 340px;
+  position: fixed;
+  top: 95px;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  z-index: 6;
+  box-shadow: 0 23px 23px 5px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.15);
+
+  &-enter {
+    right: -340px;
+  }
+  &-enter&-enter-active {
+    right: 0;
+    transition: all 0.25s ease-in;
+  }
+  &-leave {
+    right: 0;
+  }
+  &-leave&-leave-active {
+    right: -340px;
+    transition: all 0.25s ease-in;
+  }
+}

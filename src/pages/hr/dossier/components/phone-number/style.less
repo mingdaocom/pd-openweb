@@ -1,0 +1,29 @@
+/**
+* component PhoneNumber
+* prefix .mui-phonenumber
+*/
+.mui-phonenumber {
+  // default height = 36px
+  font-size: 14px;
+  line-height: 20px;
+  background-color: #fff;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  padding: 7px 12px;
+  vertical-align: bottom;
+  box-sizing: border-box;
+  color: #333;
+  &:hover {
+    border-color: #bbb;
+  }
+  // error state
+  &.mui-phonenumber-error {
+    border-color: #f44336;
+  }
+  &:disabled {
+    background-color: #f5f5f5;
+    border-color: #f5f5f5;
+    cursor: not-allowed;
+    resize: none;
+  }
+}

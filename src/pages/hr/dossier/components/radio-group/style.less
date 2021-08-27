@@ -1,0 +1,24 @@
+/**
+* component RadioGroup
+* prefix .mui-radiogroup
+*/
+.width(@n) {
+  width: percentage(1 / @n); // calc(1/@n*100%);
+}
+
+// &.grid-[1~10]
+.grid-n(@n, @i: 1) when (@i <= @n) {
+  &.mui-radiogroup-grid-@{i} {
+    & > .mui-radio {
+      .width(@i);
+    }
+  }
+
+  .grid-n(@n, (@i + 1));
+}
+
+.mui-radiogroup {
+  font-size: 0;
+
+  .grid-n(10);
+}

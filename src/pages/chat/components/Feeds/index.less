@@ -1,0 +1,149 @@
+.ChatPanel-Feeds {
+  // border-bottom: 1px solid #ddd;
+  &-body {
+    margin-top: 10px;
+  }
+}
+
+.ChatPanel-Feeds-item {
+  cursor: pointer;
+  transition: background 0.3s;
+  &:hover {
+    background: #f9f9f9;
+  }
+  .feed-creator {
+    display: flex;
+    padding: 10px 20px 0 16px;
+    &-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid #e6e6e6;
+      > img {
+        width: 100%;
+      }
+    }
+    &-info {
+      margin-left: 10px;
+      line-height: 29px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+    }
+  }
+  .feed-body {
+    padding: 0 20px 0 56px;
+  }
+  .feed-content {
+    word-break: break-all;
+    text-align: justify;
+    color: #333;
+    font-size: 13px;
+  }
+  .feed-metadata {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 20px 12px 56px;
+    overflow: hidden;
+    color: #bcbcbc;
+  }
+  .feed-comment {
+    font-size: 13px;
+    color: #9e9e9e;
+    &:before {
+      margin-right: 6px;
+      font-size: 13px;
+    }
+  }
+  .feed-file-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 10px;
+    transition: all 0.3s;
+    background: #eee;
+    margin-top: 5px;
+    &:hover .file-info-action {
+      opacity: 1;
+    }
+    .file-icon {
+      width: 30px;
+      height: 36px;
+      > i {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .file-info {
+      padding-left: 10px;
+    }
+    .file-info-name {
+      max-width: 120px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      font-size: 12px;
+      &:not(:hover) {
+        color: #000 !important;
+      }
+    }
+    .file-info-action {
+      position: absolute;
+      bottom: 15px;
+      right: 12px;
+      font-size: 16px;
+      color: #a7a7a7;
+      opacity: 0;
+      a {
+        text-decoration: none;
+        &:not(:hover) {
+          color: #999 !important;
+        }
+      }
+    }
+  }
+  .feed-filelist {
+    padding-top: 5px;
+  }
+  .feed-imageList {
+    width: 100%;
+    padding-top: 5px;
+    overflow: hidden;
+  }
+  .feed-image-item {
+    float: left;
+    width: 70px;
+    height: 70px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border: 1px solid #e6e6e6;
+    > img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.ChatPanel-FeedsPanel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .title {
+    width: 130px;
+  }
+  .splitTime {
+    width: 100%;
+    margin: 10px 0;
+    color: #888;
+    font-size: 14px;
+    padding-left: 21px;
+    overflow: hidden;
+  }
+  .content {
+    /* 兼容 Chrome 低版本，41 是 header 的高度 */
+    height: calc(~'100% - 41px');
+  }
+}

@@ -1,0 +1,241 @@
+﻿html.mdTopTheme .slideDetail {
+  top: 182px;
+}
+.kcMain .slideDetail {
+  height: 100%;
+}
+.slideDetail .greyColor {
+  color: #999;
+}
+.slideDetailTitle {
+  padding: 20px 22px 0;
+  position: relative;
+}
+.slideDetailTitle .attributeType {
+  display: inline-block;
+  margin-right: 13px;
+  width: 21px;
+  height: 24px;
+}
+.slideDetailTitle .attributeName {
+  width: 244px;
+  display: inline-block;
+  font-size: 16px;
+}
+.detailType {
+  height: 46px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 5px;
+}
+.detailType li {
+  font-size: 13px;
+  border-bottom: 3px solid #fff;
+  height: 43px;
+  line-height: 46px;
+  text-align: center;
+  width: 148px;
+  float: left;
+  cursor: pointer;
+  color: #aaa;
+}
+.detailType li:hover {
+  border-bottom-color: #aaa;
+}
+.detailType li:first-child {
+  margin-left: 20px;
+}
+.detailType li:last-child {
+  margin-left: 4px;
+}
+.detailContent {
+  overflow-y: auto;
+}
+.detailContent .detailAttribute {
+  margin-top: 5px;
+  padding: 0 22px 40px;
+  width: 100%;
+  height: 100%;
+}
+.attributeList {
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 15px;
+}
+.attributeList.removeBorder {
+  border-bottom: 0;
+}
+.attributeList li {
+  width: 100%;
+  height: 32px;
+  line-height: 32px;
+  position: relative;
+}
+.attributeList li a {
+  color: #333 !important;
+}
+.attributeLeft {
+  width: 50px;
+  display: inline-flex;
+  justify-content: space-between;
+  color: #999;
+  margin-right: 18px;
+}
+.attributeList .createHeadImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  vertical-align: top;
+  margin-right: 6px;
+  display: inline-block !important;
+}
+.attributeList .copyLink {
+  width: 215px;
+  padding: 4px;
+  height: 32px;
+  background: #eee;
+  border: 1px solid #ddd;
+  margin-left: -5px;
+}
+
+.attributeDownload {
+  margin-top: 15px;
+  position: relative;
+}
+.attributeDownload label {
+  cursor: pointer;
+}
+.attributeDownload input {
+  margin-right: 8px;
+}
+.attributeDownload .detailInputM {
+  margin-left: 30px;
+}
+.attributeEditBtn {
+  margin-top: 15px;
+}
+.attributeEditBtn label {
+  cursor: pointer;
+}
+.detailAuth {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+.detailAuth .detailAuthM {
+  display: block;
+  margin-left: -4px;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+.detailLog {
+  padding-bottom: 40px;
+  width: 100%;
+}
+
+.detailLog li {
+  line-height: 24px;
+  width: 100%;
+  padding: 6px 20px 6px 44px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  color: #666;
+}
+.detailLog li:hover {
+  background: #f4f4f5;
+}
+
+.detailLog .detailLogType {
+  position: absolute;
+  left: 20px;
+  top: 11px;
+  font-size: 13px;
+  color: #b7b7b7;
+}
+.detailLog .detailLogType.icon-edit {
+  top: 13px;
+}
+.detailLog .detailLogType.icon-task-new-delete {
+  left: 21px;
+  top: 13px;
+  font-size: 13px;
+}
+.detailLog .detailLogTitle {
+  width: 100%;
+  word-break: break-all;
+}
+.detailLog li.notHover a {
+  color: #666 !important;
+}
+.detailLog .detailLogTime {
+  color: #b7b7b7;
+}
+
+.slideDetailNoItem,
+.slideDetailItem {
+  width: 100%;
+  margin-top: 170px;
+  color: #666;
+  text-align: center;
+  line-height: 26px;
+}
+
+.slideDetailNoItemPic {
+  background: url('./images/noItem.png') no-repeat;
+  width: 104px;
+  height: 93px;
+  margin: 0 auto 10px;
+  background-size: 104px 93px;
+}
+
+.slideDetailItem {
+  margin-top: 136px;
+}
+
+.slideDetailItemPic {
+  background: url('./images/moreItem.png') no-repeat;
+  width: 140px;
+  height: 130px;
+  margin: 0 auto 10px;
+  background-size: 140px 130px;
+}
+.pinDetailCon {
+  padding: 0 20px 10px;
+}
+.pinDetailCon.abs {
+  padding: 0 20px 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.pinDetailCon .Checkbox-box {
+  margin-right: 8px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+.pinDetailCon .icon {
+  line-height: 14px !important;
+  width: 14px !important;
+}
+.pinDetail {
+  color: #ccc;
+  font-size: 18px;
+  cursor: pointer;
+}
+.checkDownload,
+.checkEditable {
+  display: none;
+}
+.switchCon {
+  position: absolute;
+  right: 0px;
+  top: -3px;
+}
+
+.detailAttribute .attributeList .createHeadImg {
+  margin-top: 4px;
+  margin-right: 10px;
+}

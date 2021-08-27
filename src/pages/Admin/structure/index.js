@@ -1,0 +1,35 @@
+﻿import React from 'react';
+import { Provider } from 'react-redux';
+import Config from '../config';
+import Root from './container/root';
+import configureStore from './store/configureStore';
+import './index.less';
+import { updateProjectId } from './actions/current';
+
+const store = configureStore();
+
+export default class App extends React.Component {
+  constructor() {
+    super();
+    Config.setPageTitle(_l('人员与部门'));
+  }
+
+  componentDidMount() {
+    $('html').addClass('AppAdminStructure');
+  }
+
+  componentWillUnmount() {
+    store.dispatch({ type: 'PROJECT_ID_CHANGED' });
+    $('html').removeClass('AppAdminStructure');
+  }
+
+  render() {
+    store.dispatch(updateProjectId(this.props.match.params[0]));
+
+    return (
+      <Provider store={store}>
+        <Root />
+      </Provider>
+    );
+  }
+}

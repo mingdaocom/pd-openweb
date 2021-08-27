@@ -1,0 +1,39 @@
+.taskGanttContainer {
+  #ganttDragPreview {
+    position: fixed;
+    border: 0;
+    pointer-events: none;
+    z-index: 100;
+    & > * {
+      pointer-events: none;
+    }
+    .timeBar {
+      height: 16px;
+      border-radius: 3px;
+      display: inline-block;
+      vertical-align: top;
+      > div {
+        display: none;
+      }
+    }
+    .dragPreviewStartTime,
+    .dragPreviewEndTime {
+      position: absolute;
+      height: 16px;
+      line-height: 16px;
+      color: #fff;
+      background: #000;
+      top: 0;
+      width: 66px;
+      text-align: center;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .dragPreviewStartTime {
+      left: -78px;
+    }
+    .dragPreviewEndTime {
+      right: -78px;
+    }
+  }
+}

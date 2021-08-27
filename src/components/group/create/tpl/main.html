@@ -1,0 +1,54 @@
+﻿<div class="groupTop TxtCenter">
+    <div class="groupTopContent ThemeBGColor3 pTop25 pBottom25">
+        <div class="groupHeader">
+            <div class="groupHead Hand" titlename="{{= _l('修改头像') }}"><img class="Hand groupAvatar" src="{{=it.defaultAvatar}}"/>
+            </div>
+            <div class="groupNameTotal Font16 mTop10">
+                {{= _l('创建群组') }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pAll30 pTop5 mainContent">
+    <div class="mTop15 groupType">
+        {{? md.global.Account.projects.length && !it.createGroupInProject }}
+        <span class="form-label">{{= _l('群组类型') }}</span>
+        <label class="Hand mRight10"><input type="radio" name="groupType" class="official" {{=it.isProject ? 'checked' :
+            ''}}>{{= _l('组织群组') }}</label>
+        <label class="Hand mRight10"><input type="radio" name="groupType" {{=!it.isProject ? 'checked' : ''}}>{{= _l('个人群组') }}</label>
+        {{?}}
+    </div>
+    <div class="mTop15 flexRow groupProjectSelect" {{=!it.isProject || it.createGroupInProject ?
+    'style="display:none;"' : ''}}>
+    <span class="form-label">{{= _l('组织管理') }}</span>
+    <input type="hidden" class="hiddenCompanys">
+</div>
+<div class="mTop15 flexRow">
+    <span class="form-label">{{= _l('群组名称') }}</span>
+    <input type="text" class="TextBoxNew txtGroupName" placeholder="{{= _l('群名称（必填）') }}">
+</div>
+<div class="mTop15 flexRow spaceBetween">
+    <span class="form-label">{{=_l('新成员加入需要管理员验证')}}
+        <span class="tip-bottom" data-tip="{{= _l('仅对主动申请加入和通过链接邀请的用户生效')}}">
+            <span class="icon-knowledge-message Font16 Gray_c"></span>
+        </span>
+    </span>
+    <input class='tgl tgl-light' id='createGroupApproval' type='checkbox' data-type="approval" {{=it.openApproval ?
+    'checked' : '' }}/><label class='tgl-btn joinApproval' for='createGroupApproval'></label>
+</div>
+<div class="mTop15 flexRow">
+    <span class="form-label">{{= _l('群公告') }}</span>
+    <textarea class="TextArea TextBoxNew txtGroupAbout" placeholder="{{= _l('群公告') }}"></textarea>
+</div>
+</div>
+<div class="pLeft30 pRight30 pBottom30">
+    <div class="clearfix">
+        <div class="Left officialGroup mTop6"><label class="Hand"><input type="checkbox" class="deptCheckbox">{{= _l('设为官方群组') }}</label><span
+            class="selectDep ThemeColor3 Hand Hidden mLeft5">{{= _l('选择关联部门') }}</span></div>
+        <div class="Right">
+            <input type="button" class="btnCreate btnBootstrap btnBootstrap-primary btnBootstrap-small Right"
+                   value="{{= _l('创建') }}">
+            <a class="Right cancelCreate mTop6">{{= _l('取消') }}</a>
+        </div>
+    </div>
+</div>

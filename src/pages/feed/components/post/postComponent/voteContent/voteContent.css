@@ -1,0 +1,59 @@
+.voteContent {
+  margin-top: 15px;
+  margin-left: 12px;
+}
+.voteContent li {
+  margin-top: 5px;
+}
+.voteContent .voteItemContainer {
+  font-size: 14px;
+}
+.voteContent .voteItemContainer label {
+  word-wrap: break-word;
+  color: #333;
+  font-size: 14px !important;
+  line-height: 28px !important;
+}
+.voteContent input[type='checkbox'] + label:after,
+.voteContent input[type='checkbox']:checked + label:after {
+  margin-top: 3px;
+  width: 16px !important;
+  height: 16px !important;
+}
+.voteContent input[type='checkbox']:checked + label:before {
+  top: 1px !important;
+  width: 4px !important;
+  height: 12px !important;
+}
+.voteContent .btn {
+  height: 28px;
+  line-height: 28px;
+  color: #fff;
+  border: none;
+  padding: 0 15px;
+}
+.voteContent .voteResult .outBar {
+  width: 60%;
+  height: 12px;
+  margin: 8px 10px 8px 0;
+}
+.voteContent .voteResult .inBar {
+  height: 100%;
+}
+.voteContent .voteResult li {
+  font-size: 14px;
+  line-height: 28px;
+  padding-bottom: 5px;
+}
+.voteContent .voteResult li > div {
+  width: 100%;
+  word-wrap: break-word;
+}
+.voteContent .voteResult li > div,
+.voteContent .voteResult li > img {
+  margin-bottom: 5px;
+}
+
+.voteContent .updaterDialog_Main {
+  clear: both;
+}

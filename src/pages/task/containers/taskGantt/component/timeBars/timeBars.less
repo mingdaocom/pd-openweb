@@ -1,0 +1,195 @@
+.taskGanttContainer {
+  .timeBars {
+    position: absolute;
+    height: 16px;
+    line-height: 16px;
+    box-sizing: border-box;
+    &.isDragging {
+      .timeBarArrowLeft {
+        border-right-color: #ccc !important;
+      }
+      .timeBarArrowRight {
+        border-left-color: #ccc !important;
+      }
+      .timeBar {
+        background: #ccc !important;
+        box-shadow: -1px 1px 1px rgba(0, 0, 0, 0.2) inset;
+      }
+    }
+    .taskDelayNoComplete,
+    .taskDelayNoStart {
+      border: none!important;
+      padding: 0!important;
+    }
+    .overflow_ellipsis {
+      padding: 0 8px;
+      max-width: 120px;
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      &.noDateColor {
+        color: #757575;
+      }
+      &.timeBarTaskName {
+        color: #9e9e9e;
+        text-decoration: line-through;
+      }
+    }
+    .timeBar {
+      height: 16px;
+      border-radius: 3px;
+      display: inline-block;
+      vertical-align: top;
+      text-align: right;
+      color: #fff;
+      position: relative;
+      &:not(.pointer) {
+        cursor: grab;
+      }
+      &:not(.pointer):active {
+        cursor: grabbing;
+      }
+      &.clearLeftBorder {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+      }
+      &.clearRightBorder {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+      span {
+        height: 16px;
+        line-height: 16px;
+        padding: 0 8px;
+        display: inline-block;
+      }
+      > div {
+        position: relative;
+        height: 16px;
+        &:hover {
+          .timeBarDragLeft,
+          .timeBarDragRight {
+            display: inline-block;
+          }
+        }
+        .dragPreviewTipsLeft,
+        .dragPreviewTipsRight {
+          position: absolute;
+          top: 0;
+          height: 16px;
+          line-height: 16px;
+          color: #fff;
+          background: #000;
+          width: 66px;
+          text-align: center;
+          border-radius: 3px;
+          z-index: 10;
+        }
+        .dragPreviewTipsLeft {
+          left: -78px;
+        }
+        .dragPreviewTipsRight {
+          right: -78px;
+        }
+      }
+      .timeBarDragLeft,
+      .timeBarDragRight {
+        height: 8px;
+        font-size: 0;
+        width: 1px;
+        position: absolute;
+        top: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        background-clip: content-box;
+        display: none;
+      }
+      .timeBarDragLeft {
+        left: 0;
+        padding-left: 2px;
+        padding-right: 1px;
+        cursor: w-resize;
+        &.dragBigRadius {
+          padding-left: 4px;
+        }
+      }
+      .timeBarDragRight {
+        right: 0;
+        padding-right: 2px;
+        padding-left: 1px;
+        cursor: e-resize;
+        &.dragBigRadius {
+          padding-right: 4px;
+        }
+      }
+    }
+    .timeBarArrow {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent;
+      position: relative;
+      &.timeBarArrowRight {
+        margin-right: -8px;
+      }
+    }
+    .timeBarDashed {
+      position: absolute;
+      left: 0;
+      height: 16px;
+    }
+    .timeBarOverdue {
+      background: #fbe9e7;
+      text-align: right;
+      color: #ff0000;
+      height: 16px;
+      vertical-align: top;
+      margin-left: -1px;
+      padding-right: 1px;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      &:not(.Hidden) {
+        display: inline-block;
+      }
+      &.timeBarOverdueStyle {
+        margin-left: -8px;
+        padding-right: 8px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+    }
+    .timeBarArrowBtn {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      font-size: 14px;
+      vertical-align: top;
+      position: relative;
+      color: #ccc;
+      z-index: 2;
+      margin-right: 4px;
+      &:hover {
+        color: #9e9e9e;
+      }
+    }
+    .timeBarMessageP {
+      height: 16px;
+      line-height: 16px;
+      padding: 0 8px;
+      display: inline-block;
+    }
+  }
+}
+
+.AppTask .ganttDraging {
+  cursor: grabbing !important;
+  .timeBarDragLeft,
+  .timeBarDragRight,
+  .timeBarArrowBtn,
+  .pointer,
+  .timeBar {
+    cursor: grabbing !important;
+  }
+}

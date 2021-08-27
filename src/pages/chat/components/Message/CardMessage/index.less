@@ -1,0 +1,150 @@
+.Message-card {
+  width: 370px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: all 0.3s;
+  cursor: pointer;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  &:hover {
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.25);
+  }
+
+  &Header {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    color: #999;
+    font-size: 14px;
+    i {
+      margin-right: 4px;
+      font-size: 16px;
+    }
+    .icon-attachment {
+      margin-left: 5px;
+    }
+    &-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    &-icon {
+      width: 50px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+    .icon-attachment {
+      color: #bbb;
+      margin-left: 5px;
+    }
+  }
+
+  &Summary {
+    display: inline-block;
+    padding: 10px 0 0;
+    width: 100%;
+    word-break: break-all;
+  }
+  &Item {
+    display: flex;
+    padding: 10px 0 0;
+
+    &-membersItem {
+      align-items: center;
+    }
+    &-charger {
+      width: 28px;
+      height: 28px;
+      overflow: hidden;
+      padding: 2px;
+      background: #fff;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 0;
+      margin-left: -10px;
+      > img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+      }
+      &:first-child {
+        margin-right: 26px;
+      }
+    }
+    &-members {
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      &CountText {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        line-height: 26px;
+        border-radius: 50%;
+        color: #fff;
+        background-color: #a7a7a7;
+        font-size: 13px;
+        text-align: center;
+      }
+    }
+
+    &-voteTitle {
+      padding: 5px 0 15px 0;
+      word-break: break-word;
+    }
+    &-voteOptions {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      &-itemInput {
+        padding-left: 24px;
+        display: block;
+        height: 24px;
+        position: relative;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        &:before {
+          content: '';
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          border: 1px solid #bbb;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+      }
+    }
+    &-voteState {
+      margin-right: 10px;
+      &.proceed {
+        color: #4caf50;
+      }
+      &.end {
+        color: #f00;
+      }
+    }
+
+    &-task {
+      max-height: 80px;
+    }
+    &-post,
+    &-task {
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      /* autoprefixer: on */
+    }
+  }
+}

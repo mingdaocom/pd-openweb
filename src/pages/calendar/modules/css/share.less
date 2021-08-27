@@ -1,0 +1,1068 @@
+﻿.AppCalendar {
+  #calendarLoading {
+    position: fixed;
+    top: 50px;
+    left: 250px;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    text-align: center;
+    display: none;
+  }
+
+  #calendarLoading img {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 1px;
+    margin-right: 5px;
+  }
+
+  .leftNavHairGlass {
+    background-attachment: fixed;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 50px;
+    bottom: 0;
+    width: 250px;
+    overflow: hidden;
+    -webkit-filter: blur(10px) saturate(1.5);
+    filter: blur(10px) saturate(1.5);
+  }
+
+  /*------------------calendar main----------------*/
+  .boxSizing {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .calendarMenu {
+    width: 250px;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .calendarMenu .calendarMenuTop {
+    padding: 10px 0;
+    border-bottom: 1px solid #5e646e;
+  }
+
+  .calendarMenu li {
+    width: 100%;
+    padding: 0 18px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .calendarMenu li i {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 15px;
+    width: 25px;
+  }
+
+  .calendarMenu li i.icon-calendar-confirmed {
+    margin-top: 12px;
+  }
+
+  .calendarMenu li i.icon-calendar-synchro {
+    font-size: 12px;
+    margin-top: 13px;
+  }
+
+  .calendarMenu .calendarNumber {
+    border-radius: 18px;
+    background: #ff0000;
+    color: #fff;
+    height: 18px;
+    line-height: 18px;
+    display: inline-block;
+    padding: 0 6px 0 5px;
+    position: absolute;
+    top: 11px;
+    right: 18px;
+    display: none;
+  }
+
+  .calendarMenu .calendarType {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .calendarMenu .calendarTypeTitle {
+    color: rgba(255, 255, 255, 0.87);
+    width: 100%;
+    padding: 10px 18px 0;
+  }
+
+  .calendarMenu .addCalendarType {
+    position: absolute;
+    font-size: 16px;
+    right: 18px;
+    top: 11px;
+  }
+
+  .calendarMenu .icon-task-select-other {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 2px;
+    margin-right: 8px;
+  }
+
+  .calendarMenu .selectOther {
+    color: rgba(255, 255, 255, 0.87);
+    width: 100%;
+    padding: 16px 18px 0;
+    height: 48px;
+    text-align: center;
+    border-top: 1px solid #fff;
+    box-sizing: border-box;
+  }
+
+  .calendarMenu .iconSelectOther {
+    font-size: 16px;
+    margin-right: 12px;
+  }
+
+  #hideOneself {
+    color: rgba(255, 255, 255, 0.87);
+    line-height: 20px;
+    padding: 20px 0 10px 0;
+    display: none;
+    position: relative;
+    border-top: 1px solid #5e646e;
+  }
+
+  #hideOneself .cbComplete {
+    vertical-align: top;
+    font-size: 14px;
+    display: inline-block;
+    margin: 2px 10px 0 18px;
+    cursor: pointer;
+  }
+
+  #tb_OtherUserCalendar {
+    display: none;
+    margin-top: 5px;
+    padding-bottom: 10px;
+  }
+
+  #allOtherUserDel {
+    color: #7fb2e5;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 18px;
+  }
+
+  #allOtherUserDel:hover {
+    text-decoration: underline;
+  }
+
+  .calendarMain {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 250px;
+    right: 0;
+    bottom: 0;
+  }
+
+  #calendarList,
+  #invitedCalendars {
+    display: none;
+    margin: 13px 20px 0 20px;
+    background: #fff;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
+
+  #calendarList .calendarList {
+    overflow-y: auto;
+  }
+
+  #invitedCalendars {
+    margin-top: 0;
+    padding: 0 30px 30px;
+    display: block;
+    overflow-y: auto;
+    background-color: white;
+  }
+
+  #invitedMain {
+    display: none;
+  }
+
+  #invitedMain .exitInvited {
+    display: block;
+    color: #fff;
+    width: 110px;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    text-align: center;
+    margin: 18px 0 18px 20px;
+  }
+
+  /*---------------成员hover层样式----------------*/
+  .messageDiv {
+    width: 200px;
+    height: 180px;
+    display: none;
+    position: absolute;
+    z-index: 99999;
+    zoom: 1;
+    background: transparent;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+  }
+
+  .messageDivTop,
+  .messageDivBottom {
+    width: 100%;
+    height: 0;
+    font-size: 0;
+  }
+
+  .messageMain {
+    width: 198px;
+    border: 1px solid #c7c7c7;
+    height: 168px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background: #fff;
+  }
+
+  .messageBottomArrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-width: 10px;
+    border-style: solid;
+  }
+
+  .bottomArrowInner {
+    position: absolute;
+    left: 20px;
+    bottom: -20px;
+    width: 0;
+    height: 0;
+    border-width: 10px;
+    border-style: solid;
+  }
+
+  .pointer {
+    cursor: pointer;
+  }
+
+  .arrowTopLeft .messageBottomArrow {
+    border-color: transparent transparent #c3c3c3 transparent;
+    left: 20px;
+    top: -9px;
+  }
+
+  .arrowTopLeft .bottomArrowInner {
+    border-color: transparent transparent #f8f8f8 transparent;
+    left: 20px;
+    top: -8px;
+  }
+
+  .arrowTopRight .messageBottomArrow {
+    border-color: transparent transparent #c3c3c3 transparent;
+    right: 20px;
+    top: -9px;
+  }
+
+  .arrowTopRight .bottomArrowInner {
+    border-color: transparent transparent #f8f8f8 transparent;
+    left: 158px;
+    top: -8px;
+  }
+
+  .arrowBottomLeft .messageBottomArrow {
+    border-color: #c3c3c3 transparent transparent transparent;
+    left: 20px;
+    bottom: -9px;
+  }
+
+  .arrowBottomLeft .bottomArrowInner {
+    border-color: #fff transparent transparent transparent;
+    left: 20px;
+    bottom: -8px;
+  }
+
+  .arrowBottomRight .messageBottomArrow {
+    border-color: #c3c3c3 transparent transparent transparent;
+    right: 20px;
+    bottom: -9px;
+  }
+
+  .arrowBottomRight .bottomArrowInner {
+    border-color: #fff transparent transparent transparent;
+    left: 160px;
+    bottom: -8px;
+  }
+
+  .messageDivHeader {
+    background: #f8f8f8;
+    height: 50px;
+    width: 100%;
+    -moz-border-radius: 5px 5px 0 0;
+    -webkit-border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 0 0;
+  }
+
+  .messageDivContent {
+    width: 182px;
+    height: 72px;
+    border-bottom: 1px solid #c5c5c5;
+    line-height: 22px;
+    font-size: 12px;
+    padding-left: 16px;
+    padding-top: 5px;
+    color: #919191;
+    position: relative;
+  }
+
+  .messageDivContent span {
+    display: block;
+    height: 22px;
+    overflow: hidden;
+    width: 174px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .messageDivContent .messageDivContentWidth {
+    width: 120px;
+  }
+
+  .messageDivContentState {
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+  }
+
+  .messageBtnRemove {
+    width: 87px;
+    border-right: 1px solid #c5c5c5;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    color: #919191;
+    display: inline-block;
+    font-size: 12px;
+    float: left;
+  }
+
+  .messageBtnPerson {
+    width: 110px;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    color: #919191;
+    display: inline-block;
+    font-size: 12px;
+    float: left;
+  }
+
+  .messageBtnEntrust {
+    width: 100%;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    color: #919191;
+    display: inline-block;
+    font-size: 12px;
+  }
+
+  .wxBtnRemove {
+    width: 100%;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    display: inline-block;
+  }
+
+  .messageBtnRemove a,
+  .messageBtnPerson a,
+  .messageBtnEntrust a,
+  .wxBtnRemove a {
+    color: #000;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .messageBtnRemove a:hover,
+  .messageBtnPerson a:hover,
+  .messageBtnEntrust a:hover,
+  .wxBtnRemove a:hover {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .messageDiv .loadDiv {
+    height: 148px;
+    line-height: 148px;
+  }
+
+  .messageDivHeader .messageIcon {
+    float: left;
+    margin: 9px 0 0 9px;
+  }
+
+  .messageDivHeader .messageName {
+    float: left;
+    width: 65px;
+    height: 50px;
+    line-height: 50px;
+    margin-left: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .messageDivHeader .messageName a {
+    color: #515151;
+    font-size: 14px;
+  }
+
+  .messageDivHeader .messageName a:hover {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .messageDivHeader .messageHeaderBtn {
+    float: left;
+    width: 82px;
+  }
+
+  .messageDivHeader .messageAccountClose {
+    width: 100%;
+    text-align: center;
+    color: #fb2229;
+    font-size: 12px;
+    height: 50px;
+    line-height: 50px;
+  }
+
+  .messageHeaderLetter {
+    text-align: right;
+  }
+
+  .messageHeaderLetter .icon-replyto {
+    display: inline-block;
+    font-size: 20px;
+    height: 50px;
+    line-height: 50px;
+    margin-right: 16px;
+  }
+
+  .messageHeaderLetter .icon-message {
+    display: inline-block;
+    font-size: 18px;
+    height: 50px;
+    line-height: 50px;
+    margin-right: 16px;
+  }
+
+  .messageHeaderLetter a {
+    color: #666;
+  }
+
+  .messageHeaderLetter a:hover {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .messageDiv .img32 {
+    width: 32px;
+    height: 32px;
+  }
+
+  .messageBtnDisable {
+    color: #ccc;
+  }
+
+  .messageDivStyle1 {
+    margin-top: -105px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  /*----------------- calendarDetail -----------------*/
+  #container {
+    display: flex;
+    position: relative;
+  }
+
+  #container.detail {
+    width: 800px;
+    margin-top: 76px;
+    background: #fff;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
+
+  .detail .shareCalendar {
+    position: absolute;
+    top: 17px;
+    right: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+  }
+
+  .detail .shareCalendar:hover {
+    color: #1e88e5;
+  }
+
+  .calendarDetailMianTitle {
+    color: #000;
+    font-size: 16px;
+    padding: 20px 0 0 20px;
+  }
+
+  .calendarDetail_Title {
+    margin-top: -2px;
+    margin-left: 12px;
+    float: left;
+    font-size: 14px;
+  }
+
+  .DetailLine {
+    margin-top: 15px;
+  }
+
+  .iconClockStyle {
+    color: #999;
+  }
+
+  .iconClockStyle .icon-clock {
+    margin: -2px 7px 0 4px;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  .Ico_CalAddress_12 {
+    display: inline-table;
+    margin-top: 3px;
+    margin-left: 5px;
+  }
+
+  .iconClockStyle .icon-location {
+    margin: -2px 9px 0 3px;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  .iconClockStyle .icon-charger {
+    margin: -2px 9px 0 4px;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  .iconClockStyle .icon-calendar-annex {
+    margin: -2px 9px 0 4px;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  .iconClockStyle .icon-calendar-abstract {
+    margin: 0 9px 0 4px;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  .iconClockStyle .checkboxIcon {
+    position: relative;
+    width: 14px;
+    height: 11px;
+    display: inline-block;
+    margin-right: 14px;
+    margin-top: -1px;
+  }
+
+  .iconClockStyle .checkboxIcon:before {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 10px;
+    width: 3px;
+    height: 8px;
+    border: 1px solid transparent;
+    border-top-width: 0;
+    border-left-width: 0;
+    z-index: 1;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  .iconClockStyle .checkboxIcon:after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    display: block;
+    width: 11px;
+    height: 11px;
+    border: 1px solid #999;
+    border-radius: 2px;
+    -webkit-transition: 240ms;
+    -o-transition: 240ms;
+    -ms-transform: 240ms;
+    -moz-transform: 240ms;
+    transition: 240ms;
+  }
+
+  .iconClockStyle .checkboxIcon.checked:before {
+    border-color: #999;
+  }
+
+  .calendarLine .DetailLine .DetailLineItem {
+    padding-left: 5px;
+    margin-bottom: 10px;
+  }
+
+  .calendarDetailOperation {
+    margin: 15px 0 0 6px;
+    font-size: 14px;
+  }
+
+  .calendarDetailOperation img {
+    margin-right: 10px;
+  }
+
+  #calendarDetailRepeat {
+    margin-left: 15px;
+  }
+
+  #btnConfirmInvite,
+  #btnRefuceInvite,
+  #btnRefuce {
+    display: none;
+  }
+
+  .calendarDetailBtn {
+    margin-top: 30px;
+  }
+
+  .calendarDetailBtn span {
+    padding: 7px 20px;
+    display: none;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 15px;
+  }
+
+  .calendarDetailBtn span.blue {
+    background: #0091ea;
+  }
+
+  .calendarDetailBtn span.blue:hover {
+    background: #06c;
+  }
+
+  .calendarDetailBtn span.green {
+    background: #3cbf2a;
+  }
+
+  .calendarDetailBtn span.green:hover {
+    background: #2a7e2d;
+  }
+
+  .calendarDetailBtn span.red {
+    background: #f73838;
+  }
+
+  .calendarDetailBtn span.red:hover {
+    background: #f00;
+  }
+
+  .calendarDetailBtn span.gray {
+    background: #607d8b;
+  }
+
+  .calendarDetailBtn span.gray:hover {
+    background: #455a64;
+  }
+
+  .calendarDetailBtn #btnRefuse {
+    cursor: default;
+    background: #e0e0e0;
+  }
+
+  .calendarDetailBtn #addOutlook {
+    display: inline;
+    margin-left: 20px;
+    border: 1px solid #0091ea;
+    color: #0091ea;
+  }
+
+  .calendarDetailBtn #addOutlook:hover {
+    border: 1px solid #06c;
+    color: #06c;
+  }
+
+  .calendarCenterLabel {
+    background: none;
+    border: 0;
+    float: left;
+    margin-bottom: 10px;
+  }
+
+  .calendarCenterLabelImg {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+  }
+
+  .calendarCenterLabelPosition {
+    position: relative;
+  }
+
+  .calendarCenterLabelSubmit,
+  .calendarCenterLabelNosubmit,
+  .calendarCenterLabelRefuse {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    font-size: 0;
+    display: block;
+    background: url("../images/iconState.png") no-repeat 0 0;
+    background-size: 42px 14px;
+    right: -2px;
+    top: 11px;
+  }
+
+  .calendarCenterLabelNosubmit {
+    background-position: -28px 0;
+  }
+
+  .calendarCenterLabelRefuse {
+    background-position: -14px 0;
+  }
+
+  .dropDown {
+    background: #fff;
+    font-size: 12px;
+  }
+
+  .calendarCenterLabel .calendaroperaterDetailClick {
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+  }
+
+  #calendarUserMembers {
+    width: 710px;
+  }
+
+  .calendarCenterLabelMargin {
+    margin-bottom: 15px;
+  }
+
+  .calendarCenterLabel .memberName {
+    padding: 0 2px;
+    max-width: 60px;
+    line-height: 16px;
+  }
+
+  .calendarCenterLabel .memberNameLabel {
+    padding-left: 2px;
+    color: #a1a1a1;
+  }
+
+  #attendp {
+    width: 432px;
+    border-bottom: 1px #fff solid;
+    border-top: 1px #fff solid;
+    border-collapse: collapse;
+  }
+
+  .inviteCalendarType {
+    position: relative;
+    top: auto;
+    right: auto;
+    padding-left: 10px;
+    display: inline-block;
+    margin-right: 13px;
+    width: 41px;
+    height: 24px;
+    line-height: 24px;
+    border: 1px solid #e3e3e3;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    font-size: 14px;
+  }
+
+  .calendarDetailMianTitle .Hidden {
+    display: none;
+  }
+
+  .inviteCalendarType .inviteCalendarTypeName {
+    width: 56px;
+    height: 24px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .inviteCalendarTypeList {
+    border: 1px solid #e3e3e3;
+    position: absolute;
+    top: 25px;
+    z-index: 100;
+    left: -1px;
+    padding: 5px 0;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    display: none;
+  }
+
+  .inviteCalendarTypeList li {
+    padding: 0 10px;
+    padding-left: 20px;
+    width: 85px;
+    height: 24px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .inviteCalendarTypeList li:hover {
+    background: #e3e3e3;
+  }
+
+  .calendarDetailMianTitle .icon-arrow-down-border {
+    margin-top: 5px !important;
+    margin-left: 2px;
+  }
+
+  .calendarLine {
+    padding-left: 7px;
+  }
+
+  .calendarLine .DetailLine .DetailLineItem {
+    width: 100%;
+    padding: 9px 0 0 10px;
+    height: auto;
+    text-align: left;
+    vertical-align: middle;
+    background: none;
+  }
+  .calendarLine .DetailLine .DetailLineItem:not(.Hidden) {
+    display: block;
+  }
+  .calendarLine .DetailLine .liEnd {
+    clear: both;
+    padding-top: 6px;
+  }
+
+  .calendarLine .DetailLine .DetailLineItem a,
+  .calendarLine .DetailLine .DetailLineItem span {
+    vertical-align: top;
+    text-decoration: none;
+  }
+
+  #repeatCalendarOperator .md_dialog_content {
+    padding: 0;
+  }
+
+  .detail .WxMember .calendarName {
+    line-height: 24px;
+    display: inline-block;
+    margin-left: 4px;
+    max-width: 60px;
+  }
+
+  .SelTaskDetailMain {
+    margin-top: 2px;
+  }
+
+  .SelTaskDetailMain .SelTaskDetailMainTitle {
+    width: 342px;
+    text-align: center;
+    color: #000;
+    font-size: 16px;
+  }
+
+  .SelTaskDetailMain #btnYesTaskBreak,
+  .SelTaskDetailMain #btnNoTaskBreak,
+  .SelTaskDetailMain #btnYesDelete,
+  .SelTaskDetailMain #btnNoDelete {
+    width: 68px;
+    height: 30px;
+    font-size: 14px !important;
+    border: 1px solid #999;
+    text-align: center;
+    display: inline-block;
+    background: #fff;
+    color: #666;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    outline: none;
+  }
+
+  .SelTaskDetailMain #btnNoTaskBreak,
+  .SelTaskDetailMain #btnNoDelete {
+    margin-left: 10px;
+  }
+
+  .SelTaskDetailMain #btnYesTaskBreak:hover,
+  .SelTaskDetailMain #btnNoTaskBreak:hover,
+  .SelTaskDetailMain #btnYesDelete:hover,
+  .SelTaskDetailMain #btnNoDelete:hover {
+    border-color: #06c;
+    color: #06c;
+  }
+
+  .SelTaskDetailMain .SelTaskDetailMainBtnStyle {
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  #calendarDetailMianTitle {
+    vertical-align: top;
+    margin-top: 1px;
+    display: inline-block;
+    word-break: break-all;
+  }
+
+  #calendarDetail_Address,
+  #calendarDetail_Explanatory {
+    word-break: break-all;
+    max-width: 710px;
+    display: inline-block;
+  }
+
+  #txtrefuseReason {
+    resize: none;
+    padding-left: 5px;
+    border-radius: 3px;
+  }
+
+  /*mdTopNotice 小黄条*/
+  html.mdTopNotice #calendar .fc-month-view > table > thead {
+    top: 147px;
+  }
+
+  html.mdTopTheme #calendar .fc-month-view > table > thead {
+    top: 199px;
+  }
+
+  html.mdTopNotice.mdTopTheme #calendar .fc-month-view > table > thead {
+    top: 229px;
+  }
+
+  .attInfo .attDetails .viewDetails {
+    display: none;
+  }
+
+  /*    拒绝弹层    */
+  #refuserBox {
+    width: 470px;
+    margin-top: 5px;
+  }
+
+  #inviteDirectMessages .resuserTitle {
+    font-size: 18px;
+  }
+
+  #refuserstd {
+    font-size: 12px;
+    padding-left: 20px;
+  }
+
+  #radtimeClash,
+  #radNotPart,
+  #radNotReason,
+  #radOther {
+    margin-right: 9px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 5px;
+  }
+
+  #refuserstd .radtimeClashLbl,
+  #refuserstd .radNotPartLbl,
+  #refuserstd .radNotReasonLbl,
+  #refuserstd .radOtherLbl {
+    font-size: 14px;
+    margin-right: 15px;
+  }
+
+  #txtrefuseReason {
+    width: 396px;
+    height: 70px;
+    margin-top: 14px;
+    font-size: 16px;
+    color: #000;
+    display: none;
+    border: 1px solid rgb(169, 169, 169);
+  }
+
+  #refuserBox .refuseOpTd {
+    text-align: center;
+    height: 62px;
+    vertical-align: middle;
+  }
+
+  #refuserBox .txtrefuseBox {
+    padding-left: 40px;
+  }
+
+  #refuserCalendar {
+    padding: 5px 29px;
+    color: white;
+    background: #0062cc;
+    cursor: pointer;
+  }
+
+  #inviteDirectMessages .dialogContent {
+    margin-left: 0;
+  }
+
+  #inviteDirectMessages .footer {
+    text-align: center;
+  }
+}
+
+.AppCalendarDetail {
+  .selectIcon {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+  }
+}

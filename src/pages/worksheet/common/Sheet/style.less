@@ -1,0 +1,132 @@
+.worksheetSheet {
+  .sheetHeader {
+    .fixed {
+      .icon {
+        vertical-align: middle;
+        margin: 0 8px 0 0;
+        color: #999;
+        font-size: 18px;
+      }
+      .icon.topColor {
+        color: #ff9802 !important;
+      }
+    }
+    .title {
+      vertical-align: middle;
+      font-size: 14px;
+      color: #666;
+      display: inline-block;
+      max-width: 17em;
+    }
+    .sheetDesc {
+      font-size: 18px;
+      margin-left: 10px;
+      vertical-align: middle;
+      color: #999;
+      line-height: 1em;
+    }
+    .moreOperate {
+      position: relative;
+      top: 3px;
+      .splitLine {
+        border: 1px solid #ddd;
+        border-top: none;
+        margin: 3px 0;
+      }
+      .moveSheetActive .Item-content {
+        color: #fff;
+        background-color: @themeColor3 !important;
+        .icon {
+          color: #fff;
+        }
+        .icon-arrow-right-tip {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+      }
+      .Menu {
+        left: 0px;
+        right: 0px;
+        width: 220px;
+        .Item-content {
+          padding-left: 49px;
+        }
+      }
+      .sheetMoveMenu {
+        width: 180px;
+        max-height: 300px;
+        overflow: auto;
+        .Item-content {
+          padding-left: 16px;
+        }
+      }
+      .icon-info {
+        padding-left: 2px;
+      }
+      .icon-edit {
+        padding-left: 4px;
+      }
+      .icon-settings {
+        padding-left: 3px;
+      }
+      .icon-arrow-right-tip {
+        color: #bdbdbd;
+        left: auto;
+        right: 10px;
+      }
+      .borderBottom {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 6px;
+        box-sizing: content-box;
+        margin-bottom: 6px;
+      }
+      .borderTop {
+        border-top: 1px solid #ddd;
+      }
+      .MenuItem {
+        .Icon {
+          margin: 0 7px;
+          font-size: 21px;
+          vertical-align: middle;
+          color: #999;
+        }
+        .text {
+          font-size: 13px;
+          margin-left: 4px;
+        }
+        &.delete {
+          .Icon,
+          .text {
+            color: #f44338;
+          }
+          &:hover {
+            .Icon,
+            .text {
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+  }
+  .queryInput {
+    margin-right: 4px;
+    margin-top: 5px;
+  }
+  .addRow {
+    // display: flex;
+    // align-items: center;
+    display: inline-block;
+    line-height: 30px;
+    font-weight: 500;
+    border-radius: 32px;
+    height: 30px;
+    padding: 0 18px 0 14px;
+    transition: box-shadow 0.2s;
+    box-shadow: none;
+    margin-top: 4px;
+    cursor: pointer;
+    &:hover {
+      box-shadow: 0 0 100px 100px rgba(0, 0, 0, 0.1) inset;
+    }
+  }
+}

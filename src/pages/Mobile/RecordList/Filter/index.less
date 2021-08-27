@@ -1,0 +1,43 @@
+@highlighted: #2196F3;
+
+.filterHeader {
+  .left, .right {
+    color: @highlighted;
+    font-size: 16px;
+    align-items: center;
+  }
+  .am-flexbox-item.left {
+    justify-content: flex-start;
+  }
+  .title {
+    color: #000;
+    font-size: 17px;
+  }
+  .am-flexbox-item.right {
+    justify-content: flex-end;
+  }
+  .hidden {
+    visibility: hidden;
+  }
+}
+
+.filterList {
+  height: 300px;
+  overflow-y: auto;
+}
+
+.filterItem {
+  &.active .name, &.active .icon-ok {
+    color: @highlighted;
+  }
+  .icon, .sortType {
+    color: #9E9E9E;
+  }
+  .sortType {
+    font-size: 16px;
+  }
+  .name {
+    margin-left: 20px;
+    flex: 1;
+  }
+}

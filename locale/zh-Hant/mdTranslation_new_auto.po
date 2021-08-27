@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mingdao-web\n"
+"POT-Creation-Date:  2021-8-5 9:16:39 ├F10: AM┤+08:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: i18n.POTGenerator\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Last-Translator: beckjin <beck.jin@mingdao.com>\n"
+"Language-Team: Chinese Traditional\n"
+"Language: zh_TW\n"
+"PO-Revision-Date:  2021-8-5 9:16:39 ├F10: AM┤-0400\n"
+
+#: Disabled references:1
+msgid "应用在钉钉PC端打开方式"
+msgstr "應用在釘釘PC端開啟方式"
+
+#: Disabled references:1
+msgid "打开后，填写者在提交数据前需要输入验证码，用于防止恶意或重复数据提交。"
+msgstr "開啟後，填寫者在提交資料前需要輸入驗證碼，用於防止惡意或重複資料提交。"
+
+#: Disabled references:1
+msgid "a.[用户]获取用户邮箱信息"
+msgstr "a.[使用者]獲取使用者郵箱資訊"
+
+#: Disabled references:1
+msgid "d.[消息]以应用的身份发消息"
+msgstr "d.[訊息]以應用的身份發訊息"
+
+#: Disabled references:1
+msgid "f.[通讯录]以应用身份访问通讯录（历史版本）"
+msgstr "f.[通訊錄]以應用身份訪問通訊錄（歷史版本）"
+
+#: Disabled references:1
+msgid "选择一个单选类型的字段，数据将按照此字段中的选项分组显示在看板中。支持字段：单选、多选、等级、人员、关联表记录（单条）"
+msgstr "選擇一個單選型別的欄位，資料將按照此欄位中的選項分組顯示在看板中。支援欄位：單選、多選、等級、人員、關聯表記錄（單條）"
+
+#: Disabled references:1
+msgid "每个选项单列一行,将所有不重复项加为新的选项"
+msgstr "每個選項單列一行,將所有不重複項加為新的選項"
+
+#: Disabled references:1
+msgid "应用于所有记录中的按钮，无法从当前视图中删除"
+msgstr "應用於所有記錄中的按鈕，無法從當前檢視中刪除"
+

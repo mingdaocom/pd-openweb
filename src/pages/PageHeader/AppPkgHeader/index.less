@@ -1,0 +1,486 @@
+@import "../../../common/mdcss/common.less";
+@delColor: #f44336;
+
+.headerColorSwitch {
+  color: rgba(255, 255, 255, 0.8);
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.colorHover {
+  color: #9e9e9e;
+  transition: all 0.25s;
+
+  &:hover {
+    color: #2196f3;
+  }
+}
+
+.flexCenterHeight {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+
+.tri(@len: 6px; @dir: top; @color: #fff) {
+  width: 0;
+  height: 0;
+  border: @len solid transparent;
+  border-@{dir}-color: @color;
+  transition: all 0.25s;
+
+  &:hover {
+    border-@{dir}-color: rgba(255, 255, 255, 1);
+  }
+}
+
+.arrow(@len: 6px; @thin: 2px; @angel: -135deg; @color: #fff) {
+  width: @len;
+  height: @len;
+  background-color: transparent;
+  border: @thin solid transparent;
+  border-top-color: @color;
+  border-left-color: @color;
+  transform: rotate(@angel);
+}
+
+.appPkgHeaderWrap {
+  .flexCenterHeight;
+  height: 50px;
+  justify-content: space-between;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  z-index: 15;
+
+  .helpIcon {
+    color: #fff;
+  }
+
+  .appDetailWrap {
+    position: relative;
+    .flexCenterHeight;
+
+    .appIconAndName {
+      .flexCenterHeight;
+      cursor: pointer;
+      color: #fff;
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+
+  .appInfoWrap {
+    .flexCenterHeight;
+    box-sizing: border-box;
+    min-width: 240px;
+    max-width: 420px;
+    padding-right: 12px;
+    flex-shrink: 0;
+
+    .Item-content {
+      .icon {
+        color: #9e9e9e;
+      }
+    }
+
+    .homepageIconWrap {
+      .flexCenterHeight;
+      padding: 0 10px 0 16px;
+      cursor: pointer;
+    }
+
+    .delApp {
+      .icon {
+        color: @delColor !important;
+        left: 16px !important;
+      }
+
+      .Item-content {
+        color: @delColor !important;
+        padding-left: 48px !important;
+      }
+
+      .Item-content:hover {
+        .icon {
+          color: #fff !important;
+        }
+
+        color: #fff !important;
+        background-color: @delColor !important;
+      }
+    }
+
+    .appConfigIcon {
+      position: relative;
+      padding-left: 3px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 50px;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    .modifyAppInfo {
+      top: 45px;
+      left: 45px;
+    }
+
+    .appIntroWrap {
+      margin-left: 10px;
+    }
+
+    .appIntroIcon {
+      font-size: 18px;
+      transition: all 0.25s;
+      .headerColorSwitch;
+    }
+  }
+
+  .homepageIcon:hover .item {
+    background-color: #fff;
+  }
+
+  .appName {
+    margin: 0 2px;
+    font-size: 15px;
+    font-weight: bold;
+    max-width: 290px;
+  }
+
+  .appIconWrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .topTri {
+    position: absolute;
+    right: 12px;
+    top: calc(50% - 3px);
+    .tri(@len: 5px, @color: rgba(255, 255, 255, 0.6));
+    transition: all 0.25s;
+  }
+
+  .bottomTri {
+    .tri(@dir: bottom);
+  }
+
+  .appGroupIntro {
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 50px;
+    width: 625px;
+    padding: 20px 24px;
+    background-color: #fff;
+    z-index: 10;
+    box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24),
+      0 0 1px 0 rgba(0, 0, 0, 0.12);
+    transform: scale(0);
+    transform-origin: left top;
+    transition: transform 0.25s;
+
+    &.appItemIntroVisible {
+      transform: scale(1);
+    }
+
+    .close {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      cursor: pointer;
+
+      .icon {
+        font-size: 20px;
+        color: #9e9e9e;
+      }
+    }
+
+    .title {
+      font-size: 17px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .explain {
+      margin: 8px 0 10px 0;
+      color: #757575;
+    }
+
+    .introPic {
+      img {
+        width: 100%;
+      }
+    }
+
+    .btnWrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+      cursor: pointer;
+
+      span {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  .appItemsOuterWrap {
+    .flexCenterHeight;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .appExtensionWrap {
+    .flexCenterHeight;
+    flex-shrink: 0;
+    margin-right: 18px;
+    font-weight: bold;
+
+    .appExtensionItem {
+      .headerColorSwitch;
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+
+      span {
+        margin-left: 6px;
+      }
+    }
+  }
+
+  .appItemsInnerWrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 70px;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }
+
+  .emptyAppItemWrap {
+    position: relative;
+    flex: 1;
+
+    .emptyAppItem {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 50px;
+      cursor: pointer;
+
+      &:hover,
+      &.active {
+        background: rgba(0, 0, 0, 0.15);
+
+        .emptyGroupIcon {
+          color: #fff;
+        }
+      }
+
+      & > .icon {
+        font-size: 20px;
+        .headerColorSwitch;
+      }
+    }
+
+    .emptyGroupIcon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .commonUserHandleWrap {
+    .appPkgHeaderSearch,
+    .workflowHelpIconWrap {
+      .icon {
+        transition: all 0.25s;
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.appItemsWrap {
+  display: flex;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50px;
+}
+
+.appItemPointerWrap {
+  .flexCenterHeight;
+  width: 36px;
+  justify-content: space-between;
+  margin-right: 48px;
+  flex-shrink: 0;
+  visibility: hidden;
+
+  &.visible {
+    visibility: visible;
+  }
+
+  .appItemPointer {
+    transition: all 0.25s;
+  }
+
+  .leftPointer {
+    .tri(@dir: right);
+    color: rgba(255, 255, 255, 0.8);
+
+    &:not(.disable):hover {
+      color: #fff;
+      .tri(@len: 7px, @dir: right);
+    }
+
+    &.disable {
+      border-right-color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .rightPointer {
+    .tri(@dir: left);
+
+    &:not(.disable):hover {
+      .tri(@len: 7px, @dir: left);
+    }
+
+    &.disable {
+      border-left-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.delAppItemDialog {
+  font-size: 14px;
+
+  .explain {
+    margin-bottom: 20px;
+    color: #757575;
+  }
+
+  .moveTo {
+    & > span {
+      margin-right: 4px;
+    }
+  }
+
+  .delAppItemDropdown {
+    width: 240px;
+    border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    margin-left: 12px;
+
+    .Dropdown--input {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+}
+
+.appGroupConfigWrap {
+  .Item .Item-content {
+    .icon {
+      color: #9e9e9e;
+    }
+  }
+
+  .delApp.Item {
+    color: @delColor !important;
+
+    .Item-content {
+      .icon {
+        color: @delColor !important;
+      }
+    }
+
+    .Item-content:hover {
+      .icon {
+        color: #fff !important;
+      }
+
+      background-color: @delColor !important;
+    }
+  }
+}
+
+.appItemsWrap li,
+.appGroupSortHelperClass {
+  .flexCenterHeight;
+  position: relative;
+  box-sizing: border-box;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #fff;
+  flex-shrink: 0;
+  font-weight: bold;
+
+  &.active,
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    font-weight: bold;
+  }
+
+  &.active {
+    background-color: rgba(0, 0, 0, 0.15);
+  }
+
+  &.isCanConfigAppGroup {
+    .sortableItem {
+      padding: 0 30px 0 20px;
+    }
+  }
+
+  .sortableItem {
+    .flexCenterHeight;
+    padding: 0 20px;
+    color: #fff;
+
+    input {
+      box-sizing: border-box;
+      width: 150px;
+      height: 28px;
+      border: none;
+      outline: none;
+      line-height: 14px;
+      padding-left: 7px;
+      border-radius: 2px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    span {
+      display: inline-block;
+      box-sizing: border-box;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  & > span,
+  & > .icon {
+    color: #fff;
+  }
+}
+
+.appGroupSortHelperClass {
+  z-index: 16;
+}

@@ -1,0 +1,221 @@
+.appListMobile {
+
+  .guideWrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    .guide {
+      width: 35px;
+      height: 35px;
+      position: absolute;
+      top: 24px;
+      right: 15px;
+      border-radius: 4px;
+      box-shadow: rgba(0, 0, 0, 0.8) 0px 0px 1px 1000px;
+    }
+    .guideImg {
+      width: 68px;
+      right: 26px;
+      top: 73px;
+    }
+    .textImg {
+      width: 95%;
+      top: 182px;
+      right: 0;
+    }
+    .okImg {
+      width: 80px;
+      right: 20px;
+      top: 270px;
+    }
+  }
+
+  .recordListWrapper {
+    .addRecordItemWrapper {
+      bottom: 70px;
+    }
+    .backWrapper {
+      display: none;
+    }
+  }
+
+  .appName {
+    font-size: 20px;
+    height: 80px;
+    background-color: #fff;
+    .content {
+      text-overflow: ellipsis;
+
+      .appNameTxt {
+        display: inline-block;
+        box-sizing: border-box;
+        vertical-align: middle;
+        font-weight: 500;
+
+        span {
+          vertical-align: middle;
+          max-width: 85%;
+          text-overflow: ellipsis;
+          overflow-x: hidden;
+          display: inline-block;
+        }
+
+        .icon {
+          vertical-align: middle;
+        }
+      }
+      .active {
+        color: #FFA700 !important;
+      }
+    }
+  }
+
+  .appSectionCon {
+    background-color: #fff;
+    overflow-y: auto;
+    .am-accordion-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #9E9E9E;
+      display: flex;
+      align-items: center;
+      i {
+        position: unset;
+        margin-right: 10px;
+      }
+      .arrow {
+        display: none;
+      }
+      .icon-expand_more {
+        font-size: 22px;
+        width: auto;
+        height: auto;
+        margin: 0;
+        transform: rotate(0deg) !important;
+        background: none;
+      }
+    }
+    .am-accordion-item-active .icon-expand_more {
+      transform: rotate(180deg) !important;
+    }
+  }
+
+  .am-list-item {
+    height: 50px;
+    padding-left: 20px;
+    .am-list-line {
+      .am-list-content {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+      .am-list-extra {
+        margin-left: 10px;
+        flex-basis: 20px;
+      }
+      .icon-public-folder-hidden {
+        color: #FFA700;
+      }
+    }
+  }
+
+  .am-tab-bar {
+    .am-tab-bar-tab {
+      width: 0;
+    }
+    .am-tab-bar-tab-title {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      padding: 0 5px;
+    }
+  }
+
+  .emptyAppSection .am-accordion-header {
+    display: none;
+  }
+
+  .am-accordion-item {
+    margin-bottom: 20px;
+  }
+
+  .am-list-body::after,
+  .am-accordion::before,
+  .am-accordion .am-accordion-item .am-accordion-header::after,
+  .am-accordion .am-accordion-item .am-accordion-content .am-accordion-content-box::after {
+    content: none !important;
+  }
+
+  .am-list-body div:last-child .am-list-line::after {
+    content: '';
+    position: absolute;
+    background-color: #ddd;
+    display: block;
+    z-index: 1;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform-origin: 50% 100%;
+    transform: scaleY(0.5);
+  }
+
+  .sudokuWrapper {
+    padding: 0 10px;
+    .sudokuItemWrapper {
+      width: 33%;
+      margin-bottom: 10px;
+    }
+    .sudokuItem {
+      height: 110px;
+      margin: 0 5px;
+      border-radius: 4px;
+      background-color: #f8f8f8;
+      position: relative;
+    }
+    .icon-public-folder-hidden {
+      color: #FFA700;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+    .name {
+      font-weight: 700;
+      font-size: 14px;
+      margin-top: 7px;
+      height: 32px;
+      line-height: 16px;
+      text-align: center;
+      padding: 0 20px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      overflow:hidden;
+      -webkit-box-orient: vertical;
+      word-break: break-all;
+    }
+  }
+
+  .am-switch {
+    transform: scale(0.6);
+  }
+  .am-tab-bar {
+    height: auto;
+  }
+
+  .isLoadingBox {
+    position: fixed;
+    background: rgba(0, 0, 0, .1);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+  }
+}

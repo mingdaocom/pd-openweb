@@ -1,0 +1,57 @@
+.customWidget .dropdown {
+  display: inline-block;
+  width: 160px;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  vertical-align: middle;
+  position: relative;
+  .colorGray {
+    color: #aaa;
+  }
+  .iconArrow {
+    position: absolute;
+    right: 12px;
+    top: 8px;
+    color: #666;
+    font-size: 14px;
+  }
+  .dropdownValue {
+    padding-left: 8px;
+    height: 100%;
+    box-sizing: border-box;
+    width: 100%;
+    line-height: 32px;
+  }
+  .selectList {
+    position: absolute;
+    top: 100%;
+    border-radius: 3px;
+    width: 100%;
+    background-color: #fff;
+    padding: 4px 0;
+    z-index: 11;
+    max-height: 250px;
+    overflow: hidden;
+    margin-top: 1px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+  }
+  .select {
+    &:not(:hover) {
+      background-color: #fff !important;
+    }
+    &:hover {
+      color: #fff;
+    }
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 36px;
+    line-height: 36px;
+    padding-left: 16px;
+  }
+}

@@ -1,0 +1,25 @@
+.taskGanttContainer {
+  .timeBarFences {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    .timeBarFencesSingle {
+      display: inline-block;
+      height: 100%;
+      border-right: 1px solid #f8f8f8;
+      box-sizing: border-box;
+      &:last-child {
+        border-right-width: 0;
+      }
+    }
+    .timeBarToday {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(51, 161, 255, 0.08);
+    }
+  }
+}

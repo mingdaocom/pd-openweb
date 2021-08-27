@@ -1,0 +1,50 @@
+.workflowSearchWrap {
+  position: relative;
+  input {
+    box-sizing: border-box;
+    height: 36px;
+    padding: 0px 28px;
+    border-radius: 4px;
+    border-width: 1px;
+    border-style: solid;
+    &:hover:not(:focus) {
+      border-color: #bdbdbd !important;
+    }
+    &:not(:hover):not(:focus) {
+      border-color: #ddd !important;
+    }
+    &::-webkit-input-placeholder {
+      font-size: 12px;
+      color: #ccc;
+    }
+    &::-moz-placeholder {
+      font-size: 12px;
+      color: #ccc;
+    }
+    &::-moz-placeholder {
+      font-size: 12px;
+      color: #ccc;
+    }
+    &::-ms-input-placeholder {
+      font-size: 12px;
+      color: #ccc;
+    }
+  }
+  .icon {
+    position: absolute;
+    top: 11px;
+  }
+  .search {
+    left: 8px;
+  }
+  .close {
+    right: 8px;
+    color: #bdbdbd;
+    &:hover {
+      color: #757575;
+    }
+  }
+  .hide {
+    display: none;
+  }
+}

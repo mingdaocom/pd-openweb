@@ -1,0 +1,49 @@
+.editWidgetDialogWrap {
+  &.rc-dialog {
+    width: auto;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 30px 60px;
+    margin: 0;
+  }
+  .rc-dialog-body {
+    padding: 0;
+    height: 100%;
+    .mdEditor {
+      padding: 6px 24px 60px 24px;
+      box-sizing: border-box;
+      height: 100%;
+      .BraftEditor-content {
+        max-height: 100%;
+        height: 100%;
+      }
+      .BraftEditor-container {
+        box-sizing: border-box;
+        padding-bottom: 40px;
+      }
+    }
+  }
+  .rc-dialog-content {
+    height: 100%;
+  }
+  .rc-dialog-close {
+    z-index: 2;
+  }
+}
+.customPageWrap,
+.customPageContent {
+  .react-grid-item.react-grid-placeholder {
+    background: #e3f2fd;
+  }
+  .empty {
+    .addWidgetPic {
+      width: 200px;
+      height: 130px;
+      margin: 0 auto;
+      background-position: center center;
+      background-image: url('~src/pages/worksheet/assets/addWorksheet.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+.tanttRadio {
+  font-size: 13px;
+  line-height: 24px;
+  margin-bottom: 5px;
+  .tanttRadioItem {
+    cursor: pointer;
+  }
+  .tanttRadioIcon {
+    width: 14px;
+    height: 14px;
+    font-size: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 50%;
+    padding: 2px;
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 4px;
+    margin-right: 4px;
+    i {
+      display: inline-block;
+      vertical-align: top;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+  }
+  .tanttRadioIcon:not(.tanttRadioChcked) {
+    border-color: #ccc !important;
+    i {
+      background: #fff !important;
+    }
+  }
+}

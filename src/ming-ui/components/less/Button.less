@@ -1,0 +1,193 @@
+@import '../../../common/mdcss/Themes/themeVariables.less';
+.ming {
+  &.Button {
+    display: inline-block;
+    box-sizing: border-box;
+    text-shadow: none;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: white;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+
+    // type
+    &--primary {
+      background: @themeColor3;
+      &:hover {
+        background: @themeColor2;
+      }
+    }
+    &--secondary {
+      background: @grayLight;
+      &:hover {
+        background: darken(@gray, 20%);
+      }
+    }
+    &--success {
+      background: @successColor;
+      &:hover {
+        background: darken(@successColor, 20%);
+      }
+    }
+    &--danger {
+      background: @dangerColor;
+      &:hover {
+        background: darken(@dangerColor, 20%);
+      }
+    }
+    &--ghost {
+      color: @themeColor3;
+      background: transparent;
+      border: 1px solid @themeColor3;
+      line-height: 26px !important;
+      &:hover {
+        color: white;
+        background: @themeColor3;
+      }
+    }
+    &--ghostgray {
+      color: #757575;
+      background: transparent;
+      border: 1px solid #ddd;
+      line-height: 26px !important;
+      &:not(.Button--disabled):hover {
+        border-color: @themeColor3;
+        color: @themeColor3;
+        background: #fff;
+      }
+      // status
+      &.Button--disabled {
+        color: #bdbdbd;
+        background-color: #f5f5f5;
+        &:hover {
+          background-color: #f5f5f5;
+        }
+        cursor: not-allowed;
+      }
+    }
+    &--link {
+      color: @gray;
+      background: transparent;
+      &:hover {
+        color: @themeColor3;
+      }
+    }
+
+    // size
+    &--tiny {
+      font-size: 12px;
+      line-height: 24px;
+      min-height: 24px;
+      padding: 0 16px;
+      min-width: 56px;
+    }
+    &--small {
+      font-size: 13px;
+      line-height: 28px;
+      min-height: 28px;
+      padding: 0 22px;
+      min-width: 70px;
+    }
+    &--mdnormal {
+      font-size: 13px;
+      line-height: 32px;
+      min-height: 32px;
+      padding: 0 24px;
+    }
+    &--mdbig {
+      font-size: 13px;
+      line-height: 36px;
+      min-height: 36px;
+      padding: 0 26px;
+      min-width: 90px;
+    }
+    &--medium {
+      font-size: 14px;
+      line-height: 36px;
+      min-height: 36px;
+      padding: 0 32px;
+      min-width: 92px;
+    }
+    &--large {
+      font-size: 14px;
+      line-height: 44px;
+      min-height: 44px;
+      padding: 0 40px;
+      min-width: 108px;
+    }
+
+    &--tiny&--circle {
+      border-radius: 12px;
+    }
+    &--small&--circle {
+      border-radius: 14px;
+    }
+    &--medium&--circle {
+      border-radius: 18px;
+    }
+    &--large&--circle {
+      border-radius: 22px;
+    }
+
+    // status
+    &--disabled {
+      &,
+      &:hover {
+        background: #bdbdbd;
+      }
+      cursor: not-allowed;
+    }
+    &--loading {
+      padding: 0;
+    }
+    // animation
+    & {
+      transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0.2s;
+    }
+  }
+}
+
+.Button-loadingCircle {
+  .ming & {
+    margin-left: auto;
+    margin-right: auto;
+    animation: Button-loadingCircle 0.75s 0s infinite linear;
+    animation-fill-mode: both;
+    background: transparent;
+    border: 2px solid;
+    border-color: rgba(255, 255, 255, 0.8);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+  }
+
+  .ming.Button--tiny & {
+    width: 10px;
+    height: 10px;
+  }
+  .ming.Button--small & {
+    width: 12px;
+    height: 12px;
+  }
+  .ming.Button--medium & {
+    width: 14px;
+    height: 14px;
+  }
+  .ming.Button--large & {
+    width: 18px;
+    height: 18px;
+  }
+
+  @keyframes Button-loadingCircle {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(0.8);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+}

@@ -1,0 +1,205 @@
+﻿@import url(./themeVariables.less);
+@import url(./mixins.less);
+
+a {
+    color: @themeLinkColor;
+}
+
+.ThemeBG {
+  .themeBg();
+}
+
+.themeSpecific();
+// THEME application icons
+
+.buildIconClass();
+
+.themeLoopClass(1, 12, ThemeColor, color, themeColor);
+.themeLoopClass(1, 12, ThemeBGColor, background-color, themeBgColor);
+.themeLoopClass(1, 12, ThemeHoverColor, color, themeHoverColor, ":hover");
+.themeLoopClass(1, 12, ThemeBorderColor, border-color, themeBorderColor);
+.themeLoopClass(1, 12, ThemeBorderTopColor, border-top-color, themeBorderColor);
+.themeLoopClass(1, 12, ThemeBorderRightColor, border-right-color, themeBorderColor);
+.themeLoopClass(1, 12, ThemeBorderBottomColor, border-bottom-color, themeBorderColor);
+.themeLoopClass(1, 12, ThemeBorderLeftColor, border-left-color, themeBorderColor);
+.themeLoopClass(1, 12, ThemeOutlineColor, outline-color, themeBorderColor);
+
+.ThemeHoverBGColor1:hover {
+  background-color: @themeBgColor1 !important;
+}
+.ThemeHoverBGColor2:hover {
+  background-color: @themeBgColor2 !important;
+}
+.ThemeHoverBGColor3:hover {
+  background-color: @themeBgColor3 !important;
+}
+.ThemeHoverBGColor4:hover {
+  background-color: @themeBgColor4 !important;
+}
+.ThemeHoverBGColor5:hover {
+  background-color: @themeBgColor5 !important;
+}
+.ThemeHoverBGColor6:hover {
+  background-color: @themeBgColor6 !important;
+}
+.ThemeHoverBGColor7:not(.ThemeBGColor8):hover {
+    background-color: @themeBgColor7 !important;
+}
+.ThemeHoverBGColor8:hover {
+    background-color: @themeBgColor8 !important;
+}
+.ThemeHoverBGColor9:hover {
+    background-color: @themeBgColor9 !important;
+}
+
+.ThemeHoverBorderColor1:hover {
+  border-color: @themeBorderColor1 !important;
+}
+.ThemeHoverBorderColor2:hover {
+  border-color: @themeBorderColor2 !important;
+}
+.ThemeHoverBorderColor3:hover {
+  border-color: @themeBorderColor3 !important;
+}
+.ThemeHoverBorderColor4:hover {
+  border-color: @themeBorderColor4 !important;
+}
+.ThemeHoverBorderColor5:hover {
+  border-color: @themeBorderColor5 !important;
+}
+.ThemeHoverBorderColor6:hover {
+  border-color: @themeBorderColor6 !important;
+}
+.ThemeHoverBorderColor7:not(.ThemeBorderColor8):hover {
+  border-color: @themeBorderColor7 !important;
+}
+.ThemeHoverBorderColor8:hover {
+  border-color: @themeBorderColor8 !important;
+}
+.ThemeHoverBorderColor9:hover {
+  border-color: @themeBorderColor9 !important;
+}
+
+.ThemeHoverColor3:hover {
+  color: @themeColor3 !important;
+}
+
+.ThemeBeforeBorderColor3:before {
+  border-color: @themeBorderColor3 !important;
+}
+.ThemeBeforeBGColor3:before {
+  background-color: @themeBgColor3 !important;
+}
+.ThemeBeforeBGColor6:before {
+  background-color: @themeBgColor6 !important;
+}
+
+.ThemeAfterBGColor3:after {
+  background: @themeBgColor3 !important;
+}
+.ThemeAfterColor3:after {
+  color: @themeColor3 !important;
+}
+.ThemeAfterBorderColor3:after {
+  border-color: @themeBorderColor3 !important;
+}
+
+.ThemeFocusBorderColor3:focus {
+  border-color: @themeBorderColor3 !important;
+}
+
+.btnBootstrap-primary {
+    background-color: @themeColor3;
+    transition: all 0.35s ease-in;
+}
+.btnBootstrap-primary:hover, .btnBootstrap-primary:focus, .btnBootstrap-primary:active, .btnBootstrap-primary.active, .btnBootstrap-primary.disabled, .btnBootstrap-primary[disabled] {
+    background-color: @themeColor2;
+}
+
+
+.MdLoader {
+  position: relative;
+  margin: 0px auto;
+  &:before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+
+  &-circular {
+    animation: mdLoaderRotate 2s linear infinite;
+    height: 100%;
+    transform-origin: center center;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+
+  &-path {
+    stroke: @themeColor3;
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+    fill: none;
+    animation: mdLoaderDash 1.5s ease-in-out infinite;
+  }
+
+  &--big {
+    width: 44px;
+
+    .MdLoader-path {
+      stroke-width: 4px;
+      cx: 22px;
+      cy: 22px;
+      r: 18px;
+    }
+  }
+
+  &--middle {
+    width: 30px;
+
+    .MdLoader-path {
+      stroke-width: 3px;
+      cx: 15px;
+      cy: 15px;
+      r: 12px;
+    }
+  }
+
+  &--small {
+    width: 20px;
+
+    .MdLoader-path {
+      stroke-width: 2px;
+      cx: 10px;
+      cy: 10px;
+      r: 8px;
+    }
+  }
+}
+
+@keyframes mdLoaderRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mdLoaderDash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}

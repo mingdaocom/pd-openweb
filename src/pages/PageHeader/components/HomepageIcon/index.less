@@ -1,0 +1,20 @@
+.homepageIcon {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: space-between;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  flex-shrink: 0;
+  .item {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+
+    &:nth-child(3n + 2) {
+      margin: 0 2px;
+    }
+  }
+}

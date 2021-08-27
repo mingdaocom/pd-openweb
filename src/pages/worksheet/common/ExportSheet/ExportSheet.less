@@ -1,0 +1,51 @@
+.exportSheet {
+  overflow: auto;
+  .title {
+    font-size: 13px;
+    color: #757575;
+    margin: 10px 0;
+    align-items: center;
+  }
+  .Checkbox {
+    width: 50%;
+    display: inline-block !important;
+    margin-bottom: 10px;
+    vertical-align: top;
+  }
+  .exportSheetSwitch {
+    > div {
+      width: 160px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-width: 1px;
+      border-style: solid;
+      color: #9e9e9e;
+      cursor: pointer;
+      font-weight: bold;
+      &.active {
+        z-index: 1;
+      }
+      &:first-child {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+      }
+      &:last-child {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        margin-left: -1px;
+      }
+    }
+  }
+  .exportSheetQuickBtn {
+    height: 28px;
+    line-height: 28px;
+    padding: 0 12px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.03);
+    display: inline-block;
+  }
+}

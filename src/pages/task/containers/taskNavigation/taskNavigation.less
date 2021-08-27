@@ -1,0 +1,649 @@
+.AppTask {
+  #taskNavigator {
+    position: relative;
+    width: 250px;
+    min-width: 250px;
+    z-index: 6;
+    .newTip {
+      position: relative;
+      width: 0;
+      height: 0;
+      margin-left: -6px;
+    }
+    .newTip .tipCircle {
+      width: 7px;
+      height: 7px;
+      position: absolute;
+      top: -8px;
+      left: 10px;
+      background-color: #ff6e40;
+    }
+    .folderNewTip {
+      width: 7px;
+      height: 7px;
+      background-color: #ff6e40;
+      margin-left: 4px;
+      &:not(.Hidden) {
+        display: inline-block;
+      }
+    }
+  }
+  .folderSearchBox {
+    border: 1px solid transparent;
+    border-width: 6px 15px 7px;
+    .folderSearch {
+      border-bottom: 1px solid #fff;
+      height: 37px;
+      transition: background-color 0.3s;
+      &.inputActive {
+        background: #fff;
+      }
+      .clearAutoSearch {
+        margin-left: 25px;
+      }
+      .txtSearch.inputActive {
+        color: #999;
+      }
+    }
+    .btnFolderSearch {
+      display: inline-block;
+      font-size: 18px;
+      color: #fff;
+      margin: 10px 5px;
+      cursor: pointer;
+      position: absolute;
+    }
+    .txtSearch {
+      width: 100%;
+      height: 23px;
+      vertical-align: top;
+      margin-top: 7px;
+      border: 0;
+      background-color: transparent;
+      color: rgba(255, 255, 255, 0.75);
+      padding-left: 34px;
+      padding-right: 30px;
+    }
+  }
+  #leftSearchTaskOrFolder_clearAutoSearch.inputActive {
+    color: rgba(0, 0, 0, 0.7) !important;
+  }
+  .taskType {
+    border-bottom: 1px solid #fff;
+    padding-bottom: 6px;
+    li {
+      height: 40px;
+      padding: 0 15px;
+      color: #fff;
+      font-size: 0;
+      cursor: pointer;
+      .allCountTask {
+        font-size: 12px;
+        margin-top: 11px;
+      }
+      span {
+        display: inline-block;
+        &.typeName {
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.87);
+          margin-top: 11px;
+          margin-left: 9px;
+        }
+      }
+      .typeIcon {
+        display: inline-block;
+        font-size: 18px;
+        color: #cfd1d5;
+        text-align: center;
+        width: 24px;
+        text-align: center;
+        &.icon-task-star {
+          color: #ff9802 !important;
+        }
+        &.icon-charger {
+          color: #2196f3 !important;
+        }
+      }
+    }
+  }
+
+  .navContent {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-top: 6px;
+    user-select: none;
+    .topFolderList {
+      border-width: 0 0 1px 0;
+      border-style: solid;
+      padding-bottom: 6px;
+      .folderList {
+        display: block;
+      }
+      .popTops {
+        color: #fff;
+        height: 32px;
+        line-height: 32px;
+        padding-left: 15px;
+        position: relative;
+        cursor: pointer;
+        &:hover {
+          .topFolderState {
+            display: inline-block;
+          }
+        }
+        .topFolderState {
+          position: absolute;
+          right: 15px;
+          top: 0;
+          display: none;
+        }
+      }
+    }
+    .folderList {
+      position: relative;
+      display: none;
+    }
+    .folderList li {
+      height: 40px;
+      line-height: 40px;
+      cursor: pointer;
+      padding-left: 15px;
+    }
+    .folderList .folderCharge {
+      width: 24px;
+      height: 24px;
+      margin-top: 8px;
+      vertical-align: top;
+      margin-right: 6px;
+    }
+    .folderList .folderColor {
+      width: 3px;
+      display: inline-block;
+      height: 100%;
+      vertical-align: top;
+      margin-right: 9px;
+    }
+    .folderList .folderName,
+    .folderList .pigeonholeFolderName {
+      display: inline-block;
+      color: #fff;
+      max-width: 113px;
+      opacity: 0.87;
+      vertical-align: top;
+    }
+    .folderList .pigeonholeFolderName {
+      color: #afb3b9;
+    }
+    .folderList .navFolderPublic {
+      color: rgba(255, 255, 255, 0.3);
+      padding-left: 3px;
+      font-size: 14px;
+      display: inline-block;
+    }
+    .networkFolderList .allFolders {
+      color: #fff;
+      height: 40px;
+      line-height: 40px;
+      padding-left: 15px;
+    }
+    .networkFolderList .clipLoader {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      right: 15px;
+      top: 16px;
+    }
+    .networkFolderList .clipLoader:not(.Hidden) {
+      display: inline-block;
+    }
+    .networkFolderList.networkOnly .allFolders {
+      display: none;
+    }
+    .networkFolderList.networkOnly .folderList {
+      display: block;
+    }
+    .networkFolderList.networkOnly > .folderList > li {
+      padding-left: 15px;
+    }
+    .networkFolderList.networkOnly .commFolderUl {
+      margin-left: -15px;
+    }
+    .networkFolderList.networkOnly .commFolderUl li {
+      padding-left: 30px;
+    }
+    .networkFolderList.networkFolderOpacity {
+      opacity: 0.6;
+    }
+    .networkFolderList .allFolders {
+      cursor: pointer;
+    }
+    .networkFolderList .allFolders .overflow_ellipsis {
+      max-width: 130px;
+      font-size: 13px;
+      vertical-align: top;
+      display: inline-block;
+    }
+    .networkFolderList .allFolders .overflow_ellipsis.bold {
+      font-weight: bold;
+    }
+    .networkFolderList .allFolders:hover .clipLoader.Hidden + .networkFolderListLabel {
+      display: block !important;
+    }
+    .networkFolderList .networkFolderListLabel {
+      position: absolute;
+      right: 15px;
+      top: 0;
+      display: none;
+      font-size: 12px;
+    }
+    .popTop + .topLine {
+      border-top: 1px rgba(255, 255, 255, 0.15) solid;
+      margin-top: 0px;
+    }
+    .folderList .folderIcon {
+      float: right;
+      color: #fff;
+      font-size: 16px;
+      padding-right: 15px;
+    }
+    .folderList .folderIcon.sinSettings {
+      padding-right: 15px;
+      margin-top: 12px;
+    }
+    .folderList .folderIcon.folderUnfinished {
+      font-size: 12px;
+    }
+    .folderList .nullFolderTask {
+      color: #afb3b9;
+      font-size: 12px;
+    }
+    .folderList .nullFolderTask.lightBlueBg {
+      color: #fff;
+    }
+    .folderList .iconNullFolderTask {
+      font-size: 16px;
+      display: inline-block;
+      width: 24px;
+      margin: 6px 10px 0 0;
+      text-align: center;
+    }
+    .folderList .nullFolderText {
+      vertical-align: top;
+      line-height: 38px;
+    }
+    .folderList .pigeonholeFolder,
+    .folderList .slideFolders {
+      color: #afb3b9;
+      height: auto;
+    }
+    .folderList .pigeonholeFolder .pigeonholeFolderTitle,
+    .slideFolders .slideFolderTitle {
+      height: 40px;
+    }
+    .folderList .pigeonholeFolderList,
+    .folderList .projectFolderUl,
+    .folderList .slideFolderList {
+      margin-left: -15px;
+      display: none;
+    }
+    .folderList .pigeonholeFolderList li,
+    .folderList .projectFolderUl li,
+    .folderList .slideFolderList li {
+      padding-left: 30px;
+    }
+    .folderList .archivedFolder .folderCharge,
+    .folderList .archivedFolder .folderName,
+    .folderList .slideFolders .folderCharge,
+    .folderList .slideFolders .folderName {
+      filter: alpha(opacity=60);
+      -moz-opacity: 0.6;
+      opacity: 0.6;
+    }
+    .folderList .pigeonholeFolder.lightBlueBg {
+      color: #afb3b9;
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+    .folderList .pigeonholeFolder .Right,
+    .folderList .slideFolders .Right {
+      color: #afb3b9;
+      display: inline-block;
+      margin-right: 15px;
+      vertical-align: top;
+      margin-top: 12px;
+    }
+    .folderList .pigeonholeFolder.lightBlueBg .Right {
+      border-top-color: #afb3b9;
+      border-right-color: transparent;
+      margin-top: 18px;
+    }
+    .folderList .pigeonholeFolder .icon-task-pigeonhole,
+    .folderList .slideFolders .icon-public-folder-hidden {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 16px;
+      display: inline-block;
+      width: 24px;
+      margin: 11px 10px 0 0;
+      text-align: center;
+    }
+    .folderList li .folderContent:hover .folderUnfinished,
+    .folderList .Hidden {
+      display: none;
+    }
+    .folderList li .folderContent:hover .sinSettings {
+      display: block;
+    }
+  }
+
+  .createNewBox {
+    height: 42px;
+    text-align: center;
+    padding-top: 11px;
+    box-sizing: initial;
+    .createNew {
+      display: inline-block;
+      padding: 0 18px;
+      height: 30px;
+      line-height: 30px;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 18px;
+      border-width: 1px;
+      border-style: solid;
+      i {
+        margin-right: 5px;
+        vertical-align: top;
+        margin-top: 8px;
+        display: inline-block;
+      }
+    }
+  }
+
+  #folderLoading {
+    position: absolute;
+    top: 190px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  .folderSettingsList,
+  .projectFolderOp {
+    position: absolute;
+    background-color: #fff;
+    z-index: 30;
+    padding: 6px 0px;
+    left: 200px;
+    top: 40px;
+  }
+  .folderSettingsList li,
+  .projectFolderOp li {
+    padding-left: 15px;
+    width: 165px;
+    line-height: 32px;
+    height: 32px;
+    box-sizing: initial;
+    cursor: pointer;
+    &:not(:hover):not(.dividerLine) {
+      background: #fff !important;
+    }
+  }
+  .folderSettingsList .arrorwRightColor {
+    display: inline-block;
+    float: right;
+    margin-right: 10px;
+    margin-top: 10px;
+  }
+  .folderSettingsList li:hover,
+  .projectFolderOp li:hover {
+    color: #fff;
+  }
+  .folderSettingsList li:hover i,
+  .projectFolderOp li:hover i {
+    color: #fff;
+  }
+  .folderSettingsList .dividerLine {
+    height: 1px !important;
+    background-color: #ccc !important;
+    margin: 5px 0;
+  }
+  .folderSettingsList .chargeAuth {
+    color: #f44336;
+    i {
+      color: #f44336;
+    }
+  }
+  .outsideColors {
+    display: inline-block;
+    border: 2px #fff solid;
+    width: 24px;
+    height: 24px;
+    margin-top: 3px;
+    cursor: pointer;
+  }
+  #deleteFolder {
+    .title {
+      color: #f44336;
+    }
+    .yesText {
+      background: #f44336 !important;
+      &:hover {
+        background: #e53935 !important;
+      }
+    }
+    .btnCk {
+      color: #9e9e9e;
+    }
+    .deleteFolderColor {
+      color: #757575;
+    }
+  }
+  #folderLoading {
+    position: absolute;
+    top: 54px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 1;
+  }
+  /* 搜索 */
+  .mdAutocomplete li .icon-task-label,
+  .mdAutocomplete li .icon-project-new,
+  .mdAutocomplete li .icon-search {
+    font-size: 14px;
+    color: #ccc;
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .mdAutocomplete li.autocomActive .icon-project-new,
+  .mdAutocomplete li.autocomActive .icon-task-label,
+  .mdAutocomplete li.autocomActive .icon-search {
+    color: #fff;
+  }
+  .mdAutocomplete li.searchTask {
+    border-bottom: 1px rgba(255, 255, 255, 0.15) solid;
+    height: 45px;
+    line-height: 46px;
+  }
+  .folderSettingsList i {
+    font-size: 14px;
+    color: #999;
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .folderSettingsList i.arrorwRight {
+    padding: 0;
+    margin: 0px;
+    border: 6px transparent solid;
+    border-left-color: #ccc;
+    margin-top: 10px;
+    margin-right: 4px;
+  }
+  #folderJoin,
+  #projectSort {
+    width: 245px;
+    height: 35px;
+    background-color: #5e646e;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    position: absolute;
+    z-index: 9999;
+    padding-left: 10px;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  #folderJoin .joinText,
+  #projectSort .joinText {
+    color: #fff;
+    line-height: 37px;
+    margin-left: 10px;
+    width: 190px;
+  }
+  #folderJoin img {
+    margin-top: 6px;
+    width: 24px;
+    height: 24px;
+    vertical-align: top;
+    margin-right: 6px;
+  }
+  .folderList li.folderJoin {
+    opacity: 0.3;
+  }
+  .folderList li.folderJoinBorder {
+    border: 1px rgba(255, 255, 255, 0.8) solid !important;
+  }
+  .folderList li.projectFolder {
+    height: auto;
+    border-bottom: 0px solid rgba(255, 255, 255, 0.15);
+  }
+  .folderList .projectFolder .folderTitle {
+    height: 40px;
+    display: flex;
+    display: -webkit-flex;
+  }
+  .folderList .folderTitle .txtProjectName,
+  .folderList .folderTitle .txtProjectNameEdit {
+    margin-left: 9px;
+    margin-right: 9px;
+    cursor: default;
+  }
+  .folderList .folderTitle .txtProjectNameEdit {
+    border: 0;
+    border-radius: 3px;
+    background-color: transparent;
+    width: 128px;
+    padding: 5px;
+    margin: 3px 4px;
+  }
+  .folderList .folderTitle .titleIcon:not(.Hidden) {
+    display: inline-block;
+    color: #999;
+    font-size: 16px;
+    line-height: 40px;
+    margin-left: 4px;
+    margin-right: 5px;
+  }
+  .folderList .folderTitle .titleIcon.moreOp {
+    display: none;
+    margin-right: 8px;
+  }
+  .folderList .folderTitle .titleIcon.downShow {
+    margin-right: 13px;
+  }
+  .folderList .folderTitle .titleIcon.folderNewTip {
+    vertical-align: top;
+    margin-top: 17px;
+    margin-right: 8px;
+  }
+  .insertCircle {
+    position: fixed;
+    z-index: 5;
+    top: 0px;
+    width: 200px;
+    left: 52px;
+    display: none;
+  }
+  .insertCircle .littleCircle {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #ccc;
+    display: inline-block;
+  }
+  .insertCircle .littleLine {
+    display: inline-block;
+    vertical-align: top;
+    width: 185px;
+    border-top: 1px #ccc solid;
+    margin-top: 6px;
+  }
+  .addFileBox {
+    position: relative;
+  }
+  .addFileBox .fileFoldersBox {
+    position: absolute;
+    left: 180px;
+  }
+  .addFileBox .fileFoldersBox .fileFolders {
+    margin-left: 5px;
+    background-color: #fff;
+    padding: 6px 0px;
+  }
+  .addFileBox .fileFoldersBox .fileFolders .moveToFileBox {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .addFileBox .fileFoldersBox .fileFolders li {
+    width: 180px;
+  }
+  .addFileBox .fileFoldersBox .newFile {
+    border-top: 1px rgba(0, 0, 0, 0.15) solid;
+  }
+  .addFileBox .fileFoldersBox .fileFolders .moveToFile {
+    color: #ccc;
+    background-color: #fff !important;
+  }
+  .fileFoldersBox .fileFolders .exitFile {
+    border-bottom: 1px rgba(0, 0, 0, 0.15) solid;
+  }
+  .fileFoldersBox .fileFolders .exitFile + .newFile {
+    border-top: 0;
+  }
+  .folderList > li.popTop:first-child {
+    margin-top: 0px;
+  }
+  .networkOnly {
+    height: 100%;
+    position: relative;
+    .noFolderList {
+      text-align: center;
+      height: 20px;
+      line-height: 20px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      margin-top: -10px;
+      font-size: 13px;
+    }
+  }
+
+  .otherBox {
+    color: #fff;
+    height: 48px;
+    line-height: 48px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 6px;
+    .closeOther {
+      margin-left: 13px;
+      &:not(:hover) {
+        color: #757575 !important;
+      }
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+}

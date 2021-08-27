@@ -1,0 +1,50 @@
+html.AppWorkSheet,
+html.AppWorkSheet body,
+html.AppWorkSheet form {
+  height: 100%;
+  overflow: hidden;
+}
+.worksheet {
+  width: 100%;
+  height: 100%;
+  .worksheetError {
+    margin: 16px 20px;
+    border-radius: 4px;
+    background: #fff;
+    .msg {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      top: 50%;
+      position: relative;
+      margin-top: -20px;
+    }
+  }
+}
+.workSheetForm {
+  .formItem {
+    margin-top: 10px;
+    .label {
+      text-align: right;
+      flex: 14 1 0%;
+      height: 30px;
+      line-height: 31px;
+      font-size: 13px;
+      color: #888;
+      margin-right: 14px;
+      position: relative;
+    }
+    .content {
+      flex: 86 1 0%;
+      line-height: 30px;
+    }
+  }
+}
+.worksheetDeleteDialog{
+  .Button--primary{
+    background: #f44336!important;
+    &:hover{
+      background: #e53935!important;
+    }
+  }
+}

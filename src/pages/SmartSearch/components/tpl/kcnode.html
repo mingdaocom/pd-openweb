@@ -1,0 +1,32 @@
+﻿<div class="kcnode">
+    <div class="title ThemeColor3 Font18 mTop10" type="kcnode">
+        <div class="left Font16 GrayB8 Hand" type="kcnode">
+            <span class="Left icon-saveToKnowledge Font20 paddRight10 LineHeight24"></span>
+            {{=_l('知识') }}
+            <span class="pRight15 count Font12">{{=it.kcnode.count }}</span>
+        </div>
+    </div>
+    <div class="Clear"></div>
+    <ul>
+    {{~it.kcnode.kcnodeList:kcnode:i}}
+        <li>
+            <div class="icon InlineBlock Font18 mLeft30 {{= it.contentStr(kcnode).icon }}"></div>
+            <div class="info mLeft10 InlineBlock textNowrap">
+            <a href="{{= kcnode.link}}" target="_blank" title="{{=it.contentStr(kcnode).content }}">{{=it.contentStr(kcnode).content.replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+            </div>
+            <div class="path InlineBlock TxtLeft mLeft20 textNowrap">{{! kcnode.position }} </div>
+            <div class="mLeft20 InlineBlock node textNowrap">{{=it.contentStr(kcnode).fileContent.replace(it.reg, '<font class="HighLightColor">$1</font>') }}
+            </div>
+            <div class="date">{{=kcnode.nodeCreateTime }}</div>
+            <div class="companyName">{{=it.companyName(kcnode.companyName)}}</div>
+            <div class="Clear"></div>
+        </li>
+    {{~}}
+    <div class="mTop10"></div>
+    {{?it.kcnode.count > 5}}
+    <li class="noneBorder">
+        <div class="ThemeColor3 showAll" type="kcnode">{{=(_l('查看所有“%0”的结果', it.searchKeyword()))}}></div>
+    </li>
+    {{?}}
+    </ul>
+</div>

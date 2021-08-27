@@ -1,0 +1,158 @@
+﻿<div class="shareAttachmentDialogContainer">
+    <div class="filePreview">
+        <div class="fileIcon hide">
+            <span class="fileSize"></span>
+        </div>
+        <div class="thumbnailCon hide">
+            <div class="thumbnail">
+            </div>
+        </div>
+    </div>
+    <div class="dList">
+        <div class="dItem">
+            <div class="itemLabel">
+                {{=_l('名称')}}
+            </div>
+            <div class="itemContent">
+                <input type="text" id="fileName" class="ming Input" placeholder="{{=_l('名称')}}" />
+                <span class="fileNameText ellipsis hide"></span>
+            </div>
+        </div>
+        {{? it.showChangeDownload}}
+        <div class="dItem">
+            <div class="itemLabel">
+                {{=_l('允许下载')}}
+            </div>
+            <div class="itemContent">
+                <div class="downloadableCon">
+                    <div class="switchBtnCon">
+                        <input id="canDownload" type="checkbox" checked></input>
+                        <label class="switchBtn" for="canDownload"></label>
+                    </div>
+                    <span class="canDownloadTip" data-tip="{{=_l('可在此配置分享后的文件是否允许用户下载（分享到“消息”的将自动设为可下载）')}}">
+                        <i class="icon icon-novice-circle ThemeHoverColor3 Hand"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {{?}}
+        {{? it.showChangeShare}}
+        <div class="dItem changeShare hide">
+            <div class="itemLabel">
+                {{=_l('分享链接')}}
+            </div>
+            <div class="itemContent">
+                <div class="selectSharePermission">
+                    <div class="preventCover"></div>
+                    <input type="hidden" id="selectSharePermission" />
+                </div>
+                <div class="copyLinkCon hide">
+                    <span class="copyLinkHover">
+                        <i class="icon icon-link"></i>
+                        {{=_l('复制链接')}}
+                    </span>
+                    <div class="copyLinkContent">
+                        <input type="text" id="linkContent" readonly="readonly" class="ming Input" onclick="this.select();">
+                        <span class="copyLinkBtn ThemeBGColor3" id="copyLinkBtn">
+                            {{=_l('复制链接')}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dItem closedTip hide">
+            <div class="itemLabel"></div>
+            <div class="itemContent">
+                {{=_l('链接已关闭，开启后可进行共享')}}
+            </div>
+        </div>
+        {{?}}
+        <div class="selectTargetCon dItem hide">
+            <div class="itemLabel"></div>
+            <div class="itemContent">
+                <div class="selectTargetBtnList">
+                    <span class="prev icon icon-arrow-left-border ThemeHoverColor3 Hand"></span>
+                    <span class="next icon icon-arrow-right-border ThemeHoverColor3 Hand"></span>
+                    <div class="listBox overfllowHidden">
+                        <div class="listCon">
+                            <div class="targetBtn chat" data-type="{{! it.SEND_TO_TYPE.CHAT.toString()}}">
+                                <span class="icon icon-to-chat-circle">
+                                </span>
+                                <p>{{=_l('发消息')}}</p>
+                            </div>
+                            {{? !md.global.SysSettings.forbidSuites.includes('1')}}
+                                <div class="targetBtn feed" data-type="{{! it.SEND_TO_TYPE.FEED}}">
+                                    <span class="icon icon-to-feed-circle"></span>
+                                    <p>{{=_l('发动态')}}</p>
+                                </div>
+                            {{?}}
+                            {{? !md.global.SysSettings.forbidSuites.includes('2')}}
+                                <div class="targetBtn task" data-type="{{! it.SEND_TO_TYPE.TASK}}">
+                                    <span class="icon icon-to-task-circle"></span>
+                                    <p>{{=_l('发任务')}}</p>
+                                </div>
+                            {{?}}
+                            <div class="targetBtn wechat" data-type="{{! it.SEND_TO_TYPE.WECHAT}}">
+                                <span class="icon icon-to-wechat-circle"></span>
+                                <p>{{=_l('微信')}}</p>
+                            </div>
+                            {{? !md.global.SysSettings.forbidSuites.includes('3')}}
+                                <div class="targetBtn calendar" data-type="{{! it.SEND_TO_TYPE.CALENDAR}}">
+                                    <span class="icon icon-calendar"></span>
+                                    <p>{{=_l('发日程')}}</p>
+                                </div>
+                            {{?}}
+                            {{? !md.global.SysSettings.forbidSuites.includes('4')}}
+                                <div class="targetBtn kc" data-type="{{! it.SEND_TO_TYPE.KC}}">
+                                    <span class="icon icon-to-kc-circle"></span>
+                                    <p>{{=_l('存入知识')}}</p>
+                                </div>
+                            {{?}}
+                            <div class="targetBtn qq" data-type="{{! it.SEND_TO_TYPE.QQ}}">
+                                <span class="icon icon-to-qq-circle"></span>
+                                <p>QQ</p>
+                            </div>
+                            <div class="targetBtn qr" data-type="{{! it.SEND_TO_TYPE.QR}}">
+                                <span class="icon icon-invite-qrcode"></span>
+                                <p>{{=_l('二维码')}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sendToOther hide">
+            <div class="dItem">
+                <div class="itemLabel">
+                    {{=_l('分享到')}}
+                </div>
+                <div class="itemContent">
+                    <div class="sendToTarget">
+                        <input type="hidden" id="sendToTarget" />
+                    </div>
+                    <div class="sendToContent InlineBlock">
+                        <input type="hidden" id="selectSendTo">
+                    </div>
+                </div>
+            </div>
+            <div class="dItem">
+                <div class="itemLabel"></div>
+                <div class="itemContent addDescBtn">
+                    {{=_l('添加说明')}}
+                </div>
+            </div>
+            <div class="dItem descCon hide">
+                <div class="itemLabel">
+                    {{=_l('添加说明')}}
+                </div>
+                <div class="itemContent">
+                    <textarea name="" id="shareDesc" class="ming Input" cols="30" rows="10" placeholder="{{=_l('添加文件说明')}}"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="shareAttachmentFooter hide">
+        <a href="javascript:void(0);" class="no ThemeHoverColor3">{{=_l('取消')}}</a>
+        <a href="javascript:void(0);" class="yes boderRadAll_3 ThemeBGColor3 ">{{=_l('分享')}}</a>
+    </div>
+</div>

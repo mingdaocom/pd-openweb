@@ -1,0 +1,85 @@
+{
+  "env": {
+    "development": {
+      "plugins": [
+        "dynamic-import-node",
+        "transform-runtime",
+        "transform-decorators-legacy",
+        [
+          "import",
+          [
+            {
+              "libraryName": "ming-ui",
+              "libraryDirectory": "components",
+              "camel2DashComponentName": false
+            },
+            { "libraryName": "src", "libraryDirectory": "components", "camel2DashComponentName": false },
+            {
+              "libraryName": "antd",
+              "style": "css"
+            },
+            {
+              "libraryName": "antd-mobile",
+              "style": "css"
+            }
+          ]
+        ]
+      ],
+      "presets": [
+        [
+          "env",
+          {
+            "modules": "commonjs",
+            "targets": {
+              "browsers": ["last 2 versions"]
+            }
+          }
+        ],
+        "stage-2",
+        "react"
+      ]
+    },
+    "production": {
+      "plugins": [
+        "transform-runtime",
+        "transform-decorators-legacy",
+        [
+          "import",
+          [
+            {
+              "libraryName": "ming-ui",
+              "libraryDirectory": "components",
+              "camel2DashComponentName": false
+            },
+            {
+              "libraryName": "src",
+              "libraryDirectory": "components",
+              "camel2DashComponentName": false
+            },
+            {
+              "libraryName": "antd",
+              "style": "css"
+            },
+            {
+              "libraryName": "antd-mobile",
+              "style": "css"
+            }
+          ]
+        ]
+      ],
+      "presets": [
+        [
+          "env",
+          {
+            "modules": "commonjs",
+            "targets": {
+              "browsers": ["> 0.6% in CN"]
+            }
+          }
+        ],
+        "stage-2",
+        "react"
+      ]
+    }
+  }
+}

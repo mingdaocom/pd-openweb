@@ -1,0 +1,68 @@
+.showRulesDialog {
+  .Button {
+    border-radius: 32px !important;
+  }
+
+  p,
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+
+  .borderTopLine {
+    border-top: 1px solid #EAEAEA;
+    margin-top: 25px;
+    padding-top: 25px;
+  }
+
+  .listBox {
+    h3 {
+      font-size: 13px;
+    }
+
+    .listText {
+      display: flex;
+      margin-top: 25px;
+
+      .iconBox {
+        width: 52px;
+        display: inline-block;
+        vertical-align: middle;
+
+        .ming {
+          transform: scale(0.5);
+        }
+      }
+
+      .text {
+
+        display: inline-block;
+        flex: 1;
+        vertical-align: top;
+      }
+    }
+  }
+
+  .copyBtn {
+    &:hover {
+      color: #2196f3 !important;
+    }
+  }
+
+  .warnTip {
+    padding: 5px;
+    margin-left: 24px;
+    border-radius: 3px;
+    color: #e60012;
+
+    &>span:last-child {
+      &:hover {
+        color: #2196f3 !important;
+      }
+
+      padding-left: 8px;
+    }
+
+    transition: all ease-in-out .5s;
+  }
+}

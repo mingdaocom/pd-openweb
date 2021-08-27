@@ -1,0 +1,164 @@
+.childTableCon {
+  line-height: 1.5715;
+  .errorTip {
+    color: #f32121;
+    font-size: 13px;
+    position: absolute;
+    top: -30px;
+    background: #fff;
+    z-index: 1;
+  }
+  .childTableColumnHead {
+    color: #9e9e9e !important;
+    font-size: 13px;
+    line-height: 34px;
+  }
+  .worksheetTable {
+    .mdTable {
+      position: relative;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      background-color: transparent;
+    }
+  }
+  .operate {
+    margin: 10px 0 0;
+    .addRowByLine,
+    .addRowByDialog {
+      font-weight: 500;
+      border-radius: 3px;
+      margin-right: 8px;
+      font-size: 14px;
+      color: #2196f3;
+      cursor: pointer;
+      padding: 0 16px;
+      background: #f8f8f8;
+      line-height: 36px;
+      display: inline-block;
+      &:not(.disabled):hover {
+        background: #f0f0f0;
+      }
+      &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: transparent;
+      }
+      &.h5,
+      &.h5:not(.disabled):hover {
+        margin: 10px 0 0;
+        background-color: transparent;
+      }
+    }
+    .addRowByDialog {
+      padding: 0 9px;
+    }
+  }
+}
+
+.childTableRowDetailDialog {
+  padding: 0 !important;
+  .ant-modal-close {
+    display: none;
+  }
+  .ant-modal-body {
+    padding: 0px !important;
+  }
+  .header {
+    padding: 10px 0 30px;
+    .switchButton {
+      padding: 0 16px;
+      margin-right: 8px;
+      .icon {
+        font-size: 16px;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      .text {
+        vertical-align: middle;
+      }
+    }
+    .headerBtn {
+      margin: 4px 0 0 8px;
+      &.delete:hover {
+        color: #f44336 !important;
+      }
+      &:last-child {
+        margin-right: -6px;
+      }
+    }
+    &.new {
+      padding-bottom: 10px;
+      .title {
+        margin-bottom: 0px;
+      }
+    }
+  }
+  .title {
+    color: #333;
+    font-size: 20px;
+    line-height: 1em;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .rowDetailCon {
+    padding: 0 24px 14px;
+    overflow: auto;
+  }
+  .footer {
+    height: 36px;
+    .saveAndContinueBtn {
+      color: #757575;
+      background: #fff;
+      border: 1px solid #bdbdbd;
+      line-height: 34px;
+      &:hover {
+        color: #2196f3;
+        border-color: #2196f3;
+      }
+    }
+  }
+}
+
+.am-modal-mask,
+.am-modal-wrap {
+  transform: none !important;
+}
+
+.childTableRowDetailMobileDialog {
+  height: 95%;
+  overflow: hidden;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+
+  .forCon {
+    overflow-y: auto;
+    padding: 5px 20px 0;
+  }
+  .header {
+    padding: 15px 20px 8px;
+  }
+  .btnsWrapper {
+    height: 50px;
+    border-top: 1px solid #f5f5f5;
+    background-color: #fff;
+    padding: 0 10px;
+    box-sizing: border-box;
+
+    .flexRow {
+      justify-content: flex-end;
+    }
+    .am-button {
+      height: 36px;
+      line-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .am-button,
+    .am-button::before,
+    .am-button-active::before {
+      font-size: 14px;
+      border-radius: 50px !important;
+    }
+  }
+}

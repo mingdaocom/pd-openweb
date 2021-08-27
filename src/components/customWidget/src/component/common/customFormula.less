@@ -1,0 +1,30 @@
+.singleFormula {
+  .singleFormulaName {
+    padding: 0 15px;
+    border-radius: 15px;
+    height: 24px;
+    line-height: 24px;
+    background: rgba(136, 136, 136, 0.15);
+    position: relative;
+    display: inline-block;
+    .icon-closeelement-bg-circle {
+      position: absolute;
+      right: -6px;
+      top: -5px;
+      font-size: 16px;
+      color: #ccc;
+      display: none;
+      &:hover {
+        color: #666;
+      }
+    }
+    &:hover {
+      .icon-closeelement-bg-circle {
+        display: block;
+      }
+    }
+  }
+  .addComma {
+    margin-right: 0 5px;
+  }
+}

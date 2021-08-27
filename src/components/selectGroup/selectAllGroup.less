@@ -1,0 +1,358 @@
+.SelectAllGroup {
+  position: relative;
+  margin-right: 10px;
+  .guideUp {
+    z-index: 8;
+  }
+  & .icon-eye {
+    font-size: 16px;
+    color: #ccc;
+    margin: -3px 5px 0px 10px;
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  &-groupListDiv {
+    &-bottom {
+      top: 30px;
+    }
+
+    &-top {
+      bottom: 30px;
+    }
+
+    position: absolute;
+    z-index: 9;
+    background-color: white;
+    // top: 30px;
+    right: 0px;
+    width: 150px;
+    padding: 6px 0px 0px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+    .loadingCon {
+      display: none;
+    }
+    &.isLoading {
+      .loadingCon {
+        display: block;
+      }
+      .groupListCon,
+      .addNewGroup {
+        display: none;
+      }
+    }
+    &.isNew {
+      height: 40px;
+      padding-top: 0px;
+      .addNewGroup {
+        border-top: none;
+      }
+      .groupListCon {
+        display: none;
+      }
+    }
+    &.noMostUsed {
+      .mostUsed {
+        display: none;
+      }
+      hr {
+        display: none;
+      }
+      &.noProjects {
+        // height: 80px;
+        .personItem .projectTitleCon {
+          display: none;
+        }
+      }
+    }
+    &.placeTop {
+      top: auto;
+      bottom: 30px;
+    }
+  }
+  &-groupListDiv li > label:not(:hover) {
+    background-color: #fff !important;
+  }
+  &-groupListDiv li > label:hover {
+    color: white !important;
+    .companyName {
+      color: white !important;
+    }
+  }
+  &-selectedGroup .icon-arrow-down-border {
+    color: #7e7e7e !important;
+  }
+  .SelectAllGroup-selectGroup > * {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 28px;
+    height: 28px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  &-customLink {
+    margin-left: 25px;
+    height: 30px;
+    line-height: 30px;
+    vertical-align: middle;
+  }
+  .SelectAllGroup-selectedGroup {
+    color: #7e7e7e;
+  }
+}
+.SelectAllGroup {
+  .SelectAllGroup-groupListDiv {
+    hr {
+      display: none;
+      border: none;
+      margin: 6px 0;
+      border-top: 1px solid #e0e0e0;
+    }
+    &.single {
+      .groupListCon {
+        border-bottom: 0;
+      }
+    }
+  }
+  .groupListCon {
+    position: relative;
+    border-bottom: 40px solid transparent;
+    max-height: 370px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    &.nano {
+      .nano-pane {
+        z-index: 2;
+      }
+    }
+    &.noCreateGroup {
+      border-bottom: none;
+    }
+  }
+  .projectItem {
+    color: #999;
+    &.mostUsed {
+      .slideBtn {
+        display: none;
+      }
+    }
+    &.mostUsed,
+    &.personItem {
+      .groupInfo {
+        display: inline-block !important;
+      }
+    }
+    .projectTitleCon {
+      height: 30px;
+    }
+    .projectTitle {
+      position: relative;
+      z-index: 2;
+      display: block;
+      padding: 0 10px 0 18px;
+      line-height: 30px;
+      height: 30px;
+      background-color: #fff;
+      overflow: hidden;
+      &:not(.disabled) {
+        .slideBtn:before {
+          content: '展开';
+        }
+      }
+      &:hover {
+        .slideBtn {
+          visibility: visible;
+        }
+      }
+      &.open {
+        .slideBtn:before {
+          content: '隐藏';
+        }
+      }
+      &.disabled {
+        cursor: default;
+      }
+      .companyName {
+        float: left;
+        overflow: hidden;
+        max-width: 140px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .expire {
+        float: left;
+        color: #ccc;
+        margin-left: 2px;
+      }
+      .slideBtn {
+        position: absolute;
+        left: 195px;
+        font-style: normal;
+        visibility: hidden;
+      }
+      &.fixed {
+        position: absolute;
+        width: 100%;
+        box-sizing: border-box;
+        z-index: 2;
+      }
+    }
+    .groupList {
+      display: none;
+      &.visible {
+        display: block;
+      }
+      &:before,
+      &:after {
+        content: '';
+        display: table;
+        clear: both;
+      }
+      .groupItem {
+        label {
+          position: relative;
+          display: block;
+          line-height: 36px;
+          padding: 0 14px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 13px;
+        }
+        .groupName {
+          max-width: 140px;
+          display: inline-block;
+        }
+        .companyName {
+          color: rgba(153, 153, 153, 0.6);
+          display: block;
+          padding-left: 34px;
+          margin-top: -15px;
+          font-size: 12px;
+        }
+        .groupInfo,
+        .radioInfo {
+          position: absolute;
+          right: 15px;
+          top: 0px;
+          display: none;
+          visibility: hidden;
+          opacity: 0.6;
+          margin: 10px 0;
+          width: 16px;
+          height: 16px;
+          background: url('./images/groupInfo.png');
+          background-size: 16px;
+          cursor: pointer;
+          &:hover {
+            opacity: 1;
+          }
+        }
+        .radioInfo {
+          display: inline-block;
+          background: none;
+          padding: 0;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          line-height: 1em;
+          margin: 9px 0;
+        }
+        &.gray {
+          color: #9e9e9e;
+        }
+        &.disabled {
+          color: #bfbfbf;
+          cursor: default;
+          background-color: #e8e8e8 !important;
+          input[type='checkbox'] {
+            cursor: default;
+          }
+          input[type='checkbox']:after {
+            background-color: #e8e8e8;
+          }
+          .groupName {
+            max-width: 100px;
+          }
+          &:hover {
+            background-color: #e8e8e8 !important;
+            color: #bfbfbf !important;
+          }
+        }
+        &.radio,
+        &.personal {
+          &:hover {
+            input[type='checkbox']:checked:before {
+              border-color: #fff;
+            }
+
+            input[type='checkbox']:checked:after {
+              background-color: #1e88e5 !important;
+              border-color: #1e88e5 !important;
+            }
+          }
+          input[type='checkbox']:after {
+            transition: none;
+            border: none;
+            background-color: #fff !important;
+          }
+          input[type='checkbox']:checked:before,
+          input[type='checkbox']:before {
+            border-color: #2196f3;
+          }
+        }
+        &.personal {
+          .groupInfo {
+            display: none;
+          }
+        }
+        &:hover {
+          .groupInfo,
+          .radioInfo {
+            visibility: visible;
+          }
+        }
+      }
+      .createGroup {
+        display: block;
+        line-height: 30px;
+        padding: 0 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        a {
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+  .addNewGroup {
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    cursor: pointer;
+    z-index: 2;
+    display: block;
+    text-align: center;
+    line-height: 40px;
+    height: 40px;
+    background-color: #fff;
+    overflow: hidden;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+.noGroup {
+  padding: 60px 0;
+  text-align: center;
+  i {
+    font-size: 60px;
+    margin-bottom: 15px;
+    color: #9fa0a0;
+  }
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}

@@ -1,0 +1,274 @@
+﻿<div class="createCalendarBox createCalendarTitle">
+    <div class="createCalendarLabel">{{= _l('名称')}}</div>
+    <input
+        type="text"
+        id="txtCalendarName"
+        placeholder="{{= _l('请输入日程名称…')}}"
+        class="box-sizing boderRadAll_3 ThemeBorderColor3 Font14 infoInput"
+    />
+    <div
+        class="calendarColorModel boderRadAll_3 calendarColorBlue"
+        title="{{=_l('工作日程')}}"
+        data-catid="1"
+        id="createCategoryID"
+    >
+        <span class="icon-arrow-down-border"></span>
+    </div>
+    <ul
+        class="calendarColorMain boderRadAll_3 Font14"
+        id="calendarColorMain"
+    ></ul>
+</div>
+<div class="createCalendarBox calendarTime Font14">
+    <div class="createCalendarLabel">{{= _l('起止时间')}}</div>
+    <span id="txtBeginDatebox">
+        <input
+            readonly="readonly"
+            type="text"
+            id="txtBeginDate"
+            class="ThemeColor3 Font14 pointer"
+        />
+        <span
+            class="icon-arrow-down-border mLeft5 TxtTop font8 bgImageLink pointer ThemeColor3"
+        ></span>
+    </span>
+    <input
+        id="txtBeginTimeCreate"
+        tag="00:00"
+        type="text"
+        class="Font14 pointer txtTimeStyle ThemeColor3"
+    />
+    <span class="dateAlone">{{= _l('至')}}</span>
+    <span id="txtEndDatebox">
+        <input
+            readonly="readonly"
+            type="text"
+            id="txtEndDate"
+            class="Font14 pointer ThemeColor3"
+        />
+        <span
+            class="icon-arrow-down-border mLeft5 TxtTop font8 bgImageLink pointer ThemeColor3"
+        ></span>
+    </span>
+    <input
+        id="txtEndTimeCreate"
+        tag="00:00"
+        type="text"
+        class="Font14 pointer txtTimeStyle ThemeColor3"
+    />
+    <span
+        class="timezone boderRadAll_3 Font14 ThemeBorderColor3 ThemeColor3 "
+        >{{= _l('时区')}}</span
+    >
+</div>
+<div id="selectTimezone"></div>
+<div class="allDay pointer">
+    <label for="allDay">
+        <input id="allDay" type="checkbox" />
+        <span class="pointer">{{= _l("全天日程")}}</span>
+    </label>
+</div>
+<div class="createCalendarBox calendarRemind Font14">
+    <div class="createCalendarLabel">{{= _l('提醒')}}</div>
+    <span
+        class="remindTextLable"
+        id="remindTextLableCreate"
+        >{{= _l('提前') }}</span
+    >
+    <input
+        type="text"
+        id="remindTextCreate"
+        class="remindText Font14 pointer ThemeColor3"
+        value="15"
+    />
+    <input type="hidden" id="remindSelectCreate" />
+    <div class="telRemindLabel InlineBlock mLeft25 Gray_9e">
+        <label class="Hand">
+            <span class="chekboxIcon"></span> {{= _l('电话提醒')}}
+        </label>
+        <span
+            class="iconHelp"
+            data-tip="{{= _l('勾选电话提醒，将以电话语音形式通知日程参与人员') }}"
+        >
+            <i class="icon-help"></i>
+        </span>
+    </div>
+</div>
+<div class="createCalendarBox Font14 Hidden" id="repeatContent">
+    <div class="createCalendarLabel">
+        <span class="chekboxIcon"></span>{{= _l('重复')}}
+    </div>
+    <div id="noRepeatContent" class="Hidden">...</div>
+    <div id="existRepeatContent">
+        <span id="updateRepeatBtn"
+            ><span class="repeatResultText"></span
+            ><span class="ThemeColor3 repeatOperate">修改</span></span
+        >
+    </div>
+</div>
+<div class="createCalendarBox inputBox Font14 Hidden" id="addCalendarMembers">
+    <div class="createCalendarLabel">{{= _l('添加成员')}}</div>
+    <div class="createAddMemberBox">
+        <i class="icon-task-add-member-circle createAddMember ThemeColor3"></i>
+    </div>
+</div>
+<div class="createCalendarBox inputBox Font14 Hidden" id="addressContent">
+    <div class="createCalendarLabel">{{= _l('地点')}}</div>
+    <input
+        type="text"
+        id="txtAddress"
+        class="txtAddress box-sizing boderRadAll_3 ThemeBorderColor3 infoInput"
+        value=""
+        placeholder="{{= _l('添加日程地点…')}}"
+    />
+</div>
+<div class="createCalendarBox inputBox Font14 Hidden" id="createCalendarDesc">
+    <div class="createCalendarLabel">{{= _l('描述和附件')}}</div>
+    <textarea
+        type="text"
+        id="txtDesc"
+        class="createCalendarDesc box-sizing boderRadAll_3 ThemeBorderColor3 infoInput"
+        value=""
+        placeholder="{{= _l('填写描述')}}"
+    ></textarea>
+    <div id="createCalendarAttachment_updater"></div>
+</div>
+<div class="createCalendarBox calendarTabs Font14" id="calendarTabs">
+    <span
+        data-type="addMember"
+        class="ThemeBorderColor3 ThemeColor3"
+        >{{= _l('添加成员')}}</span
+    >
+    <span
+        data-type="address"
+        class="ThemeBorderColor3 ThemeColor3"
+        >{{= _l('地点')}}</span
+    >
+    <span
+        data-type="desc"
+        class="ThemeBorderColor3 ThemeColor3"
+        >{{= _l('描述和附件')}}</span
+    >
+    <span
+        data-type="repeat"
+        class="ThemeBorderColor3 ThemeColor3 InlineBlock"
+        >{{= _l('重复')}}</span
+    >
+</div>
+<div class="createCalendarBox Font14 calendarPrivate" id="calendarPrivate">
+    <label class="pointer isPrivateLabel">
+        <span class="chekboxIcon"></span> {{= _l('私密日程')}}
+    </label>
+    <span
+        class="iconHelp"
+        data-tip="日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。"
+    >
+        <i class="icon-help"></i>
+    </span>
+</div>
+<div class="box-sizing createCalendarOperator">
+    <span
+        class="boderRadAll_3 ThemeBGColor3"
+        id="calendarSubmitBtn"
+        >{{= _l('创建')}}</span
+    >
+</div>
+
+<div class="repeatDialog Hidden" id="repeatDialog">
+    <ul class="repeatDialogMain">
+        <li class="box-sizing">
+            <div class="createCalendarLabel">{{= _l('重复类型')}}</div>
+            <input type="hidden" id="tab_repeatType" value="1" />
+        </li>
+        <li class="box-sizing">
+            <div class="createCalendarLabel">{{= _l('重复频率')}}</div>
+            <span class="Font14">{{=_l('每') }}</span>
+            <input
+                id="repetitionFrequency"
+                defaultvalue="1"
+                value="1"
+                type="text"
+                class="boderRadAll_3"
+            />
+            <span id="createRepeatTypeLabel" class="Font14">{{=_l('周')}}</span>
+            <span class="repeatTypeGroup" id="repeatTypeGroup">
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="64"
+                    index="7"
+                    type="button"
+                    value="{{=moment().day(0).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="1"
+                    index="1"
+                    type="button"
+                    value="{{=moment().day(1).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="2"
+                    index="2"
+                    type="button"
+                    value="{{=moment().day(2).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="4"
+                    index="3"
+                    type="button"
+                    value="{{=moment().day(3).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="8"
+                    index="4"
+                    type="button"
+                    value="{{=moment().day(4).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="16"
+                    index="5"
+                    type="button"
+                    value="{{=moment().day(5).format('dd')}}"
+                />
+                <input
+                    class="repeatTypeGroupBtn pointer"
+                    week="32"
+                    index="6"
+                    type="button"
+                    value="{{=moment().day(6).format('dd')}}"
+                />
+            </span>
+        </li>
+        <li class="box-sizing">
+            <div class="createCalendarLabel">{{= _l('结束日期')}}</div>
+            <input type="hidden" id="tab_repeatTime" />
+            <span id="overCount" class="Font14">
+                {{=_l('发生')}}
+                <input
+                    class="txtOverCount boderRadAll_3"
+                    defaultvalue="1"
+                    value="1"
+                    type="text"
+                    id="txtOverCount"
+                />
+                {{=_l('次后')}}
+            </span>
+            <span id="overTime" class="Font14">
+                <input
+                    type="text"
+                    readonly="readonly"
+                    id="txtOverDate"
+                    class="txtOverDate boderRadAll_3"
+                />
+            </span>
+        </li>
+        <li class="box-sizing">
+            <div class="createCalendarLabel">{{= _l('结果')}}</div>
+            <div id="repeatReault" class="Font14"></div>
+        </li>
+    </ul>
+</div>

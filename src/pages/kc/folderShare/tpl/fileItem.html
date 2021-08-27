@@ -1,0 +1,14 @@
+﻿ <div class="fileItem"
+    data-index="{{! it.index}}"
+    data-type="{{! it.node.type}}"
+    data-id="{{! it.node.id}}"
+    data-type="{{! it.node.type}}"
+    data-shareUrl="{{! it.node.shareUrl}}"
+>
+    {{? it.isPicture}}
+        <img class="filePreview" src="{{! it.node.previewUrl.replace('w/160/h/100', 'w/22/h/26')}}" alt="">
+    {{??}}
+        <span class="fileIcon {{! it.className}}"></span>
+    {{?}}
+    <span class="name ellipsis">{{! it.node.name}}{{! it.node.ext ? '.' + it.node.ext : ''}}</span>
+</div>

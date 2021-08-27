@@ -1,0 +1,103 @@
+
+.chartStyle {
+  .ant-checkbox-input {
+    position: absolute;
+  }
+  .chartCollapse {
+    .ant-collapse-header {
+      font-size: 13px;
+      font-weight: bold;
+      color: #333 !important;
+      padding: 16px 10px;
+    }
+    .ant-collapse-item {
+      border-bottom: 1px solid #d9d9d9;
+      .ant-collapse-content-box {
+        padding-left: 34px;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+      .ant-collapse-content-box,
+      .ant-checkbox-wrapper,
+      .ant-select .ant-select-selection-item,
+      .ant-input {
+        font-size: 13px !important;
+      }
+    }
+    .ant-collapse-arrow {
+      transition: transform .24s;
+      position: static !important;
+      line-height: initial !important;
+      padding: 0 !important;
+      transform: none !important;
+      &::before {
+        display: initial !important;
+      }
+      &.icon-arrow-active {
+        transform: rotate(-180deg) !important;
+      }
+    }
+    .collapsible .ant-collapse-content-box {
+      filter: opacity(0.5);
+      pointer-events: none;
+    }
+    .yAxisCollapsible .ant-collapse-content-box{
+      >* {
+        filter: opacity(0.5);
+        pointer-events: none;
+      }
+      .minWrapper, .maxWrapper {
+        filter: none;
+        pointer-events: auto;
+      }
+    }
+  }
+}
+
+.chartColorModal {
+  .colorSwatches {
+    height: 370px;
+    overflow-y: scroll;
+    margin-top: 20px;
+    padding: 6px 0;
+    border-radius: 4px;
+    border: 1px solid #DDDDDD;
+  }
+  .colorItem {
+    cursor: pointer;
+    padding: 6px 10px 0 19px;
+    .item {
+      height: 24px;
+      width: 40px;
+      margin-right: 7px;
+      margin-bottom: 6px;
+      &.narrow {
+        width: 24px;
+      }
+    }
+    .colorInput {
+      width: 40px;
+      height: 28px;
+      opacity: 0;
+    }
+    .colorName {
+      width: 40px;
+    }
+    .wrap {
+      flex-wrap: wrap;
+    }
+    &.active, &:hover {
+      background-color: #F5F5F5;
+    }
+    .icon-done {
+      color: #2196F3;
+    }
+  }
+  .ant-radio-wrapper {
+    margin-right: 60px;
+  }
+  .ant-radio-input {
+    position: absolute !important;
+  }
+}
+

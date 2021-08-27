@@ -1,0 +1,570 @@
+﻿@charset "UTF-8";
+.AppTask {
+  #taskList .persist-area:last-child .listStageTaskContent {
+    margin-bottom: 28px;
+  }
+  #taskList .listStageTaskContent > table {
+    width: 100%;
+  }
+  #taskList .listStageTaskContent > table tr {
+    cursor: pointer;
+    background-color: #fff;
+  }
+  #tasks .listStageTaskContent > table tr:hover {
+    background-color: #fafafa;
+  }
+  #taskList .listStageTaskContent > table td {
+    height: 46px;
+    line-height: 46px;
+    border-bottom: 1px #e0e0e0 solid;
+  }
+  #taskList tr.animatedFarFast {
+    background-color: transparent !important;
+  }
+  #taskList td.animatedFarFast {
+    height: 12px;
+    line-height: 0px;
+    border-bottom: 0;
+  }
+  #taskList td.animatedFarFast .maskBoxShadow {
+    width: 100%;
+    position: relative;
+    height: 100%;
+  }
+  #taskList td.slideUpTd {
+    height: 0px !important;
+  }
+  #taskList .markComplete {
+    width: 50px;
+    text-align: center;
+  }
+  #taskList .chargeTd {
+    width: 40px;
+  }
+  #taskList td.chargeTd {
+    width: 32px;
+  }
+  #taskList .chargeTd .chargeImg {
+    width: 26px;
+    height: 26px;
+    margin-top: 10px;
+    vertical-align: top;
+  }
+  #taskList .markComplete .icon-ok {
+    display: inline-block;
+    font-size: 21px;
+    height: 7px;
+    margin-top: 17px;
+    color: #247e41;
+  }
+  #taskList .icon-task-card {
+    display: inline-block;
+    font-size: 14px;
+    color: #9e9e9e;
+  }
+  #taskList .cardColor {
+    color: #9e9e9e;
+  }
+  /* 列表hover */
+  #tasks .singleTreeTask:hover {
+    background-color: #f4f5f7;
+  }
+  #tasks tr:hover .txtName {
+    border-color: #f7f8f9;
+  }
+  #taskList .taskListDate {
+    width: 280px;
+    text-align: right;
+    font-size: 12px;
+  }
+  #taskList .rightGap {
+    text-align: right;
+    padding-right: 15px;
+  }
+  .operation .subCounts,
+  .taskListDate .subCounts {
+    color: #9e9e9e;
+    margin-left: 2px;
+  }
+  #taskList .markStar {
+    width: 35px;
+    display: table-cell;
+    font-size: 20px;
+    color: #afb3bc;
+  }
+  #taskList .markStar .icon-task-star {
+    color: #fbc02d !important;
+    display: inline-block;
+  }
+  #taskList .markStar .icon-star-hollow {
+    display: none;
+  }
+  #taskList .markStar .icon-star-hollow:not(:hover) {
+    color: #99a1ab !important;
+  }
+  #taskList table tr:hover .icon-star-hollow {
+    display: inline-block;
+  }
+  #taskList tr.selectTask .icon-star-hollow,
+  #taskList tr.selectTask .markTask {
+    display: inline-block;
+  }
+  #taskList .taskListName {
+    left: 0px;
+    right: 0px;
+    position: absolute;
+    top: 0px;
+    bottom: 0;
+  }
+  #tasks .colorTagsDiv {
+    display: inline-block;
+    margin-left: 6px;
+    margin-top: 1px;
+  }
+  #tasks .colorTagCircle {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    margin-left: -6px;
+    position: relative;
+  }
+  #tasks .colorTagCircle:nth-child(1) {
+    z-index: 5;
+  }
+  #tasks .colorTagCircle:nth-child(2) {
+    z-index: 4;
+  }
+  #tasks .colorTagCircle:nth-child(3) {
+    z-index: 3;
+  }
+  #tasks .colorTagCircle:nth-child(4) {
+    z-index: 2;
+  }
+  #tasks .colorTagCircle:nth-child(5) {
+    z-index: 1;
+  }
+  #taskList .taskListName .spanName {
+    font-size: 13px;
+    max-width: 85%;
+    margin-right: -50px;
+    border-right: 55px transparent solid;
+    width: auto;
+    vertical-align: top;
+    display: inline-block;
+  }
+  #taskList .taskListName .txtName {
+    width: 100%;
+    height: 22px;
+    line-height: 22px;
+    margin-top: 11px;
+    font-size: 13px;
+    padding-left: 2px;
+    padding-right: 5px;
+    border: 0px #fff solid;
+    background-color: transparent;
+  }
+  #taskList .taskListName .txtName.editName {
+    border-color: #8db1c9;
+  }
+  #taskList .taskListName .txtName.selectName {
+    border-color: #c1dffa;
+  }
+  #taskList .taskListName .completeTask,
+  .listStageTaskName.completeTask {
+    text-decoration: line-through;
+    color: rgba(0, 0, 0, 0.5);
+  }
+  .listStageTaskContent .newTopic {
+    display: inline-block;
+    font-size: 16px;
+    color: #0091ea;
+    margin-top: 15px;
+    vertical-align: top;
+    margin-left: 5px;
+  }
+  .listStageTaskContent .newTopicCount {
+    display: inline-block;
+    color: #0091ea;
+    font-size: 12px;
+    margin-left: 5px;
+    font-family: 'Hiragino Sans GB';
+  }
+  .listStageTaskContent .tipCount {
+    font-size: 14px;
+    vertical-align: top;
+    line-height: 23px;
+    margin-left: 3px;
+  }
+  #taskFilterLoading,
+  #taskSearchNullTask {
+    text-align: center;
+  }
+  #taskFilterLoading .loadingCenter,
+  #taskSearchNullTask .loadingCenter {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    margin-top: -60px;
+    margin-left: -50px;
+    z-index: 999;
+  }
+  #taskFilterLoading .loadingCenter img,
+  #taskSearchNullTask .loadingCenter img {
+    margin: 0 auto;
+    display: block;
+    width: 83px;
+    height: 90px;
+  }
+  #taskSearchNullTask {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 16px;
+  }
+  #taskSearchNullTask .loadingCenter {
+    margin-top: -130px;
+    margin-left: -100px;
+  }
+  #taskSearchNullTask .loadingCenter img {
+    margin-bottom: 28px;
+  }
+  #taskList .searchNullTip,
+  #taskList .noCompleteTip,
+  #taskList .filterNullTip {
+    height: 320px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding-top: 120px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-sizing: initial;
+  }
+  #taskList .searchNullTip .taskNullSearch,
+  #taskList .noCompleteTip .taskNullFilter,
+  #taskList .filterNullTip .taskNullFilter {
+    background: url('../images/noComplete.png') no-repeat;
+    width: 150px;
+    height: 150px;
+    background-size: 150px 150px;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    margin-bottom: 14px;
+  }
+  #taskList .searchNullTip .taskNullSearch {
+    background: url('../images/noSearch.png') no-repeat;
+    background-size: 150px 150px;
+  }
+  /* taskList stage  */
+  #taskList .taskListStageName,
+  #taskList .taskListFolderName {
+    background: #fff;
+    font-size: 17px;
+    height: 56px;
+    line-height: 56px;
+    padding-left: 8px;
+    cursor: pointer;
+  }
+  #taskList .taskListFolderName .stageTaskCount {
+    color: #aaa;
+  }
+  #taskList .taskListStageName .listFolderNameText,
+  #taskList .taskListFolderName .listFolderNameTextList {
+    max-width: 60%;
+  }
+  #taskList .taskListStageName .stageTaskCount,
+  #taskList .taskListFolderName .folderTaskCount {
+    line-height: 56px;
+    display: inline-block;
+    vertical-align: top;
+    color: #9e9e9e;
+  }
+  #taskList .taskListStageName .arrow-down,
+  #taskList .taskListFolderName .arrow-down {
+    float: left;
+    margin: 24px 10px 0;
+    transition: transform 0.4s ease-in-out;
+    transform-origin: 50% 50%;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+  }
+  #taskList .taskListStageName .arrow-down.downArrow,
+  #taskList .taskListFolderName .arrow-down.downArrow {
+    transform: rotate(-90deg);
+  }
+  /*  修改样式 */
+  .listStageTaskContent,
+  .boxShadowSide,
+  .createNewTask.boxShadw,
+  #taskList .createNewSingle.boxShadw,
+  #taskList .taskListStageName {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  #taskList .listStageTaskContent tr:last-child td {
+    border-bottom: 0px;
+  }
+  .newTaskTip {
+    position: absolute;
+    background-color: #ff6637;
+    color: #fff;
+    display: inline-block;
+    height: 22px;
+    line-height: 22px;
+    font-size: 12px;
+    padding: 0px 5px;
+    margin-top: 12px;
+    vertical-align: top;
+    margin-right: 3px;
+  }
+  .spanName.newTaskTipName {
+    font-weight: bold;
+    border-left: 58px transparent solid;
+  }
+  #taskList table tr.newTaskTipName {
+    background-color: #fffff9;
+  }
+  /* 项目成员  */
+  #folderMember.dialogBox,
+  #createFolder.dialogBox {
+    margin-bottom: 0px;
+  }
+  /*除成员列表滚动条 覆盖dialog.css*/
+  #folderMember > .header {
+    background-color: #eee;
+    margin-left: 0px;
+    height: auto;
+  }
+  #folderMember > .header .title {
+    font-size: 13px !important;
+    margin: 16px 0px 16px 24px;
+    color: #999;
+    line-height: 1.5;
+    width: 420px;
+  }
+  #folderMember > .header .folderTypes {
+    display: inline-block;
+  }
+  #folderMember > .header .folderTypes ~ .group {
+    display: inline-block;
+    margin-left: 5px;
+  }
+  #folderMember > .header .folderTypes > i {
+    font-size: 15px;
+    vertical-align: -1px;
+  }
+  #folderMember > .header .folderTypes .icon-folder-private {
+    font-size: 20px;
+  }
+  #folderMember > .header .groups {
+    width: 425px;
+    word-wrap: break-word;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 23px;
+  }
+  #folderMember .group {
+    margin-right: 5px;
+    margin-bottom: 2px;
+    font-weight: bold;
+  }
+  #folderMember .updateTypes {
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 5px;
+  }
+  #folderMember .headers {
+    margin-top: 16px;
+  }
+  #folderMember .titleTip {
+    margin-top: 16px;
+    width: 440px;
+    color: #999;
+    line-height: 21px;
+  }
+  #folderMember .titles .memberCount {
+    color: #999;
+  }
+  #folderMember .folderIconTip {
+    color: #999;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 6px;
+    font-size: 16px;
+  }
+  #folderMember .memberBox {
+    margin-top: 16px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+  #folderMember .memberBox li {
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  #folderMember .downArrow {
+    display: inline-block;
+    border: 6px #fff solid;
+    padding: 0px;
+    margin: 0px;
+    border-top-color: #aaa;
+    vertical-align: top;
+    margin-top: 6px;
+    margin-left: 5px;
+  }
+  #folderMember .userStatus .blank {
+    display: inline-block;
+    width: 17px;
+  }
+  .memberBox .imgHead {
+    width: 30px;
+    height: 30px;
+  }
+  .memberBox li .spanComm {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 6px;
+    margin-left: 5px;
+  }
+  .memberBox li .userOp {
+    margin-left: 20px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 6px;
+  }
+  .memberBox li .userOp:not(:hover) {
+    color: #999 !important;
+  }
+  .memberBox li span.Hidden {
+    display: none;
+  }
+  .memberBox .userName {
+    width: 170px;
+    margin-left: 10px;
+  }
+  .memberBox .userStatus {
+    width: 100px;
+    text-align: right;
+    margin-right: 30px;
+  }
+  .memberBox .userStatus.charge {
+    color: #00c957;
+  }
+  /* myTask */
+  #taskList .markComplete.myTask {
+    width: 70px;
+  }
+  #taskList .listStageTaskContent tr:not(.selectTask):not(:hover) .markComplete {
+    background: #fff;
+  }
+  #taskList .myTaskTag {
+    display: inline-block;
+    width: 18px;
+    margin-right: 6px;
+  }
+  .myTaskSettingList {
+    position: fixed;
+    z-index: 10;
+    width: 150px;
+    padding: 6px 0;
+    background-color: #fff;
+  }
+  .myTaskSettingList {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  .myTaskSettingList li {
+    font-size: 12px;
+    line-height: 22px;
+    height: 22px;
+    padding: 5px 0;
+    cursor: pointer;
+    color: #333;
+  }
+  .myTaskSettingList li:hover {
+    color: #fff;
+  }
+  .myTaskSettingList li i {
+    font-size: 20px;
+    margin: 0 6px 0 14px;
+  }
+  .myTaskSettingList li:not(:hover):not(.ThemeColor3) i {
+    color: #9e9e9e;
+  }
+  .myTaskSettingList li:not(:hover),
+  .myTaskSettingList li.ThemeColor3 {
+    background: #fff !important;
+  }
+  .myTaskIcon {
+    color: #9e9e9e;
+  }
+  .myTaskIcon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    vertical-align: top;
+    margin-top: 13px;
+  }
+  .myTaskIcon.Hidden {
+    display: none;
+  }
+  #taskList tr:hover .myTaskIcon {
+    display: inherit;
+  }
+  .floatingHeader {
+    position: fixed;
+    top: 106px;
+    z-index: 10;
+    visibility: hidden;
+    left: 270px;
+    min-width: 640px;
+    transition: right 0.25s ease-out;
+  }
+  &.mdTopTheme .floatingHeader {
+    top: 321px;
+  }
+  .updateChargeBtn {
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    display: inline-block;
+  }
+  .updateChargeBtn:not(:hover) {
+    color: #333 !important;
+  }
+
+  .listCreateNew {
+    height: 320px;
+    padding-top: 120px;
+    position: relative;
+    box-sizing: initial;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  .listCreateNew .creatNewContent {
+    font-size: 17px;
+    line-height: 30px;
+    width: 325px;
+    margin: 0 auto;
+    cursor: pointer;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.6);
+  }
+  .listCreateNew .taskQuickCreate {
+    background: url('../images/createTask.png') no-repeat;
+    width: 150px;
+    height: 150px;
+    background-size: 150px 150px;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    margin-bottom: 9px;
+  }
+  .listCreateNew .taskQuickCreate:hover {
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  }
+  .listCreateNew .creatNewContent span {
+    display: block;
+  }
+}

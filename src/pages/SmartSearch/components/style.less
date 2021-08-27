@@ -1,0 +1,295 @@
+﻿/*智能搜索*/
+#SmartSearchResultDiv {
+  z-index: 11;
+  width: 700px;
+  position: absolute;
+  right: 100px;
+  top: 50px;
+  background-color: #fff;
+  line-height: normal;
+  border-radius: 0 0 4px 4px;
+  border-top: 1px solid #ebebeb;
+}
+#SmartSearchResultDiv .top {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 16px;
+  border-bottom: 1px solid #ebebeb;
+  .icon-search {
+    font-size: 18px;
+    color: #9e9e9e;
+  }
+}
+#SmartSearchResultDiv .top .left {
+  height: 30px;
+  float: left;
+  width: 115px;
+}
+#SmartSearchResultDiv .top .right {
+  float: left;
+  width: 600px;
+}
+#SmartSearchResultDiv .top .desc {
+  cursor: pointer;
+  font-size: 17px;
+  color: #333;
+}
+#SmartSearchResultDiv .top .desc a {
+  padding: 0px 5px;
+  font-weight: normal;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+#SmartSearchResultDiv .erweiterteSuche {
+  position: absolute;
+  right: 0;
+  width: 100px;
+  color: #b9b9b9;
+  cursor: pointer;
+  padding-right: 20px;
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#SmartSearchResultDiv .borderRight {
+  border-right: 1px solid #cccccc;
+}
+#SmartSearchResultDiv a {
+  text-decoration: none;
+}
+#SmartSearchResultDiv .searchContent {
+  height: 580px;
+  overflow: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  .other {
+    display: flex;
+    flex: 2;
+    border-right: 1px solid #ebebeb;
+    .nano-content .module:last-child {
+      border-bottom: none;
+    }
+  }
+  .nodata {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    padding: 0 15px;
+    box-sizing: border-box;
+  }
+  .addressBook {
+    display: flex;
+    flex: 1;
+    .nano-content .module:last-child {
+      border-bottom: none;
+    }
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    .name {
+      font-size: 15px;
+      color: #000;
+    }
+    .count {
+      font-size: 14px;
+      width: 45px;
+      height: 26px;
+      border-radius: 24px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      cursor: pointer;
+    }
+    &:not(:hover) {
+      .count,
+      .name {
+        color: #000 !important;
+      }
+    }
+  }
+  .content {
+    padding: 10px 0 12px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .module {
+    padding-top: 14px;
+    border-bottom: 1px solid #ebebeb;
+  }
+  .item {
+    color: #757575;
+    width: 100%;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 15px 5px 55px;
+    cursor: pointer;
+    box-sizing: border-box;
+    &:hover {
+      background-color: #f7f7f7;
+    }
+    i {
+      color: #9e9e9e;
+      font-size: 18px;
+      margin-right: 7px;
+      vertical-align: top;
+    }
+    .fileIcon {
+      width: 20px;
+      height: 22px;
+    }
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+  .user .item,
+  .group .item {
+    padding-left: 17px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    .name {
+      width: 150px;
+      padding-left: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+#SmartSearchResultDiv .searchContent.loading {
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#SmartSearchResultDiv .searchContent .fontTitillium30 {
+  overflow: hidden;
+  display: inline-block;
+  background: #dfefff;
+  border-radius: 15px;
+  margin-left: 5px;
+  padding: 0 5px;
+}
+#SmartSearchResultDiv table {
+  border: 0px;
+  color: #8a8a8a;
+}
+#SmartSearchResultDiv .resultHeadSpace {
+  width: 15px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+#SmartSearchResultDiv .resultHead {
+  vertical-align: top;
+  width: 85px;
+  border-bottom: 1px solid #ebebeb;
+  text-align: center;
+  cursor: pointer;
+  padding-top: 8px;
+}
+#SmartSearchResultDiv .resultHead span {
+  text-align: center;
+  float: left;
+  margin-left: 10px;
+}
+#SmartSearchResultDiv .resultHead .titleSpan {
+  line-height: 20px;
+}
+#SmartSearchResultDiv .resultListSpace {
+  width: 15px;
+}
+#SmartSearchResultDiv .bgf3f3f5 {
+  background-color: #f3f3f5;
+}
+#SmartSearchResultDiv .border_bottom_EB {
+  border-bottom: 1px dashed #ebebeb;
+  height: 5px;
+  overflow: hidden;
+}
+#SmartSearchResultDiv .resultList {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ebebeb;
+  vertical-align: top;
+}
+#SmartSearchResultDiv .resultList .resultItem {
+  margin: 0px;
+  line-height: 20px;
+  table-layout: fixed;
+}
+#SmartSearchResultDiv .resultList .typeItem {
+  height: 25px;
+  line-height: 25px;
+}
+#SmartSearchResultDiv .resultList .resultItem .userItem {
+  height: 25px;
+  line-height: 25px;
+}
+#SmartSearchResultDiv .resultList .resultItem .typeItem .itemDetails {
+  width: 100%;
+  text-overflow: ellipsis;
+  /* width: 535px; */
+  overflow: hidden;
+  white-space: nowrap;
+}
+#SmartSearchResultDiv .resultList .itemDetails .companyName {
+  max-width: 265px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
+}
+#SmartSearchResultDiv .resultList .itemDetails .itemCon {
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: inline-block;
+  float: left;
+}
+#SmartSearchResultDiv .resultList .resultItem .typeItem .itemAvatar {
+  width: 28px;
+  vertical-align: middle;
+}
+#SmartSearchResultDiv .resultList .resultItem .smallAvatar {
+  width: 20px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+#SmartSearchResultDiv .resultList .resultItem td.space {
+  width: 10px;
+  bottom: 0px;
+}
+#SmartSearchResultDiv .resultList .resultItem td.userOP {
+  width: 100px;
+  text-align: right;
+  padding-right: 10px;
+}
+#SmartSearchResultDiv .resultList .resultItem td.content_time {
+  width: 20px;
+}
+#SmartSearchResultDiv .resultList .resultItem td.time {
+  border-left: 1px solid #ededed;
+  text-align: right;
+  width: 110px;
+}
+#SmartSearchResultDiv .resultList .resultItem {
+  color: #8a8a8a;
+}
+#SmartSearchResultDiv .resultList .resultItem a {
+  color: #666;
+}

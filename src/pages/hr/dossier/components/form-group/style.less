@@ -1,0 +1,97 @@
+/**
+* component FormGroup
+* prefix: .mui-formgroup
+*/
+.mui-formgroup {
+  display: block;
+  font-size: 14px;
+
+  h3,
+  h4 {
+    margin: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 36px;
+    color: #333;
+    font-weight: normal;
+  }
+
+  section {
+    margin-bottom: 16px;
+    border-bottom: solid 1px #ccc;
+    position: relative;
+    &:last-child {
+      border-bottom: none;
+    }
+
+    h4 {
+      font-size: 13px;
+    }
+
+    .delete {
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 20px;
+      color: #bdbdbd;
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+      user-select: none;
+
+      & > .Icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        font-size: 16px;
+        line-height: 20px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      & > span {
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .mui-formgroup-add {
+    margin-bottom: 16px;
+    text-align: center;
+
+    & > div {
+      display: inline-block;
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 20px;
+      color: #333;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+
+  .mui-formgroup-statistics {
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th {
+        font-weight: normal;
+      }
+
+      th,
+      td {
+        border: solid 1px #ccc;
+        font-size: 13px;
+        line-height: 16px;
+        padding: 6px 10px;
+        word-break: break-all;
+      }
+
+      td:first-child {
+        width: 30%;
+      }
+    }
+  }
+}

@@ -1,0 +1,838 @@
+.commonCustomWidget {
+  &_noscroll {
+    overflow: hidden;
+  }
+  .wsItem {
+    margin-bottom: 16px;
+    &.relateSheetItem {
+      position: absolute;
+      left: 0;
+      right: 0;
+      padding-left: 20px;
+      border-top: 1px solid #ddd;
+      padding-top: 24px;
+      .addSheetField {
+        cursor: pointer;
+      }
+    }
+    .wsHalfItem {
+      float: left;
+      &:first-child {
+        margin-right: 40px;
+      }
+    }
+    .DatePicker {
+      display: inline-block;
+    }
+    .rangePickerToggle {
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 28px;
+    }
+    .wsDropdown.inline,
+    .wsRadioGroup.inline {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .wsDropdown.noBorder {
+      display: inline-block;
+      vertical-align: middle;
+      border: none;
+      i.Icon {
+        margin-left: 4px;
+      }
+    }
+    .radioGroup,
+    .wsRadioGroup {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .dragOptions {
+      flex: none;
+    }
+
+    .rangeSelectContent {
+      display: inline-block;
+      width: 320px;
+      vertical-align: top;
+      .dropdown {
+        margin-top: 4px;
+      }
+    }
+
+    .selectView {
+      display: inline-block;
+      .selectList {
+        li:first-child {
+          span {
+            color: #aaa !important;
+          }
+        }
+      }
+      &.noview {
+        .dropdownValue {
+          color: #aaa !important;
+        }
+      }
+    }
+
+    .selectViewTip {
+      width: 320px;
+      display: inline-block;
+      color: #888;
+      margin-top: -10px;
+    }
+
+    &.ingrid {
+      .dragItem {
+        padding-left: 66px;
+      }
+      .addOption {
+        margin-left: 66px;
+      }
+    }
+    &.selectSheet {
+      .dropdown {
+        height: 32px;
+      }
+      &.lastHasBorder {
+        li.select:last-child {
+          border-top: 1px solid #ccc;
+        }
+      }
+    }
+  }
+  .wsLf {
+    display: inline-block;
+    width: 66px;
+  }
+  .tipWidth:after {
+    width: 320px;
+    word-break: break-all;
+    white-space: normal;
+  }
+  .FormControl.wsDropdown,
+  .FormControl.wsRadioGroup {
+    display: inline-block;
+    height: 30px;
+    vertical-align: middle;
+    position: relative;
+  }
+  .FormControl.wsDropdown {
+    max-width: 320px;
+  }
+  .FormControl.wsRadioGroup.vertical {
+    height: auto;
+  }
+  .Dropdown.wsDropdown {
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 320px;
+    .Dropdown--input {
+      padding: 5px 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+      & > .value {
+        display: block;
+        float: left;
+      }
+      & > .icon {
+        width: 13px;
+        height: 13px;
+        line-height: 20px;
+        float: right;
+      }
+    }
+    &.maxHeight .List {
+      max-height: 200px !important;
+    }
+  }
+  #oaSettingsBox {
+    padding-left: 20px;
+    padding-top: 12px;
+    .iconSelect {
+      width: 50px;
+      cursor: pointer;
+      border: 0;
+      font-size: 16px;
+      .selectedIcon {
+        color: #aaa;
+      }
+      .iconArrow {
+        top: 6px;
+        right: 5px;
+      }
+    }
+    .selectIcons {
+      width: 326px;
+      height: 320px;
+      padding-left: 19px;
+      padding-top: 10px;
+      box-sizing: border-box;
+      position: absolute;
+      background: #fff;
+      z-index: 1;
+      top: 33px;
+      cursor: pointer;
+      display: none;
+      right: -43px;
+      box-shadow: #ccc 2px 2px 19px 1px;
+    }
+    .cateName {
+      display: block;
+      padding-left: 6px;
+      color: #919191;
+      margin-top: 10px;
+    }
+    .iconItem {
+      display: inline-block;
+      font-size: 16px;
+      text-align: center;
+      line-height: 1;
+      padding: 8px;
+      color: #aaa;
+      &:not(:hover) {
+        background-color: #fff !important;
+      }
+      &:hover {
+        color: #fff !important;
+      }
+    }
+    [data-validate="required"],
+    [data-validate="format"] {
+      border-color: #f44336 !important;
+      margin-bottom: 12px;
+      & > .dropdown {
+        border-color: #f44336 !important;
+      }
+    }
+    [data-validate="required"] + .errorRequired {
+      display: block;
+    }
+    [data-validate="format"] + span + .errorFormat {
+      display: block;
+    }
+    .wsItem {
+      position: relative;
+    }
+    .errorText {
+      position: absolute;
+      top: 31px;
+      left: 74px;
+      color: red;
+      display: none;
+    }
+  }
+  .iconFilterMessage {
+    font-size: 12px;
+    margin-left: 5px;
+  }
+  .settingsBox {
+    font-size: 13px;
+    color: #333;
+    flex: 1;
+    padding-bottom: 30px;
+    .widgetSettingsBox {
+      padding-top: 24px;
+      padding-left: 20px;
+    }
+    .widgetSettingsTitle {
+      padding-bottom: 22px;
+      .wsLf > span {
+        opacity: 1;
+      }
+    }
+    .radioGroup {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  .extraSettings {
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    .filterSettingsTip {
+      color: #b0b0b0;
+      vertical-align: middle;
+      margin-top: -7px;
+      font-weight: normal;
+    }
+    .filterSettingsTip:after {
+      white-space: normal;
+      width: 299px;
+    }
+    .defaultSettings {
+      padding-top: 12px;
+    }
+    .defaultFolderSettings {
+      padding-bottom: 35px;
+    }
+    .extraSettingsTitle {
+      font-size: 14px;
+      height: 40px;
+      margin-left: 20px;
+      line-height: 40px;
+      .Font12 {
+        opacity: 0.3;
+        margin-left: 5px;
+      }
+    }
+    .folderSettingsTip {
+      position: absolute;
+      top: 0;
+      right: 20px;
+      cursor: pointer;
+      color: #9e9e9e;
+      z-index: 11;
+    }
+    .folderSettingsTipBox {
+      border: 1px solid #ccc;
+      background: #e0e0e0;
+      border-radius: 3px;
+      position: absolute;
+      top: 38px;
+      right: 10px;
+      z-index: 10;
+      color: #9e9e9e;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
+      width: 265px;
+      padding: 10px 5px;
+      box-sizing: border-box;
+      &:before,
+      &:after {
+        content: "";
+        position: absolute;
+        right: 16px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 8px;
+      }
+      &:before {
+        top: -16px;
+        border-color: transparent transparent #ccc transparent;
+      }
+      &:after {
+        top: -15px;
+        border-color: transparent transparent #e0e0e0 transparent;
+      }
+      > .Font14 {
+        line-height: 20px;
+      }
+      .folderSettingsTipMain {
+        width: 100%;
+        background: #fff;
+        border-radius: 3px;
+        padding: 10px 0;
+        margin-top: 5px;
+        line-height: normal;
+        div,
+        span {
+          font-size: 12px;
+        }
+        .folderSettingsTipMainHead {
+          padding: 0 10px;
+          .icon-task_custom_personnel {
+            position: absolute;
+            top: -3px;
+            right: 30px;
+          }
+          .icon-star-hollow3 {
+            position: absolute;
+            top: 0;
+            right: 6px;
+          }
+          .folderSettingsTipM {
+            margin-left: 23px;
+            margin-top: 5px;
+          }
+        }
+        .folderSettingsLine {
+          height: 0;
+          border-bottom: 1px solid #ccc;
+          display: block;
+          margin: 8px 5px;
+        }
+        .customFolderSettingsList {
+          max-height: 110px;
+          overflow-x: hidden;
+          overflow-y: auto;
+          margin-left: 16px;
+          color: #9e9e9e;
+          li {
+            height: 16px;
+            line-height: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 4px 0;
+          }
+          i {
+            width: 16px;
+            font-size: 16px;
+            margin-right: 12px;
+            display: inline-block;
+          }
+        }
+      }
+    }
+    .filterSettingsBox {
+      max-height: 180px;
+      min-height: 88px;
+      padding-bottom: 7px;
+      .nano {
+        min-height: 88px;
+      }
+    }
+    .folderSettingsBox {
+      min-height: 145px;
+      .nano {
+        min-height: 145px;
+      }
+    }
+    .filterSettingsItem {
+      float: left;
+      width: 50%;
+      margin-bottom: 4px;
+      padding-left: 24px;
+      box-sizing: border-box;
+    }
+    .folderSettingsItem {
+      float: none;
+      width: 100%;
+    }
+  }
+
+  .icon-dialpad {
+    font-size: 18px;
+  }
+
+  input[type="text"],
+  textarea {
+    padding: 0 10px;
+    width: 320px;
+    border-radius: 3px;
+    border: 1px solid;
+    &:not(.active):not(:hover) {
+      border-color: #ccc !important;
+    }
+    &.halfInput {
+      width: 90px;
+    }
+  }
+  textarea.multipleLine {
+    height: auto !important;
+    padding: 5px 10px;
+    line-height: 20px;
+    vertical-align: middle;
+  }
+
+  input[type="radio"] {
+    margin-right: 10px;
+  }
+
+  .addOption {
+    display: block;
+    margin-left: 40px;
+    margin-top: 14px;
+    cursor: pointer;
+  }
+
+  .defaultSettings {
+    padding-top: 60px;
+    text-align: center;
+    color: #333;
+    opacity: 0.3;
+    font-size: 14px;
+  }
+
+  .OAOptionsBox .WORKSHEETOptionsBox {
+    margin-top: 28px;
+  }
+
+  .OAOptionsBox .WORKSHEETOptionsBox {
+    .checkboxLabel {
+      margin-bottom: 16px;
+      display: block;
+    }
+    .checkbox-container {
+      margin-bottom: 16px;
+      .checkboxLabel {
+        display: inline-block;
+        width: auto;
+        margin-right: 8px;
+        vertical-align: middle;
+        margin-bottom: 0;
+      }
+      span[data-tip] {
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .iconDelete {
+    margin-top: -12px;
+    vertical-align: middle;
+    font-size: 18px;
+  }
+
+  .formulaDesc {
+    color: #ccc;
+    margin-left: 66px;
+    margin-top: 5px;
+  }
+
+  .formulaCustom {
+    display: inline-block;
+    .dropdown {
+      border: 0;
+      width: auto;
+    }
+    .dropdownValue {
+      padding: 0;
+      &:not(:hover) {
+        color: #333 !important;
+      }
+    }
+    .iconArrow {
+      display: none;
+    }
+  }
+
+  .formulaDetailBox {
+    display: inline-block;
+    vertical-align: top;
+    .formulaSingleDetail {
+      display: inline-block;
+      margin-top: 10px;
+      .singleFormula {
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+    }
+    .formulaDetail {
+      width: 320px;
+      min-height: 48px;
+      padding: 1px 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      display: inline-block;
+      vertical-align: top;
+      input {
+        border: 0;
+        padding: 0;
+        height: 24px;
+        line-height: 24px;
+        display: inline-block;
+        width: 20px;
+        &.noSelect {
+          width: 170px;
+        }
+      }
+    }
+  }
+  .formulaSingleDetailBtn {
+    text-align: right;
+    margin-right: 58px;
+    span {
+      display: inline-block;
+      margin-left: 10px;
+      height: 30px;
+      line-height: 30px;
+      vertical-align: middle;
+      width: 80px;
+      text-align: center;
+      &.formulaCancel:not(:hover) {
+        color: #ccc !important;
+      }
+      &.formulaSave {
+        color: #fff;
+        border-radius: 3px;
+      }
+    }
+  }
+  .formulaCustomDetail {
+    line-height: 48px;
+    .customFormulaInput {
+      outline: none;
+      min-width: 20px;
+      display: inline-block;
+      padding-left: 5px;
+      vertical-align: top;
+    }
+    .singleFormulas {
+      position: relative;
+      &:hover {
+        .singleFormulasDel {
+          display: block;
+        }
+      }
+    }
+    .singleFormulaText {
+      outline: none;
+      display: inline-block;
+      padding: 0 5px;
+    }
+    .customFormulaName {
+      position: relative;
+      padding: 0 12px;
+      height: 24px;
+      line-height: 24px;
+      display: inline-block;
+      border-radius: 12px 0 0 12px;
+      vertical-align: top;
+      margin-top: 12px;
+      margin-right: 2px;
+      overflow: hidden;
+      &:before {
+        position: absolute;
+        top: 0;
+        right: -16px;
+        content: "";
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        display: inline-block;
+      }
+    }
+    .customFormulaBrackets {
+      position: relative;
+      width: 20px;
+      height: 24px;
+      display: inline-block;
+      border-radius: 0 12px 12px 0;
+      vertical-align: top;
+      margin-top: 12px;
+      margin-left: 2px;
+      overflow: hidden;
+      &:before {
+        position: absolute;
+        top: 0;
+        left: -16px;
+        content: "";
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        display: inline-block;
+      }
+    }
+    .icon-closeelement-bg-circle {
+      position: absolute;
+      left: -6px;
+      top: -10px;
+      font-size: 14px;
+      width: 14px;
+      color: #ccc;
+      display: none;
+      &:hover {
+        color: #666;
+      }
+    }
+    .customFormulaText {
+      width: 5px !important;
+    }
+    .customFormulaSUM {
+      background: rgba(33, 150, 227, 0.3);
+    }
+    .customFormulaAVG {
+      background: rgba(169, 69, 255, 0.3);
+    }
+    .customFormulaMIN {
+      background: rgba(93, 201, 0, 0.3);
+    }
+    .customFormulaMAX {
+      background: rgba(255, 64, 130, 0.3);
+    }
+    .customFormulaPRODUCT {
+      background: rgba(255, 147, 0, 0.3);
+    }
+  }
+
+  // 文本拼接设置
+  .selectColumnToConcat {
+    vertical-align: top;
+    width: 320px;
+    display: inline-block;
+    .previewConcatValue {
+      user-select: text;
+      font-family: inherit !important;
+      margin-top: 14px;
+      word-break: break-all;
+      white-space: normal;
+    }
+  }
+
+  // 新公式设置
+  .newformulaSetting {
+    .calType {
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      width: 320px;
+      .Dropdown--input {
+        padding: 6px;
+      }
+      .ming.Menu.List {
+        width: 318px;
+        margin-top: 2px;
+      }
+      .ming.icon-arrow-down-border {
+        float: right;
+        margin-top: 4px;
+      }
+    }
+    .fomulaFnList {
+      margin-top: 4px;
+      max-height: 260px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      li.hr {
+        border-top: 1px solid #ddd;
+        margin: 3px 0;
+      }
+      .MenuItem {
+        &:hover {
+          .fnName {
+            color: rgba(255, 255, 255, 0.8);
+          }
+        }
+      }
+      .fnName {
+        margin-left: 6px;
+        color: #9e9e9e;
+      }
+      .fnEmpty {
+        padding: 10px;
+        color: #9e9e9e;
+      }
+      &.isInSide {
+        position: absolute;
+        margin-top: 0px;
+        width: 320px;
+      }
+      &.isOutSide {
+      }
+    }
+    .formulaCon {
+      vertical-align: top;
+      width: 320px;
+      display: inline-block;
+      .formulaBox {
+        position: relative;
+      }
+    }
+    .saveOperation {
+      text-align: right;
+      margin-top: 20px;
+    }
+    .customTip {
+      color: #9e9e9e;
+      margin-top: 4px;
+      font-size: 12px;
+      .addFormula {
+        position: relative;
+        margin: 0 4px;
+      }
+    }
+    .testFormula {
+      padding-left: 66px;
+      .testFormulaBtn {
+        margin: 20px 0;
+        display: inline-block;
+        cursor: pointer;
+        padding: 0 10px;
+        height: 34px;
+        line-height: 34px;
+        color: #757575;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: #f5f5f5;
+        &:hover {
+          background: #eaeaea;
+        }
+      }
+    }
+    .testCalResult {
+      padding: 0px 66px;
+      user-select: text;
+      margin-bottom: 20px;
+      color: #757575;
+    }
+  }
+  .autoIdSetting {
+    .formatNumsTitle {
+      margin-top: 8px;
+    }
+    .formatNums {
+      display: inline-block;
+      vertical-align: top;
+      width: 320px;
+    }
+  }
+}
+
+.dialogContent .borderLine {
+  width: 100%;
+  height: 1px;
+  display: inline-block;
+  background: #ccc;
+}
+
+.formulaSide {
+  width: 300px;
+  margin-right: 20px;
+  max-height: 350px;
+  overflow: hidden;
+  overflow-y: auto;
+  padding-right: 20px;
+  table {
+    border-spacing: 0;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #dedede;
+    tr:nth-child(1) {
+      height: 30px;
+    }
+    tr:nth-child(2) {
+      td:first-child {
+        width: 105px;
+      }
+    }
+    td {
+      border: 1px solid #ccc;
+      height: 27px;
+      &:first-child {
+        padding: 0 10px;
+      }
+    }
+    .unit {
+      display: none !important;
+    }
+    input {
+      width: 120px !important;
+      border: none !important;
+      height: 27px !important;
+    }
+    textarea {
+      width: 170px !important;
+      border: none !important;
+      height: 30px !important;
+    }
+    .formulaSideMask {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: transparent;
+    }
+  }
+}

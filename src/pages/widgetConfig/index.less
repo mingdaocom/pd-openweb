@@ -1,0 +1,51 @@
+body {
+  overflow: hidden;
+}
+.customWidgetContainer {
+  display: flex;
+  height: 100%;
+  padding-top: 50px;
+}
+.displayItemTransition-enter {
+  opacity: 0.01;
+}
+
+.displayItemTransition-enter.displayItemTransition-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.displayItemTransition-leave {
+  opacity: 1;
+}
+
+.displayItemTransition-leave.displayItemTransition-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.assignValueBody {
+  overflow: hidden !important;
+  padding: 0 !important;
+  padding-bottom: 20px !important;
+}
+
+.scoreSwitchScoreConfirm {
+  .ant-modal-body {
+    padding: 20px 24px;
+  }
+}
+
+.tipsIcon {
+  margin-left: 4px;
+}
+
+.batchAddOptionDialog {
+  overflow: hidden !important;
+}
+
+.textRegexpVerifyDialog {
+  .mui-dialog-header {
+    border-bottom: 1px solid #ddd;
+  }
+}

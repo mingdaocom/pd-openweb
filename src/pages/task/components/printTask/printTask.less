@@ -1,0 +1,123 @@
+﻿.AppTaskPrint #containerBg {
+  background: #fff !important;
+}
+
+.printTask {
+  padding-top: 20px;
+  .divCenter {
+    margin-top: 15px;
+  }
+  .printTaskHead {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    text-align: right;
+    .printTaskMain {
+      height: 28px;
+    }
+  }
+  .printTaskFooter {
+    margin-top: 32px;
+    padding-bottom: 32px;
+  }
+  .printTaskMain {
+    width: 720px;
+    margin: 0 auto;
+  }
+  .printTaskBtn {
+    width: 96px;
+    text-align: center;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 3px;
+    color: #fff;
+    background: #0091ea;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .printTaskContent {
+    color: #333;
+    .flexRow {
+      font-size: 12px;
+      padding: 4px 0;
+      line-height: 17px;
+      .printTaskLabel {
+        width: 124px;
+        margin-right: 4px;
+      }
+      ul {
+        list-style-type: disc;
+        list-style-position: inside;
+      }
+    }
+    .lineThrough {
+      text-decoration: line-through;
+    }
+    .printTaskQRCode {
+      position: absolute;
+      right: 0;
+      top: 5px;
+      img {
+        margin: 0 auto;
+        display: block;
+        height: 100px;
+      }
+    }
+    .pRight100 {
+      padding-right: 100px;
+      box-sizing: border-box;
+    }
+  }
+  .borderLine {
+    border-bottom: 1px solid #757575;
+    margin-bottom: 2px;
+  }
+  .printTaskName {
+    font-size: 18px;
+    height: 36px;
+    line-height: 36px;
+    margin-top: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .printTaskTable {
+    width: 720px;
+    border-collapse: collapse;
+    border-width: 1;
+    td {
+      border: 1px solid #757575;
+      word-break: break-all;
+    }
+    .printTaskTableW1 {
+      width: 115px;
+      padding: 3px 0 3px 8px;
+      vertical-align: top;
+    }
+    .printTaskTableM {
+      padding: 3px 0 3px 4px;
+      word-break: break-all;
+    }
+    .printTaskTableW2 {
+      width: 230px;
+    }
+  }
+  .printTaskTableBurst {
+    position: relative;
+    height: 30px;
+    .printTaskTableBurstLine {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -1px;
+      right: -1px;
+      background: #fff;
+    }
+  }
+}
+
+@media print {
+  .printTaskHead,
+  .printTaskFooter {
+    display: none;
+  }
+}

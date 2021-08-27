@@ -1,0 +1,78 @@
+
+.addDiscuss {
+   background-color: #fff;
+
+  .contentInput {
+    border: none;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    resize: none;
+  }
+
+  .handleBar {
+    height: 52px;
+    padding: 0 15px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+
+    .icon {
+      color: #9e9e9e;
+      font-size: 24px;
+      margin-right: 15px;
+    }
+
+    .addRecord {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      border-radius: 24px;
+      font-size: 14px;
+      padding: 0 15px;
+      color: #fff;
+      background-color: #108ee9;
+    }
+  }
+
+  .filesWrapper {
+    width: 100%;
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+    .filesScroll {
+      height: 100%;
+      background-color: #fff;
+      display: flex;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    
+      .item {
+        min-width: 100px;
+        height: 100%;
+        border-radius: 10px;
+        margin-right: 10px;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .attachmentFiles {
+        padding: 0;
+        flex-wrap: nowrap;
+        overflow: initial;
+        margin-left: 10px;
+        .fileWrapper {
+          overflow: initial;
+          margin: 0 10px 0 0;
+        }
+        .fileEmpty {
+          display: none;
+        }
+      }
+    }  
+  }
+}

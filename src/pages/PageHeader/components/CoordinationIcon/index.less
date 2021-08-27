@@ -1,0 +1,31 @@
+.halfCircle(@len) {
+  width: @len;
+  height: @len / 2;
+  border-radius: @len @len 0 0;
+}
+.coordinationIcon {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 4px;
+  background-color: #2196f3;
+  .halfCircleItem {
+    position: absolute;
+    top: 7px;
+    right: 3px;
+    .halfCircle(8px);
+    background-color: #fff;
+    transform-origin: left bottom;
+    &:nth-child(6) {
+      transform: rotate(-90deg);
+    }
+    &:nth-child(7) {
+      transform: rotate(-180deg);
+    }
+    &:nth-child(8) {
+      transform: rotate(-270deg);
+    }
+  }
+}

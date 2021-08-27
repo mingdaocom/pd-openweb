@@ -1,0 +1,72 @@
+@import '../lib/styles/clearfix.less';
+
+.mui-formview {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: -8px;
+
+  .mui-formview-formgroup {
+    display: block;
+    font-size: 14px;
+
+    h3,
+    h4 {
+      margin: 0;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 20px;
+      color: #333;
+      font-weight: normal;
+    }
+
+    section {
+      margin-bottom: 8px;
+      border-bottom: solid 1px #ccc;
+      position: relative;
+      &:last-child {
+        border-bottom: none;
+      }
+
+      h4 {
+        font-size: 13px;
+      }
+    }
+
+    .mui-formview-formgroup-statistics {
+      margin-bottom: 8px;
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+          font-weight: normal;
+        }
+
+        th,
+        td {
+          border: solid 1px #ccc;
+          font-size: 13px;
+          line-height: 16px;
+          padding: 6px 10px;
+          word-break: break-all;
+        }
+
+        td:first-child {
+          width: 30%;
+        }
+      }
+    }
+  }
+}
+.mui-formview,
+.mui-formview-signgroup,
+.mui-formview-formgroup section {
+  &:after {
+    content: '';
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}

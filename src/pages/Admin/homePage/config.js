@@ -1,0 +1,94 @@
+export const QUICK_ENTRY_CONFIG = [
+  {
+    icon: 'people_5',
+    color: '#00CB80',
+    title: _l('添加人员'),
+    explain: _l('添加人员'),
+    action: 'addPerson',
+  },
+  {
+    icon: 'task_summary',
+    color: '#00BBD7',
+    title: _l('批量导入'),
+    explain: _l('批量导入成员'),
+    action: 'batchImport',
+  },
+  {
+    icon: 'hr_structure',
+    color: '#435A65',
+    title: _l('创建部门'),
+    explain: _l('创建部门'),
+    action: 'createDepartment',
+  },
+  {
+    icon: 'settings',
+    color: '#2196f3',
+    title: _l('设置组织管理员'),
+    explain: _l('拥有后台操作的权限'),
+    action: 'settingAdmin',
+  },
+  {
+    icon: 'task_custom_mode_edit',
+    color: '#445A65',
+    title: _l('完善组织信息'),
+    explain: _l('可以上传组织 logo'),
+    action: 'completeInfo',
+  },
+  {
+    icon: 'laptop_mac',
+    color: '#2196f3',
+    title: _l('客户端安装'),
+    explain: _l('为成员安装客户端'),
+    action: 'installDesktop',
+  },
+  {
+    icon: 'task_custom_phone_android',
+    color: '#1FCB80',
+    title: _l('App 安装'),
+    explain: _l('为成员安装 App'),
+    action: 'installApp',
+  },
+];
+
+export const USER_COUNT = [
+  { key: 'effectiveUserCount', text: _l('当前用户') },
+  { key: 'notActiveUserCount', text: _l('未激活数量') },
+  { key: 'departmentCount', text: _l('部门数量') },
+];
+
+export const ITEM_COUNT = [
+  { key: 'effectiveApkCount', text: _l('应用数'), link: 'app' },
+  { key: 'effectiveWorksheetCount', text: _l('工作表总数'), link: 'app' },
+  { key: 'effectiveWorksheetRowCount', text: _l('行记录总数'), link: 'app' },
+  { key: 'useProcessCount', text: _l('工作流总数'), link: 'workflows' },
+];
+
+export const UPLOAD_COUNT = [
+  {
+    key: 'useExecCount',
+    limit: 'limitExecCount',
+    text: _l('工作流执行次数'),
+    unit: _l('（月）'),
+    link: 'workflows',
+    click: 'workflow',
+  },
+];
+
+function pow1024(num) {
+  return Math.pow(1024, num);
+}
+
+function roundFun(value, n) {
+  return Math.round(value * Math.pow(10, n)) / Math.pow(10, n);
+}
+
+export const formatFileSize = size => {
+  if (!size) return 0 + ' MB';
+  if (size < pow1024(3)) return roundFun(size / pow1024(2), 3) + ' MB';
+  if (size < pow1024(4)) return roundFun(size / pow1024(3), 3) + ' GB';
+  return roundFun(size / pow1024(4), 3) + ' TB';
+};
+
+export const formatValue = (num) => {
+  return (num + '').replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+}

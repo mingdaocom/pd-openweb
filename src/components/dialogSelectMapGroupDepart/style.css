@@ -1,0 +1,126 @@
+﻿.dialogSelectMapGroupDepart {
+  padding: 15px 0 0;
+}
+.dialogSelectMapGroupDepart .searchContainer {
+  width: 100%;
+  border: 1px solid #ddd;
+  color: #eee;
+}
+.dialogSelectMapGroupDepart .txtSearch {
+  border: 0;
+  display: block;
+  float: left;
+  width: 305px;
+  height: 26px;
+  line-height: 26px;
+  color: #696969;
+  padding-left: 7px;
+}
+.dialogSelectMapGroupDepart .searchImage {
+  background: url('./images/searchLink.gif') no-repeat scroll center center #ffffff;
+  float: left;
+  height: 28px;
+  width: 32px;
+  text-align: center;
+  cursor: pointer;
+}
+.dialogSelectMapGroupDepart .searchImage .lineSpan {
+  border-left: 1px solid #ebebeb;
+  height: 20px;
+  line-height: 18px;
+  width: 100%;
+  text-align: center;
+  margin: 4px auto;
+  display: inline-block;
+}
+.dialogSelectMapGroupDepart .mappingList {
+  margin-top: 15px;
+}
+.dialogSelectMapGroupDepart .title {
+  height: 30px;
+  line-height: 30px;
+  border-bottom: 1px solid #ddd;
+}
+.dialogSelectMapGroupDepart .title .titleItem {
+  width: 50%;
+  float: left;
+  height: 30px;
+}
+.dialogSelectMapGroupDepart .title .titleItem .sortItem {
+  width: 10px;
+  display: inline-block;
+  margin-bottom: -7px;
+  cursor: pointer;
+  float: right;
+  margin-top: -6px;
+}
+.dialogSelectMapGroupDepart .title .sortItem .icon-arrow-up {
+  position: relative;
+  top: 9px;
+}
+
+.dialogSelectMapGroupDepart .contentBox {
+  height: 150px;
+  overflow: auto;
+  margin: 5px 0px;
+}
+.dialogSelectMapGroupDepart .contentBox .contentItem {
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+}
+.dialogSelectMapGroupDepart .contentBox .contentItem:hover {
+  background-color: #f5f7fa;
+}
+.dialogSelectMapGroupDepart .contentBox .isSelected {
+  background-color: #ebebeb;
+}
+.dialogSelectMapGroupDepart .contentBox .contentColumn {
+  width: 50%;
+  float: left;
+  border: 0px solid #000;
+}
+
+.dialogSelectMapGroupDepart .mapBottom {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+}
+.dialogSelectMapGroupDepart .mapBottom .selectedDept {
+  color: #ccc;
+  float: right;
+}
+.dialogSelectMapGroupDepart .mapBottom .mapDept {
+  height: 35px;
+}
+.dialogSelectMapGroupDepart .mapBottom .mapDept .showInput {
+  margin-top: 5px;
+  display: inline-block;
+  cursor: pointer;
+  float: left;
+}
+.dialogSelectMapGroupDepart .mapBottom .txtNewDeptName {
+  color: #696969;
+  width: 255px;
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 7px;
+  border: 1px solid #ddd;
+}
+.dialogSelectMapGroupDepart .mapBottom .btnCreateDept {
+  height: 27px;
+  width: 65px;
+  float: right;
+}
+.dialogSelectMapGroupDepart .mapBottom .btnConfirm {
+  height: 27px;
+  width: 65px;
+  float: right;
+}
+
+/* moz hack */
+@-moz-document url-prefix() {
+  .dialogSelectMapGroupDepart input[type='radio'] {
+    vertical-align: -1px;
+  }
+}

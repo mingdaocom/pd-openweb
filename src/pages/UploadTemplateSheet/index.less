@@ -1,0 +1,118 @@
+.uploadTemplateSheet {
+  #container {
+    background-color: #fff;
+  }
+  h5,
+  p {
+    margin: 0;
+    padding: 0;
+  }
+  background: #fff;
+  .header {
+    position: fixed;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 3px 6px #00000029;
+    text-align: left;
+    font: DemiBold 17px/37px FZLanTingHeiS;
+    letter-spacing: 0px;
+    color: #212121;
+    text-align: left;
+    padding: 0 20px;
+    box-sizing: border-box;
+    line-height: 50px;
+    height: 50px;
+    width: 100%;
+  }
+  .con {
+    max-width: 880px;
+    margin: 57px auto;
+    h5 {
+    }
+    p {
+      line-height: 23px;
+      a,
+      .urlForTel {
+        color: #2196f3;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+    .listCon {
+      width: 100%;
+      margin-top: 32px;
+      .line {
+        border-top: 1px solid #eaeaea;
+        margin-top: 18px;
+      }
+      > div {
+        display: flex;
+        text-align: left;
+        span {
+          display: inline-flex;
+          flex: 200;
+          max-width: 210px;
+          // display: inline-block;
+          padding-right: 20px;
+          word-break: break-all;
+          &:last-child {
+            flex: 450 1;
+            max-width: 450px;
+          }
+          .copy {
+            display: none;
+            color: #9d9d9d;
+            cursor: pointer;
+            line-height: 20px;
+            margin-left: 8px;
+            &:hover {
+              color: #2196f3;
+            }
+          }
+          &:hover {
+            .copy {
+              display: block;
+            }
+          }
+        }
+        &.topHeader {
+          color: #9e9e9e;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        &.title {
+          margin-top: 18px;
+          color: #333;
+          font-size: 15px;
+          font-weight: bold;
+        }
+        &.list {
+          margin-top: 20px;
+        }
+        &.bgCon {
+          background: #f5f5f5 0% 0% no-repeat padding-box;
+          border-radius: 3px;
+          padding: 15px;
+          ul {
+            li {
+              text-align: left;
+              span {
+                display: inline-block;
+                color: #9e9e9e;
+                &:first-child {
+                  color: #333333;
+                  margin-right: 32px;
+                }
+                &:last-child {
+                  flex: 500;
+                  max-width: 500px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

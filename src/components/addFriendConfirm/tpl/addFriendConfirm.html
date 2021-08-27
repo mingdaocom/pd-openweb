@@ -1,0 +1,18 @@
+﻿<div class="recBox clearfix">
+    {{? !it.showExtraInput }}
+    <div class="tip">{{=_l('发送验证信息，等待好友确认')}}</div>
+    {{??}}
+    <div class="tip">{{=_l('您需要完善组织/职位信息，等待好友确认')}}</div>
+    {{?}}
+    {{? it.showExtraInput }}
+    <div>
+        <input type="text" class="inputControl ThemeBorderColor3" placeholder="{{=_l('组织（必填）')}}" data-type="company" value="{{! it.companyName }}">
+    </div>
+    <div>
+        <input type="text" class="inputControl ThemeBorderColor3" placeholder="{{=_l('职位（必填）')}}" data-type="profession"  value="{{! it.profession }}">
+    </div>
+    {{?}}
+    <div>
+        <textarea class="inputControl applyMsg ThemeBorderColor3" >{{! _l('我是%0',md.global.Account.fullname) }}</textarea>
+    </div>
+</div>

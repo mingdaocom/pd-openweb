@@ -1,0 +1,259 @@
+.RelateRecordDropdown {
+  &-selected {
+    position: relative;
+    cursor: pointer;
+    min-height: 36px;
+    background: #f7f7f7;
+    border-radius: 4px;
+    padding-right: 30px;
+    border: 1px solid transparent;
+    .clearIcon,
+    .dropIcon {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 14px;
+      color: #9e9e9e;
+      margin: 11px;
+    }
+    .clearIcon {
+      display: none;
+    }
+    .placeholder {
+      position: absolute !important;
+      // padding: 0 30px 0 10px;
+      // max-width: 100%;
+      // display: inline-block;
+      // line-height: 34px;
+      // color: #333;
+    }
+    .normalSelectedItem {
+      padding-left: 10px;
+      position: relative;
+      display: inline-block;
+      max-width: calc(~'100% - 30px');
+      line-height: 34px;
+      color: #333;
+      &.active {
+        padding-right: 30px !important;
+      }
+    }
+    .activeSelectedItem {
+      position: relative;
+      display: inline-block;
+      max-width: calc(~'100% - 30px');
+      margin: 0 0 5px 6px;
+      line-height: 24px;
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      color: #333;
+      border-radius: 3px;
+      .name {
+        max-width: 100%;
+      }
+      &.active {
+        padding-right: 24px !important;
+      }
+    }
+    .normalSelectedItem,
+    .activeSelectedItem {
+      .icon-close {
+        cursor: pointer;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        color: #9d9d9d;
+        font-size: 16px;
+        &:hover {
+          color: #757575;
+        }
+      }
+    }
+    .addBtn {
+      width: 24px;
+      padding: 0 !important;
+      margin: 6px !important;
+      text-align: center;
+      .icon {
+        font-size: 14px;
+        color: #757575;
+      }
+    }
+    &.readonly {
+      background: transparent;
+    }
+    &.allowOpenRecord:not(.sheetview):not(.active) {
+      .normalSelectedItem,
+      .activeSelectedItem {
+        cursor: pointer;
+        color: #2196f3;
+        &:hover {
+          color: #1565c0;
+        }
+      }
+    }
+    &.free {
+      background-color: #fff !important;
+    }
+    &.sheetview:not(.active) {
+      padding-left: 0px;
+    }
+    &.sheetview {
+      border: none;
+      background-color: transparent;
+      border-color: transparent !important;
+      padding-right: 0px;
+      .normalSelectedItem,
+      .activeSelectedItem {
+        max-width: calc(~'100% - 13px');
+      }
+      .dropIcon {
+        display: none;
+      }
+      &:not(.active) .normalSelectedItem,
+      .activeSelectedItem {
+        line-height: 21px;
+        background-color: #e8e8e8;
+        border-radius: 3px;
+        padding: 0 10px;
+        margin: 6px 0 0 6px;
+        .icon-close {
+          top: 2px;
+        }
+      }
+      &.allowOpenRecord {
+        &:not(.active) .normalSelectedItem,
+        .activeSelectedItem:not(.addBtn) {
+          cursor: pointer;
+          background-color: #dfebfa;
+        }
+      }
+    }
+    &.mobile {
+      .dropIcon {
+        margin-right: 8px !important;
+        font-size: 16px;
+        color: #bdbdbd;
+      }
+    }
+    &.active {
+      border-color: #2196f3;
+      background-color: #fff !important;
+      .dropIcon {
+        display: none !important;
+      }
+      .clearIcon {
+        display: inline-block !important;
+      }
+      .placeholder {
+        color: #bdbdbd;
+      }
+    }
+    &:not(.sheetview).emptyRecord {
+      .dropIcon {
+        display: inline-block !important;
+      }
+    }
+    &:not(.emptyRecord):hover {
+      .dropIcon {
+        display: none !important;
+      }
+      .clearIcon {
+        display: inline-block !important;
+      }
+    }
+  }
+}
+
+.RelateRecordList {
+  height: 360px;
+  border-radius: 3px;
+  background-color: #fff;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  > div.listCon {
+    padding: 6px 0;
+  }
+  &-search {
+    height: 36px;
+    margin: 6px 0 0;
+    padding: 0 12px;
+    input {
+      border: none !important;
+      padding: 0 6px !important;
+    }
+    .icon {
+      color: #757575;
+      margin: 9px 0;
+      font-size: 20px;
+    }
+  }
+  .loadingCon {
+    text-align: center;
+    padding: 10px 0;
+  }
+  &-create {
+    height: 36px;
+    cursor: pointer;
+    padding: 0 12px;
+    margin: 6px 0;
+    font-size: 14px;
+    color: #2196f3;
+    line-height: 36px;
+    .icon {
+      font-size: 14px;
+    }
+    &:hover {
+      color: #1565c0;
+    }
+  }
+}
+
+.RelateRecordListItem {
+  position: relative;
+  cursor: pointer;
+  padding: 0 12px;
+  &.big {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  &.selected {
+    background-color: #e3f3ff;
+  }
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  &-control {
+    display: inline-block;
+    height: 1.2em !important;
+    line-height: 1em;
+    color: #757575;
+    padding: 0px 7px;
+    border-right: 1px solid #9e9e9e;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 3;
+    /*! autoprefixer: off */
+    -webkit-box-orient: vertical;
+  }
+  &-selectedIcon {
+    position: absolute;
+    right: 16px;
+    top: 0;
+    bottom: 0;
+    font-size: 16px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    color: #2196f3;
+  }
+  .title {
+    line-height: 1.5 !important;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /*! autoprefixer: off */
+    -webkit-box-orient: vertical;
+  }
+}

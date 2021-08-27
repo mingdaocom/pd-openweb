@@ -1,0 +1,46 @@
+.userPill {
+  display: inline-block;
+  height: 30px;
+  position: relative;
+  font-size: 0;
+  cursor: default;
+
+  .avatar {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+
+  .name {
+    display: inline-block;
+    font-size: 13px;
+    line-height: 30px;
+    color: #333;
+    vertical-align: middle;
+    margin-left: 10px;
+    max-width: 130px;
+    height: 30px;
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+  }
+
+  .closeBtn {
+    position: absolute;
+    left: 23px;
+    top: -7px;
+    display: none;
+    z-index: 1000;
+    i.icon {
+      // fix icon not center
+      transform: translateX(0.5px);
+    }
+  }
+  &:hover {
+    .closeBtn {
+      display: inline-block;
+    }
+  }
+}

@@ -1,0 +1,158 @@
+.WorksheetSharePage {
+  overflow-x: hidden;
+  body {
+    background-color: rgb(245, 245, 249);
+  }
+  .WorksheetShareHeaderBox {
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    height: 54px;
+    background: #fff;
+    line-height: 54px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    overflow-x: hidden;
+
+    .HeaderBox {
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+
+      .back {
+        line-height: 54px;
+
+        i {
+          position: relative;
+          top: -2px;
+        }
+
+        &:hover {
+          i {
+            color: #2196f3;
+          }
+        }
+      }
+
+      .appIconWrap {
+        height: 54px;
+        vertical-align: middle;
+        line-height: 54px;
+        display: flex;
+        align-items: center;
+        flex: 1;
+
+        .appIconWrapIcon {
+          width: 26px;
+          height: 26px;
+          line-height: 26px;
+          color: #fff;
+          border-radius: 5px;
+          vertical-align: middle;
+          text-align: center;
+        }
+
+        .appName {
+          max-width: 400px;
+          padding-left: 12px;
+          font-weight: 500;
+        }
+
+        @media screen and (max-width: 600px) {
+          .appName {
+            max-width: 140px;
+          }
+        }
+
+        .listNum {
+          font-weight: 500;
+        }
+
+        .back {
+          flex: 1;
+          display: flex;
+          cursor: pointer;
+
+          .backIcon {
+            line-height: 54px;
+          }
+        }
+      }
+
+      .fromTxt {
+        font-size: 12px;
+        margin-top: 0px;
+
+        a {
+          color: #2196f3;
+          text-decoration: none;
+
+          &:hover {
+            border-bottom: 1px solid #2196f3;
+          }
+        }
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      .HeaderBox {
+        padding: 0 22px;
+      }
+    }
+  }
+
+  .centerLoad {
+    display: flex;
+    align-items: center;
+  }
+
+  .error {
+    .unnormalCon {
+      max-width: 880px;
+      width: 100%;
+      margin: 32px auto 0;
+      border-radius: 4px;
+      box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.12);
+      box-sizing: border-box;
+
+      .unnormalIcon {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: url('~src/pages/worksheet/assets/worksheet.png') no-repeat;
+        background-size: 150px 150px;
+        background-color: #f2f2f2;
+        margin: 0 auto;
+      }
+
+      .msg {
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        color: #999;
+        margin-top: 16px;
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      .unnormalCon {
+        box-shadow: none !important;
+        margin: 0 auto 0;
+      }
+    }
+  }
+
+  .shareConBox {
+    max-width: 880px;
+    margin: 54px auto 0;
+    padding-bottom: 16px;
+    overflow-x: hidden;
+  }
+
+  @media screen and (max-width: 600px) {
+    .shareConBox {
+      padding: 0 8px 16px;
+      margin: 54px auto 0;
+    }
+  }
+}

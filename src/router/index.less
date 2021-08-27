@@ -1,0 +1,66 @@
+@import '../common/mdcss/common.less';
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+.fixedScreen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+li {
+  list-style: none;
+}
+#app,
+#chat {
+  height: 100%;
+}
+#chat {
+  position: relative;
+  z-index: 12;
+  overflow: hidden;
+  border-left: 1px solid #e0e0e0;
+}
+
+#wrapper {
+  width: 100%;
+  height: 100%;
+  & > header {
+    z-index: 16;
+  }
+}
+
+#containerWrapper {
+  min-height: 0;
+}
+
+#container {
+  flex: 1;
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+}
+
+#kf5-support-btn {
+  display: none !important;
+}
+
+.rc-trigger-popup-mask {
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.ant-tooltip-inner {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.ant-dropdown {
+  .ming.Menu {
+    width: 100%;
+  }
+}

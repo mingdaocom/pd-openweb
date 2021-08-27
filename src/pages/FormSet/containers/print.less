@@ -1,0 +1,256 @@
+.printBox {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  .printBoxList {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 32px 40px;
+  }
+  .topBoxText {
+    display: flex;
+    .textCon {
+      flex: 1;
+    }
+    .add {
+      padding: 0 16px;
+      line-height: 38px;
+      height: 38px;
+      background: #2196f3 0% 0% no-repeat padding-box;
+      border-radius: 32px;
+      text-align: center;
+      font-size: 13px;
+      letter-spacing: 0px;
+      color: #ffffff;
+      cursor: pointer;
+      &:hover {
+        background: #1e88e5;
+      }
+      .actDia {
+        position: absolute;
+        width: 220px;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        box-shadow: 0px 4px 16px #0000003d;
+        border-radius: 3px;
+        padding: 6px 0;
+        right: 0;
+        top: 99%;
+        text-align: left;
+        li {
+          padding: 0 18px;
+          height: 36px;
+          line-height: 36px;
+          font-weight: normal;
+          .icon {
+            color: #9e9e9e;
+            margin-right: 15px;
+            font-size: 18px;
+            vertical-align: middle;
+          }
+          &:hover {
+            background-color: #2196f3;
+            color: #fff;
+            .icon {
+              color: #fff;
+            }
+          }
+          .upNew {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            line-height: 15px;
+            background-color: #ffa90e;
+            color: #fff;
+            text-align: center;
+            .icon {
+              font-size: 7px;
+              color: #fff !important;
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+            }
+          }
+        }
+      }
+    }
+  }
+  .noData {
+    margin: 0 auto;
+    text-align: center;
+    color: #9e9e9e;
+    height: 100%;
+    padding-top: 200px;
+    font-size: 15px;
+    .icon {
+      width: 130px;
+      height: 130px;
+      margin: 20px auto;
+      color: #bdbdbd;
+      background: #f5f5f5 0% 0% no-repeat padding-box;
+      display: inline-block;
+      line-height: 130px;
+      text-align: center;
+      font-size: 60px;
+      border-radius: 50%;
+    }
+  }
+  .editPrint {
+    width: 480px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding-top: 0;
+    bottom: 0;
+    background-color: #fff;
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+  .printTemplatesList {
+    margin-top: 3px;
+    margin-right: -32px;
+    width: 100%;
+    .printTemTi {
+      font-weight: bold;
+      color: #9e9e9e;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eaeaea;
+      margin-top: 38px;
+      font-size: 15px;
+    }
+    .templates {
+      position: relative;
+      margin-right: 16px;
+      margin-top: 20px;
+      margin-bottom: 4px;
+      display: inline-block;
+      border-radius: 3px;
+      width: 300px;
+      // height: 130px;
+      background: #ffffff 0% 0% no-repeat padding-box;
+      opacity: 1;
+      .topBox {
+        border-radius: 3px 3px 0px 0px;
+        height: 40px;
+        background: #2196f3 0% 0% no-repeat padding-box;
+        padding: 0 15px;
+        line-height: 40px;
+        width: 100%;
+        color: #fff;
+        display: flex;
+        &.defaulteTem {
+          background: #465a65;
+        }
+        .iconTitle {
+          // margin-right: 6px;
+          width: 16px;
+          line-height: 40px;
+        }
+        span {
+          flex: 1;
+          padding: 0 12px;
+          max-width: 100%;
+          word-break: break-all;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        input {
+          flex: 1;
+          width: 100%;
+          height: 25px;
+          background: #ffffff 0% 0% no-repeat padding-box;
+          border-radius: 2px;
+          line-height: 25px;
+          padding: 0px 12px;
+          box-sizing: border-box;
+          color: #333333;
+          margin: 7px 0;
+          border: 1px solid #2196f3;
+        }
+
+        .moreActive {
+          line-height: 40px;
+          margin-left: 6px;
+        }
+      }
+      .con {
+        border-bottom: 1px solid #dddddd;
+        border-left: 1px solid #dddddd;
+        border-right: 1px solid #dddddd;
+        border-radius: 0px 0px 3px 3px;
+        padding: 12px 15px;
+        // height: 90px;
+        .view {
+          text-align: left;
+          font-size: 12px;
+          letter-spacing: 0px;
+          color: #757575;
+          .viewText {
+            height: 40px;
+            line-height: 20px;
+            display: -webkit-box;
+            /* autoprefixer: off */
+            -webkit-box-orient: vertical;
+            /* autoprefixer: on */
+            -webkit-line-clamp: 2;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            width: 100%;
+            overflow: hidden;
+          }
+        }
+        .activeCon {
+          display: flex;
+          margin-top: 15px;
+          position: relative;
+          & > span {
+            display: inline-flex;
+            color: #2196f3;
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+          span:first-child {
+            flex: 1;
+          }
+        }
+      }
+      .moreOptionTrigger {
+        top: 30px;
+        right: 7px;
+        position: absolute;
+        padding: 6px 0;
+        background: #fff;
+        box-shadow: 0px 4px 16px #0000003d;
+        border-radius: 2px;
+        z-index: 1;
+        li {
+          width: 120px;
+          height: 36px;
+          line-height: 36px;
+          padding: 0 20px;
+          box-sizing: border-box;
+          color: #333;
+          cursor: pointer;
+          &:hover {
+            background: #eaeaea;
+            // color: #fff;
+          }
+          &.red {
+            color: red;
+            &:hover {
+              background: red;
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+  }
+}

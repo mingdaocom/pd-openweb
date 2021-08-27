@@ -1,0 +1,83 @@
+.printTem {
+  ::-webkit-scrollbar-track {
+    background-color: #fff;
+  }
+  .sidenavBox {
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 3px 6px #00000029;
+    overflow-y: auto;
+    overflow-x: hidden;
+    .chooseBtn {
+      font-weight: normal !important;
+      &:hover {
+        color: #2196f3 !important;
+      }
+    }
+    .conBox {
+      padding: 20px;
+      width: 100%;
+      .btn {
+        height: 32px;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #d9d9d9;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 32px;
+        display: block;
+        margin-bottom: 20px;
+        &:hover {
+          color: #2196f3 !important;
+          border: 1px solid #2196f3;
+        }
+      }
+      p {
+        margin: 0;
+      }
+      input {
+        margin-top: 10px;
+        width: 200px;
+        height: 36px;
+        line-height: 36px;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+        color: #333;
+        padding: 0 12px;
+        box-sizing: border-box;
+        &:focus {
+          border: 1px solid #2196f3;
+        }
+      }
+      .ming.Checkbox {
+        max-width: 165px;
+      }
+      .moreList {
+        position: absolute;
+        top: -2px;
+        right: 0;
+        height: 24px;
+        cursor: pointer;
+        line-height: 24px;
+        width: 165px;
+        text-align: right;
+        &:hover {
+          color: #333 !important;
+        }
+      }
+    }
+    .lineBox {
+      border-top: 1px solid #dddddd;
+      margin: 24px -20px;
+    }
+    .ming.Checkbox.clearselected .Checkbox-box {
+      background-color: #1e88e5 !important;
+      border: 1px solid #1e88e5 !important;
+    }
+  }
+  @media print {
+    .sidenavBox {
+      display: none;
+      height: 0 !important;
+    }
+  }
+}

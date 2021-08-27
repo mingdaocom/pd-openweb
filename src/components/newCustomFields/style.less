@@ -1,0 +1,1066 @@
+.customFieldsContainer {
+  background: #fff;
+  margin: 0 -12px;
+  color: #333;
+  line-height: normal;
+
+  &:after {
+    content: '';
+    clear: both;
+    display: block;
+  }
+
+  &.mobileContainer {
+    .worksheetRecordCard {
+      .deleteRecord {
+        display: inline-block !important;
+      }
+    }
+
+    .signature {
+      .remove {
+        visibility: visible;
+      }
+    }
+
+    .customRecordMuster {
+      li {
+        width: 100%;
+        padding: 0 !important;
+      }
+    }
+
+    > .customFormLine:first-child {
+      display: none;
+    }
+
+    .location {
+      .icon-minus-square {
+        display: block;
+      }
+    }
+
+    .customFormItemControl {
+      .customFormControlBox {
+        &.customFormControlOCR  {
+          border-color: #e0e0e0 !important;
+          max-width: 100%;
+          > span {
+            width: 100% !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.wxContainer {
+    .customFormLine {
+      display: none;
+    }
+    .customFormControlBox {
+      border-color: #e0e0e0 !important;
+      &:not(.formBoxNoBorder):not(.braftEditorFixed):not(.relateRecord) {
+        padding-right: 12px !important;
+      }
+      &:not([type='tel']):not(.formBoxNoBorder):not(.braftEditorFixed):not(.relateRecord) {
+        padding-left: 12px !important;
+      }
+      &.controlDisabled {
+        background: #f9f9f9 !important;
+      }
+      &:not(.controlDisabled) {
+        background: #fff !important;
+      }
+      &.customFormReadonly {
+        background: #f9f9f9 !important;
+        border-color: #e0e0e0 !important;
+        padding: 8px 12px 6px !important;
+      }
+      > .icon-arrow-right-border {
+        margin-right: -5px;
+      }
+      .worksheetRecordCard {
+        box-shadow: none;
+        border-color: #e0e0e0;
+      }
+    }
+    .customRecordMuster {
+      .customRecordList {
+        background: #fff !important;
+        border-color: #e0e0e0 !important;
+      }
+    }
+  }
+
+  &.List {
+    width: 100%;
+
+    .MenuItem {
+      height: 36px;
+      line-height: 36px;
+
+      .Item-content:not(.disabled):hover {
+        background: #f2f2f2 !important;
+        color: #333 !important;
+      }
+    }
+  }
+
+  .customFormItem {
+    float: left;
+    width: 100%;
+    position: relative;
+    padding: 6px 12px;
+    box-sizing: border-box;
+
+    &:after {
+      content: '';
+      display: block;
+      width: 100%;
+      clear: both;
+    }
+  }
+
+  .customFormLine {
+    height: 1px;
+    background: #f3f3f3;
+    clear: both;
+    margin: 0 12px;
+  }
+
+  .customFormItemLabel {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 1;
+    position: relative;
+    font-weight: bold;
+    width: 100%;
+    line-height: 20px;
+
+    .descBoxInfo {
+      margin-left: 8px;
+    }
+  }
+
+  .descBoxInfo {
+    float: left;
+    position: relative;
+    z-index: 1;
+  }
+
+  .customFormItemControl {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+
+    .descBoxInfo {
+      position: absolute;
+      left: 65px;
+      top: 8px;
+    }
+
+    .descBox {
+      .descTxt {
+        position: relative;
+        max-height: 48px;
+        height: auto;
+        overflow-y: hidden;
+        display: block;
+        line-height: 16px !important;
+        width: 100%;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+        word-break: break-all;
+
+        span {
+          display: block;
+          height: auto;
+        }
+
+        .descText::after {
+          content: '更多';
+          color: #fff;
+          padding-left: 6px;
+          word-wrap: break-word;
+          word-break: break-all;
+        }
+
+        .moreDesc {
+          position: absolute;
+          right: 0;
+          bottom: -1px;
+          background: #fff;
+          color: #2196f3;
+          border: 1px solid rgba(0, 0, 0, 0);
+          padding: 0 3px;
+          line-height: 16px;
+        }
+
+        .moreDesc:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .iti--allow-dropdown {
+      width: 100%;
+    }
+
+    .iti__country-list {
+      max-height: 300px;
+    }
+
+    .customFormNull {
+      width: 22px;
+      height: 6px;
+      background: #eaeaea;
+      margin-top: 19px;
+      margin-bottom: 15px;
+      border-radius: 3px;
+    }
+
+    .customFormControlBox,
+    .customFormTextarea {
+      &::-webkit-input-placeholder {
+        color: #bdbdbd;
+      }
+
+      &:-moz-placeholder {
+        color: #bdbdbd;
+      }
+
+      &::-moz-placeholder {
+        color: #bdbdbd;
+      }
+
+      &:-ms-input-placeholder {
+        color: #bdbdbd;
+      }
+    }
+
+    .customFormControlBox {
+      box-sizing: border-box;
+      height: 36px;
+      border: 1px solid #f7f7f7;
+      font-size: 13px;
+      background: #f7f7f7;
+      border-radius: 4px;
+      padding: 0 12px;
+      width: 100%;
+      outline: none;
+      -webkit-appearance: none;
+
+      &:not(.controlDisabled):hover {
+        border-color: #f2f2f2;
+        background: #f2f2f2;
+      }
+
+      &:focus {
+        border-color: #2196f3 !important;
+        background: #fff !important;
+      }
+
+      &.controlDisabled {
+        background: transparent;
+        border-color: transparent;
+        padding-left: 0;
+        padding-right: 0;
+        .Dropdown--input {
+          padding-left: 0 !important;
+        }
+        .mdEditorContent {
+          max-height: inherit !important;
+        }
+      }
+
+      &.customFormFileBox:not(.controlDisabled) {
+        color: #757575;
+        padding: 8px 10px 7px;
+      }
+
+      .worksheetRecordCard {
+        margin-bottom: 10px;
+
+        &:first-child {
+          margin-top: 10px;
+        }
+      }
+
+      &.mdEditor {
+        min-height: 90px;
+        height: inherit;
+
+        .mdEditorContent {
+          padding: 0 15px;
+          margin: 0 -13px;
+
+          img {
+            max-width: 100%;
+          }
+        }
+      }
+
+      &.customFormEditor {
+        background: #fff !important;
+        border-color: #2196f3 !important;
+      }
+
+      &.braftEditorFixed {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        z-index: 1000;
+        padding: 0;
+        border: none;
+        .BraftEditor-container {
+          background: #f7f7f7;
+          height: auto;
+          .headings-dropdown,
+          .braft-font-size-dropdown {
+            min-width: auto;
+            margin-left: 10px;
+            .dropdown-handler {
+              width: auto;
+              span {
+                width: auto !important;
+              }
+            }
+          }
+          .BraftEditor-controlBar {
+            .control-item {
+              height: 24px;
+            }
+            button,
+            .control-item-group,
+            .control-item .dropdown-handler > span {
+              min-width: 24px;
+              width: 24px;
+              height: 24px;
+              line-height: 24px;
+              padding: 0;
+              i,
+              i:before {
+                width: 24px;
+                height: 24px;
+                line-height: 24px;
+              }
+            }
+          }
+          .BraftEditor-content {
+            height: 215px;
+          }
+        }
+        .mdEditorFooter {
+          margin-top: 0;
+          padding: 8px 12px;
+          background: #f7f7f7;
+          > div:not(.mdEditorCancel):not(.mdEditorSave):not(.flex) {
+            display: none;
+          }
+        }
+      }
+
+      &.formBoxNoBorder {
+        padding: 5px 0 0;
+        background: #fff !important;
+        border-color: #fff !important;
+      }
+
+      &.customDropdownBox {
+        padding: 0;
+        height: auto;
+        min-height: 36px;
+        .Dropdown--border {
+          height: auto !important;
+          border: none !important;
+          min-height: 34px;
+          padding-top: 0;
+          padding-bottom: 0;
+          .value {
+            white-space: normal !important;
+          }
+          .Dropdown--placeholder {
+            line-height: 34px;
+          }
+        }
+      }
+
+      &.customFormControlOCR {
+        padding: 0 24px;
+        display: inline-flex !important;
+        align-items: center;
+        cursor: pointer;
+        border-color: #ededed !important;
+        justify-content: center;
+        max-width: 320px;
+        .customOCRLoading {
+          display: block;
+          animation: rotate 2s linear infinite;
+        }
+      }
+    }
+
+    .customFormTextareaBox {
+      padding: 8px 12px 6px;
+      word-break: break-all;
+      height: auto;
+      white-space: pre-wrap;
+      min-height: 36px;
+    }
+
+    .customFormTextarea {
+      box-sizing: border-box;
+      padding: 8px 12px 6px;
+      vertical-align: top;
+      border-color: #2196f3;
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .smallInput {
+      width: 1px;
+      height: 18px;
+      vertical-align: top;
+      border: none;
+      display: inline-block;
+      background: transparent;
+      padding: 0;
+      margin-left: -1px;
+    }
+
+    .customFormButton {
+      text-align: left;
+      outline: none;
+      align-items: center;
+      cursor: pointer;
+
+      &:focus {
+        border-color: #f2f2f2 !important;
+        background: #f2f2f2 !important;
+      }
+
+      &:not(.controlDisabled):hover {
+        > .ming.Icon:not(.customFormButtoDel) {
+          color: #2196f3 !important;
+        }
+        .customFormButtoDel {
+          display: block;
+          &:hover {
+            color: rgba(0, 0, 0, 0.45) !important;
+          }
+          & ~ i {
+            display: none;
+          }
+        }
+      }
+
+      .customFormButtoDel {
+        display: none;
+      }
+    }
+
+    .customFormCheck {
+      display: inline-block;
+
+      .Checkbox-box {
+        margin-right: 0;
+      }
+    }
+
+    .customFormReadonly {
+      border-color: #fff !important;
+      background: #fff !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      &.spacing {
+        letter-spacing: 2px;
+      }
+    }
+
+    .Score-wrapper {
+      .StarScore-item {
+        margin-right: 5px;
+
+        i {
+          font-size: 20px;
+        }
+      }
+    }
+
+    .index {
+      z-index: 1;
+    }
+
+    .customFormRelationBtn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      height: 34px;
+      outline: none;
+      display: flex;
+      align-items: center;
+    }
+
+    > .ming.Dropdown {
+      &.controlDisabled {
+        .Dropdown--border {
+          &:not(:hover):not(.active),
+          &:hover {
+            border-color: #fff !important;
+          }
+        }
+
+        .icon-arrow-down-border {
+          display: none;
+        }
+      }
+
+      .Dropdown--input {
+        > .value {
+          max-width: 100%;
+        }
+      }
+
+      .Dropdown--border {
+        &:not(:hover):not(.active) {
+          border-color: #f7f7f7 !important;
+        }
+
+        &:hover,
+        &.active {
+          border-color: #f2f2f2 !important;
+        }
+      }
+
+      .List {
+        width: 100%;
+
+        .MenuItem {
+          height: 36px;
+          line-height: 36px;
+
+          .Item-content:not(.disabled):hover {
+            background: #f2f2f2 !important;
+            color: #333 !important;
+          }
+        }
+      }
+    }
+
+    .groupColumn {
+      &.ming.CheckboxGroup {
+        flex-direction: column;
+        .Checkbox {
+          width: 100% !important;
+          margin-right: 0 !important;
+        }
+      }
+
+      .RadioGroupCon {
+        flex-direction: column;
+        .Radio {
+          width: 100% !important;
+          margin-right: 0 !important;
+        }
+      }
+
+      .ellipsis {
+        max-width: 100% !important;
+        white-space: normal;
+        height: auto !important;
+        line-height: 20px !important;
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+    }
+
+    .ming.RadioGroup2 {
+      .RadioGroupCon {
+        display: flex;
+        flex-wrap: wrap;
+
+        .Radio {
+          display: flex;
+          min-width: 0;
+          margin-bottom: 10px;
+          width: 145px;
+
+          &--disabled {
+            color: #333;
+
+            .Radio-box {
+              display: none;
+            }
+          }
+
+          &-box {
+            margin-right: 8px;
+            vertical-align: top;
+            margin-top: 3px;
+          }
+
+          &-text {
+            flex: 1;
+            min-width: 0;
+
+            .ellipsis {
+              display: inline-block;
+              height: 24px;
+              line-height: 24px;
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    .ming.CheckboxGroup {
+      display: flex;
+      flex-wrap: wrap;
+
+      .Checkbox {
+        display: flex;
+        min-width: 0;
+        margin-bottom: 10px;
+        width: 145px;
+        margin-right: 20px;
+
+        &--disabled {
+          color: #333;
+
+          .Checkbox-box {
+            display: none;
+          }
+        }
+
+        &-box {
+          margin-right: 8px;
+          vertical-align: top;
+          margin-top: 3px;
+          min-width: 18px;
+        }
+
+        .ellipsis {
+          display: inline-block;
+          height: 24px;
+          line-height: 24px;
+        }
+      }
+    }
+
+    .addBtn {
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      display: inline-flex;
+      vertical-align: top;
+      margin: 4px 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .customFormControlTags {
+      height: 26px;
+      border-radius: 26px;
+      background: #f7f7f7;
+      display: inline-flex;
+      align-items: center;
+      margin: 4px 8px 4px 0;
+      padding-right: 10px;
+      vertical-align: top;
+      position: relative;
+      &:hover,
+      &.selected {
+        .tagDel {
+          opacity: 1;
+        }
+      }
+      .tagDel {
+        cursor: pointer;
+        color: #9e9e9e;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        opacity: 0;
+        transition: all 0.2s ease-out;
+        &:hover {
+          color: #757575;
+        }
+      }
+    }
+
+    .dropdownTitle {
+      height: 24px;
+      line-height: 24px;
+      border-radius: 12px;
+      padding: 0 12px;
+      display: inline-block;
+      vertical-align: top;
+      max-width: 95%;
+      box-sizing: border-box;
+    }
+
+    .customAntPicker {
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid #f7f7f7;
+      font-size: 13px;
+      background: #f7f7f7;
+      border-radius: 4px;
+      transition: none;
+      &.controlDisabled {
+        .ant-picker-input > input {
+          color: #333;
+        }
+      }
+      &.ant-picker-focused {
+        box-shadow: none;
+      }
+      &.ant-picker-focused:not(.controlDisabled) {
+        border-color: #2196f3 !important;
+        background: #fff !important;
+        .ant-picker-clear {
+          opacity: 1;
+        }
+      }
+      .ant-picker-input {
+        padding: 0;
+        height: 34px !important;
+      }
+    }
+
+    .customCascader {
+      &.ant-cascader-picker {
+        &:not(.ant-cascader-picker-disabled):hover {
+          .ant-cascader-input {
+            border-color: #f2f2f2 !important;
+            background-color: #f2f2f2 !important;
+          }
+        }
+        .ant-cascader-input {
+          padding: 7px 12px;
+          border-radius: 4px;
+          border-color: #f7f7f7 !important;
+          background-color: #f7f7f7 !important;
+          font-size: 13px;
+          box-shadow: none;
+          height: 36px;
+        }
+        .anticon {
+          color: #9e9e9e;
+          background: transparent;
+          &:hover {
+            color: #757575;
+          }
+        }
+        .ant-cascader-picker-label {
+          font-size: 13px;
+          padding-left: 13px;
+          margin-top: -9px;
+        }
+      }
+      &.ant-cascader-picker-disabled {
+        .ant-cascader-input,
+        .ant-cascader-picker-label {
+          border-color: #fff !important;
+          background-color: #fff !important;
+          padding-left: 0;
+          padding-right: 0;
+          color: #333;
+        }
+        .ant-cascader-picker-arrow {
+          display: none;
+        }
+      }
+    }
+
+    .customCascaderDel {
+      top: 11px;
+      right: 11px;
+      color: #9e9e9e;
+      background: #fff;
+      cursor: pointer;
+      &:hover {
+        color: #757575;
+      }
+    }
+
+    .customTreeSelect {
+      .ant-select-selection-placeholder,
+      .ant-select-selection-item {
+        line-height: 34px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+
+    .customFormControlTel {
+      .iti__flag-container {
+        display: none;
+      }
+      .customFormControlBox {
+        padding-left: 0 !important;
+        &:not(.controlDisabled) {
+          padding-left: 12px !important;
+        }
+      }
+    }
+  }
+
+  .customRecordMuster {
+    margin: 0 12px;
+    li {
+      margin-top: 12px;
+      box-sizing: border-box;
+      width: 50%;
+      float: left;
+
+      &:nth-child(odd) {
+        padding-right: 12px;
+      }
+
+      &:nth-child(even) {
+        padding-left: 12px;
+      }
+
+      .customRecordList {
+        padding: 0 16px;
+        box-sizing: border-box;
+        align-items: center;
+        background: #f5f5f5;
+        border: 1px solid #f5f5f5;
+        border-radius: 3px;
+        height: 50px;
+        cursor: pointer;
+
+        &:hover {
+          background: #f2f2f2;
+        }
+      }
+    }
+  }
+}
+
+.customFormErrorMessage {
+  position: absolute;
+  bottom: 100%;
+  transform: translateY(-7px);
+  z-index: 1;
+  left: 0;
+  border-radius: 3px;
+  color: #fff;
+  padding: 5px 12px;
+  white-space: nowrap;
+  background: #f44336;
+  font-size: 12px;
+
+  span {
+    white-space: normal;
+  }
+
+  .customFormErrorArrow {
+    position: absolute;
+    transform: translateY(-5px);
+    z-index: 1;
+    left: 12px;
+    background: transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #f44336 transparent transparent transparent;
+    bottom: -17px;
+  }
+}
+
+.customRadioItem {
+  border-radius: 12px;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 24px;
+  font-size: 13px;
+  align-items: center;
+  vertical-align: middle !important;
+  max-width: 100%;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.mobileCheckboxDialog {
+  .customRadioItem {
+    font-size: 15px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 16px;
+  }
+  .am-list-body {
+    &::after {
+      background-color: #fff !important;
+    }
+  }
+}
+
+.ant-cascader-menus {
+  overflow: hidden;
+  overflow-x: auto;
+  max-width: 900px;
+  padding-right: 1px;
+}
+
+.customDatePicker,
+.antModalRadius .am-modal-content {
+  border-radius: 10px 10px 0 0;
+}
+
+.cascaderRadio {
+  align-items: center;
+  .Radio-text {
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+input.customFormControlBox:disabled {
+  color: #333;
+  opacity: 1;
+  -webkit-text-fill-color: #333;
+}
+
+.customAntSelect {
+  &.ant-select-open {
+    .ant-select-selector {
+      border-color: #2196f3 !important;
+      background-color: #fff !important;
+    }
+    .ant-select-arrow {
+      display: none;
+    }
+    .ant-select-selection-item {
+      opacity: .4;
+      color: #333;
+    }
+  }
+
+  &.ant-select-disabled {
+    .ant-select-selector {
+      color: #333;
+      border-color: #fff !important;
+      background: #fff !important;
+      padding: 0 !important;
+    }
+    .ant-select-selection-item {
+      color: #333;
+      padding: 0;
+    }
+    .ant-select-arrow {
+      display: none;
+    }
+  }
+
+  &:not(.ant-select-open):not(.ant-select-disabled) {
+    .ant-select-selector {
+      &:hover {
+        border-color: #f2f2f2 !important;
+        background-color: #f2f2f2 !important;
+      }
+    }
+  }
+
+  .ant-select-selector {
+    min-height: 36px;
+    padding: 0 12px !important;
+    height: auto !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    border-color: #f7f7f7 !important;
+    background-color: #f7f7f7 !important;
+  }
+
+  &.ant-select-multiple {
+    .ant-select-selector {
+      > span {
+        max-width: 95%;
+      }
+    }
+    .ant-select-selection-search {
+      left: 0 !important;
+      margin-left: -1px;
+    }
+    .ant-select-selection-search-input {
+      margin-left: 0 !important;
+    }
+    .customAntDropdownTitle,
+    .customAntDropdownTitleWithBG {
+      max-width: 100%;
+      display: inline-flex;
+      .icon-close {
+        opacity: 0.7;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .ant-select-selection-search {
+    left: 12px !important;
+  }
+
+  .ant-select-selection-search-input {
+    padding: 0;
+    height: 34px !important;
+  }
+
+  .ant-select-selection-item {
+    overflow: inherit;
+    max-width: 100%;
+    white-space: inherit;
+  }
+
+  .customAntSelectPlaceHolder {
+    display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    box-sizing: initial;
+    padding-top: 8px;
+    font-size: 13px;
+  }
+
+  .anticon {
+    color: #9e9e9e;
+    background: transparent;
+    &:hover {
+      color: #757575;
+    }
+  }
+  .ant-select-selection-placeholder {
+    color: #bdbdbd;
+  }
+}
+
+.customAntDropdownTitle,
+.customAntDropdownTitleWithBG {
+  height: 24px;
+  line-height: 24px;
+  border-radius: 12px;
+  display: inline-block;
+  vertical-align: top;
+  max-width: 95%;
+}
+
+.customAntDropdownTitleWithBG {
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.ruleErrorMsgDialog {
+  .mui-dialog-desc {
+    padding-top: 16px !important;
+  }
+}

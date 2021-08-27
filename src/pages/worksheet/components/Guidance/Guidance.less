@@ -1,0 +1,139 @@
+.guidanceWrapper {
+  width: 300px;
+  position: absolute;
+  right: -316px;
+  bottom: 24px;
+  padding: 24px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0px 10px 20px 0px rgba(0, 0, 0, 0.16);
+
+  .guideImg {
+    width: 100%;
+    height: 142px;
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    &.guide_1 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_1.png');
+    }
+    &.guide_2 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_2.png');
+    }
+    &.guide_3 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_3.png');
+    }
+    &.guide_4 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_4.png');
+    }
+    &.guide_5 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_5.png');
+    }
+    &.guide_6 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_6.png');
+    }
+    &.guide_7 {
+      background-image: url('~src/pages/worksheet/components/Guidance/assets/guide_7.png');
+    }
+  }
+
+  .skip,
+  .lastStep {
+    &:hover {
+      color: #126cfc !important;
+    }
+  }
+  .continue {
+    min-width: 90px;
+    line-height: 32px;
+    min-height: 32px;
+    border-radius: 16px;
+    background-color: #126cfc;
+    &:hover {
+      background-color: #126cfccc;
+    }
+  }
+}
+
+.guidanceCircle {
+  position: absolute;
+  z-index: 10;
+  border-radius: 20px;
+  border: 5px solid #126cfcff;
+  pointer-events: none;
+  animation-name: scaleAnimate;
+  animation-timing-function: cubic-bezier(0.16, 0.32, 0.62, 0.79);
+  animation-duration: 1.1s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+  &.dark {
+    border-color: #000000cc;
+    z-index: 100;
+  }
+}
+
+.editSheetGuidanceCircle {
+  top: 5px;
+  width: 200px;
+  left: 8px;
+  height: 35px;
+}
+
+.addSheetGuidanceCircle {
+  width: 160px;
+  height: 35px;
+  left: 5px;
+  top: 5px;
+}
+
+.addPageGuidanceCircle {
+  width: 160px;
+  height: 35px;
+  left: 5px;
+  top: 41px;
+}
+
+.guidanceInfo {
+  position: absolute;
+  z-index: 10;
+  width: max-content;
+  color: #fff;
+  font-weight: 600;
+  padding: 9px 14px;
+  margin-top: 5px;
+  border-radius: 0 16px 16px;
+  background-color: #126cfcff;
+  box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.16);
+  animation-name: translateXAnimate;
+  animation-timing-function: cubic-bezier(0.16, 0.32, 0.62, 0.79);
+  animation-duration: 1s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+  &.dark {
+    background-color: #000000cc;
+  }
+}
+
+.guidanceTrigger {
+  position: inherit !important;
+}
+
+@keyframes scaleAnimate {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes translateXAnimate {
+  from {
+    transform: translateX(0px);
+  }
+  to {
+    transform: translateX(15px);
+  }
+}

@@ -1,0 +1,41 @@
+.feedLeftNav {
+  display: flex;
+  flex-direction: column;
+}
+
+.feedLeftNav .icon-official-group {
+  position: absolute;
+  right: 20px;
+}
+
+.feedLeftNav .notGroupHint {
+  padding: 15px;
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+
+.feedLeftNav .groupListContainer {
+  display: flex;
+  flex-direction: column;
+}
+.feedLeftNav .feedFixedList .Item-content {
+  padding-left: 50px !important;
+}
+.feedLeftNav .feedFixedList .Item-content .Icon {
+  left: 20px !important;
+}
+.feedLeftNav .feedFixedList .Icon.icon-mingdao {
+  color: #0091ea !important;
+}
+.feedLeftNav .feedFixedList .Icon.icon-charger {
+  color: #00bcd4 !important;
+  font-size: 16px;
+}
+.feedLeftNav .feedFixedList .Icon.icon-task-star {
+  color: #ff9800 !important;
+  font-size: 16px;
+}
+.feedLeftNav .avatarList .icon-official-group {
+  color: #ffc85f !important;
+  font-size: 12px;
+  right: 22px;
+}

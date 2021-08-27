@@ -1,0 +1,35 @@
+﻿<li catid="{{!it ? category.catID : ''}}">
+    <div class="classificationListColumn">{{=_l('名称')}}</div>
+    <div class="classificationListColumnOperation">
+        <input type="text" class="classificationListName ThemeBorderColor3" value="{{!it ? category.catName : ''}}" placeholder="{{=_l('请输入分类日程名称')}}"/>
+        <div class="classificationListDropdown">            
+            <span class="{{!it ? it.colorClass(category.color) : 'colorBlockGreen'}} colorBlock"></span>
+            <i class="icon-arrow-down-border iconDown"></i>
+            <div class="colorBlockMain">
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('红色')}}">
+                    <span class="colorBlockRed"></span> {{= _l('红色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('紫色')}}">
+                    <span class="colorBlockViolet"></span> {{= _l('紫色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('褐色')}}">
+                    <span class="colorBlockBrown"></span> {{= _l('褐色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('橙色')}}">
+                    <span class="colorBlockOrange"></span> {{= _l('橙色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('蓝色')}}">
+                    <span class="colorBlockBlue"></span> {{= _l('蓝色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('绿色')}}">
+                    <span class="colorBlockGreen"></span> {{= _l('绿色')}}
+                </div>
+                <div class="colorBlockList overflow_ellipsis" title="{{= _l('黄色')}}">
+                    <span class="colorBlockYellow"></span> {{= _l('黄色')}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="javascript:void(0);" class="Left classificationListDel icon-delete" title="{{=_l('删除')}}"></a>
+    <div class="Clear"></div>
+</li>

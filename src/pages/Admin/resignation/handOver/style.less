@@ -1,0 +1,148 @@
+.common() {
+  table {
+    box-sizing: initial;
+    th {
+      // background: #f0f0f0;
+      padding: 12px 16px;
+      height: 48px;
+      color: #333333;
+      font-weight: 600;
+      box-sizing: border-box;
+      border-bottom: 1px solid #e7e7e7;
+    }
+    tbody>tr:hover {
+      cursor: pointer;
+    }
+    tbody>tr:hover>td {
+      background: #f5f5f5;
+    }
+    td {
+      padding-left: 24px;
+      box-sizing: border-box;
+      box-sizing: initial;
+    }
+    .originalCharger {
+      align-items: center;
+      height: 60px;
+      padding: 10px 0;
+      box-sizing: initial;
+    }
+  }
+
+  .dot {
+    display: inline-block;
+    height: 1em;
+    line-height: 1;
+    text-align: left;
+    vertical-align: -0.25em;
+    overflow: hidden;
+  }
+  .dot::before {
+    display: block;
+    content: '...\A..\A.';
+    white-space: pre-wrap; /* 也可以是white-space: pre */
+    animation: dot 3s infinite step-start both;
+  }
+  @keyframes dot {
+    33% {
+      transform: translateY(-2em);
+    }
+    66% {
+      transform: translateY(-1em);
+    }
+  }
+}
+
+.transferList {
+  .common;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.transferDetail {
+  .common;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  table {
+    table-layout: fixed;
+    td {
+      padding: 12px 16px;
+      box-sizing: border-box;
+    }
+
+    .sourceName {
+      max-width: 250px;
+    }
+
+    .titleName {
+      width: 35%;
+    }
+  }
+
+  .detailHeader {
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    .originalCharger {
+      flex: 1 0 0%;
+      align-items: center;
+      min-height: 60px;
+    }
+  }
+
+  .postBtn {
+    border-radius: 16px;
+    background: #1e88e5 !important;
+    &:hover {
+      background: #1665C0 !important;
+    }
+  }
+
+  .transferTabList {
+    margin-top: 30px;
+    border-bottom: 1px solid #ddd;
+    .tabList .listItem {
+      float: left;
+      text-align: center;
+      padding-bottom: 16px;
+      margin-right: 32px;
+      color: #757575;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .tabList .listItem {
+      &.active {
+        color: #333333;
+        border-bottom-color: #2196f3;
+      }
+    }
+  }
+}
+.oaFilterList {
+  min-width: 120px;
+  padding: 6px 0;
+  background-color: #ffffff;
+  box-shadow:0px 8px 16px rgba(0,0,0,0.24);
+  border-radius: 3px;
+  position: absolute;
+  top: 20px;
+  z-index: 5;
+  .typeList {
+    > span {
+      display: block;
+      cursor: pointer;
+      padding: 0 24px;
+      line-height: 36px;
+      &:not(.active) {
+        color: #333333 !important;
+      }
+      &:hover {
+        background-color: #2196f3 !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+}

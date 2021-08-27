@@ -1,0 +1,22 @@
+.GSelect-arrow {
+  cursor: pointer;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  &--transparent {
+    opacity: 0;
+  }
+  &__arrowIcon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-width: 5px;
+    border-style: solid;
+    margin-right: 5px;
+    border-color: transparent transparent transparent #9e9e9e;
+    &--open {
+      transform: rotate(90deg);
+      margin-bottom: -3px;
+    }
+  }
+}

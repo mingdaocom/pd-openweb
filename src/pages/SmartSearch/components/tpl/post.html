@@ -1,0 +1,30 @@
+﻿<div class="post">
+    <div class="title ThemeColor3 Font18 mTop10" type="post">
+        <div class="left Font16 GrayB8 Hand" type="post">
+            <span class="Left icon-chat-inputer-post Font22 paddRight10 LineHeight24"></span>
+            {{=_l('动态') }}
+            <span class="pRight15 count Font12">{{=it.post.count }}</span>
+        </div>
+    </div>
+    <div class="Clear"></div>
+    <ul class="postUl Relative">
+        {{~it.post.postList:postList:i}}
+            <li>
+                <div class="infoNoOp textNowrap mLeft30">
+                    <a href="/user_{{=postList.postAccountID }}" target="_blank" class="ThemeColor3">{{!postList.postUserName }}</a>：
+                    <a href="/feeddetail?itemID={{=postList.postID }}" target="_blank">{{=it.attachment(postList.postType)}}{{=it.message(postList).prefix}} {{=it.message(postList).message.replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+                </div>
+                <div class="date">{{= postList.postCreateTime }}</div>
+                <div class="companyName">{{=it.companyName(postList.companyName)}}</div>
+                <div class="Clear"></div>
+            </li>
+        {{~}}
+        <div class="mTop10"></div>
+        {{?it.post.count>5}}
+            <li class="noneBorder">
+                <div class="ThemeColor3 showAll" type="post">{{=(_l('查看所有“%0”的结果', it.searchKeyword()))}}>
+                </div>
+            </li>
+        {{?}}
+  </ul>
+</div>

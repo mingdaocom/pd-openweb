@@ -1,0 +1,1033 @@
+﻿.AppAdminStructure {
+  .opacity0 {
+    opacity: 0 !important;
+    cursor: initial !important;
+
+    .Checkbox-box,
+    .Checkbox {
+      opacity: 0 !important;
+      cursor: initial !important;
+    }
+  }
+
+  .colorBD {
+    color: #bdbdbd;
+  }
+
+  ol,
+  ul,
+  dl {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .fixedTable {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .adminStructureBox {
+    padding: 16px;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  .adminStructure {
+    min-width: 750px;
+    position: relative;
+    height: 100%;
+    background: #fff;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+
+    .structureHeader {
+      height: 57px;
+      line-height: 57px;
+      // padding: 0 24px;
+      padding: 0 18px 0 24px;
+      box-sizing: border-box;
+      border-bottom: 1px solid #eaeaea;
+
+      .icon-settings:hover {
+        color: #2196f3 !important;
+      }
+
+      .toolRight {
+        float: right;
+
+        .addMenberBtn {
+          width: 102px;
+          height: 32px;
+          border-radius: 16px;
+          background: #2196f3;
+          color: #fff;
+          line-height: 32px;
+          text-align: center;
+          display: inline-block;
+          cursor: pointer;
+          padding-right: 2px;
+          vertical-align: middle;
+
+          &:hover {
+            background: #1185e2;
+          }
+          i {
+            vertical-align: middle;
+          }
+        }
+
+        .moreAction {
+          cursor: pointer;
+          display: inline-block;
+          width: 32px;
+          height: 32px;
+          background: #f5f5f5;
+          border-radius: 50%;
+          color: #333333;
+          text-align: center;
+          line-height: 32px;
+          position: relative;
+
+          &:hover {
+            background: #eaeaea;
+          }
+
+          .moreActionDia {
+            position: absolute;
+            top: 37px;
+            right: 0px;
+            z-index: 1;
+            line-height: 30px;
+            text-align: left;
+            width: 180px;
+            background: rgba(255, 255, 255, 1) 0% 0% no-repeat padding-box;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+            border-radius: 3px;
+            padding: 10px 0;
+            box-sizing: border-box;
+
+            li {
+              padding: 0 24px;
+
+              &:hover {
+                background: #eaeaea;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .mainBox {
+      display: flex;
+      flex: 1;
+      height: 100%;
+      overflow-y: hidden;
+
+      .structureNavigator {
+        // position: absolute;
+        // left: 0;
+        // top: 0;
+        // bottom: 0;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: 280px;
+        // border-left: 1px solid transparent;
+        padding: 19px 24px 19px 0;
+        box-sizing: border-box;
+
+        .labelContainer {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
+
+        .nodeLabel {
+          flex: 1 1 0%;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+
+        .typeLabBox {
+          border-bottom: 1px solid #eaeaea;
+          padding-top: 20px;
+          margin-left: 24px;
+
+          li {
+            display: inline-block;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fff;
+            cursor: pointer;
+
+            &.current,
+            &:hover {
+              border-bottom: 2px solid #2196f3;
+              color: #2196f3;
+            }
+          }
+        }
+      }
+
+      .creatDepartment {
+        // padding: 16px 0;
+        display: flex;
+        align-items: center;
+        &:hover {
+          color: #1280d8 !important;
+        }
+      }
+
+      .addMenberBtns {
+        display: flex;
+        align-items: center;
+        &:hover {
+          color: #2196f3 !important;
+        }
+      }
+
+      .structureContent {
+        flex: 1;
+        z-index: 0;
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+      }
+    }
+  }
+
+  /* searchBox */
+  .searchContainer {
+    box-sizing: border-box;
+    background: #f5f5f5;
+    // border: 1px solid #fff;
+    border-radius: 15px;
+    margin-left: 24px;
+
+    .btnSearch {
+      font-size: 20px;
+
+      position: absolute;
+
+      margin: 7px 14px;
+    }
+
+    .searchInput {
+      line-height: 30px;
+
+      width: 155px;
+      height: 30px;
+      padding-left: 38px;
+
+      border: none;
+      outline: none;
+      background: transparent;
+    }
+
+    .searchResult {
+      background: #fff;
+      position: absolute;
+      z-index: 1;
+      top: 33px;
+      width: 270px;
+      min-height: 500px;
+      max-height: 90%;
+      border-radius: 3px;
+      box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+      overflow: auto;
+      background: #fff;
+
+      .userItem,
+      .deptItem {
+        padding: 5px 10px;
+        cursor: pointer;
+
+        &:hover {
+          background: #eee;
+        }
+      }
+
+      .deptItem {
+        display: flex;
+        flex-wrap: nowrap;
+
+        > span {
+          &:not(:first-child) {
+            position: relative;
+            padding-left: 10px;
+          }
+
+          &:not(:first-child):before {
+            content: ' - ';
+            position: absolute;
+            left: 2px;
+          }
+
+          flex: 0 1 auto;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .title {
+        padding: 5px 10px;
+        color: #757575;
+        margin-top: 10px;
+      }
+
+      .deptItem {
+        line-height: 28px;
+      }
+
+      .userItem {
+        .noWrap {
+          white-space: nowrap;
+        }
+
+        .avatar {
+          float: left;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+        }
+
+        .name,
+        .job {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .job {
+          // color: #bdbdbd;
+        }
+      }
+    }
+  }
+
+  /* tool bar */
+  .toolbar {
+    // position: absolute;
+    // top: 0;
+    // left: 250px;
+    // right: 0;
+    min-width: 500px;
+    padding: 7px 15px;
+
+    background-color: rgba(255, 255, 255, 1);
+
+    .toolBtn {
+      display: inline-block;
+
+      .dropdown-btn {
+        color: inherit;
+
+        span {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .dropTrigger {
+      position: relative;
+      z-index: 1;
+
+      &:hover {
+        & [data-target] {
+          display: block;
+        }
+      }
+
+      .dropDialog {
+        line-height: 2;
+
+        position: absolute;
+        left: 0;
+
+        display: none;
+
+        width: 140px;
+        margin-top: -2px;
+        padding: 5px 0;
+
+        background: #fff;
+
+        li {
+          padding: 5px 10px;
+
+          &:hover {
+            color: #fff;
+          }
+
+          &:not(:hover) {
+            background: none !important;
+          }
+        }
+      }
+    }
+  }
+
+  /* mainContent userList */
+  .departmentInfo {
+    // position: absolute;
+    // top: 45px;
+    // bottom: 0;
+    // left: 250px;
+    // right: 0;
+    min-width: 500px;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    flex: 1 0 0px;
+
+    .userList {
+      // margin: 18px;
+      margin: 0 16px 18px 0;
+      overflow: hidden;
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      padding: 24px 0;
+      border-radius: 2px;
+      background-color: rgba(255, 255, 255, 1);
+
+      .departmentTitle {
+        height: 38px;
+        box-sizing: border-box;
+        // padding: 0 42px;
+        padding-bottom: 14px;
+        padding-left: 28px;
+        font-weight: 500;
+
+        .departmentName .Checkbox-box {
+          transform: scale(0.7);
+          vertical-align: top;
+          margin-top: 2px;
+        }
+
+        .actionBox {
+          float: right;
+          font-weight: normal;
+
+          .selectedAccountAction {
+            color: #2196f3;
+          }
+        }
+
+        .pageBox {
+          display: flex;
+          align-items: center;
+          float: right;
+          font-size: 13px;
+          font-weight: normal;
+
+          .preIcon,
+          .nextIcon {
+            width: 20px;
+            cursor: pointer;
+          }
+        }
+      }
+
+      .departmentContent {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: auto;
+      }
+
+      .listPhContent {
+        flex: 1;
+        height: 300px;
+        width: 300px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin: -150px 0 0 -150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        > div {
+          margin-top: -10%;
+        }
+
+        .nullState {
+          width: 100px;
+          height: 100px;
+          background: #efefef;
+          color: #e0e0e0;
+          font-size: 44px;
+          line-height: 93px;
+          text-align: center;
+          border-radius: 50%;
+        }
+
+        p {
+          line-height: 1.618;
+        }
+      }
+
+      .usersTable {
+        &.overflowTable {
+          min-width: 100%;
+          table-layout: fixed;
+        }
+        th {
+          font-weight: normal;
+          padding: 10px 0 12px;
+          text-align: left;
+          border-bottom: 1px solid #eaeaea;
+          // overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-size: 13px;
+          color: #757575;
+
+          &.nameTh {
+            // padding-left: 15px;
+            box-sizing: border-box;
+          }
+
+          &:first-child {
+            padding: 10px 0 12px;
+          }
+
+          // &:nth-child(2) {
+          //   padding: 0 24px 0 0;
+          // }
+
+          &:last-child {
+            text-align: center;
+          }
+        }
+
+        .chargeIcon {
+          color: #f9ce1d;
+        }
+
+        .checkBox {
+          width: 24px;
+          min-width: 24px;
+        }
+
+        thead {
+          &:hover {
+            .checkBox {
+              opacity: 1;
+            }
+          }
+
+          .showCheckBox.checkBox,
+          .hasSelectCount.checkBox {
+            opacity: 1;
+          }
+
+          .Checkbox-box {
+            transform: scale(0.8);
+            margin-right: 0px;
+
+            &:hover {
+              border-color: #2196f3;
+            }
+          }
+
+          .checkBox {
+            border-bottom: none;
+            opacity: 0;
+
+            .multi-dropdown {
+              display: inline-block;
+              width: 0px;
+              margin-left: 0 !important;
+
+              .dropdown-btn {
+                vertical-align: top;
+                padding-left: 1px;
+
+                i.icon {
+                  color: #757575;
+                }
+              }
+
+              .multi-dropdown-menu {
+                top: 100%;
+                bottom: auto;
+              }
+            }
+          }
+        }
+
+        .Remind {
+          font-size: 12px;
+          line-height: 20px;
+
+          display: inline-block;
+
+          height: 20px;
+          margin-top: 2px;
+          padding: 0 5px;
+
+          cursor: pointer;
+
+          border-radius: 2px;
+        }
+
+        .forRemind {
+          &:hover {
+            color: #2196f3 !important;
+          }
+        }
+
+        .userItem {
+          &:hover,
+          &.isChecked {
+            > td {
+              background: #f7f7f7;
+
+              &.nameTh {
+                .name a {
+                  color: #2196f3 !important;
+                }
+              }
+            }
+
+            .checkBox {
+              background: #fff !important;
+            }
+          }
+
+          > td {
+            height: 48px;
+            vertical-align: middle;
+            // padding: 0 24px;
+            // overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 150px;
+
+            &:first-child {
+              padding: 0 0;
+            }
+
+            // &:nth-child(2) {
+            //   padding: 0 24px 0 0;
+            // }
+          }
+
+          &:hover {
+            .checkBox {
+              opacity: 1;
+            }
+          }
+
+          .showCheckBox.checkBox,
+          .hasSelectCount.checkBox {
+            opacity: 1;
+          }
+
+          .Checkbox-box {
+            transform: scale(0.8);
+            margin-right: 0px;
+
+            &:hover {
+              border-color: #2196f3;
+            }
+          }
+
+          .checkBox {
+            opacity: 0;
+          }
+
+          .avatar {
+            width: 32px;
+            height: 32px;
+
+            vertical-align: middle;
+
+            border-radius: 50%;
+          }
+
+          .name,
+          .job,
+          .workSite,
+          .email {
+            display: block;
+            overflow: hidden;
+
+            max-width: 100%;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .job {
+            // color: #bdbdbd;
+          }
+
+          // .nameTh {
+          //   flex: 24
+          // }
+
+          // .jobTh,
+          // .departmentTh {
+          //   flex: 18
+          // }
+
+          // .mobileTh {
+          //   flex: 14
+          // }
+
+          // .emailTh {
+          //   flex: 19
+          // }
+
+          // .act {
+          //   flex: 5;
+          // }
+        }
+
+        .opList {
+          position: absolute;
+          z-index: 1;
+          top: 46px;
+          right: 15px;
+          min-width: 126px;
+          padding: 6px 0;
+
+          border-radius: 3px;
+          background: #fff;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+
+          .opItem {
+            padding: 0 24px;
+            line-height: 36px;
+            cursor: pointer;
+            white-space: nowrap;
+
+            &:hover {
+              background-color: #2196f3;
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .jobListBox {
+    height: 100%;
+
+    & > ul {
+      height: 100%;
+      overflow: auto;
+    }
+  }
+
+  .jobListUl {
+    li {
+      .editIcon {
+        display: none;
+
+        &:hover {
+          color: #2196f3 !important;
+        }
+      }
+
+      &.current,
+      &:hover {
+        .editIcon {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  .jopInfo {
+    min-width: 500px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0;
+
+    .jobList {
+      // margin: 18px;
+      margin: 0 16px 18px 0;
+      overflow: hidden;
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      padding: 24px 0;
+      border-radius: 2px;
+      background-color: #ffffff;
+
+      .departmentTitle {
+        padding-bottom: 14px;
+        padding-left: 28px;
+        font-weight: 500;
+        height: 38px;
+        box-sizing: border-box;
+
+        .actionBox {
+          float: right;
+          font-weight: normal;
+
+          .selectedAccountAction {
+            color: #2196f3;
+          }
+        }
+      }
+
+      .noData {
+        flex: 1;
+        height: 300px;
+        width: 300px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin: -150px 0 0 -150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .nullState {
+          width: 100px;
+          height: 100px;
+          background: #efefef;
+          color: #e0e0e0;
+          font-size: 44px;
+          line-height: 93px;
+          text-align: center;
+          border-radius: 50%;
+          margin: 0 auto;
+        }
+      }
+
+      .pageBox {
+        float: right;
+        font-size: 13px;
+        font-weight: normal;
+      }
+
+      .headerJob {
+        padding: 0 18px;
+      }
+
+      .jobCon {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        .usersTable thead {
+          border-bottom: none;
+        }
+
+        .checkBox {
+          width: 24px;
+          // text-align: right;
+        }
+
+        thead {
+          &:hover {
+            .checkBox {
+              opacity: 1;
+            }
+          }
+
+          .showCheckBox.checkBox,
+          .hasSelectCount.checkBox {
+            opacity: 1;
+          }
+
+          .Checkbox-box {
+            transform: scale(0.8);
+            margin-right: 0px;
+
+            &:hover {
+              border-color: #2196f3;
+            }
+          }
+
+          .checkBox {
+            border-bottom: none !important;
+            opacity: 0;
+
+            .multi-dropdown {
+              display: inline-block;
+              width: 0px;
+              margin-left: 0 !important;
+
+              .dropdown-btn {
+                vertical-align: top;
+                padding-left: 1px;
+
+                i.icon {
+                  color: #757575;
+                }
+              }
+
+              .multi-dropdown-menu {
+                top: 100%;
+                bottom: auto;
+              }
+            }
+          }
+        }
+
+        .usersTable th {
+          font-weight: normal;
+          padding: 10px 0 12px;
+          text-align: left;
+          border-bottom: 1px solid #eaeaea;
+          // overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-size: 13px;
+          color: #757575;
+
+          &.nameTh {
+            // padding-left: 15px;
+            box-sizing: border-box;
+            width: 35%;
+          }
+
+          &:first-child {
+            padding: 10px 0 12px;
+          }
+
+          // &:nth-child(2) {
+          //   padding: 0 24px 0 0;
+          // }
+        }
+
+        .usersTable th:last-child {
+          text-align: center;
+          width: 100px;
+        }
+
+        .userItem {
+          &:hover,
+          &.isChecked {
+            > td {
+              background: #f7f7f7;
+
+              &.nameTh {
+                .name a {
+                  color: #2196f3 !important;
+                }
+              }
+            }
+
+            .checkBox {
+              background: #fff !important;
+            }
+          }
+
+          > td {
+            height: 48px;
+            vertical-align: middle;
+            // padding: 0 24px;
+            // overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 180px;
+
+            &:first-child {
+              padding: 0 0;
+            }
+
+            &:nth-child(2) {
+              padding: 0 24px 0 0;
+            }
+          }
+
+          &:hover {
+            .checkBox {
+              opacity: 1;
+            }
+          }
+
+          .showCheckBox.checkBox,
+          .hasSelectCount.checkBox {
+            opacity: 1;
+          }
+
+          .Checkbox-box {
+            transform: scale(0.8);
+            margin-right: 0px;
+
+            &:hover {
+              border-color: #2196f3;
+            }
+          }
+
+          .checkBox {
+            opacity: 0;
+          }
+
+          .avatar {
+            width: 32px;
+            height: 32px;
+
+            vertical-align: middle;
+
+            border-radius: 50%;
+          }
+
+          .name,
+          .job,
+          .workSite,
+          .email {
+            display: block;
+            overflow: hidden;
+
+            max-width: 100%;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .job {
+            color: #bdbdbd;
+          }
+        }
+
+        .opList {
+          position: absolute;
+          z-index: 1;
+          top: 46px;
+          right: 15px;
+          min-width: 126px;
+          padding: 5px 0;
+
+          border: 1px solid #e0e0e0;
+          border-radius: 3px;
+          background: #fff;
+          box-shadow: 0 2px 6px 0 #e6e6e6, 2px 0 6px 0 #e6e6e6;
+
+          .opItem {
+            padding: 5px 10px;
+
+            cursor: pointer;
+            white-space: nowrap;
+
+            &:hover {
+              background-color: #f3f3f3;
+            }
+          }
+        }
+      }
+    }
+  }
+}

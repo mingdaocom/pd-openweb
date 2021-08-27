@@ -1,0 +1,112 @@
+
+.UploadFilesTriggerWrap {
+  &.rc-trigger-popup {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    z-index: 1000;
+  }
+  &.rc-trigger-popup-hidden {
+    display: none;
+  }
+}
+
+
+.UploadFilesTriggerPanel {
+  width: 480px;
+  min-height: 253px;
+  max-height: 370px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+  &.compatibilityIe .UploadFiles-wrapper {
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+  }
+  &.drag {
+    .dropTextarea {
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      border-radius: 4px;
+    }
+    .dragPanel {
+      display: flex;
+    }
+  }
+
+  .panelHeader {
+    height: 20px;
+    padding: 18px;
+    .icon-knowledge-message:hover {
+      color: #757575 !important;
+    }
+  }
+  .panelContent {
+    position: absolute;
+    top: 56px;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+    justify-content: center;
+    z-index: 0;
+  }
+  .panelBtns {
+    position: absolute;
+    bottom: 0;
+    right: 22px;
+    z-index: 3;
+    height: 49px;
+    background-color: #fff;
+  }
+  .dropTextarea {
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    resize: none;
+    border: none;
+    padding: 0;
+  }
+  .dragPanel {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -80px;
+    background-color: #fff;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .UploadFiles {
+    &-wrapper {
+      flex: 1;
+      flex-direction: column-reverse;
+      overflow: hidden;
+    }
+    &-filesWrapper {
+      flex: 1;
+      padding: 0 13px 0 20px;
+      margin-right: 0;
+      overflow-y: auto;
+      z-index: 1;
+    }
+    &-file-wrapper:nth-child(3n+0) {
+      margin-right: 0;
+    }
+    &-header {
+      padding: 0 20px !important;
+      margin-bottom: 0 !important;
+      border-top: 1px solid #eaeaea;
+      background-color: transparent !important;
+      min-height: 50px;
+    }
+    &-ramSize {
+      display: none;
+    }
+  }
+}

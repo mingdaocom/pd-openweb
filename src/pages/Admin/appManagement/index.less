@@ -1,0 +1,262 @@
+.appManagementList {
+  margin: 16px;
+  border-radius: 4px;
+  background: #fff;
+
+  .columnWidth {
+    width: 150px;
+    @media (max-width: 1280px) {
+      width: 120px;
+    }
+  }
+
+  .appManagementHeader {
+    padding: 0 24px;
+    align-items: center;
+    height: 57px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  .manageListSearch {
+    padding: 16px 24px 0;
+    align-items: center;
+    .w180 {
+      width: 180px;
+    }
+  }
+  .manageList {
+    margin: 0 24px;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    &:hover {
+      background: #f8f8f8;
+      .del {
+        visibility: visible;
+      }
+    }
+    &.manageListHeader {
+      border-color: #ddd;
+      padding: 12px 0;
+      margin-right: 24px;
+      color: #757575;
+      &:hover {
+        background: #fff;
+      }
+    }
+    &:last-child {
+      border-color: #fff;
+    }
+    .flexRow {
+      align-items: center;
+    }
+    .w200 {
+      width: 200px;
+    }
+    .w150 {
+      width: 150px;
+    }
+    .w20 {
+      width: 20px;
+    }
+    .iconWrap {
+      &.unable {
+        background-color: #bdbdbd !important;
+      }
+      width: 36px;
+      height: 36px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon {
+        font-size: 24px;
+        color: #fff;
+      }
+    }
+    .name {
+      position: relative;
+      height: 60px;
+      cursor: pointer;
+      .nameBox {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        justify-content: center;
+        text-decoration: none;
+        &.unable:not(:hover) {
+          color: #757575 !important;
+        }
+        &:not(:hover):not(.unable) {
+          color: #333 !important;
+        }
+      }
+    }
+    .del {
+      font-size: 18px;
+      visibility: hidden;
+      cursor: pointer;
+    }
+  }
+  .manageListNull {
+    align-items: center;
+    justify-content: center;
+    .iconWrap {
+      width: 130px;
+      height: 130px;
+      line-height: 130px;
+      text-align: center;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+    }
+    .icon {
+      vertical-align: middle;
+      font-size: 66px;
+      color: #bdbdbd;
+    }
+    .emptyExplain {
+      margin-top: 20px;
+      color: #9e9e9e;
+      font-size: 17px;
+      text-align: center;
+    }
+  }
+  .appManagementCount {
+    margin: 16px 24px 0;
+    padding: 0 24px;
+    background: rgba(33, 150, 243, 0.05);
+    align-items: center;
+    height: 40px;
+  }
+  .manageListOrder {
+    transform: scale(0.8);
+    color: #bfbfbf;
+    margin-left: -10px;
+    .icon-arrow-down {
+      margin-top: -4px;
+    }
+  }
+  .appManagementTips {
+    &:after {
+      width: 200px;
+      white-space: normal;
+    }
+  }
+  .appManagementUploadBtn {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px 0 10px;
+    border-radius: 16px;
+    font-size: 12px;
+  }
+  .hoverRed:hover {
+    color: #f44336 !important;
+  }
+  .appManagementCustom {
+    margin: 16px 14px 0;
+  }
+  .appManagementCustomItem {
+    width: 60px;
+    height: 60px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: transparent;
+    cursor: pointer;
+    vertical-align: top;
+    &:hover:not(.selected) {
+      background: #eaeaea;
+      border-color: #eaeaea;
+    }
+    &.selected {
+      background: rgba(33, 150, 243, 0.06);
+      border-color: #2196f3;
+    }
+  }
+}
+
+.checkAdminDialog {
+  .Button--primary {
+    background: #f5f5f5;
+    color: #2196f3;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+.moreOptionPanelTrigger {
+  min-width: 160px !important;
+}
+
+.applicationBetaIcon1 {
+  color: #FAB023;
+  font-size: 10px;
+}
+
+.optionPanelTrigger {
+  min-width: 135px;
+  padding: 6px 0;
+  background-color: #ffffff;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
+  position: absolute;
+  top: 20px;
+  z-index: 5;
+  li {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 16px;
+    height: 36px;
+    &:not(.active) {
+      color: #333333 !important;
+    }
+    &.deleteIcon {
+      color: #f51744 !important;
+      i {
+        color: #f51744 !important;
+      }
+    }
+    &:hover {
+      background-color: #2196f3 !important;
+      color: #ffffff !important;
+      i {
+        color: #fff !important;
+      }
+    }
+
+    i:first-child {
+      font-size: 15px;
+    }
+  }
+}
+
+.appLogDrawerContainer {
+  .ant-drawer-header {
+    border-bottom: none;
+    .ant-drawer-title {
+      font-size: 17px;
+      font-weight: bold;
+    }
+  }
+  .ant-drawer-body {
+    padding-top: 0 !important;
+  }
+}
+
+.exportSingleAppDialog,
+.importTotalAppDialog {
+  max-height: inherit !important;
+  height: inherit !important;
+  .mui-dialog-body {
+    overflow: initial !important;
+    padding-bottom: 0 !important;
+  }
+}

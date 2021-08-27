@@ -1,0 +1,91 @@
+.initPassowrdDialog {
+  .warnMsg {
+    color: #f51744;
+  }
+
+  .warnBox {
+    margin-top: 8px;
+    height: 20px;
+  }
+
+  .disable {
+    cursor: default;
+    background: #bdbdbd !important;
+  }
+
+  .inputWrap {
+    position: relative;
+    margin-top: 8px;
+    .inputBox {
+      width: 100%;
+      height: 40px;
+      border-radius: 3px;
+      border: 1px solid #e6e6e6;
+      padding: 0 12px;
+      box-sizing: border-box;
+      line-height: 38px;
+      font-size: 13px;
+      &.errors {
+        border-color: #f51744 !important;
+      }
+      &:focus {
+        border-color: #c0c4cc;
+        outline: 0;
+      }
+      ::-webkit-input-placeholder {
+        color: #9e9e9e;
+      }
+      :-moz-placeholder {
+        color: #9e9e9e;
+      }
+      ::-moz-placeholder {
+        color: #9e9e9e;
+      }
+      :-ms-input-placeholder {
+        color: #9e9e9e;
+      }
+    }
+    .ant-input-affix-wrapper:hover,
+    .ant-input-affix-wrapper-focused {
+      border-color: #c0c4cc;
+      box-shadow: none;
+    }
+    .codeBtn {
+      width: 96px;
+      height: 32px;
+      text-align: center;
+      line-height: 32px;
+      border-radius: 3px;
+      position: absolute;
+      right: 4px;
+      top: 4px;
+      color: #ffffff;
+    }
+  }
+
+  #txtMobilePhone {
+    .iti {
+      width: 100%;
+      .iti__selected-flag {
+        padding: 0 12px !important;
+      }
+    }
+  }
+
+  .submitBtn {
+    width: 101px;
+    height: 36px;
+    border-radius: 18px;
+    text-align: center;
+    line-height: 36px;
+    color: #ffffff;
+    margin-top: 30px;
+    margin-bottom: 25px;
+  }
+
+  .line {
+    width: 100%;
+    height: 1px;
+    background-color: #EAEAEA;
+  }
+}

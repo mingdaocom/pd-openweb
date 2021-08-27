@@ -1,0 +1,16 @@
+.lineClampTextBox {
+  overflow: hidden;
+  text-align: center;
+  box-sizing: border-box;
+  line-height: 18px;
+  .contentText {
+    display: -webkit-box;
+    /* autoprefixer: off */
+    -webkit-box-orient: vertical;
+    /* autoprefixer: on */
+    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    width: 100%;
+  }
+}

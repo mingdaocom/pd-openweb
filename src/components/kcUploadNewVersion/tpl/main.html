@@ -1,0 +1,35 @@
+﻿<div class="uploadNewVersionContainer">
+    <div class="filePreview">
+        <div class="fileIcon">
+            <span class="fileSize"></span>
+        </div>
+        <div class="thumbnailCon">
+            <div class="thumbnail">
+            </div>
+        </div>
+        <div class="process">
+            <div class="processBar">
+                <div class="processContent ThemeBGColor3"></div>
+                <div class="processPercent ThemeColor3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="dList">
+        <div class="dItem">
+            <div class="itemLabel">
+                {{=_l('名称')}}
+            </div>
+            <div class="itemContent">
+                <input type="text" id="newVersionFileName" placeholder="{{=_l('名称')}}" />
+            </div>
+        </div>
+        <div class="dItem">
+            <div class="itemLabel">
+                {{=_l('添加说明')}}
+            </div>
+            <div class="itemContent">
+                <textarea name="" id="newVersionFileDetail" draggable="false" placeholder="{{=_l('对此版本添加说明， 可在属性-日志中查看')}}" ></textarea>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+/**
+* component Button
+* prefix .mui-button
+*/
+// default button style
+.mui-button {
+  // default height = 36px
+  font-size: 14px;
+  line-height: 20px;
+  color: #fff;
+  padding: 8px 16px;
+  min-width: 72px;
+  border: none;
+  outline: none;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+  &:disabled {
+    background-color: #bdbdbd !important;
+    cursor: not-allowed;
+  }
+
+  & > .Icon {
+    font-size: 16px;
+    display: inline-block;
+    margin-right: 3px;
+    vertical-align: middle;
+  }
+  & > span {
+    vertical-align: middle;
+  }
+
+  // ghost button style
+  &.mui-button-ghost {
+    border: solid 1px;
+    background-color: transparent !important;
+    padding: 7px 15px;
+    &:disabled {
+      background-color: transparent !important;
+      border-color: #bdbdbd !important;
+      color: #bdbdbd !important;
+      cursor: not-allowed;
+    }
+
+    &.mui-button-error {
+      border-color: #fd423e;
+      color: #fd423e;
+      background-color: transparent;
+      &:hover {
+        border-color: #fd423e;
+        color: #fff;
+        background-color: #fd423e;
+      }
+    }
+  }
+  // color-error
+  &.mui-button-error {
+    background-color: #fd423e;
+    &:hover {
+      background-color: #ce272f;
+    }
+  }
+}

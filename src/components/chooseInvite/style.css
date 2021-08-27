@@ -1,0 +1,431 @@
+﻿.chooseInviteIcon {
+  font-size: 77px;
+
+  position: relative;
+
+  height: 77px;
+
+  transition-duration: 0.3s;
+  transition-property: transform;
+  transform: translateZ(0);
+}
+
+.chooseInviteIcon:hover {
+  transform: scale(1.1);
+}
+
+.coverIcon .chooseInviteIcon:hover {
+  transform: none;
+}
+
+.coverIcon .chooseInviteIcon i[class*='icon'] {
+  color: #e0e0e0;
+}
+
+.chooseInvite .coverIcon .lblTxt {
+  color: #aaa;
+}
+
+.chooseInviteIcon i,
+.chooseInviteIcon i:before {
+  padding-top: 1px;
+
+  vertical-align: top;
+}
+
+.inviteWeixinIcon {
+  color: #8bc34a;
+}
+
+.inviteQQIcon {
+  color: #03a9f4;
+}
+
+.inviteDingIcon {
+  color: #00bcd4;
+  font-size: 90px;
+  margin-top: -7px;
+  padding-bottom: 7px;
+}
+
+.inviteEmailIcon {
+  color: #f9ce1d;
+}
+
+.inviteMobileIcon {
+  color: #f98b19;
+}
+
+.inviteQRCodeIcon {
+  color: #607d8b;
+}
+
+.chooseInviteBtn {
+  font-size: 14px;
+  line-height: 38px;
+
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+
+  min-width: 140px;
+  height: 38px;
+  padding: 0 25px;
+
+  cursor: pointer;
+  transform: translateX(-50%);
+  text-align: center;
+  text-align: center;
+  vertical-align: middle;
+
+  color: white;
+  border: 0;
+  border-radius: 4px;
+}
+
+.chooseInviteBtn:hover {
+  text-decoration: none !important;
+}
+
+.chooseInviteBtn.btnArrow {
+  padding-left: 50px;
+
+  background: url(images/btnArrow.png) no-repeat 25px center;
+}
+
+/*选择邀请类型*/
+.chooseInvite {
+  padding-top: 50px;
+}
+
+.chooseInvite ul li {
+  float: left;
+
+  width: 150px;
+  height: 115px;
+  margin-bottom: 40px;
+
+  list-style: none;
+
+  cursor: pointer;
+  text-align: center;
+}
+
+.chooseInvite .lblTxt {
+  font-size: 14px;
+
+  margin-top: 20px;
+
+  color: #555;
+}
+
+.chooseInvite .viewHistoryInviteLink,
+.chooseInvite .viewHistoryInvited {
+  font-size: 13px;
+
+  display: inline-block;
+
+  cursor: pointer;
+
+  color: #aaa;
+}
+
+.chooseInvite .linkbox:only-child {
+  display: inline-block;
+
+  width: 100%;
+}
+
+.chooseInvite .linkbox {
+  display: inline-block;
+
+  width: 50%;
+}
+
+.chooseInviteDialog {
+  height: 553px;
+
+  background-color: #eee;
+}
+
+#chooseInviteDialog .dialogContent {
+  padding: 0;
+}
+
+.chooseInviteDialog input {
+  line-height: 1.5 !important;
+}
+
+.chooseInviteDialog .titleContainer {
+  height: 210px;
+
+  background-color: white;
+}
+
+.chooseInviteDialog .contentContainer {
+  padding-top: 10px;
+}
+
+.chooseInviteDialog .titleContainer .closeDialog {
+  font-size: 16px;
+
+  padding: 16px 20px;
+
+  cursor: pointer;
+}
+
+/*二维码*/
+.chooseInviteDialog .qrCodeContainer {
+  width: 180px;
+  height: 180px;
+  line-height: 180px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: white;
+}
+
+.chooseInviteDialog .qrCodeContainer img {
+  height: 160px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/*邮箱邀请 邀请手机号*/
+.chooseInviteDialog .accountContainer {
+  overflow-y: auto;
+
+  max-height: 240px;
+}
+
+.chooseInviteDialog .inviteAccount {
+  width: 290px;
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.chooseInviteDialog .inviteMobileAccount {
+  padding-bottom: 200px;
+}
+
+.chooseInviteDialog .inviteAccount>li {
+  position: relative;
+
+  display: inline-block;
+
+  margin-bottom: 10px;
+}
+
+.chooseInviteDialog .inviteAccount .removeInput {
+  position: absolute;
+  top: 10px;
+  left: 105%;
+  cursor: pointer;
+  width: 26px;
+  color: #aaa;
+}
+
+.chooseInviteDialog .inviteAccount li input {
+  box-sizing: border-box;
+  width: 290px;
+  height: 35px;
+  padding: 5px;
+
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.chooseInviteDialog .inviteAccount li input.rightFlag {
+  background: #fdf9ad url(images/rightIcon.png) no-repeat 268px center;
+}
+
+.chooseInviteDialog .inviteAccount li input.errorFlag {
+  background: #fdf9ad url(images/errorIcon.png) no-repeat 268px center;
+}
+
+.chooseInviteDialog .inviteAccount li input:focus {
+  border: 1px solid #1f81d7;
+}
+
+/* link qrcode */
+.chooseInviteDialog .linkBtn,
+.chooseInviteDialog .qrCodeBtn {
+  font-size: 14px;
+  line-height: 48px;
+
+  width: 400px;
+  height: 50px;
+  margin: 12px auto;
+
+  cursor: pointer;
+
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 3px;
+  text-align: left;
+  padding-left: 120px;
+  box-sizing: border-box;
+}
+
+.chooseInviteDialog .linkBtn:not(.zeroclipboard-is-hover),
+.chooseInviteDialog .qrCodeBtn:not(:hover) {
+  color: #333 !important;
+}
+
+.chooseInviteDialog .linkBtn:not(.zeroclipboard-is-hover) .icon,
+.chooseInviteDialog .qrCodeBtn:not(:hover) .icon {
+  color: #757575 !important;
+}
+
+/*历史链接邀请记录*/
+.historyInviteLinkDialog .titleContainer,
+.historyInvitedDialog .titleContainer {
+  line-height: 20px;
+  padding-bottom: 10px;
+}
+
+.historyInviteLinkDialog .titleContainer .lblBack,
+.historyInvitedDialog .titleContainer .lblBack {
+  font-size: 16px;
+
+  display: inline-block;
+
+  cursor: pointer;
+}
+
+.historyInviteLinkDialog .titleContainer .lblBack:not(:hover),
+.historyInvitedDialog .titleContainer .lblBack:not(:hover) {
+  color: #333 !important;
+}
+
+.historyInviteLinkDialog .titleContainer .lblBack:not(:hover) .icon-arrow-left-border,
+.historyInvitedDialog .titleContainer .lblBack:not(:hover) .icon-arrow-left-border {
+  color: #757575 !important;
+}
+
+.historyInviteLinkDialog .contentContainer,
+.historyInvitedDialog .contentContainer {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 505px;
+  margin-bottom: 20px;
+}
+
+.historyInvitedDialog .historyInviteList {
+  position: relative;
+
+  background-image: url(images/inviteRecord.png);
+  background-repeat: no-repeat;
+  background-position: center 120px;
+  background-size: 80px;
+}
+
+.historyInviteLinkDialog .historyLinkList {
+  position: relative;
+
+  background-image: url(images/inviteLink.png);
+  background-repeat: no-repeat;
+  background-position: center 120px;
+  background-size: 80px;
+}
+
+.historyInvitedDialog .historyInviteList>ul,
+.historyInviteLinkDialog .historyLinkList>ul {
+  background-color: #fff;
+}
+
+.historyInvitedDialog .historyInviteList:before,
+.historyInviteLinkDialog .historyLinkList:before {
+  font-size: 16px;
+
+  position: absolute;
+  top: 230px;
+
+  width: 100%;
+
+  content: attr(data-title);
+  text-align: center;
+}
+
+.historyInviteLinkDialog .historyLinkList li {
+  line-height: 21px;
+
+  position: relative;
+
+  padding: 12px 0;
+  padding-bottom: 12px;
+
+  border-top: 1px solid #ddd;
+}
+
+.historyInviteLinkDialog .historyLinkList li .closeLink {
+  font-size: 14px;
+  line-height: 20px;
+
+  position: absolute;
+  top: 50%;
+  right: 20px;
+
+  width: 20px;
+  height: 20px;
+  margin-top: -40px;
+
+  cursor: pointer;
+  text-align: center;
+
+  color: white;
+  border-radius: 50%;
+  background-color: #bdbdbd;
+}
+
+.historyInviteLinkDialog .historyLinkList li .closeLink:hover {
+  background-color: #999;
+}
+
+.historyInviteList {
+  height: 100%;
+}
+
+.historyInviteList li {
+  line-height: 32px;
+
+  padding: 8px 5px;
+
+  border-top: 1px solid #ccc;
+}
+
+.historyInviteList li:last-child {
+  border-bottom: 1px solid #ccc;
+}
+
+.chooseInvitePoshytip .qrCodeBox {
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.chooseInvitePoshytip .textTip {
+  height: 50px;
+  line-height: 50px;
+  font-size: 18px;
+}
+
+.inviteMobileAccount .iti {
+  width: 100%;
+}
+
+.inviteMobileAccount .iti .iti__flag-container .iti__selected-flag {
+  outline: none;
+}
+
+.inviteMobileAccount .iti--separate-dial-code .iti__selected-flag {
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.inviteMobileAccount .iti--allow-dropdown .iti__flag-container,
+.inviteMobileAccount .iti--separate-dial-code .iti__flag-container {
+  left: 1px !important;
+}
+
+.inviteMobileAccount .iti__country-list {
+  max-width: 290px;
+  overflow-x: hidden;
+}

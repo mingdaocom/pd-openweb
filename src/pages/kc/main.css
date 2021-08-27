@@ -1,0 +1,26 @@
+﻿/*--kcApp main--*/
+html.AppKc,
+.AppKc body,
+.AppKc form {
+  height: 100%;
+}
+html.AppKc {
+  overflow: auto;
+}
+.AppKc .transitions {
+  transition: all 0.25s ease-in;
+}
+.AppKc #container {
+  /*width: 100% !important;*/
+  max-width: 100% !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.AppKc #container .Drawer {
+  position: absolute !important;
+  top: 45px;
+}

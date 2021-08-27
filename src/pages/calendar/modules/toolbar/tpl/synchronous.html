@@ -1,0 +1,44 @@
+﻿<table class="synchronousMain">
+    <tr>
+        <td class="synchronousMainFontSize20">{{=_l('同步日程到您的outlook或其他应用')}}</td>
+    </tr>
+    <tr>
+        <td class="synchronousMainDescription">{{=_l('请使用以下网址通过其他应用访问使用您的日历。可将其复制粘贴到任何支持iCal格式的日历产品中')}}</td>
+    </tr>
+    <tr>
+        <td class="synchronousMainStyle">
+            <a id="icalURL" href="{{!it}}" class="synchronousBtn1 btnBootstrap btnBootstrap-primary btnBootstrap-small">{{=_l('添加订阅')}}</a>
+            <a id="clipinner" class="synchronousMargin" data-clipboard-text="{{!it.replace(/webcal:/, location.protocol)}}">
+                {{=_l('复制Internet日历地址')}}
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td class="synchronousBorder">
+            <p class="synchronousPStyle1">
+                {{=_l('iCal又称iCalendar-使用这种格式可以从其他应用程序中查看您当前日历的只读版本')}}<br/>
+                <span class="ThemeColor3">{{=_l('请按下列步骤操作，来使用您的日历网址')}}</span>
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td class="synchronousBg">
+            <table id="iCalAbout" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td type="1" class="ThemeBGColor5 Select synchronousSelect" >Microsoft Outlook</td>
+                    <td rowspan="3" id="iCalContent" class="pTop3 pLeft10">
+                        <span class="synchronousLineHeight24">1.{{=_l('在本页上方，复制ICAL格式日历网址')}}</span><br/>
+                        <span id="iCalContent_two">2.{{=_l('"打开Outlook，在工具>账户设置>Internet日历中新建，并粘贴
+刚才获得的ICAL格式日历地址"')}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td type="2" class="synchronousSelect">{{=_l('Mac日历')}}</td>
+                </tr>
+                <tr>
+                    <td type="3" class="synchronousSelect">Google Calendar</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,331 @@
+.editBox {
+  font-size: 12px;
+  color: #333;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: none;
+  .bottomLocation {
+    flex: 1;
+    min-height: 40px;
+  }
+  .editArea {
+    min-height: 361px;
+    display: flex;
+    width: 100%;
+    position: relative;
+    background: #fff;
+    flex-direction: column;
+  }
+  .editWidgetContainer {
+    width: 100%;
+    width: 100%;
+    padding: 0 14px;
+    box-sizing: border-box;
+    padding-top: 10px;
+  }
+  .editWidgetList {
+    width: 100%;
+    display: flex;
+  }
+}
+.editWidgetListItem {
+  position: relative;
+  float: left;
+  box-sizing: border-box;
+  padding: 10px;
+  &.editBoxHalfAnimation {
+    animation: editBoxHalfAnimation 0.5s ease-in-out;
+  }
+  &.editBoxAnimation {
+    animation: editBoxAnimation 0.5s ease-in-out;
+  }
+  &:hover:not(.editHide) {
+    background-color: #f4f5f7;
+  }
+  &.halfItem {
+    width: 50%;
+    &:first-child {
+      padding-right: 15px;
+    }
+    &:nth-child(2) {
+      padding-left: 10px;
+    }
+  }
+  &.normalItem {
+    width: 100%;
+  }
+  &.editHide {
+    flex: 1;
+    padding: 0 !important;
+  }
+  &.editHide:nth-child(3) {
+    display: none;
+  }
+  &.editFiller {
+    background-color: #333 !important;
+    opacity: 0.1;
+  }
+  &.editHide .editWidgetMask {
+    cursor: default;
+  }
+  .editWidgetMask {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: transparent;
+    position: absolute;
+    border-radius: 5px;
+  }
+  &:not(:hover) .deleteWidget {
+    display: none;
+  }
+  .deleteWidget {
+    position: absolute;
+    z-index: 11;
+    right: -6px;
+    top: -5px;
+    font-size: 14px;
+    color: #ccc;
+    background-color: #fff;
+    border-radius: 50%;
+    width: 13px;
+    height: 13px;
+    &:hover {
+      color: #666;
+    }
+  }
+  .editItemBox {
+    display: flex;
+    .editItemName {
+      width: 83px;
+      margin-right: 8px;
+      height: 32px;
+      line-height: 32px;
+      display: flex;
+      align-items: center;
+    }
+    .editModelBox {
+      overflow: hidden;
+      flex: 1;
+    }
+    .editModel {
+      width: 100%;
+      height: 100%;
+
+      textarea,
+      input[type='text'] {
+        padding: 0 10px;
+        width: 100%;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+      }
+      .editDetailedList {
+        border-spacing: 0;
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #dedede;
+        margin-top: 5px;
+        background: #fff;
+        tr:nth-child(1) {
+          height: 30px;
+        }
+        tr:nth-child(2) {
+          td:first-child {
+            width: 105px;
+          }
+        }
+        td {
+          border: 1px solid #ccc;
+          height: 27px;
+          &:first-child {
+            padding: 0 10px;
+          }
+          input,
+          .dropdown {
+            border: none !important;
+            height: 27px;
+          }
+          textarea {
+            height: 28px !important;
+            line-height: 28px;
+            border: none !important;
+          }
+          .dropdownValue {
+            line-height: 29px;
+          }
+          .iconArrow {
+            display: none !important;
+          }
+          .unit {
+            display: none !important;
+          }
+
+          .editModel {
+            margin: -1px;
+            width: auto;
+            height: auto;
+          }
+
+          .editDetailedList {
+            margin: 0;
+            border: none;
+
+            tr {
+              border-bottom: solid 1px #ccc;
+              &:last-child {
+                border-bottom: none;
+              }
+              td {
+                border: none;
+                border-right: solid 1px #ccc;
+                &:last-child {
+                  border-right: none;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .editModelScore {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.editWidgetListItem .editModel.editNumberInput {
+  input[type='text'] {
+    width: 110px;
+  }
+  .unit {
+    margin-left: 15px;
+    width: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    line-height: 32px;
+    vertical-align: top;
+    text-overflow: ellipsis;
+  }
+}
+
+.editOptions {
+  display: flex;
+  flex-wrap: wrap;
+  .radioGroup {
+    width: 100%;
+  }
+  label {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    width: 25%;
+    margin-right: 0;
+    padding-right: 18px;
+    box-sizing: border-box;
+    display: inline-block;
+  }
+}
+
+.switchCheckbox {
+  .rCheckbox {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.formulaEdit {
+  .deleteWidget {
+    display: none !important;
+  }
+}
+
+.editDetailedDesc {
+  text-align: center;
+  color: #ccc;
+  margin-top: 5px;
+}
+
+.mutipleRelateSheetModel {
+  position: relative;
+  z-index: 2;
+  overflow-x: auto;
+  .columnPreviewTable {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    table {
+      tr {
+        td {
+          font-size: 12px;
+          color: rgba(51, 51, 51, .7);
+          line-height: 38px;
+          height: 38px;
+          padding: 0 30px;
+          border: 1px solid #ddd;
+          border-top: none;
+          border-right: none;
+          &:first-child {
+            border-left: none;
+          }
+        }
+        &:last-child {
+          td {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+  &.empty,
+  &.tableLoading {
+    z-index: 1;
+    height: 80px;
+    background: #fff;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    color: #ccc;
+    font-size: 12px;
+    line-height: 80px;
+  }
+  &.tableLoading {
+    .MdLoader {
+      margin-top: 25px;
+    }
+  }
+}
+
+@keyframes editBoxHalfAnimation {
+  from {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  80% {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes editBoxAnimation {
+  from {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  80% {
+    transform: scale(1.03);
+  }
+  to {
+    transform: scale(1);
+  }
+}

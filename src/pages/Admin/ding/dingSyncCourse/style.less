@@ -1,0 +1,171 @@
+.dingSyncBox {
+  height: 100%;
+
+  p,
+  h3,
+  h2,
+  h1,
+  img {
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+  }
+
+  .netManageHeaderWrap,
+  .appNameHeaderBox {
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  .courseBox {
+    width: 960px;
+    margin: 70px auto;
+    padding: 40px 80px;
+    box-sizing: border-box;
+
+    h1 {
+      font-size: 27px;
+    }
+
+    img {
+      width: 100%;
+      margin-top: 20px;
+      box-shadow: 0px 3px 8px rgba(0, 0, 0, .1);
+      border-radius: 3px;
+    }
+
+    .downloadLogo {
+      cursor: pointer;
+      color: #2196F3;
+      text-decoration: none;
+
+      &:hover {
+        color: #2366BF;
+      }
+    }
+
+    .inputList {
+      display: flex;
+      height: 36px;
+
+      .inputTitle {
+        width: 108px;
+        line-height: 36px;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .inputBox {
+        background: #F7F7F7;
+        flex: 1;
+        border: 0;
+        color: #757575;
+        height: 36px;
+        line-height: 36px;
+        border-radius: 3px;
+        padding-left: 15px;
+      }
+
+      .copyBtn {
+        cursor: pointer;
+        line-height: 36px;
+        color: #2196F3;
+        margin-left: 16px;
+
+        &:hover {
+          color: #2366BF;
+        }
+      }
+
+    }
+
+    .inputForAgentId,
+    .inputForWXAgentId,
+    .inputForSecret {
+      width: 250px;
+      background: #fff;
+      border: 1px solid #ddd;
+      color: #757575;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 3px;
+      padding-left: 15px;
+
+    }
+
+    .inputForAgentId::placeholder,
+    .inputForWXAgentId::placeholder,
+    .inputForSecret::placeholder {
+      color: #bdbdbd;
+    }
+
+    .submitBtn {
+      color: #2196F3;
+    }
+
+    .flexBox {
+      display: flex;
+
+      .inputTitle {
+        width: 108px;
+        line-height: 36px;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .inputForWXAgentId,
+      .inputForSecret {
+        width: 100%;
+      }
+
+      .submitBtn {
+        margin: 0 0 0 auto;
+        display: inline-block;
+        width: 92px;
+        height: 36px;
+        line-height: 36px;
+        background-color: #2196F3;
+        color: #fff;
+        border-radius: 3px;
+        text-align: center;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .nBtn {
+        background: #bdbdbd;
+        cursor: auto;
+      }
+    }
+
+  }
+
+  .appIconForDown {
+    text-align: center;
+    border-radius: 30px;
+    width: 200px;
+    height: 200px;
+    color: #fff;
+  }
+
+  .appIconForDown.isWXIcon {
+    width: 750px;
+    height: 750px;
+  }
+
+  .iconReject {
+    display: inline-block;
+    margin: 200px auto 0;
+    font-size: 80px;
+  }
+
+  .goDingSetting {
+    margin: 0 0 200px 0;
+  }
+
+  .boxForDown {
+    position: fixed;
+    top: -800px;
+  }
+}

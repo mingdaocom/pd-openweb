@@ -1,0 +1,20 @@
+.dossier-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  tr {
+    td {
+      border: solid 1px #757575;
+      font-size: 13px;
+      line-height: 20px;
+      padding: 5px 10px;
+      &:nth-child(odd) {
+        font-weight: bold;
+        width: 14%;
+      }
+      &:nth-child(even) {
+        width: 36%;
+      }
+    }
+  }
+}

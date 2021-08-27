@@ -1,0 +1,148 @@
+.workSheetImportExcel {
+  height: 560px !important;
+  .mui-dialog-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .importConfigure {
+    overflow: auto;
+    .excelInfo {
+      width: 272px;
+      .sheetItem {
+        height: 40px;
+        line-height: 40px;
+        padding: 0 24px;
+        position: relative;
+        &.ming.Radio {
+          margin-right: 0;
+        }
+        .Radio-text {
+          text-overflow: ellipsis;
+          max-width: 190px;
+          overflow: hidden;
+          white-space: nowrap;
+          display: inline-block;
+          .icon-info_outline {
+            position: absolute;
+            right: 10px;
+            line-height: 38px;
+          }
+        }
+      }
+    }
+    .importInfo {
+      min-width: 0;
+      &.hasNoneSheetImport {
+        width: 100%;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9e9e9e;
+        font-size: 16px;
+      }
+      .excelTitle {
+        position: relative;
+        input {
+          border: 0;
+          border-bottom: 1px solid #333;
+          width: 25px;
+          text-align: center;
+        }
+        .LineDropDown {
+          width: 50px;
+          position: absolute;
+          top: 26px;
+          left: 70px;
+          background: #fff;
+          text-align: center;
+          z-index: 1;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+          padding: 6px 0;
+          div {
+            cursor: pointer;
+            height: 24px;
+            line-height: 24px;
+            &:hover {
+              background: #1e88e5;
+              color: #fff;
+            }
+          }
+        }
+        .columnNumber {
+          color: #1e88e5;
+        }
+        .label:after {
+          width: 200px;
+          white-space: normal;
+          word-break: break-all;
+        }
+      }
+      .importData {
+        margin-bottom: 36px;
+        .RadioGroup {
+          display: inline-block;
+        }
+      }
+      .excelDetailBox {
+        width: 100%;
+        max-height: 100%;
+        border-radius: 3px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        overflow-x: auto;
+        td {
+          width: 150px;
+          height: 32px;
+          line-height: 32px;
+          text-align: center;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+          border-right: 1px solid rgba(0, 0, 0, 0.06);
+          box-sizing: border-box;
+          cursor: pointer;
+          span {
+            width: 130px;
+          }
+
+          .excelTitleImg {
+            display: block;
+            height: 100%;
+            background: url('./images/selected.png') no-repeat;
+            background-size: 80%;
+            background-position: center;
+          }
+          .excelTitleHoverImg {
+            display: block;
+            height: 100%;
+            background: url('./images/default.png') no-repeat;
+            background-size: 80%;
+            background-position: center;
+          }
+        }
+        td.index {
+          width: 60px;
+        }
+        td:last-child {
+          border-right: 0;
+        }
+        tr:nth-of-type(even) {
+          background: #fafcfd;
+        }
+        tr:hover {
+          background: rgba(0, 0, 0, 0.04);
+        }
+        tr:last-child td {
+          border-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .buttons {
+    margin-top: 25px;
+    margin-right: 24px;
+    text-align: right;
+  }
+}

@@ -1,0 +1,149 @@
+.statisticsCard() {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  transition: box-shadow 0.2s;
+
+  .header {
+    color: #333;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    height: 32px;
+    .operateIconWrap {
+      visibility: hidden;
+      .iconItem {
+        margin-right: 12px;
+        font-size: 18px;
+        color: #a2a2a2;
+        cursor: pointer;
+        &:hover {
+          color: #2196f3;
+        }
+        &:last-child {
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  &.padding {
+    padding: 10px 15px 16px;
+  }
+
+  .content {
+    flex: 1;
+    box-sizing: border-box;
+    height: 100%;
+    overflow: hidden;
+    .count {
+      font-weight: 500;
+      font-size: 20px;
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Helvetica,Arial,sans-serif,apple color emoji,segoe ui emoji,segoe ui symbol;
+    }
+    .g2-tooltip {
+      .g2-tooltip-list-item {
+        display: flex;
+        align-items: center;
+      }
+      .g2-tooltip-name {
+        max-width: 320px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        white-space: nowrap;
+      }
+      .g2-tooltip-value {
+        flex: 1;
+        text-align: right;
+      }
+    }
+  }
+  .fixedLoading {
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 40px;
+    width: 100%;
+    height: calc(~'100% - 40px');
+    background: #fff;
+    z-index: 3;
+  }
+  .g2-html-annotation {
+    display: block !important;
+  }
+  .justifyContent {
+    justify-content: center;
+  }
+  .spaceBetween {
+    justify-content: space-between;
+  }
+  .chartLegend .legendItem {
+    padding-bottom: 10px;
+  }
+  .chartWrapper {
+    height: 0;
+  }
+  .showTotalHeight {
+    height: calc(~'100% - 31px');
+  }
+
+  .ring-guide-value {
+    font-size: 22px !important;
+    font-weight: 500 !important;
+  }
+
+  &:hover,
+  &.active,
+  &.edit {
+    .header .operateIconWrap {
+      visibility: visible;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.statisticsCard {
+  .statisticsCard;
+}
+
+.sortableCard {
+  z-index: 9999;
+  .operateIconWrap {
+    visibility: visible !important;
+  }
+  .statisticsCard {
+    .statisticsCard;
+  }
+}
+
+.chartLegend {
+  flex-wrap: wrap;
+  .surface {
+    width: 12px;
+    height: 12px;
+  }
+  .thumbnail {
+    width: 10px;
+    height: 10px;
+  }
+  .thumbnail,
+  .surface {
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .name {
+    max-width: 75px;
+  }
+  .legendItem:last-child {
+    margin-right: 0 !important;
+  }
+}

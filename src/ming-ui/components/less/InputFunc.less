@@ -1,0 +1,25 @@
+.Input-func {
+  &-item {
+    input {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 14px;
+      text-align: center;
+      &:hover {
+        border-color: #bbb;
+      }
+      &:focus {
+        border-color: @themeColor3;
+      }
+      &.disable {
+        border-color: #ccc;
+        user-select: none;
+        cursor: not-allowed;
+        background-color: #f1f1f1;
+      }
+    }
+  }
+  &-splitter {
+    margin: 0 5px;
+  }
+}

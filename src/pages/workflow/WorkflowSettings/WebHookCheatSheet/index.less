@@ -1,0 +1,63 @@
+.c-workflowWebHookCheatSheet {
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 40px;
+  background-color: #f0f0f0;
+  header {
+    position: fixed;
+    width: 100%;
+    height: 60px;
+    background: url("../../asset/logo5.0.png") no-repeat 40px center;
+    background-size: 90px;
+    background-color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  }
+  .detail {
+    max-width: 800px;
+    width: 800px;
+    margin: 0 auto;
+    margin-top: 80px;
+    border-radius: 3px;
+    background-color: #fff;
+    & > .header {
+      padding: 24px 24px 16px 32px;
+      border-bottom: 1px solid #f0f0f0;
+      .source {
+        display: flex;
+        margin-top: 12px;
+        .flow {
+          margin-right: 32px;
+        }
+      }
+    }
+    .content {
+      padding: 16px 32px 24px 32px;
+      .explain {
+        margin: 8px 0 16px 0;
+      }
+      ul {
+        border: 1px solid #ddd;
+      }
+      li {
+        display: flex;
+        line-height: 36px;
+        border-bottom: 1px solid #ddd;
+        font-size: 13px;
+        padding-left: 24px;
+        &.header {
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .item {
+          flex: 1;
+        }
+        &:last-child {
+          border: none;
+        }
+      }
+    }
+    .jsonExample {
+      padding: 32px;
+    }
+  }
+}

@@ -1,0 +1,79 @@
+﻿<div class="linkcontent">
+    <table>
+        <tr>
+            <td class="pRight20">组织 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtCompany textInput" value="{{= it.user ? it.user.companyName : '' }}" />
+            </td>
+        </tr>
+        <tr>
+            <td>姓名 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtName textInput" value="{{= it.user ? it.user.userName : '' }}" />
+            </td>
+        </tr>
+        <tr>
+            <td>职位 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtJob textInput" value="{{= it.user ? it.user.job : '' }}" />
+            </td>
+        </tr>
+        <tr>
+            <td>邮箱 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtEmail textInput" value="{{= it.user ? it.user.email : '' }}" />
+            </td>
+        </tr>
+        <tr>
+            <td>手机 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtMobile textInput" placeholder="手机号" />
+            </td>
+        </tr>
+        {{? it.leadType!=1 && it.leadType!=2 && it.leadType!=5  }}
+        <tr>
+            <td>行业 <span class="red">*</span></td>
+            <td>
+                <!--<input type="text" class="txtIndustry textInput" />-->
+                <input type="Hidden" class="hidIndustry" />
+            </td>
+        </tr>
+        <tr>
+            <td>省份 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtCity textInput" readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td>地址 <span class="red">*</span></td>
+            <td>
+                <input type="text" class="txtAddress textInput" />
+            </td>
+        </tr>
+        <tr>
+            <td>网站 </td>
+            <td>
+                <input type="text" class="txtCompanyWeb textInput" placeholder="http://" />
+            </td>
+        </tr>
+        {{?}}
+        <tr>
+            <td class="TxtTop">留言</td>
+            <td>
+                <textarea class="txtContent textInput"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <label><input type="checkbox" class="contactMe">立即联系我</label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" value="提 交" class="linkButton" />
+            </td>
+        </tr>
+    </table>
+</div>

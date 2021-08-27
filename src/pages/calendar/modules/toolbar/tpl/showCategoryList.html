@@ -1,0 +1,12 @@
+<li catid="1" title="{{= _l('工作日程') }}">
+    {{? it.catID === '1'}} <i class="icon-ok selectIcon"></i> {{?}}
+    <i class="calendarColorBlue editColor"></i>
+    <span>{{= _l('工作日程') }}</span>
+</li>
+{{~ it.cats:cat}}
+<li catid="{{! cat.catID}}" title="{{!cat.catName}}">
+    {{? cat.catID === it.catID}} <i class="icon-ok selectIcon"></i> {{?}}
+    <i class="editColor {{!it.colorClass(cat.color)}}"></i>
+    <span>{{!cat.catName}}</span>
+</li>
+{{~}}

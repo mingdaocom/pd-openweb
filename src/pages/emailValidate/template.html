@@ -1,0 +1,19 @@
+﻿{{? it.result === it.ACTIONRESULTS.BindSuccessfully }}
+<div>
+    <div class="Font17 mTop40 mBottom40">{{= _l('邮箱绑定成功') }}</div>
+</div>
+{{?? it.result === it.ACTIONRESULTS.LinkAuthInvalid}}
+<div>
+    <div class="Font17 mTop40 mBottom40">{{= _l('此链接已失效') }}</div>
+    <div class="Font12 Gray_9e mBottom40">{{= _l('链接已过期或邮箱邮箱已被其他账号绑定，请进入个人账户安全设置') }}</div>
+</div>
+{{?? it.result === it.ACTIONRESULTS.BoundEmail}}
+<div>
+    <div class="Font17 mTop40 mBottom40">{{= _l('绑定失败，该邮箱已被其他账号绑定') }}</div>
+</div>
+{{??}}
+<div>
+    <div class="Font17 mTop40 mBottom40">{{= _l('邮箱绑定失败') }}</div>
+</div>
+{{?}}
+<a href="/login.htm" class="btn btnEnabled Font14 mBottom20">{{= _l('登录') }}</a>

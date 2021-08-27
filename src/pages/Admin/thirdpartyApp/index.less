@@ -1,0 +1,68 @@
+
+.thirdpartyAppWrapper {
+  margin: 17px;
+  border-radius: 4px;
+  background-color: #fff;
+
+  .header {
+    height: 60px;
+    padding: 0 24px;
+    border-bottom: 1px solid #EAEAEA;
+
+    .Button {
+      font-size: 12px;
+      height: 27px;
+      line-height: 27px;
+      min-height: 27px;
+      min-width: 82px;
+      background-color: #2196F3;
+    }
+  }
+
+  .applicationListWrapper {
+    padding: 0 24px;
+    .appName, .appKey, .appSecret, .appUrl, .callbackUrl, .about {
+      padding: 0 15px;
+    }
+    .avatarUrl {
+      width: 20px;
+      margin-right: 10px;
+      border-radius: 2px;
+    }
+    .appSecret {
+      width: 305px;
+    }
+    .appKey, .appUrl, .callbackUrl {
+      flex: 1;
+    }
+    .appName, .operation {
+      flex: 1;
+    }
+    .about {
+      flex: 1;
+    }
+    .appSecret {
+      justify-content: center;
+    }
+  }
+  .applicationHeader, .applicationItem {
+    border-bottom: 1px solid #EAEAEA;
+  }
+  .applicationHeader {
+    color: #757575;
+    font-size: 13px;
+    line-height: 50px;
+  }
+  .applicationItem {
+    line-height: 63px;
+  }
+}
+
+.applicationTriggerWrapper .item {
+  width: 130px;
+  padding: 10px 24px;
+  &:hover {
+    color: #fff;
+    background-color: #2196F3;
+  }
+}

@@ -1,0 +1,170 @@
+export const ACTION_TYPES = {
+  0: {
+    id: 'default',
+    text: _l('发起工作流'),
+    icon: 'worksheet',
+  },
+  3: {
+    id: 'edit',
+    text: _l('填写'),
+    icon: 'edit',
+  },
+  4: {
+    id: 'approve',
+    text: _l('审批'),
+    icon: 'workflow_ea',
+  },
+  5: {
+    id: 'notice',
+    text: _l('通知'),
+    icon: 'workflow_notice',
+  },
+  12: {
+    id: 'delayed',
+    text: _l('延时'),
+    icon: 'workflow_delayed',
+  },
+  16: {
+    id: 'subprocess',
+    text: _l('子流程'),
+    icon: 'subprocess',
+  },
+  18: {
+    id: 'print',
+    text: _l('获取记录打印文件'),
+    icon: 'print',
+  },
+};
+
+export const TYPE_TO_STYLE = {
+  approve: {
+    icon: 'workflow_ea',
+    bg: '#7E57C2',
+    shallowBg: '#7E57C233',
+  },
+  notice: {
+    icon: 'workflow_notice',
+    bg: '#FFA340',
+    shallowBg: '#ffa34033',
+  },
+  edit: {
+    icon: 'edit',
+    bg: '#2196f3',
+    shallowBg: '#2196f333',
+  },
+  workflow: {
+    icon: 'workflow',
+    bg: '#2196f3',
+    shallowBg: '#2196f333',
+  },
+  default: {
+    icon: 'workflow',
+    bg: '#9E9E9E',
+    shallowBg: '#9E9E9E33',
+  },
+  delayed: {
+    icon: 'workflow_delayed',
+    bg: '#4c7d9e',
+    shallowBg: '#4c7d9e33',
+  },
+  subprocess: {
+    icon: 'subprocess',
+    bg: '#4c7d9e',
+    shallowBg: '#4c7d9e33',
+  },
+  print: {
+    icon: 'print',
+    bg: '#4c7d9e',
+    shallowBg: '#4c7d9e33',
+  },
+};
+
+export const FLOW_NODE_TYPE_STATUS = {
+  3: {
+    0: { text: _l('待填写'), color: '#9E9E9E' },
+    1: { text: _l('完成填写'), color: '#9E9E9E' },
+    2: { text: _l('已转交'), color: '#9E9E9E' },
+    3: { text: _l('已转交'), color: '#9E9E9E' },
+    5: { text: _l('无需填写'), color: '#9E9E9E' },
+    22: { text: _l('完成填写'), color: '#9E9E9E' },
+  },
+  4: {
+    0: { text: _l('待审批'), color: '#9E9E9E' },
+    1: { text: _l('通过申请'), color: '#4CAF50' },
+    2: { text: _l('已加签'), color: '#9E9E9E' },
+    3: { text: _l('已转审'), color: '#9E9E9E' },
+    4: { text: _l('否决申请'), color: '#F44336' },
+    5: { text: _l('无需审批'), color: '#9E9E9E' },
+    8: { text: _l('已转审'), color: '#9E9E9E' },
+    16: { text: _l('已加签'), color: '#9E9E9E' },
+    17: { text: _l('已加签'), color: '#9E9E9E' },
+    22: { text: _l('否决申请'), color: '#F44336' },
+  },
+  5: {
+    0: { text: _l('待查看'), color: '#2196F3' },
+    1: { text: _l('已查看'), color: '#9E9E9E' },
+  },
+};
+
+export const INSTANCELOG_STATUS = {
+  1: { text: _l('等待') },
+  2: { text: _l('已通过'), bg: '#4CAF50', icon: 'ok' },
+  3: { text: _l('流程中止'), bg: '#AAAAAA' },
+  4: { text: _l('流程中止'), bg: '#AAAAAA' },
+  5: { text: _l('已否决'), bg: '#F44336', icon: 'close' },
+  6: { text: _l('流程中止'), bg: '#AAAAAA' },
+};
+
+const getYear = () => {
+  const minYear = 2018;
+  const maxYear = moment().get('year');
+  const result = [];
+  for (let i = minYear; i <= maxYear; i++) {
+    result.push({
+      text: i === maxYear ? _l('今年') : _l('%0年', i),
+      value: {
+        startDate: moment(i.toString())
+          .startOf('year')
+          .format('YYYY-MM-DD'),
+        endDate: moment(i.toString())
+          .endOf('year')
+          .format('YYYY-MM-DD'),
+      },
+    });
+  }
+  return result.reverse();
+};
+
+export const getDateScope = () => {
+  const endDate = moment().format('YYYY-MM-DD');
+  const data = [
+    {
+      text: _l('1个月内'),
+      value: {
+        startDate: moment()
+          .day(-30)
+          .format('YYYY-MM-DD'),
+        endDate,
+      },
+    },
+    {
+      text: _l('3个月内'),
+      value: {
+        startDate: moment()
+          .day(-90)
+          .format('YYYY-MM-DD'),
+        endDate,
+      },
+    },
+    {
+      text: _l('6个月内'),
+      value: {
+        startDate: moment()
+          .day(-180)
+          .format('YYYY-MM-DD'),
+        endDate,
+      },
+    },
+  ];
+  return data.concat(getYear());
+};

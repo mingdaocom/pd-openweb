@@ -1,0 +1,67 @@
+﻿{{ var module = 'SelectAllGroup'; }}
+<div class="viewTo {{= module}}">
+    <span class="{{= module}}-selectGroup updaterFor Hand">
+    <span
+      class="{{= module}}-selectedGroup"
+    >
+      {{= _l('选择分享范围')}}
+    </span>
+    </span>
+    <div class="{{= module}}-groupListDiv Hidden isLoading {{= !it.projectsList ? 'noProjects' : ''}} {{= module + '-groupListDiv-' + it.position }}" style="width: {{= it.menuWidth}}px;">
+        <div class="loadingCon">
+            {{=LoadDiv()}}
+        </div>
+        <div class="groupListCon {{= it.noCreateGroup ? 'noCreateGroup' : ''}}">
+            <ul>
+                {{?!it.hideMostUsed}}
+                <li class="projectItem mostUsed">
+                    <div class="projectTitleCon">
+                        <label title="{{! _l('最常使用')}}" class="Hand  projectTitle open">
+                            <span class="companyName">{{! _l('最常使用')}}</span>
+                            <i class="slideBtn"></i>
+                        </label>
+                    </div>
+                    <ul class="groupList">
+                        {{=LoadDiv()}}
+                    </ul>
+                </li>
+                <hr>
+                {{?}}
+                {{?!!it.projects}}
+                    {{~ it.projects:project}}
+                    <li id="projectItem_{{=project.projectId}}" class="projectItem" data-projectId="{{= project.projectId}}" data-licenseType="{{= project.licenseType}}">
+                        <div class="projectTitleCon">
+                            <label title="{{= project.companyName}}" class="Hand  projectTitle  {{=project.licenseType === 0 ? 'disabled' : ''}}">
+                                <span class="companyName {{! project.licenseType === 0 && 'expire'}}">{{! project.companyName}}</span>
+                                {{?project.licenseType === 0}}
+                                <span class="expire">{{! _l('（到期）') }}</span>
+                                {{?}}
+                                <i class="slideBtn"></i>
+                            </label>
+                        </div>
+                        <ul class="groupList">
+                        {{=LoadDiv()}}
+                        </ul>
+                    </li>
+                    {{~}}
+                {{?}}
+                <li class="projectItem personItem">
+                    <div class="projectTitleCon">
+                        <label title="{{= !it.projectsList  ? (_l('群组')) : (_l('个人'))}}" class="Hand  projectTitle">
+                            <span class="companyName">{{= !it.projectsList ? (_l('群组')) : (_l('个人'))}}</span>
+                            <i class="slideBtn"></i>
+                        </label>
+                    </div>
+                    <ul class="groupList">
+                    {{=LoadDiv()}}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        {{? !it.noCreateGroup}}
+        <div class="addNewGroup ThemeColor3">
+            {{! _l('+  创建新群组') }}
+        </div>
+        {{?}}
+    </div>
+</div>

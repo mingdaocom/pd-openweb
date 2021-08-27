@@ -1,0 +1,48 @@
+.mdModalWrap {
+  white-space: nowrap; // 处理调整窗口面积 弹窗消失问题
+}
+.mdModal {
+  padding: 0px !important;
+  white-space: initial;
+  .ant-modal-close-x {
+    color: #9e9e9e;
+    width: auto;
+    height: auto;
+    line-height: 1em;
+    &:hover {
+      .icon {
+        color: #2196f3 !important;
+      }
+    }
+  }
+  .ant-modal-header {
+    line-height: 1em;
+    padding: 20px 24px 0;
+    border: none;
+    border-radius: 3px 3px 0 0;
+    .ant-modal-title {
+      color: #333;
+      font-weight: 400;
+      font-size: 17px;
+    }
+  }
+  .ant-modal-content {
+    border-radius: 3px;
+  }
+  .ant-modal-footer {
+    border: none;
+    padding: 10px 24px 20px;
+  }
+  &.fixed {
+    .ant-modal-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      .ant-modal-body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+      }
+    }
+  }
+}

@@ -1,0 +1,444 @@
+.createWorkflowDialog {
+  .mui-dialog-body {
+    overflow: inherit !important;
+  }
+  .mui-dialog-header {
+    padding: 24px 24px 6px !important;
+    text-align: center !important;
+  }
+  .mui-dialog-footer {
+    button {
+      &:first-child {
+        display: none;
+      }
+      &:last-child {
+        width: 100% !important;
+        margin-left: 0 !important;
+        line-height: 44px;
+      }
+    }
+  }
+}
+
+.workflowList {
+  height: 100%;
+  .workflowHeader {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #EAEAEA;
+    background-color: #fff;
+    border-radius: 4px 4px 0 0;
+    .workflowAdd {
+      line-height: 30px;
+      border-radius: 30px;
+      padding: 0 16px;
+      opacity: 0.87;
+      &:hover {
+        opacity: 1;
+      }
+      .icon {
+        margin-right: 2px;
+      }
+    }
+    .workflowHeaderBtn {
+      align-items: center;
+    }
+  }
+  .tabsBox {
+    width: 100%;
+    padding: 0 24px;
+    border-bottom: 1px solid #EAEAEA;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+  .menuTab {
+    overflow: hidden;
+    vertical-align: bottom;
+    li {
+      color: #333333;
+      font-size: 14px;
+      cursor: pointer;
+      float: left;
+      // padding: 16px 12px 12px;
+      padding: 16px 0;
+      // margin: 0 8px;
+      margin-right: 40px;
+      transition: border-color 0.3s ease-in-out;
+      border-bottom: 2px solid #2196F3;
+      &:not(.menuTab-active) {
+        border-color: transparent !important;
+      }
+      &:not(.menuTab-active):not(:hover) {
+        color: #757575 !important;
+      }
+      &.menuTabLine {
+        padding: 0;
+        margin: 16px 10px 0 10px;
+        height: 18px;
+        width: 1px;
+        background: #bdbdbd;
+        border: none;
+        vertical-align: top;
+        cursor: default;
+      }
+    }
+  }
+  .manageListContainer {
+    margin: 20px;
+    .manageListBox {
+      height: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
+  .manageListBox {
+    // margin: 20px;
+    // border-radius: 4px;
+    border-radius: 0 0 4px 4px;
+    background: #fff;
+    // box-shadow: 0 0 4px rgba(0, 0, 0, 0.16);
+    position: relative;
+    &.manageListBoxMaxHeight {
+      max-height: 560px;
+    }
+    .manageListBoxContent {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    .manageListSearch {
+      padding: 20px 24px 10px;
+      align-items: center;
+      .w180 {
+        width: 180px;
+      }
+      .w140 {
+        width: 140px;
+      }
+    }
+    .manageListName {
+      font-weight: bold;
+      font-size: 15px;
+      padding: 14px 24px 14px 34px;
+      a {
+        color: #333;
+        text-decoration: none;
+      }
+    }
+    .manageList {
+      margin: 0 24px;
+      align-items: center;
+      border-bottom: 1px solid #eaeaea;
+      box-sizing: border-box;
+      &:hover {
+        background: #f8f8f8;
+        .listBtn {
+          visibility: visible;
+        }
+      }
+      &.manageListHeader {
+        border-color: #ddd;
+        padding: 12px 0;
+        margin-right: 24px;
+        color: #757575;
+        &:hover {
+          background: #fff;
+        }
+      }
+      .flexRow {
+        align-items: center;
+      }
+      .w150 {
+        width: 150px;
+      }
+      .w240 {
+        width: 240px;
+        box-sizing: border-box;
+      }
+      .w270 {
+        width: 270px;
+        box-sizing: border-box;
+      }
+      .w20 {
+        width: 20px;
+      }
+      .iconWrap {
+        &.unable {
+          background-color: #bdbdbd !important;
+        }
+        width: 36px;
+        height: 36px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .icon {
+          font-size: 24px;
+          color: #fff;
+        }
+      }
+      .name {
+        position: relative;
+        height: 60px;
+        cursor: pointer;
+        .nameBox {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          justify-content: center;
+          text-decoration: none;
+          &.unable:not(:hover) {
+            color: #757575 !important;
+          }
+          &:not(:hover):not(.unable) {
+            color: #333 !important;
+          }
+        }
+      }
+      .listBtn {
+        font-size: 18px;
+        visibility: hidden;
+        cursor: pointer;
+      }
+      .twoRowsContent {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        word-break: break-all;
+        max-height: 36px;
+        line-height: 18px;
+      }
+    }
+  }
+  .flowEmptyWrap {
+    max-height: 440px;
+    display: flex;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 4px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .flowEmptyPic {
+      background: url("./empty.png") no-repeat;
+      background-size: 650px 130px;
+      width: 130px;
+      height: 130px;
+      &-sheet {
+        background-position: 0 0;
+      }
+      &-date {
+        background-position: -130px 0;
+      }
+      &-other {
+        background-position: -260px 0;
+      }
+      &-search {
+        background-position: -390px 0;
+      }
+      &-user {
+        background-position: -520px 0;
+      }
+    }
+  }
+}
+
+.adminWorkflowList {
+  margin: 16px;
+  border-radius: 4px;
+  background: #fff;
+
+  .columnWidth {
+    width: 150px;
+    @media (max-width: 1280px) {
+      width: 120px;
+    }
+  }
+
+  .adminWorkflowHeader {
+    padding: 0 24px;
+    align-items: center;
+    height: 57px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  .adminWorkflowCount {
+    margin: 16px 24px 0;
+    padding: 0 24px;
+    background: rgba(33, 150, 243, 0.05);
+    align-items: center;
+    height: 40px;
+  }
+  .manageListSearch {
+    padding: 16px 24px 0;
+    align-items: center;
+    .w180 {
+      width: 180px;
+    }
+  }
+  .manageList {
+    margin: 0 24px;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    &:hover {
+      background: #f8f8f8;
+      .listBtn {
+        visibility: visible;
+      }
+    }
+    &.manageListHeader {
+      border-color: #ddd;
+      padding: 12px 0;
+      margin-right: 24px;
+      color: #757575;
+      &:hover {
+        background: #fff;
+      }
+    }
+    &:last-child {
+      border-color: #fff;
+    }
+    .flexRow {
+      align-items: center;
+    }
+    .w200 {
+      width: 200px;
+    }
+    .w150 {
+      width: 150px;
+    }
+    .w20 {
+      width: 20px;
+    }
+    .iconWrap {
+      &.unable {
+        background-color: #bdbdbd !important;
+      }
+      width: 36px;
+      height: 36px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon {
+        font-size: 24px;
+        color: #fff;
+      }
+    }
+    .name {
+      position: relative;
+      height: 60px;
+      cursor: pointer;
+      .nameBox {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        justify-content: center;
+        text-decoration: none;
+        &.unable:not(:hover) {
+          color: #757575 !important;
+        }
+        &:not(:hover):not(.unable) {
+          color: #333 !important;
+        }
+      }
+    }
+    .del {
+      font-size: 18px;
+      visibility: hidden;
+      cursor: pointer;
+    }
+  }
+  .manageListOrder {
+    transform: scale(0.8);
+    color: #BFBFBF;
+    margin-left: -10px;
+    .icon-arrow-down {
+      margin-top: -4px;
+    }
+  }
+  .manageListNull {
+    align-items: center;
+    justify-content: center;
+    .iconWrap {
+      width: 130px;
+      height: 130px;
+      line-height: 130px;
+      text-align: center;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+    }
+    .icon {
+      vertical-align: middle;
+      font-size: 66px;
+      color: #bdbdbd;
+    }
+    .emptyExplain {
+      margin-top: 20px;
+      color: #9e9e9e;
+      font-size: 17px;
+      text-align: center;
+    }
+  }
+  .listBtn {
+    font-size: 18px;
+    visibility: hidden;
+    cursor: pointer;
+  }
+  .manageListSelect {
+    font-size: 13px;
+    &.ant-select-open {
+      .ant-select-selector {
+        border-color: #2196f3;
+        box-shadow: none;
+      }
+    }
+    &.ant-select-focused {
+      .ant-select-selector {
+        border-color: #ddd;
+        box-shadow: none;
+      }
+    }
+    .ant-select-selector {
+      border-color: #ddd;
+      height: 36px;
+      border-radius: 4px;
+      .ant-select-selection-search-input {
+        height: 34px;
+      }
+      .ant-select-selection-item {
+        line-height: 34px;
+      }
+    }
+  }
+  .workflowAutoOrder {
+    margin: 0 0 0 auto;
+    line-height: 24px;
+    label {
+      transform: scale(0.7);
+    }
+  }
+}
+
+.checkAdminDialog {
+  .Button--primary {
+    background: #f5f5f5;
+    color: #2196f3;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}

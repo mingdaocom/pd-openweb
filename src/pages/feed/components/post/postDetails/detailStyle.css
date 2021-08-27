@@ -1,0 +1,61 @@
+﻿#postDetail {
+  max-width: 1000px;
+  min-width: 700px;
+  min-height: 400px;
+  margin: 20px auto;
+}
+#postDetail .updateHead {
+  font-size: 16px;
+  height: 66px;
+  line-height: 76px;
+  margin: 0px 30px 0px 30px;
+  border-bottom: 1px solid #ddd;
+}
+#postDetail .postCard {
+  padding: 20px 30px 30px 30px;
+  font-size: 13px;
+}
+
+#postDetail .postOperatorList li {
+  display: block;
+  float: none;
+}
+#postDetail .detailActionItem {
+  position: absolute;
+  top: 82px;
+  right: 40px;
+  display: block;
+  float: right;
+  width: 100px;
+}
+#postDetail .detailActionItem .titleTag {
+  padding-bottom: 15px;
+  width: 100px;
+  height: initial;
+  margin-right: 7px;
+  display: inline-block;
+  float: left;
+}
+#postDetail .detailActionItem ul li {
+  cursor: pointer;
+  line-height: 25px;
+}
+#postDetail .detailActionItem ul li:hover {
+  color: #7ac2f9;
+}
+#postDetail .postCard .postContent .postContentBody {
+  max-height: none !important;
+}
+#postDetail .postCard .postContent .showMore,
+#postDetail .postCard .postContent .hideMore {
+  display: none;
+}
+.msgContainer .TextArea {
+  border: 0;
+  padding: 0;
+  width: 100%;
+  font-size: 14px;
+}
+.postDetail-errorIcon {
+  color: rgb(255, 145, 0);
+}

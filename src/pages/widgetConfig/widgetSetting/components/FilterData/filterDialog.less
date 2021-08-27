@@ -1,0 +1,137 @@
+.filterDialog {
+  max-height: inherit !important;
+  height: inherit !important;
+
+  .workSheetFilter.singleFilter {
+    max-height: inherit !important;
+  }
+
+  .addFilterCondition.nodata {
+    color: #1e88e5;
+    margin-top: 5px;
+    padding: 10px 0;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+
+    &:hover {
+      color: #1565c0;
+    }
+
+    & > span {
+      padding: 0 10px;
+    }
+  }
+  .conditionItemForDynamicStyle {
+    .conditionItemHeader {
+      padding-right: 0 !important;
+      .deleteBtn {
+        right: 0 !important;
+      }
+    }
+    .conditionItemContent {
+      padding-right: 0 !important;
+      display: flex;
+      .dynamicSource {
+        width: 130px;
+        border-color: #e0e0e0;
+        height: 36px;
+        border-radius: 4px;
+        box-shadow: none !important;
+        font-size: 13px;
+        &.flexItem {
+          flex: 1;
+          min-width: 0;
+          margin-right: 0px;
+        }
+        .ant-select-arrow {
+          margin-top: -8px !important;
+        }
+        .ant-select-selector {
+          border-color: #e0e0e0;
+          height: 36px;
+          border-radius: 4px;
+          box-shadow: none !important;
+          .ant-select-selection-search-input {
+            height: 34px;
+          }
+          .ant-select-selection-item {
+            line-height: 34px;
+          }
+        }
+      }
+      .conditionValue {
+        flex: 1;
+        margin-left: 12px;
+      }
+    }
+    .conditionRelationBox {
+      position: relative;
+      display: block;
+      height: 30px;
+      margin-top: 15px;
+      &::before {
+        content: ' ';
+        width: 100%;
+        display: block;
+        border-bottom: 1px solid #ccc;
+        position: absolute;
+        top: 50%;
+      }
+
+      .Dropdown,
+      .relationType {
+        width: 50px;
+        background: #fff;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        display: inline-block;
+        box-sizing: border-box;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+      }
+
+      .Dropdown--input {
+        text-align: left;
+        width: 52px;
+        box-sizing: border-box;
+        line-height: 18px;
+      }
+
+      .line {
+        width: 100%;
+        display: block;
+        border-bottom: 1px solid #ccc;
+        position: absolute;
+        top: 50%;
+        left: 1;
+      }
+    }
+  }
+
+  .mui-dialog-body {
+    overflow: initial !important;
+  }
+
+  .searchInput {
+    height: 40px;
+
+    &::-webkit-input-placeholder {
+      color: #bdbdbd;
+    }
+  }
+}
+.dynamicSelectDropdown {
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: normal !important;
+    color: #fff !important;
+    background-color: #2196f3 !important;
+  }
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector {
+    border-color: #2196f3 !important;
+  }
+}

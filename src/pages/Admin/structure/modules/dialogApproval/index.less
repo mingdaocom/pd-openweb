@@ -1,0 +1,198 @@
+.dialogApproval {
+  max-height: inherit !important;
+
+  .mui-dialog-body {
+    overflow: inherit !important;
+  }
+
+  .formTable {
+    .formGroup {
+      width: 100%;
+      position: relative;
+      display: table;
+      margin-top: 5px;
+
+      .icon-task_add-02:hover {
+        color: #2196f3 !important;
+      }
+
+      .formLabel,
+      .formControl {
+        display: block;
+      }
+
+      .formControl input {
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        display: inline-block;
+        color: #757575;
+
+        &.error {
+          border-color: #f00 !important;
+        }
+
+        &:hover {
+          border-color: #bfbfbf !important;
+        }
+      }
+
+      .formControl {
+        margin-top: 12px;
+      }
+
+      span.formControl {
+        width: auto !important;
+        height: 32px;
+      }
+
+      .formLabel {
+        height: 30px;
+        width: 75px;
+        vertical-align: top;
+        padding-top: 7px;
+      }
+
+      .itemSpan {
+        display: inline-block;
+        padding: 0 16px;
+        line-height: 32px;
+        border-radius: 18px;
+        background: #FFFFFF 0% 0% no-repeat padding-box;
+        border: 1px solid #DDDDDD;
+
+        .isTopIcon {
+          background: #bdbdbd;
+          color: #fff;
+          font-size: 13px;
+          line-height: 13px;
+          width: 13px;
+          height: 13px;
+          display: inline-block;
+          margin-left: 4px;
+        }
+
+        .moreOption {
+          position: relative;
+          display: inline-block;
+
+          ul {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #FFFFFF 0% 0% no-repeat padding-box;
+            box-shadow: 0px 8px 16px #0000003D;
+            border-radius: 3px;
+            width: 180px;
+            display: block;
+            padding: 5px 0;
+            z-index: 1;
+
+            li {
+              width: 100%;
+              line-height: 30px;
+              padding: 0 10px;
+              box-sizing: border-box;
+
+              &:hover {
+                background: #DDDDDD;
+                cursor: pointer;
+              }
+            }
+          }
+        }
+      }
+
+      .userLabel {
+        padding: 0 7px;
+        border-radius: 20px;
+        background-color: #eee;
+        line-height: 32px;
+        display: inline-block;
+
+        img {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          margin-right: 5px;
+          vertical-align: middle;
+        }
+
+        .userLabelName {
+          vertical-align: middle;
+        }
+
+        .icon-closeelement-bg-circle {
+          &:hover {
+            color: #999;
+          }
+
+          cursor: pointer;
+          vertical-align: middle;
+        }
+      }
+
+      .jobListDiaBox {
+        position: absolute;
+        top: 26px;
+        right: 0;
+        background: #FFFFFF 0% 0% no-repeat padding-box;
+        box-shadow: 0px 8px 16px #0000003D;
+        border-radius: 3px;
+        width: 180px;
+        display: block;
+        padding: 5px 0;
+        z-index: 1;
+
+        li {
+          width: 100%;
+          line-height: 30px;
+          padding: 0 10px;
+          box-sizing: border-box;
+
+          &:hover {
+            background: #DDDDDD;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .workSiteBox {
+      padding: 1px 0;
+      border-radius: 3px;
+      .customSelect {
+        width: 100%;
+        .csList {
+          width: 100%;
+        }
+      }
+      .spanShow {
+        height: 34px !important;
+        line-height: 34px !important;
+        width: 100%;
+        border-radius: 3px;
+        border-color: #ccc;
+        font-size: 13px !important;
+        &:hover {
+          border-color: #ccc !important;
+        }
+        .txtBox,
+        .icon-arrow-down-border {
+          height: 32px !important;
+          line-height: 32px !important;
+        }
+        .icon-arrow-down-border {
+          position: absolute;
+          right: 10px;
+        }
+      }
+    }
+  }
+
+  .Button {
+    border-radius: 32px;
+  }
+}

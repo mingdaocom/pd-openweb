@@ -1,0 +1,350 @@
+﻿.AppTask {
+  .folderChartBar {
+    width: 100%;
+    height: 90px;
+  }
+  .folderChartBarLeft,
+  .folderChartBarRight {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+    background: #fff;
+  }
+  .folderChartBarLeft {
+    margin-right: 20px;
+    flex: 7;
+    font-size: 0;
+    > div {
+      width: 14%;
+      text-align: center;
+      box-sizing: border-box;
+      display: inline-block;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.5);
+      height: 60px;
+      vertical-align: top;
+      margin-top: 15px;
+    }
+    > div:first-child {
+      width: 16%;
+    }
+    > div:nth-child(2),
+    > div:nth-child(5) {
+      border-left: 1px solid #eee;
+    }
+  }
+  span.fixWidth:after {
+    text-align: left;
+    word-break: break-all;
+    white-space: normal;
+    width: 205px;
+  }
+  .folderChartBarRight {
+    flex: 2;
+    font-size: 0;
+    > div {
+      width: 50%;
+      text-align: center;
+      box-sizing: border-box;
+      display: inline-block;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.5);
+      height: 60px;
+      vertical-align: top;
+      margin-top: 15px;
+    }
+  }
+  [class^='charBarNum'] {
+    font-size: 34px;
+    margin-top: -6px;
+    display: inline-block;
+  }
+  .block {
+    display: block;
+    vertical-align: top;
+    margin-top: -3px;
+  }
+  .folderChartNavBox {
+    width: 100%;
+    height: 60px;
+    margin-top: 15px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+    background: #fff;
+  }
+  .folderChartNav {
+    font-size: 0;
+    white-space: nowrap;
+    li {
+      margin-left: 10px;
+      display: inline-block;
+      width: 90px;
+      text-align: center;
+      border-bottom: 3px solid #fff;
+      height: 57px;
+      line-height: 60px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.3s ease-in-out;
+      box-sizing: initial;
+    }
+  }
+  .folderChartTime {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    white-space: nowrap;
+    font-size: 0;
+    color: #666;
+    li {
+      display: inline-block;
+      font-size: 12px;
+      padding: 0 10px;
+      height: 32px;
+      line-height: 32px;
+      box-sizing: border-box;
+      border-style: solid;
+      border-color: #d9d9d9;
+      border-width: 1px 1px 1px 0;
+      cursor: pointer;
+    }
+    li:nth-child(2) {
+      border-width: 1px;
+      border-radius: 5px 0 0 5px;
+    }
+    li:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+    li.activeClass {
+      color: #fff;
+    }
+    .folderChartTimeTxt {
+      font-size: 12px;
+      margin-right: 15px;
+    }
+  }
+  .folderChartBox {
+    margin-top: 15px;
+    width: 100%;
+    .icon-task-folder-message {
+      font-size: 16px;
+      transform: rotate(180deg);
+      display: inline-block;
+      color: rgba(0, 0, 0, 0.2);
+      margin-left: 5px;
+      vertical-align: top;
+      margin-top: 2px;
+    }
+    .flex {
+      margin-left: 10px;
+      background: #fff;
+      box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 8px;
+      padding: 10px;
+      box-sizing: initial;
+    }
+    .nullSource {
+      background: transparent;
+      box-shadow: none;
+    }
+    .flex:first-child {
+      margin-left: 0;
+    }
+    .folderChartBoxTitle {
+      font-size: 13px;
+      color: #666;
+      span.overflow_ellipsis {
+        max-width: 280px;
+        vertical-align: top;
+      }
+    }
+    .TxtCenter {
+      margin-top: 60px !important;
+    }
+    .folderChartModel {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .folderChartBoxModel {
+      margin-bottom: 10px;
+      .flex {
+        height: 230px;
+      }
+      .folderChartModel {
+        height: 203px;
+      }
+    }
+  }
+  .folderChartChargeBox {
+    position: absolute;
+    right: 10px;
+    top: 15px;
+    font-size: 0;
+    color: #666;
+    .folderChartChargeSort {
+      font-size: 22px;
+      display: inline-block;
+      vertical-align: top;
+      margin-right: 10px;
+      margin-top: 4px;
+      cursor: pointer;
+      color: #bbb;
+    }
+    .folderChartChargeBtn {
+      font-size: 12px;
+      border-radius: 3px;
+      border: 1px solid #bbb;
+      height: 28px;
+      line-height: 28px;
+      padding: 0 10px 0 12px;
+      display: inline-block;
+      cursor: pointer;
+      .icon-arrow-down-border {
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 7px;
+        margin-left: 2px;
+      }
+    }
+    .folderChartChargeList {
+      padding: 10px 0;
+      background: #fff;
+      position: absolute;
+      top: 35px;
+      right: 0;
+      font-size: 12px;
+      z-index: 100;
+      .folderChartChargeHead {
+        padding: 0 14px;
+        width: 190px;
+      }
+      .folderChartSelect {
+        position: absolute;
+        top: 1px;
+        right: 14px;
+        width: 12px;
+        height: 12px;
+        border: 1px solid #b6b6b6;
+      }
+      .icon-ok {
+        display: inline-block;
+        vertical-align: top;
+        color: #fff;
+      }
+      .folderChartChargeLists {
+        max-height: 215px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: 5px 0;
+        border-bottom: 1px solid #e5e5e5;
+        .folderChartSelect {
+          top: 10px;
+        }
+        li {
+          padding: 0 34px 0 14px;
+          width: 170px;
+          position: relative;
+          height: 34px;
+          line-height: 34px;
+          overflow: hidden;
+          display: block;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          img {
+            width: 24px;
+            height: 24px;
+            display: inline-block;
+            vertical-align: top;
+            margin-top: 5px;
+            margin-right: 10px;
+            border-radius: 50%;
+          }
+        }
+      }
+      .folderChartChargeOperator {
+        color: #666;
+        text-align: right;
+        margin-top: 12px;
+        span {
+          display: inline-block;
+          cursor: pointer;
+          margin-right: 15px;
+        }
+      }
+    }
+  }
+
+  .folderChartNavBox .daterangepicker .ranges,
+  #folderChartMaxView .daterangepicker .ranges {
+    float: right !important;
+    clear: both;
+  }
+  .daterangepicker.opensleft .ranges {
+    .taskFolerChartDatePicker {
+      width: 68px;
+      cursor: pointer;
+      &.applyBtn {
+        margin-right: 10px;
+      }
+    }
+  }
+  #folderChartMaxView .folderChartBox {
+    margin-top: 0;
+    .folderChartBoxModel {
+      margin-bottom: 0;
+    }
+    .flex {
+      padding: 0;
+      box-shadow: none;
+      height: 550px;
+    }
+    .folderChartBoxTitle {
+      font-size: 16px;
+      span {
+        vertical-align: top;
+        margin-top: 3px;
+      }
+    }
+    .folderChartTime {
+      position: static;
+      text-align: right;
+    }
+    .folderChartMaxHeight {
+      height: 460px;
+      margin-top: 20px;
+      overflow: hidden;
+      overflow-y: auto;
+    }
+    .folderChartModel {
+      height: 460px;
+    }
+    .folderChartUpdateHeight {
+      height: 490px;
+    }
+    .folderChartChargeBox {
+      position: relative;
+      text-align: right;
+      top: 0;
+      right: 0;
+      .folderChartChargeList {
+        text-align: left;
+      }
+    }
+  }
+
+  .folderChartCustomNull {
+    height: 280px;
+    padding-top: 120px;
+    text-align: center;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-sizing: initial;
+    .Font17 {
+      padding-top: 145px;
+      color: #9e9e9e;
+      background: url('../images/customNull.png') no-repeat;
+      background-size: 130px 130px;
+      background-position: top center;
+    }
+    .Font15 {
+      color: #9e9e9e;
+    }
+  }
+}

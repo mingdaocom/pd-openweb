@@ -1,0 +1,56 @@
+.fieldEditTxtFilter {
+  flex: 1;
+
+  .flexBox {
+    display: flex;
+
+    .flexItem {
+      flex: 1;
+    }
+  }
+
+  & > div {
+    line-height: 25px;
+    width: 100%;
+  }
+
+  span.dynamicsourceSpan {
+    min-height: 24px;
+    display: inline-block;
+    padding: 0 12px 0 12px;
+    border: 1px solid #bbd6ea;
+    background: #d8eeff;
+    color: #174c76;
+    border-radius: 15px;
+    line-height: 22px;
+    margin-right: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    box-sizing: border-box;
+
+    &.isWrong {
+      color: #f44336;
+      border: 1px solid #f44336;
+      background: rgba(244, 67, 54, 0.06);
+    }
+
+    i {
+      font-style: normal;
+      opacity: 0.6;
+      margin-left: 5px;
+      color: #789dba;
+      opacity: 0.6;
+
+      &.icon {
+        cursor: pointer;
+        color: #333;
+        font-size: 12px;
+        opacity: 0.2;
+
+        &:hover {
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,273 @@
+.businessCard {
+  position: absolute;
+  .arrowBox {
+    margin-left: -8px;
+  }
+}
+
+.businessCard-hidden {
+  display: none;
+}
+
+.businessCard-placement-topLeft,
+.businessCard-placement-topRight {
+  .arrowBox .arrow {
+    border-top-color: #fff;
+  }
+}
+
+.businessCard-placement-bottomLeft,
+.businessCard-placement-bottomRight {
+  .arrowBox {
+    top: -16px;
+  }
+  .arrowBox .arrow {
+    border-bottom-color: #fff;
+  }
+}
+
+.businessCardSite {
+  position: absolute;
+  width: 310px;
+  z-index: 1001;
+  zoom: 1;
+  color: #333;
+  left: -300px;
+  top: 0;
+  border-bottom: 10px solid transparent;
+  border-top: 10px solid transparent;
+}
+
+.cardContentBox {
+  box-shadow: 0 9px 12px -6px rgba(0, 0, 0, 0.2),
+    0 19px 29px 2px rgba(0, 0, 0, 0.14), 0 7px 36px 6px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.arrowBox {
+  position: absolute;
+  display: inline-block;
+  width: 16px;
+  height: 10px;
+  left: 40px;
+}
+
+.arrowBox.arrowTop {
+  top: -8px;
+}
+
+.arrowBox .arrow {
+  border: 8px transparent solid;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.arrowBox.arrowBottomDarkgray .arrow {
+  border-top-color: #f5f5f5 !important;
+}
+.arrowBox.arrowBottom .arrow {
+  border-top-color: #fff;
+  border-bottom-width: 0px;
+}
+
+.arrowBox.arrowTop .arrow {
+  border-bottom-color: #fff;
+  border-top-width: 0px;
+}
+
+.useFadeIn {
+  display: block;
+}
+
+.useFadeOut {
+  display: none;
+}
+
+.cardContent {
+  padding: 16px 0px 0px 0px;
+  > .TxtCenter {
+    margin: 0 !important;
+    padding: 0 0 10px;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: row;
+  .imgLink {
+    padding: 0 15px 0 16px;
+    .avatar {
+      width: 47px;
+      height: 47px;
+    }
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  .name {
+    color: #000;
+    font-weight: bold;
+    font-size: 15px;
+    width: 170px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 3px;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  .startChat {
+    display: inline-block;
+    cursor: pointer;
+    color: #0091ea;
+    font-size: 20px;
+
+    vertical-align: top;
+    text-decoration: none;
+    &:hover {
+      color: #0084e6;
+    }
+  }
+  .smallEarth {
+    color: rgba(0, 0, 0, 0.32) !important;
+  }
+}
+
+.cardContent-wrapper {
+  flex: 1;
+}
+
+.cardContentScore {
+  border-radius: 0 0 4px 4px;
+  padding: 0 16px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.cardContentScore a {
+  display: block;
+  padding: 0;
+  width: 85px;
+  height: 17px;
+  background: url("../images/socre-logo-small.png") no-repeat;
+  background-size: contain;
+}
+
+.cardContentDesc {
+  color: #aaa;
+  padding: 7px 0 0 0;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.cardContentDesc.userCard {
+  min-height: 35px;
+}
+
+.cardContentDesc .contentItem {
+  width: 196px;
+  color: #757575;
+  display: block;
+  margin-top: 4px;
+}
+
+@keyframes messageDivAnimationsUp {
+  0% {
+    transform: translateY(8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.businessCardSite.animationsUp {
+  animation: messageDivAnimationsUp 0.1s ease-in both;
+}
+
+.businessCard.businessCard-enter-active {
+  animation: messageDivAnimationsUp 0.1s ease-in both;
+}
+
+@keyframes messageDivAnimationsDown {
+  0% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.businessCard.businessCard-leave-active {
+  animation: messageDivAnimationsDown 0.1s ease-in both;
+}
+
+.businessCardSite.animationsDown {
+  animation: messageDivAnimationsDown 0.1s ease-in both;
+}
+
+.userOperator {
+  height: 45px;
+  border-radius: 0 0 4px 4px;
+  line-height: 45px;
+  background-color: #f5f5f5;
+  display: flex;
+  /*border-top: 1px solid #ccc;*/
+  /*margin-top: 12px;*/
+}
+
+.userOperator .removeUser {
+  width: 100%;
+}
+
+.oaButton {
+  display: inline-block;
+  text-align: center;
+  width: 50%;
+}
+
+.removeFormAuth.oaButton {
+  width: 100%;
+}
+
+.replaceManage,
+.replaceTask,
+.replaceRead {
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.cancelAnAdministrator {
+  width: 118px;
+  display: inline-block;
+  border-right: 1px solid #ccc;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cardContentBox {
+  position: relative;
+}
+
+.cardHeader .clearTop {
+  margin-top: -2px;
+}
+
+.inviterName {
+  margin-left: 59px;
+  font-size: 12px;
+  margin-top: -21px;
+  color: #aaa;
+}
+
+.inviterName .overflow_ellipsis {
+  vertical-align: top;
+  text-decoration: none;
+  max-width: 130px;
+}
+
+.inviterName .overflow_ellipsis:not(:hover) {
+  color: #aaa !important;
+}

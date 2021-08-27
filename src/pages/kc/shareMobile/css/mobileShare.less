@@ -1,0 +1,260 @@
+@themeColor: #2196f3;
+.mobileShareCon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  font-size: 15px;
+  color: #333;
+  &.ios {
+    .operate {
+      .saveToMingDao {
+        background-color: #fff !important;
+        border: 1px solid @themeColor;
+        color: @themeColor;
+      }
+    }
+    .footer {
+      .saveToMingDao {
+        margin-right: 0;
+      }
+    }
+  }
+  * {
+    box-sizing: border-box;
+    line-height: 1em;
+  }
+  a {
+    color: @themeColor;
+    text-decoration: none;
+  }
+  .header {
+    height: 50px;
+    border-bottom: 1px solid #e0e0e0;
+    .icon {
+      vertical-align: middle;
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      margin: 7px 16px;
+      background-size: cover !important;
+      overflow: hidden;
+      background: url(../image/mingdao-logo.png);
+    }
+    .headImage {
+      float: right;
+      display: block;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 7px 16px 7px 0;
+    }
+    .openAPP {
+      display: inline-block;
+      text-decoration: none;
+      float: right;
+      margin: 10px 16px;
+      width: 100px;
+      height: 30px;
+      text-align: center;
+      line-height: 28px;
+      color: @themeColor;
+      font-size: 13px;
+      border: 1px solid @themeColor;
+      border-radius: 3px;
+    }
+  }
+  .main {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    .file {
+      text-align: center;
+      .fileIcon {
+        position: relative;
+        width: 115px;
+        height: 135px;
+        margin-bottom: 6px;
+        .preview {
+          position: absolute;
+          right: 2px;
+          bottom: 2px;
+          width: 39px;
+          height: 24px;
+          border-radius: 3px;
+          color: #fff;
+          background-color: rgba(226, 226, 226, 0.55);
+          text-indent: 0px;
+          line-height: 24px;
+          text-align: center;
+          font-size: 13px;
+        }
+      }
+      .fileName {
+        color: #333;
+        font-size: 15px;
+        margin-bottom: 38px;
+        .content {
+          max-width: 80%;
+          display: inline-block;
+        }
+      }
+      .operate {
+        text-align: center;
+      }
+      .iosTip {
+        font-size: 13px;
+        color: #b4b4b4;
+      }
+    }
+    .imagePreview {
+      width: 100%;
+      height: 100%;
+      padding: 16px;
+      overflow: hidden;
+      text-align: center;
+      .table {
+        display: table;
+        width: 100%;
+        height: 100%;
+        .tableCell {
+          display: table-cell;
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+  .operate {
+    .saveToMingDao,
+    .downloadBtn,
+    .openIniOS {
+      display: block;
+      margin: 0 auto;
+      cursor: pointer;
+      width: 180px;
+      height: 46px;
+      line-height: 46px;
+      font-size: 15px;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .saveToMingDao {
+      margin-bottom: 20px;
+      background-color: @themeColor;
+      color: #fff;
+    }
+    .downloadBtn {
+      background-color: #e1e1e1;
+      color: #333;
+    }
+    .openIniOS {
+      margin-bottom: 20px;
+      background-color: @themeColor;
+      color: #fff;
+    }
+  }
+  .deadline {
+    position: fixed;
+    margin: 10px;
+    width: 100%;
+    left: 0px;
+    bottom: 50px;
+    text-align: center;
+    font-size: 13px;
+    color: #b4b4b4;
+    &.pic {
+      bottom: 118px;
+    }
+  }
+  .footer {
+    background-color: #fff;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    p {
+      margin: 15px 0;
+    }
+    .saveToMingDao,
+    .downloadBtn {
+      display: inline-block;
+    }
+    .downloadBtn {
+      margin-right: 20px;
+    }
+    .deadline {
+      position: relative;
+      bottom: 0px;
+      left: 0px;
+      margin: -8px 0 10px;
+    }
+  }
+  @media screen and (max-width: 400px) {
+    .footer {
+      .saveToMingDao,
+      .downloadBtn {
+        width: 160px;
+      }
+    }
+  }
+  @media screen and (max-width: 350px) {
+    .footer {
+      .saveToMingDao,
+      .downloadBtn {
+        width: 145px;
+      }
+    }
+  }
+  @media screen and (max-width: 320px) {
+    .footer {
+      .saveToMingDao,
+      .downloadBtn {
+        width: 140px;
+      }
+      .downloadBtn {
+        margin-right: 10px;
+      }
+    }
+  }
+  @media screen and (max-width: 290px) {
+    .footer {
+      .downloadBtn {
+        margin-right: 0px;
+      }
+    }
+  }
+}
+
+.mobileSharemask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999999;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  &.ios {
+    background: url(../image/ios-mask.png) no-repeat right top;
+  }
+  &.android {
+    background: url(../image/android-mask.png) no-repeat right top;
+  }
+}
+
+.mobileAlertDialog {
+  position: fixed;
+  width: 100%;
+  bottom: 100px;
+  z-index: 500;
+  text-align: center;
+  .alertDialog {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50px;
+    font-size: 13px;
+  }
+}

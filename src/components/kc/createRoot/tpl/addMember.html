@@ -1,0 +1,53 @@
+﻿{{var myPermis = it.myPermis;}}
+{{~it.members:member:index}}
+<li class="memberItem Hidden" {{= member.accountStatus == 3 && !member.accountId ? 'data-account="'+ member.account +'"' : 'data-account-id="'+ member.accountId +'"'}}>
+    <span class="imgMemberBox" data-account-id="{{=member.accountId }}">
+        <img class="imgCharge circle" src="{{=member.avatar }}" />
+    </span>
+    <span class="memberName ellipsis">
+        <span class="added" title="{{! member.fullname }}">{{! member.fullname }}</span>
+        {{?member.inviterAccountId && member.memberStatus == 2}}
+            <span class="inviter">({{= _l('%0 邀请','<a class="name ellipsis" data-account-id="'+ member.inviterAccountId +'">'+ member.inviterFullName+'</a>')}})</span>
+        {{?}}
+    </span>
+
+    <span class="permission" {{= member.accountStatus == 3 && !member.accountId ? 'data-account="'+ member.account +'"' : 'data-account-id="'+ member.accountId +'"'}} data-permission="{{= member.permission}}" data-apkname="{{= member.apkName || ''}}">
+        <span class="pointer {{= member.roleName  ? 'isApk' : ''}}">
+            {{?member.permission === 1}}
+            <span class="text charge">{{!_l('拥有者')}}</span>
+            {{??member.permission == 2}}
+            <span class="text">{{!_l('管理员')}}</span>
+            {{??member.permission == 3 }}
+            <span class="text">{{=  member.memberStatus != 2 ? _l('可编辑') : _l('待审核') }}</span>
+            {{??member.permission == 4 }}
+            <span class="text">{{=  member.memberStatus != 2 ? _l('只读') : _l('待审核') }}</span>
+            {{?}}
+
+            {{? member.permission != 1 && (myPermis == 1 || myPermis == 2) && !member.roleName}}
+            <i class="icon-arrow-down-border" data-account-status="{{=member.accountStatus}}" data-member-status="{{=member.memberStatus}}"></i>
+            {{?}}
+        </span>
+     </span>
+    {{?member.roleName}}
+    {{??member.permission == 1 && member.accountId == md.global.Account.accountId}}
+        <span class="rootTrust">{{!_l('托付文件夹')}}</span>
+    {{??member.permission == 2}}
+        {{?member.accountId === md.global.Account.accountId}}
+        <span class="remove exit">{{!_l('退出')}}</span>
+        {{??myPermis === 1}}
+	<span class="remove">{{!_l('移除')}}</span>
+        {{??}}
+        {{?}}
+    {{??member.permission == 3 }}
+        {{?member.accountId === md.global.Account.accountId}}
+        <span class="remove exit">{{!_l('退出')}}</span>
+        {{??myPermis == 1 || myPermis == 2}}
+            {{? member.accountStatus == 3 && it.isEdit}}
+            <span class="toInvite ">{{!_l('重新邀请')}}</span>
+            {{?}}
+        <span class="remove">{{!_l('移除')}}</span>
+        {{??}}
+        {{?}}
+    {{?}}
+</li>
+{{~}}

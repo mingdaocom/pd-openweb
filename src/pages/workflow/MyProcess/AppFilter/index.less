@@ -1,0 +1,48 @@
+
+.appFilterWrapper {
+  width: 248px;
+  border-radius: 4px;
+  background-color: #fff;
+  max-height: 430px;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  .appListWrapper {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    .projectName {
+      padding: 15px 15px 0;
+    }
+  }
+  .appWrapper {
+    padding: 10px 15px;
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    &.active {
+      background-color: #2094f31a;
+    }
+  }
+  .searchWrapper {
+    margin: 10px 10px 0;
+    padding: 7px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    input {
+      border: 0;
+      padding: 0 0 0 5px;
+    }
+  }
+  .iconWrqaper {
+    color: #fff;
+    width: 23px;
+    height: 23px;
+    margin-right: 10px;
+    border-radius: 4px;
+    justify-content: center;
+    > div {
+      line-height: normal;
+    }
+  }
+}

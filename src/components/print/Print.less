@@ -1,0 +1,611 @@
+﻿.hrApprovalBox .mui-dialog-scroll-container {
+  padding: 0 !important;
+}
+#hrApprovalPrint.printBox {
+  position: relative;
+  z-index: 999;
+  background: #fff;
+  font-size: 13px;
+  height: auto !important;
+  min-height: 100%;
+  padding-top: 70px;
+  box-sizing: border-box;
+  .font13 {
+    font-size: 13px;
+  }
+  .font15 {
+    font-size: 15px;
+  }
+  .font24 {
+    font-size: 24px;
+  }
+  .printStartBox {
+    height: 55px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    background: #f5f5f5;
+    border-bottom: 1px dotted #ccc;
+    box-sizing: border-box;
+    z-index: 1;
+    .width1000 {
+      width: 1000px;
+      height: 100%;
+      margin: auto;
+      .contentHide {
+        line-height: 54px;
+        margin-right: 75px;
+        span {
+          color: #1e88e5;
+        }
+      }
+      .mRight60 {
+        margin-right: 60px;
+      }
+      .printButton {
+        background: #1e88e5;
+        height: 28px;
+        margin-top: 13px;
+        line-height: 28px;
+        padding: 2px 17px;
+        border-radius: 3px;
+        color: #fff;
+        .icon-print {
+          padding-right: 5px;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+  .formDetail {
+    width: 100%;
+    font-size: 12px;
+    .noneContent {
+      height: 32px;
+      line-height: 32px;
+      padding-left: 10px;
+      color: #9e9e9e;
+      td {
+        border-top: 1px solid #ccc;
+      }
+      border-top: 1px solid #ccc;
+    }
+    .rowItem {
+      position: relative;
+      box-sizing: border-box;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    .verticalLayout {
+      .verticalLayoutRowNum {
+        vertical-align: top;
+        padding: 6px 0;
+        text-align: center;
+      }
+    }
+    .recordAttachments {
+      .recordAttachmentPictures {
+        margin-top: -4px;
+        overflow: hidden;
+        .pictureAttachment {
+          box-sizing: border-box;
+          float: left;
+          width: 50%;
+          height: 260px;
+          border-bottom: 1px solid #ccc;
+          .imgCon {
+            width: 400px;
+            height: 200px;
+            margin: 14px auto 10px;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            img {
+              max-width: 400px;
+              max-height: 200px;
+            }
+          }
+          &:nth-child(2n) {
+            padding-left: 36px;
+          }
+          &:nth-child(2n + 1) {
+            padding-right: 36px;
+            border-right: 1px solid #ccc;
+          }
+        }
+        &.bottomNoLine {
+          margin-bottom: -9px;
+        }
+      }
+    }
+    tr.row {
+      .detailsRowItem {
+        border-top: 1px solid #555;
+      }
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    tr.row.details.borderTop0 {
+      td,
+      td.detailsRowItem {
+        border-top: 0 !important;
+      }
+    }
+    tr.notDetails {
+      td:nth-child(1) {
+        border-right: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+      }
+      td:nth-child(2) {
+        border-top: 1px solid #ccc;
+      }
+    }
+    .remarks {
+      white-space: pre;
+      .controlValue {
+        white-space: pre-wrap;
+      }
+    }
+    tr.row:first-child {
+      td.rowItem {
+        border-top-style: solid;
+        border-top-color: #555;
+      }
+    }
+    tr.row:last-child:not(.details) {
+      td.rowItem {
+        border-bottom: 1px solid #555;
+      }
+    }
+    tr.row {
+      .rowItem.half {
+        width: 50% !important;
+      }
+      td.rowItem td {
+        border: 0;
+      }
+      .taskRowItem {
+        .controlName {
+          width: 150px;
+        }
+      }
+      .rowItem {
+        width: 100%;
+        box-sizing: border-box;
+        .controlName {
+          display: inline-block;
+          width: 100px;
+          padding: 0 10px;
+          box-sizing: border-box;
+          font-weight: bold;
+          word-wrap: break-word;
+          word-break: break-word;
+          white-space: initial;
+        }
+        .controlValue {
+          display: inline-block;
+          word-break: break-word;
+          word-wrap: break-word;
+          box-sizing: border-box;
+          height: 100%;
+          .richText {
+            img {
+              max-width: 100%;
+            }
+          }
+        }
+        .textPreLine {
+          white-space: pre-line;
+        }
+      }
+      .detailsRowItem {
+        padding: 0 0 24px;
+        width: 100%;
+        box-sizing: border-box;
+        .detailsTable {
+          width: 100%;
+          border: 1px solid #555;
+          border-left: 0;
+          border-right: 0;
+          .evaluateTr {
+            td {
+              text-align: right;
+            }
+          }
+          th {
+            text-align: center !important;
+          }
+          th,
+          td {
+            border-right: 1px solid #ccc;
+            text-align: left;
+            padding-left: 8px;
+            padding-right: 8px;
+            border-bottom: 1px solid #ccc;
+            word-break: break-word;
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            line-height: 1.25;
+          }
+          tr:last-child {
+            td {
+              border-bottom: 0;
+            }
+          }
+          th.titleTd,
+          td.titleTd {
+            text-align: center;
+            padding: 0;
+          }
+          th:last-child,
+          td:last-child {
+            border-right: 0;
+          }
+        }
+        .detailsTable, .verticalLayout {
+          .recordAttachments {
+            margin: -8px -8px -4px;
+            .recordAttachmentPictures {
+              margin: 0 !important;
+              overflow: hidden;
+              .pictureAttachment {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100%;
+                min-width: 205px;
+                float: none;
+                height: 120px;
+                border-right: none !important;
+                .imgCon {
+                  width: 120px;
+                  height: 90px;
+                  margin: 10px auto 6px;
+                  img {
+                    max-width: 120px;
+                    max-height: 90px;
+                  }
+                }
+                &.onlyText {
+                  padding: 6px 0 !important;
+                  height: 32px;
+                }
+              }
+            }
+          }
+        }
+        .verticalLayout {
+          .recordAttachments {
+            margin: 0 0 -5px -20px;
+          }
+        }
+        .detailsName {
+          margin-top: 24px;
+          margin-bottom: 14px;
+        }
+        .detailItem {
+          width: 100%;
+          box-sizing: border-box;
+          border: 1px solid #555;
+          border-left: 0;
+          border-right: 0;
+          margin-bottom: 12px;
+          .detailItemName {
+            width: 2.5%;
+            border-right: 1px solid #ccc;
+            text-align: center;
+            padding: 4px 0;
+            box-sizing: border-box;
+          }
+          .detailItemControlRow {
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            overflow: hidden;
+            .detailRowItem {
+              position: relative;
+              box-sizing: border-box;
+              padding-top: 4px;
+              padding-bottom: 4px;
+              border-right: 1px solid #ccc;
+              border-bottom: 1px solid #ccc;
+              .detailName {
+                width: 100px;
+                padding: 0 10px;
+                box-sizing: border-box;
+                height: 100%;
+                font-weight: bold;
+                display: inline-block;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: initial;
+              }
+              .detailValue {
+                display: inline-block;
+                word-break: break-word;
+                word-wrap: break-word;
+                box-sizing: border-box;
+                height: 100%;
+                padding-right: 5px;
+              }
+            }
+            .detailRowItem:last-child {
+              border-right: 0;
+            }
+            //.detailRowItem.oneOfSecond{
+            //    width: 33.33%;
+            //}
+            //.detailRowItem.twoOfSecond{
+            //    width: 66.66%;
+            //}
+            .detailRowItem.half {
+              width: 50%;
+            }
+            //.detailRowItem.oneOfThird{
+            //    width: 33.33%;
+            //}
+            .detailRowItem.noHalf {
+              width: 100%;
+            }
+          }
+          .detailItemControlRow:last-child {
+            .detailRowItem {
+              border-bottom: 0;
+            }
+          }
+        }
+        .evaluateItem {
+          width: 100%;
+          box-sizing: border-box;
+          border: 1px solid #555;
+          border-left: 0;
+          border-right: 0;
+          margin-bottom: 0;
+          .evaluateItemName {
+            width: 2.5%;
+            border-right: 1px solid #ccc;
+            text-align: center;
+            padding: 4px 0;
+          }
+          .detailEvaluateRow {
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            overflow: hidden;
+            .detailEvaluateRowItem {
+              box-sizing: border-box;
+              padding-top: 4px;
+              padding-bottom: 4px;
+              border-right: 1px solid #ccc;
+              border-bottom: 1px solid #ccc;
+              .evaluateName {
+                width: 100px;
+                padding: 0 10px;
+                box-sizing: border-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                height: 100%;
+                display: inline-block;
+                word-wrap: break-word;
+                word-break: break-word;
+              }
+              .evaluateValue {
+                width: 100%;
+                word-break: break-word;
+                word-wrap: break-word;
+                box-sizing: border-box;
+                height: 100%;
+                padding: 0 10px;
+                display: inline-block;
+              }
+            }
+            .detailEvaluateRowItem:last-child {
+              border-right: 0;
+            }
+          }
+          .detailEvaluateRow:last-child {
+            .detailEvaluateRowItem {
+              border-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+  .signatureContentWrapper {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    width: 700px;
+    margin-left: auto;
+    img {
+      width: 168px;
+    }
+  }
+  .printContent {
+    font-family: 'Arial,Microsoft YaHei,SimHei,SimSun' !important;
+    color: #000;
+    width: 1000px;
+    margin: 0 auto;
+    height: auto;
+    .titleContent {
+      display: flex;
+      box-sizing: border-box;
+      position: relative;
+      min-height: 70px;
+      .title {
+        flex: 1;
+        .reqTitle {
+          font-weight: bold;
+        }
+        .reqNo {
+          max-width: 100%;
+        }
+        span.reqTitle,
+        span.reqNo {
+          display: block;
+        }
+      }
+      .logo {
+        display: flex;
+        flex-direction: column;
+      }
+      .img {
+        margin: 0 auto;
+        height: 100px;
+      }
+    }
+    .customRowBox {
+      margin-bottom: 0;
+    }
+    .workDetail {
+      font-size: 12px;
+      .workName {
+        margin-top: 24px;
+        margin-bottom: 10px;
+      }
+      .createBy {
+        span.mBottom10 {
+          display: inline-block;
+        }
+      }
+      .workPersons {
+        table {
+          width: 100%;
+          border-spacing: 0;
+          th {
+            height: 26px;
+            line-height: 26px;
+            border: 1px solid #ccc;
+            border-top-color: #555;
+            border-right: 0;
+            text-align: left;
+            padding: 0 10px;
+          }
+          th:first-child {
+            border-left: 0;
+          }
+          .person {
+            width: 25%;
+          }
+          .todo {
+            width: 22%;
+          }
+          .time {
+            width: 19%;
+          }
+          .opinion {
+            width: 300px;
+            white-space: pre-wrap;
+          }
+          td {
+            border: 1px solid #ccc;
+            border-right: 0;
+            border-top: 0;
+            height: 26px;
+            word-wrap: break-word;
+            word-break: break-word;
+            padding: 4px 10px;
+            box-sizing: border-box;
+            text-align: left;
+          }
+          td:first-child {
+            border-left: 0;
+          }
+          tr:last-child {
+            td {
+              border-bottom: 1px solid #555;
+            }
+          }
+          tr.countersign {
+            td {
+              border-bottom: 0;
+            }
+          }
+          tr.countersign:last-child {
+            td {
+              border-bottom: 1px solid #ccc !important;
+            }
+          }
+          tr.endCountersign {
+            td {
+              border-bottom: 1px solid #ccc !important;
+            }
+          }
+        }
+      }
+    }
+    .lineThrough {
+      text-decoration: line-through;
+    }
+  }
+  .taskInventory,
+  .taskSubTask {
+    tbody tr:first-child td {
+      border-top: 1px solid #555 !important;
+    }
+  }
+}
+
+@media print {
+  html body {
+    height: auto !important;
+    width: 120% !important;
+    transform: scale(0.833);
+    transform-origin: 0 0;
+  }
+  .printBox {
+    padding-top: 0 !important;
+  }
+  .createBy span {
+    margin-bottom: 0 !important;
+  }
+  .printContent {
+    margin-top: 0 !important;
+  }
+  #chatPanel,
+  .printStartBox,
+  .printEndBox {
+    display: none !important;
+  }
+  .recordAttachments:not(.isMultiple) {
+    .recordAttachmentPictures {
+      .pictureAttachment {
+        width: 378px !important;
+        .imgCon {
+          width: 340px !important;
+          img {
+            max-width: 340px !important;
+          }
+        }
+      }
+    }
+  }
+}
+.approvalPrintDialog {
+  .controlOptionItem {
+    width: 160px;
+    margin-right: 15px;
+    span {
+      width: 130px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+// 横向
+@media print and (orientation: landscape) {
+  .recordAttachmentPictures {
+    .pictureAttachment {
+      border: none !important;
+      padding: 0px !important;
+      border-bottom: 1px solid #ccc !important;
+      &:nth-child(3n + 1) {
+        border-right: 1px solid #ccc !important;
+      }
+      &:nth-child(3n + 2) {
+        border-right: 1px solid #ccc !important;
+      }
+    }
+  }
+}

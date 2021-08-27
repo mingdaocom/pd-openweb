@@ -1,0 +1,111 @@
+.darkHeader .header {
+  margin: 0 !important;
+  padding-left: 24px;
+  background-color: #f5f5f5;
+}
+.fileConfirmDialogContainer {
+  .filePreview {
+    position: relative;
+    height: 120px;
+    margin: 0px -24px 25px;
+    text-align: center;
+    background-color: #f5f5f5;
+    .fileIcon {
+      display: none;
+      position: relative;
+      margin: 0 auto;
+      transform: translateY(-13px);
+      width: 85px;
+      height: 97px;
+      background-size: cover !important;
+    }
+    .fileSize {
+      position: absolute;
+      right: 3px;
+      bottom: 3px;
+      padding: 3px 2px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.4);
+      display: block;
+      color: #333;
+      line-height: 1;
+      text-indent: 0;
+    }
+    .thumbnailCon {
+      display: none;
+      position: absolute;
+      top: -59px;
+      display: table;
+      width: 100%;
+      height: 185px;
+    }
+    .thumbnail {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1;
+      img {
+        max-width: 60%;
+        max-height: 100px;
+      }
+    }
+    .process {
+      // display: none;
+      width: 46%;
+      height: 10px;
+      background: #ccc;
+      border-radius: 10px;
+      position: absolute;
+      top: 50%;
+      margin-top: -5px;
+      left: 27%;
+      .processBar {
+        border-radius: 10px;
+        overflow: hidden;
+        .processContent {
+          height: 10px;
+          width: 0;
+        }
+        .processPercent {
+          position: absolute;
+          right: -35px;
+          top: -4px;
+        }
+      }
+    }
+  }
+  .dList {
+    .dItem {
+      position: relative;
+      padding-left: 100px;
+      margin-bottom: 24px;
+      .itemLabel {
+        position: absolute;
+        left: 0px;
+        width: 80px;
+        text-align: right;
+        font-size: 14px;
+        color: #9e9e9e;
+        line-height: 36px;
+        height: 36px;
+      }
+      .itemContent {
+        input,
+        textarea {
+          border: 1px solid #e8e8e8;
+          width: 334px;
+          height: 36px;
+          padding: 10px;
+          border-radius: 2px;
+          box-sizing: border-box;
+          &:focus {
+            border-color: #2196e3;
+          }
+        }
+        textarea {
+          height: 90px;
+        }
+      }
+    }
+  }
+}

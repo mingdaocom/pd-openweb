@@ -1,0 +1,122 @@
+﻿{{ var isGroup = it.isGroup; }}
+<div class="groupInfoWrapper flexColumn">
+    {{? !isGroup && it.isAdmin }}
+    <div class="discussionTip">
+        <a class="convertLink">{{= _l('转换为长期群组>') }}</a>
+        <p class="LineHeight20 mTop5 convertDesc">{{= _l('转换为群组后，您可获得：指定更多管理员，群组审批，邀请外部用户等功能。') }}<br/>{{= _l('同事群组进入到通讯录中方便管理并能支持到更多应用。')}}</p>
+    </div>
+    {{?}}
+
+    <ul class="groupInfoList Gray_6">
+        {{? isGroup && it.project }}
+        <li>
+            <div class="infoTitle">{{= _l('群组归属')}}</div>
+            <div class="infoContent breakAll">
+                {{! it.project.companyName }}
+            </div>
+        </li>
+        {{?}}
+        <li>
+            {{? isGroup }}
+            <div class="infoTitle">{{= _l('群组名称') }}</div>
+            {{??}}
+            <div class="infoTitle">{{= _l('聊天名称') }}</div>
+            {{?}}
+            <div class="infoContent">
+                <input type="text" class="groupName groupTextBox boderRadAll_3"
+                       placeholder="{{=_l('请输入群组名称')}}" value="{{! it.name }}" {{=it.isAdmin ? '' : 'readonly'
+                }} data-content="{{!it.name}}" />
+            </div>
+        </li>
+        {{? isGroup}}
+        <li>
+            <div class="infoTitle">{{= _l('创建时间') }}</div>
+            <div class="infoContent">
+                <div class="createTime" title="{{= it.createTime }}">{{= it.createTime }}</div>
+            </div>
+        </li>
+        {{?}}
+        <li>
+            {{? isGroup }}
+            <div class="infoTitle">{{= _l('群主/管理员') }}</div>
+            {{??}}
+            <div class="infoTitle">{{= _l('聊天成员') }}</div>
+            {{?}}
+            <div class="infoContent">
+                <ul class="userList clearfix">
+                    {{? !it.isGroup }}
+                    <li class="Left mRight5">
+                        <a data-tip="{{= _l('添加成员') }}"><i class="addChatMember icon-task-add-member-circle"/></a>
+                    </li>
+                    {{?}}
+                    {{~ it.adminUsers:admin }}
+                    <li class="userAvatar circle">
+                        {{? admin.accountId }}
+                        <a href="{{= '/user_' + admin.accountId }}" target="_blank">
+                            <img class="userHead circle" src="{{=admin.avatar}}" data-accountid="{{=admin.accountId}}"/>
+                        </a>
+                        {{??}}
+                        <img class="userHead circle" src="{{=admin.avatar}}" data-accountid="{{=admin.accountId}}"/>
+                        {{?}}
+                    </li>
+                    {{~}}
+                    {{? !it.isGroup }}
+                    {{~ it.groupUsers:user }}
+                    <li class="userAvatar circle">
+                        <a href="{{= '/user_' + user.accountId }}" target="_blank">
+                            <img class="userHead circle" src="{{=user.avatar}}" data-accountid="{{=user.accountId}}"/>
+                        </a>
+                    </li>
+                    {{~}}
+                    {{?}}
+                </ul>
+            </div>
+        </li>
+        {{? isGroup }}
+        <li>
+            <div class="infoTitle">{{= _l('群二维码') }}</div>
+            <div class="infoContent Relative">
+                <span class="icon-zendeskHelp-qrcode qrcode"></span>
+            </div>
+        </li>
+        <li>
+            <div class="infoTitle">{{= _l('群公告') }}</div>
+            <div class="infoContent">
+                {{? it.isAdmin }}
+                <textarea class="textAreaAbout boderRadAll_3 Gray_6 groupTextBox TextArea LineHeight20"
+                          placeholder="{{= _l('请输入群公告') }}"
+                          data-content="{{= it.about }}">{{= it.about || '' }}</textarea>
+                {{??}}
+                <div class="groupAboutStatic LineHeight20 mTop5">
+                    {{! it.about === '' ?  (_l('暂无群公告')) : it.about }}
+                </div>
+                {{?}}
+            </div>
+        </li>
+        {{?}}
+
+        {{? !isGroup}}
+        <li class="clearfix discussionChatNotice">
+            <div class="infoTitle">{{= _l('消息免打扰') }}<span class="tip tip-bottom-right mLeft5" data-tip="{{= _l('开启后，仅接收到@我及@全体群成员的消息提醒') }}"><i class="icon-knowledge-message Font15 Gray_c"></i></span></div>
+            <div class="infoContent">
+                <input class="tgl tgl-light" type="checkbox" id="chatGroupNotice" {{= !it.isPushNotice ? 'checked' : ''
+                }}/>
+                <label class="tgl-btn mTop5 Right" for="chatGroupNotice"></label>
+            </div>
+        </li>
+        {{?}}
+    </ul>
+    <!-- bottom operation -->
+    {{? !isGroup }}
+    <div class="groupOperation pLeft20 pRight20 pTop10">
+        <button class="exitGroup pLeft40 pRight40" data-type="exit">
+            <span class="icon-groupExit"></span>{{= _l('退出聊天') }}
+        </button>
+        {{? it.isAdmin }}
+        <a class="deleteGroup ThemeColor3 tip-top" data-tip="{{= _l('聊天解散后，将永久删除该聊天。不可恢复') }}" data-type="delete">
+            <span class="icon-task-new-delete"></span>{{= _l('解散聊天') }}
+        </a>
+        {{?}}
+    </div>
+    {{?}}
+</div>

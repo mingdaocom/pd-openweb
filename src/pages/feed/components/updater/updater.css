@@ -1,0 +1,335 @@
+﻿/*发布器*/
+.updaterCard {
+  font-size: 12px;
+  padding: 10px;
+  margin: 0 0 14px 0 !important;
+  overflow: visible !important;
+}
+.myUpdateItem {
+  border: 2px solid #cfcfcf;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  min-height: 50px;
+}
+.myUpdateItem_Tag {
+  float: left;
+  width: 15px;
+  position: relative;
+  z-index: 2;
+  right: -2px;
+  background: url(/images/Bg_UpdateDiv_Tag.gif) no-repeat left 30px;
+  padding-top: 50px;
+}
+.myUpdateItem_Content {
+  margin: 15px 10px 11px 15px;
+}
+.myUpdateItem .Button {
+  width: 52px;
+  height: 24px;
+}
+.myUpdateItem .faceArea {
+  border-bottom: 1px solid #f2f2f2;
+  height: 26px;
+}
+.myUpdateItem .faceArea .mdEmotion {
+  z-index: 9;
+}
+.myUpdateItem .myUpdateType {
+  float: left;
+  padding-left: 4px;
+}
+.myUpdateItem .myUpdateType .falseHide {
+  width: 1px;
+  width: 1px;
+  overflow: hidden;
+  margin-right: 0px;
+}
+.myUpdateItem .myUpdateType a {
+  cursor: pointer;
+  color: #999;
+  display: inline-block;
+  line-height: 18px;
+  height: 18px;
+  overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+}
+.myUpdateItem .myUpdateType a:hover {
+  text-decoration: none;
+}
+.myUpdateItem .update_close {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 2px;
+}
+.myUpdateItem .update_close i {
+  position: absolute;
+  left: 0.5px;
+  top: -0.5px;
+}
+.myUpdateItem .update_close:hover i {
+  color: #fff !important;
+}
+.myUpdateItem .update_close:not(:hover) {
+  background-color: #fff !important;
+}
+.msgContainer {
+  zoom: 1;
+  background-color: #fff;
+}
+.msgContainer .TextArea {
+  border: 0px;
+  padding: 0;
+  width: 100%;
+  font-size: 14px;
+}
+#textarea_Updater,
+.textarea_Updater_Edit {
+  width: 100%;
+  padding: 0px;
+  border: 0px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: height 0.6s ease-in-out;
+}
+.myUpdateItem .msgExpandDiv {
+  font-size: 0px;
+  padding: 3px;
+  position: relative;
+  height: 14px;
+  float: right;
+  right: 2px;
+  bottom: 2px;
+  width: 10px;
+}
+.myUpdateItem .msgExpandDiv .faceBtn {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-position: left top !important;
+  cursor: pointer;
+  background-size: 100%;
+  float: right;
+}
+.myUpdateItem .msgExpandDiv .faceBtn:hover {
+  background-position: left bottom !important;
+}
+
+.myUpdateItem_Content .faceBtn:not(:hover) {
+  color: #ccc !important;
+}
+.myUpdateItem_Content .faceBtn {
+  background: none !important;
+  text-decoration: none !important;
+  width: auto;
+  height: auto;
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-top: 2px !important;
+  font-size: 17px;
+}
+.myUpdateItem_Content .msgExpandDiv {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.myUpdateItem_Content .arrowUpOuter {
+  border-color: #fff #fff #f0f0f0;
+  border-top-width: 0px;
+}
+
+.myUpdateItem .middleContent {
+  clear: both;
+  padding-bottom: 0px;
+}
+.myUpdateItem .borderTopHidden {
+  border: 1px solid #f0f0f0;
+}
+.middleContent .updaterAttachment {
+  border: 0px solid #d5d5d5;
+  table-layout: fixed;
+  border-right-width: 0px;
+}
+.updaterAttachment .TextBox {
+  width: 341px;
+  padding-left: 5px;
+  line-height: 20px;
+  height: 20px;
+  height: 18px\9;
+  font-size: 14px;
+  color: #666;
+}
+
+.middleContent .promptDoc,
+.Comment_middleContent .promptDoc {
+  margin-left: 5px;
+  color: #999;
+}
+.updaterDialog_Main .ThumbPages {
+  margin-top: -32px;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+  background-color: #d1d1d1;
+  _filter: alpha(opacity=40);
+  opacity: 0.4;
+}
+.updaterDialog_Main .imagearea {
+  width: 160px;
+  height: 118px;
+  background: white;
+  border: 1px solid #dfdfdf;
+}
+.updaterDialog_Main .updater_LinkTitle {
+  width: 330px;
+}
+.updaterDialog_Main .uploadLinkContent {
+  margin: 0px 10px;
+  padding-bottom: 10px;
+  overflow: hidden;
+}
+.updaterDialog_Main {
+  border-right: 0px;
+  zoom: 1;
+  background-color: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+.updaterDialog_Main .uploadType {
+  margin: 0px 10px;
+  color: #bebebe;
+  padding: 0px 5px;
+}
+.updaterDialog_Main .uploadType .parallelChooseHidden {
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.updaterDialog_Main .borderTop {
+  border-top: 1px solid #f0f0f0;
+  height: 1px;
+  overflow: hidden;
+}
+.updaterDialog_Main .uploadType a {
+  color: #999;
+  text-decoration: none;
+  cursor: pointer;
+  height: 45px;
+  line-height: 45px;
+}
+.updaterDialog_Main .line {
+  margin: 0px 10px;
+}
+.updaterDialog_Main .visualDocTextBox {
+  margin: 10px;
+  height: 35px;
+  line-height: 35px;
+  background-color: White;
+  border: 1px solid #d5d5d5;
+  cursor: pointer;
+  overflow: hidden;
+}
+.updaterDialog_Main .visualPicTextBox {
+  width: 150px;
+  height: 110px;
+  background-color: White;
+  border: 1px solid #d5d5d5;
+  cursor: pointer;
+  margin-left: 0px;
+}
+.updaterDialog_Main .uploadDocFailArea {
+  margin-left: -10px;
+  margin-right: -10px;
+  background-color: #fff8f8;
+}
+.updaterCard .updaterDialog_Main .linkTextBox {
+  height: 33px;
+  line-height: 33px;
+  border: 0px;
+  width: 580px;
+}
+.updaterDialog_Main .linkBtnArea {
+  padding: 0px 3px;
+  border-left: 1px solid #ccc;
+}
+.updaterDialog_Main .linkBtn {
+  padding: 3px 6px;
+  margin: 0px;
+  margin-top: -2px;
+}
+
+#Attachment_updater .attachmentList {
+  margin-top: 10px;
+}
+#Attachment_updater .kcAttachmentList {
+  margin-top: 10px;
+}
+#Attachment_updater .updaterAttachmentSplitter {
+  border: none;
+  padding: 0;
+  margin: 12px 0 2px;
+  border-top: 1px solid;
+}
+#Attachment_updater .uploadAttachmentLink {
+  color: #aaa;
+  cursor: pointer;
+  margin-left: 0px;
+  margin-right: 20px;
+  display: inline-block;
+}
+#Attachment_updater .uploadAttachmentLink .icon-home-knowledge {
+  display: inline-block;
+  margin-top: -2px;
+  font-size: 16px;
+}
+#Attachment_updater .uploadAttachmentLink .icon-localUpload {
+  display: inline-block;
+  margin-top: -2px;
+  font-size: 16px;
+  width: 15px;
+}
+#Attachment_updater .docItem {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+#Attachment_updater .docItem .progress {
+  margin: 6px 0;
+}
+#Attachment_updater .docItem .fileIcon {
+  height: 40px;
+  width: 35px;
+  margin: 2px 5px 3px 5px;
+}
+#Attachment_updater .kcDocItem {
+  width: 260px;
+  overflow: hidden;
+  display: inline-block;
+}
+#Attachment_updater .kcDocItem .nodeIconContainer {
+  background-color: #eee;
+  margin-right: 5px;
+  width: 45px;
+  height: 45px;
+}
+#Attachment_updater .kcDocItem .nodeIcon {
+  height: 24px;
+  width: 21px;
+  margin: 10px 12px 9px 12px;
+}
+#Attachment_updater .kcDocItem .nodeImg img {
+  width: 100%;
+  height: 100%;
+}
+#Attachment_updater .kcDocItem .shareUrl {
+  max-width: 200px;
+}
+
+#Div_JoinKnowledge .Knowledge_Search_Node .Knowledge_Search_Ico {
+  padding-left: 0px !important;
+}

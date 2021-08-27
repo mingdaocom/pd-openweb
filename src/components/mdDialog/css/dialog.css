@@ -1,0 +1,109 @@
+﻿.dialogScroll {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  overflow-y: auto;
+}
+.dialogScroll.darkHeader .dialogCloseBtn {
+  position: relative;
+  z-index: 2;
+}
+.dialogBox {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  width: 450px;
+  margin: 32px auto;
+  background-color: #fff;
+  padding-bottom: 1px;
+}
+.dialogBox .header {
+  height: 60px;
+  margin-left: 24px;
+}
+.dialogBox .header .title {
+  display: inline-block;
+  margin-top: 20px;
+  vertical-align: top;
+  width: 90%;
+}
+.dialogBox .noHeader {
+  height: 18px;
+}
+.dialogBox .dialogContent {
+  padding: 0 24px;
+}
+.dialogBox .oneScreenDialog {
+  overflow: hidden;
+  overflow-y: auto;
+}
+.checkBox .btnCk {
+  display: inline-block;
+  height: 17px;
+  padding-left: 21px;
+  cursor: pointer;
+  color: #999;
+  background: url('../images/checkBg.png') no-repeat 0 0;
+  background-size: 14px 33px;
+}
+.checkBox .btnCk.selected {
+  background-position: 0 -17px;
+}
+.dialogBox .footer {
+  margin-top: 32px !important;
+  padding: 0 24px 24px 24px !important;
+  text-align: right;
+}
+.footer .yesText {
+  line-height: 36px;
+  height: 36px;
+  padding: 0 24px;
+  cursor: pointer;
+  text-align: center;
+  color: #fff;
+  background-color: #1191ea;
+}
+.footer .yesText:not(.Hidden) {
+  display: inline-block;
+}
+.footer .yesText.disable {
+  color: #fff !important;
+  background-color: #ccc !important;
+  cursor: not-allowed;
+}
+.dialogBox a:hover {
+  text-decoration: none;
+}
+.footer .noText {
+  margin-right: 32px;
+  cursor: pointer;
+  color: #aaa;
+}
+.dialogBox .dialogCloseBtn {
+  font-size: 20px;
+  float: right;
+  margin-top: 8px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+.dialogBox .dialogCloseBtn:not(:hover) {
+  color: #999 !important;
+}
+.opacity7 {
+  opacity: 0.7;
+}
+.maskTaskBox {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+.dialogBox .minorContent {
+  margin-left: 24px;
+}

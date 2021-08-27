@@ -1,0 +1,123 @@
+.workflowEdit {
+  .workflowBranch {
+    display: inline-flex;
+    position: relative;
+    padding-top: 13px;
+    background-color: #f5f5f9;
+    ~ .workflowLineBtn {
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        width: 1px;
+        height: 100%;
+        background-color: #ccc;
+      }
+    }
+    > .flexColumn {
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        width: 1px;
+        height: 100%;
+        background-color: #ccc;
+      }
+      > .workflowBox {
+        padding-top: 40px !important;
+        box-sizing: border-box;
+      }
+      .clearLeftBorder {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: -5px;
+          width: calc(~'(100% - 1px) / 2');
+          background: #f5f5f9;
+          height: 10px;
+        }
+        &::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: -5px;
+          width: calc(~'(100% - 1px) / 2');
+          background: #f5f5f9;
+          height: 10px;
+        }
+      }
+      .clearRightBorder {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        &::before {
+          content: "";
+          position: absolute;
+          right: 0;
+          top: -5px;
+          width: calc(~'(100% - 1px) / 2');
+          background: #f5f5f9;
+          height: 10px;
+        }
+        &::after {
+          content: "";
+          position: absolute;
+          right: 0;
+          bottom: -5px;
+          width: calc(~'(100% - 1px) / 2');
+          background: #f5f5f9;
+          height: 10px;
+        }
+      }
+    }
+    .workflowBranchBtn {
+      font-size: 26px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      z-index: 3;
+      width: 26px;
+      cursor: pointer;
+      margin-left: -13px;
+      background: #f5f5f9;
+      color: #2196f3;
+      &:hover {
+        color: #1565c0;
+      }
+    }
+    .workflowBranchSpecial {
+      width: 200px;
+      height: 60px;
+      margin: auto;
+      .workflowName {
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        .workflowYes {
+          color: #01CA86;
+        }
+        .workflowNo {
+          color: #f44336;
+        }
+      }
+    }
+  }
+}

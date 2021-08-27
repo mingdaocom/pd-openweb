@@ -1,0 +1,94 @@
+
+.AddDialog {
+  .AddWrap {
+    .dialogContent {
+      padding-right: 0;
+    }
+
+    .projectList {
+      overflow-y: auto;
+      max-height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .splitLine {
+      width: 372px;
+      border-top: 1px solid #ccc;
+      margin: 24px 0;
+    }
+
+    .projectList.scrollBar {
+      padding-right: 20px;
+    }
+
+    .projectItem {
+      font-size: 15px;
+      line-height: 50px;
+      width: 100%;
+      height: 50px;
+      margin-bottom: 20px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    .projectItem .companyName {
+      overflow: hidden;
+      min-width: 0;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      color: #333;
+    }
+
+    .projectItem:hover {
+      border-color: currentColor;
+    }
+
+    .projectItem:last-child {
+      margin: 0;
+    }
+
+    .projectItem:not(:hover) .icon-arrow-right-border {
+      color: #999 !important;
+    }
+  }
+}
+
+.boxLoading {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+
+  .dialogMask {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .text {
+    z-index: 2;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    .addLoading {
+      .MdLoader-path {
+        stroke: #fff;
+      }
+    }
+
+    p {
+      color: #fff;
+    }
+  }
+}

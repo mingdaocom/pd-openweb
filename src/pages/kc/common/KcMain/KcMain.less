@@ -1,0 +1,894 @@
+html.AppKc,
+.AppKc body,
+.AppKc form {
+  height: 100%;
+}
+html.AppKc {
+  overflow: auto;
+}
+.AppKc #container {
+  max-width: 100% !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.kcMain {
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+.kcMain .Drawer {
+  position: absolute !important;
+  top: 45px;
+}
+.kcMain .transitions {
+  transition: all 0.25s ease-in;
+}
+.kcMain.application .leftNavHairGlass,
+.kcMain.application .mdLeftNav {
+  display: none;
+}
+.kcMain.application .kcRightContent {
+  border-left: none;
+}
+.kcMain .relative {
+  position: relative;
+  display: inline-block;
+}
+.kcRightContent {
+  width: 100%;
+  height: 100%;
+}
+.kcRightHead {
+  width: 100%;
+  padding: 0 18px;
+  user-select: none;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+
+  z-index: 8;
+}
+.kcRightHead .kcRightHeadPosition,
+.kcRightHead .searchHead {
+  font-size: 16px;
+  height: 45px;
+  line-height: 45px;
+  color: #000;
+  padding-right: 240px;
+}
+.kcRightHead .kcRightHeadPosition .kcPosition:not(:hover) {
+  color: #000;
+}
+.kcRightHead .kcRightHeadPosition .kcPosition {
+  margin-left: 5px;
+  max-width: 128px;
+  display: inline-block;
+}
+.kcRightHead .kcRightHeadPosition .kcPositionFirst {
+  max-width: 90%;
+}
+.kcRightHead .kcRightHeadPosition .kcPositionFirst .kcPosition {
+  max-width: 100%;
+  margin-left: 0 !important;
+  padding-left: 10px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.kcRightHead .kcRightHeadPosition .kcPosition.firstPosition {
+  margin-left: 10px;
+}
+.kcRightHead .kcRightHeadPosition .lastPosition {
+  position: absolute;
+  top: 0;
+  left: 26px;
+  right: 0;
+}
+.kcRightHead .kcRightHeadPosition .lastPosition .kcPosition {
+  max-width: 100%;
+  margin-left: 0;
+}
+.kcRightHead .kcRightHeadPosition .positionSpan {
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: pre;
+}
+.kcRightHead .kcRightHeadPosition span.globalSearch {
+  font-size: 14px;
+  min-width: 220px;
+}
+.kcRightHead .kcRightHeadOperate {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+}
+
+.kcRightHead .kcRightHeadOperate span.tip-con {
+  margin-right: 30px;
+  margin: 12px 30px 0 0;
+}
+.kcRightHead .kcRightHeadOperate i,
+.kcRightHead .kcRightHeadOperate .showDetail {
+  font-size: 20px;
+  cursor: pointer;
+  vertical-align: middle;
+  display: inline-block;
+}
+.kcRightHead .kcRightHeadOperate .icon-home-navigation,
+.kcRightHead .kcRightHeadOperate .icon-task-list {
+  /*font-size: 20px;*/
+}
+.kcRightHead .kcRightHeadOperate i:not(:hover) {
+  color: rgba(0, 0, 0, 0.5);
+}
+.kcRightHead .kcRightHeadOperate .kcRightAdd,
+.kcRightHead .kcRightHeadOperate .kcRightDel {
+  cursor: pointer;
+  display: inline-block;
+  height: 32px;
+  line-height: 32px;
+  color: #fff;
+  padding: 0 31px;
+  margin: 6px 9px 0 0;
+}
+.kcRightHead .kcRightHeadOperate .kcRightAdd {
+  padding: 0 18px 0 14px;
+  border-radius: 18px;
+}
+.kcRightHead .kcRightHeadOperate .kcRightAdd .icon-plus {
+  font-size: 13px;
+  margin-right: 5px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 9px;
+  color: #fff;
+}
+.kcAddNodeBtnMenu .Item-content {
+  &:hover .icon {
+    color: #fff !important;
+  }
+}
+.kcAddNodeBtnMenu .createOffice {
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 2px;
+  .icon-arrow-right-tip {
+    right: 10px;
+    left: initial !important;
+  }
+}
+.kcMainContent {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  user-select: none;
+}
+.kcToolbar {
+  height: 44px;
+  line-height: 44px;
+  color: #666;
+  user-select: none;
+  padding-left: 13px;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  right: 18px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+.kcToolbarSingle,
+.kcToolbarB {
+  vertical-align: top;
+}
+.kcToolbar .selectAll {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #a0a0a0;
+  display: inline-block;
+  cursor: pointer;
+  margin-right: 13px;
+  margin-top: 12px;
+  vertical-align: top;
+}
+.kcToolbar .selectAll i {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 15px;
+  margin-top: 1px;
+  color: #1585f9;
+}
+.kcToolbar .kcToolbarLabel {
+  margin-left: 37px;
+  display: inline-block;
+  vertical-align: top;
+}
+.kcToolbar .kcToolbarRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.kcToolbarMultiple span[data-tip] {
+  margin-left: 22px;
+  display: inline;
+}
+.kcToolbarMultiple i {
+  font-size: 16px;
+  vertical-align: middle;
+}
+.kcToolbarMultiple i:not(:hover) {
+  color: #999 !important;
+}
+.kcToolbar .kcToolbarMultiple .icon-task-replace {
+  font-size: 14px;
+}
+.kcToolbar .kcToolbarMultiple .icon-knowledge-more-folder {
+  font-size: 15px;
+}
+.kcToolbar .kcToolbarMultiple .icon-task-new-delete {
+  font-size: 17px;
+}
+.kcRightContent .createUser {
+  width: 65px;
+  margin-right: 16px;
+  display: inline-block;
+}
+.kcRightContent .kcToolbarLabel {
+  cursor: pointer;
+}
+.kcRightContent .editTime,
+.kcRightContent .deleteTime {
+  width: 120px;
+  margin-right: 16px;
+  display: inline-block;
+  cursor: pointer;
+}
+.kcRightContent .editTime i {
+  margin-left: 3px;
+}
+.kcRightContent .size {
+  width: 50px;
+  margin-right: 28px;
+  display: inline-block;
+}
+#kclistContainer {
+  margin: 0 18px;
+  width: auto;
+  overflow-y: auto;
+  position: absolute !important;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+#kclistContainer.noListItem {
+  top: 16px;
+}
+#kclistContainer > ul {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.kclist li > a {
+  text-decoration: none;
+  color: inherit;
+}
+.kclist li.flexRow {
+  height: 36px;
+  line-height: 36px;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+}
+.kclist li.flexRow.last-child {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom: 0;
+}
+.kclist li.flexRow:hover {
+  background: #f4f5f7;
+}
+.kclist li.addNewFolder:hover {
+  background: #fff;
+}
+.kclist li.active {
+  background: #cfe8fc !important;
+  z-index: 1;
+}
+.kclist li.active .selectBox,
+.kclist li:hover .selectBox {
+  display: inline-block;
+}
+.kclist li .selectBox {
+  display: none;
+  padding: 9px 13px 9px 13px;
+  cursor: pointer;
+}
+.kclist li .select {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  border: 1px solid #a0a0a0;
+  vertical-align: top;
+}
+.kclist li.active .noSelectPoint,
+.kclist li:hover .noSelectPoint {
+  display: none;
+}
+.kclist li .noSelectPoint {
+  width: 4px;
+  height: 4px;
+  margin-right: 19px;
+  margin-top: 16px;
+  margin-left: 19px;
+  background: #c8c8c8;
+}
+.kclist li .select i {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 15px;
+  color: #1585f9;
+}
+.kclist li .type,
+.kclist li .listViewImg {
+  width: 21px;
+  height: 24px;
+  vertical-align: top;
+  display: inline-block;
+  margin-top: 6px;
+  margin-right: 16px;
+}
+
+.kclist li .folderSharedItem {
+  width: 21px;
+  height: 30px;
+  margin-right: 16px;
+}
+
+.icons_folder {
+  width: 31px;
+  height: 24px;
+  background: url('images/folder.png') no-repeat;
+}
+
+.kclist .listName {
+  max-width: 300px;
+  outline: none;
+}
+.kclist a.linkFileName {
+  color: inherit;
+}
+.kclist .listName:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.kclist .itemExt {
+  max-width: 60px;
+  display: inline-block;
+}
+
+.kclist .listNameEdit {
+  width: 360px;
+  border: 0;
+  height: 34px;
+  line-height: 34px;
+  display: none;
+  background: #fff;
+}
+
+.kclist li.active .listNameEdit {
+  background: #cfe8fc !important;
+}
+.kclist li:hover .listNameEdit {
+  background: #f4f5f7;
+}
+
+.kclist .preview {
+  font-size: 16px;
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+}
+
+.kclist .preview:not(:hover),
+.kclist .download:not(:hover),
+.kclist .icon-rotate:not(:hover) {
+  color: #999 !important;
+}
+.kclist .download,
+.kclist .icon-rotate {
+  font-size: 16px;
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+}
+.kclist .actions {
+  font-size: 21px;
+  display: inline-block;
+  color: #999;
+  width: 36px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  vertical-align: top;
+  padding-top: 1px;
+}
+.kclist .Menu {
+  z-index: 2;
+}
+.kclist .Menu .Icon,
+#kclistContainer.thumbnail .Menu .Icon,
+.rightMenu.Menu .Icon {
+  color: #aaa !important;
+}
+.kclist .Menu .ming.Item:hover .Icon,
+#kclistContainer.thumbnail .Menu .ming.Item:hover .Icon,
+.kcRightHeadOperate .Menu .ming.Item:hover .Icon,
+.rightMenu.Menu .ming.Item:hover .Icon {
+  color: #fff !important;
+}
+.Menu .ming.Item .newVersionFile {
+  position: absolute;
+  left: -32px;
+  top: -9px;
+  opacity: 0;
+  cursor: pointer;
+  width: 180px;
+  height: 32px;
+}
+.kclist .createName {
+  width: 65px;
+  margin-left: 16px;
+}
+.kclist .createTime {
+  width: 120px;
+  margin-left: 16px;
+}
+.kclist .createTime .grey {
+  color: #999;
+}
+.kclist .size {
+  width: 50px;
+  margin: 0 28px 0 16px;
+}
+.rightMenu {
+  z-index: 999 !important;
+}
+
+/*缩略视图样式*/
+#kclistContainer.thumbnail .clearfix {
+  padding-top: 20px;
+}
+#kclistContainer.thumbnail ul {
+  background: #fff;
+}
+#kclistContainer.thumbnail li.thumbnailItem:hover {
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+#kclistContainer.thumbnail li.thumbnailItem.active {
+  z-index: 4;
+  border-color: #2979ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+#kclistContainer.thumbnail li.thumbnailItem:hover .thumbnailImg img {
+  opacity: 0.8;
+}
+#kclistContainer.thumbnail li.thumbnailItem:hover .select {
+  display: block !important;
+  border-color: #fff;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+}
+#kclistContainer.thumbnail li.thumbnailItem:hover .icon-ok {
+  display: block !important;
+}
+#kclistContainer.thumbnail li.thumbnailItem.active .select {
+  display: block !important;
+  border-color: #2979ff;
+  background: #2979ff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+}
+
+#kclistContainer.thumbnail li.thumbnailItem:hover {
+  -webkit-transition: box-shadow 0.15s ease-in;
+  -moz-transition: box-shadow 0.15s ease-in;
+  transition: box-shadow 0.15s ease-in;
+}
+
+#kclistContainer.thumbnail li.thumbnailItem {
+  width: 160px;
+  height: 140px;
+  float: left;
+  margin-left: 12px;
+  margin-bottom: 13px;
+  cursor: pointer;
+  background: #fff;
+  border-radius: 3px;
+  border: 2px solid #fff;
+  box-sizing: initial;
+}
+#kclistContainer.thumbnail .thumbnailImg {
+  width: 160px;
+  height: 100px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+#kclistContainer.thumbnail .thumbnailImg .thumViewImg {
+  background-color: #acacac;
+  width: 160px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+}
+#kclistContainer.thumbnail .thumbnailImg img {
+  max-width: 160px;
+  display: block;
+  margin: 0 auto;
+  max-height: 100px;
+}
+#kclistContainer.thumbnail .thumbnailName {
+  width: 144px;
+  margin: 11px auto 0;
+  text-align: center;
+}
+#kclistContainer.thumbnail .listNameEdit {
+  width: 140px;
+  margin: 11px 0 0 10px;
+  border: 0;
+  background: #fff;
+  height: 18px;
+  line-height: 18px;
+  display: none;
+}
+#kclistContainer.thumbnail .thumbnailName .listName {
+  max-width: 110px;
+  display: inline-block;
+  outline: none;
+}
+#kclistContainer.thumbnail .thumbnailName a.listName {
+  color: inherit;
+}
+#kclistContainer.thumbnail .thumbnailName .listName:hover {
+  text-decoration: underline;
+}
+#kclistContainer.thumbnail .thumbnailItem > .nodeActionIcons {
+  display: inline-block;
+  position: absolute !important;
+  bottom: 0;
+  right: 0;
+  height: 30px;
+  line-height: 30px;
+  width: 34px;
+  text-align: center;
+  background: #fff;
+}
+#kclistContainer.thumbnail .thumbnailItem > .nodeActionIcons .Menu {
+  z-index: 2;
+  text-align: left;
+}
+#kclistContainer.thumbnail .actions {
+  font-size: 21px;
+  display: inline-block;
+  color: #999;
+}
+#kclistContainer.thumbnail .thumbnailItem .ming.Item .Item-content .Icon.icon-kc-hover-download {
+  font-size: 14px;
+}
+#kclistContainer.thumbnail li .select {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #8bb7ff;
+  display: inline-block;
+  cursor: pointer;
+  position: absolute;
+  left: -6px;
+  top: -5px;
+  border-radius: 50%;
+  background: #fff;
+  box-sizing: initial;
+}
+#kclistContainer.thumbnail li .select i {
+  display: inline-block;
+  font-size: 16px;
+  margin: 3px;
+  color: #c7c7c7;
+}
+#kclistContainer.thumbnail li.active .select i {
+  color: #fff !important;
+}
+.kclist .rightMenu.ming.Menu,
+#kclistContainer.thumbnail .rightMenu.ming.Menu {
+  position: fixed;
+}
+.addFolderName {
+  border: 0;
+}
+.kclist li.addNewFolder,
+.kclist li .addFolderName {
+  background: #fff;
+}
+.kclist li .addFolderName {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+#kclistContainer.thumbnail li .type {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  background-size: 42px 48px !important;
+  background-position: 50%;
+}
+
+.kclist li.addNewFolder .noSelectPoint {
+  display: block !important;
+}
+
+#kclistContainer .thumbnailItem.addNewFolder {
+  background: #fff !important;
+}
+.kclist .clearStyle,
+#kclistContainer.thumbnail .clearStyle {
+  text-align: center;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  z-index: 2;
+  height: 440px;
+  -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+#kclistContainer.thumbnail .clearPadding {
+  padding-top: 0;
+}
+
+.kclist.noMultiItemsSelected .nodeItem .nodeActionIcons {
+  position: relative;
+}
+
+.kclist.noMultiItemsSelected .nodeItem:hover .nodeActionIcons {
+  display: block !important;
+}
+
+#kclistContainer.thumbnail.noMultiItemsSelected .nodeItem.thumbnailItem:hover .nodeActionIcons {
+  display: inline-block !important;
+}
+
+#kclistContainer.thumbnail.noMultiItemsSelected .nodeItem.thumbnailItem:hover .thumbnailSize {
+  display: none !important;
+}
+
+.noListBG {
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 440px;
+  z-index: -1;
+  overflow: hidden;
+  -webkit-filter: blur(10px) saturate(1.5);
+  filter: blur(10px) saturate(1.5);
+  background-attachment: fixed;
+}
+.noListMessage {
+  display: inline-block;
+}
+.noListMessage .noFile,
+.noListMessage .starFile,
+.noListMessage .recently {
+  display: block;
+  background-image: url('./images/noFile.png');
+  background-color: rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background-repeat: no-repeat;
+  background-size: 86px 75px;
+  background-position: 32px 38px;
+  width: 150px;
+  height: 150px;
+  margin: 120px auto 15px;
+  border-radius: 50%;
+}
+.noListMessage .noFile:not(.noUpload):not(.noSearchFile):not(.isReadOnly):hover {
+  background-color: #fff;
+  -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+.noListMessage .noUpload {
+  background-image: url('./images/noRecycle.png') !important;
+  background-size: 150px 150px !important;
+  background-position: 2px 2px !important;
+}
+.noListMessage .noSearchFile {
+  background-image: url('./images/noSearch.png') !important;
+  background-size: 150px 150px !important;
+  background-position: 2px 2px !important;
+}
+.noListMessage .starFile,
+.noListMessage .recently {
+  background-image: url('./images/starFile.png');
+}
+.noListMessage .Font14,
+.noListMessage .Font17 {
+  color: rgba(0, 0, 0, 0.54);
+  line-height: 35px;
+}
+.kcMainContent.showDetail {
+  border-right: 340px solid transparent;
+  min-width: 1030px;
+}
+.kcMainContent.removeDetail {
+  border-right: 0px solid transparent;
+}
+
+.draggingItems {
+  position: fixed;
+  z-index: 6000;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.draggingItems .draggingItemsCountContainer {
+  background: url('./images/dragBg.png') no-repeat;
+  background-size: cover;
+  position: relative;
+  display: inline-block;
+  height: 38px;
+  width: 38px;
+}
+.draggingItems .draggingItemsCount {
+  color: white;
+  font-size: 12px;
+  display: block;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+}
+
+.draggingItems .draggingItemsTip {
+  display: inline-block;
+  background: #efeff2;
+  padding: 10px 12px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+.willnotrender {
+  transform: translateZ(0);
+}
+
+.disableLayer {
+  position: fixed;
+  z-index: 700;
+  left: 250px;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+}
+
+.disableLayer .disableLayerCenter {
+  position: absolute;
+  top: 50%;
+  margin-top: -100px;
+  width: 200px;
+  left: 50%;
+  margin-left: -100px;
+}
+
+.disableLayer .icon-cannotView {
+  font-size: 60px;
+  display: block;
+}
+
+.kcToolbar .disabledSort {
+  cursor: default !important;
+}
+
+.kcRightContent .menuLine {
+  height: 1px !important;
+  line-height: 1px !important;
+  background-color: #e8e8e8;
+  margin: 2px 0;
+}
+
+.previewFileMain {
+  width: 100%;
+  height: 0;
+}
+
+.leftNavHairGlass {
+  background-attachment: fixed;
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  top: 50px;
+  bottom: 0;
+  width: 250px;
+  overflow: hidden;
+  -webkit-filter: blur(10px) saturate(1.5);
+  filter: blur(10px) saturate(1.5);
+}
+.kcMain .settingsLayer {
+  z-index: 2;
+}
+
+@media screen and (max-width: 1920px) {
+  .kcRightHead .kcRightHeadPosition .kcPosition {
+    max-width: 160px;
+  }
+}
+
+@media screen and (max-width: 1366px) {
+  .showDetail .kclist .listName {
+    max-width: 110px;
+  }
+  .showDetail .kclist .itemExt {
+    max-width: 45px;
+  }
+  .showDetail .kclist .listNameEdit {
+    width: 195px;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .kclist .listName {
+    max-width: 240px;
+  }
+  .kclist .listNameEdit {
+    width: 300px;
+  }
+  .showDetail .kclist .listName {
+    max-width: 85px;
+  }
+  .showDetail .kclist .itemExt {
+    max-width: 35px;
+  }
+  .showDetail .kclist .listNameEdit {
+    width: 120px;
+  }
+  .kcRightHead .kcRightHeadPosition .kcPosition {
+    max-width: 112px;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .kclist .listName {
+    max-width: 135px;
+  }
+  .kclist .listNameEdit {
+    width: 195px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .kcRightHead .kcRightHeadPosition .kcPosition {
+    max-width: 80px;
+  }
+}

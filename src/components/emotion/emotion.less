@@ -1,0 +1,258 @@
+﻿@corner-size: 8px;
+@border-color: rgb(199, 199, 199);
+@primary-color: #08f;
+
+@font-face {
+  font-family: 'emotion';
+  src: url(data:application/x-font-ttf;charset=utf-8;base64,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);
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^='emotion'],
+[class*=' emotion'] {
+  font-family: 'emotion';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.emotion-emoji:before {
+  content: '\e601';
+}
+
+.emotion-bear:before {
+  content: '\e600';
+}
+
+.emotion-face:before {
+  content: '\31';
+}
+
+.emotion-history:before {
+  content: '\32';
+}
+
+.emotion-twemoji {
+  width: 22px;
+  height: 22px;
+}
+
+.mdEmotion {
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: solid 1px @border-color;
+  z-index: 10;
+  height: 240px;
+  .mdEmotionWrapper {
+    padding: 4px;
+    width: 380px;
+    height: 188px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  .arrow,
+  .arrow:after {
+    width: 0;
+    height: 0;
+    display: block;
+    position: absolute;
+    border-color: transparent;
+    border-style: solid;
+    border-width: @corner-size;
+  }
+  .arrow {
+    &:after {
+      content: '';
+    }
+  }
+
+  &.emotion-bottom {
+    //元素下面
+    margin-top: @corner-size;
+    .arrow,
+    .arrow:after {
+      border-top-width: 0;
+    }
+    .arrow {
+      left: 50%;
+      margin-left: -@corner-size;
+      top: -@corner-size;
+      border-bottom-color: @border-color;
+      &:after {
+        border-bottom-color: #fff;
+        top: 1px;
+        margin-left: -@corner-size;
+      }
+    }
+  }
+
+  &.emotion-top {
+    //元素上面
+    margin-top: -@corner-size;
+    .arrow,
+    .arrow:after {
+      border-bottom-width: 0;
+    }
+    .arrow {
+      left: 50%;
+      margin-left: -@corner-size;
+      bottom: -@corner-size;
+      border-top-color: @border-color;
+      &:after {
+        border-top-color: #fff;
+        bottom: 1px;
+        margin-left: -@corner-size;
+      }
+    }
+  }
+
+  &.emotion-left {
+    //元素左边
+    margin-left: -@corner-size;
+    .arrow,
+    .arrow:after {
+      border-right-width: 0;
+    }
+    .arrow {
+      top: 50%;
+      margin-top: -@corner-size;
+      right: -@corner-size;
+      border-left-color: @border-color;
+      &:after {
+        border-left-color: #fff;
+        right: 1px;
+        margin-top: -@corner-size;
+      }
+    }
+  }
+
+  &.emotion-right {
+    //元素右边
+    margin-left: @corner-size;
+    .arrow,
+    .arrow:after {
+      border-left-width: 0;
+    }
+    .arrow {
+      top: 50%;
+      margin-top: -@corner-size;
+      left: -@corner-size;
+      border-right-color: @border-color;
+      &:after {
+        margin-top: -@corner-size;
+        border-right-color: #fff;
+        left: 1px;
+      }
+    }
+  }
+
+  .mdEmotionTab {
+    border-top: solid 1px #ececec;
+    margin-bottom: -9px;
+    padding: 10px 6px;
+    height: 50px;
+    background: #fff;
+    box-sizing: border-box;
+    .tabItem {
+      display: inline-block;
+      font-size: 20px;
+      line-height: 100%;
+      cursor: pointer;
+      vertical-align: middle;
+      color: #666;
+      padding: 4px;
+      margin-right: 6px;
+      &:hover {
+        background: #efefef;
+      }
+      //+ .tabItem {
+      //}
+      &-images {
+        width: 22px;
+        height: 22px;
+      }
+      &.active {
+        color: @primary-color;
+        background: #f1f1f1;
+      }
+    }
+  }
+
+  .mdEmotionWrapper {
+    .mdEmotionPanel {
+      display: none;
+      margin-right: -17px;
+      &.panel1 {
+        .emotionItem {
+          box-sizing: border-box;
+          &.emotionItemBear,
+          &.emotionItemAru {
+            transition: all 0.3s 0.1s;
+            &:hover {
+            }
+            width: 25px;
+            height: 25px;
+            line-height: 24px;
+            img {
+              width: 100%;
+              height: auto;
+            }
+          }
+        }
+      }
+      &.active {
+        display: block;
+      }
+      .emotionItem {
+        font-size: 0;
+        margin: 4px;
+        display: inline-block;
+        vertical-align: top;
+        width: 25px;
+        height: 25px;
+        &.emoji {
+          padding: 0 1px;
+        }
+        img {
+          width: 24px;
+          height: 24px;
+          margin: 0;
+          padding: 0;
+        }
+        .emotion-twemoji {
+          width: 22px;
+          height: 22px;
+        }
+        &.emotionItemBear {
+          width: 53px;
+          height: 53px;
+          img {
+            width: 53px;
+            height: 53px;
+          }
+        }
+        &.emotionItemAru {
+          width: 53px;
+          height: 53px;
+          line-height: 53px;
+          img {
+            width: 100%;
+            height: auto;
+            vertical-align: middle;
+            max-height: 100%;
+          }
+        }
+      }
+    }
+  }
+}

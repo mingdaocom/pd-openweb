@@ -1,0 +1,100 @@
+﻿@-webkit-keyframes anim-open {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(1.1, 1.1, 1);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+  }
+}
+@keyframes anim-open {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(1.1, 1.1, 1);
+    transform: scale3d(1.1, 1.1, 1);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+@-webkit-keyframes anim-close {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.9, 0.9, 1);
+  }
+}
+@keyframes anim-close {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.9, 0.9, 1);
+    transform: scale3d(0.9, 0.9, 1);
+  }
+}
+.confirm {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+.confirm .confirmOverlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.5);
+}
+.confirm.open .confirmContainer {
+  -webkit-animation-name: anim-open;
+  animation-name: anim-open;
+}
+.confirm.open .modalOverlay {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.confirm.close .confirmContainer {
+  -webkit-animation-name: anim-close;
+  animation-name: anim-close;
+}
+.confirm.open .confirmContainer,
+.confirm.close .confirmContainer {
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+}
+.confirm .confirmContainer {
+  position: relative;
+  padding: 15px;
+  margin: 200px auto;
+  max-width: 500px;
+  background: #fff;
+  z-index: 100;
+  box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.confirm .confirmContainer .confirmTitle {
+  color: #000;
+  font-size: 16px;
+  cursor: pointer;
+}
+.confirm .confirmContainer .confirmBody {
+  margin: 20px 0;
+  font-size: 14px;
+  color: #999;
+}
+.confirm .confirmContainer .confirmFooter {
+  text-align: right;
+}
+.confirm .confirmContainer .confirmFooter .btnCancel {
+  margin-right: 24px;
+}

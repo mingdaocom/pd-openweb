@@ -1,0 +1,16 @@
+﻿{{? it.pageIndex == 1}}
+<div class="listStageTaskContent">
+  <table cellpadding="0" cellspacing="0">
+{{?}}
+  {{~it.data:task:index}}
+    {{?task.charge}}
+      {{ var statusObj = it.formatStatus(task.status, task.locked, task.auth); }}
+      #include.nodeCommTr
+    {{??}}
+      {{console.log(task);}}
+    {{?}}
+  {{~}}
+{{? it.pageIndex == 1}}
+  </table>
+</div>
+{{?}}

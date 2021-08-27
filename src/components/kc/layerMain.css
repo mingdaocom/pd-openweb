@@ -1,0 +1,45 @@
+.kcDialogBox .header{
+  height: 60px!important;
+  line-height: 60px;
+  margin: 0 30px!important;
+}
+.kcDialogBox .noHeader {
+  margin: 0 30px!important;
+}
+
+.kcDialogBox .dialogCloseBtn{
+  margin-top: 8px!important;
+  margin-right: -22px!important;
+  font-size: 16px!important;
+}
+.kcDialogBox .header .title{
+  /*vertical-align:middle!important;*/
+  /*display: inline-block!important;*/
+  margin-top: 0!important;
+}
+.kcDialogBox .dialogContent{
+  padding: 0px 30px 0!important;
+}
+
+.kcDialogBox .footer{
+  margin-top: 0;
+  text-align: right!important;
+  padding: 0 22px 15px;
+}
+.kcDialogBox .footer .yesText{
+  display: inline-block;
+  height: 35px;
+  width: 90px;
+  background-color: #1191EA;
+  text-align: center;
+  line-height: 35px;
+  color: #fff;
+  cursor: pointer;
+  padding: 0px!important;
+}
+
+.nullDataHintBox{
+  -webkit-box-shadow: 0px 1px 10px 0px rgba(245,68,68,1);
+  -moz-box-shadow: 0px 1px 10px 0px rgba(245,68,68,1);
+  box-shadow: 0px 1px 10px 0px rgba(245,68,68,1);
+}

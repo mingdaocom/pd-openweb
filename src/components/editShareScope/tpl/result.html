@@ -1,0 +1,19 @@
+﻿<div class="serachResult">
+    {{? it.list.length > 0}}
+    <ul>
+        {{~ it.list :group}}
+        <li>
+            <label class="ThemeBGColor3 Hand groupItem" data-groupId="{{=group.id}}">
+                <input type="checkbox" />
+                <span class="groupName ellipsis">{{! group.value}}</span>
+            </label>
+        </li>
+        {{~}}
+    </ul>
+    {{??}}
+    <div class="empty">
+        <i class="iocn-serach"></i>
+        <p>{{=_l('无匹配的群组')}}</p>
+    </div>
+    {{?}}
+</div>

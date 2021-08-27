@@ -1,0 +1,178 @@
+.taskGanttContainer {
+  .folderToolbar {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    padding: 6px 0;
+    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    user-select: none;
+    box-sizing: initial;
+  }
+
+  .taskStatusBox {
+    width: 164px;
+    margin-left: 20px;
+    display: inline-block;
+  }
+  .taskStatus {
+    display: inline-block;
+    span {
+      color: #888;
+      margin-right: 3px;
+    }
+  }
+  .taskStatusList {
+    position: absolute;
+    top: 42px;
+    left: 3px;
+    width: 170px;
+    background: #fff;
+    padding: 6px 0;
+    z-index: 10;
+    li {
+      height: 32px;
+      padding-left: 16px;
+      line-height: 32px;
+      padding-right: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      vertical-align: top;
+      cursor: pointer;
+      &:not(.ThemeColor3) {
+        i {
+          color: #9e9e9e;
+        }
+      }
+      &:not(:hover),
+      &.ThemeColor3 {
+        background: #fff !important;
+      }
+      &:hover:not(.ThemeColor3) {
+        color: #fff;
+        i {
+          color: #fff;
+        }
+      }
+      i {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .folderGanttBtn {
+    margin-left: 8px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 2px;
+    li {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      border-width: 1px 1px 1px 0;
+      border-style: solid;
+      border-color: #bdbdbd;
+      text-align: center;
+      font-size: 13px;
+      color: #757575;
+      box-sizing: border-box;
+      cursor: pointer;
+      &:first-child {
+        border-left: 1px solid #bdbdbd;
+        border-radius: 4px 0 0 4px;
+      }
+      &:last-child {
+        border-radius: 0 4px 4px 0;
+      }
+      &.active {
+        color: #fff;
+        background: #888;
+        border-color: #888;
+      }
+    }
+  }
+
+  .folderGanttWeekBtn {
+    margin-left: 16px;
+    li {
+      width: auto;
+      padding: 0 12px;
+    }
+  }
+
+  .folderGanttLevelBtn {
+    margin-left: 16px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    box-sizing: border-box;
+    text-align: center;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 2px;
+    border: 1px solid #bdbdbd;
+    color: #9e9e9e;
+    border-radius: 4px;
+  }
+
+  .taskLevel {
+    display: inline-block;
+    position: absolute;
+    top: 42px;
+    margin-left: -16px;
+    overflow: hidden;
+    padding: 6px 0;
+    background: #fff;
+    z-index: 10;
+    li {
+      height: 32px;
+      line-height: 32px;
+      padding-left: 16px;
+      padding-right: 32px;
+      cursor: pointer;
+      &:first-child {
+        border-bottom: 1px solid #bdbdbd;
+      }
+      &.ThemeColor3 {
+        background: #fff !important;
+      }
+      &:not(:hover) {
+        background: #fff !important;
+      }
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+
+  .ganttAddNewTask {
+    position: absolute;
+    top: 8px;
+    right: 20px;
+    cursor: pointer;
+    height: 26px;
+    line-height: 26px;
+    &:not(:hover) {
+      color: #888 !important;
+    }
+    i {
+      font-size: 17px;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      border-radius: 50%;
+      color: #fff !important;
+      text-align: center;
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+
+  .folderStaticGantt {
+    &:not(:hover) {
+      color: #888!important;
+    }
+  }
+}

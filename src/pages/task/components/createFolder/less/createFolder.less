@@ -1,0 +1,277 @@
+﻿@import '~slick-carousel/slick/slick.css';
+@import '~slick-carousel/slick/slick-theme.css';
+#createFolder {
+  .folderBox {
+    background: #eee;
+    border-radius: 0 3px 3px 0;
+    width: 300px;
+    .folderBoxPadding {
+      padding: 0 24px;
+      position: relative;
+    }
+    .folderBoxImg {
+      width: 100%;
+      height: 156px;
+      background: #bdbdbd;
+      border-radius: 0 3px 0 0;
+      img {
+        width: 100%;
+        border-radius: 0 3px 0 0;
+      }
+    }
+    #folderName {
+      width: 100%;
+      height: 36px;
+      line-height: 36px;
+      padding-left: 10px;
+      border: 1px solid #efefef;
+      border-radius: 3px;
+      margin-top: 16px;
+      &:not(:focus) {
+        border-color: #ccc !important;
+      }
+    }
+    .folderBoxDesc {
+      font-size: 13px;
+      color: #757575;
+      margin-top: 13px;
+    }
+    .createFolderNetwork {
+      cursor: pointer;
+      width: 200px;
+      display: inline-block;
+      margin-top: 1px;
+      .createFolderNetworkName {
+        max-width: 182px;
+        height: 20px;
+        line-height: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+      }
+      .icon-arrow-down-border {
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 4px;
+        margin-left: 5px;
+      }
+    }
+    .createFolderNetworkList {
+      position: absolute;
+      top: 45px;
+      left: 24px;
+      background: #fff;
+      max-height: 180px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 100;
+      padding: 5px 0;
+    }
+    .createFolderNetworkList li {
+      height: 32px;
+      line-height: 32px;
+      padding: 0 10px;
+      width: 222px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      i {
+        font-size: 14px;
+        width: 20px;
+        display: inline-block;
+        &.icon-charger {
+          vertical-align: top;
+          margin-top: 10px;
+        }
+      }
+      &:not(:hover) {
+        background-color: #fff !important;
+      }
+      &:hover {
+        color: #fff;
+      }
+      &:first-child {
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+      }
+      &:last-child {
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+      }
+    }
+    .createFolderBtn {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      text-align: right;
+      span {
+        display: inline-block;
+        margin-left: 32px;
+        height: 36px;
+        line-height: 36px;
+        cursor: pointer;
+        &.createFolderBtnCancel:not(:hover) {
+          color: #757575 !important;
+        }
+        &.createFolderBtnSave {
+          padding: 0 30px;
+          color: #fff;
+          font-size: 14px;
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+  .folderBoxMargin {
+    margin-top: 3px !important;
+    margin-bottom: -3px;
+  }
+  .folderBox .viewTo {
+    display: none;
+    margin-left: 10px;
+    .icon-eye,
+    .icon-arrow-down-border {
+      display: none;
+    }
+  }
+  .createFolderBox,
+  .createFolderRange {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    line-height: 29px;
+    margin-right: 5px;
+  }
+  .createFolderRange i {
+    display: inline-block;
+  }
+  .createFolderRangeBox {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    padding: 5px 0;
+    font-size: 13px;
+    white-space: nowrap;
+    width: 260px;
+    background: #fff;
+    li {
+      padding: 7px 20px 5px 20px;
+      line-height: 22px;
+      &:not(:hover) {
+        background: #fff !important;
+      }
+      &:hover {
+        background: #f5f5f5;
+        color: #fff !important;
+        .ThemeColor3 {
+          color: #fff !important;
+        }
+        .descTip {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+    li.createFolderLine {
+      margin: 6px 0;
+      height: 0;
+      padding: 0;
+      width: 100%;
+      cursor: default;
+      border-top: 1px solid #e0e0e0;
+    }
+    .descTip {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+  .createFolderHead {
+    height: 48px;
+    line-height: 48px;
+    text-align: center;
+    .createFolderReturn {
+      position: absolute;
+      top: 0;
+      left: 30px;
+      cursor: pointer;
+      &:not(:hover) {
+        color: #757575 !important;
+      }
+    }
+  }
+  .createFolderSlider {
+    width: 640px;
+    padding: 0 30px;
+    &:hover {
+      .slick-btn {
+        opacity: 1;
+      }
+    }
+    .slick-list {
+      background: #eaebef;
+    }
+    .slick-btn {
+      transition: all 0.3s ease-in-out;
+      position: absolute;
+      top: 50%;
+      margin-top: -59px;
+      background: rgba(0, 0, 0, 0.2);
+      width: 30px;
+      height: 70px;
+      line-height: 70px;
+      text-align: center;
+      opacity: 0;
+      font-size: 30px;
+      cursor: pointer;
+      color: #fff;
+      z-index: 10;
+      &:hover {
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+    .slick-btn.icon-arrow-left-border {
+      left: 0;
+    }
+    .slick-btn.icon-arrow-right-border {
+      right: 0;
+    }
+    .slick-slide {
+      min-height: 350px;
+      max-height: 624px;
+      overflow: auto;
+      img {
+        transform: scale(0.5);
+        transform-origin: 0 0;
+      }
+    }
+    .slick-dots {
+      position: static;
+      height: 48px;
+      line-height: 48px;
+      li {
+        width: 8px;
+        height: 8px;
+        margin-top: -4px;
+      }
+      li button {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+      }
+      li button:before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 50%;
+        border-color: #9e9e9e !important;
+        opacity: 1;
+      }
+      li.slick-active button:before {
+        background: #757575;
+        border-color: #757575 !important;
+      }
+    }
+  }
+}

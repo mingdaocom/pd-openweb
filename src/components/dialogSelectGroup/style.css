@@ -1,0 +1,70 @@
+#selectGroupDialog {
+  margin-bottom: 0;
+}
+
+#selectGroupDialog .dialogContent {
+  margin-left: 0;
+}
+
+#selectGroupDialog .singleGroup {
+  font-size: 14px;
+
+  height: 30px;
+  padding: 6px 0;
+
+  color: rgba(0, 0, 0, 0.8);
+}
+
+#selectGroupDialog .groupListContent .singleGroup {
+  padding-left: 25px;
+}
+
+#selectGroupDialog .groupListContent .singleGroup:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+#selectGroupDialog .singleGroup .groupAvatar {
+  display: inline-block;
+  overflow: hidden;
+
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+
+  vertical-align: middle;
+}
+
+#selectGroupDialog .selectGroupContent {
+  margin: 0 25px;
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#selectGroupDialog .groupContainer {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+#selectGroupDialog .searchContent {
+  margin: 0 25px;
+  padding: 12px 0;
+}
+
+#selectGroupDialog .groupKeywords {
+  display: block;
+
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px 25px 5px 8px;
+
+  border: 1px solid #ccc;
+}
+
+#selectGroupDialog .searchInput .searchIcon {
+  top: 7px;
+  right: 9px;
+}
+
+#selectGroupDialog .yesText {
+  padding: 0 35px;
+}

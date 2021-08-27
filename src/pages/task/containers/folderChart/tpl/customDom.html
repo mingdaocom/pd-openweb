@@ -1,0 +1,30 @@
+﻿{{~it:item:i}}
+  {{? i % 3 === 0}}
+  <div class="folderChartBoxModel flexRow">
+  {{?}}
+    <div class="flex">
+      <div class="folderChartBoxTitle">
+        <span class="overflow_ellipsis">{{=item.controlName}}{{=item.unit ? '（' + item.unit +'）' : ''}}</span><span data-tip="{{=item.type === 9 || item.type === 10 || item.type === 11 ? _l('对选项或下拉菜单的各个选项内容进行统计') : _l('对项目下所有未完成和已完成的任务的当前字段统计')}}" class="tip-bottom-right"><i class="icon-task-folder-message"></i></span>
+      </div>
+      <div class="folderChartModel" id="folderCharts_{{=item.controlId}}" data-id="{{=item.controlId}}" data-type="{{=item.type}}" data-model="custom">{{=LoadDiv()}}</div>
+    </div>
+    {{?i === it.length - 1}}
+      {{? i % 3 === 0}}
+        <div class="flex nullSource"></div>
+        <div class="flex nullSource"></div>
+      {{?}}
+      {{? i % 3 === 1}}
+        <div class="flex nullSource"></div>
+      {{?}}
+    {{?}}
+  {{? ((i + 1) % 3 === 0 && i > 0) || i === item.length - 1}}
+  </div>
+  {{?}}
+{{~}}
+
+{{?it.length === 0}}
+  <div class="folderChartCustomNull boderRadAll_3">
+    <div class="Font17">{{=_l('暂无添加自定义内容')}}</div>
+    <div class="Font15 mTop10">{{=_l('可在项目设置内添加自定义任务内容')}}</div>
+    <div class="ThemeBG taskGroundGlass"></div></div>
+{{?}}

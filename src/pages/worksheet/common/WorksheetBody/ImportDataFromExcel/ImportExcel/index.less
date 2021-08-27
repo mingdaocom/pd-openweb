@@ -1,0 +1,157 @@
+﻿.workSheetUploadExcel {
+  height: 560px !important;
+  .useHelp{
+    position: absolute;
+    top: 58px;
+    right: 24px;
+  }
+  .uploadExcel {
+    width: 100%;
+    color: #666;
+    min-width: auto;
+    overflow: auto;
+    .optionContent {
+      margin: 0 auto;
+      width: 100%;
+      text-align: center;
+    }
+    .dropContainer {
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      height: 230px;
+      border: 2px dashed;
+    }
+    .uploadIcon {
+      font-size: 258px;
+      display: block;
+      margin-top: -26px;
+    }
+    .dropDesc {
+      margin-top: -36px;
+    }
+    .chooseBtn {
+      color: white;
+      background: blue;
+      display: inline-block;
+      border-radius: 3px;
+      cursor: pointer;
+      height: 38px;
+      line-height: 38px;
+      width: 124px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .fgSuccess {
+      color: #5cb85c;
+    }
+    .fgError {
+      color: red;
+    }
+    .bgSuccess {
+      background: #5cb85c;
+    }
+    .bgError {
+      background: red;
+    }
+    .fileList {
+      width: 100%;
+      box-sizing: border-box;
+      .fileListItem {
+        display: flex;
+        height: 45px;
+        line-height: 45px;
+        border-bottom: 1px solid #ddd;
+      }
+      .fileListItem > div {
+        vertical-align: middle;
+        white-space: nowrap;
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .fileListName {
+        min-width: 40px;
+        flex: 1;
+        margin-right: 15px;
+        .type {
+          width: 21px;
+          height: 24px;
+          vertical-align: top;
+          display: inline-block;
+          margin-top: 12px;
+          margin-right: 14px;
+        }
+      }
+      .fileListSize {
+        width: 113px;
+        margin-right: 15px;
+      }
+      .fileListProgress {
+        width: 275px;
+        margin-right: 15px;
+        .uploadPercentage {
+          height: 49px;
+          line-height: 49px;
+          position: relative;
+        }
+        .progressTitle {
+          position: absolute;
+          top: 8px;
+          left: 0;
+          display: block;
+          height: 100%;
+          line-height: inherit;
+        }
+        .progressContainer {
+          height: 4px;
+          width: 170px;
+          margin-top: 15px;
+          background: #ddd;
+          float: left;
+        }
+        .uploadPercentageText {
+          width: 40px;
+          margin-left: 10px;
+          float: left;
+          text-align: center;
+        }
+        .uploadPercentageText.Icon {
+          font-size: 16px;
+          margin-top: 16px;
+        }
+      }
+      .fileListPosition {
+        width: 155px;
+        margin-right: 15px;
+      }
+      .fileListAction {
+        width: 60px;
+        .fileListActionBtn {
+          user-select: none;
+          font-size: 18px;
+          color: #aaa;
+        }
+        .textIcon {
+          font-size: 26px;
+          margin-left: 4px;
+        }
+      }
+    }
+    .fileList.fileListHeader {
+      font-size: 14px;
+      margin-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+    .fileList.fileListBody {
+      height: 90px;
+      .fileListItem {
+        height: 49px;
+        line-height: 49px;
+      }
+    }
+  }
+  .buttons {
+    margin-top: 25px;
+    text-align: right;
+  }
+}

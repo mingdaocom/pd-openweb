@@ -1,0 +1,669 @@
+.worksheetCellPureString {
+  vertical-align: middle;
+}
+
+.worksheetRowTitle {
+  display: inline-block;
+}
+.cellControl {
+  font-size: 13px;
+}
+.cellDropdown {
+  display: inline-block;
+  line-height: 21px;
+  max-width: 100px;
+  vertical-align: middle;
+  margin-right: 10px;
+  padding: 0 9px;
+  border-radius: 40px;
+  color: #4d4d4d;
+  background-color: #e8e8e8;
+}
+
+.cellOptions {
+  display: inline-block;
+  .cellOption {
+    display: inline-block;
+    margin: 0 4px 4px 0;
+    padding: 0 12px;
+    line-height: 24px;
+    vertical-align: middle;
+    border-radius: 40px;
+    color: #4d4d4d;
+    background-color: #e8e8e8;
+    .deleteIcon {
+      color: rgba(0, 0, 0, 0.7);
+      &:hover {
+        color: rgba(0, 0, 0, 1);
+      }
+    }
+    &.colored {
+      .deleteIcon {
+        color: rgba(255, 255, 255, 0.7);
+        &:hover {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
+    }
+  }
+  .editIcon {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34px;
+    height: 34px;
+    text-align: center;
+    line-height: 34px;
+  }
+}
+
+.cellOptionsDropdown {
+  .MenuItem {
+    height: 36px;
+    line-height: 36px;
+
+    .Item-content:not(.disabled):hover {
+      background: #f2f2f2 !important;
+      color: #333 !important;
+    }
+  }
+}
+
+.cellRelation {
+  display: inline-block;
+  .relationIcon {
+    img {
+      width: 22px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  }
+}
+
+// 等级
+.levelWrapper {
+  .star .Score-wrapper {
+    min-width: 96px;
+    .StarScore-item {
+      margin-right: 2px !important;
+      i {
+        font-size: 16px !important;
+      }
+    }
+  }
+  &:not(.canedit) {
+    .StarScore-item,
+    .LineScore-item {
+      cursor: default;
+    }
+  }
+  &.isInCard {
+    .Score-wrapper {
+      width: auto;
+      display: block !important;
+      .StarScore-item i {
+        font-size: 16px !important;
+      }
+    }
+  }
+}
+
+// 附件
+.cellAttachments {
+  display: inline-block;
+  width: 600px;
+  .cellAttachment {
+    margin-bottom: 4px;
+    display: inline-block;
+    max-width: 100px;
+    height: 24px;
+    .thumbnail,
+    .fileIcon {
+      cursor: pointer;
+      margin-right: 5px;
+      height: 24px;
+      width: 21px;
+    }
+    img.thumbnail {
+      box-sizing: border-box;
+      border-radius: 2px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+  .cellAttachmentSignature {
+    .thumbnail {
+      width: auto !important;
+    }
+  }
+  .moreAttachment {
+    display: inline-block;
+    text-align: center;
+    height: 24px;
+    width: 21px;
+    line-height: 22px;
+    border-radius: 2px;
+    color: #9d9d9d;
+    background-color: #e0e0e0;
+    font-size: 20px;
+  }
+  .loadingCon {
+    .MdLoader {
+      margin: 0;
+    }
+  }
+}
+
+// 关联
+.cellRelations {
+  display: inline-block;
+  &.common {
+    .cellRelation {
+      display: inline-block;
+      width: 100%;
+      color: inherit !important;
+      .relatioName {
+        color: #333;
+      }
+    }
+  }
+  &.land {
+    width: 100%;
+    .cellRelation {
+      display: flex;
+      width: 100%;
+      border: solid 1px #ccc;
+      border-radius: 3px;
+      line-height: 36px;
+      margin: 5px 0;
+      .cellRelationIcon {
+        i {
+          font-size: 16px;
+          color: #9e9e9e;
+          padding: 0 10px;
+          line-height: 36px;
+        }
+      }
+      .relationName {
+        flex: 1;
+        color: inherit;
+        text-decoration: none;
+      }
+      .chargeAccount {
+        margin: 6px;
+      }
+    }
+  }
+}
+
+// 部门
+.cellDepartments {
+  display: inline-block;
+  .cellDepartment {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #333333;
+    background-color: #eaeaea;
+    padding: 0px 8px;
+    height: 21px;
+    line-height: 21px;
+    margin-right: 6px;
+    border-radius: 13px;
+    i {
+      line-height: 21px;
+    }
+    .icon-close {
+      &:hover {
+        color: #757575 !important;
+      }
+    }
+  }
+}
+
+// 人员
+.cellUsers {
+  display: inline-block;
+  min-width: 100px;
+  .cellUser {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #333333;
+    background-color: #eaeaea;
+    padding-right: 8px;
+    height: 21px;
+    line-height: 21px;
+    margin-right: 6px;
+    border-radius: 13px;
+    .icon-close {
+      line-height: 22px;
+      &:hover {
+        color: #757575 !important;
+      }
+    }
+  }
+  .cellUserHead {
+    display: inline-block !important;
+    box-sizing: content-box;
+    border-radius: 50%;
+    line-height: 1em;
+  }
+  .userName {
+    max-width: 100px;
+  }
+  .userName,
+  .userNum {
+    margin-left: 6px;
+  }
+}
+
+.cellRelateWorksheets {
+  .cellRelateWorksheetRecord {
+    display: inline-block;
+    margin-bottom: 4px;
+    margin-right: 10px;
+    padding: 0px 8px 0 6px;
+    background-color: #e8e8e8;
+    border-radius: 4px;
+    line-height: 21px;
+    box-sizing: border-box;
+    vertical-align: middle;
+    .icon {
+      color: #9e9e9e !important;
+      font-size: 14px;
+      margin-right: 2px;
+    }
+    &.mutiple {
+      padding: 0px 6px;
+    }
+  }
+}
+
+.cellRelateWorksheetColumn {
+  .worksheetCellPureString {
+    min-width: auto;
+    max-width: 130px;
+  }
+}
+
+// 关联记录
+.cellRelateRecord.cell {
+  padding: 0 !important;
+}
+
+.cellRelateRecordMultiple {
+  display: inline-block;
+  background-color: #e8e8e8;
+  border-radius: 3px;
+  height: 21px;
+  line-height: 21px;
+  padding: 0 6px;
+  font-size: 13px;
+  .icon {
+    font-size: 16px;
+    color: #9d9d9d;
+    margin-right: 5px;
+    line-height: 21px;
+    vertical-align: middle;
+  }
+}
+
+.cellSwitch {
+  display: inline-block;
+  vertical-align: middle;
+  .ming.Checkbox {
+    .Checkbox-box {
+      margin-top: 0px !important;
+      border: 1px solid #bdbdbd;
+      margin-right: 0px;
+    }
+    &.checked {
+      .Checkbox-box {
+        border: 1px solid transparent;
+      }
+    }
+  }
+}
+
+.cellControlCascader.cell {
+  .customCascaderDel {
+    display: none;
+  }
+  .customCascaderInput {
+    width: 100%;
+    height: 100%;
+    padding: 0 6px !important;
+    border: none;
+    &:focus {
+      box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+    }
+  }
+  .ant-select-selector {
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 13px !important;
+    box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+    height: 33px !important;
+    .ant-select-selection-search-input {
+      padding-left: 0px !important;
+    }
+    .ant-select-selection-item {
+      line-height: 34px !important;
+    }
+  }
+  .customCascader {
+    .ant-cascader-input {
+      border: none !important;
+    }
+  }
+  &.isediting {
+    padding: 0 !important;
+  }
+}
+
+.cell.row-0 {
+  &.hover {
+    background-color: transparent !important;
+  }
+}
+
+.control-10,
+.control-11 {
+  &:not(.columnHead) {
+    padding: 4.5px 6px !important;
+  }
+}
+.control-14,
+.control-27,
+.control-42 {
+  &:not(.columnHead) {
+    padding: 5px 6px !important;
+  }
+}
+.control-26,
+.control-27,
+.control-34,
+.control-36 {
+  &:not(.columnHead) {
+    padding: 6px 6px !important;
+  }
+}
+
+.control-6, // 数值
+.control-8, // 金额
+.control-31, // 公式
+.control-38, // 日期公式
+.control-7 {
+  // 汇总
+  > div.worksheetCellPureString {
+    white-space: nowrap;
+  }
+}
+
+.control-2 {
+  // 文本
+  .worksheetCellPureString {
+    white-space: break-spaces;
+  }
+}
+.cell.singleLine {
+  white-space: nowrap;
+  padding-right: 6px !important;
+  .cellOptions,
+  .cellDepartments,
+  .cellUsers,
+  .RelateRecordDropdown {
+    overflow: hidden;
+    width: 100%;
+  }
+}
+
+.cell.alignRight:not(.columnHead) {
+  text-align: right;
+}
+
+.linelimit,
+.linelimitcomp:not(.singleLine) {
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  /*! autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+}
+
+.rowheight-1 .linelimit {
+  -webkit-line-clamp: 2 !important;
+}
+
+.rowheight-2 .linelimit {
+  -webkit-line-clamp: 4 !important;
+}
+
+.rowheight-3 .linelimit {
+  -webkit-line-clamp: 5 !important;
+}
+
+.rowheight-1 .linelimitcomp {
+  -webkit-line-clamp: 2 !important;
+}
+
+.rowheight-2 .linelimitcomp {
+  -webkit-line-clamp: 3 !important;
+}
+
+.rowheight-3 .linelimitcomp {
+  -webkit-line-clamp: 4 !important;
+}
+
+.textControlInput {
+  background-color: #fff;
+  input {
+    width: 100%;
+    font-size: 13px;
+    height: 34px;
+    line-height: 34px;
+    box-sizing: border-box;
+    border: none;
+    background-color: transparent;
+    padding: 0 6px;
+  }
+}
+
+.textControlTextArea {
+  font-size: 13px !important;
+  padding: 7px 6px !important;
+  box-sizing: border-box !important;
+  border: none !important;
+  resize: none !important;
+}
+
+.cellControlRichTextDialog {
+  .BraftEditor-content .public-DraftEditor-content {
+    height: 550px !important;
+  }
+  .BraftEditor-container {
+    margin: 0 -24px;
+    padding: 0 24px;
+    box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+  }
+  .BraftEditor-controlBar {
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+  .mdEditorFooter {
+    transform: translate(0px, 15px);
+  }
+}
+
+.cellControlAreaPopup {
+  .CityPicker.level-1 {
+    height: 409px;
+  }
+}
+
+.cellControlDepartmentPopup,
+.cellControlUserPopup {
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: #fff;
+  padding: 6px 6px;
+  min-height: 36px;
+  .addBtn {
+    cursor: pointer;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 21px;
+    height: 21px;
+    text-align: center;
+    border-radius: 21px;
+    border: 1px solid #ddd;
+  }
+}
+
+.cellEditMask {
+  opacity: 0;
+}
+
+.cellControlMobilePhoneEdit {
+  font-size: 13px;
+  input {
+    border: none;
+    width: 100%;
+  }
+  .customFormControlTel {
+    .iti__flag-container {
+      display: none;
+    }
+    .cellMobileInput {
+      padding-left: 6px !important;
+    }
+  }
+  .cellMobileInput {
+    background: transparent;
+  }
+}
+
+.cellControlErrorTip {
+  position: absolute;
+  white-space: nowrap;
+  top: 100%;
+  padding: 0 8px;
+  border-radius: 0 0 4px 4px;
+  height: 22px;
+  line-height: 22px;
+  font-size: 12px;
+  color: #fff;
+  background-color: #f44336;
+}
+
+.cellControlOptionsPopup {
+  position: relative;
+  * {
+    transition: none !important;
+    animation-duration: 0s !important;
+  }
+  .ant-select-selector {
+    z-index: 2;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 13px !important;
+    box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+    padding: 0 6px !important;
+    min-height: 34px !important;
+    .ant-select-selection-search {
+      left: 6px !important;
+    }
+  }
+  .ant-select-selection-item {
+    padding: 0 !important;
+    background: transparent;
+    border: none;
+    .ant-select-selection-item-remove {
+      position: absolute;
+      right: 0px;
+    }
+  }
+  &.bottom {
+    .ant-select {
+      position: absolute;
+      bottom: 0px;
+    }
+  }
+  &.isMutiple {
+    .ant-select-selector {
+      padding: 3px 6px 0px !important;
+      align-items: normal;
+    }
+
+    .ant-select-selection-search-input {
+      margin-top: -4px;
+    }
+
+    .ant-select-selection-item-content > span {
+      padding-right: 24px !important;
+    }
+    .ant-select-selection-item-remove {
+      right: 14px;
+      svg {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      &:hover {
+        svg {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
+    }
+  }
+  &.error {
+    .ant-select-selector {
+      box-shadow: inset 0 0 0 2px #f44336 !important;
+    }
+  }
+  &:hover {
+    .hoverShow {
+      display: inline-block;
+    }
+  }
+}
+
+// 日期选择控件
+.cell.cellControlDatePicker {
+  padding: 2px !important;
+  padding-right: 2px !important;
+  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+  .cellControlDatePickerCon {
+    .ant-picker {
+      height: auto;
+      padding: 5px 4px;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      .ant-picker-suffix {
+        display: none;
+      }
+      .ant-picker-input {
+        height: auto !important;
+      }
+      .ant-picker-input input {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+.userSelectNone {
+  user-select: none;
+}
+
+.cellControlEdittingStatus {
+  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+}
+.cellControlErrorStatus {
+  box-shadow: inset 0 0 0 2px #f44336 !important;
+}

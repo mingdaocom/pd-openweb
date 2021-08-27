@@ -1,0 +1,16 @@
+define(function (require, exports, module) {
+  module.exports = {<% for(var i = 0; i < fns.length; i++) {%>
+    /**
+    * <%= fns[i].description  %>
+    * @param {Object} args 请求参数<% for(var fnkey in fns[i].params) {%>
+    * @param {<%= fns[i].params[fnkey].type %>} args.<%= fnkey %> <%= fns[i].params[fnkey].description %><% } %>
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    <%= fns[i].fnname %>: function (args, options) {
+      return $.api('<%= fns[i].controllerName %>', '<%= fns[i].actionName %>', args, options);
+    },
+<% } %>
+  };
+});

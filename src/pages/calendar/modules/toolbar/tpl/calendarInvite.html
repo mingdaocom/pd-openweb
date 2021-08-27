@@ -1,0 +1,102 @@
+﻿{{~it.calendars:calendar}}
+<li id="inviteSinlge_{{!calendar.id}}">
+    <div class="inviteSinlge">
+        <div class="inviteCalName">
+            <span class="inviteCalendarType editColorModel pointer"><i class="editColor calendarColorBlue"></i><i class="icon-arrow-down-border"></i><div class="inviteCalendarTypeList"><ul></ul></div></span>{{!calendar.title}}</div>
+        <div class="inviteContent">
+            <div class="calTime">
+                <span class="icon-clock inviteIcon"></span><span class="Gray_9">{{=_l('时间')}}:</span>
+                <span class="rightLabel">
+                    {{!it.TplComm.formatInviteData(calendar.startTime, calendar.endTime, calendar.isAllDay, 0)}}
+                </span>
+            </div>
+            <div class="calAddress mTop15 clearfix">
+                <div class="Left">
+                    <span class="icon-location inviteIcon"></span><span class="Gray_9">{{=_l('地点')}}:</span>
+                </div>
+                {{? !calendar.address}}
+                    <span class="Gray_c rightLabel">{{=_l('未填写地址')}}</span>
+                {{??}}
+                    <span class="rightLabel">{{!calendar.address}}</span>
+                {{?}}
+            </div>
+            <div class="calMembers mTop15">
+                <div class="participants">
+                    <span class="icon-charger inviteIcon"></span><span class="Gray_9">{{=_l('成员:')}}</span>
+                </div>
+                <div class="Left memberBox">
+                    <div class="createUser">
+                        <span class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard" data-id="{{!calendar.createUser}}">
+                            <img class="circle userHead" src="{{!calendar.head}}" />
+                            <span class="TxtTop calendarName">{{!calendar.createUserName}}</span>
+                            <span class="Gray_6 TxtTop calendarName">{{=_l('(发起人)')}}</span>
+                        </span>
+                    </div>
+                    <div class="members">
+                        {{~ calendar.members:member}}
+                            <span title="{{!member.remark}}" class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard" data-id="{{!member.accountID}}">
+                                <img class="circle userHead" src="{{!member.head}}" />
+                                {{? member.status==0}}
+                                <span class="userStatus calendarCenterLabelNosubmit"></span>
+                                {{?? member.status==1}}
+                                <span class="userStatus calendarCenterLabelSubmit"></span>
+                                {{?? member.status==2}}
+                                <span class="userStatus calendarCenterLabelRefuse"></span>
+                                {{?}}
+                                <span class="TxtTop calendarName">{{!member.memberName}}</span>
+                            </span>
+                        {{~}}
+                    </div>
+                    {{?calendar.thirdUserList}}
+                    <div class="wechatMemberTitle">通过日程分享加入的用户</div>
+                    <div class="wechatMemberList">
+                        <div class="wechatMembers">
+                            {{~calendar.thirdUserList:thirdUser}}
+                            <span class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard" data-thirdId="{{!thirdUser.thirdID}}">
+                                <img class="circle userHead" src="{{!thirdUser.face}}">
+                                <span class="userStatus calendarCenterLabelSubmit"></span>
+                                <span class="TxtTop calendarName overflow_ellipsis">{{!thirdUser.nickName}}</span>
+                            </span>
+                            {{~}}
+                        </div>
+                    </div>
+                    {{?}}
+                </div>
+                <div class="Clear"></div>
+            </div>
+            <div class="calDesc mTop15 Gray_9 clearfix">
+                <div class="Left">
+                    <span class="icon-calendar-abstract inviteIcon"></span><span class="Gray_9">{{=_l('摘要')}}:</span>
+                </div>
+                {{? !calendar.description}}
+                    <span class="Gray_c rightLabel">{{=_l('未填写摘要')}}</span>
+                {{??}}
+                    <span class="rightLabel">{{= calendar.description}}</span>
+                {{?}}
+            </div>
+            {{? calendar.isRecur && !calendar.isChildCalendar}}
+            <div class="repeatDesc mTop15">
+                <div id="calendarInviteRepeat">
+                    <img src="../../images/repeat_ico.png" alt=""/>
+                    <label class=" Gray_9 ">{{= _l('重复')}}:</label>
+                    <span class="repeatDetialDes mLeft10 rightLabel">{{!calendar.repeat}}</span>
+                    <div class="Clear"></div>
+                </div>
+            </div>
+            {{?}}
+            {{? calendar.isPrivate}}
+            <div class="isPrivate mTop15 Gray_9">
+                <div id="calendarIsPrivate">
+                    <span class="checkboxIcon checked"></span>
+                    <label class="rightLabel">{{= _l('私密日程')}}</label>
+                </div>
+            </div>
+            {{?}}
+            <div class="operator" data-calendarid="{{!calendar.id}}" data-recurtime="{{=calendar.recurTime ? moment(calendar.recurTime).toISOString() : ''}}">
+                <span class="btnBootstrap btnBootstrapPadding boderRadAll_3 enterInvite">
+                    {{= _l('确认')}}</span> <span class="btnBootstrap btnBootstrapPadding boderRadAll_3 mLeft10 refuseInvite">{{= _l('不能参加')}}</span>
+            </div>
+        </div>
+    </div>
+</li>
+{{~}}

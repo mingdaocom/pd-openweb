@@ -1,0 +1,123 @@
+.aliasDialog {
+  .text {
+    margin: 0;
+    padding: 0;
+    color: #757575;
+  }
+  .btnAlias {
+    height: 36px;
+    background: #2196f3 0% 0% no-repeat padding-box;
+    border-radius: 2px;
+    line-height: 36px;
+    padding: 0 22px;
+    color: #fff;
+    display: inline-block;
+    margin-top: 24px;
+    cursor: pointer;
+  }
+  .tableAlias {
+    margin-top: 16px;
+    .topDiv,
+    .listDiv {
+      display: flex;
+      background: #f5f5f5 0% 0% no-repeat padding-box;
+      span {
+        font-weight: bold;
+        padding: 10px;
+        box-sizing: border-box;
+        flex: 140;
+        border: 1px solid #eaeaea;
+        margin-left: -1px;
+        margin-top: -1px;
+      }
+      span:first-child {
+        flex: 258;
+      }
+      span:last-child {
+        flex: 258;
+      }
+    }
+    .listDiv {
+      background: #fff;
+      &:hover {
+        background-color: #fafafa;
+        .icon {
+          opacity: 1 !important;
+        }
+      }
+      span {
+        font-weight: normal;
+      }
+      .aliasBox {
+        position: relative;
+        z-index: 1;
+        &:hover {
+          border: 1px solid #bdbdbd;
+          z-index: 2;
+        }
+        &.onFocusSpan {
+          box-shadow: 0px 0px 16px #00000029;
+          border: 1px solid #2196f3;
+          z-index: 3;
+          &.isError {
+            border: 1px solid red !important;
+            position: relative;
+            &::after {
+              content: '输入格式错误';
+              display: block;
+              position: absolute;
+              top: 40px;
+              color: #fff;
+              width: 92px;
+              height: 24px;
+              text-align: center;
+              line-height: 24px;
+              background: #f44336 0% 0% no-repeat padding-box;
+              border-radius: 0px 0px 3px 3px;
+              z-index: 2;
+              left: 0;
+            }
+          }
+        }
+        .aliasTxt {
+          border: 0;
+          display: flex;
+          width: 100%;
+          padding: 0;
+          height: 100%;
+          line-height: 22px;
+          .txt {
+            border: 0;
+            flex: 200;
+            padding: 0;
+            word-break: break-all;
+            &.noData {
+              color: #bdbdbd;
+            }
+          }
+          .icon {
+            flex: 24;
+            opacity: 0;
+            color: #9e9e9e;
+            line-height: 20px;
+            &:hover {
+              color: #2196f3;
+              opacity: 1;
+            }
+          }
+        }
+        input {
+          width: 100%;
+          position: relative;
+          z-index: 0;
+          background-color: initial;
+          height: 100%;
+          border: 0 !important;
+          &:focus {
+            z-index: 1;
+          }
+        }
+      }
+    }
+  }
+}

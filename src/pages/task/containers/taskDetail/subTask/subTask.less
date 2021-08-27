@@ -1,0 +1,156 @@
+.taskDetail {
+  .subTaskBox {
+    padding: 6px 22px 6px 45px;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    border-radius: 5px;
+    margin-top: 10px;
+    .subTasksStatusWidth {
+      width: 30px;
+      margin: 9px 0 0 6px;
+    }
+    .subTaskIcon {
+      position: absolute;
+      top: 13px;
+      left: 12px;
+      font-size: 16px;
+      color: #8f9093;
+    }
+    .subTaskHeader {
+      height: 40px;
+      line-height: 40px;
+      .subTaskComplete,
+      .subTaskSum {
+        color: #9e9e9e;
+      }
+      .subTaskMessage {
+        color: #9e9e9e;
+        &:after {
+          width: 250px;
+          word-wrap: break-word;
+          white-space: normal;
+        }
+      }
+      .icon-arrow-down-border,
+      .icon-arrow-up-border {
+        margin-top: 12px;
+        font-size: 16px;
+        &:not(:hover) {
+          color: #9e9e9e !important;
+        }
+      }
+    }
+    .subTaskList {
+      width: 100%;
+      user-select: none;
+      li {
+        width: 100%;
+        min-height: 36px;
+        margin-top: 10px;
+        &:first-child {
+          margin-top: 0;
+        }
+        &:hover {
+          background: #f6f6f6;
+          .subTaskLink {
+            visibility: visible;
+          }
+        }
+      }
+      .subTaskLink {
+        display: inline-block;
+        visibility: hidden;
+        width: 16px;
+        margin-top: 4px;
+        cursor: pointer;
+        vertical-align: top;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .subTaskMembers {
+        width: 26px;
+        height: 26px;
+        display: inline-block;
+        position: relative;
+        vertical-align: top;
+        margin-right: 13px;
+        .subChargeAvatar {
+          height: 26px;
+          cursor: pointer;
+          border-radius: 50%;
+        }
+      }
+      .subTaskTimer {
+        display: inline-block;
+        min-height: 19px;
+        margin-top: 5px;
+        margin-right: 10px;
+        cursor: pointer;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .subTaskOperator {
+        margin: 5px 0 0 10px;
+      }
+      .subTaskName {
+        font-size: 13px;
+        line-height: 20px;
+        width: 100%;
+        padding: 0;
+        resize: none;
+        color: rgba(0, 0, 0, 0.87);
+        border: 0;
+        background-color: transparent;
+        vertical-align: top;
+        margin-top: 9px;
+      }
+    }
+    .slideMarkTask,
+    .slideCompleteTask,
+    .slideAddMarkTask,
+    .slideMarkTaskLocked,
+    .slideMarkTaskLockedDisable,
+    .slideMarkDisable {
+      position: relative;
+      top: 0;
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      background: url(../../taskCenter/images/markComUnTask.png) no-repeat;
+      background-position: 0 0;
+      background-size: 26px;
+    }
+    .slideMarkDisable {
+      background-position: 0 -202px;
+    }
+    .slideCompleteTask {
+      background-position: 0 -38px;
+    }
+    .slideCompleteTask:hover {
+      background-position: 0 -19px;
+    }
+    .slideMarkTaskLocked {
+      background-position: 0 -57px;
+    }
+    .slideMarkTaskLockedDisable {
+      background-position: 0 -95px;
+    }
+    .addSubTaskBtn {
+      display: inline-block;
+      height: 36px;
+      line-height: 36px;
+      font-size: 13px;
+      margin-left: 6px;
+      margin-top: 10px;
+      &:not(:hover) {
+        color: #9e9e9e !important;
+      }
+      i {
+        font-size: 14px;
+        margin-right: 10px;
+      }
+    }
+  }
+}

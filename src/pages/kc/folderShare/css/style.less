@@ -1,0 +1,226 @@
+@themeColor: #2196f3;
+html,
+body {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+.shareFolderCon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-size: 15px;
+  color: #333;
+  .header {
+    height: 50px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    .icon {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      margin: 7px 16px;
+      background-size: cover !important;
+      overflow: hidden;
+      background: url(../image/mingdao-logo.png);
+    }
+    .btnLogin {
+      float: right;
+      cursor: pointer;
+      width: 72px;
+      height: 30px;
+      background-color: @themeColor;
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+      line-height: 30px;
+      border-radius: 4px;
+      margin: 10px 16px 0 0;
+    }
+    .headImage {
+      float: right;
+      display: block;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 7px 16px 7px 0;
+    }
+    .btnGroups {
+      float: right;
+      margin-right: 20px;
+      .btnItem {
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 20px;
+        line-height: 50px;
+        font-size: 15px;
+        color: #808080;
+        i {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+  .path {
+    padding: 0 16px;
+    height: 46px;
+    line-height: 46px;
+    font-size: 17px;
+    color: #333;
+    border-bottom: 1px solid #e0e0e0;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .spliter {
+      display: inline-block;
+      margin: 0 5px;
+    }
+    &.over {
+      a {
+        display: inline-block;
+        max-width: 20%;
+      }
+    }
+  }
+  .main {
+    overflow: auto;
+    flex: 1;
+    .fileList {
+      .fileItem {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 13px 16px 13px 52px;
+        height: 52px;
+        line-height: 26px;
+        font-size: 14px;
+        color: #333;
+        border-bottom: 1px solid #e0e0e0;
+        .fileIcon,
+        .filePreview {
+          position: absolute;
+          left: 16px;
+          float: left;
+          width: 22px;
+          height: 26px;
+        }
+        .name {
+          float: left;
+          max-width: 100%;
+        }
+        &:active {
+          background-color: #f9f9f9;
+        }
+      }
+    }
+    .statusCon {
+      text-align: center;
+      p {
+        font-size: 14px;
+        color: #a2a2a2;
+        margin: 5px 0;
+      }
+      .icon {
+        margin-top: 66px;
+        display: inline-block;
+        width: 140px;
+        height: 140px;
+      }
+      .icon.icon-closed {
+        background: url('../image/closed.png');
+      }
+    }
+    .globalLoading {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      margin-top: -45px;
+    }
+  }
+  .footer {
+    height: 118px;
+    background-color: #fff;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    a {
+      color: @themeColor;
+    }
+    .operate {
+      padding: 0px 16px 20px;
+      .saveToMingDao {
+        width: 100%;
+        height: 45px;
+        line-height: 45px;
+        font-size: 15px;
+        border-radius: 4px;
+        color: #fff;
+        background: @themeColor;
+      }
+    }
+    &.pc {
+      width: 960px;
+      height: 52px;
+      .operate {
+        display: none;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  html.AppKcShare body #container {
+    width: 960px !important;
+    margin: 0 auto;
+  }
+  .shareFolderCon {
+    .header {
+      .icon {
+        width: 64px;
+        height: 30px;
+        margin: 10px 16px;
+        background: url(../image/mingdao.png);
+      }
+    }
+    .main {
+      .fileList {
+        .fileItem {
+          cursor: pointer;
+          &:hover {
+            background-color: #f9f9f9;
+          }
+        }
+      }
+    }
+  }
+}
+
+#previewCon {
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.mobileAlertDialog {
+  position: fixed;
+  z-index: 500;
+  width: 100%;
+  bottom: 100px;
+  text-align: center;
+  .alertDialog {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50px;
+    font-size: 13px;
+  }
+}

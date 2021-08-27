@@ -1,0 +1,21 @@
+﻿{{~it:file}}
+    {{ var isFolderOpen = file.folderList, folderIcon = file.folderList ? 'icon-folder-open' : 'icon-task-folder-solid'; }}
+    <li class="projectFolder" data-fileid="{{=file.fFileID}}" data-id="3" data-projectid="{{=file.projectID}}">
+        <div class="folderTitle">
+            <i class="titleIcon folderHeadIcon {{=folderIcon }}"></i>
+            <span class="txtProjectName overflow_ellipsis ThemeColor10">{{!file.fFileName}}</span>
+            <input value="{{!file.fFileName }}" title="{{!file.fFileName }}" class="Hidden txtProjectNameEdit overflow_ellipsis ThemeColor10">
+            {{? file.isNotice}}
+            <i class="titleIcon folderNewTip circle"></i>
+            {{?}}
+            <span class="flex"></span>
+            <i class="icon-task-point-more titleIcon moreOp ThemeColor8 ThemeHoverColor10 {{=isFolderOpen ? 'InlineBlock': ''}}"></i>
+            <i class="icon-arrow-down-border initFilp titleIcon downShow animated ThemeColor8 ThemeHoverColor10 {{=isFolderOpen ? ' filp': '' }}"></i>
+        </div>
+        <ul class="projectFolderUl commFolderUl Hidden" {{=isFolderOpen ? 'style="display: block;"': '' }}>
+            {{~file.folderList:folder}}
+                #include.singleFolderComm
+            {{~}}
+        </ul>
+    </li>
+{{~}}

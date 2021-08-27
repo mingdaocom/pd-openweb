@@ -1,0 +1,176 @@
+@containerWidth: 560px;
+@transitionTime: 0.25s;
+
+.StatisticsPanel {
+  width: @containerWidth;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #fff;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+  z-index: 12;
+  >div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  &-wrapper {
+    height: 400px;
+    margin-bottom: 20px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &-enter {
+    right: -@containerWidth;
+  }
+  &-enter&-enter-active {
+    right: 0;
+    transition: right @transitionTime;
+  }
+  &-leave {
+    right: 0;
+  }
+  &-leave&-leave-active {
+    right: -@containerWidth;
+    transition: right @transitionTime;
+  }
+
+  &-header {
+    color: #777;
+    font-size: 16px;
+    height: 50px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e2e2;
+
+    .title {
+      color: #000;
+      font-size: 18px;
+    }
+    .commonality, .personal {
+      cursor: pointer;
+      padding: 0 10px;
+    }
+    .active{
+      position: relative;
+      &::before {
+        content: '';
+        width: 100%;
+        height: 3px;
+        background-color: currentColor;
+        position: absolute;
+        left: 0;
+        bottom: -13px;
+      }
+    }
+    .icon {
+      cursor: pointer;
+      text-align: center;
+    }
+    .icon-worksheet_narrow, .icon-worksheet_enlarge {
+      font-size: 19px;
+      margin-left: 15px;
+      margin-top: -1px;
+    }
+    .btns {
+      width: 50px;
+      justify-content: flex-end;
+    }
+  }
+
+  .nano-content {
+    background-color: #F4F4F4;
+  }
+  &-content {
+    padding: 16px;
+    overflow: hidden;
+  }
+  &-nodata {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 20px 40px;
+
+    i {
+      color: #BDBDBD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 130px;
+      height: 130px;
+      font-size: 70px;
+      border-radius: 50%;
+      background: #EAEAEA;
+      margin-bottom: 24px;
+    }
+    .prompt {
+      width: 100%;
+      color: #9E9E9E;
+    }
+    button {
+      margin-top: 60px;
+    }
+  }
+}
+
+.GlobalStatisticsPanel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  .StatisticsPanel {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    &-cards {
+      width: 1600px;
+      margin: 0 auto;
+      flex: 1 0 auto;
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: center;
+    }
+    &-wrapper {
+      padding: 10px;
+      margin-bottom: 0;
+    }
+  }
+  .statisticsCard {
+    width: 528px;
+    &-empty {
+      opacity: 0;
+      height: 0;
+      margin: 0;
+      width: 528px;
+      overflow: hidden;
+    }
+  }
+}
+
+.chartLoading {
+  width: 30px !important;
+}
+.recharts-tooltip-wrapper {
+  z-index: 2;
+}
+.recharts-default-tooltip {
+  margin: 0px;
+  padding: 10px;
+  background-color: rgb(255, 255, 255);
+  white-space: nowrap;
+  border-radius: 4px;
+  border: none !important;
+  box-shadow: 0 7px 30px rgba(0, 0, 0, 0.2);
+}
+

@@ -1,0 +1,101 @@
+﻿{{ var data = it.data, isGroup = it.type === 2, isUser = it.type === 1; }}
+
+{{? isUser }}
+<!--user-->
+<div class="cardHeader">
+
+    {{?data.status === 3}}
+    <span class="imgLink">
+        <img src="{{= data.avatar }}" class="circle avatar">
+    </span>
+    {{??}}
+    <a href="/user_{{= data.accountId }}" class="imgLink" target="_blank">
+        <img src="{{=data.avatar}}" class="circle avatar {{= data.detail_closed == 'true' ? 'closeUser' : '' }}">
+    </a>
+    {{?}}
+
+    <div class="cardContent-wrapper">
+        {{?data.status === 3}}
+        <span class="name overflow_ellipsis ThemeColor3">
+            {{! data.fullname }}
+            <span class="icon-folder-public smallEarth"></span>
+        </span>
+        {{??}}
+        <a class="name overflow_ellipsis ThemeHoverColor3 {{=it.inviterAccount ? 'clearTop' : ''}}" target="_blank" href="/user_{{=data.accountId}}"
+            title="{{!data.fullname}}">
+            {{! data.fullname }} {{=data.status === 2 ? _l('帐号已注销') : ''}}
+        </a>
+        {{?}} {{? isUser }}
+        <div class="cardContentDesc userCard">
+            {{?data.companyName}}
+            <span class="overflow_ellipsis contentItem">{{!data.companyName}}</span>
+            {{?}} {{?data.profession}}
+            <span class="overflow_ellipsis contentItem">{{!data.profession}}</span>
+            {{?}} {{?data.email}}
+            <span class="overflow_ellipsis contentItem">{{!data.email}}</span>
+            {{?}} {{?data.mobilePhone}}
+            <span class="overflow_ellipsis contentItem">{{!data.mobilePhone}}</span>
+            {{?}} {{? !data.companyName && !data.profession && !data.email && !data.mobilePhone }}
+            <span class="overflow_ellipsis contentItem Gray_c">{{= _l('这个家伙什么也没有留下')}}~</span>
+            {{?}}
+        </div>
+
+        {{??}}
+        <div class="cardContentDesc">
+            {{? it.secretType === 0 }}
+            <span class="contentItem">{{= _l('开放沟通 扁平协作')}}</span>
+            <span class="contentItem">010-53153053</span>
+            {{??}}
+            <span class="contentItem">{{= _l('原负责人已经离职，由企业小秘书托管')}}</span>
+            <span class="contentItem">{{= _l('你可以联系管理员进行移交')}}</span>
+            {{?}}
+        </div>
+        {{?}}
+    </div>
+
+    {{?data.status==1 && md.global.Account && data.accountId != md.global.Account.accountId && data.accountId != 'user-workflow'}}
+    <div class="pRight15">
+        <span data-tip="{{= _l('发消息')}}">
+            <span class="startChat icon-chat-session ThemeColor3" data-bssp="usersetting.businessCardChat" data-isContact="{{= data.isContact  }}"></span>
+        </span>
+    </div>
+    {{?}} {{?it.inviterAccount}}
+    <div class="inviterName">
+        <a class="overflow_ellipsis ThemeColor3" target="_blank" href="/user_{{=it.inviterAccount.accountId}}" title="{{!it.inviterAccount.fullName}}">{{!it.inviterAccount.fullName }}
+        </a> {{= _l('邀请')}}
+    </div>
+    {{?}}
+</div>
+
+{{?? isGroup }}
+<div class="cardHeader pBottom16">
+    <span class="imgLink">
+        <img src="{{=data.avatar}}" class="circle avatar">
+    </span>
+    <div class="cardContent-wrapper">
+        <span class="name overflow_ellipsis ThemeHoverColor3" title="{{!data.groupName}}">
+            {{!data.groupName }}
+        </span>
+        <div class="cardContentDesc">
+            {{?data.project}}
+            <span class="icon-company Font18 mRight5"></span> {{! data.project.companyName }} {{?}}
+        </div>
+    </div>
+</div>
+
+{{??}}
+<div class="cardHeader pBottom16">
+    <span class="imgLink">
+        <img src={{=md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') + '/UserAvatar/littleSecretary.png'}} class="circle avatar">
+    </span>
+    <span class="name overflow_ellipsis">{{= _l('企业小秘书')}}</span>
+</div>
+{{?}}
+
+{{? isUser }}
+<div class="pTop20"></div>
+{{?}}
+
+{{? it.opHtml && it.type !== it.TYPES.secret }}
+<div class="userOperator">{{=it.opHtml}}</div>
+{{?}}

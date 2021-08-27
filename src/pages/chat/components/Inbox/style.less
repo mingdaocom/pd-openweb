@@ -1,0 +1,326 @@
+.inboxHeader {
+  max-height: 50px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  .inboxType {
+    font-size: 16px;
+    line-height: 50px;
+    margin: 0 5px 0 15px;
+  }
+  .inboxItem {
+    font-size: 13px;
+    line-height: 40px;
+    display: inline-block;
+    vertical-align: top;
+    padding: 6px 12px 0;
+    transition: border-color 0.218s;
+    color: #999;
+    border-bottom: 3px solid transparent;
+    // override
+    .Dropdown {
+      .Dropdown--input {
+        padding: 0;
+        & > span {
+          vertical-align: bottom;
+        }
+        & > i {
+          vertical-align: middle;
+        }
+      }
+      .Menu {
+        left: -50% !important;
+        text-align: left;
+      }
+    }
+  }
+  .inboxStar {
+    padding-top: 7px;
+  }
+  .filterWrapper {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background-color: #D3EAFD;
+    position: absolute;
+    right: 45px;
+    top: 12px;
+    cursor: pointer;
+    &.transparent {
+      padding: 0;
+      background-color: transparent;
+      .icon-filter:hover {
+        color: #1e88e5 !important;
+      }
+    }
+    span {
+      font-size: 13px;
+      color: #2196F3;
+      padding: 0 9px 0 4px;
+    }
+    .icon {
+      color: #2196F3;
+    }
+  }
+  .filterTrigger {
+    position: absolute;
+    right: 45px;
+    top: 16px;
+    &:hover {
+      color: #1e88e5 !important;
+    }
+  }
+}
+
+.InboxFilterWrapper {
+  width: 400px;
+  border-radius: 3px;
+  padding: 17px 24px 6px 17px;
+  background-color: #fff;
+  box-shadow: 0px 4px 16px 0px rgba(0,0,0,0.24);
+  .userItemWrapper {
+    height: 30px;
+  }
+  .userLabel, .timeLabel {
+    font-weight: 500;
+  }
+  .timeLabel {
+    margin-top: 4px;
+  }
+  .userWrapper {
+    img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: -20px;
+      z-index: 1;
+    }
+    .name {
+      height: 24px;
+      padding: 0 5px 0 25px;
+      border-radius: 12px;
+      background-color: #F4F4F4;
+    }
+    .icon-close {
+      padding-left: 8px;
+    }
+  }
+  .icon-plus {
+    color: #bdbdbd;
+    border-radius: 50%;
+    border: 1px dashed #bdbdbd;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    &:hover {
+      color: #2196f3;
+      border-color: #2196f3;
+    }
+  }
+  .dateScope {
+    flex-wrap: wrap;
+    .item {
+      font-size: 13px;
+      border-radius: 17px;
+      padding: 6px 12px;
+      margin-bottom: 10px;
+      margin-right: 10px;
+      background-color: #F5F5F5;
+      &:hover {
+        background-color: #EDEDED;
+      }
+    }
+    .active {
+      color: #2196F3;
+      background-color: #D3EAFD !important;
+    }
+  }
+  .ant-picker {
+    box-shadow: none;
+    border-radius: 3px;
+    margin-bottom: 7px;
+    .ant-picker-active-bar {
+      display: none;
+    }
+  }
+}
+
+.inboxFilterDropdown {
+  z-index: 1000;
+}
+
+.inboxBox {
+  // scrollbar override
+  .nano-slider {
+    background: rgba(0, 0, 0, 0.15) !important;
+  }
+  // message
+  .messageItem {
+    padding: 10px 15px 0;
+    .textMsg {
+      line-height: 22px;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+    .textmsg > span,
+    .textmsg > a {
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+    .itemMain {
+      font-size: 13px;
+      margin-left: 48px;
+      padding-top: 5px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e5e5e5;
+    }
+    &:last-child .itemMain {
+      border-bottom: none;
+    }
+    // avatar, app icon
+    .inboxAvatar,
+    .msgIcon {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      img {
+        width: 100%;
+      }
+    }
+    // 来自 样式
+    .comeFrom {
+      background-color: #f6f6f6;
+      .fromLink {
+        line-height: 34px;
+        display: flex;
+        height: 34px;
+        padding-left: 15px;
+        text-decoration: none;
+        color: #333;
+        &:before {
+          content: attr(data-title) "：";
+          vertical-align: top;
+        }
+        .sourceName {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          min-width: 0;
+          flex: 1 0 0%;
+        }
+      }
+    }
+    // 问答
+    /*问答*/
+    .messageDetailContainer {
+      line-height: 50px;
+      width: 230px;
+      height: 50px;
+      border: 1px solid #eee;
+      background-color: #fafafa;
+      .logoContainer {
+        width: 55px;
+        height: 45px;
+        padding-top: 5px;
+        text-align: center;
+        background-color: #ededed;
+      }
+      .textContainer {
+        font-size: 12px;
+        position: relative;
+        overflow: hidden;
+        width: 165px;
+        height: 50px;
+        margin-left: 15px;
+        padding-left: 10px;
+        text-align: left;
+        color: #777;
+        &:hover .viewDetail {
+          left: 0;
+        }
+      }
+      .viewDetail {
+        position: absolute;
+        top: 0;
+        left: -175px;
+        width: 175px;
+        height: 50px;
+        transition: left 0.3s ease-in-out;
+        text-align: center;
+        background-color: #0a0303;
+        .detailBtn {
+          line-height: 30px;
+          display: inline-block;
+          width: 85px;
+          height: 30px;
+          margin-top: 10px;
+          cursor: pointer;
+          text-align: center;
+          color: #333;
+          border: 0;
+          background-color: #fff;
+        }
+      }
+    }
+  }
+  .inboxDivider {
+    margin: -1px 0 0 0;
+    padding: 16px 20px;
+    background-color: #fff;
+    &::before, &::after {
+      border-color: #9e9e9e33;
+    }
+    .ant-divider-inner-text {
+      color: #9E9E9E;
+    }
+  }
+  // comment
+  .commentItem {
+    .inboxAvatar {
+      width: 28px;
+      height: 28px;
+    }
+    .commentContent {
+      margin-left: 38px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e5e5e5;
+      &:hover .removeCommentButton {
+        display: inline !important;
+      }
+    }
+    &:last-child .commentContent {
+      border-bottom: none;
+    }
+  }
+  /* inbox emoji images */
+  .emotion-twemoji,
+  .emotion-default {
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .emotion-twemoji {
+    width: 22px;
+    padding: 1px;
+  }
+}
+
+// noData state
+.inboxBox .nullTip {
+  text-align: center;
+  background-repeat: no-repeat;
+  background-size: 150px;
+  &.starMsg {
+    padding-top: 260px;
+    background-image: url("./images/msgStarNull.png");
+    background-position: center 70px;
+  }
+  &.commMsg {
+    padding-top: 270px;
+    background-image: url("./images/msgNull.png");
+    background-position: center 90px;
+  }
+}

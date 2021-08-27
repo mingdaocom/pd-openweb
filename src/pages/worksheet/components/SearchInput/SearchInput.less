@@ -1,0 +1,43 @@
+.searchInputComp {
+  display: inline-block;
+  border-radius: 24px;
+  background-color: #eaeaea;
+  font-size: 13px;
+  vertical-align: middle;
+  .inputCon {
+    display: flex;
+    padding: 3px 6px;
+    position: relative;
+  }
+  .icon {
+    font-size: 21px;
+    color: #cacaca;
+  }
+  input {
+    width: 180px;
+    border: none;
+    padding: 0;
+    color: #666;
+    text-indent: 5px;
+    background-color: transparent;
+    /*transition: width 0.2s;*/
+  }
+  .icon-cancel {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    &.none {
+      display: none;
+    }
+  }
+  &.default {
+    border: none;
+    background-color: #fff;
+    .icon-search {
+      cursor: pointer;
+    }
+    input {
+      width: 0;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+/**
+* ui Toolbar
+* prefix: .dossier-user-form-toolbar
+*/
+.dossier-user-form-toolbar {
+  clear: both;
+  &:after {
+    content: '';
+    display: block;
+    width: 100%;
+    clear: both;
+  }
+
+  & > .dossier-user-form-toolbar-left {
+    float: left;
+  }
+
+  & > .dossier-user-form-toolbar-right {
+    float: right;
+    text-align: right;
+
+    & > .mui-button {
+      margin-left: 16px;
+    }
+  }
+}

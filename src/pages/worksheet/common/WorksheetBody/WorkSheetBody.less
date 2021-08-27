@@ -1,0 +1,293 @@
+.worksheetBody {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  .worksheetHeaderWrap {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .worksheetCompHeader {
+    padding-left: 10px;
+    padding-right: 20px;
+    height: 38px;
+    background-color: #fff;
+    align-items: center;
+    .addRow {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      border-radius: 32px;
+      height: 30px;
+      padding: 0 18px 0 14px;
+      transition: box-shadow 0.2s;
+      box-shadow: none;
+      margin-top: 4px;
+      cursor: pointer;
+      &:hover {
+        box-shadow: 0 0 100px 100px rgba(0, 0, 0, 0.1) inset;
+      }
+    }
+    .fixed {
+      .icon {
+        vertical-align: middle;
+        margin: 0 8px 0 0;
+        color: #999;
+        font-size: 18px;
+      }
+      .icon.topColor {
+        color: #ff9802 !important;
+      }
+    }
+    .networkIcon {
+      margin-right: 10px;
+    }
+    .networkIcon i {
+      font-size: 18px;
+      vertical-align: middle;
+      color: #999;
+      line-height: 1em;
+    }
+    .title {
+      vertical-align: middle;
+      font-size: 14px;
+      color: #666;
+      display: inline-block;
+      max-width: 17em;
+    }
+    .sheetDesc {
+      font-size: 18px;
+      margin-left: 10px;
+      vertical-align: middle;
+      color: #999;
+      line-height: 1em;
+    }
+    .muteWorksheet {
+      margin-left: 8px;
+    }
+    .muteWorksheet i {
+      font-size: 18px;
+      vertical-align: middle;
+      color: #999;
+      line-height: 1em;
+    }
+    .queryInput {
+      margin-right: 4px;
+      margin-top: 5px;
+    }
+    .iconText {
+      margin: 0;
+      .icon {
+        font-size: 20px;
+        margin-right: 8px;
+      }
+    }
+    .filterBtn,
+    .hideColumnsBtn,
+    .sheetDetailBtn,
+    .moreOperate {
+      margin-right: 20px;
+    }
+    .searchInput .icon-search,
+    .worksheetFilterBtn,
+    .openStatisticsBtn,
+    .icon-discussion,
+    .icon-more_horiz,
+    .icon-back-02 {
+      &:hover {
+        color: #2196f3 !important;
+      }
+    }
+    .moreOperate {
+      position: relative;
+      top: 3px;
+      .splitLine {
+        border: 1px solid #ddd;
+        border-top: none;
+        margin: 3px 0;
+      }
+      .moveSheetActive .Item-content {
+        color: #fff;
+        background-color: @themeColor3 !important;
+        .icon {
+          color: #fff;
+        }
+        .icon-arrow-right-tip {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+      }
+      .Menu {
+        left: 0px;
+        right: 0px;
+        width: 220px;
+        .Item-content {
+          padding-left: 49px;
+        }
+      }
+      .sheetMoveMenu {
+        width: 180px;
+        max-height: 300px;
+        overflow: auto;
+        .Item-content {
+          padding-left: 16px;
+        }
+      }
+      .icon-info {
+        padding-left: 2px;
+      }
+      .icon-edit {
+        padding-left: 4px;
+      }
+      .icon-settings {
+        padding-left: 3px;
+      }
+      .icon-arrow-right-tip {
+        color: #bdbdbd;
+        left: auto;
+        right: 10px;
+      }
+      .borderBottom {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 6px;
+        box-sizing: content-box;
+        margin-bottom: 6px;
+      }
+      .borderTop {
+        border-top: 1px solid #ddd;
+      }
+      .MenuItem {
+        .Icon {
+          margin: 0 7px;
+          font-size: 21px;
+          vertical-align: middle;
+          color: #999;
+        }
+        .text {
+          font-size: 13px;
+          margin-left: 4px;
+        }
+        &.delete {
+          .Icon,
+          .text {
+            color: #f44338;
+          }
+          &:hover {
+            .Icon,
+            .text {
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+  }
+  .searchAndPagination {
+    height: 37px;
+    justify-content: space-between;
+    padding: 0 20px 0 14px;
+    background-color: #fff;
+    overflow: hidden;
+    .addViewIcon {
+      &:hover {
+        color: #2196f3 !important;
+      }
+    }
+  }
+  .worksheetTableCon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 76px;
+    bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    .sheetLoadingCon {
+      padding: 10px 0;
+      box-sizing: border-box;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+      background-color: #fff;
+      .loadingSkeleton:nth-child(1) {
+        flex: 1;
+      }
+      .loadingSkeleton:nth-child(2) {
+        flex: 1;
+      }
+      .loadingSkeleton:nth-child(3) {
+        flex: 2;
+      }
+    }
+  }
+}
+
+.workSheetForm {
+  .formItem {
+    margin-top: 10px;
+    .label {
+      text-align: right;
+      flex: 14 1 0%;
+      height: 30px;
+      line-height: 31px;
+      font-size: 13px;
+      color: #888;
+      margin-right: 14px;
+      position: relative;
+    }
+    .content {
+      flex: 86 1 0%;
+      line-height: 30px;
+    }
+  }
+}
+
+:global(.sheetDescTooltip) {
+  max-width: 255px;
+  .Tooltip-content {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+.draggingBoardItemPreview {
+  z-index: 99;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.05);
+}
+.editingRecordItemWrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+.createMultiRecord {
+  width: 280px;
+  border-radius: 6px;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+  .hint {
+    line-height: 20px;
+  }
+  button.ming.Button {
+    margin-top: 6px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    color: #2196f3;
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+.resetReconfirm {
+  width: 360px;
+  .ant-popover-title {
+    padding: 24px 20px;
+    border: none;
+  }
+}

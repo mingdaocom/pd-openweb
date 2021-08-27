@@ -1,0 +1,28 @@
+﻿{{~it:list:i}}
+<div class="networkFolderList {{=it.length === 1 ? 'networkOnly' : ''}} {{=list.licenseType || !list.projectId ? '' : 'networkFolderOpacity'}}" data-projectid="{{=list.projectId}}">
+  <div class="allFolders relative ThemeColor9">
+    <span class="overflow_ellipsis">{{!list.companyName}}</span>{{=list.licenseType || !list.projectId ? '' : '（到期）'}}
+    <i class="folderNewTip circle Hidden"></i>
+    <i class="clipLoader Hidden"></i>
+    <span class="networkFolderListLabel ThemeColor8">{{=_l('展开')}}</span>
+  </div>
+  <ul class="folderList">
+    <li class="slideFolders Hidden" data-id="4">
+      <div class="slideFolderTitle">
+          <i class="icon-public-folder-hidden ThemeColor8"></i><span class="pigeonholeFolderName ThemeColor9">{{=_l('已隐藏项目') }}</span>
+          <i class="icon-arrow-down-border Right animated initFilp ThemeColor8 ThemeHoverColor9"></i>
+      </div>
+      <ul class="slideFolderList commFolderUl"></ul>
+    </li>
+    <li class="pigeonholeFolder Hidden" data-id="2">
+      <div class="pigeonholeFolderTitle">
+        <i class="icon-task-pigeonhole ThemeColor8"></i><span class="pigeonholeFolderName ThemeColor9">{{=_l('已归档项目') }}</span><i class="icon-arrow-down-border Right animated initFilp ThemeColor8 ThemeHoverColor9"></i>
+      </div>
+      <ul class="pigeonholeFolderList commFolderUl"></ul>
+    </li>
+    <li class="nullFolderTask Hidden" data-id="1">
+      <i class="icon-task-point-more iconNullFolderTask ThemeColor8"></i><span class="nullFolderText ThemeColor9">{{=_l('未关联项目的任务') }}</span>
+    </li>
+  </ul>
+</div>
+{{~}}

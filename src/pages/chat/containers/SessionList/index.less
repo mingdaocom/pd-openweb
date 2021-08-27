@@ -1,0 +1,110 @@
+
+
+.ChatList-sessionList {
+  width: 100%;
+  transform: translateX(0px);
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.68, 1.04);
+  &.open {
+    transform: translateX(160px);
+  }
+  &-loading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    &.visible {
+      width: 66px;
+    }
+    &.nodata {
+      height: 100%;
+    }
+  }
+  &-nodata {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    .image {
+      height: 92px;
+      width: 100px;
+      background: url('./resource/nodata.png');
+    }
+    .text {
+      font-size: 18px;
+      padding-top: 5px;
+      color: #868686;
+    }
+  }
+  &-wrapper {
+    width: 230px;
+    flex: 1;
+    height: calc(~'100% - 125px');
+  }
+}
+
+.SessionList-scrollView {
+  height: calc(~'100% - 56px') !important;
+  box-shadow: none !important;
+}
+
+.SessionList-bell {
+  font-size: 12px;
+  color: #9E9E9E;
+  width: 36px;
+  height: 36px;
+  background-color: #fff;
+  border-radius: 50%;
+  border: 1px solid #e4e4e4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  span {
+    height: 16px;
+    display: flex;
+    align-items: center;
+  }
+  i {
+    font-size: 17px;
+  }
+}
+
+.SessionList-clearAll {
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding: 9px 12px 9px 15px;
+  cursor: pointer;
+  h3 {
+    color: #333;
+    font-size: 20px;
+    margin: 0 0 5px 0;
+  }
+  .text {
+    color: rgba(158, 158, 158, 0.8) !important;
+    font-size: 12px;
+    backface-visibility: hidden;
+  }
+  .red {
+    color: red !important;
+  }
+  .clearAll {
+    font-size: 20px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .icon-clean_all {
+      opacity: 0.6;
+      margin-right: 2px;
+      &:not(:hover) {
+        color: #333 !important;
+      }
+    }
+  }
+}

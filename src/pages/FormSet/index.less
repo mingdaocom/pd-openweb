@@ -1,0 +1,719 @@
+.formSetWorksheet {
+  .flexBox {
+    display: flex;
+  }
+
+  .columnRulesWrap {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+  }
+
+  .columnRulesBox {
+    flex: 1;
+    display: flex;
+    padding-top: 50px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    width: 100%;
+    background-color: #ffffff;
+
+    .programErrorMinBox {
+      width: 100%;
+    }
+
+    .sidenavBox {
+      width: 300px;
+      min-width: 300px;
+      max-width: 300px;
+      background: #f5f5f5;
+      height: 100%;
+      padding: 10px 0 0;
+      // padding: 18px 14px;
+      .title {
+        margin: 24px 14px 0;
+        display: block;
+      }
+      ul {
+        margin: 12px 14px 0;
+
+        li {
+          padding: 14px;
+          color: #333333;
+          font-size: 14px;
+          cursor: pointer;
+          background: #ffffff 0% 0% no-repeat padding-box;
+          border: 1px solid #eaeaea;
+          box-sizing: border-box;
+
+          .Icon {
+            width: 30px;
+            color: #757575;
+            // line-height: 38px;
+            text-align: left;
+            font-size: 18px;
+            font-weight: normal;
+          }
+          &.current {
+            background: #f2f9ff;
+            // border: 2px solid #2196f3;
+            // box-shadow: 0 0 0 2px rgba(33, 150, 243, 1);
+            box-shadow: inset 0 0 0 2px #2196f3;
+            color: #2196f3;
+            box-sizing: border-box;
+            z-index: 1;
+            position: relative;
+            .icon {
+              color: #2196f3;
+            }
+          }
+
+          .validationIcon {
+            // color: #ffa340;
+          }
+          p {
+            color: #aaaaaa;
+            margin-bottom: 0;
+          }
+        }
+        li + li {
+          margin-top: -1px;
+        }
+        li:first-child {
+          border-radius: 3px 3px 0px 0px;
+        }
+        li:last-child {
+          border-radius: 0px 0px 3px 3px;
+        }
+      }
+    }
+
+    .validationBox {
+      flex: 1;
+      height: 100%;
+      background: #fff;
+
+      p {
+        text-align: center;
+        color: #757575;
+        font-size: 17px;
+        padding-top: 200px;
+        background: url('./components/img/building.png') no-repeat center center;
+        background-size: 150px;
+      }
+    }
+
+    .displayRulesCon {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      background-color: #ffffff;
+
+      .editRuleBox {
+        .ruleNameInput {
+          width: 100%;
+          height: 36px;
+          background: #ffffff;
+          border: 1px solid #e0e0e0;
+          border-radius: 4px;
+          padding: 0 12px;
+          &:focus {
+            border: 1px solid #2196f3;
+          }
+        }
+        .errorBorder {
+          border: 1px solid #f44336;
+        }
+        .conditionContainer {
+          margin: 32px 0;
+          .addCondition {
+            display: inline-block;
+            margin-top: 14px;
+            color: #2196f3;
+            cursor: pointer;
+            font-weight: bold;
+            &:hover {
+              color: #1565c0 !important;
+            }
+          }
+          .addConditionIcon {
+            width: 42px;
+            line-height: 36px;
+            display: block;
+            .Icon:hover {
+              color: #1565c0 !important;
+            }
+          }
+
+          .ruleListSelect {
+            width: 110px;
+            margin-right: 12px;
+            font-size: 13px;
+            &.flexItem {
+              flex: 1;
+              min-width: 0;
+              margin-right: 0px;
+            }
+            .ant-select-arrow {
+              margin-top: -8px !important;
+            }
+            .ant-select-selector {
+              border-color: #e0e0e0;
+              height: 36px;
+              border-radius: 4px;
+              box-shadow: none !important;
+              .ant-select-selection-search-input {
+                height: 34px;
+              }
+              .ant-select-selection-item {
+                line-height: 34px;
+              }
+            }
+          }
+          .actionItemCon {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 12px;
+            .deleteBtn {
+              line-height: 36px;
+              font-size: 16px;
+              margin: 0 13px;
+              &:hover {
+                color: #f44336 !important;
+              }
+            }
+            .errorInputBox {
+              flex: 1;
+              min-width: 0;
+              height: 36px;
+              background: rgba(245, 245, 245, 0.8);
+              border-radius: 3px;
+              padding: 0 12px;
+              box-sizing: border-box;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 13px;
+              &:hover {
+                background: rgba(245, 245, 245, 1);
+                .hoverColor {
+                  color: #2196f3 !important;
+                }
+              }
+            }
+          }
+        }
+
+        h3 {
+          font-size: 16px;
+          letter-spacing: 0;
+          color: #333333;
+          padding: 0 20px;
+        }
+
+        .showFieldBox {
+          padding: 0 20px 10px;
+
+          h5 {
+            font-size: 13px;
+            letter-spacing: 0;
+            color: #333333;
+            margin-top: 24px;
+          }
+
+          li {
+            margin-top: 8px;
+            width: 100%;
+            display: flex;
+            height: 36px;
+
+            span {
+              background: #f5f5f5 0% 0% no-repeat padding-box;
+              border-radius: 4px;
+              flex: 1;
+              color: #333333;
+              display: inline-block;
+              width: 100%;
+              line-height: 36px;
+              padding: 0 9px 0 12px;
+              box-sizing: border-box;
+            }
+
+            .deleteIcon {
+              line-height: 36px;
+              color: #9e9e9e;
+              cursor: pointer;
+              font-size: 18px;
+              width: 30px;
+              text-align: right;
+
+              &:hover {
+                color: #f44336;
+              }
+            }
+          }
+
+          .addField {
+            margin-top: 12px;
+            font-size: 13px;
+            letter-spacing: 0;
+            color: #2196f3;
+            height: 36px;
+            line-height: 36px;
+            display: inline-block;
+            cursor: pointer;
+            box-sizing: border-box;
+
+            i {
+              vertical-align: top;
+              line-height: 36px;
+            }
+
+            &.noFied {
+              width: 100%;
+              background: #f5f5f5;
+              padding-left: 12px;
+              border-radius: 4px;
+            }
+
+            &:hover {
+              color: #1565c0;
+            }
+          }
+        }
+
+        .filterBox {
+          padding: 20px 0 0 0;
+          border-top: 1px solid #ddd;
+
+          h5 {
+            padding: 0 20px;
+          }
+
+          .addFilterText {
+            color: #bdbdbd;
+            height: 36px;
+            background: #f5f5f5 0% 0% no-repeat padding-box;
+            border-radius: 3px;
+            font-size: 13px;
+            padding: 0 12px;
+            margin-top: 12px;
+            display: block;
+            margin: 12px 20px;
+            flex: 1;
+            line-height: 36px;
+          }
+        }
+      }
+
+      .columnRulesCon {
+        flex: 1;
+        background: #ffffff;
+        overflow: hidden;
+        position: relative;
+
+        .columnRulesDrawerContainer {
+          z-index: 9;
+          position: absolute;
+          box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
+
+          .ruleFooter {
+            .closeBtn {
+              color: #9e9e9e !important;
+              background: #f5f5f5 !important;
+              &:hover {
+                background: #eaeaea !important;
+              }
+            }
+          }
+
+          .ant-drawer-mask {
+            background-color: transparent !important;
+          }
+          .ant-drawer-content-wrapper {
+            top: 2px;
+          }
+          .ant-drawer-footer {
+            border-top: none;
+            padding: 24px !important;
+          }
+          .ant-drawer-header {
+            border-bottom: none;
+            .ant-drawer-title {
+              font-size: 17px;
+              font-weight: bold;
+            }
+          }
+          .ant-drawer-body {
+            padding: 0 !important;
+            flex: 1;
+          }
+        }
+
+        .conBox {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          box-sizing: border-box;
+
+          .emptyColumnRules {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 220px;
+            .emptyIcon {
+              width: 130px;
+              height: 130px;
+              line-height: 130px;
+              border-radius: 50%;
+              display: inline-block;
+              background: #f5f5f5;
+              text-align: center;
+              i {
+                font-size: 80px;
+                vertical-align: middle;
+              }
+            }
+          }
+
+          .topBoxText {
+            display: flex;
+            padding: 32px 40px 16px 40px;
+
+            .textCon {
+              flex: 1;
+
+              h2 {
+                margin: 0;
+                padding: 0;
+                text-align: left;
+                font-size: 17px;
+                color: #333333;
+                font-weight: bold;
+              }
+
+              p {
+                margin: 0;
+                padding: 0;
+                margin-top: 8px;
+
+                > span {
+                  color: #9e9e9e;
+                }
+
+                a {
+                  color: #2196f3;
+                }
+              }
+            }
+
+            .saveRules {
+              padding: 0 16px;
+              height: 38px;
+              line-height: 38px;
+              display: inline-block;
+              background: #2196f3 0% 0% no-repeat padding-box;
+              border-radius: 32px;
+              font-size: 13px;
+              letter-spacing: 0;
+              color: #ffffff;
+              text-align: center;
+              font-weight: bold;
+              cursor: pointer;
+              &:hover {
+                background: #1e88e5;
+              }
+            }
+          }
+
+          .rulesCon {
+            flex: 1;
+            min-height: 0;
+            .nano-content {
+              padding: 0 40px 16px 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.columnRuleSortableList {
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+}
+
+.ruleGrabbing {
+  cursor: grabbing;
+}
+.ruleGrab {
+  cursor: grab;
+}
+
+.ruleDrabItemContainer {
+  display: flex;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  &:hover {
+    .grabIcon {
+      visibility: visible;
+    }
+  }
+  .grabIcon {
+    width: 18px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    visibility: hidden;
+    margin-right: 3px;
+    margin-top: 18px;
+    &:hover {
+      cursor: move;
+    }
+    .icon {
+      color: #9e9e9e;
+    }
+  }
+}
+
+.ruleItemCon {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 26px;
+  box-shadow: inset 0 0 0 1px #eaeaea;
+  border-radius: 5px;
+  min-height: 78px;
+  padding: 14px 24px;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  &:hover {
+    box-shadow: inset 0 0 0 2px #eaeaea;
+    .ruleItemOptions {
+      display: block;
+    }
+  }
+  &.active {
+    box-shadow: inset 0 0 0 2px #2196f3;
+  }
+  // &.disabled {
+  //   box-shadow: inset 0 0 0 1px #eaeaea;
+  // }
+  .gray_9e {
+    color: #9e9e9e;
+  }
+  .ruleItemOptions {
+    position: absolute;
+    top: -16px;
+    width: 117px;
+    height: 32px;
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 17px;
+    display: none;
+    line-height: 30px;
+    right: 12px;
+    .icon {
+      vertical-align: middle;
+      margin-left: 16px;
+    }
+    .Switch {
+      width: 19px !important;
+      height: 10px !important;
+      vertical-align: middle;
+      &.Switch--on {
+        .dot {
+          left: 12px !important;
+        }
+      }
+      .dot {
+        width: 6px !important;
+        height: 6px !important;
+      }
+    }
+    .RedHover {
+      &:hover {
+        color: #db493f;
+      }
+    }
+  }
+  .ruleNameInputBox {
+    position: absolute;
+    left: 12px;
+    height: 20px;
+    top: -10px;
+    padding: 0 10px;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .ruleNameInput {
+    height: 100%;
+    border: none;
+    color: #2196f3;
+    font-weight: bold;
+    border-bottom: 1px solid transparent;
+    &:hover {
+      border-bottom: 1px dashed #bdbdbd;
+    }
+    &:focus {
+      border-bottom: 1px solid #2196f3 !important;
+    }
+  }
+  .ruleItemTextRow {
+    display: flex;
+    .leftLabel {
+      width: 65px;
+      margin-right: 20px;
+      color: #9e9e9e;
+      text-align: right;
+    }
+    .rightLabel {
+      flex: 1;
+      min-width: 0;
+      color: #333;
+    }
+  }
+}
+
+.DropdownDeleteRuleTrigger {
+  width: 320px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
+  font-size: 14px;
+  padding: 20px;
+  .title {
+    color: #f51744;
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+  .deleteGroupBtns {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    .deleteBtn {
+      width: 70px;
+      height: 28px;
+      background: #f51744;
+      border-radius: 2px;
+      cursor: pointer;
+      text-align: center;
+      color: #fff;
+      margin-left: 37px;
+      line-height: 28px;
+      &:hover {
+        background-color: #f44336;
+      }
+    }
+  }
+}
+
+.ruleFilterColumnOptionList {
+  position: static;
+  width: 314px;
+  overflow-x: hidden;
+  max-height: 270px;
+  min-height: 100px;
+  border-radius: 2px;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
+  .Menu {
+    width: 314px;
+    position: relative;
+    border-radius: 0;
+    box-shadow: none;
+    .Item-content {
+      padding: 0 15px;
+      .icon {
+        color: #9e9e9e;
+        margin-right: 10px;
+        font-size: 14px;
+        vertical-align: middle;
+      }
+      > span {
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .ruleSearchWrap {
+    position: relative;
+    background: #fff !important;
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      height: 41px;
+      padding: 0px 16px 0 35px;
+      border: none;
+      border-bottom: 1px solid #f5f5f5;
+      &:focus {
+        border-color: #f5f5f5 !important;
+      }
+      &::-webkit-input-placeholder {
+        color: #bdbdbd;
+      }
+      &::-moz-placeholder {
+        color: #bdbdbd;
+      }
+      &::-moz-placeholder {
+        color: #bdbdbd;
+      }
+      &::-ms-input-placeholder {
+        color: #bdbdbd;
+      }
+    }
+    .icon {
+      position: absolute;
+      top: 13px;
+    }
+    .search {
+      left: 15px;
+    }
+    .close {
+      right: 15px;
+      color: #bdbdbd;
+      &:hover {
+        color: #757575;
+      }
+    }
+  }
+
+  .ming.Item .Item-content:hover {
+    .icon {
+      color: #fff !important;
+    }
+  }
+}
+
+.ruleListSelectDropdown {
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: normal !important;
+    color: #fff !important;
+    background-color: #2196f3 !important;
+  }
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector {
+    border-color: #2196f3 !important;
+  }
+}
+
+.formSetWorksheet {
+  .selectUserBox {
+    width: 250px;
+  }
+}

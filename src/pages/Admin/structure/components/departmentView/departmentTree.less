@@ -1,0 +1,286 @@
+.departmentTreeBox {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,
+  .ant-tree.ant-tree-directory .ant-tree-treenode-selected::before,
+  .ant-tree.ant-tree-directory .ant-tree-treenode:hover::before {
+    background: #DBEEFF 0 0 no-repeat padding-box;
+    border-radius: 0 16px 16px 0;
+    height: 36px;
+    width: 256px;
+    position: absolute;
+    right: 0;
+    left: auto;
+    z-index: -1;
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode::before {
+    border-radius: 0 16px 16px 0;
+  }
+
+  .departmentAction {
+    .icon-moreop::before {
+      padding: 4px;
+    }
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode-selected {
+    .listName,
+    .departmentName {
+      color: #2196f3 !important;
+    }
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode {
+    &.ant-tree-treenode-selected {
+      &:hover {
+        &::before {
+          background: #DBEEFF 0 0 no-repeat padding-box !important;
+        }
+        .ant-tree-switcher {
+          background: none !important;
+        }
+      }
+    }
+    &:hover {
+      &::before {
+        background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
+      }
+
+      .ant-tree-title {
+        .departmentAction {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .ant-tree-switcher_close:hover, .ant-tree-switcher_open:hover {
+    background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
+  }
+
+  .hoverParentStyle {
+    &.ant-tree-treenode-switcher-close::before,
+    &.ant-tree-treenode-switcher-open::before {
+      background: none !important;
+    }
+    &.ant-tree-treenode-switcher-close,
+    &.ant-tree-treenode-switcher-open {
+      .ant-tree-title {
+        .departmentAction {
+          display: none !important;
+        }
+      }
+    }
+    &.ant-tree-treenode-switcher-close.ant-tree-treenode-selected,
+    &.ant-tree-treenode-switcher-open.ant-tree-treenode-selected {
+      .ant-tree-title {
+        .departmentAction {
+          display: block !important;
+        }
+      }
+    }
+    &.ant-tree-treenode-selected:hover::before,
+    &.ant-tree-treenode-selected::before {
+      background: #DBEEFF 0 0 no-repeat padding-box !important;
+    }
+  }
+
+  .ant-tree.ant-tree-directory {
+    .ant-tree-treenode {
+      .ant-tree-node-content-wrapper.ant-tree-node-selected {
+        color: #333 !important;
+      }
+    }
+  }
+
+  .ant-tree .ant-tree-switcher {
+    .ant-tree-switcher-icon svg,
+    .ant-select-tree-switcher-icon svg {
+      color: #757575 !important;
+    }
+  }
+
+  .ant-tree.ant-tree-block-node .ant-tree-list-holder-inner .ant-tree-node-content-wrapper {
+    position: relative;
+
+    .ant-tree-title {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: calc(~'100% - 20px') !important;
+    }
+  }
+  .ant-tree .ant-tree-node-content-wrapper {
+    padding: 0px !important;
+  }
+
+  .ant-tree-indent-unit {
+    width: 14px;
+  }
+
+  .departmentsTree {
+    transition: none;
+    height: 100%;
+
+    .ant-tree-treenode {
+      cursor: pointer;
+      padding: 0 0 0 5px;
+      z-index: 0;
+      position: relative;
+
+      &:first-child,
+      &:nth-child(2) {
+        .diaActionTree {
+          bottom: -45px !important;
+        }
+      }
+
+      .ant-tree-title {
+        z-index: 0;
+
+        .departmentName {
+          display: inline-block;
+          z-index: 0;
+          width: 100%;
+          padding-right: 23px;
+          box-sizing: border-box;
+          padding-left: 10px;
+        }
+
+        .departmentAction {
+          z-index: 1;
+          line-height: 32px;
+          vertical-align: top;
+          position: absolute;
+          right: 5px;
+          top: 0;
+          display: none;
+
+          &:hover {
+            .Icon {
+              color: #2196f3;
+            }
+          }
+        }
+
+        .diaActionTree {
+          position: absolute;
+          z-index: 10;
+          bottom: 0;
+        }
+      }
+
+      span.ant-tree-switcher {
+        line-height: 32px;
+        height: 36px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .anticon.anticon-loading.ant-tree-switcher-loading-icon {
+        line-height: 32px;
+      }
+
+      .ant-tree-node-content-wrapper {
+        display: inline-block;
+        line-height: 32px;
+        height: 36px;
+        box-sizing: border-box;
+
+        .ant-tree-iconEle {
+          line-height: 32px;
+        }
+      }
+
+      &.ant-tree-treenode-selected {
+        z-index: 1;
+
+        .ant-tree-title {
+          .departmentAction {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-tree.ant-tree-directory
+    > .ant-tree-treenode.ant-tree-treenode-selected
+    > span.ant-tree-node-content-wrapper::before,
+  .ant-tree.ant-tree-directory
+    .ant-tree-child-tree
+    > .ant-tree-treenode.ant-tree-treenode-selected
+    > span.ant-tree-node-content-wrapper::before {
+    background: #DBEEFF 0% 0% no-repeat padding-box;
+    border-radius: 0px 16px 16px 0px;
+    height: 36px;
+    width: 256px;
+    position: absolute;
+    right: 0;
+    left: initial;
+    z-index: -1;
+  }
+
+  .ant-tree.ant-tree-directory > .ant-tree-treenode.ant-tree-treenode-selected > span.ant-tree-switcher,
+  .ant-tree.ant-tree-directory
+    .ant-tree-child-tree
+    > .ant-tree-treenode.ant-tree-treenode-selected
+    > span.ant-tree-switcher,
+  .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-switcher,
+  .ant-tree.ant-tree-directory .ant-tree-child-tree > .ant-tree-treenode span.ant-tree-switcher {
+    color: #9e9e9e;
+  }
+
+  .ant-tree-child-tree > .ant-tree-treenode:first-child {
+    padding-top: 2px;
+  }
+
+  .ant-tree .ant-tree-treenode span[draggable],
+  .ant-tree .ant-tree-treenode span[draggable='true'] {
+    line-height: 32px;
+  }
+
+  .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-node-content-wrapper::before,
+  .ant-tree.ant-tree-directory .ant-tree-child-tree > .ant-tree-treenode span.ant-tree-node-content-wrapper::before {
+    transition: none;
+  }
+
+  .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-node-content-wrapper:hover::before,
+  .ant-tree.ant-tree-directory
+    .ant-tree-child-tree
+    > .ant-tree-treenode
+    span.ant-tree-node-content-wrapper:hover::before {
+    background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
+    border-radius: 0px 16px 16px 0px;
+    height: 36px;
+    width: 256px;
+    position: absolute;
+    right: 0;
+    left: initial;
+  }
+
+  .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-node-content-wrapper.ant-tree-node-selected,
+  .ant-tree.ant-tree-directory
+    .ant-tree-child-tree
+    > .ant-tree-treenode
+    span.ant-tree-node-content-wrapper.ant-tree-node-selected {
+    color: #333;
+    z-index: 0;
+  }
+
+  .departmentTreeBox
+    .ant-tree.ant-tree-directory
+    .ant-tree-treenode
+    .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    .departmentAction {
+      display: inline-block;
+    }
+  }
+
+  .nano-pane {
+    z-index: 1;
+  }
+}

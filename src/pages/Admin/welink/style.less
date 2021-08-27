@@ -1,0 +1,247 @@
+.welinkMainContent {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  border-radius: 4px;
+  margin: 16px;
+  box-sizing: border-box;
+  box-sizing: border-box;
+  background: #fff;
+
+  p,
+  h2,
+  h3,
+  a {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .ant-tabs-nav {
+    padding: 0 25px;
+  }
+  .stepItem {
+    padding: 20px 0;
+    margin: 0 25px;
+    border-bottom: 1px solid #EAEAEA;
+  }
+
+  .logoBox {
+    height: 68px;
+    vertical-align: top;
+    margin-top: 200px;
+
+    .mdIcon {
+      display: inline-block;
+      width: 68px;
+      height: 68px;
+      background: #2196f3;
+      border-radius: 16px;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .Icon {
+      line-height: 68px;
+      vertical-align: top;
+    }
+
+    .icon-invite-ding {
+      color: #3AA2EB;
+      font-size: 82px;
+      clear: both;
+      display: inline-block;
+    }
+
+    .icon-swap_horiz {
+      vertical-align: middle;
+      display: inline-block;
+    }
+
+    .iconReject {
+      font-size: 86px;
+    }
+  }
+
+  .applyBtn {
+    background: #2196f3 !important;
+    width: 120px;
+    height: 44px;
+    line-height: 44px;
+
+    &:hover {
+      background: #2366BF !important;
+
+    }
+  }
+
+  .stepTitle {
+    margin: 0;
+    padding: 0;
+  }
+
+  .howApply {
+    display: inline-block;
+    color: #2196F3;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+
+  .showDiv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    cursor: pointer;
+    justify-content: flex-end;
+    &:hover {
+      .icon-sidebar-more {
+        color: #2196F3 !important;
+      }
+    }
+  }
+
+  .closeDing {
+    position: absolute;
+    top: 27px;
+    right: 24px;
+
+    .switchBtn {
+      vertical-align: middle;
+      width: 24px !important;
+      height: 12px !important;
+
+      .Switch {
+        width: 24px !important;
+        height: 12px !important;
+
+        .dot {
+          width: 10px !important;
+          height: 10px !important;
+          top: 1px !important;
+        }
+      }
+
+      .ming.Switch--on .dot {
+        left: 12px !important;
+      }
+    }
+  }
+
+  .icon.icon-sidebar_help {
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
+
+
+
+
+
+  .infoList {
+    padding-top: 24px;
+    border-top: 1px solid #DDDDDD;
+
+    li {
+      width: 100%;
+      display: flex;
+
+      .inputTitleBox {
+        width: 110px;
+        line-height: 36px;
+
+      }
+
+      .inputDiv {
+        flex: 1;
+
+        .isShowIcon {
+          cursor: pointer;
+          position: absolute;
+          right: 12px;
+          top: 9px;
+          z-index: 1;
+
+          &:hover {
+            color: #2196F3 !important;
+          }
+        }
+
+        .inputBox {
+          width: 100%;
+          line-height: 36px;
+          height: 36px;
+          background-color: #fff;
+          border-radius: 3px;
+          padding-left: 10px;
+          border: 1px solid #ddd;
+          padding-right: 40px;
+          box-sizing: border-box;
+        }
+      }
+    }
+
+  }
+
+  .editInfo {
+    width: 90px;
+    height: 36px;
+    border-radius: 2px;
+    background: #F0F0F0 !important;
+    color: #2196F3 !important;
+
+    &:hover {
+      background: #e3e3e3 !important;
+    }
+  }
+
+  .saveInfo {
+    width: 90px;
+    height: 36px;
+    border-radius: 2px;
+    background: #2196F3 !important;
+
+    &:hover {
+      background: #2366BF !important;
+    }
+  }
+
+  .syncBox {
+    display: flex;
+
+    .syncTxt {
+      flex: 1;
+      line-height: 36px;
+    }
+
+    .syncBtn {
+      width: 90px;
+      height: 36px;
+      border-radius: 2px;
+      background: #2196F3 !important;
+
+      &:hover {
+        background: #2366BF !important;
+      }
+    }
+
+    .isNO {
+      cursor: default;
+      opacity: .5;
+
+      &:hover {
+        opacity: .5;
+        background: #2196F3 !important;
+      }
+    }
+  }
+}
+
+.welinkPopoverWrapper .ant-popover-inner-content {
+  padding: 0;
+}

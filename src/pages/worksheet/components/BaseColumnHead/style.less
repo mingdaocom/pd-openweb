@@ -1,0 +1,46 @@
+.baseColumnHead.cell {
+  position: relative;
+  padding: 0 5px !important;
+  .requiredStatus {
+    color: #f44336;
+    margin-right: 2px;
+  }
+  .controlName {
+    font-weight: bold;
+    font-size: 13px;
+    color: #757575;
+    line-height: 34px;
+    .text {
+      display: inline-block;
+    }
+  }
+  .dropIcon {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    line-height: 35px;
+    visibility: hidden;
+  }
+  .descIcon {
+    font-size: 16px;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    color: #bdbdbd;
+    &:hover {
+      color: #9e9e9e;
+    }
+  }
+  .resizeDrag {
+    position: absolute;
+    right: 0px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+  }
+  .inner:hover {
+    .dropIcon {
+      visibility: visible;
+    }
+  }
+}

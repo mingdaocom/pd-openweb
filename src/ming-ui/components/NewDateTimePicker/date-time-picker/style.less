@@ -1,0 +1,58 @@
+.mui-datetimepicker {
+  display: inline-block;
+  border: solid 1px #e5e5e5;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+
+  * {
+    box-sizing: content-box;
+  }
+
+  button {
+    outline: none;
+  }
+
+  .mui-calender {
+    padding: 0 13px 10px;
+  }
+
+  .mui-datetime-toolbar {
+    height: 30px;
+    padding: 8px 18px;
+    background-color: #f5f5f5;
+    text-align: right;
+    &:after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 0;
+      clear: both;
+    }
+
+    .mui-time {
+      vertical-align: middle;
+      float: left;
+
+      .mui-forminput {
+        width: auto;
+        max-width: 80px;
+        padding: 4px 6px;
+        min-height: 30px;
+        box-sizing: border-box;
+      }
+    }
+
+    & > button {
+      font-size: 13px;
+      line-height: 20px;
+      padding: 5px 6px;
+      min-width: 50px;
+      vertical-align: middle;
+      margin-left: 6px;
+      &.Button--ghost {
+        padding: 4px 6px;
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+.worksheetRecordCard {
+  position: relative;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding-right: 92px;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 3px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
+  height: 80px;
+  margin-bottom: 12px;
+  &.withoutCover {
+    padding-right: 0;
+  }
+  .deleteRecord {
+    display: none;
+    position: absolute;
+    z-index: 2;
+    line-height: 1em;
+    top: -12px;
+    right: -10px;
+    font-size: 20px;
+    color: #757575;
+    .icon {
+      position: relative;
+    }
+    &:before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 16px;
+      background-color: #fff;
+    }
+    &:hover {
+      color: #515151;
+    }
+  }
+  .selectedIcon {
+    display: none;
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    color: #fff;
+    font-size: 18px;
+    width: 0px;
+    height: 0px;
+    border: 17px solid #2096f3;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    .icon {
+      position: absolute;
+      right: -17px;
+      top: -15px;
+    }
+  }
+  .titleText {
+    margin: 4px 0 2px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+  .visibleControls {
+    margin-top: 2px;
+    .visibleControl {
+      margin-left: 16px;
+      overflow: hidden;
+      .controlName {
+        font-size: 12px;
+        color: #9e9e9e;
+      }
+      .controlContent {
+        margin-top: 2px;
+        white-space: nowrap;
+        .emptyTag {
+          position: relative;
+          border-radius: 3px;
+          top: -3px;
+          display: inline-block;
+          width: 12px;
+          height: 3px;
+          background-color: #ededed;
+        }
+      }
+      &:last-child {
+        margin-right: 16px;
+      }
+    }
+  }
+  .cover {
+    position: absolute;
+    border-left: 1px solid #f0f0f0;
+    right: 0;
+    top: 0;
+    width: 78px;
+    height: 78px;
+    border-radius: 0 2px 2px 0;
+    object-fit: contain;
+  }
+  &:hover {
+    background-color: #fcfcfc;
+    .deleteRecord {
+      display: inline-block;
+    }
+  }
+  &.selected {
+    .selectedIcon {
+      display: inline-block;
+    }
+    border-color: #2196f3 !important;
+  }
+  &.noControls {
+    height: 46px !important;
+    .titleText {
+      margin-top: 11px;
+    }
+    .cover {
+      width: 46px !important;
+      height: 46px !important;
+    }
+  }
+  &.select_record_dialog {
+    .titleText {
+      margin: 10px 0 0 16px;
+    }
+    .visibleControls {
+      margin-top: 7px;
+      .visibleControl {
+        .controlName {
+          display: none;
+        }
+      }
+    }
+  }
+}

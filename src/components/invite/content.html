@@ -1,0 +1,31 @@
+﻿<div class="inviteList">
+    {{ var projects = md.global.Account.projects.concat({ projectId: '' });}}
+    {{? projects.length }}
+    <ul class="projectList">
+        {{~ projects:project:index }}
+            {{? project.projectId }}
+            {{ var type = (projects.length - 1 - index) % 6 + 1; }}
+            {{ project.className = 'icon-chatnetwork-type' + type; }}
+            {{?}}
+            {{? projects.length > 1 && project.projectId === '' && it.friendVisible }}
+            <li class="splitLine"></li>
+            {{?}}
+            {{#def.buildListItem:project }}
+        {{~}}
+    </ul>
+    {{?}}
+</div>
+
+
+{{##def.buildListItem:project:
+<li class="projectItem flexRow pointer ThemeColor3 Hand {{= project.projectId === '' && !it.friendVisible && 'Hidden'}}" data-projectid="{{= project.projectId }}">
+    {{? project.projectId === '' }}
+    <span class="icon-task-select-other Font18 projectIcon"></span>
+    <span class="flex pLeft12 companyName">{{= _l('个人好友') }}<span class="Font12">{{=_l('(非同事)')}}</span></span>
+    {{??}}
+    <span class="{{=project.className}} Font18 projectIcon"></span>
+    <span class="flex pLeft12 companyName">{{!project.companyName}}</span>
+    {{?}}
+    <span class="icon-arrow-right-border ThemeColor3"></span>
+</li>
+#}}

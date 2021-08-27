@@ -1,0 +1,34 @@
+.ming.MenuItem {
+  .Item-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    width: 100%;
+    white-space: nowrap;
+
+    &:not(.disabled):hover {
+      background-color: @themeColor3 !important;
+    }
+
+    &.disabled {
+      color: #999;
+      cursor: not-allowed;
+    }
+  }
+
+  &--withSubMenu > .Item-content:after {
+    content: "";
+    border: 5px solid transparent;
+    border-left-color: #333;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -5px;
+  }
+  &--withSubMenu:hover > .Item-content:after {
+    border-left-color: #fff;
+  }
+  .icon {
+    color: #9e9e9e;
+  }
+}

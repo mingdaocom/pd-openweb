@@ -1,0 +1,641 @@
+@shareBoderColor: #cccccc;
+.darkHeader .header {
+  margin: 0 !important;
+  padding-left: 24px;
+  background-color: #f5f5f5;
+  border-radius: 3px 3px 0 0;
+}
+.shareAttachmentDialogContainer {
+  padding: 0 0 10px;
+  * {
+    box-sizing: border-box;
+  }
+  input,
+  textarea {
+    width: 100% !important;
+  }
+  .filePreview {
+    position: relative;
+    height: 120px;
+    margin: 0px -24px 25px;
+    text-align: center;
+    background-color: #f5f5f5;
+    .fileIcon {
+      position: relative;
+      margin-top: -13px;
+      width: 85px;
+      height: 97px;
+      background-size: cover !important;
+      &.worksheetIcon {
+        background: url(./images/worksheet-icon.svg);
+        margin: 0 auto;
+        .fileSize {
+          display: none;
+        }
+      }
+      &.worksheetRecordIcon {
+          background: url(./images/worksheet-record-icon.svg);
+          margin: 0 auto;
+          .fileSize {
+            display: none;
+          }
+      }
+    }
+    .fileIcon-folder .fileSize {
+      display: none;
+    }
+    .fileIcon-folderShared .fileSize {
+      display: none;
+    }
+    .fileSize {
+      position: absolute;
+      right: 3px;
+      bottom: 3px;
+      padding: 3px 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.4);
+      display: block;
+      color: #fff;
+      line-height: 1;
+      text-indent: 0;
+    }
+    .thumbnailCon {
+      position: absolute;
+      top: -59px;
+      display: table;
+      width: 100%;
+      height: 100%;
+      height: 185px;
+    }
+    .thumbnail {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1;
+      img {
+        max-width: 60%;
+        max-height: 100px;
+      }
+    }
+    .process {
+      // display: none;
+      width: 46%;
+      height: 10px;
+      background: #ccc;
+      border-radius: 10px;
+      position: absolute;
+      top: 50%;
+      margin-top: -5px;
+      left: 27%;
+      .processBar {
+        border-radius: 10px;
+        overflow: hidden;
+        .processContent {
+          height: 10px;
+          width: 0;
+        }
+        .processPercent {
+          position: absolute;
+          right: -35px;
+          top: -4px;
+        }
+      }
+    }
+  }
+  .dList {
+    .dItem {
+      position: relative;
+      padding: 0 10px 0 100px;
+      margin-bottom: 24px;
+      .itemLabel {
+        position: absolute;
+        left: 0px;
+        width: 80px;
+        text-align: right;
+        font-size: 14px;
+        color: #9e9e9e;
+        line-height: 36px;
+        height: 36px;
+      }
+      .itemContent {
+        input,
+        textarea {
+          width: 334px;
+          &:-ms-input-placeholder {
+            color: #acacac !important;
+          }
+          &::-ms-input-placeholder {
+            color: #acacac;
+          }
+          &::placeholder {
+            color: #acacac;
+          }
+          &:focus {
+            border-color: #2196e3;
+          }
+        }
+        textarea {
+          height: 90px;
+          padding: 8px 12px;
+        }
+      }
+    }
+  }
+  .fileNameText {
+    display: inline-block;
+    line-height: 36px;
+    max-width: 80%;
+    font-size: 14px;
+  }
+  .closedTip {
+    color: #919191;
+    font-size: 13px;
+    margin-top: -20px;
+    margin-bottom: -6px;
+  }
+  .selectTargetBtnList {
+    position: relative;
+    width: 309px;
+    .prev,
+    .next {
+      display: none;
+      position: absolute;
+      top: 22px;
+      font-size: 26px;
+      color: #e0e0e0;
+      cursor: pointer;
+    }
+    .prev {
+      left: -38px;
+    }
+    .next {
+      right: -38px;
+    }
+    .overfllowHidden {
+      overflow: hidden;
+    }
+    .listBox {
+      position: relative;
+      height: 88px;
+      padding: 10px 10px 0 10px;
+      margin: -10px -10px -3px;
+    }
+    .listCon {
+      position: absolute;
+      width: 1000px;
+      margin-left: 1px;
+      transform: translateZ(0px);
+      &:after {
+        content: '';
+        clear: both;
+        visibility: hidden;
+        border-top: 0px;
+        margin-top: -1px !important;
+      }
+    }
+    .targetBtn {
+      float: left;
+      text-align: center;
+      cursor: pointer;
+      margin-right: 36px;
+      &:hover {
+        .icon {
+          transform: scale(1.1);
+        }
+      }
+      .icon {
+        display: block;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 50px;
+        line-height: 50px;
+        line-height: 50px;
+        transition: 0.2s ease-out;
+        transform: translateZ(0px);
+      }
+      p {
+        line-height: 1em;
+        margin: 12px 0 0;
+        color: #555;
+      }
+      &.chat {
+        .icon {
+          color: #ff9101;
+        }
+      }
+      &.feed {
+        .icon {
+          color: #43abff;
+        }
+      }
+      &.task {
+        .icon {
+          color: #02c983;
+        }
+      }
+      &.wechat {
+        .icon {
+          color: #89c541;
+        }
+      }
+      &.calendar {
+        .icon {
+          color: #e85c72;
+        }
+      }
+      &.kc {
+        .icon {
+          color: #01bcd4;
+        }
+      }
+      &.qq {
+        .icon {
+          color: #2196f3;
+        }
+      }
+      &.qr {
+        display: none;
+        .icon {
+          color: #b5b5b5;
+        }
+      }
+    }
+  }
+  .downloadableCon {
+    padding: 5px 0;
+  }
+  .switchBtnCon {
+    display: inline-block;
+    line-height: 1;
+    input[type='checkbox'] {
+      display: none;
+      &:checked + .switchBtn {
+        background-color: #47b04b;
+        &:before {
+          left: 22px;
+        }
+      }
+      &:checked:disabled + .switchBtn {
+        cursor: default;
+        &:before {
+          cursor: default;
+        }
+      }
+    }
+    .switchBtn {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+      cursor: pointer;
+      width: 46px;
+      height: 26px;
+      border-radius: 26px;
+      background-color: #ccc;
+      transition: 0.4s ease;
+      &:before {
+        content: '';
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 22px;
+        height: 22px;
+        background-color: #fff;
+        border-radius: 22px;
+        transition: 0.4s ease;
+      }
+    }
+  }
+  .canDownloadTip {
+    margin-left: 15px;
+    i {
+      font-size: 20px;
+      color: #bdbdbd;
+      vertical-align: middle;
+    }
+    &:after {
+      width: 200px !important;
+      white-space: normal;
+    }
+  }
+  .sendToTarget {
+    display: inline-block;
+    width: 80px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    line-height: 34px;
+    height: 36px;
+    vertical-align: middle;
+    .customSelect {
+      padding: 0 5px 0 10px;
+    }
+    .icon-arrow-down-border {
+      font-size: 24px;
+    }
+    .csList {
+      margin-top: 10px;
+    }
+  }
+  .selectSharePermission {
+    position: relative;
+    display: inline-block;
+    width: 280px;
+    font-size: 13px;
+    line-height: 36px;
+    height: 36px;
+    .customSelect {
+      margin-left: -10px;
+      vertical-align: middle;
+      z-index: 2 !important;
+    }
+    .spanShow {
+      font-size: 13px !important;
+    }
+    &:after {
+      content: '';
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 11;
+    }
+    &.noPermission:after {
+      display: block;
+    }
+  }
+  .copyLinkCon {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: inline-block;
+    width: 100px;
+    font-size: 13px;
+    color: #494949;
+    .copyLinkHover {
+      display: inline-block;
+      cursor: pointer;
+      width: 100px;
+      height: 34px;
+      border-radius: 3px;
+      text-align: center;
+      line-height: 34px;
+      border: 1px solid @shareBoderColor;
+    }
+    .copyLinkContent {
+      display: none;
+      position: relative;
+      z-index: 11;
+      margin-left: -246px;
+      margin-top: 16px;
+      right: 0px;
+      width: 346px;
+      box-sizing: border-box;
+      padding: 15px;
+      background-color: #fff;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      &:before,
+      &:after {
+        content: '';
+        position: absolute;
+        right: 30px;
+        top: -20px;
+        width: 0px;
+        height: 0px;
+        border: 10px solid transparent;
+        border-bottom-color: rgba(156, 156, 156, 0.13);
+      }
+      &:after {
+        border-bottom-color: #fff;
+        top: -19px;
+      }
+      input {
+        width: 230px !important;
+      }
+      .copyLinkBtn {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        margin-left: 12px;
+        width: 68px;
+        height: 34px;
+        line-height: 34px;
+        color: #fff;
+        border-radius: 3px;
+      }
+    }
+    &:hover {
+      .copyLinkContent {
+        display: block;
+      }
+    }
+  }
+  .sendToContent {
+    .kcPath {
+      margin-left: 13px;
+      font-size: 13px;
+      cursor: pointer;
+      .pathStr {
+        display: inline-block;
+        max-width: 53px;
+      }
+    }
+  }
+  .addDescBtn {
+    display: inline-block;
+    font-size: 13px;
+    color: #bdbdbd;
+    cursor: pointer;
+  }
+  .searchListCon {
+    display: inline-block;
+    height: 36px;
+    width: 200px;
+    color: #333;
+    vertical-align: middle;
+    width: 279px;
+    .selected {
+      font-size: 13px;
+      line-height: 34px;
+      padding: 0 10px;
+      border: 1px solid @shareBoderColor;
+      border-radius: 3px;
+      cursor: pointer;
+      img {
+        width: 24px;
+        height: 24px;
+        border-radius: 20px;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+    }
+    .searchInput {
+      display: none;
+      width: 100% !important;
+    }
+    .listPanel {
+      display: none;
+      position: absolute;
+      width: 279px;
+      width: 279px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      background-color: #fff;
+      z-index: 2;
+    }
+    .searchList {
+      max-height: 279px;
+      min-height: 100px;
+      overflow: scroll;
+      .listItem {
+        line-height: 34px;
+        font-size: 13px;
+        color: #333;
+        padding: 0 10px;
+        background-color: #fff !important;
+        cursor: pointer;
+        &:hover {
+          background-color: inherit !important;
+          color: #fff;
+        }
+        .itemName {
+          max-width: 185px;
+          display: inline-block;
+        }
+        img {
+          width: 24px;
+          height: 24px;
+          border-radius: 20px;
+          margin-right: 6px;
+          vertical-align: middle;
+        }
+      }
+      .listTip {
+        padding: 40px 0;
+        text-align: center;
+        color: #bdbdbd;
+      }
+    }
+    .footerBtn {
+      cursor: pointer;
+      border-top: 1px solid @shareBoderColor;
+      height: 40px;
+      padding: 9px 13px;
+      font-size: 13px;
+      i {
+        font-size: 20px;
+        vertical-align: middle;
+      }
+      .footerStr {
+        vertical-align: middle;
+      }
+    }
+  }
+  .shareAttachmentFooter {
+    margin: 24px 0;
+    text-align: right;
+    .yes {
+      position: relative;
+      line-height: 35px;
+      display: inline-block;
+      height: 35px;
+      padding: 0 24px;
+      cursor: pointer;
+      text-align: center;
+      color: #fff;
+      &:hover:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.18);
+        left: 0;
+        border-radius: 4px;
+      }
+    }
+    .no {
+      margin-right: 32px;
+      cursor: pointer;
+      color: #aaa;
+    }
+  }
+  &.isWorksheet {
+    .selectTargetBtnList {
+      .targetBtn {
+        display: none;
+      }
+      .targetBtn.qq,
+      .targetBtn.chat,
+      .targetBtn.qr,
+      .targetBtn.wechat {
+        display: inline-block;
+      }
+      .next {
+        display: none !important;
+      }
+    }
+  }
+  &.isWorksheetRow {
+    .selectTargetBtnList {
+      .targetBtn {
+        display: none;
+      }
+      .targetBtn.qq,
+      .targetBtn.chat,
+      .targetBtn.qr,
+      .targetBtn.wechat {
+        display: inline-block;
+      }
+      .next {
+        display: none !important;
+      }
+    }
+  }
+}
+.mobileShareDialog {
+  position: relative;
+  padding: 50px 0 90px;
+  text-align: center;
+  .urlQrCode {
+    display: inline-block;
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+    .clipLoader {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      margin-top: 77px;
+    }
+    .loadError {
+      text-align: center;
+      font-size: 12px;
+      line-height: 1;
+      color: #bdbdbd;
+      margin-top: 86px;
+    }
+    img {
+      height: 160px;
+    }
+  }
+  .tip {
+    font-size: 15px;
+    color: #333;
+    line-height: 1;
+    margin: 6px 0 15px;
+  }
+  .fileName {
+    font-size: 12px;
+    color: #bdbdbd;
+    margin: 0;
+  }
+  .deadline {
+    position: absolute;
+    bottom: -50px;
+    color: #bdbdbd;
+  }
+}

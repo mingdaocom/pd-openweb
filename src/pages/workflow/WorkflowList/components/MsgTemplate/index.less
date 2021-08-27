@@ -1,0 +1,37 @@
+.workflowMsgTemplateDialog {
+  width: 720px !important;
+  min-height: 636px;
+  .workflowMsgTemplateScrollView {
+    .nano-content {
+      right: -10px !important;
+    }
+  }
+  li {
+    display: flex;
+    &.header {
+      line-height: 36px;
+      color: #757575;
+      background-color: #f4f4f4;
+    }
+    &.templates {
+      border-bottom: 1px solid #ddd;
+      padding: 16px 0;
+    }
+    .content {
+      flex-wrap: wrap;
+      color: #000;
+      padding-left: 12px;
+    }
+    .status {
+      width: 120px;
+      padding: 0 20px;
+    }
+    .msgTemplateCreateTime {
+      width: 180px;
+    }
+  }
+  .workflowMsgTemplateEmpty {
+    margin-top: 150px;
+    border: none !important;
+  }
+}

@@ -1,0 +1,101 @@
+&-header {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 0 12px;
+  border-bottom: 1px solid #ddd;
+  box-sizing: border-box;
+
+  .iconHover:not(:hover) {
+    color: #9e9e9e !important;
+  }
+  i {
+    cursor: pointer;
+    color: #9e9e9e;
+  }
+  .icon-chat-vip {
+    font-size: 14px;
+    color: #f6bc2e;
+  }
+  .title {
+    display: flex;
+    align-items: center;
+    span {
+      max-width: 350px;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    i {
+      margin: 0 10px;
+    }
+  }
+  .name {
+    cursor: pointer;
+    &:not(:hover) {
+      color: #333 !important;
+    }
+  }
+  .other {
+    display: flex;
+    align-items: center;
+    i {
+      font-size: 19px;
+      margin-left: 15px;
+    }
+    .icon-task-folder-solid {
+      margin: 1px 2px 0 15px;
+      font-size: 18px;
+    }
+  }
+  .search-wrapper {
+    position: relative;
+    &.hidden {
+      .search-input {
+        padding: 0 14px;
+        width: 0;
+        border-color: #fff;
+        opacity: 0;
+      }
+      .icon-delete {
+        transform: scale(0);
+      }
+    }
+    .icon-search {
+      width: 30px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      position: absolute;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .icon-delete {
+      position: absolute;
+      right: 5px;
+      top: 8px;
+      margin: 0;
+      font-size: 16px;
+      cursor: pointer;
+      transform: scale(1);
+      transition: 0.3s;
+    }
+    .search-input {
+      font-size: 12px;
+      width: 200px;
+      height: 32px;
+      border: 1px solid #ccc;
+      padding: 0 10px 0 30px;
+      border-radius: 5px;
+      background-color: transparent;
+      transition: 0.3s;
+      opacity: 1;
+    }
+  }
+}

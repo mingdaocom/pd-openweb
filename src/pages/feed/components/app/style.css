@@ -1,0 +1,586 @@
+﻿.postCard {
+  font-size: 14px;
+  color: #333;
+  padding: 0;
+  margin: 14px 0 14px 0 !important;
+  overflow: visible !important;
+}
+.postCard .postContainer {
+  padding: 15px 20px 0 15px;
+  position: relative;
+}
+.postCard .userMain {
+  margin-left: 61px;
+  position: relative;
+}
+.postCard .userNameGroup {
+  line-height: 28px;
+  margin-right: 20px;
+}
+
+.postCard .postContent {
+  line-height: 22px;
+  padding-right: 20px;
+  min-height: 65px;
+  position: relative;
+  word-wrap: break-word;
+}
+.postCard .postContent .postContentBodyContainer {
+  position: relative;
+  overflow: hidden;
+}
+.postCard .postContent .postContentBody {
+  overflow: hidden;
+  max-height: 330px;
+  word-wrap: break-all;
+  /*white-space: pre-wrap;*/
+}
+.postCard .postContent [class^='emotion'],
+.postCard .postContent [class*=' emotion'] {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+.postCard .postContent .emotion-twemoji {
+  box-sizing: border-box;
+  padding: 1px;
+}
+.postCard .postContent .postContentBody.isFullHeight {
+  max-height: none;
+}
+.topPostList .postContentBody {
+  overflow: hidden;
+  max-height: 66px;
+  height: 66px;
+}
+.topPostList .userNameGroup {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topPostList .userNameGroup > a,
+.topPostList .userNameGroup > span {
+  display: inline !important;
+}
+.topPostViewDetailLink {
+  display: inline-block;
+  margin-left: 61px;
+  margin-top: 15px;
+}
+.topPostViewDetailLink:hover {
+  text-decoration: none;
+}
+.postCard .postContent .postContentBody.fullHeight {
+  max-height: 56000px;
+  transition: 10s;
+}
+.postCard .postContent .showMore,
+.postCard .postContent .hideMore {
+  display: block;
+  width: 100%;
+  background: white;
+}
+.commentContainer .hideMore,
+.commentContainer .showMore,
+.rPostItem .hideMore,
+.rPostItem .showMore {
+  background: #f5f5f5 !important;
+}
+.postCard .postContent .showMore {
+  opacity: 1;
+  position: absolute;
+  top: 309px;
+}
+
+.postCard .rPostItemTriangle {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 10px 0 10px;
+  border-color: white transparent transparent transparent;
+  margin-top: -35px;
+  padding-bottom: 20px;
+}
+.postCard .rPostItem {
+  margin: 15px 0 10px 0;
+  background: #f5f5f5;
+  padding: 35px 0 15px 20px;
+}
+.postCard .rPostItem .userNameGroup,
+.postCard .rPostItem .postContent,
+.postCard .rPostItem .postFooter {
+  margin-left: 50px;
+}
+.postCard .rPostItem .postContent {
+  min-height: 0;
+}
+.postCard .rPostItem .postFooter {
+  padding-bottom: 0;
+}
+
+.linkContent {
+  word-break: break-all;
+}
+.linkContent img {
+  max-width: 130px;
+  max-height: 90px;
+  vertical-align: middle;
+}
+
+.voteOptionMemberList {
+  width: 100%;
+  overflow: hidden;
+}
+
+.postCard .postOperator {
+  position: absolute;
+  cursor: default;
+  top: 0;
+  right: 0;
+}
+
+.postCard .mdEmotion {
+  z-index: 2;
+}
+.postOperatorListBtn {
+  font-size: 18px;
+  padding-top: 4px;
+  display: inline-block;
+}
+.postOperatorListBtn:hover {
+  color: #757575;
+}
+.postOperatorListContainer {
+  overflow: hidden;
+}
+.postOperatorListContainer > .Menu {
+  left: auto !important;
+  right: 0px;
+}
+.postOperatorList {
+  position: absolute;
+  /*width: auto;*/
+  width: 180px;
+  right: 20px;
+  background: white;
+  z-index: 100;
+  border-radius: 3px;
+  padding: 6px 0;
+}
+.postOperatorListContainer:hover .postOperatorListBtn {
+  color: #aaa !important;
+}
+.postOperatorList li {
+  cursor: pointer;
+  background: white;
+  padding: 0px 12px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 12px;
+}
+.postOperatorFavBtn {
+  text-align: center;
+}
+.postOperatorFavBtn.favorited {
+  color: #fbc02d;
+}
+.postOperatorFavBtn i {
+  text-align: center;
+}
+
+.postCard .postFooter {
+  margin-left: 61px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+  font-size: 13px;
+}
+
+.postCard .postFooter .detailName {
+  max-width: 270px;
+  display: inline-block;
+}
+
+.postCard .postFooter a [data-tip] {
+  text-decoration: inherit;
+}
+
+.postCard .postFooter .projectHint {
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.postCard .postFooter .postActionIcon {
+  display: inline-block;
+  line-height: 18px;
+  height: 18px;
+  border-right: 1px solid;
+  padding: 0 12px;
+}
+.postCard .postFooter .postActionIcon:last-child {
+  margin-right: -13px;
+  border-right: none;
+}
+.postCard .postFooter .postActionIcon i {
+  line-height: 18px;
+  font-size: 14px;
+  vertical-align: middle;
+  transition: 0.2s color ease-in-out;
+}
+.postCard .postFooter .postActionIcon span {
+  line-height: 18px;
+  font-size: 12px;
+  vertical-align: middle;
+  margin-left: 7px;
+  /*color: #aaa;*/
+}
+
+/*加入 任务  日程*/
+.postFooter .moreOperateDiv {
+  position: absolute;
+  width: 100px;
+  display: block;
+  z-index: 20;
+  zoom: 1;
+  padding: 5px 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+}
+.moreOperateDiv li {
+  border: 0 !important;
+  padding: 2px !important;
+  position: relative;
+  list-style-type: none;
+}
+.postFooter .postLocation {
+  margin-left: 12px;
+  text-decoration: none;
+}
+.postFooter .postLocation .icon {
+  margin: 0 2px;
+  font-size: 16px;
+  color: #9f9f9f;
+}
+.moreOperateDiv ul li a:hover {
+  color: #fff;
+}
+.moreOperateDiv a {
+  display: block;
+  line-height: 20px;
+  height: 20px;
+  overflow: hidden;
+  text-align: left;
+  padding: 0 12px;
+  color: #333;
+  font-size: 12px;
+  text-decoration: none;
+}
+.postOperatorList .parent {
+  background-image: url(/images/check_to.gif);
+  background-position: 165px center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+.postOperatorList .parent:hover {
+  background-image: url(/images/check_to2.gif);
+}
+
+.moreOperateDiv_child {
+  background-color: #fff;
+  border: 1px solid #d5d5d5;
+  position: absolute;
+  width: 100px;
+  display: block;
+  z-index: 21;
+  zoom: 1;
+  left: 181px;
+  top: 0px;
+}
+.postCard .commentAttachments {
+  margin-left: 50px;
+}
+
+.postCard .commentAttachments .docItem .docMessage {
+  width: 200px;
+}
+
+.postCard .postCommentBox {
+  background: #f5f5f5;
+  margin: 0 -20px 0 -15px;
+  padding: 20px 20px 20px 22px;
+  /*width:100%;
+  height:100%;*/
+  /*border:1px solid red;*/
+}
+.replyFrame {
+  /*width: 95%;*/
+  height: 100%;
+  /*border: 1px solid red;*/
+  /*margin-left: 40px;*/
+  background-color: white;
+  /*border-color: #66bdf2;*/
+  border: 1px solid #ddd;
+}
+.replyFrameFocus {
+  /*margin-left: 40px;*/
+  box-shadow: 0 0 5px #a7d8f5;
+  border-color: #66bdf2 !important;
+}
+.replyButton {
+  width: 90%;
+  margin: 3px 49px;
+}
+.postCard .postCommentBox .firstRow {
+  display: table;
+  width: 100%;
+}
+.postCard .postCommentBox .secondRow {
+  /*margin-left: 58px;
+  line-height: 24px;*/
+  /*margin-top: 5px;*/
+  border-top: 1px #ccc solid;
+  margin: 0 5px;
+  padding-top: 8px;
+  padding-bottom: 10px;
+}
+.postCard .postCommentBox .secondRow > div:first-child {
+  height: 30px;
+  line-height: 30px;
+}
+.msgExpandDivclass {
+  font-size: 0px;
+  padding: 3px;
+  position: relative;
+  height: 14px;
+  float: right;
+  right: 2px;
+  bottom: 2px;
+  width: 10px;
+}
+
+.postCard .postCommentBox .secondRow .cb {
+  margin-left: 0px;
+}
+.postCard .postCommentBox .secondRow .viewTo {
+  float: right;
+}
+.postCard .postCommentBox .commentBoxUserHead,
+.postCard .postCommentBox .commentBoxTextareaContainer {
+  display: table-cell !important;
+  vertical-align: top;
+  width: auto;
+  float: left;
+}
+.postCard .postCommentBox .commentBoxTextareaContainer {
+  width: 100%;
+  height: 100%;
+}
+.postCard .postCommentBox .textareaContainer {
+  padding: 3px;
+  background-color: white;
+  min-height: 26px;
+}
+.postCard .postCommentBox .commentBoxTextarea {
+  display: block;
+  width: 99%;
+  /*font-size: 14px;*/
+  resize: none;
+  background-color: white;
+  border: 0px;
+  height: 22px;
+  line-height: 24px;
+  padding-left: 5px;
+  transition: 0.2s height ease-in-out;
+}
+.postCard .postCommentBox .commentUploadAttachment {
+  color: #ccc;
+  line-height: 30px;
+  height: 30px;
+  width: 20px;
+  float: left;
+  margin-left: 10px;
+}
+.postCard .postCommentBox .faceBtn:not(:hover) {
+  color: #ccc !important;
+}
+.postCard .postCommentBox .relayBtn {
+  vertical-align: -2px;
+  cursor: pointer;
+}
+.postCard .postCommentBox .hoverRelayBtn:not(:hover) {
+  color: #ccc !important;
+}
+.postCard .postCommentBox .faceBtn {
+  background: none !important;
+  text-decoration: none !important;
+  width: auto;
+  height: auto;
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-top: 2px !important;
+}
+.postCard .postCommentBox .msgExpandDiv {
+  width: 20px;
+  height: 24px;
+  line-height: 24px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.postCard .postActionIcon .commentListContainerTriangle {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  border-color: transparent transparent #f5f5f5 transparent;
+  position: absolute;
+  top: 28px;
+}
+.postCard .commentListContainer {
+  margin: 0 -20px 0 -15px;
+  background: #f5f5f5;
+  padding: 0 20px 0 71px;
+  font-size: 12px;
+}
+
+.postCard .commentListContainer .likedUsers {
+  padding: 16px 0 0 10px;
+}
+
+.postCard .commentListContainer .postContent {
+  padding-right: 0;
+}
+
+.postCard .postTagBox {
+  margin: 10px 130px 20px 50px;
+  /*font-size: 14px;*/
+}
+.postCard .postTagBox .textboxlist {
+  /*width: 100% !important;*/
+}
+
+.postCard .loadMoreComments {
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+  padding-top: 5px;
+  padding-bottom: 20px;
+  background: #f5f5f5;
+}
+
+.postCard .commentList {
+  margin-top: 15px;
+}
+
+.postCard .commentList .userHead {
+  margin-left: 7px;
+}
+
+.postCard .commentList .commentContainer {
+  margin-bottom: 15px;
+  /*font-size: 14px;*/
+  padding-right: 20px;
+}
+
+.postCard .commentList .commentContainer .postContent {
+  margin-left: 50px;
+}
+
+.postCard .commentList .commentContainer .postFooter {
+  margin-top: 10px;
+  margin-left: 50px;
+  font-size: 12px;
+}
+.postCard .commentList .commentContainer .postCommentBox {
+  padding-left: 80px;
+  padding-top: 0px;
+  font-size: 13px;
+}
+.postCard .commentList .commentSpliter {
+  height: 0;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  margin-left: 50px;
+}
+.postCard .commentList .commentContainer:hover .commentDeleteLink {
+  display: inline !important;
+}
+
+.postCard .commentList .last.commentContainer {
+  margin-bottom: 0;
+}
+
+.topPostPager {
+  padding-left: 21px;
+  padding-top: 10px;
+  font-size: 14px;
+  /*border-bottom: 1px solid #efefef;*/
+}
+.topPostPager ul {
+  padding-left: 1px\9;
+}
+.topPostPager li {
+  cursor: pointer;
+  margin-left: 12px;
+  color: #999;
+  user-select: none;
+}
+
+.postIndicator {
+  text-align: center;
+  vertical-align: middle;
+  line-height: 40px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.postMoreIndicator {
+  background: #f3f9ff !important;
+}
+.postMoreIndicator:hover {
+  background: #e7f3ff !important;
+}
+.postMoreIndicator:active {
+  background: #d9ecff !important;
+}
+
+.postNewIndicator {
+  background: #fffee8 !important;
+}
+.postNewIndicator:hover {
+  background: #fffdde !important;
+}
+.postNewIndicator:active {
+  background: #fffdd6 !important;
+}
+
+.postListTitle {
+  line-height: 50px;
+  font-size: 16px;
+  margin-left: 15px;
+}
+
+.emoji {
+  width: 22px;
+  height: 22px;
+  padding-left: 3px;
+  padding-right: 3px;
+  vertical-align: middle;
+}
+
+/*For legacy js*/
+#Storage_updater .updaterDialog_Main {
+  padding-bottom: 15px;
+}
+
+#kcPostAttachemntPreviewLayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  border: 0;
+  background-color: transparent;
+}

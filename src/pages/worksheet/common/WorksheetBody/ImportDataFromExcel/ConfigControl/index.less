@@ -1,0 +1,100 @@
+.workConfigControl {
+  height: 560px !important;
+  .workConfigControlBox {
+    overflow: auto;
+    .controlSeparate {
+      width: 100px;
+      justify-content: center;
+      display: flex;
+      padding-top: 9px;
+      transform: rotate(180deg);
+    }
+    .controlBox {
+      .sheetControls {
+        background: #fafafa;
+        border-radius: 3px;
+        .controlItem {
+          height: 36px;
+          line-height: 36px;
+          padding: 0 12px;
+          box-sizing: border-box;
+          align-items: center;
+          .star {
+            color: #F83333;
+            font-size: 17px;
+            position: absolute;
+          }
+        }
+        .relateBox {
+          padding: 0 12px;
+          box-sizing: border-box;
+          height: 36px;
+          align-items: center;
+          .Dropdown--input {
+            padding-left: 5px !important;
+          }
+        }
+      }
+      .excelControls {
+        .excelControlDropDown,
+        .cantConfig {
+          height: 36px;
+          line-height: 36px;
+          padding-left: 12px;
+          border-radius: 3px;
+          border: 1px solid #e0e0e0;
+          box-sizing: border-box;
+        }
+        .cantConfig {
+          width: 100%;
+          background: #f8f8f8;
+        }
+        .excelControlDropDown {
+          &.fixedDropdownSelected {
+            cursor: pointer;
+            font-weight: normal;
+            .icon-arrow {
+              font-size: 14px;
+              margin: 10px;
+            }
+          }
+          .dropDownLabel {
+            display: inline-block;
+            width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+  .repeatConfigDropdown {
+    .ming.List {
+      top: inherit !important;
+      bottom: 36px;
+    }
+  }
+}
+
+.excelControlDropDownList{
+  max-height: 500px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    background: #fff !important;
+  }
+  .ant-dropdown-menu-item{
+    line-height: 26px;
+    height: 36px;
+    font-size: 13px;
+    transition: none !important;
+  }
+  .ant-dropdown-menu-item-active {
+    color: #fff;
+    background-color: #2196F3 !important;
+  }
+  .ant-dropdown-menu-item-selected {
+    color: #2196F3 !important;
+    background-color: #fff !important;
+  }
+}

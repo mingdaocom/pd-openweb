@@ -1,0 +1,58 @@
+.departmentTop,
+.jobListBox {
+  padding: 10px 0;
+
+  li {
+    line-height: 36px;
+    cursor: pointer;
+    padding-left: 24px;
+
+    .jobNameLi {
+      display: inline-block;
+      width: calc(~"100% - 52px");
+      line-height: 36px;
+      vertical-align: middle;
+    }
+
+    &.current {
+      &:hover {
+        background: #DBEEFF 0% 0% no-repeat padding-box;
+        border-radius: 0px 16px 16px 0px;
+      }
+
+      background: #DBEEFF 0% 0% no-repeat padding-box;
+      border-radius: 0px 16px 16px 0px;
+      color: #2196f3 !important;
+      .listName {
+        color: #2196f3 !important;
+      }
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
+      border-radius: 0px 16px 16px 0px;
+    }
+
+    span.listName {
+      margin-left: 8px;
+    }
+
+    .numTag {
+      font-weight: 500;
+      display: inline-block;
+      min-width: 19px;
+      height: 19px;
+      background: #FFD2D2;
+      line-height: 19px;
+      text-align: center;
+      color: #ff0000;
+      border-radius: 19px;
+      margin-left: 8px;
+      padding: 0 6px;
+    }
+
+    .editIcon {
+      margin: 10px 10px 10px 0;
+    }
+  }
+}

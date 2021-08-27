@@ -1,0 +1,41 @@
+﻿<div class="shareFolderCon">
+    <div class="header">
+        <span class="icon"></span>
+        {{? md.global.Account.avatar}}
+        <img class="headImage" src={{!md.global.Account.avatar}} alt="">
+        {{??}}
+        <span class="btnLogin">{{=_l('登录')}}</span>
+        {{?}}
+        {{? !it.isMobile && it.active }}
+        <div class="btnGroups">
+            <div class="btnItem download">
+                <i class="icon-download"></i>
+                {{=_l('下载')}}
+            </div>
+            <div class="btnItem share">
+                <i class="icon-share"></i>
+                {{=_l('分享')}}
+            </div>
+            <div class="btnItem saveToKc">
+                <i class="icon-knowledge1"></i>
+                {{=_l('存入知识')}}
+            </div>
+        </div>
+        {{?}}
+    </div>
+    <div class="path"></div>
+    <div class="main">
+        <div class="fileList">
+
+        </div>
+    </div>
+    <div class="footer {{! it.isMobile ? '' : 'pc'}}">
+        {{? it.isMobile && it.active }}
+        <div class="operate">
+            <div class="saveToMingDao">
+                {{=_l('保存')}}
+            </div>
+        </div>
+        {{?}}
+    </div>
+</div>

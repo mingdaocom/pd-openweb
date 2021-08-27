@@ -1,0 +1,27 @@
+.taskDetail {
+  .isOnlyLookBox {
+    margin-top: 20px;
+    padding-bottom: 7px;
+    .isOnlyLook {
+      color: #aaa;
+      cursor: pointer;
+      .operationCheckbox {
+        font-size: 12px;
+        border-radius: 2px;
+        color: #fff;
+        margin-right: 8px;
+        border-width: 1px;
+        border-style: solid;
+        margin-top: 1px;
+        display: inline-block;
+        vertical-align: top;
+      }
+      &:not(.checked) {
+        .operationCheckbox {
+          border-color: #ccc !important;
+          background: #fff !important;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+.attachmentsLoading {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: table;
+}
+.attachmentsLoading .bounceWrap {
+  height: 100%;
+  width: 100%;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.attachmentsLoading .bounceWrap .bounce {
+  width: 10px;
+  height: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: #eee;
+  border-radius: 50%;
+  background-clip: padding-box;
+  display: inline-block;
+  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+  animation: bouncedelay 1.4s infinite ease-in-out;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(6) {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(5) {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(4) {
+  -webkit-animation-delay: -0.48s;
+  animation-delay: -0.48s;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(3) {
+  -webkit-animation-delay: -0.64s;
+  animation-delay: -0.64s;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(2) {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+.attachmentsLoading .bounceWrap .bounce:nth-child(1) {
+  -webkit-animation-delay: -0.96s;
+  animation-delay: -0.96s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%,
+  80%,
+  to {
+    opacity: 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes bouncedelay {
+  0%,
+  80%,
+  to {
+    transform: scale(0);
+    -webkit-transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+    -webkit-transform: scale(1);
+  }
+}

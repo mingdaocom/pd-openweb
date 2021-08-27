@@ -1,0 +1,26 @@
+﻿<div class="project myFiles" data-project-id="">
+    <ul class="nodeList rootList">
+        <li class="sharedItem nodeItem" data-root-type="1" data-root-id='' data-name="{{! _l('我的文件')}}"
+         data-project-id='' >
+            <span class="rootType nodeType fileIcon-myfile"></span>
+            <span class="rootName nodeName ellipsis">{{! _l('我的文件')}}</span>
+        </li>
+    </ul>
+</div>
+{{~it:value:index}}
+{{? value.rootList.length}}
+<div class="project" data-project-id="{{= value.projectId }}">
+    <span class="projectName">{{! value.companyName}}</span>
+    <i class="icon-arrow-down-border arrowTips animated flop Right"></i>
+    <ul class="nodeList rootList">
+        {{~ value.rootList:root:i}}
+        <li class="sharedItem nodeItem" data-root-type="{{= root.id ? 2 : 1}}" data-root-id='{{=root.id}}' data-name="{{! root.name}}"
+         data-project-id='{{= root.project && root.project.projectId || ""}}' >
+            <span class="rootType nodeType fileIcon-folder"></span>
+            <span class="rootName nodeName ellipsis">{{! root.name}}</span>
+        </li>
+        {{~ }}
+    </ul>
+</div>
+{{?}}
+{{~}}

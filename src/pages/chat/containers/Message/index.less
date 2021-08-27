@@ -1,0 +1,103 @@
+.Message {
+  &-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 15px 20px 5px;
+    position: relative;
+    &:hover {
+      background-color: #f5f5f5;
+      .Message-toolbar-wrapper {
+        display: block;
+      }
+    }
+    &-continuous {
+      padding: 6px 20px 6px 70px;
+    }
+
+    &.highlight {
+      animation-name: msgShining;
+      animation-timing-function: linear;
+      animation-duration: 0.3s;
+      animation-direction: alternate;
+      animation-iteration-count: 4;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes msgShining {
+      from {
+        background-color: #fff;
+      }
+      to {
+        color: #fff;
+      }
+    }
+  }
+
+  &-from {
+    flex: 0 50px;
+    width: 50px;
+    height: 36px;
+    &-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+    &-name {
+      color: #333;
+      font-size: 14px;
+      font-weight: bolder;
+      display: inline;
+    }
+  }
+
+  &-body {
+    flex: 1;
+    padding-right: 30px;
+  }
+
+  &-title {
+    margin-bottom: 5px;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+    line-height: 18px;
+  }
+
+  &-timestamp {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    &-content {
+      display: inline-block;
+      font-size: 12px;
+      color: #bbb;
+      padding: 0 5px;
+      line-height: 150%;
+    }
+  }
+
+  &-unreadLine {
+    margin: 25px 0 20px;
+    &::before {
+      content: '';
+      display: block;
+      border-bottom: 1px solid #efefef;
+      width: 100%;
+      margin-bottom: -10px;
+    }
+    &Txt {
+      margin: 0 auto;
+      display: block;
+      width: 96px;
+      background: #fff;
+      color: #bbb;
+      text-align: center;
+    }
+  }
+}

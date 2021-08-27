@@ -1,0 +1,74 @@
+/**
+* component Item
+* prefix: .dossier-user-form-item
+*/
+.width(@n) {
+  width: percentage(1 / @n); // calc(1/@n*100%);
+}
+
+// &.mui-formitem-width-[1~2]
+.width-n(@n, @i: 1) when (@i <= @n) {
+  &.dossier-user-form-item-width-@{i} {
+    .width(@i);
+  }
+
+  .width-n(@n, (@i + 1));
+}
+
+.dossier-user-form-item {
+  display: block;
+  width: 100%;
+  float: left;
+  margin-bottom: 8px;
+  &:after {
+    content: '';
+    display: block;
+    width: 100%;
+    clear: both;
+  }
+
+  .width-n(2);
+
+  & > .dossier-user-form-item-label {
+    display: block;
+    width: 80px;
+    height: 20px;
+    padding: 0 16px;
+    color: #9e9e9e;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: right;
+    font-size: 13px;
+    line-height: 20px;
+    float: left;
+    position: relative;
+    box-sizing: initial;
+    &:after {
+      content: ':';
+      display: block;
+      width: 10px;
+      height: 20px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 20px;
+      position: absolute;
+      top: 0;
+      right: 6px;
+    }
+  }
+  & > .dossier-user-form-item-value {
+    display: block;
+    width: 100%;
+    padding-left: 112px;
+    box-sizing: border-box;
+    font-size: 13px;
+    line-height: 20px;
+    color: #333;
+    word-break: break-all;
+    &.dossier-user-form-item-value-mark {
+      font-size: 15px;
+      padding-left: 0;
+    }
+  }
+}

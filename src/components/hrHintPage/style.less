@@ -1,0 +1,98 @@
+/* prettier-ignore */
+.hrHintPage {
+  background: #f5f5f5;
+  min-width: 1000px;
+  // retina image mixin
+  // https://gist.github.com/brandonb927/3874012
+  .retina-image(@image, @size, @repeat: no-repeat) {
+    @filename: ~`/(.*)\.(jpg|jpeg|png|gif)/.exec(@{image})[1]`;
+    @extension: ~`/(.*)\.(jpg|jpeg|png|gif)/.exec(@{image})[2]`;
+    background-image: ~`"url(@{filename}.@{extension})"`;
+    background-repeat: @repeat;
+    @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and ( -o-min-device-pixel-ratio: 2/1), only screen and ( min-device-pixel-ratio: 2), only screen and ( min-resolution: 192dpi), only screen and ( min-resolution: 2dppx) {
+      background-image: ~`"url(@{filename}-2x.@{extension})"`;
+      background-size: @size;
+    }
+  }
+  padding-top: 50px;
+  .hintHeader {
+    padding-top: 1px;
+    text-align: center;
+    height: 140px;
+    background: url(./images/hr-5-2x.png) no-repeat center right, url(./images/hr-4-2x.png) no-repeat center left, #fff;
+    background-size: auto 140px, auto 140px;
+  }
+  .hrHintCards {
+    @keyframes showAnimate{
+        from{
+            top:150%
+        }
+        to{
+            top:0;
+        }
+    }
+
+    padding-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 440px;
+    .cardTextBox {
+      margin-top: 12px;
+      line-height: 22px;
+      font-size: 13px;
+
+      li {
+        padding-left: 30px;
+        &:before {
+          vertical-align: middle;
+          margin-right: 10px;
+          background-color: #757575;
+          content: '';
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+        span {
+          vertical-align: middle;
+        }
+      }
+    }
+    .userCard {
+      width: 250px;
+      position: relative;
+      animation: showAnimate 0.5s;
+      animation-fill-mode: forwards;
+      box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
+      .retina-image('./images/hr-1.png', 250px);
+      .userName {
+        margin-top: 162px;
+        font-size: 20px;
+        margin-left: 15px;
+      }
+      .userAvatar {
+        position: absolute;
+        right: 18px;
+        top: 171px;
+      }
+    }
+    .approvalCard {
+      width: 300px;
+      margin: 0 20px;
+      position: relative;
+      animation: showAnimate 0.7s;
+      animation-fill-mode: forwards;
+      box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
+      .retina-image('./images/hr-2.png', 300px);
+    }
+    .checkCard {
+      position: relative;
+      animation: showAnimate 0.9s;
+      animation-fill-mode: forwards;
+      width: 300px;
+      box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
+      .retina-image('./images/hr-3.png', 300px);
+    }
+  }
+}

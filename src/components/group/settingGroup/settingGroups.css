@@ -1,0 +1,599 @@
+﻿.dialogBoxSettingGroup .dialogBox .dialogCloseBtn {
+  color: rgba(255, 255, 255, .6)!important;
+}
+
+.dialogBoxSettingGroup .dialogBox .dialogCloseBtn:hover {
+  color: rgba(255, 255, 255, .8)!important;
+}
+
+.dialogBoxSettingGroup .dialogBox .noHeader {
+  height: 0;
+}
+
+.dialogBoxSettingGroup .dialogBox .dialogContent {
+  padding: 0;
+}
+
+.groupTopContent .groupHead {
+  width: 88px;
+  margin-right: auto;
+  margin-bottom: 5px;
+  margin-left: auto;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  border: 3px solid rgba(225, 225, 225, .5);
+  border-radius: 50%;
+}
+
+.groupTopContent .groupHead:hover {
+  border-color: #fff;
+}
+
+.groupTopContent .groupHead:hover::before {
+  line-height: 88px;
+
+  position: absolute;
+
+  width: 88px;
+  height: 88px;
+
+  content: attr(titlename);
+
+  color: #fff;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, .4);
+}
+
+.groupTopContent .groupAvatar {
+  width: 88px;
+  height: 88px;
+
+  vertical-align: bottom;
+}
+
+.groupNameTotal .groupName {
+  font-size: 16px;
+
+  display: inline-block;
+  overflow: hidden;
+
+  max-width: 150px;
+
+  vertical-align: middle;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: #fff;
+}
+
+.groupTopContent .groupIcon {
+  vertical-align: middle;
+
+  color: #ffc85f !important;
+}
+
+.groupSettingAvatarSelect.tip-white {
+  min-width: 400px;
+}
+
+.groupSettingAvatarSelect .settingPictureLayerTitle {
+  font-size: 13px;
+
+  padding: 12px 0 0 15px;
+
+  color: #999;
+}
+
+.groupSettingAvatarSelect .settingPictureLayerImg {
+  padding: 0 0 0 16px;
+}
+
+.groupSettingAvatarSelect .settingPictureLayerImg img {
+  float: left;
+
+  width: 68px;
+  height: 68px;
+  margin: 7px 7px 0 0;
+}
+
+.groupSettingAvatarSelect .settingPictureLayerImg img:hover {
+  transition: transform .5s;
+  transform: scale(1.1);
+}
+
+.groupSettingAvatarSelect .insertGroupImg {
+  font-size: 13px;
+  line-height: 45px;
+
+  height: 45px;
+  padding-left: 20px;
+}
+
+/* tab list */
+.groupTabList {
+  margin-top: 10px;
+  padding-bottom: 1px;
+}
+
+.groupTabList .commItem {
+  font-size: 14px;
+  line-height: 40px;
+
+  display: inline-block;
+
+  height: 40px;
+  padding: 0 20px;
+
+  cursor: pointer;
+  -webkit-transition: all .2s ease-in-out;
+  -moz-transition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+
+  color: rgba(255, 255, 255, .6);
+  border-bottom: 3px solid currentColor;
+}
+
+.groupTabList .commItem:not(.activation):not(:hover) {
+  border-bottom-color: transparent;
+}
+
+.groupTabList .commItem.activation {
+  color: #fff;
+}
+
+.groupTabList .commItem:not(.activation):hover {
+  color: rgba(255, 255, 255, .8);
+}
+
+.groupTabList .commItem:not(:last-child) {
+  margin-right: 40px;
+}
+
+/* content */
+.groupSettingContent {
+  height: 364px;
+}
+
+.groupSettingContent .groupInfo,
+.groupSettingContent .groupMember,
+.groupSettingContent .groupSettings {
+  overflow: auto;
+
+  height: 100%;
+}
+
+.groupSettingContent .TextBoxNew {
+  padding-left: 10px;
+
+  border: 1px #efefef solid;
+  border-radius: 3px;
+  outline: none;
+
+  flex: 1;
+}
+
+/* group info */
+.groupSettingContent .groupInfoList {
+  margin: 0 22px;
+  padding-top: 15px;
+}
+
+.groupSettingContent .groupInfoList > li {
+  line-height: 32px;
+
+  display: flex;
+
+  padding-bottom: 10px;
+}
+
+.groupSettingContent .groupInfoList .infoTitle {
+  width: 82px;
+}
+
+.groupSettingContent .groupInfoList .infoContent {
+  flex: 1;
+}
+
+.groupSettingContent .groupInfoList .userAvatar {
+  float: left;
+
+  width: 36px;
+  height: 36px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+
+  border: 1px solid transparent;
+}
+
+.groupSettingContent .groupInfoList .userHead {
+  width: 32px;
+  height: 32px;
+  margin: 2px 0 0 2px;
+
+  vertical-align: bottom;
+}
+
+.groupSettingContent .groupInfoList .groupTextBox {
+  border: 1px solid #fff;
+}
+
+.groupSettingContent .groupInfoList .groupTextBox.groupName {
+  box-sizing: border-box;
+  width: 100%;
+  height: 32px;
+  padding: 0 5px;
+  margin-left: -6px;
+}
+
+.groupSettingContent .groupInfoList .groupAboutStatic {
+  overflow: auto;
+
+  max-height: 150px;
+
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.groupSettingContent .groupInfoList .qrcode {
+  font-size: 22px;
+
+  cursor: pointer;
+  vertical-align: middle;
+
+  color: rgba(117, 117, 117, .75);
+}
+
+.groupSettingContent .groupInfoList .qrcode:hover {
+  color: rgba(117, 117, 117, .9);
+}
+
+.groupSettingContent .groupInfoList .groupTextBox.textAreaAbout {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 80px;
+  margin-top: 3px;
+  margin-left: -9px;
+  padding: 5px 8px;
+
+  border-radius: 3px;
+}
+
+.groupSettingContent .groupInfoList .groupTextBox:not([readonly]):hover {
+  border: 1px solid #e3e3e3;
+}
+
+.groupSettingContent .groupInfoList .groupTextBox:not([readonly]):focus {
+  border: 1px solid #ccc;
+  background: #fff9c4;
+}
+
+.groupSettingContent .groupInfoList .addChatMember {
+  font-size: 32px;
+
+  display: inline-block;
+
+  margin-top: 3px;
+  padding-left: 2px;
+
+  cursor: pointer;
+
+  color: #aaa;
+}
+
+.groupSettingContent .groupInfoList .addChatMember:hover {
+  color: #888;
+}
+
+.groupSettingContent .groupInfoList .acceptMessage {
+  border-top: 1px solid #ccc;
+}
+
+.groupSettingContent .discussionTip {
+  padding: 14px 20px;
+
+  background-color: #fef8e2;
+}
+
+.groupSettingContent .discussionTip .convertLink {
+  color: #ee6f0b;
+}
+
+.groupSettingContent .discussionTip .convertDesc {
+  margin-bottom: 0;
+
+  color: rgba(0, 0, 0, .54);
+}
+
+.groupSettingContent .discussionChatNotice {
+  margin-top: 15px;
+  padding: 15px 0;
+
+  border-top: 1px solid #ccc;
+}
+
+.groupSettingContent .groupInfo .groupOperation {
+  margin-top: auto;
+
+  flex: 0 0 36px;
+}
+
+/* group member */
+.groupSettingContent .groupMember .groupSettingSearch {
+  padding: 8px 15px;
+  color: #ddd;
+}
+
+.groupSettingContent .groupSettingSearch .searchWrapper {
+  display: table;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  width: 100%;
+}
+
+.groupSettingContent .groupSettingSearch .searchInput {
+  display: table-cell;
+  width: 100%;
+  border: none;
+  outline: none;
+  line-height: 30px;
+  height: 30px;
+  color: #333;
+}
+
+.groupSettingContent .groupSettingSearch .searchIcon,
+.groupSettingContent .groupSettingSearch .searchCloseIcon {
+  vertical-align: middle;
+  width: 25px;
+}
+
+.groupSettingContent .groupSettingSearch .searchIcon,
+.groupSettingContent .groupSettingSearch .searchCloseIcon:not(.Hidden) {
+  display: table-cell;
+}
+
+.groupSettingContent .groupMember .singleUser {
+  padding: 0 22px;
+}
+
+.groupSettingContent .groupMember .singleUser .userAvatar {
+  flex: 0 0 32px;
+}
+
+.groupSettingContent .groupMember .singleUser .userAvatar img {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+}
+
+.groupSettingContent .groupMember .singleUser:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+.groupSettingContent .groupUserList {
+  overflow-y: auto;
+
+  height: 270px;
+}
+
+.groupSettingContent .groupUserList.auth .roleName:last-child {
+  padding-right: 16px;
+}
+
+.groupSettingContent .groupMember .singleUser {
+  line-height: 46px;
+
+  align-items: center;
+}
+
+.groupSettingContent .groupMember .singleUser .groupUserName {
+  padding: 0 10px;
+
+  flex: 0 0 90px;
+}
+
+.groupSettingContent .singleUser .groupMemberOperation.auth .settingMemberRole {
+  cursor: pointer;
+}
+
+.groupSettingContent .groupMember .singleUser .groupUserJob {
+  padding: 0 10px;
+  flex: 1 1 auto;
+}
+
+.groupSettingContent .groupMember .singleUser .groupUserJob,
+.groupSettingContent .groupMember .singleUser .groupUserDepartment,
+.groupSettingContent .groupMember .singleUser .groupUserCompany {
+  max-width: 100px;
+}
+
+.groupSettingContent .groupMember .singleUser .groupMemberOperation {
+  text-align: right;
+
+  flex: 1 0 auto;
+}
+
+.groupSettingContent .singleUser .groupMemberOperation .settingMemberRole {
+  cursor: default;
+  white-space: nowrap;
+}
+
+.groupSettingContent .groupMember .addGroupMember {
+  font-size: 22px;
+
+  float: left;
+
+  vertical-align: middle;
+}
+
+.groupSettingContent .groupMember .addGroupMembers {
+  font-size: 14px;
+  padding: 10px 25px;
+  line-height: 24px;
+}
+
+.groupSettingContent .groupMember .settingMemberRole {
+  display: inline-block;
+}
+
+/*群成员弹层*/
+.groupSettingContent .groupMember .operation {
+  font-size: 12px;
+
+  position: absolute;
+  z-index: 1000;
+
+  width: 110px;
+  padding: 5px 0;
+
+  border-radius: 3px;
+  background: #fff;
+  -webkit-box-shadow: 0 2px 4px 3px rgba(0, 0, 0, .1), 0 2px 10px 0 rgba(0, 0, 0, .08);
+  box-shadow: 0 2px 4px 3px rgba(0, 0, 0, .1), 0 2px 10px 0 rgba(0, 0, 0, .08);
+}
+
+.groupSettingContent .groupMember .operation .groupMemberOp {
+  line-height: 30px;
+
+  height: 30px;
+  padding-left: 15PX;
+
+  cursor: pointer;
+}
+
+.groupSettingContent .groupMember .operation .groupMemberOp:not(:hover) {
+  background-color: #fff !important;
+}
+
+.groupSettingContent .groupMember .operation .groupMemberOp:hover {
+  color: #fff;
+}
+
+/* 群设置 */
+.groupSettingContent .groupSettings .singleSetting {
+  line-height: 30px;
+
+  height: 30px;
+  margin: 0 25px 15px;
+}
+
+.groupSettingContent .groupSettings .singleSetting .tip {
+  line-height: 1;
+  color: #ccc;
+  margin-left: 5px;
+}
+
+.groupSettingContent .groupChatNotice {
+  padding-top: 20px;
+
+  border-top: 1px solid #ccc;
+}
+
+.groupSettingContent .groupOperation {
+  display: flex;
+
+  margin-bottom: 20px;
+}
+
+.groupSettingContent .settingsWrapper .groupOperation {
+  margin-top: auto;
+
+  flex: 0 0 36px;
+}
+
+.groupSettingContent .settingsWrapper .officialDepSelect {
+  max-width: 210px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.groupSettingContent .settingsWrapper .officialDepSelect:not(.Hidden) {
+  display: inline-block;
+}
+
+.groupSettingContent .groupOperation .closeGroup,
+.groupSettingContent .groupOperation .deleteGroup {
+  margin-right: 25px;
+  margin-left: 25px;
+
+  text-align: center;
+}
+
+.groupSettingContent .groupOperation .closeGroup:after,
+.groupSettingContent .groupOperation .deleteGroup:after {
+  line-height: 1.5em;
+
+  width: 130px;
+
+  white-space: normal;
+}
+
+.groupSettingContent .exitGroup,
+.groupSettingContent .deleteGroup {
+  cursor: pointer;
+
+  border: none;
+  outline: none;
+}
+
+.groupSettingContent .exitGroup {
+  font-size: 12px;
+  line-height: 34px;
+
+  color: #fff;
+  border-radius: 5px;
+  background-color: rgb(255, 61, 0);
+}
+
+.groupSettingContent .exitGroup:last-child {
+  margin-right: 25px;
+}
+
+.groupSettingContent .exitGroup:hover {
+  background-color: rgb(221, 44, 0);
+}
+
+.groupSettingContent .icon-groupExit,
+.groupSettingContent .icon-task-new-delete {
+  font-size: 14px;
+
+  margin-right: 5px;
+}
+
+.groupSettingContent .deleteGroup,
+.groupSettingContent .closeGroup {
+  font-size: 14px;
+  line-height: 34px;
+
+  display: inline-block;
+
+  text-decoration: none;
+}
+
+.groupSettingContent .deleteGroup:not(:hover),
+.groupSettingContent .closeGroup:not(:hover) {
+  color: currentColor !important;
+}
+
+.groupSettingContent .settingsWrapper,
+.groupSettingContent .groupInfoWrapper {
+  min-height: 100%;
+}
+
+/* override */
+#convertToPost .customSelect {
+  vertical-align: middle;
+}
+
+.groupQRCodeImg{
+  margin: 7px;
+  height: 120px;
+}

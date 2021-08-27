@@ -1,0 +1,11 @@
+﻿.AppUserProfile .feedApp {
+  position: relative;
+  min-width: 480px;
+}
+
+.AppUserProfile .userFeedContainer {
+  vertical-align: top;
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 0;
+}

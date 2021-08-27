@@ -1,0 +1,27 @@
+﻿{{? it.showArrow}}
+<div class="arrowUpOuter" style="left:{{! it.arrowLeft}}px">
+    <div class="arrowUpInner" />
+</div>
+{{?}}
+<div class="updaterDialog_Main pAll10">
+    <div class="Left">
+        <span class="uploadAttachmentLink TxtMiddle" id={{! it.pluploadID}}>
+    <i class="icon icon-localUpload TxtMiddle ThemeColor3 mRight5" />
+    {{! _l('本地文件')}}
+    </span>
+        <span class="uploadAttachmentLink TxtMiddle" id="kcAttachment">
+    <i class="icon icon-home-knowledge TxtMiddle ThemeColor3 mRight5" />
+    {{! _l('知识中心')}}
+    </span>
+    </div>
+    <div class="Right Gray_9 Font12">
+        <span class="currentUploadSize">0M</span>/1G(至多本地,知识文件各10个)</div>
+    <div class="Right">
+        {{? !it.hidePrograss}}
+        <div class="attachmentPrograss">
+            <div class="currentPrograss" />
+        </div>
+        {{?}}
+    </div>
+    <div class="Clear" />
+</div>

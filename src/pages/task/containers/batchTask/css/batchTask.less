@@ -1,0 +1,539 @@
+﻿.AppTask {
+  #batchTask {
+    position: absolute;
+    z-index: 10;
+    top: 46px;
+    right: -640px;
+    bottom: 0;
+    width: 640px;
+    box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+    display: none;
+    .barchTaskMain {
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+    }
+    .taskDetailStatusBtn {
+      border-radius: 19px;
+      border-width: 1px;
+      border-style: solid;
+      height: 32px;
+      line-height: 32px;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 18px;
+      display: inline-block;
+      margin-top: 12px;
+      &:not(:hover):not(.active) {
+        color: #9e9e9e!important;
+        border-color: #bdbdbd!important;
+      }
+      &.active {
+        color: #30af00!important;
+        border-color: #30af00!important;
+      }
+    }
+    .detailTime {
+      padding: 0 25px;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #e0e0e0;
+      height: 90px;
+      margin-bottom: 10px;
+      .detailTimeIcon {
+        font-size: 36px;
+        i {
+          display: block;
+        }
+        .icon-watch_later {
+          color: #bdbdbd;
+        }
+        .icon-go_out {
+          color: #2196f3;
+        }
+        .icon-check_circle {
+          color: #30af00;
+        }
+      }
+      .detailTimeLabel {
+        width: 90px;
+      }
+      .detailTimeLabelText {
+        color: #9e9e9e;
+      }
+      .detailTimeNowStart {
+        height: 22px;
+        line-height: 22px;
+        box-sizing: border-box;
+        padding: 0 8px;
+        border-radius: 19px;
+        border-width: 1px;
+        border-style: solid;
+      }
+    }
+  }
+  #batchTask .TxtCenter {
+    margin-top: 45% !important;
+  }
+  #batchTaskFolder_autocomplete .TxtCenter {
+    margin-top: 10px !important;
+  }
+  #batchTask.slideLeft {
+    display: block;
+    right: 0;
+  }
+  #batchTask .textboxlist-bit-editable-input {
+    height: 23px;
+    line-height: 23px;
+  }
+  #batchTask .header {
+    height: 58px;
+    padding: 0 25px;
+    border-bottom: 1px #ccc solid;
+  }
+  #batchTask .header .myTaskIcon {
+    cursor: pointer;
+  }
+  #batchTask .batchIcon {
+    font-size: 18px;
+    display: inline-block;
+    float: left;
+    margin-top: 17px;
+    margin-left: 28px;
+    cursor: pointer;
+    vertical-align: top;
+  }
+  #batchTask .batchIcon .icon-task-new-no-locked {
+    display: inline-block;
+    margin-top: 1px;
+  }
+  #batchTask .barchTaskContent {
+    padding: 0 25px;
+  }
+  #batchTask .batchFolder {
+    height: 38px;
+    margin-top: 12px;
+  }
+  #batchTask .batchFolder .batchFolderIcon {
+    font-size: 20px;
+    display: inline-block;
+    margin-top: -1px;
+    vertical-align: top;
+    color: #adbcca;
+  }
+  #batchTask .batchFolder .batchFolderIcon .icon-project-new {
+    font-size: 14px;
+  }
+  #batchTask .batchFolder .batchFolderContent {
+    width: 560px;
+    margin-left: 5px;
+  }
+  #batchTask .batchFolder .batchFolderContent.show {
+    display: inline-block;
+  }
+  #batchTaskFolder {
+    line-height: 32px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    height: 32px;
+    padding: 4px 6px;
+    border: 1px solid #a3d7f7;
+  }
+  #batchTask .autoBatchFolder {
+    width: 439px;
+  }
+  #batchTask .autoBatchFolder.show {
+    display: inline-block;
+  }
+  .batchFolderContent .batchFolderText {
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 5px;
+    vertical-align: top;
+    color: #aaa;
+  }
+  .batchFolder .showBatchFolder {
+    font-size: 16px;
+    margin-top: 8px;
+    color: #c6c8cb;
+  }
+  .batchFolder .showBatchFolder:hover {
+    color: #0091ea;
+  }
+  #batchTask .batchCharge {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin-top: 7px;
+    vertical-align: top;
+  }
+  #batchTask .batchTaskCount {
+    font-size: 16px;
+    line-height: 45px;
+    margin-left: 6px;
+    vertical-align: top;
+  }
+  #batchTask .markStatus {
+    height: 45px;
+  }
+  .batchMember .members {
+    display: inline-block;
+    width: 555px;
+    margin-left: 10px;
+  }
+  .batchMember .icon-group {
+    font-size: 18px;
+    display: inline-block;
+    height: 18px;
+    margin-top: 5px;
+    vertical-align: top;
+    color: #757575;
+  }
+  .batchMember .members .icon-task-add-member-circle {
+    font-size: 28px;
+    display: inline-block;
+    cursor: pointer;
+    vertical-align: top;
+  }
+  .batchMember .members .icon-task-add-member-circle:not(:hover) {
+    color: #aaa !important;
+  }
+  #batchTask .folderNameEdit {
+    font-size: 14px;
+    display: inline-block;
+    float: right;
+    margin-top: 10px;
+    cursor: pointer;
+    color: #c6c8cb;
+  }
+  #batchTask .folderNameEdit:hover {
+    color: #0091ea;
+  }
+  #backTaskCount {
+    margin: 0 2px;
+    vertical-align: top;
+  }
+  .authTask {
+    height: 32px;
+    margin-top: 8px;
+  }
+  #afterUpdate .batchAvatar,
+  #afterUpdateMsg .batchAvatar {
+    display: inline-block;
+    overflow: hidden;
+    width: 24px;
+    height: 24px;
+    margin-top: 4px;
+    margin-right: 5px;
+    margin-left: 5px;
+    vertical-align: top;
+  }
+  #afterUpdate .batchName,
+  #afterUpdateMsg .batchName {
+    display: inline-block;
+    width: 320px;
+    height: 20px;
+    margin-top: 7px;
+    vertical-align: top;
+  }
+  #afterUpdate .markTask.lockTask,
+  #afterUpdateMsg .markTask.lockTask {
+    margin-top: 8px;
+  }
+  #afterUpdate .tipTitle,
+  #afterUpdateMsg .tipTitle {
+    font-size: 13px;
+    color: #dd2c00;
+    border-bottom: 8px #fff solid;
+  }
+  #afterUpdate .authTaskBox,
+  #afterUpdateMsg .authTaskBox {
+    overflow-y: auto;
+  }
+  #batchTask .categorys {
+    display: none;
+    margin: 15px 0;
+  }
+  #batchTask .categorys .icon-task-label {
+    font-size: 18px;
+    display: inline-block;
+    height: 12px;
+    vertical-align: top;
+    color: #757575;
+    margin-top: 2px;
+    margin-right: 5px;
+  }
+  .categorys .categoryList {
+    display: inline-block;
+    vertical-align: top;
+    border-width: 0;
+    width: 560px;
+  }
+  #textboxlist_txtCategory {
+    margin-top: -5px;
+    margin-left: 6px;
+  }
+  .categorys .textboxlist-bit-box {
+    line-height: 26px;
+    display: inline-block;
+    height: 26px;
+    margin-bottom: 4px;
+    padding: 0 17px;
+    color: #000;
+    border: 0;
+    -webkit-border-radius: 13px;
+    -moz-border-radius: 13px;
+    border-radius: 13px;
+    background: #eee;
+  }
+  .categorys .textboxlist-autocomplete {
+    margin-top: 3px;
+  }
+  .categorys .textboxlist-autocomplete-placeholder {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    color: #aaa;
+  }
+  .categorys .textboxlist-autocomplete-placeholder,
+  .categorys .textboxlist-autocomplete-results {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    opacity: 1;
+    border: 0;
+    border-radius: 3px;
+    background: #fff;
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  .categorys .textboxlist-bit-box-deletebutton {
+    top: 10px;
+    right: 6px;
+    display: none;
+  }
+  .categorys .textboxlist-bit-box-deletebutton.show {
+    display: inline-block;
+  }
+  #batchTask .batchIcon.iconTaskNoNews:not(:hover),
+  #batchTask .batchIcon.iconTaskNewLocked:not(:hover),
+  #batchTask .batchIcon.batchMore:not(:hover) {
+    color: #757575 !important;
+  }
+  #batchTask .batchIcon.iconTaskNoNews.close:not(:hover) {
+    color: #dd2c00 !important;
+  }
+  #batchTask .batchOperator {
+    position: absolute;
+    z-index: 101;
+    top: 50px;
+    right: -15px;
+    padding: 6px 0;
+    background-color: #fff;
+  }
+  #batchTask .batchOperator > li {
+    line-height: 32px;
+    width: 155px;
+    height: 32px;
+    padding-left: 16px;
+    cursor: pointer;
+  }
+  #batchTask .batchOperator li > i {
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 10px;
+    color: #999;
+  }
+  #batchTask .batchOperator li:hover > i {
+    color: #fff;
+  }
+  #batchTask .batchOperator > li:hover {
+    color: #fff;
+    background: #0091ea;
+  }
+  #batchAutoFolder {
+    position: absolute;
+    z-index: 3;
+    top: 3px;
+    left: 0;
+    overflow-y: auto;
+    width: 100%;
+    width: 100%;
+    max-height: 320px;
+    padding: 4px 0;
+    background: #fff;
+  }
+  #batchAutoFolder li {
+    line-height: 32px;
+    display: inline-block;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    height: 32px;
+    padding: 0 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #000;
+  }
+  #batchAutoFolder li.active {
+    color: #fff;
+    background: #0091ea;
+  }
+  #batchTask .singleuser {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    margin-right: 7px;
+    margin-bottom: 7px;
+    vertical-align: top;
+  }
+  #batchTask .singleuser img {
+    width: 100%;
+    height: 100%;
+  }
+  #batchFavorite {
+    font-size: 20px;
+    float: right;
+    color: #99a1ab;
+    margin-top: 13px;
+  }
+  #batchFavorite.icon-star-hollow:hover {
+    color: #0091ea;
+  }
+  #batchFavorite.icon-task-star {
+    color: #fbc02d;
+  }
+  .dialogBox .checkBox {
+    padding-bottom: 0;
+  }
+  .messageBtnRemove,
+  .messageBtnPerson {
+    display: inline-block;
+    width: 50%;
+    text-align: center;
+    cursor: pointer;
+  }
+  .messageBtnPerson {
+    line-height: 45px;
+    box-sizing: border-box;
+    height: 45px;
+    border-right: 1px solid #e0e0e0;
+  }
+  .messageBtnRemove:not(:hover),
+  .messageBtnPerson:not(:hover) {
+    color: #333 !important;
+  }
+  #batchTaskFolder_autocomplete li {
+    position: relative;
+  }
+  .autoBatchFolder .chargeUser {
+    width: 26px;
+    height: 26px;
+    margin-top: 7px;
+    vertical-align: top;
+  }
+  .autoBatchFolder .folderName {
+    line-height: 40px;
+    margin-left: 5px;
+    vertical-align: top;
+    max-width: 250px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .autoBatchFolder .folderDetail .icon-folder-private,
+  .autoBatchFolder .folderDetail .icon-folder-public {
+    font-size: 18px;
+    margin-right: 5px;
+  }
+  .autoBatchFolder .folderDetail {
+    position: absolute;
+    right: 5px;
+    top: 0;
+  }
+  .autoBatchFolder .folderDetail span {
+    line-height: 40px;
+    font-size: 14px;
+    color: #999;
+  }
+  .mdAutocomplete li.autocomActive .folderDetail span {
+    color: #fff;
+  }
+
+  // selectize
+  #batchTask {
+    .selectizeiItem {
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: default;
+      word-break: break-all;
+      display: inline-flex;
+      &.active {
+        background: #f2f2f2;
+      }
+    }
+    .remove {
+      border: 0;
+      padding-right: 6px;
+      padding-left: 4px;
+    }
+    .tagsIcon {
+      width: 10px;
+      height: 10px;
+      border-radius: 100%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: top;
+      margin-top: 3px;
+    }
+    .selectize-control.multi .selectize-input.has-items {
+      padding: 0;
+      vertical-align: top;
+    }
+    .selectize-input {
+      padding: 0;
+      border: 0;
+      min-height: 25px;
+      overflow: inherit;
+      box-shadow: none;
+      &.focus {
+        box-shadow: none;
+      }
+      input {
+        border: none;
+        vertical-align: middle;
+      }
+      .item {
+        vertical-align: middle;
+      }
+      .item:hover .remove {
+        display: inline-block !important;
+      }
+      .remove {
+        display: none !important;
+        background: transparent !important;
+        cursor: pointer;
+      }
+    }
+  }
+
+  #deleteTaskBox {
+    .title {
+      color: #f44336;
+    }
+    .yesText {
+      background: #f44336 !important;
+      &:hover {
+        background: #e53935 !important;
+      }
+    }
+    .btnCk {
+      color: #9e9e9e;
+    }
+    .deleteFolderColor {
+      color: #757575;
+    }
+  }
+}

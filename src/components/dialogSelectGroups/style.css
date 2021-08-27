@@ -1,0 +1,106 @@
+#dialogSelectGroups .dialogContent {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+#dialogSelectGroups .searchInput {
+  width: 100%;
+  padding: 5px 30px 5px 10px;
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.4);
+  height: 40px;
+}
+
+#dialogSelectGroups .searchIcon {
+  right: 12px;
+  top: 30%;
+  color: #444;
+  font-size: 18px;
+}
+
+#dialogSelectGroups .selectTab {
+  margin: 10px 2px;
+}
+
+#dialogSelectGroups .selectTab .tabList {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#dialogSelectGroups .selectTab .tabItem {
+  float: left;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+
+  margin-bottom: -1px;
+  border-bottom-width: 4px;
+  border-bottom-style: solid;
+}
+
+#dialogSelectGroups .selectTab .tabItem:not(:hover):not(.active) {
+  border-bottom-color: transparent !important;
+}
+
+#dialogSelectGroups .groupListBox {
+  max-height: 300px;
+  height: 300px;
+}
+
+#dialogSelectGroups .groupList {
+  padding: 0 8px;
+}
+
+#dialogSelectGroups .singleGroup {
+  padding: 6px 0px;
+}
+#dialogSelectGroups .singleSelectGroup {
+  height: 40px;
+  padding: 6px 0px;
+}
+
+#dialogSelectGroups .singleGroup .groupName {
+  display: inline-block;
+  max-width: 200px;
+  white-space: nowrap;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+#dialogSelectGroups .singleGroup .groupMemberCount {
+  vertical-align: middle;
+}
+
+#dialogSelectGroups .singleGroup .groupAvatar,
+#dialogSelectGroups .singleSelectGroup .groupAvatar {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+#dialogSelectGroups .singleSelectGroup:after {
+  content: '-';
+  position: absolute;
+  background-color: red;
+  border: 1px solid #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  top: -3px;
+  left: 20px;
+  color: #fff;
+  cursor: pointer;
+  line-height: 16px;
+  text-align: center;
+  font-size: 31px;
+  display: none;
+}
+
+#dialogSelectGroups .singleSelectGroup:hover:after {
+  display: inline-block;
+}

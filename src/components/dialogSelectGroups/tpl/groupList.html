@@ -1,0 +1,38 @@
+﻿{{ var groups = it.groups, type = it.type, selectedGroups = it.selectedGroups; }}
+{{? groups.length }}
+{{~ groups:group }}
+    {{? type == 'selected' }}
+        {{#def.buildSelectedItem:group }}
+    {{??}}
+        {{#def.buildListItem:group }}
+    {{?}}
+{{~ }}
+{{?? type !== 'selected' }}
+<li class="TxtCenter">{{= it.isSearch ? _l('没有搜索到群组') : _l('还没有群组') }}</li>
+{{?}}
+
+{{##def.buildListItem:item:
+<li class="singleGroup">
+    <label class="Hand">
+        {{ var isChecked = selectedGroups.indexOf(item.groupId) > -1; }}
+        <input type="checkbox" data-groupid="{{= item.groupId }}" {{= isChecked?'checked':''  }}>
+        <span class="groupAvatar circle">
+            <img data-src="{{= item.avatar }}" src class="w100 h100">
+        </span>
+        <span class="groupName">
+            {{! item.name }}
+        </span>
+        <span class="groupMemberCount">
+            ({{= _l('%0名成员',item.groupMemberCount) }})
+        </span>
+    </label>
+</li>
+#}}
+
+{{##def.buildSelectedItem:item:
+<li class="singleSelectGroup Left Hand Relative" data-groupid="{{= group.groupId }}">
+    <span class="groupAvatar circle">
+        <img src="{{= item.avatar }}" class="w100 h100" title="{{! group.name }}">
+    </span>
+</li>
+#}}

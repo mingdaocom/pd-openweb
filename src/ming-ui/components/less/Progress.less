@@ -1,0 +1,148 @@
+@trail-stroke: #e0e0e0;
+.ming {
+  &.Progress {
+    svg {
+      transform: rotate(-90deg);
+    }
+    display: inline-block;
+    // 主题
+    &--primary {
+      .Progress--circle-trail {
+        stroke: @trail-stroke;
+      }
+      .Progress--circle-path {
+        stroke: @themeColor3;
+      }
+      .Progress--circle-content {
+        color: @themeColor3;
+      }
+      .Progress--line-bg {
+        background-color: @themeColor3;
+      }
+    }
+    &--success {
+      .Progress--circle-trail {
+        stroke: @trail-stroke;
+      }
+      .Progress--circle-path {
+        stroke: @successColor;
+      }
+      .Progress--circle-content {
+        color: @successColor;
+      }
+      .Progress--line-bg {
+        background-color: @successColor;
+      }
+    }
+    &--warning {
+      .Progress--circle-trail {
+        stroke: @trail-stroke;
+      }
+      .Progress--circle-path {
+        stroke: #ffc134;
+      }
+      .Progress--circle-content {
+        color: #ffc134;
+      }
+      .Progress--line-bg {
+        background-color: #ffc134;
+      }
+    }
+    &--danger {
+      .Progress--circle-trail {
+        stroke: @trail-stroke;
+      }
+      .Progress--circle-path {
+        stroke: @dangerColor;
+      }
+      .Progress--circle-content {
+        color: @dangerColor;
+      }
+      .Progress--line-bg {
+        background-color: @dangerColor;
+      }
+    }
+  }
+}
+
+.Progress--circle {
+  &-zero {
+    color: #9e9e9e;
+  }
+  &-inner {
+    text-align: center;
+    display: inline-block;
+    position: relative;
+  }
+  &-content {
+    display: inline-block;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
+}
+.Progress--line {
+  width: 100%;
+  position: relative;
+  &-outer {
+    display: inline-block;
+    width: 100%;
+  }
+  &-inner {
+    width: 100%;
+    display: inline-block;
+    border-radius: 100px;
+    height: 8px;
+    line-height: 8px;
+    background-color: #e0e0e0;
+  }
+  &-bg {
+    display: inline-block;
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    height: 8px;
+    line-height: 8px;
+  }
+}
+
+@keyframes 'progressStripes' {
+  0% {
+    background-position: 0 0;
+    background-image: linear-gradient(
+      -45deg,
+      hsla(0, 0%, 100%, 0.15) 25%,
+      transparent 0,
+      transparent 50%,
+      hsla(0, 0%, 100%, 0.15) 0,
+      hsla(0, 0%, 100%, 0.15) 75%,
+      transparent 0,
+      transparent
+    );
+    background-size: 40px 40px;
+  }
+  to {
+    background-position: 40px 0;
+    background-image: linear-gradient(
+      -45deg,
+      hsla(0, 0%, 100%, 0.15) 25%,
+      transparent 0,
+      transparent 50%,
+      hsla(0, 0%, 100%, 0.15) 0,
+      hsla(0, 0%, 100%, 0.15) 75%,
+      transparent 0,
+      transparent
+    );
+    background-size: 40px 40px;
+  }
+}
+.Progress--line.Progress--active {
+  .Progress--line-bg {
+    animation: 'progressStripes' 2s linear infinite;
+  }
+}

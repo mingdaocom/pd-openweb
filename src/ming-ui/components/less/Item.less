@@ -1,0 +1,55 @@
+﻿.ming.Item {
+  cursor: pointer;
+  height: 36px;
+  line-height: 36px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  width: 100%;
+
+  .Item-content {
+    display: block;
+    position: relative;
+    padding: 0 16px;
+    color: currentColor;
+
+    .disabled {
+      cursor: not-allowed;
+    }
+    .icon {
+      color: #9e9e9e;
+    }
+    &:not(.disabled):hover {
+      text-decoration: none;
+      color: white !important;
+      background-color: @themeHoverBgColor7;
+      .icon {
+        color: white;
+      }
+      a {
+        color: white;
+      }
+    }
+
+    .Icon {
+      font-size: 14px;
+      line-height: 36px;
+      left: 10px;
+      position: absolute;
+    }
+
+    span {
+      div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  &.iconAtEnd {
+    .Item-content .Icon {
+      left: auto;
+      right: 10px;
+    }
+  }
+}

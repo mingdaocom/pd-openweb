@@ -1,0 +1,26 @@
+.mdLeftNavSearch {
+  box-sizing: border-box;
+  height: 38px;
+  width: 220px;
+  margin: 6px auto;
+  border-radius: 5px;
+  line-height: 38px;
+  border-bottom: 1px solid #fff;
+}
+
+.mdLeftNavSearch .btnSearch {
+  display: inline-block;
+  font-size: 20px;
+  margin: 9px;
+  cursor: pointer;
+  position: absolute;
+}
+.mdLeftNavSearch .searchBox {
+  width: 174px;
+  height: 25px;
+  line-height: 25px;
+  border: 0;
+  background-color: transparent;
+  padding-left: 40px;
+  padding-right: 5px;
+}

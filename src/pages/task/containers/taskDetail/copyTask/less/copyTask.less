@@ -1,0 +1,108 @@
+﻿#copyTask {
+  #copyOperation,
+  .copyTitleBox {
+    font-size: 13px;
+    position: relative;
+  }
+  hr {
+    margin: 20px 0 -1px 65px;
+    border: 0;
+    border-top: 1px solid #e5e5e5;
+  }
+  .copyTip {
+    color: #9e9e9e !important;
+    font-size: 16px !important;
+    margin-top: -3px;
+  }
+  .copyTitle {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    color: #aaa;
+  }
+  #copyOperation ul,
+  .copyTitleBox {
+    padding: 9px 0 0 65px;
+  }
+  #copyOperation li {
+    position: relative;
+    width: 50%;
+    margin-top: 8px;
+    padding: 3px 0;
+    display: inline-block;
+    .noClick {
+      cursor: default;
+      opacity: 0.5;
+    }
+  }
+  #copyOperation .checkOperation {
+    font-size: 13px;
+    display: inline-block;
+    vertical-align: top;
+    color: #333;
+    cursor: pointer;
+    .operationCheckbox {
+      font-size: 12px;
+      border-radius: 2px;
+      color: #fff;
+      margin-right: 8px;
+      border-width: 1px;
+      border-style: solid;
+      margin-top: 2px;
+      display: inline-block;
+      vertical-align: top;
+    }
+    &:not(.checked) {
+      .operationCheckbox {
+        border-color: #ccc !important;
+        background: #fff !important;
+      }
+    }
+  }
+  .copyTitleBox {
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .copyTitleBox #copyTaskName {
+    font-size: 15px;
+    line-height: 36px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 36px;
+    padding: 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 5px;
+    &:not(:focus):not(:hover) {
+      border-color: #e5e5e5 !important;
+    }
+  }
+  .copyDesc {
+    font-size: 13px;
+    color: #757575;
+  }
+  .copyTitleBox {
+    padding-top: 15px;
+  }
+  .copyTitleBox .copyTitle {
+    top: 22px !important;
+  }
+  .chargeUserBox {
+    position: absolute;
+    top: -5px;
+    right: 0;
+  }
+  .chargeUserBox .chargeAvatar {
+    width: 28px;
+    height: 28px;
+    vertical-align: top;
+  }
+  .chargeUserBox .icon-task-folder-charge {
+    font-size: 28px;
+    margin-left: 5px;
+    color: #dfdfdf;
+  }
+  .chargeUserBox .icon-task-folder-charge:hover {
+    color: #ccc;
+  }
+}

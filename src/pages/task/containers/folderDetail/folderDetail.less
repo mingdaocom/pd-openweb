@@ -1,0 +1,250 @@
+﻿.folderDetailWrapper {
+  width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+  .folderDesc,
+  .folderDetailMembers,
+  .folderComment,
+  .folderDetailTabList {
+    background-color: #fff;
+    -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  }
+  .descTitle {
+    font-size: 14px;
+    line-height: 46px;
+    height: 46px;
+    border-bottom: 1px solid #e0e0e0;
+    .projectDetail {
+      flex-shrink: 0;
+    }
+  }
+  .descContainer {
+    .folderDetailDesc.mdEditor,
+    .mdEditorFooter {
+      padding-left: 15px;
+      padding-right: 15px;
+      box-sizing: border-box;
+    }
+    .mdEditorContent,
+    .editorNull {
+      min-height: 120px;
+    }
+    .editorNull {
+      padding: 15px 0;
+    }
+  }
+  .folderDetailTabList {
+    padding-bottom: 50px;
+    margin-bottom: 20px;
+  }
+  .folderDetailTab {
+    overflow: hidden;
+    padding-left: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 12px;
+    .commItem {
+      line-height: 46px;
+      float: left;
+      height: 43px;
+      padding: 0 12px;
+      text-align: center;
+      cursor: pointer;
+      margin-right: 20px;
+      transition: border-color 0.3s ease-out;
+      border-bottom: 3px solid transparent;
+      &:not(:hover):not(.active) {
+        color: #aaa !important;
+        border-color: transparent !important;
+      }
+    }
+    .isOnlyLook {
+      position: absolute !important;
+      top: 14px;
+      right: 25px;
+      color: #aaa;
+      cursor: pointer;
+      .operationCheckbox {
+        font-size: 12px;
+        border-radius: 2px;
+        color: #fff;
+        margin-right: 8px;
+        border-width: 1px;
+        border-style: solid;
+        margin-top: 1px;
+        display: inline-block;
+        vertical-align: top;
+      }
+      &:not(.checked) {
+        .operationCheckbox {
+          border-color: #ccc !important;
+          background: #fff !important;
+        }
+      }
+    }
+  }
+  .folderDetailList {
+    .commentList {
+      padding: 0 20px;
+    }
+    .folderDetailNoTalk {
+      color: #bdbdbd;
+      background: url("./images/noTalk.jpg") no-repeat center 50px;
+      text-align: center;
+      padding-top: 160px;
+      padding-bottom: 30px;
+      background-size: 93px 86px;
+    }
+    .projectLogs {
+      padding: 0 155px 15px 45px;
+      color: #999;
+      position: relative;
+      word-break: break-all;
+      .logsTime {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        color: #aaa;
+      }
+      .logsType {
+        font-size: 16px;
+        position: absolute;
+        top: 0;
+        left: 20px;
+        display: inline-block;
+        vertical-align: top;
+        color: #ccc;
+        a {
+          text-decoration: none;
+          color: #0091ea;
+          &:hover {
+            color: #007ae1;
+          }
+        }
+      }
+    }
+  }
+  .folderDetailMembers {
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    .folderDetailHead {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 16px;
+      .icon-help {
+        opacity: 0.4;
+        margin: 0 6px;
+      }
+      a {
+        font-size: 12px;
+        text-decoration: none;
+      }
+    }
+    .folderDetailDesc {
+      font-size: 14px;
+      opacity: 0.4;
+      margin-top: 4px;
+    }
+    .folderDetailMemberList {
+      margin-top: 6px;
+      padding-left: 58px;
+      box-sizing: border-box;
+      width: 100%;
+      font-size: 14px;
+      li {
+        position: relative;
+        min-height: 36px;
+        margin-bottom: 10px;
+      }
+      .folderDetailMemberLabel {
+        position: absolute;
+        top: 0;
+        left: -58px;
+        height: 28px;
+        line-height: 28px;
+        .icon-help {
+          opacity: 0.4;
+        }
+      }
+      .folderMemberList {
+        display: inline-block!important;
+        height: 28px;
+        width: 28px;
+        margin-right: 6px;
+        margin-bottom: 10px;
+        vertical-align: top;
+        cursor: pointer;
+        position: relative;
+        .applyBox {
+          display: inline-block;
+          height: 28px;
+          width: 28px;
+          background-image: url("./images/applyMember.png");
+          background-size: 28px;
+          pointer-events: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+      .icon-task-add-member-circle {
+        &:not(:hover) {
+          opacity: 0.4;
+          color: #333 !important;
+        }
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+    }
+    .folderDetailLine {
+      font-size: 0;
+      height: 1px;
+      width: 100%;
+      background: #e4e4e4;
+    }
+    .folderDetailRange {
+      margin-top: 16px;
+      display: flex;
+      font-size: 13px;
+      .folderDetailRangeLabel {
+        i {
+          opacity: 0.4;
+          display: inline-block;
+          vertical-align: top;
+          margin-top: 2px;
+        }
+      }
+      .folderDetailRanges {
+        flex: 1;
+        margin-left: 5px;
+      }
+      .bold {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.folderDetailOpBtn {
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  &:not(:hover) {
+    color: #333 !important;
+  }
+  &:not(.fixWidth) {
+    flex: 1;
+  }
+  &.fixWidth {
+    width: 60px;
+  }
+  &.borderRight {
+    border-right: 1px solid #ccc;
+  }
+}
+
+#updateFolderCharge .yesText {
+  background: #f44336 !important;
+}

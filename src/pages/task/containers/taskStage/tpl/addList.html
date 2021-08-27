@@ -1,0 +1,5 @@
+﻿{{ var statusObj; }}
+{{~it:task}}
+  {{ statusObj=it.formatStatus(task.status,task.locked,task.auth);}}
+    #include.nodeLiComm 
+{{~}}

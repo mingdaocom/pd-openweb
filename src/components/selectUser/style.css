@@ -1,0 +1,349 @@
+﻿.dialogSelectUserBox {
+  background-color: white;
+}
+
+/*Tab切换你*/
+.dialogSelectUserBox .userArea .keywordsYellow {
+  background-color: #ffcc66;
+}
+
+.dialogSelectUserBox .userArea .opTypes ul {
+  height: 40px;
+  text-align: center;
+}
+
+.dialogSelectUserBox .userArea .opTypes ul li {
+  display: inline-block;
+  height: 39px;
+  line-height: 39px;
+  padding: 0px 10px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #989898;
+  font-size: 12px;
+}
+
+.dialogSelectUserBox .userArea .opTypes ul li:not(:last-child) {
+  margin-right: 30px;
+}
+
+.dialogSelectUserBox .userArea .opTypes li.on {
+  border-bottom: 3px solid;
+}
+
+.dialogSelectUserBox .opTypes {
+  border-bottom: 1px solid #eee;
+  height: 43px;
+  position: relative;
+}
+
+/*搜索*/
+.dialogSelectUserBox .searchArea {
+  height: 40px;
+  line-height: 40px;
+  position: absolute;
+  top: 1px;
+  left: 5px;
+  cursor: pointer;
+}
+
+.dialogSelectUserBox .searchIcon {
+  font-size: 16px;
+  display: inline-block;
+  color: #999;
+  float: left;
+  margin-right: 7px;
+  line-height: normal;
+  margin-top: 12px;
+}
+
+.dialogSelectUserBox .searchIcon:hover {
+  color: #666;
+}
+
+.dialogSelectUserBox .searchArea .txt {
+  border: 0px;
+  height: 28px;
+  width: 424px;
+  color: #999;
+  font-size: 12px;
+  float: left;
+  display: none;
+  padding: 7px 0px;
+}
+
+.dialogSelectUserBox .closeIcon {
+  position: absolute;
+  right: 10px;
+  top: 14px;
+  width: 16px;
+  background-color: #bdbdbd;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+}
+
+.dialogSelectUserBox .closeIcon:hover {
+  background-color: #999;
+}
+
+/* a-z */
+.dialogSelectUserBox .filterBox {
+  height: 16px;
+  line-height: 16px;
+  margin: 5px 10px;
+}
+
+.dialogSelectUserBox .filterBox > li {
+  color: #757575;
+  flex: 1 0 auto;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dialogSelectUserBox .userArea .list {
+  overflow-y: auto;
+  margin-top: 10px;
+  height: 313px;
+}
+
+/*用户记录*/
+.dialogSelectUserBox .userArea .list .searchItem {
+  height: 36px;
+  line-height: 36px;
+  vertical-align: middle;
+  padding-left: 5px;
+  padding-right: 20px;
+  margin: 4px 0px;
+  cursor: pointer;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem:hover {
+  background-color: #b9e0ff;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem img {
+  height: 32px;
+  width: 32px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .cbContainer {
+  float: left;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .avatar {
+  float: left;
+  cursor: pointer;
+  margin-top: 2px;
+  margin-right: 12px;
+  margin-left: 1px;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .avatar img {
+  display: block;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .fullname,
+.dialogSelectUserBox .userArea .list .searchItem .department {
+  float: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .fullname {
+  width: 130px;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .department {
+  width: 160px;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .addItem {
+  float: right;
+  width: 30px;
+  display: none;
+}
+
+.dialogSelectUserBox .userArea .list .searchItem .job {
+  width: 120px;
+  float: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+  color: #999;
+}
+
+.dialogSelectUserBox .userArea .list .oftenSplitLine {
+  margin-left: 10px;
+  color: #999;
+}
+
+.dialogSelectUserBox .userArea .list .item {
+  height: 30px;
+  line-height: 30px;
+  margin: 2px 0px;
+}
+
+.dialogSelectUserBox .userArea .list .item:hover {
+  background-color: #b9e0ff;
+}
+
+.dialogSelectUserBox .userArea .item .arrow {
+  display: inline-block;
+  width: 0px;
+  height: 0px;
+  border-width: 5px;
+  border-style: solid;
+  margin-right: 5px;
+}
+
+.dialogSelectUserBox .userArea .item .arrowRight {
+  border-color: transparent transparent transparent black;
+}
+
+.dialogSelectUserBox .userArea .item .arrowDown {
+  border-color: black transparent transparent transparent;
+  border-bottom-width: 2px;
+  margin-left: 4px;
+  margin-right: 6px;
+}
+
+.dialogSelectUserBox .userArea .list .item .itemLeft {
+  width: 370px;
+  float: left;
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/*群组名称列表*/
+.dialogSelectUserBox .userArea .list .item .groupSelection {
+  width: 250px;
+  text-indent: 5px;
+  cursor: pointer;
+}
+
+.dialogSelectUserBox .userArea .list .item .itemLeft .groupIcon {
+  padding: 0;
+  position: static;
+  top: inherit;
+  left: inherit;
+  width: 24px;
+  height: 24px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  vertical-align: top;
+  margin-top: 3px;
+  background: url('images/groupIcon.gif');
+  margin-right: 5px;
+}
+
+.dialogSelectUserBox .userArea .list .item .itemRight {
+  float: right;
+  cursor: pointer;
+  display: none;
+  margin-right: 10px;
+}
+
+.dialogSelectUserBox .userArea .list .subList .searchItem .fullname {
+  width: 110px;
+}
+
+.dialogSelectUserBox .cimmitArea {
+  margin-top: 10px;
+  text-align: right;
+  padding-right: 5px;
+  height: 40px;
+}
+
+.dialogSelectUserBox .cimmitArea .invateButton {
+  float: right;
+  height: 38px;
+  line-height: 38px;
+  min-width: 102px;
+  padding: 0 5px;
+  color: white;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 0;
+}
+
+.dialogSelectUserBox .invitedUserArea {
+  min-height: 37px;
+  padding-left: 10px;
+  max-height: 78px;
+  overflow-y: auto;
+  padding-top: 10px;
+}
+
+.dialogSelectUserBox .invitedUserArea .subItem {
+  float: left;
+  margin-right: 11px;
+  position: relative;
+}
+
+.dialogSelectUserBox .invitedUserArea .subItem .avatar img {
+  width: 32px;
+  height: 32px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.dialogSelectUserBox .invitedUserArea .subItem .remove {
+  position: absolute;
+  background-color: red;
+  border: 1px solid #fff;
+  width: 20px;
+  height: 20px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  color: white;
+  top: -7px;
+  left: 20px;
+  cursor: pointer;
+  line-height: 20px;
+  text-align: center;
+  font-size: 16px;
+  display: none;
+  font-weight: bold;
+}
+
+.dialogSelectUserBox .invitedUserArea .subItem:hover .remove {
+  display: block;
+}
+
+.dialogSelectUserBox .nullPersonTip {
+  background: no-repeat url(./images/nulltip.png) center 70px;
+  background-size: 85px;
+
+  padding-top: 185px;
+  color: #999;
+}
+
+.dialogSelectUserBox .nullPersonTip p {
+  margin: 0;
+}

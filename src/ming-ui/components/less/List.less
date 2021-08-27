@@ -1,0 +1,35 @@
+.ming.List {
+  user-select: none;
+  list-style-type: none;
+
+  .List-header {
+    padding: 5px 16px;
+    font-size: 12px;
+    line-height: 20px;
+
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .List-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .List-footer {
+    border-top: 1px solid #ccc;
+  }
+
+  &--withIconFront .Item .Item-content {
+    padding-left: 32px;
+  }
+
+  &--withIconEnd .Item .Item-content.iconAtEnd {
+    padding-right: 32px;
+  }
+
+  & .Dividor {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-top: 1px solid #eee;
+  }
+}

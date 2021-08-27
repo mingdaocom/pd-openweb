@@ -1,0 +1,151 @@
+@primary-color: #bdbdbd;
+@primary-bg: #fff;
+
+@node-vertical-gap: 10px; // 节点上下 间距
+@node-width: 240px; // 节点宽度
+@node-height: 80px; // 节点高度
+@node-border-color: @primary-color;
+@list-indent: 80px; // 列表缩进
+
+@line-color: #D3D3D3; // 连接线 颜色
+@line-horizontal-width: 40px; // 连接线 横向长度
+@line-vertical-height: @node-vertical-gap + @node-height / 2; // 连接线 垂直长度
+
+@toggle-button-size: 20px;
+
+// companyNode
+.rootNodeItem {
+  padding-bottom: 60px;
+  .childNodeList {
+    padding-left: 20px;
+  }
+  // 垫片
+  .rootNodeSheet {
+    margin-left: 20px;
+    height: 20px;
+    border-left: 1px solid @line-color;
+  }
+  .nodeItem:not(.last) {
+    border-left: 1px solid @line-color;
+  }
+}
+
+.nodeItem {
+  position: relative;
+  padding: @node-vertical-gap 0;
+  &:before {
+    position: absolute;
+    content: '';
+    display: inline-block;
+    border-bottom: 1px solid @line-color;
+    width: @line-horizontal-width;
+    top: @line-vertical-height;
+  }
+  &.last:after {
+    position: absolute;
+    content: '';
+    display: inline-block;
+    border-left: 1px solid @line-color;
+    left: 0;
+    height: @line-vertical-height;
+    top: 0;
+  }
+
+  .nodeItem.last.first:after {
+    height: @line-vertical-height + @node-vertical-gap;
+  }
+
+  .nodeItem:not(.last) {
+    border-left: 1px solid @line-color;
+  }
+
+  &.last {
+    padding-bottom: 0;
+  }
+
+  .childNodeList {
+    padding-left: @list-indent;
+    > .nodeItem.first {
+      padding-top: 2 * @node-vertical-gap;
+      &:before {
+        top: @node-vertical-gap + @line-vertical-height;
+      }
+      > .toggleButton {
+        top: @node-height / 2 - @toggle-button-size / 2 + 2 * @node-vertical-gap;
+      }
+    }
+  }
+
+  .node {
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 1px 3px;
+    border-radius: 3px;
+    margin-left: @line-horizontal-width;
+    width: @node-width;
+    height: @node-height;
+    &.disabled {
+      .userItem {
+        opacity: .5;
+      }
+    }
+  }
+
+  .circle (@border-type: solid) {
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    border: 1px @border-type @primary-color;
+    text-align: center;
+    border-radius: 50%;
+    width: @toggle-button-size;
+    line-height: @toggle-button-size - 2;
+    color: @primary-color;
+    background-color: @primary-bg;
+  }
+
+  .toggleButton {
+    .circle();
+    left: -(@toggle-button-size / 2);
+    top: @node-height / 2 - @toggle-button-size / 2 + @node-vertical-gap;
+  }
+
+  .itemOperator {
+    .circle();
+    right: 4px;
+    top: @node-height / 2 - @toggle-button-size / 2;
+    font-size: 16px;
+  }
+
+  .opList {
+    display: none;
+  }
+
+  .nodeWrapper:hover {
+    .opList {
+      display: block;
+    }
+  }
+
+  .itemOpList {
+    @width: 150px;
+    width: @width;
+    position: absolute;
+    z-index: 1;
+    background: #fff;
+    box-shadow: 0px 2px 5px 3px #ddd;
+    border-radius: 2px;
+    line-height: 30px;
+    padding: 6px 0;
+    right: -@width;
+    top: @node-height / 2 - @toggle-button-size / 2;
+    li {
+      padding: 0px 10px;
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+﻿{{? !it.isExists }}
+<div class="listStageTaskContent">
+    <table cellpadding="0" cellspacing="0">
+{{?}}
+{{ var statusObj= {auth:1, style:'', tip: _l('标记完成') }, type = it.type!==undefined ? it.type : 0; }}
+
+{{~ [it.task]:task:index}}
+#include.nodeCommTr
+{{~}}
+{{? !it.isExists }}
+    </table>
+</div>
+{{?}}

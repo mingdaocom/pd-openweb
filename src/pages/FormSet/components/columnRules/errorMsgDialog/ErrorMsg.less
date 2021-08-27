@@ -1,0 +1,24 @@
+.ruleErrorDialog {
+  .ruleFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 50px;
+    font-size: 14px;
+    button {
+      &:first-child {
+        margin-right: 50px;
+      }
+      &:last-child {
+        width: 92px;
+        height: 36px;
+        text-align: center;
+        line-height: 34px;
+      }
+      &.disabled {
+        background: #BDBDBD;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

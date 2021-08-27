@@ -1,0 +1,57 @@
+.Amap {
+  &.Amap-align-right {
+    .Amap-input {
+      left: auto;
+      right: 16px;
+    }
+  }
+  position: relative;
+  &-input {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    padding: 0 100px 0 20px;
+    position: absolute;
+    z-index: 99;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 0 10px #c5b7b7;
+    input {
+      width: 100%;
+      border: none !important;
+    }
+    .Amap-autocomplete-list {
+      width: 190px;
+    }
+  }
+  &-input-search {
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    &-icon {
+      font-size: 20px;
+      cursor: pointer;
+    }
+  }
+  &-autocomplete-list {
+    max-height: 200px;
+    overflow: scroll;
+  }
+  .MenuItem .Item-content {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .Amap-topRightElement {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    z-index: 99;
+  }
+}

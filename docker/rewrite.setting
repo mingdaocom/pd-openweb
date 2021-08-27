@@ -1,0 +1,89 @@
+# 静态文件
+rewrite ^/favicon.png /staticfiles/favicon.png break;
+rewrite ^/(favicon.*) /staticfiles/$1 break;
+rewrite ^/robots.txt /staticfiles/robots.txt break;
+rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
+rewrite ^/src/library/(.*) /staticfiles/library/$1 break;
+rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
+rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
+rewrite ^/images/(.*) /staticfiles/images/$1 break;
+rewrite ^/m/css/(.*) /staticfiles/m/css/$1 break;
+rewrite ^/m/images/(.*) /staticfiles/m/images/$1 break;
+rewrite ^/src/components/(.*) /staticfiles/components/$1 break;
+rewrite ^/src/pages/(.*) /staticfiles/components/$1 break;
+rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
+
+# 纯静态页面
+rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
+rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
+
+# 主站 独立入口
+rewrite (?i)^/apps/kcshare/ /kcshare.html break;
+rewrite (?i)^/apps/kcsharelocal /kcshare.html break;
+rewrite (?i)^/apps/kcsharefolder/ /kcsharefolder.html break;
+rewrite (?i)^/mobileChart /mobileChart.html break;
+rewrite (?i)^/mobile /mobile.html break;
+rewrite (?i)^/form/edit /customwidget.html break;
+rewrite (?i)^/worksheetshare /worksheetshare.html break;
+rewrite (?i)^/public/query /worksheetshare.html break;
+rewrite (?i)^/printshare /worksheetshare.html break;
+rewrite (?i)^/form/ /publicworksheet.html break;
+rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
+rewrite (?i)^/recordshare /recordshare.html break;
+rewrite (?i)^/m/detail/calendar /calendar-share.html break;
+
+# 企业微信落地
+rewrite (?i)^/workweixin /workWeixin.html break;
+
+rewrite ^/$ /login.html break;
+rewrite (?i)^/login /login.html break;
+rewrite (?i)^/logout /logout.html break;
+rewrite (?i)^/network /login.html break;
+rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
+rewrite (?i)^/twofactor /twofactor.html break;
+rewrite (?i)^/register /register.html break;
+rewrite (?i)^/enterpriseregister /register.html break;
+rewrite (?i)^/linkInvite /register.html break;
+rewrite (?i)^/join /register.html break;
+rewrite (?i)^/findPassword /findpassword.html break;
+rewrite (?i)^/emailvalidate /emailvalidate.html break;
+rewrite (?i)^/successjoin /account-register-successjoin.html break;
+rewrite (?i)^/resetPassword /resetPassword.html break;
+rewrite (?i)^/privateImageInstall /privateImageInstall.html break;
+
+# auth
+rewrite (?i)^/tpauth /account-login-tpauth.html break;
+rewrite (?i)^/workwx /account-login-workwxAuth.html break;
+rewrite (?i)^/wxwork /wxwork.html break;
+rewrite (?i)^/auth/workwx /auth-workwx.html break;
+rewrite (?i)^/auth/welink /auth-welink.html break;
+rewrite (?i)^/auth/feishu /auth-feishu.html break;
+rewrite (?i)^/sso/dingding  /sso-dingding.html break;
+rewrite (?i)^/sso/sso  /sso-sso.html break;
+rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
+
+# 主站
+rewrite (?i)^/custom /index.html break;
+rewrite (?i)^/app /index.html break;
+rewrite (?i)^/custom /index.html break;
+rewrite (?i)^/feed /index.html break;
+rewrite (?i)^/hr /index.html break;
+rewrite (?i)^/personal /index.html break;
+rewrite (?i)^/privateDeployment /index.html break;
+rewrite (?i)^/admin /index.html break;
+rewrite (?i)^/user_ /index.html break;
+rewrite (?i)^/group/groupValidate /index.html break;
+rewrite (?i)^/worksheet/ /index.html break;
+rewrite (?i)^/print /index.html break;
+rewrite (?i)^/workflowedit /index.html break;
+rewrite (?i)^/dingAppCourse /index.html break;
+rewrite (?i)^/weixinAppCourse /index.html break;
+rewrite (?i)^/dingSyncCourse /index.html break;
+rewrite (?i)^/wxappSyncCourse /index.html break;
+rewrite (?i)^/welinkSyncCourse /index.html break;
+rewrite (?i)^/feishuSyncCourse /index.html break;
+rewrite (?i)^/search /index.html break;
+rewrite (?i)^/chat /index.html break;
+rewrite (?i)^/chat_window /index.html break;
+rewrite (?i)^/workflow /index.html break;
+rewrite (?i)^/myprocess /index.html break;

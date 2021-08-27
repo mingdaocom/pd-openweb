@@ -1,0 +1,26 @@
+﻿# ignore macOS DS_Store files
+.DS_Store
+#ignore thumbnails created by windows
+Thumbs.db
+
+*.orig
+*.BASE
+*.LOCAL
+*.REMOTE
+*~HEAD
+*.min.css
+*.less.js
+build
+node_modules
+node_modules/*
+**/node_modules/*
+.happypack/
+.cache-loader/
+
+**/.vscode/**
+*.vscode
+
+# Use yarn
+package-lock.json
+
+.scannerwork

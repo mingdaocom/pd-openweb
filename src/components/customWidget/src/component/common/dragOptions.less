@@ -1,0 +1,48 @@
+.commonCustomWidget {
+  .dragOptions {
+    display: inline-block;
+    flex: 1;
+    vertical-align: top;
+  }
+  .dragItem {
+    position: relative;
+    padding: 4px 0;
+    padding-left: 40px;
+    input[type="text"].dragInput {
+      border-width: 0 0 1px 0;
+      border-radius: 0;
+      box-sizing: border-box;
+      width: 320px;
+      margin-right: 40px;
+      padding-right: 60px;
+    }
+    .activeShow {
+      display: none;
+    }
+    &:hover {
+      .activeShow {
+        display: block;
+      }
+    }
+    .optionHandle {
+      position: absolute;
+      height: 20px;
+      padding-top: 6px;
+      top: 0;
+      right: 55px;
+      & > span {
+        display: inline-block;
+        height: 20px;
+        vertical-align: middle;
+      }
+      & > label {
+        display: inline-block;
+        width: auto;
+        vertical-align: top;
+      }
+      .rCheckbox {
+        margin-right: 8px;
+      }
+    }
+  }
+}

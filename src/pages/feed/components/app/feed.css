@@ -1,0 +1,52 @@
+﻿.AppFeed body {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.AppFeed #container {
+  width: 1px;
+  /*max-width: 100%;*/
+  height: 100%;
+  /*position: absolute;*/
+}
+#container.newUI2 #main {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+.feedApp {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.feedContainer {
+  vertical-align: top;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 20px;
+  border-left: 250px solid transparent;
+  position: relative;
+}
+.contentLeft {
+  margin: 0 auto;
+  padding: 0 16px;
+  width: 800px;
+}
+.feedContainerMain {
+  width: 800px;
+  margin: 0 auto;
+}
+.widgetContainer {
+  vertical-align: top;
+  margin-left: -260px;
+  position: relative;
+}
+.feedRight img {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+}
+.feedLeftNavGlass {
+  filter: blur(10px) saturate(1.5);
+  -webkit-filter: blur(10px) saturate(1.5);
+}

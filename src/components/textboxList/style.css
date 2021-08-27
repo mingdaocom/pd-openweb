@@ -1,0 +1,223 @@
+﻿.textboxlist {
+  position: relative;
+  font: 11px 'Lucida Grande', Verdana;
+  cursor: text;
+}
+.textboxlist-bits {
+  zoom: 1;
+  overflow: hidden;
+  margin: 0;
+  padding: 3px 4px 0;
+  *padding-bottom: 3px;
+}
+.textboxlist-bits-focus {
+  border: 1px solid #d5d5d5;
+}
+.textboxlist-bit {
+  list-style-type: none;
+  float: left;
+  display: block;
+  padding: 0;
+  margin: 0 5px 3px 0;
+  cursor: default;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.textboxlist-bit-editable {
+  border: 0px solid #fff;
+}
+.textboxlist-bit-editable-input {
+  visibility: hidden;
+  border: 0px;
+  padding: 2px 0;
+  *padding-bottom: 0;
+  height: 14px;
+  font-size: 11px;
+}
+.textboxlist-bit-editable-input:focus {
+  outline: 0;
+}
+.textboxlist-bit-editable-focus input {
+  visibility: visible;
+}
+.textboxlist-bit-editable-addtag {
+  cursor: pointer;
+  display: inline-block;
+  color: #36c;
+  vertical-align: middle;
+  padding: 2px 0px 2px 5px;
+  *padding-bottom: 0px;
+  line-height: 18px;
+}
+.textboxlist-bit-box {
+  position: relative;
+  line-height: 20px;
+  padding: 0 5px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  cursor: default;
+}
+.textboxlist-bit-box a,
+.textboxlist-bit-box a:hover {
+  text-decoration: none;
+}
+.textboxlist-bit-box-deletable {
+  padding-right: 18px;
+}
+.textboxlist-bit-box-deletebutton {
+  position: absolute;
+  right: 5px;
+  top: 7px;
+  display: block;
+  width: 7px;
+  height: 7px;
+  font-size: 1px;
+  background: url('images/tbl_close.gif');
+}
+.textboxlist-bit-box-deletebutton:hover {
+  border: none;
+  background-position: 7px;
+  text-decoration: none;
+}
+.textboxlist-bit-box-hover {
+  border: 1px solid #ccc;
+}
+.textboxlist-bit-box-focus {
+  border-color: #598bec;
+  background: #598bec;
+  color: #fff;
+}
+.textboxlist-bit-box-focus .textboxlist-bit-box-deletebutton {
+  background-position: bottom;
+}
+
+.textboxlist-autocomplete {
+  position: absolute;
+  z-index: 2;
+}
+.textboxlist-autocomplete-placeholder {
+  border-right: #999 1px solid;
+  border-top: #999 1px;
+  display: none;
+  background: #eee;
+  filter: alpha(opacity=90);
+  border-left: #999 1px solid;
+  border-bottom: #999 1px solid;
+  opacity: 0.9;
+  webkit-box-shadow: 0 3px 3px #ccc;
+  moz-box-shadow: 0 3px 3px #ccc;
+  box-shadow: 0 3px 3px #ccc;
+}
+.textboxlist-autocomplete-results {
+  border-right: #999 1px solid;
+  border-top: #999 1px;
+  display: none;
+  background: #eee;
+  filter: alpha(opacity=90);
+  border-left: #999 1px solid;
+  border-bottom: #999 1px solid;
+  opacity: 0.9;
+  webkit-box-shadow: 0 3px 3px #ccc;
+  moz-box-shadow: 0 3px 3px #ccc;
+  box-shadow: 0 3px 3px #ccc;
+}
+.textboxlist-autocomplete-placeholder {
+  padding-right: 7px;
+  padding-left: 7px;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+.textboxlist-autocomplete-results {
+  padding-right: 0px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+  margin: 0px;
+  padding-top: 0px;
+}
+.textboxlist-autocomplete-result {
+  padding-right: 5px;
+  padding-left: 5px;
+  background: #eee;
+  padding-bottom: 5px;
+  margin: 0px;
+  padding-top: 5px;
+  list-style-type: none;
+}
+
+.textboxlist-autocomplete-unresult {
+  padding: 10px;
+  color: #999999;
+  background: #eee;
+  list-style-type: none;
+  cursor: default;
+}
+.textboxlist-autocomplete-resultItem {
+  padding-left: 20px;
+  padding-right: 5px;
+  background: #eee;
+  padding-bottom: 5px;
+  margin: 0px;
+  padding-top: 5px;
+  list-style-type: none;
+  box-sizing: border-bottom;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.textboxlist-autocomplete-result-focus {
+  background: #c6d9e4;
+}
+.textboxlist-autocomplete-highlight {
+  font-weight: bold;
+  background: #eef0c4;
+}
+
+.CreateTask .textboxlist-bits {
+  border: 1px solid #d5d5d5;
+}
+.CreateTask .textboxlist-autocomplete-placeholder,
+.CreateTask .textboxlist-autocomplete-results {
+  border: #d5d5d5 1px solid;
+}
+
+.textboxListRed {
+  border-color: #ffbebe !important;
+  background-color: #ffe8e8 !important;
+}
+.textboxListRedHover {
+  border-color: #ff9f9f !important;
+  background-color: #fcd1d2 !important;
+}
+.textboxListRedBG {
+  background-image: url('images/tbl_close_red.gif') !important;
+}
+.textboxlist .addCancelCon {
+  position: absolute;
+  right: -83px;
+  top: 4px;
+}
+.textboxlist .addCancelCon .add,
+.textboxlist .addCancelCon .cancel {
+  display: inline-block;
+  display: inline-block;
+  box-sizing: border-box;
+  text-align: center;
+  width: 34px;
+  height: 21px;
+  line-height: 21px;
+  color: #fff;
+  cursor: pointer;
+}
+.textboxlist .addCancelCon .cancel {
+  color: inherit;
+  border: 1px solid #ccc;
+  margin-left: 5px;
+  line-height: 19px;
+}

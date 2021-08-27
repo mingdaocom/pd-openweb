@@ -1,0 +1,142 @@
+
+.mobileWorksheetRecordCard {
+  display: flex;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 3px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
+
+  &.coverRight {
+    flex-direction: row-reverse;
+    .fill, .full {
+      border-left: 1px solid #eaeaea;
+      border-right: none;
+    }
+  }
+
+  .recordCardCover {
+    width: 90px;
+    .cover {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    &.circle, &.rectangle {
+      display: flex;
+      justify-content: center;
+      .img {
+        height: 70px;
+        margin-top: 10px;
+        border: 1px solid #eaeaea;
+      }
+      .withoutImg {
+        width: 70px;
+        justify-content: center;
+      }
+    }
+    &.circle .img {
+      border-radius: 50%;
+    }
+    &.rectangle .img {
+      border-radius: 5px;
+    }
+    &.fill, &.full {
+      border-right: 1px solid #eaeaea;
+      .withoutImg {
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+      }
+    }
+    &.full {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    &.appshowtype1.fill {
+      width: 40%;
+    }
+    .icon {
+      color: #d0d0d0;
+      transform: rotateZ(45deg);
+    }
+  }
+  .recordCardContent {
+    padding: 5px 12px;
+    width: 0;
+
+    .cellAttachments {
+      width: auto;
+    }
+    .cardContent0 {
+      display: flex;
+      align-items: center;
+      .controlWrapper {
+        width: 33%;
+        display: flex;
+        flex-direction: column;
+      }
+      .controlContent {
+        height: 30px;
+        display: flex;
+        align-items: center;
+      }
+      .cellAttachments .cellAttachment {
+        margin-bottom: 0;
+      }
+    }
+    .cardContent1 {
+      overflow: hidden;
+      .controlContent {
+        flex: 1;
+        overflow: hidden;
+      }
+      .controlWrapper {
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      .controlName {
+        margin-right: 10px;
+      }
+    }
+    .cardContent2 {
+      display: flex;
+      flex-wrap: wrap;
+      .controlWrapper {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        padding-right: 10px;
+      }
+    }
+  }
+
+  .controlContent {
+    white-space: nowrap;
+    .editableCellCon {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+    .linelimit {
+      display: inherit !important;
+    }
+  }
+  .emptyTag {
+    border-radius: 3px;
+    display: inline-block;
+    width: 12px;
+    height: 3px;
+    background-color: #ededed;
+  }
+  .am-checkbox, .am-checkbox-inner {
+    width: 19px;
+    height: 19px;
+  }
+}

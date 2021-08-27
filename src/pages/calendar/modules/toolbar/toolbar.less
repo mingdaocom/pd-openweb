@@ -1,0 +1,831 @@
+﻿.AppCalendar {
+  /*-edit color-*/
+  .editBox .shareCalendlar {
+    position: absolute;
+    top: 1px;
+    right: 30px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .editBox .shareCalendlar:not(:hover),
+  .editOpertion .icon-arrow-down-border:not(:hover),
+  #cerateUserOperator .icon-arrow-down-border:not(:hover) {
+    color: #666 !important;
+  }
+
+  .editBox .editBoxHeader {
+    width: 100%;
+    position: relative;
+  }
+
+  .editColorModel .editColorModel {
+    width: 30px;
+    position: relative;
+  }
+
+  .editColorModel .editColor {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    vertical-align: top;
+    margin: 3px 6px 0 0;
+  }
+
+  .calendarEdit .editColorModel .editColor {
+    margin-top: 2px;
+  }
+
+  .calendarEdit .editColorModel ul .selectIcon {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+  }
+
+  .editColorModel .calendarColorRed {
+    background: #f44336;
+  }
+
+  .editColorModel .calendarColorViolet {
+    background: #9c27b0;
+  }
+
+  .editColorModel .calendarColorBrown {
+    background: #795548;
+  }
+
+  .editColorModel .calendarColorOrange {
+    background: #ff9800;
+  }
+
+  .editColorModel .calendarColorBlue {
+    background: #1e88e5;
+  }
+
+  .editColorModel .calendarColorGreen {
+    background: #4caf50;
+  }
+
+  .editColorModel .calendarColorYellow {
+    background: #ffeb3b;
+  }
+
+  .editColorModel .calendarColorHide {
+    display: none;
+  }
+
+  .editColorModel .icon-arrow-down-border {
+    vertical-align: top;
+    display: inline-block;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /*---------------------------synchronous html---------------------------*/
+  .synchronousMain {
+    width: 600px;
+    text-align: left;
+    word-wrap: break-word;
+  }
+
+  .synchronousMain .synchronousMainFontSize20 {
+    font-size: 20px;
+  }
+
+  .synchronousMain .synchronousMainDescription {
+    font-size: 12px;
+    padding-top: 18px;
+  }
+
+  .synchronousMain .synchronousMainStyle {
+    vertical-align: bottom;
+    padding: 20px 0;
+  }
+
+  .synchronousMain .synchronousBtn1 {
+    position: relative;
+    width: 61px;
+    margin: 0 16px 0 3px;
+    float: left;
+  }
+
+  .synchronousMain .synchronousMargin {
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-top: 3px;
+  }
+
+  .clipboardswf {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .synchronousMain .synchronousBorder {
+    border-top: 1px #ccc solid;
+  }
+
+  .synchronousMain .synchronousPStyle1 {
+    color: #999;
+    line-height: 22px;
+  }
+
+  .synchronousMain #iCalAbout {
+    width: 596px;
+    border: 1px #ccc solid;
+  }
+
+  .synchronousMain .synchronousSelect {
+    width: 135px;
+    height: 28px;
+    vertical-align: middle;
+    padding-left: 15px;
+  }
+
+  .synchronousMain .synchronousLineHeight24 {
+    line-height: 24px;
+  }
+
+  #calendarInteraction.dialogBox .noHeader {
+    margin-right: 4px;
+  }
+
+  /*---------------------------ClassificationCalendar html------------------------------------*/
+  .classificationCalendarList ul {
+    margin-top: 5px;
+  }
+
+  .classificationCalendarList li {
+    margin-top: 10px;
+    margin-left: 22px;
+  }
+
+  .classificationCalendarList li:first-child {
+    margin-top: 0;
+  }
+
+  .classificationCalendarList .classificationListColumn {
+    float: left;
+    color: #999;
+    height: 32px;
+    line-height: 32px;
+    font-size: 14px;
+  }
+
+  .classificationCalendarList .classificationListColumnOperation {
+    float: left;
+    color: #000;
+    margin-left: 20px;
+    width: 410px;
+    position: relative;
+  }
+
+  .classificationCalendarList .classificationListColumnOperation .classificationListName {
+    height: 22px;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 5px 60px 5px 8px;
+    width: 343px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 2px;
+    box-sizing: initial;
+  }
+
+  .classificationCalendarList .classificationListColumnOperation .classificationListName:not(:hover):not(:focus) {
+    border: 1px solid #c3c3c3 !important;
+  }
+
+  .classificationCalendarList .classificationListColumnOperation .classificationListDropdown {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    cursor: pointer;
+    border-left: 1px solid #ccc;
+    padding: 7px 10px 5px 10px;
+  }
+
+  .classificationListDropdown .icon-arrow-down {
+    font-size: 16px;
+    color: #999;
+    vertical-align: top;
+    display: inline-block;
+  }
+
+  .colorBlockRed,
+  .colorBlockViolet,
+  .colorBlockBrown,
+  .colorBlockOrange,
+  .colorBlockBlue,
+  .colorBlockGreen,
+  .colorBlockYellow {
+    width: 16px;
+    height: 16px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .classificationListDropdown .iconDown {
+    width: 12px;
+    height: 1px;
+    display: inline-block;
+    position: relative;
+    color: #999;
+  }
+
+  .classificationListDropdown .iconDown:before {
+    position: absolute;
+    bottom: 1px;
+    left: 3px;
+  }
+
+  .colorBlockRed {
+    background: #f44336;
+  }
+
+  .colorBlockViolet {
+    background: #9c27b0;
+  }
+
+  .colorBlockBrown {
+    background: #795548;
+  }
+
+  .colorBlockOrange {
+    background: #ff9800;
+  }
+
+  .colorBlockBlue {
+    background: #1e88e5;
+  }
+
+  .colorBlockGreen {
+    background: #4caf50;
+  }
+
+  .colorBlockYellow {
+    background: #ffeb3b;
+  }
+
+  .classificationCalendarList .classificationListDel {
+    margin-left: 12px;
+    height: 34px;
+    line-height: 34px;
+    display: inline-block;
+    color: #ccc;
+    font-size: 18px;
+  }
+
+  .classificationCalendarList .classificationListDel:hover {
+    color: #999;
+    text-decoration: none;
+  }
+
+  .classificationCalendarListAdd {
+    margin-left: 69px;
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .classificationCalendarListAdd .iconAdd {
+    margin-top: -2px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .calendarTypeList > ul {
+    padding: 10px 0;
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .calendarMenu .calendarTypeList li {
+    font-size: 12px;
+    cursor: move;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 18px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    position: relative;
+  }
+
+  .calendarTypeList .iconTickM {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 4px;
+    height: 30px;
+    font-size: 0;
+  }
+
+  .calendarTypeList .iconTickM.iconTickRed {
+    background: #f44336;
+  }
+
+  .calendarTypeList .iconTickM.iconTickViolet {
+    background: #9c27b0;
+  }
+
+  .calendarTypeList .iconTickM.iconTickBrown {
+    background: #795548;
+  }
+
+  .calendarTypeList .iconTickM.iconTickOrange {
+    background: #ff9800;
+  }
+
+  .calendarTypeList .iconTickM.iconTickBlue {
+    background: #1e88e5;
+  }
+
+  .calendarTypeList .iconTickM.iconTickGreen {
+    background: #4caf50;
+  }
+
+  .calendarTypeList .iconTickM.iconTickYellow {
+    background: #ffeb3b;
+  }
+
+  .calendarTypeList .iconTickStyle {
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: top;
+    margin-top: 13px;
+    margin-right: 8px;
+  }
+
+  #workCalendar,
+  #privateCalendar,
+  #taskCalendar {
+    cursor: default;
+  }
+
+  #taskCalendar {
+    position: relative;
+    overflow: visible;
+  }
+
+  #filterTaskType {
+    cursor: pointer;
+  }
+
+  #filterTaskType .icon-arrow-down-border {
+    margin-left: 5px;
+    font-size: 12px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 14px;
+  }
+
+  .filterTaskTypeList {
+    z-index: 1;
+    border: 1px solid #e5e5e5;
+    position: absolute;
+    top: 35px;
+    left: 14px;
+    padding: 5px 0 10px;
+    background: #fff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    display: none;
+  }
+
+  .calendarMenu .filterTaskTypeList li {
+    margin-top: 5px;
+    cursor: pointer;
+    padding: 0;
+    color: #333;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    padding-right: 10px;
+  }
+
+  .calendarMenu .filterTaskTypeList li:hover {
+    color: #06c;
+  }
+
+  .filterTaskTypeList li .filterTaskTypeListIcon {
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px 10px 0 10px;
+    width: 9px;
+    font-size: 14px;
+  }
+
+  /*---------------------------addOtherUser html---------------------------*/
+  #tb_OtherUserCalendar .addOtherUser {
+    height: 40px;
+    line-height: 40px;
+    position: relative;
+    width: 100%;
+    padding: 0 18px;
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .addOtherUser .addOtherUserHeadImg {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 8px;
+  }
+
+  .addOtherUser span {
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    padding-left: 4px;
+  }
+
+  .addOtherUser .addOtherUserDelImg {
+    width: auto;
+    vertical-align: top;
+    margin: 3px 0 0 0;
+    display: inline-block;
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 14px;
+  }
+
+  .addOtherUser .addOtherUserDelImg:hover {
+    color: #fff;
+  }
+
+  #others {
+    cursor: pointer;
+  }
+
+  /*---------------------------colorBlock html------------------------------------*/
+  .colorBlockMain {
+    position: absolute;
+    left: -2px;
+    top: 32px;
+    display: none;
+    border: 1px solid #c0bebf;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    background: #fff;
+    padding: 3px 0;
+    z-index: 10000;
+  }
+
+  .colorBlockList {
+    height: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 20px;
+    cursor: pointer;
+    padding: 3px 8px 3px 8px;
+  }
+
+  .colorBlockList span {
+    vertical-align: top;
+    margin: 1px 3px 0 0;
+  }
+
+  .colorBlockList:hover {
+    background: #ccc;
+  }
+
+  /*  单个受邀日程  */
+  .calendarInvite > li {
+    border-bottom: 1px solid #ddd;
+    padding: 25px 0;
+  }
+
+  .calendarInvite > li:last-child {
+    border: 0;
+  }
+
+  .calendarInvite .inviteSinlge {
+    position: relative;
+  }
+
+  .calendarInvite .calendarColorModel {
+    padding-top: 0;
+  }
+
+  .inviteSinlge .inviteCalName {
+    font-size: 14px;
+    color: #000;
+    display: flex;
+  }
+
+  .inviteSinlge .calTime {
+    margin-top: 26px;
+  }
+
+  .inviteSinlge .inviteIcon {
+    font-size: 14px;
+    margin-right: 10px;
+    margin-top: 3px;
+    color: #999;
+  }
+
+  .inviteSinlge .btnBootstrapPadding {
+    padding: 5px 27px;
+  }
+
+  .inviteSinlge .operator {
+    margin-top: 40px;
+  }
+
+  .calMembers .participants {
+    float: left;
+  }
+
+  .inviteSinlge .userHead {
+    width: 24px;
+    height: 24px;
+  }
+
+  .inviteSinlge .memberBox {
+    margin-left: 20px;
+    width: 725px;
+  }
+
+  .inviteSinlge .memberBox .userHead {
+    margin-right: 4px;
+  }
+
+  .inviteSinlge .members {
+    margin-top: 16px;
+  }
+
+  .inviteSinlge .userStatus {
+    left: 13px;
+    top: 10px;
+  }
+
+  .inviteSinlge .enterInvite {
+    background: #3cbf2a;
+    color: #fff;
+  }
+
+  .inviteSinlge .enterInvite:hover {
+    background: #2a7e2d;
+  }
+
+  .inviteSinlge .refuseInvite {
+    background: #607d8b;
+    color: #fff;
+  }
+
+  .inviteSinlge .refuseInvite:hover {
+    background: #455a64;
+  }
+
+  .inviteSinlge .rightLabel {
+    font-size: 14px;
+    color: #333;
+    display: inline-block;
+    width: 710px;
+    word-break: break-all;
+    margin-left: 20px;
+  }
+
+  .inviteSinlge .calendarName {
+    line-height: 24px;
+  }
+
+  .inviteSinlge .calTime span {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  .inviteSinlge .calDesc .rightLabel,
+  .inviteSinlge .calAddress .rightLabel {
+    margin-top: -2px;
+    word-break: break-word;
+  }
+
+  .calendarInvite .wechatMemberTitle {
+    color: #ccc;
+    margin: 10px 0;
+    border-top: 1px solid #ccc;
+    width: 200px;
+    padding-top: 6px;
+  }
+
+  .calendarInvite .inviteCalendarType {
+    display: flex;
+    position: relative;
+    top: auto;
+    right: auto;
+    vertical-align: top;
+    margin-top: -2px;
+    padding-left: 10px;
+    margin-right: 13px;
+    width: 41px;
+    height: 24px;
+    line-height: 24px;
+    border: 1px solid #e3e3e3;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+  }
+
+  .calendarInvite .inviteCalendarType .editColor {
+    margin-top: 4px;
+  }
+
+  .calendarInvite .inviteCalendarType .selectIcon {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+  }
+
+  .calendarInvite .inviteCalendarType .icon-arrow-down-border {
+    margin: 6px 4px 0 0;
+    font-size: 10px;
+  }
+
+  .calendarInvite .inviteCalendarType .inviteCalendarTypeName {
+    width: 56px;
+    height: 24px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .calendarInvite .inviteCalendarTypeList {
+    border: 1px solid #e3e3e3;
+    position: absolute;
+    top: 25px;
+    z-index: 100;
+    left: -1px;
+    padding: 5px 0;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    display: none;
+  }
+
+  .calendarInvite .inviteCalendarType .inviteCalendarTypeList li {
+    padding: 0 10px;
+    padding-left: 20px;
+    width: 85px;
+    height: 24px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .calendarInvite .inviteCalendarTypeList li:hover {
+    background: #e3e3e3;
+  }
+
+  .calendarInvite .noData {
+    text-align: center;
+    color: #ccc;
+    font-size: 18px;
+    padding-top: 50px;
+    border-bottom: 0;
+    width: 100%;
+  }
+
+  .calendarInvite .repeatDesc label {
+    margin-left: 6px;
+  }
+
+  .calendarInvite .checkboxIcon {
+    position: relative;
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+    margin-right: 9px;
+  }
+
+  .calendarInvite .checkboxIcon:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: 5px;
+    width: 3px;
+    height: 8px;
+    border: 1px solid transparent;
+    border-top-width: 0;
+    border-left-width: 0;
+    z-index: 1;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  .calendarInvite .checkboxIcon:after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0px;
+    display: block;
+    width: 11px;
+    height: 11px;
+    border: 1px solid #999;
+    border-radius: 2px;
+    -webkit-transition: 240ms;
+    -o-transition: 240ms;
+    -ms-transform: 240ms;
+    -moz-transform: 240ms;
+    transition: 240ms;
+  }
+
+  .calendarInvite .checkboxIcon.checked:before {
+    border-color: #999;
+  }
+
+  /*    拒绝弹层    */
+  #refuserBox {
+    width: 470px;
+    margin-top: 5px;
+  }
+
+  #inviteDirectMessages .resuserTitle {
+    font-size: 18px;
+  }
+
+  #refuserstd {
+    font-size: 12px;
+    padding-left: 20px;
+  }
+
+  #radtimeClash,
+  #radNotPart,
+  #radNotReason,
+  #radOther {
+    margin-right: 9px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 5px;
+  }
+
+  #refuserstd .radtimeClashLbl,
+  #refuserstd .radNotPartLbl,
+  #refuserstd .radNotReasonLbl,
+  #refuserstd .radOtherLbl {
+    font-size: 14px;
+    margin-right: 15px;
+  }
+
+  #txtrefuseReason {
+    width: 396px;
+    height: 70px;
+    margin-top: 14px;
+    font-size: 16px;
+    color: #000;
+    display: none;
+    resize: none;
+  }
+
+  #refuserBox .refuseOpTd {
+    text-align: center;
+    height: 62px;
+    vertical-align: middle;
+  }
+
+  #refuserBox .txtrefuseBox {
+    padding-left: 32px;
+  }
+
+  #refuserCalendar {
+    padding: 5px 29px;
+    color: white;
+    background: #0062cc;
+    cursor: pointer;
+  }
+
+  #inviteDirectMessages .dialogContent {
+    margin-left: 0;
+  }
+
+  #inviteDirectMessages .footer {
+    text-align: center;
+  }
+}

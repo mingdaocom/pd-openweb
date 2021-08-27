@@ -1,0 +1,472 @@
+﻿#createFolderBox {
+  margin: 0;
+}
+
+.folderName .folderNameText {
+  vertical-align: top;
+  line-height: 38px;
+  margin-right: 10px;
+}
+
+.folderName .spFolderName {
+  display: inline-block;
+  height: 35px;
+  vertical-align: top;
+  line-height: 38px;
+  width: 300px;
+}
+
+.folderName .txtFolderName {
+  border: 1px #ccc solid;
+  height: 35px;
+  width: 325px;
+  padding-left: 5px;
+}
+
+#createFolderBox .folderCharge {
+  margin-top: 16px;
+}
+
+.folderCharge .folderChargeText {
+  display: inline-block;
+  margin: 5px 22px 0px 0px;
+}
+
+.kcDialogBox .folderMembers .folderMemberBox {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+#createFolderBox .folderMemberBox .nanoCon {
+  overflow: hidden;
+}
+
+#createFolderBox .folderMemberBox .nanoCon.nano {
+  height: 300px;
+}
+
+#createFolderBox .folderMemberBox .memberList {
+  /*overflow: hidden;
+  overflow-y: auto;*/
+  max-height: 300px;
+}
+
+.kcDialogBox .folderMemberBox ul li {
+  height: 44px;
+  vertical-align: middle;
+  font-size: 0;
+}
+
+.kcDialogBox  .folderMemberBox ul li span {
+    display: inline-block;
+    font-size: 14px;
+    height: 40px;
+    line-height: 40px;
+    /*vertical-align: middle;*/
+  }
+
+.kcDialogBox .folderMemberBox .imgMemberBox {
+  margin-right: 30px;
+  cursor: pointer;
+}
+
+.kcDialogBox .folderMemberBox .memberItem .memberName {
+  width: 150px;
+  margin-right: 10px;
+}
+.kcDialogBox .folderMemberBox .memberItem .memberName .added{
+  max-width: 150px;
+}
+.kcDialogBox .folderMemberBox .memberItem .memberName .addedMax{
+  max-width: 60px;
+}
+.kcDialogBox .folderMemberBox .memberItem .memberName .inviter .name{
+  display: inline-block;
+  max-width: 44px;
+}
+.kcDialogBox .folderMemberBox .memberItem .toModify .text {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kcDialogBox .folderMemberBox .memberItem .owner {
+  color: #00c957;
+}
+
+.kcDialogBox .folderMemberBox .memberItem .permission {
+  width: 100px;
+}
+
+.kcDialogBox .folderMemberBox .memberItem .permission  .pointer.isApk {
+  cursor: default !important;
+}
+
+.kcDialogBox  .folderMemberBox .memberItem .permission i {
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+.kcDialogBox .folderMemberBox .memberItem .permission .icon-approved {
+    font-size: 16px;
+    vertical-align: middle;
+    color: #666;
+  }
+
+.kcDialogBox .folderMemberBox .memberItem .rootTrust {
+  max-width: 90px;
+  cursor: pointer;
+  color: #999;
+}
+
+.kcDialogBox .folderMemberBox .memberItem .remove,
+.kcDialogBox .folderMemberBox .memberItem .toInvite {
+  display: none;
+  cursor: pointer;
+  color: #999;
+  opacity: 0.9;
+}
+.kcDialogBox .folderMemberBox .memberItem .remove:hover,
+.kcDialogBox .folderMemberBox .memberItem .toInvite:hover {
+  opacity: 1;
+}
+.kcDialogBox .folderMemberBox .memberItem .toInvite {
+  padding-right: 10px;
+}
+
+.kcDialogBox .folderMemberBox ul .memberItem .exit {
+  display: inline-block;
+}
+.kcDialogBox .folderMemberBox .addMember .quickSelectUser{
+  top: 10px;
+}
+.kcDialogBox .folderMemberBox .addMember .icon-help{
+  color:#bdbdbd;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.kcDialogBox .folderMemberBox .removeFolderMember {
+  cursor: pointer;
+  display: none;
+  vertical-align: top;
+  width: 28px;
+  height: 28px;
+  background-color: #666;
+  position: absolute;
+  margin-right: -28px;
+  text-align: center;
+  color: #fff;
+  font-size: 16px;
+  filter: alpha(opacity=70);
+  -moz-opacity: .7;
+  -khtml-opacity: .7;
+  opacity: .7;
+}
+
+.kcDialogBox  .folderMemberBox .removeFolderMember .Icon {
+    display: inline-block;
+    vertical-align: top;
+    height: 7px;
+    margin-top: 7px;
+  }
+/*.folderMemberBox .imgMemberBox,.folderMemberBox .imgMemberBoxDisable{display: inline-block;vertical-align: middle;margin-top: 3px;margin-right: 5px;margin-bottom: 5px;cursor: pointer;}*/
+.kcDialogBox .folderMemberBox .addUser {
+  height: 30px;
+  line-height: 30px;
+  width: 460px;
+  margin-bottom:12px;
+}
+
+.kcDialogBox  .folderMemberBox .addUser .addMemberIcon {
+    font-size: 24px;
+    display: inline-block;
+    padding-right: 8px;
+    cursor: pointer;
+  }
+
+.kcDialogBox  .folderMemberBox .addUser .text {
+    font-size: 14px;
+    display: inline-block;
+    cursor: pointer;
+    opacity: 0.9;
+  }
+  .kcDialogBox  .folderMemberBox .addUser .text:hover{
+    opacity: 1;
+  }
+ .kcDialogBox .folderMemberBox .addUser .text >i, .folderMemberBox .addUser .text >span{
+    vertical-align:middle;
+  }
+.kcDialogBox .folderMemberBox .addUser .addGroupMember{
+   margin-left:30px;
+   color: #bdbdbd;
+ }
+ .kcDialogBox .folderMemberBox .addUser .icon-task-folder-message {
+    font-size: 15px;
+}
+
+.kcDialogBox .relatedToApp {
+  margin-bottom: 10px;
+  color: #999!important;
+}
+
+.kcDialogBox .folderMemberBox .permissionDesc {
+    margin-top: 38px;
+    position: absolute;
+    color: #999!important;
+}
+
+.kcDialogBox .folderCharge .imgCharge, .kcDialogBox .folderMemberBox .imgCharge {
+  width: 28px;
+  height: 28px;
+  vertical-align: -8px;
+}
+
+.kcDialogBox .folderCharge .icon-task-folder-charge {
+  font-size: 34px;
+  display: inline-block;
+  height: 3px;
+  vertical-align: top;
+  cursor: pointer;
+  color: #aaa;
+  margin-left: 6px;
+}
+
+.kcDialogBox .folderContent .folderMembers {
+  margin-top: 10px;
+}
+
+.kcDialogBox .folderContent  .folderMembers .folderMemberText {
+    margin-right: 10px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+.kcDialogBox .folderMemberBox .icon-task-add-member-circle {
+  font-size: 35px;
+  display: inline-block;
+  height: 30px;
+  vertical-align: middle;
+  cursor: pointer;
+  color: #aaa;
+  margin-right: 46px;
+}
+
+.kcDialogBox .folderName .addFolderStar {
+  font-size: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 13px;
+  color: #99a1ab;
+  cursor: pointer;
+}
+
+.kcDialogBox  .folderName .addFolderStar:hover {
+    color: #0091ea;
+  }
+
+.kcDialogBox  .folderName .addFolderStar.icon-task-star {
+    color: #fbc02d;
+  }
+
+.kcDialogBox .btnCanel:hover, .folderCharge .icon-task-folder-charge:hover, .folderMemberBox .icon-task-add-member-circle:hover, #createFolder .folderClose:hover {
+  color: #0091ea;
+}
+
+#updatePermission {
+  width: 176px;
+  border-radius: 3px;
+  padding: 10px;
+  box-sizing: border-box;
+  position: fixed;
+  background-color: #fff;
+  padding: 0;
+  z-index: 10;
+}
+
+  #updatePermission .itemLi {
+    /*height: 45px;*/
+    line-height: normal;
+    cursor: pointer;
+  }
+
+  #updatePermission .line {
+    margin: 0 10px;
+    border-top: 1px solid #ccc;
+  }
+
+  #updatePermission .adminItem {
+    padding: 10px 10px 8px 10px;
+    /*border-bottom:1px solid #aaa;*/
+  }
+
+  #updatePermission .ordinaryItem,
+  #updatePermission .readOnlyItem {
+    padding: 5px 10px 5px 10px;
+  }
+
+  #updatePermission .itemLi .itemText {
+    padding-bottom: 5px;
+    display: block;
+    color: #fff;
+  }
+
+  #updatePermission .itemLi:not(.ThemeBGColor3) .itemText {
+    color: #333;
+  }
+
+  #updatePermission .itemLi:first-child {
+    border-radius: 3px 3px 0 0;
+  }
+
+  #updatePermission .itemLi:last-child {
+    border-radius: 0 0 3px 3px;
+  }
+
+  #updatePermission .itemLi .describe {
+    padding-bottom: 5px;
+    color: #fff;
+  }
+  #updatePermission .itemLi:not(.ThemeBGColor3) .describe {
+    padding-bottom: 5px;
+    color: rgba(0,0,0,.5);
+  }
+
+  #updatePermission .itemLi .itemText > i {
+    font-size: 16px;
+    display: inline-block;
+  }
+
+  #updatePermission .itemLi .rank {
+  }
+
+  #updatePermission .itemLi span {
+    font-size: 12px;
+  }
+
+  #updatePermission .itemLi .icon-task-folder-message {
+    font-size: 14px;
+    float: right;
+    margin-top: 2px;
+  }
+
+#addGroupPending .pendingContent img {
+  width: 600px;
+}
+
+#addGroupPending .pendingContent .btnBack {
+  display: block;
+  position: absolute;
+  right: 24px;
+  top: 390px;
+  width: 70px;
+  height: 32px;
+  background-color: #f0efef;
+  text-align: center;
+  line-height: 32px;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #666;
+}
+
+  #addGroupPending .pendingContent .btnBack:hover {
+    background-color: #e2e2e2;
+  }
+
+/*�ļ�������*/
+#createFolderBox .folderContent .attribute {
+  position: relative;
+  height: 38px;
+  line-height: 38px;
+  margin-top: 10px;
+  font-size: 0px;
+}
+
+  #createFolderBox .folderContent .attribute .title {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  #createFolderBox .folderContent .attribute .dropBox {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    position: relative;
+    vertical-align: middle;
+    height: 35px;
+    line-height: 35px;
+    margin-left: 13px;
+    box-sizing: border-box;
+    color: #333;
+    cursor: pointer;
+    z-index: 10;
+    width: 325px;
+  }
+
+.folderContent .attribute .dropBox .seleted {
+  height: 26px;
+  line-height: 26px;
+  display: inline-block;
+  width: 286px;
+  margin-top: 4px;
+  border-right: 1px solid #ccc;
+  padding-left: 4px;
+}
+
+.folderContent .attribute .dropBox .icon {
+  display: inline-block;
+  padding: 0 8px 0 4px;
+  margin-left: 6px;
+  margin-top: 12px;
+  color: #666;
+}
+
+#folderAttributeList {
+  position: absolute;
+  top: 34px;
+  width: 100%;
+  padding: 5px 0;
+  background: white;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+  #folderAttributeList .projectItem {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    color: #333;
+  }
+
+    #folderAttributeList .projectItem:hover {
+      cursor: pointer;
+      background-color: #efefef;
+    }
+
+  #folderAttributeList .noProject {
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #999;
+  }
+
+/*���˱�������*/
+#checkInviter {
+  width: 100px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  position: fixed;
+  background-color: #fff;
+  padding: 5px 0;
+}
+
+  #checkInviter li {
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    text-align: center;
+    color: #333;
+  }
+
+    #checkInviter li:hover {
+      background-color: #efefef;
+    }

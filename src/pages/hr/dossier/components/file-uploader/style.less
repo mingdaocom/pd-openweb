@@ -1,0 +1,48 @@
+/**
+* component: FileUploader
+* prefix: .mui-fileuploader
+*/
+.mui-fileuploader {
+  position: relative;
+
+  & > .mui-fileuploader-bg {
+    padding: 25px;
+    text-align: center;
+    & > .Icon {
+      display: inline-block;
+      width: 140px;
+      height: 120px;
+      font-size: 140px;
+      text-align: center;
+      line-height: 120px;
+    }
+    & > span {
+      display: block;
+      font-size: 13px;
+      text-align: center;
+      color: #757575;
+      line-height: 30px;
+    }
+  }
+
+  & > label {
+    display: block;
+    border: dashed 2px #e5e5e5;
+    cursor: pointer;
+    user-select: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    &:hover {
+      border-color: #ccc;
+    }
+    & > input[type='file'] {
+      display: none;
+    }
+  }
+  &.mui-fileuploader-disabled > label {
+    cursor: not-allowed;
+  }
+}

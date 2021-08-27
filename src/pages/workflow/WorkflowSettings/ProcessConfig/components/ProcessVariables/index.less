@@ -1,0 +1,70 @@
+.workflowProcessVariables {
+  .processConfigInput {
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    height: 36px;
+    line-height: 36px;
+    width: 260px;
+    font-size: 13px;
+    &:focus {
+      border-color: #2196f3;
+    }
+    &::-webkit-input-placeholder {
+      color: #bdbdbd;
+    }
+    &:-moz-placeholder {
+      color: #bdbdbd;
+    }
+    &::-moz-placeholder {
+      color: #bdbdbd;
+    }
+    &:-ms-input-placeholder {
+      color: #bdbdbd;
+    }
+  }
+  .processConfigDel {
+    margin-top: 10px;
+    cursor: pointer;
+    &:hover {
+      color: #f44336 !important;
+    }
+  }
+  .processConfigAdd {
+    border: 1px solid #ddd;
+    display: inline-block;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 4px;
+    padding: 0 20px;
+    background: #f5f5f5;
+    cursor: pointer;
+    box-sizing: border-box;
+    &:hover {
+      border-color: #2196f3;
+    }
+  }
+  .parameterErrorMessage {
+    position: absolute;
+    bottom: 25px;
+    transform: translateY(-7px);
+    z-index: 1;
+    left: 135px;
+    border-radius: 3px;
+    color: #fff;
+    padding: 5px 12px;
+    white-space: nowrap;
+    background: #f44336;
+    font-size: 12px;
+    .parameterErrorArrow {
+      position: absolute;
+      transform: translateY(-5px);
+      z-index: 1;
+      left: 12px;
+      background: transparent;
+      border: 6px solid transparent;
+      border-top-color: #f44336;
+      bottom: -17px;
+    }
+  }
+}

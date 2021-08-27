@@ -1,0 +1,94 @@
+﻿html,
+body {
+  background-color: #f2f5f7;
+}
+
+.shade {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+  z-index: 1001;
+}
+.shade .loading {
+  background: url('images/loading.gif') no-repeat center 40%;
+  height: 100%;
+}
+.shade .loginTip {
+  display: none;
+  position: absolute;
+  text-align: center;
+  top: 40%;
+  left: 50%;
+  margin-left: -25px;
+  font-size: 14px;
+  color: #999;
+}
+
+.tpLoginContentArea {
+  width: 350px;
+  margin: 0px auto;
+  text-align: center;
+  margin-top: 60px;
+  padding: 30px;
+}
+
+@media screen and (max-width: 400px) {
+  .tpLoginContentArea {
+    width: 290px;
+  }
+}
+
+.tpLoginContentArea .title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+}
+.tpLoginContentArea .desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 30px;
+}
+.tpLoginContentArea .btn {
+  line-height: 44px;
+}
+.tpLoginContentArea .btnReg {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.tpAutoBind {
+  width: 120px;
+  margin: 0px auto;
+  margin-top: 100px;
+}
+.tpAutoBind .sucIcon {
+  background: url('images/sucIcon.png') no-repeat center center;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  margin-right: 10px;
+}
+.tpAutoBind .txt {
+  line-height: 32px;
+  color: #999;
+  font-size: 16px;
+}
+
+.noticeMessage {
+  line-height: 30px;
+  text-align: center;
+  width: 350px;
+  margin: 0px auto;
+  text-align: center;
+  margin-top: 60px;
+  padding: 30px;
+}
+
+.noticeMessage .title {
+  font-size: 14px;
+  color: black;
+  margin-bottom: 5px;
+}

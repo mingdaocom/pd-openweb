@@ -1,0 +1,81 @@
+﻿<div class="mian_search_area card">
+    <div class="Left w100 boderRadAll_3 searchArea Border Relative">
+        <div class="InlineBlock leftBoxSea Left">
+        <div class="projects Left LineHeight35 GrayBGF8 Relative">
+            <div class="projectNow pLeft15 Relative pRight25 textNowrap Hand Font14"><span>{{=_l('全部组织')}}</span><i class="Absolute icon-arrow-down-border"></i></div>
+            <span></span>
+            <ul class="GrayBGF8 Hidden Absolute card">
+                <li projectId="" class="textNowrap pLeft10 ThemeColor3" searchRange=0>{{=_l('全部组织')}}</li>
+            </ul>
+        </div>
+        <div class="keywords_area Left">
+            <input type="text" id="keywords" class="searchTextBox" placeholder="{{= _l('搜索关键字...')}}" />
+            <span class="closeIcon icon-delete"></span>
+        </div>
+        </div>
+        <span class="ThemeBGColor3 searchButton Absolute"><span class="searchButtonLink icon-search Font20 White" id="btnSearch"></span></span>
+    </div>
+    <div class="Clear"></div>
+</div>
+<div class="mian_search_content WhiteBG boderRadAll_3 pBottom10 mBottom20 card Relative">
+    <div class="mianSearchContentBox">
+        <div class="search_header">
+            <div class="allInfo Font14 searchBorderBottomGrayC BorderBottom LineHeight40 pLeft20 pRight20 Absolute">
+                <span class="fa mRight10 curText pAll10 ThemeBorderColor3" type="all">{{=_l('全部')}}
+                </span>
+                <span class="fa mRight10 pAll10" type="user">{{=_l('用户')}}
+                </span>
+                <span class="fa mRight10 pAll10" type="group">{{=_l('群组')}}
+                </span>
+                <span class="fa mRight10 pAll10" type="post">{{=_l('动态')}}
+                </span>
+                <span class="fa mRight10 pAll10" type="task">{{=_l('任务')}}
+                </span>
+                <span class="fa mRight10 pAll10" type="kcnode">{{=_l('知识')}}
+                </span>
+            </div>
+            <div class="Font14 LineHeight40 Gray_8 pLeft20 pRight20 searchBorderBottomGrayC BorderBottom">
+                <span class="searchFont13Bc">{{=_l('“')}}<span class="searchKeyword"></span>{{=_l('”的搜索结果')}}</span>
+                <span class="mRight30 searchFont13Bc">{{=_l('共')}}<span class="totalCount">0</span>{{=_l('条')}}</span>
+                <span class="icon-calander Gray_c LineHeight40 selTxtIcon Font16 mLeft30"></span>
+                <input type="text" id="dateRangePicker" class="selTxt Border0" placeholder="{{= _l('搜索特定时间...')}}" readonly="readonly" />
+                <span class="Hand postSelectBox Hidden Relative">
+                    <span class="Font12 LineHeight40">
+                    <span class="icon-task-folder-slide-choose Font14 Bold mLeft50"></span>
+                    {{=_l('筛选')}}
+                    <span class="icon-arrow-right-border Font14"></span>
+                    <span class="InlineBlock Hand choosePost">{{=_l('全部')}}</span>
+                    <ul class="mLeft10 Absolute card Hidden Hand">
+                        <li class="allPost ThemeColor3" postType=-1>
+                            {{=_l('全部')}}
+                        </li>
+                        <li class="justPost" postType=0>
+                            {{=_l('文本')}}
+                        </li>
+                        <li class="votePost" postType=7>
+                            {{=_l('投票')}}
+                        </li>
+                        <li class="askPost" postType=4>
+                            {{=_l('问答')}}
+                        </li>
+                        <li class="attachmentPost" postType=9>
+                            {{=_l('附件')}}
+                        </li>
+                    </ul>
+                </span>
+              </span>
+            </div>
+            <div class="projects">
+                <ul>
+                </ul>
+            </div>
+            <div class="Clear"></div>
+        </div>
+        <div class="search_content Relative"></div>
+        <div id="divPager"></div>
+        <div class="advancedSearch advancedSearchTxt Gray_c" style=" display:none;">
+            {{=_l('如果您对当前搜索结果不满意，建议您使用其他关键字')}}
+        </div>
+    </div>
+</div>
+

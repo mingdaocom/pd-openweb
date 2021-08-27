@@ -1,0 +1,29 @@
+.checkBlock {
+  .block {
+    height: 32px;
+    line-height: 30px;
+    padding: 0 26px;
+    background-color: #fff;
+    font-size: 13px;
+    color: #333;
+    border: 1px solid #eaeaea;
+    margin-right: -1px;
+    cursor: pointer;
+    display: inline-block;
+    box-sizing: border-box;
+    &.active {
+      color: #fff;
+      background-color: #2196F3;
+      border-color: #2196F3;
+    }
+    &:hover:not(.active) {
+      color: #2196F3;
+    }
+    &:first-child {
+      border-radius: 3px 0 0 3px;
+    }
+    &:last-child {
+      border-radius: 0 3px 3px 0;
+    }
+  }
+}

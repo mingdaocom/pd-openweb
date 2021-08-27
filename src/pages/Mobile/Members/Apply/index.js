@@ -1,0 +1,132 @@
+import React from 'react';
+import { connect } from 'react-redux';
+import * as actions from './redux/actions';
+import Back from '../../components/Back';
+import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace } from 'antd-mobile';
+import { WithoutRows } from 'src/pages/Mobile/RecordList/SheetRows';
+import cx from 'classnames';
+import './index.less';
+
+class ApplyList extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidMount() {
+    const { params } = this.props.match;
+    this.props.dispatch(actions.getAppApplyInfo({ appId: params.appId }));
+    $('html').addClass('applyCon');
+  }
+
+  componentWillUnmount() {
+    $('html').removeClass('applyCon');
+    ActionSheet.close();
+  }
+
+  showActionSheet = (id) => {
+    const { applyList, roleList } = this.props.applyData;
+    const { params } = this.props.match;
+    let str = _.map(roleList, (item, i) => {
+      return (
+        <span key={`${item.roleId}-${i}`}>
+          {_l('设为%0', item.name)}
+        </span>
+      );
+    });
+    let BUTTONS = [...str, <span style={{ color: '#2196f3' }}>{_l('取消')}</span>];
+    ActionSheet.showActionSheetWithOptions({
+      options: BUTTONS,
+      cancelButtonIndex: BUTTONS.length - 1,
+      maskClosable: true,
+      message: _l('设置应用角色'),
+      'data-seed': 'logId',
+    }, (buttonIndex) => {
+      if (buttonIndex < roleList.length) {
+        this.props.dispatch(actions.editAppApplyStatus({
+          id,
+          appId: params.appId,
+          status: 2,
+          role: roleList[buttonIndex],
+          roleId: roleList[buttonIndex].roleId,
+        }));
+      }
+    });
+  }
+
+  render() {
+    const { applyData, isApplyLoading } = this.props;
+    const { applyList, roleList } = applyData;
+    const { params } = this.props.match;
+
+    if (isApplyLoading) {
+      return (
+        <Flex justify="center" align="center" className="h100">
+          <ActivityIndicator size="large" />
+        </Flex>
+      );
+    }
+
+    return (
+      <React.Fragment>
+        {
+          applyList.length ? (
+            <React.Fragment>
+              {_.map(applyList, (item, i) => {
+                return (
+                  <React.Fragment key={item.id}>
+                  <WhiteSpace size="xl"/>
+                    <List.Item className="listApply" key={item.id}>
+                      <div className="flexRow">
+                        <span className="Gray Font17 flex">{item.accountInfo.fullName}</span>
+                        <div>
+                          <span
+                            className="InlineBlock toBeBtn rejectBtn"
+                            onClick={() => {
+                              this.props.dispatch(actions.editAppApplyStatus({
+                                id: item.id,
+                                appId: params.appId,
+                                status: 3,
+                              }));
+                            }}
+                          >
+                            {_l('拒绝')}
+                          </span>
+                          <span
+                            className="InlineBlock toBeBtn mLeft15"
+                            onClick={() => {
+                              this.showActionSheet(item.id);
+                            }}
+                          >
+                            {_l('同意')}
+                          </span>
+                        </div>
+                      </div>
+                      {item.remark ? <div className="Gray_9e Font13 mTop10 applyInfo">{item.remark}</div> : null}
+                    </List.Item>
+                  </React.Fragment>
+                );
+              })}
+            </React.Fragment>
+          ) : (
+            <div className="h100">
+              <WithoutRows text={_l('暂无申请')} />
+            </div>
+          )
+        }
+        <Back
+          className="low"
+          onClick={() => {
+            history.back();
+          }}
+        />
+      </React.Fragment>
+    );
+  }
+}
+
+export default connect((state) => {
+  const { applyData, isApplyLoading } = state.mobile;
+  return {
+    applyData, isApplyLoading,
+  };
+})(ApplyList);

@@ -1,0 +1,25 @@
+﻿{{var node = it.node;}}
+<li class="nodeItem flexRow"  nodeType="{{= node.type}}">
+    <div class="leftContent">
+        <span class="nodeType {{! it.getClassNameByExt(node.type == 2 ? (node.ext ? '.' + node.ext : '') : false)}}"></span>
+        <span class="nodeName ellipsis">{{! node.name }}</span>
+        {{? node.type == 2 && node.ext}}
+        <span class="nodeExt">{{! "."+node.ext}}</span>
+        {{?}}
+    </div>
+
+    <div class="Font12 searchPath flex flexRow">
+        {{? it.searchData}}
+            {{~it.searchData:parentName:i}}
+                <span class="parentName ellipsis {{= i == it.searchData.length ? 'flex' :'' }}">{{! '/' + parentName}}</span>
+            {{~ }}
+        {{?}}
+    </div>
+
+
+    <span class="statusIcon">
+        {{? node.type == 2}}
+        <i class="Font20 {{= it.statusIconName}}"></i>
+        {{?}}
+    </span>
+</li>

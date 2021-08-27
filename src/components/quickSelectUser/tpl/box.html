@@ -1,0 +1,27 @@
+﻿<div class="selectUserBox Fixed" style="z-index: {{= it.zIndex }}">
+    <div class="contactSearchBox flexRow">
+        <span class="Font20 mLeft5 icon icon-search Gray_9e"></span>
+        <input type="text" class="searchInput" placeholder="{{=it.placeHolder}}" />
+        {{? !it.isRangeData}}
+        <span class="contact-icon ThemeColor3 tip-top" data-tip="{{=it.tip.contact}}">
+            <span class="icon-personalDataCommunication"></span>
+        </span>
+        {{?}}
+    </div>
+    <div class="listWrapper">
+        <div class="cooperationList">
+            {{= it.loadingContent}}
+        </div>
+        <div class="searchResultList Hidden">
+            {{= it.loadingContent}}
+        </div>
+    </div>
+    {{? it.showQuickInvite }}
+    <div class="inviteBox">
+        <span class="ThemeColor3 inviteName overflow_ellipsis">{{= it.tip.invite}}</span>
+        {{?it.hasQRcode}}
+        <span class="icon-zendeskHelp-qrcode qrcode"></span>
+        {{?}}
+    </div>
+    {{?}}
+</div>

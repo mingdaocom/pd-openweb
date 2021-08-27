@@ -1,0 +1,9 @@
+﻿{{ var tasks=it.tasks || it.task; }}
+{{~tasks:task:index}}
+{{?task.charge}}
+  {{ var statusObj = it.formatStatus(task.status, task.locked, task.auth), type = it.type!==undefined ? it.type: 0; }}
+  #include.nodeCommTr
+{{??}}
+  {{console.log(task);}}
+{{?}}
+{{~}}

@@ -1,0 +1,23 @@
+.dragAbleContainer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dragAbleContainer .dragAbleLoadDiv {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+  z-index: 1001;
+}
+
+.dragAbleContainer .dragAbleImg.grab {
+  cursor: grab;
+}
+
+.dragAbleContainer .dragAbleImg.grabbing {
+  cursor: grabbing;
+}

@@ -1,0 +1,59 @@
+
+.AppNavStyleWrap {
+  color: #333;
+  width: 320px;
+  line-height: normal;
+  padding: 20px 22px;
+  border-radius: 3px;
+  box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+  background-color: white;
+
+  .content {
+    justify-content: space-between;
+  }
+  .img {
+    width: 63px;
+    height: 70px;
+    margin-bottom: 10px;
+    background-size: cover !important;
+    transition: box-shadow 0.3s;
+    &:hover {
+      box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+    }
+  }
+  .activeIcon {
+    color: #fff;
+    position: absolute;
+    right: -8px;
+    top: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    background-color: #2196F3;
+  }
+  .list {
+    border-radius: 6px 6px 0 0;
+    background: url('./img/list.png') center center no-repeat;
+  }
+  .list_active {
+    border-radius: 6px 6px 0 0;
+    background: url('./img/list_active.png') center center no-repeat;
+  }
+  .sudoku {
+    border-radius: 6px 6px 0 0;
+    background: url('./img/sudoku.png') center center no-repeat;
+  }
+  .sudoku_active {
+    border-radius: 6px 6px 0 0;
+    background: url('./img/sudoku_active.png') center center no-repeat;
+  }
+  .nav {
+    border-radius: 0 0 6px 6px;
+    background: url('./img/nav.png') center center no-repeat;
+  }
+  .nav_active {
+    border-radius: 0 0 6px 6px;
+    background: url('./img/nav_active.png') center center no-repeat;
+  }
+}

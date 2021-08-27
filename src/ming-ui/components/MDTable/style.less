@@ -1,0 +1,145 @@
+.mdTable {
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #f6f6f6;
+  .mdTableContent {
+    &.isEmpty {
+      .main-grid {
+        width: 100%;
+        bottom: 0px;
+      }
+      .main-right-grid {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .top-grid,
+  .main-grid,
+  .bottom-grid {
+    position: absolute;
+    left: 0;
+  }
+  .top-left-grid,
+  .top-right-grid,
+  .main-left-grid,
+  .main-right-grid,
+  .bottom-left-grid,
+  .bottom-right-grid {
+    position: absolute;
+    background-color: #fff;
+  }
+  .footer {
+    background-color: #f6f6f6 !important;
+  }
+  .mdTableBottomLeftGrid {
+    .emptyCon {
+      display: none;
+    }
+  }
+  .cell {
+    box-sizing: border-box;
+    padding: 7px 6px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.09) !important;
+    border-top: none !important;
+    border-left: none !important;
+    background-color: #fff;
+    &.highlight {
+      background-color: #f5fbff !important;
+      // background-color: rgb(209, 237, 255) !important; // 颜色深 开发测试用
+    }
+    &:not(.isediting):not(.highlight).hover {
+      background-color: #fafafa !important;
+      .hoverShow {
+        display: inline-block;
+      }
+      &.rowHead {
+        .number {
+          display: none;
+        }
+        .hoverShow {
+          display: inline-block;
+        }
+      }
+    }
+    &.row-0 {
+      background-color: #fafafa !important;
+    }
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .scroll-ver,
+  .scroll-hor {
+    &::-webkit-scrollbar {
+      width: 11px;
+      height: 12px;
+    }
+    &::-webkit-scrollbar-thumb {
+      width: 6px;
+      height: 6px;
+      border-radius: 6px;
+      background: #cfcfcf;
+      background-clip: padding-box;
+      border: 2px solid rgba(0, 0, 0, 0);
+    }
+
+    &::-webkit-scrollbar-thumb:active,
+    &::-webkit-scrollbar-thumb:hover {
+      background: #999;
+      background-clip: padding-box;
+    }
+    &.hoverShow {
+      &::-webkit-scrollbar-thumb {
+        display: none;
+      }
+    }
+  }
+  &:hover {
+    .hoverShow {
+      &::-webkit-scrollbar-thumb {
+        display: inline-block !important;
+      }
+    }
+  }
+}
+.queryEmptyCon {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  height: 36px;
+  top: 35px;
+  line-height: 34px;
+  background: #d8effe;
+  .green {
+    color: #30ae01;
+  }
+}
+.emptyCon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .iconBox {
+    width: 130px;
+    height: 130px;
+    display: inline-block;
+    border-radius: 50%;
+    background: url('~src/pages/worksheet/assets/record.png') no-repeat;
+    background-size: 130px 130px;
+    background-color: #f5f5f5;
+  }
+}

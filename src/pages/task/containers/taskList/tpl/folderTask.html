@@ -1,0 +1,21 @@
+﻿{{~it.data:folder}}
+    {{ var folderName = folder.folderName ? folder.folderName : _l('未关联项目'); }}
+    <div class="taskListFolderName" data-folderid="{{=folder.folderID || 1 }}">
+        <i class="arrow-down"></i>
+        <span class="listFolderNameTextList" title="{{!folderName }}">{{!folderName }}</span>
+    </div>
+    <div class="listStageTaskContent">
+        <table cellpadding="0" cellspacing="0">
+            <tbody>
+                {{~folder.tasks:task:index}}
+                {{?task.charge}}
+                {{ var statusObj = it.formatStatus(task.status, task.locked, task.auth); }}
+                    #include.nodeCommTr
+                {{??}}
+                  {{console.log(task);}}
+                {{?}}
+                {{~}}
+            </tbody>
+        </table>
+    </div>
+{{~}}

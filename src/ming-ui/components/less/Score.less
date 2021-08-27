@@ -1,0 +1,30 @@
+.Score-wrapper {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+
+  .LineScore-item {
+    flex: 1;
+    height: 5px;
+    margin-right: 2px;
+    cursor: pointer;
+
+    &:first-child {
+      border-radius: 2px 0 0 2px;
+    }
+    &:last-child {
+      margin-right: 0;
+      border-radius: 0 2px 2px 0;
+    }
+  }
+  .StarScore-item {
+    cursor: pointer;
+    margin-right: 2px;
+    i {
+      font-size: 16px;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

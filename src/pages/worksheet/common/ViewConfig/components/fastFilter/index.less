@@ -1,0 +1,69 @@
+.customItemForFastFilter {
+  display: flex;
+  color: #333;
+  background: #fff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 8px 5px;
+  line-height: 22px;
+
+  .con {
+    flex: 1;
+    color: #333;
+    display: flex;
+    cursor: pointer;
+
+    & > span {
+      flex: 1;
+      max-width: 260px;
+    }
+  }
+
+  .icon-drag {
+    color: #9d9d9d;
+    line-height: 22px;
+
+    &:hover {
+      color: #2196f3;
+    }
+  }
+
+  .customIcon {
+    color: #757575;
+    line-height: 22px;
+  }
+
+  .editIcon {
+    color: #2196f3;
+    line-height: 22px;
+    opacity: 0;
+  }
+
+  .deleteIcon {
+    color: #9d9d9d;
+    line-height: 22px;
+    opacity: 0;
+
+    &:hover {
+      color: #f44336;
+    }
+  }
+
+  &:hover {
+    background: #fafafa;
+
+    .deleteIcon,
+    .editIcon {
+      opacity: 1;
+    }
+  }
+}
+
+.filterSortableList {
+  z-index: 1000;
+  position: fixed !important;
+}
+
+.addControlDrop .worksheetFilterColumnOptionList.Menu {
+  width: 100% !important;
+}

@@ -1,0 +1,40 @@
+.editableCellCon {
+  &.isediting.cell.cellControlEdittingStatus {
+    background-color: #fff !important;
+  }
+  .editIcon {
+    display: none;
+    .icon.clearbtn {
+      display: none;
+    }
+    &.canClear {
+      &:hover {
+        .icon.editbtn {
+          display: none;
+        }
+        .icon.clearbtn {
+          display: inline-block;
+        }
+      }
+    }
+  }
+  &.canedit:hover {
+    padding-right: 34px !important;
+    .cellAttachments {
+      width: auto;
+    }
+    .editIcon {
+      display: inline-block !important;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 34px;
+      height: 34px;
+      text-align: center;
+      line-height: 34px;
+    }
+    .worksheetCellPureString {
+      width: auto;
+    }
+  }
+}

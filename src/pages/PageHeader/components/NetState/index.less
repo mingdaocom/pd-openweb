@@ -1,0 +1,75 @@
+@mainColor: #2196f3;
+.netStateWrap {
+  .imgWrap {
+    height: 200px;
+    background: url('./upgrade.png') center center no-repeat;
+    background-size: cover;
+  }
+  .hint {
+    margin: 32px auto 10px auto;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .explain {
+    margin: 0 auto;
+    max-width: 340px;
+    font-size: 14px;
+    text-align: center;
+  }
+  .operationWrap {
+    margin: 24px auto 20px auto;
+    .operationBtn {
+      box-sizing: border-box;
+      border-radius: 20px;
+      width: 240px;
+      margin: 0 auto;
+      margin-bottom: 16px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+      background-color: @mainColor;
+      cursor: pointer;
+      &:hover {
+        background-color: darken(@mainColor, 10%);
+      }
+      &.topLevel {
+        background-color: #fff;
+        color: @mainColor;
+        border: 2px solid @mainColor;
+        &:hover {
+          color: darken(@mainColor, 10%);
+          border-color: darken(@mainColor, 10%);
+        }
+      }
+    }
+  }
+  .operationText {
+    color: @mainColor;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+}
+.upgradeVersionDialogBtn {
+  .ming.Button.Button--primary {
+    display: block;
+    box-sizing: border-box;
+    border-radius: 20px;
+    width: 240px !important;
+    margin: 0 auto;
+    margin-bottom: 16px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+    background-color: #2196f3 !important;
+    cursor: pointer;
+    &:hover {
+      background-color: darken(#2196f3, 10%) !important;
+    }
+  }
+}

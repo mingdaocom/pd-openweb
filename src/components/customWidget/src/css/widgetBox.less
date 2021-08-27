@@ -1,0 +1,65 @@
+.commonCustomWidget {
+  .widgetBox {
+    color: #333;
+    font-size: 12px;
+    user-select: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .editBoxItem {
+    padding: 12px 0;
+    padding-left: 10px;
+    box-sizing: border-box;
+  }
+  .dragHint {
+    opacity: 0.3;
+    padding: 0 0 6px 10px;
+  }
+  .dragTitle {
+    font-weight: bold;
+    padding: 6px 0 6px 10px;
+  }
+  .widgetList {
+    flex: 1;
+  }
+  .widgetListLi {
+    width: 180px;
+    list-style: none;
+    position: relative;
+    background: #f4f5f7;
+    &:not(.active) {
+      color: #333 !important;
+    }
+    &:not(:hover) {
+      background: #fff !important;
+      .addBottomWidget {
+        display: none;
+      }
+    }
+    .addBottomWidget {
+      position: absolute;
+      top: 10px;
+      right: 16px;
+      cursor: pointer;
+      .iconMenu {
+        color: #ddd;
+        font-size: 22px;
+        &:hover {
+          color: #999;
+        }
+      }
+    }
+  }
+  .widgetListItem {
+    padding: 12px 0 12px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    i {
+      font-size: 16px;
+      color: #9e9e9e;
+      width: 25px;
+      display: inline-block;
+    }
+  }
+}

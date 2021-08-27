@@ -1,0 +1,197 @@
+.workSheetViewsWrapper {
+  width: 100%;
+  height: 37px;
+  position: relative;
+  overflow: hidden;
+  &::before,
+  &::after {
+    content: '';
+    width: 20px;
+    height: 43px;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+  }
+  &::before {
+    left: 0;
+    background-image: linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0) 100%);
+  }
+  &::after {
+    right: 0;
+    background-image: linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0) 100%);
+  }
+  .viewsScroll {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    .stance {
+      height: 37px;
+      min-width: 20px;
+    }
+  }
+}
+
+.workSheetViewItem,
+.workSheetSortableViewItem {
+  height: 37px;
+  justify-content: center;
+  position: relative;
+  max-width: 200px;
+  flex-shrink: 0;
+  user-select: none;
+  .name {
+    white-space: nowrap;
+    padding: 0 20px;
+    font-weight: 500;
+  }
+  .deit {
+    border: none;
+    border-radius: 4px;
+    background-color: #eaeaea;
+    padding: 2px 10px;
+    width: 120px;
+  }
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  &.active {
+    .name {
+      color: #2196f3;
+      padding-right: 0;
+    }
+    .icon-arrow-down {
+      display: block;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: #2196f3;
+    }
+    &:hover {
+      background-color: inherit;
+    }
+  }
+  .icon-arrow-down {
+    padding: 0 8px;
+    display: none;
+    font-size: 12px;
+    color: #bdbdbd;
+    &:hover {
+      color: #9e9e9e;
+    }
+  }
+}
+
+.workSheetSortableViewItem .name {
+  padding: 0 19px;
+}
+
+.workSheetViewsMenu {
+  max-height: 400px;
+  overflow-y: scroll;
+  .active {
+    color: #2196f3;
+  }
+}
+
+.viewItemMoreOperate {
+  position: relative;
+  top: 3px;
+  .splitLine {
+    border: 1px solid #ddd;
+    border-top: none;
+    margin: 3px 0;
+  }
+  .Item-content {
+    padding-left: 36px !important;
+  }
+
+  .MenuItem {
+    .disabled {
+      .icon,
+      .text {
+        color: #bdbdbd;
+      }
+    }
+    .Icon {
+      margin: 0 2px;
+      vertical-align: middle;
+      color: #999;
+    }
+    .text {
+      font-size: 13px;
+      margin-left: 4px;
+    }
+    &:hover {
+      .disabled {
+        .icon,
+        .text {
+          color: #bdbdbd;
+        }
+      }
+      .icon,
+      .text {
+        color: #fff;
+      }
+    }
+    &.delete {
+      .Icon,
+      .text {
+        color: #f44338;
+      }
+      &:hover {
+        .Icon,
+        .text {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.changeViewDisplayTypeMenuWrap {
+  & > .Item-content {
+    overflow: visible !important;
+    position: relative !important;
+    .viewTypeMenuWrap {
+      position: absolute;
+      .viewTypeItem.ant-menu-item {
+        span {
+          margin-left: 24px;
+        }
+      }
+    }
+  }
+}
+.viewTypeMenuWrap.ant-menu {
+  background-color: #fff;
+  padding: 6px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  .viewTypeItem.ant-menu-item {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 36px;
+    min-width: 180px;
+    line-height: 36px;
+    padding: 0;
+    padding-left: 12px;
+    cursor: pointer;
+    margin: 0;
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    span {
+      margin-left: 12px;
+      color: #333;
+    }
+  }
+}

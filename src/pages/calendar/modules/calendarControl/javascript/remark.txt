@@ -1,0 +1,27 @@
+﻿修改插件类库：
+为了解决点击日、周、月不刷新问题
+按下面的改写之后，实现了$calendar.fullCalendar('changeView', 'agendaDay');只切换视图，不刷新数据，数据由我们进行刷新
+
+19行加了一个参数：firstLoading   默认值是true; 判断是否第一次加载
+
+737行方法getAndRenderEvents();   用一个if进行包装，判断是否第一次加载，执行之后firstLoading 设为false
+
+1019-1020行  自己添加处理全天事件拖拽之后出现margin-right: 11px;错位问题
+
+1179行把firstLoading重新设为true 说明是点击头部的左侧的3个按钮
+
+3141行 调整日视图全天更多弹出层位置问题
+3145行 日视图全天更多弹出层加箭头
+
+4098行 去掉 .fc-event-container *解决非全天事件选中之后点击不进Dayclick bug
+4100行 加$(ev.target).parents(".fc-draggable").length == 0  去除点击已经创建的日程进Dayclick bug
+
+4106-4113、4169-4171行 ie8双击无法创建日程兼容处理
+
+4777行  注释掉根据标题排序
+
+5179行 加title提示
+
+5816-5825行 解决周视图中不能出现每列间隔的问题
+
+6086行 解决拖拽的时候位置不准确的问题

@@ -1,0 +1,1007 @@
+.worksheetFilterBtn {
+  cursor: pointer;
+  vertical-align: middle;
+  font-size: 13px;
+  margin-right: 16px;
+  border-radius: 4px;
+  line-height: 29px;
+
+  .icon-worksheet_filter {
+    font-size: 18px;
+    vertical-align: middle;
+  }
+
+  .selectedFilterName {
+    display: inline-block;
+    max-width: 7em;
+    vertical-align: middle;
+  }
+
+  .resetFilterBtn {
+    font-size: 16px;
+    margin-left: 6px;
+    line-height: 29px;
+    vertical-align: middle;
+  }
+
+  &.active {
+    padding: 0 10px;
+
+    .icon-worksheet_filter {
+      margin-right: 6px;
+    }
+  }
+
+  &:not(.active) {
+    background-color: #fff !important;
+    padding-left: 0px;
+    color: #9d9d9d !important;
+  }
+}
+
+.filterTrigger {
+  position: absolute;
+}
+
+.rc-trigger-popup-hidden {
+  display: none;
+}
+
+.workSheetFilter {
+  width: 320px;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 4px 16px;
+
+  .filterHeader {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 0 0 20px;
+    line-height: 44px;
+    font-size: 16px;
+    color: #333;
+
+    .addFilterBtn {
+      float: right;
+      margin: 10px;
+      font-size: 23px;
+      color: #9e9e9e;
+      line-height: 1em;
+      right: 0;
+    }
+  }
+
+  .filterBody {
+    overflow: auto;
+    max-height: 340px;
+
+    hr {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 6px 0;
+    }
+
+    .title {
+      padding: 6px 20px;
+      font-size: 12px;
+      color: #9e9e9e;
+    }
+
+    > div:last-child:not(.customFilter):not(.expanded) {
+      margin-bottom: 6px;
+    }
+  }
+
+  .filterItem {
+    padding: 0px 20px;
+    font-size: 14px;
+    color: #fff;
+    line-height: 36px;
+    cursor: pointer;
+
+    .filterNameInput {
+      font-size: 13px;
+      border: none;
+      height: 20px;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    .moreOperateBtn {
+      cursor: pointer;
+      float: right;
+      color: #9e9e9e;
+      margin: 0px 10px;
+      font-size: 18px;
+      line-height: 36px;
+    }
+
+    .slideIcon {
+      visibility: hidden;
+      opacity: 0.7;
+      float: right;
+      font-size: 16px;
+      line-height: 32px;
+
+      .icon {
+        padding: 6px 2px 6px 6px;
+      }
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    .moreOperateBtn {
+      color: #fff !important;
+    }
+
+    input {
+      color: #fff;
+    }
+
+    &:not(.expanded):hover {
+      .filterTitle {
+        color: #fff !important;
+      }
+
+      .slideIcon {
+        opacity: 1;
+        visibility: visible;
+        color: #fff !important;
+      }
+    }
+
+    &:not(:hover) {
+      color: #333 !important;
+      background-color: #fff !important;
+
+      input {
+        color: #333;
+      }
+
+      .moreOperateBtn,
+      .slideIcon {
+        color: #9e9e9e !important;
+      }
+    }
+
+    &.expanded {
+      background-color: #fafafa !important;
+      border-top: 1px solid #e0e0e0;
+
+      input {
+        color: #333;
+      }
+
+      .slideIcon {
+        visibility: visible;
+      }
+
+      .moreOperateBtn,
+      .slideIcon {
+        color: #9e9e9e !important;
+      }
+    }
+  }
+
+  .newFilter {
+    padding: 0px 20px;
+    font-size: 13px;
+    line-height: 36px;
+  }
+
+  .conditionsCon {
+    padding: 0 15px 10px 20px;
+    background-color: #fafafa;
+    overflow: hidden;
+  }
+
+  .conditionItem {
+    margin: 12px 0 0;
+    font-size: 13px;
+
+    .conditionItemHeader {
+      position: relative;
+      margin-bottom: 2px;
+      padding-right: 58px;
+
+      .deletedColumn {
+        color: #f44336;
+        margin-bottom: 6px;
+        .icon {
+          transform: rotate(90deg);
+          font-size: 16px;
+          margin-right: 3px;
+        }
+      }
+
+      .columnName {
+        display: inline-block;
+        vertical-align: middle;
+        max-width: 91px;
+      }
+
+      .relation {
+        vertical-align: middle;
+        margin-left: 14px;
+        padding: 5px 4px;
+        border-radius: 4px;
+        color: #515151;
+
+        .Dropdown--input .icon {
+          visibility: hidden;
+        }
+
+        &:hover {
+          background-color: #e8e8e8;
+        }
+      }
+
+      .deleteBtn {
+        cursor: pointer;
+        position: absolute;
+        right: 45px;
+        color: #9e9e9e;
+        margin-top: 5px;
+        visibility: hidden;
+
+        i {
+          font-size: 16px;
+        }
+      }
+
+      &.isbool {
+        padding-top: 4px;
+      }
+    }
+
+    .conditionItemContent {
+      padding-right: 48px;
+      position: relative;
+
+      input {
+        width: 100%;
+        font-size: 13px;
+      }
+
+      .deletedColumn {
+        background: #ffebeb !important;
+        border-color: #f44336 !important;
+      }
+
+      .conditionRelation {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        margin-top: -14px;
+        color: #9e9e9e;
+
+        .relationType {
+          display: inline-block;
+          padding: 5px 20px 5px 0px;
+        }
+
+        .Dropdown--input .icon {
+          margin-left: 4px !important;
+        }
+
+        .ming .List {
+          width: 50px;
+          text-align: center;
+        }
+      }
+    }
+
+    &.readonly {
+      .relation {
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
+      .conditionRelation {
+        .Dropdown--input .icon {
+          visibility: hidden;
+        }
+      }
+    }
+
+    &:not(.readonly):hover {
+      .conditionItemHeader .deleteBtn {
+        visibility: visible;
+      }
+
+      .relation .Dropdown--input .icon {
+        visibility: visible;
+      }
+    }
+
+    &:first-child {
+      margin-top: 0px;
+    }
+  }
+
+  .customFilter {
+    padding: 10px 15px 10px 20px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+
+    .customFilterTitle {
+      font-size: 14px;
+      padding: 4px 0;
+    }
+  }
+
+  .addFilterCondition {
+    position: relative;
+    margin: 16px 0 6px;
+    color: #757575;
+
+    &:hover {
+      color: #1e88e5;
+    }
+
+    .icon {
+      font-size: 16px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+  }
+
+  input {
+    &:disabled {
+      cursor: not-allowed;
+      background-color: #f5f5f5;
+
+      &:hover {
+        border-color: #ccc;
+      }
+    }
+  }
+
+  &.singleFilter {
+    box-shadow: none;
+    margin: 0;
+    width: 100%;
+  }
+}
+.addFilterPopup {
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  .columnsFilter {
+    padding: 0 10px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: row;
+    .icon-search {
+      width: 20px;
+      margin: 10px 0 0;
+      text-align: center;
+      font-size: 18px;
+      color: #9e9e9e;
+    }
+    .Input {
+      flex: 1;
+      width: 124px;
+      border: none;
+      font-size: 13px;
+      padding: 0 10px;
+    }
+  }
+  .Menu {
+    width: 100%;
+    box-shadow: none !important;
+  }
+  .tip {
+    padding: 10px 20px;
+    color: #9e9e9e;
+  }
+}
+.worksheetFilterColumnOptionList.Menu {
+  width: 220px !important;
+}
+.worksheetFilterOperateList.Menu,
+.worksheetFilterColumnOptionList.Menu {
+  position: static !important;
+  overflow: auto;
+  max-height: 320px;
+
+  .Item-content {
+    text-align: left;
+    .icon {
+      color: #9e9e9e;
+      margin-right: 10px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    > span {
+      vertical-align: middle;
+    }
+  }
+
+  .ming.Item .Item-content:not(.disabled):hover {
+    .icon {
+      color: #fff !important;
+    }
+  }
+
+  .ming.Item .Item-content.disabled {
+    .icon {
+      color: #bbb !important;
+    }
+  }
+
+  .ming.Item.disabled .Item-content {
+    cursor: not-allowed;
+    background-color: #fff !important;
+    color: #bdbdbd !important;
+
+    .icon {
+      color: #bdbdbd !important;
+    }
+  }
+
+  .segmentationLine {
+    border-top: 1px solid #ddd;
+    margin: 8px 0;
+    padding-top: 8px;
+  }
+
+  .Item-content {
+    padding: 0 13px;
+  }
+}
+
+.worksheetFilterOperateList.Menu {
+  .icon {
+    color: #9e9e9e;
+    margin-right: 10px;
+    font-size: 16px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 6px 0;
+  }
+}
+
+.worksheetFilterTextCondition {
+  outline: none;
+
+  .selectize-control {
+    .selectize-input {
+      box-shadow: none;
+      padding: 0 8px 0px 10px !important;
+      line-height: 34px;
+
+      .item {
+        font-size: 12px;
+        background-color: #e0e0e0;
+        padding: 0 20px 0 12px !important;
+        margin: 0px 6px 6px 0px;
+        border-radius: 12px;
+        line-height: 22px;
+      }
+
+      .remove {
+        border: none;
+        color: #9e9e9e;
+        background: transparent !important;
+        font-size: 14px;
+        width: 24px;
+        padding-top: 0;
+
+        &:hover {
+          color: #757575;
+        }
+      }
+
+      input {
+        // margin: 0 0 6px 6px !important;
+      }
+
+      input::placeholder {
+        color: #bdbdbd;
+      }
+    }
+
+    .selectize-dropdown {
+      padding: 10px;
+      background-color: #fff;
+    }
+  }
+
+  &.disabled {
+    .selectize-input {
+      cursor: not-allowed;
+      pointer-events: none;
+      background-color: #f5f5f5;
+
+      .item {
+        padding-right: 12px !important;
+      }
+
+      .remove {
+        display: none;
+      }
+
+      > input {
+        display: none !important;
+      }
+    }
+  }
+}
+
+.worksheetFilterYesNoCondition {
+  padding: 8px 0;
+
+  .RadioGroup label {
+    margin: 0;
+    width: 40%;
+  }
+}
+
+.worksheetFilterNumberCondition {
+  .numberRange {
+    input::placeholder {
+      color: #bdbdbd;
+    }
+
+    .split {
+      line-height: 36px;
+      color: #666;
+      margin: 0 4px;
+    }
+  }
+}
+
+.worksheetFilterDateCondition {
+  .dateInputCon {
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    height: 36px;
+    border-radius: 3px;
+    font-size: 12px;
+    background: #fff;
+
+    .ming.Dropdown {
+      width: 100%;
+
+      .Dropdown--input {
+        padding: 8px;
+      }
+
+      .ming.Icon {
+        float: right;
+        margin: 4px;
+      }
+    }
+  }
+
+  .dateValue input {
+    width: 118px !important;
+  }
+
+  .includeToday {
+    display: inline-block !important;
+    margin-left: 16px;
+    vertical-align: middle;
+  }
+
+  .customDate {
+    line-height: 36px;
+
+    .mui-datetime-picker {
+      width: 100%;
+      display: inline-block;
+      padding: 0 8px;
+    }
+  }
+}
+
+.worksheetFilterRelateRecordCondition,
+.worksheetFilterUsersCondition {
+  .recordsCon,
+  .usersCon {
+    padding: 6px 8px 0 8px;
+    box-sizing: border-box;
+    min-height: 36px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+    color: #9e9e9e;
+    background-color: #fff;
+
+    &.disabled {
+      cursor: not-allowed;
+      background-color: #f5f5f5;
+
+      .userItem {
+        .remove {
+          .icon {
+            display: none;
+          }
+        }
+      }
+
+      &:hover {
+        border-color: #ccc;
+      }
+    }
+  }
+
+  .recordItem,
+  .userItem {
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 6px 6px 0;
+    background-color: #e5e5e5;
+    border-radius: 12px;
+    color: #333;
+
+    .iconCon {
+      border-radius: 50%;
+      display: inline-block;
+      background-color: #fff;
+    }
+
+    .userHead {
+      display: inline-block !important;
+      vertical-align: middle;
+    }
+
+    .filterCustomUserHead {
+      font-size: 25px;
+      margin-right: -1px;
+    }
+
+    .fullname {
+      margin-left: 6px;
+      display: inline;
+      vertical-align: middle;
+    }
+
+    .remove {
+      cursor: pointer;
+      color: #9e9e9e;
+      margin: 0 8px 0 4px;
+      font-size: 12px;
+
+      &:hover {
+        color: #757575;
+      }
+    }
+  }
+
+  .recordItem {
+    padding: 2px 0px 2px 8px;
+
+    .icon {
+      font-size: 14px;
+      margin-right: 4px;
+    }
+  }
+}
+
+.worksheetFilterRelateRecordCondition {
+  .recordItem {
+    max-width: 100%;
+    .recordname {
+      display: inline-block;
+      max-width: calc(~'100% - 28px');
+    }
+  }
+}
+
+.worksheetFilterCascaderCondition {
+  .customAntSelect,
+  .cascaderDropdown {
+    width: 100% !important;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    float: left;
+    padding: 0;
+    margin: 0 -8px !important;
+    * {
+      height: 1px !important;
+      min-height: 1px !important;
+      overflow: hidden !important;
+    }
+  }
+}
+
+// .worksheetFilterCascaderPopup {
+//   &.ant-tree-select-dropdown {
+//     transform: translate(-9px, -13px);
+//   }
+// }
+
+.filterCustomUserHead {
+  color: #01c982;
+  font-size: 27px;
+  vertical-align: middle;
+  margin: 0 8px 0 1px;
+}
+
+.filterTagCon {
+  padding: 6px 8px 0 8px;
+  box-sizing: border-box;
+  min-height: 36px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #fff;
+
+  .placeholder {
+    color: #bdbdbd;
+  }
+
+  .fiterTagItem {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    background-color: #e5e5e5;
+    border-radius: 12px;
+
+    .text {
+      font-size: 12px;
+      margin: 2px 0 2px 10px;
+      display: inline-block;
+    }
+
+    .remove {
+      cursor: pointer;
+      color: #9e9e9e;
+      margin: 0 8px 0 4px;
+      font-size: 12px;
+
+      &:hover {
+        color: #757575;
+      }
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+
+    .fiterTagItem {
+      .remove {
+        .icon {
+          display: none;
+        }
+      }
+    }
+
+    &:hover {
+      border-color: #ccc;
+    }
+  }
+}
+
+.worksheetFilterOptionsCondition {
+  .CityPicker-wrapper,
+  .CityPicker-input-container {
+    display: block;
+  }
+  .optionCheckboxs {
+    .optionCheckbox {
+      cursor: pointer;
+      background: #fff;
+      box-sizing: border-box;
+      display: inline-block;
+      margin: 6px 6px 0 0;
+      padding: 0 10px;
+      line-height: 26px;
+      color: #aaa;
+      font-size: 13px;
+      border-radius: 26px;
+      border: 1px solid #ccc;
+      max-width: 100%;
+
+      &.checked {
+        color: #fff;
+      }
+    }
+
+    .showMore {
+      line-height: 26px;
+      display: inline-block;
+      margin: 7px 0 0 6px;
+    }
+  }
+}
+
+.filterControlOptionsList {
+  width: 220px !important;
+  max-height: 320px;
+  overflow-y: auto;
+
+  .tip {
+    margin: 4px 10px;
+    color: #999;
+  }
+
+  .deleteSplit {
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 4px 0;
+    }
+
+    .title {
+      font-size: 12px;
+      color: #9e9e9e;
+      padding: 0 16px;
+      margin: 12px 0 6px;
+    }
+  }
+}
+
+.ming.Input.disabled {
+  background-color: #f5f5f5;
+}
+
+.worksheetFilterRelateCondition {
+  position: relative;
+  // height: 36px;
+
+  .inputText {
+    border: 1px solid #d0d0d0;
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow: none;
+    padding: 5px 20px 5px 10px;
+    cursor: pointer;
+    min-height: 36px;
+    line-height: 24px;
+    vertical-align: top;
+    color: #bdbdbd;
+    position: relative;
+
+    &.focusInput {
+      border: 1px solid #2196f3;
+    }
+
+    .moreIntro {
+      position: absolute;
+      right: 6px;
+      top: 9px;
+    }
+
+    span {
+      // height: 24px;
+      min-height: 24px;
+      display: inline-block;
+      padding: 0 6px 0 12px;
+      border: 1px solid #2193f3;
+      background: #e3f2fd;
+      color: #2083d3;
+      border-radius: 15px;
+      line-height: 22px;
+      margin-right: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      box-sizing: border-box;
+
+      &.isWrong {
+        color: #f44336;
+        border: 1px solid #f44336;
+        background: rgba(244, 67, 54, 0.06);
+      }
+
+      i {
+        font-style: normal;
+        // opacity: .6;
+        margin-left: 6px;
+        // font-weight: 200;
+        color: #2083d3;
+        opacity: 0.6;
+
+        &.icon {
+          color: #333;
+          opacity: 0.2;
+          cursor: pointer;
+          font-size: 12px;
+
+          &:hover {
+            opacity: 0.4;
+          }
+        }
+      }
+    }
+  }
+
+  .selectBox {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    width: 100%;
+    position: absolute;
+    z-index: 10;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background: #fff;
+    left: 0;
+    top: 100%;
+    margin-bottom: 20px;
+
+    .searchInput {
+      width: 100%;
+      border-bottom: 1px solid #eaeaea;
+      display: flex;
+
+      .searchIcon {
+        line-height: 40px;
+        padding-left: 16px;
+      }
+
+      input {
+        font-size: 12px;
+        box-sizing: border-box;
+        padding: 8px 16px 8px 8px;
+        border: 0;
+        flex: 1;
+
+        &::placeholder {
+          color: #bdbdbd;
+        }
+      }
+    }
+
+    .selectBoxCom {
+      max-height: 300px;
+      overflow: auto;
+      margin-top: -1px;
+    }
+
+    ul {
+      padding: 6px 0;
+      border-top: 1px solid #eaeaea;
+
+      p {
+        height: 36px;
+        line-height: 36px;
+        padding-left: 8px;
+        box-sizing: border-box;
+        color: #333;
+        font-weight: 500;
+        padding: 0 16px;
+        margin: 0;
+      }
+
+      li {
+        height: 36px;
+        line-height: 36px;
+        padding-left: 16px;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        i {
+          color: #9e9e9e;
+        }
+        &:hover {
+          color: #fff;
+          background: #2196f3;
+          i {
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}

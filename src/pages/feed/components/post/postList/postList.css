@@ -1,0 +1,36 @@
+.postList {
+  width: 100%;
+  vertical-align: top;
+  min-height: 400px;
+}
+.postList .searchFilterKeyword input::-ms-clear {
+  display: none;
+}
+.feedNoData {
+  padding: 85px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+.feedNoData .statusIcon {
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  background: url('./image/feedEmpty.png');
+  background-size: 120px !important;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.feedNoData.normal .hide {
+  display: inline !important;
+}
+.feedNoData.search .statusIcon {
+  background: url('./image/feedEmptySearch.png');
+}
+.feedNoData.star .statusIcon {
+  background: url('./image/feedEmptyStar.png');
+}
+.feedNoData p {
+  margin-top: -10px;
+  cursor: pointer;
+}

@@ -1,0 +1,656 @@
+.attachmentsPreview {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(15, 15, 15, 0.95);
+  // transition: .3s left ease-in-out, .3s right ease-in-out, .3s top ease-in-out, .3s left ease-in-out, .3s bottom ease-in-out, .3s opacity ease-in;
+  transition: 0.2s opacity linear;
+  overflow: hidden;
+  &.fullscreen {
+    .previewPanel {
+      top: 0;
+    }
+    .previewContainer {
+      bottom: 0;
+      .ctrlCon {
+        opacity: 0;
+      }
+    }
+    .previewHeader {
+      transform: translateY(-100%);
+    }
+    .thumbnailGuide {
+      transform: translateY(100%);
+    }
+    .attachmentInfo {
+      top: 0;
+    }
+  }
+  .previewHeader {
+    z-index: 1;
+    font-size: 14px;
+    height: 54px;
+    color: rgba(255, 255, 255, 0.8);
+    background-color: #000;
+    transition: transform 0.4s;
+    > .flexRow {
+      height: 54px;
+    }
+    .btns {
+      justify-content: flex-end;
+    }
+    .newVersion {
+      justify-content: center;
+      .big {
+        width: auto;
+        padding: 0 16px;
+        span {
+          font-size: 13px;
+          margin-left: 5px;
+        }
+      }
+    }
+    .editName {
+      line-height: 54px;
+      padding: 0 11px;
+      &:hover {
+        color: #fff;
+        .editBtn {
+          color: #fff;
+        }
+      }
+      .content {
+        margin: 0 5px;
+        font-weight: bold;
+        .fileName {
+          display: inline-block;
+          max-width: 200px;
+        }
+      }
+      .editBtn {
+        margin-left: 10px;
+        line-height: 54px;
+      }
+      input {
+        border: none;
+        background-color: rgba(97, 97, 97, 0.7);
+        font-size: 14px;
+        color: #fff;
+        height: 34px;
+        padding: 0 5px;
+        margin-top: 10px;
+        border-radius: 2px;
+        width: 420px;
+      }
+    }
+    .ctrlDownlload {
+      padding-right: 0 !important;
+      margin-right: -5px;
+      .tipCon {
+        display: inline;
+      }
+    }
+    .historyPanel {
+      .viewHistory,
+      .uploadNewVersion {
+      }
+      .newVersionFile {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        &:hover ~ span {
+          color: rgb(255, 255, 255);
+        }
+      }
+      .mingPopup {
+        // padding: 5px;
+        color: #333;
+        .MdLoader {
+          margin: 10px auto;
+        }
+      }
+    }
+    .versionListCon {
+      padding: 8px 20px;
+    }
+    .versionList {
+      overflow: hidden;
+      color: #999;
+      font-size: 12px;
+      user-select: text;
+      .versionItem {
+        line-height: 40px;
+        border-top: 1px dashed #ccc;
+        margin-top: -1px;
+        &.active {
+          color: #06c;
+        }
+        .name {
+          display: inline-block;
+          width: 80px;
+        }
+        .updater {
+          display: inline-block;
+          width: 50px;
+        }
+        .updateTime {
+          display: inline-block;
+          width: 120px;
+        }
+        .historyBtn {
+          float: right;
+          margin-left: 3px;
+          margin-right: 3px;
+          width: 14px;
+          height: 40px;
+          i {
+            font-size: 14px;
+            cursor: pointer;
+            color: #7cafe2;
+          }
+        }
+      }
+    }
+    .split {
+      width: 1px;
+      height: 1em;
+      background-color: rgba(255, 255, 255, 0.8);
+      margin: 20px 10px;
+    }
+    .historyVersion,
+    .more,
+    .saveTo,
+    .delete,
+    .close,
+    .ctrlDownlload,
+    .shareNode {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      line-height: 54px;
+      padding: 0 11px;
+      i {
+        font-size: 21px;
+        vertical-align: middle;
+        line-height: inherit;
+      }
+      &:hover {
+        color: rgb(255, 255, 255);
+      }
+    }
+    .normal {
+      line-height: normal;
+    }
+    .officeEdit {
+      display: flex;
+      align-items: center;
+      color: #fff;
+      padding: 6px 15px;
+      margin: auto 0;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      span {
+        font-size: 13px;
+      }
+    }
+    .viewHistory, .uploadNewVersion {
+      background-color: rgba(255, 255, 255, 0.30);
+      transition: background-color 0.3s;
+      i {
+        font-size: 16px !important;
+      }
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.40) !important;
+      }
+    }
+    .download, .viewHistory, .uploadNewVersion {
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      margin: auto 5px;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      i {
+        font-size: 20px;
+      }
+      &.disable {
+        color: rgb(255, 255, 255);
+        background-color: rgba(244, 67, 54, 0.68);
+      }
+    }
+    .download:hover {
+      color: rgb(255, 255, 255);
+    }
+    .more {
+      .deletePopup {
+        padding: 10px;
+        font-size: 13px;
+        line-height: 1.3em;
+        .btnGroup {
+          text-align: right;
+          margin: 0;
+          button {
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+    .saveTo, .more {
+      position: relative;
+      font-size: 14px;
+      i {
+        vertical-align: middle;
+      }
+      .selectOptions {
+        z-index: 1;
+        width: 120px;
+        margin-top: -10px;
+      }
+    }
+    .more .selectOptions {
+      width: auto;
+    }
+    .close {
+      padding: 0 17px;
+      &:hover {
+        background-color: rgba(221, 44, 0, 0.4);
+      }
+    }
+  }
+  .previewPanel {
+    position: absolute;
+    top: 54px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    transition: top 0.4s;
+  }
+  .previewContainer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 50px;
+    transition: bottom 0.4s;
+    .ctrlCon {
+      .prev,
+      .next {
+        position: absolute;
+        z-index: 2;
+        transition: opacity 0.4s;
+        box-sizing: border-box;
+        top: 45%;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: rgba(117, 117, 117, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        font-size: 40px;
+        text-align: center;
+        line-height: 55px;
+        &:hover {
+          background-color: rgba(117, 117, 117, 0.4);
+        }
+      }
+      .prev {
+        left: 32px;
+        padding-right: 5px;
+      }
+      .next {
+        right: 32px;
+        padding-left: 5px;
+      }
+    }
+    .fileViewer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .imageViewer {
+      overflow: visible;
+      img {
+        background: #f5f5f5;
+      }
+    }
+    .iframeViewer {
+      background-color: #fff;
+      color: #333;
+    }
+    .canNotView,
+    .linkPreview {
+      font-size: 14px;
+      color: #919191;
+      text-align: center;
+      top: 50%;
+      position: absolute;
+      width: 100%;
+      margin-top: -125px;
+      .linkIconCon {
+        display: inline-block;
+        height: 97px;
+        max-width: 80%;
+        .linkThumbnailCon {
+          height: 97px;
+          display: table;
+          .linkThumbnail {
+            display: table-cell;
+            vertical-align: middle;
+            img {
+              max-height: 97px;
+              max-width: 100%;
+            }
+          }
+        }
+      }
+      .linkIcon {
+        width: 85px;
+        height: 97px;
+        display: inline-block;
+        background-size: cover !important;
+      }
+      p {
+        margin: 0;
+      }
+      .canNotViewIcon {
+        width: 85px;
+        height: 97px;
+        display: inline-block;
+        background-size: cover !important;
+      }
+      .fileName {
+        color: #fff;
+        line-height: 1.2em;
+        margin: 20px 0 40px;
+        font-size: 18px;
+        .ellipsis {
+          display: inline-block;
+          max-width: 70%;
+        }
+      }
+      .msg {
+        margin: -24px 0 40px;
+      }
+      .detail {
+        line-height: 1;
+        margin: 15px auto 30px;
+        font-size: 12px;
+      }
+      a.detail {
+        display: block;
+        color: inherit;
+        max-width: 600px;
+      }
+      .downloadBtn {
+        display: inline-block;
+        width: 110px !important;
+        height: 44px;
+        padding: 0;
+        line-height: 44px;
+        font-size: 16px;
+        color: #fff;
+        cursor: pointer;
+      }
+    }
+  }
+  .thumbnailGuide {
+    background-color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    transition: transform 0.4s;
+    .statusBar {
+      text-align: center;
+      padding: 13px 0;
+      .fold {
+        min-height: 24px;
+      }
+      .imageOperate {
+        display: inline-block;
+        .originImage {
+          display: inline-block;
+          margin: 0 15px;
+          text-decoration: none;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 12px;
+          border-radius: 2px;
+          padding: 3px 10px;
+          border-radius: 3px;
+          background: rgba(255, 255, 255, 0.1);
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+        }
+      }
+      [class^='icon-'],
+      [class*=' icon-'] {
+        font-size: 24px;
+        margin: 0 15px;
+        color: rgba(255, 255, 255, 0.8);
+        vertical-align: middle;
+        &:hover {
+          color: rgb(255, 255, 255);
+        }
+      }
+      .icon-apps,
+      .icon-arrow-down-border {
+        font-size: 26px;
+        margin-right: 0px;
+      }
+      .currentIndex {
+        line-height: 1em;
+        display: inline-block;
+        margin: 0 15px 0 5px;
+        color: #fff;
+        font-size: 14px;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+      }
+      .tip {
+        position: absolute;
+        right: 10px;
+        top: 16px;
+        color: #757575;
+      }
+    }
+    .thumbnailList {
+      display: inline-block;
+      text-align: center;
+      padding: 2px 0 10px;
+      max-width: 80%;
+      overflow-x: scroll;
+      margin: 0 auto;
+      .listContainer {
+        transition: margin-left 0.4s linear;
+      }
+      .thumbnailItem {
+        position: relative;
+        display: inline-block;
+        width: 70px;
+        height: 70px;
+        margin: 0 4px;
+        overflow: hidden;
+        cursor: pointer;
+        vertical-align: middle;
+        border: 2px solid transparent;
+        img {
+          max-width: 100%;
+        }
+        &.current {
+          &:after {
+            display: none;
+          }
+          border: 2px solid #2196f3;
+        }
+        &:after {
+          display: block;
+          content: '';
+          position: absolute;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.2);
+          transition: opacity 0.3s ease;
+        }
+        &:hover {
+          &:after {
+            display: none;
+          }
+        }
+        .typeBlock {
+          position: absolute;
+          box-sizing: border-box;
+          left: 0px;
+          top: 0px;
+          padding: 5px 5px;
+          width: 100%;
+          height: 100%;
+          text-align: left;
+          .fileName {
+            position: absolute;
+            word-break: break-all;
+            color: #fff;
+            line-height: 1.2em;
+          }
+          .extName {
+            position: absolute;
+            max-width: 60px;
+            color: #fff;
+            left: 6px;
+            bottom: 2px;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1em;
+          }
+        }
+      }
+    }
+  }
+  .attachmentInfo {
+    position: absolute;
+    background-color: #fff;
+    border-left: 1px solid #eee;
+    width: 328px;
+    top: 54px;
+    right: 0px;
+    bottom: 0;
+    transform: translateX(1px);
+    transition: top 0.4s;
+    .toggleBtn {
+      position: absolute;
+      cursor: pointer;
+      width: 40px;
+      height: 38px;
+      left: -41px;
+      top: 30px;
+      color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(117, 117, 117, 0.2);
+      text-align: center;
+      line-height: 38px;
+      font-size: 21px;
+      border-radius: 2px 0 0 2px;
+    }
+    .attDetails {
+      padding-top: 15px;
+      padding-left: 20px;
+      padding-right: 20px;
+      font-size: 13px;
+    }
+
+    .attDetails .attCreator a {
+      width: 45px;
+      height: 45px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+
+    .attDetails .attCreator span {
+      margin-left: 6px;
+      color: #696969;
+    }
+
+    .attDetails .attCreator .attAvater {
+      height: 45px;
+      width: 45px;
+      border-radius: 50%;
+    }
+
+    .attDetails .attCreatorName {
+      display: inline-block;
+      vertical-align: middle;
+      max-width: 15em;
+      margin-left: 6px;
+      color: #212121;
+    }
+
+    .attDetails .attOperateTime {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      color: #9c9c9c;
+    }
+
+    .attDetails .attPostInfo {
+      color: #9c9c9c;
+      font-size: 12px;
+      line-height: 24px;
+      height: 120px;
+      overflow: hidden;
+    }
+
+    .attDetails .viewDetails {
+      margin-top: 5px;
+      height: 30px;
+    }
+
+    .attDetails .postDetails {
+      cursor: pointer;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .attDetails .postDetails:hover {
+      cursor: pointer;
+      text-decoration: none;
+      color: #0066cc;
+    }
+  }
+  .noSelect {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .previewHeader {
+    .saveTo, .shareNode, .download, .more, .newVersion, .historyPanel {
+      display: none !important;
+    }
+    .fileName {
+      max-width: 100px !important;
+    }
+  }
+  .statusBar {
+    .imageOperate, .icon-apps {
+      display: none !important;
+    }
+  }
+}

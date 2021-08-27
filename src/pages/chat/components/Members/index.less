@@ -1,0 +1,138 @@
+.ChatPanel-Members {
+  border-bottom: 1px solid #ddd;
+
+  &-hander {
+    .icon-invite {
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 10px;
+      &:not(:hover) {
+        color: silver !important;
+      }
+    }
+  }
+  &-body {
+    padding: 0 16px;
+  }
+  &-list {
+    padding: 20px 0 5px;
+    margin-left: 10px;
+  }
+  &-creator {
+    margin-right: 18px;
+  }
+  &-item {
+    display: inline-block;
+    padding: 2px;
+    background: #fff;
+    margin-left: -10px;
+    vertical-align: middle;
+    font-size: 0;
+    border-radius: 50%;
+    img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.ChatPanel-MembersPanel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .addMember {
+    font-size: 20px;
+    cursor: pointer;
+    &:not(:hover) {
+      color: #9e9e9e !important;
+    }
+  }
+  .content {
+    /* 兼容 Chrome 低版本，80 是 header & filter 的高度 */
+    height: calc(~'100% - 80px');
+  }
+}
+
+.ChatPanel-Member-item {
+  display: flex;
+  padding: 12px 18px 12px 22px;
+  position: relative;
+  width: 100%;
+  height: 60px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  &:hover {
+    background-color: #f1f1f1;
+    .userAction {
+      opacity: 1;
+    }
+  }
+  .userAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    > img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .userInfo {
+    max-width: 184px;
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-left: 10px;
+    box-sizing: border-box;
+  }
+  .name {
+    vertical-align: middle;
+    max-width: 140px;
+    font-size: 14px;
+    color: #000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .icon-crown {
+    color: #f6bc2e;
+    margin-left: 5px;
+  }
+  .memberInfo {
+    width: 100%;
+    font-size: 12px;
+    color: #9e9e9e;
+    display: flex;
+    cursor: pointer;
+    padding-top: 1px;
+    > span {
+      vertical-align: middle;
+      margin-right: 8px;
+      min-width: 50px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .userAction {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-right: 15px;
+    opacity: 0;
+    transition: 0.3s;
+    .icon-chat-session {
+      cursor: pointer;
+      font-size: 18px;
+      &:not(:hover) {
+        color: #9e9e9e !important;
+      }
+    }
+  }
+}

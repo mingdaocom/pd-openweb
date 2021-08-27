@@ -1,0 +1,47 @@
+/**
+* component LinkPicker
+* prefix: .mui-linkpicker
+*/
+
+.mui-linkpicker {
+  display: inline-block;
+  width: 172px;
+  font-size: 13px;
+  min-height: 36px;
+
+  .mui-linkpicker-list {
+    margin-top: 6px;
+    & ~ .mui-linkpicker-add {
+      margin-top: -4px;
+    }
+  }
+
+  .mui-linkpicker-add {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: #fff;
+    font-size: 13px;
+    line-height: 20px;
+    padding: 8px 12px 7px;
+    color: #888;
+    cursor: pointer;
+    outline: none;
+
+    & > .Icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 18px;
+      vertical-align: middle;
+    }
+    & > span {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}

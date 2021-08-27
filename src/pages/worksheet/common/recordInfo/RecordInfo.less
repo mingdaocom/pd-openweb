@@ -1,0 +1,342 @@
+.workSheetRecordInfo {
+  .recordInfoCon {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #fafafa;
+    border-radius: 3px;
+    font-size: 13px;
+
+    .recordHeader {
+      padding: 0 16px 0 24px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 3;
+      height: 56px;
+      line-height: 56px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+
+      .prevRecordBtn,
+      .nextRecordBtn {
+        cursor: pointer;
+        font-size: 18px;
+        color: #9e9e9e;
+        margin-right: 6px;
+
+        &.disable {
+          color: #e0e0e0;
+        }
+      }
+
+      .refreshBtn {
+        &.disable {
+          color: #e0e0e0 !important;
+          cursor: default;
+        }
+      }
+
+      .refreshBtn.isLoading {
+        .icon {
+          display: inline-block;
+          animation: rotate 0.6s infinite linear;
+        }
+      }
+
+      .customButtons {
+        display: inline-block;
+        line-height: 1;
+        margin: 10px 0px 0px 20px;
+      }
+
+      .shareBtn {
+        line-height: 1em;
+        margin: 14px 0;
+      }
+
+      .shareText {
+        font-size: 13px;
+        margin-left: 2px;
+      }
+    }
+
+    .recordBody {
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+      .recordInfoForm {
+        position: relative;
+        overflow: hidden;
+        .isSplit {
+          height: 100%;
+          .topCon,
+          .relateRecordBlockCon {
+            overflow-y: auto;
+            overflow-x: hidden;
+          }
+          .topCon {
+            padding-bottom: 32px;
+          }
+        }
+        .recordInfoFormHeader {
+          padding: 0 24px;
+          .worksheetName {
+            cursor: pointer;
+            padding: 4px 8px;
+            text-decoration: none;
+            background: #f5f5f5;
+            font-size: 13px;
+            border-radius: 3px;
+
+            &:hover {
+              background: #f0f0f0;
+            }
+          }
+
+          .lastLog {
+            position: relative;
+            margin: 2px 20px;
+          }
+
+          .owner {
+            position: relative;
+            &::before {
+              content: ' ';
+              position: absolute;
+              left: -10px;
+              top: 2px;
+              bottom: 2px;
+              width: 1px;
+              background-color: #ddd;
+            }
+            .ownerBlock {
+              height: 24px;
+              display: inline-block;
+              border-radius: 24px;
+              padding-right: 6px;
+              &:not(.disabled):hover {
+                background-color: #f5f5f5;
+              }
+              &.disabled {
+                .icon-arrow-down {
+                  display: none;
+                }
+              }
+            }
+          }
+
+          .recordTitle {
+            font-weight: 500 !important;
+            margin: 12px 0 16px;
+            word-break: break-all;
+            line-height: 1.3em;
+            vertical-align: middle;
+            font-size: 24px;
+            color: #333;
+          }
+        }
+        .recordInfoFormContent {
+          padding: 0 24px;
+        }
+        .abnormalCon {
+          width: 100%;
+          height: 100%;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          color: #777;
+          .statusIcon {
+            font-size: 84px;
+            color: #e0e0e0;
+          }
+        }
+      }
+
+      .recordInfoInfo {
+        min-width: 330px;
+        &:not(.flex) {
+          width: 420px;
+        }
+        .discussLogFile {
+          width: 100%;
+          position: relative;
+          background: #fafafa;
+          border-color: #ddd !important;
+          font-size: 13px;
+          .header {
+            height: 56px;
+            padding: 2px 24px;
+            border-color: #eaeaea !important;
+            > .talk {
+              position: relative;
+              line-height: 50px;
+              margin: 0 14px;
+              font-size: 14px !important;
+              font-weight: 500;
+              &.tab0 {
+                margin-right: 37px;
+                &:after {
+                  content: ' ';
+                  position: absolute;
+                  right: -26px;
+                  top: 14px;
+                  width: 1px;
+                  height: 16px;
+                  background-color: rgba(0, 0, 0, 0.12);
+                }
+              }
+              &:first-child {
+                margin-left: 0px;
+              }
+            }
+          }
+          .WorkSheetCommentList {
+            padding-left: 24px !important;
+            padding-right: 24px !important;
+          }
+        }
+      }
+    }
+    .relateRecordTable .worksheetTable {
+      border-top: 1px solid rgba(0, 0, 0, 0.09);
+      .mdTable {
+        background-color: transparent !important;
+      }
+    }
+  }
+
+  // dialog
+  .mui-dialog-header {
+    display: none;
+  }
+  .mui-dialog-body {
+    padding: 0 !important;
+  }
+}
+
+.relateRecordBlock {
+  .searchIcon {
+    position: relative;
+    top: 4px;
+    right: 10px;
+    z-index: 2;
+    .icon-search {
+      position: relative;
+      margin: 5px 0;
+    }
+    .searchInput {
+      font-size: 0px;
+      overflow: hidden;
+      background: #eaeaea;
+      height: 28px;
+      border-radius: 28px;
+      input {
+        width: 150px;
+        margin-left: 30px;
+        padding-left: 0px;
+        height: 28px;
+        line-height: 28px;
+        font-size: 12px;
+        border: none;
+        background: transparent;
+      }
+    }
+    .clearKeywords {
+      cursor: pointer;
+      margin: 5px;
+      position: absolute;
+      right: 0px;
+    }
+  }
+}
+// 自定义按钮
+.recordCustomButton.ming.Button {
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+  padding: 0 16px !important;
+  height: 34px !important;
+  min-width: 72px;
+  line-height: 32px !important;
+  color: #2196f3;
+  border-color: #2196f3;
+  transition: none;
+  vertical-align: middle;
+  display: inline-block;
+
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+
+    i {
+      line-height: 32px;
+      width: 20px;
+    }
+
+    span {
+      flex: 1;
+      display: inline;
+      line-height: 32px;
+      text-align: left;
+    }
+  }
+
+  .icon {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+
+  &:not(:disabled):hover::before {
+    content: ' ';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &.Button--disabled {
+    color: rgba(117, 117, 117, 0.5) !important;
+    background-color: #eaeaea !important;
+    border-color: #eaeaea !important;
+  }
+}
+
+.customButtonConfirm {
+  .mui-dialog-default-title {
+    line-height: 1.3em;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.DropdownPrintTrigger {
+  width: 180px;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: 0px 4px 16px #0000003d;
+  border-radius: 3px;
+  padding: 6px 0;
+  .tempList {
+    max-height: 300px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+    overflow: auto;
+    &.noDefaultPrint {
+      padding-bottom: 0;
+      border-bottom: 0px;
+    }
+  }
+  .defaultPrint {
+    padding-top: 2px;
+  }
+}

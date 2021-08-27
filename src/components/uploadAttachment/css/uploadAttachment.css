@@ -1,0 +1,420 @@
+.attachmentList {
+  display: none;
+}
+.attachmentList.show {
+  display: block;
+}
+/*图片*/
+.uploadPicList img {
+  border-radius: 0% !important;
+}
+.uploadPicList {
+  margin-left: 10px;
+  min-height: 2px;
+  padding: 0px;
+}
+.uploadPicList .progressImg {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background: white;
+}
+.uploadPicList .progressImg .progressPanel {
+  width: 119px;
+}
+.uploadPicList .picItem {
+  position: relative;
+  margin: 0px;
+  margin-right: 8px;
+  margin-top: 8px;
+  width: 119px;
+  height: 83px;
+  padding: 0px;
+  float: left;
+  border: 1px solid #aaa;
+  flex: 1;
+  -ms-flex: 1;
+}
+.uploadPicList .picItem .uploadThumbPic {
+  max-height: 83px;
+  max-width: 120px;
+  border: 0px;
+  min-width: 119px;
+}
+.uploadPicList .picItem .picDelete {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  background-color: white;
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 15px;
+  height: 16px;
+  font-weight: bold;
+}
+.uploadPicList .picItem .picContainer {
+  height: 100%;
+  text-align: center;
+  overflow: hidden;
+  border: 0px;
+}
+.uploadPicList .picItem img {
+  vertical-align: middle;
+}
+.uploadPicList .picItem .nullImage {
+  width: 0px;
+  height: 100%;
+}
+
+/*上传插件 图片进度条样式*/
+.progressImg {
+  color: #aaa;
+  text-align: center;
+}
+.progressImg .titleLimitWidth {
+  max-width: 230px;
+  width: expression((this.width>230) ? '230px': this.width);
+  line-height: 24px;
+}
+.progressImg .progressPanel {
+  height: 81px;
+  width: 119px;
+}
+.progressImg .progressPanel .progressbar {
+  background-color: #ddd;
+  height: 83px;
+  width: 1px;
+  position: absolute;
+  top: 0px;
+}
+
+.imgCancel {
+  top: -58px;
+  position: relative;
+}
+.imgQueuing {
+  width: 40px;
+  height: 20px;
+  margin: 23px 0 0 40px;
+  z-index: 1;
+  line-height: 20px;
+  position: absolute;
+}
+
+/*文档*/
+.uploadDocList {
+  display: flex;
+  flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  margin-left: 10px;
+}
+.uploadDocList .progress {
+  margin: 10px 0;
+  height: 45px;
+  background: white;
+  width: 260px;
+  min-width: 230px;
+}
+.uploadDocList .progress .progressPanel {
+  width: 110px;
+}
+.uploadDocList .progress .fileIcon {
+  height: 40px;
+  width: 35px;
+  margin: 2px 5px 3px 5px;
+}
+.uploadDocList .docItem {
+  position: relative;
+  float: left;
+}
+.uploadDocList .docItem .docVersionChoose {
+  line-height: 18px;
+  margin-top: 10px;
+}
+.uploadDocList .docMessage {
+  width: 190px;
+}
+.uploadDocList .docItem .eidtFileNameContainer {
+  line-height: 22px;
+}
+.uploadDocList .docItem .editFileNameBox {
+  height: 20px;
+  font-size: 12px;
+  line-height: 18px;
+  float: left;
+  width: 100px;
+  border: 1px solid #d5d5d5;
+  background-color: #fff;
+  padding-left: 5px;
+}
+.uploadDocList .docItem .docVersionChoose {
+  margin-bottom: 10px;
+}
+.uploadDocTag {
+  position: absolute;
+  left: 3px;
+  top: 39px;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 16px;
+  height: 16px;
+}
+.uploadDocTag.uploadSuc {
+  background-image: url('../images/uploadSuc.jpg');
+  margin-top: -3px;
+  margin-left: -3px;
+}
+.uploadDocTag.uploadFail {
+  background-image: url('../images/uploadFail.jpg');
+  margin-top: -3px;
+  margin-left: -3px;
+}
+.schedule {
+  width: 100%;
+  height: 100%;
+}
+.speedProgress {
+  float: left;
+  margin-left: 5px;
+}
+
+/*上传插件 文件进度条样式*/
+.progress {
+  color: #aaa;
+  text-align: center;
+}
+.progress .titleLimitWidth {
+  max-width: 120px;
+  width: expression((this.width>120) ? '120px': this.width);
+  line-height: 24px;
+}
+.progress .progressPanel {
+  height: 5px;
+  width: 200px;
+  background-color: #eee;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.progress .progressPanel .progressbar {
+  background-color: #ddd;
+  height: 5px;
+  width: 1px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+
+/*上传时回复附件*/
+.commentAttachment {
+  background-color: White;
+  margin-top: 10px;
+  font-size: 12px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.commentAttachment .commentArrowTop {
+  display: inline-block;
+  width: 0px;
+  height: 0px;
+  border-width: 7px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+  margin-top: -14px;
+  margin-left: 40px;
+  position: absolute;
+}
+/*.commentAttachment .docItem{width:230px;}*/
+.commentAttachment .docItem .docMessage {
+  width: 185px;
+}
+.commentAttachment .docItem .editFileNameBox {
+  width: 93px;
+}
+.commentAttachment .docItem .titleLimitWidth {
+  max-width: 105px;
+  width: expression((this.width>110) ? '110px': this.width);
+  line-height: 24px;
+}
+.commentAttachment .docItem .progressPanel {
+  width: 100px;
+}
+.commentAttachment .picItem {
+  margin: 7px 7px 7px 0px;
+}
+
+#uploadStorageOverDialog .uploadStorageOverLogo {
+  background: url('../images/uploadStorageOver.jpg') no-repeat;
+  width: 34px;
+  height: 27px;
+}
+#uploadStorageOverDialog .uploadStorageOverTxt {
+  font-size: 16px;
+  font-family: 'Microsoft Yahei';
+  margin-left: 20px;
+}
+#uploadStorageOverDialog .uploadStorageOverBtn {
+  font-size: 14px;
+  padding: 7px 12px;
+}
+
+.editUpdaterDialog .mui-dialog-body {
+  overflow: visible !important;
+}
+
+.editUpdaterDialog .kcFileList .kcDocItem {
+  width: 260px;
+  overflow: hidden;
+  display: inline-block;
+}
+.editUpdaterDialog .kcFileList .kcDocItem .nodeIconContainer {
+  background-color: #eee;
+  margin-right: 5px;
+  width: 45px;
+  height: 45px;
+}
+.editUpdaterDialog .kcDocItem .nodeIconContainer img {
+  width: 100%;
+  height: 100%;
+}
+
+.editUpdaterDialog .kcFileList {
+  display: flex;
+  flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+.editUpdaterDialog .kcFileList .docItem {
+  position: relative;
+  float: left;
+}
+.editUpdaterDialog .kcFileList .docMessage {
+  width: 190px;
+}
+.editUpdaterDialog .kcFileList .docMessage .shareUrl {
+  width: 190px;
+}
+.editUpdaterDialog .kcFileList .nodeIcon {
+  height: 24px;
+  width: 21px;
+  margin: 10px 12px 9px 12px;
+}
+.editUpdaterDialog .updaterAttachmentSplitter {
+  border: none;
+  padding: 0;
+  margin: 10px 0 0px;
+  border-top: 1px solid;
+}
+
+.updaterDialog_Main .attachmentPrograss {
+  width: 100px;
+  background-color: #f0f0f0;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  height: 5px;
+  margin-top: 7px;
+  margin-right: 7px;
+}
+.updaterDialog_Main .attachmentPrograss .currentPrograss {
+  background-color: #ddd;
+  width: 0;
+  height: 5px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.uploadAttaachmentsContainer .updaterDialog_Main {
+  border-right: 0px;
+  zoom: 1;
+  background-color: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+.uploadAttaachmentsContainer .updaterDialog_Main .updaterAttachmentSplitter {
+  border: none;
+  padding: 0;
+  margin: 12px 0 2px;
+  border-top: 1px solid;
+}
+.uploadAttaachmentsContainer .updaterDialog_Main .uploadAttachmentLink {
+  color: #aaa;
+  cursor: pointer;
+  margin-left: 0px;
+  margin-right: 20px;
+  display: inline-block;
+}
+.uploadAttaachmentsContainer .updaterDialog_Main .uploadAttachmentLink .icon-home-knowledge {
+  display: inline-block;
+  margin-top: -2px;
+  font-size: 16px;
+}
+.uploadAttaachmentsContainer .updaterDialog_Main .uploadAttachmentLink .icon-localUpload {
+  display: inline-block;
+  margin-top: -2px;
+  font-size: 16px;
+  width: 15px;
+}
+.uploadAttaachmentsContainer .arrowUpInner {
+  width: 0px;
+  height: 0px;
+  border: 9px solid;
+  border-color: transparent transparent #f8f8f8 transparent;
+  position: absolute;
+  top: -8px;
+  left: -9px;
+}
+.uploadAttaachmentsContainer .arrowUpOuter {
+  width: 0px;
+  height: 0px;
+  margin-bottom: -1px;
+  border-width: 10px 9px;
+  border-style: solid;
+  border-color: #fff #fff #cfcfcf #fff;
+  position: relative;
+  border-top-width: 0px;
+}
+.uploadAttaachmentsContainer .kcAttachmentList {
+  margin-top: 10px;
+}
+.uploadAttaachmentsContainer .docItem .fileIcon {
+  height: 40px;
+  width: 35px;
+  margin: 2px 5px 3px 5px;
+}
+.uploadAttaachmentsContainer .kcDocItem {
+  width: 260px;
+  overflow: hidden;
+  display: inline-block;
+}
+.uploadAttaachmentsContainer .kcDocItem .nodeIconContainer {
+  background-color: #eee;
+  margin-right: 5px;
+  width: 45px;
+  height: 45px;
+}
+.uploadAttaachmentsContainer .kcDocItem .nodeIcon {
+  height: 24px;
+  width: 21px;
+  margin: 10px 12px 9px 12px;
+}
+.uploadAttaachmentsContainer .kcDocItem .nodeImg img {
+  width: 100%;
+  height: 100%;
+}
+.uploadAttaachmentsContainer .kcDocItem .shareUrl {
+  max-width: 200px;
+}
+.uploadAttaachmentsContainer .addAttachmentToKc {
+  margin-left: 7px;
+}
+.uploadAttaachmentsContainer .updaterAttachmentSplitter {
+  border: none;
+  padding: 0;
+  margin: 12px 0 2px;
+  border-top: 1px solid;
+}

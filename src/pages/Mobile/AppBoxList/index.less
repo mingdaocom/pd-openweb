@@ -1,0 +1,60 @@
+
+.appBox {
+  display: flex;
+  flex-direction: column;
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #fff;
+  }
+
+  .categoryList {
+    .am-list-item {
+      height: 60px;
+    }
+    .am-list-thumb img {
+      width: 28px;
+      height: 28px;
+    }
+    .am-list-content {
+      font-size: 17px;
+    }
+  }
+
+  .appsLibraryList {
+    .am-list-item {
+      height: 60px;
+    }
+    .iconWrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+    }
+    .am-list-content {
+      display: flex;
+      flex-direction: column;
+
+      .am-list-brief {
+        font-size: 12px;
+      }
+    }
+    .am-list-extra {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+    .install {
+      font-size: 13px;
+      width: 58px;
+      height: 30px;
+      justify-content: center;
+      border-radius: 24px;
+      color: #2196F3;
+      background-color: #F0F8FF;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+﻿<div class="folderChartChargeList boderRadAll_3 boxShadow5">
+    <div class="folderChartChargeHead relative">
+        {{=_l('所有负责人')}}<span class="folderChartSelectAll folderChartSelect pointer"><i class="icon-ok"></i></span>
+    </div>
+    <ul class="folderChartChargeLists">
+        {{~it:list}}
+        <li>
+            <img src="{{=list.avatar}}" />
+            {{!list.fullName}}
+            <span class="folderChartSelectBtn folderChartSelect pointer" data-id="{{=list.accountID}}"><i class="icon-ok"></i></span>
+        </li>
+        {{~}}
+    </ul>
+    <div class="folderChartChargeOperator">
+        <span class="folderChartChargeNo">{{=_l('清除')}}</span>
+        <span class="folderChartChargeYes ThemeColor3">{{=_l('确定')}}</span>
+    </div>
+</div>

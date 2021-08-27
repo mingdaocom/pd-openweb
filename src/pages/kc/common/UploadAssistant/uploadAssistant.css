@@ -1,0 +1,187 @@
+﻿html.AppKcUpload,
+.AppKcUpload body,
+.uploadAssistant {
+  width: 100%;
+  height: 100%;
+  color: #666;
+  min-width: 930px;
+}
+
+.uploadAssistant .optionContent {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+
+.uploadAssistant .dropContainer {
+  box-sizing: border-box;
+  margin: 25px 25px 15px;
+  height: 230px;
+  border: 2px dashed;
+}
+
+.uploadAssistant .uploadIcon {
+  font-size: 258px;
+  display: block;
+  margin-top: -26px;
+}
+
+.uploadAssistant .dropDesc {
+  margin-top: -36px;
+}
+
+.uploadAssistant .chooseBtn {
+  color: white;
+  background: blue;
+  display: inline-block;
+  border-radius: 3px;
+  cursor: pointer;
+  height: 38px;
+  line-height: 38px;
+  width: 124px;
+  text-align: center;
+  font-size: 14px;
+  position: relative;
+}
+.uploadAssistant .chooseBtn .chooseBtnText {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.uploadAssistant .selectOptions {
+  width: 100%;
+  text-align: left;
+}
+.uploadAssistant .selectOptions .Item-content {
+  color: #8a8a8a;
+  padding-right: 0px !important;
+}
+
+.uploadAssistant .uploadPathBlock {
+  margin-top: 11px;
+}
+
+.uploadAssistant .uploadPathBlock > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+.uploadAssistant .uploadPathBlock .uploadPath {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+  text-align: left;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.uploadAssistant .uploadPathBlock .changeUploadPath {
+  margin-left: 10px;
+}
+
+.uploadAssistant .fgSuccess {
+  color: #5cb85c;
+}
+.uploadAssistant .fgError {
+  color: red;
+}
+.uploadAssistant .bgSuccess {
+  background: #5cb85c;
+}
+.uploadAssistant .bgError {
+  background: red;
+}
+
+.uploadAssistant .fileList {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 21px;
+  overflow: auto;
+}
+.uploadAssistant .fileList.fileListHeader {
+  font-size: 14px;
+  margin-top: 12px;
+  border-top: 1px solid #ddd;
+}
+.uploadAssistant .fileList .fileListItem {
+  display: flex;
+  height: 45px;
+  line-height: 45px;
+  border-bottom: 1px solid #ddd;
+}
+.uploadAssistant .fileList.fileListBody .fileListItem {
+  height: 49px;
+  line-height: 49px;
+}
+.uploadAssistant .fileList .fileListItem > div {
+  vertical-align: middle;
+  white-space: nowrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.uploadAssistant .fileList .fileListName {
+  min-width: 40px;
+  flex: 1;
+  margin-right: 15px;
+}
+.uploadAssistant .fileList .fileListName .type {
+  width: 21px;
+  height: 24px;
+  vertical-align: top;
+  display: inline-block;
+  margin-top: 12px;
+  margin-right: 14px;
+}
+.uploadAssistant .fileList .fileListSize {
+  width: 113px;
+  margin-right: 15px;
+}
+.uploadAssistant .fileList .fileListProgress {
+  width: 275px;
+  margin-right: 15px;
+}
+.uploadAssistant .fileList .fileListProgress .uploadPercentage {
+  height: 49px;
+  line-height: 49px;
+  position: relative;
+}
+.uploadAssistant .fileList .fileListProgress .progressTitle {
+  position: absolute;
+  top: 8px;
+  left: 0;
+}
+.uploadAssistant .fileList .fileListProgress .progressContainer {
+  height: 4px;
+  width: 170px;
+  margin-top: 15px;
+  background: #ddd;
+  float: left;
+}
+.uploadAssistant .fileList .fileListProgress .uploadPercentageText {
+  width: 40px;
+  margin-left: 10px;
+  float: left;
+  text-align: center;
+}
+.uploadAssistant .fileList .fileListProgress .uploadPercentageText.Icon {
+  font-size: 16px;
+  margin-top: 16px;
+}
+.uploadAssistant .fileList .fileListPosition {
+  width: 155px;
+  margin-right: 15px;
+}
+.uploadAssistant .fileList .fileListAction {
+  width: 60px;
+}
+
+.uploadAssistant .fileList .fileListAction .fileListActionBtn {
+  user-select: none;
+  font-size: 18px;
+  color: #aaa;
+}
+.uploadAssistant .fileList .fileListAction .textIcon {
+  font-size: 26px;
+  margin-left: 4px;
+}

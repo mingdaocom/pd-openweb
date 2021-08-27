@@ -1,0 +1,611 @@
+﻿<div class="customContentBox relative mTop10">
+{{ for(var index in it.data) { }}
+  <div class="flexRow customRowBox {{=it.hasAuth === false ? 'customFieldsNoAuth' : ''}}">
+    {{~it.data[index].sort(function(a, b) { return a.col > b.col ? 1 : -1 }):item}}
+      {{var controlType = it.controlType['' + item.type];}}
+      {{if (item.type === 2) { controlType[1] = item.half ? 1 : 2; }}}
+      {{var readonly = item.type > 10000 || item.type === 20;}}
+
+      {{? controlType[1] === 3}}
+        {{#def.subsection:item }}
+      {{?}}
+
+      {{? controlType[1] === 2}}
+        <div class="flex">
+          <div class="flexRow customContents">
+            <div class="customFieldsLabel ellipsis {{=item.required ? 'required' : ''}}" title="{{=item.controlName}}">
+              {{!item.controlName }}：
+            </div>
+            <div class="flex customFieldsBox" data-id="{{=item.controlId }}">
+              {{?controlType[0] === 'text'}}
+                {{#def.text:item }}
+              {{?}}
+
+              {{?controlType[0] === 'textarea'}}
+                {{#def.textarea:item }}
+              {{?}}
+
+              {{?controlType[0] === 'remark'}}
+                {{#def.remark:item }}
+              {{?}}
+
+              {{?controlType[0] === 'userpicker'}}
+                {{#def.userpicker:item }}
+              {{?}}
+
+              {{?controlType[0] === 'grouppicker'}}
+                {{#def.grouppicker:item }}
+              {{?}}
+
+              {{?controlType[0] === 'datetimerange'}}
+                {{#def.datetimerange:item }}
+              {{?}}
+
+              {{?controlType[0] === 'moneycn'}}
+                {{#def.moneycn:item }}
+              {{?}}
+
+              {{?controlType[0] === 'radio'}}
+                {{#def.radio:item }}
+              {{?}}
+
+              {{?controlType[0] === 'checkbox'}}
+                {{#def.checkbox:item }}
+              {{?}}
+
+              {{?controlType[0] === 'attachment'}}
+                {{#def.attachment:item }}
+              {{?}}
+
+              {{?controlType[0] === 'score'}}
+                {{#def.score:item }}
+              {{?}}
+
+              {{?controlType[0] === 'relation'}}
+                {{#def.relation:item }}
+              {{?}}
+            </div>
+          </div>
+        </div>
+      {{?}}
+
+      {{? controlType[1] === 1}}
+        {{? it.data[index].length === 1 && item.col === 1}}
+          <div class="flex"></div>
+        {{?}}
+
+        <div class="flex">
+          <div class="flexRow customContents">
+            <div class="customFieldsLabel ellipsis {{=item.required ? 'required' : ''}}" title="{{=item.controlName}}">
+              {{!item.controlName }}：
+            </div>
+            <div class="flex customFieldsBox" data-id="{{=item.controlId }}">
+              {{?controlType[0] === 'text'}}
+                {{#def.text:item }}
+              {{?}}
+
+              {{?controlType[0] === 'textarea'}}
+                {{#def.textarea:item }}
+              {{?}}
+
+              {{?controlType[0] === 'remark'}}
+                {{#def.remark:item }}
+              {{?}}
+
+              {{?controlType[0] === 'userpicker'}}
+                {{#def.userpicker:item }}
+              {{?}}
+
+              {{?controlType[0] === 'grouppicker'}}
+                {{#def.grouppicker:item }}
+              {{?}}
+
+              {{?controlType[0] === 'datetimerange'}}
+                {{#def.datetimerange:item }}
+              {{?}}
+
+              {{?controlType[0] === 'moneycn'}}
+                {{#def.moneycn:item }}
+              {{?}}
+
+              {{?controlType[0] === 'phone'}}
+                {{#def.phone:item }}
+              {{?}}
+
+              {{?controlType[0] === 'telephone'}}
+                {{#def.telephone:item }}
+              {{?}}
+
+              {{?controlType[0] === 'email'}}
+                {{#def.email:item }}
+              {{?}}
+
+              {{?controlType[0] === 'number'}}
+                {{#def.number:item }}
+              {{?}}
+
+              {{?controlType[0] === 'certificate'}}
+                {{#def.certificate:item }}
+              {{?}}
+
+              {{?controlType[0] === 'dateTime'}}
+                {{#def.dateTime:item }}
+              {{?}}
+
+              {{?controlType[0] === 'dropDown'}}
+                {{#def.dropDown:item }}
+              {{?}}
+
+              {{?controlType[0] === 'location'}}
+                {{#def.location:item }}
+              {{?}}
+            </div>
+          </div>
+        </div>
+
+        {{? it.data[index].length === 1 && item.col === 0}}
+          <div class="flex"></div>
+        {{?}}
+      {{?}}
+
+      {{? controlType[1] === 0}}
+        {{?controlType[0] === 'detail'}}
+          {{#def.detail:item }}
+        {{?}}
+      {{?}}
+    {{~}}
+  </div>
+{{ } }}
+</div>
+
+{{##def.text:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint; }}
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? (item.type === 20 ? '' : hint) : '未填写' }}" class="customText {{=readonly ? 'customFieldsNoAuth' : ''}}" value="{{=(item.type === 20) ? (item.value.toString().replace(/(\d)(?=(\d{3})+\.)/g, '$1,') + ' ' + item.unit) : item.value }}" data-keydownblursave="true" maxlength="100" data-required="{{=item.required}}" data-type="{{=item.type}}" data-unit="{{=item.unit}}" />
+#}}
+
+{{##def.textarea:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint; }}
+  {{var isNull = item.value === '';}}
+
+  <div class="customTextarea {{=it.hasAuth === false ? '' : 'customTextareaEdit'}} {{=isNull ? 'Hidden' : ''}}">
+    {{=it.linkify(item.value) }}
+  </div>
+
+  {{? it.hasAuth !== false}}
+    <textarea placeholder="{{=hint }}" class="customTextarea {{=isNull ? '' : 'Hidden'}}" data-blursave="true" maxlength="3000" data-required="{{=item.required}}" data-autofill="true">{{=item.value }}</textarea>
+    {{? item.dataList && item.dataList.length }}
+      <ul class="custom-autofill">
+        {{~item.dataList:label}}
+          <li>{{=label }}</li>
+        {{~}}
+      </ul>
+    {{?}}
+  {{?}}
+#}}
+
+{{##def.remark:item:
+  <div class="customRemark" style="white-space: pre-wrap;">{{=item.value }}</div>
+#}}
+
+{{##def.userpicker:item:
+  <div class="customUserList"
+      value='{{=item.value }}'
+      data-required="{{=item.required}}"
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"></div>
+#}}
+
+{{##def.grouppicker:item:
+  <div class="customGroupList"
+      value='{{=item.value }}'
+      data-required="{{=item.required}}"
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"></div>
+#}}
+
+{{##def.datetimerange:item:
+  <div class="datetimeRange"
+      data-required="{{=item.required}}"
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"></div>
+#}}
+
+{{##def.moneycn:item:
+  <div class="moneyCn" data-bind={{=item.dataSource}}>{{=it.hasAuth === false || item.value ? item.value : '未填写'}}</div>
+#}}
+
+{{##def.phone:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint;}}
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? hint : '未填写' }}" class="customText" data-validation="Phone" value="{{=item.value }}" data-validate="{{=item.validate }}" data-required="{{=item.required}}" data-autofill="true" />
+  {{? item.dataList && item.dataList.length }}
+    <ul class="custom-autofill">
+      {{~item.dataList:label}}
+        <li>{{=label }}</li>
+      {{~}}
+    </ul>
+  {{?}}
+#}}
+
+{{##def.telephone:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint;}}
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? hint : '未填写' }}" class="customText" data-validation="Telephone" value="{{=item.value }}" data-validate="{{=item.validate }}" data-required="{{=item.required}}" data-autofill="true" />
+  {{? item.dataList && item.dataList.length }}
+    <ul class="custom-autofill">
+      {{~item.dataList:label}}
+        <li>{{=label }}</li>
+      {{~}}
+    </ul>
+  {{?}}
+#}}
+
+{{##def.email:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint; }}
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? hint : '未填写' }}" class="customText" data-validation="Email" value="{{=item.value }}" data-validate="{{=item.validate }}" data-required="{{=item.required}}" data-autofill="true" />
+  {{? item.dataList && item.dataList.length }}
+    <ul class="custom-autofill">
+      {{~item.dataList:label}}
+        <li>{{=label }}</li>
+      {{~}}
+    </ul>
+  {{?}}
+#}}
+
+{{##def.number:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint; }}
+  {{var dot = item.value.length > 16 ? (15 - item.value.split('.')[0].length) : item.dot;}}
+  <div class="customFieldsNumberBox pointer">
+    <span class="customFieldsNumber overflow_ellipsis {{=item.value ? '' : 'grayColor'}}">{{!item.value ? __parseNumber(parseFloat(item.value).toFixed(item.dot)) : ((it.hasAuth !== false) ?hint: '未填写') }}</span>
+    <span class="customUnits {{=((it.hasAuth !== false && item.value) || it.hasAuth === false) ? '' : 'Hidden'}}">{{!item.unit }}</span>
+  </div>
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? hint : '未填写' }}" class="customText Hidden" data-validation="Number" data-dot="{{=item.dot}}" value="{{=item.value ? parseFloat(item.value).toFixed(dot < 0 ? 0 : dot) : '' }}" maxlength="16" data-required="{{=item.required}}" data-id="{{=item.controlId}}" />
+#}}
+
+{{##def.certificate:item:
+  {{var hint = item.required ? ((item.hint.legnth > 10 ? (item.hint.slice(0, 10) + '...') : item.hint) + '(必填)') : item.hint; }}
+  <input type="text" placeholder="{{=(it.hasAuth !== false) ? hint : '未填写' }}" class="customText" data-validation="{{=it.controlType.certificate[item.enumDefault] }}" value="{{=item.value }}" data-validate="{{=item.validate }}" data-required="{{=item.required}}" />
+#}}
+
+{{##def.radio:item:
+  <div class="customOptionsBox" data-required="{{=item.required}}">
+  {{~item.options:option}}
+    <span class="customRadio {{=option.key === item.value ? 'customChecked' : ''}}" data-type="{{=option.key }}">
+      <span class="customRadioIcon ThemeBorderColor3"><i class="ThemeBGColor3"></i></span>
+      <span class="customRadioTitle overflow_ellipsis" title="{{!option.value}}">
+        {{!option.value }}
+      </span>
+    </span>
+  {{~}}
+  </div>
+#}}
+
+{{##def.checkbox:item:
+  {{var key = [];}}
+  {{for (var i = 0; i < item.value.length; i++) { }}
+    {{? item.value.substr(i, 1) !== '0'}}
+      {{key.push('1' + item.value.slice(i + 1).replace(/1/g, 0));}}
+    {{?}}
+  {{} }}
+  <div class="customOptionsBox" data-required="{{=item.required}}">
+  {{~item.options:option}}
+    <span class="customCheckox {{=key.indexOf(option.key) >= 0 ? 'customChecked' : ''}}" data-type="{{=option.key }}">
+      <span class="customCheckoxIcon ThemeBorderColor3 ThemeBGColor3"><i class="icon-ok"></i></span>
+      <span class="customRadioTitle overflow_ellipsis" title="{{!option.value}}">
+        {{!option.value }}
+      </span>
+    </span>
+  {{~}}
+  </div>
+#}}
+
+{{##def.dropDown:item:
+  {{ var _dropdownValue = (item.value ? item.value : item.default); }}
+  {{var dropdownName = (_dropdownValue !== '0' && _.result(_.find(item.options, 'key', _dropdownValue), 'value')) ? _.result(_.find(item.options, 'key', _dropdownValue), 'value') : (item.hint ? item.hint : _l('请选择'));}}
+  <div class="customDropdownBox multipleDropdown ThemeBorderColor4 {{=(_dropdownValue !== '0' && _.result(_.find(item.options, 'key', _dropdownValue), 'value')) ? '' : 'empty' }}"
+      data-type="{{=_dropdownValue }}"
+      data-required="{{=item.required}}"
+      data-source="{{=item.dataSource}}"
+      value='{{=_dropdownValue }}'
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"
+      data-hint="{{=item.hint || _l('请选择')}}">
+    <span class="customDropdownName ellipsis" title="{{=dropdownName }}">{{!dropdownName }}</span>
+    <i class="icon-arrow-down-border"></i>
+    <ul class="customDropdownList Hidden">
+      <li class="ThemeBGColor3 ellipsis customDropdownClear {{=_dropdownValue !== '0' ? '' : 'Hidden'}}" data-type="0" title="{{=_l('清除选择')}}">{{=_l('清除选择')}}</li>
+      {{~item.options:option}}
+        <li class="ThemeBGColor3 ellipsis" data-type="{{=option.key }}" title="{{=option.value }}">{{!option.value }}</li>
+      {{~}}
+    </ul>
+  </div>
+#}}
+
+{{##def.attachment:item:
+  <div class="flexRow customFileUploader"
+      data-required="{{=item.required}}"
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"></div>
+#}}
+
+{{##def.dateTime:item:
+  <div class="datetime"
+      data-required="{{=item.required}}"
+      data-hasauth="{{=it.hasAuth}}"
+      data-id="{{=item.controlId}}"></div>
+#}}
+
+{{##def.location:item:
+  {{var level = item.type === 19 ? 1 : item.type === 23 ? 2 : 3;}}
+  {{var locationText = _.remove(item.value.split('/'), function(item, i) { return i < level; }).join('/');}}
+  {{var holder = level === 1 ? _l('省') : level === 2 ? _l('省-市') : _l('省-市-县');}}
+  {{var hint = item.required ? _l('(必填)') : ''; }}
+  <input type='text' class="customText customLocation" readonly="true" value="{{=locationText }}" data-level="{{=level }}" placeholder="{{=(it.hasAuth !== false) ? (holder + hint) : '未填写' }}" data-required="{{=item.required}}" selectValue="{{=item.value}}" title="{{=locationText}}" />
+#}}
+
+{{##def.score:item:
+  <div class="customScoreBox flexRow">
+    {{?item.enumDefault === 2}}
+      <span class="customScoreLabel Font14">{{=item.value}}</span>
+      <span class="Font14 mRight10">/10</span>
+    {{?}}
+    <span class="customScore flex" data-type="score" data-enum="{{=item.enumDefault}}" data-score="{{=item.value}}"></span>
+  </div>
+#}}
+
+{{##def.relation:item:
+  {{var icon = ['', 'icon-task-responsible', 'icon-knowledge_file', 'icon-task_custom_today', 'icon-file', 'icon-content_paste2', 'icon-task_custom_today', 'icon-task_custom_today'];}}
+  {{var delArr = ['', _l('任务已被删除'), _l('项目已被删除'), _l('日程已被删除'), _l('文件已被删除'), _l('申请单已被删除'), '', _l('日程已被删除')];}}
+  <ul class="customRelationBox">
+    {{~JSON.parse(item.value):list}}
+    <li data-id="{{=list.sid}}" data-type="{{=list.type}}" data-link="{{=list.link}}" data-sidext="{{= list.sidext }}">
+      <div class="flexRow">
+        <i class="customRelationIcon {{=list.type === 4 ? it.getClassNameByExt(list.ext1) : icon[list.type]}}"></i>
+        <span class="mLeft10 overflow_ellipsis ThemeColor3 {{=list.name ? '' : 'customRelationDelete'}} {{=list.type === 4 && list.name ? '' : 'flex'}}">
+          {{!list.name ? list.name : delArr[list.type]}}
+        </span>
+        {{?list.name}}
+          {{?list.ext1}}
+          <span class="{{=list.type === 4 ? '' : 'mLeft20'}}">{{!list.type === 3 ? moment(list.ext1).format('YYYY-MM-DD HH:mm') : list.ext1}}</span>
+          {{?}}
+          {{?list.ext2}}
+          <span class="mLeft20">{{!list.type === 3 ? moment(list.ext2).format('YYYY-MM-DD HH:mm') : list.ext2}}</span>
+          {{?}}
+          {{?list.type === 4}}
+          <span class="flex"></span>
+          {{?}}
+          <img class="circle" data-id="{{=list.accountId}}" src="{{=list.avatar}}" />
+        {{?}}
+      </div>
+      {{? it.hasAuth !== false}}
+      <i class="customRelationDel icon-cancel ThemeColor3"></i>
+      {{?}}
+    </li>
+    {{~}}
+  </ul>
+  {{? it.hasAuth !== false}}
+  <span class="ThemeColor3 addRelationBtn {{=JSON.parse(item.value).length >= 100 ? 'Hidden' : ''}}" data-type="{{=item.enumDefault}}" data-id="{{=item.controlId}}"><i class="icon-plus Font14 mRight5"></i>{{=_l('关联...')}}</span>
+  {{?}}
+#}}
+
+{{##def.detail:list:
+  {{var formControls = _.find(it.formControls, function(form) { return form.formId === list.formId;});}}
+  {{var controlName = list.controlName;}}
+{{var enumDefault = list.enumDefault;}}
+  <div class="customFieldsBox customDetailBox" data-id="{{=list.formId}}" data-required="{{=list.required }}">
+    <div class="customDetailTitle Font15">{{!controlName}}</div>
+
+    {{var statistics = [];}}
+    {{~formControls.controls[0].sort(function(a, b) { return a.innerRow > b.innerRow ? 1 : -1 }):items}}
+      {{? items.needEvaluate}}
+        {{statistics.push({ id: items.controlId, type: items.enumDefault2, unit: items.unit, controlName: items.controlName, dot: items.dot, showMoney: items.type === 8 && !!items.enumDefault });}}
+      {{?}}
+    {{~}}
+
+    {{? statistics.length && (enumDefault === 1 || enumDefault === 2)}}
+    <div class="customDetailStatistics mTop10">
+      <table class="customResultDetail">
+        <tr>
+          <td colspan="2">统计</td>
+        </tr>
+        {{~statistics:statistic}}
+          {{var result = [];}}
+          {{~formControls.controls:items}}
+            {{~items.sort(function(a, b) { return a.innerRow > b.innerRow ? 1 : -1 }):control}}
+              {{? control.controlId === statistic.id && control.value}}
+                {{result.push(parseFloat(control.value));}}
+              {{?}}
+            {{~}}
+          {{~}}
+          <tr>
+            <td>
+              {{!statistic.controlName}}{{?statistic.type === 2}}求和{{?}}{{?statistic.type === 3}}平均值{{?}}{{?statistic.type === 4}}最小值{{?}}{{?statistic.type === 5}}最大值{{?}}{{?statistic.type === 6}}乘积{{?}}
+            </td>
+            <td>
+							{{var newValue = '';}}
+							{{?statistic.type === 2}}{{newValue = statistic.dot ? _.sum(result).toFixed(statistic.dot) :  _.sum(result);}}{{?}}
+							{{?statistic.type === 3 && result.length}}{{newValue = statistic.dot ? (_.sum(result) / result.length).toFixed(statistic.dot) : (_.sum(result) / result.length);}}{{?}}
+							{{?statistic.type === 3 && !result.length}}{{newValue = 0; }}{{?}}
+							{{?statistic.type === 4 && result.length}}{{newValue = statistic.dot ? _.min(result).toFixed(statistic.dot) : _.min(result);}}{{?}}
+							{{?statistic.type === 5 && result.length}}{{newValue = statistic.dot ? _.max(result).toFixed(statistic.dot) : _.max(result);}}{{?}}
+							{{?statistic.type === 6}}
+									{{var product = 1;}}
+									{{result.forEach(function (data) { product = product * data;});}}
+									{{newValue = statistic.dot ? product.toFixed(statistic.dot) : product;}}
+							{{?}}
+              <span class="statisticsSingle" id="detailTop_{{=statistic.id}}" data-money="{{=statistic.showMoney}}">
+                {{=newValue.toString().replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}}
+              </span>
+							{{!statistic.unit}}
+							{{?statistic.showMoney}}
+							<span class="statisticsSingle mLeft15">
+								{{=newValue ? it.nzhCn.toMoney(newValue).substring(3) : ''}}
+							</span>
+							{{?}}
+            </td>
+          </tr>
+        {{~}}
+      </table>
+    </div>
+    {{?}}
+
+    {{~formControls.controls:items:index}}
+    <div class="customDetailMain ThemeBGColor6 mTop10">
+      <table class="customDetail">
+        <tr>
+          <td colspan="2">{{!controlName}}-<span class="customDetailNum">{{=index + 1}}</span></td>
+        </tr>
+        {{#def.detailSingle:items }}
+      </table>
+      {{? it.hasAuth !== false && index >= 1}}
+        <span class="customDetailDel ThemeColor3"><i class="icon-task-new-delete"></i>删除</span>
+      {{?}}
+    </div>
+    {{~}}
+
+    {{?formControls.tempControls && formControls.tempControls.length}}
+    <div class="customDetailMain ThemeBGColor6 Hidden customDetailMainClone mTop10">
+      <table class="customDetail">
+        <tr>
+          <td colspan="2">{{!controlName}}-<span class="customDetailNum"></span></td>
+        </tr>
+        {{#def.detailSingle:formControls.tempControls }}
+      </table>
+      {{? it.hasAuth !== false}}
+        <span class="customDetailDel ThemeColor3"><i class="icon-task-new-delete"></i>删除</span>
+      {{?}}
+    </div>
+    {{? it.hasAuth !== false}}
+      <div class="customDetailAddBox"><span class="customDetailAdd ThemeColor3">添加一条明细</span></div>
+    {{?}}
+    {{?}}
+
+    {{? statistics.length && (enumDefault === 0 || enumDefault === 2)}}
+    <div class="customDetailStatistics mTop10">
+      <table class="customResultDetail">
+        <tr>
+          <td colspan="2">统计</td>
+        </tr>
+        {{~statistics:statistic}}
+          {{var result = [];}}
+          {{~formControls.controls:items}}
+            {{~items.sort(function(a, b) { return a.innerRow > b.innerRow ? 1 : -1 }):control}}
+              {{? control.controlId === statistic.id && control.value}}
+                {{result.push(parseFloat(control.value));}}
+              {{?}}
+            {{~}}
+          {{~}}
+          <tr>
+            <td>
+              {{!statistic.controlName}}{{?statistic.type === 2}}求和{{?}}{{?statistic.type === 3}}平均值{{?}}{{?statistic.type === 4}}最小值{{?}}{{?statistic.type === 5}}最大值{{?}}{{?statistic.type === 6}}乘积{{?}}
+            </td>
+            <td>
+							{{var newValue = '';}}
+							{{?statistic.type === 2}}{{newValue = statistic.dot ? _.sum(result).toFixed(statistic.dot) :  _.sum(result);}}{{?}}
+							{{?statistic.type === 3 && result.length}}{{newValue = statistic.dot ? (_.sum(result) / result.length).toFixed(statistic.dot) : (_.sum(result) / result.length);}}{{?}}
+							{{?statistic.type === 3 && !result.length}}{{newValue = 0; }}{{?}}
+							{{?statistic.type === 4 && result.length}}{{newValue = statistic.dot ? _.min(result).toFixed(statistic.dot) : _.min(result);}}{{?}}
+							{{?statistic.type === 5 && result.length}}{{newValue = statistic.dot ? _.max(result).toFixed(statistic.dot) : _.max(result);}}{{?}}
+							{{?statistic.type === 6}}
+									{{var product = 1;}}
+									{{result.forEach(function (data) { product = product * data;});}}
+									{{newValue = statistic.dot ? product.toFixed(statistic.dot) : product;}}
+							{{?}}
+              <span class="statisticsSingle" id="detailBottom_{{=statistic.id}}" data-money="{{=statistic.showMoney}}">
+                {{=newValue.toString().replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}}
+              </span>
+							{{!statistic.unit}}
+							{{?statistic.showMoney}}
+							<span class="statisticsSingle mLeft15">
+								{{=newValue ? it.nzhCn.toMoney(newValue).substring(3) : ''}}
+							</span>
+							{{?}}
+            </td>
+          </tr>
+        {{~}}
+      </table>
+    </div>
+    {{?}}
+  </div>
+#}}
+
+{{##def.detailSingle:items:
+  {{~items.sort(function(a, b) { return a.innerRow > b.innerRow ? 1 : -1 }):item}}
+  {{var readonly = item.type > 10000 || item.type === 20;}}
+  <tr data-id="{{=item.controlId }}" class="customDetailSingle" data-needevaluate="{{=item.needEvaluate}}" data-type="{{=item.enumDefault2}}">
+    <td class="detailControlName {{=item.required ? 'required' : ''}}">{{!item.controlName}}</td>
+    <td class="relative">
+      {{var controlType = it.controlType['' + item.type];}}
+      {{?controlType[0] === 'text'}}
+        {{#def.text:item }}
+      {{?}}
+
+      {{?controlType[0] === 'textarea'}}
+        {{#def.textarea:item }}
+      {{?}}
+
+      {{?controlType[0] === 'remark'}}
+        {{#def.remark:item }}
+      {{?}}
+
+      {{?controlType[0] === 'userpicker'}}
+        {{#def.userpicker:item }}
+      {{?}}
+
+      {{?controlType[0] === 'grouppicker'}}
+        {{#def.grouppicker:item }}
+      {{?}}
+
+      {{?controlType[0] === 'datetimerange'}}
+        {{#def.datetimerange:item }}
+      {{?}}
+
+      {{?controlType[0] === 'moneycn'}}
+        {{#def.moneycn:item }}
+      {{?}}
+
+      {{?controlType[0] === 'phone'}}
+        {{#def.phone:item }}
+      {{?}}
+
+      {{?controlType[0] === 'telephone'}}
+        {{#def.telephone:item }}
+      {{?}}
+
+      {{?controlType[0] === 'email'}}
+        {{#def.email:item }}
+      {{?}}
+
+      {{?controlType[0] === 'number'}}
+        {{#def.number:item }}
+      {{?}}
+
+      {{?controlType[0] === 'certificate'}}
+        {{#def.certificate:item }}
+      {{?}}
+
+      {{?controlType[0] === 'dateTime'}}
+        {{#def.dateTime:item }}
+      {{?}}
+
+      {{?controlType[0] === 'dropDown'}}
+        {{#def.dropDown:item }}
+      {{?}}
+
+      {{?controlType[0] === 'location'}}
+        {{#def.location:item }}
+      {{?}}
+    </td>
+  </tr>
+  {{~}}
+#}}
+
+{{##def.subsection:item:
+  {{? item.controlName}}
+    <div class="customSubsection {{=it.type === 'oa' ? 'customSubsectionOa' : ''}}">
+      <div class="customSubsectionName">{{!item.controlName}}</div>
+    </div>
+  {{??}}
+    <div class="customSubsectionNull customSubsection {{=it.type === 'oa' ? 'customSubsectionOa' : ''}}">
+      <div class="customSubsectionName"></div>
+    </div>
+  {{?}}
+#}}

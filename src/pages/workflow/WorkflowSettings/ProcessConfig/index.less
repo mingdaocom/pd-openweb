@@ -1,0 +1,128 @@
+.workflowSettings {
+  .processConfig {
+    width: 800px;
+    background: #fff;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    border-radius: 3px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    margin: 0 auto 20px;
+    position: relative;
+    .Dropdown.disabled {
+      .icon-arrow-down-border {
+        display: none;
+      }
+    }
+
+    .processConfigTab {
+      position: absolute;
+      width: 200px;
+      padding: 10px 0;
+      left: -216px;
+      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.16);
+      border-radius: 3px;
+      background: #fff;
+      font-size: 14px;
+      li {
+        border-left: 3px solid #fff;
+        cursor: pointer;
+        height: 42px;
+        line-height: 42px;
+        color: #757575;
+        .icon {
+          margin-left: 10px;
+          margin-right: 10px;
+          &.icon-screen_normal {
+            margin-right: 7px !important;
+            font-size: 17px;
+          }
+        }
+        &:hover:not(.active) {
+          border-color: #f5f5f5;
+          background: #f5f5f5;
+        }
+        &.active {
+          color: #2196f3;
+          border-color: #2196f3;
+        }
+      }
+    }
+
+    .processConfigFlow {
+      padding: 9px 12px;
+      background: #F5F5F5;
+      border-radius: 2px;
+    }
+    .processConfigSave {
+      text-align: center;
+      height: 36px;
+      line-height: 36px;
+      color: #fff;
+      border-radius: 3px;
+      display: inline-block;
+      padding: 0 40px;
+    }
+    .processConfigItem {
+      height: 28px;
+      line-height: 28px;
+      box-sizing: border-box;
+      border-radius: 14px;
+      border: 1px solid #ccc;
+      padding: 0 8px 0 12px;
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      background: #fff;
+      font-size: 12px;
+      .ellipsis {
+        color: #757575;
+        cursor: pointer;
+        &:hover {
+          color: #333;
+        }
+      }
+      .icon {
+        color: rgba(51, 51, 51, 0.2);
+        cursor: pointer;
+        &:hover {
+          color: rgba(51, 51, 51, 0.4);
+        }
+      }
+    }
+    .processConfigLine {
+      background: #eaeaea;
+      height: 1px;
+      margin: 25px 0;
+    }
+    .AddUserBtn {
+      align-items: center;
+      font-size: 13px;
+      cursor: pointer;
+      position: relative;
+      display: inline-flex;
+      > i {
+        width: 28px;
+        display: inline-block;
+      }
+      &:not(:hover) {
+        color: #bdbdbd !important;
+      }
+    }
+    .processConfigInterval {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      height: 36px;
+      box-sizing: border-box;
+      text-align: center;
+      width: 60px;
+    }
+    .startConditionWrap {
+      right: inherit !important;
+      left: 0;
+      top: 36px;
+      .conditionWrap {
+        padding: 5px 0 0;
+      }
+    }
+  }
+}

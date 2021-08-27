@@ -1,0 +1,37 @@
+.commonTopBarMenu {
+  width: 180px;
+  padding: 5px 0;
+  overflow: hidden;
+  .icon {
+    font-size: 18px;
+    display: inline-block;
+    width: 20px;
+    padding: 0 15px;
+    text-align: center;
+    vertical-align: middle;
+    color: #757575;
+    box-sizing: initial;
+  }
+  li {
+    line-height: 36px;
+    overflow: hidden;
+    height: 36px;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    &:not(:hover) {
+      background-color: #fff !important;
+    }
+    &:hover,
+    &:hover .icon,
+    &:hover a {
+      color: #fff !important;
+    }
+  }
+
+  .createInvite {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px #ccc solid;
+  }
+}

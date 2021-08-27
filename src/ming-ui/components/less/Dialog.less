@@ -1,0 +1,187 @@
+@import '../../../common/mdcss/Themes/themeVariables.less';
+@dialog-radius: 3px;
+@dialog-overlay-bg: rgba(0, 0, 0, 0.7);
+@dialog-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+@dialog-hr-padding: 24px;
+
+@dialog-base-font: 14px;
+@dialog-small-font: 12px;
+@dialog-medium-font: 16px;
+@dialog-large-font: 17px;
+
+.mui-dialog-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  & > .mui-dialog-mask {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: @dialog-overlay-bg;
+  }
+
+  & > .mui-dialog-scroll-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+    padding: 32px 0;
+    text-align: center;
+
+    & > .mui-dialog-ghost {
+      display: inline-block;
+      width: 0;
+      // calc(windowHeight - 2 * 32)
+      height: auto;
+      vertical-align: middle;
+    }
+
+    & > .mui-dialog-dialog {
+      display: inline-flex;
+      width: 480px;
+      // calc(windowHeight - 2 * 32)
+      max-height: auto;
+      background-color: #fff;
+      text-align: left;
+      vertical-align: middle;
+      flex-direction: column;
+      border-radius: @dialog-radius;
+      position: relative;
+      box-shadow: @dialog-shadow;
+      &.mui-dialog-anim {
+        -webkit-transition: all 0.25s ease;
+        -moz-transition: all 0.25s ease;
+        -ms-transition: all 0.25s ease;
+        -o-transition: all 0.25s ease;
+        transition: all 0.25s ease;
+      }
+      &.mui-dialog-medium {
+        width: 560px;
+      }
+      &.mui-dialog-large {
+        width: 640px;
+      }
+      &.mui-dialog-huge {
+        width: 880px;
+      }
+      &.mui-dialog-confirm {
+        &.mui-dialog-success > .mui-dialog-header > .mui-dialog-desc {
+          color: @successColor;
+        }
+        &.mui-dialog-danger > .mui-dialog-header > .mui-dialog-desc {
+          color: @dangerColor;
+        }
+      }
+
+      // 关闭按钮
+      & > .mui-dialog-close-btn {
+        position: absolute;
+        z-index: 9;
+        border: 0;
+        background: transparent;
+        right: 0;
+        top: 2px;
+        font-weight: 700;
+        line-height: 1;
+        outline: none;
+        text-decoration: none;
+
+        .Icon {
+          cursor: pointer;
+          display: block;
+          width: 22px;
+          height: 22px;
+          font-size: 22px;
+          color: @grayLight;
+          &:hover {
+            color: @themeColor3;
+          }
+        }
+      }
+
+      & > .mui-dialog-header {
+        line-height: 1;
+        padding: 20px 24px 16px;
+        border-radius: @dialog-radius 0 0 @dialog-radius;
+
+        & > .mui-dialog-default-title {
+          color: @grayDarker;
+          font-weight: 400;
+          font-size: @dialog-large-font;
+        }
+
+        & > .mui-dialog-desc {
+          padding-top: 20px;
+          font-size: @dialog-base-font;
+          color: @grayDark;
+          word-break: break-all;
+          line-height: 20px;
+        }
+      }
+
+      & > .mui-dialog-body {
+        overflow: auto;
+        flex: 1;
+        padding: 0 @dialog-hr-padding 22px;
+        box-sizing: border-box;
+
+        & > .mui-dialog-body-content {
+          height: 480px;
+        }
+      }
+
+      & > .mui-dialog-footer {
+        padding: 10px @dialog-hr-padding 20px;
+        text-align: right;
+        border-radius: 0 0 @dialog-radius @dialog-radius;
+
+        .Button + .Button {
+          margin-left: 16px;
+        }
+      }
+    }
+
+    &.mui-dialog-fixed {
+      & > .mui-dialog-ghost {
+        display: none;
+      }
+
+      & > .mui-dialog-dialog {
+        // calc(windowHeight - 2 * 32)
+        height: auto;
+        flex-direction: column;
+
+        & > .mui-dialog-body {
+          overflow: auto;
+          flex: 1;
+
+          & > .mui-dialog-body-content {
+            height: 480px;
+          }
+        }
+      }
+    }
+
+    &.mui-dialog-scroll {
+      & > .mui-dialog-dialog {
+        max-height: none;
+
+        & > .mui-dialog-body {
+          max-height: none;
+
+          & > .mui-dialog-body-content {
+            height: 1280px;
+          }
+        }
+      }
+    }
+  }
+}

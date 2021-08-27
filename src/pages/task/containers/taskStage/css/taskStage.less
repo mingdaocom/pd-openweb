@@ -1,0 +1,604 @@
+﻿@charset 'UTF-8';
+.AppTask {
+  .overflowHidden {
+    overflow: hidden;
+  }
+  .listStage {
+    white-space: nowrap;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    padding-bottom: 45px;
+  }
+  .listStage.wResize {
+    cursor: w-resize;
+  }
+  .listStage li.singleStage {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 302px;
+    height: 100%;
+    margin-right: 6px;
+    vertical-align: top;
+  }
+  .singleStage .stageContentBox {
+    overflow-y: auto;
+    box-sizing: border-box;
+    max-height: 100%;
+    border-top: 50px #cacdd1 solid;
+    border-right: 1px #cacdd1 solid;
+    border-bottom: 45px #cacdd1 solid;
+    border-left: 1px #cacdd1 solid;
+    background-color: #eef0f4;
+  }
+  .singleStage .stageContentBox.addNewTask {
+    border-bottom: 1px #ccc solid;
+  }
+  .stageHeader {
+    position: absolute;
+    top: 1px;
+    width: 270px;
+    height: 23px;
+    margin-left: 1px;
+    padding: 13px 15px 13px;
+    cursor: -webkit-grab;
+    cursor: grab;
+    border-radius: 3px 3px 0 0;
+    background-color: #eef0f4;
+    box-sizing: initial;
+  }
+  .stageHeader .icon-arrow-down-border {
+    font-size: 14px;
+    cursor: pointer;
+    height: 23px;
+    line-height: 23px;
+    &:not(.Hidden) {
+      display: inline-block;
+    }
+  }
+  .stageHeader .icon-arrow-down-border:not(:hover) {
+    color: #757575 !important;
+  }
+  .stageHeader input.updateStageName,
+  .stageHeader .txtAddNew {
+    width: 270px;
+    height: 30px;
+    margin: -6px 10px 0 -10px;
+    padding: 0 9px;
+    border-width: 1px;
+    border-style: solid;
+  }
+  .stageHeader input.updateStageName {
+    font-size: 15px;
+  }
+  .stageHeader .listStageDownOperator {
+    position: absolute;
+    z-index: 9;
+    top: 26px;
+    left: -15px;
+    display: none;
+    width: 240px;
+    padding: 10px 0;
+    background-color: #fff;
+    .listStageDownOperatorHr {
+      height: 0;
+      width: 100%;
+      margin: 5px 0;
+      border-top: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+  }
+  .stageHeader .listStageDownOperator li:hover {
+    color: #fff;
+    background-color: #0091ea;
+  }
+  .stageHeader .listStageDownOperator li {
+    line-height: 35px;
+    height: 35px;
+    padding-left: 18px;
+    cursor: pointer;
+    &:not(:hover) {
+      i {
+        color: #9e9e9e;
+      }
+      &.delStage {
+        color: #f44336;
+      }
+    }
+    span[data-tip] {
+      &::after {
+        white-space: normal;
+        width: 240px;
+      }
+    }
+  }
+  .stageHeader .listStageName {
+    font-size: 15px;
+    float: left;
+    width: auto;
+    max-width: 170px;
+    cursor: text;
+    color: #333;
+  }
+
+  #taskList .listStageDate .colorTagsDiv {
+    margin-right: 10px;
+  }
+  #taskList .listStageDate .colorTagCircle {
+    vertical-align: middle;
+    margin-top: -3px;
+  }
+  .stageHeader {
+    white-space: normal;
+  }
+  .stageHeader .listStageTaskCount {
+    font-size: 14px;
+    line-height: 20px;
+    display: inline-block;
+    margin-left: 5px;
+    padding-top: 1px;
+    color: rgba(0, 0, 0, 0.5);
+  }
+  #taskList .singleTreeTask .taskListDate {
+    display: inline-block;
+    width: auto;
+  }
+  .stageContentBox .stageContent {
+    background-color: #e9ecf1;
+  }
+  .bottomNewBox {
+    position: relative;
+    top: -48px;
+    display: inline-block;
+    width: 300px;
+    height: 47px;
+    margin-left: 1px;
+    background-color: #eef0f4;
+    border-radius: 0 0 3px 3px;
+  }
+  .bottomNewBox:hover {
+    text-decoration: none;
+  }
+  .bottomNewBox .btnBottomNew {
+    line-height: 32px;
+    display: inline-block;
+    height: 32px;
+    margin: 6px 5px;
+    padding: 0 18px;
+    cursor: pointer;
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    &:hover {
+      color: #fff !important;
+    }
+    &:not(:hover) {
+      color: #757575 !important;
+      background: #fff !important;
+    }
+  }
+  .bottomNewBox .btnBottomNew.Hidden {
+    display: none;
+  }
+  /* 阶段视图中的任务 */
+  .listStageContent {
+    z-index: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-right: 5px;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+  }
+  .listStageContent > ul > li {
+    position: relative;
+    margin: 0 0 5px 5px;
+    padding: 8px 0 8px 10px;
+    cursor: pointer;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  .listStageContent > ul > li.addNewTask {
+    position: relative;
+    padding: 0;
+    background-color: #e4e7ec !important;
+  }
+  li.addNewTask .topBox {
+    border: 1px #48a3ce solid;
+    background-color: #fff;
+    border-radius: 3px;
+  }
+  .listStageContent .addNewTask .taskStar {
+    font-size: 20px;
+    position: absolute;
+    top: 9px;
+    right: 8px;
+    display: inline-block;
+    color: #9ca2aa;
+  }
+  .listStageContent > ul > li.addNewTask .teaStageNameBox {
+    width: 100%;
+    border-right: 65px transparent solid;
+  }
+  .listStageContent > ul > li.addNewTask .teaStageName {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    padding-top: 5px;
+    padding-left: 5px;
+    resize: none;
+    border: 0;
+    border-radius: 3px;
+  }
+  .addNewTask .btnStagCreateTask {
+    display: inline-block;
+    float: left;
+    margin-top: 8px;
+    margin-bottom: 5px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 30px;
+    border-radius: 18px;
+    color: #fff;
+  }
+  .addNewTask .stageDate {
+    font-size: 12px;
+    float: right;
+    margin-top: 16px;
+    color: #999;
+  }
+  .addNewTask .icon-bellSchedule {
+    font-size: 16px;
+    margin-top: 17px;
+  }
+  .listStageContent .markTask {
+    position: absolute;
+    margin-top: 0;
+    top: 10px;
+    left: 10px;
+  }
+  .listStageContent .completeHook,
+  .listStageContent li:hover .markTask {
+    visibility: visible;
+  }
+  .listStageContent li:hover {
+    background-color: #f7f8f9;
+  }
+  .listStageContent li .chargeHeaderAvatar,
+  .chargeHeaderAvatar {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    margin-left: 5px;
+    vertical-align: top;
+  }
+  .stageChargeAvatar {
+    width: 26px;
+    height: 26px;
+    margin-left: -5px;
+    margin-right: 10px;
+    float: left;
+    cursor: pointer;
+    &:not(.Hidden) {
+      display: inline-block;
+    }
+  }
+  .listStageContent li .chargeHeaderAvatar {
+    position: absolute;
+    top: 8px;
+    right: 35px;
+  }
+  .singleTaskStage .listStageTaskName {
+    font-size: 13px;
+    width: 180px;
+    margin-top: 3px;
+    margin-left: 27px;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    word-break: break-all;
+    line-height: 18px;
+    max-height: 72px;
+  }
+  .listStageContent .listStageDate {
+    padding-top: 3px;
+    margin-left: 27px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    .deteLine {
+      display: inline-block;
+      vertical-align: top;
+      line-height: 24px;
+    }
+  }
+  .listStageDate .newStageTopic {
+    font-size: 18px;
+    height: 21px;
+    margin-top: 2px;
+    vertical-align: top;
+    color: #0091ea;
+  }
+  .listStageBottom {
+    position: relative;
+    display: block;
+    margin: 5px;
+    padding: 7px 10px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    text-decoration: none;
+    color: #8c8c8c;
+    border-radius: 3px;
+    background-color: #fff;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+  }
+  .listStageBottom:hover {
+    text-decoration: none;
+  }
+  .listStage li.selectTask {
+    background-color: #cfe8fc;
+  }
+  .listStage li.selectTask .icon-star-hollow {
+    display: inline-block;
+  }
+  .nullTask,
+  .nullCompleteTask {
+    font-size: 18px;
+    margin-left: 10px;
+    color: #ccc;
+  }
+  /* 日期控件样式重写  */
+  .singleStage .warpDatePickerMain {
+    position: static;
+  }
+  /* 拖拽   */
+  #insertVirtual {
+    height: 30px;
+    border-radius: 3px;
+    background-color: rgba(153, 153, 153, 0.4) !important;
+  }
+  .draggableElement {
+    position: absolute;
+    z-index: 99;
+    width: 268px;
+    margin: 0 0 5px 5px;
+    padding: 8px 0 6px 22px;
+    cursor: move;
+    -webkit-transform: rotate(3deg);
+    -ms-transform: rotate(3deg);
+    transform: rotate(3deg);
+    background-color: #fff;
+    list-style: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  .draggableElement .markTask {
+    position: absolute;
+    margin-top: 0;
+    top: 10px;
+    left: 10px;
+  }
+  .draggableElement .listStageTaskName {
+    margin-left: 15px;
+  }
+  .draggableElement .chargeHeaderAvatar {
+    position: absolute;
+    top: 7px;
+    right: 35px;
+  }
+  .draggableElement .listStageDate {
+    margin-left: 30px;
+    margin-top: 3px;
+  }
+  .draggableElement .listStageDate .icon-task-card {
+    display: inline-block;
+    vertical-align: top;
+    height: 7px;
+    font-size: 16px;
+    margin-top: 4px;
+    margin-right: 5px;
+  }
+  #insertVirtualStage {
+    width: 302px;
+    border: 1px #ccc solid;
+    background-color: rgba(153, 153, 153, 0.4);
+  }
+  .draggableElementStage {
+    position: absolute;
+    z-index: 99;
+    cursor: move;
+    width: 300px;
+    -webkit-transform: rotate(3deg);
+    -ms-transform: rotate(3deg);
+    transform: rotate(3deg);
+    list-style: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    .icon-arrow-down-border {
+      font-size: 14px;
+    }
+    .stageContentBox {
+      border-left-width: 0 !important;
+      border-right-width: 0 !important;
+      border-bottom-width: 0 !important;
+    }
+    .bottomNewBox {
+      position: static !important;
+    }
+  }
+  .singleTaskStage .taskStar {
+    font-size: 20px;
+    position: absolute;
+    right: 9px;
+    top: 10px;
+    display: none;
+  }
+  .listStageContent > ul > li:hover .icon-star-hollow {
+    display: inline-block;
+  }
+  .listStageContent .icon-star-hollow:not(:hover) {
+    color: #9ca2aa !important;
+  }
+  .listStageContent .taskStar.icon-task-star {
+    display: inline-block;
+    color: #fbc02d !important;
+  }
+  #taskList .addNew {
+    font-size: 22px;
+    line-height: 18px;
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    cursor: pointer;
+    text-align: center;
+    color: #ccc;
+    border: 1px #ccc solid;
+    background-color: #fff;
+  }
+  #stageLoading {
+    line-height: 40px;
+    cursor: default;
+    text-align: center;
+    vertical-align: top;
+    background-color: transparent;
+  }
+  #stageLoading img {
+    display: inline-block;
+    margin-right: 10px;
+    cursor: default;
+    vertical-align: top;
+  }
+  #taskList .listStageDate .icon-task-card {
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 5px;
+  }
+  .listStageDate .subCounts {
+    color: rgba(0, 0, 0, 0.5);
+  }
+  .addNewStage {
+    width: 300px;
+    height: 52px;
+    line-height: 52px;
+    border-radius: 3px;
+    background: rgba(77, 77, 77, 0.5);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    &:not(.Hidden) {
+      display: inline-block;
+    }
+    i {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      display: inline-block;
+      text-align: center;
+      vertical-align: top;
+      margin: 10px 10px 0 10px;
+      background: transparent;
+      border-radius: 3px;
+    }
+    &:hover {
+      background: rgba(77, 77, 77, 0.75);
+      i {
+        color: #9e9e9e;
+        background: #fff;
+      }
+    }
+  }
+  @-webkit-keyframes taskStageAnimation {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes taskStageAnimation {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @-webkit-keyframes txtAddNew {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 270px;
+    }
+  }
+  @keyframes txtAddNew {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 270px;
+    }
+  }
+  .taskStageAnimation {
+    -webkit-animation: taskStageAnimation 0.3s ease-in-out both;
+    animation: taskStageAnimation 0.3s ease-in-out both;
+    .txtAddNew {
+      -webkit-animation: txtAddNew 0.3s ease-in-out both;
+      animation: txtAddNew 0.3s ease-in-out both;
+    }
+  }
+
+  .listStageCustomBox {
+    .listStageCustomItem {
+      font-size: 0;
+      margin: 5px 10px 4px 28px;
+      position: relative;
+      &:first-child {
+        border-top: 1px solid rgba(51, 51, 51, 0.1);
+        padding-top: 11px;
+        margin-top: 10px;
+      }
+      .listStageCustomItemDesc {
+        word-break: break-all;
+        line-height: 18px;
+        max-height: 54px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        min-height: 18px;
+      }
+      .listStageCustomItemColor {
+        color: #757575;
+        .overflow_ellipsis {
+          max-width: 85px;
+          vertical-align: top;
+        }
+      }
+      .LineScore-item {
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 6px;
+      }
+      .StarScore-item {
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 1px;
+      }
+    }
+  }
+}

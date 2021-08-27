@@ -1,0 +1,373 @@
+﻿.AppAdmin #container {
+  display: flex;
+
+  .leftNavHairGlass {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-attachment: fixed;
+    filter: blur(10px) saturate(1.5);
+  }
+
+  .freeEnterpriseNoticeContainer {
+    margin: 20px 20px 0;
+    padding: 200px 0;
+    text-align: center;
+  }
+
+  .freeEnterpriseNoticeContainer .icon-task-folder-message {
+    color: rgb(255, 145, 0);
+  }
+
+  .adminMainContent {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+
+    .mainContainerWrapper {
+      flex: 1 1 0px;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+}
+
+.AppAdmin #mainContainer {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1 1 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+
+  .mainContent {
+    flex: 1 1 0%;
+    box-sizing: border-box;
+    padding-top: 15px;
+    overflow-y: auto;
+  }
+}
+
+/* left menu */
+
+.AppAdmin {
+  // 未替换的老searchBox样式
+  .searchBox {
+    font-size: 12px;
+    height: 26px;
+    line-height: 26px;
+    width: 160px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    .searchDiv {
+      float: left;
+      width: 120px;
+    }
+    .searchDiv #searchText {
+      border: none;
+      float: left;
+      width: 115px;
+      height: 24px;
+      color: #999;
+      margin-left: 8px;
+    }
+    #searchImage {
+      cursor: pointer;
+      float: right;
+      height: 25px;
+      width: 28px;
+      left: 3px;
+    }
+    #searchImage .lineSpan {
+      border-left: 1px solid #ebebeb;
+      height: 18px;
+      width: 100%;
+      text-align: center;
+      margin: 3px auto;
+      display: inline-block;
+    }
+  }
+
+  // 组件searchBox新样式
+  .adminSearchBox {
+    border: 1px solid #ccc;
+    display: table;
+    border-radius: 4px;
+    overflow: hidden;
+
+    .adminSearchInput {
+      background: transparent;
+      border: none;
+      outline: none;
+      height: 26px;
+    }
+
+    .adminSearchInput,
+    .adminSearchBtn {
+      display: table-cell;
+      vertical-align: middle;
+    }
+    .adminSearchBtn > span {
+      border-left: 1px solid #ccc;
+    }
+  }
+
+  .subMenuList {
+    font-size: 14px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+    .menuTab {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      li:not(.menuTab-active):not(:hover) {
+        color: #9f9f9f !important;
+        border-color: transparent !important;
+      }
+      li {
+        cursor: pointer;
+        float: left;
+        padding: 13px 4px 9px;
+        transition: border-color 0.3s ease-in-out;
+        border-bottom: 3px solid currentColor;
+      }
+      li:not(:last-child) {
+        margin-right: 26px;
+      }
+      li a {
+        display: block;
+        text-decoration: none;
+        color: currentColor;
+      }
+    }
+    .csList {
+      left: auto !important;
+      right: 0 !important;
+    }
+  }
+
+  .commonIndexEmpty {
+    margin: 16px;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: #fff;
+    .tableEmptyBox {
+      padding-top: 0;
+    }
+  }
+
+  #menuTop {
+    flex: 0 0 220px;
+    height: 100%;
+
+    .menuContainer {
+      height: 100%;
+      z-index: 1;
+    }
+
+    .listContainer {
+      position: absolute;
+      top: 58px;
+      bottom: 0;
+      width: 220px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .title {
+      margin-bottom: 9px;
+      padding-bottom: 5px;
+      padding-top: 6px;
+      border-bottom: 1px solid transparent;
+    }
+
+    .manageItems {
+      .item {
+        font-size: 13px;
+        line-height: 40px;
+
+        a {
+          display: inline-block;
+          box-sizing: border-box;
+          width: 100%;
+          padding-left: 15px;
+          text-decoration: none;
+        }
+
+        i,
+        span {
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+
+  /* sub menu */
+  .setBorder {
+    position: relative;
+    right: -2px;
+    float: right;
+    color: #ebebeb;
+  }
+
+  .allLine {
+    height: 1px;
+    margin: 0 22px;
+    background: #b6b5b5;
+  }
+
+  .allLineFull {
+    height: 1px;
+    margin: 0;
+    background: #b6b5b5;
+  }
+
+  .lineTd {
+    height: 1px !important;
+    padding: 0;
+  }
+
+  .allLineDeep {
+    height: 2px;
+    margin: 0 22px;
+    background: #5a5757;
+  }
+
+  /* warp */
+  .warpCenter {
+    min-height: 500px;
+    margin-bottom: 30px;
+    padding: 0 0 100px 0;
+  }
+
+  /* DataGridView */
+  .warpCenter .mdDataGridView {
+    margin-bottom: 40px;
+    color: #999;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background: #fff;
+  }
+
+  .mdDataGridView .operateBtn {
+    line-height: 30px;
+    clear: both;
+    height: 30px;
+    margin: 0 auto;
+    padding: 10px 35px;
+    list-style-type: none;
+  }
+
+  .mdDataGridView .operateBtn li {
+    float: left;
+    margin-right: 15px;
+  }
+
+  .mdDataGridView .operateBtn a {
+    cursor: pointer;
+  }
+
+  .mdDataGridView .operateBtn .fontColor {
+    margin-right: 15px;
+    color: #999;
+  }
+
+  .mdDataGridView .gridHead {
+    font-weight: bolder;
+    width: 100%;
+    margin-right: 10px;
+    padding-top: 25px;
+    color: #969090;
+  }
+
+  .mdDataGridView .gridFooter {
+    padding: 50px 0 0 0;
+  }
+
+  .mdDataGridView .chk {
+    min-width: 16px;
+    height: 1px;
+  }
+
+  .mdDataGridView .gridBody .deepBG td {
+    background: #f8f8f8;
+  }
+
+  .mdDataGridView .gridBody li {
+    line-height: 100px;
+    float: left;
+    overflow: hidden;
+    height: 100px;
+    padding-right: 10px;
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+  }
+
+  .mdDataGridView .itemcheck {
+    position: relative;
+    top: 3px;
+  }
+
+  .mdTxtBoxNew {
+    width: 343px;
+    height: 23px;
+    margin: 0 10px;
+    padding-left: 10px;
+    border: 1px #efefef solid;
+    border-radius: 3px;
+  }
+
+  .announceLabel {
+    display: inline-block;
+    line-height: 32px;
+    height: 32px;
+    margin: 9px 0;
+    padding: 0 12px;
+    margin-right: 20px;
+    background: #eee;
+    border-radius: 16px;
+
+    .icon-closeelement-bg-circle {
+      color: #bdbdbd;
+      cursor: pointer;
+    }
+  }
+
+  .adminHoverColor {
+    &:hover {
+      color: #49adfc !important;
+    }
+  }
+  .adminHoverDeleteColor {
+    color: #f51744;
+    cursor: pointer;
+    &:hover {
+      color: #ff6786 !important;
+    }
+  }
+  .adminHoverGreenColor {
+    color: #47b14b;
+    cursor: pointer;
+    &:hover {
+      color: #5dd861 !important;
+    }
+  }
+  .adminHeaderIconColor {
+    &:hover {
+      color: #1294f7 !important;
+    }
+  }
+}

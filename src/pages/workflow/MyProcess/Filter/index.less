@@ -1,0 +1,177 @@
+
+.processFilterDrawerWrapper {
+  width: 280px;
+  height: 100%;
+  padding: 16px 0;
+  box-sizing: border-box;
+  margin-right: 20px;
+  opacity: 0;
+  margin-left: -280px;
+  transition: opacity 0.3s, margin-left 0.3s 0.1s;
+  .ant-drawer-content-wrapper {
+    box-shadow: none !important;
+  }
+  .ant-drawer-content {
+    background-color: transparent;
+  }
+  .ant-drawer-wrapper-body {
+    display: flex;
+    align-items: flex-end;
+  }
+  .ant-drawer-body {
+    padding-top: 60px;
+    width: 280px;
+    height: 100%;
+  }
+  .wrapper {
+    height: 100%;
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.16);
+  }
+  .header {
+    height: 43px;
+    padding: 0 16px;
+    border-bottom: 1px solid #EAEAEA;
+    .reset {
+      color: #2196f3e6;
+      margin: 0 20px;
+      &:hover {
+        color: #2196F3 !important;
+      }
+    }
+    .icon-close:hover {
+      color: #2196F3 !important;
+    }
+  }
+  .filterContent {
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .personPostBox {
+    display: flex;
+    align-items: center;
+  }
+  .spaceBtween {
+    justify-content: space-between;
+    img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+    }
+  }
+  .itemWrapper {
+    font-size: 13px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    &.active {
+      border-color: #2196F3 !important;
+    }
+  }
+  .inputWrapper {
+    input {
+      flex: 1;
+      font-size: 13px;
+      padding: 5px 45px 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      &::placeholder {
+        color: #ccc;
+      }
+      &:focus {
+        border-color: #2196F3;
+      }
+    }
+    .icon-close {
+      position: absolute;
+      right: 26px;
+      top: 7px;
+      &:hover {
+        color: #2196F3 !important;
+      }
+    }
+    .icon-search {
+      position: absolute;
+      right: 7px;
+    }
+  }
+  .todoListFilter {
+    border-top: 1px solid #EAEAEA;
+    padding-top: 16px;
+  }
+  .selectWrapper {
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      border-color: #2196F3 !important;
+    }
+    .ant-select-selector {
+      border-radius: 4px;
+      box-shadow: none !important;
+    }
+    .ant-select-arrow {
+      width: auto;
+      height: auto;
+      top: 40%;
+    }
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+      opacity: 1;
+      font-size: 13px;
+    }
+  }
+  .appItem {
+    .iconArrow {
+      width: 24px;
+      height: 24px;
+      justify-content: center;
+      align-items: center;
+      &:hover {
+        background: #f7f7f7;
+      }
+    }
+    .appIcon {
+      width: 22px;
+      height: 22px;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    .processAppName {
+      padding: 0 8px;
+    }
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 8px;
+      border-radius: 4px;
+      &:hover {
+        background-color: #F7F7F7;
+      }
+      &.active {
+        background-color: #2094f31a;
+      }
+    }
+  }
+  .processesItem {
+    padding: 9px 8px 9px 18px;
+    margin-left: 24px;
+    border-radius: 4px;
+    &:hover {
+      background-color: #F7F7F7;
+    }
+    &.active {
+      background-color: #2094f31a;
+    }
+  }
+}
+
+.processOptionWrapper {
+  padding: 7px 12px 7px 20px;
+  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: unset;
+    color: #fff;
+    background-color: #2196F3;
+  }
+}
+
+.processFilterTarget:hover {
+  color: #2196F3 !important;
+}

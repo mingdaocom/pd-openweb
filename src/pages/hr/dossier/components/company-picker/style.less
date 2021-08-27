@@ -1,0 +1,48 @@
+/**
+* component CompanyPicker
+* prefix: .mui-companypicker
+*/
+@import '../lib/styles/form-input.less';
+
+.mui-companypicker {
+  display: inline-block;
+  width: 172px;
+
+  & > .mui-forminput {
+    width: 100%;
+  }
+}
+
+.dossierSelectDialog {
+  .dossierDialogScroll {
+    height: 300px;
+  }
+  .radioList {
+    height: 24px;
+    margin: 9px 0;
+  }
+  .plusIcon {
+    font-size: 20px;
+    color: #9e9e9e;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  .companyAddBox {
+    height: 36px;
+    display: flex;
+    .companyAddInput {
+      flex: 1;
+      border: 0;
+      border-bottom: 1px solid #ccc;
+    }
+    .companyAddBtn {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+  }
+}

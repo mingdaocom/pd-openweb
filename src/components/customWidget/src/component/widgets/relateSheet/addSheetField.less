@@ -1,0 +1,80 @@
+.addSheetFieldDialog{
+  .workSheetName{
+    i{
+      background-image: url("~staticfiles/images/worksheet.png");
+      background-repeat: no-repeat;
+      background-size: 26px 26px;
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      overflow: hidden;
+      vertical-align: middle;
+    }
+    span{
+      vertical-align: middle;
+      display: inline-block;
+      max-width: 390px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .controls{
+    .Checkbox{
+      display: inline-block;
+      width: 50%;
+    }
+  }
+}
+
+.workSheetNewWorkSheetInfo {
+  .excelTitle,
+  .excelBelong {
+    box-sizing: border-box;
+      .projectName{
+        display: inline-block;
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+        margin-left: 22px;
+      }
+  }
+  .excelTitle {
+    align-items: center;
+    input {
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      height: 36px;
+      padding: 0 8px;
+      box-sizing: border-box;
+      margin-left: 24px;
+      width: 280px;
+    }
+  }
+}
+.workSheetProjectDropDownList{
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: scroll;
+  .fixedDropDownItem{
+    padding: 8px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.relatesheetSelectSelfWorksheetConfirm {
+  position: relative;
+  b {
+    color: #333;
+  }
+  .moreHelp {
+    position: absolute;
+    bottom: -90px;
+  }
+}

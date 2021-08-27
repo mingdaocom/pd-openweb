@@ -1,0 +1,110 @@
+.homePostFilter {
+  border-bottom: 1px solid #efefef;
+  width: 100%;
+  font-size: 14px;
+}
+.homePostFilter .groupName {
+  max-width: 100px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.homePostFilter .icon-arrow-down-border {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.homePostFilter .notGroupHint {
+  white-space: normal;
+  color: #333;
+}
+
+.searchFilter .InlineBlock .oldKnowledgeLink {
+  background-color: #ffffff;
+  color: #333333;
+  display: inline-block;
+  font-size: 12px;
+  padding-right: 10px;
+}
+
+.homePostFilter .selectContainer {
+  margin-top: 12px;
+}
+.homePostFilter .searchFilter {
+  margin-top: 14px;
+}
+.homePostFilter .searchFilter .searchFilterKeyword {
+  position: relative;
+}
+.homePostFilter .searchFilter .searchFilterKeyword input {
+  width: 0;
+  padding: 0px 0 0 30px;
+  border-radius: 3px;
+  border: 1px solid;
+  border-color: #fff;
+  transition: 0.4s border-color ease-in-out, 0.4s width ease-in-out;
+  height: 26px;
+}
+.homePostFilter .searchFilter .searchFilterKeyword input.expand {
+  border-color: #efefef;
+  width: 100px;
+  height: 26px;
+}
+.homePostFilter .searchFilter .searchFilterKeyword i {
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  cursor: pointer;
+}
+
+.postDateRangePicker {
+  margin-top: 15px !important;
+  margin-right: -75px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  z-index: 999 !important;
+  display: none;
+}
+/*.postDateRangePicker.opensleft:before {
+  position: absolute;
+  top: -10px !important;
+  right: 73px !important;
+  display: inline-block;
+  border-right: 10px solid transparent !important;
+  border-bottom: 10px solid #ccc !important;
+  border-left: 10px solid transparent !important;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  content: '';
+}
+
+.postDateRangePicker.opensleft:after {
+  position: absolute;
+  top: -9px !important;
+  right: 74px !important;
+  display: inline-block;
+  border-right: 9px solid transparent !important;
+  border-bottom: 9px solid #fff !important;
+  border-left: 9px solid transparent !important;
+  content: '';
+}*/
+
+.fontAdd {
+  background-color: #ffffff;
+  color: #333333;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  padding: 1px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.fontAdd:hover {
+  text-decoration: none;
+}
+.fontAdd:nth-child(2) {
+  border-left: none;
+}
