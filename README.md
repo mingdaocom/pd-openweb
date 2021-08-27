@@ -4,8 +4,6 @@
 
 彻底开放前端个性化能力，打造专属的视觉效果与定制化功能。
 
-:boom: :boom: :boom: **2021.08.31 源代码正式开放**
-
 [![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) 
 
 [![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
