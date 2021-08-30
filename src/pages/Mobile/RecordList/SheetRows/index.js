@@ -89,10 +89,11 @@ class SheetRows extends Component {
           renderFooter={() =>
             isMore ? <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex> : <Fragment />
           }
-          pageSize={10}
+          initialListSize={20}
+          pageSize={20}
           scrollRenderAheadDistance={500}
           onEndReached={this.handleEndReached.bind(this)}
-          onEndReachedThreshold={10}
+          onEndReachedThreshold={20}
           pullToRefresh={
             <PullToRefresh
               refreshing={refreshing}

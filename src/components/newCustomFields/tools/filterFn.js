@@ -827,20 +827,25 @@ const getAvailableFilters = (rules = [], formatData = [], from) => {
 
       let filterTrs = [];
       let ruleItems = o.ruleItems;
+      let isAllExit = [];
+
       transFilters.map(tr => {
-        //错误提示, 且条件字段不存在或隐藏，不走业务规则
-        const hasErrorWarn = _.findIndex(o.ruleItems, it => it.type === 6) > -1;
-        const isAllExit = _.every(tr, t => {
+        const itExit = _.every(tr, t => {
           const data = _.find(formatData, da => da.controlId === t.controlId) || {};
-          return data.controlId && controlState(data, from).visible
-        })
-        if(hasErrorWarn && !isAllExit) {
-          ruleItems = ruleItems.filter(ru => ru.type !== 6);
-        }
+          return data.controlId && controlState(data, from).visible;
+        });
+        isAllExit.push(itExit);
+
         if (_.some(tr, t => _.findIndex(formatData, da => da.controlId === t.controlId) > -1)) {
           filterTrs = filterTrs.concat(tr);
         }
       });
+
+      //错误提示, 且条件字段不存在或隐藏，不走业务规则
+      const hasErrorWarn = _.findIndex(o.ruleItems, it => it.type === 6) > -1;
+      if (hasErrorWarn && !_.includes(isAllExit, true)) {
+        ruleItems = ruleItems.filter(ru => ru.type !== 6);
+      }
       filterTrs.length > 0 && filterRules.push({ ...o, filters: filterTrs, ruleItems });
     }
   });

@@ -4,7 +4,7 @@ import global from 'src/api/global';
 import project from 'src/api/project';
 import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
-function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
+function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
   const urlObj = new URL(decodeURIComponent(location.href));
@@ -27,7 +27,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
       if (window.md.global && !window.md.global.Account) {
         window.md.global.Account = {};
       }
-      let SysSettings = _.get(window.md.global, ['SysSettings'])
+      let SysSettings = _.get(window.md.global, ['SysSettings']);
       if (!SysSettings) {
         window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
       }
@@ -45,7 +45,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
     window.config = data.config;
     window.md.global = data['md.global'];
     window.md.global.Config.ServiceTel = '010-53153053';
-    let SysSettings = _.get(window.md.global, ['SysSettings'])
+    let SysSettings = _.get(window.md.global, ['SysSettings']);
     if (!SysSettings) {
       window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
     }
@@ -55,15 +55,17 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
       md.global.Config.ForbidSuites = md.global.SysSettings.forbidSuites.split('|').map(item => Number(item));
     }
 
-    fetch('/docpreview/fonts/213');
-    fetch('/docpreview/fonts/196');
-    fetch('/docpreview/fonts/036');
+    setTimeout(() => {
+      fetch('/docpreview/fonts/213');
+      fetch('/docpreview/fonts/196');
+      fetch('/docpreview/fonts/036');
 
-    fetch('/docpreview/fonts/082');
-    fetch('/docpreview/fonts/054');
-    fetch('/docpreview/fonts/210');
-    fetch('/docpreview/fonts/212');
-    fetch('/docpreview/fonts/229');
+      fetch('/docpreview/fonts/082');
+      fetch('/docpreview/fonts/054');
+      fetch('/docpreview/fonts/210');
+      fetch('/docpreview/fonts/212');
+      fetch('/docpreview/fonts/229');
+    }, 10000);
 
     if (window.mduserlang) {
       moment.locale(getMomentLocale(window.mduserlang));
