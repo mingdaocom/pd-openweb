@@ -1,12 +1,10 @@
 ﻿# 明道云私有部署版 - Web 端
 
-<img src="https://user-images.githubusercontent.com/7261408/82203093-67ae1600-9935-11ea-8cd9-89b61b47b38f.png" alt="logo" height="80px" align="right" />
+<img src="https://user-images.githubusercontent.com/7261408/131659691-f6e13c69-f00c-4a58-9e8c-37a7634c9d81.png" alt="logo" />
 
 彻底开放前端个性化能力，打造专属的视觉效果与定制化功能。
 
-[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) 
-
-[![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
+[![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) [![star](https://img.shields.io/github/stars/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/stargazers)
 
 ## 安装明道云私有版
 
