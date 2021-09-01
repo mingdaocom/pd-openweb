@@ -6,10 +6,17 @@
 
 [![ming](https://img.shields.io/badge/I%20%E2%9D%A4%20MY%20TEAM-%E6%98%8E-blue)](https://www.mingdao.com) [![release](https://img.shields.io/github/v/release/mingdaocom/pd-openweb.svg)](https://github.com/mingdaocom/pd-openweb/releases) [![issues](https://img.shields.io/github/issues/mingdaocom/pd-openweb)](https://github.com/mingdaocom/pd-openweb/issues) 
 
-**注意：** 使用的源代码版本需要与部署的明道云版本保持一致（部署可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html)，v2.8.0+），否则接口可能出现不兼容的情况；另外一旦选择二次开发，服务端版本升级后，Web 端需要同步合并匹配的源码版本来实现整体升级。
-
-
 [![Stargazers over time](https://starchart.cc/mingdaocom/pd-openweb.svg)](https://starchart.cc/mingdaocom/pd-openweb)
+
+## 安装明道云私有版
+
+Web 端是明道云私有版微服务集合中的一个服务，并不可独立使用，所以在进行二次开发之前，需要优先部署好明道云私有版（**v2.8.0+**），可参考：[快速安装](https://docs.pd.mingdao.com/deployment/docker-compose/standalone/quickstart.html) 。
+
+**注意：** 使用的源代码版本需要与部署的明道云版本保持一致，否则接口可能出现不兼容的情况；另外一旦选择二次开发，明道云私有版升级后，需要同步合并匹配的源代码版本来实现整体升级。
+
+以下是源代码发布与二次开发后整合流程。
+
+![](https://user-images.githubusercontent.com/7261408/131619416-8482179e-33c8-401f-86d1-2afde26e8a95.png)
 
 ## 开发
 
@@ -31,6 +38,8 @@
    ```
 
 您需要将 `API_SERVER` 参数值修改为自己部署的明道云私有版对应的 API 地址（格式为： `${系统访问地址}/wwwapi`）。开发时构建工具会将 API 请求代理到配置的 `API_SERVER` 地址，替换完成后执行 `npm start`，项目构建完成后会自动打开页面。
+
+更多开发指导请参考：https://docs.pd.mingdao.com/sd/web/READMD.html#%E5%BC%80%E5%8F%91%E6%8C%87%E5%AF%BC
 
 ## 发布
 
