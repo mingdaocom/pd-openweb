@@ -39,7 +39,7 @@ Web 端是明道云私有版微服务集合中的一个服务，并不可独立�
 
 您需要将 `API_SERVER` 参数值修改为自己部署的明道云私有版对应的 API 地址（格式为： `${系统访问地址}/wwwapi`）。开发时构建工具会将 API 请求代理到配置的 `API_SERVER` 地址，替换完成后执行 `npm start`，项目构建完成后会自动打开页面。
 
-更多开发指导请参考：https://docs.pd.mingdao.com/sd/web/READMD.html#%E5%BC%80%E5%8F%91%E6%8C%87%E5%AF%BC
+更多开发指南请参考：https://docs.pd.mingdao.com/sd/web/READMD.html
 
 ## 发布
 
