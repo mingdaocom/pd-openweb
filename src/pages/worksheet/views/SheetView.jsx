@@ -105,7 +105,7 @@ class TableView extends React.Component {
   @autobind
   outerClickEvent(e) {
     const { clearHighLight } = this.props;
-    if (!$(e.target).closest('.mdTable, .recordInfoCon')[0] || e.target.className.includes('-grid')) {
+    if (!$(e.target).closest('.mdTable, .recordInfoCon')[0] || /-grid/.test(e.target.className)) {
       clearHighLight(this.tableId);
       $(`.mdTable.id-${this.tableId}-id .cell`).removeClass('hover');
     }

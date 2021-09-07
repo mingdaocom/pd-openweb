@@ -36,6 +36,8 @@ const RangeBox = styled.div`
   }
   .con {
     padding: 24px;
+    max-height: 350px;
+    overflow: auto;
     h5 {
       margin: 0;
       line-height: 1;

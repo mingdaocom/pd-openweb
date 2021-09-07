@@ -34,6 +34,7 @@ const Box = styled.div`
     }
     > span {
       display: none;
+      white-space: normal;
     }
   }
 `;

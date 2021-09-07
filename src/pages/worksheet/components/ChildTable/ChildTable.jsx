@@ -109,7 +109,9 @@ class ChildTable extends React.Component {
     ) {
       try {
         setTimeout(() => {
-          this.worksheettable.current.handleUpdate();
+          if (this.worksheettable && this.worksheettable.current) {
+            this.worksheettable.current.handleUpdate();
+          }
         }, 100);
       } catch (err) {
         console.error(err);

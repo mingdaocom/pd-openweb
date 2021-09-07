@@ -383,8 +383,8 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       );
     }
     if (controlData && controlData.length > 0) {
-      const control = controlData[0];
-      const type = isSetting || control.type ? control.type : control.data.type;
+      const control = controlData[0] || {};
+      const type = isSetting || control.type ? control.type : (control.data || {}).type;
       // type为关联他表，type取sourceControlType的值 -1//无值
       let { sourceControlType = -1, data = { sourceControlType: -1 } } = control;
       sourceControlType = isSetting || sourceControlType !== -1 ? sourceControlType : data.sourceControlType;

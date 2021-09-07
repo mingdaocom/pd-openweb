@@ -91,25 +91,26 @@ const ChooseWidgetWrap = styled.div`
     }
   }
 `;
+
 @withClickAway
 export default class ChooseWidget extends React.Component {
   constructor(props) {
     super(props);
-    const { writeObject, addRelationControl = [], widgetList = [], writeControls = [], hideFn } = props;
+    const { writeControls = [] } = props;
     this.state = {
-      data: writeObject !== 1 ? addRelationControl : widgetList,
+      data: this.getData(props),
       keyWords: '',
-      initData: writeObject !== 1 ? addRelationControl : widgetList,
+      initData: this.getData(props),
       writeControls,
     };
     this.chooseDia = null;
   }
   componentDidMount() {
-    const { writeObject, addRelationControl = [], widgetList = [], hideFn, writeControls = [] } = this.props;
+    const { writeControls = [] } = this.props;
     this.setState({
       keyWords: '',
-      data: writeObject !== 1 ? addRelationControl : widgetList,
-      initData: writeObject !== 1 ? addRelationControl : widgetList,
+      data: this.getData(this.props),
+      initData: this.getData(this.props),
       writeControls,
     });
     this.setPoint();
@@ -122,22 +123,18 @@ export default class ChooseWidget extends React.Component {
     // });
   }
   componentWillReceiveProps(nextProps) {
-    const {
-      writeObject,
-      addRelationControl = [],
-      widgetList = [],
-      writeControls = [],
-      showChooseWidgetDialog,
-    } = nextProps;
+    const { writeControls = [], showChooseWidgetDialog } = nextProps;
     if (this.props.writeControls !== writeControls || showChooseWidgetDialog) {
       this.setState({
-        data: (writeObject !== 1 ? addRelationControl : widgetList).filter(
-          it => it.controlName.indexOf(this.state.keyWords) >= 0,
-        ),
+        data: this.getData(nextProps).filter(it => it.controlName.indexOf(this.state.keyWords) >= 0),
         writeControls,
       });
     }
   }
+  getData = props => {
+    const { writeObject, addRelationControl = [], widgetList = [] } = props;
+    return writeObject !== 1 ? addRelationControl : widgetList; //排除子表
+  };
   setPoint = () => {
     let wh = $(window).height();
     let ot = $('.noAppointFilter').offset().top;
@@ -159,7 +156,7 @@ export default class ChooseWidget extends React.Component {
       });
   };
   render() {
-    const { writeObject, addRelationControl = [], widgetList = [], SwitchFn, hideFn } = this.props;
+    const { SwitchFn, hideFn } = this.props;
     const { data = [], keyWords, writeControls = [], initData = [] } = this.state;
     // if (writeObject !== 1 && addRelationControl.length <= 0) {
     //   alert(_l('请选择关联字段'));
@@ -198,7 +195,7 @@ export default class ChooseWidget extends React.Component {
                 if (!searchValue) {
                   this.setState({
                     keyWords: '',
-                    data: writeObject !== 1 ? addRelationControl : widgetList,
+                    data: this.getData(this.props),
                   });
                 } else {
                   this.setState({
@@ -216,7 +213,7 @@ export default class ChooseWidget extends React.Component {
                 onClick={() => {
                   this.setState({
                     keyWords: '',
-                    data: writeObject !== 1 ? addRelationControl : widgetList,
+                    data: this.getData(this.props),
                   });
                 }}
               />

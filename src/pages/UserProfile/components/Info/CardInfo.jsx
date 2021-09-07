@@ -25,7 +25,7 @@ class CardInfo extends Component {
     );
   };
 
-  showCardList = (userInfo, project) => {
+  showCardList = (userInfo = {}, project = {}) => {
     //切换网络
     projectAjax.getEffectiveUsersCount({ projectId: project.projectId }).then(count => {
       let user = {

@@ -28,11 +28,9 @@ export default class SystemMessage extends PureComponent {
     const that = this;
 
     if (this.msg) {
-      $(this.msg).on('click', 'a', function(evt) {
+      $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
-        const href = $(evt.target)
-          .attr('href')
-          .toLocaleLowerCase();
+        const href = $(evt.target).attr('href').toLocaleLowerCase();
 
         if ($(evt.target).attr('t') === 'taskCmd') {
           var opValue = $this.attr('opvalue');
@@ -43,7 +41,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).done(function(data) {
+          }).done(function (data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -131,12 +129,15 @@ export default class SystemMessage extends PureComponent {
               <span
                 dangerouslySetInnerHTML={{
                   __html: parse(
-                    xss(linkify(Message.content || ''), {
-                      stripIgnoreTag: true,
-                      whiteList: Object.assign({}, xss.whiteList, {
-                        a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],
-                      }),
-                    }),
+                    xss(
+                      linkify((Message.content || '').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, '')),
+                      {
+                        stripIgnoreTag: true,
+                        whiteList: Object.assign({}, xss.whiteList, {
+                          a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],
+                        }),
+                      },
+                    ),
                   ),
                 }}
                 ref={el => {

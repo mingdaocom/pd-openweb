@@ -25,6 +25,7 @@ const MenuItemWrap = styled(MenuItem)`
 export default class CustomButtons extends React.Component {
   static propTypes = {
     iseditting: PropTypes.bool,
+    isBatchOperate: PropTypes.bool,
     type: PropTypes.string,
     projectId: PropTypes.string,
     viewId: PropTypes.string,
@@ -398,7 +399,7 @@ export default class CustomButtons extends React.Component {
   }
 
   renderDialogs() {
-    const { worksheetId, viewId, recordId, projectId, triggerCallback } = this.props;
+    const { worksheetId, viewId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
     const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -406,6 +407,7 @@ export default class CustomButtons extends React.Component {
       <React.Fragment key="dialogs">
         {fillRecordControlsVisible && (
           <FillRecordControls
+            isBatchOperate={isBatchOperate}
             className="recordOperateDialog"
             title={activeBtn.name}
             loadWorksheetRecord={btnTypeStr === '21'}

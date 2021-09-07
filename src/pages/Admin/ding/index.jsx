@@ -584,7 +584,7 @@ export default class Ding extends React.Component {
                   <Switch checked={this.state.intergrationTodoMessageEnabled} onClick={() => this.switchEnabled()} />
                   <div className="mTop16">
                     <span>
-                      {_l('开启后，我的流程中的待办（待审批、待填写、待查看）会进入钉钉待办任务，处理状态会同步更新')}
+                      {_l('开启后，我的流程中的待办（待审批、待填写）会进入钉钉待办任务，处理状态会同步更新')}
                     </span>
                     <span className="Block Gray">
                       <span className="Bold">{_l('注意：')}</span>

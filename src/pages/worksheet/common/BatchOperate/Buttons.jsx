@@ -98,7 +98,7 @@ function Buttons(props) {
   };
   return (
     <Con>
-      <CustomButtons type="iconText" {...buttonsProps} buttons={buttons.slice(0, buttonShowNum)} />
+      <CustomButtons isBatchOperate type="iconText" {...buttonsProps} buttons={buttons.slice(0, buttonShowNum)} />
       {buttonShowNum < buttons.length && (
         <Trigger
           zIndex={1000}
@@ -112,7 +112,7 @@ function Buttons(props) {
           destroyPopupOnHide
           popup={
             <Menu style={{ position: 'relative' }}>
-              <CustomButtons type="menu" icon {...buttonsProps} buttons={buttons.slice(buttonShowNum)} />
+              <CustomButtons isBatchOperate type="menu" icon {...buttonsProps} buttons={buttons.slice(buttonShowNum)} />
             </Menu>
           }
         >

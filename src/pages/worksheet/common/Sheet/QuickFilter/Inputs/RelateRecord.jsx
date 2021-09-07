@@ -43,9 +43,26 @@ const Dropdown = styled(RelateRecordDropdown)`
   }
 `;
 
+function filterDynamicSource(filters) {
+  if (!filters) {
+    return;
+  }
+  try {
+    return JSON.stringify(JSON.parse(filters).filter(c => _.isEmpty(c.dynamicSource)));
+  } catch (err) {
+    return;
+  }
+}
+
 export default function RelateRecord(props) {
   const { values = [], advancedSetting, onChange = () => {} } = props;
-  const control = _.assign({}, props.control, { advancedSetting: _.get(props, 'control.advancedSetting') || {} });
+  const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
+  const control = _.assign({}, props.control, {
+    advancedSetting: {
+      ...controlAdvancedSetting,
+      filters: filterDynamicSource(controlAdvancedSetting.filters),
+    },
+  });
   const { relationControls = [] } = control;
   const { showtype, allowlink, ddset, allowitem, direction } = advancedSetting || {};
   const [active, setActive] = useState();

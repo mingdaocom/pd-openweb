@@ -454,6 +454,7 @@ function Hierarchy(props) {
                       'updateHierarchyData',
                       'appId',
                       'worksheetInfo',
+                      'sheetSwitchPermit',
                     ])}
                     {...rest}
                     key={item.pathId.join('-')}

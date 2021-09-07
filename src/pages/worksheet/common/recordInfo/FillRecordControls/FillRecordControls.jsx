@@ -12,6 +12,7 @@ import './FillRecordControls.less';
 @useWorksheetRowProvider
 class FillRecordControls extends React.Component {
   static propTypes = {
+    isBatchOperate: PropTypes.bool,
     visible: PropTypes.bool,
     title: PropTypes.string,
     recordId: PropTypes.string,
@@ -58,7 +59,7 @@ class FillRecordControls extends React.Component {
 
             return c;
           })
-          .filter(c => !!c),
+          .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type))),
     });
     this.state = {
       updatedControlIds: [],
@@ -72,17 +73,8 @@ class FillRecordControls extends React.Component {
   formcon = React.createRef();
 
   render() {
-    const {
-      recordId,
-      writeControls,
-      visible,
-      className,
-      title,
-      worksheetId,
-      projectId,
-      hideDialog,
-      onSubmit,
-    } = this.props;
+    const { recordId, writeControls, visible, className, title, worksheetId, projectId, hideDialog, onSubmit } =
+      this.props;
     const { formData, updatedControlIds, showError, isSubmitting } = this.state;
     return (
       <Dialog

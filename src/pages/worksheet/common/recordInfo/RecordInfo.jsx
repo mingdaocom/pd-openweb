@@ -628,6 +628,7 @@ export default class RecordInfo extends Component {
         >
           {!abnormal && (
             <Header
+              loading={loading}
               viewId={viewId}
               header={header}
               isSmall={isSmall}

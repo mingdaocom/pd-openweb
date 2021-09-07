@@ -2,4 +2,4 @@
 // root node departmentId
 export const COMPANY_DEPARMENTID = '';
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 50;

@@ -27,7 +27,7 @@ class RoleUserList extends React.Component {
 
     this.state = {
       pageIndex: 1,
-      pageSize: 10,
+      pageSize: 50,
       isLoading: false,
       users: null,
       allCount: null,

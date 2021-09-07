@@ -243,7 +243,7 @@ export default class UploadFiles extends Component {
       method: {
         FilesAdded(uploader, files) {
           _this.props.onDropPasting();
-          let { maxTotalSize, temporaryData } = _this.state;
+          let { temporaryData } = _this.state;
 
           _this._uploading = true;
           _this.props.onUploadComplete(false);

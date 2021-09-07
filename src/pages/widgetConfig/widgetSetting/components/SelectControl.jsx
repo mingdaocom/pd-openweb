@@ -24,7 +24,7 @@ export default function SelectControl({
           <input
             autoFocus
             value={searchValue}
-            onChange={e => onSearchChange(e.target.value)}
+            onChange={e => onSearchChange && onSearchChange(e.target.value)}
             placeholder={_l('搜索字段')}></input>
         </div>
       )}

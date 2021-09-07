@@ -163,7 +163,7 @@ export default function DraggableRecord(props) {
           stateData={data}
           ref={$ref}
           currentView={{ ...view, projectId: worksheetInfo.projectId, appId }}
-          editTitle={() => setEditTitle(false)}
+          editTitle={() => setEditTitle(true)}
           onCopySuccess={data => {
             onCopySuccess({ path, pathId, item: data });
           }}

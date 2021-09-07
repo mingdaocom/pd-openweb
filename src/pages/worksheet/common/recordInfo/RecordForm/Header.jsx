@@ -24,6 +24,7 @@ const SodeBarIcon = styled(IconBtn)`
 
 export default function InfoHeader(props) {
   const {
+    loading,
     sheetSwitchPermit,
     sideVisible,
     recordbase,
@@ -81,7 +82,9 @@ export default function InfoHeader(props) {
       className={cx('recordHeader flexRow Font22', { bottomShadow: header })}
       style={header ? { paddingRight: '56px' } : { zIndex: 10 }}
     >
-      {!!header && <div className="customHeader flex">{React.cloneElement(header, { onSubmit: onSave, isSmall })}</div>}
+      {!!header && !loading && (
+        <div className="customHeader flex">{React.cloneElement(header, { onSubmit: onSave, isSmall })}</div>
+      )}
       {!header && (
         <div className="flex flexRow w100">
           {showPrevNext && (
@@ -140,6 +143,7 @@ export default function InfoHeader(props) {
 }
 
 InfoHeader.propTypes = {
+  loading: PropTypes.bool,
   iseditting: PropTypes.bool,
   sideVisible: PropTypes.bool,
   header: PropTypes.element,
