@@ -10,3 +10,15 @@
 **注意：** 使用的源代码版本需要与部署的明道云版本保持一致，不然接口可能出现不兼容的情况；另外一旦选择二次开发，当部署环境的明道云升级后，开发仓库需要同步合并对应的源代码版本来实现整体升级。
 
 👉 [快速上手](https://docs.pd.mingdao.com/sd/web/start.html)
+
+# 文档
+
+您可以在明道云私有部署文档中心找到 [Openweb](https://docs.pd.mingdao.com/sd/web/) 相关文档。
+
+# 联系我们
+
+* 提交 issue
+* 零代码社区 http://bbs.mingdao.net/
+
+# 许可证
+[Apache 2.0 License.](/LICENSE)
