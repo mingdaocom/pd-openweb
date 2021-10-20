@@ -144,11 +144,12 @@ export default class CreateRecordAndTask extends Component {
 
         {fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId);
-          const { controlName, sourceEntityName } = singleObj;
+          const { controlName, sourceEntityName } = singleObj || {};
+
           return (
             <div key={item.fieldId} className="relative">
               <div className="mTop15 ellipsis Font13">
-                {controlName || singleObj.controlName}
+                {controlName}
                 {singleObj.required && <span className="mLeft5 red">*</span>}
                 {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
               </div>

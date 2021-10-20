@@ -21,6 +21,8 @@ export default class UpdateFields extends Component {
    * fields dropdown title
    */
   renderFieldsTitle(item) {
+    if (!item) return null;
+
     if (item.type === 29) {
       return (
         <div className="flexRow">

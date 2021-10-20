@@ -19,9 +19,11 @@ import { updateWorksheetRow } from 'src/api/worksheet';
 import External from './External';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { saveView } from 'src/pages/worksheet/redux/actions';
-import { eventStr, setDataFormat, getHoverColor } from './util';
+import { getHoverColor, isTimeStyle } from './util';
+import { isLightColor } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
+
 let tabList = [
   { key: 'eventAll', txt: _l('全部') },
   { key: 'eventScheduled', txt: _l('已排期') },
@@ -131,7 +133,8 @@ class RecordCalendar extends Component {
         return;
       }
       let data = new Date();
-      let h = parseFloat(data.getHours() * 42 + parseFloat((data.getMinutes() / 60).toFixed(2)) * 42) - 4 + 'px';
+      let hourH = 18 * 2;
+      let h = parseFloat(data.getHours() * hourH + parseFloat((data.getMinutes() / 60).toFixed(2)) * hourH) - 3 + 'px';
       let div =
         '<div class="linBox" style="text-align:right;width: 100%;top:' +
         h +
@@ -261,7 +264,7 @@ class RecordCalendar extends Component {
       let str = data.start
         ? `${dateStr} ${moment(data.start).format('YYYY-MM-DD HH:mm').substring(11)}`
         : `${dateStr} 08:00`;
-      startTime = startData.type === 16 ? str : dateStr;
+      startTime = isTimeStyle(startData) ? str : dateStr;
     } else {
       // 'YYYY-MM-DD HH:mm'
       startTime = moment(dateStr).format(startFormat);
@@ -679,13 +682,15 @@ class RecordCalendar extends Component {
               }}
               moreLinkClick={info => {
                 const setMorePoper = () => {
-                  let h = $('.fc-more-popover').height();
-                  let top = $('.fc-more-popover').position().top;
-                  let mH = $('.fc-scroller-harness-liquid').height();
-                  if (h + top > mH) {
-                    $('.fc-more-popover').css({ bottom: 10, top: 'initial' });
+                  if ($('.fc-more-popover').length > 0) {
+                    let h = $('.fc-more-popover').height();
+                    let top = $('.fc-more-popover').position().top;
+                    let mH = $('.fc-scroller-harness-liquid').height();
+                    if (h + top > mH) {
+                      $('.fc-more-popover').css({ bottom: 10, top: 'initial' });
+                    }
+                    $('.fc-more-popover').addClass('show');
                   }
-                  $('.fc-more-popover').addClass('show');
                 };
                 if ($('.fc-more-popover').length > 0) {
                   setMorePoper();
@@ -751,6 +756,11 @@ class RecordCalendar extends Component {
                     'background-color': colorHover,
                     'border-color': colorHover,
                   });
+                  $(item.el)
+                    .find('.fc-event-title,.fc-event-time')
+                    .css({
+                      color: !isLightColor(colorHover) ? '#fff' : '#333',
+                    });
                 }
               }}
               eventMouseLeave={item => {
@@ -763,6 +773,11 @@ class RecordCalendar extends Component {
                     'background-color': item.event.backgroundColor,
                     'border-color': item.event.backgroundColor,
                   });
+                  $(item.el)
+                    .find('.fc-event-title,.fc-event-time')
+                    .css({
+                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : '#333',
+                    });
                 }
               }}
             />
@@ -774,6 +789,7 @@ class RecordCalendar extends Component {
         {recordInfoVisible && (
           <RecordInfoWrapper
             showPrevNext={showPrevNext}
+            projectId={worksheetInfo.projectId}
             currentSheetRows={rows}
             allowAdd={worksheetInfo.allowAdd}
             sheetSwitchPermit={sheetSwitchPermit} // 表单权限

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './index.less';
 import cx from 'classnames';
@@ -39,6 +39,7 @@ class Header extends Component {
       showPublishDialog: false,
       publishErrorVisible: false,
       errorInfo: {},
+      isProgressing: false,
     };
   }
 
@@ -121,6 +122,9 @@ class Header extends Component {
       const { errorInfo } = this.state;
       const errorNodeId = errorInfo.errorNodeIds[errorInfo.errorNodeIds.length - 1];
       const $el = $(`.workflowBox[data-id=${errorNodeId}]`);
+
+      if (!$el.length) return;
+
       const { top, left } = $el.offset();
       const $box = $('.workflowSettings .workflowEdit');
       const scrollTop = $box.scrollTop();
@@ -138,6 +142,7 @@ class Header extends Component {
     const { workflowDetail, onBack, flowInfo } = this.props;
     const { startEventId, flowNodeMap } = workflowDetail;
     const noSelectWorksheet =
+      startEventId &&
       (flowNodeMap[startEventId].appType === APP_TYPE.SHEET || flowNodeMap[startEventId].appType === APP_TYPE.DATE) &&
       !flowNodeMap[startEventId].appId;
 
@@ -172,8 +177,28 @@ class Header extends Component {
     });
   };
 
+  /**
+   * 立即执行
+   */
+  action = () => {
+    const { flowInfo } = this.props;
+    const { isProgressing } = this.state;
+
+    if (isProgressing) return false;
+
+    this.setState({ isProgressing: true });
+
+    process.startProcessById({ processId: flowInfo.id }).then(result => {
+      if (result) {
+        alert(_l('执行成功'));
+      }
+
+      this.setState({ isProgressing: false });
+    });
+  };
+
   render() {
-    const { visible, showPublishDialog, publishErrorVisible, errorInfo } = this.state;
+    const { visible, showPublishDialog, publishErrorVisible, errorInfo, isProgressing } = this.state;
     const { tabIndex, switchTabs, flowInfo } = this.props;
 
     return (
@@ -207,7 +232,7 @@ class Header extends Component {
           );
         })}
 
-        <div className="flex">
+        <div className="flex flexRow" style={{ justifyContent: 'flex-end' }}>
           {flowInfo.parentId ? (
             <div className="workflowReleaseBtnBox">
               <div className="workflowReleaseBtn">
@@ -223,15 +248,27 @@ class Header extends Component {
               </div>
             </div>
           ) : (
-            <Switch
-              status={flowInfo.enabled ? 'active' : 'close'}
-              pending={!!flowInfo.pending}
-              isRefresh={flowInfo.publishStatus === 1 && flowInfo.enabled}
-              isNew={!flowInfo.publish}
-              switchStatus={this.switchStatus}
-              publishFlow={this.publishOrCloseFlow}
-              refreshPublish={this.publishOrCloseFlow}
-            />
+            <Fragment>
+              {flowInfo.publishStatus === 2 && flowInfo.enabled && flowInfo.startAppType === APP_TYPE.LOOP && (
+                <span
+                  className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3 workflowDetailTipsWidth"
+                  data-tip={_l('忽略触发器配置，立即触发一条流程，执行时间即为系统的当前时间')}
+                  onClick={this.action}
+                >
+                  {isProgressing ? _l('执行中...') : _l('立即执行')}
+                </span>
+              )}
+
+              <Switch
+                status={flowInfo.enabled ? 'active' : 'close'}
+                pending={!!flowInfo.pending}
+                isRefresh={flowInfo.publishStatus === 1 && flowInfo.enabled}
+                isNew={!flowInfo.publish}
+                switchStatus={this.switchStatus}
+                publishFlow={this.publishOrCloseFlow}
+                refreshPublish={this.publishOrCloseFlow}
+              />
+            </Fragment>
           )}
         </div>
 

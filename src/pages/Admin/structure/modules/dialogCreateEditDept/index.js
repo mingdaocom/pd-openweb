@@ -130,7 +130,7 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
         includeProject: true,
         showCreateBtn: false,
         // unique: false,
-        selectFn: function ([dept]) {
+        selectFn: function ([dept = {}]) {
           _this.$parent.text(dept.departmentName).data({
             departmentid: dept.departmentId,
           });

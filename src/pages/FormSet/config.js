@@ -12,6 +12,7 @@ export const listConfigStr = {
   21: _l('导出视图下记录'),
   22: _l('快捷编辑'), // quickSwitch
   23: _l('打印二维码'), //
+  24: _l('批量编辑'), //
   // 记录都是3开头
   30: _l('分享记录'),
   // 31: _l('发送填写记录'),
@@ -21,7 +22,7 @@ export const listConfigStr = {
   35: _l('记录讨论'), // recordDiscussSwitch
   36: _l('记录复制'), // recordCopySwitch
 };
-export const listPermit = [10, 11, 12, 13, 20, 21, 23, 22, 30, 36, 35, 32, 33, 34];
+export const listPermit = [10, 11, 12, 13, 20, 21, 23, 22, 24, 30, 36, 35, 32, 33, 34];
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论
@@ -31,6 +32,7 @@ export const permitList = {
   viewExportSwitch: 21, // viewExportSwitch	导出视图下记录
   quickSwitch: 22, // quickSwitch	 快捷操作
   QrCodeSwitch: 23, // quickSwitch	 打印二维码
+  batchEdit: 24, //	 批量编辑
   recordShareSwitch: 30, // recordShareSwitch 分享记录
   // recordWriteSwitch: 31, // recordWriteSwitch 发送填写记录
   recordPrintSwitch: 32, // recordPrintSwitch 系统打印

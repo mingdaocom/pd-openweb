@@ -1,6 +1,5 @@
 import './voteUpdater.css';
 var doT = require('dot');
-var utils = require('src/util');
 {
   // 获得某月的天数
   function getMonthDays(myMonth) {
@@ -76,7 +75,7 @@ var utils = require('src/util');
           <a href="javascript:;" id="re_{{=it.idPrefix}}VotePicUpload{{=it.index}}">换一张</a>\
         </div>\
         <div class="Clear"></div>\
-      </div>'
+      </div>',
     )({ index: index, idPrefix: idPrefix });
     var $divVoteUpload = $('#' + idPrefix + 'divVoteUpload' + index).html(picContainerHtml);
     require(['uploadAttachment'], function () {
@@ -102,11 +101,8 @@ var utils = require('src/util');
               .attr('title', attachment.originalFileName + attachment.fileExt)
               .show();
             var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-            $votePicContainer
-              .find('img:first')
-              .attr('file', fullFilePath)
-              .attr('thumbnail', fullFilePath);
-            $votePicContainer.find('img:first').attr('src', utils.convertImageView(fullFilePath, 1, 219, 153));
+            $votePicContainer.find('img:first').attr('file', fullFilePath).attr('thumbnail', fullFilePath);
+            $votePicContainer.find('img:first').attr('src', `${attachment.url}&imageView2/1/w/219/h/153`);
             $('#' + idPrefix + 'VotePicUpload' + index).hide();
           } else {
             $('#' + idPrefix + 'VotePicUpload' + index).show();
@@ -208,9 +204,7 @@ var utils = require('src/util');
   var actions = {
     init: function () {
       return this.each(function (i, el) {
-        var idPrefix = Math.random()
-          .toString(36)
-          .substring(7);
+        var idPrefix = Math.random().toString(36).substring(7);
         var $el = $(el);
         if (!$el.attr('id')) {
           $el.attr('id', idPrefix + 'Vote_updater');
@@ -288,7 +282,7 @@ var utils = require('src/util');
             doT.template(optionTpl)({
               oldVoteAvailableNumber: oldVoteAvailableNumber,
               voteCount: voteCount,
-            })
+            }),
           );
         };
 
@@ -304,10 +298,7 @@ var utils = require('src/util');
           })
           .on('click', '.voteOptions li .removeVoteItem', function () {
             var voteCount = $el.find('.voteOptions li').length;
-            $(this)
-              .parent()
-              .parent()
-              .remove();
+            $(this).parent().parent().remove();
             $el.find('.voteOptions li .voteIndex').each(function (i) {
               $(this).text(i + 1);
             });
@@ -320,7 +311,7 @@ var utils = require('src/util');
               doT.template(optionTpl)({
                 oldVoteAvailableNumber: oldVoteAvailableNumber,
                 voteCount: voteCount,
-              })
+              }),
             );
           });
         require(['@mdfe/duedatepicker'], function () {
@@ -371,7 +362,7 @@ var utils = require('src/util');
               onChange: function () {
                 var voteLastTime = $el.find('.voteLastTime').val();
                 voteLastTime = new Date(voteLastTime);
-                var today = new Date(new Date().getTime() - new Date().getTime() % 86400000);
+                var today = new Date(new Date().getTime() - (new Date().getTime() % 86400000));
                 if (today - voteLastTime === 0) {
                   var hour = new Date().getHours();
                   $el
@@ -385,10 +376,7 @@ var utils = require('src/util');
                     .end()
                     .val(hour + 1 >= 24 ? 0 : hour + 1);
                 } else {
-                  $el
-                    .find('.voteLastHour option')
-                    .prop('disabled', false)
-                    .show();
+                  $el.find('.voteLastHour option').prop('disabled', false).show();
                 }
               },
             });
@@ -399,10 +387,7 @@ var utils = require('src/util');
       return this.each(function (i, el) {
         var $el = $(el);
         if ($el.find('.voteOptions input').length > 0) {
-          $el
-            .find('.voteOptions input[type = "text"]')
-            .addClass('Gray_c')
-            .val(_l('请输入投票项'));
+          $el.find('.voteOptions input[type = "text"]').addClass('Gray_c').val(_l('请输入投票项'));
           $el.find('.UploadSuccess').html('');
           $el.find('div[pluploadid]').show();
           $el.find('.voteOptions li:gt(1)').remove();
@@ -421,10 +406,7 @@ var utils = require('src/util');
           if (oplength > 0) {
             for (var i = 0; i < oplength; i++) {
               if (i > 1) {
-                $(el)
-                  .find('.voteOptions li')
-                  .eq(i)
-                  .remove();
+                $(el).find('.voteOptions li').eq(i).remove();
               }
             }
           }
@@ -447,32 +429,10 @@ var utils = require('src/util');
       var voteVisble = false;
 
       $voteItems.each(function (i) {
-        if (
-          $voteItems
-            .eq(i)
-            .find('input')
-            .val() != '' &&
-          $voteItems
-            .eq(i)
-            .find('input')
-            .val() != _l('请输入投票项')
-        ) {
-          voteOptions +=
-            $voteItems
-              .eq(i)
-              .find('input')
-              .val() + '[Option]';
-          if (
-            $voteItems
-              .eq(i)
-              .find('img:first')
-              .attr('file') != ''
-          ) {
-            voteOptionFiles +=
-              $voteItems
-                .eq(i)
-                .find('img:first')
-                .attr('file') + '[Option]';
+        if ($voteItems.eq(i).find('input').val() != '' && $voteItems.eq(i).find('input').val() != _l('请输入投票项')) {
+          voteOptions += $voteItems.eq(i).find('input').val() + '[Option]';
+          if ($voteItems.eq(i).find('img:first').attr('file') != '') {
+            voteOptionFiles += $voteItems.eq(i).find('img:first').attr('file') + '[Option]';
           } else {
             voteOptionFiles += '[Option]';
           }

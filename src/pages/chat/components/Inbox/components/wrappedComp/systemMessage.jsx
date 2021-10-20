@@ -1,4 +1,4 @@
-﻿import React, { PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import 'emotion';
 import Avatar from '../baseComponent/avatar';
@@ -30,7 +30,7 @@ export default class SystemMessage extends PureComponent {
     if (this.msg) {
       $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
-        const href = $(evt.target).attr('href').toLocaleLowerCase();
+        const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
 
         if ($(evt.target).attr('t') === 'taskCmd') {
           var opValue = $this.attr('opvalue');
@@ -129,9 +129,7 @@ export default class SystemMessage extends PureComponent {
               <span
                 dangerouslySetInnerHTML={{
                   __html: parse(
-                    xss(
-                      linkify((Message.content || '').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, '')),
-                      {
+                    xss(linkify((Message.content || '').replace(/[\r\n]/g, '<br />').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, '')), {
                         stripIgnoreTag: true,
                         whiteList: Object.assign({}, xss.whiteList, {
                           a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],

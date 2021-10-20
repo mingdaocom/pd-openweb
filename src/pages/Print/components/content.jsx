@@ -82,11 +82,11 @@ export default class Con extends React.Component {
   renderControls() {
     const { params, printData, controls = [] } = this.props;
     const { type, from } = this.props.params;
-    const { showData } = printData;
+    const { showData, printOption } = printData;
     const controlData = putControlByOrder(
       replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => o.type !== 43)),
     );
-    let isHideNull = showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     return (
       <div className="listControls mTop18" style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
         {Object.keys(controlData).map(key => {
@@ -130,7 +130,7 @@ export default class Con extends React.Component {
                   {/* 分段不计算value 走特殊显示方式 */}
                   {item[0].type !== 22 && (
                     <span className={cx('value', { value2: item[0].type === 2 })}>
-                      {getPrintContent({ ...item[0], showUnit: true, showData: isHideNull })}
+                      {getPrintContent({ ...item[0], showUnit: true, showData: isHideNull, printOption })}
                     </span>
                   )}
                 </div>
@@ -154,7 +154,7 @@ export default class Con extends React.Component {
                       >
                         <span className="title">{it.controlName || _l('未命名')}</span>
                         <span className={cx('value', { value2: it.type === 2 })}>
-                          {getPrintContent({ ...it, showUnit: true })}
+                          {getPrintContent({ ...it, showUnit: true, printOption })}
                         </span>
                       </div>
                     );
@@ -182,7 +182,7 @@ export default class Con extends React.Component {
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
     let relationsList = tableList.relationsData || {};
-    let isHideNull = showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     let list = relationsList.data || [];
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
@@ -414,7 +414,7 @@ export default class Con extends React.Component {
     const { printData, params } = this.props;
     const { type, from } = params;
     const { showData } = printData;
-    let isHideNull = showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     // 隐藏字段，只在表单编辑中的新建和编辑不生效，仅保存设置
     return (!isHideNull || (data && isHideNull)) && checked;
   };

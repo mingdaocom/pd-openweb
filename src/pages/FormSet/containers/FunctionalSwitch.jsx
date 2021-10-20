@@ -185,9 +185,9 @@ function FunctionalSwitch(props) {
                                       info.showData.type && info.showData.type !== o.type ? true : !info.showDialog,
                                     showLocation: {
                                       left: e.clientX,
-                                      top: $(target)
-                                        .closest('li')
-                                        .position().top,
+                                      top: !!$(target).closest('li').length
+                                        ? $(target).closest('li').position().top
+                                        : 0,
                                     },
                                   });
                                 }
@@ -204,7 +204,7 @@ function FunctionalSwitch(props) {
                                   <Icon icon="visibility_off" className="" />
                                 </Tooltip>
                               )}
-                              {[12, 13, 20, 21, 22, 23, 30, 31, 32, 33, 34, 35, 36].includes(o.type) && o.state && (
+                              {[12, 13, 20, 21, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36].includes(o.type) && o.state && (
                                 <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />
                               )}
                               {o.state && ![10, 11].includes(o.type) && (

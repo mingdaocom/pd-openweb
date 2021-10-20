@@ -79,13 +79,19 @@ export default function DateVerify({ data, onChange }) {
     const idx = findIndex(weeks, item => +item > +key);
     return update(weeks, { $splice: [[idx, 0, key]] }).join('');
   };
+  useEffect(() => {
+    if (type === 15) {
+      onChange(handleAdvancedSettingChange(data, { allowtime: '' }));
+    }
+  }, [type]);
   return (
     <Fragment>
       <div className="labelWrap">
         <Checkbox
           size="small"
           checked={allowweek}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))}>
+          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))}
+        >
           <span>{_l('允许选择的星期')}</span>
         </Checkbox>
       </div>
@@ -106,13 +112,15 @@ export default function DateVerify({ data, onChange }) {
                           allowweek: handleWeekChange(key),
                         }),
                       )
-                    }>
+                    }
+                  >
                     {WEEKDAYS[key]}
                   </Checkbox>
                 </div>
               ))}
             </WeekWrap>
-          }>
+          }
+        >
           <DropdownPlaceholder className={cx({ active: weekVisible })} style={{ marginBottom: '12px' }} color="#333">
             {allowweek.length === 7
               ? _l('每天')
@@ -149,18 +157,21 @@ export default function DateVerify({ data, onChange }) {
                       const disabled = parseFloat(v) >= parseFloat(nextVal);
                       return (
                         <div
+                          key={v}
                           className={cx('item', { disabled })}
                           onClick={() => {
                             if (disabled) return;
                             setVisible({ startTimeVisible: false });
                             onChange(handleAdvancedSettingChange(data, { allowtime: `${v}-${nextVal}` }));
-                          }}>
+                          }}
+                        >
                           {v}
                         </div>
                       );
                     })}
                   </WeekWrap>
-                }>
+                }
+              >
                 <DropdownPlaceholder className={cx('flex', { active: startTimeVisible })} color="#333">
                   {allowtime.split('-')[0]}
                 </DropdownPlaceholder>
@@ -177,18 +188,21 @@ export default function DateVerify({ data, onChange }) {
                       const disabled = parseFloat(v) <= parseFloat(preVal);
                       return (
                         <div
+                          key={v}
                           className={cx('item', { disabled })}
                           onClick={() => {
                             if (disabled) return;
                             setVisible({ endTimeVisible: false });
                             onChange(handleAdvancedSettingChange(data, { allowtime: ` ${preVal}-${v}` }));
-                          }}>
+                          }}
+                        >
                           {v}
                         </div>
                       );
                     })}
                   </WeekWrap>
-                }>
+                }
+              >
                 <DropdownPlaceholder className={cx('flex', { active: endTimeVisible })} color="#333">
                   {allowtime.split('-')[1]}
                 </DropdownPlaceholder>

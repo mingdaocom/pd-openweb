@@ -115,7 +115,7 @@ export default function CalendarSet(props) {
                 className={cx('Hand', { current: string(i) === calendarType })}
                 onClick={() => {
                   handleChange({ calendarType: string(i) });
-                  window.localStorage.setItem('CalendarViewType', getCalendarViewType(string(i), startData.type));
+                  window.localStorage.setItem('CalendarViewType', getCalendarViewType(string(i), startData));
                 }}
               >
                 {it}

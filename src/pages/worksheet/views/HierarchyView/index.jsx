@@ -135,7 +135,7 @@ function Hierarchy(props) {
     // 多表关联把所有的关联控件获取到 以便后续展示
     const { viewType, childType } = view;
     if (viewType === 2 && childType === 2) {
-      const ids = viewControls.slice(1).map(item => item.worksheetId);
+      const ids = (viewControls || []).slice(1).map(item => item.worksheetId);
       getWorksheetsControls({ worksheetIds: ids, handControlSource: true }).then(({ code, data }) => {
         if (code === 1) {
           const relateControls = ids.map(id => _.get(_.find(data || [], i => i.worksheetId === id) || {}, 'controls'));
@@ -237,7 +237,7 @@ function Hierarchy(props) {
   };
 
   const handleAddRecord = obj => {
-    const { isTextTitle, value, pid, visible, ...rest } = obj;
+    const { isTextTitle, value = '', pid, visible, ...rest } = obj;
     if (isTextTitle && isAllowQuickSwitch(sheetSwitchPermit)) {
       createTextTitleTempRecord({ ...rest, visible, pid });
       setState({ addRecordDefaultValue: value, addRecordPath: rest });
@@ -266,7 +266,7 @@ function Hierarchy(props) {
       };
     }
     return {
-      ..._.pick(worksheetInfo, ['worksheetId', 'entityName']),
+      ..._.pick(worksheetInfo, ['worksheetId', 'entityName','projectId']),
       viewId,
     };
   };
@@ -419,7 +419,7 @@ function Hierarchy(props) {
 
     const renderHierarchy = () => {
       return isEmpty(hierarchyViewState) && (filters.keyWords || !isEmpty(filters.filterControls)) ? (
-        <ViewEmpty searchArgs={filters} />
+        <ViewEmpty filters={filters} viewFilter={view.filters || []} />
       ) : (
         <Fragment>
           {_.keys(hierarchyViewData).length > 0 && (

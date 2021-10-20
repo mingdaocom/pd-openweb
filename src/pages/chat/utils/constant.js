@@ -55,7 +55,7 @@ export default {
   FILE_TRANSFER: {
     id: 'file-transfer',
     type: 1,
-    avatar: '/images/chat_uploadhelper.png?v=0220',
+    avatar: '/src/common/mdcss/Themes/icons/chat_uploadhelper.png',
     name: _l('文件传输助手'),
     description: _l('支持在设备之间轻松传输多种类型文件'),
   },

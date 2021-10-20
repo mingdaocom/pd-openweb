@@ -58,7 +58,7 @@ export default class Widgets extends Component {
 
   componentWillUnmount() {
     this.destroy = true;
-    this.iti.destroy();
+    this.iti && this.iti.destroy();
   }
 
   initialCountry() {

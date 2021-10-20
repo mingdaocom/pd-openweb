@@ -18,6 +18,7 @@ import SortConditions from './components/SortConditions';
 import MobileSet from './components/mobileSet/MobileSet';
 import CalendarSet from './components/calendarSet/index';
 import FastFilter from './components/fastFilter';
+import NavGroup from './components/navGroup';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
@@ -43,19 +44,20 @@ const SysSortColumn = styled.div`
 `;
 const viewTypeConfig = [
   { type: 'Setting', name: _l('设置'), icon: '' }, // 设置
-  { type: 'Filter', name: _l('过滤器'), icon: 'worksheet_filter' }, // 筛选
+  { type: 'Filter', name: _l('数据过滤'), icon: 'worksheet_filter' }, // 筛选
   { type: 'Sort', name: _l('排序'), icon: 'folder-sort' }, // 排序
   { type: 'Controls', name: _l('隐藏字段'), icon: 'visibility_off' }, // 字段
   { type: 'Color', name: _l('颜色'), icon: 'task-color' }, // 颜色
-  { type: 'MobileSet', name: _l('移动端显示'), icon: 'phone' }, // 移动端设置
   { type: 'FastFilter', name: _l('快速筛选'), icon: 'smart_button_black_24dp' }, // 快速筛选
+  { type: 'NavGroup', name: _l('筛选列表'), icon: 'list' }, // 快速筛选
   { type: 'CustomAction', name: _l('自定义动作'), icon: 'custom_actions' }, // 自定义动作
+  { type: 'MobileSet', name: _l('移动端显示'), icon: 'phone' }, // 移动端设置
 ];
 const viewTypeGroup = [
   { name: 'base', list: ['Setting'] },
   { name: 'set', list: ['Filter', 'Sort', 'Controls'] },
+  { name: 'action', list: ['FastFilter', 'NavGroup', 'CustomAction'] },
   { name: 'mobile', list: ['MobileSet'] },
-  { name: 'action', list: ['FastFilter', 'CustomAction'] },
 ];
 
 const formatSortingColumns = columns => {
@@ -264,7 +266,7 @@ class ViewConfigCon extends Component {
   renderViewBtns() {
     const { viewSetting } = this.state;
     const { btnData, view, columns } = this.props;
-    const { filters = [], controls = [], moreSort = [], fastFilters = [] } = view;
+    const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
     const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const columnsList = this.formatColumnsListForControls(columns);
@@ -320,14 +322,15 @@ class ViewConfigCon extends Component {
                   // 暂时不做颜色
                   item.type === 'Color' ||
                   //只有表格和画廊有快速筛选
-                  (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'FastFilter')
+                  (!['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type))
                 ) {
                   return '';
                 }
                 return (
                   <React.Fragment>
                     {(item.type === 'MobileSet' ||
-                      (['sheet', 'gallery'].includes(viewTypeText) && item.type === 'FastFilter') ||
+                      (['sheet', 'gallery'].includes(viewTypeText) &&
+                        ['FastFilter', 'NavGroup'].includes(item.type)) ||
                       (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'CustomAction') ||
                       item.type === 'Filter') && (
                       <React.Fragment>
@@ -510,7 +513,6 @@ class ViewConfigCon extends Component {
                 <SortColumns
                   layout={2}
                   noempty={false} //不需要至少显示一列
-                  maxSelectedNum={100}
                   maxHeight={document.documentElement.clientHeight - 200}
                   showControls={showControlsForSortControl}
                   columns={filteredColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
@@ -734,7 +736,8 @@ class ViewConfigCon extends Component {
         return <MobileSet {...this.props} />;
       case 'FastFilter': // 快速筛选
         return <FastFilter {...this.props} />;
-
+      case 'NavGroup': // 分组筛选
+        return <NavGroup {...this.props} />;
       default:
         return this.renderViewSetting(); // 基础设置
     }
@@ -750,7 +753,7 @@ class ViewConfigCon extends Component {
         {this.renderViewBtns()}
         <ScrollView className="viewContent flex">
           <div className="viewContentCon">
-            {data.type !== 'MobileSet' && data.type !== 'FastFilter' && (
+            {!['MobileSet', 'FastFilter', 'NavGroup'].includes(data.type) && (
               <div className="viewSetTitle">{data.type === 'Setting' ? _l('%0设置', text) : data.name}</div>
             )}
             {this.renderSetting()}

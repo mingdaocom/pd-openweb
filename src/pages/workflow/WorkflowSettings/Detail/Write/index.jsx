@@ -34,7 +34,8 @@ export default class Write extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -137,14 +138,14 @@ export default class Write extends Component {
               <div className="Font13 mTop20 flexRow">
                 <div className="flex bold">{_l('指定填写对象')}</div>
                 <Checkbox
-                  className="mLeft20 Gray_9e"
+                  className="mLeft20 Gray_9e flexRow"
                   text={_l('允许转交他人填写')}
                   checked={data.allowTransfer}
                   onClick={checked => this.updateSource({ allowTransfer: !checked })}
                 />
               </div>
 
-              {data.accounts.length ? (
+              {(data.accounts || []).length ? (
                 <Member type={NODE_TYPE.WRITE} accounts={data.accounts} updateSource={this.updateSource} />
               ) : (
                 <div

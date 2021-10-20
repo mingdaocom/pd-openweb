@@ -461,10 +461,6 @@ class QrPdf {
       );
     }
   }
-  openInNewWindow() {
-    const pdfWindow = window.open();
-    PDFObject.embed(this.doc.output('datauristring'), pdfWindow.document.body);
-  }
   openDialog() {
     this.$dialog = document.createElement('div');
     this.$dialog.innerHTML = `
@@ -481,7 +477,7 @@ class QrPdf {
     setTimeout(() => {
       this.$dialog.classList.add('visible');
     }, 100);
-    PDFObject.embed(this.doc.output('datauristring'), this.$dialog.querySelector('.previewBody'));
+    PDFObject.embed(this.doc.output('bloburl'), this.$dialog.querySelector('.previewBody'));
   }
   @autobind
   closeDialog() {
@@ -492,7 +488,7 @@ class QrPdf {
   }
 }
 
-export default function(printType, layoutType, qrs, options = { cb: () => {} }) {
+export default function (printType, layoutType, qrs, options = { cb: () => {} }) {
   const pdf = new QrPdf(printType, layoutType, qrs, options);
   pdf.render();
   pdf.openDialog();

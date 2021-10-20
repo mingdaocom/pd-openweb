@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Dropdown, Checkbox } from 'ming-ui';
+import { get, head } from 'lodash';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
@@ -32,7 +33,7 @@ const DISTANCE_CONFIG = [
   },
 ];
 export default function Location({ data, onChange }) {
-  const { enumDefault2, enumDefault } = data;
+  const { enumDefault2, default: currentArea } = data;
   const { distance } = getAdvanceSetting(data);
   return (
     <Fragment>
@@ -68,6 +69,15 @@ export default function Location({ data, onChange }) {
           />
         </SettingItem>
       )}
+      <SettingItem>
+        <div className="settingItemTitle">{_l('默认值')}</div>
+        <Checkbox
+          size="small"
+          checked={currentArea === '1'}
+          onClick={checked => onChange({ default: checked ? '0' : '1' })}
+          text={_l('当前位置')}
+        />
+      </SettingItem>
     </Fragment>
   );
 }

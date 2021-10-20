@@ -45,7 +45,7 @@ function BoardView(props) {
     sortBoardRecord,
     initBoardViewData,
     setViewConfigVisible,
-    filter,
+    filters,
     addRecord,
     updateMultiSelectBoard,
     ...rest
@@ -207,10 +207,10 @@ function BoardView(props) {
 
     const renderBoard = () => {
       return every(viewData, item => isEmpty(item.rows)) ? (
-        <ViewEmpty searchArgs={filter} />
+        <ViewEmpty filters={filters} viewFilter={view.filters || []} />
       ) : (
         (viewData || []).map((board, index) => {
-          if (!_.get(board, 'rows').length) {
+          if (!(_.get(board, 'rows') || []).length) {
             // 看板无数据时 当配置隐藏无数据看板或看板本身是未分类时 看板不显示
             if (board.noGroup || hidenone === '1') return null;
           }
@@ -250,7 +250,7 @@ function BoardView(props) {
 }
 
 const ConnectedBoardView = connect(
-  state => _.pick(state.sheet, ['boardView', 'worksheetInfo', 'filter', 'controls', 'sheetSwitchPermit']),
+  state => _.pick(state.sheet, ['boardView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit']),
   dispatch => bindActionCreators({ ...boardActions, ...baseAction }, dispatch),
 )(BoardView);
 

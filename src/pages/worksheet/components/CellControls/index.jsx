@@ -89,6 +89,10 @@ export default class CellControl extends React.Component {
 
   cell = React.createRef();
 
+  get error() {
+    return this.errorCleared ? this.state.error : this.state.error || this.props.error;
+  }
+
   checkCellFullVisible() {
     const { style } = this.props;
     let newLeft;
@@ -132,12 +136,13 @@ export default class CellControl extends React.Component {
     );
   }
 
-  validate(cell) {
-    const { tableFromModule, cellUniqueValidate } = this.props;
-    let errorType = onValidator(cell);
+  validate(cell, row) {
+    const { tableFromModule, cellUniqueValidate, clearCellError } = this.props;
+    let { errorType } = onValidator(cell);
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       return cellUniqueValidate(cell.controlId, cell.value) ? '' : 'UNIQUE';
     }
+    this.errorCleared = !errorType;
     return errorType;
   }
 
@@ -153,9 +158,14 @@ export default class CellControl extends React.Component {
 
   @autobind
   onValidate(value) {
-    const { cell } = this.props;
-    const errorType = this.validate({ ...cell, value });
+    const { cell, row, checkRulesErrorOfControl } = this.props;
+    const errorType = this.validate({ ...cell, value }, row);
     const errorText = errorType && this.getErrorText(errorType, { ...cell, value });
+    const error = checkRulesErrorOfControl(cell, { ...row, [cell.controlId]: value });
+    if (error) {
+      this.setState({ error: error.errorMessage });
+      return !error;
+    }
     this.setState({
       error: errorText || null,
     });
@@ -163,8 +173,8 @@ export default class CellControl extends React.Component {
   }
 
   @autobind
-  handleUpdateCell(newCell = {}, options = {}) {
-    const { cell, updateCell } = this.props;
+  async handleUpdateCell(newCell = {}, options = {}) {
+    const { cell, row, updateCell } = this.props;
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
@@ -190,7 +200,7 @@ export default class CellControl extends React.Component {
   @autobind
   handleUpdateEditing(isediting, cb = () => {}) {
     const { cell, row, clearCellError, scrollTo, updateEditingControls, onCellFocus } = this.props;
-    const { error } = this.state;
+    const { error } = this;
     onCellFocus(isediting);
     const cellFullVisible = isediting && this.checkCellFullVisible();
     const run = () => {
@@ -206,6 +216,7 @@ export default class CellControl extends React.Component {
       }
       if (!isediting && !error) {
         clearCellError(`${row.rowid}-${cell.controlId}`);
+        $('.mdTableErrorTip').remove();
       }
       setTimeout(
         () => {
@@ -266,7 +277,9 @@ export default class CellControl extends React.Component {
       tableFromModule,
       cell,
       row,
+      rowIndex,
       formdata,
+      masterData,
       from,
       rowHeight,
       popupContainer,
@@ -277,14 +290,18 @@ export default class CellControl extends React.Component {
       sheetSwitchPermit,
       viewId,
     } = this.props;
-    const { isediting, error } = this.state;
+    const { isediting } = this.state;
+    const error = this.error;
     const singleLine = rowHeight === ROW_HEIGHT[0];
     let className = this.props.className;
-    if (error && !_.isUndefined(this.props.error)) {
+    if (error) {
       className = className + ' cellControlErrorStatus';
     }
     if (singleLine) {
       className += ' singleLine';
+    }
+    if (isediting) {
+      className += ' isediting';
     }
     if (row && _.isEmpty(row)) {
       return <div className={className} style={style} />;
@@ -300,6 +317,14 @@ export default class CellControl extends React.Component {
     }
     const controlPermission = controlState(cell);
     this.editable = canedit && row && (row.allowedit || isSubList) && controlPermission.editable && !cell.isSubtotal;
+    if (!controlPermission.visible) {
+      if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+        return <div className={className} onClick={this.props.onClick} style={style} />;
+      } else {
+        className += 'readonly';
+        this.editable = false;
+      }
+    }
     const editable = this.editable;
     const isTextControl = checkIsTextControl(cell.type);
     let needLineLimit;
@@ -307,6 +332,7 @@ export default class CellControl extends React.Component {
       worksheetId,
       className,
       style,
+      rowIndex,
       ref: this.cell,
       editable,
       recordId: row && row.rowid,
@@ -318,6 +344,7 @@ export default class CellControl extends React.Component {
       projectId,
       cell: { ...cell },
       formdata,
+      masterData,
       from: from,
       tableFromModule,
       isediting,

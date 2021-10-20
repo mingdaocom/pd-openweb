@@ -14,9 +14,9 @@ export function loading(state = true, action) {
 export function shareUrl(state = '', action) {
   switch (action.type) {
     case 'PUBLICWORKSHEET_LOAD_SUCCESS':
-      return `${md.global.Config.PublicFormWebUrl || md.global.Config.WebUrl.replace(/\/$/, '')}/form/${action.shareId}`;
+      return action.url || '';
     case 'PUBLICWORKSHEET_UPDATE_URL':
-      return `${md.global.Config.PublicFormWebUrl || md.global.Config.WebUrl.replace(/\/$/, '')}/form/${action.shareId}`;
+      return action.url || '';
     case 'PUBLICWORKSHEET_CLEAR':
       return '';
     default:

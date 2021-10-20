@@ -27,7 +27,7 @@ export default class Discussion extends Component {
       // 工作表讨论权限
       hiddenTabs.push('discuss', 'files');
     }
-    console.log(hiddenTabs);
+
     return (
       <div className="Discussion">
         <ClickAwayable onClickAway={this.props.onClose} onClickAwayExceptions={clickAwayExceptions}>

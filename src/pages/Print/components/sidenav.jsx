@@ -1,9 +1,18 @@
 import React from 'react';
-import { Icon, Dropdown, Tooltip, ScrollView, Checkbox } from 'ming-ui';
-import { fromType, printType, typeForCon } from '../config';
+import { Icon, Dropdown, Tooltip, ScrollView, Checkbox, Switch } from 'ming-ui';
+
 import Api from 'api/homeApp';
 import { sortByShowControls, getVisibleControls, isVisible, isRelation } from '../util';
+import { fromType, printType, typeForCon, DEFAULT_FONT_SIZE, MIDDLE_FONT_SIZE, MAX_FONT_SIZE } from '../config';
+
 import './sidenav.less';
+
+let sidenavList = [
+  'setting', //设置
+  'control', //字段
+  'workflow', //工作流
+  'addition', //附加
+];
 class Sidenav extends React.Component {
   constructor(props) {
     super(props);
@@ -12,18 +21,8 @@ class Sidenav extends React.Component {
       isUserAdmin: false,
       receiveControlsCheckAll: false,
       workflowCheckAll: true,
+      closeList: [],
     };
-  }
-  componentWillMount() {
-    const { params } = this.props;
-    const { type, from, appId, printType } = params;
-    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'workflow') {
-      Api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
-        this.setState({
-          isUserAdmin: data.permissionType >= 100,
-        });
-      });
-    }
   }
 
   changeSysFn = (id, checked) => {
@@ -138,7 +137,7 @@ class Sidenav extends React.Component {
                   <div className="mLeft24">
                     <Icon
                       icon={it.expand ? 'expand_less' : 'expand_more'}
-                      className="Font18 moreList Gray_9e"
+                      className="Font18 moreList Hand TxtCenter TxtBottom"
                       onClick={() => {
                         this.setData(it, 'expand');
                       }}
@@ -273,7 +272,7 @@ class Sidenav extends React.Component {
   renderWorkflow() {
     const { handChange, printData = [], systemControl } = this.props;
     const { workflow = [] } = printData;
-    if (workflow.length <= 0) {
+    if (workflow.length <= 0 || this.state.closeList.includes('workflow')) {
       return '';
     }
     return (
@@ -398,7 +397,6 @@ class Sidenav extends React.Component {
         createAccountChecked: !receiveControlsCheckAll,
         createTimeChecked: !receiveControlsCheckAll,
         updateTimeChecked: !receiveControlsCheckAll,
-        titleChecked: !receiveControlsCheckAll,
         orderNumber: orderNumber.map(it => {
           return {
             ...it,
@@ -423,142 +421,279 @@ class Sidenav extends React.Component {
     }
   };
 
+  changeCloseList = str => {
+    let { closeList } = this.state;
+    let i = closeList.indexOf(str);
+    if (i >= 0) {
+      closeList.splice(i, 1);
+    } else {
+      closeList = closeList.concat(str);
+    }
+    this.setState({
+      closeList,
+    });
+  };
+
+  renderCheckboxCon = (key, text, tip) => {
+    const { printData, handChange } = this.props;
+    return (
+      <div className="mTop15">
+        <Checkbox
+          checked={printData[key]}
+          className="InlineBlock"
+          onClick={() => {
+            handChange({
+              ...printData,
+              [key]: !printData[key],
+            });
+          }}
+          text={text}
+        />
+        <Tooltip popupPlacement="right" text={<span>{tip}</span>}>
+          <div className="Gray_9e help InlineBlock TxtTop mLeft5">
+            <Icon icon="help" className="Font14" />
+          </div>
+        </Tooltip>
+      </div>
+    );
+  };
+
+  renderBtnSetting = () => {
+    return (
+      <React.Fragment>
+        {this.renderCheckboxCon(
+          'printOption',
+          _l('打印未选中的项'),
+          _l('开启后，平铺类型的选项字段会打印没有选中的选项'),
+        )}
+        {this.renderCheckboxCon('showData', _l('打印空字段'), _l('开启后，没有内容的字段会显示并可以打印'))}
+      </React.Fragment>
+    );
+  };
+  renderDrop = () => {
+    const { printData, handChange } = this.props;
+    return (
+      <div className="TxtTop">
+        <span className="TxtMiddle">{_l('文字大小')}</span>
+        <Dropdown
+          className="forSizeText mLeft12"
+          value={printData.font || DEFAULT_FONT_SIZE}
+          onChange={value => {
+            handChange({
+              ...printData,
+              font: value,
+            });
+          }}
+          data={[
+            { text: _l('标准'), value: DEFAULT_FONT_SIZE },
+            { text: _l('中'), value: MIDDLE_FONT_SIZE },
+            { text: _l('大'), value: MAX_FONT_SIZE },
+          ]}
+        />
+      </div>
+    );
+  };
+
   render() {
     const { handChange, params, printData, systemControl, controls = [], signature = [], saveTem } = this.props;
     const { printId, type, from, printType, isDefault } = params;
     const { receiveControls = [], workflow = [] } = printData;
-    const { receiveControlsCheckAll, workflowCheckAll } = this.state;
+    const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
     return (
       <div className="sidenavBox flexRow">
         <div className="conBox">
-          {from === fromType.PRINT && type === typeForCon.NEW && this.state.isUserAdmin && (
-            <span
-              className="btn Gray Hand"
-              onClick={() => {
-                saveTem();
-              }}
-            >
-              {_l('保存为打印模板')}
-            </span>
+          {((type !== typeForCon.PREVIEW && from === fromType.FORMSET) ||
+            (type === typeForCon.NEW && from !== fromType.FORMSET)) && (
+            <React.Fragment>
+              <div className="plate">
+                <div className="plate controlPlate">
+                  <div className="caption">
+                    <span className="headline">{_l('设置')}</span>
+                    <span className="iconBox">
+                      <Icon
+                        icon={closeList.includes('setting') ? 'expand_less' : 'expand_more'}
+                        className="Font18 expand Hand TxtCenter"
+                        onClick={() => {
+                          this.changeCloseList('setting');
+                        }}
+                      />
+                    </span>
+                  </div>
+                  {!closeList.includes('setting') && (
+                    <div className="mTop20">
+                      {this.renderDrop()}
+                      {this.renderBtnSetting()}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="lineBox"></div>
+            </React.Fragment>
           )}
-          <p className="Bold">
-            {_l('系统字段')}
-            <span
-              className="Right Hand Gray_9e chooseBtn"
-              onClick={() => {
-                this.checkAll(true);
-              }}
-            >
-              {!receiveControlsCheckAll ? _l('全选') : _l('取消全选')}
-            </span>
-          </p>
-          <Checkbox
-            checked={printData.titleChecked}
-            className="mTop12"
-            onClick={() => {
-              handChange({
-                ...printData,
-                titleChecked: !printData.titleChecked,
-              });
-            }}
-            text={_l('标题')}
-          />
-          {this.renderLi(systemControl)}
-          <p className="mTop24 Bold">{_l('表单字段')}</p>
-          {this.renderLi(getVisibleControls(controls))}
-          {signature.length > 0 && <p className="mTop24 Bold">{_l('手写签名')}</p>}
-          {this.renderLi(signature)}
-          <div className="lineBox"></div>
-          {workflow.length > 0 && (
-            <p className="mTop24 Bold">
-              {_l('流程节点')}
+          <div className="plate controlPlate">
+            <div className="caption">
+              <span className="headline">{_l('字段')}</span>
               <span
                 className="Right Hand Gray_9e chooseBtn"
                 onClick={() => {
-                  this.checkAll();
+                  this.checkAll(true);
                 }}
               >
-                {!workflowCheckAll ? _l('全选') : _l('取消全选')}
+                {!receiveControlsCheckAll ? _l('全选') : _l('取消全选')}
               </span>
-            </p>
-          )}
-          {this.renderWorkflow()}
-          {workflow.length > 0 && <div className="lineBox"></div>}
-          <p className="Bold">{_l('附加信息')}</p>
-          <Checkbox
-            checked={printData.formNameChecked}
-            className="mTop12"
-            onClick={() => {
-              handChange({
-                ...printData,
-                formNameChecked: !printData.formNameChecked,
-              });
-            }}
-            text={_l('表单名称')}
-          />
-          {printData.formNameChecked && (
-            <input
-              type="text"
-              value={printData.formName}
-              onChange={e => {
-                handChange({
-                  ...printData,
-                  formName: e.target.value,
-                });
-              }}
-            />
-          )}
-          <Checkbox
-            checked={printData.companyNameChecked}
-            className="mTop12"
-            onClick={() => {
-              handChange({
-                ...printData,
-                companyNameChecked: !printData.companyNameChecked,
-              });
-            }}
-            text={_l('公司名称')}
-          />
-          <Checkbox
-            checked={printData.logoChecked}
-            className="mTop12"
-            onClick={() => {
-              handChange({
-                ...printData,
-                logoChecked: !printData.logoChecked,
-              });
-            }}
-            text={
-              <span>
-                {_l('企业Logo')}
-                <Tooltip popupPlacement="top" text={<span>{_l('在企业管理后台中设置')}</span>}>
-                  <Icon icon="help" className="Font13 mLeft8 Gray_bd" />
-                </Tooltip>
+              <span className="iconBox">
+                <Icon
+                  icon={closeList.includes('control') ? 'expand_less' : 'expand_more'}
+                  className="Font18 expand Hand TxtCenter"
+                  onClick={() => {
+                    this.changeCloseList('control');
+                  }}
+                />
               </span>
-            }
-          />
-          <Checkbox
-            checked={printData.qrCode}
-            className="mTop12"
-            onClick={() => {
-              handChange({
-                ...printData,
-                qrCode: !printData.qrCode,
-              });
-            }}
-            text={_l('二维码')}
-          />
-          <Checkbox
-            checked={printData.printTime}
-            className="mTop12 pBottom20"
-            onClick={() => {
-              handChange({
-                ...printData,
-                printTime: !printData.printTime,
-              });
-            }}
-            text={_l('打印时间')}
-          />
+            </div>
+            {!closeList.includes('control') && (
+              <React.Fragment>
+                <p className="Bold mTop15 Gray_9e">{_l('系统字段')}</p>
+                {this.renderLi(systemControl)}
+                <p className="mTop20 Bold Gray_9e">{_l('表单字段')}</p>
+                {this.renderLi(getVisibleControls(controls))}
+                {signature.length > 0 && <p className="mTop20 Bold Gray_9e">{_l('手写签名')}</p>}
+                {this.renderLi(signature)}
+              </React.Fragment>
+            )}
+          </div>
+          <div className="lineBox"></div>
+          {workflow.length > 0 && (
+            <React.Fragment>
+              <div className="plate">
+                <div className="caption">
+                  <span className="headline">{_l('流程节点')}</span>
+                  <span
+                    className="Right Hand Gray_9e chooseBtn"
+                    onClick={() => {
+                      this.checkAll();
+                    }}
+                  >
+                    {!workflowCheckAll ? _l('全选') : _l('取消全选')}
+                  </span>
+                  <span className="iconBox">
+                    <Icon
+                      icon={closeList.includes('workflow') ? 'expand_less' : 'expand_more'}
+                      className="Font18 expand Hand TxtCenter"
+                      onClick={() => {
+                        this.changeCloseList('workflow');
+                      }}
+                    />
+                  </span>
+                </div>
+                {!closeList.includes('workflow') && this.renderWorkflow()}
+              </div>
+              <div className="lineBox"></div>
+            </React.Fragment>
+          )}
+          <div className="plate pBottom20">
+            <div className="caption">
+              <span className="headline">{_l('附加信息')}</span>
+              <span className="iconBox">
+                <Icon
+                  icon={closeList.includes('addition') ? 'expand_less' : 'expand_more'}
+                  className="Font18 expand Hand TxtCenter"
+                  onClick={() => {
+                    this.changeCloseList('addition');
+                  }}
+                />
+              </span>
+            </div>
+            {!closeList.includes('addition') && (
+              <React.Fragment>
+                <Checkbox
+                  checked={printData.formNameChecked}
+                  className="mTop12"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      formNameChecked: !printData.formNameChecked,
+                    });
+                  }}
+                  text={_l('表单名称')}
+                />
+                {printData.formNameChecked && (
+                  <input
+                    type="text"
+                    value={printData.formName}
+                    onChange={e => {
+                      handChange({
+                        ...printData,
+                        formName: e.target.value,
+                      });
+                    }}
+                  />
+                )}
+                <Checkbox
+                  checked={printData.companyNameChecked}
+                  className="mTop12"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      companyNameChecked: !printData.companyNameChecked,
+                    });
+                  }}
+                  text={_l('公司名称')}
+                />
+                <Checkbox
+                  checked={printData.logoChecked}
+                  className="mTop12"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      logoChecked: !printData.logoChecked,
+                    });
+                  }}
+                  text={
+                    <span>
+                      {_l('企业Logo')}
+                      <Tooltip popupPlacement="top" text={<span>{_l('在企业管理后台中设置')}</span>}>
+                        <Icon icon="help" className="Font13 mLeft8 Gray_bd" />
+                      </Tooltip>
+                    </span>
+                  }
+                />
+                <Checkbox
+                  checked={printData.qrCode}
+                  className="mTop12"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      qrCode: !printData.qrCode,
+                    });
+                  }}
+                  text={_l('二维码')}
+                />
+                <Checkbox
+                  checked={printData.titleChecked}
+                  className="mTop12"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      titleChecked: !printData.titleChecked,
+                    });
+                  }}
+                  text={_l('记录标题')}
+                />
+                <Checkbox
+                  checked={printData.printTime}
+                  className="mTop12 mBottom20"
+                  onClick={() => {
+                    handChange({
+                      ...printData,
+                      printTime: !printData.printTime,
+                    });
+                  }}
+                  text={_l('打印时间')}
+                />
+              </React.Fragment>
+            )}
+          </div>
         </div>
       </div>
     );

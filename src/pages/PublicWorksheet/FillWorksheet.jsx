@@ -49,9 +49,8 @@ export default class FillWorkseet extends React.Component {
   }
 
   componentDidMount() {
-    window.isPublicWorksheet = true;
     if (!this.props.isPreview) {
-      window.onbeforeunload = function(e) {
+      window.onbeforeunload = function (e) {
         e = e || window.event;
         if (e) {
           e.returnValue = '关闭提示';
@@ -82,8 +81,16 @@ export default class FillWorkseet extends React.Component {
           id: control.controlId,
           value:
             control.value &&
+            control.value.rows &&
             control.value.rows.length &&
-            getSubListError(control.value, control.relationControls, control.showControls),
+            getSubListError(
+              {
+                rows: control.value.rows,
+                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+              },
+              control.relationControls,
+              control.showControls,
+            ),
         }))
         .filter(c => !_.isEmpty(c.value));
       if (errors.length) {

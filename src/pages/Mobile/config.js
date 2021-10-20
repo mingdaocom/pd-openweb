@@ -93,11 +93,6 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/Mobile/Record/add'),
     title: _l('添加记录'),
   },
-  relationRow: {
-    path: '/mobile/relationRow/:appId/:worksheetId/:rowId/:controlId/:viewId?',
-    component: () => import('src/pages/Mobile/RelationRow'),
-    title: _l('关联记录'),
-  },
   discuss: {
     path: '/mobile/discuss/:appId/:worksheetId/:viewId/:rowId?',
     component: () => import('src/pages/Mobile/Discuss'),

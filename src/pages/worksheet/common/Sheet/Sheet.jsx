@@ -13,11 +13,13 @@ import SheetContext from './SheetContext';
 import SheetHeader from './SheetHeader';
 import ViewControl from './ViewControl';
 import QuickFilter from './QuickFilter';
+import GroupFilter from './GroupFilter';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import DragMask from 'worksheet/common/DragMask';
+import { Icon } from 'ming-ui';
 const { sheet, gallery } = VIEW_DISPLAY_TYPE;
-
 import './style.less';
 
 const Con = styled.div`
@@ -33,6 +35,47 @@ const Loading = styled.div`
   height: 75px;
 `;
 
+const ConView = styled.div`
+  flex: 1;
+  display: flex;
+  position: relative;
+`;
+
+const Drag = styled.div(
+  ({ left }) => `
+  position: absolute;
+  z-index: 2;
+  left: ${left}px;
+  width: 10px;
+  height: 100%;
+  cursor: ew-resize;
+  border-left: 1px solid rgba(0,0,0,0.04);
+  // .openBtn{
+  //   width: 16px;
+  //   height: 32px;
+  //   border: 1px solid #e0e0e0;
+  //   position: absolute;
+  //   z-index: 10;
+  //   line-height: 32px;
+  //   text-align: center;
+  //   border-radius: 0 6px 6px 0;
+  //   left: -1px;
+  //   top: 50%;
+  //   cursor: pointer;
+  //   margin-top: -16px;
+  //   background: #fff;
+  // }
+  &:hover{
+    border-left: 1px solid #2196f3;
+    // .openBtn{
+    //   background: #2196f3;
+    //   color:#fff;
+    //   border: 1px solid #2196f3;
+    // }
+  }
+`,
+);
+
 function Sheet(props) {
   const {
     loading,
@@ -46,11 +89,21 @@ function Sheet(props) {
     activeViewStatus,
     isCharge,
     addNewRecord,
+    updateGroupFilter,
   } = props;
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
+  let [dragMaskVisible, setDragMaskVisible] = useState(false);
+  let [isOpenGroup, setIsOpenGroup] = useState(
+    !window.localStorage.getItem('navGroupIsOpen') ? true : window.localStorage.getItem('navGroupIsOpen') === 'true',
+  );
+  let [groupFilterWidth, setGroupFilterWidth] = useState(
+    isOpenGroup ? window.localStorage.getItem('navGroupWidth') || 210 : 32,
+  );
   let { viewId } = props;
   const { loadWorksheet, updateWorksheetSomeControls } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+  let hasGroupFilter =
+    !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
   function openNewRecord() {
     addRecord({
       showFillNext: true,
@@ -79,10 +132,16 @@ function Sheet(props) {
     openNewRecord,
     viewConfigVisible,
     setViewConfigVisible,
+    groupFilterWidth: hasGroupFilter ? groupFilterWidth : 0,
   };
   useEffect(() => {
     loadWorksheet(worksheetId);
   }, [worksheetId, flag]);
+
+  useEffect(() => {
+    updateGroupFilter([], view);
+  }, [view.viewId, worksheetId]);
+
   return (
     <SheetContext.Provider base={basePara}>
       <Con className="worksheetSheet">
@@ -104,11 +163,61 @@ function Sheet(props) {
         ) : (
           <React.Fragment>
             <SheetHeader {...basePara} />
-            <ViewControl {...basePara} />
+            {/* TODO 临时处理 避免对象传值导致的值变更 */}
+            <ViewControl {...basePara} view={_.cloneDeep(view)} />
             {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && (
               <QuickFilter {...basePara} filters={view.fastFilters} />
             )}
-            <View {...basePara} />
+            {hasGroupFilter ? (
+              <ConView>
+                {dragMaskVisible && (
+                  <DragMask
+                    value={groupFilterWidth}
+                    min={100}
+                    max={360}
+                    onChange={value => {
+                      setDragMaskVisible(false);
+                      setGroupFilterWidth(value);
+                      window.localStorage.setItem('navGroupWidth', value);
+                    }}
+                  />
+                )}
+                <GroupFilter
+                  width={groupFilterWidth}
+                  isOpenGroup={isOpenGroup}
+                  changeGroupStatus={isOpen => {
+                    setIsOpenGroup(isOpen);
+                    window.localStorage.setItem('navGroupIsOpen', isOpen);
+                    if (isOpen) {
+                      setGroupFilterWidth(window.localStorage.getItem('navGroupWidth') || 210);
+                    } else {
+                      setGroupFilterWidth(32);
+                    }
+                  }}
+                />
+                {isOpenGroup && (
+                  <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}>
+                    {/* {isOpenGroup && (
+                      <span
+                        className="openBtn"
+                        onMouseDown={e => {
+                          e.stopPropagation();
+                          setDragMaskVisible(false);
+                          setGroupFilterWidth(32);
+                          window.localStorage.setItem('navGroupIsOpen', !isOpenGroup);
+                          setIsOpenGroup(!isOpenGroup);
+                        }}
+                      >
+                        <Icon icon={'a-arrowback'} />
+                      </span>
+                    )} */}
+                  </Drag>
+                )}
+                <View {...basePara} />
+              </ConView>
+            ) : (
+              <View {...basePara} />
+            )}
           </React.Fragment>
         )}
       </Con>
@@ -148,7 +257,13 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['addNewRecord', 'updateBase', 'loadWorksheet', 'updateWorksheetSomeControls']),
+      _.pick(actions, [
+        'addNewRecord',
+        'updateBase',
+        'loadWorksheet',
+        'updateWorksheetSomeControls',
+        'updateGroupFilter',
+      ]),
       dispatch,
     ),
 )(errorBoundary(Sheet));

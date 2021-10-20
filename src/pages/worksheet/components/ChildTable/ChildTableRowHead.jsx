@@ -87,6 +87,7 @@ export default function RowHead(props) {
             offset: [-12, 0],
             points: ['tl', 'bl'],
           }}
+          isSubList
           allowCopy
           shows={['copy']}
           disableLoadCustomButtons

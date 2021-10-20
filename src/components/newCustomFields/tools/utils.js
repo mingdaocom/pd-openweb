@@ -81,7 +81,7 @@ export const convertControl = type => {
       return 'CHECK'; // 检查框
 
     case 37:
-        return 'SUBTOTAL'; // 汇总
+      return 'SUBTOTAL'; // 汇总
 
     case 38:
       return 'DATECALC'; // 日期计算
@@ -207,10 +207,10 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
 
       result.value = JSON.stringify({
         attachmentData: [],
-        attachments: parsed.attachments
+        attachments: (parsed.attachments || [])
           .map((item, index) => Object.assign({}, item, { isEdit: false, index }))
           .concat(oldAttachments),
-        knowledgeAtts: parsed.knowledgeAtts
+        knowledgeAtts: (parsed.knowledgeAtts || [])
           .map((item, index) => Object.assign({}, item, { isEdit: false, index: parsed.attachments.length + index }))
           .concat(oldKnowledgeAtts),
       });
@@ -225,12 +225,14 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       break;
     case 29:
       parsedValue = JSON.parse(control.value);
-      result.value = JSON.stringify(
-        parsedValue.map(item => ({
-          name: item.name,
-          sid: item.sid,
-        })),
-      );
+      result.value = _.isArray(parsedValue)
+        ? JSON.stringify(
+            parsedValue.map(item => ({
+              name: item.name,
+              sid: item.sid,
+            })),
+          )
+        : '';
       break;
     case 34: // 子表
       if (result.value.isAdd) {
@@ -291,12 +293,24 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
  * @param  {} controls 所有控件
  * @param  {} data 控件所在记录数据[可选]
  */
-export function getTitleTextFromControls(controls, data) {
+export function getTitleTextFromControls(controls, data, titleSourceControlType) {
   let titleControl = _.find(controls, control => control.attribute === 1);
+  if (titleSourceControlType) {
+    titleControl.sourceControlType = titleSourceControlType;
+  }
   if (titleControl && data) {
     titleControl = Object.assign({}, titleControl, { value: data[titleControl.controlId] || data.titleValue });
   }
   return titleControl ? renderCellText(titleControl) || _l('未命名') : _l('未命名');
+}
+
+/**
+ * 从关联记录字段获取标题字段文本
+ * @param  {} controls 所有控件
+ * @param  {} data 控件所在记录数据[可选]
+ */
+export function getTitleTextFromRelateControl(control = {}, data) {
+  return getTitleTextFromControls(control.relationControls, data, control.sourceControlType);
 }
 
 // 控件状态

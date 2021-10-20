@@ -264,11 +264,10 @@ export const DEFAULT_DATA = {
     hint: _l('请填写文本内容'),
   },
   MOBILE_PHONE: {
-    controlName: _l('手机号码'),
+    controlName: _l('手机'),
     size: 6,
     enumDefault: 1,
     hint: _l('请填写手机号码'),
-    enumDefault: 1,
     advancedSetting: {
       defaultarea: '{"name":"China (中国)","iso2":"cn","dialCode":"86"}',
       commcountries:
@@ -276,7 +275,7 @@ export const DEFAULT_DATA = {
     },
   },
   TELEPHONE: {
-    controlName: _l('座机号码'),
+    controlName: _l('座机'),
     size: 6,
     hint: _l('请填写座机号码'),
   },
@@ -288,7 +287,7 @@ export const DEFAULT_DATA = {
   NUMBER: {
     controlName: _l('数值'),
     size: 6,
-    dot: 0,
+    dot: 2,
     hint: _l('请填写数值'),
   },
   CRED: {
@@ -494,7 +493,7 @@ export const SYSTEM_CONTROL = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建人'),
+    controlName: _l('创建者'),
     controlPermissions: '100',
     type: 26,
     display: true,

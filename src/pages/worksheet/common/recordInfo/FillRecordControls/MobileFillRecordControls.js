@@ -1,9 +1,46 @@
 import React from 'react';
 import { WingBlank, Button } from 'antd-mobile';
+import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
+
+const Con = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  height: 100%;
+  .customFieldsWrapper {
+    height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .customFieldsContainer {
+    padding: 0 20px;
+  }
+  .btnsWrapper {
+    padding: 7px 10px;
+    border-top: 1px solid #f5f5f5;
+    background-color: #fff;
+    a {
+      text-decoration: none;
+    }
+    .edit {
+      color: #2196F3;
+    }
+    .am-button {
+      height: 36px;
+      line-height: 36px;
+    }
+    .am-button-primary:hover {
+      color: #fff;
+    }
+    .am-button, .am-button::before, .am-button-active::before{
+      border-radius: 50px;
+    }
+  }
+`;
 
 @useWorksheetRowProvider
 class FillRecordControls extends React.Component {
@@ -83,7 +120,7 @@ class FillRecordControls extends React.Component {
     const { recordId, worksheetId, projectId, hideDialog, title } = this.props;
     const { formData, updatedControlIds, showError } = this.state;
     return (
-      <div className="fillRecordControlsModal">
+      <Con>
         <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
           <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
           <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
@@ -117,7 +154,7 @@ class FillRecordControls extends React.Component {
             </Button>
           </WingBlank>
         </div>
-      </div>
+      </Con>
     );
   }
 }

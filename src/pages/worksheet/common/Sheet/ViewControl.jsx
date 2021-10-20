@@ -30,7 +30,7 @@ const Con = styled.div`
   flex-direction: revert;
   flex-shrink: 0;
   height: 37px;
-  padding: 0 20px 0 14px;
+  padding: 0 20px 0 20px;
   overflow: hidden;
 `;
 
@@ -43,6 +43,7 @@ function ViewControl(props) {
     isCharge,
     filters,
     quickFilter,
+    navGroupFilters,
     worksheetInfo,
     controls,
     views,
@@ -144,13 +145,13 @@ function ViewControl(props) {
               return (
                 !_.find(view.controls, hideId => item.controlId === hideId) &&
                 item.controlPermissions &&
-                item.controlPermissions[0] === '1' &&
-                item.type !== 14
+                item.controlPermissions[0] === '1'
               );
             }),
             downLoadUrl: worksheetInfo.downLoadUrl,
             worksheetSummaryTypes: rowsSummary.types,
             quickFilter,
+            navGroupFilters,
           });
         }}
         onRemoveView={(newViewList, newViewId) => {
@@ -227,7 +228,8 @@ function ViewControl(props) {
             '.ant-tree-select-dropdown',
             '#chat',
             '.boxEditFastFilter',
-            '.boxEditFastFilterCover'
+            '.boxEditFastFilterCover',
+            '.ant-picker-dropdown'
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -279,6 +281,7 @@ function ViewControl(props) {
             '.mdAlertDialog',
             '.ant-cascader-menus',
             '.ant-tree-select-dropdown',
+            '.ant-picker-dropdown'
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}
@@ -354,6 +357,7 @@ export default connect(
     worksheetInfo: state.sheet.worksheetInfo,
     filters: state.sheet.filters,
     quickFilter: state.sheet.quickFilter,
+    navGroupFilters: state.sheet.navGroupFilters,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     // sheetview

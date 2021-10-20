@@ -117,17 +117,50 @@ export default class TriggerCondition extends Component {
     const { singleCondition } = this.props;
     let controlNumber;
     let conditionData = [];
+    let conditionIndex;
+    const switchConditionId = id => {
+      switch (id) {
+        case '15':
+          return '37';
+        case '16':
+          return '38';
+        case '17':
+          return '41';
+        case '18':
+          return '39';
+      }
+    };
 
     if (item.filedId) {
-      conditionData = getConditionList(item.filedTypeId, item.enumDefault).ids.map(id => {
-        if (item.conditionId === id) {
+      conditionData = getConditionList(item.filedTypeId, item.enumDefault).ids.map((id, index) => {
+        if (item.conditionId === id || switchConditionId(item.conditionId) === id) {
           controlNumber = getConditionNumber(id);
+        }
+
+        if (
+          (_.includes([15, 16], item.filedTypeId) || (item.filedTypeId === 38 && item.enumDefault === 2)) &&
+          ((item.conditionId === '15' && id === '37') ||
+            (item.conditionId === '16' && id === '38') ||
+            (item.conditionId === '17' && id === '41') ||
+            (item.conditionId === '18' && id === '39'))
+        ) {
+          conditionIndex = index;
         }
 
         return {
           text: CONDITION_TYPE[id],
           value: id,
         };
+      });
+    }
+
+    // 处理老的日期条件
+    if (typeof conditionIndex === 'number') {
+      conditionData[conditionIndex].text = conditionData[conditionIndex].text + `（新版比较到时间）`;
+      conditionData.splice(conditionIndex, 0, {
+        text: CONDITION_TYPE[item.conditionId] + `（旧版比较到日期）`,
+        value: item.conditionId,
+        disabled: true,
       });
     }
 
@@ -139,11 +172,17 @@ export default class TriggerCondition extends Component {
           <Dropdown
             className={cx('flowDropdown fixedHeight Width200')}
             isAppendToBody
+            menuClass="flowTriggerDropdown"
             data={conditionData}
-            value={item.conditionId}
+            value={item.conditionId || undefined}
             border
             placeholder={_l('请选择')}
             disabled={!item.filedId}
+            renderTitle={() =>
+              item.conditionId && (
+                <span>{CONDITION_TYPE[item.conditionId] + (typeof conditionIndex === 'number' ? '*' : '')}</span>
+              )
+            }
             onChange={conditionId => this.switchCondition(conditionId, i, j)}
           />
         </div>
@@ -238,7 +277,7 @@ export default class TriggerCondition extends Component {
                   <div className="Gray_9e">{_l('请选择')}</div>
                 )}
               </span>
-              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 Gray_9e"></i>
+              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 Gray_9e" />
             </div>
           </div>
         ) : (
@@ -312,7 +351,7 @@ export default class TriggerCondition extends Component {
       appType,
       actionId,
       enumDefault: single.enumDefault,
-      conditionId: getConditionList(single.type, single.enumDefault).defaultConditionId,
+      conditionId: (getConditionList(single.type, single.enumDefault) || {}).defaultConditionId,
       conditionValues: [],
     };
 
@@ -341,9 +380,11 @@ export default class TriggerCondition extends Component {
   renderItemValue(item, controlNumber = 0, i, j) {
     const { isNodeHeader } = this.props;
 
-    if (_.isEmpty(item) || controlNumber === 0) {
+    if (_.isEmpty(item)) {
       return <div className="flex triggerConditionNum triggerConditionDisabled" />;
     }
+
+    if (controlNumber === 0) return null;
 
     const { filedId, filedTypeId, conditionValues, enumDefault, conditionId } = item;
 
@@ -494,6 +535,15 @@ export default class TriggerCondition extends Component {
     // 日期 || 日期时间
     if (filedTypeId === 15 || filedTypeId === 16) {
       const dateList = [];
+      const showTimePicker = filedTypeId === 16 && !_.includes(['9', '10'], item.conditionId);
+      const timeMode = _.includes(['ctime', 'utime'], filedId) ? 'second' : 'minute';
+      const formatString =
+        timeMode === 'second' && showTimePicker
+          ? 'YYYY-MM-DD HH:mm:ss'
+          : showTimePicker
+          ? 'YYYY-MM-DD HH:mm'
+          : 'YYYY-MM-DD';
+
       DATE_LIST.forEach((item, i) => {
         if (i % 3 === 0) {
           dateList.push([item]);
@@ -502,7 +552,7 @@ export default class TriggerCondition extends Component {
         }
       });
 
-      if (_.includes(['9', '10', '17', '18'], item.conditionId)) {
+      if (_.includes(['9', '10', '17', '18', '39', '41'], item.conditionId)) {
         return (
           <div className="flex">
             <div className="flexRow relative">
@@ -533,12 +583,13 @@ export default class TriggerCondition extends Component {
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
                   }
-                  timePicker={false}
-                  onOk={e => this.updateConditionDateValue({ value: e.format('YYYY-MM-DD'), i, j })}
+                  timePicker={showTimePicker}
+                  timeMode={timeMode}
+                  onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
                   onClear={() => this.updateConditionDateValue({ value: '', i, j })}
                 >
                   {conditionValues[0] && conditionValues[0].value
-                    ? moment(conditionValues[0].value).format('YYYY-MM-DD')
+                    ? moment(conditionValues[0].value).format(formatString)
                     : ''}
                   <i className="icon-bellSchedule Font14 Gray_9e" />
                 </DateTime>
@@ -559,12 +610,13 @@ export default class TriggerCondition extends Component {
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
                   }
-                  timePicker={false}
-                  onOk={e => this.updateConditionDateValue({ value: e.format('YYYY-MM-DD'), i, j })}
+                  timePicker={showTimePicker}
+                  timeMode={timeMode}
+                  onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
                   onClear={() => this.updateConditionDateValue({ value: '', i, j })}
                 >
                   {conditionValues[0] && conditionValues[0].value
-                    ? moment(conditionValues[0].value).format('YYYY-MM-DD')
+                    ? moment(conditionValues[0].value).format(formatString)
                     : ''}
                   <i className="icon-bellSchedule Font14 Gray_9e" />
                 </DateTime>
@@ -584,12 +636,13 @@ export default class TriggerCondition extends Component {
                     selectedValue={
                       conditionValues[1] && conditionValues[1].value ? moment(conditionValues[1].value) : null
                     }
-                    timePicker={false}
-                    onOk={e => this.updateConditionDateValue({ value: e.format('YYYY-MM-DD'), i, j, second: true })}
+                    timePicker={showTimePicker}
+                    timeMode={timeMode}
+                    onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j, second: true })}
                     onClear={() => this.updateConditionDateValue({ value: '', i, j, second: true })}
                   >
                     {conditionValues[1] && conditionValues[1].value
-                      ? moment(conditionValues[1].value).format('YYYY-MM-DD')
+                      ? moment(conditionValues[1].value).format(formatString)
                       : ''}
                     <i className="icon-bellSchedule Font14 Gray_9e" />
                   </DateTime>

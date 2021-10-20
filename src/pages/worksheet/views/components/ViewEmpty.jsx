@@ -40,10 +40,11 @@ const STATUS_INFO = {
   search: { text: _l('没有搜索结果'), icon: 'search' },
 };
 
-export default function ViewEmpty(searchArgs) {
+export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
   const getStatus = () => {
-    if (searchArgs.keyWords) return 'search';
-    if (!isEmpty(searchArgs.filterControls)) return 'filter';
+    if (filters.keyWords) return 'search';
+    if (!isEmpty(filters.filterControls)) return 'filter';
+    if (!isEmpty(viewFilter)) return 'filter';
     return 'empty';
   };
 

@@ -102,7 +102,7 @@ class VersionList extends React.Component {
 
   download = (attachment) => {
     if (attachment.canDownload) {
-      window.open(utils.addToken(attachment.downloadUrl));
+      window.open(utils.addToken(attachment.downloadUrl, !window.isDingTalk));
     } else {
       alert('您权限不足，无法保存。请联系文件夹管理员或文件上传者', 3);
     }

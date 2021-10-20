@@ -340,7 +340,7 @@ export default class WorkSheetFilter extends Component {
   }
   saveFilterFn(filter, cb) {
     const { worksheetId, appId } = this.props;
-    const conditions = filter.conditions.filter(condition => checkConditionAvailable(condition));
+    const conditions = (filter.conditions || []).filter(condition => checkConditionAvailable(condition));
     sheetAjax
       .saveWorksheetFilter({
         appId,
@@ -624,16 +624,19 @@ export default class WorkSheetFilter extends Component {
         className="workSheetFilter"
         specialFilter={target => {
           const $targetTarget = $(target).closest(
-            '.dropdownTrigger,' +
-              '.addFilterPopup,' +
-              '.filterControlOptionsList,' +
-              '.mui-dialog-container,' +
-              '.mdDialog,' +
-              '.mui-datetimepicker,' +
-              '.mui-datetimerangepicker,' +
-              '.selectUserBox,' +
-              '.CityPicker,' +
+            [
+              '.dropdownTrigger',
+              '.addFilterPopup',
+              '.filterControlOptionsList',
+              '.mui-dialog-container',
+              '.mdDialog',
+              '.mui-datetimepicker',
+              '.mui-datetimerangepicker',
+              '.selectUserBox',
+              '.CityPicker',
               '.worksheetFilterOperateList',
+              '.ant-picker-dropdown',
+            ].join(','),
           )[0];
           return $targetTarget;
         }}

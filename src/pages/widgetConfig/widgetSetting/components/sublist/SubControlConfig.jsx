@@ -6,7 +6,7 @@ import { HAVE_CONFIG_SUB_LIST, NO_VERIFY_WIDGET, HAS_DYNAMIC_DEFAULT_VALUE_CONTR
 import { enumWidgetType } from '../../../util';
 import WidgetVerify from '../WidgetVerify';
 import components from '../';
-import WidgetConfig from '../WidgetConfig';
+import ControlSetting from '../ControlSetting';
 const { WidgetIntro, WidgetName } = components;
 
 const SubControlConfigWrap = styled.div`
@@ -48,10 +48,11 @@ export default function SubControlConfig({
   control,
   backTop,
   changeWidgetData,
+  globalSheetInfo,
   allControls,
   ...rest
 }) {
-  const { controlId, type, hint, desc } = control;
+  const { controlId, type, hint, desc } = control || {};
   const { controlName, dataSource: subListSheetId } = subListData;
   const SettingModel = Setting[enumWidgetType[type]];
   const handleChange = obj => {
@@ -61,6 +62,7 @@ export default function SubControlConfig({
     data: control,
     onChange: handleChange,
     from: 'subList',
+    globalSheetInfo,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
   };
@@ -85,7 +87,7 @@ export default function SubControlConfig({
         <DynamicDefaultValue {..._.omit(rest, 'onChange')} {...subListProps} />
       )}
       {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...subListProps} />}
-      {HAVE_CONFIG_SUB_LIST.includes(type) && <WidgetConfig {...subListProps} />}
+      {HAVE_CONFIG_SUB_LIST.includes(type) && <ControlSetting {...subListProps} />}
       {/* {!_.includes(NO_CONTENT_CONTROL, type) && (
         <div className="widgetCommonConfig">
           {!_.includes(NO_GUIDE_TEXT_CONTROL, type) && <WidgetExplain value={hint} onChange={changeWidgetData} />}

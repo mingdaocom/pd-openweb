@@ -67,7 +67,15 @@ export default class Widgets extends Component {
     return (
       <div
         className="customFormControlBox"
-        style={{ flexWrap: 'wrap', minWidth: 0, alignItems: 'center', height: 'auto', background: '#fff', borderColor: '#fff', padding: 0 }}
+        style={{
+          flexWrap: 'wrap',
+          minWidth: 0,
+          alignItems: 'center',
+          height: 'auto',
+          background: '#fff',
+          borderColor: '#fff',
+          padding: 0,
+        }}
       >
         {value.map((item, index) => {
           return (
@@ -79,14 +87,20 @@ export default class Widgets extends Component {
               </span>
 
               {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
-                <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeDepartment(item.departmentId)} />
+                <i
+                  className="icon-minus-square Font16 tagDel"
+                  onClick={() => this.removeDepartment(item.departmentId)}
+                />
               )}
             </div>
           );
         })}
 
         {!disabled && (
-          <div className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn" onClick={this.pickDepartment}>
+          <div
+            className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
+            onClick={this.pickDepartment}
+          >
             <i className={enumDefault === 0 && value.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
           </div>
         )}

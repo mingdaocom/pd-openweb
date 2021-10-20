@@ -142,12 +142,12 @@ export function getDownloadUrl(attachment, extra) {
         ? sourceNode.originalFilename
         : sourceNode.originalFilename + sourceNode.ext;
       const url = urlAddParams(viewUrl, { attname: encodeURIComponent(fileName) });
-      return viewUrl ? addToken(url) : url;
+      return viewUrl ? addToken(url, !window.isDingTalk) : url;
     } else if (canDownload(attachment)) {
-      return addToken(attachment.sourceNode.downloadUrl);
+      return addToken(attachment.sourceNode.downloadUrl, !window.isDingTalk);
     }
   }
-  return addToken(result);
+  return addToken(result, !window.isDingTalk);
 }
 
 /**

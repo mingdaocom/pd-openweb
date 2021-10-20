@@ -35,7 +35,9 @@
     "stringToolMethod": false,
     "wx": false,
     "moment": true,
-    "System": true
+    "System": true,
+    "getNavigatorLang": true,
+    "safeParse": true
   },
   "parser": "babel-eslint",
   "plugins": [

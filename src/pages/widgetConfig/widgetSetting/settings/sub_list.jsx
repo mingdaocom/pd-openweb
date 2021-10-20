@@ -2,25 +2,28 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Dialog, Menu, MenuItem, LoadDiv, Support } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
+import update from 'immutability-helper';
 import uuid from 'uuid/v4';
 import cx from 'classnames';
 import { getWorksheetInfo } from 'src/api/worksheet';
 import { changeSheet } from 'src/api/appManagement';
 import styled from 'styled-components';
+import { getSortData } from 'src/pages/worksheet/util';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { SettingItem, WidgetIntroWrap } from '../../styled';
+import SheetComponents from '../components/relateSheet';
+import { EditInfo, InfoWrap, SettingItem, WidgetIntroWrap } from '../../styled';
 import { getControlsSorts, getDefaultShowControls, handleAdvancedSettingChange } from '../../util/setting';
 import Components from '../components';
-import { canSetAsTitle, resortControlByColRow, dealControlData } from '../../util';
+import { canSetAsTitle, getAdvanceSetting, resortControlByColRow, dealControlData } from '../../util';
 import subListComponents from '../components/sublist';
 import { isEmpty, find, filter } from 'lodash';
 import { DEFAULT_INTRO_LINK } from '../../config';
-const { AddSubList, ConfigureControls } = subListComponents;
+const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
   .transferToRelate {
     position: absolute;
-    top: -6px;
+    top: 0;
     right: 0;
   }
   .targetEle .Dropdown--input {
@@ -43,10 +46,12 @@ export default function SubListSetting(props) {
   const [subListMode, setMode] = useState('new');
   const [loading, setLoading] = useState(false);
 
-  const [{ setTitleVisible, switchVisible }, setConfig] = useSetState({
+  const [{ setTitleVisible, switchVisible, sortVisible }, setConfig] = useSetState({
     setTitleVisible: false,
     switchVisible: false,
+    sortVisible: false,
   });
+  const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
 
   useEffect(() => {
     const { saveIndex } = status;
@@ -195,15 +200,16 @@ export default function SubListSetting(props) {
       <WidgetIntroWrap>
         {subListMode === 'new' ? (
           <div className="title relative">
-            <i className={cx('icon', `icon-${icon}`)} />
+            <i className={cx('icon Font20', `icon-${icon}`)} />
             <span>{widgetName}</span>
             <Tooltip placement={'bottom'} title={intro}>
               <span
                 className="iconWrap pointer"
                 onClick={() => {
                   window.open(moreIntroLink || DEFAULT_INTRO_LINK);
-                }}>
-                <i className="icon-help Font16"></i>
+                }}
+              >
+                <i className="icon-help Gray_9e Font16"></i>
               </span>
             </Tooltip>
             <div className="transferToSheet" onClick={() => switchType('new')}>
@@ -212,15 +218,16 @@ export default function SubListSetting(props) {
           </div>
         ) : (
           <div className="title relative">
-            <i className={cx('icon', icon)} />
+            <i className={cx('icon Font20', `icon-${icon}`)} />
             <span>{widgetName}</span>
             <Tooltip placement={'bottom'} title={intro}>
               <span
                 className="iconWrap pointer"
                 onClick={() => {
                   window.open(moreIntroLink || DEFAULT_INTRO_LINK);
-                }}>
-                <i className="icon-help Font16"></i>
+                }}
+              >
+                <i className="icon-help Gray_9e Font16"></i>
               </span>
             </Tooltip>
             <div className="transferToRelate">
@@ -242,6 +249,39 @@ export default function SubListSetting(props) {
       {!dataSource && <AddSubList {...props} onOk={onOk} />}
       {subListMode !== 'new' && <Components.RelateSheetInfo name={sheetInfo.name} id={sheetInfo.worksheetId} />}
       <SettingItem>{getConfigContent()}</SettingItem>
+      {relationControls.length > 0 && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('排序')}</div>
+          <EditInfo className="pointer subListSortInput" onClick={() => setConfig({ sortVisible: true })}>
+            <div className="overflow_ellipsis Gray">
+              {sorts.length > 0
+                ? sorts.reduce((p, item) => {
+                    const control = relationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                    const flag = item.isAsc === true ? 2 : 1;
+                    const { text } = getSortData(control.type, control).find(item => item.value === flag);
+                    const value = _l('%0: %1', control.controlName, text);
+                    return p ? `${p}；${value}` : value;
+                  }, '')
+                : _l('创建时间-旧的在前')}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+          {sortVisible && (
+            <Sort {...props} controls={relationControls} onClose={() => setConfig({ sortVisible: false })} />
+          )}
+        </SettingItem>
+      )}
+      {subListMode !== 'new' && dataSource !== currentWorksheetId && (
+        <SheetComponents.BothWayRelate
+          worksheetInfo={sheetInfo}
+          onOk={obj => {
+            onChange(update(data, { sourceControl: { $set: { ...obj, type: 29 } } }));
+          }}
+          {...props}
+        />
+      )}
       {setTitleVisible && <Components.NoTitleControlDialog onClose={() => setConfig({ setTitleVisible: false })} />}
     </SettingModelWrap>
   );

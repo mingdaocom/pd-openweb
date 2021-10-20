@@ -33,7 +33,7 @@
 {{?}}
 
 {{##def.buildUserList:users:
-{{? users.length }}
+{{? users && users.length }}
 {{~ users:user }}
 <li class="singleUser flexRow" data-accountid="{{= user.accountId }}">
     {{? user.accountId }}

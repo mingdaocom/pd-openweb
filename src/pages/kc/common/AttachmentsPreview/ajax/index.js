@@ -45,7 +45,7 @@ export function fetchViewUrl(attachment) {
   const param = {
     path: attachment.sourceNode.path,
     id: attachment.sourceNode.fileid,
-    ext: File.GetExt(attachment.sourceNode.path),
+    ext: attachment.ext,
   };
   getChatPreviewLink(param)
     .then((resp) => {

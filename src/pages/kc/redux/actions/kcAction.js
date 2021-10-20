@@ -3,7 +3,11 @@ import kcService from '../../api/service';
 import { PICK_TYPE, NODE_STATUS, NODE_SORT_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import { getRootByPath, validateFileName, getRootId, getParentId, IdItem, getDefaultSortType } from '../../utils';
 import {
-  handleOpenUploadAssistant, handleAddLinkFile, handleShareNode, handleMoveOrCopy, handleMoveOrCopyClick,
+  handleOpenUploadAssistant,
+  handleAddLinkFile,
+  handleShareNode,
+  handleMoveOrCopy,
+  handleMoveOrCopyClick,
   handleRemoveNode,
   handleRestoreNode,
   handleBatchDownload,
@@ -35,9 +39,11 @@ export function changeFolder(path) {
     if (root.isSearch) {
       dispatch(searchNodes(root.keywords));
     } else {
-      dispatch(fetchKcNodes(path, undefined, () => {
-        dispatch(triggerLoadMoreNodes());
-      }));
+      dispatch(
+        fetchKcNodes(path, undefined, () => {
+          dispatch(triggerLoadMoreNodes());
+        }),
+      );
     }
   };
 }
@@ -46,9 +52,11 @@ export function loadListById(id) {
   return (dispatch, getState) => {
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch(clearSelect());
-    dispatch(fetchKcNodes(undefined, id, () => {
-      dispatch(triggerLoadMoreNodes());
-    }));
+    dispatch(
+      fetchKcNodes(undefined, id, () => {
+        dispatch(triggerLoadMoreNodes());
+      }),
+    );
   };
 }
 
@@ -86,44 +94,50 @@ export function fetchKcNodes(path, id, cb) {
         getNodeIdPromise = queryPath.indexOf('/') > 0 ? kcService.getNodeByPath('/' + path) : { id: queryPath };
       }
     }
-    Promise.all([getNodeIdPromise])
-    .then(([node]) => {
+    Promise.all([getNodeIdPromise]).then(([node]) => {
+      if (!node) {
+        return;
+      }
       dispatch({
         type: 'KC_UPDATE_FOLDER',
         value: node && node.id && node.name && node.owner ? node : {},
       });
-      kcService.getNodes({
-        parentId: node.id,
-        rootType: type,
-        keywords,
-        skip,
-        limit,
-        sortBy,
-        sortType,
-        status,
-      }).then((data) => {
-        dispatch({
-          type: 'KC_FETCH_NODES_SUCCESS',
-          value: data.list,
+      kcService
+        .getNodes({
+          parentId: node.id,
+          rootType: type,
+          keywords,
+          skip,
+          limit,
+          sortBy,
+          sortType,
+          status,
+        })
+        .then(data => {
+          dispatch({
+            type: 'KC_FETCH_NODES_SUCCESS',
+            value: data.list,
+          });
+          dispatch({
+            type: 'KC_UPDATE_TOTALCOUNT',
+            value: data.totalCount,
+          });
+          if (typeof cb === 'function') {
+            cb(data);
+          }
         });
-        dispatch({
-          type: 'KC_UPDATE_TOTALCOUNT',
-          value: data.totalCount,
-        });
-        if (typeof cb === 'function') {
-          cb(data);
-        }
-      });
     });
   };
 }
 
 export function reloadList() {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({ type: 'KC_CLEAR_KC' });
-    dispatch(fetchKcNodes(undefined, undefined, () => {
-      dispatch(triggerLoadMoreNodes());
-    }));
+    dispatch(
+      fetchKcNodes(undefined, undefined, () => {
+        dispatch(triggerLoadMoreNodes());
+      }),
+    );
   };
 }
 
@@ -167,9 +181,11 @@ export function searchNodes(keywords) {
       type: 'KC_UPDATE_PARAMS',
       value: { keywords },
     });
-    dispatch(fetchKcNodes(undefined, undefined, () => {
-      dispatch(triggerLoadMoreNodes());
-    }));
+    dispatch(
+      fetchKcNodes(undefined, undefined, () => {
+        dispatch(triggerLoadMoreNodes());
+      }),
+    );
   };
 }
 
@@ -195,23 +211,25 @@ export function globalSearch(keywords) {
     dispatch({
       type: 'KC_FETCH_NODES_START',
     });
-    kcService.globalSearch({
-      keywords,
-      sortBy,
-      sortType,
-      skip,
-      limit,
-    }).then((data) => {
-      dispatch({
-        type: 'KC_FETCH_NODES_SUCCESS',
-        value: data.list,
+    kcService
+      .globalSearch({
+        keywords,
+        sortBy,
+        sortType,
+        skip,
+        limit,
+      })
+      .then(data => {
+        dispatch({
+          type: 'KC_FETCH_NODES_SUCCESS',
+          value: data.list,
+        });
+        dispatch({
+          type: 'KC_UPDATE_TOTALCOUNT',
+          value: data.totalCount,
+        });
+        dispatch(triggerLoadMoreNodes());
       });
-      dispatch({
-        type: 'KC_UPDATE_TOTALCOUNT',
-        value: data.totalCount,
-      });
-      dispatch(triggerLoadMoreNodes());
-    });
   };
 }
 
@@ -238,12 +256,13 @@ export function updateRoot(path) {
           type: 'KC_UPDATE_LIST_STATE',
           value: {
             isRecycle,
-            isReadOnly: kcState.currentRoot.permission && kcState.currentRoot.permission === ROOT_PERMISSION_TYPE.READONLY,
+            isReadOnly:
+              kcState.currentRoot.permission && kcState.currentRoot.permission === ROOT_PERMISSION_TYPE.READONLY,
           },
         });
         return;
       }
-      kcService.getRootDetail(queryPath.slice(0, 24)).then((node) => {
+      kcService.getRootDetail(queryPath.slice(0, 24)).then(node => {
         dispatch({
           type: 'KC_UPDATE_ROOT',
           value: node,
@@ -278,9 +297,11 @@ export function changeSortBy(newSortBy) {
         sortType: newSortType,
       },
     });
-    dispatch(fetchKcNodes(undefined, undefined, () => {
-      dispatch(triggerLoadMoreNodes());
-    }));
+    dispatch(
+      fetchKcNodes(undefined, undefined, () => {
+        dispatch(triggerLoadMoreNodes());
+      }),
+    );
   };
 }
 
@@ -291,8 +312,8 @@ export function clearKc() {
 }
 
 export function updateKcUsage() {
-  return (dispatch) => {
-    kcService.getUsage().then((usage) => {
+  return dispatch => {
+    kcService.getUsage().then(usage => {
       dispatch({
         type: 'KC_FETCH_USAGE_SUCCESS',
         value: usage,
@@ -308,12 +329,11 @@ export function handleAddUsage(fsize) {
     const { kcUsage, currentRoot } = kcState;
     const isUsage =
       currentRoot === PICK_TYPE.MY ||
-      (
-        typeof currentRoot === 'object'
-        && (!currentRoot.projectId || !md.global.Account.projects.filter((p) => {
+      (typeof currentRoot === 'object' &&
+        (!currentRoot.projectId ||
+          !md.global.Account.projects.filter(p => {
             return p.projectId === currentRoot.projectId;
-        }).length)
-      );
+          }).length));
     if (kcUsage && isUsage) {
       kcUsage.used += fsize;
       dispatch({
@@ -327,18 +347,13 @@ export function handleAddUsage(fsize) {
 export function openUploadAssistant() {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      currentRoot,
-      currentFolder,
-      kcUsage,
-      isRecycle,
-    } = kcState;
+    const { currentRoot, currentFolder, kcUsage, isRecycle } = kcState;
     handleOpenUploadAssistant({
       currentRoot,
       currentFolder,
       kcUsage,
       isRecycle,
-      addUsage: (fsize) => {
+      addUsage: fsize => {
         dispatch(handleAddUsage(fsize));
       },
       reloadList: () => {
@@ -351,16 +366,13 @@ export function openUploadAssistant() {
 export function addLinkFile(isEdit = false, item = {}) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      currentRoot,
-      currentFolder,
-    } = kcState;
+    const { currentRoot, currentFolder } = kcState;
     const args = {
       isEdit,
       item,
       folder: currentFolder,
       root: currentRoot,
-      performUpdateItem: (newItem) => {
+      performUpdateItem: newItem => {
         dispatch(updateNodeItem(newItem));
       },
       reloadList: () => {
@@ -374,10 +386,7 @@ export function addLinkFile(isEdit = false, item = {}) {
 export function addNewFolder(folderName, cb = () => {}) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      currentRoot,
-      currentFolder,
-    } = kcState;
+    const { currentRoot, currentFolder } = kcState;
     const validateOut = {};
     if (validateFileName(folderName, true, validateOut)) {
       kcService
@@ -386,7 +395,7 @@ export function addNewFolder(folderName, cb = () => {}) {
           rootId: getRootId(currentRoot),
           parentId: getParentId(currentFolder, currentRoot),
         })
-        .then((newFolder) => {
+        .then(newFolder => {
           if (!newFolder) {
             return $.Deferred().reject();
           }
@@ -412,10 +421,7 @@ export function updateNodeItem(item) {
   return (dispatch, getState) => {
     item = new IdItem(item);
     const kcState = getState().kc;
-    const {
-      list,
-      selectedItems,
-    } = kcState;
+    const { list, selectedItems } = kcState;
     const selectedItem = selectedItems.find(i => i.id === item.id);
     const index = list.findIndex(i => i.id === item.id);
     if (selectedItem) {
@@ -437,10 +443,7 @@ export function removeNodeItem(ids) {
   return (dispatch, getState) => {
     ids = _.isArray(ids) ? ids : [ids];
     const kcState = getState().kc;
-    let {
-      list,
-      selectedItems,
-    } = kcState;
+    let { list, selectedItems } = kcState;
     const compareId = id => item => item && item.id === id;
     for (let i = 0; i < ids.length; i++) {
       list = list.remove(list.findIndex(compareId(ids[i])));
@@ -460,15 +463,7 @@ export function removeNodeItem(ids) {
 export function removeNode(nodeStatus) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      list,
-      totalCount,
-      currentFolder,
-      currentRoot,
-      selectAll,
-      selectedItems,
-      params,
-    } = kcState;
+    const { list, totalCount, currentFolder, currentRoot, selectAll, selectedItems, params } = kcState;
     const { keywords } = params;
     handleRemoveNode({
       list,
@@ -485,17 +480,16 @@ export function removeNode(nodeStatus) {
       clearSelect: () => {
         dispatch(clearSelect());
       },
-      performRemoveItems: (ids) => {
+      performRemoveItems: ids => {
         dispatch(removeNodeItem(ids));
       },
     });
   };
 }
 
-
 export function shareNode(item) {
   return (dispatch, getState) => {
-    handleShareNode(item, (newItem) => {
+    handleShareNode(item, newItem => {
       dispatch(updateNodeItem(newItem));
     });
   };
@@ -504,73 +498,63 @@ export function shareNode(item) {
 export function starNode(item) {
   return (dispatch, getState) => {
     const isStared = !item.isStared;
-    kcService.starNode({ id: item.id, star: isStared })
-    .then((result) => {
-      if (!result) {
-        return $.Deferred().reject();
-      }
-      alert(isStared ? '标星成功' : '取消标星成功');
-      item.isStared = isStared;
-      dispatch(updateNodeItem(item));
-    })
-    .fail(() => alert('操作失败，请稍后重试'), 3);
+    kcService
+      .starNode({ id: item.id, star: isStared })
+      .then(result => {
+        if (!result) {
+          return $.Deferred().reject();
+        }
+        alert(isStared ? '标星成功' : '取消标星成功');
+        item.isStared = isStared;
+        dispatch(updateNodeItem(item));
+      })
+      .fail(() => alert('操作失败，请稍后重试'), 3);
   };
 }
 
 export function moveOrCopyClick(type, rootId) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      list,
-      baseUrl,
-      currentFolder,
-      currentRoot,
-      selectAll,
-      selectedItems,
-      params,
-    } = kcState;
+    const { list, baseUrl, currentFolder, currentRoot, selectAll, selectedItems, params } = kcState;
     const { keywords } = params;
-    handleMoveOrCopyClick({
-      type,
-      rootId,
-      folder: currentFolder,
-      fromRoot: currentRoot,
-      selectAll,
-      baseUrl,
-      selectedItems,
-    }, (result) => {
-      handleMoveOrCopy({
-        baseUrl,
-        result,
+    handleMoveOrCopyClick(
+      {
         type,
-        selectedItems,
-        selectAll,
-        list,
-        keywords,
+        rootId,
         folder: currentFolder,
-        root: currentRoot,
         fromRoot: currentRoot,
-        clearSelect: () => {
-          dispatch(clearSelect());
-        },
-        reloadList: () => {
-          dispatch(reloadList());
-        },
-      });
-    });
+        selectAll,
+        baseUrl,
+        selectedItems,
+      },
+      result => {
+        handleMoveOrCopy({
+          baseUrl,
+          result,
+          type,
+          selectedItems,
+          selectAll,
+          list,
+          keywords,
+          folder: currentFolder,
+          root: currentRoot,
+          fromRoot: currentRoot,
+          clearSelect: () => {
+            dispatch(clearSelect());
+          },
+          reloadList: () => {
+            dispatch(reloadList());
+          },
+        });
+      },
+    );
   };
 }
 
 export function restoreNode() {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      list,
-      selectedItems,
-      selectAll,
-      currentFolder,
-      currentRoot,
-    } = kcState;
+    const { list, selectedItems, selectAll, currentFolder, currentRoot } = kcState;
     const { keywords } = kcState.params;
     handleRestoreNode({
       list,
@@ -585,7 +569,7 @@ export function restoreNode() {
       clearSelect: () => {
         dispatch(clearSelect());
       },
-      performRemoveItems: (ids) => {
+      performRemoveItems: ids => {
         dispatch(removeNodeItem(ids));
       },
     });
@@ -595,13 +579,7 @@ export function restoreNode() {
 export function batchDownload() {
   return (dispatch, getState) => {
     const kcState = getState().kc;
-    const {
-      list,
-      selectedItems,
-      currentFolder,
-      currentRoot,
-      selectAll,
-    } = kcState;
+    const { list, selectedItems, currentFolder, currentRoot, selectAll } = kcState;
     handleBatchDownload({
       list,
       selectAll,

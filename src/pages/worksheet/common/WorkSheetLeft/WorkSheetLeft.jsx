@@ -292,7 +292,7 @@ class WorkSheetLeft extends Component {
   render() {
     const { id, loading, isUnfold, data, guidanceVisible } = this.props;
     const { createType } = this.state;
-    const sheetInfo = _.find(data, { workSheetId: id }) || _.object();
+    const sheetInfo = _.find(data, { workSheetId: id }) || {};
     return (
       <div className={cx('workSheetLeft flexRow', { workSheetLeftHide: !isUnfold })}>
         {loading || _.isEmpty(data) ? <Skeleton active={true} /> : this.renderContent()}

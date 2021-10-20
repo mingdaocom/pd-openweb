@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from 'react';
-import { string } from 'prop-types';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { widgets } from '../../enum';
 import EditWidget from '../editWidget';
@@ -28,7 +27,6 @@ const WidgetWrap = styled.div`
       line-height: 44px;
       cursor: pointer;
       span {
-        flex: 1;
         margin-left: 12px;
         font-size: 14px;
       }
@@ -45,7 +43,7 @@ const WidgetWrap = styled.div`
   }
 `;
 
-function WidgetList({ addWidget = _.noop, ...rest }) {
+function WidgetList({ components, addWidget = _.noop, ...rest }) {
   const [createWidget, setWidget] = useState({});
   return (
     <WidgetWrap>
@@ -59,15 +57,23 @@ function WidgetList({ addWidget = _.noop, ...rest }) {
         {_.keys(widgets).map(key => {
           const { icon, name } = widgets[key];
           return (
-            <li key={key} onClick={() => setWidget({ type: key })}>
+            <li
+              key={key}
+              onClick={() => {
+                setWidget({ type: key });
+              }}
+            >
               <i className={`Font18 icon-${icon} Gray_75`}></i>
               <span>{name}</span>
+              <span className="flex" />
               <i className="add icon-add Font18 Gray_75"></i>
             </li>
           );
         })}
       </ul>
-      {!_.isEmpty(createWidget) && <EditWidget mode="add" onClose={() => setWidget({})} widget={createWidget} addWidget={addWidget} {...rest} />}
+      {!_.isEmpty(createWidget) && (
+        <EditWidget mode="add" onClose={() => setWidget({})} widget={createWidget} addWidget={addWidget} {...rest} />
+      )}
     </WidgetWrap>
   );
 }

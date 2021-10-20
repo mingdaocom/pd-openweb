@@ -122,7 +122,7 @@ class YAxis extends Component {
                 let count = Number(value || 0);
                 onChangeDisplayValue({
                   ...ydisplay,
-                  minValue: count,
+                  minValue: value ? count : value,
                 });
               }}
             />
@@ -138,7 +138,7 @@ class YAxis extends Component {
                 let count = Number(value || 0);
                 onChangeDisplayValue({
                   ...ydisplay,
-                  maxValue: count,
+                  maxValue: value ? count : value,
                 });
               }}
             />

@@ -1,4 +1,4 @@
-import { getWorksheetInfo, getSwitchPermit, saveWorksheetView, getWorksheetBtns } from 'src/api/worksheet';
+import { getWorksheetInfo, getSwitchPermit, saveWorksheetView, getWorksheetBtns, getNavGroup } from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
@@ -31,7 +31,7 @@ export function loadWorksheet(worksheetId) {
     dispatch({
       type: 'WORKSHEET_FETCH_START',
     });
-    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true }).then(res => {
+    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }).then(res => {
       dispatch({
         type: 'WORKSHEET_INIT',
         value: res,
@@ -157,6 +157,10 @@ export function saveView(viewId, newConfig, cb) {
           },
           { ...view, ...newConfig },
         );
+        if (editAttrs.includes('navGroup')) {
+          dispatch(updateGroupFilter([], nextView));
+          dispatch(getNavGroupCount());
+        }
         if (updateAfterSave) {
           dispatch({
             type: 'WORKSHEET_UPDATE_VIEW',
@@ -177,10 +181,10 @@ export function saveView(viewId, newConfig, cb) {
 }
 
 // 刷新视图
-export function refreshSheet(view) {
+export function refreshSheet(view, options) {
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
-      dispatch(sheetViewRefresh());
+      dispatch(sheetViewRefresh(options));
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
@@ -198,6 +202,7 @@ export function addNewRecord(data, view) {
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
       dispatch(sheetViewAddRecord(data));
+      dispatch(getNavGroupCount());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
@@ -206,6 +211,7 @@ export function addNewRecord(data, view) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
       dispatch(galleryViewRefresh());
+      dispatch(getNavGroupCount());
     }
   };
 }
@@ -221,6 +227,20 @@ export const updateWorksheetSomeControls = controls => ({
   type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
   controls,
 });
+
+// 更新字段
+export const refreshWorksheetControls = controls => {
+  return (dispatch, getState) => {
+    const sheet = getState().sheet;
+    const { worksheetId } = sheet.base;
+    wrappedGetWorksheetInfo({ worksheetId, getTemplate: true }).then(res => {
+      dispatch({
+        type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
+        controls: res.template.controls,
+      });
+    });
+  };
+};
 
 // 更新筛选条件
 export function updateFilters(filters, view) {
@@ -249,7 +269,7 @@ export function updateQuickFilter(filter = [], view) {
         return result;
       }),
     });
-    dispatch(refreshSheet(view));
+    dispatch(refreshSheet(view, { resetPageIndex: true }));
   };
 }
 
@@ -264,6 +284,54 @@ export function resetQuickFilter(view) {
       type: 'WORKSHEET_RESET_QUICK_FILTER',
     });
     dispatch(refreshSheet(view));
+  };
+}
+
+// 更新分组筛选条件
+export function updateGroupFilter(navGroupFilters = [], view) {
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'WORKSHEET_UPDATE_GROUP_FILTER',
+      navGroupFilters,
+    });
+  };
+}
+
+// 获取分组筛选的count
+export function getNavGroupCount() {
+  return (dispatch, getState) => {
+    const sheet = getState().sheet;
+    const { filters = {}, base = {}, quickFilter = {} } = sheet;
+    const { worksheetId, viewId } = base;
+    const { filterControls, keyWords, searchType } = filters;
+    if (!worksheetId && !viewId) {
+      return;
+    }
+    getNavGroup({
+      worksheetId,
+      viewId,
+      filterControls,
+      searchType,
+      fastFilters: (_.isArray(quickFilter) ? quickFilter : []).map(f =>
+        _.pick(f, [
+          'controlId',
+          'dataType',
+          'spliceType',
+          'filterType',
+          'dateRange',
+          'value',
+          'values',
+          'minValue',
+          'maxValue',
+        ]),
+      ),
+      keyWords,
+    }).then(data => {
+      dispatch({
+        type: 'WORKSHEET_NAVGROUP_COUNT',
+        data,
+      });
+    });
   };
 }
 

@@ -6,7 +6,7 @@ import 'dialogSelectUser';
 import 'quickSelectUser';
 import cx from 'classnames';
 import SelectUser from 'src/pages/Mobile/components/SelectUser';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getCurrentProject } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -126,6 +126,7 @@ export default class Widgets extends Component {
                 </div>
               ) : (
                 <UserHead
+                  projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
                   bindBusinessCard={!isMobile}
                   className="userHead InlineBlock"
                   alwaysBindCard

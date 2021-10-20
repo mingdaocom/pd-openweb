@@ -34,7 +34,8 @@ export default class FindSystem extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -175,9 +176,9 @@ export default class FindSystem extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75">{TEXT[data.appType][data.actionId].title}</div>
+        <div className="Gray_75">{((TEXT[data.appType] || {})[data.actionId] || {}).title}</div>
         <div className="Gray_75 workflowDetailDesc pTop15 pBottom15 mTop10">
-          {DESC_TEXT[selectNodeType][data.appType]}
+          {(DESC_TEXT[selectNodeType] || {})[data.appType]}
         </div>
 
         {_.includes([TRIGGER_ID_TYPE.FROM_RECORD, TRIGGER_ID_TYPE.RELATION], data.actionId) && (
@@ -221,7 +222,7 @@ export default class FindSystem extends Component {
           <Fragment>
             <div className="mTop20">
               <Checkbox
-                className="InlineBlock"
+                className="InlineFlex"
                 text={_l('在筛选条件的基础上，随机获取一个')}
                 checked={data.random}
                 onClick={checked => this.updateSource({ random: !checked })}

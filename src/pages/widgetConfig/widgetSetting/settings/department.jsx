@@ -1,8 +1,9 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { string } from 'prop-types';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { WHOLE_SIZE } from '../../config/Drag';
+import { handleAdvancedSettingChange } from '../../util/setting';
 
 const DEPARTMENT_TYPES = [
   {
@@ -15,16 +16,24 @@ const DEPARTMENT_TYPES = [
   },
 ];
 
-export default function Cred({ data, onChange }) {
+export default function Department({ data, onChange }) {
+  const { enumDefault } = data;
   return (
     <Fragment>
       <SettingItem>
         <RadioGroup
           size="middle"
-          checkedValue={data.enumDefault}
+          checkedValue={enumDefault}
           data={DEPARTMENT_TYPES}
           onChange={type => {
-            onChange({ enumDefault: type, size: type === 1 ? WHOLE_SIZE : data.size });
+            if (type !== enumDefault) {
+              onChange(
+                handleAdvancedSettingChange(
+                  { ...data, enumDefault: type, size: type === 1 ? WHOLE_SIZE : data.size },
+                  { defsource: '' },
+                ),
+              );
+            }
           }}
         />
       </SettingItem>

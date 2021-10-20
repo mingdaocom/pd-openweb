@@ -6,8 +6,8 @@ import components from '../components';
 import { SettingItem, ControlTag } from '../../styled';
 import { getControlByControlId } from '../../util';
 import { getFormulaControls } from '../../util/data';
-import { parseDataSource } from '../../util/setting';
-const { InputSuffix, SwitchType, ToTodaySetting } = formulaComponents;
+import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
+const { InputSuffix, SwitchType, ToTodaySetting, WeekdaySetting } = formulaComponents;
 const { DynamicSelectDateControl, SelectControl } = components;
 
 const CALC_TYPE = [
@@ -65,6 +65,7 @@ export default function FormulaDate(props) {
             />
           </SettingItem>
           <InputSuffix data={data} onChange={onChange} />
+          <WeekdaySetting data={data} onChange={onChange} />
         </Fragment>
       );
     }
@@ -92,7 +93,8 @@ export default function FormulaDate(props) {
                     <div>{_l('小时：h')}</div>
                     <div>{_l('分：m')}</div>
                   </Fragment>
-                }>
+                }
+              >
                 <span className="pointer" style={{ color: '#2196f3' }}>
                   {_l('查看时间单位')}
                 </span>
@@ -156,7 +158,10 @@ export default function FormulaDate(props) {
     if ($ref.current) {
       $ref.current.setValue(data.dataSource || '');
     }
-  }, [data.controlId]);
+    if (enumDefault !== 1) {
+      onChange(handleAdvancedSettingChange({ ...data, dot: 0 }, { dot: 0 }));
+    }
+  }, [data.controlId, enumDefault]);
   return (
     <Fragment>
       <SwitchType {...props} />

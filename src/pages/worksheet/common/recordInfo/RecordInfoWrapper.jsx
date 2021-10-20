@@ -61,7 +61,7 @@ export default class RecordInfoWrapper extends Component {
       } catch (err) {
         this.setState({
           error: true,
-          errorMsg: err.errorMessage || _l('流程已关闭或删除'),
+          errorMsg: _.get(err, 'errorMessage') || _l('流程已关闭或删除'),
         });
         return;
       }

@@ -84,7 +84,7 @@ export default class Widgets extends Component {
       { (showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile()) ? <RelateRecordCards
         editable={controlPermission.editable}
         control={{ ...this.props }}
-        records={records}
+        records={(enumDefault === 1 && browserIsMobile() && showtype === RELATE_RECORD_SHOW_TYPE.DROPDOWN) ? records.filter((_, index) => !index) : records}
         multiple={enumDefault === 2}
         onChange={this.handleChange}
       /> : <RelateRecordDropdown

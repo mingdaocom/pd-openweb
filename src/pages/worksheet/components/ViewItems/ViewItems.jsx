@@ -297,7 +297,7 @@ export default class ViewItems extends Component {
             distance={5}
             list={viewList}
             currentViewId={currentViewId}
-            currentView={_.find(viewList, { viewId: currentViewId }) || _.object()}
+            currentView={_.find(viewList, { viewId: currentViewId }) || {}}
             changeViewDisplayType={changeViewDisplayType}
             onSortEnd={this.handleSortEnd}
             onRemoveView={this.handleRemoveView}

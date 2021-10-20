@@ -20,6 +20,10 @@ class WorksheetRowEdit extends Component {
     coverCid: '',
     showControls: [],
     isError: false,
+    pageIndex: 1,
+    pageSize: 50,
+    controlId: '',
+    count: 0,
   };
 
   componentDidMount() {
@@ -53,7 +57,7 @@ class WorksheetRowEdit extends Component {
    * 获得关联多条记录
    */
   getRowRelationRowsData = id => {
-    const { data } = this.state;
+    const { data, pageIndex, rowRelationRowsData = {}, pageSize } = this.state;
     const { controlName, coverCid, showControls } = _.find(data.receiveControls, item => item.controlId === id);
     const shareId = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
 
@@ -64,15 +68,17 @@ class WorksheetRowEdit extends Component {
         worksheetId: data.worksheetId,
         rowId: data.rowId,
         controlId: id,
-        pageIndex: 1,
-        pageSize: 10000,
+        pageIndex,
+        pageSize,
         getWorksheet: true,
         shareId,
       })
       .then(data => {
         this.setState({
-          rowRelationRowsData: data,
+          rowRelationRowsData: pageIndex > 1 ? { ...data, data: rowRelationRowsData.data.concat(data.data) } : data,
           loading: false,
+          controlId: id,
+          count: data.count,
         });
       });
   };
@@ -155,7 +161,7 @@ class WorksheetRowEdit extends Component {
   }
 
   renderContent() {
-    const { showError, data } = this.state;
+    const { showError, data, pageIndex } = this.state;
 
     return (
       <div className="worksheetRowEditBox">
@@ -183,8 +189,26 @@ class WorksheetRowEdit extends Component {
     );
   }
 
+  handleScroll = (event, values) => {
+    const { direction, maximum, position } = values;
+    if (
+      direction === 'down' &&
+      maximum - position < 20 &&
+      this.state.count > this.state.pageIndex * this.state.pageSize
+    ) {
+      this.setState(
+        {
+          pageIndex: this.state.pageIndex + 1,
+        },
+        () => {
+          this.getRowRelationRowsData(this.state.controlId);
+        },
+      );
+    }
+  };
+
   renderRelationRows() {
-    const { rowRelationRowsData, controlName, coverCid, showControls } = this.state;
+    const { rowRelationRowsData, controlName, coverCid, showControls, loading, pageIndex } = this.state;
 
     return (
       <div className="flexColumn h100">
@@ -193,7 +217,7 @@ class WorksheetRowEdit extends Component {
             <Icon
               icon="backspace "
               className="Font18 ThemeHoverColor3 Gray pointer"
-              onClick={() => this.setState({ rowRelationRowsData: null })}
+              onClick={() => this.setState({ rowRelationRowsData: null, pageIndex: 1, controlId: '', count: 0 })}
             />
             <div className='Font16 ellipsis WordBreak mLeft5'>
               {controlName}
@@ -204,7 +228,8 @@ class WorksheetRowEdit extends Component {
             <div className='flex' />
           </div>
         </div>
-        <div className="flex mTop20">
+
+        <ScrollView className="flex mTop20" updateEvent={this.handleScroll}>
           <div className="worksheetRowEditList">
             {!rowRelationRowsData.data.length && (
               <div
@@ -231,15 +256,16 @@ class WorksheetRowEdit extends Component {
               />
             ))}
           </div>
-        </div>
+          {loading && pageIndex > 1 && <LoadDiv className="mTop20" />}
+        </ScrollView>
       </div>
     );
   }
 
   render() {
-    const { isComplete, loading, data, rowRelationRowsData, isError } = this.state;
+    const { isComplete, loading, data, rowRelationRowsData, isError, pageIndex } = this.state;
 
-    if (loading) {
+    if (loading && pageIndex <= 1) {
       return <LoadDiv className="mTop20" />;
     }
 

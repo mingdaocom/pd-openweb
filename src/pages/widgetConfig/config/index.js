@@ -90,7 +90,7 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35];
  */
 export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 41, 42];
 
-export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 6, 8, 9, 10, 11, 15, 16, 26, 28];
+export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 26, 27, 28];
 
 // 无描述控件
 export const NO_DES_WIDGET = [22, 10010];
@@ -110,33 +110,10 @@ export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 43, 10010];
 
 // 需要单独显示样式的控件
 export const NEED_SPECIAL_DISPLAY_CONTROLS = [
-  2,
-  9,
-  10,
-  11,
-  14,
-  19,
-  21,
-  22,
-  23,
-  24,
-  26,
-  27,
-  28,
-  29,
-  31,
-  34,
-  36,
-  38,
-  40,
-  41,
-  42,
-  43,
-  35,
-  10010,
+  2, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 36, 38, 40, 41, 42, 43, 35, 10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [3, 6, 11, 16, 26, 35, 40];
+export const HAVE_CONFIG_CONTROL = [3, 6, 11, 15, 16, 26, 35, 40];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [14, 21, 22, 34, 41, 10010];
 
@@ -147,4 +124,4 @@ export const NOT_HAVE_WIDTH_CONFIG = [43];
 
 export const MAX_CONTROLS_COUNT = 200;
 
-export const HAVE_CONFIG_SUB_LIST = [3];
+export const HAVE_CONFIG_SUB_LIST = [3, 15, 16];

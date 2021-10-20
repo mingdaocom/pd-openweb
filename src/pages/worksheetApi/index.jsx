@@ -195,7 +195,7 @@ class WorksheetApi extends Component {
       return (
         <div key={item.workSheetId} className="worksheetApiMenu">
           <div
-            className="worksheetApiMenuItem"
+            className="worksheetApiMenuItem overflow_ellipsis"
             onClick={() => {
               let id = item.workSheetId + MENU_LIST[0].id;
               this.setSelectId(id, item.workSheetId);
@@ -816,6 +816,19 @@ class WorksheetApi extends Component {
           fileName: '文件名称，带后缀',
         },
       ];
+    }
+
+    if (
+      _.includes(
+        [9, 10, 11],
+        _.get(
+          _.find(numberTypeList, item => (item.alias || item.controlId) === controlId),
+          'type',
+        ),
+      )
+    ) {
+      list['valueType'] =
+        '提交值类型，1=不增加选项，2=允许增加选项（默认为1，为1时匹配不到已有选项时传入空，为2时，匹配不到时会创建新选项并写入）';
     }
 
     return relationValue.length <= 0

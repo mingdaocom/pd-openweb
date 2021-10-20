@@ -123,7 +123,7 @@ export default class CommentListItem extends React.Component {
 
   render() {
     const { comment, bindBusinessCard, sourceType, children } = this.props;
-    const { createAccount, replyAccount, replyId, location } = comment;
+    const { createAccount = {}, replyAccount = {}, replyId, location } = comment;
     const message = mdFunction.createLinksForMessage({
       sourceType,
       message: comment.message,

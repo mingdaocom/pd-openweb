@@ -148,15 +148,15 @@ export default function initWorksheetSocket() {
 
   if (!socket) return;
   socket.on('workflow', data => {
-    const { status, worksheetId, rowId, storeId, total, finished, title, executeType } = data;
+    const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType } = data;
     if (storeId) {
       if (total === finished && !complete[storeId]) {
-        complete[storeId] = true;
+        complete[storeId] = data;
       }
       const props = {
         themeColor: finished > 0 && complete[storeId] ? 'success' : '',
-        header: <NoticeHeader {...data} />,
-        content: <BatchNoticeContent {...data} />,
+        header: complete[storeId] ? <NoticeHeader {...complete[storeId]} /> : <NoticeHeader {...data} />,
+        content: complete[storeId] ? <BatchNoticeContent {...complete[storeId]} /> : <BatchNoticeContent {...data} />,
         footer:
           executeType === 2 && finished === 0 ? null : (
             <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => workflowHistory({ title, storeId })}>
@@ -177,7 +177,7 @@ export default function initWorksheetSocket() {
       });
     } else {
       const { id } = STATUS[status];
-      if (status === 2) {
+      if (status === 2 || (type === 4 && status === 1)) {
         emitter.emit('RELOAD_RECORDINFO_DIALOG', {
           worksheetId,
           recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,

@@ -267,12 +267,11 @@ export default class Workwx extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 Gray_75 Right closeDing">
-              {_l('关闭Welink集成')}
               <span
                 className="mLeft10 switchBtn tip-bottom-left"
                 data-tip={_l('关闭Welink集成后，无法再从Welink集成处进入应用')}
               >
-                <Switch checked={!!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 1 : 2)} />
+                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
               </span>
             </span>
           )}

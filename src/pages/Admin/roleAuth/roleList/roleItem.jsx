@@ -118,7 +118,7 @@ class RoleItem extends React.Component {
         </td>
         {isApply ? (
           <td className="roleOperation">
-            {role.isJoined ? null : (
+            {role.isJoined || role.noAuth ? null : (
               <span
                 onClick={clickHandler('applyrole')}
                 className={cx(this.state.hasClick ? 'Gray_bd' : 'ThemeColor3 adminHoverColor')}

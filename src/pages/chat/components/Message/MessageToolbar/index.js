@@ -11,7 +11,6 @@ import { getCurrentTime } from '../../../utils';
 import previewAttachments from 'previewAttachments';
 import Dialog from 'ming-ui/components/Dialog';
 import { addToken } from 'src/util';
-import { convertImageView } from 'src/util';
 
 const confirm = Dialog.confirm;
 
@@ -35,7 +34,11 @@ const formatMessage = (id, res) => {
     return {
       fileid: files.id || '',
       name: files.name || '',
-      path: isPicture ? (bigImg ? files.url : `${files.url}?imageMogr2/auto-orient`) : files.url,
+      path: isPicture
+        ? bigImg
+          ? files.url
+          : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageMogr2/auto-orient`
+        : files.url,
       size: files.size,
       previewAttachmentType: 'QINIU',
     };
@@ -132,7 +135,7 @@ export default class MessageToolbar extends Component {
         },
       };
     } else if (type === Constant.MSGTYPE_PIC || type === Constant.MSGTYPE_FILE || type === Constant.MSGTYPE_APP_VIDEO) {
-      const { files } = message.msg;
+      const { files = {} } = message.msg;
       if (files.isEmotion) {
         isWithdraw &&
           (toolbarConfig.more = {
@@ -210,7 +213,7 @@ export default class MessageToolbar extends Component {
     }
 
     if (downloadUrl) {
-      window.open(addToken(downloadUrl));
+      window.open(addToken(downloadUrl, !window.isDingTalk));
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
     }
@@ -304,16 +307,14 @@ export default class MessageToolbar extends Component {
         params.name = attachment.name;
         params.ext = '.' + attachment.ext;
         params.size = attachment.size;
-        params.imgSrc = isPicture
-          ? convertImageView(attachment.previewUrl.substr(0, attachment.previewUrl.indexOf('?')), 2, 490)
-          : undefined;
+        params.imgSrc = isPicture ? `${attachment.previewUrl.split('imageView2')[0]}imageView2/2/w/490` : undefined;
         params.node = attachment;
       } else {
         params.id = attachment.id;
         params.name = attachment.name;
         params.ext = attachment.ext;
         params.size = attachment.size || 0;
-        params.imgSrc = isPicture ? convertImageView(attachment.path, 2, 490) : undefined;
+        params.imgSrc = isPicture ? `${attachment.path.split('imageView2')[0]}imageView2/2/w/490` : undefined;
         params.qiniuPath = attachment.path;
         params.node = attachment;
       }

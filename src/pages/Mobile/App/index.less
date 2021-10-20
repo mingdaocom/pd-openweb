@@ -73,6 +73,38 @@
     }
   }
 
+  .appNaviStyle2Header {
+    padding: 15px 20px;
+    border-bottom: 5px solid #f5f5f5;
+    .process, .star {
+      border-right: 1px solid #d0d0d0;
+    }
+    >.flex {
+      font-weight: 500;
+      justify-content: center;
+    }
+    .processCount {
+      left: 24px;
+    }
+    .active {
+      color: #FFA700 !important;
+    }
+  }
+
+  .processCount {
+    position: absolute;
+    left: 18px;
+    top: -11px;
+    color: #fff;
+    line-height: 18px;
+    border-radius: 24px;
+    padding: 0px 6px;
+    border: 1px solid #fff;
+    background-color: red;
+    font-size: 12px;
+    justify-content: center;
+  }
+
   .appSectionCon {
     background-color: #fff;
     overflow-y: auto;
@@ -196,7 +228,6 @@
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-line-clamp: 2;
-      overflow:hidden;
       -webkit-box-orient: vertical;
       word-break: break-all;
     }

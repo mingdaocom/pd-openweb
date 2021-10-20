@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { arrayOf, bool, func, number, shape } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -82,6 +83,19 @@ function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
 
+function turnControl(control) {
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
+    control.type = control.sourceControlType;
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
+    control.type = control.enumDefault2 || 6;
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
+    control.type = control.enumDefault === 2 ? 15 : 6;
+  }
+  return control;
+}
+
 function conditionAdapter(condition) {
   if (
     _.includes(
@@ -100,7 +114,9 @@ function conditionAdapter(condition) {
 
 export default function Conditions(props) {
   const {
-    view,
+    queryText,
+    className,
+    view = {},
     colNum,
     operateIsNewLine,
     firstIsFullLine,
@@ -114,16 +130,23 @@ export default function Conditions(props) {
   } = props;
   const [values, setValues] = useState({});
   const didMount = useRef();
-  const showQueryBtn = view.advancedSetting.enablebtn === '1';
+  const showQueryBtn = _.isUndefined(props.showQueryBtn)
+    ? _.get(view, 'advancedSetting.enablebtn') === '1'
+    : props.showQueryBtn;
   const store = useRef({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 300));
   const items = useMemo(
     () =>
       filters
-        .map(filter => ({
-          ...filter,
-          control: _.find(controls, c => c.controlId === filter.controlId),
-        }))
+        .map(filter => {
+          const controlObj = _.find(controls, c => c.controlId === filter.controlId);
+          const newControl = controlObj && turnControl(controlObj);
+          return {
+            ...filter,
+            dataType: newControl ? newControl.type : filter.dataType,
+            control: newControl,
+          };
+        })
         .filter(c => c.control),
     [JSON.stringify(filters)],
   );
@@ -162,11 +185,11 @@ export default function Conditions(props) {
     didMount.current = true;
   }, []);
   return (
-    <Con>
+    <Con className={className}>
       {items.map((item, i) => (
         <Item
           key={i}
-          className={i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : ''}
+          className={'conditionItem ' + (i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : '')}
           maxWidth={
             isFullLine(item)
               ? i === 0 && firstIsFullLine && !fullShow
@@ -177,7 +200,7 @@ export default function Conditions(props) {
               : `${100 / colNum}%`
           }
         >
-          <Label>{item.control.controlName}</Label>
+          <Label className="label">{item.control.controlName}</Label>
           <Content className="content">
             <FilterInput
               {...item}
@@ -195,10 +218,10 @@ export default function Conditions(props) {
         </Item>
       ))}
       {(showQueryBtn || showExpand) && (
-        <Operate className={operateIsNewLine ? 'operateIsNewLine' : ''}>
+        <Operate className={cx('buttons', operateIsNewLine ? 'operateIsNewLine' : '')}>
           {showQueryBtn && (
             <Button type="primary" className="mRight10" size="mdnormal" onClick={() => update()}>
-              {_l('查询')}
+              {queryText || _l('查询')}
             </Button>
           )}
           {showQueryBtn && (
@@ -244,7 +267,10 @@ export default function Conditions(props) {
 }
 
 Conditions.propTypes = {
+  className: string,
+  queryText: string,
   colNum: number,
+  showQueryBtn: bool,
   operateIsNewLine: bool,
   firstIsFullLine: bool,
   fullShow: bool,

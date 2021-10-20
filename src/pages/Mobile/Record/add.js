@@ -19,6 +19,7 @@ class AddRecord extends Component {
       sheetRow: {},
       controls: [],
       loading: true,
+      showError: false,
       saveLoading: false,
     };
   }
@@ -62,19 +63,16 @@ class AddRecord extends Component {
     }
 
     if (isVerify) {
+      this.setState({ showError: true });
       alert(_l('请正确填写记录'), 3);
       return;
     }
 
-    if (customwidgetData.hasRuleError) {
+    if (customwidgetData.hasRuleError || saveLoading) {
       return;
     }
 
-    if (saveLoading) {
-      return;
-    }
-
-    this.setState({ saveLoading: true });
+    this.setState({ saveLoading: true, showError: false });
 
     sheetAjax
       .addWorksheetRow({
@@ -104,17 +102,18 @@ class AddRecord extends Component {
       });
   }
   renderContent() {
-    const { sheetRow, controls } = this.state;
+    const { sheetRow, controls, showError } = this.state;
     const { params } = this.props.match;
     return (
       <Fragment>
         <DocumentTitle title={`${_l('添加')}${sheetRow.entityName}`} />
-        <div className="flex" style={{ overflow: 'hidden auto' }}>
+        <div className="flex pTop5" style={{ overflow: 'hidden auto' }}>
           <CustomFields
             ref={this.customwidget}
             worksheetId={params.worksheetId}
             projectId={sheetRow.projectId}
             from={5}
+            showError={showError}
             data={controls}
             onChange={result => {
               this.setState({
@@ -129,7 +128,6 @@ class AddRecord extends Component {
           </div>
         </Flex>
         <Back
-          className="low"
           onClick={() => {
             history.back();
           }}

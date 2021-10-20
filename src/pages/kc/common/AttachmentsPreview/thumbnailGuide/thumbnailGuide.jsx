@@ -81,7 +81,7 @@ class ThumbnailGuide extends React.Component {
     });
   };
 
-  imageExec = (key) => {
+  imageExec = key => {
     if (this.props[key]) {
       this.props[key]();
     }
@@ -91,6 +91,7 @@ class ThumbnailGuide extends React.Component {
     const { index, attachments } = this.props;
     const { showThumbnail } = this.state;
     const currentAttachment = attachments[index];
+    const { viewUrl = '' } = currentAttachment;
     const fititClass = 'Hand ' + (this.state.fitited ? 'icon-Narrow' : 'icon-enlarge');
     return (
       <div className={cx('thumbnailGuide', this.props.className)} ref={guide => (this.thumbnailGuide = guide)}>
@@ -98,12 +99,15 @@ class ThumbnailGuide extends React.Component {
           <div className="fold">
             <div
               className="InlineBlock"
-              onClick={(evt) => {
+              onClick={evt => {
                 evt.stopPropagation();
               }}
             >
               <span className="Hand" onClick={this.foldThumbnail}>
-                <i className={cx(showThumbnail ? 'icon-arrow-down-border' : 'icon-apps', 'Hand')} title={showThumbnail ? _l('收起缩略图') : _l('展开缩略图')} />
+                <i
+                  className={cx(showThumbnail ? 'icon-arrow-down-border' : 'icon-apps', 'Hand')}
+                  title={showThumbnail ? _l('收起缩略图') : _l('展开缩略图')}
+                />
                 <span className="currentIndex">
                   {index + 1} / {this.props.attachments.length}
                 </span>
@@ -143,7 +147,17 @@ class ThumbnailGuide extends React.Component {
                     }}
                     title={_l('旋转')}
                   />
-                  <a className="originImage Hand noSelect" href={currentAttachment.viewUrl} rel="noopener noreferrer" target="_blank" title={_l('查看图片')}>
+                  <a
+                    className="originImage Hand noSelect"
+                    href={
+                      viewUrl.indexOf('imageView2') > -1
+                        ? viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+                        : viewUrl
+                    }
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    title={_l('查看图片')}
+                  >
                     {_l('原图')}
                   </a>
                 </div>

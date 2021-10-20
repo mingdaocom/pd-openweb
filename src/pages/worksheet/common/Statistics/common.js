@@ -93,12 +93,12 @@ export function initConfigDetail(id, data, currentReport) {
 
   if (id) {
     if (xaxes.controlId) {
-      const data = _.find(axisControls, { controlId: xaxes.controlId }) || _.object();
+      const data = _.find(axisControls, { controlId: xaxes.controlId }) || {};
       xaxes.controlName = data.controlName;
       xaxes.controlType = data.type;
     }
     yaxisList.forEach(item => {
-      const control = _.find(axisControls.concat(formulas), { controlId: item.controlId }) || _.object();;
+      const control = _.find(axisControls.concat(formulas), { controlId: item.controlId }) || {};;
       item.controlName = control.controlName;
       item.controlType = control.type;
       if (isNumberControl(control.type)) {
@@ -107,7 +107,7 @@ export function initConfigDetail(id, data, currentReport) {
     });
     if (rightY) {
       rightY.yaxisList.forEach(item => {
-        const control = _.find(axisControls.concat(formulas), { controlId: item.controlId }) || _.object();;
+        const control = _.find(axisControls.concat(formulas), { controlId: item.controlId }) || {};;
         item.controlName = control.controlName;
         item.controlType = control.type;
         if (isNumberControl(control.type)) {
@@ -155,6 +155,7 @@ export function initConfigDetail(id, data, currentReport) {
     result.name = currentReport.name;
     result.filter = currentReport.filter;
     result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+    result.formulas = currentReport.formulas;
     const defaultXaxes = {
       controlName: _l('拥有者'),
       controlId: 'ownerid',
@@ -168,7 +169,11 @@ export function initConfigDetail(id, data, currentReport) {
       rightY.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     }
     if ([reportTypes.RadarChart, reportTypes.FunnelChart].includes(reportType)) {
-      result.xaxes = defaultXaxes;
+      if (currentReport.xaxes && isTimeControl(currentReport.xaxes.controlType)) {
+        result.xaxes = defaultXaxes;
+      } else {
+        result.xaxes = currentReport.xaxes;
+      }
     } else if (reportTypes.CountryLayer === reportType) {
       const areaAxisControls = axisControls.filter(item => isAreaControl(item.type));
       if (areaAxisControls.length) {
@@ -179,12 +184,12 @@ export function initConfigDetail(id, data, currentReport) {
           controlId: xaxis.controlId,
         };
       } else {
-        result.xaxes = _.object();
+        result.xaxes = {};
       }
     } else if (reportTypes.PivotTable === reportType) {
-      result.pivotTable.lines = [defaultXaxes];
+      result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
     } else if (reportTypes.NumberChart === reportType) {
-      result.xaxes = _.object();
+      result.xaxes = {};
     } else {
       result.xaxes = currentReport.xaxes;
     }
@@ -229,12 +234,13 @@ export function filterXAxisControls(controls) {
  */
 export function isXAxisControl(type) {
   return (
-    type !== WIDGETS_TO_API_TYPE_ENUM.NUMBER &&
-    type !== WIDGETS_TO_API_TYPE_ENUM.MONEY &&
-    type !== WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER &&
+    // type !== WIDGETS_TO_API_TYPE_ENUM.NUMBER &&
+    // type !== WIDGETS_TO_API_TYPE_ENUM.MONEY &&
+    // type !== WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER &&
     type !== WIDGETS_TO_API_TYPE_ENUM.REMARK &&
     type !== WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT &&
     type !== 10000000 &&
+    type !== 10000001 &&
     type !== 0
   );
 }
@@ -764,7 +770,7 @@ export const fillValueMap = result => {
     return result;
   }
 
-  if (reportType === reportTypes.FunnelChart) {
+  if ([reportTypes.FunnelChart, reportTypes.LineChart].includes(reportType)) {
     result.contrastMap.forEach(control => {
       control.value.forEach(item => {
         item.originalX = item.x;
@@ -985,7 +991,7 @@ export const checkedDropdownItem = (value, list) => {
  * 格式化统计范围时间文案
  */
 export const formatrChartTimeText = ({ rangeType, rangeValue }) => {
-  const typeName = _.find(dropdownScopeData, { value: rangeType }) || _.object();
+  const typeName = _.find(dropdownScopeData, { value: rangeType }) || {};
   const text = isPastAndFuture(rangeType) ? typeName.text.replace(/(\...)/i, rangeValue) : typeName.text;
   return rangeType === 20 ? rangeValue : text;
 };

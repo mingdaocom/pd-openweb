@@ -64,7 +64,7 @@ export default class InboxList extends React.Component {
   fetchInboxList() {
     const { pageIndex, list } = this.state;
     const { clearUnread, inboxFavorite, type, filter } = this.props;
-    const { user, startTime, endTime } = filter || _.object();
+    const { user, startTime, endTime } = filter || {};
 
     this.setState({
       failed: false,

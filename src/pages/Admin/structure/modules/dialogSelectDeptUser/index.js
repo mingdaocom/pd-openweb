@@ -143,7 +143,7 @@ SelectDeptUser.prototype.getData = function (loadMore) {
   if (loadMore && options.hasMore) {
     options.pageIndex++;
   }
-  options.promise = departmentController.getProjectDepartmentUsers({
+  options.promise = departmentController.pagedDeptAccountShrotInfos({
     projectId: options.projectId,
     departmentId: options.departmentId,
     keywords: options.keywords,

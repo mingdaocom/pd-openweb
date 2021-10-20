@@ -6,7 +6,6 @@ import cx from 'classnames';
 import 'dialogSelectUser';
 import 'quickSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
-import { safeJsonParse } from 'worksheet/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -31,13 +30,13 @@ export default class User extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: safeJsonParse(props.cell.value) || [],
+      value: safeParse(props.cell.value, 'array'),
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: safeJsonParse(nextProps.cell.value) || [] });
+      this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
     const single = nextProps.cell.enumDefault === 0;
     if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
@@ -53,12 +52,13 @@ export default class User extends React.Component {
   cell = React.createRef();
 
   renderCellUser(user, index) {
-    const { isediting } = this.props;
+    const { isediting, projectId } = this.props;
     return (
       <div className="cellUser" key={index}>
         <div className="flexRow">
           <UserHead
             className="cellUserHead"
+            projectId={projectId}
             bindBusinessCard={!_.includes(['user-workflow', 'user-publicform', 'user-api'], user.accountId)}
             user={{
               userHead: user.avatarSmall || user.avatar,
@@ -95,7 +95,7 @@ export default class User extends React.Component {
   pickUser(event) {
     const { worksheetId, cell, projectId, updateEditingStatus } = this.props;
     const { value } = this.state;
-    const target = this.cell.current || event.target;
+    const target = (this.cell && this.cell.current) || (event || {}).target;
     const filterAccountIds = value.map(item => item.accountId);
     const callback = data => {
       if (cell.enumDefault === 0) {
@@ -180,17 +180,8 @@ export default class User extends React.Component {
   }
 
   render() {
-    const {
-      className,
-      singleLine,
-      style,
-      rowHeight,
-      popupContainer,
-      cell,
-      editable,
-      isediting,
-      updateEditingStatus,
-    } = this.props;
+    const { className, singleLine, style, rowHeight, popupContainer, cell, editable, isediting, updateEditingStatus } =
+      this.props;
     const { value } = this.state;
     const single = cell.enumDefault === 0;
     const editcontent = (

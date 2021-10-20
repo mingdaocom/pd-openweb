@@ -62,6 +62,7 @@ export default class Widgets extends Component {
     enumDefault: PropTypes.number,
     enumDefault2: PropTypes.number,
     onChange: PropTypes.func,
+    default: PropTypes.string,
   };
 
   state = {
@@ -84,7 +85,7 @@ export default class Widgets extends Component {
 
     return (
       <Fragment>
-        {!value ? (
+        {!_.isObject(location) ? (
           <div
             className="customFormControlBox customFormButton flexRow"
             onClick={() => this.setState({ visible: true })}
@@ -180,6 +181,8 @@ export default class Widgets extends Component {
             }}
           />
         )}
+
+        {this.props.default === '1' && <div className="hidden" ref={container => (this._mapContainer = container)} />}
       </Fragment>
     );
   }

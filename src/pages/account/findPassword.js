@@ -190,8 +190,6 @@ class FindPassword extends React.Component {
     return (
       <div className="loginBox">
         <div className="loginContainer">
-          <div className="titleHeader">
-          </div>
           {this.renderCon()}
           {this.showLangChang()}
         </div>

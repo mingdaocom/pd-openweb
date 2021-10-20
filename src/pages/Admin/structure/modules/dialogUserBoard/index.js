@@ -9,7 +9,7 @@ import './style.less';
 
 const exportUsers = (projectId, accountIds = []) => {
   var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
-  var fromHtml = `<form id='downFile' action="${utils.addToken(url)}" method="post" target="_blank">
+  var fromHtml = `<form id='downFile' action="${utils.addToken(url)}" method="post" target="${ window.isDingTalk ? '_self' : '_blank' }">
   <input type="hidden" name="userStatus" value='1' />
   <input type="hidden" name="projectId" value="${projectId}" />
   <input type="hidden" name="accountIds" value="${accountIds.toString()}" />

@@ -2,12 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { isLightColor } from 'src/util';
-import { safeJsonParse, getSelectedOptions } from 'worksheet/util';
+import { getSelectedOptions } from 'worksheet/util';
 import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
 
@@ -54,6 +56,7 @@ export default class Options extends React.Component {
       nextProps.isediting !== this.props.isediting ||
       (nextProps.cell.value !== this.props.cell.value && !nextProps.isediting) ||
       nextState.value !== this.state.value ||
+      nextProps.className !== this.props.className ||
       nextState.verticallPlace !== this.state.verticallPlace
     );
   }
@@ -64,6 +67,8 @@ export default class Options extends React.Component {
   @autobind
   handleChange(value, forceUpdate) {
     const { cell, updateCell, onValidate } = this.props;
+    const isMultiple = cell.type === 10;
+    this.isChanging = true;
     if (!forceUpdate) {
       if (value === '0' || value === 0) {
         value = '';
@@ -84,7 +89,7 @@ export default class Options extends React.Component {
     updateCell({
       value: formatControlToServer(Object.assign({}, cell, { value })).value,
     });
-    if (!value) {
+    if (!value || !isMultiple) {
       this.handleExit();
     }
   }
@@ -92,9 +97,7 @@ export default class Options extends React.Component {
   @autobind
   handleExit(target) {
     const { cell, error, updateEditingStatus } = this.props;
-    const blurTime = new Date().getTime();
-    const isDoubleClick = this.lastBlurTime && blurTime - this.lastBlurTime < 300;
-    if (error && ((target && (target.getAttribute('class') || '').indexOf('editIcon') > -1) || isDoubleClick)) {
+    if (error) {
       updateEditingStatus(false);
       this.setState({
         value: this.state.oldValue,
@@ -104,13 +107,13 @@ export default class Options extends React.Component {
     if (!error) {
       updateEditingStatus(false);
     }
-    this.lastBlurTime = blurTime;
   }
 
   render() {
     const {
       from,
       className,
+      rowIndex,
       style,
       error,
       tableFromModule,
@@ -125,6 +128,15 @@ export default class Options extends React.Component {
     const { value, verticallPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value) : [];
     const isMultiple = cell.type === 10;
+    const getPopupContainer =
+      tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
+      tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
+        ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
+        : popupContainer;
+    const showErrorAsPopup =
+      (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
+        tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD) &&
+      rowIndex === 1;
     const editcontent = (
       <div
         className={cx(
@@ -147,15 +159,12 @@ export default class Options extends React.Component {
               open: true,
               autoFocus: true,
               defaultOpen: true,
-              getPopupContainer:
-                tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-                tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
-                  ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
-                  : popupContainer,
+              getPopupContainer,
               onDropdownVisibleChange: visible => {
-                if (!visible) {
+                if (!visible && !this.isChanging) {
                   this.handleExit();
                 }
+                this.isChanging = false;
               },
             }}
             onChange={value => this.handleChange(value, true)}
@@ -169,21 +178,18 @@ export default class Options extends React.Component {
               open: true,
               autoFocus: true,
               defaultOpen: true,
-              getPopupContainer:
-                tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-                tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
-                  ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
-                  : popupContainer,
+              getPopupContainer,
               onDropdownVisibleChange: visible => {
-                if (!visible) {
+                if (!error && !visible && !this.isChanging) {
                   this.handleExit();
                 }
+                this.isChanging = false;
               },
               onChange: value => this.handleChange(value),
             }}
           />
         )}
-        {error && <div className="cellControlErrorTip">{error}</div>}
+        {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
       </div>
     );
     return (
@@ -216,7 +222,20 @@ export default class Options extends React.Component {
             </div>
           )}
         </EditableCellCon>
-        {isediting && editcontent}
+        {showErrorAsPopup && isediting && (
+          <Trigger
+            getPopupContainer={getPopupContainer}
+            popupVisible={!!error}
+            popup={<CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+            destroyPopupOnHide
+            popupAlign={{
+              points: ['tl', 'bl'],
+            }}
+          >
+            {editcontent}
+          </Trigger>
+        )}
+        {!showErrorAsPopup && isediting && editcontent}
       </React.Fragment>
     );
   }

@@ -2,21 +2,12 @@ import React from 'react';
 import CellControl from 'worksheet/components/CellControls';
 
 export default function MDCell(props) {
-  const {
-    className,
-    style,
-    columnIndex,
-    rowIndex,
-    row,
-    control,
-    value,
-    fixedColumnCount,
-    getPopupContainer,
-    from,
-  } = props;
+  const { className, style, columnIndex, rowIndex, row, control, value, fixedColumnCount, getPopupContainer, from } =
+    props;
   const {
     worksheetId,
     formdata,
+    masterData,
     isSubList,
     rowHeight,
     updateCell = () => {},
@@ -37,6 +28,7 @@ export default function MDCell(props) {
     sheetSwitchPermit,
     viewId,
     onCellFocus,
+    checkRulesErrorOfControl,
   } = props;
   const onClick = () => {
     if (control.key === 'number' || rowIndex === 0 || !row.rowid) return;
@@ -60,7 +52,9 @@ export default function MDCell(props) {
       canedit={lineeditable && !_.find(['caid', 'ctime', 'utime'], id => id === control.controlId)}
       cell={{ ...control, value, disabled: !row.allowedit || control.disabled }}
       row={row}
+      rowIndex={rowIndex}
       formdata={formdata}
+      masterData={masterData}
       rowHeight={rowHeight}
       from={1}
       popupContainer={() => getPopupContainer(columnIndex < fixedColumnCount)}
@@ -74,6 +68,7 @@ export default function MDCell(props) {
       onClick={onClick}
       onMouseDown={() => onCellMouseDown({ rowIndex })}
       onCellFocus={onCellFocus}
+      checkRulesErrorOfControl={checkRulesErrorOfControl}
     />
   );
 }

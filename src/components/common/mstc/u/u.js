@@ -2,7 +2,7 @@ var KcController = require('src/api/kc');
 let canUpload = undefined;
 let timer = null;
 
-module.exports = function(callback) {
+module.exports = function (callback) {
   if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
     var url = '/apps/kcupload';
     var name = 'uploadAssistant';
@@ -10,8 +10,8 @@ module.exports = function(callback) {
     var iLeft = (window.screen.availWidth - 930) / 2; // 获得窗口的水平位置;
     var options = 'width=930,height=598,toolbar=no,menubar=no,location=no,status=no,top=' + iTop + ',left=' + iLeft;
     window.uploadAssistantWindow = window.open(url, name, options);
-    timer = setInterval(function() {
-      if (window.uploadAssistantWindow.closed) {
+    timer = setInterval(function () {
+      if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
         clearInterval(timer);
         if (_.isFunction(callback)) {
           callback();
@@ -22,7 +22,7 @@ module.exports = function(callback) {
     window.uploadAssistantWindow.focus();
   }
   if (!canUpload) {
-    KcController.getUsage({}).then(function(data) {
+    KcController.getUsage({}).then(function (data) {
       canUpload = data.used < data.total;
       if (!canUpload && window.uploadAssistantWindow) {
         window.uploadAssistantWindow.close();

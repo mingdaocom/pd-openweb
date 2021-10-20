@@ -10,6 +10,7 @@ export default class RowDetail extends React.Component {
     projectId: PropTypes.string,
     controls: PropTypes.arrayOf(PropTypes.shape({})),
     data: PropTypes.shape({}),
+    getMasterFormData: PropTypes.func,
     handleUniqueValidate: PropTypes.func,
     onSave: PropTypes.func,
     onClose: PropTypes.func,
@@ -17,6 +18,7 @@ export default class RowDetail extends React.Component {
 
   static defaultProps = {
     controls: [],
+    getMasterFormData: () => {},
     onSave: () => {},
     onClose: () => {},
   };
@@ -44,17 +46,19 @@ export default class RowDetail extends React.Component {
     if (!this.customwidget.current) {
       return;
     }
-    const { data, onSave } = this.props;
-    const submitData = this.customwidget.current.getSubmitData();
+    const { data, isMobile, onSave } = this.props;
+    const submitData = this.customwidget.current.getSubmitData({ silent: true });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.data;
-    if (submitData.hasError) {
-      this.setState({
-        showError: true,
-      });
-    }
+    // if (submitData.hasError) {
+    //   this.setState({
+    //     showError: true,
+    //   });
+    // }
     const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    onSave({ ...data, ...row, empty: false }, updateControlIds);
+    if (!isMobile) {
+      onSave({ ...data, ...row, empty: false }, updateControlIds);
+    }
   }
 
   @autobind
@@ -109,7 +113,7 @@ export default class RowDetail extends React.Component {
   }
 
   render() {
-    const { isSync, disabled, projectId, controls, data, handleUniqueValidate } = this.props;
+    const { disabled, worksheetId, projectId, controls, data, getMasterFormData, handleUniqueValidate } = this.props;
     const { flag, showError } = this.state;
     const formdata = _.isEmpty(data)
       ? controls
@@ -125,18 +129,20 @@ export default class RowDetail extends React.Component {
     return (
       <div ref={this.formcon}>
         <CustomFields
-          disableRules
+          ignoreHideControl
+          worksheetId={worksheetId}
           disabled={disabled}
           columnNumber={1}
           from={2}
-          recordId={data.rowid}
+          recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}
           data={formdata}
+          getMasterFormData={getMasterFormData}
           flag={flag}
           projectId={projectId}
           showError={showError}
           checkCellUnique={handleUniqueValidate}
-          onChange={isSync ? this.handleChange : () => {}}
+          onChange={this.handleChange}
         />
       </div>
     );

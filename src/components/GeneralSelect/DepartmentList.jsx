@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import autobind from './autobind';
 import Checkbox from 'ming-ui/components/Checkbox';
+import { LoadDiv } from 'ming-ui';
 
 /**
  * 选择部门
@@ -43,6 +44,7 @@ export default class DepartmentList extends Component {
                 keywords={this.props.keywords}
                 showUserCount={this.props.showUserCount}
                 unique={this.props.unique}
+                departmentMoreIds={this.props.departmentMoreIds}
               />
             );
           })}
@@ -66,9 +68,24 @@ class Department extends Component {
     showUserCount: PropTypes.bool,
     unique: PropTypes.bool,
   };
+  constructor(props) {
+    super(props);
+    this.state = {
+      moreIdLoading: '',
+    };
+  }
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.departmentMoreIds, nextProps.departmentMoreIds)) {
+      this.setState({
+        moreIdLoading: '',
+      });
+    }
+  }
   @autobind
   toogleDepargmentSelect(event) {
-    const { department: { open, disabled, departmentId } } = this.props;
+    const {
+      department: { open, disabled, departmentId },
+    } = this.props;
     event.stopPropagation();
     if (!disabled) {
       this.props.toogleDepargmentSelect(this.props.department);
@@ -84,6 +101,7 @@ class Department extends Component {
     this.props.toggleDepartmentList(this.props.department.departmentId);
   }
   render() {
+    const { moreIdLoading } = this.state;
     const { department, checked, keywords } = this.props;
     const { haveSubDepartment, subDepartments, disabled, open, departmentName } = department;
     let name = departmentName;
@@ -107,8 +125,18 @@ class Department extends Component {
     return (
       <div className="GSelect-department">
         <div className={cx('GSelect-department-row flexRow')} onClick={this.toggleDepartmentList}>
-          <div className={cx('GSelect-arrow', { 'GSelect-arrow--transparent': !haveSubDepartment, pointer: haveSubDepartment })}>
-            <i className={cx('GSelect-arrow__arrowIcon', department.open ? 'GSelect-arrow__arrowIcon--open' : 'GSelect-arrow__arrowIcon--close')} />
+          <div
+            className={cx('GSelect-arrow', {
+              'GSelect-arrow--transparent': !haveSubDepartment,
+              pointer: haveSubDepartment,
+            })}
+          >
+            <i
+              className={cx(
+                'GSelect-arrow__arrowIcon',
+                department.open ? 'GSelect-arrow__arrowIcon--open' : 'GSelect-arrow__arrowIcon--close',
+              )}
+            />
           </div>
           <div className="flex flexRow GSelect-department-box pointer" onClick={this.toogleDepargmentSelect}>
             {this.props.unique ? (
@@ -128,7 +156,9 @@ class Department extends Component {
                 return <span key={item + index}>{item}</span>;
               })}
             </div>
-            {this.props.showUserCount ? <div className={cx('GSelect-department__count')}>{`（${department.userCount}人）`}</div> : null}
+            {this.props.showUserCount ? (
+              <div className={cx('GSelect-department__count')}>{`（${department.userCount}人）`}</div>
+            ) : null}
           </div>
         </div>
         {!haveSubDepartment || !open ? null : (
@@ -140,7 +170,27 @@ class Department extends Component {
             keywords={this.props.keywords}
             showUserCount={this.props.showUserCount}
             unique={this.props.unique}
+            departmentMoreIds={this.props.departmentMoreIds}
           />
+        )}
+        {open &&
+        (subDepartments[0] || {}).parentId &&
+        (this.props.departmentMoreIds || []).find(o => o.departmentId === subDepartments[0].parentId) ? (
+          <span
+            className="mLeft60 Hand moreBtn"
+            onClick={() => {
+              localStorage.setItem('parentId', subDepartments[0].parentId);
+              this.props.toggleDepartmentList(subDepartments[0].parentId);
+              this.setState({
+                moreIdLoading: subDepartments[0].parentId,
+              });
+            }}
+          >
+            {moreIdLoading === subDepartments[0].parentId && <LoadDiv size="small" />}
+            {moreIdLoading === subDepartments[0].parentId ? _l('加载中') : _l('更多')}
+          </span>
+        ) : (
+          ''
         )}
       </div>
     );

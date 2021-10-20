@@ -6,6 +6,7 @@ import Trigger from 'rc-trigger';
 import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import CellErrorTips from './comps/CellErrorTip';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
@@ -27,7 +28,6 @@ export default class MobilePhone extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: false,
       value: props.cell.value,
       tempValue: props.cell.value,
     };
@@ -64,8 +64,7 @@ export default class MobilePhone extends React.Component {
     updateEditingStatus(false);
     this.setState({
       value: cell.value,
-      error: undefined,
-      tempValue: '',
+      tempValue: cell.value,
     });
   }
 
@@ -81,17 +80,10 @@ export default class MobilePhone extends React.Component {
 
   @autobind
   handleBlur(target) {
-    const { cell, updateCell, updateEditingStatus } = this.props;
-    const { tempValue, value, error } = this.state;
-    const blurTime = new Date().getTime();
-    const isDoubleClick = this.lastBlurTime && blurTime - this.lastBlurTime < 300;
-    if (error && ((target && (target.getAttribute('class') || '').indexOf('editIcon') > -1) || isDoubleClick)) {
-      this.handleExit();
-      return;
-    }
+    const { error, updateCell, updateEditingStatus } = this.props;
+    const { tempValue, value } = this.state;
     if (error) {
-      this.focus();
-      this.lastBlurTime = blurTime;
+      this.handleExit();
       return;
     }
     if (tempValue === value) {
@@ -103,7 +95,6 @@ export default class MobilePhone extends React.Component {
     });
     this.setState({
       value: tempValue,
-      error: undefined,
     });
     updateEditingStatus(false);
     this.lastBlurTime = null;
@@ -118,11 +109,11 @@ export default class MobilePhone extends React.Component {
   }
 
   @autobind
-  handleChange(value) {
-    const { cell } = this.props;
+  async handleChange(value) {
+    const { cell, onValidate } = this.props;
+    onValidate(value);
     this.setState({
       tempValue: value,
-      error: value ? !this.editPhoneObj.isValidNumber() : cell.required ? _l('不能为空') : '',
     });
   }
 
@@ -133,15 +124,15 @@ export default class MobilePhone extends React.Component {
       updateEditingStatus(false);
       this.setState({
         value: cell.value,
-        error: false,
       });
       e.preventDefault();
     }
   }
 
   render() {
-    const { className, style, needLineLimit, cell, popupContainer, editable, isediting, onClick } = this.props;
-    const { value, error } = this.state;
+    const { className, style, error, rowIndex, needLineLimit, cell, popupContainer, editable, isediting, onClick } =
+      this.props;
+    const { value } = this.state;
     const editProps = {
       ref: this.input,
       value,
@@ -168,7 +159,10 @@ export default class MobilePhone extends React.Component {
           onInputKeydown={this.handleKeydown}
         />
         {error && (
-          <div className="cellControlErrorTip">{typeof error === 'string' ? error : _l('不是有效的电话号码')}</div>
+          <CellErrorTips
+            error={typeof error === 'string' ? error : _l('不是有效的电话号码')}
+            pos={rowIndex === 1 ? 'bottom' : 'top'}
+          />
         )}
       </ClickAwayable>
     );
@@ -177,7 +171,7 @@ export default class MobilePhone extends React.Component {
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
         action={['click']}
         popup={editcontent}
-        getPopupContainer={() => document.body}
+        getPopupContainer={cell.enumDefault === 0 ? () => document.body : popupContainer}
         popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable cellControlEdittingStatus', {
           cellControlErrorStatus: error,
         })}

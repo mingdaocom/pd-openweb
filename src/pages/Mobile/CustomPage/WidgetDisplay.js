@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, memo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import BraftEditor from 'src/components/braftEditor/braftEditor';
 import ButtonList from 'src/pages/customPage/components/WidgetContent/ButtonList';

@@ -50,7 +50,7 @@ const OptionListItem = styled.div`
   padding: 0 12px;
   border: 1px solid #ddd;
   background-color: #fff;
-  max-height: 550px;
+  max-height: 535px;
   overflow: hidden;
   border-radius: 3px;
   .title {
@@ -74,7 +74,7 @@ const OptionListItem = styled.div`
 
   ul {
     position: relative;
-    max-height: 500px;
+    max-height: 488px;
     overflow: hidden;
     padding: 8px 0;
   }
@@ -196,7 +196,8 @@ export default function SelectOptions(props) {
                 onClick={e => {
                   e.stopPropagation();
                   onChange({ enumDefault2: +!enumDefault2 });
-                }}></i>
+                }}
+              ></i>
               <span>{_l('彩色')}</span>
             </div>
             {!dataSource && (
@@ -235,7 +236,7 @@ export default function SelectOptions(props) {
                       <div className="name">{value}</div>
                     </li>
                   ))}
-                {optionList.options.length > 15 && <li className="more">{_l('更多 ...')}</li>}
+                {optionList.options.length > 15 && <li className="more">{_l('...')}</li>}
               </ul>
             </OptionListItem>
           </Fragment>
@@ -276,6 +277,7 @@ export default function SelectOptions(props) {
           onOk={data => {
             setOptionList({ ...optionList, ...data });
             setVisible({ editVisible: false });
+            onChange({ ...data });
           }}
           onCancel={() => setVisible({ editVisible: false })}
         />

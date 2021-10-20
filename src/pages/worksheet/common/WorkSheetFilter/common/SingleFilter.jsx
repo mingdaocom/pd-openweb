@@ -54,6 +54,10 @@ export default class SingleFilter extends Component {
   }
   @autobind
   addCondition(control) {
+    if (!control) {
+      alert(_l('字段不存在'));
+      return;
+    }
     const { from = '' } = this.props;
     const { conditions } = this.state;
     const newCondition = getDefaultCondition(control);
@@ -118,16 +122,8 @@ export default class SingleFilter extends Component {
     this.handleConditionsChange(this.state.conditions, value);
   }
   renderConditions(columns = []) {
-    const {
-      isRules,
-      projectId,
-      canEdit,
-      from,
-      currentColumns,
-      relateSheetList,
-      sourceControlId,
-      globalSheetControls,
-    } = this.props;
+    const { isRules, projectId, canEdit, from, currentColumns, relateSheetList, sourceControlId, globalSheetControls } =
+      this.props;
     const { relationType, conditions } = this.state;
     return conditions.map((condition, index) => {
       const control = _.find(columns, column => condition.controlId === column.controlId);

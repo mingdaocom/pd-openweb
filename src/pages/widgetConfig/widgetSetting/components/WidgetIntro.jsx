@@ -25,7 +25,7 @@ const getWidgetInfoByType = type => {
 };
 
 export default function WidgetIntro(props) {
-  const { data, from, onChange } = props;
+  const { data = {}, from, onChange } = props;
   const { type, controlId, sourceControl = {}, enumDefault2 } = data;
   const { icon, widgetName, intro, moreIntroLink } = getWidgetInfo(type);
   const [visible, setVisible] = useState(false);
@@ -115,7 +115,7 @@ export default function WidgetIntro(props) {
       <div className="title relative">
         <i className={cx('icon Font20', `icon-${icon}`)} />
         <span>{widgetName}</span>
-        <Tooltip placement={'bottom'} title={intro}>
+        <Tooltip placement={'bottom'} title={intro} className="Gray_9e">
           <span
             className="iconWrap pointer"
             onClick={() => {

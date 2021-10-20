@@ -167,7 +167,7 @@ var AttachmentPlayer = {
                     sizeStr: formatFileSize(attachment.filesize),
                     iconClassName: getClassNameByExt(attachment.ext),
                     downloadParams,
-                    downDocumentUrl: addToken(downDocumentUrl),
+                    downDocumentUrl: addToken(downDocumentUrl, !window.isDingTalk),
                   }),
                 )
               : picAttachmentTpl(
@@ -209,7 +209,7 @@ var AttachmentPlayer = {
                 iconClassName: iconClassName,
                 downloadParams,
                 isKcFolder: isKcFolder,
-                downDocumentUrl: addToken(downDocumentUrl),
+                downDocumentUrl: addToken(downDocumentUrl, !window.isDingTalk),
               }),
             );
           })
@@ -442,7 +442,7 @@ var AttachmentPlayer = {
             }
             break;
           case 2:
-            window.open(addToken(downloadUrl + (downloadParams ? '&' + downloadParams : '')));
+            window.open(addToken(downloadUrl + (downloadParams ? '&' + downloadParams : ''), !window.isDingTalk));
             break;
         }
         $('.attachmentsList .commonAttachment .operateList').addClass('hide');

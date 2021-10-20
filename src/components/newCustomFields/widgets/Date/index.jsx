@@ -8,7 +8,9 @@ import { FROM } from '../../tools/config';
 import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
+import { getDynamicValue } from '../../tools/DataFormat';
 import { browserIsMobile } from 'src/util';
+import moment from 'moment';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -20,6 +22,8 @@ export default class Widgets extends Component {
     controlId: PropTypes.string,
     value: PropTypes.string,
     onChange: PropTypes.func,
+    formData: PropTypes.arrayOf(PropTypes.shape({})),
+    masterData: PropTypes.object,
   };
 
   state = {
@@ -47,20 +51,39 @@ export default class Widgets extends Component {
       controlName,
       advancedSetting = {},
       compProps = {},
+      formData,
+      masterData,
     } = this.props;
     const allowweek = advancedSetting.allowweek || '1234567';
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeinterval = advancedSetting.timeinterval || '1';
-
     const lang = getCookie('i18n_langtag') || getNavigatorLang();
     let showTime;
+    let minDate;
+    let maxDate;
+
+    if (advancedSetting.min) {
+      minDate = getDynamicValue(
+        formData,
+        Object.assign({}, this.props, { advancedSetting: { defsource: advancedSetting.min } }),
+        masterData,
+      );
+    }
+
+    if (advancedSetting.max) {
+      maxDate = getDynamicValue(
+        formData,
+        Object.assign({}, this.props, { advancedSetting: { defsource: advancedSetting.max } }),
+        masterData,
+      );
+    }
 
     if (browserIsMobile()) {
       return (
         <MobileDatePicker
           className="customDatePicker"
-          minDate={new Date(1900, 1, 1, 0, 0, 0)}
-          maxDate={new Date(2100, 12, 31, 23, 59, 59)}
+          minDate={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
+          maxDate={maxDate ? new Date(moment(maxDate)) : new Date(2100, 12, 31, 23, 59, 59)}
           mode={type === 15 ? 'date' : 'datetime'}
           minuteStep={parseInt(timeinterval)}
           value={value ? new Date(moment(value)) : ''}
@@ -113,10 +136,20 @@ export default class Widgets extends Component {
         disabledDate={currentDate => {
           if (currentDate) {
             const day = currentDate.day();
-            return allowweek.indexOf(day === 0 ? '7' : day) === -1;
+            let isBetween = true;
+
+            if (minDate && isBetween) {
+              isBetween = currentDate.isSameOrAfter(moment(minDate), 'day');
+            }
+
+            if (maxDate && isBetween) {
+              isBetween = currentDate.isSameOrBefore(moment(maxDate), 'day');
+            }
+
+            return allowweek.indexOf(day === 0 ? '7' : day) === -1 || !isBetween;
           }
         }}
-        disabledTime={() => {
+        disabledTime={current => {
           return {
             disabledHours: () => {
               const start = parseInt(allowtime.split('-')[0]);
@@ -126,6 +159,43 @@ export default class Widgets extends Component {
               for (let i = 0; i < 24; i++) {
                 if (i < start || i >= end) {
                   result.push(i);
+                }
+              }
+
+              if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                for (let i = 0; i < 24; i++) {
+                  if (minDate.split(' ')[1] && i < moment(minDate).hour()) {
+                    result.push(i);
+                  }
+                }
+              }
+
+              if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                for (let i = 0; i < 24; i++) {
+                  if (maxDate.split(' ')[1] && i > moment(maxDate).hour()) {
+                    result.push(i);
+                  }
+                }
+              }
+
+              return result;
+            },
+            disabledMinutes: () => {
+              const result = [];
+
+              if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                for (let i = 0; i < 60; i++) {
+                  if (moment(current).hour() === moment(maxDate).hour() && i < moment(minDate).minute()) {
+                    result.push(i);
+                  }
+                }
+              }
+
+              if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                for (let i = 0; i < 60; i++) {
+                  if (moment(current).hour() === moment(maxDate).hour() && i > moment(maxDate).minute()) {
+                    result.push(i);
+                  }
                 }
               }
 

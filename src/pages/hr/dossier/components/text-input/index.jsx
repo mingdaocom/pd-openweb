@@ -116,6 +116,7 @@ class TextInput extends Component {
         }
       }
       if (
+        control &&
         control.unique &&
         this.state.changed &&
         value &&

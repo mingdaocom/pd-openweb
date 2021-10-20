@@ -31,6 +31,7 @@ export default class PublicWorksheet extends React.Component {
       loading: true,
       qrurl: '',
     };
+    window.isPublicWorksheet = true;
   }
 
   componentDidMount() {

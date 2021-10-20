@@ -111,7 +111,7 @@ export default class ChartStyle extends Component {
                     );
                   }}
                 >
-                  {_l('列汇总')}
+                  {_l('行汇总')}
                 </Checkbox>
               }
               summary={pivotTable.lineSummary}
@@ -150,7 +150,7 @@ export default class ChartStyle extends Component {
                     );
                   }}
                 >
-                  {_l('行汇总')}
+                  {_l('列汇总')}
                 </Checkbox>
               }
               summary={pivotTable.columnSummary}
@@ -199,7 +199,7 @@ export default class ChartStyle extends Component {
                   </Checkbox>
                 ) : null
               }
-              summary={summary || _.object()}
+              summary={summary || {}}
               yaxisList={yaxisList}
               onChangeSummary={(data, isRequest = true) => {
                 this.props.onChangeCurrentReport(
@@ -243,7 +243,7 @@ export default class ChartStyle extends Component {
                     </Checkbox>
                   ) : null
                 }
-                summary={rightY.summary || _.object()}
+                summary={rightY.summary || {}}
                 yaxisList={rightY.yaxisList}
                 onChangeSummary={(data, isRequest = true) => {
                   this.props.onChangeCurrentReport(

@@ -23,11 +23,19 @@ export default function confirm(props) {
   let footer = (
     <div className="Dialog-footer-btns">
       {!props.removeCancelBtn && (
-        <ConfirmButton action={props.onCancel} onClose={handleClose} type={props.cancelType || 'link'}>
+        <ConfirmButton
+          action={props.onCancel}
+          onClose={() => handleClose(!props.onlyClose)}
+          type={props.cancelType || 'link'}
+        >
           {props.cancelText || '取消'}
         </ConfirmButton>
       )}
-      <ConfirmButton action={props.onOk} onClose={handleClose} type={props.buttonType || 'primary'}>
+      <ConfirmButton
+        action={props.onOk}
+        onClose={() => handleClose(!props.onlyClose)}
+        type={props.buttonType || 'primary'}
+      >
         {props.okText || '确认'}
       </ConfirmButton>
     </div>
@@ -51,7 +59,7 @@ export default function confirm(props) {
       onCancel={handleClose}
       confirm={props.type || 'confirm'}
     />,
-    container
+    container,
   );
 
   return handleClose;

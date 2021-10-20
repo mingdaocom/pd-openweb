@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { Modal } from 'antd-mobile';
 import { Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import { checkFieldUnique } from 'src/api/worksheet';
 import sheetAjax from 'src/api/worksheet';
@@ -31,6 +32,7 @@ export default class CustomFields extends Component {
     showError: PropTypes.bool,
     disableRules: PropTypes.bool,
     rules: PropTypes.arrayOf(PropTypes.shape({})),
+    getMasterFormData: PropTypes.func,
     openRelateRecord: PropTypes.func,
     openRelateSheet: PropTypes.func,
     registerCell: PropTypes.func,
@@ -39,6 +41,7 @@ export default class CustomFields extends Component {
 
   static defaultProps = {
     initSource: false,
+    getMasterFormData: () => {},
     onChange: () => {},
     openRelateRecord: () => {},
     openRelateSheet: () => {},
@@ -82,6 +85,9 @@ export default class CustomFields extends Component {
     if (this.props.flag !== nextProps.flag || this.props.data.length !== nextProps.data.length) {
       this.initSource(nextProps.data, nextProps.disabled);
     }
+    if (this.props.worksheetId !== nextProps.worksheetId) {
+      this.getRules(nextProps);
+    }
   }
 
   con = React.createRef();
@@ -90,11 +96,25 @@ export default class CustomFields extends Component {
    * 初始化数据
    */
   initSource(data, disabled) {
-    const { initSource, recordId, recordCreateTime, from } = this.props;
+    const { projectId, initSource, recordId, recordCreateTime, from } = this.props;
 
-    this.dataFormat = new DataFormat({ data, isCreate: initSource || !recordId, disabled, recordCreateTime, from });
+    this.dataFormat = new DataFormat({
+      projectId,
+      data,
+      isCreate: initSource || !recordId,
+      disabled,
+      recordCreateTime,
+      from,
+      onAsyncChange: () => {
+        this.setState({
+          renderData: this.getFilterDataByRule(true),
+          errorItems: this.dataFormat.getErrorControls(),
+        });
+      },
+    });
+
     this.setState({
-      renderData: this.getFilterDataByRule(),
+      renderData: this.getFilterDataByRule(true),
       errorItems: this.dataFormat.getErrorControls(),
       uniqueErrorItems: [],
       rulesLoading: false,
@@ -104,15 +124,18 @@ export default class CustomFields extends Component {
   /**
    * 规则筛选数据
    */
-  getFilterDataByRule() {
+  getFilterDataByRule(isInit) {
+    const { ignoreHideControl } = this.props;
     const { rules = [] } = this.state;
 
     return updateRulesData({
       rules,
       data: this.dataFormat.getDataSource(),
       from: this.props.from,
-      checkRuleValidator: (controlId, errorType) => {
-        this.dataFormat.setErrorControl(controlId, errorType);
+      updateControlIds: this.dataFormat.getUpdateRuleControlIds(),
+      ignoreHideControl,
+      checkRuleValidator: (controlId, errorType, errorMessage) => {
+        this.dataFormat.setErrorControl(controlId, errorType, errorMessage, isInit);
       },
     });
   }
@@ -120,8 +143,8 @@ export default class CustomFields extends Component {
   /**
    * 获取字段显示规则
    */
-  getRules = () => {
-    const { worksheetId, data, disabled } = this.props;
+  getRules = nextProps => {
+    const { worksheetId, data, disabled } = nextProps || this.props;
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
       this.setState({ rules }, () => this.initSource(data, disabled));
@@ -220,15 +243,16 @@ export default class CustomFields extends Component {
     const { showError, from } = this.props;
     const { errorItems, uniqueErrorItems } = this.state;
     const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
-    const errorType = currentErrorItem.errorType || '';
+    const errorText = currentErrorItem.errorText || '';
     const isEditable = controlState(item, from).editable;
-    let errorMessage;
+    let errorMessage = '';
 
-    if (errorType && (showError || currentErrorItem.showError) && isEditable) {
-      errorMessage =
-        typeof FORM_ERROR_TYPE_TEXT[errorType] !== 'string'
-          ? FORM_ERROR_TYPE_TEXT[errorType](item)
-          : FORM_ERROR_TYPE_TEXT[errorType];
+    if ((showError || currentErrorItem.showError) && isEditable) {
+      if (currentErrorItem.errorType === FORM_ERROR_TYPE.UNIQUE) {
+        errorMessage = currentErrorItem.errorMessage || FORM_ERROR_TYPE_TEXT.UNIQUE(item);
+      } else {
+        errorMessage = errorText || currentErrorItem.errorMessage;
+      }
     }
 
     return (
@@ -293,7 +317,7 @@ export default class CustomFields extends Component {
     // 子表
     if (type === 34) {
       if (typeof value === 'object') {
-        count = value.num || value.rows.length;
+        count = value.num || (value.rows || []).length;
       } else if (!_.isNaN(parseInt(item.value, 10))) {
         count = parseInt(item.value, 10);
       }
@@ -370,6 +394,7 @@ export default class CustomFields extends Component {
       sheetSwitchPermit = [],
       systemControlData,
       popupContainer,
+      getMasterFormData,
     } = this.props;
     const { uniqueErrorItems } = this.state;
 
@@ -449,7 +474,10 @@ export default class CustomFields extends Component {
           }
           openRelateSheet={openRelateSheet}
           registerCell={cell => registerCell({ item, cell })}
-          formData={this.dataFormat.getDataSource().concat(systemControlData || [])}
+          formData={this.dataFormat
+            .getDataSource()
+            .concat(systemControlData || [])
+            .concat(getMasterFormData() || [])}
         />
         {_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD], from) && item.type !== 34 && this.renderDesc(item)}
       </React.Fragment>
@@ -523,18 +551,31 @@ export default class CustomFields extends Component {
    * 提交错误信息弹层
    */
   errorDialog(errors) {
-    Dialog.confirm({
-      className: 'ruleErrorMsgDialog',
-      title: <span className="Bold Font17 Red">{_l('错误提示')}</span>,
-      description: (
+    const isMobile = browserIsMobile();
+    if (isMobile) {
+      Modal.alert(
+        _l('错误提示'),
         <div>
           {errors.map(item => (
             <div className="Gray_75 mBottom6 WordBreak">{item}</div>
           ))}
-        </div>
-      ),
-      removeCancelBtn: true,
-    });
+        </div>,
+        [{ text: _l('取消'), onPress: _.noop }],
+      );
+    } else {
+      Dialog.confirm({
+        className: 'ruleErrorMsgDialog',
+        title: <span className="Bold Font17 Red">{_l('错误提示')}</span>,
+        description: (
+          <div>
+            {errors.map(item => (
+              <div className="Gray_75 mBottom6 WordBreak">{item}</div>
+            ))}
+          </div>
+        ),
+        removeCancelBtn: true,
+      });
+    }
   }
 
   /**
@@ -547,18 +588,23 @@ export default class CustomFields extends Component {
   /**
    * 获取提交数据
    */
-  getSubmitData() {
-    const { from, recordId } = this.props;
+  getSubmitData({ silent } = {}) {
+    const { from, recordId, ignoreHideControl } = this.props;
     const { errorItems, uniqueErrorItems, rules = [] } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
-    const list = updateRulesData({ rules, data: this.dataFormat.getDataSource() });
+    const list = updateRulesData({
+      rules,
+      data: this.dataFormat.getDataSource(),
+      checkAllUpdate: true,
+      ignoreHideControl,
+    });
     const errors = updateControlIds.length || !recordId ? checkAllValueAvailable(rules, list, from) : [];
     const ids = list
       .filter(item => controlState(item, from).visible && controlState(item, from).editable)
       .map(it => it.controlId);
     const hasError = !!errorItems.concat(uniqueErrorItems).filter(it => _.includes(ids, it.controlId)).length;
 
-    if (!hasError && errors.length) {
+    if (!hasError && errors.length && !silent) {
       this.errorDialog(errors);
     }
 

@@ -189,7 +189,7 @@ class CommentList extends React.Component {
           this.list = el;
         }}
       >
-        {commentList.map((item, index) => (
+        {commentList.filter(o => !!o).map((item, index) => (
           <CommentListItem
             key={item.discussionId}
             comment={item}

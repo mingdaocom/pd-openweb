@@ -7,27 +7,61 @@
     box-shadow: 0px 3px 6px #00000029;
     overflow-y: auto;
     overflow-x: hidden;
-    .chooseBtn {
-      font-weight: normal !important;
-      &:hover {
-        color: #2196f3 !important;
+    width: 240px;
+    .forSizeText {
+      width: 90px;
+      border: 1px solid rgb(204, 204, 204);
+      border-radius: 2px;
+      .Menu {
+        width: 100%;
+      }
+      .Dropdown--input {
+        display: flex;
+        .value {
+          flex: 1;
+        }
+        .Icon {
+          line-height: 20px;
+        }
       }
     }
     .conBox {
       padding: 20px;
       width: 100%;
-      .btn {
-        height: 32px;
-        background: #ffffff 0% 0% no-repeat padding-box;
-        border: 1px solid #d9d9d9;
-        border-radius: 3px;
-        text-align: center;
-        line-height: 32px;
-        display: block;
-        margin-bottom: 20px;
-        &:hover {
-          color: #2196f3 !important;
-          border: 1px solid #2196f3;
+      .plate {
+        .caption {
+          display: flex;
+          height: 20px;
+          & > span {
+            display: inline-block;
+            vertical-align: middle;
+          }
+          .headline {
+            flex: 1;
+            font-size: 13px;
+            font-weight: bold;
+          }
+          .chooseBtn {
+            width: auto;
+            padding: 4px 6px;
+            line-height: 1;
+            &:hover {
+              background: #f5f5f5;
+              color: #2196f3 !important;
+            }
+          }
+          .iconBox {
+            width: 20px;
+            height: 20px;
+            margin-left: 9px;
+            .expand {
+              vertical-align: middle;
+              &:hover {
+                background: #f5f5f5;
+                color: #2196f3 !important;
+              }
+            }
+          }
         }
       }
       p {
@@ -50,18 +84,18 @@
       }
       .ming.Checkbox {
         max-width: 165px;
+        vertical-align: middle;
       }
       .moreList {
         position: absolute;
         top: -2px;
         right: 0;
-        height: 24px;
-        cursor: pointer;
-        line-height: 24px;
-        width: 165px;
-        text-align: right;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
         &:hover {
-          color: #333 !important;
+          color: #2196f3 !important;
+          background: #f5f5f5;
         }
       }
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { antNotification } from 'ming-ui';
+import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 
 export default function customNotice() {
   const { socket } = window.IM || {};
@@ -42,7 +43,7 @@ export default function customNotice() {
         className: 'customNotification',
         duration,
         message: title,
-        description: <div dangerouslySetInnerHTML={{ __html: msg }}></div>,
+        description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
         loading: status === 1,
         onBtnClick: () => {
           antNotification.close(id);

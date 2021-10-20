@@ -1,6 +1,25 @@
 define(function (require, exports, module) {
   module.exports = {
     /**
+    * 保存选项集
+    * @param {Object} args 请求参数
+    * @param {string} args.collectionId 
+    * @param {array} args.collectionIds 
+    * @param {string} args.appId 
+    * @param {string} args.worksheetId 
+    * @param {array} args.options 
+    * @param {string} args.name 
+    * @param {boolean} args.colorful 
+    * @param {boolean} args.enableScore 
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    saveOptionsCollection: function (args, options) {
+      return $.api('Worksheet', 'SaveOptionsCollection', args, options);
+    },
+
+    /**
     * 删除选项集
     * @param {Object} args 请求参数
     * @param {string} args.collectionId 
@@ -69,6 +88,72 @@ define(function (require, exports, module) {
     **/
     ocr: function (args, options) {
       return $.api('Worksheet', 'Ocr', args, options);
+    },
+
+    /**
+    * get单个工作表查询
+    * @param {Object} args 请求参数
+    * @param {string} args.id 
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getQuery: function (args, options) {
+      return $.api('Worksheet', 'GetQuery', args, options);
+    },
+
+    /**
+    * get 批量工作表查询
+    * @param {Object} args 请求参数
+    * @param {array} args.ids 
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getsQuery: function (args, options) {
+      return $.api('Worksheet', 'GetsQuery', args, options);
+    },
+
+    /**
+    * worksheetId 批量获取工作表查询
+    * @param {Object} args 请求参数
+    * @param {string} args.worksheetId 
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getQueryBySheetId: function (args, options) {
+      return $.api('Worksheet', 'GetQueryBySheetId', args, options);
+    },
+
+    /**
+    * 保存工作表查询
+    * @param {Object} args 请求参数
+    * @param {string} args.id id
+    * @param {string} args.worksheetId 本表id
+    * @param {string} args.controlId 默认值控件id
+    * @param {string} args.sourceId 来源id （这里值得工作表id）
+    * @param {integer} args.sourceType 1 = 本表，2 = 他表
+    * @param {array} args.items 筛选条件
+    * @param {array} args.configs 映射字段
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    saveQuery: function (args, options) {
+      return $.api('Worksheet', 'SaveQuery', args, options);
+    },
+
+    /**
+    * 删除工作表查询
+    * @param {Object} args 请求参数
+    * @param {string} args.id 
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    deleteQuery: function (args, options) {
+      return $.api('Worksheet', 'DeleteQuery', args, options);
     },
 
     /**
@@ -235,6 +320,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -254,6 +340,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -341,6 +428,8 @@ define(function (require, exports, module) {
     * @param {string} args.shareId 分享ID
     * @param {string} args.keywords 关键词
     * @param {string} args.linkId 链接分享id
+    * @param {string} args.viewId 
+    * @param {array} args.filters 
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -464,6 +553,7 @@ define(function (require, exports, module) {
     * @param {array} args.filterControls 筛选条件
     * @param {string} args.keyWords 搜索关键字
     * @param {array} args.fastFilters 快递筛选
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {string} args.btnId 自定义按钮ID
     * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
     * @param {string} args.btnRowId 点击按钮对应的行记录ID
@@ -545,7 +635,8 @@ define(function (require, exports, module) {
     * @param {array} args.excludeRowIds 需要排除的rowIds
     * @param {array} args.filterControls 筛选条件
     * @param {string} args.keyWords 搜索关键字
-    * @param {array} args.fastFilters 
+    * @param {array} args.fastFilters 快速筛选
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -590,7 +681,8 @@ define(function (require, exports, module) {
     * @param {string} args.worksheetId 工作表id
     * @param {} args.getType 
     * @param {array} args.filterControls 查询列
-    * @param {array} args.fastFilters 
+    * @param {array} args.fastFilters 快速筛选
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {array} args.sortControls 排序列
     * @param {string} args.keyWords 关键词
     * @param {integer} args.pageSize 页大小
@@ -629,10 +721,11 @@ define(function (require, exports, module) {
     * @param {array} args.columnRpts 列排序
     * @param {} args.searchType 查询类型
     * @param {string} args.keyWords 关键词
-    * @param {boolean} args.isUnRead 是否已读
+    * @param {string} args.controlId 
     * @param {string} args.viewId 视图Id
     * @param {string} args.appId 应用Id
     * @param {array} args.fastFilters 
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -684,6 +777,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.isAll isAll
     * @param {array} args.excludeRowIds excludeRowIds
     * @param {array} args.filterControls filterControls
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {string} args.keyWords keyWords
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
@@ -768,6 +862,27 @@ define(function (require, exports, module) {
     },
 
     /**
+    * 获取分组导航
+    * @param {Object} args 请求参数
+    * @param {string} args.worksheetId 工作表id
+    * @param {array} args.filterControls 查询列
+    * @param {array} args.columnRpts 列排序
+    * @param {} args.searchType 查询类型
+    * @param {string} args.keyWords 关键词
+    * @param {string} args.controlId 
+    * @param {string} args.viewId 视图Id
+    * @param {string} args.appId 应用Id
+    * @param {array} args.fastFilters 
+    * @param {array} args.navGroupFilters 导航分组筛选
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getNavGroup: function (args, options) {
+      return $.api('Worksheet', 'GetNavGroup', args, options);
+    },
+
+    /**
     * 保存筛选器
     * @param {Object} args 请求参数
     * @param {string} args.name 筛选器名称
@@ -837,6 +952,7 @@ define(function (require, exports, module) {
     * @param {array} args.filters filters
     * @param {array} args.fastFilters fastfilters
     * @param {array} args.moreSort 排序
+    * @param {array} args.navGroup 导航分组
     * @param {array} args.displayControls 显示字段
     * @param {array} args.showControls Web显示字段
     * @param {array} args.controlsSorts 字段排序
@@ -1104,6 +1220,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -1123,6 +1240,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -1176,6 +1294,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -1269,6 +1388,7 @@ define(function (require, exports, module) {
     * @param {Object} args 请求参数
     * @param {string} args.id 模板id (空=新建 非空=修改)
     * @param {} args.data 
+    * @param {array} args.saveControls 勾选保存的控件
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -1465,25 +1585,6 @@ define(function (require, exports, module) {
     **/
     getCollectionsByAppId: function (args, options) {
       return $.api('Worksheet', 'GetCollectionsByAppId', args, options);
-    },
-
-    /**
-    * 保存选项集
-    * @param {Object} args 请求参数
-    * @param {string} args.collectionId 
-    * @param {array} args.collectionIds 
-    * @param {string} args.appId 
-    * @param {string} args.worksheetId 
-    * @param {array} args.options 
-    * @param {string} args.name 
-    * @param {boolean} args.colorful 
-    * @param {boolean} args.enableScore 
-    * @param {Object} options 配置参数
-    * @param {Boolean} options.silent 是否禁止错误弹层
-    * @returns {Promise<Boolean, ErrorModel>}
-    **/
-    saveOptionsCollection: function (args, options) {
-      return $.api('Worksheet', 'SaveOptionsCollection', args, options);
     },
 
   };

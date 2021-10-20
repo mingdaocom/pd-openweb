@@ -188,15 +188,21 @@ class WorksheetSahre extends React.Component {
     return list;
   };
   //获取记录关联记录
-  getRowRelationRowsData = id => {
-    const { loading, pageSize, rowRelationRowsData, listLoading } = this.state;
+  getRowRelationRowsData = (id, pageIndex) => {
+    const { rowRelationRowsData = {} } = this.state;
+    let index = pageIndex ? pageIndex : 1;
     this.setState({
       controlId: id,
+      listLoading: true,
     });
-    if (!loading || !listLoading) {
+    if (index <= 1) {
       this.setState({
         loading: true,
-        listLoading: true,
+        rowRelationRowsData: {
+          ...rowRelationRowsData,
+          rowsList: [],
+          count: 0,
+        },
       });
     }
     this.abortRequest(this.promiseRowRelationRows);
@@ -206,8 +212,8 @@ class WorksheetSahre extends React.Component {
       worksheetId: this.state.worksheetId,
       rowId: this.state.rowId,
       controlId: id,
-      pageIndex: rowRelationRowsData.pageIndex,
-      pageSize: 10000,
+      pageIndex: index,
+      pageSize: PAGESIZE,
       getWorksheet: true,
       shareId: this.state.shareId,
     });
@@ -215,20 +221,20 @@ class WorksheetSahre extends React.Component {
     this.promiseRowRelationRows.then(data => {
       if (data.resultCode !== 1) {
         this.setState({
-          loading: false,
           error: true,
           listLoading: false,
         });
       } else {
-        const { rowDetail = [] } = this.state;
+        const { rowDetail = [], rowRelationRowsData = {} } = this.state;
         this.setState({
           error: false,
+          pageIndex: index,
           rowRelationRowsData: {
-            ...this.state.rowRelationRowsData,
+            ...rowRelationRowsData,
             cardControls: data.template.controls.concat(SYSTEM_CONTROL),
             viewSet: rowDetail.find(o => o.controlId === id) || {},
-            pageIndex: 1,
-            rowsList: data.data, // rowRelationRowsData.rowsList.concat(data.data),
+            pageIndex: index,
+            rowsList: index <= 1 ? data.data : rowRelationRowsData.rowsList.concat(data.data),
             count: data.count,
             projectId: data.worksheet.projectId,
           },
@@ -260,7 +266,6 @@ class WorksheetSahre extends React.Component {
     );
     this.setState({
       rowId: rowId,
-      // rowRelationRowsData: this.state.rowRelationRowsData,
       rowDetail: getRowDetail,
       rowDetailStep2: getRowDetail,
     });
@@ -306,6 +311,7 @@ class WorksheetSahre extends React.Component {
     const data = {
       step: n,
       isFormDetail: !!isFormDetail,
+      pageIndex: 1,
       controlSort: {
         controlId: '',
         isAsc: 0,
@@ -543,6 +549,7 @@ class WorksheetSahre extends React.Component {
       publicqueryRes,
       isPublicquery,
       viewSet,
+      controlId,
     } = this.state;
     let { rowDetail } = this.state;
     const isListDetail = step === SHARE_TYPE.WORKSHEETDETAIL || step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL;
@@ -703,7 +710,7 @@ class WorksheetSahre extends React.Component {
               rowsList={step === SHARE_TYPE.WORKSHEETDNEXT ? rowRelationRowsData.rowsList : rowsList}
               setStep={this.setStep}
               step={step}
-              count={count}
+              count={step === SHARE_TYPE.WORKSHEETDNEXT ? rowRelationRowsData.count : count}
               shareId={shareId}
               setRowId={this.setRowId}
               sortList={this.sortList}
@@ -711,7 +718,9 @@ class WorksheetSahre extends React.Component {
               loading={listLoading}
               getRowRelationRowDetailData={this.getRowRelationRowDetailData}
               loadSheet={pageIndex => {
-                this.loadSheet(pageIndex, shareId);
+                SHARE_TYPE.WORKSHEET === step
+                  ? this.loadSheet(pageIndex, shareId)
+                  : this.getRowRelationRowsData(controlId, pageIndex);
               }}
               pageIndex={this.state.pageIndex}
               pageSize={this.state.pageSize}

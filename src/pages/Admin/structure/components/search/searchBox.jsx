@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Result from './searchResult';
 import { fetchSearchResult, clearSearchKeywords, getCustomList } from '../../actions/search';
-import { loadUsers, getFullTree, loadAllUsers } from '../../actions/entities';
+import { loadUsers, getFullTree, loadAllUsers, loadDepartments } from '../../actions/entities';
 import { updateCursor, updateTypeCursor, updateType } from '../../actions/current';
+import { throttle } from 'lodash';
 
 class SearchBox extends Component {
   constructor(props) {
@@ -15,18 +16,15 @@ class SearchBox extends Component {
     this.handleClear = this.handleClear.bind(this);
     this.state = {
       showResult: false,
+      searchValue: '',
     };
   }
 
-  handChange = value => {
+  handChange = throttle(value => {
     const { dispatch, projectId } = this.props;
     if (!value) {
       this.handleClear();
     } else {
-      if (this.ajaxObj && this.ajaxObj.state() === 'pending' && this.ajaxObj.abort) {
-        this.ajaxObj.abort();
-        this.ajaxObj = null;
-      }
       this.setState(
         {
           showResult: true,
@@ -37,28 +35,34 @@ class SearchBox extends Component {
         },
       );
     }
-  };
+  }, 400);
 
   handleClear = () => {
-    const { dispatch, departmentId, projectId } = this.props;
+    const { dispatch } = this.props;
     this.setState(
       {
         showResult: false,
+        searchValue: '',
       },
       () => {
         dispatch(clearSearchKeywords());
-        this.input.value = ''
-        // dispatch(loadAllUsers(projectId, 1));
-        // dispatch(loadUsers(departmentId));
+        const afterRequest = () => {
+          dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: '' });
+        };
+        dispatch(loadDepartments('', 1, afterRequest));
+        this.handleReset();
+        this.input.value = '';
       },
     );
   };
 
   handleFocus() {
+    $(this.box).addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
+    this.handleReset();
+  }
+
+  handleReset() {
     const { dispatch, departmentId, projectId } = this.props;
-    $(this.box)
-      .addClass('ThemeBorderColor3')
-      .removeClass('ThemeBorderColor8');
     if (!!departmentId) {
       dispatch(updateType(0)); //设置当前部门/职位tab
       dispatch(updateCursor('')); //设置当前选中部门
@@ -68,9 +72,7 @@ class SearchBox extends Component {
   }
 
   handleBlur() {
-    $(this.box)
-      .addClass('ThemeBorderColor8')
-      .removeClass('ThemeBorderColor3');
+    $(this.box).addClass('ThemeBorderColor8').removeClass('ThemeBorderColor3');
   }
 
   renderResult = () => {
@@ -101,10 +103,12 @@ class SearchBox extends Component {
             },
           );
         }}
-        onDepartmentClick={departmentId => {
+        onDepartmentClick={({ id: departmentId, name }) => {
+          this.input.value = name;
           this.setState(
             {
               showResult: false,
+              searchValue: name,
             },
             () => {
               dispatch(
@@ -112,6 +116,7 @@ class SearchBox extends Component {
                   departmentId,
                   collapseAll: true,
                   afterRequest() {
+                    dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: name });
                     dispatch(updateType(0));
                     dispatch(updateTypeCursor(0));
                     dispatch(updateCursor(departmentId)); //设置选中的部门
@@ -129,9 +134,9 @@ class SearchBox extends Component {
   };
 
   render() {
-    const { keywords } = this.props;
+    const { searchValue } = this.state;
     let clearBtn =
-      keywords !== '' ? (
+      searchValue !== '' ? (
         <span
           className="Font14 icon-closeelement-bg-circle Gray_c Hand Absolute"
           style={{
@@ -145,9 +150,14 @@ class SearchBox extends Component {
       <div className="searchContainer Relative" ref={box => (this.box = box)}>
         <span className="icon-search btnSearch ThemeColor9" title={_l('搜索')} />
         <input
-          defaultValue={keywords}
+          defaultValue={searchValue}
           ref={input => (this.input = input)}
           onChange={e => {
+            this.setState({ searchValue: e.target.value });
+            if (this.ajaxObj && this.ajaxObj.state() === 'pending' && this.ajaxObj.abort) {
+              this.ajaxObj.abort();
+              this.ajaxObj = null;
+            }
             this.handChange(e.target.value);
           }}
           onFocus={this.handleFocus}

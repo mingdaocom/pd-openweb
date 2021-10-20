@@ -468,7 +468,7 @@ Search.groupHtml = function (data, reg) {
   });
   return strHtml;
 };
-Search.removeHTMLTag = function(str) {
+Search.removeHTMLTag = function (str) {
   str = str.replace(/<\/?[^>]*>/g, ''); // 去除HTML tag
   str = str.replace(/[ | ]*\n/g, '\n'); // 去除行尾空白
   str = str.replace(/\n[\s| | ]*\r/g, '\n'); // 去除多余空行
@@ -569,11 +569,7 @@ Search.kcnodeHtml = function (data, reg) {
 };
 Search.doAdvancedSearch = function () {
   $('#divPager').hide();
-  var tempKeywords = $.trim(
-    $('#keywords')
-      .val()
-      .replace(/\<|\>|\*/g, ''),
-  );
+  var tempKeywords = $.trim(($('#keywords').val() || '').replace(/\<|\>|\*/g, ''));
   if (tempKeywords != _l('搜索关键字...') && tempKeywords.length > 0) {
     Search.options.keywords = tempKeywords;
     Search.options.pageIndex = 1;
@@ -730,7 +726,7 @@ Search.selectProject = function () {
     $(this).siblings('ul').toggle();
   });
   $(document).click(function (e) {
-    if (!(e.target === $('.projects')[0] || $.contains($('.projects')[0], e.target))) {
+    if (!(e.target === $('.projects')[0] || $.contains($('.projects')[0] || [], e.target))) {
       $('.projects ul').hide();
     }
   });

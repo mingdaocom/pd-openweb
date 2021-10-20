@@ -30,7 +30,8 @@ export default class SubProcess extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -128,29 +129,30 @@ export default class SubProcess extends Component {
           onChange={selectNodeId => this.getNodeDetail(this.props, { selectNodeId })}
         />
 
-        {_.includes([NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE], data.selectNodeObj.nodeTypeId) && (
-          <Fragment>
-            <div className="Font13 bold mTop20">{_l('多条数据执行方式')}</div>
-            <div className="Font13 Gray_9e mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
+        {_.isObject(data.selectNodeObj) &&
+          _.includes([NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE], data.selectNodeObj.nodeTypeId) && (
+            <Fragment>
+              <div className="Font13 bold mTop20">{_l('多条数据执行方式')}</div>
+              <div className="Font13 Gray_9e mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
 
-            {executeTypes.map((item, i) => {
-              return (
-                <div className="mTop15" key={i}>
-                  <Radio
-                    text={item.text}
-                    checked={data.executeType === item.value}
-                    onClick={() => this.updateSource({ executeType: item.value })}
-                  />
-                  <div className="mTop10 mLeft30 Gray_9e">{item.desc}</div>
-                </div>
-              );
-            })}
-          </Fragment>
-        )}
+              {executeTypes.map((item, i) => {
+                return (
+                  <div className="mTop15" key={i}>
+                    <Radio
+                      text={item.text}
+                      checked={data.executeType === item.value}
+                      onClick={() => this.updateSource({ executeType: item.value })}
+                    />
+                    <div className="mTop10 mLeft30 Gray_9e">{item.desc}</div>
+                  </div>
+                );
+              })}
+            </Fragment>
+          )}
 
         <div className="mTop20 relative">
           <span className="Font13 bold">{_l('执行子流程')}</span>
-          {!!data.processList.length && (
+          {!!(data.processList || []).length && (
             <Dropdown
               className="flowSubProcessDropdown"
               renderTitle={() => <span className="ThemeColor3">{_l('选择已有流程')}</span>}
@@ -190,7 +192,7 @@ export default class SubProcess extends Component {
             </div>
             <div className="mTop15">
               <Checkbox
-                className="InlineBlock"
+                className="InlineFlex"
                 text={_l('子流程执行完毕后，再开始下一个节点')}
                 checked={data.nextExecute}
                 onClick={checked => this.updateSource({ nextExecute: !checked })}

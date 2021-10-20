@@ -125,13 +125,13 @@ function getEmployeeChangeList(args) {
           "operateAccount": { //办理人
             "accountId": "0c7efa12-2a84-4fe5-a648-dff6cfff771b",
             "fullName": "\"\"##%=_|??<={??|!'cm",
-            "avatar": "https://pic.mingdao.com/UserAvatar/2f3df25d-59ce-4987-8f3d-9b5f487fd1fd.jpg?imageView2/1/w/40/h/40/q/90",
+            "avatar": "",
             "fullname": "\"\"##%=_|??<={??|!'cm"
             },
           "account": { //异动的账号
             "accountId": null,
             "fullName": null,
-            "avatar": "https://pic.mingdao.com/UserAvatar/null?imageView2/1/w/40/h/40/q/90",
+            "avatar": "",
             "fullname": null
             },
           "department": "",//部门

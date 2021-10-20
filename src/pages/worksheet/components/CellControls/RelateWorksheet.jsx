@@ -81,6 +81,7 @@ class RelateWorksheet extends Component {
             hideRecordInfo={() => {
               this.setState({ activeRecordId: undefined });
             }}
+            // projectId={projectId}
           />
         )}
         {content}

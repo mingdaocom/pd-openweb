@@ -119,7 +119,7 @@ $.extend(DialogSelectUser.prototype, {
         fixed: false,
         dialogBoxID: options.elementId,
         className: options.isMobile ? 'mobileSelectUser' : '',
-        width: 500,
+        width: 560,
         container: {
           header: options.title,
           yesText: null,
@@ -334,6 +334,11 @@ $.extend(DialogSelectUser.prototype, {
       };
       const departmentSettings = options.SelectDepartmentSettings;
       const groupSettings = options.SelectGroupSettings;
+      const project = _.find(md.global.Account.projects, { projectId: options.SelectUserSettings.projectId });
+      if (!project) {
+        commonSettings.projectId = '';
+        commonSettings.dataRange = 0;
+      }
       ReactDOM.render(
         <GeneralSelect
           chooseType={options.chooseType}

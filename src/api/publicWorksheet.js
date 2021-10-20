@@ -99,7 +99,8 @@ define(function (require, exports, module) {
     * @param {string} args.worksheetId 工作表id
     * @param {} args.getType 
     * @param {array} args.filterControls 查询列
-    * @param {array} args.fastFilters 
+    * @param {array} args.fastFilters 快速筛选
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {array} args.sortControls 排序列
     * @param {string} args.keyWords 关键词
     * @param {integer} args.pageSize 页大小
@@ -141,6 +142,7 @@ define(function (require, exports, module) {
     * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
     * @param {array} args.worksheetIds 批量工作表id
     * @param {boolean} args.handControlSource 是否处理关联的原始类型
+    * @param {boolean} args.getRules 是否需要验证规则
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -244,7 +246,8 @@ define(function (require, exports, module) {
     * @param {string} args.worksheetId 工作表id
     * @param {} args.getType 
     * @param {array} args.filterControls 查询列
-    * @param {array} args.fastFilters 
+    * @param {array} args.fastFilters 快速筛选
+    * @param {array} args.navGroupFilters 导航分组筛选
     * @param {array} args.sortControls 排序列
     * @param {string} args.keyWords 关键词
     * @param {integer} args.pageSize 页大小

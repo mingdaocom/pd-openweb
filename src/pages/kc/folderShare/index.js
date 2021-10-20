@@ -3,7 +3,7 @@ var css = require('./css/style.less');
 var shareajax = require('src/api/share');
 var qs = require('querystring');
 var doT = require('dot');
-var { convertImageView, addToken } = require('src/util');
+var { addToken } = require('src/util');
 var frameTpl = doT.template(require('./tpl/frame.html'));
 var fileItemTpl = doT.template(require('./tpl/fileItem.html'));
 var MobileSharePreview = require('../shareMobile/shareMobile');
@@ -11,7 +11,7 @@ var shareFolderAjax = require('src/api/shareFolder');
 var saveToKnowledge = require('src/components/saveToKnowledge/saveToKnowledge');
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 
-var ShareFolder = function(options) {
+var ShareFolder = function (options) {
   var SF = this;
   var DEFAULTS = {
     isMobile: browserIsMobile(),
@@ -53,7 +53,7 @@ var ShareFolder = function(options) {
 };
 
 ShareFolder.prototype = {
-  init: function() {
+  init: function () {
     var SF = this;
     this.renderFrame();
     if (this.sourceData.active) {
@@ -72,7 +72,7 @@ ShareFolder.prototype = {
               if (SF.options.isMobile) {
                 SF.preview();
               } else {
-                require.ensure([], function() {
+                require.ensure([], function () {
                   var previewAttachments = require('previewAttachments');
                   previewAttachments({
                     callFrom: 'kc',
@@ -95,9 +95,9 @@ ShareFolder.prototype = {
     }
     this.bindEvent();
   },
-  bindEvent: function() {
+  bindEvent: function () {
     var SF = this;
-    this.$container.on('click', '.fileItem', function() {
+    this.$container.on('click', '.fileItem', function () {
       var isFolder = $(this).data('type') == 1;
       var id = $(this).data('id');
       var index = parseInt($(this).data('index'), 10);
@@ -112,7 +112,7 @@ ShareFolder.prototype = {
           preview: node.id,
         });
       } else {
-        require.ensure([], function() {
+        require.ensure([], function () {
           var previewAttachments = require('previewAttachments');
           previewAttachments(
             {
@@ -127,7 +127,7 @@ ShareFolder.prototype = {
         });
       }
     });
-    $('.shareFolderCon .main').on('scroll', function(e) {
+    $('.shareFolderCon .main').on('scroll', function (e) {
       var conHeight = $(this).height();
       var scrollTop = $(this).scrollTop();
       var contentHeight = $('.shareFolderCon .main .fileList').height();
@@ -144,13 +144,13 @@ ShareFolder.prototype = {
         }
       }
     });
-    this.$container.find('.main').on('touchmove', function(e) {
+    this.$container.find('.main').on('touchmove', function (e) {
       if (SF.data.isTouching && SF.data.isLoadingMore) {
         var deltaY = Math.abs(e.touches[0].clientY - SF.data.startPos.y);
         $('.scaleBox').height((30 * deltaY) / 300);
       }
     });
-    this.$container.find('.main').on('touchstart', function(e) {
+    this.$container.find('.main').on('touchstart', function (e) {
       SF.data.isTouching = true;
       if (e.touches) {
         SF.data.startPos = {
@@ -159,17 +159,17 @@ ShareFolder.prototype = {
         };
       }
     });
-    this.$container.find('.main').on('touchend', function(e) {
+    this.$container.find('.main').on('touchend', function (e) {
       SF.data.isTouching = false;
       $('.scaleBox').animate({ height: 0 }, 'fast');
     });
-    this.$container.find('.btnLogin').on('click', function() {
+    this.$container.find('.btnLogin').on('click', function () {
       SF.login();
     });
-    this.$container.find('.saveToMingDao').on('click', function() {
+    this.$container.find('.saveToMingDao').on('click', function () {
       if (!md.global.Account || !md.global.Account.accountId) {
         SF.alert(_l('请先登录'));
-        setTimeout(function() {
+        setTimeout(function () {
           SF.login();
         }, 1000);
       } else {
@@ -178,7 +178,7 @@ ShareFolder.prototype = {
     });
     window.addEventListener(
       'hashchange',
-      function() {
+      function () {
         console.log(window.location.hash);
         var hashParams = SF.getHashParams();
         var id = hashParams.folderId;
@@ -200,14 +200,14 @@ ShareFolder.prototype = {
       false,
     );
     if (!SF.options.isMobile) {
-      this.$container.find('.download').on('click', function() {
+      this.$container.find('.download').on('click', function () {
         if (SF.rootNode.canDownload) {
-          window.open(addToken(SF.rootNode.downloadUrl + '&shareFolderId=' + SF.rootNode.id));
+          window.open(addToken(SF.rootNode.downloadUrl + '&shareFolderId=' + SF.rootNode.id, !window.isDingTalk));
         } else {
           alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
         }
       });
-      this.$container.find('.share').on('click', function() {
+      this.$container.find('.share').on('click', function () {
         if (!md.global.Account || !md.global.Account.accountId) {
           SF.handleLogin();
           return;
@@ -224,7 +224,9 @@ ShareFolder.prototype = {
           params.ext = '.' + attachment.ext;
           params.size = attachment.size;
           params.imgSrc = isPicture
-            ? convertImageView(attachment.previewUrl.substr(0, attachment.previewUrl.indexOf('?')), 2, 490)
+            ? attachment.previewUrl.indexOf('imageView2') > -1
+              ? attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/490')
+              : `${attachment.previewUrl}&imageView2/2/w/490`
             : undefined;
           params.node = attachment;
           share.default(params, {
@@ -236,7 +238,7 @@ ShareFolder.prototype = {
           });
         });
       });
-      this.$container.find('.saveToKc').on('click', function() {
+      this.$container.find('.saveToKc').on('click', function () {
         if (!md.global.Account || !md.global.Account.accountId) {
           SF.handleLogin();
           return;
@@ -245,35 +247,35 @@ ShareFolder.prototype = {
       });
     }
   },
-  preview: function() {
+  preview: function () {
     var SF = this;
     var hashParams = SF.getHashParams();
     SF.$previewCon = $('<div id="previewCon"></div>');
     $('body').append(SF.$previewCon);
     SF.$container.hide();
     new MobileSharePreview({
-      node: SF.data.list.filter(function(node) {
+      node: SF.data.list.filter(function (node) {
         return node.id === hashParams.preview;
       })[0],
       container: '#previewCon',
       shareFolderId: SF.rootNode.id,
     });
   },
-  loadMoreNodes: function() {
+  loadMoreNodes: function () {
     var SF = this;
     var page = SF.data.page;
     var currentId = this.data.currentFolderId;
     page++;
     SF.data.isLoadingMore = true;
     SF.getNodes(currentId, page, 20)
-      .then(function(data) {
+      .then(function (data) {
         SF.$container.find('#loadingCon').remove;
         SF.data.list = SF.data.list.concat(data.list);
         SF.renderList(SF.data.list);
         SF.data.isLoadingMore = false;
         SF.data.page = page;
       })
-      .fail(function() {});
+      .fail(function () {});
   },
   renderFrame() {
     var SF = this;
@@ -285,7 +287,7 @@ ShareFolder.prototype = {
     );
     this.$fileList = this.$container.find('.fileList');
   },
-  renderList: function(nodes) {
+  renderList: function (nodes) {
     var SF = this;
     if (nodes.length) {
       SF.$fileList.html(SF.getListHtml(nodes));
@@ -293,7 +295,7 @@ ShareFolder.prototype = {
       SF.renderStatus('empty');
     }
   },
-  renderPath: function(pathArray) {
+  renderPath: function (pathArray) {
     var SF = this;
     pathArray.unshift({
       pathNodeId: '',
@@ -312,7 +314,7 @@ ShareFolder.prototype = {
     }
     function getPathWidth() {
       return _.sum(
-        $path.map(function(index, ele) {
+        $path.map(function (index, ele) {
           return $(ele).width();
         }),
       );
@@ -320,7 +322,7 @@ ShareFolder.prototype = {
     function render(pathArray, cut) {
       $path = $(
         _.compact(
-          pathArray.map(function(path, index) {
+          pathArray.map(function (path, index) {
             if (cut && index === 1) {
               return '<span class="ellipsis">...</span>';
             }
@@ -334,9 +336,9 @@ ShareFolder.prototype = {
       SF.$container.find('.path').html($path);
     }
   },
-  getListHtml: function(nodes) {
+  getListHtml: function (nodes) {
     return nodes
-      .map(function(node, index) {
+      .map(function (node, index) {
         return fileItemTpl({
           index: index.toString(),
           isPicture: File.isPicture('.' + node.ext),
@@ -346,19 +348,19 @@ ShareFolder.prototype = {
       })
       .join('');
   },
-  openFolder: function(id) {
+  openFolder: function (id) {
     var SF = this;
     this.data.currentFolderId = id;
     SF.globalLoading();
     SF.getNodes(id, 0, 20)
-      .then(function(data) {
+      .then(function (data) {
         SF.data.list = data.list;
         SF.renderList(SF.data.list);
         SF.renderPath(data.position);
       })
-      .fail(function() {});
+      .fail(function () {});
   },
-  getNodes: function(id, page, pageNum) {
+  getNodes: function (id, page, pageNum) {
     var SF = this;
     return shareFolderAjax
       .getNodesByShareFolderId({
@@ -368,12 +370,12 @@ ShareFolder.prototype = {
         skip: page * pageNum,
         limit: pageNum,
       })
-      .then(function(data) {
+      .then(function (data) {
         SF.data.listCount = data.totalCount;
         return data;
       });
   },
-  globalLoading: function() {
+  globalLoading: function () {
     var SF = this;
     if (SF.$globalLoading) {
       SF.$globalLoading.remove();
@@ -381,7 +383,7 @@ ShareFolder.prototype = {
     SF.$globalLoading = $('<div class="globalLoading">' + LoadDiv() + '</div>');
     SF.$fileList.append(SF.$globalLoading);
   },
-  renderStatus: function(status) {
+  renderStatus: function (status) {
     var SF = this;
     SF.$container.find('.footer').hide();
     SF.$fileList.html(
@@ -403,10 +405,10 @@ ShareFolder.prototype = {
     window.location =
       window.location.origin + window.location.pathname + window.location.search + '#' + qs.stringify(data);
   },
-  getHashParams: function() {
+  getHashParams: function () {
     return Object.assign(qs.parse(window.location.hash.slice(1)));
   },
-  saveToKnowledge: function() {
+  saveToKnowledge: function () {
     var SF = this;
     var sourceData = {};
     var kcPath = {
@@ -422,12 +424,12 @@ ShareFolder.prototype = {
       createShare: !SF.options.isMobile,
     })
       .save(kcPath)
-      .then(function(message) {
+      .then(function (message) {
         if (SF.options.isMobile) {
           SF.alert(message || _l('已存入 知识“我的文件” 中'));
         }
       })
-      .fail(function(message) {
+      .fail(function (message) {
         SF.alert(message || _l('保存失败'));
       });
   },
@@ -462,7 +464,7 @@ ShareFolder.prototype = {
       window.location = '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href);
     }
   },
-  alert: function(str, time) {
+  alert: function (str, time) {
     var SF = this;
     if (!SF.options.isMobile) {
       alert(str);
@@ -474,7 +476,7 @@ ShareFolder.prototype = {
     }
     SF.$alert = $('<div class="mobileAlertDialog" ><div class="alertDialog">' + str + '</div></div>');
     $('body').append(SF.$alert);
-    SF.alertTimer = setTimeout(function() {
+    SF.alertTimer = setTimeout(function () {
       SF.$alert.remove();
     }, time || 3000);
   },

@@ -71,6 +71,7 @@ function View(props) {
     'viewId',
     'openNewRecord',
     'setViewConfigVisible',
+    'groupFilterWidth'
   ]);
 
   const Component = TYPE_TO_COMP[String(view.viewType)];

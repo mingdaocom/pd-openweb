@@ -47,8 +47,8 @@ const UNNECESSARY_OPERATION = {
 };
 
 const START_TYPE_TEXT = {
-  '1': _l('新增记录'),
-  '2': _l('新增或更新记录'),
+  1: _l('新增记录'),
+  2: _l('新增或更新记录'),
 };
 
 /**
@@ -80,7 +80,7 @@ export default class StepItem extends Component {
    */
   renderDetail = item => {
     let { data, currentWork } = this.props;
-    let { workId, flowNode = {} } = data;
+    let { workId, flowNode = {} } = data || {};
     const { type, workItemAccount, operationTime, opinion, workItemLog, viewTime, signature } = item;
     /** 是否是当前用户 */
     let isCurrentUser = md.global.Account.accountId === workItemAccount.accountId;
@@ -261,7 +261,7 @@ export default class StepItem extends Component {
 
   render() {
     const { data, currentWork, currentType } = this.props;
-    const { workId, flowNode, workItems, countersign, countersignType } = data;
+    const { workId, flowNode, workItems, countersign, countersignType } = data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork = workId === currentWork.workId;
 

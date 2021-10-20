@@ -11,7 +11,7 @@ import RelateScanQRCode from 'src/components/newCustomFields/components/RelateSc
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
@@ -291,7 +291,9 @@ export default class RelateRecordCards extends Component {
                 controls={this.controls}
                 data={record}
                 cover={this.getCoverUrl(coverCid, record)}
-                title={record.rowid ? getTitleTextFromControls(controls, record) : _l('关联当前%0', sourceEntityName)}
+                title={
+                  record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)
+                }
                 onClick={
                   disabled && !recordId
                     ? () => {}
@@ -323,7 +325,7 @@ export default class RelateRecordCards extends Component {
           <RecordTag
             key={i}
             disabled={disabled}
-            title={record.rowid ? getTitleTextFromControls(controls, record) : _l('关联当前%0', sourceEntityName)}
+            title={record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)}
             onClick={
               disabled && !recordId
                 ? () => {}

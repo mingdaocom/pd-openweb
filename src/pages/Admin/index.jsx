@@ -9,6 +9,7 @@ import Empty from './common/TableEmpty';
 import { menuList, permissionObj } from './router.config.js';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'router/navigateTo';
+import _ from 'lodash';
 
 const getComponent = component =>
   Loadable({
@@ -71,7 +72,7 @@ export default class AdminEntryPoint extends PureComponent {
         this.setState({ isLoading: false, authority, routeKeys: this.getRouterKeys(authority) });
       },
       authority => {
-        this.setState({ isLoading: false, authority });
+        this.setState({ isLoading: false, authority: _.isArray(authority) ? authority : [] });
       },
     );
   }
@@ -133,12 +134,13 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   getCurrentAuth(routeKeys = []) {
-    const currentItem = routeKeys.filter(item => location.href.toLocaleLowerCase().includes(item.toLocaleLowerCase())) || []
-    return !currentItem.length
+    const currentItem =
+      routeKeys.filter(item => location.href.toLocaleLowerCase().includes(item.toLocaleLowerCase())) || [];
+    return !currentItem.length;
   }
 
   render() {
-    const { authority, isLoading, routeKeys } = this.state;
+    const { authority = [], isLoading, routeKeys } = this.state;
     if (isLoading) {
       return <LoadDiv className="mTop10" />;
     }
@@ -153,7 +155,7 @@ export default class AdminEntryPoint extends PureComponent {
     } else if (location.href.indexOf('admin/index') > -1) {
       navigateTo('/admin/home/' + Config.projectId);
     } else if (this.getCurrentAuth(routeKeys) && !location.href.includes('admin/apply')) {
-      navigateTo('/admin/' + routeKeys[0] + '/' + Config.projectId)
+      navigateTo('/admin/' + routeKeys[0] + '/' + Config.projectId);
     } else {
       return this.renderRoutes();
     }

@@ -11,7 +11,7 @@ import {
   redefineComplexControl,
 } from 'worksheet/common/WorkSheetFilter/util';
 import './SingleFilter.less';
-import { formatCondition, getArrBySpliceType } from '../config';
+import { formatCondition, getArrBySpliceType, isRelateMoreList } from '../config';
 export default class SingleFilter extends Component {
   static propTypes = {
     projectId: PropTypes.string,
@@ -49,7 +49,12 @@ export default class SingleFilter extends Component {
   addCondition(control, parentIndex) {
     const { transConditions = [] } = this.state;
     const isItemAdd = parentIndex > -1;
-    const newControl = [{ ...getDefaultCondition(control), spliceType: isItemAdd ? 2 : 1, isDynamicsource: false }];
+    //关联多条手动选中条件为空，避免初始值导致显示字段删除字样
+    let defaultControl = getDefaultCondition(control);
+    if (isRelateMoreList(control, defaultControl)) {
+      defaultControl.type = 7;
+    }
+    const newControl = [{ ...defaultControl, spliceType: isItemAdd ? 2 : 1, isDynamicsource: false }];
     let newCondition = isItemAdd
       ? transConditions.map((it, idx) => {
           return idx === parentIndex
@@ -132,7 +137,11 @@ export default class SingleFilter extends Component {
     return transConditions.map((itemConditions = [], index) => {
       let conditionItemArr = (formatOriginFilterValue({ items: itemConditions }) || {}).conditions;
       return conditionItemArr.map((condition, childIndex) => {
-        const control = _.find(this.conditionsData, column => condition.controlId === column.controlId) || {};
+        let control = _.find(this.conditionsData, column => condition.controlId === column.controlId) || {};
+        // //转换成关联多条列表，按删除处理
+        if (isRelateMoreList(control, condition)) {
+          control = {};
+        }
         const conditionGroupKey = control && getTypeKey(control.type);
         const conditionGroupType = conditionGroupKey && CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
         const currentColumnsFilter = this.conditionsData.filter(item => item.controlId !== condition.controlId);

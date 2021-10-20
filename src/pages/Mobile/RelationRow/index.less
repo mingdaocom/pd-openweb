@@ -1,20 +1,7 @@
 
 .sheetRelationRow {
   background-color: #f8f8f8;
-  .am-list-header, .am-list-footer {
-    padding: 5px;
-  }
-  .am-list-body {
-    overflow-x: hidden;
-    background-color: transparent;
-    &:before, &:after {
-      content: none !important;
-    }
-  }
-  .am-list {
-    width: 100%;
-  }
-  .editRowWrapper {
+  &.editRowWrapper {
     .worksheetRecordCard {
       border-color: rgba(0, 0, 0, 0.2);
     }
@@ -32,25 +19,6 @@
     }
     .titleText {
       width: 300px;
-    }
-  }
-  .am-button {
-    height: 36px;
-    line-height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &, &::before, &-active::before {
-      font-size: 14px;
-      border-radius: 50px !important;
-    }
-  }
-  .addWrapper {
-    height: 50px;
-    border-top: 1px solid #f5f5f5;
-    background-color: #fff;
-    a {
-      text-decoration: none;
     }
   }
   .withoutRowsWrapper {

@@ -183,7 +183,7 @@ const OptionItem = SortableElement(
                       addOption();
                     }
                   }}
-                  onChange={e => updateOption(index, { value: e.target.value })}
+                  onChange={e => updateOption(index, { value: e.target.value.trim() })}
                 />
               </div>
               {mode !== 'list' && (
@@ -258,15 +258,6 @@ export default function SelectOptions(props) {
       return;
     }
     const nextCheckedValue = checkedValue.includes(key) ? pull(checkedValue, key) : checkedValue.concat(key);
-    const { max, min } = getAdvanceSetting(data);
-    if (max && nextCheckedValue.length > +max) {
-      alert(_l('默认选中数量不能大于配置的最大数量'));
-      return;
-    }
-    if (min && nextCheckedValue.length < +min) {
-      alert(_l('默认选中数量不能小于配置的最小数量'));
-      return;
-    }
     onChange({ default: JSON.stringify(nextCheckedValue) });
   };
 

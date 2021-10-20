@@ -21,7 +21,7 @@ export default class extends Component {
   }
   filterArea = () => {
     const { xaxes, controls } = this.props;
-    const { type } = _.find(controls, { controlId: xaxes.controlId }) || _.object();
+    const { type } = _.find(controls, { controlId: xaxes.controlId }) || {};
     // 全国
     if (type === 19) {
       return area.filter(item => ![2, 3].includes(item.value));

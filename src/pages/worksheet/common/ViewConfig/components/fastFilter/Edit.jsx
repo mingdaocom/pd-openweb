@@ -206,12 +206,12 @@ function Edit(params) {
       };
     });
     setDatas(controlsFilter);
-    let dd = worksheetControls.find(item => item.controlId === activeFastFilterId);
+    let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId);
     if (!controlNew) {
       controlNew = {
         ...getSetDefault(dd),
-        isErr: !dd,
+        isErr: !dd.controlName,
         controlName: dd.controlName,
         type: dd.type,
         sourceControl: dd.sourceControl,
@@ -380,7 +380,7 @@ function Edit(params) {
         fastFilters,
         advancedSetting:
           fastFilters.length > 0
-            ? advancedSetting
+            ? view.advancedSetting
             : {
                 ...advancedSetting,
                 clicksearch: '0', //

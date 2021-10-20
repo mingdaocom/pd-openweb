@@ -37,7 +37,8 @@ export default class Notice extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -187,7 +188,7 @@ export default class Notice extends Component {
         </div>
 
         <Checkbox
-          className="mTop20 bold"
+          className="mTop20 bold flexRow"
           text={_l('同时发送记录')}
           checked={data.isSendRecord}
           onClick={checked => this.updateSource({ isSendRecord: !checked })}
@@ -303,7 +304,7 @@ export default class Notice extends Component {
         </div>
         <DetailFooter
           isCorrect={
-            !!data.sendContent.trim() &&
+            !!(data.sendContent || '').trim() &&
             !!data.accounts.length &&
             (!data.isSendRecord || (data.isSendRecord && data.selectNodeId))
           }

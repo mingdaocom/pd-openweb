@@ -46,7 +46,7 @@ export default class extends Component {
     this.DualAxes.render();
   }
   componentWillUnmount() {
-    this.DualAxes.destroy();
+    this.DualAxes && this.DualAxes.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { map, displaySetup, rightY } = nextProps.reportData;
@@ -191,9 +191,9 @@ export default class extends Component {
       label: displaySetup.showNumber
         ? {
             layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
-            content: ({ rightValue, groupName }) => {
+            content: ({ rightValue, value, groupName }) => {
               const { id } = formatControlInfo(groupName);
-              return formatrChartValue(rightValue, false, newRightYaxisList);
+              return formatrChartValue(rightValue || value, false, rightValue ? newRightYaxisList : newYaxisList);
             },
           }
         : false,
@@ -212,8 +212,8 @@ export default class extends Component {
       yField: ['value', 'rightValue'],
       yAxis: {
         value: {
-          min: ydisplay.minValue || null,
-          max: ydisplay.maxValue || null,
+          min: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
+          max: _.isNumber(ydisplay.maxValue) ? ydisplay.maxValue : null,
           title:
             ydisplay.showTitle && ydisplay.title
               ? {
@@ -239,8 +239,8 @@ export default class extends Component {
         },
         rightValue: {
           // min: rightMinValue > 0 ? 0 : rightMinValue,
-          min: rightYDisplay.minValue || null,
-          max: rightYDisplay.maxValue || null,
+          min: _.isNumber(rightYDisplay.minValue) ? rightYDisplay.minValue : null,
+          max: _.isNumber(rightYDisplay.maxValue) ? rightYDisplay.maxValue : null,
           title:
             rightYDisplay.showTitle && rightYDisplay.title
               ? {
@@ -266,7 +266,7 @@ export default class extends Component {
       meta: {
         name: {
           type: 'cat',
-          ...(sortLineXAxis.length ? { values: sortLineXAxis } : _.object()),
+          ...(sortLineXAxis.length ? { values: sortLineXAxis } : {}),
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -309,7 +309,7 @@ export default class extends Component {
               },
             }
           : null,
-        line: ydisplay.lineStyle === 1 ? _.object() : null,
+        line: ydisplay.lineStyle === 1 ? {} : null,
       },
       legend: displaySetup.showLegend
         ? {
@@ -324,7 +324,7 @@ export default class extends Component {
       baseConfig.geometryOptions = [columnConfig, lineConfig];
     }
     if (yreportType === reportTypes.LineChart) {
-      baseConfig.geometryOptions = [Object.assign(_.object(), lineConfig, { color: colors }), lineConfig];
+      baseConfig.geometryOptions = [Object.assign({}, lineConfig, { color: colors }), lineConfig];
     }
 
     return baseConfig;

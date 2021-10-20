@@ -1,7 +1,7 @@
 import React from 'react';
 import { string } from 'prop-types';
 import OtherField from './OtherField';
-import { OtherFieldList, UserInfo, RelateControl } from '../styled';
+import { OtherFieldList, FieldInfo, RelateControl } from '../styled';
 import { getDateType, getControlType } from '../util';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 
@@ -32,7 +32,7 @@ const parseValue = value => {
   }
   return value;
 };
-export default ({ dynamicValue = [], onClick, data, removePerson, removeRelateSheet, titleControl, ...rest }) => (
+export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateSheet, titleControl, ...rest }) => (
   <OtherFieldList isHaveField={isOnlySelect(dynamicValue, data)} onClick={onClick}>
     {dynamicValue.map(item => {
       if (item.staticValue) {
@@ -42,22 +42,40 @@ export default ({ dynamicValue = [], onClick, data, removePerson, removeRelateSh
           if (type === 'user') {
             const { accountId, fullname, avatar, name } = value;
             return (
-              <UserInfo key={accountId}>
+              <FieldInfo key={accountId}>
                 <img
                   className="avatar"
-                  src={_.includes(avatar, 'UserAvatar') ? avatar : `https://pic.mingdao.com/UserAvatar/${avatar}`}
+                  src={_.includes(avatar, 'UserAvatar') ? avatar : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`}
                 />
-                <div className="fullName">{fullname || name}</div>
+                <div className="name">{fullname || name}</div>
                 <div
-                  className="removePerson"
+                  className="remove"
                   onClick={e => {
                     e.stopPropagation();
-                    removePerson(accountId);
-                  }}
-                >
+                    removeItem(accountId);
+                  }}>
                   <i className="icon-close" />
                 </div>
-              </UserInfo>
+              </FieldInfo>
+            );
+          }
+          if (type === 'department') {
+            const { departmentName, departmentId } = value;
+            return (
+              <FieldInfo key={departmentId}>
+                <div className="departWrap">
+                  <i className="icon-department1"></i>
+                </div>
+                <div className="name">{departmentName}</div>
+                <div
+                  className="remove"
+                  onClick={e => {
+                    e.stopPropagation();
+                    removeItem(departmentId);
+                  }}>
+                  <i className="icon-close" />
+                </div>
+              </FieldInfo>
             );
           }
           if (type === 'date') {
@@ -106,8 +124,7 @@ export default ({ dynamicValue = [], onClick, data, removePerson, removeRelateSh
                       onClick={e => {
                         e.stopPropagation();
                         removeRelateSheet();
-                      }}
-                    ></i>
+                      }}></i>
                   </RelateControl>
                 );
               });
@@ -121,8 +138,7 @@ export default ({ dynamicValue = [], onClick, data, removePerson, removeRelateSh
                   onClick={e => {
                     e.stopPropagation();
                     removeRelateSheet();
-                  }}
-                ></i>
+                  }}></i>
               </RelateControl>
             );
           }

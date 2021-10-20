@@ -15,14 +15,21 @@ const DISPLAY_OPTIONS = [
 
 export default function Text(props) {
   const { data, onChange } = props;
+  const { type, controlId } = data;
   return (
     <Fragment>
       <SettingItem>
         <RadioGroup
           size="middle"
-          checkedValue={data.type}
+          checkedValue={type}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ type: value })}
+          onChange={value => {
+            if (controlId.includes('-')) {
+              onChange({ type: value, controlName: DISPLAY_OPTIONS.find(item => item.value === value).text });
+              return;
+            }
+            onChange({ type: value });
+          }}
         />
       </SettingItem>
     </Fragment>

@@ -27,11 +27,12 @@ export default function Board(props) {
     updateTitleData,
     ...rest
   } = props;
-  const [{ pageIndex, loading, createRecordVisible, addRecordDefaultValue }, setState] = useSetState({
+  const [{ pageIndex, loading, createRecordVisible, addRecordDefaultValue, isMore }, setState] = useSetState({
     pageIndex: 1,
     createRecordVisible: false,
     addRecordDefaultValue: '',
     loading: false,
+    isMore: true,
   });
   const $contentRef = useRef(null);
 
@@ -97,7 +98,7 @@ export default function Board(props) {
   });
 
   const scrollLoad = (e, o) => {
-    if (o.maximum - o.position <= 100 && list.rows.length < list.totalNum) {
+    if (!loading && o.maximum - o.position <= 100 && isMore && list.rows.length < list.totalNum) {
       setState(state => {
         const { pageIndex } = state;
         const nextPageIndex = pageIndex + 1;
@@ -109,6 +110,9 @@ export default function Board(props) {
           alwaysCallback: () => {
             pendingFlag.current = false;
             setState({ loading: false });
+          },
+          checkIsMore: isMore => {
+            setState({ isMore });
           },
         });
         return { ...state, pageIndex: nextPageIndex, loading: true };

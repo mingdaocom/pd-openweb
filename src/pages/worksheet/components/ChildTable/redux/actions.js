@@ -9,6 +9,7 @@ export const initRows = rows => ({ type: 'INIT_ROWS', rows });
 export const resetRows = () => {
   return (dispatch, getState) => {
     dispatch(initRows(getState().originRows));
+    return Promise.resolve();
   };
 };
 
@@ -20,7 +21,30 @@ export const clearAndSetRows = rows => {
 
 export const setOriginRows = rows => ({ type: 'LOAD_ROWS', rows });
 
-export const loadRows = ({ worksheetId, recordId, controlId, pageIndex = 1, getWorksheet, callback = () => {} }) => {
+export const addRow = (row, insertRowId) => ({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
+
+export const deleteRow = rowid => ({ type: 'DELETE_ROW', rowid });
+
+export const updateRow = ({ rowid, value }) => {
+  return dispatch => {
+    dispatch({
+      type: 'UPDATE_ROW',
+      rowid,
+      value: { ...value, empty: false },
+    });
+    return Promise.resolve();
+  };
+};
+
+export const loadRows = ({
+  worksheetId,
+  recordId,
+  isCustomButtonFillRecord,
+  controlId,
+  pageIndex = 1,
+  getWorksheet,
+  callback = () => {},
+}) => {
   const isRecordShare = /\/worksheetshare/.test(location.pathname);
   const isUpdateRecordShare = /\/recordshare/.test(location.pathname);
   const isPublicQuery = /\/public\/query/.test(location.pathname);
@@ -46,20 +70,13 @@ export const loadRows = ({ worksheetId, recordId, controlId, pageIndex = 1, getW
       const rows = res.data.map((row, i) => ({ ...row, allowedit: true, addTime: i }));
       dispatch({ type: 'LOAD_ROWS', rows });
       dispatch(initRows(rows));
+      if (isCustomButtonFillRecord && rows.length) {
+        dispatch(updateRow(rows[0].rowid, rows[0]));
+      }
       callback(res);
     });
   };
 };
-
-export const addRow = (row, insertRowId) => ({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
-
-export const deleteRow = rowid => ({ type: 'DELETE_ROW', rowid });
-
-export const updateRow = ({ rowid, value }) => ({
-  type: 'UPDATE_ROW',
-  rowid,
-  value: { ...value, empty: false },
-});
 
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {

@@ -29,7 +29,7 @@ export default class FontSize extends Component {
   render() {
     const { currentReport } = this.props;
     const { style } = currentReport;
-    const { fontSize } = style || _.object();
+    const { fontSize } = style || {};
     return (
       <div className="mBottom16">
         <div className="chartTypeSelect flexRow valignWrapper">

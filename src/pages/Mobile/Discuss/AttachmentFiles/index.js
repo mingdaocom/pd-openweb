@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { Flex, Toast } from 'antd-mobile';
 import { Icon, Progress } from 'ming-ui';
-import { getToken2, getRandStr, getHashCode } from 'src/components/UploadFiles/utils';
 import './index.less';
-import { getRandomString, convertImageView, getClassNameByExt } from 'src/util';
+import { getRandomString, getClassNameByExt, getToken } from 'src/util';
 
 const formatResponseData = (file, response) => {
   const item = {};
   const data = JSON.parse(response);
   item.fileID = file.id;
   item.fileSize = file.size || 0;
+  item.url = file.url;
   item.serverName = data.serverName;
   item.filePath = data.filePath;
   item.fileName = data.fileName;
@@ -36,11 +36,7 @@ export class UploadFileWrapper extends Component {
     this.id = `uploadFiles-${getRandomString()}`;
   }
   componentDidMount() {
-    getToken2({
-      isPublic: /.*\/form\/\w{32}/.test(location.pathname) || /.*\/recordshare\/\w{24}/.test(location.pathname),
-    }).then(result => {
-      this.uploadFile(result);
-    });
+    this.uploadFile();
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.files.length !== this.props.files.length) {
@@ -49,7 +45,7 @@ export class UploadFileWrapper extends Component {
       });
     }
   }
-  uploadFile({ doc, pic }) {
+  uploadFile() {
     const self = this;
     const method = {
       FilesAdded(uploader, files) {
@@ -61,6 +57,7 @@ export class UploadFileWrapper extends Component {
         }
 
         self.uploading = true;
+        const tokenFiles = [];
         files
           .filter(item => item.name || item.type)
           .forEach(item => {
@@ -79,29 +76,34 @@ export class UploadFileWrapper extends Component {
             self.setState({
               files: newFiles,
             });
+            tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
             self.props.onChange(newFiles);
           });
-        uploader.start();
+        getToken(tokenFiles).then(res => {
+          files.forEach((item, i) => {
+            item.token = res[i].uptoken;
+            item.key = res[i].key;
+            item.serverName = res[i].serverName;
+            item.fileName = res[i].fileName;
+            item.url = res[i].url;
+          });
+
+          uploader.start();
+        });
       },
       BeforeUpload(uploader, file) {
         self.currentFile = uploader;
         const fileExt = `.${File.GetExt(file.name)}`;
-        const isPic = File.isPicture(fileExt);
-        const { token, serverName } = isPic ? pic : doc;
-        const date = new Date();
-        const filePathArr = [];
-        const newFilename = getRandStr(15) + '_' + Math.abs(getHashCode(file.name) + getHashCode(date));
+
+        // token
         uploader.settings.multipart_params = {
-          token,
+          token: file.token,
         };
-        filePathArr.push((isPic ? 'pic' : 'doc') + '/');
-        filePathArr.push(moment(date).format('YYYYMM') + '/');
-        filePathArr.push(isPic ? moment(date).format('DD') + '/' : '');
-        const filePath = filePathArr.join('');
-        uploader.settings.multipart_params.key = filePath + newFilename + fileExt;
-        uploader.settings.multipart_params['x:serverName'] = serverName;
-        uploader.settings.multipart_params['x:filePath'] = filePath;
-        uploader.settings.multipart_params['x:fileName'] = newFilename;
+
+        uploader.settings.multipart_params.key = file.key;
+        uploader.settings.multipart_params['x:serverName'] = file.serverName;
+        uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+        uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
         uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
           file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
         );
@@ -144,18 +146,32 @@ export class UploadFileWrapper extends Component {
           Toast.info('附件总大小超过 ' + utils.formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) + '，请您分批次上传');
         }
       },
+      Init() {
+        const ele = self.uploadContainer && self.uploadContainer.querySelector('input');
+        const { inputType, disabledGallery } = self.props;
+        const accept = { 1: 'image/*', 2: 'video/*', 3: 'image/*,video/*' };
+        if (ele && inputType) {
+          ele.setAttribute('accept', accept[inputType]);
+          if (disabledGallery) {
+            ele.setAttribute('capture', 'camera');
+          }
+        } else {
+          ele.setAttribute('accept', 'image/*');
+        }
+      },
     };
     $(this.uploadFileEl).plupload({
       url: md.global.FileStoreConfig.uploadHost,
       file_data_name: 'file',
       multi_selection: true,
       method,
+      autoUpload: false,
     });
   }
   render() {
     const { children, className } = this.props;
     return (
-      <div className="Relative">
+      <div className="Relative" ref={el => (this.uploadContainer = el)}>
         <span ref={el => (this.uploadFileEl = el)} id={this.id} className={className}>
           {children}
         </span>
@@ -191,7 +207,7 @@ export default class AttachmentList extends Component {
           : attachments.map(item => {
               return {
                 name: `${item.originalFileName || _l('未命名')}${item.fileExt}`,
-                path: `${item.serverName}${item.key}`,
+                path: `${item.previewUrl || item.url}`,
                 previewAttachmentType: 'QINIU',
                 size: item.fileSize,
                 fileid: item.fileID,
@@ -205,14 +221,12 @@ export default class AttachmentList extends Component {
   }
   renderImage(item, index) {
     const isKc = item.refId ? true : false;
+    const path = item.previewUrl || item.url;
     const url = isKc
       ? `${item.middlePath + item.middleName}`
-      : convertImageView(
-          `${item.previewUrl || `${item.serverName}${item.key}?imageMogr2/auto-orient`}`,
-          1,
-          200,
-          140,
-        );
+      : path.indexOf('imageView2') > -1
+      ? path.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+      : `${path}&imageView2/1/w/200/h/140`;
     return (
       <Flex
         key={item.fileID}

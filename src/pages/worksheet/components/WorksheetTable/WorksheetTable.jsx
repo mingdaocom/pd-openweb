@@ -5,8 +5,12 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import { MDTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { controlIsNumber } from 'worksheet/util';
+import { controlIsNumber, checkRulesErrorOfRowControl } from 'worksheet/util';
+import { getControlRules } from 'src/api/worksheet';
+import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { getAdvanceSetting } from 'src/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import store from 'redux/configureStore';
 import { NoSearch, NoRecords, MDCell } from './components';
 
@@ -64,6 +68,7 @@ export default class WorksheetTable extends PureComponent {
     fromModule: WORKSHEETTABLE_FROM_MODULE.APP,
     fixedColumnCount: 0,
     rowHeight: 36,
+    controls: [],
     data: [],
     cellStyle: {},
     cellErrors: {},
@@ -75,12 +80,126 @@ export default class WorksheetTable extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      rulesLoading: !props.rules,
+      rules: props.rules && props.rules.length ? props.rules : [],
       editingControls: props.editingControls || {},
       sheetColumnWidths: props.sheetColumnWidths || {},
     };
     this.scrollbarWidth = getScrollBarWidth() + 1;
     this.columns = this.getColumns(props);
     this.updatedRows = {};
+    this.recordsFieldPermissionOfRules = {};
+  }
+
+  componentDidMount() {
+    if (this.state.rulesLoading) {
+      this.loadRules();
+    } else if (this.state.rules.length) {
+      this.initControlState();
+    }
+  }
+
+  loadRules() {
+    const { worksheetId } = this.props;
+    getControlRules({
+      type: 1,
+      worksheetId,
+    }).then(data => {
+      if (data.length) {
+        this.setState(
+          {
+            rules: data,
+            rulesLoading: false,
+          },
+          this.initControlState,
+        );
+      } else {
+        this.setState({
+          rulesLoading: false,
+        });
+      }
+    });
+  }
+
+  updateControlByRulesOfRow(row, controls, rules) {
+    const formData = updateRulesData({ rules, data: controls.map(c => ({ ...c, value: row[c.controlId] })) });
+    const rowControlStates = {};
+    formData.forEach((item, index) => {
+      if (item.fieldPermission && item.fieldPermission !== '111') {
+        rowControlStates[index] = item.fieldPermission;
+      }
+    });
+    return rowControlStates;
+  }
+
+  @autobind
+  initControlState() {
+    try {
+      const recordsFieldPermissionOfRules = {};
+      const { isSubList, columns, controls } = this.props;
+      const { rules } = this.state;
+      const rows = this.data;
+      rows.forEach(row => {
+        const rowControlStates = this.updateControlByRulesOfRow(row, isSubList ? columns : controls, rules);
+        if (!_.isEmpty(rowControlStates)) {
+          recordsFieldPermissionOfRules[row.rowid] = rowControlStates;
+        }
+      });
+      this.recordsFieldPermissionOfRules = recordsFieldPermissionOfRules;
+      this.mdtable.current.forceUpdate();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @autobind
+  checkRulesErrorOfControl(control, row) {
+    const { controls } = this.props;
+    const { rules } = this.state;
+    return checkRulesErrorOfRowControl({ rules, controls, control, row });
+  }
+
+  updateRecordsFieldPermissionOfRules(row, control) {
+    try {
+      const { isSubList } = this.props;
+      const controls = isSubList ? this.props.columns : this.props.controls;
+      const { rules } = this.state;
+      const { recordsFieldPermissionOfRules } = this;
+      const rowControlStates = {};
+      if (!rules.length) {
+        return;
+      }
+      const formData = updateRulesData({
+        rules,
+        data: controls.map(c => ({ ...c, value: row[c.controlId] })),
+      });
+      formData.forEach((item, index) => {
+        if (item.fieldPermission && item.fieldPermission !== '111') {
+          rowControlStates[index] = item.fieldPermission;
+        }
+      });
+      this.recordsFieldPermissionOfRules = {
+        ...recordsFieldPermissionOfRules,
+        [row.rowid]: rowControlStates,
+      };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  getControlFieldPermission(recordId, controlId, control = {}) {
+    try {
+      const { isSubList, columns, controls } = this.props;
+      const { recordsFieldPermissionOfRules = {} } = this;
+      const controlIndex = _.findIndex(isSubList ? columns : controls, { controlId });
+      if (!recordsFieldPermissionOfRules[recordId] || controlIndex < 0) {
+        return control.fieldPermission || '111';
+      }
+      return recordsFieldPermissionOfRules[recordId][controlIndex];
+    } catch (err) {
+      console.log(err);
+      return control.fieldPermission || '111';
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -94,11 +213,32 @@ export default class WorksheetTable extends PureComponent {
     }
     if (!_.isEqual(data, nextData)) {
       this.updatedRows = {};
+      if (this.state.rules && this.state.rules.length && nextData.length > data.length) {
+        this.updateNewRowsFieldPermission({
+          props: nextProps,
+          rows: nextData.slice(data.length),
+        });
+      }
     }
 
     // TODO
     if (!_.isEqual(this.props.sheetColumnWidths, nextProps.sheetColumnWidths)) {
       this.setState({ sheetColumnWidths: nextProps.sheetColumnWidths });
+    }
+  }
+
+  updateNewRowsFieldPermission({ props, rows }) {
+    const { isSubList, columns, controls } = props || this.props;
+    const { rules } = this.state;
+    try {
+      rows.forEach(row => {
+        const rowControlStates = this.updateControlByRulesOfRow(row, isSubList ? columns : controls, rules);
+        if (!_.isEmpty(rowControlStates)) {
+          this.recordsFieldPermissionOfRules[row.rowid] = rowControlStates;
+        }
+      });
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -219,6 +359,19 @@ export default class WorksheetTable extends PureComponent {
   }
 
   @autobind
+  updateSheetRow(row) {
+    try {
+      const rowIndex = _.findIndex(this.data, { rowid: row.rowid });
+      if (rowIndex >= 0) {
+        this.updatedRows[row.rowid] = row;
+        this.mdtable.current.updateRow(rowIndex + 1);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @autobind
   renderCell({ key, style, columnIndex, rowIndex, scrollTo, tableScrollTop, gridHeight }) {
     const {
       id,
@@ -231,6 +384,7 @@ export default class WorksheetTable extends PureComponent {
       rowHeight,
       projectId,
       masterFormData = () => [],
+      masterData = () => ({}),
       renderCell,
       renderColumnHead,
       renderRowHead,
@@ -240,17 +394,28 @@ export default class WorksheetTable extends PureComponent {
       sheetViewHighlightRows = {},
       onColumnWidthChange = () => {},
       onCellFocus = () => {},
+      getRowsCache,
       viewId,
     } = this.props;
-    const { editingControls } = this.state;
+    const { rulesLoading, editingControls } = this.state;
     const data = this.data;
-    const control = this.columns[columnIndex] || {};
+    const control = { ...(this.columns[columnIndex] || {}) };
     let row = data[rowIndex - 1] || {};
+    if (row.isSubListFooter) {
+      return <span style={{ ...style, height: 26 }} />;
+    }
+    control.fieldPermission =
+      this.getControlFieldPermission(row.rowid, control.controlId, control) || control.fieldPermission || '111';
     if (this.updatedRows[row.rowid]) {
       row = this.updatedRows[row.rowid];
     }
-    const rowCache = store.getState().sheet.sheetview.rowCache || {};
-    const value = rowCache[row.rowid + '-' + control.controlId] || row[control.controlId];
+    let value;
+    if (_.isFunction(getRowsCache)) {
+      value = _.get(getRowsCache(), row.rowid + '.' + control.controlId) || row[control.controlId];
+    } else {
+      const rowCache = store.getState().sheet.sheetview.rowCache || {};
+      value = rowCache[row.rowid + '-' + control.controlId] || row[control.controlId];
+    }
     const className = cx(
       `control-${control.type === 30 ? control.sourceControlType || control.type : control.type}`,
       `row-${rowIndex}`,
@@ -258,6 +423,11 @@ export default class WorksheetTable extends PureComponent {
       'cell',
       `rowheight-${_.findIndex(ROW_HEIGHT, h => h === rowHeight) || 0}`,
       {
+        readonly:
+          lineeditable &&
+          rowIndex > 0 &&
+          columnIndex > 0 &&
+          (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
         rowisempty: !row.rowid,
         fixedRow: rowIndex === 0,
         alignRight: controlIsNumber(control),
@@ -270,6 +440,9 @@ export default class WorksheetTable extends PureComponent {
       ...cellStyle,
       ...style,
     };
+    if (rulesLoading && rowIndex > 0 && columnIndex > 0) {
+      return <div className={className} style={{ ...cellstyle }} />;
+    }
     if (control.controlId === 'emptyForResize') {
       return <div style={{ ...cellstyle }} />;
     }
@@ -318,6 +491,7 @@ export default class WorksheetTable extends PureComponent {
             .map(c => ({ ...c, value: row[c.controlId] }))
             .concat(masterFormData().filter(c => c.controlId.length === 24))
         }
+        masterData={() => masterData()}
         {...this.props}
         {...{
           key,
@@ -333,10 +507,11 @@ export default class WorksheetTable extends PureComponent {
           tableScrollTop,
           gridHeight,
           cellUniqueValidate,
+          checkRulesErrorOfControl: this.checkRulesErrorOfControl,
         }}
         updateEditingControls={status => this.updateEditingControls(`${row.rowid}-${control.controlId}`, status)}
         clearCellError={clearCellError}
-        updateCell={(args, options) =>
+        updateCell={(args, options) => {
           this.props.updateCell(args, {
             ...options,
             updateTable: () => {
@@ -344,14 +519,15 @@ export default class WorksheetTable extends PureComponent {
                 this.mdtable.current.forceUpdate();
               }
             },
-            updateSucessCb: newrow => {
+            updateSucessCb: async newrow => {
+              this.updateRecordsFieldPermissionOfRules(newrow, args.control);
               this.updatedRows[row.rowid] = { ...row, ..._.omit(newrow, ['allowedit', 'allowdelete']) };
               if (this.mdtable && this.mdtable.current && typeof this.mdtable.current.updateRow === 'function') {
                 this.mdtable.current.updateRow(rowIndex);
               }
             },
-          })
-        }
+          });
+        }}
         onCellFocus={onCellFocus}
         fixedColumnCount={this.fixedColumnCount}
         projectId={projectId}
@@ -361,9 +537,9 @@ export default class WorksheetTable extends PureComponent {
   }
 
   render() {
-    //
     const {
       id,
+      isSubList,
       loading,
       width,
       height,
@@ -384,13 +560,18 @@ export default class WorksheetTable extends PureComponent {
       renderFooterCell,
       defaultScrollLeft,
       scrollBarInOut,
+      onCellEnter,
+      onCellLeave,
     } = this.props;
     const { sheetColumnWidths } = this.state;
     const data = this.data;
+    let tableHeight = !_.isUndefined(rowCount)
+      ? rowCount * rowHeight + (this.horizontalScroll ? this.scrollbarWidth + 3 : 0)
+      : height;
     return (
       <div
         ref={tablecon => (this.tablecon = tablecon)}
-        className="worksheetTable"
+        className={cx('worksheetTable', { subList: isSubList })}
         style={{
           position: 'relative',
           width: '100%',
@@ -407,11 +588,7 @@ export default class WorksheetTable extends PureComponent {
           disableFrozen={disableFrozen}
           responseHeight={responseHeight}
           width={width}
-          height={
-            !_.isUndefined(rowCount)
-              ? rowCount * rowHeight + (this.horizontalScroll ? this.scrollbarWidth + 3 : 0)
-              : height
-          }
+          height={tableHeight}
           ref={this.mdtable}
           defaultScrollLeft={defaultScrollLeft}
           showFooterRow={showSummary}
@@ -423,9 +600,12 @@ export default class WorksheetTable extends PureComponent {
           rowCount={this.rowCount}
           fixedColumnCount={disableFrozen ? 1 : this.fixedColumnCount}
           renderCell={this.renderCell}
+          onCellEnter={onCellEnter}
+          onCellLeave={onCellLeave}
           renderFooterCell={renderFooterCell}
           getCellWidth={this.getCellWidth}
           sheetColumnWidths={sheetColumnWidths}
+          heightOffset={isSubList && (_.last(data) || {}).isSubListFooter ? -8 : 0}
           renderEmpty={({ style }) => (
             <NoRecords
               icon={emptyIcon}

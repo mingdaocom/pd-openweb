@@ -57,11 +57,11 @@ class AppearanceConfig extends React.Component {
   }
 
   @autobind
-  handleUploaded(up, file, qiniuurl) {
+  handleUploaded(up, file) {
     this.setState({
       isUploading: false,
     });
-    this.changeCover(qiniuurl);
+    this.changeCover(file.url);
     up.disableBrowse(false);
   }
 
@@ -114,6 +114,10 @@ class AppearanceConfig extends React.Component {
                 { title: 'image', extensions: 'jpg,jpeg,png' },
               ],
             },
+            error_callback:()=> {
+              alert(_l('有不合法的文件格式，请重新选择图片上传'),3);
+              return
+            }
           }}
           bucket={2}
           onUploaded={this.handleUploaded}

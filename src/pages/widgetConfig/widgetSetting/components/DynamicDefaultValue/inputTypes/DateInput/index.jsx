@@ -83,7 +83,7 @@ export default class DateInput extends Component {
             className="datePicker"
             onClickAwayExceptions={['.TimePicker-panel']}
             onClickAway={() => this.setState({ datePickerVisible: false })}
-            style={{ margin: '0' }}
+            style={{ margin: '0', width: '100%' }}
             mode={data.type === 16 ? 'datetime' : 'date'}
             onChange={this.handleAssignTimeChange}
             onSelect={this.handleAssignTimeChange}

@@ -18,6 +18,20 @@
       position: relative;
       border-top: 1px solid rgba(0, 0, 0, 0.12);
       background-color: transparent;
+      .cell.readonly {
+        background-color: #f5f5f5 !important;
+      }
+      .cell.cellControlErrorStatus.row-1.errorActive {
+        &:before {
+          bottom: -1px !important;
+          top: auto !important;
+          border-top-color: transparent !important;
+          border-bottom-color: #f44336 !important;
+        }
+      }
+      .cell.cellControlErrorStatus .ghostAngle {
+        display: inline-block;
+      }
     }
   }
   .operate {

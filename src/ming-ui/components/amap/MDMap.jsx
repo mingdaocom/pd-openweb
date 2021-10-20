@@ -161,7 +161,11 @@ export default class MDMap extends Component {
             background: '#fff',
             boxShadow: `0 3px 6px 0px rgba(0,0,0,0.16)`,
           }}
-          onClick={() => this.setPosition(defaultLocation.position.lng, defaultLocation.position.lat)}
+          onClick={() =>
+            defaultLocation &&
+            defaultLocation.position &&
+            this.setPosition(defaultLocation.position.lng, defaultLocation.position.lat)
+          }
         >
           <Icon icon="gps_fixed" className="Font18" />
         </div>
@@ -180,7 +184,7 @@ export default class MDMap extends Component {
             type="text"
             placeholder={_l('搜索地点')}
             className="MDMapInput Gray"
-            onKeyUp={e => e.keyCode === 13 && this.handleChange()}
+            onKeyUp={e => e.keyCode === 13 && this.handleChange(e)}
             onChange={this.handleChange}
           />
         </div>

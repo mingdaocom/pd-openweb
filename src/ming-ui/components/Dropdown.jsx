@@ -180,6 +180,8 @@ class Dropdown extends Component {
     AppendToBody: PropTypes.bool,
     selectClose: PropTypes.bool,
     openSearch: PropTypes.bool,
+    cancelAble: PropTypes.bool, //可取消的
+    renderError: PropTypes.func, // 错误结果显示
   };
   /* eslint-enable */
   static defaultProps = {
@@ -292,11 +294,7 @@ class Dropdown extends Component {
     const { keywords } = this.state;
     const text = typeof item.text === 'string' ? item.text : item.searchText || '';
 
-    return (
-      String(text)
-        .toLowerCase()
-        .indexOf(keywords.toLowerCase()) > -1
-    );
+    return String(text).toLowerCase().indexOf(keywords.toLowerCase()) > -1;
   }
 
   checkIsNull(item) {
@@ -325,19 +323,27 @@ class Dropdown extends Component {
                 <div className="pLeft16 pRight16 Gray_9e ellipsis">{item.title}</div>
               </li>
             ) : null}
-            <MenuItem
-              {...item}
-              data-value={item.value}
-              icon={item.iconName || item.icon ? <Icon icon={item.iconName || item.icon} hint={item.iconHint} /> : null}
-              iconAtEnd={item.iconAtEnd}
-              iconHint={item.iconHint}
-              onClick={event => {
-                this.handleChange(event, item);
-              }}
-              title={showItemTitle && item.text}
-            >
-              <div className="itemText">{item.text}</div>
-            </MenuItem>
+            {item.isTip ? (
+              <li className="ming MenuItem ming Item title">
+                <div className="pLeft16 pRight16">{item.text}</div>
+              </li>
+            ) : (
+              <MenuItem
+                {...item}
+                data-value={item.value}
+                icon={
+                  item.iconName || item.icon ? <Icon icon={item.iconName || item.icon} hint={item.iconHint} /> : null
+                }
+                iconAtEnd={item.iconAtEnd}
+                iconHint={item.iconHint}
+                onClick={event => {
+                  this.handleChange(event, item);
+                }}
+                title={showItemTitle && item.text}
+              >
+                <div className="itemText">{item.text}</div>
+              </MenuItem>
+            )}
           </Fragment>
         );
       }
@@ -428,7 +434,7 @@ class Dropdown extends Component {
 
   displayPointer = () => {
     const { value } = this.state;
-    const { placeholder, data } = this.props;
+    const { placeholder, data, cancelAble } = this.props;
     const selectedData = _.find(data, item => item.value === value);
     return (
       <div
@@ -447,7 +453,9 @@ class Dropdown extends Component {
               ThemeHoverBorderColor3: this.props.hoverTheme,
             })}
           >
-            {this.props.renderTitle
+            {this.props.renderError && !this.props.data.map(o => o.value).includes(value)
+              ? this.props.renderError()
+              : this.props.renderTitle
               ? this.props.renderTitle(selectedData)
               : this.props.renderValue.replace(
                   /{{value}}/g,
@@ -457,7 +465,35 @@ class Dropdown extends Component {
         ) : (
           <span className="Dropdown--placeholder Gray_bd ellipsis InlineBlock">{placeholder}</span>
         )}
-        <Icon icon="arrow-down-border" className="mLeft8 Gray_9e" />
+        {cancelAble && value != undefined ? (
+          <span className="actionIcon Hand mLeft8">
+            <Icon
+              icon="cancel1"
+              className="Gray_9e clearIcon"
+              onClick={e => {
+                e.stopPropagation();
+                if (value != undefined) {
+                  this.setState({
+                    value: undefined,
+                  });
+                  this.props.$formDataChange(undefined);
+                }
+                if (this.props.selectClose) {
+                  this.setState({
+                    showMenu: false,
+                  });
+                  this.props.onVisibleChange(false);
+                }
+                if (this.props.onChange) {
+                  this.props.onChange(undefined);
+                }
+              }}
+            />
+            <Icon icon="arrow-down-border" className="Gray_9e dropArrow" />
+          </span>
+        ) : (
+          <Icon icon="arrow-down-border" className="mLeft8 Gray_9e" />
+        )}
       </div>
     );
   };

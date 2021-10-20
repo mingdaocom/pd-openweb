@@ -30,7 +30,7 @@ export default class TimeModal extends Component {
   handleSave = () => {
     const { controls } = this.props;
     const { filterRangeId, rangeType, rangeValue } = this.state;
-    const control = _.find(controls, { controlId: filterRangeId });
+    const control = _.find(controls, { controlId: filterRangeId }) || {};
     this.props.onChangeFilter({
       filterRangeName: control.controlName,
       filterRangeId,

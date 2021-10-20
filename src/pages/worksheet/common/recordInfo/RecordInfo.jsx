@@ -127,8 +127,8 @@ export default class RecordInfo extends Component {
     } catch (err) {
       formWidth = width - 420;
     }
-    if (formWidth > width - 330) {
-      formWidth = width - 330;
+    if (formWidth > width - 345) {
+      formWidth = width - 345;
     }
 
     if (
@@ -245,6 +245,9 @@ export default class RecordInfo extends Component {
       return record.rowid === recordId;
     });
     const newIndex = isNext ? index + 1 : index - 1;
+    if (!currentSheetRows[newIndex]) {
+      return;
+    }
     const newRecordId = currentSheetRows[newIndex].rowid;
     this.setState({
       tempFormdata: tempFormdata.map(c => (isRelateRecordTableControl(c) ? { ...c, value: undefined } : c)),
@@ -354,6 +357,7 @@ export default class RecordInfo extends Component {
           value: getSubListError(
             {
               rows: getRows(control.controlId),
+              rules: _.get(cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
             },
             getControls(control.controlId) || control.relationControls,
             control.showControls,
@@ -688,7 +692,7 @@ export default class RecordInfo extends Component {
               <DragMask
                 value={formWidth}
                 min={400}
-                max={width - 328}
+                max={width - 343}
                 onChange={value => {
                   localStorage.setItem('RECORDINFO_FORMWIDTH', value);
                   this.setState({ dragMaskVisible: false, formWidth: value });
@@ -763,7 +767,7 @@ export default class RecordInfo extends Component {
                 recordbase={recordbase}
                 workflow={workflow}
                 sheetSwitchPermit={sheetSwitchPermit}
-                projectId={view.projectId}
+                projectId={this.props.projectId}
               />
             )}
           </div>

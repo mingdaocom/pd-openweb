@@ -20,10 +20,10 @@ export default class Widgets extends Component {
     this.width = this.file.upload.offsetWidth;
   }
 
-  handleUploaded = (up, file, url, info) => {
+  handleUploaded = (up, file, info) => {
     const { worksheetId, controlId, advancedSetting, onChange } = this.props;
 
-    ajax.ocr({ worksheetId, controlId, url, type: 1 }).then(result => {
+    ajax.ocr({ worksheetId, controlId, url: file.serverName + file.key, type: 1 }).then(result => {
       if (result.code === 1) {
         const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
 
@@ -32,8 +32,9 @@ export default class Widgets extends Component {
           let newValue;
 
           // 附件
-          if (_.includes([1, 1001, 2001], currentItem.type)) {
+          if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
             info.originalFileName = decodeURIComponent(info.originalFileName);
+            info.previewUrl = file.url;
             newValue = JSON.stringify({
               attachments: [{ ...(info || {}), allowDown: true, fileSize: (info || {}).fsize }],
               knowledgeAtts: [],

@@ -2,7 +2,7 @@ import sheetAjax from 'src/api/worksheet';
 import { getAdvanceSetting } from 'src/util';
 import { setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
-
+import { isTimeStyle, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
 let getRows;
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
@@ -145,13 +145,7 @@ const dataResort = obj => {
           };
         }
       });
-      arr = arr.filter(
-        o =>
-          o.res.length > 0 ||
-          moment()
-            .format('YYYY-MM-DD')
-            .isSame(o.date, 'day'),
-      );
+      arr = arr.filter(o => o.res.length > 0 || moment().format('YYYY-MM-DD').isSame(o.date, 'day'));
     }
   }
   let newArr = [];
@@ -192,26 +186,30 @@ export function getCalendarData() {
     const { controls, base, views } = getState().sheet;
     const { viewId = '' } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
-    const { calendarType = '0', unweekday = '', colorid = '', begindate = '', enddate = '' } = getAdvanceSetting(
-      currentView,
-    );
+    const {
+      calendarType = '0',
+      unweekday = '',
+      colorid = '',
+      begindate = '',
+      enddate = '',
+    } = getAdvanceSetting(currentView);
     let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
-    let timeControls = controls.filter(item => item.controlId !== 'utime' && _.includes([15, 16], item.type));
+    let timeControls = getTimeControls(controls);
     let startData = begindate ? timeControls.find(it => it.controlId === begindate) || {} : timeControls[0];
-    const btnList =
-      startData.type === 16
-        ? 'today prev,next dayGridMonth,timeGridWeek,timeGridDay'
-        : 'today prev,next dayGridMonth,dayGridWeek,dayGridDay';
-    let startFormat = startData.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
+
+    const btnList = isTimeStyle(startData)
+      ? 'today prev,next dayGridMonth,timeGridWeek,timeGridDay'
+      : 'today prev,next dayGridMonth,dayGridWeek,dayGridDay';
+    let startFormat = isTimeStyle(startData) ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
     let endData = enddate ? timeControls.find(it => it.controlId === enddate) || {} : {};
-    let endFormat = endData.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
+    let endFormat = isTimeStyle(endData) ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
     let viewType = window.localStorage.getItem('CalendarViewType');
     let typeStr = '';
     if (viewType) {
       if (['dayGridWeek', 'timeGridWeek'].includes(viewType)) {
-        typeStr = startData.type === 16 ? 'timeGridWeek' : 'dayGridWeek';
+        typeStr = isTimeStyle(startData) ? 'timeGridWeek' : 'dayGridWeek';
       } else if (['timeGridDay', 'dayGridDay'].includes(viewType)) {
-        typeStr = startData.type === 16 ? 'timeGridDay' : 'dayGridDay';
+        typeStr = isTimeStyle(startData) ? 'timeGridDay' : 'dayGridDay';
       } else {
         typeStr = viewType;
       }
@@ -226,7 +224,7 @@ export function getCalendarData() {
         unweekday,
         colorOptions: colorList.options || [],
         btnList,
-        initialView: typeStr ? typeStr : getCalendarViewType(calendarType, startData.type),
+        initialView: typeStr ? typeStr : getCalendarViewType(calendarType ,startData),
       },
     });
   };

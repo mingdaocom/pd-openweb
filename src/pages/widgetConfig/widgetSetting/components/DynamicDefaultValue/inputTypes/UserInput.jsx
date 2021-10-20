@@ -22,7 +22,7 @@ export default class DateInput extends Component {
     }
   }
   // 成员多选数据处理
-  removePerson = accountId => {
+  removeItem = accountId => {
     const { dynamicValue } = this.props;
     const getUserId = item => {
       const { staticValue } = item;
@@ -73,7 +73,7 @@ export default class DateInput extends Component {
   render() {
     return (
       <DynamicValueInputWrap>
-        <OtherFieldList {...this.props} removePerson={this.removePerson} onClick={this.selectUser} />
+        <OtherFieldList {...this.props} removeItem={this.removeItem} onClick={this.selectUser} />
         <SelectOtherField {...this.props} />
       </DynamicValueInputWrap>
     );

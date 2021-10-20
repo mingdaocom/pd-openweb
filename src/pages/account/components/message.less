@@ -244,10 +244,15 @@
 
       input,
       .Dropdown--input {
-        // border: 1px solid #2196F3;
         border: 1px solid #e6e6e6;
         &:focus {
           border: 1px solid #2196f3;
+        }
+        .icon-arrow-down-border {
+          position: absolute;
+          line-height: 40px;
+          top: 0;
+          right: 12px;
         }
       }
 
@@ -309,7 +314,8 @@
   }
 }
 
-#registerBox,.loginContainer {
+#registerBox,
+.loginContainer {
   .backspaceT {
     &:hover {
       color: #1182dd;

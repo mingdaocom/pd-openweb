@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import MDMap from 'ming-ui/components/amap/MDMap';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
 import EditableCellCon from '../EditableCellCon';
 import { browserIsMobile } from 'src/util';
 
 function Location(props) {
-  const { className, style, cell, editable, isediting, updateCell, onClick, updateEditingStatus } = props;
+  const { className, style, cell, editable, recordId, isediting, updateCell, onClick, updateEditingStatus } = props;
   const { enumDefault2, advancedSetting } = cell;
   let { value } = cell;
   let locationData;

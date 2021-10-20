@@ -58,7 +58,7 @@ export default class SelectNodeObject extends Component {
 
   render() {
     const { appList, selectNodeId, selectNodeObj, onChange, smallBorder } = this.props;
-    const list = appList.map(item => {
+    const list = (appList || []).map(item => {
       return {
         text: this.renderDropdownItem(item),
         value: item.nodeId,

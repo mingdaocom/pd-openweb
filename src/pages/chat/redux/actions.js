@@ -951,6 +951,10 @@ export const updateMessage = message => (dispatch, getState) => {
         item.msg = { con: '' };
         item.isContact = false;
       }
+      // 图片消息，替换 url
+      if (socket && socket.msg.files) {
+        item.msg.files.url = socket.msg.files.url;
+      }
     }
     return item;
   });
@@ -1209,7 +1213,7 @@ export const userShake = (message) => (dispatch, getState) => {
   const addShakeMessage = () => {
     const { currentSession, messages, sessionList } = getState().chat;
     if (currentSession.value === message.aid) {
-      const currentMessages = messages[message.aid];
+      const currentMessages = messages[message.aid] || [];
       const sendMsg = {
         waitingid: utils.getUUID(),
         msg: _l('你收到了一个抖动'),

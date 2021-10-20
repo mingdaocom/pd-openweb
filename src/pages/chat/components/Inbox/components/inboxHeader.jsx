@@ -62,7 +62,7 @@ export default class InboxHeader extends React.Component {
 
   render() {
     const { inboxFavorite, title, filter, inboxType } = this.props;
-    const { user, timeName } = filter || _.object();
+    const { user, timeName } = filter || {};
     const clsNameFunc = (flag) => cx('inboxItem Hand', {
       'ThemeColor3 ThemeBorderColor3': flag,
       'ThemeHoverBorderColor3 ThemeHoverColor3': !flag,

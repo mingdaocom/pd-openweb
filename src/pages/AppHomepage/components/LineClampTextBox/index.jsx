@@ -34,7 +34,7 @@ export default class lineClampTextBox extends Component {
      */
     const $textBox = $(this.$textBox.current);
     const $textContent = $(this.$textContent.current);
-    if (!$textBox || !$textContent) return;
+    if (!$textBox.length || !$textContent.length) return;
     if ('webkitLineClamp' in $textContent.prop('style')) return;
     while ($textContent.height() > $textBox.height()) {
       $textContent.text($textContent.text().replace(/(\s)*(\S|\W)(\.\.\.)?$/, '...'));

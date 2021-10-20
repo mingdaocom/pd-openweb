@@ -85,7 +85,8 @@ const messages = (state = {}, action) => {
     case 'PUSH_PAGE_MESSAGE':
       return Object.assign({}, state, { [action.id]: state[action.id].concat(action.result) });
     case 'REMOVE_MESSAGE':
-      return Object.assign({}, state, { [action.id]: state[action.id].filter(item => item.waitingId !== action.messageId) });
+      const targetState = state[action.id];
+      return targetState ? Object.assign({}, state, { [action.id]: targetState.filter(item => item && item.waitingId !== action.messageId) }) : state;
     case 'REMOVE_MESSAGES':
       delete state[action.id];
       return Object.assign({}, state);

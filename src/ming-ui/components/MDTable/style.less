@@ -43,16 +43,21 @@
     box-sizing: border-box;
     padding: 7px 6px;
     overflow: hidden;
+    /* 这里的 border 样式不能动  其它形式的写法会导致表格在 chrome 下有严重的卡顿问题 */
     border: 1px solid rgba(0, 0, 0, 0.09) !important;
     border-top: none !important;
     border-left: none !important;
+    /* 这里的 border 样式不能动  其它形式的写法会导致表格在 chrome 下有严重的卡顿问题 */
     background-color: #fff;
+    .ghostAngle {
+      display: none;
+    }
     &.highlight {
       background-color: #f5fbff !important;
       // background-color: rgb(209, 237, 255) !important; // 颜色深 开发测试用
     }
     &:not(.isediting):not(.highlight).hover {
-      background-color: #fafafa !important;
+      background-color: #fafafa;
       .hoverShow {
         display: inline-block;
       }

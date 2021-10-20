@@ -207,7 +207,7 @@ export default class DingSyncCourse extends React.Component {
       });
     } else {
       $('.download')
-        .attr('href', 'https://filepub.mingdao.com/logo_app.png')[0]
+        .attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0]
         .click();
     }
   };
@@ -303,13 +303,13 @@ export default class DingSyncCourse extends React.Component {
       <React.Fragment>
         <h3 className="Font18 Gray mTop40">{_l('1. 前往钉钉管理后台 — 定位到“工作台”')}</h3>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/1.png" alt={_l('前往钉钉管理后台 — 定位到“工作台”')} />
-        <h3 className="Font18 Gray mTop40">{_l('2. 点击“自建应用”进入新建应用页面')}</h3>
-        <img src="/src/pages/Admin/ding/dingSyncCourse/img/2.png" alt={_l('点击“自建应用”进入新建应用页面')} />
-        <h3 className="Font18 Gray mTop40">{_l('3. 完善应用信息')}</h3>
+        <h3 className="Font18 Gray mTop40">{_l('2. 点击下方“自建应用”进入钉钉开放平台')}</h3>
+        <img src="/src/pages/Admin/ding/dingSyncCourse/img/2.png" alt={_l('点击下方“自建应用”进入钉钉开放平台')} />
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('选择“应用开发”下的“企业内部开发”')}</p>
+        <img src="/src/pages/Admin/ding/dingSyncCourse/img/2-1.png" alt={_l('选择“应用开发”下的“企业内部开发”')} />
+        <h3 className="Font18 Gray mTop40">{_l('3. 点击创建应用，完善应用信息')}</h3>
         <p className="Font14 Gray_75 mTop24 LineHeight22">
-          {_l('a. 选择企业内部开发 - 创建应用')}
-          <br />
-          {_l('b. 应用类型选择"H5微应用"')}
+          {_l('a. 应用类型选择“H5微应用”')}
           <br />
           {this.state.addApp
             ? _l('c. 填入应用名称（建议与应用名称保持一致）、应用描述、应用图标')
@@ -328,7 +328,7 @@ export default class DingSyncCourse extends React.Component {
             className="download Hidden"
             target="_blank"
             download={this.state.name + moment().format('YYYY-MM-DD') + '.png'}
-            href={this.state.addApp ? '' : 'https://filepub.mingdao.com/logo_app.png'}
+            href={this.state.addApp ? '' : `${md.global.FileStoreConfig.pubHost}logo_app.png`}
           >
             {_l('点击下载')}
           </a>
@@ -341,7 +341,7 @@ export default class DingSyncCourse extends React.Component {
           {_l('定位到“开发管理”，将以下链接填入对应输入框内；开发模式选择“开发应用”')}
         </p>
         <div className="inputList mTop20">
-          <span className="inputTitle">{_l('应用首页链接：')}</span>
+          <span className="inputTitle">{_l('应用首页地址：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.homeUrl} />
           <span
             className="copyBtn"
@@ -390,32 +390,35 @@ export default class DingSyncCourse extends React.Component {
           <Fragment>
             <p className="Font14 Gray_75 mTop24 LineHeight22">
               {_l(
-                '切换至“凭证与基础信息”，将AgentId、AppKey、AppSecret分别填入改系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
+                '切换至“基础信息”，将AgentId、AppKey、AppSecret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
               )}
             </p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-2.png" alt={_l('完善接口信息')} />
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-3.png" alt={_l('完善接口信息')} />
             <p className="Font14 Gray_75 mTop24 LineHeight22">
-              {_l('再前往“钉钉开放平台 - 首页”，找到CorpId并填入对应输入框内')}
+              {_l('首页可以找到CorpId，填入对应输入框内')}
             </p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-4.png" alt={_l('完善接口信息')} />
             <h3 className="Font18 Gray mTop40">{_l('5.申请开通企业通讯录权限')}</h3>
             <p className="Font14 Gray_75 mTop24 LineHeight22">
               {_l('回到自建应用的“权限管理”')}
               <br /> {_l('a. 权限范围：建议选择“全部员工”')}
-              <br /> {_l('b. 点击按钮“添加接口权限”')}
-              <br /> {_l('通讯录只读权限：必须申请开通，否则无法进行同步')}
-              <br /> {_l('手机号码信息：建议申请开通，用于手机号对比账号')}
+              <br /> {_l('b. 批量申请以下权限')}
+              <br /> {_l('通讯录部门信息读权限【必选】')}
+              <br /> {_l('成员信息读权限【必选】')}
+              <br /> {_l('通讯录部门成员读权限【必选】')}
+              <br /> {_l('企业员工手机号信息【必选】')}
+              <br /> {_l('个人手机号信息【建议开通，用于手机号对比账号】')}
+              <br /> {_l('邮箱等个人信息【建议开通，用于手机号对比账号】')}
             </p>
-            <img src="/src/pages/Admin/ding/dingSyncCourse/img/5-1.png" alt={_l('申请开通企业通讯录权限')} />
-            <img src="/src/pages/Admin/ding/dingSyncCourse/img/5-2.png" alt={_l('申请开通企业通讯录权限')} />
+            <img src="/src/pages/Admin/ding/dingSyncCourse/img/5.png" alt={_l('申请开通企业通讯录权限')} />
           </Fragment>
         )}
         <h3 className="Font18 Gray mTop40">{_l('%0.发布应用', this.state.addApp ? 5 : 6)}</h3>
-        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('切换至“版本管理与发布”，点击“确认发布”后即可')}</p>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('切换至“版本管理与发布”，配置可使用范围，点击“确认发布”后即可')}</p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/6.png" alt={_l('发布应用')} />
         <h3 className="Font18 Gray mTop40">{_l('%0.设置使用范围', this.state.addApp ? 6 : 7)}</h3>
-        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('应用发布后，根据企业自身需求设置应用的可使用范围')}</p>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('应用发布后，仍然可以根据企业自身需求改变应用的可使用范围')}</p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/7.png" alt={_l('设置使用范围')} />
       </React.Fragment>
     );

@@ -16,7 +16,8 @@ import moment from 'moment';
 import html2canvas from 'html2canvas';
 import qiniuAjax from 'src/api/qiniu';
 import { Base64 } from 'js-base64';
-import { addToken } from 'src/util';
+import { addToken, getToken } from 'src/util';
+import axios from 'axios';
 
 export default class GanttDialog extends Component {
   static propTypes = {
@@ -51,7 +52,7 @@ export default class GanttDialog extends Component {
   getData() {
     const { folderID } = this.props;
 
-    taskReq.getTaskStaticGanttChart({ folderID }).then((res) => {
+    taskReq.getTaskStaticGanttChart({ folderID }).then(res => {
       const { status } = res;
       if (!status) {
         this.setState({
@@ -105,7 +106,7 @@ export default class GanttDialog extends Component {
    */
   dealWithData(data) {
     if (!Array.isArray(data)) return;
-    data.forEach((item) => {
+    data.forEach(item => {
       item.child && (item.childrenVisible = true);
       this.dealWithData(item.child);
     });
@@ -115,7 +116,7 @@ export default class GanttDialog extends Component {
   /**
    * 切换日期显示形式
    */
-  switchDisplayType = (type) => {
+  switchDisplayType = type => {
     this.setState({ type }, () => {
       const { beginTime, endTime } = this.handleTime(config.beginTime.clone(), config.endTime.clone());
       this.setState({
@@ -150,7 +151,7 @@ export default class GanttDialog extends Component {
     });
 
     $('body').append($box);
-    html2canvas($('body > .ganttContentBox')[0]).then((canvas) => {
+    html2canvas($('body > .ganttContentBox')[0]).then(canvas => {
       const newCanvas = document.getElementById('ganttCanvas');
 
       newCanvas.width = width;
@@ -185,29 +186,31 @@ export default class GanttDialog extends Component {
    * 上传到七牛
    */
   putb64(base64) {
-    qiniuAjax.getUploadToken({ bucket: 2 }).then((res) => {
+    getToken([{ bucket: 2, ext: '.png' }]).then(res => {
       if (res.error) {
         alert(res.error);
       } else {
-        const key = Base64.encode(`TaskGanttStatic/${this.getFileKey(15)}/${new Date().getTime()}/${this.state.name + moment().format('YYYY-MM-DD')}.png`)
-          .replace(/\//g, '_')
-          .replace(/\+/g, '-');
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${key}`;
-        const xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-          if (xhr.readyState == 4 && JSON.parse(xhr.responseText).key) {
+        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
+        axios
+          .post(url, base64.replace('data:image/png;base64,', ''), {
+            headers: {
+              'Content-Type': 'application/octet-stream',
+              Authorization: `UpToken ${res[0].uptoken}`,
+            },
+          })
+          .then(({ data }) => {
+            const { key = '' } = data || {};
             this.setState({
               buildImgSuccess: true,
-              url: `${md.global.FileStoreConfig.pubHost + JSON.parse(xhr.responseText).key}?attname=${encodeURIComponent(
-                this.state.name + moment().format('YYYY-MM-DD')
+              url: `${md.global.FileStoreConfig.pubHost + key}?attname=${encodeURIComponent(
+                this.state.name + moment().format('YYYY-MM-DD'),
               )}.png`,
             });
-          }
-        };
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-        xhr.setRequestHeader('Authorization', 'UpToken ' + res.uptoken);
-        xhr.send(base64.replace('data:image/png;base64,', ''));
+          })
+          .catch(error => {
+            console.log(error);
+            alert(_l('保存失败!'));
+          });
       }
     });
   }
@@ -289,7 +292,7 @@ export default class GanttDialog extends Component {
   /**
    * 切换子项目的显示隐藏
    */
-  toggleTask = (args) => {
+  toggleTask = args => {
     const { data } = this.state;
     const cloneData = _.cloneDeep(data);
 
@@ -331,7 +334,7 @@ export default class GanttDialog extends Component {
   /**
    * 显示任务详情
    */
-  showDetail = (taskID) => {
+  showDetail = taskID => {
     this.setState({
       taskID,
       taskDetailVisible: true,
@@ -358,17 +361,40 @@ export default class GanttDialog extends Component {
     const { buildImgSuccess, url } = this.state;
 
     if (buildImgSuccess) {
-      window.open(addToken(url));
+      window.open(addToken(url, !window.isDingTalk));
       this.setState({ showExportDialog: false });
     }
   };
 
   render() {
-    const { type, data, loading, refreshLoading, errorMsg, taskID, taskDetailVisible, name, showExportDialog, buildImgSuccess } = this.state;
-    const { switchDisplayType, refresh, exportData, closeLayer, toggleTask, handleTaskItemHover, showDetail, scrollToToday } = this;
+    const {
+      type,
+      data,
+      loading,
+      refreshLoading,
+      errorMsg,
+      taskID,
+      taskDetailVisible,
+      name,
+      showExportDialog,
+      buildImgSuccess,
+    } = this.state;
+    const {
+      switchDisplayType,
+      refresh,
+      exportData,
+      closeLayer,
+      toggleTask,
+      handleTaskItemHover,
+      showDetail,
+      scrollToToday,
+    } = this;
     let width = 0;
     if (refreshLoading) {
-      width = $('.timeHeader').width() > $('.ganttContentBox').width() ? $('.ganttContentBox').width() : $('.timeHeader').width();
+      width =
+        $('.timeHeader').width() > $('.ganttContentBox').width()
+          ? $('.ganttContentBox').width()
+          : $('.timeHeader').width();
     }
 
     return (
@@ -401,7 +427,12 @@ export default class GanttDialog extends Component {
             </div>
           )}
           {taskDetailVisible && (
-            <TaskDetail visible={taskDetailVisible} taskId={taskID} openType={3} closeCallback={() => this.setState({ taskDetailVisible: false })} />
+            <TaskDetail
+              visible={taskDetailVisible}
+              taskId={taskID}
+              openType={3}
+              closeCallback={() => this.setState({ taskDetailVisible: false })}
+            />
           )}
           {showExportDialog && (
             <Dialog
@@ -412,7 +443,9 @@ export default class GanttDialog extends Component {
               onCancel={() => this.setState({ showExportDialog: false })}
               onOk={this.onOk}
             >
-              <span className="Gray_9e">{buildImgSuccess ? _l('已生成图片') : _l('正在整理要导出的数据，请稍候...')}</span>
+              <span className="Gray_9e">
+                {buildImgSuccess ? _l('已生成图片') : _l('正在整理要导出的数据，请稍候...')}
+              </span>
             </Dialog>
           )}
         </div>

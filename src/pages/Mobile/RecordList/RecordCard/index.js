@@ -147,7 +147,7 @@ export default class RecordCard extends Component {
   renderControl(id, nameVisible = false) {
     const { data } = this.props;
     const { cardControls } = this;
-    const visibleControl = _.find(cardControls, { controlId: id }) || _.object();
+    const visibleControl = _.find(cardControls, { controlId: id }) || {};
     return (
       <div className="controlWrapper" key={id}>
         {nameVisible && <div className="controlName ellipsis Gray_9e">{visibleControl.controlName}</div>}

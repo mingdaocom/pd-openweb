@@ -5,10 +5,11 @@ import Link from 'src/router/Link';
 import createReactClass from 'create-react-class';
 import cx from 'classnames';
 import lazyRenderMixin from 'react-lazyrender/mixin';
-import { convertImageView, getClassNameByExt } from 'src/util';
+import { getClassNameByExt } from 'src/util';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import KcAppMenu from './KcAppMenu';
+import ExtIcon from './ExtIcon';
 
 import { shallowEqual, getUrlBase64Encode, isIE, humanFileSize, humanDateTime } from '../utils';
 import { NODE_TYPE, NODE_STATUS, NODE_VIEW_TYPE } from '../constant/enum';
@@ -70,23 +71,6 @@ export default createReactClass({
     if (nextProps.selectedItems.size > 1) {
       this.setState({ clickMoreActionsBtn: false });
     }
-  },
-
-  watermarkUrl(extName, isListView = false) {
-    extName = extName ? (extName.length > 5 ? extName.substr(0, 4) + '.' : extName.substr(0, 4)) : '';
-    // var isListView = isList || isRecycle;
-    const markUrl =
-      (isListView
-        ? `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/pic/201604/13/gAMpmGuALOIPRIU_944663612.png`
-        : `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/pic/201604/15/XHreFwHIeKNLMOV_114900102.png`) +
-      '?watermark/2/text/' +
-      getUrlBase64Encode(extName) +
-      '/font/5b6u6L2v6ZuF6buR' +
-      (isListView ? '/fontsize/600/fill/d2hpdGU=' : '/fontsize/300/fill/I2FjYWNhYw==') +
-      '/gravity/Center/dx/0/dy/0%7CimageView2/1' +
-      (isListView ? '/w/21/h/24' : '/w/160/h/100') +
-      '/q/90';
-    return isListView ? markUrl : convertImageView(markUrl, 1, 160, 100);
   },
 
   render() {
@@ -163,7 +147,11 @@ export default createReactClass({
             <img
               alt=""
               className={cx('listViewImg', itemType)}
-              src={convertImageView(item.previewUrl, 1, 21, 24)}
+              src={
+                item.previewUrl.indexOf('imageView2') > -1
+                  ? item.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/21/h/24')
+                  : `${item.previewUrl}&imageView2/1/w/21/h/24`
+              }
               onDragStart={event => event.preventDefault()}
               onLoad={event => {
                 if (event.target.src != ONE_PX_IMG) {
@@ -173,19 +161,10 @@ export default createReactClass({
               onError={event => $(event.target).attr('src', ONE_PX_IMG)}
             />
           ) : item.type !== NODE_TYPE.FOLDER && getIconNameByExt(item.ext) === 'doc' ? (
-            <img
-              alt=""
+            <ExtIcon
               className={cx('listViewImg', itemType)}
-              src={this.watermarkUrl(item.ext, true)}
+              ext={item.ext}
               onDragStart={event => event.preventDefault()}
-              onLoad={event => {
-                if (event.target.src != ONE_PX_IMG) {
-                  $(event.target).removeClass(itemType);
-                }
-              }}
-              onError={event => {
-                $(event.target).attr('src', ONE_PX_IMG);
-              }}
             />
           ) : isFolderShared ? (
             <span className="folderSharedItem" data-tip={_l('已开启文件分享')}>
@@ -307,22 +286,26 @@ export default createReactClass({
         >
           <div className="thumbnailImg">
             {item.previewUrl || (item.type !== NODE_TYPE.FOLDER && getIconNameByExt(item.ext) === 'doc') ? (
-              <img
-                alt=""
-                className={cx('type antiIcon', itemType)}
-                src={
-                  item.previewUrl
-                    ? convertImageView(item.previewUrl, 1, 160, 100)
-                    : false || this.watermarkUrl(item.ext, false)
-                }
-                onDragStart={event => event.preventDefault()}
-                onLoad={event => {
-                  if (event.target.src != ONE_PX_IMG) {
-                    $(event.target).removeClass(cx('type antiIcon', itemType));
-                  }
-                }}
-                onError={event => $(event.target).attr('src', ONE_PX_IMG)}
-              />
+              item.previewUrl ? (
+                <img
+                  alt=""
+                  className={cx('type antiIcon', itemType)}
+                  src={item.previewUrl}
+                  onDragStart={event => event.preventDefault()}
+                  onLoad={event => {
+                    if (event.target.src != ONE_PX_IMG) {
+                      $(event.target).removeClass(cx('type antiIcon', itemType));
+                    }
+                  }}
+                  onError={event => $(event.target).attr('src', ONE_PX_IMG)}
+                />
+              ) : (
+                <ExtIcon
+                  className={cx('type antiIcon', itemType)}
+                  ext={item.ext}
+                  onDragStart={event => event.preventDefault()}
+                />
+              )
             ) : (
               <span className={cx('type antiIcon', itemType)} />
             )}

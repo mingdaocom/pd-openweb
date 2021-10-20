@@ -5,7 +5,6 @@ import Twofactor from './container/twofactor';
 import './login.less';
 import { getRequest } from 'src/util';
 import { LoadDiv } from 'ming-ui';
-import Config from './config';
 import cx from 'classnames';
 import { sendTwofactorVerifyCode } from 'src/api/login';
 import captcha from 'src/components/captcha';

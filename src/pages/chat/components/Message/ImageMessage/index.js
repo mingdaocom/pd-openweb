@@ -18,7 +18,11 @@ export default class ImageMessage extends Component {
     const { session, message } = this.props;
     const { files } = message.msg;
     const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
-    const previewUrl = message.kcFile ? files.url : bigImg ? files.url : `${files.url}?imageView2/2/w/200/q/100`;
+    const previewUrl = message.kcFile
+      ? files.url
+      : bigImg
+      ? files.url
+      : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageView2/2/w/200/q/100`;
     this._isMounted = true;
     this.handleLoadImage(previewUrl).then(result => {
       if (!this._isMounted) {

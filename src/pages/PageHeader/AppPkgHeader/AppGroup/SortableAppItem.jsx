@@ -72,7 +72,7 @@ export default class SortableAppItem extends Component {
 
   handleFocus = () => {
     setTimeout(() => {
-      this.$nameRef.current.select();
+      this.$nameRef && this.$nameRef.current && this.$nameRef.current.select();
     }, 0);
   };
   handleNameBlur = (data, e) => {

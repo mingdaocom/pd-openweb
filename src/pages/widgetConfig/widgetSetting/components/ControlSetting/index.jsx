@@ -1,15 +1,18 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
-import styled from 'styled-components';
-import { Dropdown, Tooltip } from 'antd';
-import cx from 'classnames';
-import { useSetState } from 'react-use';
-import UserConfig from './UserConfig';
-import { DropdownContent, SettingItem, DropdownPlaceholder } from '../../../styled';
+import { Tooltip } from 'antd';
+import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import TelConfig from './TelConfig';
+import UserConfig from './UserConfig';
+import DateConfig from './DateConfig';
 
-const INTERVAL = [1, 5, 10, 15, 30, 60];
+const TYPE_TO_COMP = {
+  3: TelConfig,
+  15: DateConfig,
+  16: DateConfig,
+  26: UserConfig,
+};
 
 const CASCADER_CONFIG = [
   {
@@ -27,23 +30,12 @@ const CASCADER_CONFIG = [
   // },
 ];
 
-const IntervalWrap = styled(DropdownContent)`
-  .item {
-    line-height: 36px;
-    padding: 0 16px;
-  }
-`;
-
 export default function WidgetConfig(props) {
   const { from, data, onChange } = props;
   const { type, enumDefault, advancedSetting = {} } = data;
-  const { timeinterval, allowadd, showxy, showtype, checktype } = getAdvanceSetting(data);
-  const [{ timeIntervalVisible }, setVisible] = useSetState({ timeIntervalVisible: false });
+  const { allowadd, showxy, showtype, checktype } = getAdvanceSetting(data);
 
   const getConfig = () => {
-    if (type === 3) {
-      return <TelConfig {...props} />;
-    }
     if (type === 6) {
       return (
         <div className="labelWrap">
@@ -70,53 +62,6 @@ export default function WidgetConfig(props) {
           </Checkbox>
         </div>
       );
-    }
-    if (type === 16) {
-      return (
-        <Fragment>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={timeinterval}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { timeinterval: checked ? '' : '1' }))}>
-              <span>{_l('预设分钟间隔')}</span>
-              <Tooltip
-                placement={'bottom'}
-                title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}>
-                <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
-              </Tooltip>
-            </Checkbox>
-          </div>
-          {timeinterval && (
-            <Dropdown
-              trigger={'click'}
-              visible={timeIntervalVisible}
-              onVisibleChange={v => setVisible({ timeIntervalVisible: v })}
-              overlay={
-                <IntervalWrap>
-                  {INTERVAL.map(v => (
-                    <div
-                      className="item"
-                      onClick={() => {
-                        onChange(handleAdvancedSettingChange(data, { timeinterval: String(v) }));
-                        setVisible({ timeIntervalVisible: false });
-                      }}>
-                      {_l('%0分钟', v)}
-                    </div>
-                  ))}
-                </IntervalWrap>
-              }>
-              <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#333">
-                {_l('%0分钟', timeinterval)}
-                <i className="icon-arrow-down-border Font16 Gray_9e"></i>
-              </DropdownPlaceholder>
-            </Dropdown>
-          )}
-        </Fragment>
-      );
-    }
-    if (type === 26 && from !== 'subList') {
-      return <UserConfig {...props} />;
     }
     if (type === 40) {
       return (
@@ -159,6 +104,9 @@ export default function WidgetConfig(props) {
         </div>
       ));
     }
+
+    const Comp = TYPE_TO_COMP[type];
+    return <Comp {...props} />;
   };
   return (
     <SettingItem>

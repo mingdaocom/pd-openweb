@@ -18,14 +18,13 @@ const lastDateText = _l('上一期');
 const mergeDataTime = (data, contrastData) => {
   const maxLengthData = data.length > contrastData.length ? data : contrastData;
   const newData = data.map((item, index) => {
-    item.originalName = item.name;
-    item.name = maxLengthData[index].name;
+    item.originalName = item.originalId;
+    item.originalId = maxLengthData[index].originalId;
     return item;
   });
   const newcontrastData = contrastData.map((item, index) => {
-    // item.groupName = lastDateText;
-    item.originalName = item.name;
-    item.name = maxLengthData[index].name;
+    item.originalName = item.originalId;
+    item.originalId = maxLengthData[index].originalId;
     return item;
   });
   return newData.concat(newcontrastData);
@@ -65,23 +64,24 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }) => {
     });
   }
   value.forEach(item => {
-    const name = item.x;
+    const name = item.originalX;
     cloneData.forEach((element, index) => {
       const lastElement = cloneData[index - 1];
-      const lastValue = lastElement && isPile ? lastElement.value.filter(n => n.x === name)[0].v : 0;
+      const lastValue = lastElement && isPile ? lastElement.value.filter(n => n.originalX === item.originalX)[0].v : 0;
       const current = element.value.filter(n => {
-        if (isPile && n.x === name) {
+        if (isPile && n.originalX === name) {
           n.v = n.v + lastValue;
         }
-        return n.x === name;
+        return n.originalX === name;
       });
       // if (current.length && current[0].v !== null) {
       if (current.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || _.object();
+        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
           value: current[0].v,
-          name,
+          name: item.x,
+          originalId: item.originalX || item.x
         });
       }
     });
@@ -104,7 +104,7 @@ export default class extends Component {
     this.LineChart.render();
   }
   componentWillUnmount() {
-    this.LineChart.destroy();
+    this.LineChart && this.LineChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;
@@ -167,12 +167,16 @@ export default class extends Component {
     const baseConfig = {
       appendPadding: [15, 0, 5, 0],
       seriesField: 'groupName',
-      xField: 'name',
+      xField: 'originalId',
       yField: 'value',
       meta: {
-        name: {
+        originalId: {
           type: 'cat',
           range: [0, 1],
+          formatter: value => {
+            const item = _.find(sortData, { originalId: value });
+            return item ? item.name : value;
+          }
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -192,7 +196,7 @@ export default class extends Component {
           }
         : false,
       yAxis: {
-        minLimit: ydisplay.minValue || null,
+        minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
         maxLimit: ydisplay.maxValue || (LineValue > maxValue ? parseInt(LineValue) + parseInt(LineValue / 5) : null),
         title:
           ydisplay.showTitle && ydisplay.title
@@ -227,7 +231,7 @@ export default class extends Component {
               },
             }
           : null,
-        line: ydisplay.lineStyle === 1 ? _.object() : null,
+        line: ydisplay.lineStyle === 1 ? {} : null,
       },
       tooltip: {
         shared: true,
@@ -293,7 +297,7 @@ export default class extends Component {
     if (_.isEmpty(contrastMap)) {
       return {
         LineChartComponent: ChartComponent,
-        LineChartConfig: Object.assign(_.object(), baseConfig, {
+        LineChartConfig: Object.assign({}, baseConfig, {
           data: sortData,
           color: colors,
         }),
@@ -310,24 +314,24 @@ export default class extends Component {
       const newData = mergeDataTime(sortData, contrastData);
       return {
         LineChartComponent: ChartComponent,
-        LineChartConfig: Object.assign(_.object(), baseConfig, {
+        LineChartConfig: Object.assign({}, baseConfig, {
           data: newData,
           color: ['#64B5F6', '#CCC'],
           tooltip: {
             showTitle: false,
             shared: true,
             showCrosshairs: true,
-            formatter: ({ value, groupName, name: xName }) => {
+            formatter: ({ value, groupName, originalId: xName }) => {
               const { name } = formatControlInfo(groupName);
               const newValue = _.isNumber(value) ? value.toLocaleString() : _l('空');
               if (name === lastDateText) {
-                const { originalName } = _.find(contrastData, { name: xName }) || _.object();
+                const { originalName } = _.find(contrastData, { originalId: xName }) || {};
                 return {
                   name: moment(originalName).isValid() ? `${name} ${originalName} ` : name,
                   value: newValue,
                 }
               } else {
-                const { originalName } = _.find(sortData, { name: xName }) || _.object();
+                const { originalName } = _.find(sortData, { originalId: xName }) || {};
                 return {
                   name: moment(originalName).isValid() ? `${name} ${originalName} ` : name,
                   value: newValue,

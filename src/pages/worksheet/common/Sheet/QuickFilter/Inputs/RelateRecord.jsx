@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
 import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`
@@ -59,7 +59,7 @@ export default function RelateRecord(props) {
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
-      ...controlAdvancedSetting,
+      searchcontrol: controlAdvancedSetting.searchcontrol,
       filters: filterDynamicSource(controlAdvancedSetting.filters),
     },
   });
@@ -102,6 +102,7 @@ export default function RelateRecord(props) {
   return (
     <Con>
       <Dropdown
+        zIndex="xxx"
         disableNewRecord
         doNotClearKeywordsWhenChange={isMultiple}
         isQuickFilter

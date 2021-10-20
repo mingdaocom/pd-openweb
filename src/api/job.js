@@ -72,6 +72,22 @@ define(function (require, exports, module) {
     },
 
     /**
+    * 获取 职位成员列表
+    * @param {Object} args 请求参数
+    * @param {string} args.projectId 网络Id
+    * @param {string} args.jobId 职位id
+    * @param {string} args.keywords 关键词
+    * @param {integer} args.pageIndex 页码
+    * @param {integer} args.pageSize 页大小
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    pagedJobAccounts: function (args, options) {
+      return $.api('Job', 'PagedJobAccounts', args, options);
+    },
+
+    /**
     * 获取用户列表
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络Id

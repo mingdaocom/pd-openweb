@@ -7,7 +7,7 @@
     "publish": "cross-env NODE_ENV=production API_SERVER=/wwwapi/ WEBPACK_PUBLIC_PATH=/dist/pack/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js publish"
   },
   "dependencies": {
-    "@antv/g2plot": "2.3.11",
+    "@antv/g2plot": "^2.3.33",
     "@antv/l7": "^2.2.42",
     "@antv/l7-district": "^2.2.46",
     "@antv/l7-maps": "^2.2.42",
@@ -31,6 +31,7 @@
     "@mdfe/react-dnd-mouse-backend": "^2.0.0",
     "@mdfe/selectize": "^0.12.6",
     "@mdfe/timepicker": "^1.0.2",
+    "@sentry/react": "^6.11.0",
     "antd": "4.14.0",
     "antd-mobile": "2.2.13",
     "axios": "^0.19.0",

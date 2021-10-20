@@ -146,6 +146,10 @@ export const CONDITION_TYPE = {
   34: _l('不是'),
   35: _l('属于'),
   36: _l('不属于'),
+  37: _l('在范围内'),
+  38: _l('不在范围内'),
+  39: _l('晚于'),
+  41: _l('早于'),
 };
 
 export const GRADE_STAR_TYPE = {

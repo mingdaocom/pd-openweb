@@ -2,11 +2,40 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  .moreListIcon {
+    display: inline-block;
+    width: 24px;
+  }
+  .moreList {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    text-align: left;
+    color: #2196f3;
+    &:hover {
+      color: #1185e2;
+    }
+  }
+
+  .ant-tree-list-holder-inner {
+    padding-right: 10px;
+  }
+
+  .ant-tree-list-scrollbar {
+    width: 6px !important;
+    display: block !important;
+    .ant-tree-list-scrollbar-thumb {
+      background: rgba(187, 187, 187, 0.8) !important;
+    }
+  }
 
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected::before,
   .ant-tree.ant-tree-directory .ant-tree-treenode:hover::before {
-    background: #DBEEFF 0 0 no-repeat padding-box;
+    background: #dbeeff 0 0 no-repeat padding-box;
     border-radius: 0 16px 16px 0;
     height: 36px;
     width: 256px;
@@ -37,7 +66,7 @@
     &.ant-tree-treenode-selected {
       &:hover {
         &::before {
-          background: #DBEEFF 0 0 no-repeat padding-box !important;
+          background: #dbeeff 0 0 no-repeat padding-box !important;
         }
         .ant-tree-switcher {
           background: none !important;
@@ -57,7 +86,8 @@
     }
   }
 
-  .ant-tree-switcher_close:hover, .ant-tree-switcher_open:hover {
+  .ant-tree-switcher_close:hover,
+  .ant-tree-switcher_open:hover {
     background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
   }
 
@@ -84,7 +114,7 @@
     }
     &.ant-tree-treenode-selected:hover::before,
     &.ant-tree-treenode-selected::before {
-      background: #DBEEFF 0 0 no-repeat padding-box !important;
+      background: #dbeeff 0 0 no-repeat padding-box !important;
     }
   }
 
@@ -214,7 +244,7 @@
     .ant-tree-child-tree
     > .ant-tree-treenode.ant-tree-treenode-selected
     > span.ant-tree-node-content-wrapper::before {
-    background: #DBEEFF 0% 0% no-repeat padding-box;
+    background: #dbeeff 0% 0% no-repeat padding-box;
     border-radius: 0px 16px 16px 0px;
     height: 36px;
     width: 256px;

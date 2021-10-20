@@ -167,6 +167,7 @@ export default class MyProcess extends Component {
   static defaultProps = {
     countData: {},
     updateCountData: () => {},
+    onCancel: () => {},
   };
   constructor(props) {
     super(props);

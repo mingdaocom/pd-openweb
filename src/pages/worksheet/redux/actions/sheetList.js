@@ -10,11 +10,19 @@ import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import * as sheetActions from 'src/pages/worksheet/redux/actions/index';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 
+let getAppSectionDetailRequest;
+
 export function getSheetList(args) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: true });
     dispatch({ type: 'SHEET_LIST', data: [] });
-    homeAppAjax.getAppSectionDetail(args).then(data => {
+    if (getAppSectionDetailRequest) {
+      try {
+        getAppSectionDetailRequest.abort();
+      } catch (err) {}
+    }
+    getAppSectionDetailRequest = homeAppAjax.getAppSectionDetail(args);
+    getAppSectionDetailRequest.then(data => {
       dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: false });
       if (_.isEmpty(data)) {
         dispatch({ type: 'WORKSHEET_APP_SECTION_FAILURE' });
@@ -26,10 +34,8 @@ export function getSheetList(args) {
         dispatch({ type: 'SHEET_LIST', data: data.workSheetInfo });
       }
       const { worksheetId } = getState().sheet.base;
-      const sheetInfo = _.find(data.workSheetInfo, { workSheetId: worksheetId }) || _.object();
-      const maturityTime = moment(md.global.Account.createTime)
-        .add(7, 'days')
-        .format('YYYY-MM-DD');
+      const sheetInfo = _.find(data.workSheetInfo, { workSheetId: worksheetId }) || {};
+      const maturityTime = moment(md.global.Account.createTime).add(7, 'days').format('YYYY-MM-DD');
       const isMaturity = moment().isBefore(maturityTime);
       if (isCharge && isMaturity && sheetInfo.type === 0) {
         dispatch(updateGuidanceVisible());
@@ -39,7 +45,7 @@ export function getSheetList(args) {
 }
 
 export function updateSheetList(id, args) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { data } = getState().sheetList;
     const list = data.map(item => {
       if (item.workSheetId === id) {
@@ -55,7 +61,7 @@ export function updateSheetList(id, args) {
 }
 
 export function updateSheetIconColor(iconColor) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { data } = getState().sheetList;
     const newSheetList = data.map(item => {
       item.iconColor = iconColor;
@@ -66,7 +72,7 @@ export function updateSheetIconColor(iconColor) {
 }
 
 export function updateSheetListIsUnfold(visible) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     if (visible) {
       dispatch({ type: 'SHEET_LIST_UPDATE_IS_UNFOLD', isUnfold: true });
     } else {
@@ -76,13 +82,13 @@ export function updateSheetListIsUnfold(visible) {
 }
 
 export function updateWorksheetInfo(id, data) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     dispatch(sheetActions.updateWorksheetInfo(data));
   };
 }
 
 export function copySheet(baseArgs, iconArgs) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { projectId } = store.getState().appPkg;
     const args = {
       ...baseArgs,
@@ -118,7 +124,7 @@ export function copySheet(baseArgs, iconArgs) {
 }
 
 export function moveSheet(ages) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { data: sheetList } = getState().sheetList;
     const { workSheetId } = ages.workSheetsInfo[0];
     const newSheetList = sheetList.filter(item => item.workSheetId !== workSheetId);
@@ -144,9 +150,9 @@ export function moveSheet(ages) {
 }
 
 export function deleteSheet({ appId, groupId, worksheetId, type }) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { data: sheetList } = getState().sheetList;
-    const deleteFun = function(data, type) {
+    const deleteFun = function (data, type) {
       if (data) {
         const newSheetList = sheetList.filter(item => item.workSheetId !== worksheetId);
         dispatch({ type: 'SHEET_LIST', data: newSheetList });
@@ -180,7 +186,7 @@ export function deleteSheet({ appId, groupId, worksheetId, type }) {
 }
 
 export function sortSheetList(appId, appSectionId, sheetList) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     dispatch({ type: 'SHEET_LIST', data: sheetList });
     homeAppAjax
       .updateSectionChildSort({
@@ -193,7 +199,7 @@ export function sortSheetList(appId, appSectionId, sheetList) {
 }
 
 export function updateGuidanceVisible(visible) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const key = `${md.global.Account.accountId}-guidanceHide`;
     if (_.isBoolean(visible)) {
       webCache
@@ -227,7 +233,7 @@ export function updateGuidanceVisible(visible) {
 }
 
 export function addWorkSheet(args, cb) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { appId, appSectionId, name, projectId, type } = args;
     appManagementAjax
       .addWorkSheet({
@@ -272,7 +278,7 @@ export function addWorkSheet(args, cb) {
 
 // 复制自定义页面
 export function copyCustomPage(para) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const { sheetList } = getState();
     appManagementAjax.copyCustomPage(para).then(data => {
       if (data) {

@@ -23,15 +23,15 @@ const getApiByRequestType = (type, { departmentId }) => {
     return departmentId ? departmentController.getProjectDepartmentUsers : departmentController.getNoDepartmentUsers;
   }
   const dict = {
-    [REQUEST_ACTIONS.ALL_USER_REQUEST]: userController.getUserList, //全公司
-    [REQUEST_ACTIONS.DEPARTMENT_REQUEST]: departmentController.getProjectSubDepartment, //根据部门父Id获取子部门,departmentId为null表示父部门是网络
+    [REQUEST_ACTIONS.ALL_USER_REQUEST]: userController.pagedNormalUserList, //全公司
+    [REQUEST_ACTIONS.DEPARTMENT_REQUEST]: departmentController.pagedSubDepartments, //根据部门父Id获取子部门,departmentId为null表示父部门是网络
     [REQUEST_ACTIONS.INACTIVE_USER_REQUEST]: importUserController.getImportUserDetails, //未激活成员
     [REQUEST_ACTIONS.APPROVAL_USER_REQUEST]: userController.getApprovalUser, //待管理员审核
     [CURRENT_ACTIONS.INACTIVE_LOAD]: importUserController.getUnusedInfosByProjectIdCount, //整个网络的导入用户，未被使用的总数
     [CURRENT_ACTIONS.APPROVAL_LOAD]: projectController.getProjectUnauditedUserCount, //获取网络内待审批用户数量
-    [SEARCH_ACTIONS.SEARCH_REQUEST]: departmentController.getStructureSearchResult,
-    [REQUEST_ACTIONS.FULL_TREE_REQUEST]: departmentController.getProjectDepartmentFullTreeByDepartmentId,
-    [JOB_ACTIONS.JOB_USER_REQUEST]: jobController.getJobUsers, //根据职位id获取user
+    [SEARCH_ACTIONS.SEARCH_REQUEST]: departmentController.searchDeptAndUsers,
+    [REQUEST_ACTIONS.FULL_TREE_REQUEST]: departmentController.getOneDepartmentFullTree,
+    [JOB_ACTIONS.JOB_USER_REQUEST]: jobController.pagedJobAccounts, //根据职位id获取user
     [JOB_ACTIONS.JOB_LIST_REQUEST]: jobController.getJobs, // 获取职位list
   };
   if (dict[type] === undefined) throw new Error('ajaxController method not found.');

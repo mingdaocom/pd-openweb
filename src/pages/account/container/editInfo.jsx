@@ -211,7 +211,10 @@ export default class EditInfo extends React.Component {
           } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
             alert(_l('验证码已经失效，请重新发送'), 3);
           } else if (data.actionResult == actionResult.projectUserExists) {
-            alert(_l('您已经是该组织的成员'), 3);
+            setTimeout(() => {
+              loginSuc();
+            }, 1000);
+            alert(_l('您已经是该组织成员，可直接登录'), 3);
           } else if (data.actionResult == actionResult.freeProjectForbid) {
             alert(_l('你加入的组织用户额度不足，请联系该组织管理员'), 3);
           } else if (data.actionResult == actionResult.accountFrequentLoginError) {
@@ -229,12 +232,12 @@ export default class EditInfo extends React.Component {
   validateEditCard = data => {
     switch (data.joinProjectResult) {
       case 1:
-        alert(_l('您已成功加入该组织'), 1, 2000, function() {
+        alert(_l('您已成功加入该组织'), 1, 2000, function () {
           location.href = '/app';
         });
         break;
       case 2:
-        alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function() {
+        alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function () {
           location.href = '/app';
         });
         break;
@@ -536,14 +539,17 @@ export default class EditInfo extends React.Component {
   };
 
   render() {
+    const { registerData = {} } = this.props;
+    const { company = {} } = registerData;
+    const { companyName } = company;
     if (this.state.pageLoading) {
       return <LoadDiv className="" style={{ margin: '150px auto' }} />;
     }
     return (
       <React.Fragment>
         {this.state.loading && <div className="loadingLine"></div>}
-        <div className="title mTop24 Font20">{_l('填写名片')}</div>
-        <p className="mTop15 Gray_9e Font15">{_l('名片是您在该组织下的身份信息')}</p>
+        <div className="title mTop24 Font20">{companyName || _l('填写名片')}</div>
+        <p className="mTop15 Gray_9e Font15">{_l('完善名片信息')}</p>
         {this.renderCon()}
         <span
           className="btnForRegister Hand"

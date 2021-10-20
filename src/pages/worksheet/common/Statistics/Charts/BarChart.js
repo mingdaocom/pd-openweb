@@ -15,15 +15,15 @@ import {
 import { formatSummaryName, getIsAlienationColor } from 'src/pages/worksheet/common/Statistics/common';
 
 const formatDataCount = (data, isVertical, newYaxisList) => {
-  const result = _.toArray(_.groupBy(data, 'name'));
+  const result = _.toArray(_.groupBy(data, 'originalName'));
   return result.map(item => {
-    const { name } = item[0];
+    const { originalName } = item[0];
     const count = item.reduce((count, item) => count + item.value, 0);
     const value = formatrChartValue(count, false, newYaxisList);
     const data = {
       type: 'text',
       position: {
-        name: name,
+        originalName,
         value: count,
       },
       content: value,
@@ -47,13 +47,14 @@ export const formatChartData = (data, yaxisList) => {
   value.forEach(item => {
     const name = item.x;
     data.forEach((element, index) => {
-      const target = element.value.filter(n => n.x === name);
+      const target = element.value.filter(n => n.originalX === item.originalX);
       if (target.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || _.object();
+        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.BarChart}-chart-${element.c_id || index}`,
           value: target[0].v,
           name,
+          originalName: item.originalX || name
         });
       }
     });
@@ -76,7 +77,7 @@ export default class extends Component {
     this.BarChart.render();
   }
   componentWillUnmount() {
-    this.BarChart.destroy();
+    this.BarChart && this.BarChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;
@@ -115,8 +116,8 @@ export default class extends Component {
       this.BarChart.render();
     }
   }
-  getCustomColor(data, colors, { name }) {
-    const inedx = _.findIndex(data, { name });
+  getCustomColor(data, colors, { originalName }) {
+    const inedx = _.findIndex(data, { originalName });
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
@@ -148,18 +149,22 @@ export default class extends Component {
 
     const baseConfig = {
       data,
-      appendPadding: isVertical ? [20, 0, 0, 0] : [10, 50, 0, 0],
-      seriesField: (isOptionsColor || isCustomColor) ? 'name' : 'groupName',
+      appendPadding: isVertical ? [20, 0, 5, 0] : [10, 50, 0, 0],
+      seriesField: (isOptionsColor || isCustomColor) ? 'originalName' : 'groupName',
       meta: {
-        name: {
+        originalName: {
           type: 'cat',
+          formatter: value => {
+            const item = _.find(data, { originalName: value });
+            return item ? item.name : value;
+          }
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
         },
       },
-      xField: isVertical ? 'name' : 'value',
-      yField: isVertical ? 'value' : 'name',
+      xField: isVertical ? 'originalName' : 'value',
+      yField: isVertical ? 'value' : 'originalName',
       xAxis: isVertical
         ? this.getxAxis(displaySetup, xaxes.particleSizeType)
         : this.getyAxis(displaySetup, newYaxisList),
@@ -240,7 +245,7 @@ export default class extends Component {
   getyAxis(displaySetup, yaxisList) {
     const { isPerPile, ydisplay } = displaySetup;
     return {
-      minLimit: ydisplay.minValue || null,
+      minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
       maxLimit: isPerPile ? 1 : ydisplay.maxValue || null,
       title:
         ydisplay.showTitle && ydisplay.title
@@ -284,7 +289,7 @@ export default class extends Component {
             },
           }
         : null,
-      line: ydisplay.lineStyle === 1 ? _.object() : null,
+      line: ydisplay.lineStyle === 1 ? {} : null,
     };
   }
   setCount(yaxisList) {

@@ -113,7 +113,7 @@ QuickFilter.propTypes = {
 export default connect(
   state => ({
     // worksheet
-    controls: state.sheet.controls,
+    controls: state.sheet.controls.map(c => ({ ...c })),
   }),
   dispatch =>
     bindActionCreators(

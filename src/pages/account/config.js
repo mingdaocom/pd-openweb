@@ -1,5 +1,4 @@
 export default {
-  logo: 'https://pic.mingdao.com/ProjectLogo/default.png',
   SupportFindVerifyCodeUrl: 'https://help.mingdao.com/Introduction4.html',
   InviteFromType: {
     register: -1, // 主动注册

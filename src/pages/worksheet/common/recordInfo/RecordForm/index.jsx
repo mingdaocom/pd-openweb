@@ -190,6 +190,15 @@ export default function RecortForm(props) {
     setFormHeight(recordForm.current.clientHeight);
     setNavVisible();
   });
+  useEffect(() => {
+    if (!recordId) {
+      try {
+        onChange(customwidget.current.dataFormat.getDataSource(), { noSaveTemp: true });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [loading]);
   function setSplit(value) {
     if (value) {
       localStorage.setItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
@@ -229,7 +238,7 @@ export default function RecortForm(props) {
     });
   }
   return (
-    <div className="recordInfoForm flexColumn" ref={recordForm} style={{ width: formWidth }}>
+    <div className="recordInfoForm flexColumn" ref={recordForm} style={{ width: !abnormal ? formWidth : '100%' }}>
       {(from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || from === RECORD_INFO_FROM.WORKFLOW) && recordTitle && (
         <DocumentTitle title={_l('记录-%0', recordTitle)} />
       )}
@@ -339,6 +348,9 @@ export default function RecortForm(props) {
                     updateRelateRecordNum(controlId, value[controlId]);
                   }}
                   onRelateRecordsChange={onRelateRecordsChange}
+                  onActiveIdChange={controlId => {
+                    setActiveRelateRecordControlId(controlId);
+                  }}
                   onScrollLeftChange={value => {
                     setNavScrollLeft(value);
                   }}

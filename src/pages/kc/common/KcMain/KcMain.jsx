@@ -32,8 +32,13 @@ import {
 } from '../../constant/enum';
 import { getRootNameAndLink } from '../../utils';
 import { handleDownloadOne, updateNodeName } from '../../utils/common';
-import { registerNodeItemEvent, bindEvent, handleDragSelectClickOnly, handleDragSelect, handleDragSelectFromGap } from '../../utils/kcevent';
-
+import {
+  registerNodeItemEvent,
+  bindEvent,
+  handleDragSelectClickOnly,
+  handleDragSelect,
+  handleDragSelectFromGap,
+} from '../../utils/kcevent';
 
 import * as kcActions from '../../redux/actions/kcAction';
 import * as selectActions from '../../redux/actions/selectAction';
@@ -52,10 +57,7 @@ class KcMain extends Component {
     }),
     list: PropTypes.shape({}),
     totalCount: PropTypes.number,
-    currentRoot: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.shape({}),
-    ]),
+    currentRoot: PropTypes.oneOfType([PropTypes.number, PropTypes.shape({})]),
     selectedItems: PropTypes.shape({}),
     currentFolder: PropTypes.shape({}),
     isGlobalSearch: PropTypes.bool,
@@ -90,7 +92,7 @@ class KcMain extends Component {
     updateKcBaseUrl: PropTypes.func,
     loadListById: PropTypes.func,
     batchDownload: PropTypes.func,
-  }
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -115,11 +117,15 @@ class KcMain extends Component {
     } else {
       changeFolder(path);
     }
-    bindEvent(this.jqns, Object.assign({}, this.props, {
-      showDetail: this.showDetail,
-      handlePreview: this.handlePreview,
-      getRootNameAndLink,
-    }), this.getEventLatestData);
+    bindEvent(
+      this.jqns,
+      Object.assign({}, this.props, {
+        showDetail: this.showDetail,
+        handlePreview: this.handlePreview,
+        getRootNameAndLink,
+      }),
+      this.getEventLatestData,
+    );
     this.handleRegisterNodeItemEvent();
   }
 
@@ -139,17 +145,17 @@ class KcMain extends Component {
     const _this = this;
     const { selectItem, selectSingleItem, updateNodeItem, baseUrl } = this.props;
     registerNodeItemEvent(this.kcApp, {
-      findItemById: (id) => {
+      findItemById: id => {
         const { list } = _this.props;
-        return list.find(i => i.id === id);
+        return list.filter(_.identity).find(i => i.id === id);
       },
-      changeRightMenuOption: rightMenuOption => (_this.setState({ rightMenuOption })),
+      changeRightMenuOption: rightMenuOption => _this.setState({ rightMenuOption }),
       baseUrl,
       handlePreview: this.handlePreview,
       selectSingleItem,
       selectItem,
       updateNodeItem,
-      startDragItems: (evt) => {
+      startDragItems: evt => {
         _this.setState({ draggingItemsStartPos: { left: evt.clientX, top: evt.clientY } });
       },
       getLatestData: this.getEventLatestData,
@@ -224,8 +230,15 @@ class KcMain extends Component {
       list,
       totalCount,
       baseUrl,
-      listLoading, currentRoot, currentFolder, params, searchNodes, startGlobalSearch,
-      isGlobalSearch, triggerLoadMoreNodes, openUploadAssistant,
+      listLoading,
+      currentRoot,
+      currentFolder,
+      params,
+      searchNodes,
+      startGlobalSearch,
+      isGlobalSearch,
+      triggerLoadMoreNodes,
+      openUploadAssistant,
       addLinkFile,
       addNewFolder,
       updateNodeItem,
@@ -269,15 +282,19 @@ class KcMain extends Component {
         ? list.filter(item => !selectedItems.some(selectItem => selectItem.id === item.id))
         : null;
     const selectedCount = selectAll
-      ? list.size === selectedItems.size ? totalCount - list.size + validList.size : totalCount - selectAllUnchecked.size
+      ? list.size === selectedItems.size
+        ? totalCount - list.size + validList.size
+        : totalCount - selectAllUnchecked.size
       : selectedItems.size;
 
     // 添加文件夹
-    const addFolder = newFolderVisible && <KcNewFolder
-      isList={isList}
-      addNewFolder={addNewFolder}
-      onHideAddNewFolder={() => this.handleAddNewFolder(false)}
-    />;
+    const addFolder = newFolderVisible && (
+      <KcNewFolder
+        isList={isList}
+        addNewFolder={addNewFolder}
+        onHideAddNewFolder={() => this.handleAddNewFolder(false)}
+      />
+    );
 
     // 知识列表组件
     const kclistProps = {
@@ -287,7 +304,7 @@ class KcMain extends Component {
         { noMultiItemsSelected: !this.hasMultipleSelectedItems() },
         isList || isRecycle ? 'kclist' : 'thumbnail',
         { relative: !validList.size && !addFolder && !listLoading },
-        { noListItem: !validList.size }
+        { noListItem: !validList.size },
       ),
       ref: kclistcon => (this.kclist = kclistcon),
     };
@@ -295,16 +312,17 @@ class KcMain extends Component {
     if (!validList.size && !addFolder) {
       kclist = (
         <div {...kclistProps}>
-          {
-            listLoading ? <LoadDiv size="big" />
-            : <KcListEmpty
+          {listLoading ? (
+            <LoadDiv size="big" />
+          ) : (
+            <KcListEmpty
               isReadOnly={isReadOnly}
               isRecycle={isRecycle}
               root={currentRoot}
               keywords={keywords}
               openUploadAssistant={openUploadAssistant}
             />
-          }
+          )}
         </div>
       );
     } else {
@@ -343,11 +361,11 @@ class KcMain extends Component {
                   selectedItemsBeforeDragSelect: this.selectedItemsBeforeDragSelect,
                 });
               }}
-              onMouseDown={(evt) => {
+              onMouseDown={evt => {
                 handleDragSelectFromGap(evt, this.dragSelect);
               }}
             >
-              { addFolder }
+              {addFolder}
               {validList
                 .map(
                   (item, i) =>
@@ -378,7 +396,7 @@ class KcMain extends Component {
                         onStarNode={starNode}
                         onAddLinkFile={addLinkFile}
                       />
-                    )
+                    ),
                 )
                 .toArray()}
             </DragSelect>
@@ -388,225 +406,237 @@ class KcMain extends Component {
       );
     }
     // 主体
-    return (<div
-      className="kcMain kcMain flex"
-      ref={ kcApp => (this.kcApp = kcApp) }
-    >
-      <div className="previewFileMain">
-        { isPreviewFile && <AttachmentsPreview
-          options={{
-            attachments: list.filter(item => item && item.type !== 1).toArray(),
-            hideFunctions: isRecycle ? ['share'] : [],
-            callFrom: 'kc',
-            fromType: 7,
-            index: previewIndex || 0,
-          }}
-          extra={{
-            performUpdateItem: updateNodeItem,
-            performRemoveItems: removeNodeItem,
-            loadMoreAttachments: list.size < totalCount ? () => {
-              const promise = $.Deferred();
-              loadMoreKcNodes((data) => {
-                if (!data.list || typeof data.list !== 'object') {
-                  promise.reject();
-                }
-                promise.resolve(
-                  data.list.filter(item => item.type !== 1).map(item =>
-                    Object.assign({}, item, {
-                      previewAttachmentType: 'KC',
-                    })
-                  )
-                );
-              });
-              return promise;
-            } : undefined,
-          }}
-          onClose={() => {
-            this.setState({
-              isPreviewFile: false,
-            });
-          }}
-        /> }
-      </div>
-      <div className="kcRightContent borderContainer boxSizing flexColumn Relative">
-        <KcListHeader
-          currentRoot={currentRoot}
-          currentFolder={currentFolder}
-          baseUrl={baseUrl}
-          isList={isList}
-          isReadOnly={isReadOnly}
-          isRecycle={isRecycle}
-          keywords={keywords}
-          rootNameAndLink={getRootNameAndLink(baseUrl, currentRoot)}
-          searchNodes={searchNodes}
-          openUploadAssistant={openUploadAssistant}
-          startGlobalSearch={startGlobalSearch}
-          isGlobalSearch={isGlobalSearch}
-          isPinDetail={isPinDetail}
-          onRemoveNode={removeNode}
-          onSelectAllItems={selectAllItems}
-          onShowAddNewFolder={() => this.handleAddNewFolder(true)}
-          changeKcView={this.changeKcView}
-          addLinkFile={addLinkFile}
-          loadRecycleBin={reloadList}
-          editRoot={kcLeftEditRootFn}
-          toggleDetailAndTogglePin={this.toggleDetailAndTogglePin}
-        />
-        <div className={cx('flex kcMainContent Relative transitions boxSizing', isShowDetail ? 'showDetail' : 'removeDetail')}>
-          <div className={cx('kcToolbar boxSizing', { hide: !validList.size })}>
-            <span className="selectAll boderRadAll_3" data-tip={_l('全选')} onClick={() => selectAllItems(false)}>
-              <i className={cx('icon-ok', { hide: !(selectAll && list.size === selectedItems.size) })} />
-            </span>
-            <span className={cx('kcToolbarSingle', { hide: selectedItems.size >= 2 || !isList })}>
-              <span
-                className={cx('kcToolbarLabel', { disabledSort: currentRoot === PICK_TYPE.RECENT })}
-                onClick={() => changeSortBy(NODE_SORT_BY.NAME)}
-              >
-                {_l('文件名')}
-                <i
-                  className={cx(
-                    'ThemeColor3',
-                    { hide: sortBy !== NODE_SORT_BY.NAME || currentRoot === PICK_TYPE.RECENT },
-                    sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext'
-                  )}
-                />
-              </span>
-              <div className="kcToolbarRight transitions">
-                <span className={cx('createUser ellipsis', { hide: isRecycle })}>{_l('创建者')}</span>
-                {!isRecycle ? (
-                  <span
-                    className={cx('editTime ellipsis', { disabledSort: currentRoot === PICK_TYPE.RECENT })}
-                    onClick={() => changeSortBy(NODE_SORT_BY.UPDATE_TIME)}
-                  >
-                    {_l('修改时间')}
-                    <i
-                      className={cx(
-                        'ThemeColor3',
-                        { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME || currentRoot === PICK_TYPE.RECENT },
-                        sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext'
-                      )}
-                    />
-                  </span>
-                ) : (
-                  <span className="deleteTime ellipsis ThemeColor3" onClick={() => changeSortBy(NODE_SORT_BY.UPDATE_TIME)}>
-                    删除时间<i
-                      className={cx(
-                        'ThemeColor3',
-                        { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME },
-                        sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext'
-                      )}
-                    />
-                  </span>
-                )}
-                <span className="size ellipsis">{_l('大小')}</span>
-              </div>
-            </span>
-            <span className={cx('kcToolbarMultiple', { hide: selectedItems.size < 2 })}>
-              {_l('已选中') + selectedCount + _l('项')}
-              <span className={cx({ hide: isRecycle })} data-tip={_l('批量下载')}>
-                <i className="icon-kc-hover-download ThemeColor3 pointer" onClick={batchDownload} />
-              </span>
-              <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量移动')}>
-                <i
-                  className="icon-task-replace ThemeColor3 pointer"
-                  onClick={() =>
-                    moveOrCopyClick(
-                      NODE_OPERATOR_TYPE.MOVE,
-                      typeof currentRoot === 'object' &&
-                      currentRoot.permission != ROOT_PERMISSION_TYPE.OWNER &&
-                      currentRoot.permission != ROOT_PERMISSION_TYPE.ADMIN
-                        ? currentRoot.id
-                        : null
-                    )
-                  }
-                />
-              </span>
-              <span className={cx({ hide: isRecycle })} data-tip={_l('批量复制')}>
-                <i
-                  className="icon-knowledge-more-folder ThemeColor3 pointer"
-                  onClick={
-                    () => moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)
-                  }
-                />
-              </span>
-              <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量删除')}>
-                <i
-                  className="icon-task-new-delete ThemeColor3 pointer"
-                  onClick={
-                    () => removeNode(NODE_STATUS.RECYCLED)
-                  }
-                />
-              </span>
-              <span className={cx({ hide: !isRecycle })} data-tip="批量彻底删除">
-                <i
-                  className="icon-task-new-delete ThemeColor3 pointer"
-                  onClick={
-                    () => removeNode(NODE_STATUS.DELETED)
-                  } />
-              </span>
-              <span className={cx({ hide: !isRecycle })} data-tip={_l('批量还原')}>
-                <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />
-              </span>
-            </span>
-          </div>
-          {kclist}
+    return (
+      <div className="kcMain kcMain flex" ref={kcApp => (this.kcApp = kcApp)}>
+        <div className="previewFileMain">
+          {isPreviewFile && (
+            <AttachmentsPreview
+              options={{
+                attachments: list.filter(item => item && item.type !== 1).toArray(),
+                hideFunctions: isRecycle ? ['share'] : [],
+                callFrom: 'kc',
+                fromType: 7,
+                index: previewIndex || 0,
+              }}
+              extra={{
+                performUpdateItem: updateNodeItem,
+                performRemoveItems: removeNodeItem,
+                loadMoreAttachments:
+                  list.size < totalCount
+                    ? () => {
+                        const promise = $.Deferred();
+                        loadMoreKcNodes(data => {
+                          if (!data.list || typeof data.list !== 'object') {
+                            promise.reject();
+                          }
+                          promise.resolve(
+                            data.list
+                              .filter(item => item.type !== 1)
+                              .map(item =>
+                                Object.assign({}, item, {
+                                  previewAttachmentType: 'KC',
+                                }),
+                              ),
+                          );
+                        });
+                        return promise;
+                      }
+                    : undefined,
+              }}
+              onClose={() => {
+                this.setState({
+                  isPreviewFile: false,
+                });
+              }}
+            />
+          )}
         </div>
-        {
-          rightMenuOption && <RightMenu
-            item={rightMenuOption.item}
-            kcApp={this.kcApp}
-            permission={currentRoot.permission}
-            hideRightMenu={() => this.setState({ rightMenuOption: null })}
-            onClickAway={() => this.setState({ rightMenuOption: null })}
-            onClickAwayExceptions={[this.dragSelect]}
-            clientX={rightMenuOption.clientX}
-            clientY={rightMenuOption.clientY}
+        <div className="kcRightContent borderContainer boxSizing flexColumn Relative">
+          <KcListHeader
+            currentRoot={currentRoot}
+            currentFolder={currentFolder}
+            baseUrl={baseUrl}
+            isList={isList}
+            isReadOnly={isReadOnly}
             isRecycle={isRecycle}
-            isMulti={rightMenuOption.isMulti}
-            removeNode={removeNode}
-            moveOrCopyClick={moveOrCopyClick}
-            restoreNode={restoreNode}
-            updateNodeName={updateNodeName}
-            performUpdateItem={updateNodeItem}
-            onShareNode={shareNode}
-            changeFolder={(item) => {
-              navigateTo('/apps/kc' + item.position.replace(md.global.Account.accountId, 'my'));
-            }}
-            handlePreview={this.handlePreview}
-            handleAddLinkFile={this.handleAddLinkFile}
-            download={selectedItems.size === 1 ? handleDownloadOne : batchDownload}
-            showDetail={this.showDetail}
-            onStarNode={starNode}
-            onAddLinkFile={addLinkFile}
+            keywords={keywords}
+            rootNameAndLink={getRootNameAndLink(baseUrl, currentRoot)}
+            searchNodes={searchNodes}
+            openUploadAssistant={openUploadAssistant}
+            startGlobalSearch={startGlobalSearch}
+            isGlobalSearch={isGlobalSearch}
+            isPinDetail={isPinDetail}
+            onRemoveNode={removeNode}
+            onSelectAllItems={selectAllItems}
+            onShowAddNewFolder={() => this.handleAddNewFolder(true)}
+            changeKcView={this.changeKcView}
+            addLinkFile={addLinkFile}
+            loadRecycleBin={reloadList}
+            editRoot={kcLeftEditRootFn}
+            toggleDetailAndTogglePin={this.toggleDetailAndTogglePin}
           />
-        }
+          <div
+            className={cx(
+              'flex kcMainContent Relative transitions boxSizing',
+              isShowDetail ? 'showDetail' : 'removeDetail',
+            )}
+          >
+            <div className={cx('kcToolbar boxSizing', { hide: !validList.size })}>
+              <span className="selectAll boderRadAll_3" data-tip={_l('全选')} onClick={() => selectAllItems(false)}>
+                <i className={cx('icon-ok', { hide: !(selectAll && list.size === selectedItems.size) })} />
+              </span>
+              <span className={cx('kcToolbarSingle', { hide: selectedItems.size >= 2 || !isList })}>
+                <span
+                  className={cx('kcToolbarLabel', { disabledSort: currentRoot === PICK_TYPE.RECENT })}
+                  onClick={() => changeSortBy(NODE_SORT_BY.NAME)}
+                >
+                  {_l('文件名')}
+                  <i
+                    className={cx(
+                      'ThemeColor3',
+                      { hide: sortBy !== NODE_SORT_BY.NAME || currentRoot === PICK_TYPE.RECENT },
+                      sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
+                    )}
+                  />
+                </span>
+                <div className="kcToolbarRight transitions">
+                  <span className={cx('createUser ellipsis', { hide: isRecycle })}>{_l('创建者')}</span>
+                  {!isRecycle ? (
+                    <span
+                      className={cx('editTime ellipsis', { disabledSort: currentRoot === PICK_TYPE.RECENT })}
+                      onClick={() => changeSortBy(NODE_SORT_BY.UPDATE_TIME)}
+                    >
+                      {_l('修改时间')}
+                      <i
+                        className={cx(
+                          'ThemeColor3',
+                          { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME || currentRoot === PICK_TYPE.RECENT },
+                          sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
+                        )}
+                      />
+                    </span>
+                  ) : (
+                    <span
+                      className="deleteTime ellipsis ThemeColor3"
+                      onClick={() => changeSortBy(NODE_SORT_BY.UPDATE_TIME)}
+                    >
+                      删除时间
+                      <i
+                        className={cx(
+                          'ThemeColor3',
+                          { hide: sortBy !== NODE_SORT_BY.UPDATE_TIME },
+                          sortType === NODE_SORT_TYPE.ASC ? 'icon-goprev' : 'icon-gonext',
+                        )}
+                      />
+                    </span>
+                  )}
+                  <span className="size ellipsis">{_l('大小')}</span>
+                </div>
+              </span>
+              <span className={cx('kcToolbarMultiple', { hide: selectedItems.size < 2 })}>
+                {_l('已选中') + selectedCount + _l('项')}
+                <span className={cx({ hide: isRecycle })} data-tip={_l('批量下载')}>
+                  <i className="icon-kc-hover-download ThemeColor3 pointer" onClick={batchDownload} />
+                </span>
+                <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量移动')}>
+                  <i
+                    className="icon-task-replace ThemeColor3 pointer"
+                    onClick={() =>
+                      moveOrCopyClick(
+                        NODE_OPERATOR_TYPE.MOVE,
+                        typeof currentRoot === 'object' &&
+                          currentRoot.permission != ROOT_PERMISSION_TYPE.OWNER &&
+                          currentRoot.permission != ROOT_PERMISSION_TYPE.ADMIN
+                          ? currentRoot.id
+                          : null,
+                      )
+                    }
+                  />
+                </span>
+                <span className={cx({ hide: isRecycle })} data-tip={_l('批量复制')}>
+                  <i
+                    className="icon-knowledge-more-folder ThemeColor3 pointer"
+                    onClick={() => moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
+                  />
+                </span>
+                <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量删除')}>
+                  <i
+                    className="icon-task-new-delete ThemeColor3 pointer"
+                    onClick={() => removeNode(NODE_STATUS.RECYCLED)}
+                  />
+                </span>
+                <span className={cx({ hide: !isRecycle })} data-tip="批量彻底删除">
+                  <i
+                    className="icon-task-new-delete ThemeColor3 pointer"
+                    onClick={() => removeNode(NODE_STATUS.DELETED)}
+                  />
+                </span>
+                <span className={cx({ hide: !isRecycle })} data-tip={_l('批量还原')}>
+                  <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />
+                </span>
+              </span>
+            </div>
+            {kclist}
+          </div>
+          {rightMenuOption && (
+            <RightMenu
+              item={rightMenuOption.item}
+              kcApp={this.kcApp}
+              permission={currentRoot.permission}
+              hideRightMenu={() => this.setState({ rightMenuOption: null })}
+              onClickAway={() => this.setState({ rightMenuOption: null })}
+              onClickAwayExceptions={[this.dragSelect]}
+              clientX={rightMenuOption.clientX}
+              clientY={rightMenuOption.clientY}
+              isRecycle={isRecycle}
+              isMulti={rightMenuOption.isMulti}
+              removeNode={removeNode}
+              moveOrCopyClick={moveOrCopyClick}
+              restoreNode={restoreNode}
+              updateNodeName={updateNodeName}
+              performUpdateItem={updateNodeItem}
+              onShareNode={shareNode}
+              changeFolder={item => {
+                navigateTo('/apps/kc' + item.position.replace(md.global.Account.accountId, 'my'));
+              }}
+              handlePreview={this.handlePreview}
+              handleAddLinkFile={this.handleAddLinkFile}
+              download={selectedItems.size === 1 ? handleDownloadOne : batchDownload}
+              showDetail={this.showDetail}
+              onStarNode={starNode}
+              onAddLinkFile={addLinkFile}
+            />
+          )}
+        </div>
+        <Drawer
+          open={isShowDetail}
+          onRequestClose={isPinDetail ? null : () => this.setState({ isShowDetail: false })}
+          // onClickAwayExceptions={[this.refs.toggleDetailAndTogglePinBtn]}
+          style={{ zIndex: detailAttamentsPreviewActive ? 16 : 6 }}
+        >
+          <Detail
+            data={selectedItems.size === 1 ? selectedItems.toArray()[0] : selectedItems}
+            togglePinned={this.togglePinDetail}
+            isPinned={isPinDetail}
+            performUpdateItem={updateNodeItem}
+            selectAllSize={selectAll ? selectedCount : 0}
+            selectAllUnchecked={selectAllUnchecked}
+            rootType={typeof currentRoot === 'object' ? PICK_TYPE.ROOT : currentRoot}
+            parentId={currentFolder ? currentFolder.id : null}
+            rootId={typeof currentRoot === 'object' ? currentRoot.id : null}
+            rootProjectId={
+              typeof currentRoot === 'object' ? (currentRoot.project && currentRoot.project.projectId) || '' : null
+            }
+            status={isRecycle ? NODE_STATUS.RECYCLED : NODE_STATUS.NORMAL}
+            updateDetailAttachmentsPreviewState={state => {
+              this.setState({
+                detailAttamentsPreviewActive: state,
+              });
+            }}
+          />
+        </Drawer>
       </div>
-      <Drawer
-        open={isShowDetail}
-        onRequestClose={isPinDetail ? null : () => this.setState({ isShowDetail: false })}
-        // onClickAwayExceptions={[this.refs.toggleDetailAndTogglePinBtn]}
-        style={{ zIndex: detailAttamentsPreviewActive ? 16 : 6 }}
-      >
-        <Detail
-          data={selectedItems.size === 1 ? selectedItems.toArray()[0] : selectedItems}
-          togglePinned={this.togglePinDetail}
-          isPinned={isPinDetail}
-          performUpdateItem={updateNodeItem}
-          selectAllSize={selectAll ? selectedCount : 0}
-          selectAllUnchecked={selectAllUnchecked}
-          rootType={typeof currentRoot === 'object' ? PICK_TYPE.ROOT : currentRoot}
-          parentId={currentFolder ? currentFolder.id : null}
-          rootId={typeof currentRoot === 'object' ? currentRoot.id : null}
-          rootProjectId={typeof currentRoot === 'object' ? (currentRoot.project && currentRoot.project.projectId) || '' : null}
-          status={isRecycle ? NODE_STATUS.RECYCLED : NODE_STATUS.NORMAL}
-          updateDetailAttachmentsPreviewState={(state) => {
-            this.setState({
-              detailAttamentsPreviewActive: state,
-            });
-          }}
-        />
-      </Drawer>
-    </div>);
+    );
   }
 }
 

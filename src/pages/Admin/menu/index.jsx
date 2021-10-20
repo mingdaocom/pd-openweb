@@ -51,7 +51,7 @@ export default class AdminLeftMenu extends Component {
           <NavLink
             id="linkAct"
             to={path}
-            className={cx('ThemeColor10 ThemeHoverBGColor7', this.state.isExtend ? 'extendAct' : 'closeAct')}
+            className={cx('ThemeHoverBGColor7', this.state.isExtend ? 'extendAct' : 'closeAct')}
             activeClassName="activeItem"
             isActive={isActive}>
             <i className={cx('Font20 color_c iconBox', icon)} />

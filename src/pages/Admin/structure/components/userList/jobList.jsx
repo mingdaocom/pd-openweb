@@ -236,17 +236,17 @@ class JopList extends React.Component {
             </tbody>
           </table>
         </td>
-        {<td title={item.departmentInfos.map((it, i) => {
-          if (item.departmentInfos.length - 1 > i) {
-            return `${it.departmentName};`
+        {<td title={item.departments.map((it, i) => {
+          if (item.departments.length - 1 > i) {
+            return `${it.name};`
           }
-          return `${it.departmentName}`
+          return `${it.name}`
         })}>
-          {item.departmentInfos.map((it, i) => {
-            if (item.departmentInfos.length - 1 > i) {
-              return `${it.departmentName};`
+          {item.departments.map((it, i) => {
+            if (item.departments.length - 1 > i) {
+              return `${it.name};`
             }
-            return `${it.departmentName}`
+            return `${it.name}`
           })}
         </td>}
         <td></td>

@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
+import { bindActionCreators } from 'redux';
 import { Flex, Card, ListView, ActivityIndicator, PullToRefresh, WhiteSpace, WingBlank } from 'antd-mobile';
 import CustomRecordCard from 'src/pages/Mobile/RecordList/RecordCard';
 import * as actions from '../redux/actions';
@@ -16,11 +17,7 @@ class SheetRows extends Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
-      dataSource: dataSource.cloneWithRows({ ...currentSheetRows }),
-      loading: false,
-      isMore: currentSheetRows.length === WORKSHEET_TABLE_PAGESIZE,
-      pageIndex: 1,
-      refreshing: false
+      dataSource: dataSource.cloneWithRows({ ...currentSheetRows })
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -30,45 +27,25 @@ class SheetRows extends Component {
       });
     }
   }
-  requestSheetRows(pageIndex) {
-    const { params } = this.props;
-    this.setState({ loading: true });
-    this.props.dispatch(
-      actions.addSheetRows(
-        {
-          ...params,
-          pageIndex,
-        },
-        isMore => {
-          this.setState({
-            pageIndex,
-            loading: false,
-            isMore,
-            refreshing: false,
-          });
-        },
-      ),
-    );
-  }
-  handleEndReached() {
-    const { loading, isMore, pageIndex } = this.state;
-    if (!loading && isMore) {
-      this.requestSheetRows(pageIndex + 1);
+  handleEndReached = () => {
+    const { sheetRowLoading, sheetView } = this.props;
+    if (!sheetRowLoading && sheetView.isMore) {
+      this.props.changePageIndex();
     }
   }
-  renderRow(item) {
-    const { worksheetControls, navigateTo, params, currentView, currentSheetInfo } = this.props;
+  renderRow = item => {
+    const { worksheetControls, navigateTo, base, view, worksheetInfo } = this.props;
     return (
       <WingBlank size="md">
         <CustomRecordCard
           key={item.rowid}
           data={item}
-          view={currentView}
+          view={view}
           controls={worksheetControls}
-          allowAdd={currentSheetInfo.allowAdd}
+          allowAdd={worksheetInfo.allowAdd}
           onClick={() => {
             navigateTo(
-              `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId || currentView.viewId}/${
+              `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
                 item.rowid
               }`,
             );
@@ -78,28 +55,27 @@ class SheetRows extends Component {
     );
   }
   render() {
-    const { isMore, loading, dataSource, refreshing } = this.state;
-    const { currentSheetRows } = this.props;
+    const { dataSource } = this.state;
+    const { currentSheetRows, sheetRowLoading, sheetView } = this.props;
     return (
       <Fragment>
         <ListView
-          className="sheetRowsWrapper"
+          className="sheetRowsWrapper flex"
           dataSource={dataSource}
           renderHeader={() => <Fragment />}
           renderFooter={() =>
-            isMore ? <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex> : <Fragment />
+            sheetView.isMore ? <Flex justify="center">{sheetRowLoading ? <ActivityIndicator animating /> : null}</Flex> : <div className="Height50 mBottom5"></div>
           }
           initialListSize={20}
           pageSize={20}
           scrollRenderAheadDistance={500}
-          onEndReached={this.handleEndReached.bind(this)}
+          onEndReached={this.handleEndReached}
           onEndReachedThreshold={20}
           pullToRefresh={
             <PullToRefresh
-              refreshing={refreshing}
+              refreshing={sheetRowLoading}
               onRefresh={() => {
-                this.setState({ refreshing: true });
-                this.requestSheetRows(1);
+                this.props.changePageIndex(1);
               }}
             />
           }
@@ -107,7 +83,7 @@ class SheetRows extends Component {
             height: '100%',
             overflow: 'auto',
           }}
-          renderRow={this.renderRow.bind(this)}
+          renderRow={this.renderRow}
         />
       </Fragment>
     );
@@ -135,11 +111,18 @@ export const WithoutSearchRows = props => {
   );
 };
 
-export default connect(state => {
-  const { currentSheetRows, worksheetControls, currentSheetInfo } = state.mobile;
-  return {
-    currentSheetRows,
-    worksheetControls,
-    currentSheetInfo,
-  };
-})(SheetRows);
+export default connect(
+  state => ({
+    base: state.mobile.base,
+    worksheetInfo: state.mobile.worksheetInfo,
+    currentSheetRows: state.mobile.currentSheetRows,
+    worksheetControls: state.mobile.worksheetControls,
+    sheetRowLoading: state.mobile.sheetRowLoading,
+    sheetView: state.mobile.sheetView
+  }),
+  dispatch =>
+    bindActionCreators(
+      _.pick(actions, ['changePageIndex']),
+      dispatch,
+  ),
+)(SheetRows);

@@ -1,9 +1,8 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import Back from '../components/Back';
-import login from 'src/api/login';
 import account from 'src/api/account';
 import common from 'src/pages/Personal/common';
 

@@ -31,6 +31,7 @@ class UserHead extends React.Component {
     showOpHtml: PropTypes.bool, // 是否需要显示名片层的操作按钮
     opHtml: PropTypes.string,
     showDeleteIcon: PropTypes.bool,
+    projectId: PropTypes.string, // 网络id
   };
 
   static defaultProps = {
@@ -61,7 +62,7 @@ class UserHead extends React.Component {
 
   bindCard = () => {
     const $this = $(ReactDom.findDOMNode(this));
-    let { opHtml } = this.props;
+    let { opHtml, projectId } = this.props;
     if (!this.props.bindBusinessCard || window.isPublicApp) {
       return false;
     }
@@ -123,6 +124,7 @@ class UserHead extends React.Component {
         force: true,
         reset: !!opHtml,
         opHtml,
+        projectId,
         readyFn: (opts, dialog) => {
           if (this.props.readyFn) {
             this.props.readyFn(dialog);

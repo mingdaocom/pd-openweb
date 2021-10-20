@@ -2,7 +2,7 @@
     <div class="settingPictureLayerTitle">{{= _l('系统头像') }}</div>
     <div class="settingPictureLayerImg clearfix">
         {{~ it.names:name }}
-        <img data-name="{{= name }}" src="{{=it.convertImageView(it.basePath + name, 1, 100, 100, 100)}}" class="Hand singleHead"/>
+        <img data-name="{{= name }}" src="{{=it.basePath + name}}?imageView2/1/w/100/h/100/q/90" class="Hand singleHead"/>
         {{~}}
     </div>
     <div class="insertGroupImg">

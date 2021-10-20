@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import DatePicker from 'src/components/newCustomFields/widgets/Date';
-// import DateTimePicker from 'ming-ui/components/NewDateTimePicker/date-time-picker';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
@@ -61,6 +59,8 @@ export default class Date extends React.Component {
   render() {
     const {
       className,
+      formdata = () => [],
+      masterData = () => {},
       style,
       tableFromModule,
       needLineLimit,
@@ -111,6 +111,8 @@ export default class Date extends React.Component {
               <div className="cellControlDatePickerCon">
                 <DatePicker
                   {...cell}
+                  formData={formdata()}
+                  masterData={masterData()}
                   dropdownClassName="scrollInTable"
                   onChange={this.handleChange}
                   compProps={{

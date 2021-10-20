@@ -83,15 +83,26 @@ export const setDataFormat = props => {
   };
 };
 
-export const getCalendarViewType = (strType, viewType) => {
+export const getCalendarViewType = (strType, data) => {
   const str = !['1', '2'].includes(strType)
     ? 'dayGridMonth'
     : strType === '1'
-    ? viewType === 16
+    ? isTimeStyle(data)
       ? 'timeGridWeek'
       : 'dayGridWeek'
-    : viewType === 16
+    : isTimeStyle(data)
     ? 'timeGridDay'
     : 'dayGridDay';
   return str;
+};
+
+export const isTimeStyle = (data = {}) => {
+  return data.type === 16 || (data.type === 38 && data.enumDefault === 2 && data.unit !== '3');
+};
+
+export const getTimeControls = controls => {
+  return controls.filter(
+    item =>
+      item.controlId !== 'utime' && (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
+  );
 };

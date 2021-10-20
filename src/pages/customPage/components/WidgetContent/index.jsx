@@ -218,7 +218,7 @@ function WidgetContent(props) {
         isResizable={editable}
         isFullscreen={isFullscreen}
         draggableCancel=".componentTitle"
-        onResizeStop={(layout, oldItem) => {
+        onResizeStop={(layout, oldItem = {}) => {
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
           if (getData && typeof getData === 'function') {

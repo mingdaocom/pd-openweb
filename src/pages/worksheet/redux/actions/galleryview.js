@@ -1,9 +1,11 @@
 import { getFilterRows, updateWorksheetRow } from 'src/api/worksheet';
 import { getAdvanceSetting } from 'src/util';
-
+import { getNavGroupCount } from './index';
+import { wrapAjax } from './util';
+const wrappedGetFilterRows = wrapAjax(getFilterRows);
 export const fetch = index => {
   return (dispatch, getState) => {
-    const { base, filters, galleryview, quickFilter } = getState().sheet;
+    const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     let { galleryIndex, gallery } = galleryview;
     if (index <= 1) {
@@ -11,7 +13,7 @@ export const fetch = index => {
     } else {
       dispatch({ type: 'CHANGE_GALLERY_LOADING', loading: true });
     }
-    getFilterRows({
+    wrappedGetFilterRows({
       worksheetId,
       pageSize: 50,
       pageIndex: index,
@@ -32,6 +34,7 @@ export const fetch = index => {
           'maxValue',
         ]),
       ),
+      navGroupFilters,
     }).then(res => {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
@@ -89,6 +92,7 @@ export const updateRow = data => {
         }),
       });
     }
+    dispatch(getNavGroupCount());
   };
 };
 
@@ -102,5 +106,6 @@ export const deleteRow = id => {
       type: 'CHANGE_GALLERY_VIEW_DATA',
       list: l,
     });
+    dispatch(getNavGroupCount());
   };
 };

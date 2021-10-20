@@ -112,6 +112,8 @@ export default class Card extends Component {
     const { currentTab, item } = this.props;
     if (currentTab === 'untreated') {
       return <div className="state">{`${_l('等待')}${item.flowNode.name}`}</div>;
+    } else if (currentTab === 'mySponsor') {
+      return <div className="Font13 mLeft10 bold Gray_75">{_l('处理中…')}</div>
     } else {
       const { flowNodeType, workItem } = item;
       const { operationType } = workItem;

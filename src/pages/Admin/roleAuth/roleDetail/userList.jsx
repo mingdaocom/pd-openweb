@@ -125,9 +125,9 @@ class RoleUserList extends React.Component {
         <React.Fragment>
           {_.map(users, user => {
             return (
-              <tr key={user.accountId}>
+              <tr key={user.accountId} className="tdHover">
                 <td className="avatarBox ">
-                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} size={32} />
+                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} lazy={'false'} size={32} />
                 </td>
                 <td className="userName">{user.fullName}</td>
                 <td className="userProfession">{user.profession}</td>

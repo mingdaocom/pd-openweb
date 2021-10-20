@@ -53,6 +53,17 @@ define(function (require, exports, module) {
     },
 
     /**
+    * 获取技术支持时间信息
+    * @param {Object} args 请求参数
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getSupportInfo: function (args, options) {
+      return $.api('PrivateGuide', 'GetSupportInfo', args, options);
+    },
+
+    /**
     * 获取组织列表
     * @param {Object} args 请求参数
     * @param {Object} options 配置参数

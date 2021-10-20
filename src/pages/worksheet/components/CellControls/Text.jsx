@@ -9,6 +9,7 @@ import { Textarea } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
+import CellErrorTips from './comps/CellErrorTip';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
 import { browserIsMobile } from 'src/util';
@@ -113,18 +114,11 @@ export default class Text extends React.Component {
     } else if ((cell.enumDefault === 0 || cell.enumDefault === 2) && typeof value === 'string') {
       value = value.replace(/\r\n|\n/g, ' ').trim();
     }
-    const blurTime = new Date().getTime();
-    const isDoubleClick = this.lastBlurTime && blurTime - this.lastBlurTime < 300;
-    if (error && ((target && (target.getAttribute('class') || '').indexOf('editIcon') > -1) || isDoubleClick)) {
+    if (error) {
       updateEditingStatus(false);
       this.setState({
         value: this.state.oldValue,
       });
-      return;
-    }
-    if (error) {
-      this.focus();
-      this.lastBlurTime = blurTime;
       return;
     }
     updateCell({
@@ -170,8 +164,19 @@ export default class Text extends React.Component {
   }
 
   render() {
-    const { className, style, from, rowHeight, needLineLimit, cell, error, popupContainer, editable, onClick } =
-      this.props;
+    const {
+      className,
+      style,
+      rowIndex,
+      from,
+      rowHeight,
+      needLineLimit,
+      cell,
+      error,
+      popupContainer,
+      editable,
+      onClick,
+    } = this.props;
     let { value } = this.state;
     const isMobile = browserIsMobile();
     const canedit =
@@ -244,7 +249,7 @@ export default class Text extends React.Component {
             onChange={this.handleChange}
           />
         )}
-        {error && <div className="cellControlErrorTip">{error}</div>}
+        {error && <CellErrorTips pos={rowIndex === 1 ? 'bottom' : 'top'} error={error} />}
       </ClickAwayable>
     );
     return (

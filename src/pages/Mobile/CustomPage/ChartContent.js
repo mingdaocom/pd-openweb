@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { ScrollView, Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import report from 'src/pages/worksheet/common/Statistics/api/report';
 import reportConfig from 'src/pages/worksheet/common/Statistics/api/reportConfig';
@@ -47,7 +47,7 @@ const HorizontalChartContent = styled.div`
     color: #333;
     font-weight: 500;
     font-size: 20px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif,
+    font-family: system-ui, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif,
       apple color emoji, segoe ui emoji, segoe ui symbol;
   }
 `;
@@ -81,7 +81,7 @@ function ChartContent(props) {
     }
     setLoading(true);
     report
-      .getData(requestParam, accessToken ? { headersConfig } : _.object())
+      .getData(requestParam, accessToken ? { headersConfig } : {})
       .then(data => {
         data.reportId = reportId;
         setData(fillValueMap(data));

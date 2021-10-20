@@ -35,7 +35,8 @@ export default class Approval extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -128,7 +129,7 @@ export default class Approval extends Component {
       formProperties,
       passBtnName,
       overruleBtnName,
-      signatureType,
+      auth,
     } = data;
 
     if (!selectNodeId) {
@@ -157,10 +158,10 @@ export default class Approval extends Component {
         operationTypeList,
         isCallBack,
         callBackType,
-        signatureType,
         formProperties,
         passBtnName: passBtnName.trim() || _l('通过'),
         overruleBtnName: overruleBtnName.trim() || _l('否决'),
+        auth,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -197,6 +198,56 @@ export default class Approval extends Component {
     });
   }
 
+  /**
+   * 意见必填修改
+   */
+  opinionRequiredChange(checked, key) {
+    const { data } = this.state;
+    const currentAuth = [].concat(data.auth[key]);
+
+    if (checked) {
+      currentAuth.push(100);
+    } else {
+      _.remove(currentAuth, item => item === 100);
+    }
+
+    this.updateSource({ auth: Object.assign({}, data.auth, { [key]: currentAuth }) });
+  }
+
+  /**
+   * 认证必填修改
+   */
+  authRequiredChange(checked, key) {
+    const { data } = this.state;
+    const currentAuth = [].concat(data.auth[key]).filter(item => item === 100);
+    const value = data.auth.passTypeList.concat(data.auth.overruleTypeList).filter(item => item !== 100)[0] || 1;
+
+    if (checked) {
+      currentAuth.push(value);
+    }
+
+    this.updateSource({ auth: Object.assign({}, data.auth, { [key]: currentAuth }) });
+  }
+
+  /**
+   * 认证等级修改
+   */
+  authRankChange = value => {
+    const { data } = this.state;
+    const passTypeList = data.auth.passTypeList.filter(item => item === 100);
+    const overruleTypeList = data.auth.overruleTypeList.filter(item => item === 100);
+
+    if (data.auth.passTypeList.filter(item => item !== 100).length) {
+      passTypeList.push(value);
+    }
+
+    if (data.auth.overruleTypeList.filter(item => item !== 100).length) {
+      overruleTypeList.push(value);
+    }
+
+    this.updateSource({ auth: { passTypeList, overruleTypeList } });
+  };
+
   render() {
     const { data } = this.state;
     const personsPassing = [
@@ -204,6 +255,13 @@ export default class Approval extends Component {
       { text: _l('会签（需所有审批人通过）'), value: 1 },
       { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
     ];
+    const authTypeListText = {
+      1: _l('签名'),
+      2: _l('四级：实名'),
+      3: _l('三级：实名+实人'),
+      4: _l('二级：实名+实人+网证（开发中...）'),
+      5: _l('一级：实名+实人+网证+实证（开发中...）'),
+    };
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -249,7 +307,7 @@ export default class Approval extends Component {
 
               {data.countersignType !== 2 && (
                 <Checkbox
-                  className="mTop15"
+                  className="mTop15 flexRow"
                   text={_l('允许审批人转审')}
                   checked={_.includes(data.operationTypeList, 6)}
                   onClick={checked => this.switchApprovalSettings(!checked, 6)}
@@ -258,7 +316,7 @@ export default class Approval extends Component {
 
               {_.includes([1, 2], data.countersignType) && (
                 <Checkbox
-                  className="mTop15"
+                  className="mTop15 flexRow"
                   text={_l('允许添加审批人')}
                   checked={_.includes(data.operationTypeList, 16)}
                   onClick={checked => this.switchApprovalSettings(!checked, 16)}
@@ -267,7 +325,7 @@ export default class Approval extends Component {
 
               {!_.includes([1, 2], data.countersignType) && (
                 <Checkbox
-                  className="mTop15"
+                  className="mTop15 flexRow"
                   text={_l('允许审批人加签')}
                   checked={_.includes(data.operationTypeList, 7)}
                   onClick={checked => this.switchApprovalSettings(!checked, 7)}
@@ -278,7 +336,7 @@ export default class Approval extends Component {
                 <Fragment>
                   <div className={cx('flexRow alignItemsCenter', data.isCallBack ? 'mTop10' : 'mTop15')}>
                     <Checkbox
-                      className="flex"
+                      className="flex flexRow"
                       text={_l('否决后，允许退回')}
                       disabled={data.countersignType === 2}
                       checked={data.isCallBack}
@@ -295,6 +353,7 @@ export default class Approval extends Component {
                         <div className="Gray_75">{_l('处理完成后')}</div>
                         <Dropdown
                           menuStyle={{ left: 'inherit', right: 0 }}
+                          style={{ marginTop: -1 }}
                           data={[
                             { text: _l('重新执行流程'), value: 0 },
                             { text: _l('直接返回审批节点'), value: 1 },
@@ -319,12 +378,57 @@ export default class Approval extends Component {
                 </Fragment>
               )}
 
-              <Checkbox
-                className="mTop15"
-                text={_l('通过后，必须签名')}
-                checked={data.signatureType === 1}
-                onClick={checked => this.updateSource({ signatureType: +!checked })}
-              />
+              <div className="Font13 bold mTop25">{_l('审批意见')}</div>
+              <div className="flexRow mTop15">
+                <Checkbox
+                  className="InlineFlex flex"
+                  text={_l('通过时必填')}
+                  checked={_.includes(data.auth.passTypeList, 100)}
+                  onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList')}
+                />
+                <Checkbox
+                  className="InlineFlex flex"
+                  text={_l('否决时必填')}
+                  checked={_.includes(data.auth.overruleTypeList, 100)}
+                  onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList')}
+                />
+              </div>
+
+              <div className="Font13 bold mTop25">
+                {data.authTypeList.length === 1 ? authTypeListText[data.authTypeList[0].value] : _l('认证')}
+              </div>
+              <div className="flexRow mTop15">
+                <Checkbox
+                  className="InlineFlex flex"
+                  text={_l('通过时必须认证')}
+                  checked={!!data.auth.passTypeList.filter(i => i !== 100).length}
+                  onClick={checked => this.authRequiredChange(!checked, 'passTypeList')}
+                />
+                <Checkbox
+                  className="InlineFlex flex"
+                  text={_l('否决时必须认证')}
+                  checked={!!data.auth.overruleTypeList.filter(i => i !== 100).length}
+                  onClick={checked => this.authRequiredChange(!checked, 'overruleTypeList')}
+                />
+              </div>
+
+              {data.authTypeList.length === 1 ||
+              data.auth.passTypeList.filter(i => i !== 100).length +
+                data.auth.overruleTypeList.filter(i => i !== 100).length ===
+                0 ? null : (
+                <Fragment>
+                  <div className="Font13 bold mTop25">{_l('认证等级')}</div>
+                  <Dropdown
+                    className="flowDropdown mTop10"
+                    data={data.authTypeList.map(({ value, disabled }) => {
+                      return { value, text: authTypeListText[value], disabled };
+                    })}
+                    value={data.auth.passTypeList.concat(data.auth.overruleTypeList).filter(item => item !== 100)[0]}
+                    border
+                    onChange={this.authRankChange}
+                  />
+                </Fragment>
+              )}
 
               {data.selectNodeId && (
                 <Fragment>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useState, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';

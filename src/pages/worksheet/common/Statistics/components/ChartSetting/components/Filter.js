@@ -8,6 +8,7 @@ import {
   redefineComplexControl,
   getDefaultCondition,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { isTimeControl } from 'src/pages/worksheet/common/Statistics/common';
 import worksheetAjax from 'src/api/worksheet';
 
 const Remind = props => {
@@ -49,6 +50,18 @@ export default class Filter extends Component {
     this.singleFilter.addCondition(_.find(columns, { controlId: data.controlId }));
   };
   saveFilter = conditions => {
+    conditions = conditions.map(item => {
+      const isTime = isTimeControl(item.dataType);
+      const isMoment = moment.isMoment(item.value);
+      if (isTime && isMoment) {
+        return {
+          ...item,
+          value: item.value.format('YYYY-MM-DD')
+        }
+      } else {
+        return item;
+      }
+    });
     const { projectId, worksheetInfo } = this.props;
     worksheetAjax
       .getWorksheetFilterById({

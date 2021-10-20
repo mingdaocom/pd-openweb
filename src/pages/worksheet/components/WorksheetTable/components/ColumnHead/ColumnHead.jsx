@@ -105,6 +105,7 @@ class ColumnHead extends Component {
       hideColumn,
       clearHiddenColumn,
       onBatchEdit,
+      canBatchEdit = true,
     } = this.props;
     let control = { ...this.props.control };
     const itemType = this.getType(control);
@@ -112,6 +113,7 @@ class ColumnHead extends Component {
     const canEdit =
       !_.includes(CONTROL_EDITABLE_BALCKLIST, control.type) &&
       controlState(control).editable &&
+      canBatchEdit &&
       !SYS.filter(o => o !== 'ownerid').includes(control.controlId); //系统字段(除了拥有者字段)，不可编辑
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
@@ -175,7 +177,7 @@ class ColumnHead extends Component {
                 {_l('筛选')}
               </MenuItem>
             )}
-            {(canSort || canFilter) && <hr />}
+            {(canSort || (canFilter && !rowIsSelected) || (canEdit && rowIsSelected)) && <hr />}
             <MenuItem
               onClick={() => {
                 if (window.isPublicApp) {
@@ -200,7 +202,7 @@ class ColumnHead extends Component {
                 {_l('显示所有列')}
               </MenuItem>
             )}
-            {columnIndex < 6 && fixedColumnCount !== columnIndex + 1 && (
+            {columnIndex < 11 && fixedColumnCount !== columnIndex + 1 && (
               <MenuItem
                 onClick={() => {
                   if (window.isPublicApp) {

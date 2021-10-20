@@ -17,6 +17,22 @@ define(function (require, exports, module) {
     },
 
     /**
+    * 分页 获取一般用户列表
+    * @param {Object} args 请求参数
+    * @param {string} args.projectId 网络Id
+    * @param {integer} args.pageIndex pageIndex
+    * @param {integer} args.pageSize pageSize
+    * @param {string} args.keywords 关键词
+    * @param {} args.sortUserType 用户排序
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    pagedNormalUserList: function (args, options) {
+      return $.api('User', 'PagedNormalUserList', args, options);
+    },
+
+    /**
     * 获取用户列表
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络Id
@@ -93,6 +109,7 @@ define(function (require, exports, module) {
     /**
     * 获取用户账号基本信息
     * @param {Object} args 请求参数
+    * @param {string} args.onProjectId 页面所在组织Id（可空）
     * @param {string} args.accountId 账号Id
     * @param {boolean} args.withSameProjectId 是否同一网络
     * @param {Object} options 配置参数

@@ -11,7 +11,7 @@ export default class AudioMessage extends Component {
     const { files } = message.msg;
     this.state = {
       audioPlaying: false,
-      isRead: files.read,
+      isRead: files ? files.read : true,
     };
     this.audio = null;
   }
@@ -63,11 +63,10 @@ export default class AudioMessage extends Component {
     const { message } = this.props;
     const { files } = message.msg;
     const { audioPlaying, isRead } = this.state;
-    // console.log('message', message);
     return (
       <div className="Message-audio" onClick={this.handlePlayAudio.bind(this)}>
         <i className={cx('Message-audioIcon', { audioPlaying })} />
-        <span>{parseInt(files.len) || 0} ”</span>
+        <span>{files ? (parseInt(files.len) || 0) : 0} ”</span>
         {isRead ? undefined : <div className="Message-audioUnread" />}
       </div>
     );

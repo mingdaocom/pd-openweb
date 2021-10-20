@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, ActivityIndicator, ActionSheet, Modal } from 'antd-mobile';
+import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';

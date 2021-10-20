@@ -125,7 +125,9 @@ export default class TagTextarea extends React.Component {
         onFocus(...args);
       });
       this.cmObj.on('blur', (...args) => {
-        this.cmcon.classList.remove('active');
+        if (this.cmcon) {
+          this.cmcon.classList.remove('active');
+        }
         onBlur(...args);
       });
     }
@@ -150,8 +152,8 @@ export default class TagTextarea extends React.Component {
   }
 
   @autobind
-  setValue(...args) {
-    this.cmObj.setValue(...args);
+  setValue(value) {
+    this.cmObj.setValue(value || '');
   }
 
   markColumns(markers, value) {

@@ -35,6 +35,7 @@ const Con = styled.span`
 export default function RowHead(props) {
   const [confirmVisible, setConfirmVisible] = useState();
   const {
+    allowAdd,
     layoutChangeVisible,
     allowRemoveRelation,
     className,
@@ -96,6 +97,8 @@ export default function RowHead(props) {
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId }}
               allowCopy
+              allowAdd={allowAdd}
+              isRelateRecordTable
               shows={cx('share', 'print', 'copy', { openinnew: viewId, removeRelation: allowRemoveRelation })}
               formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
               disableLoadCustomButtons={!viewId}
@@ -106,7 +109,13 @@ export default function RowHead(props) {
                 offset: [0, 4],
                 points: ['tl', 'bl'],
               }}
-              onRemoveRelation={() => setConfirmVisible(true)}
+              onRemoveRelation={({ confirm = true } = {}) => {
+                if (confirm) {
+                  setConfirmVisible(true);
+                } else {
+                  deleteRelateRow(row.rowid);
+                }
+              }}
               onCopySuccess={addReocord}
               onDeleteSuccess={() => {
                 removeRecords([row]);
@@ -134,6 +143,7 @@ export default function RowHead(props) {
 
 RowHead.propTypes = {
   allowEdit: PropTypes.bool,
+  allowAdd: PropTypes.bool,
   className: PropTypes.string,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,

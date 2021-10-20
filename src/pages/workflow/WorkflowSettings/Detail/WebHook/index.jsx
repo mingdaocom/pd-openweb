@@ -27,7 +27,8 @@ export default class WebHook extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -184,6 +185,7 @@ export default class WebHook extends Component {
         <div className="Font13 mTop20 flexRow">
           <div className="flex bold">{_l('请选择请求方式')}</div>
           <Checkbox
+            className="flexRow"
             text={_l('开启SSL证书验证')}
             checked={data.settings.openSSL}
             onClick={checked =>

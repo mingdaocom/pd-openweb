@@ -44,6 +44,7 @@ export default ({
         <div className="flex bold">{_l('排序规则')}</div>
         {showRandom && (
           <Checkbox
+            className="flexRow"
             text={_l('忽略排序规则，随机获取一条')}
             checked={data.random}
             onClick={checked => updateSource({ random: !checked })}

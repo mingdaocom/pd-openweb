@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
+import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import EditableCellCon from '../EditableCellCon';
 import { FROM } from './enum';
 export default class Date extends React.Component {
@@ -72,7 +73,7 @@ export default class Date extends React.Component {
     let { value } = this.state;
     if (value[0] === '{') {
       try {
-        value = `https://pic.mingdao.com/${JSON.parse(value).key}`;
+        value = `${md.global.FileStoreConfig.pictureHost + JSON.parse(value).key}`;
       } catch (err) {
         value = '';
       }
@@ -98,7 +99,8 @@ export default class Date extends React.Component {
   }
 
   render() {
-    const { from, className, style, popupContainer, editable, isediting, updateEditingStatus } = this.props;
+    const { from, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
+      this.props;
     const { value } = this.state;
     if (from === FROM.CARD) {
       return value ? <div className="cellAttachments cellControl"> {this.renderCommon()} </div> : <span />;
@@ -114,7 +116,7 @@ export default class Date extends React.Component {
           overflow: { adjustX: true, adjustY: true },
         }}
         visible={isediting}
-        popupContainer={popupContainer()}
+        popupContainer={tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? document.body : popupContainer()}
         onClose={() => {
           updateEditingStatus(false);
         }}

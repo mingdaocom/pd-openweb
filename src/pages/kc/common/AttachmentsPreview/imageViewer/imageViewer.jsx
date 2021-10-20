@@ -205,6 +205,9 @@ const ImageViewer = createReactClass({
   },
 
   reSize(showThumbnail) {
+    if (!this.imageEle) {
+      return;
+    }
     let scale;
     const { width, height } = this.imageEle;
     const container = this.props.con ? this.props.con : ReactDOM.findDOMNode(this).parentNode;

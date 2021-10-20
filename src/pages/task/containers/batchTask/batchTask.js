@@ -6,7 +6,7 @@ import 'mdAutocomplete';
 import doT from 'dot';
 import config from '../../config/config';
 import batchTaskTpl from './tpl/batchTask.html';
-import { convertImageView, htmlEncodeReg } from 'src/util';
+import { htmlEncodeReg } from 'src/util';
 import ajaxRequest from 'src/api/taskCenter';
 import Store from 'redux/configureStore';
 import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/utils';
@@ -370,7 +370,6 @@ BatchTask.bindDialog = function () {
       doT.template(batchTaskTpl)({
         isShowChargeFolder: !!projectId,
         isLocked,
-        convertImageView: convertImageView,
       }),
     );
 

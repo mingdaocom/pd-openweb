@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import preall from 'src/common/preall';
@@ -13,6 +13,10 @@ import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import socketInit from '../socket';
 import './index.less';
+import { Dialog, Icon } from 'ming-ui';
+import privateGuide from 'src/api/privateGuide';
+import Trigger from 'rc-trigger';
+import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
 
 @preall
 @errorBoundary(true)
@@ -34,6 +38,8 @@ export default class App extends Component {
 
     this.state = {
       prevPath: '',
+      isSupport: true,
+      supportTime: '',
     };
     this.genRouteComponent = genRouteComponent();
     if (!window.isPublicApp) {
@@ -90,6 +96,18 @@ export default class App extends Component {
 
     // 绑定快捷操作
     this.bindMSTC();
+
+    if (md.global.Account.projects.filter(item => item.licenseType === 1).length === 0) {
+      if (!localStorage.getItem('supportTime')) {
+        privateGuide.getSupportInfo().then(result => {
+          if (!result.isSupport && result.supportTime) {
+            this.setState({ isSupport: result.isSupport, supportTime: result.supportTime });
+          }
+        });
+      }
+    } else {
+      localStorage.removeItem('supportTime');
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -116,36 +134,36 @@ export default class App extends Component {
    * 绑定快捷操作
    */
   bindMSTC() {
-  const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
-  const taskVisible = !md.global.SysSettings.forbidSuites.includes('2');
-  const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
-  const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
+    const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
+    const taskVisible = !md.global.SysSettings.forbidSuites.includes('2');
+    const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
+    const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
     const callDialog = _.debounce(which => {
       switch (which) {
         case 115:
           if (feedVisible) {
-            require(['s'], function(s) {
+            require(['s'], function (s) {
               s();
             });
           }
           break;
         case 116:
           if (taskVisible) {
-            require(['t'], function(t) {
+            require(['t'], function (t) {
               t();
             });
           }
           break;
         case 99:
           if (calendarVisible) {
-            require(['c'], function(c) {
+            require(['c'], function (c) {
               c();
             });
           }
           break;
         case 117:
           if (knowledgeVisible) {
-            require(['u'], function(u) {
+            require(['u'], function (u) {
               u();
             });
           }
@@ -179,7 +197,7 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function(e) {
+    $(document).on('keypress', function (e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
@@ -203,6 +221,74 @@ export default class App extends Component {
     });
 
     return isContain;
+  }
+
+  /**
+   * 验证升级
+   */
+  checkUpgrade() {
+    const { isSupport, supportTime } = this.state;
+
+    if (isSupport || localStorage.getItem('supportTime')) return null;
+
+    return (
+      <Dialog
+        title={
+          <span className="Red Bold">{_l('升级受限提醒')}</span>
+        }
+        width="630"
+        closable={false}
+        visible
+        cancelText=""
+        okText={_l('我已知晓')}
+        onOk={() => {
+          this.setState({ isSupport: true });
+          localStorage.setItem('supportTime', supportTime);
+        }}
+      >
+        <div className="LineHeight25">
+          <span className="Gray_9e">
+            {_l(
+              '由于当前系统绑定的密钥技术支持时间已到期（%0 到期），无法升级到 %1 版本（发布时间早于到期时间的版本可升级），现已自动降为免费版，',
+              supportTime,
+              md.global.Config.Version,
+            )}
+          </span>
+          {md.global.Account.superAdmin ? (
+            <Fragment>
+              <span className="Gray_9e">{_l('您可以')}</span>
+              <Trigger
+                action={['hover']}
+                popup={<img className="card z-depth-2" style={{ width: 300 }} src={weixinCode} />}
+                popupAlign={{
+                  offset: [0, 7],
+                  points: ['tc', 'bc'],
+                  overflow: { adjustX: 1, adjustY: 2 },
+                }}
+              >
+                <span
+                  style={{
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    color: '#47B14B',
+                    padding: '2px 10px',
+                  }}
+                >
+                  <Icon icon="weixin" className="mRight2" />
+                  {_l('添加微信')}
+                </span>
+              </Trigger>
+              <span className="Gray_9e">{_l('咨询并延长技术支持或查看 ')}</span>
+              <a href="https://docs.pd.mingdao.com/roadmap.html" target="_blank">
+                {_l('其他可升级的版本')}
+              </a>
+            </Fragment>
+          ) : (
+            <span className="Gray_9e">{_l('请尽快联系系统管理员')}</span>
+          )}
+        </div>
+      </Dialog>
+    );
   }
 
   render() {
@@ -241,6 +327,7 @@ export default class App extends Component {
         <section id="chatPanel">
           <ChatPanel />
         </section>
+        {this.checkUpgrade()}
       </div>
     );
   }

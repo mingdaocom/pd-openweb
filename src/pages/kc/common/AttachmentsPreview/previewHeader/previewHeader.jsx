@@ -3,7 +3,6 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import { convertImageView } from 'src/util';
 import Trigger from 'rc-trigger';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
@@ -52,20 +51,20 @@ class PreviewHeader extends React.Component {
         params.name = sourceNode.name;
         params.ext = '.' + sourceNode.ext;
         params.size = sourceNode.size;
-        params.imgSrc = isPicture ? convertImageView(attachment.viewUrl, 2, 490) : undefined;
+        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
         params.node = sourceNode;
       } else if (attachment.previewAttachmentType === 'COMMON') {
         params.id = sourceNode.fileID;
         params.name = sourceNode.originalFilename;
         params.ext = sourceNode.ext;
         params.size = sourceNode.filesize;
-        params.imgSrc = isPicture ? convertImageView(attachment.viewUrl, 2, 490) : undefined;
+        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
         params.node = '';
       } else if (attachment.previewAttachmentType === 'QINIU') {
         params.name = attachment.name;
         params.ext = attachment.ext;
         params.size = sourceNode.size || 0;
-        params.imgSrc = isPicture ? convertImageView(attachment.viewUrl, 2, 490) : undefined;
+        params.imgSrc = isPicture ? `${attachment.viewUrl}|imageView2/2/w/490` : undefined;
         params.qiniuPath = sourceNode.path;
         params.node = sourceNode;
       }

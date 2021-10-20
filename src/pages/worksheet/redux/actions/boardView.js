@@ -187,7 +187,7 @@ function mergeUniqBoardData(boardViewData, currentData) {
   });
 }
 // 分页获取单个看板数据
-export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback }) {
+export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, checkIsMore }) {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const { boardView, searchArgs } = sheet;
@@ -220,6 +220,7 @@ export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback })
                 }),
         });
         dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
+        checkIsMore((nextData || []).length >= para.kanbanSize);
       })
       .always(() => {
         alwaysCallback();

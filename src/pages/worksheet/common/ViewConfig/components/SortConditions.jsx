@@ -2,11 +2,30 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import update from 'immutability-helper';
+import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, Dropdown } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+
+const ConditionsWrap = styled.div`
+  .operateBtn {
+    cursor: pointer;
+    font-size: 20px;
+    color: #9e9e9e;
+    margin: 0 4px;
+    line-height: 36px;
+
+    &:hover {
+      color: #2196f3;
+    }
+
+    &.disabled {
+      color: #ddd !important;
+    }
+  }
+`;
 
 export default class SortConditions extends React.Component {
   static propTypes = {
@@ -139,6 +158,7 @@ export default class SortConditions extends React.Component {
       .map(c => ({
         text: c.controlName,
         value: c.controlId,
+        itemContentStyle: { padding: '0 30px' },
         iconName: getIconByType(c.type),
       }));
   }
@@ -159,6 +179,7 @@ export default class SortConditions extends React.Component {
         <div className="flexRow mTop5" key={condition.controlId}>
           <Dropdown
             border
+            isAppendToBody
             menuStyle={{ width: 180 }}
             className="flex mBottom10 mRight10 filterColumns Width120"
             value={condition.controlId}
@@ -171,6 +192,7 @@ export default class SortConditions extends React.Component {
           />
           <Dropdown
             border
+            isAppendToBody
             className="flex mBottom10 Width120 mRight6"
             value={condition.isAsc ? 2 : 1}
             data={this.getSortTypes(condition.controlId)}
@@ -201,11 +223,12 @@ export default class SortConditions extends React.Component {
   }
 
   render() {
+    const { className } = this.props;
     return (
-      <div className="sortConditions">
-        <div className="Gray_9e mTop8 mBottom24">{_l('选择此视图下的记录默认排序方式')}</div>
+      <ConditionsWrap className={cx(className, 'sortConditions')}>
+        <div className="Gray_9e mBottom24">{_l('选择此视图下的记录默认排序方式')}</div>
         {this.renderCondtions()}
-      </div>
+      </ConditionsWrap>
     );
   }
 }

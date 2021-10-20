@@ -113,6 +113,7 @@ export default class EditRecord extends Component {
       worksheetInfo,
       searchArgs,
       quickFilter,
+      navGroupFilters,
       allWorksheetIsSelected,
       clearSelect,
       hideEditRecord,
@@ -128,9 +129,13 @@ export default class EditRecord extends Component {
     let hasError;
     let data;
     if (updateType === 2 && selectedControlId !== 'owner') {
-      const submitData = this.customwidget.current.getSubmitData();
-      data = submitData.data;
-      hasError = submitData.hasError;
+      try {
+        const submitData = this.customwidget.current.getSubmitData();
+        data = submitData.data;
+        hasError = submitData.hasError;
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     if (selectedControlId === 'owner') {
@@ -207,6 +212,7 @@ export default class EditRecord extends Component {
           'maxValue',
         ]),
       );
+      args.navGroupFilters = navGroupFilters;
       args.keyWords = searchArgs.keyWords;
       args.searchType = searchArgs.searchType;
     }
@@ -283,7 +289,15 @@ export default class EditRecord extends Component {
   }
 
   render() {
-    const { updateType, selectedControlId, formData, controlsForSelect, showError, hasError, formFlag } = this.state;
+    const {
+      updateType,
+      selectedControlId,
+      formData = [],
+      controlsForSelect,
+      showError,
+      hasError,
+      formFlag,
+    } = this.state;
     const { projectId, worksheetId, hideEditRecord } = this.props;
     const selectedControl = controlsForSelect.filter(control => control.controlId === selectedControlId)[0] || {};
     return (
@@ -306,6 +320,7 @@ export default class EditRecord extends Component {
             <span className="TxtMiddle mRight8 label Gray_9e">{_l('字段')}</span>
             <Dropdown
               isAppendToBody
+              openSearch
               className="workSheetControlDropDown"
               value={selectedControlId}
               data={controlsForSelect

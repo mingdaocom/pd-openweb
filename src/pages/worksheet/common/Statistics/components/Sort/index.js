@@ -194,8 +194,8 @@ export default class Sort extends Component {
       .customSort({
         appId: currentReport.appId,
         controlId,
-        customSort: _.isArray(value) ? value : [],
         filter: currentReport.filter,
+        sort: value
       })
       .then(result => {
         this.setState({
@@ -287,8 +287,8 @@ export default class Sort extends Component {
           }
         } else {
           if (isPivotTable) {
-            const lineItem = _.findLast(pivotTable.lines) || _.object();
-            const columnItem = _.findLast(pivotTable.columns) || _.object();
+            const lineItem = _.findLast(pivotTable.lines) || {};
+            const columnItem = _.findLast(pivotTable.columns) || {};
             const key = _.findKey(n);
             return _.find(yaxisList, { controlId: key }) || [lineItem.controlId, columnItem.controlId].includes(key)
               ? null
@@ -312,8 +312,8 @@ export default class Sort extends Component {
     const { lines } = pivotTable;
 
     if (sorts.length) {
-      const lineItem = _.findLast(pivotTable.lines) || _.object();
-      const columnItem = _.findLast(pivotTable.columns) || _.object();
+      const lineItem = _.findLast(pivotTable.lines) || {};
+      const columnItem = _.findLast(pivotTable.columns) || {};
       const currentEmpty = _.isEmpty(_.find(sorts, controlId));
 
       if (currentEmpty) {
@@ -353,7 +353,7 @@ export default class Sort extends Component {
   renderItem(item, fn) {
     const { controls, currentReport } = this.props;
     const { sorts } = currentReport;
-    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || _.object();
+    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || {};
     const sortData = isCustomSort(control) ? [...getSortData(control), customSort] : getSortData(control);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
@@ -368,7 +368,7 @@ export default class Sort extends Component {
                 className={cx('item', { active: (_.isArray(value) ? customSort.value : value) === data.value })}
                 onClick={() => {
                   if (data.value == customSort.value) {
-                    this.getCustomSort(item.originalControlId || item.controlId, value);
+                    this.getCustomSort(item.originalControlId || item.controlId, sortsItem);
                     this.setState({ currentCustomSort: item.controlId, visible: false });
                   } else {
                     fn(data.value, item);

@@ -157,8 +157,9 @@ class FillRecordControls extends React.Component {
           <CustomFields
             ref={this.customwidget}
             popupContainer={document.body}
-            data={formData}
+            data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
             recordId={recordId}
+            disableRules={!recordId}
             from={3}
             projectId={projectId}
             worksheetId={worksheetId}

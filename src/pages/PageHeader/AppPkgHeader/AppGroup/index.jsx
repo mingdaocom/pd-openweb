@@ -163,6 +163,7 @@ export default class extends Component {
   };
 
   scrollEle = ($ele, distance) => {
+    if (!$ele) return;
     $ele.scrollLeft = distance;
   };
 
@@ -170,7 +171,7 @@ export default class extends Component {
   handlePointerClick = e => {
     const $ele = e.target;
     const $wrap = document.querySelector('.appItemsInnerWrap');
-    const { offsetWidth, scrollLeft } = $wrap;
+    const { offsetWidth, scrollLeft } = $wrap || {};
     const isLeftClicked = $ele.classList.contains('leftPointer');
     const isRightClicked = $ele.classList.contains('rightPointer');
     const scrollDistance = Math.floor(offsetWidth / 2);

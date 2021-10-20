@@ -21,6 +21,7 @@ export default class ExportSheet extends Component {
     selectRowIds: PropTypes.array, // 多选导出的话选中的行id
     worksheetSummaryTypes: PropTypes.shape({}),
     quickFilter: PropTypes.object,
+    navGroupFilters: PropTypes.object,
   };
 
   constructor(props) {
@@ -28,7 +29,7 @@ export default class ExportSheet extends Component {
     this.state = {
       showTabs:
         props.exportView.viewType === 0 &&
-        (props.exportView.advancedSetting.customdisplay === '1' || props.exportView.showControls.length),
+        (props.exportView.advancedSetting.customdisplay === '1' || (props.exportView.showControls || []).length),
       exportShowColumns: props.exportView.viewType === 0,
       columnsSelected: this.getDefaultColumnsSelected(props.exportView.viewType !== 0),
       isStatistics: false,
@@ -99,7 +100,8 @@ export default class ExportSheet extends Component {
       selectRowIds,
       appId,
       searchArgs: { filterControls, keyWords, searchType },
-      quickFilter,
+      quickFilter = [],
+      navGroupFilters,
     } = this.props;
     const { columnsSelected, isStatistics, exportShowColumns } = this.state;
     const systemColumn = [];
@@ -137,7 +139,7 @@ export default class ExportSheet extends Component {
       rowIds: selectRowIds,
       systemColumn,
       isSort: exportShowColumns,
-      fastFilters: quickFilter.map(f =>
+      fastFilters: (quickFilter || []).map(f =>
         _.pick(f, [
           'controlId',
           'dataType',
@@ -150,6 +152,7 @@ export default class ExportSheet extends Component {
           'maxValue',
         ]),
       ),
+      navGroupFilters,
     };
 
     if (allWorksheetIsSelected) {
@@ -250,7 +253,6 @@ export default class ExportSheet extends Component {
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&
-        item.type !== 14 &&
         item.type !== 22 &&
         item.type !== 34 &&
         item.type !== 10010 &&

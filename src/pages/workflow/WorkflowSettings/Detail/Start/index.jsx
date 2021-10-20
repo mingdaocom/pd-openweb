@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, Dialog, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import { TRIGGER_ID_TYPE, APP_TYPE } from '../../enum';
+import { APP_TYPE, DATE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import { checkConditionsIsNull, getIcons, getColor } from '../../utils';
 import { DetailHeader, DetailFooter } from '../components';
@@ -32,7 +32,8 @@ export default class Start extends Component {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
-      nextProps.selectNodeId === this.props.selectNodeId
+      nextProps.selectNodeId === this.props.selectNodeId &&
+      !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
@@ -41,17 +42,19 @@ export default class Start extends Component {
   /**
    * 获取动作详情
    */
-  getNodeDetail(appId) {
+  getNodeDetail = (appId, fields) => {
     const { processId, selectNodeId, selectNodeType } = this.props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      if (result.appType === APP_TYPE.LOOP && !result.executeTime) {
-        result.executeTime = moment().format('YYYY-MM-DD 08:00');
-      }
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields })
+      .then(result => {
+        if (result.appType === APP_TYPE.LOOP && !result.executeTime) {
+          result.executeTime = moment().format('YYYY-MM-DD 08:00');
+        }
 
-      this.setState({ data: result });
-    });
-  }
+        this.setState({ data: result });
+      });
+  };
 
   /**
    * 更新data数据
@@ -89,6 +92,7 @@ export default class Start extends Component {
       interval,
       frequency,
       weekDays,
+      config,
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -110,6 +114,10 @@ export default class Start extends Component {
 
       if (checkConditionsIsNull(operateCondition)) {
         alert(_l('筛选条件的判断值不能为空'), 2);
+        return;
+      }
+
+      if (repeatType === DATE_TYPE.CUSTOM && config && !this.checkTimingTriggerConfig(config)) {
         return;
       }
     }
@@ -135,6 +143,7 @@ export default class Start extends Component {
         interval,
         frequency,
         weekDays,
+        config,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -204,6 +213,36 @@ export default class Start extends Component {
     );
   };
 
+  /**
+   * 验证定时触发配置是否正确
+   */
+  checkTimingTriggerConfig = config => {
+    const errorText = {
+      minute: _l('分钟'),
+      hour: _l('小时'),
+      day: _l('天'),
+      week: _l('星期'),
+      month: _l('月'),
+    };
+    const errorKeys = [];
+
+    Object.keys(config).forEach(key => {
+      if ((config[key].type === 2 || config[key].type === 4) && (!config[key].values[0] || !config[key].values[1])) {
+        errorKeys.push(key);
+      }
+
+      if (config[key].type === 3 && !config[key].values[0]) {
+        errorKeys.push(key);
+      }
+    });
+
+    if (errorKeys.length) {
+      alert(_l('%0配置有误', errorKeys.map(obj => errorText[obj]).join('、')), 2);
+    }
+
+    return !errorKeys.length;
+  };
+
   render() {
     const { processId, child } = this.props;
     const { data } = this.state;
@@ -237,7 +276,14 @@ export default class Start extends Component {
                     renderConditionBtn={this.renderConditionBtn}
                   />
                 )}
-                {data.appType === APP_TYPE.LOOP && <LoopContent data={data} updateSource={this.updateSource} />}
+                {data.appType === APP_TYPE.LOOP && (
+                  <LoopContent
+                    data={data}
+                    updateSource={this.updateSource}
+                    getNodeDetail={this.getNodeDetail}
+                    checkTimingTriggerConfig={this.checkTimingTriggerConfig}
+                  />
+                )}
                 {data.appType === APP_TYPE.DATE && (
                   <DateContent
                     {...this.props}

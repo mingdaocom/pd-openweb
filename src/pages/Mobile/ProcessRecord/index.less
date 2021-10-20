@@ -34,7 +34,7 @@
     justify-content: space-between;
     .value {
       flex: 1;
-      width: 0;
+      word-break: break-all;
     }
     .icon {
       color: @activeColor;
@@ -42,7 +42,7 @@
     }
   }
   .customFieldsContainer {
-    padding: 20px 20px;
+    padding: 25px 20px 20px;
   }
   .saveWrapper {
     padding: 0 20px 20px;
@@ -88,8 +88,39 @@
       }
     }
   }
-  .viewTabs {
+  .btnsWrapper {
+    padding: 7px 10px;
+    border-top: 1px solid #f5f5f5;
+    background-color: #fff;
+    a {
+      text-decoration: none;
+    }
+    .edit {
+      color: #2196F3;
+    }
+    .am-button {
+      height: 36px;
+      line-height: 36px;
+    }
+    .am-button-primary:hover {
+      color: #fff;
+    }
+    .am-button, .am-button::before, .am-button-active::before{
+      border-radius: 50px;
+    }
+  }
+  .processRecordScroll {
     height: 0;
+    overflow: hidden auto;
+  }
+  .processRecordViewTabs {
+    z-index: 2;
+    &.edit .am-tabs-tab-bar-wrap {
+      display: none;
+    }
+    .am-tabs-tab-bar-wrap {
+      border-bottom: 1px solid #F5F5F5;
+    }
     &.edit .am-tabs-tab-bar-wrap {
       display: none;
     }
@@ -98,15 +129,15 @@
       width: auto !important;
       border-bottom: none !important;
       padding: 0 12px !important;
-      max-width: 120px;
-      span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .tabName {
+        max-width: 100px;
       }
       &:after {
         content: none !important;
       }
+    }
+    .am-tabs-pane-wrap-active {
+      overflow-x: hidden;
     }
     .am-tabs-pane-wrap-inactive {
       height: auto;
@@ -128,9 +159,6 @@
       display: none;
     }
   }
-  .hideAddWrapper .addWrapper {
-    display: none;
-  }
 }
 
 .workflowStepListWrapper {
@@ -144,291 +172,10 @@
     display: flex;
     flex-direction: column;
   }
-  .workflowStepHeader {
-    height: 55px;
-    background: #fff;
-    align-items: center;
-    padding: 0 17px;
-    box-sizing: border-box;
-    border-bottom: 2px solid #ddd;
-
-    .workflowStepIcon {
-      width: 24px;
-      height: 24px;
-      border-radius: 5px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
 
   .am-drawer-sidebar {
     background-color: #fff;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .stepList {
-    padding: 0 17px;
-  }
-
-  .step {
-    &:last-child {
-      .pointerLine {
-        width: 0;
-      }
-    }
-
-    .stepItem {
-      margin-left: 14px;
-      padding: 12px 0;
-    }
-
-    .signTypeWrap {
-      padding: 16px 0 0 12px;
-
-      span {
-        color: #757575;
-      }
-
-      .signType {
-        margin-left: 4px;
-      }
-    }
-
-    .userName {
-      height: 17px;
-      line-height: 17px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    .stepName {
-      &.edit {
-        color: #2196f3;
-      }
-
-      &.approve {
-        color: #2196f3;
-      }
-
-      &.notice {
-        color: #2196f3;
-      }
-    }
-
-    .stepContentWrap {
-      border-radius: 5px;
-      background-color: #F8F8F8;
-    }
-
-    .stepContent {
-      align-items: center;
-
-      &:last-child {
-        .stepDetail {
-          border-bottom: 0;
-        }
-      }
-
-      .avatarBox {
-        padding: 16px;
-        padding-right: 0;
-        align-self: flex-start;
-      }
-
-      .stepDetail {
-        margin-left: 10px;
-        line-height: 16px;
-        padding: 16px 0;
-        border-bottom: 1px solid #ddd;
-
-        .timeAction {
-          margin-top: 8px;
-          align-items: center;
-          flex-wrap: wrap;
-          font-size: 12px;
-
-          .action-5 {
-            color: @refuseColor;
-          }
-
-          .action-4 {
-            color: @passColor;
-          }
-        }
-
-        .action {
-          color: #757575;
-          margin-left: 5px;
-        }
-
-        .info {
-          margin-top: 8px;
-          color: #757575;
-          word-break: break-all;
-          padding-right: 10px;
-          font-size: 12px;
-
-          .modifiedFieldInfo {
-            margin-left: 8px;
-          }
-
-          .triggerField {
-            margin-left: 4px;
-          }
-          
-          .infoSignature {
-            box-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.12);
-            border-radius: 4px;
-            height: 100px;
-            background-color: #fff;
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center;
-          }
-        }
-
-        .waitInfo {
-          margin-bottom: 6px;
-        }
-
-        .current {
-          color: @activeColor;
-          margin-bottom: 0;
-        }
-
-        .pass {
-          color: @passColor;
-        }
-
-        .refuse {
-          color: @refuseColor;
-        }
-      }
-    }
-  }
-
-  .flowPointer {
-    align-items: center;
-    width: 20px;
-    transform: translateY(14px);
-
-    .pointerItem {
-      width: 11px;
-      height: 11px;
-      flex-shrink: 0;
-      background-color: @activeColor;
-      border-radius: 50%;
-
-      &.edit,
-      &.approve,
-      &.notice {
-        position: relative;
-        width: 20px;
-        height: 20px;
-        margin-top: 0px;
-        flex: 0 0 20px;
-        background-color: #fff;
-
-        &:after {
-          content: "";
-          position: absolute;
-          top: 2px;
-          left: 2px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-        }
-      }
-
-      &.edit {
-        box-shadow: 0 0 10px 1px #2196f3;
-
-        &:after {
-          background: #2196f3;
-        }
-      }
-
-      &.approve {
-        box-shadow: 0 0 10px 1px #2196f3;
-
-        &:after {
-          background: #2196f3;
-        }
-      }
-
-      &.notice {
-        box-shadow: 0 0 10px 1px #2196f3;
-
-        &:after {
-          background: #2196f3;
-        }
-      }
-    }
-
-    .pointerLine {
-      width: 1px;
-      height: 100%;
-      background-color: #ddd;
-    }
-  }
-}
-
-.otherActionWrapper {
-  height: 300px;
-  &.signatureWrapper {
-    height: 450px;
-  }
-  .am-textarea-item {
-    padding: 16px;
-  }
-  .am-textarea-control, textarea {
-    height: 100%;
-  }
-  .actionBtnWrapper {
-    height: 50px;
-    align-items: center;
-  }
-  .actionBtn {
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 24px;
-    border: 1px solid #DDDDDD;
-    margin: 0 10px;
-  }
-  .ok {
-    color: #fff;
-    border-color: @activeColor;
-    background-color: @activeColor;
-  }
-  .signature {
-    width: 100%;
-  }
-  .backFlowNodesHeader {
-    .left, .right {
-      display: flex;
-      color: #2196F3;
-      font-size: 16px;
-      align-items: center;
-    }
-    .am-flexbox-item.left {
-      justify-content: flex-start;
-    }
-    .title {
-      color: #000;
-      font-size: 17px;
-    }
-    .am-flexbox-item.right {
-      justify-content: flex-end;
-    }
-  }
-  .backFlowNodesList {
-    .icon-ok {
-      color: #2196F3;
-    }
   }
 }

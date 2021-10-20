@@ -8,6 +8,9 @@ import { htmlDecodeReg } from 'src/util';
  * @returns {*}
  */
 export const createTimeSpan = dateStr => {
+
+  if (!dateStr) return dateStr;
+
   const dateTime = new Date();
 
   const date = dateStr.split(' ')[0];

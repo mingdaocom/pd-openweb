@@ -37,7 +37,7 @@ class TabList extends React.Component {
         break;
       case 1:
         if (shouldLoadDepartments(this.props)) {
-          dispatch(loadDepartments(''));
+          dispatch(loadDepartments('', 1));
         }
         dispatch(loadUsers(''));
         break;
@@ -84,14 +84,16 @@ class TabList extends React.Component {
                   jobName: '',
                   jobId: '',
                 });
-              }}>
+              }}
+            >
               <span className="mRight8 icon-add Font20" />
               {_l('创建职位')}
             </span>
           </div>
           <ul
             className="pBottom20 jobListUl box-sizing"
-            style={{ height: document.documentElement.clientHeight - 300 }}>
+            style={{ height: document.documentElement.clientHeight - 300 }}
+          >
             {isLoading ? (
               <LoadDiv />
             ) : (
@@ -101,7 +103,8 @@ class TabList extends React.Component {
                     className={cx({ current: jobId === item.jobId })}
                     onClick={() => {
                       dispatch(updateCursorJobId(item.jobId));
-                    }}>
+                    }}
+                  >
                     <Icon className="Font16 Gray_9e mRight10" icon="limit-principal" />
                     <span className={cx('overflow_ellipsis WordBreak jobNameLi')}>{item.jobName}</span>
                     <Icon
@@ -209,7 +212,8 @@ class TabList extends React.Component {
               onClick={() => {
                 this.handleClick(0);
               }}
-              className={cx({ current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}>
+              className={cx({ current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}
+            >
               <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="user_company" />
               <span>{_l('全组织')}</span>
             </li>
@@ -217,22 +221,28 @@ class TabList extends React.Component {
               onClick={() => {
                 this.handleClick(2);
               }}
-              className={cx({ current: cursor === root && typeCursor === 2 })}>
+              className={cx({ current: cursor === root && typeCursor === 2 })}
+            >
               <Icon className="Font16 Gray_9e listName mRight10" icon="user_activation" />
               <span>
                 {_l('未激活')}
-                {inActiveNumber > 0 && typeCursor !== 2 && <span className="numTag">{inActiveNumber > 99 ? '99+' : inActiveNumber}</span>}
+                {inActiveNumber > 0 && typeCursor !== 2 && (
+                  <span className="numTag">{inActiveNumber > 99 ? '99+' : inActiveNumber}</span>
+                )}
               </span>
             </li>
             <li
               onClick={() => {
                 this.handleClick(3);
               }}
-              className={cx({ current: cursor === root && typeCursor === 3 })}>
+              className={cx({ current: cursor === root && typeCursor === 3 })}
+            >
               <Icon className="Font16 Gray_9e listName mRight10" icon="user_Review" />
               <span>
                 {_l('待审核')}
-                {approveNumber > 0 && typeCursor !== 3 && <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>}
+                {approveNumber > 0 && typeCursor !== 3 && (
+                  <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>
+                )}
               </span>
             </li>
           </ul>

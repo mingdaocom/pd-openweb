@@ -6,6 +6,8 @@ import update from 'immutability-helper';
 import { Checkbox } from 'ming-ui';
 import {
   CAN_AS_TEXT_DYNAMIC_FIELD,
+  CAN_AS_EMAIL_DYNAMIC_FIELD,
+  CAN_AS_DEPARTMENT_DYNAMIC_FIELD,
   CAN_AS_NUMBER_DYNAMIC_FIELD,
   CAN_AS_TIME_DYNAMIC_FIELD,
   SYSTEM_TIME,
@@ -15,6 +17,7 @@ import {
 import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
 import { getIconByType } from '../../../../util';
 import { includes } from 'lodash';
+import { SYSTEM_CONTROL } from '../../../../config/widget';
 
 const Empty = styled.div`
   color: #9e9e9e;
@@ -52,6 +55,9 @@ const isEnableScoreOption = item => {
 const FILTER = {
   // 文本
   2: item => _.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type),
+  3: item => _.includes([3], item.type),
+  4: item => _.includes([4], item.type),
+  5: item => _.includes(CAN_AS_EMAIL_DYNAMIC_FIELD, item.type),
   // 数值
   6: item =>
     _.includes(CAN_AS_NUMBER_DYNAMIC_FIELD, item.type) ||
@@ -74,6 +80,7 @@ const FILTER = {
     enumDefault === 0
       ? _.includes(CAN_AS_USER_DYNAMIC_FIELD, item.type) && item.enumDefault === enumDefault
       : _.includes(CAN_AS_USER_DYNAMIC_FIELD, item.type),
+  27: item => _.includes(CAN_AS_DEPARTMENT_DYNAMIC_FIELD, item.type),
 };
 
 @withClickAway
@@ -106,7 +113,7 @@ export default class SelectFields extends Component {
   getControls = controls => {
     const { type, enumDefault, dataSource } = _.get(this.props, 'data');
     const filterFn = FILTER[type];
-    if (_.includes([2, 6, 8], type)) return _.filter(controls, filterFn);
+    if (_.includes([2, 3, 4, 5, 6, 8, 27], type)) return _.filter(controls, filterFn);
     // 单选选项集
     if (_.includes([9, 11], type)) {
       return _.filter(controls, item => item.dataSource === dataSource && _.includes([9, 11], item.type));
@@ -115,7 +122,7 @@ export default class SelectFields extends Component {
     if (_.includes([10], type)) return _.filter(controls, item => item.dataSource === dataSource);
 
     if (_.includes([15, 16], type)) {
-      return _.filter(controls, filterFn).concat(SYSTEM_TIME);
+      return _.filter(controls, filterFn);
     }
 
     if (_.includes([26], type)) {
@@ -154,7 +161,14 @@ export default class SelectFields extends Component {
     // 获取关联表控件下的所有符合条件的字段
     sheetList.slice(initSheetList.length).forEach(({ id }) => {
       const relateSheetControl = _.find(subListControls, ({ controlId }) => controlId === id);
-      const filteredRelationControls = this.getControls(_.get(relateSheetControl, 'relationControls'));
+
+      let relationControls = _.get(relateSheetControl, 'relationControls') || [];
+      // 如果relationControl没有返回系统字段， 则手动添加上
+      if (!relationControls.some(item => item.controlId === 'ctime')) {
+        relationControls = relationControls.concat(SYSTEM_CONTROL);
+      }
+
+      const filteredRelationControls = this.getControls(relationControls);
       fieldList[id] = filteredRelationControls;
     });
     if (!searchValue) return { sheetList, filteredList: fieldList };
@@ -206,6 +220,7 @@ export default class SelectFields extends Component {
                   <ul className="fieldList">
                     {list.map(({ type, controlName, controlId, id }) => {
                       const ids = {
+                        type,
                         relateSheetControlId: recordId === 'current' ? '' : recordId,
                         fieldId: controlId || id,
                       };
@@ -222,15 +237,16 @@ export default class SelectFields extends Component {
                                 checked: !checked,
                                 ...ids,
                               });
-                            }}>
+                            }}
+                          >
                             <i className={`icon-${getIconByType(type)}`}></i>
-                            {controlName}
+                            <span className="overflow_ellipsis">{controlName}</span>
                           </Checkbox>
                         </li>
                       ) : (
                         <li className="overflow_ellipsis" onClick={() => onClick(ids)}>
                           <i className={`icon-${getIconByType(type)}`}></i>
-                          {controlName}
+                          <span className="overflow_ellipsis">{controlName}</span>
                         </li>
                       );
                     })}
@@ -239,7 +255,7 @@ export default class SelectFields extends Component {
               </ul>
             ) : null;
           })}
-          {searchValue && !filteredControlCount && <Empty>{_l('暂无搜索结果')}</Empty>}
+          {!filteredControlCount && <Empty>{searchValue ? _l('暂无搜索结果') : _l('没有可用字段')}</Empty>}
         </div>
       </SelectFieldsWrap>
     );

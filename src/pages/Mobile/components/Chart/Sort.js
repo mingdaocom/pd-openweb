@@ -1,8 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { Icon } from 'ming-ui';
-import reportConfig from 'src/pages/worksheet/common/Statistics/api/reportConfig';
 import { getSortData, isCustomSort, formatSorts } from 'src/pages/worksheet/common/Statistics/common';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
 
@@ -177,8 +174,8 @@ export default class ChartSort extends Component {
           }
         } else {
           if (isPivotTable) {
-            const lineItem = _.findLast(currentReport.lines) || _.object();
-            const columnItem = _.findLast(currentReport.columns) || _.object();
+            const lineItem = _.findLast(currentReport.lines) || {};
+            const columnItem = _.findLast(currentReport.columns) || {};
             const key = _.findKey(n);
             return _.find(yaxisList, { controlId: key }) || [lineItem.controlId, columnItem.controlId].includes(key)
               ? null
@@ -201,8 +198,8 @@ export default class ChartSort extends Component {
     const { yaxisList, sorts, lines, columns } = this.props.currentReport;
 
     if (sorts.length) {
-      const lineItem = _.findLast(lines) || _.object();
-      const columnItem = _.findLast(columns) || _.object();
+      const lineItem = _.findLast(lines) || {};
+      const columnItem = _.findLast(columns) || {};
       const currentEmpty = _.isEmpty(_.find(sorts, controlId));
 
       if (currentEmpty) {
@@ -234,7 +231,7 @@ export default class ChartSort extends Component {
   renderItem(item, fn) {
     const { controls, currentReport } = this.props;
     const { sorts } = currentReport;
-    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || _.object();
+    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || {};
     // const sortData = isCustomSort(type) ? [...getSortData(type, controls), customSort] : getSortData(type, controls);
     const sortData = getSortData(control);
     const sortsItem = _.find(sorts, item.controlId);

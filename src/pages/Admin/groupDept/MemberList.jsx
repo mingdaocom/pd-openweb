@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Input, Table, Spin, ConfigProvider } from 'antd';
-import { LoadDiv } from 'ming-ui'
-import Empty from '../common/TableEmpty'
+import { LoadDiv } from 'ming-ui';
+import Empty from '../common/TableEmpty';
 import Config from '../config';
 import DialogLayer from 'mdDialog';
 import ReactDom from 'react-dom';
@@ -56,7 +56,8 @@ export default class MemberList extends Component {
                 record.groupUserRole === 1
                   ? this.handleDelete(record.accountId, record.fullname)
                   : this.handleSet(record.accountId)
-              }>
+              }
+            >
               {record.groupUserRole === 1 ? _l('移除管理员') : _l('设为管理员')}
             </div>
           );
@@ -77,7 +78,7 @@ export default class MemberList extends Component {
         pageIndex: _this.state.pageIndex,
         pageSize: _this.state.pageSize,
         count: _this.state.count,
-        changePage: function(pIndex) {
+        changePage: function (pIndex) {
           _this.setState(
             {
               pageIndex: pIndex,
@@ -92,7 +93,7 @@ export default class MemberList extends Component {
   }
 
   getGroupsList() {
-    console.log(this.props)
+    console.log(this.props);
     this.setState({ loading: true });
     const reqData = {
       pageIndex: this.state.pageIndex,
@@ -147,7 +148,7 @@ export default class MemberList extends Component {
         noText: _l('取消'),
         header: _l('设置管理员'),
         yesFn: () => {
-          groupController.addAdmin(reqData).then(function(data) {
+          groupController.addAdmin(reqData).then(function (data) {
             if (data) {
               alert(_l('设置成功'));
               _this.getGroupsList();
@@ -175,7 +176,7 @@ export default class MemberList extends Component {
         noText: _l('取消'),
         header: _l('移除管理员'),
         yesFn: () => {
-          groupController.removeAdmin(reqData).then(function(data) {
+          groupController.removeAdmin(reqData).then(function (data) {
             if (data == 1) {
               alert(_l('移除%0的管理员权限成功', name));
               _this.getGroupsList();
@@ -192,9 +193,9 @@ export default class MemberList extends Component {
     ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
   }
 
-  onSelectChange(selectKeys) {
+  onSelectChange = selectKeys => {
     this.setState({ selectKeys });
-  }
+  };
 
   render() {
     const { selectKeys, pageSize, count, list, loading } = this.state;
@@ -202,7 +203,7 @@ export default class MemberList extends Component {
       selectKeys,
       onChange: this.onSelectChange,
       getCheckboxProps: record => {
-        if (record.groupUserRole===1) {
+        if (record.groupUserRole === 1) {
           return { disabled: true };
         } else {
           return null;
@@ -211,9 +212,9 @@ export default class MemberList extends Component {
     };
     const detail = {
       icon: 'icon-myUpload',
-      desc: _l('无成员')
-    }
-    const MemberEmpty = () => <Empty detail={detail} />
+      desc: _l('无成员'),
+    };
+    const MemberEmpty = () => <Empty detail={detail} />;
     return (
       <div className="groupsList">
         <div className="groupTool">

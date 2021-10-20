@@ -21,10 +21,16 @@ export default class SelectOtherField extends Component {
 
   // 插入标签;
   insertField = para => {
-    const { fieldId, relateSheetControlId } = para;
+    const { fieldId, relateSheetControlId, type } = para;
     const { data, onDynamicValueChange, dynamicValue } = this.props;
     const isText = _.includes([1, 2], data.type);
-    const newField = [{ cid: fieldId, rcid: relateSheetControlId, staticValue: '' }];
+    const isAsync = () => {
+      // 部门选成员 需要异步获取数据 isAsync设为true
+      if (data.type === 27 && type === 26) return true;
+      return false;
+    };
+
+    const newField = [{ cid: fieldId, rcid: relateSheetControlId, staticValue: '', isAsync: isAsync() }];
     onDynamicValueChange(isText ? dynamicValue.concat(newField) : newField);
     this.setState({ isDynamic: false });
   };

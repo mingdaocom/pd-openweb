@@ -39,6 +39,7 @@ class MessageView extends Component {
     const { session, sessionList } = this.props;
     const topUnread = sessionList.filter(item => item.value == session.id)[0];
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
+    if (!topUnread) return;
     const unreadCount = topUnread.messageCount || topUnread.count;
     this.getMessage(
       {
@@ -50,7 +51,7 @@ class MessageView extends Component {
     ).then((res) => {
       res = $.isArray(res) ? res.reverse() : [];
       const isAddUnreadLine = topUnread && unreadCount;
-      if (isAddUnreadLine) {
+      if (isAddUnreadLine && res[res.length - unreadCount]) {
         res[res.length - unreadCount].unreadLine = true;
       }
       if (session.accountId && !session.isContact) {
@@ -166,9 +167,9 @@ class MessageView extends Component {
   }
   handleGotoMessage(id) {
     const { session, messages } = this.props;
-    const currentMessage = messages[session.id];
+    const currentMessage = messages[session.id] || [];
     const message = currentMessage.filter(item => item.id == id)[0];
-    if (message) {
+    if (message && message.id) {
       const { gotoMessageId } = this.state;
       const messageEl = $(`#Message-${message.id}`);
       const scrollView = findDOMNode(this.scrollView);
@@ -190,7 +191,7 @@ class MessageView extends Component {
           msgid: id,
           type,
           id: session.id,
-          num: 10,
+          num: config.MSG_LENGTH_MORE,
         })
         .then((res) => {
           this.props.dispatch(actions.resetMessage(session.id, utils.formatMessages(res)));
@@ -312,16 +313,16 @@ class MessageView extends Component {
     const { topUnread } = this.state;
     const { session, messages, sessionList } = this.props;
     const messageList = messages[session.id] || [];
-    const message = messageList[messageList.length - topUnread] || _.object();
+    const message = messageList[messageList.length - topUnread] || {};
     const unreadMessage = sessionList.filter(item => item.value == session.id)[0] || {};
     const atId = unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
     const id = atId || message.id;
     const messageEl = $(`#Message-${id}`);
     const scrollView = findDOMNode(this.scrollView);
-
-    const scrollTop = scrollView.nanoscroller.maxScrollTop - Math.abs(messageEl.position().top);
+    const top = messageEl.position() ? messageEl.position().top : 0;
+    const scrollTop = scrollView.nanoscroller.maxScrollTop - Math.abs(top);
     // 指定的消息在不在可视区
-    if (messageEl.position().top + messageEl.height() <= messageEl.height()) {
+    if (top + messageEl.height() <= messageEl.height()) {
       $(scrollView)
         .nanoScroller({ flash: true })
         .nanoScroller({

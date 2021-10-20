@@ -78,7 +78,7 @@ function start() {
       const hosts = location.host.split('.');
       const projectId = p || hosts[0];
       function onFail(err) {
-        _alert(err ? err.message || err : '发生错误');
+        _alert(JSON.stringify(err));
       }
       if (!dd.ios && !dd.android && !dd.pc) {
         alert('请在钉钉客户端内打开');

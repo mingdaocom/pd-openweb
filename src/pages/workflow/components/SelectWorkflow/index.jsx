@@ -92,7 +92,7 @@ export default class SelectWorkflow extends Component {
           return (
             <Checkbox
               key={index}
-              className="mTop15"
+              className="mTop15 flexRow"
               checked={!!_.find(selectItems, o => o.id === obj.id)}
               text={obj.name}
               onClick={checked => this.onSelect(item.apkName, obj, !checked)}

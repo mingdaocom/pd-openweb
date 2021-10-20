@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { convertImageView } from 'src/util';
 import { Input } from 'antd';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import projectSettingController from 'src/api/projectSetting';
@@ -32,7 +31,7 @@ export default class SubDomain extends Component {
       this.images = _(new Array(5))
         .fill(1)
         .map(function(item, index) {
-          return convertImageView(attUrl + `HomeImage_1${index + 1}.jpg`, 2, 194, 52);
+          return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
         })
         .value();
       const splitHome = homeImage.split('/') || [];
@@ -69,6 +68,7 @@ export default class SubDomain extends Component {
         onlyFolder: true,
         onlyOne: true,
         styleType: '0',
+        tokenType: 4, //网络logo
         checkProjectLimitFileSizeUrl: '',
         filesAdded: function() {
           _this.setState({ isUploading: true });
@@ -79,7 +79,7 @@ export default class SubDomain extends Component {
             var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
             _this.setState({
               homeImage: attachment.fileName + attachment.fileExt,
-              currentHomeImage: convertImageView(fullFilePath, 2, 192, 50),
+              currentHomeImage: `${fullFilePath}?imageView2/2/w/192/h/50/q/90`,
               isCustomImage: _this.testHomeImage(attachment.fileName),
               isUploading: false,
             });

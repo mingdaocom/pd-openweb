@@ -30,7 +30,7 @@ class WorksheetDetailShare extends React.Component {
     const {
       relationRowDetailResultCode,
       step,
-      rowDetail,
+      rowDetail = [],
       titleName,
       projectId,
       worksheetId,

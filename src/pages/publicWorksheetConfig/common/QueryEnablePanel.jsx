@@ -12,9 +12,6 @@ export default function EnablePanel(props) {
   const [queryInfo, setQueryInfo] = useState({});
   const [configVisible, setConfigVisible] = useState();
   const enabled = queryInfo.visibleType === VISIBLE_TYPE.PUBLIC;
-  const shareUrl = `${md.global.Config.PublicFormWebUrl || md.global.Config.WebUrl.replace(/\/$/, '')}/public/query/${
-    queryInfo.queryId
-  }`;
   useEffect(() => {
     getPublicQuery({ worksheetId }).then(data => {
       if (!data.title) {
@@ -56,8 +53,8 @@ export default function EnablePanel(props) {
           editPublicQueryState({
             worksheetId,
             visibleType: newVisibleType,
-          }).then(queryId => {
-            setQueryInfo({ ...queryInfo, queryId, visibleType: newVisibleType });
+          }).then(url => {
+            setQueryInfo({ ...queryInfo, url, visibleType: newVisibleType });
             if (newVisibleType === VISIBLE_TYPE.PUBLIC) {
               setConfigVisible(true);
             }
@@ -70,8 +67,8 @@ export default function EnablePanel(props) {
           <ShareUrl
             copyShowText
             className="mainShareUrl mTop15 mBottom20"
-            url={shareUrl}
-            customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(shareUrl) }]}
+            url={queryInfo.url}
+            customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(queryInfo.url) }]}
           />
           <Button size="mdbig" onClick={() => setConfigVisible(true)}>
             {_l('设置查询链接')}

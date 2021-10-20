@@ -8,7 +8,8 @@ if (!window.escbind) {
       const activeElementTagName = activeElement && activeElement.tagName && activeElement.tagName.toLowerCase();
       if (
         (activeElementTagName === 'input' || activeElementTagName === 'textarea') &&
-        activeElement.getAttribute('class').indexOf('escclose') > -1
+        activeElement &&
+        (activeElement.getAttribute('class') || '').indexOf('escclose') > -1
       ) {
         activeElement.blur();
       } else {

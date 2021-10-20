@@ -62,13 +62,13 @@ export default class ChartDialog extends Component {
       settingVisible,
       scopeVisible: false,
       isEdit: false,
-      currentReport: _.object(),
-      reportData: _.object(),
+      currentReport: {},
+      reportData: {},
       detailLoading: false,
       saveLoading: false,
       loading: false,
       filterItem: [],
-      worksheetInfo: _.object(),
+      worksheetInfo: {},
       chartIsUnfold: true,
       dataIsUnfold: true,
       saveData: null,
@@ -248,10 +248,6 @@ export default class ChartDialog extends Component {
     if (sourceType) {
       newCurrentReport.sourceType = sourceType;
     }
-
-    // delete newCurrentReport.xaxis;
-    // delete newCurrentReport.xaxisSortType;
-    // delete newCurrentReport.particleSizeType;
 
     return Object.assign(newCurrentReport, {
       isPublic,
@@ -665,7 +661,7 @@ export default class ChartDialog extends Component {
                   this.setState({ chartIsUnfold: !chartIsUnfold });
                 }}
               />
-              <div className="Font18 Bold flex breakAll mTop15">{_l('图表')}</div>
+              <div className="Font18 Bold flex AllBreak mTop15">{_l('图表')}</div>
             </div>
           </div>
         </div>
@@ -875,10 +871,10 @@ export default class ChartDialog extends Component {
                   this.setState(
                     {
                       chartType: reportType,
-                      reportData: _.object(),
+                      reportData: {},
                       currentReport: {
                         ...currentReport,
-                        xaxes: _.object(),
+                        xaxes: {},
                         yaxisList: [],
                       },
                       activeSheetId,

@@ -147,12 +147,19 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { from, sheetSwitchPermit = [], strDefault = '10', projectId, viewIdForPermit = '' } = this.props;
+    const {
+      from,
+      sheetSwitchPermit = [],
+      strDefault = '10',
+      projectId,
+      viewIdForPermit = '',
+      enumDefault2,
+    } = this.props;
+    let { disabled } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
-    let disabled = this.props.disabled || isOnlyAllowMobile;
     const { loading, value, temporaryAttachments, temporaryKnowledgeAtts, isComplete, uploadStart } = this.state;
 
-    if (!value && isOnlyAllowMobile) {
+    if (!value && isOnlyAllowMobile && !browserIsMobile()) {
       return (
         <div className={cx('customFormControlBox Gray_bd')}>
           <div className="Gray_9e" style={{ height: 34, lineHeight: '34px' }}>
@@ -212,7 +219,9 @@ export default class Widgets extends Component {
             <UploadFileWrapper
               from={from}
               className="Block"
-              files={[]}
+              inputType={enumDefault2}
+              disabledGallery={strDefault.split('')[0] === '1'}
+              files={attachments || []}
               onChange={(files, isComplete = false) => {
                 this.setState({
                   isComplete,
@@ -234,6 +243,8 @@ export default class Widgets extends Component {
       ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
       : true;
     let hideDownload = !recordAttachmentSwitch;
+
+    disabled = disabled || isOnlyAllowMobile;
 
     return (
       <div

@@ -1,141 +1,13 @@
 ﻿/* eslint-disable prefer-arrow-callback,no-bitwise */
 /* global plupload $ mOxie*/
-import moment from 'moment';
 import { assign, endsWith, forEach, find } from 'lodash';
-import qiniuAjax from 'src/api/qiniu';
-import { getFileExt, validateFileName } from '../utils';
-import { UPLOAD_ERROR, QINIU_BUCKET } from '../constant/enum';
-
-const base64encode = require('js-base64').Base64.encode;
-
-const imageExts = ['gif', 'png', 'jpg', 'jpeg', 'bmp'];
+import { validateFileName } from '../utils';
+import { UPLOAD_ERROR } from '../constant/enum';
+import { getToken } from 'src/util';
+import { Base64 } from 'js-base64';
 let bucketTokenMap = {};
-function getUpTokenPromise(fileName, bkt) {
-  const bucket = bkt
-    ? bkt
-    : imageExts.indexOf(getFileExt(fileName, true)) !== -1
-    ? QINIU_BUCKET.MD_PIC
-    : QINIU_BUCKET.MD_DOC;
-  if (bucketTokenMap[bucket]) {
-    return $.when(bucketTokenMap[bucket]);
-  }
-  let qiniuFetch;
-  if (window.isPublicWorksheet) {
-    qiniuFetch = qiniuAjax.getFileUploadToken;
-  } else {
-    qiniuFetch = qiniuAjax.getUploadToken;
-  }
-  return qiniuFetch({ bucket }).then(res => {
-    if (res.error) {
-      alert(res.error);
-    } else {
-      bucketTokenMap[bucket] = res.uptoken;
-      return res.uptoken;
-    }
-  });
-}
-function getUpToken(fileName, bkt) {
-  const bucket = bkt
-    ? bkt
-    : imageExts.indexOf(getFileExt(fileName, true)) !== -1
-    ? QINIU_BUCKET.MD_PIC
-    : QINIU_BUCKET.MD_DOC;
-  return bucketTokenMap[bucket];
-}
 function clearUpTokenCache() {
   bucketTokenMap = {};
-}
-
-function getFileKey(up, file) {
-  function getHashCode(str) {
-    str = str + '';
-    let h = 0;
-    let off = 0;
-    const len = str.length;
-
-    for (let i = 0; i < len; i++) {
-      h = 31 * h + str.charCodeAt(off++);
-      if (h > 0x7fffffff || h < 0x80000000) {
-        h = h & 0xffffffff;
-      }
-    }
-    return h;
-  }
-  function getRandStr(length) {
-    const randStrArr = [
-      'A',
-      'B',
-      'C',
-      'D',
-      'E',
-      'F',
-      'G',
-      'H',
-      'I',
-      'J',
-      'K',
-      'L',
-      'M',
-      'N',
-      'O',
-      'P',
-      'Q',
-      'R',
-      'S',
-      'T',
-      'U',
-      'V',
-      'W',
-      'X',
-      'Y',
-      'Z',
-      'a',
-      'b',
-      'c',
-      'd',
-      'e',
-      'f',
-      'g',
-      'h',
-      'i',
-      'j',
-      'k',
-      'l',
-      'm',
-      'n',
-      'o',
-      'p',
-      'q',
-      'r',
-      's',
-      't',
-      'u',
-      'v',
-      'w',
-      'x',
-      'y',
-      'z',
-    ];
-
-    const randArr = [];
-    for (let i = 0; i < length; i++) {
-      randArr.push(randStrArr[Math.floor(Math.random() * randStrArr.length)]);
-    }
-
-    return randArr.join('');
-  }
-
-  return [
-    imageExts.indexOf(getFileExt(file.name, true)) !== -1 ? 'pic' : 'doc',
-    moment().format('YYYYMM/DD'),
-    getRandStr(15) + '_' + Math.abs(getHashCode(file.name) + getHashCode(new Date())) + '.' + getFileExt(file.name),
-  ].join('/');
-}
-
-function urlSafeBase64Encode(v) {
-  return base64encode(v)
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-');
 }
 
 function createUploader(option) {
@@ -210,13 +82,13 @@ function createUploader(option) {
   delete option.init.FileUploaded;
   delete option.init.FilesAdded;
   const uploader = new plupload.Uploader(option);
-  let ctx = '';
 
   uploader.init();
 
   uploader.bind('FilesAdded', function FilesAdded(up, files) {
     const validFiles = [];
     const invalidFiles = [];
+    const tokenFiles = [];
     forEach(files, file => {
       if (validateFile(file)) {
         validFiles.push(file);
@@ -225,6 +97,9 @@ function createUploader(option) {
         // validFiles.push(file);
         invalidFiles.push(file);
       }
+      let fileExt = `.${File.GetExt(file.name)}`;
+      let isPic = File.isPicture(fileExt);
+      tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
     });
 
     if (validFiles.length > option.max_file_count) {
@@ -255,32 +130,34 @@ function createUploader(option) {
         beforeUploadCheck = $.Deferred().reject();
       }
     }
-    if (autoStart) {
-      plupload.each(validFiles, file => {
-        $.when(beforeUploadCheck)
-          .then(() =>
-            getUpTokenPromise(file.name, option.bucket).then(
-              () => {
-                up.start();
-              },
-              () => $.Deferred().reject('获取上传凭证失败'),
-            ),
-          )
-          .fail(failResult => {
-            file.status = window.plupload.FAILED;
-            up.trigger('Error', {
-              file,
-              code: undefined,
-              message: failResult || '上传前检查失败',
-            });
-            up.removeFile(file);
-          });
+    getToken(tokenFiles).then(res => {
+      files.forEach((item, i) => {
+        item.token = res[i].uptoken;
+        item.key = res[i].key;
+        item.serverName = res[i].serverName;
+        item.fileName = res[i].fileName;
+        item.url = res[i].url;
       });
-    }
+      if (autoStart) {
+        plupload.each(validFiles, file => {
+          $.when(beforeUploadCheck)
+            .then(() => up.start())
+            .fail(failResult => {
+              file.status = window.plupload.FAILED;
+              up.trigger('Error', {
+                file,
+                code: undefined,
+                message: failResult || '上传前检查失败',
+              });
+              up.removeFile(file);
+            });
+        });
+      }
+    });
     up.refresh();
   });
 
-  uploader.bind('Retry', function ClearStoredProgress(up, file) {
+  uploader.bind('Retry', function ClearStoredProgress(up, file = {}) {
     up.stop();
     localStorage.removeItem(file.name);
     file.loaded = 0;
@@ -291,17 +168,19 @@ function createUploader(option) {
     up.trigger('UploadFile', file);
   });
 
-  uploader.bind('BeforeUpload', function BeforeUpload(up, file) {
+  uploader.bind('BeforeUpload', function BeforeUpload(up, file = {}) {
     try {
       const native = file.getNative();
       if (file.size && !native.size) {
         file.notExists = true;
       }
     } catch (e) {}
-    ctx = '';
-    const token = getUpToken(file.name, option.bucket);
 
-    const directUpload = function(up, file) {
+    const fileExt = `.${File.GetExt(file.name)}`;
+
+    const token = file.token;
+
+    const directUpload = function (up, file) {
       /* eslint no-shadow:0*/
       let multipartParamsObj;
       if (option.save_key) {
@@ -309,19 +188,19 @@ function createUploader(option) {
       } else {
         multipartParamsObj = {
           token,
-          key: getFileKey(up, file),
+          key: file.key,
         };
       }
 
       const xVars = option.x_vars;
       if (xVars !== undefined && typeof xVars === 'object') {
-        Object.keys(xVars).forEach(function(xKey) {
-          if (typeof xVars[xKey] === 'function') {
-            multipartParamsObj['x:' + xKey] = xVars[xKey](up, file);
-          } else if (typeof xVars[xKey] !== 'object') {
-            multipartParamsObj['x:' + xKey] = xVars[xKey];
-          }
-        });
+        multipartParamsObj['x:serverName'] = file.serverName;
+        multipartParamsObj['x:filePath'] = file.key.replace(file.fileName, '');
+        multipartParamsObj['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+        multipartParamsObj['x:originalFileName'] = encodeURIComponent(
+          file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+        );
+        multipartParamsObj['x:fileExt'] = fileExt;
       }
 
       up.setOption({
@@ -351,7 +230,7 @@ function createUploader(option) {
                 // 通过文件名和文件大小匹配，找到对应的 localstorage 信息，恢复进度
                 file.percent = localFileInfo.percent;
                 file.loaded = localFileInfo.offset;
-                ctx = localFileInfo.ctx;
+                file.ctx = localFileInfo.ctx;
                 if (localFileInfo.offset + blockSize > file.size) {
                   blockSize = file.size - localFileInfo.offset;
                 }
@@ -384,7 +263,7 @@ function createUploader(option) {
 
   uploader.bind('ChunkUploaded', function ChunkUploaded(up, file, info) {
     const res = JSON.parse(info.response);
-    ctx = ctx ? ctx + ',' + res.ctx : res.ctx;
+    file.ctx = file.ctx ? file.ctx + ',' + res.ctx : res.ctx;
     const leftSize = info.total - info.offset;
     let chunkSize = up.getOption && up.getOption('chunk_size');
     chunkSize = chunkSize || (up.settings && up.settings.chunk_size);
@@ -396,7 +275,7 @@ function createUploader(option) {
     localStorage.setItem(
       file.name,
       JSON.stringify({
-        ctx,
+        ctx: file.ctx,
         percent: file.percent,
         total: info.total,
         offset: info.offset,
@@ -496,38 +375,29 @@ function createUploader(option) {
     up.refresh(); // Reposition Flash/Silverlight
   });
 
-  uploader.bind('FileUploaded', function(up, file, info) {
+  uploader.bind('FileUploaded', function (up, file, info) {
     info.response = JSON.parse(info.response);
     if (!info.response.ctx) {
       if (initFunc.FileUploaded) {
         initFunc.FileUploaded(up, file, info);
       }
     } else {
-      const key = '/key/' + urlSafeBase64Encode(getFileKey(up, file));
-      const xVars = option.x_vars;
-      let xValUrl = '';
-      let xVal;
-      if (xVars !== undefined && typeof xVars === 'object') {
-        Object.keys(xVars).forEach(function(xKey) {
-          if (typeof xVars[xKey] === 'function') {
-            xVal = urlSafeBase64Encode(xVars[xKey](up, file));
-          } else if (typeof xVars[xKey] !== 'object') {
-            xVal = urlSafeBase64Encode(xVars[xKey]);
-          }
-          xValUrl += '/x:' + xKey + '/' + xVal;
-        });
-      }
-      const url = option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + key + xValUrl;
-      // var token = getUpToken(file.name);
-      getUpTokenPromise(file.name, option.bucket).then(token => {
+      let fileExt = `.${File.GetExt(file.name)}`;
+      let isPic = File.isPicture(fileExt);
+      getToken([{ bucket: isPic ? 4 : 3, ext: fileExt }]).then(res => {
         $.ajax({
-          url,
+          url:
+            option.url.replace(/(\/)$/, '') +
+            '/mkfile/' +
+            (file.size ? file.size : 0) +
+            '/key/' +
+            Base64.encode(res[0].key),
           type: 'POST',
           beforeSend: request => {
             request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-            request.setRequestHeader('Authorization', 'UpToken ' + token);
+            request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
           },
-          data: ctx,
+          data: file.ctx,
           processData: false,
         }).then(response => {
           if (typeof response === 'string') {

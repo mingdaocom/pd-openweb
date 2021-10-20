@@ -72,7 +72,7 @@ export const colorGroup = {
  * 获取图表颜色
  */
 export const getChartColors = (style) => {
-  const { colorType, colorGroupIndex, customColors } = style ? style : _.object();
+  const { colorType, colorGroupIndex, customColors } = style ? style : {};
   if ([0, 1].includes(colorType)) {
     const data = colorGroup[colorGroupIndex] || colorGroup[0];
     return data.value;
@@ -84,8 +84,8 @@ export const getChartColors = (style) => {
 /**
  * 获取异化的样式
  */
-export const getAlienationColor = (xaxes, { name }) => {
-  const item = _.find(xaxes.options, { value: name });
+export const getAlienationColor = (xaxes, { originalName }) => {
+  const item = _.find(xaxes.options, { key: originalName });
   return item ? item.color : '#E0E0E0';
 }
 
@@ -302,9 +302,9 @@ export const formatControlInfo = value => {
 export const getMaxValue = (map, contrastMap) => {
   const mapRes = map.map(item => item.value);
   const contrastMapRes = contrastMap ? contrastMap.map(item => item.value) : [0];
-  const mapMaxValue = Math.max.apply(null, mapRes);
-  const contrastMapMaxValue = Math.max.apply(null, contrastMapRes);
-  return Math.max.apply(null, [mapMaxValue, contrastMapMaxValue]);
+  const mapMaxValue = _.max(mapRes);
+  const contrastMapMaxValue = _.max(contrastMapRes);
+  return _.max([mapMaxValue, contrastMapMaxValue]);
 }
 
 /**
@@ -313,8 +313,8 @@ export const getMaxValue = (map, contrastMap) => {
 export const getMinValue = (map, contrastMap) => {
   const mapRes = map.map(item => item.value);
   const contrastMapRes = contrastMap ? contrastMap.map(item => item.value) : [0];
-  const mapMaxValue = Math.min.apply(null, mapRes);
-  const contrastMapMaxValue = Math.min.apply(null, contrastMapRes);
-  return Math.min.apply(null, [mapMaxValue, contrastMapMaxValue]);
+  const mapMaxValue = _.min(mapRes) || 0;
+  const contrastMapMaxValue = _.min(contrastMapRes) || 0;
+  return _.min([mapMaxValue, contrastMapMaxValue]);
 }
 

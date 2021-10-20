@@ -133,7 +133,7 @@ export default function Cascader(props) {
               className="viewName overflow_ellipsis pointer Bold"
               onClick={() => window.open(`/app/${appId}/${groupId}/${dataSource}/${viewId}`)}
             >
-              {viewInfo.name}
+              {(viewInfo || {}).name}
             </div>
           </div>
           <i className="icon-edit_17 Gray_9e pointer" onClick={() => setEdit({ editVisible: true, editType: 3 })}></i>

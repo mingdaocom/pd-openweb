@@ -114,7 +114,7 @@ export default class Condition extends Component {
 
     let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
     if (control) {
-      if (control.type === 29 && control.enumDefault === 2) {
+      if (control.type === 29 && control.enumDefault === 2 && _.get(control.advancedSetting || {}, 'showtype') === '2') {
         conditionFilterTypes = conditionFilterTypes.filter(
           type => !_.includes([FILTER_CONDITION_TYPE.RCEQ, FILTER_CONDITION_TYPE.RCNE], type.value),
         );

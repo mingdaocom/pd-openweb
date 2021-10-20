@@ -39,6 +39,7 @@ const renderOverlay = ({
   onNormType,
   onUpdateParticleSizeType,
   onSelectReNameId,
+  verifyNumber
 }) => {
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
@@ -52,7 +53,7 @@ const renderOverlay = ({
       >
         {_l('重命名')}
       </Menu.Item>
-      {isNumber && (
+      {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes.map(item => (
             <Menu.Item
@@ -105,8 +106,8 @@ const renderOverlay = ({
 };
 
 const SortableItem = SortableElement(props => {
-  const { item, axisControls, onClear, onNormType, onUpdateParticleSizeType, onSelectReNameId } = props;
-  const axis = _.find(axisControls, { controlId: item.controlId }) || _.object();
+  const { item, axisControls, onClear, onNormType, verifyNumber, onUpdateParticleSizeType, onSelectReNameId } = props;
+  const axis = _.find(axisControls, { controlId: item.controlId }) || {};
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
@@ -117,6 +118,7 @@ const SortableItem = SortableElement(props => {
     onNormType,
     onUpdateParticleSizeType,
     onSelectReNameId,
+    verifyNumber
   };
   const tip = item.rename && item.rename !== axis.controlName ? axis.controlName : null;
   return (
@@ -125,7 +127,7 @@ const SortableItem = SortableElement(props => {
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
         <Tooltip title={tip}>
           <span className="Gray flex ellipsis">
-            {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
+            {(isNumber && verifyNumber) && `${_.find(normTypes, { value: item.normType }).text}: `}
             {item.rename || axis.controlName || _l('该控件不存在')}
             {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
             {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
@@ -179,8 +181,8 @@ export default class PivotTableAxis extends Component {
         return false;
       }
     } else {
-      if (isNumberControl(data.type)) {
-        isAlert && alert(_l('不允许添加数值和公式字段'), 2);
+      if (data.type === 10000001) {
+        isAlert && alert(_l('不允许添加计算字段'), 2);
         return false;
       } else {
         return true;
@@ -215,8 +217,19 @@ export default class PivotTableAxis extends Component {
         controlId: data.controlId,
         controlName: data.controlName,
         controlType: data.type,
-        particleSizeType: isTime || isArea ? 1 : 0,
       };
+      if (isTime || isArea) {
+        axis.particleSizeType = isTime || isArea ? 1 : 0;
+      }
+      // if (isNumberControl(data.type)) {
+      //   Object.assign(axis, {
+      //     normType: 1,
+      //     dot: data.dot,
+      //     magnitude: 1,
+      //     suffix: '',
+      //     ydot: '',
+      //   });
+      // }
       this.props.onUpdateList(list.concat(axis));
     }
   };
@@ -267,7 +280,7 @@ export default class PivotTableAxis extends Component {
   };
   renderModal() {
     const { currentControlId } = this.state;
-    const currentControl = _.find(this.props.list, { controlId: currentControlId }) || _.object();
+    const currentControl = _.find(this.props.list, { controlId: currentControlId }) || {};
     return (
       <RenameModal
         dialogVisible={!!currentControlId}
@@ -282,7 +295,7 @@ export default class PivotTableAxis extends Component {
     );
   }
   render() {
-    const { name, list, axisControls } = this.props;
+    const { name, list, axisControls, verifyNumber } = this.props;
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
@@ -291,6 +304,7 @@ export default class PivotTableAxis extends Component {
           helperClass="sortablePivotTableField"
           list={list}
           axisControls={axisControls}
+          verifyNumber={verifyNumber}
           onClear={this.handleClear}
           onNormType={this.handleNormType}
           onUpdateParticleSizeType={this.handleUpdateParticleSizeType}

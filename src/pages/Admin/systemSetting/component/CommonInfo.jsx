@@ -8,7 +8,6 @@ import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
 import fixeddataController from 'src/api/fixedData';
 import ClipboardButton from 'react-clipboard.js';
-import { convertImageView } from 'src/util';
 import cx from 'classnames';
 import AdminCommon from 'src/pages/Admin/common/common';
 import 'uploadAttachment';
@@ -83,7 +82,7 @@ export default class CommonInfo extends Component {
         this.setState(
           {
             code,
-            homeImage: convertImageView(homeImage, 2, 194, 52),
+            homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
             logo,
             subDomain: (res && res.subDomain) || '',
             companyDisplayName,
@@ -178,11 +177,12 @@ export default class CommonInfo extends Component {
       onlyFolder: true,
       onlyOne: true,
       styleType: '0',
+      tokenType: 4, //网络logo
       checkProjectLimitFileSizeUrl: '',
-      filesAdded: function() {
+      filesAdded: function () {
         _this.setState({ uploadLoading: true });
       },
-      callback: function(attachments) {
+      callback: function (attachments) {
         if (attachments.length > 0) {
           const attachment = attachments[0];
           const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;

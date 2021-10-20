@@ -3,13 +3,9 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
 import previewAttachments from 'previewAttachments';
-import plupload from 'plupload';
 import FileComponent from './File';
 import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
 import {
-  getToken2,
-  getRandStr,
-  getHashCode,
   formatResponseData,
   isValid,
   getAttachmentTotalSize,
@@ -22,16 +18,9 @@ import {
   findIsId,
   openNetStateDialog,
 } from './utils';
-import { QiniuUpload } from 'src/components/UploadFiles/utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
-import moment from 'moment';
-import { formatFileSize, convertImageView } from 'src/util';
-
-let tokenConfig = {
-  token: '',
-  promise: '',
-  time: '',
-};
+import { formatFileSize, getToken } from 'src/util';
+import plupload from 'plupload';
 
 export default class UploadFiles extends Component {
   static propTypes = {
@@ -116,14 +105,6 @@ export default class UploadFiles extends Component {
      */
     onDropPasting: PropTypes.func,
     /**
-     * 文件所在文件夹
-     */
-    folder: PropTypes.string,
-    /**
-     * 只要文件夹这一级 文件ID为GUID
-     */
-    onlyFolder: PropTypes.bool,
-    /**
      * 附件是否行显示，(Commenter)
      */
     rowDisplay: PropTypes.bool,
@@ -151,8 +132,6 @@ export default class UploadFiles extends Component {
     onUploadComplete: () => {},
     dropPasteElement: '',
     onDropPasting: () => {},
-    folder: '',
-    onlyFolder: false,
     rowDisplay: false,
     removeDeleteFilesFn: false,
   };
@@ -173,19 +152,11 @@ export default class UploadFiles extends Component {
   }
 
   componentDidMount() {
-    const { attachmentData, temporaryData, kcAttachmentData } = this.state;
+    const { temporaryData, kcAttachmentData } = this.state;
     const { isInitCall, isUpload } = this.props;
 
     if (isUpload) {
-      if (tokenConfig.token && tokenConfig.time && moment() - moment(tokenConfig.time) < 7 * 24 * 60 * 60 * 1000) {
-        this.tokens = tokenConfig.token;
-        this.initPlupload();
-      } else {
-        this.getToken(result => {
-          this.tokens = tokenConfig.token;
-          this.initPlupload();
-        });
-      }
+      this.initPlupload();
     }
 
     if (isInitCall) {
@@ -212,24 +183,11 @@ export default class UploadFiles extends Component {
     }
   }
 
-  getToken(fn) {
-    if (!tokenConfig.promise) {
-      const { from } = this.props;
-      tokenConfig.promise = getToken2({ isPublic: from === FROM.PUBLIC || from === FROM.WORKFLOW });
-    }
-    tokenConfig.promise.then(result => {
-      tokenConfig.token = result;
-      tokenConfig.promise = '';
-      tokenConfig.time = moment().format('YYYY-MM-DD HH:mm:ss');
-      fn(result);
-    });
-  }
-
   initPlupload() {
     const _this = this;
     let { maxTotalSize } = this.state;
     const { nativeFile } = this;
-    let { noTotal, folder, onlyFolder, dropPasteElement, from, projectId } = this.props;
+    let { noTotal, dropPasteElement, from, projectId } = this.props;
     const isPublic = from === FROM.PUBLIC || from === FROM.WORKFLOW;
 
     $(nativeFile).plupload({
@@ -240,6 +198,7 @@ export default class UploadFiles extends Component {
       multi_selection: true,
       max_file_size: maxTotalSize + 'm',
       filters: undefined,
+      autoUpload: false,
       method: {
         FilesAdded(uploader, files) {
           _this.props.onDropPasting();
@@ -250,10 +209,12 @@ export default class UploadFiles extends Component {
 
           // 判断已上传的总大小是否超出限制
           let filesSize = getFilesSize(files);
-          let currentTotalSize = temporaryData.length ? temporaryData.map(item => item.fileSize).reduce((item, count) => count + item) : 0;
+          let currentTotalSize = temporaryData.length
+            ? temporaryData.map(item => item.fileSize).reduce((item, count) => count + item)
+            : 0;
           let totalSize = parseFloat(currentTotalSize / 1024 / 1024) + parseFloat(filesSize / 1024 / 1024);
           if (totalSize > maxTotalSize) {
-            alert('附件总大小超过 ' + formatFileSize((maxTotalSize / 2) * 1024 * 1024) + '，请您分批次上传', 3);
+            alert('附件总大小超过 ' + formatFileSize(maxTotalSize * 1024 * 1024) + '，请您分批次上传', 3);
             _this.onRemoveAll(uploader);
             return false;
           }
@@ -281,6 +242,8 @@ export default class UploadFiles extends Component {
             files.splice(files.length - num, num);
           }
 
+          const tokenFiles = [];
+
           // 渲染图片列表
           files.forEach(item => {
             let { temporaryData } = _this.state;
@@ -301,37 +264,34 @@ export default class UploadFiles extends Component {
             _this.setState({
               temporaryData: temporaryData.concat({ id: item.id, progress: 0.1, base }),
             });
+
+            tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
+          });
+
+          getToken(tokenFiles).then(res => {
+            files.forEach((item, i) => {
+              item.token = res[i].uptoken;
+              item.key = res[i].key;
+              item.serverName = res[i].serverName;
+              item.fileName = res[i].fileName;
+              item.url = res[i].url;
+            });
+
+            uploader.start();
           });
         },
         BeforeUpload(uploader, file) {
           _this.currentFile = uploader;
           const fileExt = `.${File.GetExt(file.name)}`;
-          const isPic = File.isPicture(fileExt);
-          const { doc, pic } = _this.tokens;
-          const { token, serverName } = isPic ? pic : doc;
 
           uploader.settings.multipart_params = {
-            token,
+            token: file.token,
           };
 
-          let date = new Date();
-          let newFilename = getRandStr(15) + '_' + Math.abs(getHashCode(file.name) + getHashCode(date));
-
-          let filePathArr = [];
-          if (folder) {
-            filePathArr.push(folder + '/');
-          }
-          if (!onlyFolder) {
-            filePathArr.push((isPic ? 'pic' : 'doc') + '/');
-            filePathArr.push(moment(date).format('YYYYMM') + '/');
-            filePathArr.push(isPic ? moment(date).format('DD') + '/' : '');
-          }
-
-          let filePath = filePathArr.join('');
-          uploader.settings.multipart_params.key = filePath + newFilename + fileExt;
-          uploader.settings.multipart_params['x:serverName'] = serverName;
-          uploader.settings.multipart_params['x:filePath'] = filePath;
-          uploader.settings.multipart_params['x:fileName'] = newFilename;
+          uploader.settings.multipart_params.key = file.key;
+          uploader.settings.multipart_params['x:serverName'] = file.serverName;
+          uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+          uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
             file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );
@@ -438,8 +398,10 @@ export default class UploadFiles extends Component {
     });
   }
   removeUploadingFile(id) {
-    this.currentFile.stop();
-    this.currentFile.removeFile({ id });
+    if (this.currentFile) {
+      this.currentFile.stop();
+      this.currentFile.removeFile({ id });
+    }
     const newTemporaryData = this.state.temporaryData.filter(item => item.id !== id);
     this.setState(
       {
@@ -638,21 +600,20 @@ export default class UploadFiles extends Component {
       let hideFunctions = ['editFileName'];
       previewAttachments({
         attachments: quData.map(item => {
+          const twice = item.twice || {};
           const result = {
             name: `${item.originalFileName || '未命名'}${item.fileExt}`,
-            path: item.serverName
-              ? `${item.serverName}${item.key}`
-              : convertImageView(`${item.twice.largeThumbnailPath}${item.twice.largeThumbnailName}`, 1, 200, 140),
+            path: item.previewUrl
+              ? `${item.previewUrl}`
+              : item.url
+              ? `${item.url}&imageView2/1/w/200/h/140`
+              : `${item.serverName}${item.key}`,
             previewAttachmentType: 'QINIU',
             size: item.fileSize,
             fileid: item.fileID,
           };
           if (item.fileExt === '.url') {
             result.linkUrl = item.originLinkUrl;
-          } else {
-            result.path = item.serverName
-              ? `${item.serverName}${item.key}`
-              : convertImageView(`${item.twice.largeThumbnailPath}${item.twice.largeThumbnailName}`, 1, 200, 140);
           }
           return result;
         }),

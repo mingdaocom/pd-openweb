@@ -34,7 +34,7 @@ export default class WorkwxSyncCourse extends React.Component {
           const hash = location.hash.replace('#', '');
           if (['scanWorkwx', 'syncField'].includes(hash)) {
             setTimeout(() => {
-              const el = document.querySelector(`.${hash}`) || _.object();
+              const el = document.querySelector(`.${hash}`) || {};
               document.querySelector('html').scrollTop = el.offsetTop;
             }, 0);
           }
@@ -123,7 +123,7 @@ export default class WorkwxSyncCourse extends React.Component {
               className="download Hidden"
               target="_blank"
               download={'md' + moment().format('YYYY-MM-DD') + '.png'}
-              href={'https://filepub.mingdao.com/logo_app.png'}
+              href={`${md.global.FileStoreConfig.pubHost}logo_app.png`}
             >
               {_l('点击下载')}
             </a>

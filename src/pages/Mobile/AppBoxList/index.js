@@ -1,7 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { Flex, ActivityIndicator, List, Toast } from 'antd-mobile';
 import Back from '../components/Back';
-import Ajax from 'src/api/appManagement';
 import AddDialog from 'src/pages/Mobile/AppBoxInfo/AppDetails/AddDialog';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';

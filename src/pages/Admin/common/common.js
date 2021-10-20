@@ -124,41 +124,6 @@ AdminCommon.initProjectSelect = function() {
   });
 };
 
-AdminCommon.autoCompleteUser = function(elememtId, projectId, selectCallback, toAccountId = '') {
-  require(['src/api/user', 'jqueryUI'], function(userController) {
-    $(elememtId).autocomplete({
-      source: function(request, response) {
-        userController
-          .getAutoUsersByKeywords({
-            keywords: request.term,
-            projectId: projectId,
-            toAccountId,
-          })
-          .then(function(data) {
-            response(
-              $.map(data, function(item) {
-                var desc = $.trim((item.department || '') + ' ' + (item.job || ''));
-                return {
-                  label: item.fullname + (!desc ? '' : '(' + desc + ')'),
-                  value: item.accountId,
-                };
-              }),
-            );
-          });
-      },
-      select: function(event, ui) {
-        if (selectCallback) {
-          selectCallback(ui.item);
-          return false;
-        }
-      },
-      focus: function(event, ui) {
-        return false;
-      },
-    });
-  });
-};
-
 AdminCommon.freeUpdateDialog = () => {
   upgradeVersionDialog({
     projectId: Config.project.projectId,

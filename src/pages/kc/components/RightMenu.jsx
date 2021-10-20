@@ -8,12 +8,7 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Icon from 'ming-ui/components/Icon';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import {
-  NODE_TYPE,
-  NODE_STATUS,
-  NODE_OPERATOR_TYPE,
-  NODE_VIEW_TYPE,
-} from '../constant/enum';
+import { NODE_TYPE, NODE_STATUS, NODE_OPERATOR_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
 
 import UploadNewVersion from './UploadNewVersion';
 
@@ -61,13 +56,13 @@ export default class RightMenu extends React.Component {
     const newY = menuH + oldY > winH ? (oldY - menuH < 55 ? 55 : oldY - menuH) : oldY;
     const newState = { clientX: newX - left + 1, clientY: newY - top };
 
-    if (newState.clientX !== this.state.clientX || newState.clientY !== this.state.clientY) {
+    if (!_.isEqual(_.pick(newState, ['clientX', 'clientY']), _.pick(this.state, ['clientX', 'clientY']))) {
       this.setState(newState);
     }
   }
   addHideMenu(oldProps) {
     const props = { ...oldProps };
-    Object.keys(props).forEach((key) => {
+    Object.keys(props).forEach(key => {
       if (typeof props[key] === 'function') {
         const fn = props[key];
         props[key] = (...args) => {
@@ -92,11 +87,13 @@ export default class RightMenu extends React.Component {
     /* 回收站*/
     if (isRecycle) {
       return (
-        <Menu className="rightMenu" ref={rightMenu => (this.rightMenu = rightMenu)} style={{ left: this.state.clientX, top: this.state.clientY }} onClick={props.onClickAway}>
-          <MenuItem
-            icon={<Icon icon="task-new-delete" />}
-            onClick={ () => (props.removeNode(NODE_STATUS.DELETED)) }
-          >
+        <Menu
+          className="rightMenu"
+          ref={rightMenu => (this.rightMenu = rightMenu)}
+          style={{ left: this.state.clientX, top: this.state.clientY }}
+          onClick={props.onClickAway}
+        >
+          <MenuItem icon={<Icon icon="task-new-delete" />} onClick={() => props.removeNode(NODE_STATUS.DELETED)}>
             {_l('彻底删除')}
           </MenuItem>
           <MenuItem icon={<Icon icon="rotate" />} onClick={props.restoreNode}>
@@ -106,55 +103,82 @@ export default class RightMenu extends React.Component {
       );
     } else {
       return (
-        <Menu className="rightMenu" ref={rightMenu => (this.rightMenu = rightMenu)} style={{ left: this.state.clientX, top: this.state.clientY }} onClick={props.onClickAway}>
-          <MenuItem icon={<Icon icon="kc-view" />} className={cx({ hide: isFolder || isMulti })} onClick={evt => props.handlePreview(item, evt)}>
+        <Menu
+          className="rightMenu"
+          ref={rightMenu => (this.rightMenu = rightMenu)}
+          style={{ left: this.state.clientX, top: this.state.clientY }}
+          onClick={props.onClickAway}
+        >
+          <MenuItem
+            icon={<Icon icon="kc-view" />}
+            className={cx({ hide: isFolder || isMulti })}
+            onClick={evt => props.handlePreview(item, evt)}
+          >
             {_l('预览')}
           </MenuItem>
-          <MenuItem icon={<Icon icon="knowledge-open" />} className={cx({ hide: !isFolder || isMulti })} onClick={evt => props.changeFolder(item, evt)}>
+          <MenuItem
+            icon={<Icon icon="knowledge-open" />}
+            className={cx({ hide: !isFolder || isMulti })}
+            onClick={evt => props.changeFolder(item, evt)}
+          >
             打开
           </MenuItem>
-          {!isFolder &&
-            !isMulti &&
-            isUrl &&
-            canEdit && (
-              <MenuItem icon={<Icon icon="edit" />} onClick={evt => props.onAddLinkFile(true, item)}>
-                编辑
-              </MenuItem>
-            )}
+          {!isFolder && !isMulti && isUrl && canEdit && (
+            <MenuItem icon={<Icon icon="edit" />} onClick={evt => props.onAddLinkFile(true, item)}>
+              编辑
+            </MenuItem>
+          )}
           {(isAdmin || (canEdit && item.canDownload) || item.canDownload || isMulti) && (
             <MenuItem icon={<Icon icon="kc-hover-download" />} onClick={() => props.download(item)}>
               {_l('下载')}
             </MenuItem>
           )}
           <MenuItem className="menuLine" />
-          <MenuItem icon={<Icon icon="task-star" />} className={cx({ hide: isFolder || isMulti })} onClick={() => props.onStarNode(item)}>
+          <MenuItem
+            icon={<Icon icon="task-star" />}
+            className={cx({ hide: isFolder || isMulti })}
+            onClick={() => props.onStarNode(item)}
+          >
             {isStared ? _l('取消标星') : _l('标星')}
           </MenuItem>
-          <MenuItem icon={<Icon icon="calendar-task" />} className={cx({ hide: isMulti })} onClick={() => props.onShareNode(item)}>
+          <MenuItem
+            icon={<Icon icon="calendar-task" />}
+            className={cx({ hide: isMulti })}
+            onClick={() => props.onShareNode(item)}
+          >
             {_l('分享')}
           </MenuItem>
           <MenuItem className={cx('menuLine', { hide: isFolder || isMulti })} />
           {(isAdmin || canEdit) && (
-            <MenuItem icon={<Icon icon="edit" />} className={cx({ hide: isMulti })} onClick={() => props.updateNodeName(item)}>
+            <MenuItem
+              icon={<Icon icon="edit" />}
+              className={cx({ hide: isMulti })}
+              onClick={() => props.updateNodeName(item)}
+            >
               {_l('重命名')}
             </MenuItem>
           )}
-          {!isUrl &&
-            (isAdmin || canEdit) && (
-              <MenuItem icon={<Icon icon="attachment" />} className={cx({ hide: isFolder || isMulti })}>
-                <span>
-                  {_l('上传新版本')}
-                  <UploadNewVersion item={props.item} callback={props.performUpdateItem} />
-                </span>
-              </MenuItem>
-            )}
+          {!isUrl && (isAdmin || canEdit) && (
+            <MenuItem icon={<Icon icon="attachment" />} className={cx({ hide: isFolder || isMulti })}>
+              <span>
+                {_l('上传新版本')}
+                <UploadNewVersion item={props.item} callback={props.performUpdateItem} />
+              </span>
+            </MenuItem>
+          )}
           {canEdit && (
-            <MenuItem icon={<Icon icon="task-replace" />} onClick={() => props.moveOrCopyClick(NODE_OPERATOR_TYPE.MOVE, isAdmin ? null : item.rootId)}>
+            <MenuItem
+              icon={<Icon icon="task-replace" />}
+              onClick={() => props.moveOrCopyClick(NODE_OPERATOR_TYPE.MOVE, isAdmin ? null : item.rootId)}
+            >
               {_l('移动到…')}
             </MenuItem>
           )}
           {(isAdmin || (canEdit && item.canDownload) || item.canDownload || isMulti) && (
-            <MenuItem icon={<Icon icon="knowledge-more-folder" />} onClick={() => props.moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}>
+            <MenuItem
+              icon={<Icon icon="knowledge-more-folder" />}
+              onClick={() => props.moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
+            >
               {_l('复制到…')}
             </MenuItem>
           )}

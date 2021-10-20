@@ -22,20 +22,20 @@ function RequestMap() {
   this.map = {};
 }
 
-RequestMap.prototype.add = function(name, request) {
+RequestMap.prototype.add = function (name, request) {
   this.abort(name);
   this.map[name] = request;
   return request;
 };
 
-RequestMap.prototype.abort = function(name) {
+RequestMap.prototype.abort = function (name) {
   const request = this.map[name];
   if (request && request.state() === 'pending' && this.request.abort) {
     request.abort();
   }
 };
 
-RequestMap.prototype.abortAll = function() {
+RequestMap.prototype.abortAll = function () {
   _.forEach(this.map, request => {
     if (request && request.state() === 'pending' && request.abort) {
       request.abort();
@@ -541,7 +541,7 @@ export default class extends PureComponent {
   }
 
   renderApplyList() {
-    const { applyList } = this.state;
+    const { appDetail: { projectId = '' } = {}, applyList } = this.state;
     if (applyList && applyList.length) {
       return (
         <div className={styles.applyListWrap}>
@@ -557,6 +557,7 @@ export default class extends PureComponent {
               {_.map(applyList.slice(0, 6), ({ accountInfo: user }) => (
                 <UserHead
                   key={user.accountId}
+                  projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
                   size={24}
                   user={{
                     ...user,

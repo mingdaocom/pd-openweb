@@ -18,7 +18,8 @@ export default class DataSource extends Component {
       timeModalVisible: false,
       sheetModalVisible: false,
       calculateControlModalVisible: false,
-      currentAxisControls: props.axisControls
+      currentAxisControls: props.axisControls,
+      editCalculateControl: null,
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -26,6 +27,12 @@ export default class DataSource extends Component {
       this.setState({
         currentAxisControls: nextProps.axisControls,
       });
+    }
+    if (nextProps.currentReport.formulas.length > this.props.currentReport.formulas.length) {
+      var el = document.querySelector('.chartDataSource .scrollWrapper');
+      setTimeout(() => {
+        el.nanoscroller.scrollTop(el.nanoscroller.maxScrollTop);
+      }, 0);
     }
   }
   handleSearch = () => {
@@ -56,7 +63,7 @@ export default class DataSource extends Component {
       return (
         <div className="flexColumn valignWrapper horizontalPaddingWrapper">
           <Icon className="Gray_9e Font18 pointer mTop5" icon="arrow-left-border" onClick={onChangeDataIsUnfold} />
-          <div className="Bold Font18 Gray flex mTop15 breakAll">{_l('数据源')}</div>
+          <div className="Bold Font18 Gray flex mTop15 AllBreak">{_l('数据源')}</div>
         </div>
       );
     }
@@ -178,59 +185,88 @@ export default class DataSource extends Component {
       </div>
     );
   }
-  renderCalculateControl(alreadySelectControlId) {
-    const { axisControls, currentReport, onChangeCurrentReport } = this.props;
-    const { calculateControlModalVisible } = this.state;
+  renderAddCalculateControl() {
     return (
-      <Fragment>
-        <div className="flexRow valignWrapper horizontalPaddingWrapper mTop10 mBottom10 Gray_9e">
-          <span className="flex">{_l('计算字段')}</span>
-          <span className="tip-top-left" data-tip={_l('添加计算字段')}>
-            <Icon
-              icon="add"
-              className="Font20 pointer"
-              onClick={() => {
-                this.setState({
-                  calculateControlModalVisible: true
-                });
-              }}
-            />
-          </span>
-        </div>
-        <div className="chartCollapse horizontalPaddingWrapper">
-          {
-            currentReport.formulas.map(item => (
-              <CalculateControlItem
-                key={item.controlId}
-                item={item}
-                isActive={alreadySelectControlId.includes(item.controlId)}
-              />
-            ))
-          }
-        </div>
-        <CalculateControlModal
-          axisControls={axisControls}
-          currentReport={currentReport}
-          onChangeCurrentReport={onChangeCurrentReport}
-          dialogVisible={calculateControlModalVisible}
-          onChangeDialogVisible={visible => {
-            this.setState({ calculateControlModalVisible: visible });
+      <div className="tip-top-left mRight5 addCalculateControl" data-tip={_l('添加计算字段')}>
+        <Icon
+          icon="add"
+          className="Font18 Gray_9e pointer"
+          onClick={event => {
+            event.stopPropagation();
+            this.setState({
+              calculateControlModalVisible: true
+            });
           }}
         />
-      </Fragment>
+      </div>
+    );
+  }
+  renderCalculateControl(alreadySelectControlId) {
+    const { axisControls, currentReport, onChangeCurrentReport } = this.props;
+    const { calculateControlModalVisible, editCalculateControl } = this.state;
+    const { formulas } = currentReport;
+    return (
+      <Collapse.Panel
+        className={cx({hide: _.isEmpty(formulas)})}
+        key="calculateControl"
+        header={
+          <Fragment>
+            {this.renderAddCalculateControl()}
+            <div className="flex Gray_9e">{_l('计算值')}</div>
+          </Fragment>
+        }
+      >
+        <div>
+          <div className="chartCollapse">
+            {
+              formulas.map(item => (
+                <CalculateControlItem
+                  key={item.controlId}
+                  item={item}
+                  isActive={alreadySelectControlId.includes(item.controlId)}
+                  onOpenEdit={() => {
+                    this.setState({
+                      calculateControlModalVisible: true,
+                      editCalculateControl: item
+                    });
+                  }}
+                  onDelete={(id) => {
+                    onChangeCurrentReport({
+                      formulas: formulas.filter(item => item.controlId !== id)
+                    });
+                  }}
+                />
+              ))
+            }
+          </div>
+          <CalculateControlModal
+            editCalculateControl={editCalculateControl}
+            axisControls={axisControls}
+            currentReport={currentReport}
+            onChangeCurrentReport={onChangeCurrentReport}
+            dialogVisible={calculateControlModalVisible}
+            onChangeDialogVisible={visible => {
+              this.setState({
+                calculateControlModalVisible: visible,
+                editCalculateControl: null
+              });
+            }}
+          />
+        </div>
+      </Collapse.Panel>
     );
   }
   renderExpandIcon(panelProps) {
     return (
       <Icon
-        className={cx('Font18 mRight5 Gray_9e', { 'icon-arrow-active': panelProps.isActive })}
-        icon="arrow-right-border"
+        className={cx('Font18 Gray_9e', { 'icon-arrow-active': panelProps.isActive })}
+        icon="arrow-down-border"
       />
     );
   }
   renderControls() {
     const { currentReport } = this.props;
-    const { xaxes, yaxisList, splitId, pivotTable, rightY } = currentReport;
+    const { xaxes, yaxisList, splitId, pivotTable, rightY, formulas } = currentReport;
     const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
     const rightSplitId = rightY ? rightY.splitId : null;
     const alreadySelectControlId = pivotTable
@@ -243,18 +279,26 @@ export default class DataSource extends Component {
     const { currentAxisControls } = this.state;
     return (
       <Fragment>
-        <div className="horizontalPaddingWrapper mTop10 Gray_9e hide">{_l('表字段')}</div>
-        <div className="chartCollapse horizontalPaddingWrapper mTop10">
-          {currentAxisControls.map(item => (
-            <ControlItem
-              key={item.controlId}
-              item={item}
-              isActive={alreadySelectControlId.includes(item.controlId)}
-            />
-          ))}
-          {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
-        </div>
-        {/*this.renderCalculateControl(alreadySelectControlId)*/}
+        <Collapse
+          ghost
+          className="dataSourceCollapse"
+          defaultActiveKey={['sheetControl', 'calculateControl']}
+          expandIcon={this.renderExpandIcon}
+        >
+          <Collapse.Panel header={<div className="flex Gray_9e">{_l('工作表')}</div>} key="sheetControl">
+            <div>
+              {currentAxisControls.map(item => (
+                <ControlItem
+                  key={item.controlId}
+                  item={item}
+                  isActive={alreadySelectControlId.includes(item.controlId)}
+                />
+              ))}
+              {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
+            </div>
+          </Collapse.Panel>
+          {this.renderCalculateControl(alreadySelectControlId)}
+        </Collapse>
         {/*
         <Collapse className="chartCollapse" defaultActiveKey={['sheet']} expandIcon={this.renderExpandIcon} ghost>
           <Collapse.Panel
@@ -276,7 +320,10 @@ export default class DataSource extends Component {
     return (
       <div className="mTop20 flex flexColumn">
         <div className="horizontalPaddingWrapper">
-          <div className="Font13 Gray mBottom5 Bold">{_l('字段')}</div>
+          <div className="flexRow valignWrapper mBottom5">
+            <span className="flex Font13 Gray Bold">{_l('字段')}</span>
+            {this.renderAddCalculateControl()}
+          </div>
           {this.renderSearch()}
         </div>
         {this.renderControls()}
@@ -290,7 +337,7 @@ export default class DataSource extends Component {
         {dataIsUnfold ? (
           <Fragment>
             {this.renderHeader()}
-            <ScrollView className="flex" updateEvent={this.handleScroll}>
+            <ScrollView className="flex scrollWrapper">
               {this.renderSheet()}
               {this.renderTime()}
               {this.renderField()}

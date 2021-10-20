@@ -328,6 +328,7 @@ export default class Header extends Component {
             <OtherAction
               selectedUser={selectedUser}
               selectedUsers={selectedUsers}
+              workId={workId}
               data={data}
               action={action}
               onOk={this.handleAction}

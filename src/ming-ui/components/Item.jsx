@@ -4,7 +4,8 @@ import cx from 'classnames';
 import './less/Item.less';
 
 function Item(props) {
-  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, text, iconName, iconHint, ...rest } = props;
+  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, text, iconName, iconHint, ...rest } =
+    props;
   return (
     <li {...rest} className={cx(className, `ming Item ${iconAtEnd ? 'iconAtEnd' : ''}`)}>
       {createElement(
@@ -13,11 +14,12 @@ function Item(props) {
           className: 'Item-content' + (disabled ? ' disabled' : ''),
           href,
           target,
+          style: rest.itemContentStyle,
         },
         <span>
           {icon}
           {children}
-        </span>
+        </span>,
       )}
       {subMenu}
     </li>

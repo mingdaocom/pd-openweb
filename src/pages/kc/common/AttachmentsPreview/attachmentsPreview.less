@@ -200,17 +200,20 @@
         font-size: 13px;
       }
     }
-    .viewHistory, .uploadNewVersion {
-      background-color: rgba(255, 255, 255, 0.30);
+    .viewHistory,
+    .uploadNewVersion {
+      background-color: rgba(255, 255, 255, 0.3);
       transition: background-color 0.3s;
       i {
         font-size: 16px !important;
       }
       &:hover {
-        background-color: rgba(255, 255, 255, 0.40) !important;
+        background-color: rgba(255, 255, 255, 0.4) !important;
       }
     }
-    .download, .viewHistory, .uploadNewVersion {
+    .download,
+    .viewHistory,
+    .uploadNewVersion {
       display: flex;
       align-content: center;
       justify-content: center;
@@ -243,7 +246,8 @@
         }
       }
     }
-    .saveTo, .more {
+    .saveTo,
+    .more {
       position: relative;
       font-size: 14px;
       i {
@@ -315,6 +319,9 @@
       width: 100%;
       height: 100%;
       border: none;
+    }
+    .txtViewer .markdown-body {
+      min-width: 700px;
     }
     .imageViewer {
       overflow: visible;
@@ -641,7 +648,12 @@
 
 @media screen and (max-width: 500px) {
   .previewHeader {
-    .saveTo, .shareNode, .download, .more, .newVersion, .historyPanel {
+    .saveTo,
+    .shareNode,
+    .download,
+    .more,
+    .newVersion,
+    .historyPanel {
       display: none !important;
     }
     .fileName {
@@ -649,7 +661,8 @@
     }
   }
   .statusBar {
-    .imageOperate, .icon-apps {
+    .imageOperate,
+    .icon-apps {
       display: none !important;
     }
   }

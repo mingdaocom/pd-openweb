@@ -29,6 +29,12 @@ const PivotTableContent = styled.table`
   thead th {
     font-weight: bold;
   }
+  tbody tr:nth-child(even) {
+    background-color: #fafcfd;
+  }
+  tbody tr:hover {
+    background-color: #fafafa;
+  }
 `;
 
 
@@ -85,7 +91,7 @@ const mergeTableCell = list => {
 }
 
 const mergeColumnsCell = (data, yaxisList) => {
-  const length = data[0].y.length;
+  const length = _.find(data, { summary_col: false }).y.length;
   const result = [];
 
   for(let i = 0; i < length; i++) {
@@ -108,7 +114,7 @@ const mergeColumnsCell = (data, yaxisList) => {
 
   data.forEach(item => {
     const { t_id, data } = item;
-    const { rename, controlName } = _.find(yaxisList, { controlId: t_id }) || _.object();
+    const { rename, controlName } = _.find(yaxisList, { controlId: t_id }) || {};
     item.name = rename || controlName;
     item.data = data.map(n => {
       if (_.isNumber(n)) {
@@ -140,7 +146,7 @@ const mergeLinesCell = (data, lines, valueMap) => {
     const res = item[key].map(item => {
       return valueMap[key] ? (valueMap[key][item] || item) : item;
     });
-    const target = _.find(lines, { controlId: key }) || _.object();
+    const target = _.find(lines, { controlId: key }) || {};
     return {
       name: target.rename || target.controlName,
       data: res,
@@ -162,7 +168,7 @@ export default class extends Component {
           rowSpan={columns.length}
           colSpan={yaxisList.length}
         >
-          {_l('行汇总')}
+          {_l('列汇总')}
           {columnSummary.name ? `(${columnSummary.name})` : null}
         </th>
       ) : null
@@ -179,12 +185,12 @@ export default class extends Component {
             className="Bold Gray_75"
             colSpan={xFieldsLength}
           >
-            {_l('列汇总')}
+            {_l('行汇总')}
             {lineSummary.name ? `(${lineSummary.name})` : null}
           </th>
           {
             rowCountList.map((item, index) => (
-              <td key={index}>{formatrChartValue(item.sum, false, yaxisList, item.t_id, false)}</td>
+              <td key={index}>{_.isNumber(item.sum) ? formatrChartValue(item.sum, false, yaxisList, item.t_id, false) : '--'}</td>
             ))
           }
         </tr>
@@ -218,7 +224,7 @@ export default class extends Component {
                             {valueMap[columnItem.controlId] ? valueMap[columnItem.controlId][item.y[index].value] : item.y[index].value}
                           </th>
                         ) : (
-                          <th key={i}>{valueMap[columnItem.controlId] ? valueMap[columnItem.controlId][item.y[index]] : item.y[index]}</th>
+                          <th key={i}>{valueMap[columnItem.controlId] ? (valueMap[columnItem.controlId][item.y[index]] || item.y[index]) : item.y[index]}</th>
                         )
                       ) : null
                     ))

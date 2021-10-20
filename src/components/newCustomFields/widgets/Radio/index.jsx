@@ -91,7 +91,7 @@ export default class Widgets extends Component {
         >
           {isMobile ? (
             <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
-              <div className="flex">
+              <div className="flex minWidth0">
                 {checkIds.length ? (
                   checkIds.map(value => (
                     <div key={value} className="mTop5 mBottom5">

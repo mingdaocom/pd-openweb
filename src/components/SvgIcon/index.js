@@ -25,8 +25,11 @@ export default ({ url = '', size = 24, fill = '#2196f3', addClassName = '' }) =>
             svg.removeChild(el);
           } catch (error) {}
         }
-
-        svg.querySelectorAll('*').forEach(item => item.removeAttribute('fill'));
+        if (svg && svg.querySelectorAll('*') && svg.querySelectorAll('*').length > 0) {
+          try {
+            svg.querySelectorAll('*').forEach(item => item.removeAttribute('fill'));
+          } catch (error) {}
+        }
       }}
     />
   );

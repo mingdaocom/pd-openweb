@@ -1,8 +1,11 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1625191337498') format('woff2'),
-       url('iconfont.woff?t=1625191337498') format('woff'),
-       url('iconfont.ttf?t=1625191337498') format('truetype');
+  src: url('iconfont.eot?t=1629958487779'); /* IE9 */
+  src: url('iconfont.eot?t=1629958487779#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('iconfont.woff2?t=1629958487779') format('woff2'),
+       url('iconfont.woff?t=1629958487779') format('woff'),
+       url('iconfont.ttf?t=1629958487779') format('truetype'),
+       url('iconfont.svg?t=1629958487779#MD_Icon') format('svg');
 }
 
 .MD_Icon {
@@ -11,6 +14,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-a-arrowback:before {
+  content: "\e61e";
 }
 
 .icon-stats_pie_chart:before {

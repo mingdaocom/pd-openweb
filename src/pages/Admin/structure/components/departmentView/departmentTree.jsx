@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import { Tree } from 'antd';
 import { initRoot, loadDepartments, loadUsers, departmentUpdate, expandedKeysUpdate } from '../../actions/entities';
 import { updateCursor } from '../../actions/current';
@@ -8,6 +8,7 @@ import departmentController from 'src/api/department'; //moveDepartment
 import DiaActionTree from './diaActionTree';
 import './departmentTree.less';
 import { getParentsId } from '../../modules/util';
+import _ from 'lodash';
 
 const loop = (data, key, callback) => {
   data.forEach((item, index, arr) => {
@@ -35,29 +36,35 @@ class DepartmentTree extends React.Component {
         left: 0,
         top: 0,
       },
+      moreIds: [],
+      pageSize: 100,
+      rootIsAll: false,
+      moreIdLoading: '',
+      height: 600,
     };
   }
 
   componentDidMount() {
     this.init();
-    this.lisentHover()
+    this.lisentHover();
+    window.addEventListener('resize', _.throttle(this.getHeight, 500));
   }
 
   lisentHover() {
-    $(document).on('mouseover', '.ant-tree-switcher', (e) => {
-      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle')
+    $(document).on('mouseover', '.ant-tree-switcher', e => {
+      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
     });
-    $(document).on('mouseleave', '.ant-tree-switcher', (e) => {
-      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle')
+    $(document).on('mouseleave', '.ant-tree-switcher', e => {
+      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
     });
   }
 
   unBindHover() {
-    $(document).off('mouseover', '.ant-tree-switcher', (e) => {
-      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle')
+    $(document).off('mouseover', '.ant-tree-switcher', e => {
+      $(e.target).closest('.ant-tree-treenode').addClass('hoverParentStyle');
     });
-    $(document).off('mouseleave', '.ant-tree-switcher', (e) => {
-      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle')
+    $(document).off('mouseleave', '.ant-tree-switcher', e => {
+      $(e.target).closest('.ant-tree-treenode').removeClass('hoverParentStyle');
     });
   }
 
@@ -77,7 +84,7 @@ class DepartmentTree extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unBindHover()
+    this.unBindHover();
   }
 
   init = () => {
@@ -86,7 +93,7 @@ class DepartmentTree extends React.Component {
       dispatch(initRoot(id));
     }
     if (autoLoad) {
-      dispatch(loadDepartments(id));
+      dispatch(loadDepartments(id, 1, this.getHeight));
     }
     $('.departmentTreeBox').scroll(() => {
       this.setState({
@@ -97,6 +104,13 @@ class DepartmentTree extends React.Component {
           top: 0,
         },
       });
+    });
+  };
+
+  getHeight = () => {
+    const $wrap = document.querySelector('.departmentTreeBox');
+    this.setState({
+      height: $wrap ? $wrap.offsetHeight - 20 : this.state.height,
     });
   };
 
@@ -193,26 +207,67 @@ class DepartmentTree extends React.Component {
     });
   };
 
-  loadDataFn = treeNode => {
+  loadDataFn = (treeNode = {}, isMore) => {
     const { projectId, dispatch } = this.props;
+    const { props = {} } = treeNode;
     return new Promise(resolve => {
-      if (treeNode.props.subDepartments) {
+      if (props.subDepartments && !isMore) {
         resolve();
         return;
       }
-
+      let moreIdData = this.state.moreIds.find(o => (o.departmentId || '') === (props.departmentId || ''));
+      let pageIndex = !props.departmentId && !moreIdData ? 2 : moreIdData ? moreIdData.pageIndex + 1 : 1;
+      this.setState({
+        moreIdLoading: props.departmentId,
+      });
       departmentController
-        .getProjectSubDepartment({
-          projectId: projectId,
-          departmentId: treeNode.props.departmentId,
+        .pagedSubDepartments({
+          projectId,
+          parentId: props.departmentId,
+          pageIndex,
+          pageSize: this.state.pageSize,
         })
         .then(data => {
-          treeNode.props.dataRef.subDepartments = data;
-          let list = [..._.cloneDeep(this.state.newDepartments)];
-          loop(list, treeNode.props.departmentId, (item, index, arr) => {
-            arr[index].subDepartments = data;
+          this.setState({
+            moreIdLoading: '',
           });
-          dispatch(departmentUpdate(list, data, treeNode.props.departmentId));
+          if (data.length >= this.state.pageSize) {
+            this.setState({
+              moreIds:
+                pageIndex > 1 && moreIdData
+                  ? this.state.moreIds.map(o => {
+                      if (o.departmentId === props.departmentId) {
+                        return {
+                          ...o,
+                          pageIndex,
+                        };
+                      } else {
+                        return o;
+                      }
+                    })
+                  : this.state.moreIds.concat({
+                      departmentId: props.departmentId,
+                      pageIndex,
+                    }),
+            });
+          } else {
+            this.setState({
+              moreIds: this.state.moreIds.filter(o => o.departmentId !== props.departmentId),
+              rootIsAll: !props.departmentId ? true : this.state.rootIsAll,
+            });
+          }
+          const { dataRef = {} } = props;
+          let { subDepartments = [] } = dataRef;
+          subDepartments = isMore ? subDepartments.concat(data) : data;
+          let list = [..._.cloneDeep(this.state.newDepartments)];
+          if (!props.departmentId) {
+            list = list.concat(subDepartments);
+          } else {
+            loop(list, props.departmentId, (item, index, arr) => {
+              arr[index].subDepartments = subDepartments;
+            });
+          }
+          dispatch(departmentUpdate(list, subDepartments, props.departmentId));
           resolve();
         });
     });
@@ -220,11 +275,10 @@ class DepartmentTree extends React.Component {
 
   onSelect = (selectedKeys = [], info) => {
     let id = selectedKeys[0];
-
-    this.setState({ selectedKeys });
-    if (!id) {
+    if (!id || id.indexOf('more_') >= 0) {
       return;
     }
+    this.setState({ selectedKeys });
     const { dispatch } = this.props;
     dispatch(updateCursor(id));
     dispatch(loadUsers(id));
@@ -269,51 +323,90 @@ class DepartmentTree extends React.Component {
     return [x, y, w, h];
   };
 
-  renderTreeNodes = data =>
-    data.map(item => {
-      return (
-        <TreeNode
-          {...item}
-          key={item.departmentId}
-          title={
-            <React.Fragment>
-              <span className="departmentName overflow_ellipsis WordBreak">
-                {item.departmentName}
-                <span
-                  className="departmentAction"
-                  onClick={e => {
-                    const target = e.target;
-                    let top = $(target).offset().top - $('.departmentTreeBox').offset().top;
-                    let height = $('.departmentTreeBox').height();
-                    this.setState({
-                      showAction: true,
-                      dropData: {
-                        id: item.departmentId,
-                        left: $('.departmentTreeBox').width() - 8,
-                        top: top + 80 < height ? top : height - 80,
-                      },
-                    });
-                    //当前departmentId===选中departmentId，阻止冒泡
-                    if (item.departmentId === this.props.cursor) {
-                      e.stopPropagation();
-                    }
-                  }}>
-                  <Icon className="Font16 Gray_9e listName" icon="moreop" />
+  renderTreeNodes = (data, hasMore, parentData) => {
+    let htmlDiv = () => {
+      return data.map(item => {
+        return (
+          <TreeNode
+            {...item}
+            key={item.departmentId}
+            title={
+              <React.Fragment>
+                <span className="departmentName overflow_ellipsis WordBreak">
+                  {item.departmentName}
+                  <span
+                    className="departmentAction"
+                    onClick={e => {
+                      const target = e.target;
+                      let top = $(target).offset().top - $('.departmentTreeBox').offset().top;
+                      let height = $('.departmentTreeBox').height();
+                      this.setState({
+                        showAction: true,
+                        dropData: {
+                          id: item.departmentId,
+                          left: $('.departmentTreeBox').width() - 8,
+                          top: top + 80 < height ? top : height - 80,
+                        },
+                      });
+                      //当前departmentId===选中departmentId，阻止冒泡
+                      if (item.departmentId === this.props.cursor) {
+                        e.stopPropagation();
+                      }
+                    }}
+                  >
+                    <Icon className="Font16 Gray_9e listName" icon="moreop" />
+                  </span>
                 </span>
-              </span>
-            </React.Fragment>
-          }
-          icon={
-            <React.Fragment>
-              <Icon icon="custom_folder_2" className="Font16 Gray_9e listName" />
-            </React.Fragment>
-          }
-          dataRef={item}
-          isLeaf={!item.haveSubDepartment && !(item.subDepartments && item.subDepartments.length > 0)}>
-          {item.subDepartments && item.subDepartments.length ? this.renderTreeNodes(item.subDepartments) : ''}
-        </TreeNode>
-      );
-    });
+              </React.Fragment>
+            }
+            icon={
+              <React.Fragment>
+                <Icon icon="custom_folder_2" className="Font16 Gray_9e listName" />
+              </React.Fragment>
+            }
+            dataRef={item}
+            isLeaf={!item.haveSubDepartment && !(item.subDepartments && item.subDepartments.length > 0)}
+          >
+            {item.subDepartments && item.subDepartments.length
+              ? this.renderTreeNodes(
+                  item.subDepartments,
+                  this.state.moreIds.map(o => o.departmentId).includes(item.departmentId),
+                  { props: { ...item, dataRef: item } },
+                )
+              : ''}
+          </TreeNode>
+        );
+      });
+    };
+    return (
+      <React.Fragment>
+        {htmlDiv()}
+        {((!this.props.searchValue && hasMore) ||
+          (!parentData && data.length >= this.state.pageSize && !this.state.rootIsAll)) && (
+          <TreeNode
+            key={`more_${_.get(parentData, ['props', 'departmentId']) || 'all'}`}
+            isLeaf={true}
+            icon={
+              <div className="mTop5 moreListIcon">
+                {this.state.moreIdLoading === _.get(parentData, ['props', 'departmentId']) && <LoadDiv size="small" />}
+              </div>
+            }
+            title={
+              <div
+                className="moreList Hand mLeft10"
+                onClick={e => {
+                  e.stopPropagation();
+                  this.loadDataFn(parentData, true);
+                }}
+              >
+                {this.state.moreIdLoading === _.get(parentData, ['props', 'departmentId']) ? _l('加载中') : _l('更多')}
+              </div>
+            }
+          ></TreeNode>
+        )}
+      </React.Fragment>
+    );
+  };
 
   onExpand = expandedKeys => {
     this.props.dispatch(expandedKeysUpdate(expandedKeys));
@@ -323,7 +416,7 @@ class DepartmentTree extends React.Component {
   };
 
   render() {
-    const { newDepartments, expandedKeys, selectedKeys, autoExpandParent } = this.state;
+    const { newDepartments, expandedKeys, selectedKeys, autoExpandParent, height } = this.state;
     return (
       <div className="departmentTreeBox box-sizing pBottom20">
         <DirectoryTree
@@ -341,7 +434,9 @@ class DepartmentTree extends React.Component {
           blockNode
           onDragEnter={this.onDragEnter}
           onDrop={this.onDrop}
-          loadData={this.loadDataFn}>
+          loadData={this.loadDataFn}
+          height={height}
+        >
           {this.renderTreeNodes(newDepartments)}
         </DirectoryTree>
         {this.state.showAction && this.renderDropListDia()}
@@ -355,6 +450,7 @@ const mapStateToProps = (state, ownProps) => {
     current: { departmentId, root, projectId },
     pagination: { userList },
     entities: { departments = [], newDepartments = [], expandedKeys = [] },
+    search: { searchValue },
   } = state;
   const department = departments[ownProps.id];
   const subDepartments = _.filter(departments, dept => dept.parentDepartment === ownProps.id);
@@ -369,6 +465,7 @@ const mapStateToProps = (state, ownProps) => {
     pageIndex: userList && userList.pageIndex,
     newDepartments: newDepartments,
     expandedKeys,
+    searchValue,
   };
 };
 const ConnectedNode = connect(mapStateToProps)(DepartmentTree);

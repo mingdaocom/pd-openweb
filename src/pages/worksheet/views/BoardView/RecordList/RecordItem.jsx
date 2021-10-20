@@ -165,7 +165,8 @@ function SortableRecordItem(props) {
           showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
         }
       }}
-      className={cx('boardDataRecordItemWrap', { isDragging, isDraggingTemp: type === 'temp' })}>
+      className={cx('boardDataRecordItemWrap', { isDragging, isDraggingTemp: type === 'temp' })}
+    >
       <Components.EditableCard
         ref={$ref}
         data={data}
@@ -205,6 +206,7 @@ function SortableRecordItem(props) {
           from={1}
           visible
           recordId={recordInfoRowId}
+          projectId={worksheetInfo.projectId}
           currentSheetRows={getCurrentSheetRows()}
           worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}
           hideRecordInfo={() => {

@@ -1,9 +1,6 @@
 import React, { Fragment, Component } from 'react';
-import { Flex } from 'antd-mobile';
-import { Icon } from 'ming-ui';
 import Back from '../components/Back';
 import DocumentTitle from 'react-document-title';
-import './index.less';
 
 const data = {
   help: {
@@ -23,7 +20,7 @@ export default class Iframe extends Component {
       <Fragment>
         <DocumentTitle title={title} />
         <iframe
-          className="mobileFrame"
+          className="overflowHidden Border0"
           width="100%"
           height={document.documentElement.clientHeight}
           src={url}

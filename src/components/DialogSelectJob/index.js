@@ -141,7 +141,7 @@ class DialogSelectJob extends Component {
             />
             <span className={cx('searchClose icon-closeelement-bg-circle', { Block: !!keywords.trim() })} onClick={() => this.setState({ keywords: '' })} />
           </div>
-          <div className="mTop12 Font13 overflow_ellipsis">{_.find(md.global.Account.projects, o => o.projectId === projectId).companyName}</div>
+          <div className="mTop12 Font13 overflow_ellipsis">{(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}</div>
           <div className="selectJobContent">{this.renderContent()}</div>
           <div className="GSelect-result-box">{this.renderResult()}</div>
         </div>

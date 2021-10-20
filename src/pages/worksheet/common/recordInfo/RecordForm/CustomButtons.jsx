@@ -187,7 +187,7 @@ export default class CustomButtons extends React.Component {
           alert(_l('保存成功'));
         }
         if (targetOptions.recordId === recordId) {
-          onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data);
+          onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
         }
         if (this.activeBtn.writeObject === 1 && !res.data.isviewdata) {
           hideRecordInfo();

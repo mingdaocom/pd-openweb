@@ -3,6 +3,7 @@ import './header.less';
 import { Icon, Dropdown, Tooltip, Switch } from 'ming-ui';
 import { fromType, printType, typeForCon, DEFAULT_FONT_SIZE, MIDDLE_FONT_SIZE, MAX_FONT_SIZE } from '../config';
 import cx from 'classnames';
+import Api from 'api/homeApp';
 // import * as htmlDocx from 'html-docx-js/dist/html-docx';
 // import {cssStr} from './wordcss';
 // const juice = require('juice');
@@ -13,63 +14,25 @@ class Header extends React.Component {
     super(props);
     this.state = {
       isEdit: false,
+      isUserAdmin: false,
     };
   }
-  componentDidMount() {
+  componentWillMount() {
+    const { params } = this.props;
+    const { type, from, appId, printType } = params;
+    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'workflow') {
+      Api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
+        this.setState({
+          isUserAdmin: data.permissionType >= 100,
+        });
+      });
+    }
     // document.querySelectorAll('img').forEach(e => {
     //   e.setAttribute('crossOrigin', 'anonymous');
     //   let src = e.getAttribute('src');
     //   e.setAttribute('src', `${__api_server__}File/ImageConvert?path=` + encodeURIComponent(src));
     // });
   }
-  renderDrop = () => {
-    const { printData, handChange } = this.props;
-    return (
-      <span className="TxtTop InlineBlock mRight15" style={{ marginLeft: '70px' }}>
-        <span className="TxtMiddle">{_l('文字大小：')}</span>
-        <Dropdown
-          style={{ width: 110, lineHeight: '50px' }}
-          menuStyle={{ width: 110 }}
-          value={printData.font || DEFAULT_FONT_SIZE}
-          onChange={value => {
-            handChange({
-              ...printData,
-              font: value,
-            });
-          }}
-          data={[
-            { text: _l('标准'), value: DEFAULT_FONT_SIZE },
-            { text: _l('中'), value: MIDDLE_FONT_SIZE },
-            { text: _l('大'), value: MAX_FONT_SIZE },
-          ]}
-        />
-      </span>
-    );
-  };
-
-  renderBtnNull = () => {
-    const { printData, handChange } = this.props;
-    const { showData } = printData;
-    return (
-      <div className="InlineBlock isBtnNull" style={{ marginLeft: '140px' }}>
-        <Switch
-          checked={showData}
-          onClick={() => {
-            handChange({
-              ...printData,
-              showData: !showData,
-            });
-          }}
-        />
-        <span>{_l('不显示无内容字段')}</span>
-        <Tooltip popupPlacement="top" text={<span>{_l('开启后，打印时没有内容的字段会自动隐藏且不会打印')}</span>}>
-          <div className="Gray_9e help">
-            <Icon icon="help" className="Font14" />
-          </div>
-        </Tooltip>
-      </div>
-    );
-  };
 
   // genScreenshot = () => {
   //   const $wrap = document.getElementById('printContent');
@@ -146,6 +109,7 @@ class Header extends React.Component {
           )}
           {type === typeForCon.PREVIEW && <span className="Font17 Bold">{_l('预览: %0', printData.name)}</span>}
           {from === fromType.PRINT && type === typeForCon.NEW && <span className="Font17 Bold">{_l('系统打印')}</span>}
+
           {from === fromType.FORMSET ? (
             // 字段编辑=》打印模板
             <React.Fragment>
@@ -184,17 +148,9 @@ class Header extends React.Component {
                       {printData.name || _l('请输入模板名称')}
                     </div>
                   )}
-                  {/* {this.renderBtnNull()}
-                  {this.renderDrop()} */}
                 </React.Fragment>
               )}
               <div className="Right">
-                {type !== typeForCon.PREVIEW && (
-                  <React.Fragment>
-                    {this.renderBtnNull()}
-                    {this.renderDrop()}
-                  </React.Fragment>
-                )}
                 {type === typeForCon.PREVIEW ? (
                   <Icon
                     icon="clear_1"
@@ -205,7 +161,6 @@ class Header extends React.Component {
                   />
                 ) : (
                   <React.Fragment>
-                    {/* {this.renderDrop()} */}
                     <div
                       className="saveButton InlineBlock Hand Bold"
                       onClick={() => {
@@ -225,8 +180,6 @@ class Header extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              {/* {type === typeForCon.NEW && this.renderBtnNull()}
-              {type === typeForCon.NEW && this.renderDrop()} */}
               {showPdf && (
                 <span
                   className="refreshPdf"
@@ -239,11 +192,18 @@ class Header extends React.Component {
                 </span>
               )}
               <div className="Right">
-                {type === typeForCon.NEW && this.renderBtnNull()}
-                {type === typeForCon.NEW && this.renderDrop()}
+                {from === fromType.PRINT && type === typeForCon.NEW && this.state.isUserAdmin && (
+                  <span
+                    className="btn Gray Hand"
+                    onClick={() => {
+                      saveTem();
+                    }}
+                  >
+                    {_l('保存为打印模板')}
+                  </span>
+                )}
                 {isDefault ? (
                   <React.Fragment>
-                    {/* {type === typeForCon.NEW && this.renderDrop()} */}
                     {/* <div className="saveForPDF InlineBlock Hand mRight30" onClick={(e) => {
                       e.preventDefault();
                       let convertImagesToBase64 = (content) => {
@@ -293,7 +253,7 @@ class Header extends React.Component {
                       {_l('转pdf')}
                     </div> */}
                     <div
-                      className="printButton Hand InlineBlock bold"
+                      className="printButton Hand InlineBlock bold mLeft20"
                       onClick={() => {
                         window.print();
                         return false;

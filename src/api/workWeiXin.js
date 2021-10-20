@@ -311,6 +311,19 @@ define(function (require, exports, module) {
     },
 
     /**
+    * 获取钉钉自建应用 JSAPI 配置信息
+    * @param {Object} args 请求参数
+    * @param {string} args.projectId 网络id
+    * @param {string} args.url 地址
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    getDDJsapiConfig: function (args, options) {
+      return $.api('WorkWeiXin', 'GetDDJsapiConfig', args, options);
+    },
+
+    /**
     * 获取网络的企业微信自建应用集成设置
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络id

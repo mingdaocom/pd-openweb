@@ -63,6 +63,7 @@ export default class AddApproveWay extends Component {
   };
 
   onOk = paras => {
+    this.setState({ otherActionVisible: false });
     this.props.onOk(paras);
   };
 

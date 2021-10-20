@@ -5,7 +5,7 @@ import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { convertImageView, getClassNameByExt } from 'src/util';
+import { getClassNameByExt } from 'src/util';
 
 export const splitFiles = list => {
   const ranges = {};
@@ -15,7 +15,7 @@ export const splitFiles = list => {
   const oSplit = {};
   list.forEach(file => {
     if (file.type === 2) {
-      file.previewUrl = convertImageView(file.url, 0, 100, 100);
+      file.previewUrl = `${file.url}?imageView2/0/w/100/h/100/q/90`;
     }
     file.$date = createTimeSpan(file.time);
     file.$size = utils.formatFileSize(file.size);

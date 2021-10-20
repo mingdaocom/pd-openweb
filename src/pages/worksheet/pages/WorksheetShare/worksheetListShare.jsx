@@ -12,28 +12,17 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 class WorksheetListShare extends React.Component {
   componentDidMount() {
-    const {
-      relationRowsName,
-      viewName,
-      appName,
-      worksheetName,
-      step,
-      rowsList,
-      count,
-      loading,
-      loadSheet,
-      isPublicquery,
-      pageSize,
-    } = this.props;
+    const { relationRowsName, viewName, appName, worksheetName, step, loading, loadSheet, isPublicquery, pageSize } =
+      this.props;
     $('body,html').scrollTop(0);
     $(document).on('scroll', e => {
       var scrollTop = $(e.target).scrollTop();
       var clientHeight = $(e.target).innerHeight();
       if (
         scrollTop >= clientHeight - 16 - document.documentElement.clientHeight &&
-        count > this.props.pageIndex * pageSize &&
-        SHARE_TYPE.WORKSHEET === step &&
-        !loading &&
+        this.props.count > this.props.pageIndex * pageSize &&
+        [SHARE_TYPE.WORKSHEET, SHARE_TYPE.WORKSHEETDNEXT].includes(this.props.step) &&
+        !this.props.loading &&
         !isPublicquery
       ) {
         loadSheet(this.props.pageIndex + 1);
@@ -120,19 +109,15 @@ class WorksheetListShare extends React.Component {
     let showControlsMin = coverCidData.length
       ? showControlsNoTitle.slice(0, 2).map(item => item.controlId)
       : showControlsData;
-    if (loading && this.props.pageIndex <= 0) {
-      return (
-        <div className="" style={{ height: window.innerHeight - 140 }}>
-          <LoadDiv />
-        </div>
-      );
-    }
     return (
       <React.Fragment>
-        <div className={cx('recordCardListBox', { isPublicquery: isPublicquery && step === 1 })}>
+        <div
+          className={cx('recordCardListBox', { isPublicquery: isPublicquery && step === 1 })}
+          style={{ minHeight: document.documentElement.clientHeight - 100 }}
+        >
           {!Controls ||
-          (rowsList.length <= 0 && !isPublicquery) ||
-          (isPublicquery && rowsList.length <= 0 && step !== 1) ? (
+          (rowsList.length <= 0 && !isPublicquery && !loading) ||
+          (isPublicquery && rowsList.length <= 0 && step !== 1 && !loading) ? (
             <div className="noDataCon" style={{ minHeight: innerHeight - 140 }}>
               <EmptyCon />
             </div>
@@ -215,7 +200,7 @@ class WorksheetListShare extends React.Component {
                       />
                     );
                   })}
-                {loading && this.props.pageIndex > 0 && <LoadDiv />}
+                {loading && pageIndex > 0 && <LoadDiv />}
               </div>
             </React.Fragment>
           )}

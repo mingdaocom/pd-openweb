@@ -44,11 +44,11 @@ export default function FilterDialog(props) {
       onOk={() => {
         let data = [];
         filters.map(item => {
-          const control = _.find(relationControls, column => item.controlId === column.controlId);
+          const control = _.find(relationControls, column => item.controlId === column.controlId) || {};
           // type为关联他表，type取sourceControlType的值 -1//无值
           let { sourceControlType = -1 } = control;
           const conditionGroupKey = getTypeKey(control.type === 30 ? sourceControlType : control.type);
-          const conditionGroupType = CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
+          const conditionGroupType = (CONTROL_FILTER_WHITELIST[conditionGroupKey] || {}).value;
           let initialDynamicSource = {
             ...item,
             conditionGroupType,

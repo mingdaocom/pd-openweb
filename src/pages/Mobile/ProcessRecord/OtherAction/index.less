@@ -1,0 +1,62 @@
+
+@activeColor: #2196f3;
+@refuseColor: #f44336;
+@passColor: #4CAF50;
+@submitColor: #1e88e5;
+
+.otherActionWrapper {
+  height: 300px;
+  &.signatureWrapper {
+    height: 450px;
+  }
+  .am-textarea-item {
+    padding: 16px;
+  }
+  .am-textarea-control, textarea {
+    height: 100%;
+  }
+  .actionBtnWrapper {
+    height: 50px;
+    align-items: center;
+  }
+  .actionBtn {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    border: 1px solid #DDDDDD;
+    margin: 0 10px;
+  }
+  .ok {
+    color: #fff;
+    border-color: @activeColor;
+    background-color: @activeColor;
+  }
+  .signature {
+    width: 100%;
+  }
+  .backFlowNodesHeader {
+    .left, .right {
+      display: flex;
+      color: #2196F3;
+      font-size: 16px;
+      align-items: center;
+    }
+    .am-flexbox-item.left {
+      justify-content: flex-start;
+    }
+    .title {
+      color: #000;
+      font-size: 17px;
+    }
+    .am-flexbox-item.right {
+      justify-content: flex-end;
+    }
+  }
+  .backFlowNodesList {
+    .icon-ok {
+      color: #2196F3;
+    }
+  }
+}

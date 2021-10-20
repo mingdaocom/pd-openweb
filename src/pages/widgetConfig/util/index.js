@@ -258,8 +258,14 @@ export const returnMasterPage = globalSheetInfo => {
       navigateTo(decodeURIComponent(fromURL));
       return;
     }
-    const { appId, groupId, worksheetId } = globalSheetInfo;
-    navigateTo(`/app/${appId}/${groupId}/${worksheetId}`);
+    if (globalSheetInfo) {
+      const { appId, groupId, worksheetId } = globalSheetInfo;
+      if (!appId) {
+        navigateTo(`/app`);
+      } else {
+        navigateTo(`/app/${appId}/${groupId}/${worksheetId}`);
+      }
+    }
   }, 300);
 };
 

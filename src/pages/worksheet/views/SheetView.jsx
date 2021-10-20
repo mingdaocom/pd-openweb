@@ -5,17 +5,17 @@ import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
 import uuid from 'uuid';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { BatchOperate } from 'worksheet/common';
 import { emitter, sortControlByIds, getLRUWorksheetConfig } from 'worksheet/util';
 import { getRowByID } from 'src/api/worksheet';
 import { editRecord } from 'worksheet/common/editRecord';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import Skeleton from 'src/router/Application/Skeleton';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { ColumnHead, SummaryCell, RowHead } from 'worksheet/components/WorksheetTable/components/';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { updateWorksheetSomeControls } from 'worksheet/redux/actions';
+import { updateWorksheetSomeControls, refreshWorksheetControls } from 'worksheet/redux/actions';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { getAdvanceSetting } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -43,6 +43,8 @@ class TableView extends React.Component {
     updateWorksheetSomeControls: PropTypes.func,
   };
 
+  table = React.createRef();
+
   constructor(props) {
     super(props);
     this.state = {};
@@ -62,10 +64,16 @@ class TableView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { view, fetchRows, setRowsEmpty } = nextProps;
+    const { view, fetchRows, setRowsEmpty, changePageIndex } = nextProps;
     const changeView = this.props.worksheetId === nextProps.worksheetId && this.props.viewId !== nextProps.viewId;
+    if (!_.isEqual(_.get(nextProps, ['navGroupFilters']), _.get(this.props, ['navGroupFilters']))) {
+      changePageIndex(1);
+    }
     if (
-      _.some(['sheetFetchParams', 'view.moreSort'], key => !_.isEqual(_.get(nextProps, key), _.get(this.props, key))) ||
+      _.some(
+        ['sheetFetchParams', 'view.moreSort', 'view.advancedSetting.clicksearch', 'navGroupFilters'],
+        key => !_.isEqual(_.get(nextProps, key), _.get(this.props, key)),
+      ) ||
       changeView
     ) {
       if (_.get(view, 'advancedSetting.clicksearch') !== '1') {
@@ -158,14 +166,16 @@ class TableView extends React.Component {
     const { view, controls } = this.props;
     const { sheetHiddenColumns } = this.props.sheetViewConfig;
     let columns = [];
-    let filteredControls = controls.filter(
-      control =>
-        control.type !== 43 &&
-        control.type !== 22 &&
-        control.type !== 10010 &&
-        !_.find(sheetHiddenColumns.concat(view.controls), cid => cid === control.controlId) &&
-        controlState(control).visible,
-    );
+    let filteredControls = controls
+      .map(c => ({ ...c }))
+      .filter(
+        control =>
+          control.type !== 43 &&
+          control.type !== 22 &&
+          control.type !== 10010 &&
+          !_.find(sheetHiddenColumns.concat(view.controls), cid => cid === control.controlId) &&
+          controlState(control).visible,
+      );
     let { showControls = [] } = view || {};
     let { customdisplay = '0', sysids = '[]', syssort = '[]' } = getAdvanceSetting(view); // '0':表格显示列与表单中的字段保持一致 '1':自定义显示列
     if (showControls.length) {
@@ -240,6 +250,7 @@ class TableView extends React.Component {
       clearSelect,
       updateRows,
       getWorksheetSheetViewSummary,
+      sheetSwitchPermit,
     } = this.props;
     const { projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
@@ -253,6 +264,7 @@ class TableView extends React.Component {
         columnIndex={columnIndex}
         fixedColumnCount={fixedColumnCount}
         rowIsSelected={!!(allWorksheetIsSelected || sheetSelectedRows.length)}
+        canBatchEdit={isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId)}
         onBatchEdit={() => {
           editRecord({
             appId,
@@ -287,8 +299,18 @@ class TableView extends React.Component {
 
   @autobind
   renderRowHead({ className, key, style: cellstyle, columnIndex, rowIndex, scrollTo, control, data }) {
-    const { isCharge, appId, view, viewId, worksheetInfo, sheetSwitchPermit, buttons, sheetViewData, sheetViewConfig } =
-      this.props;
+    const {
+      isCharge,
+      appId,
+      view,
+      viewId,
+      worksheetInfo,
+      sheetSwitchPermit,
+      buttons,
+      sheetViewData,
+      sheetViewConfig,
+      refreshWorksheetControls,
+    } = this.props;
     // functions
     const { addRecord, selectRows, updateRows, hideRows, saveSheetLayout, resetSehetLayout, setHighLight } = this.props;
     const { allowAdd, worksheetId, projectId } = worksheetInfo;
@@ -336,8 +358,39 @@ class TableView extends React.Component {
         saveSheetLayout={saveSheetLayout}
         resetSehetLayout={resetSehetLayout}
         setHighLight={setHighLight}
+        refreshWorksheetControls={refreshWorksheetControls}
       />
     );
+  }
+
+  asyncUpdate(row, cell) {
+    const { worksheetInfo, updateControlOfRow, controls } = this.props;
+    const { projectId } = worksheetInfo;
+    const asyncUpdateCell = (cid, newValue) => {
+      updateControlOfRow(
+        { recordId: row.rowid, controlId: cid, value: newValue },
+        {
+          updateSucessCb: needUpdateRow => {
+            this.table.current.table.updateSheetRow({ ...needUpdateRow, allowedit: true, allowdelete: true });
+          },
+        },
+      );
+    };
+    const dataFormat = new DataFormat({
+      data: controls.filter(c => c.advancedSetting).map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
+      projectId,
+      // masterData,
+      onAsyncChange: changes => {
+        if (!_.isEmpty(changes.controlIds)) {
+          changes.controlIds.forEach(cid => {
+            asyncUpdateCell(cid, changes.value);
+          });
+        } else if (changes.controlId) {
+          asyncUpdateCell(changes.controlId, changes.value);
+        }
+      },
+    });
+    dataFormat.updateDataSource(cell);
   }
 
   render() {
@@ -357,29 +410,18 @@ class TableView extends React.Component {
     } = this.props;
     // function
     const {
-      width,
       addRecord,
       updateRows,
       hideRows,
-      updateViewPermission,
       getWorksheetSheetViewSummary,
       updateSheetColumnWidths,
       updateWorksheetSomeControls,
-      changePageIndex,
-      refresh,
-      clearSelect,
       openNewRecord,
       updateControlOfRow,
     } = this.props;
-    const { loading, rows, count, permission, rowsSummary } = sheetViewData;
-    const {
-      allWorksheetIsSelected,
-      sheetSelectedRows = [],
-      sheetColumnWidths,
-      fixedColumnCount,
-      defaultScrollLeft,
-    } = sheetViewConfig;
-    const { worksheetId, projectId, allowAdd } = worksheetInfo;
+    const { loading, rows } = sheetViewData;
+    const { sheetSelectedRows = [], sheetColumnWidths, fixedColumnCount, defaultScrollLeft } = sheetViewConfig;
+    const { worksheetId, projectId, allowAdd, rules = [] } = worksheetInfo;
     const { recordId, recordInfoVisible, activeRelateTableContorlIdOfRecord } = this.state;
     const { lineNumberBegin, columns } = this;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
@@ -387,37 +429,10 @@ class TableView extends React.Component {
     let rowHeadWidth = (numberWidth > 14 ? numberWidth : 14) + 40 + 24;
     return (
       <React.Fragment>
-        <BatchOperate
-          width={width}
-          appId={appId}
-          worksheetId={worksheetId}
-          viewId={viewId}
-          view={view}
-          count={count}
-          controls={controls}
-          filters={filters}
-          quickFilter={quickFilter}
-          worksheetInfo={worksheetInfo}
-          permission={(permission || {})[viewId]}
-          allWorksheetIsSelected={allWorksheetIsSelected}
-          rows={rows}
-          selectedRows={sheetSelectedRows}
-          selectedLength={allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length}
-          updateViewPermission={updateViewPermission}
-          sheetSwitchPermit={sheetSwitchPermit}
-          rowsSummary={rowsSummary}
-          updateRows={updateRows}
-          hideRows={hideRows}
-          getWorksheetSheetViewSummary={getWorksheetSheetViewSummary}
-          reload={() => {
-            changePageIndex(1);
-            refresh();
-          }}
-          clearSelect={clearSelect}
-        />
         {recordInfoVisible && (
           <RecordInfo
             sheetSwitchPermit={sheetSwitchPermit}
+            projectId={projectId}
             showPrevNext
             needUpdateRows
             isCharge={isCharge}
@@ -473,9 +488,11 @@ class TableView extends React.Component {
         )}
         {!loading && (
           <WorksheetTable
+            ref={this.table}
             watchHeight
             id={this.tableId}
             viewId={viewId}
+            rules={rules}
             worksheetId={worksheetId}
             lineeditable={isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId)}
             fixedColumnCount={fixedColumnCount}
@@ -510,6 +527,7 @@ class TableView extends React.Component {
               ) : undefined
             }
             updateCell={({ cell, row }, options) => {
+              this.asyncUpdate(row, cell);
               updateControlOfRow(
                 { recordId: row.rowid, controlId: cell.controlId, value: cell.value, editType: cell.editType },
                 options,
@@ -530,6 +548,7 @@ export default connect(
     worksheetInfo: state.sheet.worksheetInfo,
     filters: state.sheet.filters,
     quickFilter: state.sheet.quickFilter,
+    navGroupFilters: state.sheet.navGroupFilters,
     buttons: state.sheet.buttons,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
@@ -563,6 +582,7 @@ export default connect(
           'resetSehetLayout',
         ]),
         updateWorksheetSomeControls,
+        refreshWorksheetControls,
       },
       dispatch,
     ),

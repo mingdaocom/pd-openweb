@@ -21,7 +21,6 @@
   }
 }
 
-
 .mobileSheetRowRecord {
   background-color: #fff;
   box-sizing: border-box;
@@ -42,13 +41,6 @@
     color: #000;
     font-size: 20px;
     font-weight: 500;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-    /* autoprefixer: off */
-    -webkit-box-orient: vertical;
-    /* autoprefixer: on */
     word-break: break-all;
   }
   .spaceBetween {
@@ -60,6 +52,9 @@
   .moreHoriz {
     color: #2196F3;
   }
+  .customFieldsWrapper {
+    overflow-x: hidden;
+  }
   .mobileFieldsContainer {
     overflow: hidden;
     padding: 20px;
@@ -68,7 +63,7 @@
     padding: 20px 20px 30px;
   }
   .saveWrapper {
-    padding: 0 20px 20px;
+    padding: 10px 20px 10px;
     background-color: #fff;
     .save {
       color: #fff;
@@ -86,7 +81,11 @@
     .btnsWrapper;
   }
   .recordViewTabs {
-    height: 0;
+    z-index: 2;
+    .am-tabs-tab-bar-wrap {
+      z-index: 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
     &.edit .am-tabs-tab-bar-wrap {
       display: none;
     }
@@ -101,9 +100,6 @@
       &:after {
         content: none !important;
       }
-    }
-    .am-tabs-pane-wrap-inactive {
-      height: auto;
     }
     .am-tabs-default-bar-tab-active {
       &:before {
@@ -124,31 +120,6 @@
   }
   .customFieldsLoading {
     height: 100%;
-  }
-}
-
-.mobileFillRecordControlsModal {
-  height: 95%;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-}
-
-.fillRecordControlsModal {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  height: 100%;
-  .customFieldsWrapper {
-    height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .customFieldsContainer {
-    padding: 0 20px;
-  }
-  .btnsWrapper {
-    .btnsWrapper;
   }
 }
 

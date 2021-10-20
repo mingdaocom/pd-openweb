@@ -7,13 +7,12 @@ import { OtherFieldList, SelectOtherField } from '../components';
 
 export default function NumberInput(props) {
   const { dynamicValue, data, clearOldDefault, onDynamicValueChange } = props;
+  const { cid = '' } = dynamicValue[0] || {};
   const [value, setValue] = useState('');
   const [isDynamic, setDynamic] = useState(false);
 
-  const handleTriggerClick = () => {
-    setValue('');
-    setDynamic(true);
-    onDynamicValueChange([]);
+  const setDynamicValue = newValue => {
+    onDynamicValueChange(newValue || []);
   };
 
   const handleChange = value => {
@@ -54,7 +53,9 @@ export default function NumberInput(props) {
       {isDynamic ? (
         <OtherFieldList
           onClick={() => {
-            setDynamic(false);
+            if (!cid) {
+              setDynamic(false);
+            }
           }}
           {...props}
         />
@@ -71,7 +72,7 @@ export default function NumberInput(props) {
           onChange={e => handleChange(e.target.value)}
         />
       )}
-      <SelectOtherField onTriggerClick={handleTriggerClick} {...props} />
+      <SelectOtherField onDynamicValueChange={setDynamicValue} {...props} />
     </DynamicValueInputWrap>
   );
 }

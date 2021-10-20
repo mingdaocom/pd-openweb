@@ -185,7 +185,7 @@ export const FASTFILTER_CONDITION_TYPE = [
   29, // 关联表
   // 30, // 他表字段
   31, // 公式  31数值计算 38日期计算
-  // 38, // 公式  31数值计算 38日期计算
+  38, // 公式  31数值计算 38日期计算
   32, // 文本组合
   33, // 自动编号
   36, // 检查框
@@ -199,7 +199,7 @@ export const FASTFILTER_CONDITION_TYPE = [
 
 export const ADVANCEDSETTING_KEYS = ['allowscan', 'daterange', 'allowitem', 'direction'];
 
-export const getSetDefault = control => {
+export const getSetDefault = (control = {}) => {
   let { controlId = '', type } = control;
   let fastFilterSet = {
     controlId,

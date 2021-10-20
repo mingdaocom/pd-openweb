@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
-import uuid from 'uuid';
 
 export default class QiniuUpload extends React.Component {
   static propTypes = {
@@ -16,12 +15,6 @@ export default class QiniuUpload extends React.Component {
 
   componentDidMount() {
     const { options, onAdd, onUploaded, onError, bucket } = this.props;
-    const serverNames = {
-      2: md.global.FileStoreConfig.pubHost,
-      3: md.global.FileStoreConfig.documentHost,
-      4: md.global.FileStoreConfig.pictureHost,
-      5: md.global.FileStoreConfig.uploadHost,
-    };
 
     if (this.upload) {
       this.uploader = createUploader(
@@ -32,26 +25,17 @@ export default class QiniuUpload extends React.Component {
             bucket,
             init: {
               FileUploaded: (up, file, info) => {
-                const { key, serverName } = info.response;
-                onUploaded(up, file, serverName + key, info.response);
+                onUploaded(up, file, info.response);
               },
               BeforeUpload: (up, file) => {
-                const filePath = `pic/${moment().format('YYYYMM')}/${moment().format('DD')}/`;
-                const newFilename = uuid();
                 const fileExt = `.${File.GetExt(file.name)}`;
-                const isPic = File.isPicture(fileExt);
-
-                up.settings.multipart_params.key = filePath + newFilename + fileExt;
-                up.settings.multipart_params['x:serverName'] = serverNames[bucket || (isPic ? 4 : 3)];
-                up.settings.multipart_params['x:filePath'] = filePath;
-                up.settings.multipart_params['x:fileName'] = newFilename;
+                up.settings.multipart_params = { token: file.token };
+                up.settings.multipart_params.key = file.key;
+                up.settings.multipart_params['x:serverName'] = file.serverName;
+                up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');;
+                up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');;
                 up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-                  file.name.indexOf('.') > -1
-                    ? file.name
-                        .split('.')
-                        .slice(0, -1)
-                        .join('.')
-                    : file.name,
+                  file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
                 );
                 up.settings.multipart_params['x:fileExt'] = fileExt;
               },

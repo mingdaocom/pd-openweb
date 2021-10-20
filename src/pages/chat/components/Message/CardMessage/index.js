@@ -355,6 +355,7 @@ export default class CardMessage extends Component {
     const { openTaskDetail, taskId, openRecorDetail } = this.state;
     const { message } = this.props;
     const { card } = message;
+    const { extra = {}, entityid } = card;
     return (
       <div className="Message-card" onClick={this.handleOpenCardMessage.bind(this, card)}>
         {this.renderCardHeader(card)}
@@ -372,10 +373,10 @@ export default class CardMessage extends Component {
             hideRecordInfo={() => {
               this.setState({ openRecorDetail: false });
             }}
-            appId={card.extra.appId}
-            viewId={card.extra.viewId}
-            recordId={card.extra.rowId}
-            worksheetId={card.entityid}
+            appId={extra.appId}
+            viewId={extra.viewId}
+            recordId={extra.rowId}
+            worksheetId={entityid}
           />
         )}
       </div>

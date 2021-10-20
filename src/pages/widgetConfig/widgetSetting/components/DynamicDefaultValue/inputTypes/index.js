@@ -1,7 +1,3 @@
-export { default as DateInput } from './DateInput';
-export { default as NumberInput } from './NumberInput';
-export { default as UserInput } from './UserInput';
-export { default as TextInput } from './TextInput';
-export { default as ScoreInput } from './ScoreInput';
-export { default as OptionInput } from './OptionInput';
-export { default as SingleRelateSheet } from './SingleRelateSheet';
+import { exportAll } from 'src/pages/widgetConfig/util';
+const components = exportAll(require.context('./', true, /\.jsx$/));
+export default components;

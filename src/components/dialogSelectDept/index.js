@@ -21,6 +21,11 @@ class DialogSelectDept extends React.Component {
       showCreateBtn: false,
       project: md.global.Account.projects.filter(project => project.projectId === props.projectId)[0],
       selectedDepartment: props.selectedDepartment || [],
+      pageSize: 100,
+      departmentMoreIds: [],
+      rootPageIndex: 1,
+      rootPageAll: false,
+      rootLoading: false,
     };
 
     this.search = _.debounce(this.fetchData.bind(this));
@@ -65,16 +70,17 @@ class DialogSelectDept extends React.Component {
     );
   }
 
-  getDepartmentTree(data) {
+  getDepartmentTree(data, parentId) {
     return data.map(item => {
-      const { departmentId, departmentName, userCount, haveSubDepartment } = item;
+      let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
       return {
         departmentId,
         departmentName,
         userCount,
         haveSubDepartment,
-        open: false,
-        subDepartments: [],
+        open: subDepartments.length > 0,
+        subDepartments,
+        parentId,
       };
     });
   }
@@ -107,22 +113,42 @@ class DialogSelectDept extends React.Component {
     } else {
       getTree = this.getDepartmentTree.bind(this);
     }
-    this.promise = departmentController[
-      location.href.indexOf('admin') > -1 ? 'searchProjectDepartment' : 'searchDepartment'
-    ]({
+    let param = {
       keywords: this.state.keywords,
       projectId: this.props.projectId,
       returnCount: this.props.returnCount,
-    })
+    };
+    let usePageDepartment = !this.state.keywords;
+    param = usePageDepartment
+      ? { ...param, pageIndex: this.state.rootPageIndex, pageSize: this.state.pageSize }
+      : param;
+    this.promise = departmentController[
+      location.href.indexOf('admin') > -1 ? 'searchProjectDepartment2' : 'searchDepartment2'
+    ](param)
       .done(data => {
+        let list = !usePageDepartment
+          ? getTree(data)
+          : usePageDepartment && this.state.rootPageIndex <= 1
+          ? getTree(data)
+          : this.state.list.concat(getTree(data));
+        let states = !this.state.keywords
+          ? {}
+          : {
+              rootPageIndex: 1,
+              departmentMoreIds: [],
+            };
         this.setState({
-          list: getTree(data),
+          list,
           loading: false,
+          rootLoading: false,
+          rootPageAll: usePageDepartment && (list.length % this.state.pageSize > 0 || data.length <= 0),
+          ...states,
         });
       })
       .fail(error => {
         this.setState({
           loading: false,
+          rootLoading: false,
         });
       });
   }
@@ -144,22 +170,46 @@ class DialogSelectDept extends React.Component {
   fetchSubDepartment(id) {
     let departmentTree = [...this.state.list];
     let department = this.getDepartmentById(departmentTree, id);
+    const { subDepartments = [] } = department;
     if (!department.haveSubDepartment) {
       return false;
     }
-    if (!department.open) {
-      if (department.subDepartments.length) {
+    let isForMore = !!localStorage.getItem('parentId');
+    if (!department.open || isForMore) {
+      if (subDepartments.length && !isForMore) {
         department.open = true;
       } else {
-        departmentController[
-          location.href.indexOf('admin') > -1 ? 'getProjectSubDepartment' : 'getProjectSubDepartmentByDepartmentId'
-        ]({
+        let param = {
           projectId: this.props.projectId,
-          departmentId: department.departmentId,
-          returnCount: this.props.returnCount,
-        }).then(data => {
-          department.subDepartments = this.getDepartmentTree(data);
+        };
+        let moreData = this.state.departmentMoreIds.find(o => o.departmentId === department.departmentId);
+        let pageIndex = moreData ? moreData.pageIndex + 1 : 1;
+        param =
+          location.href.indexOf('admin') > -1
+            ? {
+                ...param,
+                pageIndex,
+                pageSize: this.state.pageSize,
+                parentId: department.departmentId,
+              }
+            : {
+                ...param,
+                pageIndex,
+                pageSize: this.state.pageSize,
+                departmentId: department.departmentId,
+                returnCount: this.props.returnCount,
+              };
+
+        departmentController[
+          location.href.indexOf('admin') > -1 ? 'pagedSubDepartments' : 'getProjectSubDepartmentByDepartmentId'
+        ](param).then(data => {
+          localStorage.removeItem('parentId');
+          department.subDepartments =
+            pageIndex > 1
+              ? department.subDepartments.concat(this.getDepartmentTree(data, department.departmentId))
+              : this.getDepartmentTree(data, department.departmentId);
           department.open = true;
+          this.setMoreList(department.departmentId, data.length < this.state.pageSize);
           this.setState({
             list: departmentTree,
           });
@@ -173,6 +223,32 @@ class DialogSelectDept extends React.Component {
       list: departmentTree,
     });
   }
+
+  setMoreList = (departmentId, isDelete) => {
+    const { departmentMoreIds = [] } = this.state;
+    let moreData = departmentMoreIds.find(o => o.departmentId === departmentId);
+    if (isDelete) {
+      this.setState({
+        departmentMoreIds: departmentMoreIds.filter(o => o.departmentId !== departmentId),
+      });
+    } else {
+      if (moreData) {
+        this.setState({
+          departmentMoreIds: departmentMoreIds.map(o => {
+            if (o.departmentId !== departmentId) {
+              return o;
+            } else {
+              return { ...o, pageIndex: moreData.pageIndex + 1 };
+            }
+          }),
+        });
+      } else {
+        this.setState({
+          departmentMoreIds: departmentMoreIds.concat({ departmentId: departmentId, pageIndex: 1 }),
+        });
+      }
+    }
+  };
 
   toggle(department) {
     const { selectedDepartment } = this.state;
@@ -210,10 +286,10 @@ class DialogSelectDept extends React.Component {
   }
 
   renderContent() {
-    if (this.state.loading) {
+    if (this.state.loading && this.state.rootPageIndex <= 0) {
       return <LoadDiv />;
     } else if (this.state.list && this.state.list.length) {
-      const { selectedDepartment, list, keywords } = this.state;
+      const { selectedDepartment, list, keywords, departmentMoreIds } = this.state;
       const props = {
         selectedDepartment,
         toogleDepargmentSelect: this.toggle.bind(this),
@@ -222,8 +298,34 @@ class DialogSelectDept extends React.Component {
         keywords: keywords,
         showUserCount: false,
         unique: this.props.unique,
+        departmentMoreIds,
       };
-      return <DepartmentList {...props} />;
+      let usePageDepartment = !this.state.keywords;
+
+      return (
+        <React.Fragment>
+          <DepartmentList {...props} />
+          {usePageDepartment && !this.state.rootPageAll && (
+            <span
+              className="mLeft24 Hand moreBtn"
+              onClick={() => {
+                this.setState(
+                  {
+                    rootPageIndex: this.state.rootPageIndex + 1,
+                    rootLoading: true,
+                  },
+                  () => {
+                    this.fetchData();
+                  },
+                );
+              }}
+            >
+              {this.state.rootLoading && <LoadDiv size="small" />}
+              {this.state.rootLoading ? _l('加载中') : _l('更多')}
+            </span>
+          )}
+        </React.Fragment>
+      );
     } else {
       const { keywords } = this.state;
       return <NoData>{keywords ? _l('搜索无结果') : _l('无结果')}</NoData>;
@@ -394,7 +496,7 @@ class DialogSelectDept extends React.Component {
   }
 }
 
-module.exports = function(opts) {
+module.exports = function (opts) {
   const DEFAULTS = {
     title: _l('选择部门'),
     dialogBoxID: 'dialogSelectDept',
@@ -404,7 +506,7 @@ module.exports = function(opts) {
     showCreateBtn: true,
     includeProject: false,
     allProject: false,
-    selectFn: function(depts) {
+    selectFn: function (depts) {
       // console.log(depts);
     },
   };

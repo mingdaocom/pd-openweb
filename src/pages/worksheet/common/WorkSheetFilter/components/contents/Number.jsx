@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
+import NumberUtil from 'src/util/number';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 
 export default class Number extends Component {
@@ -44,23 +45,10 @@ export default class Number extends Component {
     }
     const changes = {};
     if (isEmpty(value) && isEmpty(minValue) && isEmpty(maxValue)) {
-      // alert(_l('请填写值'), 3);
       return;
     }
-    if (minValue && isEmpty(maxValue)) {
-      // alert(_l('请填写最大值'), 3);
-      return;
-    }
-    if (isEmpty(minValue) && maxValue) {
-      // alert(_l('请填写最小值'), 3);
-      return;
-    }
-    minValue = parseFloat(minValue);
-    maxValue = parseFloat(maxValue);
-    if (!_.isNumber(minValue) || !_.isNumber(maxValue)) {
-      alert(_l('请输入正确的数字'));
-      return;
-    }
+    minValue = NumberUtil.parseFloat(minValue);
+    maxValue = NumberUtil.parseFloat(maxValue);
     if (minValue && maxValue && maxValue < minValue) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
@@ -74,7 +62,7 @@ export default class Number extends Component {
       changes.value = value;
     }
     if (value !== this.props.value || minValue !== this.props.minValue || maxValue !== this.props.maxValue) {
-      onChange(_.pick(changes, a => !_.isUndefined(a)));
+      onChange(changes);
     }
   }
   @autobind
@@ -90,7 +78,7 @@ export default class Number extends Component {
   }
   render() {
     const { type, disabled } = this.props;
-    const { value = '', maxValue = '', minValue = '' } = this.state;
+    const { value, maxValue, minValue } = this.state;
     return (
       <div className="worksheetFilterNumberCondition">
         {type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN ? (

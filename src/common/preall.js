@@ -70,6 +70,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     if (window.mduserlang) {
       moment.locale(getMomentLocale(window.mduserlang));
     }
+
     cb();
   });
 }

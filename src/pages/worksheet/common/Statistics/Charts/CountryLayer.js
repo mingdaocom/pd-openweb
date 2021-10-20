@@ -136,8 +136,8 @@ export default class extends Component {
     });
   }
   componentWillUnmount() {
-    this.CountryLayerChart.destroy();
-    this.scene.destroy();
+    this.CountryLayerChart && this.CountryLayerChart.destroy();
+    this.scene && this.scene.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { displaySetup, map } = nextProps.reportData;
@@ -155,7 +155,7 @@ export default class extends Component {
     if (!nextProps.loading && this.props.loading) {
       const { map } = nextProps.reportData;
       const data = setColorLavel(map);
-      this.CountryLayerChart.updateData(data);
+      this.CountryLayerChart && this.CountryLayerChart.updateData(data);
     }
   }
   getChartConfig(props) {

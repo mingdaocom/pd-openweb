@@ -99,9 +99,6 @@ export default class CustomPage extends Component {
       </Flex>
     );
   }
-  renderContent2() {
-    return <div>123</div>;
-  }
   renderContent() {
     const { pageComponents } = this.state;
     const { params } = this.props.match;

@@ -56,7 +56,14 @@
     font-size: 15px;
     padding: 12px 0;
     font-weight: 500;
-    word-break: break-all;
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-all;
+    }
   }
   &Footer {
     justify-content: space-between;

@@ -10,6 +10,7 @@ import { getPosition } from '../HierarchyView/util';
 
 const CreateRecordWrap = styled.div`
   width: 280px;
+  margin-bottom: 8px;
   textarea {
     padding: 12px 30px 12px 12px;
     resize: none;
@@ -124,7 +125,7 @@ export default function CreateRecord(props) {
             onChange={e => setValue(e.target.value.trim())}
             value={value}
             onBlur={e => {
-              if (value && !isOutFocus) {
+              if (value) {
                 createTextTitleRecord(value);
                 setValue('');
                 removeHierarchyTempItem({ rowId, path: data.path });

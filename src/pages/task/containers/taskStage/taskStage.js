@@ -156,7 +156,7 @@ class TaskStage extends Component {
       if (!$(event.target).closest('.listStageContent').length) {
         const $ul = $(this).children('ul');
         const scrollLeft = $ul.scrollLeft();
-        const scrollWidth = $ul[0].scrollWidth;
+        const scrollWidth = $ul[0] ? $ul[0].scrollWidth : 0;
         const ulWidth = $ul.width();
         const wheelDelta = 120;
 
@@ -1295,7 +1295,7 @@ class TaskStage extends Component {
     // 所有阶段
     const $singleStages = $('#taskList .singleStage');
     // 阶段离顶部距离
-    const singleStageTop = $singleStages.first().offset().top;
+    const singleStageTop = ($singleStages.first() || {}).top || 0;
     const offsetLeft = 0;
     const offsetRight = 0;
     const $selSingleStage = null;

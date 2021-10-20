@@ -50,6 +50,7 @@ export const OtherFieldWrap = styled(FlexCenter)`
   box-sizing: border-box;
   height: 24px;
   margin-top: 5px;
+  max-width: 100%;
   &.timeField {
     margin: 0 6px 0 12px;
   }
@@ -102,23 +103,29 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
   }
 `;
 
-export const UserInfo = styled(FlexCenter)`
+export const FieldInfo = styled(FlexCenter)`
   border-radius: 24px;
   background-color: #e5e5e5;
   padding-right: 8px;
   font-size: 13px;
   line-height: 24px;
   margin: 5px 6px 0 0;
-  .fullName {
+  .departWrap {
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    color: #fff;
+    border-radius: 12px;
+    background-color: #aaa;
+  }
+  .name {
     margin: 0 5px;
   }
-
   .avatar {
     width: 24px;
     border-radius: 50%;
   }
-
-  .removePerson {
+  .remove {
     cursor: pointer;
     .icon-close {
       color: #bdbdbd;

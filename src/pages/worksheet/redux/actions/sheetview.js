@@ -9,13 +9,13 @@ import {
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig } from 'worksheet/util';
 import { wrapAjax } from './util';
-
+import { getNavGroupCount } from './index'
 const wrappedGetFilterRows = wrapAjax(getFilterRows);
 const wrappedGetFilterRowsReport = wrapAjax(getFilterRowsReport);
 
 export const fetchRows = ({ isFirst, changeView } = {}) => {
   return (dispatch, getState) => {
-    const { base, filters, sheetview, quickFilter } = getState().sheet;
+    const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     let { pageSize, pageIndex, sortControls } = sheetview.sheetFetchParams;
     if (changeView) {
@@ -51,6 +51,7 @@ export const fetchRows = ({ isFirst, changeView } = {}) => {
           'maxValue',
         ]),
       ),
+      navGroupFilters,
     }).then(res => {
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
@@ -116,6 +117,7 @@ export function updateControlOfRow({ recordId, controlId, value, editType }, opt
     })
       .then(res => {
         if (res.resultCode === 1) {
+          dispatch(getNavGroupCount())
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
@@ -172,6 +174,7 @@ export function hideRows(rowIds) {
         rowIds,
       });
     }
+    dispatch(getNavGroupCount())
   };
 }
 
@@ -183,13 +186,24 @@ export function updateRows(rowIds, value) {
   };
 }
 
-export function refresh() {
+export function refresh({ resetPageIndex } = {}) {
   return (dispatch, getState) => {
-    const { filters } = getState().sheet;
-    if (filters.keyWords) {
+    const {
+      filters,
+      quickFilter,
+      views,
+      base: { viewId },
+    } = getState().sheet;
+    const view = _.find(views, { viewId });
+    const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+    if (filters.keyWords || resetPageIndex) {
       dispatch(changePageIndex(1));
     }
-    dispatch(fetchRows());
+    if (needClickToSearch && _.isEmpty(quickFilter)) {
+      dispatch(setRowsEmpty());
+    } else {
+      dispatch(fetchRows());
+    }
   };
 }
 
@@ -412,7 +426,7 @@ function setViewLayout(viewId) {
 
 export function getWorksheetSheetViewSummary() {
   return (dispatch, getState) => {
-    const { base, sheetview, filters, quickFilter } = getState().sheet;
+    const { base, sheetview, filters, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     const { rowsSummary } = sheetview.sheetViewData;
     let savedData = {};
@@ -449,6 +463,7 @@ export function getWorksheetSheetViewSummary() {
           'maxValue',
         ]),
       ),
+      navGroupFilters,
     }).then(data => {
       if (data && data.length) {
         dispatch({

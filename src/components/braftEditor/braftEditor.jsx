@@ -2,7 +2,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
-import { getUrlByBucketName } from 'src/util';
 import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/braft.css';
 import './braftEditor.less';
@@ -79,6 +78,9 @@ export default class Editor extends Component {
     if ((!prevProps.isEditing && this.props.isEditing) || this.props.autoFocus) {
       setTimeout(() => {
         this.isFocus = true;
+
+        if (!this.editorInstance) return;
+
         this.editorInstance.focus();
         const range = window.getSelection();
 
@@ -105,7 +107,7 @@ export default class Editor extends Component {
             {
               type: 'IMAGE',
               name: '',
-              url: getUrlByBucketName(bucket) + key,
+              url: file.url,
             },
           ]);
         },

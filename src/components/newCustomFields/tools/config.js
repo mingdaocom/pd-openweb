@@ -14,6 +14,7 @@ export const FORM_ERROR_TYPE = {
   DATE_TIME: 'DATE_TIME',
   TEXT_RANGE: 'TEXT_RANGE',
   CUSTOM: 'CUSTOM',
+  DATE_TIME_RANGE: 'DATE_TIME_RANGE',
 };
 
 export const FORM_ERROR_TYPE_TEXT = {
@@ -97,6 +98,16 @@ export const FORM_ERROR_TYPE_TEXT = {
     if (max && stringSize > +max) return _l('最多输入%0个字', max);
   },
   CUSTOM: ({ advancedSetting }) => JSON.parse(advancedSetting.regex).err,
+  DATE_TIME_RANGE: (value, min, max) => {
+    if (max === min) return _l('请填写%0', min);
+    if (max && min) {
+      if (moment(value) > moment(max) || moment(value) < moment(min))
+        return _l('请填写%0 ~ %1范围内的时间', min, max);
+      return;
+    }
+    if (min && moment(value) < moment(min)) return _l('时间不能早于%0', min);
+    if (max && moment(value) > moment(max)) return _l('时间不能晚于%0', max);
+  },
 };
 
 export const FROM = {
@@ -108,4 +119,12 @@ export const FROM = {
   H5_ADD: 5,
   H5_EDIT: 6,
   WORKFLOW: 7, // 工作流
+};
+
+export const TIME_UNIT = {
+  1: 'm',
+  2: 'h',
+  3: 'd',
+  4: 'M',
+  5: 'y',
 };

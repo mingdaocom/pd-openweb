@@ -5,6 +5,7 @@ import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getWorksheetInfo } from 'src/api/worksheet';
@@ -204,10 +205,12 @@ export function filterRelatesheetMutipleControls(controls) {
 /**
  * 格式化日期公式控件
  */
-export function formatFormulaDate(value, unit, hideUnitStr) {
+export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
   let content = '';
   const isNegative = value < 0; // 处理负数
-  value = Math.round(parseFloat(value));
+
+  value = (Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot)).toFixed(dot);
+
   if (isNegative) {
     value = -1 * value;
   }
@@ -224,9 +227,9 @@ export function formatFormulaDate(value, unit, hideUnitStr) {
   const dayHour = 24;
   switch (unit) {
     case '1':
-      if (value < hourMinute) {
+      if (+value < hourMinute) {
         content = value + unitStr;
-      } else if (value < dayMinute) {
+      } else if (+value < dayMinute) {
         content =
           Math.floor(value / hourMinute) +
           ' ' +
@@ -242,19 +245,23 @@ export function formatFormulaDate(value, unit, hideUnitStr) {
           (Math.floor((value % dayMinute) / hourMinute) > 0
             ? Math.floor((value % dayMinute) / hourMinute) + ' ' + units[1] + ' '
             : '') +
-          (value % hourMinute ? (value % hourMinute) + unitStr : '');
+          (value % hourMinute ? (value % hourMinute).toFixed(dot) + unitStr : '');
       }
       break;
     case '2':
-      if (value < dayHour) {
+      if (+value < dayHour) {
         content = value + unitStr;
       } else {
         content =
-          Math.floor(value / dayHour) + ' ' + units[2] + ' ' + (value % dayHour > 0 ? (value % dayHour) + unitStr : '');
+          Math.floor(value / dayHour) +
+          ' ' +
+          units[2] +
+          ' ' +
+          (value % dayHour > 0 ? (value % dayHour).toFixed(dot) + unitStr : '');
       }
       break;
     default:
-      content = _.isNumber(value) ? value + unitStr : '';
+      content = _.isNumber(parseFloat(value)) && !_.isNaN(parseFloat(value)) ? value + unitStr : '';
   }
   return content && (isNegative ? '-' : '') + content;
 }
@@ -454,13 +461,6 @@ export function getUnitOfDateFormula(unit) {
   return matched ? matched.text : '';
 }
 
-export function safeJsonParse(str) {
-  try {
-    return JSON.parse(str);
-  } catch (err) {
-    return undefined;
-  }
-}
 /**
  * 获取控件值的数据类型
  * @param  {} control
@@ -480,11 +480,14 @@ export function getControlValueSortType(control) {
  * @param  {} records
  */
 
-export function formatRecordToRelateRecord(controls, records) {
+export function formatRecordToRelateRecord(controls, records = []) {
+  if (!_.isArray(records)) {
+    records = [];
+  }
   const titleControl = _.find(controls, control => control.attribute === 1);
   const value = records.map(record => {
     let name = titleControl ? record[titleControl.controlId] : '';
-    if (titleControl.type === 29 && name) {
+    if (titleControl && titleControl.type === 29 && name) {
       /**
        * 关联[使用他表字段作为标题的表]多层嵌套后，无法获得 souceControl 原始数据，这里异化为当关联表用他表字段作为标题时
        * 他表字段数据里的 name 不再返回字段原始数据，而是返回格式化后的文本
@@ -513,10 +516,10 @@ export function formatRecordToRelateRecord(controls, records) {
  * @param  {} data
  */
 
-export function getSubListError({ rows }, controls = [], showControls = []) {
+export function getSubListError({ rows, rules }, controls = [], showControls = []) {
   const result = {};
   try {
-    rows.forEach(row => {
+    rows.forEach(async row => {
       const controldata = controls
         .filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).editable)
         .map(c => ({ ...c, value: row[c.controlId] || '' }));
@@ -524,7 +527,13 @@ export function getSubListError({ rows }, controls = [], showControls = []) {
         data: controldata,
         from: FROM.NEWRECORD,
       });
-      const errorItems = formdata.getErrorControls();
+      let errorItems = formdata.getErrorControls();
+      const rulesErrors = checkRulesErrorOfRow({ rules, controls, row });
+      rulesErrors.forEach(errorItem => {
+        if (_.includes(showControls, errorItem.controlId)) {
+          result[row.rowid + '-' + errorItem.controlId] = errorItem.errorMessage;
+        }
+      });
       errorItems.forEach(errorItem => {
         result[row.rowid + '-' + errorItem.controlId] =
           typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
@@ -780,4 +789,39 @@ export function removeFromLocal(key, id) {
     localStorage.removeItem(key);
   }
   localStorage.removeItem(`${key}_${id}`);
+}
+/**
+ * 校验字段id是否合法
+ * @param {*} id
+ * @returns Bool
+ */
+export function isValidControlId(id) {
+  return /^\w{24}$/.test(id);
+}
+
+/**
+ * 获取记录字段规则错误
+ */
+export function checkRulesErrorOfRow({ rules, controls, control, row }) {
+  let errors = [];
+  updateRulesData({
+    rules,
+    data: controls.map(c => ({ ...c, value: row[c.controlId] })),
+    updateControlIds: control ? [control.controlId] : [],
+    checkAllUpdate: !control,
+    checkRuleValidator: (controlId, errorType, errorMessage) => {
+      if (errorMessage) {
+        errors.push({ controlId, errorType, errorMessage });
+      }
+    },
+  });
+  return errors;
+}
+
+/**
+ * 获取字段字段规则错误
+ */
+export function checkRulesErrorOfRowControl({ rules, controls, control, row }) {
+  const errors = checkRulesErrorOfRow({ rules, controls, control, row });
+  return _.find(errors, e => e.controlId === control.controlId);
 }

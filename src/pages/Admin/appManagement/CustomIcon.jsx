@@ -3,9 +3,9 @@ import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import './index.less';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
-import { getUploadToken2, getRandStr } from 'src/components/UploadFiles/utils';
 import ajaxRequest from 'src/api/appManagement';
 import SvgIcon from 'src/components/SvgIcon';
+import { getToken } from 'src/util';
 
 export default class CustomIcon extends Component {
   state = {
@@ -20,15 +20,13 @@ export default class CustomIcon extends Component {
   }
 
   componentDidMount() {
-    getUploadToken2({ isPublic: false, bucket: 2 }).then(token => {
-      this.uploadFile(token);
-    });
+    this.uploadFile();
   }
 
   /**
    * 上传绑定
    */
-  uploadFile(token) {
+  uploadFile() {
     const _this = this;
     const { projectId } = this.props;
 
@@ -42,29 +40,39 @@ export default class CustomIcon extends Component {
         prevent_duplicates: false,
         max_file_size: 0,
       },
+      autoUpload: false,
       method: {
         FilesAdded(up, files) {
-          up.start();
+          const tokenFiles = [];
+
+          // 渲染图片列表
+          files.forEach(item => {
+            let fileExt = `.${File.GetExt(item.name)}`;
+            tokenFiles.push({ bucket: 2, ext: fileExt });
+          });
+
+          getToken(tokenFiles, 5).then(res => {
+            files.forEach((item, i) => {
+              item.token = res[i].uptoken;
+              item.key = res[i].key;
+              item.serverName = res[i].serverName;
+              item.fileName = res[i].fileName;
+            });
+
+            up.start();
+          });
         },
         BeforeUpload(up, file) {
           const fileExt = `.${File.GetExt(file.name)}`;
-          const filename =
-            file.name.indexOf('.') > -1
-              ? file.name
-                  .split('.')
-                  .slice(0, -1)
-                  .join('.')
-              : file.name;
 
-          const newFilename = `${filename.replace(/[\u4e00-\u9fa5]/g, '')}_${getRandStr(15)}`;
-          const filePath = 'customIcon/';
-
-          up.settings.multipart_params = { token };
-          up.settings.multipart_params.key = filePath + newFilename + fileExt;
-          up.settings.multipart_params['x:serverName'] = md.global.FileStoreConfig.pubHost;
-          up.settings.multipart_params['x:filePath'] = filePath;
-          up.settings.multipart_params['x:fileName'] = newFilename;
-          up.settings.multipart_params['x:originalFileName'] = filename;
+          up.settings.multipart_params = { token: file.token };
+          up.settings.multipart_params.key = file.key;
+          up.settings.multipart_params['x:serverName'] = file.serverName;
+          up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+          up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+          up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+          );
           up.settings.multipart_params['x:fileExt'] = fileExt;
         },
         FileUploaded(up, file, res) {

@@ -34,7 +34,7 @@ export default function Attachment({ from, data, onChange }) {
       </SettingItem>
       {from !== 'subList' && (
         <SettingItem className="settingItem withSplitLine">
-          <div className="settingItemTitle">{_l('移动App输入')}</div>
+          <div className="settingItemTitle">{_l('移动端输入')}</div>
           <Dropdown
             border
             data={MOBILE_INPUT}

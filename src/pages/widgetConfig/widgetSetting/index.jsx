@@ -19,18 +19,11 @@ import { enumWidgetType } from '../util';
 import { changeWidgetSize } from '../util/widgets';
 import { canAdjustWidth } from '../util/setting';
 import WidgetVerify from './components/WidgetVerify';
-import WidgetConfig from './components/WidgetConfig';
+import ControlSetting from './components/ControlSetting';
 import components from './components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-const {
-  WidgetIntro,
-  WidgetExplain,
-  WidgetDes,
-  WidgetPermission,
-  WidgetName,
-  WidgetWidth,
-  WidgetMobileInput,
-} = components;
+const { WidgetIntro, WidgetExplain, WidgetDes, WidgetPermission, WidgetName, WidgetWidth, WidgetMobileInput } =
+  components;
 
 const SettingWrap = styled.div`
   position: relative;
@@ -53,7 +46,7 @@ const SettingWrap = styled.div`
 function WidgetSetting(props) {
   const { widgets, activeWidget: data = {}, handleDataChange, setActiveWidget, setWidgets, ...rest } = props;
 
-  const { type, controlId, advancedSetting } = data;
+  const { type, controlId, advancedSetting = {} } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
 
@@ -87,7 +80,7 @@ function WidgetSetting(props) {
           {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
           {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
           {(HAVE_CONFIG_CONTROL.includes(type) || (type === 10 && advancedSetting.checktype === '1')) && (
-            <WidgetConfig {...allProps} />
+            <ControlSetting {...allProps} />
           )}
           {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
           {/* // 文本控件移动端输入 */}

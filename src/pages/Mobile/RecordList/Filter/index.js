@@ -6,6 +6,24 @@ import { fieldCanSort, getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import './index.less';
 
+//   <FilterModal
+//     visible={this.state.filterVisible}
+//     currentView={currentView}
+//     controls={worksheetControls}
+//     onHideFilter={() => {
+//       this.setState({ filterVisible: false });
+//     }}
+//     onSave={(sortCid, sortType) => {
+//       this.props.dispatch(
+//         actions.updateCurrentView({
+//           currentView,
+//           sortCid,
+//           sortType,
+//         }),
+//       );
+//     }}
+//   />
+
 const defaultSortCid = 'ctime';
 const defaultSortType = 1;
 

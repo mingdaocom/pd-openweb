@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, memo } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Flex, ActivityIndicator, Button } from 'antd-mobile';

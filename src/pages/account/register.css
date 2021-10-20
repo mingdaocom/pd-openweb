@@ -76,6 +76,9 @@
     margin: 0;
   }
 }
+.registerBox .registerContainer .titleHeader{
+  line-height: 1;
+}
 
 .registerBox .registerContainer .titleHeader .title {
   text-align: left;

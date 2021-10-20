@@ -1,5 +1,6 @@
 import homeAppAjax from 'src/api/homeApp';
 import AppManagement from 'src/api/appManagement';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { Modal, Toast } from 'antd-mobile';
 
 export const getAppDetail = (appId, cb) => (dispatch, getState) => {
@@ -12,13 +13,11 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
   Promise.all([
     homeAppAjax.getAppDetail(params).then(),
     homeAppAjax.getAppInfo(params).then(),
-    homeAppAjax.checkApp({
-      appId,
-    }, {
-        silent: true,
-      }).then(),
+    homeAppAjax.checkApp({ appId }, { silent: true }).then(),
+    instanceVersion.getTodoListFilter({ type: -1 }).then(),
   ]).then(result => {
-    const [detail, info, status] = result;
+    const [ detail, info, status, processTodoList ] = result;
+    const processData = _.find(processTodoList, { app: { id: appId } });
     dispatch({
       type: 'UPDATE_APP_DETAIL',
       data: {
@@ -26,6 +25,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
         detail: detail,
         appSection: info.appSectionDetail,
         status: status,
+        processCount: processData ? processData.count : 0
       },
     });
     dispatch({

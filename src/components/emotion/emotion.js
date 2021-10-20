@@ -80,7 +80,6 @@ Emotion.prototype.getDefaultTab = function getDefaultTab(options) {
 
 Emotion.options = {
   input: '', // 要绑定的表单元素的选择器
-  // imgPath: "https://filepub.mingdao.com/emotion/", // 表情图片的路径
   imgPath: '/images/emotion/',
   defaultTab: 0, // 默认显示哪一列表情
   mdBear: false, // 是否显示表情

@@ -11,13 +11,14 @@ export const DEPARTMENT_FAILURE = 'DEPARTMENT_FAILURE';
  * fetch departments
  * relies on middleware `api`
  */
-const fetchDepartments = departmentId => {
-  const params = { departmentId, returnCount: true };
+const fetchDepartments = (departmentId, pageIndex, afterRequest) => {
+  const params = { departmentId, returnCount: true, pageIndex, pageSize: 100 };
   return {
     departmentId,
     [CALL_API]: {
       types: [DEPARTMENT_REQUEST, DEPARTMENT_SUCCESS, DEPARTMENT_FAILURE],
       params,
+      afterRequest,
     },
   };
 };
@@ -27,9 +28,9 @@ const fetchDepartments = departmentId => {
  * relies on redux-thunk
  */
 
-export const loadDepartments = departmentId => (dispatch) => {
+export const loadDepartments = (departmentId, pageIndex, afterRequest) => dispatch => {
   // TODO: check fields if necessary
-  return dispatch(fetchDepartments(departmentId));
+  return dispatch(fetchDepartments(departmentId, pageIndex, afterRequest));
 };
 
 export const DEPARTMENT_UPDATE = 'DEPARTMENT_UPDATE';
@@ -37,7 +38,7 @@ export const departmentUpdate = (newDepartments, department, id) => ({
   type: DEPARTMENT_UPDATE,
   newDepartments,
   department,
-  id
+  id,
 });
 
 export const EXPANDED_KEYS_UPDATE = 'EXPANDED_KEYS_UPDATE';
@@ -72,11 +73,10 @@ const fetchUser = (departmentId, pageIndex) => {
 /** fetch users before hand
  * relies on redux-thunk
  */
-export const loadUsers = (departmentId, pageIndex) => (dispatch) => {
+export const loadUsers = (departmentId, pageIndex) => dispatch => {
   // TODO: check fields if necessary
   return dispatch(fetchUser(departmentId, pageIndex || 1));
 };
-
 
 // sync actions and action creator
 
@@ -86,18 +86,20 @@ export const INIT_ROOT = 'INIT_ROOT';
  * @param departmentId
  * @returns {{type: string, response: *[]}}
  */
-export const initRoot = (departmentId) => {
+export const initRoot = departmentId => {
   // 获取网络信息
   const departmentName = getProjectInfo().companyName;
   return {
     type: INIT_ROOT,
-    response: [{
-      departmentName,
-      departmentId,
-      isExpired: true,
-      collapsed: false, // 默认展开
-      haveSubDepartment: true, // 默认有子部门
-    }],
+    response: [
+      {
+        departmentName,
+        departmentId,
+        isExpired: true,
+        collapsed: false, // 默认展开
+        haveSubDepartment: true, // 默认有子部门
+      },
+    ],
   };
 };
 
@@ -134,21 +136,23 @@ export const FULL_TREE_FAILURE = 'FULL_TREE_FAILURE';
  * @param collapseAll
  * @param afterRequest
  */
-export const getFullTree = ({ departmentId, collapseAll = false, expandedKeys = [], afterRequest }) => (dispatch) => {
-  return dispatch({
-    departmentId: COMPANY_DEPARMENTID,
-    curDepartmentId: departmentId,
-    collapseAll,
-    expandedKeys,
-    [CALL_API]: {
-      types: [FULL_TREE_REQUEST, FULL_TREE_SUCCESS, FULL_TREE_FAILURE],
-      params: {
-        departmentId,
+export const getFullTree =
+  ({ departmentId, collapseAll = false, expandedKeys = [], afterRequest }) =>
+  dispatch => {
+    return dispatch({
+      departmentId: COMPANY_DEPARMENTID,
+      curDepartmentId: departmentId,
+      collapseAll,
+      expandedKeys,
+      [CALL_API]: {
+        types: [FULL_TREE_REQUEST, FULL_TREE_SUCCESS, FULL_TREE_FAILURE],
+        params: {
+          departmentId,
+        },
+        afterRequest,
       },
-      afterRequest,
-    }
-  });
-};
+    });
+  };
 
 export const APPROVAL_USER_REQUEST = 'APPROVAL_USER_REQUEST';
 export const APPROVAL_USER_SUCCESS = 'APPROVAL_USER_SUCCESS';
@@ -161,7 +165,8 @@ const fetchApprovalUser = (
   // sortField,
   // sortType,
   // keywords,
-  projectId, pageIndex,
+  projectId,
+  pageIndex,
 ) => {
   const params = {
     pageIndex,
@@ -184,7 +189,7 @@ const fetchApprovalUser = (
 /** fetch approvalUser before hand
  * relies on redux-thunk
  */
-export const loadApprovalUsers = (projectId, pageIndex) => (dispatch) => {
+export const loadApprovalUsers = (projectId, pageIndex) => dispatch => {
   // TODO: check fields if necessary
   return dispatch(fetchApprovalUser(projectId, pageIndex || 1));
 };
@@ -200,7 +205,8 @@ const fetchInactiveUser = (
   // sortField,
   // sortType,
   // keywords,
-  projectId, pageIndex,
+  projectId,
+  pageIndex,
 ) => {
   const params = {
     pageIndex,
@@ -223,11 +229,10 @@ const fetchInactiveUser = (
 /** fetch InactiveUser before hand
  * relies on redux-thunk
  */
-export const loadInactiveUsers = (projectId, pageIndex) => (dispatch) => {
+export const loadInactiveUsers = (projectId, pageIndex) => dispatch => {
   // TODO: check fields if necessary
   return dispatch(fetchInactiveUser(projectId, pageIndex || 1));
 };
-
 
 export const ALL_USER_REQUEST = 'ALL_USER_REQUEST';
 export const ALL_USER_SUCCESS = 'ALL_USER_SUCCESS';
@@ -243,9 +248,7 @@ const USER_STATUS = {
   INACTIVE: 3, // 未激活
   REMOVED: 4, // 已删除
 };
-const fetchAllUser = (
-  projectId, pageIndex,
-) => {
+const fetchAllUser = (projectId, pageIndex) => {
   const params = {
     pageIndex,
     projectId,
@@ -265,8 +268,7 @@ const fetchAllUser = (
 /** fetch InactiveUser before hand
  * relies on redux-thunk
  */
-export const loadAllUsers = (projectId, pageIndex) => (dispatch) => {
+export const loadAllUsers = (projectId, pageIndex) => dispatch => {
   // TODO: check fields if necessary
   return dispatch(fetchAllUser(projectId, pageIndex || 1));
 };
-

@@ -19,7 +19,7 @@ const formatChartData = (data, yaxisList) => {
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.x === name);
       if (target.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || _.object();
+        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
           value: target[0].v,

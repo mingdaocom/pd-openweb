@@ -89,7 +89,7 @@ export default class Widgets extends Component {
     const checkIds = JSON.parse(value || '[]');
 
     checkIds.forEach(item => {
-      if (item.indexOf('add_') > -1) {
+      if ((item || '').toString().indexOf('add_') > -1) {
         noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
     });
@@ -106,7 +106,7 @@ export default class Widgets extends Component {
         >
           <div className={cx('w100 customFormControlBox', { controlDisabled: disabled })}>
             <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
-              <div className="flex">
+              <div className="flex minWidth0">
                 {checkIds.length ? (
                   noDelOptions
                     .filter(item => _.includes(checkIds, item.key))

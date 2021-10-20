@@ -16,7 +16,7 @@ import { printQrCode } from 'worksheet/common/PrintQrCode';
 import { exportSheet } from 'worksheet/common/ExportSheet';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { filterHidedControls } from 'worksheet/util';
+import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
 import Buttons from './Buttons';
 import { upgradeVersionDialog } from 'src/util';
 import './BatchOperate.less';
@@ -35,6 +35,7 @@ class BatchOperate extends React.Component {
     rows: PropTypes.array,
     permission: PropTypes.shape({}),
     updateViewPermission: PropTypes.func,
+    refreshWorksheetControls: PropTypes.func,
   };
   constructor(props) {
     super(props);
@@ -162,7 +163,7 @@ class BatchOperate extends React.Component {
   }
 
   triggerCustomBtn(btn, isAll) {
-    const { worksheetId, viewId, selectedRows, filters, quickFilter, clearSelect } = this.props;
+    const { worksheetId, viewId, selectedRows, filters, quickFilter, navGroupFilters, clearSelect } = this.props;
     const { filterControls, keyWords, searchType } = filters;
     const Notice = styled.div`
       font-size: 14px;
@@ -200,6 +201,7 @@ class BatchOperate extends React.Component {
         viewId,
         filterControls,
         keyWords,
+        navGroupFilters,
       };
       args.fastFilters = (_.isArray(quickFilter) ? quickFilter : []).map(f =>
         _.pick(f, [
@@ -286,6 +288,7 @@ class BatchOperate extends React.Component {
       viewId,
       filters,
       quickFilter,
+      navGroupFilters,
       allWorksheetIsSelected,
       selectedRows,
       worksheetInfo,
@@ -293,9 +296,10 @@ class BatchOperate extends React.Component {
       reload,
       updateRows,
       getWorksheetSheetViewSummary,
+      refreshWorksheetControls,
     } = this.props;
     const rowIds = selectedRows.map(row => row.rowid);
-    const controls = args.newOldControl;
+    const controls = args.newOldControl.filter(c => !checkCellIsEmpty(c.value));
     delete args.newOldControl;
     const updateArgs = {
       ...args,
@@ -325,11 +329,15 @@ class BatchOperate extends React.Component {
           'maxValue',
         ]),
       );
+      updateArgs.navGroupFilters = navGroupFilters;
     }
     updateWorksheetRows(updateArgs).then(data => {
       clearSelect();
       if (data.successCount === selectedRows.length) {
         alert(_l('修改成功'));
+      }
+      if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
+        refreshWorksheetControls();
       }
       reload();
       getWorksheetSheetViewSummary();
@@ -507,10 +515,10 @@ class BatchOperate extends React.Component {
       viewId,
       rows,
       view,
-      width,
       controls,
       filters,
       quickFilter,
+      navGroupFilters,
       worksheetInfo,
       count,
       selectedRows,
@@ -526,6 +534,8 @@ class BatchOperate extends React.Component {
     const { projectId, entityName, downLoadUrl } = worksheetInfo;
     const { printListLoading, customButtonLoading, customButtons } = this.state;
     const showExport = isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, viewId);
+    const canEdit =
+      !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
     return (
       <ReactCSSTransitionGroup
         transitionName="batchOperateCon"
@@ -533,7 +543,7 @@ class BatchOperate extends React.Component {
         transitionLeaveTimeout={300}
       >
         {!!selectedLength && rows.length && !printListLoading && !_.isEmpty(permission) && (
-          <div className="batchOperateCon" style={{ width }}>
+          <div className="batchOperateCon">
             <div className="selected">
               <span className="selectedStatus">
                 {allWorksheetIsSelected
@@ -542,7 +552,7 @@ class BatchOperate extends React.Component {
               </span>
             </div>
             <div className="operate flexRow">
-              {permission && permission.canEdit && (
+              {permission && canEdit && (
                 <IconText
                   icon="hr_edit"
                   text={_l('编辑')}
@@ -559,6 +569,7 @@ class BatchOperate extends React.Component {
                       worksheetId,
                       searchArgs: filters,
                       quickFilter,
+                      navGroupFilters,
                       clearSelect,
                       allWorksheetIsSelected,
                       updateRows,
@@ -590,11 +601,12 @@ class BatchOperate extends React.Component {
                       searchArgs: filters,
                       selectRowIds: selectedRows.map(item => item.rowid),
                       columns: filterHidedControls(controls, view.controls).filter(item => {
-                        return item.controlPermissions && item.controlPermissions[0] === '1' && item.type !== 14;
+                        return item.controlPermissions && item.controlPermissions[0] === '1';
                       }),
                       downLoadUrl: downLoadUrl,
                       worksheetSummaryTypes: rowsSummary.types,
                       quickFilter,
+                      navGroupFilters,
                     });
                   }}
                 />
@@ -641,6 +653,7 @@ class BatchOperate extends React.Component {
                                 'maxValue',
                               ]),
                             );
+                            args.navGroupFilters = navGroupFilters;
                             args.filterControls = filters.filterControls;
                             args.keyWords = filters.keyWords;
                             args.searchType = filters.searchType;

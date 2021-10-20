@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import { CreateNode, DeleteResultNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate } from '../components';
 import { CONDITION_TYPE, GRADE_STAR_TYPE, GRADE_LEVEL_TYPE } from '../../enum';
 import { addFlowNode } from '../../../redux/actions';
 
@@ -42,6 +42,10 @@ export default class BranchItem extends Component {
             return (
               <Fragment key={i}>
                 {conditions.map((obj, j) => {
+                  const isOldCondition =
+                    (_.includes([15, 16], obj.filedTypeId) || (obj.filedTypeId === 38 && obj.enumDefault === 2)) &&
+                    _.includes(['15', '16', '17', '18'], obj.conditionId);
+
                   return (
                     <div key={j} className="workflowBranchItemTag">
                       <span
@@ -51,7 +55,10 @@ export default class BranchItem extends Component {
                         {obj.filedValue || _l('字段已删除')}
                       </span>
                       <span className="ellipsis maxWidth">
-                        <span className="mRight5 Gray_75">{CONDITION_TYPE[obj.conditionId]}</span>
+                        <span className="mRight5 Gray_75">
+                          {CONDITION_TYPE[obj.conditionId]}
+                          {isOldCondition && '*'}
+                        </span>
                         {this.renderSingleValue(obj)}
                       </span>
                     </div>
@@ -114,7 +121,7 @@ export default class BranchItem extends Component {
                 ) : (
                   GRADE_LEVEL_TYPE[obj.value.value]
                 )
-              ) : typeof obj.value === 'object' ? (
+              ) : obj.value && typeof obj.value === 'object' ? (
                 obj.value.value
               ) : (
                 obj.value

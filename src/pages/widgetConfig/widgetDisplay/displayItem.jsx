@@ -283,7 +283,7 @@ export default function DisplayItem(props) {
     };
 
     if (mode === 'copy') {
-      const newWidget = { ...data, attribute: 0, controlId: uuidv4() };
+      const newWidget = { ...data, attribute: 0, controlId: uuidv4(), alias: '' };
       if (isExceedMaxControlLimit(allControls)) return;
       setActiveWidget(newWidget);
       setWidgets(update(widgets, { $splice: [[row + 1, 0, [newWidget]]] }));
@@ -338,7 +338,8 @@ export default function DisplayItem(props) {
         isDragging,
         isInvalid,
       })}
-      onClick={() => setActiveWidget(data)}>
+      onClick={() => setActiveWidget(data)}
+    >
       {!isDragging && (
         <Components.WidgetOperation
           {...pick(props, ['fromType', 'data', 'globalSheetInfo'])}

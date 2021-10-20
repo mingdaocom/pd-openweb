@@ -37,7 +37,9 @@ export default class DisplayControl extends React.Component {
       forMobile,
     } = this.props;
     let data = !fromRelative ? view : this.props;
-    const { displayControls = [], showControlName = true, controlsSorts } = data;
+    let { displayControls = [], showControlName = true, controlsSorts } = data;
+    const controlIds = worksheetControls.map(o => o.controlId);
+    displayControls = displayControls.filter(c => controlIds.includes(c)); //排除已删除的控件
     const allCanDisplayControls = worksheetControls.filter(
       c =>
         c.attribute !== 1 &&

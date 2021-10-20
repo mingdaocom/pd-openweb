@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 
 function getCoverControlData(data) {
@@ -34,7 +34,7 @@ export default class RecordItem extends React.PureComponent {
     multiple: PropTypes.bool,
     coverCid: PropTypes.string,
     showControls: PropTypes.string,
-    controls: PropTypes.arrayOf(PropTypes.shape({})),
+    control: PropTypes.shape({}),
     selected: PropTypes.bool,
     data: PropTypes.shape({}),
     showCoverAndControls: PropTypes.bool,
@@ -103,9 +103,9 @@ export default class RecordItem extends React.PureComponent {
   }
 
   render() {
-    const { multiple, coverCid, controls, showControls, data, selected, showCoverAndControls, onClick } = this.props;
+    const { multiple, coverCid, control, showControls, data, selected, showCoverAndControls, onClick } = this.props;
     const { cover } = this;
-    const titleText = getTitleTextFromControls(controls, data);
+    const titleText = getTitleTextFromRelateControl(control, data);
     const size = showCoverAndControls && showControls.length ? SIZE.BIG : SIZE.NORMAL;
     const height = size === SIZE.BIG ? 56 : 36;
     const coverSize = size === SIZE.BIG ? 44 : 24;
@@ -140,8 +140,8 @@ export default class RecordItem extends React.PureComponent {
             style={{
               color: '#333',
               fontWeight: size === SIZE.BIG ? 'bold' : 'normal',
-              lineHeight: '24px',
-              marginBottom: 4,
+              lineHeight: showCoverAndControls && !!showControls.length ? '1.5' : '24px',
+              marginBottom: showCoverAndControls && !!showControls.length ? 4 : 0,
             }}
           >
             {titleText}

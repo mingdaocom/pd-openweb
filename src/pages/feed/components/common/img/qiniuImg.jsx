@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 import _ from 'lodash';
 import LazyloadImg from './lazyloadImg';
 import NormalImg from './normalImg';
-import { convertImageView } from 'src/util';
 
 /**
  * 七牛图片
@@ -51,10 +49,8 @@ class QiniuImg extends React.Component {
     const attrs = _.assign({}, rest, {
       width,
       height,
-      // src: this.getQiniuSrc(src, this.mode, qiniuWidth, qiniuHeight),
-      // placeholder: this.getQiniuSrc(placeholder, this.mode, width, height),
-      src: convertImageView(src, this.mode, qiniuWidth, qiniuHeight),
-      placeholder: convertImageView(placeholder, this.mode, width, height),
+      src: this.getQiniuSrc(src, this.mode, qiniuWidth, qiniuHeight),
+      placeholder: this.getQiniuSrc(placeholder, this.mode, width, height),
     });
     return this.props.lazy ? <LazyloadImg {...attrs} options={_.isObject(this.props.lazy) ? this.props.lazy : undefined} /> : <NormalImg {...attrs} />;
   }

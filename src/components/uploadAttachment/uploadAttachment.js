@@ -4,9 +4,8 @@
 var _ = require('lodash');
 var doT = require('dot');
 var kcCtrl = require('src/api/kc');
-import qiniuCtrl from 'src/api/qiniu';
 import './css/uploadAttachment.css';
-import { formatFileSize, convertImageView, getClassNameByExt, htmlEncodeReg } from 'src/util';
+import { formatFileSize, getClassNameByExt, htmlEncodeReg, getToken } from 'src/util';
 var MAX_IMG_VIEW_SIZE = 20971520;
 
 module.exports = (function ($) {
@@ -27,6 +26,7 @@ module.exports = (function ($) {
       defaultAttachmentData: [],
       defaultKcAttachmentData: [],
       styleType: '1', // 0不使用默认的样式 1动态 2回复
+      tokenType: 0, // 0 =普通，1= 用户头像，2=群组头像，3 = 聊天群组头像 4 = 网络头像
       folder: '', // 文件所在文件夹
       fileNamePrefix: '', // 文件名前缀
       onlyFolder: false, // 只要文件夹这一级 文件ID为GUID
@@ -46,38 +46,6 @@ module.exports = (function ($) {
       callback: function (attachments, totalSize) {},
     };
     var options = $.extend(defaults, param);
-
-    var QiniuUpload = {
-      Tokens: {
-        upMediaToken: '', // 私信token 公开空间
-        upPubToken: '', // 其它token 公开空间 如：BUG反馈
-        upPicToken: '', // 上传图片token 公开空间
-        upDocToken: '', // 上传文档token 私密空间
-      },
-      Types: {
-        media: 1,
-        pub: 2,
-        mainWeb: 3,
-      },
-      Buckets: {
-        Media: {
-          bucketEnum: 1,
-          serverName: md.global.FileStoreConfig.mediaHost,
-        },
-        Pub: {
-          bucketEnum: 2,
-          serverName: md.global.FileStoreConfig.pubHost,
-        },
-        Doc: {
-          bucketEnum: 3,
-          serverName: md.global.FileStoreConfig.documentHost,
-        },
-        Pic: {
-          bucketEnum: 4,
-          serverName: md.global.FileStoreConfig.pictureHost,
-        },
-      },
-    };
 
     // 初始化
     _this.init = function () {
@@ -502,6 +470,7 @@ module.exports = (function ($) {
                       _this.findAttachmentList().show();
                     }
 
+                    const tokenFiles = [];
                     if (options.styleType != '0') {
                       var i;
                       for (i = 0; i < files.length; i++) {
@@ -528,11 +497,31 @@ module.exports = (function ($) {
                             .find('.uploadDocList .clearFloat')
                             .before(_this.createDocProgressBar(file));
                         }
+                        let fileExt = `.${File.GetExt(file.name)}`;
+                        let isPic = File.isPicture(fileExt);
+                        tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
                         _this.cancelUploadEvent(file.id);
+                      }
+                    } else {
+                      for (i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        let fileExt = `.${File.GetExt(files[i].name)}`;
+                        let isPic = File.isPicture(fileExt);
+                        tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
                       }
                     }
 
-                    up.start();
+                    getToken(tokenFiles, options.tokenType).then(res => {
+                      files.forEach((item, i) => {
+                        item.token = res[i].uptoken;
+                        item.key = res[i].key;
+                        item.serverName = res[i].serverName;
+                        item.fileName = res[i].fileName;
+                        item.url = res[i].url;
+                      });
+
+                      up.start();
+                    });
 
                     options.currentFile = up;
 
@@ -573,103 +562,22 @@ module.exports = (function ($) {
                 });
               return false;
             },
-            BeforeUpload: function (up, file) {
+            BeforeUpload: function (uploader, file) {
               // 上传文件到七牛
               var fileExt = '.' + File.GetExt(file.name);
-              // 文件后缀
-              // 判断是否是图片
-              var isPic = File.isPicture(fileExt);
-              var serverName = '';
-              var bucketEnum = '';
-              var token = '';
-              if (options.bucketType == QiniuUpload.Types.mainWeb) {
-                // 如果当前是图片且upPicToken不存在 或 如果当前是文档且upDocToken不存在
-                if ((!QiniuUpload.Tokens.upPicToken && isPic) || (!QiniuUpload.Tokens.upDocToken && !isPic)) {
-                  if (isPic) {
-                    bucketEnum = QiniuUpload.Buckets.Pic.bucketEnum;
-                  } else {
-                    bucketEnum = QiniuUpload.Buckets.Doc.bucketEnum;
-                  }
-                  var tempToken = _this.getUploadToken(bucketEnum);
-                  if (isPic) {
-                    QiniuUpload.Tokens.upPicToken = tempToken;
-                  } else {
-                    QiniuUpload.Tokens.upDocToken = tempToken;
-                  }
-                }
-
-                if (isPic) {
-                  token = QiniuUpload.Tokens.upPicToken;
-                  serverName = QiniuUpload.Buckets.Pic.serverName;
-                } else {
-                  token = QiniuUpload.Tokens.upDocToken;
-                  serverName = QiniuUpload.Buckets.Doc.serverName;
-                }
-              } else if (options.bucketType == QiniuUpload.Types.media) {
-                // 如果upMediaToken不存在
-                if (!QiniuUpload.Tokens.upMediaToken) {
-                  bucketEnum = QiniuUpload.Buckets.Media.bucketEnum;
-                  QiniuUpload.Tokens.upMediaToken = _this.getUploadToken(bucketEnum);
-                }
-                serverName = QiniuUpload.Buckets.Media.serverName;
-                token = QiniuUpload.Tokens.upMediaToken;
-              } else if (options.bucketType == QiniuUpload.Types.pub) {
-                if (!QiniuUpload.Tokens.upPubToken) {
-                  bucketEnum = QiniuUpload.Buckets.Pub.bucketEnum;
-                  QiniuUpload.Tokens.upPubToken = _this.getUploadToken(bucketEnum);
-                }
-                serverName = QiniuUpload.Buckets.Pub.serverName;
-                token = QiniuUpload.Tokens.upPubToken;
-              }
-
               // token
-              up.settings.multipart_params = {
-                token: token,
+              uploader.settings.multipart_params = {
+                token: file.token,
               };
 
-              var date = new Date();
-              var newFilename =
-                _this.getRandStr(15) + '_' + Math.abs(_this.getHashCode(file.name) + _this.getHashCode(date));
-              // 文件名前缀
-              if (options.fileNamePrefix) {
-                newFilename = options.fileNamePrefix + newFilename;
-              }
-
-              var filePathArr = [];
-
-              // 私信
-              if (options.bucketType == QiniuUpload.Types.media) {
-                filePathArr.push(
-                  md.global.Account.accountId +
-                    '/' +
-                    moment(date).format('YYYY') +
-                    '/' +
-                    moment(date).format('MM') +
-                    '/' +
-                    moment(date).format('DD') +
-                    '/',
-                );
-              } else {
-                // 非私信部分
-                if (options.folder) {
-                  filePathArr.push(options.folder + '/');
-                }
-
-                if (!options.onlyFolder) {
-                  filePathArr.push((isPic ? 'pic' : 'doc') + '/');
-                  filePathArr.push(moment(date).format('YYYYMM') + '/');
-                  filePathArr.push(isPic ? moment(date).format('DD') + '/' : '');
-                }
-              }
-              var filePath = filePathArr.join('');
-              up.settings.multipart_params.key = filePath + newFilename + fileExt;
-              up.settings.multipart_params['x:serverName'] = serverName;
-              up.settings.multipart_params['x:filePath'] = filePath;
-              up.settings.multipart_params['x:fileName'] = newFilename;
-              up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+              uploader.settings.multipart_params.key = file.key;
+              uploader.settings.multipart_params['x:serverName'] = file.serverName;
+              uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+              uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+              uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
                 file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
               );
-              up.settings.multipart_params['x:fileExt'] = fileExt;
+              uploader.settings.multipart_params['x:fileExt'] = fileExt;
 
               // 隐藏排队中 显示进度条
               var $itemContainer = null;
@@ -681,7 +589,7 @@ module.exports = (function ($) {
               $('#complete_' + file.id).show();
               $itemContainer.find('.progressBefore').hide();
 
-              return options.beforeUpload(up, file);
+              return options.beforeUpload(uploader, file);
             },
             FileUploaded: function (up, file, response) {
               if (response.response == '1') {
@@ -706,16 +614,6 @@ module.exports = (function ($) {
             Error: function (up, error) {
               if (error.code === plupload.FILE_SIZE_ERROR) {
                 alert(_l('单个文件大小超过 %0，无法支持上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 3);
-              } else if (error.code === plupload.HTTP_ERROR) {
-                QiniuUpload.Tokens = {
-                  upMediaToken: '', // 私信token 公开空间
-                  upPubToken: '', // 其它token 公开空间 如：BUG反馈
-                  upPicToken: '', // 上传图片token 公开空间
-                  upDocToken: '', // 上传文档token 私密空间
-                };
-                if (error.status === 401) {
-                  alert(_l('客户端认证授权失败。请重试或提交反馈。'));
-                }
               } else {
                 alert(_l('上传失败。请稍后再试。'));
               }
@@ -730,29 +628,6 @@ module.exports = (function ($) {
           options.pluploadObj = $plupload.data('plupload');
         }
       });
-    };
-
-    _this.getUploadToken = function (bucket) {
-      var tempToken = '';
-
-      qiniuCtrl
-        .getUploadToken(
-          {
-            bucket: bucket,
-          },
-          {
-            ajaxOptions: {
-              async: false,
-            },
-          },
-        )
-        .then(result => {
-          if (result && result.uptoken) {
-            tempToken = result.uptoken;
-          }
-        });
-
-      return tempToken;
     };
 
     // 判断个人上传流量是否达到上限
@@ -813,8 +688,7 @@ module.exports = (function ($) {
             if (obj.fileSize > MAX_IMG_VIEW_SIZE) {
               fullImgPath = '/images/noimage.png';
             } else {
-              fullImgPath = convertImageView(obj.serverName + obj.filePath + obj.fileName + obj.fileExt, 1, 119, 83);
-              // fullImgPath = obj.serverName + obj.filePath + obj.fileName + obj.fileExt + (obj.fileNameParam || '');
+              fullImgPath = `${obj.url}&imageView2/1/w/119/h/83`;
             }
 
             var picViewHtml = `
@@ -1267,6 +1141,7 @@ module.exports = (function ($) {
           item.oldOriginalFileName = item.originalFileName; // 临时存储文件名 编辑的时候比较
         }
       }
+      item.url = file.url;
       options.attachmentData.push(item);
       return item;
     };

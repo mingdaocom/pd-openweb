@@ -8,6 +8,7 @@ import * as ApplyListReducers from 'src/pages/Mobile/Members/Apply/redux/reducer
 import * as RecordListReducers from 'src/pages/Mobile/RecordList/redux/reducers';
 import * as SearchRecordReducers from 'src/pages/Mobile/SearchRecord/redux/reducers';
 import * as DiscussReducers from 'src/pages/Mobile/Discuss/redux/reducers';
+import * as RelationRowReducers from 'src/pages/Mobile/RelationRow/redux/reducers';
 
 
 export default combineReducers({
@@ -20,4 +21,5 @@ export default combineReducers({
   ...RecordListReducers,
   ...SearchRecordReducers,
   ...DiscussReducers,
+  ...RelationRowReducers,
 });

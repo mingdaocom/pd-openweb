@@ -47,13 +47,13 @@ export default class Logo extends React.Component {
   }
 
   @autobind
-  handleUploaded(up, file, qiniuurl) {
+  handleUploaded(up, file) {
     const { onChange } = this.props;
     this.setState({
       isUploading: false,
     });
     up.disableBrowse(false);
-    onChange(qiniuurl);
+    onChange(file.url);
   }
 
   @autobind

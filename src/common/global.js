@@ -118,6 +118,11 @@ window._l = function () {
 };
 
 /**
+ * 是否是钉钉环境下
+ */
+window.isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+
+/**
  * 全局变量
  */
 window.md = {};
@@ -130,11 +135,11 @@ md.staticglobal = md.global = {
   updated: false,
   /** 存储地址配置 */
   FileStoreConfig: {
-    uploadHost: 'https://up.qiniup.com/',
-    documentHost: 'https://doc.mingdao.com/',
-    pictureHost: 'https://pic.mingdao.com/',
-    mediaHost: 'https://media.mingdao.com/',
-    pubHost: 'https://filepub.mingdao.com/',
+    uploadHost: 'https://upload.qiniup.com/',
+    documentHost: 'https://d1.mingdaoyun.cn/',
+    pictureHost: 'https://p1.mingdaoyun.cn/',
+    mediaHost: 'https://m1.mingdaoyun.cn/',
+    pubHost: 'https://fp1.mingdaoyun.cn/',
   },
   Config: {
     ServiceTel: '010-53153053',
@@ -182,12 +187,12 @@ window.alert = function () {
 window.File = typeof File === 'undefined' ? {} : File;
 /** 获取后缀名 */
 File.GetExt = function (fileName) {
-  let t = fileName.split('.');
+  let t = (fileName || '').split('.');
   return t.length > 1 ? t[t.length - 1] : '';
 };
 /* 获取文件名 */
 File.GetName = function (fileName) {
-  let t = fileName.split('.');
+  let t = (fileName || '').split('.');
   t.pop();
   return t.length >= 1 ? t.join('.') : '';
 };
@@ -200,7 +205,7 @@ File.isValid = function (fileExt) {
   return true;
 };
 File.isPicture = function (fileExt) {
-  let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic'];
+  let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic', '.svg', '.tif'];
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;
@@ -246,12 +251,14 @@ window.LoadDiv = function (modifier) {
 /**
  * 兼容parse报错
  */
-window.safeParse = str => {
+window.safeParse = (str, type) => {
   try {
     return JSON.parse(str);
   } catch (err) {
-    console.error(err);
-    return {};
+    if (!(_.isUndefined(str) || str === '')) {
+      console.error(err);
+    }
+    return type === 'array' ? [] : {};
   }
 };
 

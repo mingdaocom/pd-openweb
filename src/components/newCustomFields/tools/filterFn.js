@@ -5,9 +5,10 @@ import {
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import moment from 'moment';
 import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getArrBySpliceType } from 'src/pages/FormSet/components/columnRules/config';
+import { getArrBySpliceType, isRelateMoreList } from 'src/pages/FormSet/components/columnRules/config';
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
+import _ from 'lodash';
 
 const dayFn = (filterData = {}, value, isGT, type) => {
   let { dateRange, dynamicSource = [] } = filterData;
@@ -103,7 +104,7 @@ const dayFn = (filterData = {}, value, isGT, type) => {
 };
 
 export const filterFn = (filterData, originControl, data = []) => {
-  const { filterType = '', dataType = '', dynamicSource = [], dateRange } = filterData;
+  let { filterType = '', dataType = '', dynamicSource = [], dateRange } = filterData;
   const control = redefineComplexControl(originControl);
   if (!control) {
     return true;
@@ -112,7 +113,13 @@ export const filterFn = (filterData, originControl, data = []) => {
   let compareValues = filterData.values || [];
   let compareValue = filterData.value || '';
   //条件字段值
-  let { value = '', advancedSetting = {} } = control || {};
+  let { value = '', advancedSetting = {} } = control;
+  //手机号默认去除区号
+  if (control.type === 3) {
+    const { dialCode = '' } = JSON.parse(advancedSetting.defaultarea || '{}');
+    value = (value || '').replace(dialCode, '');
+  }
+
   value = value === null ? '' : value;
   if (control.type === API_ENUM_TO_TYPE.MONEY_CN) {
     let controlId = control.dataSource.replace(/\$/g, '');
@@ -133,7 +140,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     //日期是、日期不是 && DATE
     if (
       (_.includes([2, 6, 14, 16], filterType) && _.includes([2], conditionGroupType)) ||
-      (_.includes([13, 15], filterType) && _.includes([2, 4], conditionGroupType)) ||
+      (_.includes([13, 15, 33, 35], filterType) && _.includes([2, 4], conditionGroupType)) ||
       (_.includes([17, 18], filterType) && _.includes([4], conditionGroupType))
     ) {
       compareValue = currentControl.value;
@@ -175,7 +182,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           _.map(compareValues, it => {
             let user = JSON.parse(value);
             _.map(user, its => {
-              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : it.accountId;
+              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : (it || {}).accountId;
               if (its.accountId === id) {
                 isEQ = true;
               }
@@ -236,7 +243,7 @@ export const filterFn = (filterData, originControl, data = []) => {
             return _.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(compareValue) === parseFloat(value);
+          return parseFloat(compareValue || 0) === parseFloat(value || 0);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           let isInValue = false;
           _.map(compareValues, it => {
@@ -304,7 +311,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           _.map(compareValues, it => {
             let user = JSON.parse(value);
             _.map(user, its => {
-              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : it.accountId;
+              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : (it || {}).accountId;
               if (its.accountId === id) {
                 isInValue = false;
               }
@@ -364,7 +371,7 @@ export const filterFn = (filterData, originControl, data = []) => {
             return !_.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(compareValue) !== parseFloat(value);
+          return parseFloat(compareValue || 0) !== parseFloat(value || 0);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           let isInValue1 = true;
           _.map(compareValues, it => {
@@ -535,7 +542,8 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return (
-            parseFloat(value) <= parseFloat(filterData.maxValue) && parseFloat(value) >= parseFloat(filterData.minValue)
+            parseFloat(value || 0) <= parseFloat(filterData.maxValue || 0) &&
+            parseFloat(value || 0) >= parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
           return moment(value).isBetween(
@@ -566,7 +574,8 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return (
-            parseFloat(value) > parseFloat(filterData.maxValue) && parseFloat(value) < parseFloat(filterData.minValue)
+            parseFloat(value || 0) > parseFloat(filterData.maxValue || 0) ||
+            parseFloat(value || 0) < parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
           return !moment(value).isBetween(
@@ -596,7 +605,16 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.GT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value) > parseFloat(compareValue);
+          return parseFloat(value || 0) > parseFloat(compareValue || 0);
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          let day = dayFn(filterData, compareValue, false, currentControl.type);
+          return moment(value).isAfter(day, 'second');
+        default:
+          return true;
+      }
+    //   DATE_GT: 33, // > 晚于
+    case FILTER_CONDITION_TYPE.DATE_GT:
+      switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
           return moment(value).isAfter(day, 'second');
@@ -607,7 +625,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.GTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value) >= parseFloat(compareValue);
+          return parseFloat(value || 0) >= parseFloat(compareValue || 0);
         default:
           return true;
       }
@@ -615,7 +633,16 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.LT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value) < parseFloat(compareValue);
+          return parseFloat(value || 0) < parseFloat(compareValue || 0);
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          let day = dayFn(filterData, compareValue, true, currentControl.type);
+          return moment(value).isBefore(day, 'second');
+        default:
+          return true;
+      }
+    //   DATE_LT: 35, // < 早于
+    case FILTER_CONDITION_TYPE.DATE_LT:
+      switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, true, currentControl.type);
           return moment(value).isBefore(day, 'second');
@@ -626,7 +653,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.LTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value) <= parseFloat(compareValue);
+          return parseFloat(value || 0) <= parseFloat(compareValue || 0);
         default:
           return true;
       }
@@ -724,42 +751,102 @@ export const filterFn = (filterData, originControl, data = []) => {
   }
 };
 
+//获取字段值
+const getFieldIds = (its = {}) => {
+  const isDynamic = its.dynamicSource && its.dynamicSource.length > 0;
+  return isDynamic ? [its.controlId, ...(its.dynamicSource || []).map(dy => dy.cid)] : [its.controlId];
+};
+
+const getIds = (arr = []) => {
+  return arr.reduce((total, its) => {
+    return total.concat(getFieldIds(its));
+  }, []);
+};
+
+const flattenArr = (obj = {}) => {
+  return Object.values(obj).reduce((total, cur = []) => {
+    return total.concat(_.flatten(cur));
+  }, []);
+};
+
 //判断业务规则配置条件是否满足
-export const checkValueAvailable = (rule = {}, data = []) => {
+export const checkValueAvailable = (rule = {}, data = [], from) => {
   let isAvailable = false;
+  //不满足条件的id,过滤错误
+  let filterControlIds = {};
+  //满足条件的错误id合集
+  let availableControlIds = {};
   let transFilters = getArrBySpliceType(rule.filters) || [[]]; //条件二维数组
 
-  transFilters.forEach(arr => {
+  //条件字段或字段值都隐藏
+  if (from) {
+    transFilters = transFilters.filter(arr => {
+      const ids = getIds(arr);
+      return _.some(ids, id => {
+        const da = _.find(data, d => d.controlId === id);
+        return da && controlState(da, from).visible;
+      });
+    });
+  }
+
+  transFilters.forEach((arr, pIdx) => {
     let itemAvailable = [];
 
-    arr.forEach(its => {
+    if (!filterControlIds[pIdx]) {
+      filterControlIds[pIdx] = [];
+    }
+    if (!availableControlIds[pIdx]) {
+      availableControlIds[pIdx] = [];
+    }
+
+    arr.forEach((its, index) => {
       let filterControl = data.find(a => a.controlId === its.controlId);
-      if (filterControl) {
-        itemAvailable.push(filterFn(its, filterControl, data));
+      if (filterControl && !isRelateMoreList(filterControl, its)) {
+        const result = filterFn(its, filterControl, data);
+
+        const ids = getFieldIds(its);
+        if (!result) {
+          filterControlIds[pIdx][index] = ids;
+          availableControlIds[pIdx][index] = [];
+        } else {
+          filterControlIds[pIdx][index] = [];
+          availableControlIds[pIdx][index] = ids;
+        }
+
+        itemAvailable.push(result);
       }
     });
 
     let isFound = !_.filter(itemAvailable, item => !item).length;
+
+    if (!isFound) {
+      const ids = getIds(arr);
+      availableControlIds[pIdx] = [[]];
+      filterControlIds[pIdx] = [ids];
+    }
+
     isAvailable = isAvailable || isFound;
   });
 
-  return isAvailable;
+  return {
+    isAvailable,
+    filterControlIds: flattenArr(filterControlIds),
+    availableControlIds: flattenArr(availableControlIds),
+  };
 };
 
 //判断所有业务规则是否满足条件
 export const checkAllValueAvailable = (rules = [], data = [], from) => {
   let errors = [];
-  const filterRules = getAvailableFilters(rules, data, from);
+  const filterRules = getAvailableFilters(rules, data);
   if (filterRules && filterRules.length > 0) {
     filterRules.map(rule => {
-      const isAvailable = checkValueAvailable(rule, data);
-      if (isAvailable) {
-        rule.ruleItems.map(item => {
-          if (item.type === 6) {
-            errors.push(item.message);
-          }
-        });
-      }
+      rule.ruleItems.map(item => {
+        if (item.type === 6) {
+          const { isAvailable } = checkValueAvailable(rule, data, from);
+          isAvailable && errors.push(item.message);
+        }
+      });
     });
   }
   return errors;
@@ -769,7 +856,7 @@ const replaceStr = (str, index, value) => {
   return str.substring(0, index) + value + str.substring(index + 1);
 };
 
-const updataDataPermission = (attrs = [], it, checkRuleValidator, from, item = {}) => {
+const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item = {} }) => {
   //子表或关联记录
   const isSubList = _.includes([29, 34], item.type);
   let fieldPermission = it.fieldPermission || '111';
@@ -796,12 +883,14 @@ const updataDataPermission = (attrs = [], it, checkRuleValidator, from, item = {
     if (_.includes(attrs, 5)) {
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
-      checkRuleValidator(it.controlId, onValidator({ ...it, required, fieldPermission }, from));
+      const { errorType, errorText } = onValidator({ ...it, required, fieldPermission }, from);
+      checkRuleValidator(it.controlId, errorType, errorText);
     } else {
       //编辑
       if (_.includes(attrs, 3)) {
         fieldPermission = replaceStr(fieldPermission, 1, '1');
-        checkRuleValidator(it.controlId, onValidator({ ...it, fieldPermission }, from));
+        const { errorType, errorText } = onValidator({ ...it, fieldPermission }, from);
+        checkRuleValidator(it.controlId, errorType, errorText);
       }
     }
   }
@@ -818,7 +907,7 @@ const updataDataPermission = (attrs = [], it, checkRuleValidator, from, item = {
   it.disabled = disabled;
 };
 
-const getAvailableFilters = (rules = [], formatData = [], from) => {
+const getAvailableFilters = (rules = [], formatData = []) => {
   //过滤禁用规则及单个且数组中字段全部删除情况
   let filterRules = [];
   rules.map(o => {
@@ -826,34 +915,27 @@ const getAvailableFilters = (rules = [], formatData = [], from) => {
       const transFilters = getArrBySpliceType(o.filters);
 
       let filterTrs = [];
-      let ruleItems = o.ruleItems;
-      let isAllExit = [];
-
       transFilters.map(tr => {
-        const itExit = _.every(tr, t => {
-          const data = _.find(formatData, da => da.controlId === t.controlId) || {};
-          return data.controlId && controlState(data, from).visible;
-        });
-        isAllExit.push(itExit);
-
         if (_.some(tr, t => _.findIndex(formatData, da => da.controlId === t.controlId) > -1)) {
           filterTrs = filterTrs.concat(tr);
         }
       });
-
-      //错误提示, 且条件字段不存在或隐藏，不走业务规则
-      const hasErrorWarn = _.findIndex(o.ruleItems, it => it.type === 6) > -1;
-      if (hasErrorWarn && !_.includes(isAllExit, true)) {
-        ruleItems = ruleItems.filter(ru => ru.type !== 6);
-      }
-      filterTrs.length > 0 && filterRules.push({ ...o, filters: filterTrs, ruleItems });
+      filterTrs.length > 0 && filterRules.push({ ...o, filters: filterTrs });
     }
   });
   return filterRules;
 };
 
 // 字段显示规则计算
-export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = () => {}, from }) => {
+export const updateRulesData = ({
+  rules = [],
+  data = [],
+  checkRuleValidator = () => {},
+  from,
+  checkAllUpdate = false,
+  updateControlIds = [],
+  ignoreHideControl = false,
+}) => {
   if (!rules.length) return data;
 
   let formatData = data.map(item => {
@@ -863,9 +945,16 @@ export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = ()
       relationControls: (item.relationControls || []).map(re => ({ ...re, ...re.defaultState })),
     };
   });
+
+  //字段过滤
+  if (ignoreHideControl) {
+    formatData = formatData.filter(da => controlState(da, from).visible);
+  }
+
   let relateRuleType = {
     parent: {},
     child: {},
+    errorMsg: {},
   };
 
   function pushType(key, id, type) {
@@ -873,12 +962,12 @@ export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = ()
   }
 
   if (rules.length > 0) {
-    const filterRules = getAvailableFilters(rules, formatData, from);
+    const filterRules = getAvailableFilters(rules, formatData);
 
     if (filterRules && filterRules.length > 0) {
       filterRules.map(rule => {
         rule.ruleItems.map(({ type, controls = [] }) => {
-          const isAvailable = checkValueAvailable(rule, formatData);
+          let { isAvailable } = checkValueAvailable(rule, formatData);
           let currentType = type;
           //显示隐藏无论满足条件与否都要操作
           if (currentType === 1) {
@@ -886,7 +975,8 @@ export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = ()
           } else if (currentType === 2) {
             currentType = isAvailable ? 2 : 1;
           }
-          if (_.includes([3, 4, 5, 7, 8], currentType) && !isAvailable) {
+
+          if (!_.includes([1, 2], currentType) && !isAvailable) {
             return;
           }
 
@@ -894,7 +984,7 @@ export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = ()
             formatData.map(item => {
               pushType('parent', item.controlId, currentType);
             });
-          } else {
+          } else if (!_.includes([6], currentType)) {
             controls.map(con => {
               const { controlId = '', childControlIds = [] } = con;
               if (!childControlIds.length) {
@@ -910,11 +1000,47 @@ export const updateRulesData = ({ rules = [], data = [], checkRuleValidator = ()
       formatData.forEach(it => {
         it.relationControls.forEach(re => {
           if ((relateRuleType['child'] || {})[re.controlId]) {
-            updataDataPermission(relateRuleType['child'][re.controlId], re, checkRuleValidator, from, it);
+            updataDataPermission({
+              attrs: relateRuleType['child'][re.controlId],
+              it: re,
+              checkRuleValidator,
+              from,
+              item: it,
+            });
           }
         });
         if ((relateRuleType['parent'] || {})[it.controlId]) {
-          updataDataPermission(relateRuleType['parent'][it.controlId], it, checkRuleValidator, from);
+          updataDataPermission({
+            attrs: relateRuleType['parent'][it.controlId],
+            it,
+            checkRuleValidator,
+            from,
+          });
+        }
+      });
+
+      //走错误提示
+      filterRules.map(rule => {
+        rule.ruleItems.map(({ type, message }) => {
+          const { filterControlIds = [], availableControlIds = [] } = checkValueAvailable(rule, formatData, from);
+          if (_.includes([6], type)) {
+            //过滤已经塞进去的错误
+            filterControlIds.map(id => checkRuleValidator(id, '', ''));
+            availableControlIds.map(controlId => {
+              if (!relateRuleType['errorMsg'][controlId]) {
+                //错误提示(checkAllUpdate为true全操作，否则操作变更的字段updateControlIds)
+                if (checkAllUpdate || (updateControlIds.length > 0 && _.includes(updateControlIds, controlId))) {
+                  pushType('errorMsg', controlId, message);
+                }
+              }
+            });
+          }
+        });
+      });
+      formatData.forEach(it => {
+        const errorMsg = relateRuleType['errorMsg'][it.controlId] || '';
+        if (errorMsg) {
+          checkRuleValidator(it.controlId, onValidator(it, from).errorType, errorMsg);
         }
       });
     }

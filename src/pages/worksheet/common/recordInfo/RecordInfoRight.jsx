@@ -22,6 +22,7 @@ export default function RecordInfoRight(props) {
   if ([...new Set(hiddenTabs)].length >= 3) {
     return '';
   }
+
   return (
     <div className={`recordInfoInfo ${className || ''}`}>
       <DiscussLogFile

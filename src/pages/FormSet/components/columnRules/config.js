@@ -296,7 +296,7 @@ export const filterText = (key, filterData, control) => {
       ) {
         return (filterData.values || [])
           .map(item => {
-            const user = JSON.parse(item);
+            const user = JSON.parse(item || '{}');
             return user.name;
           })
           .join(',');
@@ -330,14 +330,14 @@ export const filterText = (key, filterData, control) => {
       }
       return filterData.values
         .map(item => {
-          const user = JSON.parse(item);
+          const user = JSON.parse(item || '{}');
           return user.name;
         })
         .join(',');
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
     case CONTROL_FILTER_WHITELIST.CASCADER.value:
       const { values = [] } = filterData;
-      return values.map(item => JSON.parse(item).name).join(',');
+      return values.map(item => JSON.parse(item || '{}').name).join(',');
     default:
       return _.isEmpty(filterData.values) ? '' : filterData.values.join(',');
   }
@@ -431,4 +431,16 @@ const OCR_ICON_WHITELIST = {
 export function getNewIconByType(control = {}) {
   const { type, enumDefault } = control;
   return type === 43 ? OCR_ICON_WHITELIST[enumDefault] : getIconByType(type);
+}
+
+//是否关联多条列表
+export function isRelateMoreList(control, condition) {
+  return (
+    control &&
+    control.type === 29 &&
+    control.enumDefault === 2 &&
+    control.advancedSetting &&
+    control.advancedSetting.showtype === '2' &&
+    _.includes([24, 25], condition.filterType || condition.type)
+  );
 }

@@ -10,7 +10,7 @@ import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as utils from 'src/pages/chat/utils';
 
-var BusinessCard = function(element, options) {
+var BusinessCard = function (element, options) {
   this.type = null;
   this.options = null;
   this.enabled = null;
@@ -68,6 +68,9 @@ BusinessCard.DEFAULTS = {
     email: '', // email
     mobilePhone: '', // 联系方式,
     sameProjectIds: [], // 当前用户和这个 Account 加入的相同的网络的
+    currentProjectName: true, //是否是本组织人员
+    currentJobNumber: '', //工号
+    orgName: '', //本组织（部门+职位）
   },
   reset: false,
   force: false,
@@ -99,7 +102,7 @@ BusinessCard.DEFAULTS = {
  * @param {callback} options.readyFn 回调
  * @returns {BusinessCard}
  */
-BusinessCard.prototype.init = function(type, element, options) {
+BusinessCard.prototype.init = function (type, element, options) {
   this.enabled = true;
   this.type = type;
   this.$element = $(element);
@@ -129,7 +132,7 @@ BusinessCard.prototype.init = function(type, element, options) {
   }
 };
 
-BusinessCard.prototype.getAccountOrGroupId = function() {
+BusinessCard.prototype.getAccountOrGroupId = function () {
   var options = this.options;
   var $element = this.$element;
   var accountId = options.accountId || $element.data('accountid') || $element.data('accountId');
@@ -148,7 +151,7 @@ BusinessCard.prototype.getAccountOrGroupId = function() {
   return true;
 };
 
-BusinessCard.prototype.getOptions = function(options) {
+BusinessCard.prototype.getOptions = function (options) {
   options = $.extend(true, {}, BusinessCard.DEFAULTS, options);
 
   if (options.delay && typeof options.delay === 'number') {
@@ -161,7 +164,7 @@ BusinessCard.prototype.getOptions = function(options) {
   return options;
 };
 
-BusinessCard.prototype.enter = function(event) {
+BusinessCard.prototype.enter = function (event) {
   var self = this;
   if (event instanceof $.Event) {
     this.inState[event.type === 'focusin' ? 'focus' : 'hover'] = true;
@@ -181,14 +184,14 @@ BusinessCard.prototype.enter = function(event) {
 
   if (!self.options.delay || !self.options.delay.show) return self.show();
 
-  self.timeout = setTimeout(function() {
+  self.timeout = setTimeout(function () {
     if (self.hoverState === 'in') {
       self.show();
     }
   }, self.options.delay.show);
 };
 
-BusinessCard.prototype.leave = function(event) {
+BusinessCard.prototype.leave = function (event) {
   var self = this;
   if (event instanceof $.Event) {
     self.inState[event.type === 'focusout' ? 'focus' : 'hover'] = false;
@@ -205,14 +208,14 @@ BusinessCard.prototype.leave = function(event) {
 
   if (!self.options.delay || !self.options.delay.hide) return self.hide();
 
-  self.timeout = setTimeout(function() {
+  self.timeout = setTimeout(function () {
     if (self.hoverState === 'out') {
       self.hide();
     }
   }, self.options.delay.hide);
 };
 
-BusinessCard.prototype.show = function() {
+BusinessCard.prototype.show = function () {
   var e = $.Event('show.md.' + this.type);
   var that = this;
 
@@ -237,14 +240,12 @@ BusinessCard.prototype.show = function() {
   }
 };
 
-BusinessCard.prototype.hide = function(callback) {
+BusinessCard.prototype.hide = function (callback) {
   var e = $.Event('hide.md' + this.type);
 
-  this.$element.trigger(e);
+  this.$element && this.$element.trigger(e);
   if (this.dialog()) {
-    this.dialog()
-      .removeClass('in useFadeIn animationsDown')
-      .addClass('useFadeOut');
+    this.dialog().removeClass('in useFadeIn animationsDown').addClass('useFadeOut');
   }
   this.hoverState = null;
 
@@ -253,7 +254,7 @@ BusinessCard.prototype.hide = function(callback) {
   }
 };
 
-BusinessCard.prototype.isInStateTrue = function() {
+BusinessCard.prototype.isInStateTrue = function () {
   for (var key in this.inState) {
     if (this.inState[key]) {
       return true;
@@ -262,7 +263,7 @@ BusinessCard.prototype.isInStateTrue = function() {
   return false;
 };
 
-BusinessCard.prototype.dialog = function() {
+BusinessCard.prototype.dialog = function () {
   var id = this.getId();
   var $div = $();
   try {
@@ -272,18 +273,18 @@ BusinessCard.prototype.dialog = function() {
   return $div.length ? $div : null;
 };
 
-BusinessCard.prototype.bindEvent = function() {
+BusinessCard.prototype.bindEvent = function () {
   var self = this;
   var options = this.options;
   var $dialog = this.dialog();
   $dialog.on({
-    mouseenter: function() {
+    mouseenter: function () {
       clearTimeout(self.timeout);
     },
     mouseleave: $.proxy(this.hide, this),
   });
 
-  $dialog.on('click', '.startChat', function() {
+  $dialog.on('click', '.startChat', function () {
     self.hide();
     // if (options.data.isContact) {
     const { isWindow } = store.getState().chat;
@@ -304,12 +305,12 @@ BusinessCard.prototype.bindEvent = function() {
   });
 
   // 飞入效果
-  $dialog.on('webkitAnimationEnd animationend', function() {
+  $dialog.on('webkitAnimationEnd animationend', function () {
     $(this).removeClass('animationsUp animationsDown');
   });
 };
 
-BusinessCard.prototype.applyPlacement = function() {
+BusinessCard.prototype.applyPlacement = function () {
   var options = this.options;
   var $container = $(this.options.container);
   var $dialog = this.dialog();
@@ -369,7 +370,7 @@ BusinessCard.prototype.applyPlacement = function() {
     .removeClass('useFadeOut');
 };
 
-BusinessCard.prototype.formatData = function(result) {
+BusinessCard.prototype.formatData = function (result) {
   var type = this.options.type;
   var data = {};
   if (type === TYPES.USER) {
@@ -384,6 +385,13 @@ BusinessCard.prototype.formatData = function(result) {
     data.email = result.email;
     data.mobilePhone = result.mobilePhone;
     data.sameProjectIds = result.sameProjectIds || [];
+    data.currentProjectName = this.options.projectId ? !!result.currentProjectName : true;
+    data.currentJobNumber = result.currentJobNumber;
+    data.orgName =
+      result.currentDepartmentName && result.profession
+        ? [result.currentDepartmentName, result.profession].join('/')
+        : result.currentDepartmentName || result.profession;
+    data.nodata = !!data.currentProjectName ? data.orgName && data.currentJobNumber : data.companyName;
   } else if (type === TYPES.GROUP) {
     data.groupName = result.name;
     data.avatar = result.avatar;
@@ -394,7 +402,7 @@ BusinessCard.prototype.formatData = function(result) {
   return data;
 };
 
-BusinessCard.prototype.render = function() {
+BusinessCard.prototype.render = function () {
   var self = this;
   var options = this.options;
   var $div = this.dialog();
@@ -432,12 +440,13 @@ BusinessCard.prototype.render = function() {
       options.type === TYPES.USER
         ? userController.getAccountBaseInfo({
             accountId: options.sourceId,
+            onProjectId: options.projectId,
             withSameProjectId: true,
           })
         : groupController.getGroupCardInfo({
             groupId: options.sourceId,
           });
-    self.$promise.done(function(result) {
+    self.$promise.done(function (result) {
       // if (self.isChatGroup(result)) {
       //   self.options.isChatGroup = true;
       //   self.dialog().remove();
@@ -455,7 +464,7 @@ BusinessCard.prototype.render = function() {
     });
   }
 
-  dfd.then(function() {
+  dfd.then(function () {
     // async render, if not hover, do not show the new card
     if (self.hoverState === 'in') {
       self.applyPlacement();
@@ -470,15 +479,13 @@ BusinessCard.prototype.render = function() {
   });
 };
 
-BusinessCard.prototype.setContent = function(content) {
-  this.dialog()
-    .find('.cardContent')
-    .html(content);
+BusinessCard.prototype.setContent = function (content) {
+  this.dialog().find('.cardContent').html(content);
 };
 
-BusinessCard.prototype.getId = function() {
+BusinessCard.prototype.getId = function () {
   var options = this.options;
-  return options.id + '_' + options.sourceId;
+  return `${options.id}_${options.sourceId}${options.projectId ? `_${options.projectId}` : ''}`;
 };
 
 /**
@@ -486,14 +493,14 @@ BusinessCard.prototype.getId = function() {
  * @param result
  * @returns {boolean}
  */
-BusinessCard.prototype.isChatGroup = function(data) {
+BusinessCard.prototype.isChatGroup = function (data) {
   return data && data.isPost === false;
 };
 
-BusinessCard.prototype.destroy = function() {
+BusinessCard.prototype.destroy = function () {
   var that = this;
   clearTimeout(this.timeout);
-  this.hide(function() {
+  this.hide(function () {
     that.$element
       .off('.' + that.type)
       .removeData('md.' + that.type)
@@ -508,7 +515,7 @@ BusinessCard.prototype.destroy = function() {
 
 // PLUGIN DEFINITION
 function Plugin(option) {
-  return this.each(function() {
+  return this.each(function () {
     var $this = $(this);
     var data = $this.data('md.businesscard');
     var options = typeof option === 'object' && option;
@@ -535,7 +542,7 @@ var old = $.fn.mdBusinessCard;
 $.fn.mdBusinessCard = Plugin;
 $.fn.mdBusinessCard.Constructor = BusinessCard;
 
-$.fn.mdBusinessCard.noConflict = function() {
+$.fn.mdBusinessCard.noConflict = function () {
   $.fn.tooltip = old;
   return this;
 };

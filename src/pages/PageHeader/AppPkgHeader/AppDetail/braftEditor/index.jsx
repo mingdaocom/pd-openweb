@@ -107,7 +107,7 @@ export default class Editor extends Component {
             {
               type: 'IMAGE',
               name: '',
-              url: getUrlByBucketName(bucket) + key,
+              url: file.url,
             },
           ]);
         },

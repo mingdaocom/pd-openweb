@@ -49,7 +49,7 @@ class FeedLeftNav extends React.Component {
       foldedProjects = Immutable.Set(allProjects.value());
     }
 
-    const noneProjects = !md.global.Account.projects.length;
+    const noneProjects = !(_.get(md.global, 'Account.projects') || []).length;
     let loadingProjects, groups;
     if (props.defaultGroups) {
       loadingProjects = Immutable.Set();

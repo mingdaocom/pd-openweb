@@ -16,10 +16,10 @@ class CardInfo extends Component {
 
   hoverBg = () => {
     $('.showMorecards li').hover(
-      function() {
+      function () {
         $(this).addClass('ThemeBGColor4 White');
       },
-      function() {
+      function () {
         $(this).removeClass('ThemeBGColor4 White');
       },
     );
@@ -67,7 +67,7 @@ class CardInfo extends Component {
     });
   };
 
-  cardsList = cardsLists => {
+  cardsList = (cardsLists = {}) => {
     return (
       <li className="Left LineHeight30 pTop10 pBottom20" key={cardsLists.projectId}>
         <span className="Left Width300">

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { string } from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -74,7 +74,7 @@ function PreviewContent(props) {
     if (hrefReg.test(value)) return <iframe ref={ref} src={parseLink(value)}></iframe>;
   };
 
-  return <PreviewWrap>{renderContent()}</PreviewWrap>;
+  return <PreviewWrap>{useMemo(renderContent, [value])}</PreviewWrap>;
 }
 export default connect(({ sheet, appPkg, customPage }) => ({
   info: {

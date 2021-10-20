@@ -78,62 +78,64 @@ export default class Start extends Component {
     // 循环触发
     if (item.appType === APP_TYPE.LOOP) {
       const days = [_l('星期日'), _l('星期一'), _l('星期二'), _l('星期三'), _l('星期四'), _l('星期五'), _l('星期六')];
+      const isNew = item.interval === -1;
 
       return (
         <div className="pLeft8 pRight8 pTop5 pBottom5">
-          <div className="Gray_75">{_l('从 %0 开始', moment(item.executeTime).format('YYYY-MM-DD HH:mm'))}</div>
+          <div className={cx({ Gray_75: !isNew })}>
+            {_l('从 %0 开始', moment(item.executeTime).format('YYYY-MM-DD HH:mm'))}
+          </div>
 
-          {item.frequency === DATE_TYPE.MINUTE && (
-            <div className="mTop5">{_l('每%0分钟触发', item.interval > 1 ? ` ${item.interval} ` : '')}</div>
-          )}
-
-          {item.frequency === DATE_TYPE.HOUR && (
-            <div className="mTop5">{_l('每%0小时触发', item.interval > 1 ? ` ${item.interval} ` : '')}</div>
-          )}
-
-          {item.frequency === DATE_TYPE.DAY && (
-            <div className="mTop5">
-              {_l(
-                '每%0天 %1 触发',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                moment(item.executeTime).format('HH:mm'),
+          {!isNew && (
+            <Fragment>
+              {item.frequency === DATE_TYPE.MINUTE && (
+                <div className="mTop5">{_l('每%0分钟触发', item.interval > 1 ? ` ${item.interval} ` : '')}</div>
               )}
-            </div>
-          )}
-
-          {item.frequency === DATE_TYPE.WEEK && (
-            <div className="mTop5">
-              {_l(
-                '每%0周(%1) %2 触发',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                item.weekDays
-                  .sort((a, b) => a - b)
-                  .map(o => days[o])
-                  .join('、'),
-                moment(item.executeTime).format('HH:mm'),
+              {item.frequency === DATE_TYPE.HOUR && (
+                <div className="mTop5">{_l('每%0小时触发', item.interval > 1 ? ` ${item.interval} ` : '')}</div>
               )}
-            </div>
-          )}
-
-          {item.frequency === DATE_TYPE.MONTH && (
-            <div className="mTop5">
-              {_l(
-                '每%0个月在第 %1 天 %2 触发',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                moment(item.executeTime).format('DD'),
-                moment(item.executeTime).format('HH:mm'),
+              {item.frequency === DATE_TYPE.DAY && (
+                <div className="mTop5">
+                  {_l(
+                    '每%0天 %1 触发',
+                    item.interval > 1 ? ` ${item.interval} ` : '',
+                    moment(item.executeTime).format('HH:mm'),
+                  )}
+                </div>
               )}
-            </div>
-          )}
-
-          {item.frequency === DATE_TYPE.YEAR && (
-            <div className="mTop5">
-              {_l(
-                '每%0年在 %1 触发',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                moment(item.executeTime).format('MMMDo HH:mm'),
+              {item.frequency === DATE_TYPE.WEEK && (
+                <div className="mTop5">
+                  {_l(
+                    '每%0周(%1) %2 触发',
+                    item.interval > 1 ? ` ${item.interval} ` : '',
+                    item.weekDays
+                      .sort((a, b) => a - b)
+                      .map(o => days[o])
+                      .join('、'),
+                    moment(item.executeTime).format('HH:mm'),
+                  )}
+                </div>
               )}
-            </div>
+              {item.frequency === DATE_TYPE.MONTH && (
+                <div className="mTop5">
+                  {_l(
+                    '每%0个月在第 %1 天 %2 触发',
+                    item.interval > 1 ? ` ${item.interval} ` : '',
+                    moment(item.executeTime).format('DD'),
+                    moment(item.executeTime).format('HH:mm'),
+                  )}
+                </div>
+              )}
+              {item.frequency === DATE_TYPE.YEAR && (
+                <div className="mTop5">
+                  {_l(
+                    '每%0年在 %1 触发',
+                    item.interval > 1 ? ` ${item.interval} ` : '',
+                    moment(item.executeTime).format('MMMDo HH:mm'),
+                  )}
+                </div>
+              )}
+            </Fragment>
           )}
         </div>
       );

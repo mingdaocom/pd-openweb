@@ -9,13 +9,13 @@ import Components from './components';
 import { getVerifyInfo } from '../util/setting';
 
 export default function WidgetDisplay(props) {
-  const { data, activeWidget, allControls, actualControls } = props;
+  const { data = {}, activeWidget, allControls, actualControls } = props;
   const { type, required, hint, unit, desc } = data;
   const { prefix, suffix } = getAdvanceSetting(data);
 
   // 分段字段
   const isSplitLine = type === 22;
-  const isActive = data.controlId === activeWidget.controlId;
+  const isActive = data.controlId === (activeWidget || {}).controlId;
 
   const Component = displayTypes[enumWidgetType[type]];
 

@@ -1355,7 +1355,7 @@ CreateCalendar.methods = {
     var height = $imgMemberMessage.find('.cardContentBox').height();
     $imgMemberMessage.find('.hoverMember').css('height', height);
     // 如果超出范围就出现在左边
-    if ($imgMemberMessage.offset().left + 500 > $(window).width()) {
+    if ($imgMemberMessage && $imgMemberMessage.offset() && $imgMemberMessage.offset().left + 500 > $(window).width()) {
       $imgMemberMessage.find('.hoverMemberContainer').css({
         left: 'auto',
         right: 240,

@@ -78,7 +78,7 @@ export default class FileMessage extends Component {
     const { files } = message.msg;
     const { progress, cancel, cancelShow } = this.state;
     const isKc = message.card ? message.card.md === 'kcfile' : false;
-    const size = formatFileSize(files.size);
+    const size = formatFileSize(files.fsize);
     return (
       <div className="Message-file" onClick={this.handleMessageFilePreview.bind(this)}>
         <div className="Message-fileIcon">

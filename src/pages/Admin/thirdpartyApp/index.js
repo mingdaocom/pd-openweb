@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { Button, Icon, Dialog, Input, LoadDiv } from 'ming-ui';
-import { getUploadToken2, getRandStr } from 'src/components/UploadFiles/utils';
+import { getRandStr } from 'src/components/UploadFiles/utils';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import Config from '../config';
 import styled from 'styled-components';
 import application from 'src/api/application';
-import { isUrlRequest } from 'src/util';
+import { isUrlRequest, getToken } from 'src/util';
 import 'rc-trigger/assets/index.css';
 import './index.less';
 
@@ -92,11 +92,9 @@ class Upload extends Component {
     };
   }
   componentDidMount() {
-    getUploadToken2({ isPublic: false, bucket: 2 }).then(token => {
-      this.uploadFile(token);
-    });
+    this.uploadFile();
   }
-  uploadFile(token) {
+  uploadFile() {
     const _this = this;
     $(this.uploadFileEl).plupload({
       url: md.global.FileStoreConfig.uploadHost,
@@ -108,24 +106,40 @@ class Upload extends Component {
         prevent_duplicates: false,
         max_file_size: 0,
       },
+      autoUpload: false,
       method: {
         FilesAdded(up, files) {
-          up.start();
           _this.setState({ loading: true });
+          const tokenFiles = [];
+
+          // 渲染图片列表
+          files.forEach(item => {
+            let fileExt = `.${File.GetExt(item.name)}`;
+            tokenFiles.push({ bucket: 2, ext: fileExt });
+          });
+
+          getToken(tokenFiles, 5).then(res => {
+            files.forEach((item, i) => {
+              item.token = res[i].uptoken;
+              item.key = res[i].key;
+              item.serverName = res[i].serverName;
+              item.fileName = res[i].fileName;
+            });
+
+            up.start();
+          });
         },
         BeforeUpload(up, file) {
           const fileExt = `.${File.GetExt(file.name)}`;
-          const filename = file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name;
 
-          const newFilename = `${filename.replace(/[\u4e00-\u9fa5]/g, '')}_${getRandStr(15)}`;
-          const filePath = 'Apps/AppsImages/icon/';
-
-          up.settings.multipart_params = { token };
-          up.settings.multipart_params.key = filePath + newFilename + fileExt;
-          up.settings.multipart_params['x:serverName'] = md.global.FileStoreConfig.pubHost;
-          up.settings.multipart_params['x:filePath'] = filePath;
-          up.settings.multipart_params['x:fileName'] = newFilename;
-          up.settings.multipart_params['x:originalFileName'] = filename;
+          up.settings.multipart_params = { token: file.token };
+          up.settings.multipart_params.key = file.key;
+          up.settings.multipart_params['x:serverName'] = file.serverName;
+          up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+          up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+          up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+          );
           up.settings.multipart_params['x:fileExt'] = fileExt;
         },
         FileUploaded(up, file, res) {

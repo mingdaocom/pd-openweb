@@ -1016,7 +1016,7 @@ ShareAttachment.prototype = {
           PERSON: 1,
           GROUP: 2,
         };
-        var selectedChatType = SA.selectedChat.type;
+        var selectedChatType = (SA.selectedChat || {}).type;
         var sendPromise;
         if (attachmentType === ATTACHMENT_TYPE.COMMON) {
           if (SA.newFileName) {
@@ -1038,7 +1038,7 @@ ShareAttachment.prototype = {
             toAccountId: '',
             toGroupId: '',
           };
-          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = SA.selectedChat.value;
+          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
           sendPromise = sendFileToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.KC) {
           var cards = [
@@ -1055,7 +1055,7 @@ ShareAttachment.prototype = {
             toAccountId: '',
             toGroupId: '',
           };
-          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = SA.selectedChat.value;
+          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
           sendPromise = sendCardToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
           var originalFileName = SA.options.name;
@@ -1076,7 +1076,7 @@ ShareAttachment.prototype = {
             toAccountId: '',
             toGroupId: '',
           };
-          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = SA.selectedChat.value;
+          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
           sendPromise = sendFileToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.WORKSHEET || attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
           params = {
@@ -1110,7 +1110,7 @@ ShareAttachment.prototype = {
             toAccountId: '',
             toGroupId: '',
           };
-          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = SA.selectedChat.value;
+          params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
           sendPromise = sendCardToChat(params);
         }
         sendPromise
@@ -1295,7 +1295,7 @@ ShareAttachment.prototype = {
     img.addEventListener(
       'error',
       function() {
-        SA.$thumbnail.hide();
+        SA.dialogEle.$thumbnail.hide();
         SA.loadDocIcon();
       },
       false,

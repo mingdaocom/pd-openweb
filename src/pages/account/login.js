@@ -8,7 +8,6 @@ import loginController from 'src/api/login';
 import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { LoadDiv } from 'ming-ui';
-import Config from './config';
 import cx from 'classnames';
 import { checkLogin } from 'src/util/sso';
 import { browserIsMobile } from 'src/util';
@@ -33,6 +32,7 @@ class LoginContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      logo: `${md.global.FileStoreConfig.pictureHost}ProjectLogo/default.png`,
       loading: true,
       openLDAP: false, //
       canLDAP: false, // 可否使用LDAP
@@ -178,6 +178,7 @@ class LoginContainer extends React.Component {
           }
           this.setState(
             {
+              logo: data.logo,
               openLDAP: data.openLDAP,
               canLDAP: data.openLDAP,
               projectId: data.projectId,
@@ -327,7 +328,7 @@ class LoginContainer extends React.Component {
           <div className="loginContainer">
             <div className="titleHeader">
               {this.state.isNetwork && this.state.logo && <img src={this.state.logo} height={30} />}
-              {this.state.isNetwork && <p className="Font17 Gray mAll0 mTop16">{this.state.text}</p>}
+              {this.state.isNetwork && <p className="Font17 Gray mAll0 mTop8">{this.state.text}</p>}
             </div>
             {this.renderCon()}
             {this.renderFooter()}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { FILTER_CONDITION_TYPE, DATE_OPTIONS } from 'worksheet/common/WorkSheetFilter/enum';
+import NumberUtil from 'src/util/number';
 import Text from './Text';
 import Number from './Number';
 import RelateRecord from './RelateRecord';
@@ -66,12 +67,6 @@ mapToComp([-10000], UnNormal); // 异常状态
 
 export function validate(condition) {
   let dataType = condition.dataType;
-  if (dataType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && condition.control) {
-    dataType = condition.control.sourceControlType;
-  }
-  if (dataType === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && condition.control) {
-    dataType = condition.control.enumDefault2 || 6;
-  }
   if (
     _.includes(
       [
@@ -103,10 +98,8 @@ export function validate(condition) {
     )
   ) {
     return condition.filterType === FILTER_CONDITION_TYPE.BETWEEN
-      ? !_.isUndefined(condition.minValue) &&
-          !_.isUndefined(condition.maxValue) &&
-          parseFloat(condition.maxValue) > parseFloat(condition.minValue)
-      : !_.isUndefined(condition.value);
+      ? NumberUtil.isNumberStr(condition.minValue) || NumberUtil.isNumberStr(condition.maxValue)
+      : NumberUtil.isNumberStr(condition.value);
   }
   if (
     _.includes(
@@ -143,7 +136,7 @@ export default function Input(props) {
     type = props.control.enumDefault2 || 6;
   }
   const Condition = Comps[type];
-  return Condition ? <Condition {...props} /> : <span />;
+  return Condition ? <Condition {...props} value={_.isUndefined(props.value) ? '' : props.value} /> : <span />;
 }
 
 Input.propTypes = {

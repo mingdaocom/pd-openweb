@@ -34,6 +34,7 @@ export default class UnusualContent extends Component {
       if (data) {
         alert(_l('申请已提交'));
       }
+      this.setState({ applyJoinAppVisible: false });
     });
   };
   render() {

@@ -669,17 +669,17 @@ export default class PersonalInfo extends React.Component {
         <div className="mBottom40">
           <div className="Font15 Bold Gray mBottom16">{_l('教育经历')}</div>
           {this.renderEdu()}
-          <div className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(2, educationList)}>
+          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(2, educationList)}>
             {_l('添加')}
-          </div>
+          </span>
         </div>
         {/**工作履历 */}
         <div>
           <div className="Font15 Bold Gray mBottom16">{_l('工作履历')}</div>
           {this.renderWork()}
-          <div className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(1, workList)}>
+          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(1, workList)}>
             {_l('添加')}
-          </div>
+          </span>
         </div>
       </div>
     );

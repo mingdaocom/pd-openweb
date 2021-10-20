@@ -20,7 +20,7 @@ export default function OtherField(props) {
   const { worksheetId } = globalSheetInfo;
   const controls = props.controls.concat(globalSheetControls);
   const getFieldName = (controls, fieldId) => {
-    if (_.includes(['ctime', 'utime', 'owner', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
+    if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
     return (
       _.get(
         _.find(controls, item => _.includes([item.controlId, item.id], fieldId)),
@@ -55,7 +55,7 @@ export default function OtherField(props) {
   const isFieldDeleteFn = (item, controls = []) => {
     const { cid, rcid } = item;
     const isFieldNotInControls = (controls, cid) => {
-      if (_.includes(['ctime', 'utime', 'owner', 'caid'], cid)) return false;
+      if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], cid)) return false;
       return !_.some(controls, item => _.includes([item.controlId, item.id], cid));
     };
     if (rcid) {
@@ -76,10 +76,10 @@ export default function OtherField(props) {
   const isFieldDelete = isFieldDeleteFn(item, controls);
   return (
     <OtherFieldWrap className={cx(className, { pointer: !isText, haveCloseIcon: !isText, deleted: isFieldDelete })}>
-      <Fragment>
+      <span className="overflow_ellipsis">
         <span>{fieldName}</span>
         {recordName && <span className="recordName">{recordName}</span>}
-      </Fragment>
+      </span>
       {!isText && (
         <i
           className="icon-close"

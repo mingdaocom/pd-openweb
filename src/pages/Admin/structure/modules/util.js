@@ -111,11 +111,11 @@ export const formatSearchDeptData = (data, keywords) => {
   const departments = [].concat(data);
   const result = [];
   departments.forEach((dept) => {
-    const children = dept.subDepartments || [];
-    const parent = dept.parentDepartment || {};
-    const parentName = htmlEncodeReg(parent.departmentName);
+    const children = dept.subs || [];
+    const parent = dept.parent || {};
+    const parentName = htmlEncodeReg(parent.name);
     const nameArr = [];
-    let curName = htmlEncodeReg(dept.departmentName);
+    let curName = htmlEncodeReg(dept.name);
     let _curName = curName;
     if (parentName) {
       nameArr.push('<span title="' + parentName + '">' + parentName + '</span>');
@@ -129,7 +129,7 @@ export const formatSearchDeptData = (data, keywords) => {
       departmentName: nameArr.join(''),
     }));
     children.forEach((child) => {
-      const childName = htmlEncodeReg(child.departmentName);
+      const childName = htmlEncodeReg(child.name);
       result.push(Object.assign({}, child, {
         departmentName: _.union(nameArr, ['<span title="' + childName + '">' + childName + '</span>']).join(''),
       }));

@@ -15,8 +15,20 @@ const SuffixWrap = styled(SettingItem)`
 `;
 
 export default function InputSuffix({ data, onChange }) {
-  const { unit, enumDefault } = data;
-  const { suffix } = getAdvanceSetting(data);
+  const { unit, enumDefault, controlId } = data;
+  const setting = getAdvanceSetting(data) || {};
+  const type = setting.prefix ? 'prefix' : 'suffix';
+  const initSuffix = UNIT_TYPE.find(item => _.includes(['3', '4', '5'], unit) && item.value === unit) || {};
+  useEffect(() => {
+    onChange(
+      handleAdvancedSettingChange(
+        data,
+        _.includes(['3', '4', '5'], unit)
+          ? { [type]: setting[type] || initSuffix.text || '' }
+          : { prefix: '', suffix: '' },
+      ),
+    );
+  }, [unit, controlId]);
 
   if (['3', '4', '5'].includes(unit)) {
     return (
@@ -28,13 +40,7 @@ export default function InputSuffix({ data, onChange }) {
           value={unit}
           data={enumDefault === 3 ? UNIT_TYPE.slice(0, 3) : UNIT_TYPE}
           onChange={value => {
-            if (_.includes(['3', '4', '5'], value)) {
-              const initSuffix = UNIT_TYPE.find(item => item.value === value) || {};
-              onChange(handleAdvancedSettingChange({ ...data, unit: value }, { suffix: initSuffix.text }));
-              return;
-            }
-            onChange(handleAdvancedSettingChange({ ...data, unit: value }, { prefix: '', suffix: '' }));
-            return;
+            onChange({ ...data, unit: value });
           }}
         />
         <PreSuffix data={data} onChange={onChange} />

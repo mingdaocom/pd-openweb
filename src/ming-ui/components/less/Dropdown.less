@@ -54,6 +54,32 @@
       color: #999;
     }
   }
+  .actionIcon {
+    position: relative;
+    width: 15px;
+    .Icon {
+      position: absolute;
+      left: 0;
+      z-index: 0;
+    }
+    .dropArrow {
+      opacity: 1;
+      z-index: 1;
+    }
+    .clearIcon {
+      opacity: 0;
+    }
+    &:hover {
+      .dropArrow {
+        opacity: 0;
+        z-index: 0;
+      }
+      .clearIcon {
+        opacity: 1;
+        z-index: 1;
+      }
+    }
+  }
 }
 .dropdownTrigger {
   position: absolute;

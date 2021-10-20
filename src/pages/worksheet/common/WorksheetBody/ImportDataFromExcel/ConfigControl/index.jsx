@@ -7,9 +7,9 @@ import './index.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import DropDownItem from './DropDownItem';
 
-const allowConfigControlTypes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 41];
+const allowConfigControlTypes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 41];
 const recordObj = {
-  text: _l('记录ID'),
+  text: '记录ID',
   value: 'rowid',
 };
 
@@ -302,7 +302,7 @@ export default class ConfigControl extends Component {
         if (controlItem.type === 29 && controlItem.enumDefault === 1) {
           controlMapping.map(item => {
             if (item.ControlId === controlItem.controlId && item.sourceConfig.worksheetId) {
-              const relationControls = relateSource[item.sourceConfig.worksheetId].controls || [];
+              const relationControls = (relateSource[item.sourceConfig.worksheetId] || {}).controls || [];
               relatedName = _.findIndex(relationControls, rel => rel.value === item.sourceConfig.controlId) === -1;
             }
           });
@@ -432,15 +432,8 @@ export default class ConfigControl extends Component {
         </div>
       ),
       onOk: () => {
-        const {
-          edited,
-          workSheetProjectId,
-          worksheetControls,
-          controlMapping,
-          repeatConfig,
-          tigger,
-          repeatRecord,
-        } = this.state;
+        const { edited, workSheetProjectId, worksheetControls, controlMapping, repeatConfig, tigger, repeatRecord } =
+          this.state;
         const configsFilter = [];
         worksheetControls.map(controlItem => {
           //新增选项、关联记录匹配字段
@@ -602,29 +595,26 @@ export default class ConfigControl extends Component {
       <div className="flexRow relateBox">
         <div className="Gray_9e">{_l('关联表：')}</div>
         <div className="mLeft5 mRight10 flex ellipsis">{relateSource[worksheetId].name}</div>
-        {isHiddenConfig ? null : (
-          <Fragment>
-            <Tooltip text={<span>{_l('支持以下字段类型：文本框、电话号码、邮件地址、证件、文本拼接、自动编号')}</span>}>
-              <i className="icon-workflow_help Gray_9e Font16" />
-            </Tooltip>
-            <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
-            <Dropdown
-              menuStyle={{ width: 180 }}
-              data={relateSource[worksheetId].controls}
-              value={currentItem}
-              isAppendToBody
-              onChange={controlId => {
-                const newControlMapping = controlMapping.concat();
-                newControlMapping.forEach(item => {
-                  if (item.ControlId === controlItem.controlId) {
-                    item.sourceConfig.controlId = controlId;
-                  }
-                });
-                this.setState({ controlMapping: newControlMapping });
-              }}
-            />
-          </Fragment>
-        )}
+        <Tooltip text={<span>{_l('支持以下字段类型：文本框、电话号码、邮件地址、证件、文本拼接、自动编号')}</span>}>
+          <i className="icon-workflow_help Gray_9e Font16" />
+        </Tooltip>
+        <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
+        <Dropdown
+          disabled={isHiddenConfig}
+          menuStyle={{ width: 180 }}
+          data={relateSource[worksheetId].controls}
+          value={currentItem}
+          isAppendToBody
+          onChange={controlId => {
+            const newControlMapping = controlMapping.concat();
+            newControlMapping.forEach(item => {
+              if (item.ControlId === controlItem.controlId) {
+                item.sourceConfig.controlId = controlId;
+              }
+            });
+            this.setState({ controlMapping: newControlMapping });
+          }}
+        />
       </div>
     );
   }

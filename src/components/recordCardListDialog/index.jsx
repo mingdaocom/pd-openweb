@@ -12,8 +12,30 @@ import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordCard from 'src/components/recordCard';
 import { fieldCanSort } from 'src/pages/worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import Header from './Header';
 import './recordCardListDialog.less';
 
+function getSearchConfig(control) {
+  try {
+    const { searchcontrol, searchtype, clicksearch, searchfilters = '[]' } = control.advancedSetting || {};
+    let searchControl;
+    if (searchcontrol) {
+      searchControl = _.find(control.relationControls, { controlId: searchcontrol });
+    }
+    if (!searchControl) {
+      searchControl = _.find(control.relationControls, { attribute: 1 });
+    }
+    return {
+      searchControl,
+      searchType: Number(searchtype),
+      clickSearch: clicksearch === '1',
+      searchFilters: safeParse(searchfilters, 'array'),
+    };
+  } catch (err) {
+    console.error(err);
+    return {};
+  }
+}
 export default class RecordCardListDialog extends Component {
   static propTypes = {
     from: PropTypes.number, // 来源
@@ -61,7 +83,7 @@ export default class RecordCardListDialog extends Component {
       showNewRecord: false,
       selectAll: false,
     };
-    this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
+    this.debounceLoadRecord = _.debounce(this.loadRecord, 500);
   }
   componentDidMount() {
     const { control } = this.props;
@@ -74,14 +96,14 @@ export default class RecordCardListDialog extends Component {
               allowAdd: data.allowAdd,
               worksheetInfo: data,
             },
-            this.loadRecorcd,
+            this.loadRecord,
           );
         });
     } else {
-      this.loadRecorcd();
+      this.loadRecord();
     }
   }
-  loadRecorcd() {
+  loadRecord() {
     const {
       from,
       viewId,
@@ -94,7 +116,15 @@ export default class RecordCardListDialog extends Component {
       formData,
       multiple,
     } = this.props;
-    const { pageIndex, keyWords, list, sortControls, worksheetInfo } = this.state;
+    const {
+      pageIndex,
+      keyWords,
+      list,
+      sortControls,
+      quickFilters = [],
+      filterForControlSearch,
+      worksheetInfo,
+    } = this.state;
     let getFilterRowsPromise, args;
     const pageSize = 20;
     let filterControls;
@@ -119,15 +149,27 @@ export default class RecordCardListDialog extends Component {
       pageSize,
       pageIndex,
       status: 1,
-      keyWords,
+      keyWords: _.trim(keyWords),
       isGetWorksheet: true,
       getType: 7,
       sortControls,
-      filterControls,
+      filterControls: filterControls || [],
+      fastFilters: quickFilters.map(f =>
+        _.pick(
+          {
+            ...f,
+            values: f.dataType === 29 ? f.values.map(v => v.rowid) : f.values,
+          },
+          ['controlId', 'dataType', 'spliceType', 'filterType', 'dateRange', 'value', 'values', 'minValue', 'maxValue'],
+        ),
+      ),
     };
+    if (filterForControlSearch) {
+      args.filterControls = args.filterControls.concat(filterForControlSearch);
+    }
     if (!window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
-      if (parentWorksheetId && recordId && controlId && multiple) {
+      if (parentWorksheetId && controlId) {
         args.relationWorksheetId = parentWorksheetId;
         args.rowId = recordId;
         args.controlId = controlId;
@@ -163,7 +205,7 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         selectAll: false,
       },
-      this.loadRecorcd,
+      this.loadRecord,
     );
   }
   @autobind
@@ -175,7 +217,19 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
       },
-      this.lazyLoadRecorcd,
+      this.debounceLoadRecord,
+    );
+  }
+  @autobind
+  handleFilter(filters) {
+    this.setState(
+      {
+        quickFilters: filters,
+        pageIndex: 1,
+        loading: true,
+        list: [],
+      },
+      this.debounceLoadRecord,
     );
   }
   @autobind
@@ -229,7 +283,7 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
       },
-      this.loadRecorcd,
+      this.loadRecord,
     );
   }
   canSort(control) {
@@ -293,8 +347,13 @@ export default class RecordCardListDialog extends Component {
       worksheet,
       showNewRecord,
       allowAdd,
+      quickFilters = [],
+      filterForControlSearch,
     } = this.state;
     const { cardControls } = this;
+    const searchConfig = control ? getSearchConfig(control) : {};
+    const { clickSearch, searchControl } = searchConfig;
+    const showList = !control || !(clickSearch && !keyWords);
     return (
       <Dialog
         className="recordCardListDialog"
@@ -309,97 +368,95 @@ export default class RecordCardListDialog extends Component {
           style={{ height: window.innerHeight > 1000 ? 1000 - 138 : window.innerHeight - 138 }}
         >
           {!error && (
-            <div className="searchRecord flexRow mBottom10">
-              <i className="icon icon-search Gray_9e"></i>
-              <Input
-                className="searchInput flex"
-                placeholder={_l('搜索%0', worksheet.entityName || '')}
-                value={keyWords}
-                onChange={this.handleSearch}
-              />
-              {keyWords && (
-                <i
-                  className="icon icon-workflow_cancel clearSearch"
-                  onClick={() => {
-                    this.handleSearch('');
-                  }}
-                ></i>
-              )}
-            </div>
+            <Header
+              entityName={worksheet.entityName}
+              control={control}
+              searchConfig={searchConfig}
+              controls={controls}
+              quickFilters={quickFilters}
+              onSearch={this.handleSearch}
+              onFilter={this.handleFilter}
+            />
           )}
-          <div className="recordCardListHeader flexRow">
-            {cardControls.slice(0, 7).map((control, i) => {
-              const canSort = this.canSort(control);
-              const isAsc = this.getControlSortStatus(control);
-              return (
-                <div
-                  className={cx('controlName flex Hand', { title: control.attribute })}
-                  key={i}
-                  onClick={() => {
-                    this.handleSort(control, isAsc);
-                  }}
-                >
-                  {control.attribute === 1 ? (
-                    <i className="icon icon-ic_title"></i>
-                  ) : (
-                    <span className="ellipsis Bold Font12 Gray_75 controlNameValue">{control.controlName}</span>
-                  )}
-                  {canSort && (
-                    <span className="orderStatus">
-                      <span className="flexColumn">
-                        <i className={cx('icon icon-arrow-up', { ThemeColor3: isAsc === true })}></i>
-                        <i className={cx('icon icon-arrow-down', { ThemeColor3: isAsc === false })}></i>
-                      </span>
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <ScrollView
-            className="recordCardList flex"
-            onScrollEnd={() => {
-              if (!loading && !loadouted) {
-                this.loadNext();
-              }
-            }}
-          >
-            {list.length
-              ? list.map((record, i) => {
-                  const selected = !!_.find(selectedRecords, r => r.rowid === record.rowid);
+          {showList ? (
+            <React.Fragment>
+              <div className="recordCardListHeader flexRow">
+                {cardControls.slice(0, 7).map((control, i) => {
+                  const canSort = this.canSort(control);
+                  const isAsc = this.getControlSortStatus(control);
                   return (
-                    <RecordCard
+                    <div
+                      className={cx('controlName flex Hand', { title: control.attribute })}
                       key={i}
-                      from={2}
-                      coverCid={coverCid || (control && control.coverCid)}
-                      showControls={cardControls.map(c => c.controlId)}
-                      controls={controls}
-                      data={record}
-                      selected={selected}
-                      onClick={() => this.handleSelect(record, !selected)}
-                    />
-                  );
-                })
-              : !loading && (
-                  <div className="empty">
-                    <div className="emptyIcon">
-                      <i className="icon Icon icon-ic-line Font56" />
-                      {error ? (
-                        <p className="emptyTip">
-                          {error === 'notCorrectCondition'
-                            ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
-                            : _l('没有权限')}
-                        </p>
+                      onClick={() => {
+                        this.handleSort(control, isAsc);
+                      }}
+                    >
+                      {control.attribute === 1 ? (
+                        <i className="icon icon-ic_title"></i>
                       ) : (
-                        <p className="emptyTip">
-                          {keyWords ? _l('无匹配的结果') : _l('暂无%0', worksheet.entityName || _l('记录'))}
-                        </p>
+                        <span className="ellipsis Bold Font12 Gray_75 controlNameValue">{control.controlName}</span>
+                      )}
+                      {canSort && (
+                        <span className="orderStatus">
+                          <span className="flexColumn">
+                            <i className={cx('icon icon-arrow-up', { ThemeColor3: isAsc === true })}></i>
+                            <i className={cx('icon icon-arrow-down', { ThemeColor3: isAsc === false })}></i>
+                          </span>
+                        </span>
                       )}
                     </div>
-                  </div>
-                )}
-            {loading && <LoadDiv />}
-          </ScrollView>
+                  );
+                })}
+              </div>
+              <ScrollView
+                className="recordCardList flex"
+                onScrollEnd={() => {
+                  if (!loading && !loadouted) {
+                    this.loadNext();
+                  }
+                }}
+              >
+                {list.length
+                  ? list.map((record, i) => {
+                      const selected = !!_.find(selectedRecords, r => r.rowid === record.rowid);
+                      return (
+                        <RecordCard
+                          key={i}
+                          from={2}
+                          coverCid={coverCid || (control && control.coverCid)}
+                          showControls={cardControls.map(c => c.controlId)}
+                          controls={controls}
+                          data={record}
+                          selected={selected}
+                          onClick={() => this.handleSelect(record, !selected)}
+                        />
+                      );
+                    })
+                  : !loading && (
+                      <div className="empty">
+                        <div className="emptyIcon">
+                          <i className="icon Icon icon-ic-line Font56" />
+                          {error ? (
+                            <p className="emptyTip">
+                              {error === 'notCorrectCondition'
+                                ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
+                                : _l('没有权限')}
+                            </p>
+                          ) : (
+                            <p className="emptyTip">
+                              {keyWords ? _l('无匹配的结果') : _l('暂无%0', worksheet.entityName || _l('记录'))}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                {loading && <LoadDiv />}
+              </ScrollView>
+            </React.Fragment>
+          ) : (
+            <div className="flex clickSearchTip">{_l('输入%0进行查询', searchControl.controlName)}</div>
+          )}
           {(!error || error === 'notCorrectCondition') && (multiple || allowNewRecord) && (
             <div className="recordCardListFooter">
               {allowNewRecord && allowAdd && (
@@ -438,7 +495,7 @@ export default class RecordCardListDialog extends Component {
                   }}
                 />
               )}
-              {canSelectAll && (
+              {showList && canSelectAll && (
                 <Checkbox
                   className="InlineBlock mTop8"
                   text={_l('全选')}

@@ -15,13 +15,7 @@ var project = projects && projects.length ? projects[0] : {};
 
 var DEFAULTS = {
   selectedDeptSetting: null,
-  defaultAvatar: utils.convertImageView(
-    `${md.global.FileStoreConfig.pictureHost}GroupAvatar/default.png`,
-    1,
-    100,
-    100,
-    100,
-  ),
+  defaultAvatar: `${md.global.FileStoreConfig.pictureHost}GroupAvatar/default.png?imageView2/1/w/100/h/100/q/90`,
   settings: {
     projectId: project.projectId || '',
     createGroupInProject: false,
@@ -200,7 +194,6 @@ CreateGroup.bindHeadAvatar = function () {
       groupController.getGroupAvatarSelectList().then(function (result) {
         var tpl = require('../settingGroup/tpl/groupHead.html');
         srcBasePath = result.basePath;
-        result.convertImageView = utils.convertImageView;
         $groupSelect = $(doT.template(tpl)(result));
         updateCallback($groupSelect);
         $avatar.poshytip('show');
@@ -219,7 +212,7 @@ CreateGroup.bindHeadAvatar = function () {
       var $this = $(this);
       var avatar = $this.data('name');
       if (avatar) {
-        $avatar.attr('src', utils.convertImageView(srcBasePath + avatar, 1, 100, 100, 100));
+        $avatar.attr('src', `${srcBasePath + avatar}?imageView2/1/w/100/h/100/q/90`);
         CreateGroup.options.avatar = avatar;
       }
     });
@@ -240,6 +233,7 @@ CreateGroup.bindHeadAvatar = function () {
         onlyFolder: true,
         onlyOne: true,
         styleType: '0',
+        tokenType: 2,
         checkProjectLimitFileSizeUrl: '',
         filesAdded: function () {
           $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
@@ -253,7 +247,7 @@ CreateGroup.bindHeadAvatar = function () {
             var avatar = attachment.fileName + attachment.fileExt;
             CreateGroup.options.avatar = avatar;
 
-            $avatar.attr('src', utils.convertImageView(srcBasePath + avatar, 1, 100, 100, 100));
+            $avatar.attr('src', `${srcBasePath + avatar}?imageView2/1/w/100/h/100/q/90`);
           }
         },
       });

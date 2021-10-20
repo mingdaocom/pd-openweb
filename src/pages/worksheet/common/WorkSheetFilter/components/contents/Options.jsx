@@ -176,13 +176,16 @@ export default class Options extends Component {
               isIncludeRoot: false,
               showCurrentUserDept: true,
               selectFn: data => {
+                if (!data.length) {
+                  return;
+                }
                 if (_.find(seletedOptions, option => option.id === data[0].departmentId)) {
                   alert(_l('该部门已存在'), 3);
                   return;
                 }
                 this.addItem({
-                  id: data[0].departmentId,
-                  name: data[0].departmentName,
+                  id: (data[0] || {}).departmentId,
+                  name: (data[0] || {}).departmentName,
                 });
               },
             });

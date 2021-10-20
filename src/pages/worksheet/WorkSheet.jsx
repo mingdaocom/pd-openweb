@@ -142,7 +142,7 @@ class WorkSheet extends Component {
     this.pending = true;
     const enumType = type === 'worksheet' ? 0 : 1;
 
-    const iconUrl = `https://filepub.mingdao.com/customIcon/${type === 'customPage' ? 'hr_workbench' : '1_0_home'}.svg`;
+    const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${type === 'customPage' ? 'hr_workbench' : '1_0_home'}.svg`;
 
     addWorkSheet(
       {
@@ -194,7 +194,7 @@ class WorkSheet extends Component {
     const { visible, sheetList, pageId, match } = this.props;
     const { appId, groupId } = match.params;
     const id = this.getValidedWorksheetId();
-    const currentSheet = _.find(sheetList, { workSheetId: id }) || _.object();
+    const currentSheet = _.find(sheetList, { workSheetId: id }) || {};
     return (
       <div className="worksheet flexRow">
         <WorkSheetLeft appId={appId} groupId={groupId} id={id} onCreateItem={this.handleCreateItem} />

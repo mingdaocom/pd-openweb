@@ -82,6 +82,7 @@ export default function RowHead(props) {
     saveSheetLayout,
     resetSehetLayout,
     setHighLight = () => {},
+    refreshWorksheetControls = () => {},
   } = props;
   const [selectAllPanelVisible, setSelectAllPanelVisible] = useState();
   const row = data[rowIndex - 1] || {};
@@ -121,7 +122,10 @@ export default function RowHead(props) {
                 offset: [0, 4],
                 points: ['tl', 'bl'],
               }}
-              onUpdate={rowdata => {
+              onUpdate={(rowdata, row, updatedControls) => {
+                if (_.find(updatedControls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
+                  refreshWorksheetControls();
+                }
                 if (rowdata.isviewdata) {
                   updateRows([row.rowid], _.omit(rowdata, ['allowedit', 'allowdelete']));
                 } else {
@@ -243,4 +247,5 @@ RowHead.propTypes = {
   updateRows: PropTypes.func,
   handleAddSheetRow: PropTypes.func,
   setHighLight: PropTypes.func,
+  refreshWorksheetControls: PropTypes.func,
 };

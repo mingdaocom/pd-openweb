@@ -148,7 +148,7 @@ export default class SelectUserDropDown extends Component {
     onClose();
 
     $(evt.target).dialogSelectUser({
-      title: _l('选择填写人'),
+      title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
         filterAccountIds: accounts.map(item => item.roleId),

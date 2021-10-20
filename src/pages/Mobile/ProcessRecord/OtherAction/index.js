@@ -4,6 +4,7 @@ import { List, Flex, Modal, TextareaItem } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
 import Signature from 'src/components/newCustomFields/widgets/Signature';
+import './index.less';
 
 export default class extends Component {
   constructor(props) {
@@ -20,10 +21,15 @@ export default class extends Component {
   handleAction = () => {
     const { action, selectedUser, instance } = this.props;
     const { content, backFlowNode, signature } = this.state;
-    const { signatureType } = (instance || {}).flowNode || {};
+    const { auth } = (instance || {}).flowNode || {};
 
-    if (signatureType === 1 && action === 'pass' && !signature) {
-      alert(_l('签名不能为空', 2));
+    const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
+    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
+    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+
+    if (((passContent || overruleContent) && !content.trim()) || ((passSignature || overruleSignature) && !signature)) {
+      alert(_l('请填写完整内容', 2));
       return;
     }
 
@@ -85,7 +91,10 @@ export default class extends Component {
     const { backFlowNodes, backFlowNode, signature } = this.state;
     const { action, selectedUser, instance } = this.props;
     const currentAction = ACTION_TO_TEXT[action];
-    const { isCallBack, signatureType } = (instance || {}).flowNode || {};
+    const { isCallBack, auth } = (instance || {}).flowNode || {};
+    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+
     if (isCallBack && action === 'overrule') {
       return (
         <List>
@@ -139,7 +148,7 @@ export default class extends Component {
         </List>
       );
     }
-    if (signatureType === 1 && action === 'pass') {
+    if (passSignature || overruleSignature) {
       return (
         <Flex className="am-textarea-item">
           <Signature value={signature} onChange={signature => this.setState({ signature })} />

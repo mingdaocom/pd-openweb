@@ -21,54 +21,6 @@ export const QiniuUpload = {
   },
 };
 
-export const getUploadToken2 = ({ isPublic, bucket }) => {
-  return new Promise((resolve, reject) => {
-    let qiniuFetch, args;
-    if (isPublic) {
-      qiniuFetch = qiniuCtrl.getFileUploadToken;
-    } else {
-      qiniuFetch = qiniuCtrl.getUploadToken;
-    }
-    args = { bucket };
-    qiniuFetch(args)
-    .then(result => {
-      if (result && result.uptoken) {
-        resolve(result.uptoken);
-      }
-    });
-  });
-};
-
-const request = {
-  doc({ isPublic }) {
-    return QiniuUpload.Tokens.upDocToken ? Promise.resolve(QiniuUpload.Tokens.upDocToken) : getUploadToken2({ isPublic, bucket: 3 }).then();
-  },
-  pic({ isPublic }) {
-    return QiniuUpload.Tokens.upPicToken ? Promise.resolve(QiniuUpload.Tokens.upPicToken) : getUploadToken2({ isPublic, bucket: 4 }).then();
-  },
-};
-
-export const getToken2 = ({ isPublic }) => {
-  if (!md.global.Account.accountId) {
-    isPublic = true;
-  }
-  const requestList = [request.doc({ isPublic }), request.pic({ isPublic })];
-  return Promise.all(requestList).then(result => {
-    QiniuUpload.Tokens.upDocToken = result[0];
-    QiniuUpload.Tokens.upPicToken = result[1];
-    return Promise.resolve({
-      doc: {
-        token: QiniuUpload.Tokens.upDocToken,
-        serverName: md.global.FileStoreConfig.documentHost,
-      },
-      pic: {
-        token: QiniuUpload.Tokens.upPicToken,
-        serverName: md.global.FileStoreConfig.pictureHost,
-      },
-    });
-  });
-};
-
 export const getRandStr = length => {
   let randStrArr = [
     'A',
@@ -150,8 +102,10 @@ export const getHashCode = str => {
 
 export const isValid = files => {
   let count = 0;
+  let canSvg = !window.isPublicWorksheet;
   for (let i = 0, length = files.length; i < length; i++) {
-    if (File.isValid('.' + File.GetExt(files[i].name))) count++;
+    if (File.isValid('.' + File.GetExt(files[i].name)))
+      count++;
   }
   return count !== files.length;
 };
@@ -236,6 +190,7 @@ export const formatResponseData = (file, response) => {
   item.fileExt = data.fileExt;
   item.originalFileName = data.originalFileName;
   item.key = data.key;
+  item.url = file.url;
   item.oldOriginalFileName = item.originalFileName;
   if (!File.isPicture(item.fileExt)) {
     item.allowDown = true;
@@ -321,12 +276,12 @@ const VERSION_STORAGE = {
 };
 
 export const openNetStateDialog = projectId => {
-  const {version = {}, licenseType} = _.find(md.global.Account.projects, item => item.projectId === projectId) || {}
+  const { version = {}, licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
-  const displayObj = (key) => {
-    const data = key === 'version' ? VERSION : VERSION_STORAGE
-    return licenseType === 1 ? data[licenseType][version.versionId] : data[licenseType]
-  }
+  const displayObj = key => {
+    const data = key === 'version' ? VERSION : VERSION_STORAGE;
+    return licenseType === 1 ? data[licenseType][version.versionId] : data[licenseType];
+  };
   Dialog.confirm({
     className: 'upgradeVersionDialogBtn',
     title: '',
@@ -341,11 +296,11 @@ export const openNetStateDialog = projectId => {
     okText: licenseType ? _l('购买上传量扩展包') : _l('立即购买'),
     onOk: () =>
       licenseType
-      ? navigateTo(`/admin/expansionservice/${projectId}/storage`)
-      : navigateTo(`/upgrade/choose?projectId=${projectId}`),
+        ? navigateTo(`/admin/expansionservice/${projectId}/storage`)
+        : navigateTo(`/upgrade/choose?projectId=${projectId}`),
     removeCancelBtn: true,
   });
-}
+};
 
 export const openMdDialog = () => {
   require(['mdDialog'], function (mdDialog) {

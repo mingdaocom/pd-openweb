@@ -6,12 +6,12 @@ import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import previewAttachments from 'previewAttachments';
 import * as SignaturePad from 'signature_pad/dist/signature_pad';
-import qiniuAjax from 'src/api/qiniu';
 import axios from 'axios';
 import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getToken } from 'src/util';
+import { Base64 } from 'js-base64';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -116,7 +116,7 @@ export default class Signature extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.onlySignature && !prevProps.visible && this.props.visible) {
-      setTimeout(this.initCanvas, 0);
+      setTimeout(this.initCanvas, 100);
     }
   }
 
@@ -146,7 +146,7 @@ export default class Signature extends Component {
   showPopup = visible => {
     this.getPopupDirection();
     if (visible) {
-      setTimeout(this.initCanvas, 0);
+      setTimeout(this.initCanvas, 100);
     }
   };
 
@@ -159,41 +159,33 @@ export default class Signature extends Component {
 
   initCanvas = () => {
     const canvas = document.getElementById('signatureCanvas');
+
+    if (!canvas) return;
+
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
     this.signaturePad = new SignaturePad.default(canvas, {
-      dotSize: '1px',
       onBegin: () => {
         this.setState({ isEdit: true });
       },
     });
   };
 
-  saveSignature = () => {
-    let qiniuFetch;
+  saveSignature = event => {
+    event.stopPropagation();
     const data = this.signaturePad.toDataURL('image/png');
     this.setState({ popupVisible: false, signature: data });
-    if (_.isEmpty(md.global.Account)) {
-      qiniuFetch = qiniuAjax.getFileUploadToken;
-    } else {
-      qiniuFetch = qiniuAjax.getUploadToken;
-    }
-    qiniuFetch({ bucket: 4 }).then(res => {
+    getToken([{ bucket: 4, ext: '.png' }]).then(res => {
       if (res.error) {
         alert(res.error);
       } else {
-        const key = Base64.encode(
-          `signature/${moment().format('YYMMDD')}/${Math.random()
-            .toString(16)
-            .slice(2)}.png`,
-        );
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${key}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
         axios
           .post(url, data.split(',')[1], {
             headers: {
               'Content-Type': 'application/octet-stream',
-              Authorization: `UpToken ${res.uptoken}`,
+              Authorization: `UpToken ${res[0].uptoken}`,
             },
           })
           .then(({ data }) => {
@@ -272,7 +264,7 @@ export default class Signature extends Component {
           className="addSignature"
           onClick={e => {
             this.setState({ popupVisible: true });
-            setTimeout(this.initCanvas, 0);
+            setTimeout(this.initCanvas, 100);
             e.nativeEvent.stopImmediatePropagation();
           }}
         >
@@ -332,7 +324,7 @@ export default class Signature extends Component {
 
   render() {
     const { disabled, onlySignature } = this.props;
-    const value = /(\.jpeg|\.png|\.jpg)$/.test(this.props.value) ? this.props.value : '';
+    const value = /(\.jpeg|\.png|\.jpg)$/.test((this.props.value || '').replace(/\?.*/g, '')) ? this.props.value : '';
     const { signature } = this.state;
 
     // 只读
@@ -353,7 +345,7 @@ export default class Signature extends Component {
         {signature || value ? (
           <SignatureWrap
             onClick={e => {
-              value && this.preview();
+              value && this.preview(e);
               e.nativeEvent.stopImmediatePropagation();
             }}
             style={{ backgroundImage: `url(${signature || value})` }}

@@ -324,7 +324,7 @@ class ProcessConfig extends Component {
         <div className="bold Font16 mTop20">{_l('工作流撤回')}</div>
         <div className="mTop15">
           <Checkbox
-            className="InlineBlock"
+            className="InlineFlex"
             text={_l('允许触发者撤回')}
             checked={data.allowRevoke}
             disabled={!isSheetOrButton}
@@ -357,7 +357,7 @@ class ProcessConfig extends Component {
                   <div className="mTop10" key={o.key}>
                     <Checkbox
                       {...o}
-                      className="InlineBlock"
+                      className="InlineFlex"
                       onClick={checked => this.updateSource({ [o.key]: !checked })}
                     />
                   </div>

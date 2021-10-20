@@ -12,10 +12,9 @@ const Midddle = styled.span`
 `;
 
 export default function ShareNewRecord(props) {
-  const { isCharge, appId, viewId, worksheetId, publicWorksheetShareId, onClose } = props;
+  const { isCharge, appId, viewId, worksheetId, publicShareUrl, onClose } = props;
   const [visibleType, setVisibleType] = useState(props.visibleType);
   const newRecordUrl = `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
-  const shareUrl = `${md.global.Config.WebUrl}form/${publicWorksheetShareId}`;
   return (
     <Modal visible width={560} footer={null} title={_l('新建记录链接')} className="newRecordLink" onCancel={onClose}>
       <div className="Font15">{_l('内部成员访问')}</div>
@@ -53,10 +52,10 @@ export default function ShareNewRecord(props) {
                     tip: _l('直接打开'),
                     iconStyle: { fontSize: 15 },
                     icon: 'task-new-detail',
-                    onClick: () => window.open(shareUrl),
+                    onClick: () => window.open(publicShareUrl),
                   },
                 ]}
-                url={shareUrl}
+                url={publicShareUrl}
               />
               <a href={`/worksheet/form/edit/${worksheetId}?#detail`} target="_blank" className="mTop13 InlineBlock">
                 {_l('编辑公开表单')}
@@ -74,7 +73,7 @@ ShareNewRecord.propTypes = {
   viewId: PropTypes.string,
   worksheetId: PropTypes.string,
   isCharge: PropTypes.bool,
-  publicWorksheetShareId: PropTypes.string,
+  publicShareUrl: PropTypes.string,
   visibleType: PropTypes.number,
   onUpdateWorksheetVisibleType: PropTypes.func,
   onClose: PropTypes.func,

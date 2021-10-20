@@ -81,6 +81,9 @@ textarea {
 .cursorText {
   cursor: text;
 }
+.InlineFlex {
+  display: inline-flex !important;
+}
 .InlineBlock {
   display: inline-block !important;
   display: -moz-inline-stack;
@@ -480,6 +483,9 @@ body .Hidden {
 }
 .mTop35 {
   margin-top: 35px !important;
+}
+.mTop36 {
+  margin-top: 36px !important;
 }
 .mTop40 {
   margin-top: 40px !important;
@@ -1015,6 +1021,9 @@ body .Hidden {
 .minHeight160 {
   min-height: 160px !important;
 }
+.minWidth0 {
+  min-width: 0;
+}
 .minWidth60 {
   min-width: 60px !important;
 }
@@ -1038,6 +1047,9 @@ body .Hidden {
 }
 .Width180 {
   width: 180px !important;
+}
+.Width190 {
+  width: 190px !important;
 }
 .Width195 {
   width: 195px !important;

@@ -12,10 +12,10 @@ class Result extends React.Component {
     const list = _.map(result, (department, index) => (
       <div
         dangerouslySetInnerHTML={{ __html: department.departmentName }}
-        key={`${index}_${department.departmentId}`}
+        key={`${index}_${department.id}`}
         className="deptItem"
         onClick={() => {
-          this.props.onDepartmentClick(department.departmentId);
+          this.props.onDepartmentClick(department);
         }}
       ></div>
     ));
@@ -47,7 +47,7 @@ class Result extends React.Component {
               <img src={user.avatar} alt={user.fullname} className="avatar mTop2" />
               <div className="info pLeft40">
                 <span className="name">{user.fullname}</span>
-                <span className="job">{user.jobInfos.map(item => item.jobName).join('、')}</span>
+                <span className="job">{user.jobs.map(item => item.name).join('、')}</span>
               </div>
             </div>
           ))}

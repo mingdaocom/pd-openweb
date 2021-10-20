@@ -16,7 +16,6 @@ var ActionResult = {
   OnlyGroupAdmin: 2,
   ApprovalUserNotExist: 3,
 };
-var { convertImageView } = require('src/util');
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -643,9 +642,7 @@ $.extend(SettingGroup.prototype, {
       content: function (updateCallback) {
         groupController.getGroupAvatarSelectList().then(function (result) {
           var tpl = require('./tpl/groupHead.html');
-          _this.$groupSelect = $(doT.template(tpl)(_.assign(result, {
-            convertImageView: convertImageView
-          })));
+          _this.$groupSelect = $(doT.template(tpl)(result));
           updateCallback(_this.$groupSelect);
           callback();
         });
@@ -686,6 +683,7 @@ $.extend(SettingGroup.prototype, {
         onlyFolder: true,
         onlyOne: true,
         styleType: "0",
+        tokenType: 2,
         checkProjectLimitFileSizeUrl: "",
         filesAdded: function () {
           $upload.html("<i class='uploadTip'>" + tips.uploadingTip + "</i>");

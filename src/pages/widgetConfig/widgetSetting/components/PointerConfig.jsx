@@ -29,7 +29,7 @@ const PointerConfigWrap = styled(SettingItem)`
 `;
 
 export default function PointConfig({ data = {}, onChange }) {
-  const { dot } = data;
+  const { dot = 2 } = data;
 
   const dealValue = value => {
     const parsedValue = parseFloat(value);

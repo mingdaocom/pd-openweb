@@ -1,9 +1,9 @@
 ﻿import React, { Component } from 'react';
 import Avatar from 'react-avatar-edit';
 import { Button } from 'ming-ui';
-import qiniuAjax from 'src/api/qiniu';
 import { Base64 } from 'js-base64';
 import { editAccountAvatar } from 'src/api/account';
+import { getToken } from 'src/util';
 
 export default class AvatarEditor extends Component {
   constructor(props) {
@@ -44,31 +44,29 @@ export default class AvatarEditor extends Component {
 
   onSave = () => {
     const { preview } = this.state;
-    console.log(11)
-    if(!preview) {
-      this.props.closeDialog()
-      return
+    if (!preview) {
+      this.props.closeDialog();
+      return;
     }
-
-    qiniuAjax.getUploadToken({ bucket: 4 }).then(res => {
+    //1= 用户头像
+    getToken([{ bucket: 4, ext: '.png' }], 1).then(res => {
       if (res.error) {
         alert(res.error);
       } else {
-        const key = Base64.encode(`UserAvatar/${this.guid()}.png`);
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${key}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
         const xhr = new XMLHttpRequest();
 
         xhr.onreadystatechange = () => {
           if (xhr.readyState == 4 && JSON.parse(xhr.responseText).key) {
             editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
-              this.props.updateAvator()
-              this.props.closeDialog()
+              this.props.updateAvator();
+              this.props.closeDialog();
             });
           }
         };
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-        xhr.setRequestHeader('Authorization', 'UpToken ' + res.uptoken);
+        xhr.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
         xhr.send(preview.replace('data:image/png;base64,', ''));
       }
     });

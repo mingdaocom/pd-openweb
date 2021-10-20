@@ -7,7 +7,7 @@
  */
 import './css/style.css';
 import RegExp from 'src/util/expression';
-
+import { get } from 'lodash';
 var userController = require('src/api/user');
 var addressBookController = require('src/api/addressBook');
 var SelectUser = function(element, options) {
@@ -532,7 +532,7 @@ $.extend(SelectUser.prototype, {
     var itemHeight = $active.height();
     var listHeight = $listWrapper.height();
     var scrollTop = $listWrapper.scrollTop();
-    var top = $active.position().top;
+    var top = !!$active.length ? $active.position().top : 0;
     if (top < 0) {
       scrollTop += top;
       $listWrapper.scrollTop(scrollTop);

@@ -86,7 +86,7 @@ export default function List(props) {
   // 如果新增控件在可视区外则滚动至可视区内
   const scrollToVisibleRange = data => {
     const $contentWrap = document.getElementById('widgetDisplayWrap');
-    const $activeWidget = document.getElementById(`widget-${activeWidget.controlId}`);
+    const $activeWidget = document.getElementById(`widget-${(activeWidget || {}).controlId}`);
     if (!$contentWrap || !$activeWidget) return;
     const rect = $activeWidget.getBoundingClientRect();
     // 如果在可视区外

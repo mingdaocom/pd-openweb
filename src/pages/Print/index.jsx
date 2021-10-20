@@ -26,7 +26,8 @@ class PrintForm extends React.Component {
         workflow: [], // 工作流的信息
         systemControl: [],
         name: params.name,
-        showData: false, // 空值是否隐藏
+        showData: false, // 空值是否隐藏 默认隐藏
+        printOption: false, //选择平铺 //打印未选中的项
       },
       isChange: false, // 当前模板是否修改
       appId,
@@ -335,6 +336,7 @@ class PrintForm extends React.Component {
             'updateTimeChecked',
             'ownerAccountChecked',
             'showData', // 空值是否隐藏
+            'printOption',
             'formName',
             'name',
             'font',
@@ -575,6 +577,7 @@ class PrintForm extends React.Component {
                   );
                 }}
                 worksheetId={worksheetId}
+                handChange={this.handChange}
               />
             )}
           </div>

@@ -12,10 +12,14 @@ export default function SelectControl({
   searchValue,
   onSearchChange,
   onClick,
-  onClickAway,
+  onClickAway = _.noop,
 }) {
   const ref = useRef(null);
+  const inputEl = useRef(null);
   useClickAway(ref, onClickAway);
+  useEffect(() => {
+    inputEl && inputEl.current && inputEl.current.focus();
+  }, []);
   return (
     <SelectFieldsWrap ref={ref} className={className}>
       {searchable && (
@@ -23,9 +27,11 @@ export default function SelectControl({
           <i className="icon-search Gray_9e" />
           <input
             autoFocus
+            ref={inputEl}
             value={searchValue}
             onChange={e => onSearchChange && onSearchChange(e.target.value)}
-            placeholder={_l('搜索字段')}></input>
+            placeholder={_l('搜索字段')}
+          ></input>
         </div>
       )}
       {isEmpty(list) ? (
@@ -37,7 +43,8 @@ export default function SelectControl({
               <li
                 onClick={() => {
                   onClick(item);
-                }}>
+                }}
+              >
                 <i className={`icon-${getIconByType(item.type)}`}></i>
                 {item.controlName}
               </li>

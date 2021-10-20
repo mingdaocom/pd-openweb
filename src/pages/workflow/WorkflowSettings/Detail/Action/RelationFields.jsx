@@ -41,6 +41,7 @@ export default class RelationFields extends Component {
       return {
         text: this.renderRelationTitle(item),
         value: item.controlId,
+        searchText: item.controlName,
         disabled: !!_.find(data.fields, o => o.fieldId === item.controlId),
       };
     });
@@ -51,6 +52,7 @@ export default class RelationFields extends Component {
         maxHeight={280}
         data={list}
         value={data.fields.length || undefined}
+        openSearch
         renderTitle={() =>
           !!data.fields.length &&
           !!data.controls.length &&

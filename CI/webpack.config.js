@@ -51,7 +51,7 @@ module.exports = {
       prettyPrint: true,
     }),
     new InjectPlugin(function () {
-      return '__webpack_public_path__ = window.__webpack_public_path__;';
+      return `__webpack_public_path__ = window.__webpack_public_path__;`;
     }),
   ].concat(
     isProduction
@@ -204,11 +204,12 @@ module.exports = {
   },
   externals: config.externals,
   resolve: config.resolve,
-  devtool: isProduction ? undefined : 'eval',
+  devtool: isProduction ? 'source-map' : 'eval',
   mode: isProduction ? 'production' : 'development',
   output: {
     filename: isProduction ? '[name].[chunkhash].entry.js' : '[name].dev.js',
     chunkFilename: isProduction ? '[name].[chunkhash].chunk.js' : '[name].dev.js',
     path: path.join(__dirname, '../build/dist/pack'),
+    sourceMapFilename: '[name].js.map',
   },
 };

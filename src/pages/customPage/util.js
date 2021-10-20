@@ -34,7 +34,7 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
 
 // export const formatComponents = components => components.map(item => ({ ...item, layout: JSON.parse(item.layout || '{}') }));
 
-const reportCount = (components = []) => components.filter(item => item.type === 1).length;
+export const reportCount = (components = []) => components.filter(item => item.type === 1 || item.type === 'analysis').length;
 
 export const reportCountLimit = components => {
   if (reportCount(components) >= MAX_REPORT_COUNT) {

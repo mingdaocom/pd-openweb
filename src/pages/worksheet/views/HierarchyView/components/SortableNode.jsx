@@ -51,7 +51,7 @@ export default class SortableRecordItem extends Component {
     if ($ele && pid) {
       const getParent = this.getNode(stateTree, path.slice(0, -1));
       if (!getParent || _.isEmpty(getParent)) return {};
-      const childrenCount = _.get(getParent, 'children').length;
+      const childrenCount = (_.get(getParent, 'children') || {}).length;
       if (!childrenCount) return {};
       const $parent = document.getElementById(`${getParent.pathId.join('-')}`);
       if ($parent === $ele) return {};
@@ -79,9 +79,7 @@ export default class SortableRecordItem extends Component {
     if (isEmpty(position)) return;
 
     const { height = 0, top = 0, start = [], end = [], controlPointX } = position;
-    $($svgWrap)
-      .height(height)
-      .css({ top: -top });
+    $($svgWrap).height(height).css({ top: -top });
 
     // 获取控制点
     const controlPoint = [controlPointX, end[1]];
@@ -90,10 +88,7 @@ export default class SortableRecordItem extends Component {
     }
     const draw = SVG(`svg-${pathId.join('-')}`).size('100%', '100%');
     const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
-    draw
-      .path(linePath)
-      .stroke({ width: 2, color: '#d3d3d3' })
-      .fill('none');
+    draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
   };
   handleRecordVisible = rowId => {
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
@@ -109,7 +104,8 @@ export default class SortableRecordItem extends Component {
         return { worksheetId, viewId };
       }
       // 获取关联控件配置的viewId
-      const { worksheetId: relateSheetId } = viewControls[configIndex - 1];
+      const { worksheetId: relateSheetId } =
+        viewControls && viewControls.length && configIndex > 0 ? viewControls[configIndex - 1] || {} : {};
       const currentControls = configIndex > 1 ? hierarchyRelateSheetControls[relateSheetId] : controls;
       const configViewId = _.get(
         _.find(currentControls, item => item.controlId === controlId),
@@ -120,7 +116,8 @@ export default class SortableRecordItem extends Component {
     return { worksheetId, viewId };
   };
   render() {
-    const { appId, data, updateHierarchyData, deleteHierarchyRecord, sheetSwitchPermit, view } = this.props;
+    const { appId, data, updateHierarchyData, deleteHierarchyRecord, sheetSwitchPermit, view, worksheetInfo } =
+      this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
@@ -130,7 +127,8 @@ export default class SortableRecordItem extends Component {
           className={cx('sortableTreeNodeWrap', { isDragging: draggingId === rowId })}
           id={pathId.join('-')}
           ref={this.$itemWrap}
-          onClick={() => this.handleRecordVisible(rowId)}>
+          onClick={() => this.handleRecordVisible(rowId)}
+        >
           <div id={`svg-${pathId.join('-')}`} className="svgWrap" />
           <DraggableRecord
             {...this.props}
@@ -148,6 +146,7 @@ export default class SortableRecordItem extends Component {
             from={2}
             visible
             recordId={recordInfoRowId}
+            projectId={worksheetInfo.projectId}
             hideRecordInfo={() => {
               this.setState({ recordInfoVisible: false });
             }}

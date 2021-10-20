@@ -288,12 +288,11 @@ export default class Ding extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 Gray_75 Right closeDing">
-              {_l('关闭钉钉集成')}
               <span
                 className="mLeft10 switchBtn tip-bottom-left"
                 data-tip={_l('关闭钉钉集成后，无法再从钉钉处进入应用')}
               >
-                <Switch checked={!!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 1 : 2)} />
+                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
               </span>
             </span>
           )}
@@ -571,6 +570,7 @@ export default class Ding extends React.Component {
                   return (
                     <Radio
                       className='Block mTop20'
+                      disabled={!this.state.intergrationTodoMessageEnabled}
                       checked={this.state.intergrationClientWorkingPattern === item.key}
                       text={item.label}
                       onClick={e => this.handleChangePattern(item.key)}
@@ -584,7 +584,7 @@ export default class Ding extends React.Component {
                   <Switch checked={this.state.intergrationTodoMessageEnabled} onClick={() => this.switchEnabled()} />
                   <div className="mTop16">
                     <span>
-                      {_l('开启后，我的流程中的待办（待审批、待填写）会进入钉钉待办任务，处理状态会同步更新')}
+                      {_l('开启后，我的流程中的待办（待审批、待填写）同时会进入钉钉待办任务，处理状态会同步更新')}
                     </span>
                     <span className="Block Gray">
                       <span className="Bold">{_l('注意：')}</span>

@@ -10,11 +10,11 @@ import { getNewControlColRow } from '../utils';
 
 function changeKeyToServer(value) {
   if (!_.isUndefined(value.coverUrl)) {
-    value.cover = value.coverUrl;
+    value.cover = value.coverUrl.split('?')[0];
     delete value.coverUrl;
   }
   if (!_.isUndefined(value.logoUrl)) {
-    value.logo = value.logoUrl;
+    value.logo = value.logoUrl.split('?')[0];
     delete value.logoUrl;
   }
   if (!_.isUndefined(value.themeIndex)) {
@@ -78,7 +78,7 @@ export function refreshShareUrl() {
     } = getState();
     refreshPublicWorksheetUrl({ worksheetId }).then(data => {
       alert(_l('刷新成功'));
-      dispatch({ type: 'PUBLICWORKSHEET_UPDATE_URL', shareId: data.shareId });
+      dispatch({ type: 'PUBLICWORKSHEET_UPDATE_URL', url: data.url });
     });
   };
 }
@@ -123,6 +123,7 @@ export function loadPublicWorksheet({ worksheetId }) {
               !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
           ),
           shareId: data.shareId,
+          url: data.url,
           worksheetInfo: {
             themeIndex: data.themeColor,
             logoUrl: data.logo,
@@ -167,16 +168,18 @@ export const updateWorksheetInfo = value => (dispatch, getState) => {
   updateBaseConfig(dispatch, getState, value);
 };
 
-export const updateWorksheetVisibleType = (value, cb = () => {}) => (dispatch, getState) => {
-  updateBaseConfig(dispatch, getState, { visibleType: value }, worksheetId => {
-    cb();
-    if (value === 1) {
-      dispatch({ type: 'PUBLICWORKSHEET_UPDATE_INFO', value: { visibleType: value } });
-    } else {
-      dispatch(loadPublicWorksheet({ worksheetId }));
-    }
-  });
-};
+export const updateWorksheetVisibleType =
+  (value, cb = () => {}) =>
+  (dispatch, getState) => {
+    updateBaseConfig(dispatch, getState, { visibleType: value }, worksheetId => {
+      cb();
+      if (value === 1) {
+        dispatch({ type: 'PUBLICWORKSHEET_UPDATE_INFO', value: { visibleType: value } });
+      } else {
+        dispatch(loadPublicWorksheet({ worksheetId }));
+      }
+    });
+  };
 
 export const hideControl = controlId => (dispatch, getState) => {
   const {

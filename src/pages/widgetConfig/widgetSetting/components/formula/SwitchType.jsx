@@ -32,8 +32,8 @@ export default function SwitchType({ data, onChange }) {
     } else {
       onChange(
         handleAdvancedSettingChange(
-          { ...nextData, enumDefault: 1, enumDefault2: 0, unit: '3', strDefault: '0' },
-          { suffix: _l('天'), prefix: '' },
+          { ...nextData, enumDefault: 1, enumDefault2: 0, unit: '3', strDefault: '0', dot: 0 },
+          { suffix: _l('天'), prefix: '', dot: 0 },
         ),
       );
       // changeFormulaEditStatus(false);

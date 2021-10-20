@@ -8,6 +8,7 @@ const formatChartData = data => {
     .map(item => {
       return {
         name: item.x,
+        originalName: item.originalX,
         value: Math.abs(item.v),
         originalValue: item.v,
       };
@@ -67,16 +68,22 @@ export default class extends Component {
 
     this.setCount(newYaxisList);
 
+    const findName = (value) => {
+      const item = _.find(data, { originalName: value });
+      return item ? item.name : value;
+    }
+
     const baseConfig = {
       data,
       appendPadding: [10, 0, 10, 0],
       radius: 0.7,
       innerRadius: isAnnular ? 0.6 : 0,
       angleField: 'value',
-      colorField: 'name',
+      colorField: 'originalName',
       meta: {
-        name: {
+        originalName: {
           type: 'cat',
+          formatter: findName
         },
       },
       color: isOptionsColor ? getAlienationColor.bind(this, xaxes) : colors,
@@ -95,7 +102,7 @@ export default class extends Component {
                 fontSize: 14,
                 fontWeight: 300,
               },
-              formatter: datum => (datum ? datum.name : formatSummaryName(summary)),
+              formatter: datum => (datum ? (datum.name || datum.originalName) : formatSummaryName(summary)),
             },
             content: {
               style: {
@@ -113,7 +120,7 @@ export default class extends Component {
         ? {
             type: 'outer',
             formatter: item => {
-              const dimensionText = displaySetup.showDimension ? `${item.name}` : '';
+              const dimensionText = displaySetup.showDimension ? `${findName(item.originalName)}` : '';
               const numberText = displaySetup.showNumber
                 ? `${displaySetup.showDimension ? ` ` : ''}${formatrChartValue(
                     item.originalValue,
@@ -156,15 +163,17 @@ export default class extends Component {
   render() {
     const { count, originalCount } = this.state;
     const { summary, displaySetup } = this.props.reportData;
+    const showTotal = displaySetup ? displaySetup.showTotal : false;
+    const showChartType = displaySetup ? displaySetup.showChartType : 0;
     return (
       <div className="flex flexColumn chartWrapper">
-        {displaySetup.showTotal && displaySetup.showChartType === 2 ? (
+        {showTotal && showChartType === 2 ? (
           <div className="pBottom10">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

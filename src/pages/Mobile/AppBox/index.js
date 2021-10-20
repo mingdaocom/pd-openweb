@@ -10,7 +10,7 @@ export default class AddBox extends Component {
     this.state = {
       data: [],
       loading: true,
-    };
+    }
   }
   componentDidMount() {
     // this.getlibraryByCategory();
@@ -54,7 +54,7 @@ export default class AddBox extends Component {
     return (
       <div className="appBox h100">
         <div className="content">
-          <AppWarehouse />
+          <AppWarehouse/>
         </div>
         <TabBar action="appBox" />
       </div>

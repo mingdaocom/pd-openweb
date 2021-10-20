@@ -1,12 +1,17 @@
 import { debounce } from 'lodash';
-import { convertImageView, addToken } from 'src/util';
+import { addToken } from 'src/util';
 import qs from 'querystring';
 import kcService from '../api/service';
 import {
-  NODE_TYPE, NODE_VISIBLE_TYPE, NODE_VIEW_TYPE,
-  NODE_OPERATOR_TYPE, ROOT_PERMISSION_TYPE, EXECUTE_RESULT,
+  NODE_TYPE,
+  NODE_VISIBLE_TYPE,
+  NODE_VIEW_TYPE,
+  NODE_OPERATOR_TYPE,
+  ROOT_PERMISSION_TYPE,
+  EXECUTE_RESULT,
   EXECUTE_ERROR_MESSAGE,
-  NODE_STATUS, PICK_TYPE,
+  NODE_STATUS,
+  PICK_TYPE,
 } from '../constant/enum';
 import { confirm, getParentId, getLocationType, getPermission, getParentName, isIE } from './index';
 
@@ -116,11 +121,15 @@ export function handleOpenUploadAssistant(args) {
 
 export function handleAddLinkFile(args) {
   const { isEdit, item, folder, root, performUpdateItem, reloadList } = args;
-  require(['src/components/addLinkFile/addLinkFile'], (addLinkFile) => {
-    const { id, rootId } = _.isEmpty(folder) ? (typeof root === 'object' ? { id: root.id, rootId: root.id } : {}) : folder;
+  require(['src/components/addLinkFile/addLinkFile'], addLinkFile => {
+    const { id, rootId } = _.isEmpty(folder)
+      ? typeof root === 'object'
+        ? { id: root.id, rootId: root.id }
+        : {}
+      : folder;
     const location = { parentId: id, rootId };
     const handle = new addLinkFile({
-      callback: (link) => {
+      callback: link => {
         const { linkName, linkContent } = link;
         const execTypeName = isEdit ? _l('保存') : _l('创建');
         let savePromise;
@@ -140,7 +149,7 @@ export function handleAddLinkFile(args) {
           });
         }
         $.when(savePromise)
-          .then((data) => {
+          .then(data => {
             alert(execTypeName + _l('成功'));
             if (isEdit && typeof data === 'object') {
               performUpdateItem(data);
@@ -172,12 +181,13 @@ export function handleBatchDownload(args) {
   const folderId = folder ? folder.id : undefined;
 
   if (selectAll) {
-    const excludeNodeIds = list.size !== selectedItems.size
-      ? list
-          .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
-          .map(item => item.id)
-          .toArray()
-      : null;
+    const excludeNodeIds =
+      list.size !== selectedItems.size
+        ? list
+            .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
+            .map(item => item.id)
+            .toArray()
+        : null;
     if (!_.isEmpty(folder)) {
       downloadOne(folderId, excludeNodeIds);
     } else {
@@ -194,7 +204,7 @@ export function handleBatchDownload(args) {
 
 /** 弹出分享节点层 */
 export function handleShareNode(item, updateKcNodeItem = () => {}) {
-  import('src/components/shareAttachment/shareAttachment').then((share) => {
+  import('src/components/shareAttachment/shareAttachment').then(share => {
     window.shareDialogObject = share.default(
       {
         attachmentType: 2,
@@ -202,19 +212,23 @@ export function handleShareNode(item, updateKcNodeItem = () => {}) {
         name: item.name,
         ext: item.ext ? '.' + item.ext : '',
         size: item.size,
-        imgSrc: File.isPicture('.' + item.ext) ? convertImageView(item.previewUrl.substr(0, item.previewUrl.indexOf('?')), 2, 490) : undefined,
+        imgSrc: File.isPicture('.' + item.ext)
+          ? item.previewUrl.indexOf('imageView2') > -1
+            ? item.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/490')
+            : `${item.previewUrl}&imageView2/2/w/490`
+          : undefined,
         node: item,
         isKcFolder: item.type === NODE_TYPE.FOLDER,
       },
       {
-        performUpdateItem: (visibleType) => {
+        performUpdateItem: visibleType => {
           if (visibleType) {
             item.visibleType = visibleType;
             item.isOpenShare = visibleType === NODE_VISIBLE_TYPE.PUBLIC;
             updateKcNodeItem(item);
           }
         },
-      }
+      },
     );
   });
 }
@@ -222,7 +236,7 @@ export function handleShareNode(item, updateKcNodeItem = () => {}) {
 function downloadOne(id, excludeIds) {
   const excludeNodeIds = excludeIds && excludeIds.length ? excludeIds.join(',') : '';
   const url = md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ id, excludeNodeIds });
-  window.open(addToken(url));
+  window.open(addToken(url, !window.isDingTalk));
 }
 
 function downloadAll(root, excludeIds) {
@@ -246,19 +260,20 @@ function downloadAll(root, excludeIds) {
         break;
     }
   }
-  const url = md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ rootType, rootId, fileName, excludeNodeIds });
-  window.open(addToken(url));
+  const url =
+    md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ rootType, rootId, fileName, excludeNodeIds });
+  window.open(addToken(url, !window.isDingTalk));
 }
 
 function batchDownload(ids, folderId, fileName) {
   const url = md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ ids, folderId, fileName });
-  window.open(addToken(url));
+  window.open(addToken(url, !window.isDingTalk));
 }
 
 /** 单条下载 */
 export function handleDownloadOne(item, excludeIds) {
   if (item.viewType === NODE_VIEW_TYPE.LINK) {
-    window.open(addToken(item.downloadUrl));
+    window.open(addToken(item.downloadUrl, !window.isDingTalk));
     return;
   }
   if (item && item.id) {
@@ -278,13 +293,24 @@ export function updateNodeName(item) {
     .hide();
 }
 
-
 /**
  * [removeNode 删除、彻底删除通用]
  * @param  {[type]} nodeStatus [删除：NODE_STATUS.RECYCLED  彻底删除：NODE_STATUS.DELETED]
  */
 export function handleRemoveNode(args) {
-  const { list, nodeStatus, selectedItems, selectAll, totalCount, keywords, clearSelect, root, reloadList, folder, performRemoveItems } = args;
+  const {
+    list,
+    nodeStatus,
+    selectedItems,
+    selectAll,
+    totalCount,
+    keywords,
+    clearSelect,
+    root,
+    reloadList,
+    folder,
+    performRemoveItems,
+  } = args;
   /* 列表为空不执行*/
   if (list.size === 0) {
     // setState({ selectAll: false });
@@ -356,7 +382,7 @@ export function handleRemoveNode(args) {
     }
 
     ajax
-      .then((result) => {
+      .then(result => {
         const successIds = result[EXECUTE_RESULT.SUCCESS];
         const noRightIds = result[EXECUTE_RESULT.NO_RIGHT];
 
@@ -379,7 +405,6 @@ export function handleRemoveNode(args) {
   });
 }
 
-
 /**
  * [moveOrCopyClick 移动到...或复制到...通用]
  * @param  {[type]} type [移动：NODE_OPERATOR_TYPE.MOVE  复制：NODE_OPERATOR_TYPE.COPY]
@@ -393,7 +418,9 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
     type === NODE_OPERATOR_TYPE.MOVE &&
     ((rootId && notCreateItems) ||
       (typeof fromRoot === 'object' &&
-        (fromRoot.permission !== ROOT_PERMISSION_TYPE.OWNER && fromRoot.permission !== ROOT_PERMISSION_TYPE.ADMIN && notCreateItems)));
+        fromRoot.permission !== ROOT_PERMISSION_TYPE.OWNER &&
+        fromRoot.permission !== ROOT_PERMISSION_TYPE.ADMIN &&
+        notCreateItems));
   let getAppointRootPromise;
   if (isAppointRoot) {
     if (rootId) {
@@ -405,8 +432,8 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
     getAppointRootPromise = $.Deferred().resolve();
   }
 
-  getAppointRootPromise.then((root) => {
-    require(['src/components/kc/folderSelectDialog/folderSelectDialog'], (folderDg) => {
+  getAppointRootPromise.then(root => {
+    require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
       const rootNode =
         typeof fromRoot === 'object'
           ? {
@@ -440,13 +467,12 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
         selectedItems: selectedItemIds,
         appointRoot: root,
         appointFolder,
-      }).then((result) => {
+      }).then(result => {
         cb(result, type);
       });
     });
   });
 }
-
 
 /**
  * [moveOrCopy 移动到...或复制到...通用]
@@ -454,7 +480,8 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
  * @param  {[type]} type   [移动：NODE_OPERATOR_TYPE.MOVE  复制：NODE_OPERATOR_TYPE.COPY]
  */
 export function handleMoveOrCopy(options) {
-  const { result, type, baseUrl, selectedItems, selectAll, list, keywords, folder, root, reloadList, clearSelect } = options;
+  const { result, type, baseUrl, selectedItems, selectAll, list, keywords, folder, root, reloadList, clearSelect } =
+    options;
   let message = '';
   const ids = selectedItems.map(item => item.id).toArray();
   // idsLength = selectAll ? totalCount : ids.length;
@@ -504,7 +531,7 @@ export function handleMoveOrCopy(options) {
 
   alert(_l('操作中…'), 3, 0);
   ajax
-    .then((data) => {
+    .then(data => {
       const successIds = data[EXECUTE_RESULT.SUCCESS];
       const noRightIds = data[EXECUTE_RESULT.NO_RIGHT];
 
@@ -517,16 +544,19 @@ export function handleMoveOrCopy(options) {
           console.log($('.mdAlertDialog .mdClose'));
           $('.mdAlertDialog .mdClose').click();
         }, 1000);
-        require(['createShare'], (createShare) => {
+        require(['createShare'], createShare => {
           createShare.init({
             linkURL:
               md.global.Config.WebUrl +
-              baseUrl.replace(/^\//, '') + '/' +
+              baseUrl.replace(/^\//, '') +
+              '/' +
               (result.type === 1
                 ? 'my'
                 : result.type === 2
-                  ? result.node.id
-                  : result.node.rootId ? result.node.position.slice(1) : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+                ? result.node.id
+                : result.node.rootId
+                ? result.node.position.slice(1)
+                : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
             content: operationTips.text,
           });
         });
@@ -536,7 +566,7 @@ export function handleMoveOrCopy(options) {
 
       if (type === NODE_OPERATOR_TYPE.MOVE) {
         /* 重新加载列表*/
-          reloadList();
+        reloadList();
       } else {
         if (result.type === root || result.node.id === root.id || (folder && result.node.id === folder.id)) {
           /* 重新加载列表*/
@@ -600,7 +630,6 @@ export function returnOperationTips(data, message = {}) {
   return result;
 }
 
-
 /**
  * [restoreNode 还原]
  */
@@ -635,7 +664,7 @@ export function handleRestoreNode(args) {
     }
 
     ajax
-      .then((result) => {
+      .then(result => {
         const successIds = result[EXECUTE_RESULT.SUCCESS];
         const noExistPath = result[EXECUTE_RESULT.NO_EXIST_PATH];
 

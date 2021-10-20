@@ -1,5 +1,6 @@
 import React from 'react';
 import ErrorPage from 'src/components/errorPage/errorPage';
+import * as Sentry from '@sentry/react';
 
 /**
  * 错误组件
@@ -8,31 +9,23 @@ import ErrorPage from 'src/components/errorPage/errorPage';
  */
 const errorBoundary = (Component, isSeriousError) => {
   class ErrorBoundary extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        hasError: false,
-      };
-    }
-
     componentDidCatch(error, extra) {
-      this.setState({ hasError: true });
       console.error(extra);
     }
 
     render() {
-      if (this.state.hasError) {
-        return <ErrorPage isSeriousError={isSeriousError} />;
-      }
-
-      return <Component {...this.props} />;
+      return (
+        <Sentry.ErrorBoundary fallback={<ErrorPage isSeriousError={isSeriousError} />}>
+          <Component {...this.props} />
+        </Sentry.ErrorBoundary>
+      );
     }
   }
 
   return ErrorBoundary;
 };
 
-export default (Component) => {
+export default Component => {
   if (typeof Component !== 'boolean') {
     return errorBoundary(Component, false);
   }

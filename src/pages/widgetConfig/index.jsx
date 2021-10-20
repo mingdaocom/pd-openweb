@@ -164,7 +164,7 @@ export default function Container(props) {
       return;
     }
 
-    let activeWidgetPath = getPathById(widgets, activeWidget.controlId);
+    let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 
     setLoading({ saveLoading: true });
     saveWorksheetControls({

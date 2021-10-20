@@ -4,16 +4,17 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import './SelectStartOrEnd.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { isTimeStyle, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
 
 export default function SelectStartOrEnd(props) {
   const { worksheetControls = [], view = {}, updateCurrentView, handleChange } = props;
   const { advancedSetting = {} } = view;
 
   //排除系统字段的"最近修改时间"
-  let timeControls = worksheetControls.filter(item => item.controlId !== 'utime' && _.includes([15, 16], item.type));
+  let timeControls = getTimeControls(worksheetControls);
   const setDataFn = () => {
     return {
-      begindate: advancedSetting.begindate || timeControls[0].controlId,
+      begindate: advancedSetting.begindate || (timeControls[0] || {}).controlId,
       startData: advancedSetting.begindate
         ? timeControls.find((it, i) => it.controlId === advancedSetting.begindate) || {}
         : timeControls[0],
@@ -49,7 +50,7 @@ export default function SelectStartOrEnd(props) {
                     {_l('该字段已删除')}
                   </span>
                 ) : (
-                  <span className="Gray">{startData.controlName}</span>
+                  <span className="Gray">{(startData || {}).controlName}</span>
                 )
               }
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
@@ -86,7 +87,7 @@ export default function SelectStartOrEnd(props) {
                       {_l('该字段已删除')}
                     </span>
                   ) : (
-                    <span className="Gray">{endData.controlName || ''}</span>
+                    <span className="Gray">{(endData || {}).controlName || ''}</span>
                   )
                 ) : (
                   <span className="Gray_bd">{_l('请选择')}</span>
@@ -119,7 +120,8 @@ export default function SelectStartOrEnd(props) {
         {begindate &&
           enddate &&
           startData &&
-          startData.type !== (endData.type || '') &&
+          isTimeStyle(startData) !== isTimeStyle(endData) &&
+          // startData.type !== (endData.type || '') &&
           startData.controlName &&
           endData.controlName && (
             <div className="endCom">

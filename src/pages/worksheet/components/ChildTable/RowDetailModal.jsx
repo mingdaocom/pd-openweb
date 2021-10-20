@@ -12,17 +12,12 @@ export default function RowDetailModal(props) {
     className,
     title,
     visible,
-    controlName,
     aglinBottom,
-    projectId,
     data,
-    controls,
     switchDisabled = {},
     onClose,
-    onSave,
     onDelete,
     onSwitch,
-    handleUniqueValidate,
   } = props;
   const formContent = useRef(null);
   const isMobile = browserIsMobile();
@@ -76,18 +71,7 @@ export default function RowDetailModal(props) {
 
         <div className="forCon flex">
           <div className="title">{title}</div>
-          <RowDetail
-            isSync
-            disabled={disabled}
-            controlName={controlName}
-            ref={formContent}
-            projectId={projectId}
-            data={data}
-            controls={controls}
-            handleUniqueValidate={handleUniqueValidate}
-            onSave={onSave}
-            onClose={onClose}
-          />
+          <RowDetail ref={formContent} {...props} />
         </div>
       </div>
     </ScrollView>

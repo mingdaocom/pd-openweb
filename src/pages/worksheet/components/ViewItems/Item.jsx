@@ -48,7 +48,8 @@ export default class Item extends Component {
               this.setState({
                 visible: false,
               });
-            }}>
+            }}
+          >
             <span className="text">{_l('配置视图')}</span>
           </MenuItem>
         )}
@@ -57,7 +58,8 @@ export default class Item extends Component {
             className="changeViewDisplayTypeMenuWrap"
             icon={<Icon icon="swap_horiz" />}
             onMouseEnter={() => this.setState({ changeViewDisplayTypeVisible: true })}
-            onMouseLeave={() => this.setState({ changeViewDisplayTypeVisible: false })}>
+            onMouseLeave={() => this.setState({ changeViewDisplayTypeVisible: false })}
+          >
             <span className="text">{_l('更改视图类型')}</span>
             <Icon icon="arrow-right-tip Font14" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
             {changeViewDisplayTypeVisible && (
@@ -72,7 +74,7 @@ export default class Item extends Component {
                         viewControl: '',
                         viewControls: [],
                         viewType: VIEW_DISPLAY_TYPE[viewType],
-                        filters: formatValuesOfOriginConditions(item.filters),
+                        filters: item.filters, // formatValuesOfOriginConditions(item.filters),
                       }),
                     );
                   }
@@ -90,7 +92,8 @@ export default class Item extends Component {
               this.setState({
                 visible: false,
               });
-            }}>
+            }}
+          >
             <span className="text">{_l('复制')}</span>
           </MenuItem>
         )}
@@ -109,7 +112,8 @@ export default class Item extends Component {
                 this.setState({
                   visible: false,
                 });
-              }}>
+              }}
+            >
               <span className="text">{_l('分享')}</span>
             </MenuItem>
           )}
@@ -126,7 +130,8 @@ export default class Item extends Component {
               this.setState({
                 visible: false,
               });
-            }}>
+            }}
+          >
             <span className="text">{_l('导出')}</span>
           </MenuItem>
         )}
@@ -139,7 +144,8 @@ export default class Item extends Component {
               this.setState({
                 visible: false,
               });
-            }}>
+            }}
+          >
             <span className="text">{_l('删除视图')}</span>
           </MenuItem>
         )}

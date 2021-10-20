@@ -133,7 +133,7 @@ export default class Container extends React.Component {
   };
   //失败的错误提示
   doFailCb = actionResult => {
-    const { changeStep } = this.props;
+    const { changeStep, loginSuc } = this.props;
     let result = Config.ActionResult;
     switch (actionResult) {
       case result.failed:
@@ -147,6 +147,12 @@ export default class Container extends React.Component {
         break;
       case result.inviteLinkExpirate:
         changeStep('inviteLinkExpirate'); //7 // 邀请链接失效
+        break;
+      case result.projectUserExists: //10 您已经是该组织的成员
+        setTimeout(() => {
+          loginSuc();
+        }, 1000);
+        alert(_l('您已经是该组织的成员'), 3);
         break;
       case result.userFromError:
         alert(_l('账号来源类型受限'), 3); //14

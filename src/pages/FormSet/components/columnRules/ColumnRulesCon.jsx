@@ -7,7 +7,14 @@ import { Drawer } from 'antd';
 import * as actions from '../../redux/actions/action';
 import * as columnRules from '../../redux/actions/columnRules';
 import EditBox from './EditBox';
-import { getNameWidth, getTextById, getActionLabelByType, filterData, getArrBySpliceType } from './config';
+import {
+  getNameWidth,
+  getTextById,
+  getActionLabelByType,
+  filterData,
+  getArrBySpliceType,
+  isRelateMoreList,
+} from './config';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import cx from 'classnames';
 class ColumnRulesCon extends React.Component {
@@ -31,7 +38,13 @@ class ColumnRulesCon extends React.Component {
     const { worksheetControls } = this.props;
     let filterItemTexts = getArrBySpliceType(filters).map(item => {
       return item.map(it => {
-        const transData = filterData(worksheetControls, [it], true, worksheetControls);
+        let transData = filterData(worksheetControls, [it], true, worksheetControls);
+        if (it.dataType === 29) {
+          const control = _.find(worksheetControls || [], con => con.controlId === it.controlId);
+          if (isRelateMoreList(control, it)) {
+            transData = [{ ...transData[0], name: _l('字段已删除') }];
+          }
+        }
         return transData[0] || {};
       });
     });
@@ -77,14 +90,8 @@ class ColumnRulesCon extends React.Component {
   };
 
   renderRuleItemCon = columnRules => {
-    const {
-      selectColumnRules,
-      deleteControlRules,
-      copyControlRules,
-      updateRuleAttr,
-      worksheetControls,
-      editingId,
-    } = this.props;
+    const { selectColumnRules, deleteControlRules, copyControlRules, updateRuleAttr, worksheetControls, editingId } =
+      this.props;
     const { showDeleteBox } = this.state;
     const { name, filters = [], ruleItems = [], ruleId, disabled } = columnRules;
     return (
@@ -94,7 +101,7 @@ class ColumnRulesCon extends React.Component {
         onClick={e => {
           if (
             ($(e.target).closest('.ruleItemOptions')[0] &&
-              $(e.target).closest('.ruleItemOptions')[0].className === 'ruleItemOptions') ||
+              ($(e.target).closest('.ruleItemOptions')[0].className || '').indexOf('ruleItemOptions')) > -1 ||
             ($(e.target).closest('.DropdownDeleteRuleTrigger')[0] &&
               $(e.target).closest('.DropdownDeleteRuleTrigger')[0].className === 'DropdownDeleteRuleTrigger') ||
             (e.target && e.target.className.indexOf('ruleNameInput') > -1)

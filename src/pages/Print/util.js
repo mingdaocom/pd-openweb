@@ -3,6 +3,8 @@ import cx from 'classnames';
 import { renderCellText } from 'worksheet/components/CellControls';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { SYSTOPRINT } from './config';
+import { getSelectedOptions } from 'src/pages/worksheet/util';
+import _ from 'lodash';
 /*
   获取控件呈现内容
   sourceControlType: 他表字段type
@@ -11,6 +13,7 @@ import { SYSTOPRINT } from './config';
 export const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) => {
   let value = sourceControlType ? valueItem : item.value;
   let type = sourceControlType || item.type;
+  let printOption = item.printOption;
   let dataItem = {
     ...item,
     value: value,
@@ -26,7 +29,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
   };
   switch (type) {
     case 36:
-      return value === '1' ? '✓' : '';
+      return value === '1' ? '✓' : '□';
     case 6:
     case 8:
     case 20:
@@ -97,79 +100,85 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         // 1 卡片 显示关联表名称
         return (
           <div className="relaList">
-            {records.map((da, i) => {
-              let data = JSON.parse(da.sourcevalue || '[]');
-              let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
-              let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
-              let coverData = cover.length > 0 ? cover[0] : '';
-              let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
-              return (
-                <div className={cx('list', { borderTop: i >= 1 })}>
-                  <div className="listText">
-                    {/* 关联表卡片标题显示 */}
-                    {renderCellText({
-                      ...dataItem,
-                      type:
-                        list.type && ![29, 30, item.sourceControlType].includes(list.type)
-                          ? list.type
-                          : item.sourceControlType,
-                      value: da.name,
-                    }) || _l('未命名')}
-                    {showControlsList.map(it => {
-                      if (it.type === 41 || it.type === 22) {
-                        //富文本|分段
-                        //   let location;
-                        //   try {
-                        //     location = JSON.parse(data[it.controlId]);
-                        //   } catch (err) {
-                        //     return <div>{it.controlName} :</div>;
-                        //   }
-                        //   if (location.indexOf('<img ') >= 0) {
-                        //     return <div>{it.controlName} :</div>;
-                        //   }
-                        return '';
-                      }
-                      // 若设置不显示无内容字段=>计算内容
-                      if (
-                        item.showData &&
-                        !getPrintContent(
-                          { ...it, isRelateMultipleSheet: true, showUnit: true },
-                          it.type,
-                          data[it.controlId],
-                        )
-                      ) {
-                        return '';
-                      }
-                      return (
-                        <div>
-                          {it.controlName || _l('未命名')}
-                          {' : '}
-                          <div className="listRight">
-                            {getPrintContent(
-                              { ...it, isRelateMultipleSheet: true, showUnit: true },
-                              it.type,
-                              data[it.controlId],
-                            ) || ''}
+            {_.isArray(records) &&
+              records.map((da, i) => {
+                let data = JSON.parse(da.sourcevalue || '[]');
+                let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
+                let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
+                let coverData = cover.length > 0 ? cover[0] : '';
+                let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
+                return (
+                  <div className={cx('list', { borderTop: i >= 1 })}>
+                    <div className="listText">
+                      {/* 关联表卡片标题显示 */}
+                      {renderCellText({
+                        ...dataItem,
+                        type:
+                          list.type && ![29, 30, item.sourceControlType].includes(list.type)
+                            ? list.type
+                            : item.sourceControlType,
+                        value: da.name,
+                      }) || _l('未命名')}
+                      {showControlsList.map(it => {
+                        if (it.type === 41 || it.type === 22) {
+                          //富文本|分段
+                          //   let location;
+                          //   try {
+                          //     location = JSON.parse(data[it.controlId]);
+                          //   } catch (err) {
+                          //     return <div>{it.controlName} :</div>;
+                          //   }
+                          //   if (location.indexOf('<img ') >= 0) {
+                          //     return <div>{it.controlName} :</div>;
+                          //   }
+                          return '';
+                        }
+                        // 若设置不显示无内容字段=>计算内容
+                        if (
+                          item.showData &&
+                          !getPrintContent(
+                            { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                            it.type,
+                            data[it.controlId],
+                          )
+                        ) {
+                          return '';
+                        }
+                        return (
+                          <div>
+                            {it.controlName || _l('未命名')}
+                            {' : '}
+                            <div className="listRight">
+                              {/* 关联表单选多选不需要特殊处理 printOption: false */}
+                              {getPrintContent(
+                                { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                                it.type,
+                                data[it.controlId],
+                              ) || ''}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                    {coverData && coverData.previewUrl && (
+                      <img
+                        className="cover thumbnail"
+                        role="presentation"
+                        src={
+                          File.isPicture(coverData.ext)
+                            ? coverData.previewUrl.indexOf('imageView2') > -1
+                              ? coverData.previewUrl.replace(
+                                  /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                  'imageView2/1/w/76/h/76/q/90',
+                                )
+                              : `${coverData.previewUrl}&imageView2/1/w/76/h/76/q/90`
+                            : coverData.previewUrl
+                        }
+                      />
+                    )}
                   </div>
-                  {coverData && coverData.previewUrl && (
-                    <img
-                      className="cover thumbnail"
-                      role="presentation"
-                      src={
-                        File.isPicture(coverData.ext)
-                          ? coverData.previewUrl.slice(0, coverData.previewUrl.indexOf('?')) +
-                            '?imageMogr2/auto-orient|imageView2/1/w/76/h/76/q/90'
-                          : coverData.previewUrl
-                      }
-                    />
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         );
       } else {
@@ -191,6 +200,30 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       const showContent = getPrintContent(item, item.sourceControlType, value);
       return showContent || '';
     }
+    case 9: // OPTIONS 单选 平铺
+    case 10: // MULTI_SELECT 多选
+      if (!printOption || (type === 10 && _.get(item, ['advancedSetting', 'checktype']) === '1')) {
+        renderCellText(dataItem);
+      } else {
+        let selectedKeys = [];
+        try {
+          selectedKeys = JSON.parse(dataItem.value);
+        } catch (err) {}
+        return dataItem.options.map(o => {
+          let str = '';
+          if (selectedKeys.includes(o.key)) {
+            str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☑'}</i> : '■';
+          } else {
+            str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☐'}</i> : '□';
+          }
+          return (
+            <span className="InlineBlock pTop0 pBottom0" style={{ marginRight: 14 }}>
+              <b className="InlineBlock TxtTop TxtCenter">{str}</b>
+              {o.value}
+            </span>
+          );
+        });
+      }
     default:
       return renderCellText(dataItem);
   }
@@ -223,8 +256,12 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                 <div className="imgCon">
                   <img
                     src={
-                      pictureAttachments[index].previewUrl.slice(0, pictureAttachments[index].previewUrl.indexOf('?')) +
-                      '?imageMogr2/auto-orient/thumbnail/1200x600/q/90'
+                      pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
+                        ? pictureAttachments[index].previewUrl.replace(
+                            /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                            'imageView2/1/w/1200/h/600/q/90',
+                          )
+                        : `${pictureAttachments[index].previewUrl}&imageView2/1/w/1200/h/600/q/90`
                     }
                     alt=""
                   />

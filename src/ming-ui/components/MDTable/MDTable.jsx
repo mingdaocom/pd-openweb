@@ -80,8 +80,6 @@ export default class MDTable extends React.Component {
     };
     this.mdtabldId = props.id || uuid.v4();
     this.scrollbarWidth = props.scrollbarWidth;
-    this.scrollhor = {};
-    this.scrollver = {};
     this.scrollLeft = 0;
     this.scrollTop = 0;
     this.fixedColumnsWidth = this.updateFixedWidth(props);
@@ -99,8 +97,8 @@ export default class MDTable extends React.Component {
     // --- 表格触摸事件处理 ---
     var tablehammer = new Hammer(this.mdtable, { inputClass: Hammer.TouchInput });
     this.tablehammer = tablehammer;
-    this.leftForHammer = this.scrollhor.scrollLeft || 0;
-    this.topForHammer = this.scrollver.scrollTop || 0;
+    this.leftForHammer = _.get(this.scrollhor, 'scrollLeft') || 0;
+    this.topForHammer = _.get(this.scrollver, 'scrollTop') || 0;
     this.lastPandeltaX = 0;
     this.lastPandeltaY = 0;
     tablehammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
@@ -229,23 +227,25 @@ export default class MDTable extends React.Component {
 
   @autobind
   handleMouseWheel(event) {
-    const isScrollVer = Math.abs(event.deltaY) > Math.abs(event.deltaX);
+    let { deltaX, deltaY } = event;
+    let isScrollVer = Math.abs(deltaY) > Math.abs(deltaX);
 
     if ((isScrollVer && this.heightScroll) || (!isScrollVer && this.widthScroll)) {
       event.stopPropagation();
       event.preventDefault();
     }
 
-    if (!this.scrollver || !this.scrollhor) {
-      return;
+    if (navigator.platform.indexOf('Win') > -1 && event.shiftKey) {
+      isScrollVer = false;
+      deltaX = deltaX * -1;
     }
 
-    if (isScrollVer) {
-      const newTop = this.scrollver.scrollTop - event.deltaY * event.deltaFactor;
+    if (isScrollVer && this.scrollver) {
+      const newTop = this.scrollver.scrollTop - deltaY * event.deltaFactor;
       this.scrollver.scrollTop = newTop;
       this.topForHammer = newTop;
-    } else {
-      const newLeft = this.scrollhor.scrollLeft + event.deltaX * event.deltaFactor;
+    } else if (this.scrollhor) {
+      const newLeft = this.scrollhor.scrollLeft + deltaX * event.deltaFactor;
       this.scrollhor.scrollLeft = newLeft;
       this.leftForHammer = newLeft;
     }
@@ -253,22 +253,24 @@ export default class MDTable extends React.Component {
 
   @autobind
   handleCellLeave() {
+    const { onCellLeave = () => {} } = this.props;
     if (this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
+      onCellLeave();
     }
   }
 
   @autobind
   handleCellEnter(e) {
-    const classMatch = $(e.originalEvent.target)
-      .closest('.cell')
-      .attr('class')
-      .match(/.*(row-[0-9]+) .*/);
+    const { onCellEnter = () => {} } = this.props;
+    const $target = $(e.originalEvent.target).closest('.cell');
+    const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
     if (classMatch && this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
       $(this.mdtable)
         .find('.' + classMatch[1])
         .addClass('hover');
+      onCellEnter($target[0]);
     }
   }
 
@@ -312,10 +314,10 @@ export default class MDTable extends React.Component {
 
   @autobind
   touchScroll({ left, top }) {
-    if (_.isNumber(top)) {
+    if (_.isNumber(top) && this.scrollver) {
       this.scrollver.scrollTop = top;
     }
-    if (_.isNumber(left)) {
+    if (_.isNumber(left) && this.scrollhor) {
       this.scrollhor.scrollLeft = left;
     }
   }
@@ -387,6 +389,7 @@ export default class MDTable extends React.Component {
       getCellWidth,
       rowHeight,
       showFooterRow,
+      heightOffset,
       renderCell,
       renderFooterCell,
     } = this.props;
@@ -404,7 +407,7 @@ export default class MDTable extends React.Component {
     } else {
       cellHeight = rowHeight;
       gridHeight = responseHeight
-        ? (rowCount - fixedRowCount) * rowHeight
+        ? (rowCount - fixedRowCount) * rowHeight + heightOffset
         : height - FIXED_ROW_HEIGHT - (showFooterRow ? FOOTER_ROW_HEIGHT : 0);
     }
     if (hide) {
@@ -444,7 +447,7 @@ export default class MDTable extends React.Component {
               grid: ref,
               scrollTo: this.setScroll,
               tableScrollTop: this.scrollTop,
-              gridHeight,
+              gridHeight: gridHeight,
             }}
           />
         )}
@@ -474,6 +477,7 @@ export default class MDTable extends React.Component {
     const {
       loading,
       width,
+      heightOffset,
       topFixed,
       scrollBarHoverShow,
       responseHeight,
@@ -558,7 +562,8 @@ export default class MDTable extends React.Component {
             ? {
                 height:
                   (topFixed ? FIXED_ROW_HEIGHT + (rowCount - 1) * rowHeight : rowCount * rowCount) +
-                  (this.widthScroll || (forceScrollOffset && forceScrollOffset.height) ? this.scrollbarWidth : 0),
+                  (this.widthScroll || (forceScrollOffset && forceScrollOffset.height) ? this.scrollbarWidth : 0) +
+                  heightOffset,
               }
             : {}
         }

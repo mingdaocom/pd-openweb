@@ -46,9 +46,7 @@ export default class Widgets extends Component {
     if (value === '-') {
       value = '';
     } else if (value) {
-      value = parseFloat(value)
-        .toFixed(dot)
-        .toString();
+      value = parseFloat(value).toFixed(dot);
     }
 
     this.props.onChange(value);

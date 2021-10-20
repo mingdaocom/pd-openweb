@@ -1,32 +1,23 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { getRequest } from 'src/util';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import homeAppAjax from 'src/api/homeApp';
-import { Flex, ActivityIndicator, Modal, List, WhiteSpace, WingBlank, Button, Tabs } from 'antd-mobile';
+import { Flex, ActivityIndicator, Modal, List, WingBlank, Button, Tabs } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
-import { startProcess } from 'src/pages/workflow/api/process';
-import RelationRow from '../RelationRow';
+import RelationList from 'src/pages/Mobile/RelationRow/RelationList';
+import RelationAction from 'src/pages/Mobile/RelationRow/RelationAction';
+import * as actions from 'src/pages/Mobile/RelationRow/redux/actions';
+import RecordAction from './RecordAction';
 import CustomFields from 'src/components/newCustomFields';
-import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
-import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import Back from '../components/Back';
-import PermissionsInfo from '../components/PermissionsInfo';
-import * as actions from '../RecordList/redux/actions';
+import AppPermissions from '../components/AppPermissions';
 import { isRelateRecordTableControl } from 'worksheet/util';
-import { renderCellText } from 'worksheet/components/CellControls/index.jsx';
+import { renderCellText } from 'worksheet/components/CellControls';
 import './index.less';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-
-const CUSTOM_BUTTOM_CLICK_TYPE = {
-  IMMEDIATELY: 1,
-  CONFIRM: 2,
-  FILL_RECORD: 3,
-};
 
 const formatParams = params => {
   const { appId, viewId } = params;
@@ -37,67 +28,28 @@ const formatParams = params => {
   };
 };
 
+@AppPermissions
 class Record extends Component {
   constructor(props) {
     super(props);
-    const { isSubList, editable } = getRequest();
-    this.isSubList = isSubList == 'true';
+    const { editable } = getRequest();
     this.editable = editable == 'true';
     this.state = {
       sheetRow: {},
       loading: true,
-      isChange: false,
       customBtns: [],
-      actionSheetVisible: false,
-      fillRecordVisible: false,
-      newRecordVisible: false,
-      shareUrl: '',
+      recordActionVisible: false,
       isEdit: false,
+      showError: false,
       random: '',
-      appStatus: 1,
       abnormal: null,
-      switchPermit: [],
       originalData: null,
-      btnDisable: {}
+      currentTab: {}
     };
   }
   componentDidMount() {
-    const { params } = this.props.match;
-    if (['undefined', 'null'].includes(params.appId)) {
-      this.loadRow();
-      this.loadCustomBtns();
-    } else {
-      homeAppAjax
-        .checkApp(
-          {
-            appId: params.appId,
-          },
-          { silent: true },
-        )
-        .then(status => {
-          this.setState({ appStatus: status });
-          if (status == 1) {
-            this.loadRow();
-            this.loadCustomBtns();
-          }
-        });
-    }
-    if (!this.isSubList) {
-      worksheetAjax
-        .getSwitchPermit({
-          appId: params.appId,
-          worksheetId: params.worksheetId,
-        })
-        .then(res => {
-          this.setState({
-            switchPermit: res,
-          });
-        });
-    }
-    IM.socket.on('workflow', this.receiveWorkflow);
-  }
-  componentWillUnmount() {
-    IM.socket.off('workflow', this.receiveWorkflow);
+    this.loadRow();
+    this.loadCustomBtns();
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.match.params.rowId !== this.props.match.params.rowId) {
@@ -108,21 +60,14 @@ class Record extends Component {
       this.loadCustomBtns(nextProps);
     }
   }
-  navigateTo(url) {
+  navigateTo = url => {
     if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
       url = url + '#publicapp' + window.publicAppAuthorization;
     }
     this.props.history.push(url);
   }
   customwidget = React.createRef();
-  receiveWorkflow = (data) => {
-    const { storeId, status } = data;
-    if (!storeId && status === 2) {
-      this.loadRow();
-      this.setState({ btnDisable: {} });
-    }
-  }
-  loadRow(props = this.props) {
+  loadRow = (props = this.props) => {
     const { params } = props.match;
     worksheetAjax
       .getRowByID({
@@ -148,20 +93,8 @@ class Record extends Component {
           abnormal: !_.isUndefined(result.resultCode) && result.resultCode !== 1,
         });
       });
-    if (navigator.share) {
-      worksheetAjax
-        .getWorksheetShareUrl({
-          ...formatParams(params),
-          objectType: 2,
-        })
-        .then(shareUrl => {
-          this.setState({
-            shareUrl,
-          });
-        });
-    }
   }
-  loadCustomBtns(props = this.props) {
+  loadCustomBtns = (props = this.props) => {
     const { params } = props.match;
     worksheetAjax
       .getWorksheetBtns({
@@ -173,259 +106,6 @@ class Record extends Component {
         });
       });
   }
-  disableCustomButton(id) {
-    this.setState({
-      btnDisable: { ...this.state.btnDisable, [id]: true },
-    });
-  }
-  fillRecordControls = (newControls, targetOptions) => {
-    const { params } = this.props.match;
-    const { worksheetId, rowId } = params;
-    worksheetAjax
-      .updateWorksheetRow({
-        appId: targetOptions.appId,
-        viewId: targetOptions.viewId,
-        worksheetId: targetOptions.worksheetId,
-        rowId: targetOptions.recordId,
-        projectID: targetOptions.projectId,
-        newOldControl: newControls,
-        btnId: this.activeBtn.btnId,
-        btnWorksheetId: worksheetId,
-        btnRowId: rowId,
-      })
-      .then(res => {
-        if (res && res.data) {
-          alert(_l('操作已执行'), 3);
-          if (this.activeBtn.workflowType === 2) {
-            this.loadRow();
-            this.loadCustomBtns();
-          }
-          this.setState({
-            fillRecordVisible: false,
-          });
-        } else {
-          if (res.resultCode === 11) {
-            if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
-              this.customwidget.current.uniqueErrorUpdate(res.badData);
-            }
-          } else {
-            alert(_l('操作失败，请稍后重试'), 2);
-          }
-        }
-      });
-  }
-  async fillRecord(btn) {
-    const { sheetRow } = this.state;
-    const { worksheetId, rowId } = this.props.match.params;
-    const rowInfo = await worksheetAjax.getRowByID({
-      worksheetId,
-      getType: 1,
-      rowId,
-    });
-    const titleControl = _.find(rowInfo.receiveControls, control => control.attribute === 1);
-    const caseStr = btn.writeObject + '' + btn.writeType;
-    const relationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.relationControl);
-    const addRelationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.addRelationControl);
-    this.activeBtn = btn;
-    this.defaultFormData = {};
-    this.fillRecordProps = {};
-    switch (caseStr) {
-      case '11': // 本记录 - 填写字段
-        this.btnRelateWorksheetId = worksheetId;
-        this.fillRecordId = rowId;
-        this.fillRecordProps = {
-          formData: rowInfo.receiveControls,
-        };
-        this.setState({
-          fillRecordVisible: true,
-        });
-        break;
-      case '12': // 本记录 - 新建关联记录
-        if (!addRelationControl || !_.isObject(addRelationControl)) {
-          Modal.alert(_l('无法执行按钮“%0”', btn.name), _l('关联字段被隐藏或已删除'), [
-            { text: _l('确定'), onPress: () => {} },
-          ]);
-          return;
-        }
-        try {
-          const controldata = JSON.parse(addRelationControl.value);
-          if (addRelationControl.enumDefault === 1 && controldata.length) {
-            Modal.alert(
-              _l('无法执行按钮“%0”', btn.name),
-              _l('“%0”已有关联记录，无法重复添加', addRelationControl.controlName),
-              [{ text: _l('确定'), onPress: () => {} }],
-            );
-            return;
-          }
-        } catch (err) {}
-        this.btnAddRelateWorksheetId = addRelationControl.dataSource;
-        this.defaultFormData = {
-          [addRelationControl.sourceControlId]: JSON.stringify([
-            {
-              name: titleControl.value,
-              sid: rowId,
-              sourcevalue: JSON.stringify(_.assign(...this.formData.map(c => ({ [c.controlId]: c.value })))),
-            },
-          ]),
-        };
-        this.setState({
-          newRecordVisible: true,
-        });
-        break;
-      case '21': // 关联记录 - 填写字段
-        if (!relationControl || !_.isObject(relationControl)) {
-          return;
-        }
-        this.btnRelateWorksheetId = relationControl.dataSource;
-        try {
-          const controldata = JSON.parse(relationControl.value);
-          this.fillRecordId = controldata[0].sid;
-          this.fillRecordProps = {
-            appId: relationControl.appId,
-            rowId: this.fillRecordId,
-            viewId: relationControl.viewId,
-          };
-        } catch (err) {
-          Modal.alert(
-            _l('无法执行按钮“%0”', btn.name),
-            _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
-            [{ text: _l('确定'), onPress: () => {} }],
-          );
-          return;
-        }
-        this.setState({
-          fillRecordVisible: true,
-        });
-        break;
-      case '22': // 关联记录 - 新建关联记录
-        if (!relationControl || !_.isObject(relationControl)) {
-          return;
-        }
-        try {
-          const controldata = JSON.parse(relationControl.value);
-          this.fillRecordId = controldata[0].sid;
-          this.addRelateRecordRelateRecord(relationControl, btn.addRelationControl);
-        } catch (err) {
-          Modal.alert(
-            _l('无法执行按钮“%0”', btn.name),
-            _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
-            [{ text: _l('确定'), onPress: () => {} }],
-          );
-          return;
-        }
-        break;
-    }
-  }
-  addRelateRecordRelateRecord(relationControl, relationControlrelationControlId) {
-    let controldata;
-    try {
-      controldata = JSON.parse(relationControl.value);
-    } catch (err) {
-      return;
-    }
-    worksheetAjax
-      .getRowByID({
-        worksheetId: relationControl.dataSource,
-        getType: 1,
-        appId: relationControl.appId,
-        rowId: controldata[0].sid,
-        viewId: relationControl.viewId,
-      })
-      .then(data => {
-        const relationControlrelationControl = _.find(
-          data.receiveControls,
-          c => c.controlId === relationControlrelationControlId,
-        );
-        if (!relationControlrelationControl) {
-          Modal.alert(_l('无法执行按钮“%0”', this.activeBtn.name), _l('关联字段被隐藏或已删除'), [
-            { text: _l('确定'), onPress: () => {} },
-          ]);
-          return;
-        }
-        try {
-          const relationControlrelationControlData = JSON.parse(relationControlrelationControl.value);
-          if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
-            Modal.alert(
-              _l('无法执行按钮“%0”', this.activeBtn.name),
-              _l('“%0”已有关联记录，无法重复添加', relationControlrelationControl.controlName),
-              [{ text: _l('确定'), onPress: () => {} }],
-            );
-            return;
-          }
-        } catch (err) {}
-        this.defaultFormData = {
-          [relationControlrelationControl.sourceControlId]: JSON.stringify([
-            {
-              name: controldata[0].name,
-              sid: controldata[0].sid,
-              sourcevalue: JSON.stringify(_.assign(...data.receiveControls.map(c => ({ [c.controlId]: c.value })))),
-            },
-          ]),
-        };
-        if (relationControlrelationControl) {
-          this.btnAddRelateWorksheetId = relationControlrelationControl.dataSource;
-          this.setState({
-            newRecordVisible: true,
-          });
-        }
-      });
-  }
-  handleAddRecordCallback = recordItem => {
-    if (this.activeBtn.workflowType === 2) {
-      alert(_l('操作已执行'), 3);
-    }
-    this.loadRow();
-    this.loadCustomBtns();
-  }
-  handleOpenDiscuss = () => {
-    const { params } = this.props.match;
-    this.navigateTo(`/mobile/discuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId}`);
-  }
-  handleDeleteAlert = () => {
-    Modal.alert(this.isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?'), '', [
-      { text: _l('取消'), style: 'default', onPress: () => {} },
-      { text: _l('确定'), style: { color: 'red' }, onPress: this.handleDelete },
-    ]);
-    this.setState({
-      actionSheetVisible: false,
-    });
-  }
-  triggerImmediately(btnId) {
-    const { params } = this.props.match;
-    startProcess({
-      appId: params.worksheetId,
-      sources: [params.rowId],
-      triggerId: btnId,
-    }).then(data => {
-      alert(_l('操作已执行'), 3);
-      this.loadCustomBtns();
-      this.disableCustomButton(btnId);
-    });
-  }
-  handleTriggerCustomBtn = btn => {
-    if (window.isPublicApp) {
-      alert(_l('预览模式下，不能操作'), 3);
-      return;
-    }
-    if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
-      // 立即执行
-      this.triggerImmediately(btn.btnId);
-    } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM) {
-      // 二次确认
-      Modal.alert(_l('你确认对记录执行此操作吗？'), '', [
-        { text: _l('取消'), onPress: () => {}, style: 'default' },
-        { text: _l('确定'), onPress: () => this.triggerImmediately(btn.btnId) },
-      ]);
-    } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
-      // 填写字段
-      this.fillRecord(btn);
-    } else {
-      // 无 clickType 有误
-    }
-    this.setState({
-      actionSheetVisible: false,
-    });
-  }
   handleSave = () => {
     const { sheetRow } = this.state;
     const { params } = this.props.match;
@@ -435,6 +115,7 @@ class Record extends Component {
       .map(formatControlToServer);
 
     if (hasError) {
+      this.setState({ showError: true });
       alert(_l('请正确填写记录'), 3);
       return;
     }
@@ -448,6 +129,7 @@ class Record extends Component {
       return;
     }
 
+    this.setState({ showError: false });
     worksheetAjax
       .updateWorksheetRow({
         ...formatParams(params),
@@ -456,7 +138,6 @@ class Record extends Component {
       .then(result => {
         if (result && result.data) {
           alert(_l('保存成功'));
-          this.props.dispatch(actions.emptySheetRows());
           this.formData = this.formData.map(c => _.assign({}, c, { value: result.data[c.controlId] }));
           this.setState({
             isEdit: false,
@@ -480,122 +161,42 @@ class Record extends Component {
         alert(_l('保存失败，请稍后重试'));
       });
   }
-  handleDelete = () => {
-    const { params } = this.props.match;
-    const { rowId } = params;
-    worksheetAjax
-      .deleteWorksheetRows({
-        ...formatParams(params),
-        rowIds: [rowId],
-      })
-      .then(({ isSuccess }) => {
-        if (isSuccess) {
-          alert(_l('删除成功'));
-          history.back();
-        } else {
-          alert(_l('删除失败'));
-        }
-      });
+  handleScroll = (event) => {
+    const { loadParams, updatePageIndex } = this.props;
+    const { isEdit, currentTab } = this.state;
+    const { clientHeight, scrollHeight, scrollTop } = event.target;
+    const targetVlaue = scrollHeight - clientHeight - 30;
+    const { loading, isMore, pageIndex } = loadParams;
+    if (isEdit) {
+      return
+    }
+    if (targetVlaue <= scrollTop && currentTab.value && !loading && isMore) {
+      updatePageIndex(pageIndex + 1);
+    }
+    const tabsEl = document.querySelector('.tabsWrapper');
+    const fixedTabsEl = document.querySelector('.fixedTabs');
+    if (tabsEl && tabsEl.offsetTop <= scrollTop) {
+      fixedTabsEl && fixedTabsEl.classList.remove('hide');
+    } else {
+      fixedTabsEl && fixedTabsEl.classList.add('hide');
+    }
   }
-  handleOpenShare = () => {
-    const { shareUrl } = this.state;
-    navigator
-      .share({
-        title: _l('分享'),
-        text: document.title,
-        url: shareUrl,
-      })
-      .then(() => {
-        alert(_l('分享成功'));
-      });
-  }
-  renderActionSheet() {
+  renderRecordAction() {
     const { params } = this.props.match;
-    const { sheetRow, customBtns, switchPermit, btnDisable } = this.state;
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const { isSubList, editable } = this;
+    const { sheetRow, customBtns } = this.state;
+
     return (
-      <Modal
-        popup
-        animationType="slide-up"
-        className="actionSheetModal"
-        visible={this.state.actionSheetVisible}
-        onClose={() => {
-          this.setState({ actionSheetVisible: false });
+      <RecordAction
+        {...formatParams(params)}
+        sheetRow={sheetRow}
+        customBtns={customBtns}
+        loadRow={this.loadRow}
+        loadCustomBtns={this.loadCustomBtns}
+        recordActionVisible={this.state.recordActionVisible}
+        hideRecordActionVisible={() => {
+          this.setState({ recordActionVisible: false });
         }}
-      >
-        <List className="mobileActionSheetList">
-          <div className="actionHandleList">
-            {customBtns.map(item => (
-              <List.Item
-                className={cx({ disabled: btnDisable[item.btnId] || item.disabled })}
-                key={item.btnId}
-                onClick={() => {
-                  if (btnDisable[item.btnId] || item.disabled) {
-                    return;
-                  }
-                  this.handleTriggerCustomBtn(item);
-                }}
-              >
-                {item.name}
-              </List.Item>
-            ))}
-            {isWxWork || isSubList || !isOpenPermit(permitList.discussSwitch, switchPermit) ? null : (
-              <List.Item onClick={this.handleOpenDiscuss}>{_l('查看讨论')}</List.Item>
-            )}
-            {navigator.share && isOpenPermit(permitList.recordShareSwitch, switchPermit, params.viewId) ? (
-              <List.Item onClick={this.handleOpenShare}>{_l('分享')}</List.Item>
-            ) : null}
-            {sheetRow.allowDelete || (isSubList && editable) ? (
-              <List.Item className="delete" onClick={this.handleDeleteAlert}>
-                {_l('删除')}
-              </List.Item>
-            ) : null}
-          </div>
-          <WhiteSpace size="sm" />
-          <List.Item
-            onClick={() => {
-              this.setState({ actionSheetVisible: false });
-            }}
-          >
-            {_l('取消')}
-          </List.Item>
-        </List>
-      </Modal>
-    );
-  }
-  renderFillRecord() {
-    const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
-    const { params } = this.props.match;
-    const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
-    const { sheetRow } = this.state;
-    return (
-      <Modal
-        popup
-        animationType="slide-up"
-        className="mobileFillRecordControlsModal"
-        visible={this.state.fillRecordVisible}
-        onClose={() => {
-          this.setState({ fillRecordVisible: false });
-        }}
-      >
-        <FillRecordControls
-          title={activeBtn.name}
-          loadWorksheetRecord={btnTypeStr === '21'}
-          viewId={params.viewId}
-          projectId={sheetRow.projectId}
-          recordId={fillRecordId}
-          worksheetId={btnRelateWorksheetId}
-          writeControls={activeBtn.writeControls}
-          onSubmit={this.fillRecordControls}
-          hideDialog={() => {
-            this.setState({
-              fillRecordVisible: false,
-            });
-          }}
-          {...fillRecordProps}
-        />
-      </Modal>
+      />
     );
   }
   renderBack() {
@@ -628,101 +229,144 @@ class Record extends Component {
               : _l('%0已被删除或分享已关闭', entityName || _l('记录'))}
           </p>
         </div>
-        {this.renderBack()}
       </Fragment>
+    );
+  }
+  renderRecordBtns() {
+    const { isEdit, sheetRow } = this.state;
+    return (
+      <div className="btnsWrapper flexRow">
+        {isEdit ? (
+          <Fragment>
+            <WingBlank className="flex" size="sm">
+              <Button
+                className="Font14 bold Gray_75"
+                onClick={() => {
+                  const { sheetRow, originalData } = this.state;
+                  this.setState({
+                    isEdit: false,
+                    random: Date.now(),
+                    sheetRow: {
+                      ...sheetRow,
+                      receiveControls: originalData,
+                    },
+                  });
+                }}
+              >
+                <span>{_l('取消')}</span>
+              </Button>
+            </WingBlank>
+            <WingBlank className="flex" size="sm">
+              <Button className="Font14 bold" type="primary" onClick={this.handleSave}>
+                {_l('保存')}
+              </Button>
+            </WingBlank>
+          </Fragment>
+        ) : (
+          <Fragment>
+            {(sheetRow.allowEdit || this.editable) && (
+              <WingBlank className="flex" size="sm">
+                <Button
+                  className="Font14 edit bold"
+                  onClick={() => {
+                    this.setState({ isEdit: true, random: Date.now() });
+                  }}
+                >
+                  <Icon icon="workflow_write" className="Font18 mRight5" />
+                  <span>{_l('编辑')}</span>
+                </Button>
+              </WingBlank>
+            )}
+            <WingBlank className="flex" size="sm">
+              <Button
+                className="Font14 bold"
+                onClick={() => {
+                  this.setState({ recordActionVisible: true });
+                }}
+                type="primary"
+              >
+                {_l('更多操作')}
+              </Button>
+            </WingBlank>
+          </Fragment>
+        )}
+      </div>
     );
   }
   renderCustomFields() {
     const { params } = this.props.match;
-    const { sheetRow, isEdit, random } = this.state;
+    const { sheetRow, isEdit, random, showError } = this.state;
     return (
-      <Fragment>
-        <div className="flex" style={{ overflow: 'hidden auto' }}>
-          <CustomFields
-            projectId={sheetRow.projectId}
-            ref={this.customwidget}
-            from={6}
-            flag={random.toString()}
-            disabled={!isEdit}
-            recordCreateTime={sheetRow.createTime}
-            recordId={params.rowId}
-            worksheetId={params.worksheetId}
-            data={sheetRow.receiveControls.filter(item => {
-              const result = item.type === 29 && (item.advancedSetting || {}).showtype === '2';
-              return isEdit ? !result : item.type !== 43;
-            })}
-            openRelateSheet={(appId, worksheetId, rowId, viewId) => {
-              viewId = viewId || 'null';
-              if (isEdit) return;
-              this.navigateTo(`/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`);
-            }}
-          />
-        </div>
-        <div className="btnsWrapper flexRow">
-          {isEdit ? (
+      <div className="flex customFieldsWrapper">
+        <CustomFields
+          projectId={sheetRow.projectId}
+          ref={this.customwidget}
+          from={6}
+          flag={random.toString()}
+          disabled={!isEdit}
+          recordCreateTime={sheetRow.createTime}
+          recordId={params.rowId}
+          worksheetId={params.worksheetId}
+          showError={showError}
+          data={sheetRow.receiveControls.filter(item => {
+            const result = item.type === 29 && (item.advancedSetting || {}).showtype === '2';
+            return isEdit ? !result : item.type !== 43;
+          })}
+          openRelateSheet={(appId, worksheetId, rowId, viewId) => {
+            viewId = viewId || 'null';
+            if (isEdit) return;
+            this.navigateTo(`/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`);
+          }}
+        />
+      </div>
+    );
+  }
+  renderAction() {
+    const { currentTab } = this.state;
+    if (currentTab.id) {
+      return <RelationAction controlId={currentTab.id}/>
+    } else {
+      return this.renderRecordBtns();
+    }
+  }
+  renderTabs(tabs, isRenderContent = true) {
+    const { currentTab } = this.state;
+    const index = currentTab.id ? _.findIndex(tabs, { id: currentTab.id }) : 0;
+    return (
+      <Tabs
+        tabBarInactiveTextColor="#9e9e9e"
+        prerenderingSiblingsNumber={0}
+        destroyInactiveTab={true}
+        animated={false}
+        swipeable={false}
+        tabs={tabs}
+        page={index}
+        renderTab={tab => (
+          tab.value ? (
             <Fragment>
-              <WingBlank className="flex" size="sm">
-                <Button
-                  className="Font14 bold Gray_75"
-                  onClick={() => {
-                    const { sheetRow, originalData } = this.state;
-                    this.setState({
-                      isEdit: false,
-                      random: Date.now(),
-                      isChange: false,
-                      sheetRow: {
-                        ...sheetRow,
-                        receiveControls: originalData,
-                      },
-                    });
-                  }}
-                >
-                  <span>{_l('取消')}</span>
-                </Button>
-              </WingBlank>
-              <WingBlank className="flex" size="sm">
-                <Button className="Font14 bold" type="primary" onClick={this.handleSave}>
-                  {_l('保存')}
-                </Button>
-              </WingBlank>
+              <span className="tabName ellipsis mRight2">{tab.name}</span>
+              <span>{`(${tab.value})`}</span>
             </Fragment>
           ) : (
-            <Fragment>
-              {(sheetRow.allowEdit || this.editable) && (
-                <WingBlank className="flex" size="sm">
-                  <Button
-                    className="Font14 edit bold"
-                    onClick={() => {
-                      this.setState({ isEdit: true, random: Date.now() });
-                    }}
-                  >
-                    <Icon icon="workflow_write" className="Font18 mRight5" />
-                    <span>{_l('编辑')}</span>
-                  </Button>
-                </WingBlank>
-              )}
-              <WingBlank className="flex" size="sm">
-                <Button
-                  className="Font14 bold"
-                  onClick={() => {
-                    this.setState({ actionSheetVisible: true });
-                  }}
-                  type="primary"
-                >
-                  {_l('更多操作')}
-                </Button>
-              </WingBlank>
-            </Fragment>
-          )}
-        </div>
-      </Fragment>
+            <span className="tabName ellipsis">{tab.name}</span>
+          )
+        )}
+        onChange={(tab) => {
+          this.setState({
+            currentTab: tab
+          });
+          this.props.reset();
+        }}
+      >
+        {isRenderContent && this.renderTabContent}
+      </Tabs>
     );
   }
   renderTabContent = tab => {
     if (tab.id) {
       return (
         <div className="flexColumn h100">
-          <RelationRow controlId={tab.id} />
+          <RelationList controlId={tab.id} />
         </div>
       );
     } else {
@@ -734,112 +378,85 @@ class Record extends Component {
     }
   }
   renderContent() {
-    const { sheetRow, isChange, isEdit, random } = this.state;
+    const { sheetRow, isEdit, random, currentTab } = this.state;
+    const { relationRow } = this.props;
     const titleControl = _.find(this.formData || [], control => control.attribute === 1);
     const defaultTitle = _l('未命名');
     const recordTitle = titleControl ? renderCellText(titleControl) || defaultTitle : defaultTitle;
     const recordMuster = sheetRow.receiveControls.filter(item => isRelateRecordTableControl(item) && controlState(item, 6).visible);
     const tabs = [{
-      title: _l('详情'),
+      name: _l('详情'),
       index: 0,
     }].concat(recordMuster.map((item, index) => {
+      const isCurrentTab = currentTab.id === item.controlId;
+      const value = Number(item.value);
+      const newValue = isCurrentTab ? (relationRow.count || value) : value
+      if (isCurrentTab) {
+        item.value = newValue;
+      }
       return {
         id: item.controlId,
-        title: item.controlName,
-        value: Number(item.value),
+        name: item.controlName,
+        value: newValue,
         index: index + 1
       }
     }));
     return (
       <Fragment>
         <DocumentTitle title={isEdit ? `${_l('编辑')}${sheetRow.entityName}` : `${sheetRow.entityName}${_l('详情')}`} />
-        <div className="flexColumn h100">
+        <div className="flexColumn flex" style={{ overflow: 'hidden auto' }} onScroll={this.handleScroll}>
           {!isEdit && (
             <div className="header">
               <div className="title">{recordTitle}</div>
             </div>
           )}
           {recordMuster.length ? (
-            <div className={cx('recordViewTabs flex', { edit: isEdit })}>
-              <Tabs
-                tabBarInactiveTextColor="#9e9e9e"
-                tabs={tabs}
-                renderTab={tab => (
-                  tab.value ? (
-                    <Fragment>
-                      <span className="tabName ellipsis mRight2">{tab.title}</span>
-                      <span>{`(${tab.value})`}</span>
-                    </Fragment>
-                  ) : (
-                    <span className="tabName ellipsis">{tab.title}</span>
-                  )
-                )}
-              >
-                {this.renderTabContent}
-              </Tabs>
+            <div className={cx('recordViewTabs tabsWrapper flex', { edit: isEdit })}>
+              {this.renderTabs(tabs)}
             </div>
           ) : (
-            <div className="flexColumn flex Height26">
+            <div className="flexColumn flex">
               {this.renderCustomFields()}
             </div>
           )}
         </div>
-        {!isEdit && this.renderBack()}
+        {!_.isEmpty(recordMuster) && !isEdit && (
+          <div className="fixedTabs recordViewTabs Fixed w100 hide">
+            {this.renderTabs(tabs, false)}
+          </div>
+        )}
+        {this.renderAction()}
       </Fragment>
     );
   }
-  rnederNewRecord() {
-    const { activeBtn = {} } = this;
-    const { newRecordVisible } = this.state;
-    const { params } = this.props.match;
-    const { worksheetId, rowId } = params;
-    return (
-      <NewRecord
-        title={activeBtn.name}
-        className="worksheetRelateNewRecord"
-        worksheetId={this.btnAddRelateWorksheetId}
-        addType={2}
-        filterRelateSheetIds={worksheetId}
-        visible={newRecordVisible}
-        defaultFormData={this.defaultFormData}
-        customBtn={{
-          btnId: activeBtn.btnId,
-          btnWorksheetId: worksheetId,
-          btnRowId: rowId,
-        }}
-        hideNewRecord={() => {
-          this.setState({ newRecordVisible: false });
-        }}
-        onAdd={this.handleAddRecordCallback}
-      />
-    );
-  }
   render() {
-    const { loading, appStatus, abnormal } = this.state;
-    const { params } = this.props.match;
+    const { loading, abnormal, isEdit } = this.state;
     return (
-      <div className="mobileSheetRowRecord h100">
+      <div className="mobileSheetRowRecord flexColumn h100">
         {loading ? (
-          appStatus !== 1 ? (
-            <PermissionsInfo status={appStatus} isApp={false} appId={params.appId} />
-          ) : (
-            <Flex justify="center" align="center" className="h100">
-              <ActivityIndicator size="large" />
-            </Flex>
-          )
+          <Flex justify="center" align="center" className="h100">
+            <ActivityIndicator size="large" />
+          </Flex>
         ) : abnormal ? (
           this.renderWithoutJurisdiction()
         ) : (
           this.renderContent()
         )}
-        {this.renderActionSheet()}
-        {this.renderFillRecord()}
-        {this.rnederNewRecord()}
+        {this.renderRecordAction()}
+        {!isEdit && this.renderBack()}
       </div>
     );
   }
 }
 
-export default connect(state => {
-  return {};
-})(Record);
+export default connect(
+  state => ({
+    ..._.pick(state.mobile, ['loadParams', 'relationRow'])
+  }),
+  dispatch =>
+    bindActionCreators(
+      _.pick(actions, ['updatePageIndex', 'reset']),
+      dispatch,
+  ),
+)(Record);
+

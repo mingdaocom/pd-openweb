@@ -149,7 +149,7 @@ export default function SheetField(props) {
             ) : (
               <span className="Gray_9e">{_l('请选择')}</span>
             )}
-            {!sheetFieldDisabled && <i className="icon-arrow-down-border"></i>}
+            {!sheetFieldDisabled && <i className="icon-arrow-down-border Font14 Gray_9e"></i>}
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>

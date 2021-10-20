@@ -70,7 +70,7 @@ export default class Guidance extends Component {
     return guideTextList[guide];
   }
   getElStyle(el, extraWidth = 0, extraHeight = 0, direction = 'left') {
-    if (_.isEmpty(el)) return _.object();
+    if (_.isEmpty(el)) return {};
     const { width, height, top, left, right } = el.getBoundingClientRect();
     const base = {
       width: width + extraWidth,
@@ -145,7 +145,7 @@ export default class Guidance extends Component {
     const { guide } = this.state;
     if (guide === 2) {
       const createSheetStyle = this.getElStyle(document.querySelector('#createCustomItem'), -8, -8);
-      const sheetEditStyle = this.getElStyle(document.querySelector('.worksheetCompHeader .icon-more_horiz'), 13, 13);
+      const sheetEditStyle = this.getElStyle(document.querySelector('.sheetHeader .icon-more_horiz'), 13, 13);
       return (
         <Fragment>
           <div className="guidanceCircle" style={createSheetStyle}></div>

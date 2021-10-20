@@ -4,7 +4,6 @@ import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
-import { safeJsonParse } from 'worksheet/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -29,13 +28,12 @@ export default class Text extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: safeJsonParse(props.cell.value) || [],
+      value: safeParse(props.cell.value, 'array'),
     };
   }
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: safeJsonParse(nextProps.cell.value) || [] });
+      this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
     const single = nextProps.cell.enumDefault === 0;
     if (single && !this.props.isediting && nextProps.isediting) {

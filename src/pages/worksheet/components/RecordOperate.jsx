@@ -87,6 +87,11 @@ const MoreOperate = styled.span`
   }
 `;
 
+const DangerConfirmTitle = styled.div`
+  font-weight: bold;
+  color: #f44336;
+`;
+
 export const memodRecordOperate = React.memo(
   (...args) => {
     return <RecordOperate {...args} />;
@@ -98,7 +103,10 @@ export const memodRecordOperate = React.memo(
 );
 export default function RecordOperate(props) {
   const {
+    isSubList,
     action = ['click'],
+    isRelateRecordTable,
+    allowAdd,
     popupAlign,
     shows = [],
     showHr = true,
@@ -148,6 +156,7 @@ export default function RecordOperate(props) {
   const [customButtonLoading, setCustomButtonLoading] = useState();
   const [popupVisible, setPopupVisible] = useState(false);
   const [customButtonActive, setCustomButtonActive] = useState();
+  const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
   function changePopupVisible(vallue) {
     if (customButtonActive) {
       return;
@@ -369,8 +378,8 @@ export default function RecordOperate(props) {
               {_l('新页面打开')}
             </MenuItemWrap>
           )}
-          {allowDelete && from !== RECORD_INFO_FROM.WORKFLOW && (
-            <RedMenuItemWrap
+          {allowDelete && (!isRelateRecordTable || allowAdd) && from !== RECORD_INFO_FROM.WORKFLOW && (
+            <DeleteItemWrap
               className="deleteItem"
               icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
               onClick={async () => {
@@ -379,28 +388,47 @@ export default function RecordOperate(props) {
                   return;
                 }
                 changePopupVisible(false);
-                Dialog.confirm({
-                  title: _l('是否删除此条记录'),
-                  buttonType: 'danger',
-                  onOk: async () => {
-                    if (_.isFunction(onDelete)) {
-                      onDelete();
-                    } else {
-                      try {
-                        await deleteRecord({ worksheetId, recordId });
-                        alert(_l('删除成功'));
-                        onDeleteSuccess({ appId, worksheetId, viewId, recordId });
-                      } catch (err) {
-                        console.log(err);
-                        alert(_l('删除失败'), 2);
-                      }
+                async function deleteRow() {
+                  if (_.isFunction(onDelete)) {
+                    onDelete();
+                  } else {
+                    try {
+                      await deleteRecord({ worksheetId, recordId });
+                      alert(_l('删除成功'));
+                      onDeleteSuccess({ appId, worksheetId, viewId, recordId });
+                    } catch (err) {
+                      console.log(err);
+                      alert(_l('删除失败'), 2);
                     }
-                  },
-                });
+                  }
+                }
+                if (isSubList) {
+                  deleteRow();
+                  return;
+                }
+                if (showRemoveRelation) {
+                  Dialog.confirm({
+                    onlyClose: true,
+                    title: <DangerConfirmTitle>{_l('注意：此操作将彻底删除原始记录')}</DangerConfirmTitle>,
+                    description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
+                    buttonType: 'danger',
+                    cancelType: 'ghostgray',
+                    okText: _l('彻底删除记录'),
+                    cancelText: _l('仅取消关联关系'),
+                    onOk: deleteRow,
+                    onCancel: () => onRemoveRelation({ confirm: false }),
+                  });
+                } else {
+                  Dialog.confirm({
+                    title: _l('是否删除此条记录'),
+                    buttonType: 'danger',
+                    onOk: deleteRow,
+                  });
+                }
               }}
             >
               {_l('删除')}
-            </RedMenuItemWrap>
+            </DeleteItemWrap>
           )}
           {showHr && showEditForm && <Hr />}
           {!window.isPublicApp && showEditForm && (
@@ -428,6 +456,8 @@ export default function RecordOperate(props) {
 
 RecordOperate.propTypes = {
   popupAlign: PropTypes.shape({}),
+  isRelateRecordTable: PropTypes.bool,
+  allowAdd: PropTypes.bool,
   showHr: PropTypes.bool,
   shows: PropTypes.arrayOf(PropTypes.string),
   maxHeight: PropTypes.number,

@@ -35,20 +35,31 @@
     }
   }
 
-  .chartCollapse {
+  .dataSourceCollapse {
     .active {
       color: #2196F3 !important;
-    }
-    .ant-collapse-item {
-      border: none !important;
     }
     .ant-collapse-header {
       display: flex;
       align-items: center;
-      padding: 16px 0 !important;
+      flex-direction: row-reverse;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333 !important;
+      padding: 16px 16px 0 16px;
     }
-    .ant-collapse-content-box {
-      padding-left: 23px !important;
+    .ant-collapse-arrow {
+      transition: transform .24s;
+      position: static !important;
+      line-height: initial !important;
+      padding: 0 !important;
+      transform: none !important;
+      &::before {
+        display: initial !important;
+      }
+      &.icon-arrow-active {
+        transform: rotate(-180deg) !important;
+      }
     }
     .axisControlItem {
       .icon-settings, .icon-trash {
@@ -60,6 +71,9 @@
           display: block;
         }
       }
+    }
+    .addCalculateControl {
+      display: flex;
     }
   }
 

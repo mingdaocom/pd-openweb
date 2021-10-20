@@ -5,6 +5,7 @@ const initialState = {
   isSearching: false,
   result: {},
   showSeachResult: false,
+  searchValue: '',
 };
 
 export default (state = initialState, action) => {
@@ -39,6 +40,11 @@ export default (state = initialState, action) => {
       return {
         ...state,
         showSeachResult: true,
+      };
+    case 'UPDATE_SEARCH_VALUYE':
+      return {
+        ...state,
+        searchValue: action.data,
       };
     default:
       return state;

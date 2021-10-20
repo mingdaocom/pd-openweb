@@ -7,7 +7,7 @@ import { ClickAway } from 'ming-ui';
 import styled from 'styled-components';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
@@ -29,6 +29,13 @@ const OnlyScanTip = styled.div`
       background: #e4f4ff;
     }
   }
+`;
+
+const PlaceHolder = styled.div`
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  color: #bdbdbd;
 `;
 
 const MAX_COUNT = 50;
@@ -70,6 +77,7 @@ export default class RelateRecordDropdown extends React.Component {
       selected: props.selected || [],
       keywords: '',
     };
+    this.initSearchControl(props);
   }
 
   componentDidMount() {
@@ -123,6 +131,19 @@ export default class RelateRecordDropdown extends React.Component {
     }
   }
 
+  initSearchControl(props) {
+    const { control = {} } = props;
+    const { searchcontrol } = control.advancedSetting || {};
+    let searchControl;
+    if (searchcontrol) {
+      searchControl = _.find(control.relationControls, { controlId: searchcontrol });
+    }
+    if (!searchControl) {
+      searchControl = _.find(control.relationControls, { attribute: 1 });
+    }
+    this.searchControl = searchControl;
+  }
+
   getDefaultRelateSheetValue() {
     try {
       const { formData, controlId, recordId, worksheetId } = this.props.control;
@@ -172,14 +193,10 @@ export default class RelateRecordDropdown extends React.Component {
   openPopup() {
     const cellToTop = this.cell.current.getBoundingClientRect().top;
     let isTop = window.innerHeight - this.cell.current.clientHeight - cellToTop < 360;
-    if (isTop && cellToTop < 360) {
-      this.offsetY = 360 - cellToTop;
-    } else {
-      this.offsetY = 0;
-    }
     this.setState({
       renderToTop: isTop,
       listvisible: true,
+      cellToTop,
     });
   }
 
@@ -279,15 +296,9 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderSingle() {
     const { insheet, isediting, control, allowOpenRecord, entityName } = this.props;
-    let { controls = [] } = this.props;
     const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
-    controls = controls.map(c =>
-      c.controlId === (c.type !== 29 && c.type !== 35 && control.sourceTitleControlId)
-        ? { ...c, type: control.sourceControlType }
-        : c,
-    );
     return (
       <React.Fragment>
         {!!selected.length && !keywords && (
@@ -301,7 +312,7 @@ export default class RelateRecordDropdown extends React.Component {
               e.stopPropagation();
             }}
           >
-            {selected[0].rowid ? getTitleTextFromControls(controls, selected[0]) : _l('关联当前%0', entityName)}
+            {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
           </span>
         )}
         {active && (
@@ -310,6 +321,9 @@ export default class RelateRecordDropdown extends React.Component {
             value={keywords}
             onChange={value => this.setState({ keywords: value })}
           />
+        )}
+        {!selected.length && active && !keywords && this.searchControl && (
+          <PlaceHolder>{_l('搜索%0', this.searchControl.controlName)}</PlaceHolder>
         )}
         {insheet && isediting && !canSelect && selected.length === 0 && (
           <span
@@ -330,7 +344,7 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderMultipe() {
-    const { insheet, controls, allowOpenRecord, entityName, cellFrom } = this.props;
+    const { insheet, control, allowOpenRecord, entityName, cellFrom } = this.props;
     const { selected, keywords } = this.state;
     const { active } = this;
     const length = selected.length;
@@ -351,7 +365,7 @@ export default class RelateRecordDropdown extends React.Component {
               }}
             >
               <span className="name InlineBlock ellipsis">
-                {record.rowid ? getTitleTextFromControls(controls, record) : _l('关联当前%0', entityName)}
+                {record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', entityName)}
               </span>
               {active && (
                 <i
@@ -376,7 +390,7 @@ export default class RelateRecordDropdown extends React.Component {
                   e.stopPropagation();
                 }}
               >
-                {getTitleTextFromControls(controls, record)}
+                {getTitleTextFromRelateControl(control, record)}
               </div>,
               i !== length - 1 && <span style={{ lineHeight: '34px', marginRight: 2 }}>, </span>,
             ]
@@ -396,7 +410,7 @@ export default class RelateRecordDropdown extends React.Component {
   renderPopup({ onlyRelateByScanCode }) {
     const { multiple, control, formData, insheet, disableNewRecord, onVisibleChange } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
-    const { keywords, selected, listvisible, newrecordVisible, renderToTop } = this.state;
+    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop } = this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
       <ClickAway
@@ -424,6 +438,7 @@ export default class RelateRecordDropdown extends React.Component {
             keyWords={keywords}
             control={control}
             formData={formDataArray}
+            maxHeight={renderToTop && cellToTop}
             style={{
               ...(renderToTop
                 ? {
@@ -529,6 +544,7 @@ export default class RelateRecordDropdown extends React.Component {
   render() {
     const {
       insheet,
+      zIndex,
       isediting,
       control = {},
       selectedStyle,
@@ -560,13 +576,12 @@ export default class RelateRecordDropdown extends React.Component {
           getPopupContainer={popupContainer || (() => document.body)}
           popupAlign={{
             points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
-            offset: [0, this.offsetY || 0],
+            offset: [0, 0],
             overflow: {
               adjustX: !this.isMobile,
-              adjustY: true,
             },
           }}
-          zIndex={this.isMobile ? 999 : 1000}
+          zIndex={zIndex || (this.isMobile ? 999 : 1000)}
           destroyPopupOnHide
           popup={popup}
         >

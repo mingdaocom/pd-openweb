@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
@@ -9,14 +8,21 @@ import './filterText.less';
 
 const FilterTextWrap = styled.div`
   width: 100%;
-  background: #f5f5f5;
   border: 1px solid #dddddd;
   border-radius: 3px;
-  padding: 8px 16px 10px;
+  padding: 0 12px 6px 12px;
   box-sizing: border-box;
   color: #333;
   margin: 10px 0;
   display: flex;
+  cursor: pointer;
+  &:hover {
+    background: #f5f5f5;
+    border-color: #d8d8d8;
+    .editFilter {
+      color: #2196f3;
+    }
+  }
 
   .txtFilter {
     flex: 1;
@@ -45,12 +51,14 @@ const FilterTextWrap = styled.div`
     }
   }
 
-  .editFilter {
-    width: 20px;
+  .flexBox {
+    line-height: 22px;
+  }
 
-    &:hover {
-      color: #2196f3 !important;
-    }
+  .editFilter {
+    color: #9e9e9e;
+    font-size: 15px;
+    padding-top: 5px;
   }
 
   .editWorkflow {
@@ -73,11 +81,15 @@ export default class FilterItemTexts extends React.Component {
       sourceControlId,
     );
     return (
-      <FilterTextWrap>
+      <FilterTextWrap
+        onClick={() => {
+          editFn();
+        }}
+      >
         <div className="txtFilter fieldEditTxtFilter">
           {filterItemTexts.length > 0 ? (
             filterItemTexts.map((item, index) => (
-              <div key={item.id} className="pRight10 mTop5 flexBox">
+              <div key={item.id} className="pRight10 mTop6 flexBox">
                 {index ? (
                   <span className="mRight10 Gray_75 Font13">
                     {filterItemTexts[index - 1] && filterItemTexts[index - 1].spliceType == 1 ? _l('且') : _l('或')}
@@ -108,13 +120,9 @@ export default class FilterItemTexts extends React.Component {
             </div>
           )}
         </div>
-        <Icon
-          icon="hr_edit"
-          className="Gray_9d Font18 editFilter Hand"
-          onClick={() => {
-            editFn();
-          }}
-        />
+        <div className="editFilter">
+          <i className="icon-edit"></i>
+        </div>
       </FilterTextWrap>
     );
   }

@@ -102,6 +102,24 @@ export function quickFilter(state = [], action) {
   }
 }
 
+export function navGroupFilters(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_UPDATE_GROUP_FILTER':
+      return action.navGroupFilters || [];
+    default:
+      return state;
+  }
+}
+
+export function navGroupCounts(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_NAVGROUP_COUNT':
+      return action.data || [];
+    default:
+      return state;
+  }
+}
+
 export function controls(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_INIT':

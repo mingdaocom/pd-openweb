@@ -28,7 +28,7 @@ function getWidth(value) {
 }
 
 export default function AutoWidthInput(props) {
-  const { value, height, mountRef = () => {}, onChange = () => {} } = props;
+  const { value, height, placeholder = '', mountRef = () => {}, onChange = () => {} } = props;
   const [width, setWidth] = useState(4);
   const ref = useRef();
   useEffect(() => {
@@ -37,14 +37,15 @@ export default function AutoWidthInput(props) {
   useEffect(() => {
     if (ref && ref.current) {
       setTimeout(() => {
-        ref.current.focus();
-      }, 1);
+        if (ref.current) ref.current.focus();
+      }, 10);
       mountRef(ref);
     }
   }, []);
   return (
     <Input
       ref={ref}
+      placeholder={placeholder}
       value={value}
       style={{ width: width + 2, lineHeight: `${height || 34}px` }}
       onChange={e => {

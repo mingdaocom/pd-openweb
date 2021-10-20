@@ -45,6 +45,7 @@ export default function RelateRecordBlock(props) {
     setRelateNumOfControl,
     onScrollLeftChange,
     onRelateRecordsChange = () => {},
+    onActiveIdChange = () => {},
   } = props;
   const { recordId } = recordbase;
   const [loading, setLoading] = useState(true);
@@ -100,6 +101,7 @@ export default function RelateRecordBlock(props) {
           onScrollLeftChange={onScrollLeftChange}
           onClick={controlId => {
             setLoading(true);
+            onActiveIdChange(controlId);
             setActiveControlId(controlId);
             scrollToBottom();
           }}
@@ -120,7 +122,15 @@ export default function RelateRecordBlock(props) {
         controls={activeControl.relationControls}
         registeRefreshEvents={registeRefreshEvents}
         setRelateNumOfControl={num => {
-          setRelateNumOfControl({ ...relateNumOfControl, [activeControl.controlId]: num }, activeControl.controlId);
+          setRelateNumOfControl(
+            {
+              ...relateNumOfControl,
+              [activeControl.controlId]: _.isFunction(num)
+                ? num(relateNumOfControl[activeControl.controlId] || activeControl.value)
+                : num,
+            },
+            activeControl.controlId,
+          );
         }}
         setLoading={setLoading}
         onRelateRecordsChange={records => {

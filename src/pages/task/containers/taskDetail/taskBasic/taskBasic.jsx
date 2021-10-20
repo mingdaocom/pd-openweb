@@ -5,7 +5,13 @@ import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskCenter';
 import Textarea from 'ming-ui/components/Textarea';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
-import { afterUpdateTaskStar, afterUpdateTaskName, afterUpdateTaskCharge, joinProjectPrompt, afterUpdateTaskStage } from '../../../utils/taskComm';
+import {
+  afterUpdateTaskStar,
+  afterUpdateTaskName,
+  afterUpdateTaskCharge,
+  joinProjectPrompt,
+  afterUpdateTaskStage,
+} from '../../../utils/taskComm';
 import { checkIsProject } from '../../../utils/utils';
 import UserHead from 'src/pages/feed/components/userHead';
 import 'dialogSelectUser';
@@ -77,7 +83,10 @@ class TaskBasic extends Component {
         return;
       }
       _this.MD_UI_Tooltip({
-        text: _l('所属组织：%0', that.props.taskDetails[that.props.taskId].data.projectName || _l('个人')),
+        text: _l(
+          '所属组织：%0',
+          (that.props.taskDetails[that.props.taskId] || { data: {} }).data.projectName || _l('个人'),
+        ),
         arrowLeft: 0, // tip箭头的左位移，可以负数
         offsetLeft: -8, // tip的左位移，可以负数
         offsetTop: 0, // tip的上位移，可以负数
@@ -134,7 +143,8 @@ class TaskBasic extends Component {
     } else if (type === 3) {
       const arr = id.split('|');
       // 工作表
-      if (arr.length === 2) { // 老数据
+      if (arr.length === 2) {
+        // 老数据
         navigateTo(`/worksheet/${arr[0]}/row/${arr[1]}`);
       } else if (arr.length === 4) {
         // 视图id不存在的情况
@@ -154,7 +164,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
-    const stages = data.stages.map((item) => {
+    const stages = data.stages.map(item => {
       return {
         text: htmlDecodeReg(item.name),
         value: item.id,
@@ -175,7 +185,10 @@ class TaskBasic extends Component {
           </Fragment>
         ) : (
           <Fragment>
-            <div className="taskDeatilFolderName pointer ThemeColor3 overflow_ellipsis" onClick={() => this.openFolder(data.folderID, data.folderCanLook)}>
+            <div
+              className="taskDeatilFolderName pointer ThemeColor3 overflow_ellipsis"
+              onClick={() => this.openFolder(data.folderID, data.folderCanLook)}
+            >
               {htmlDecodeReg(data.folderName)}
             </div>
             <div className="taskDeatilFolderStage">
@@ -223,11 +236,11 @@ class TaskBasic extends Component {
   /**
    * 更改阶段
    */
-  switchTaskStage = (stageId) => {
+  switchTaskStage = stageId => {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const stageName = _.find(data.stages, item => item.id === stageId).name;
-    const callback = (data) => {
+    const callback = data => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskStage(stageId, taskId, data);
       }
@@ -242,7 +255,10 @@ class TaskBasic extends Component {
   renderParentItem(item, i, showBtn) {
     return (
       <li key={i} className="flexRow">
-        <div className="Font16 overflow_ellipsis ThemeColor3 ThemeBorderColor3 pointer" onClick={() => this.props.switchTaskDetail(item.taskID)}>
+        <div
+          className="Font16 overflow_ellipsis ThemeColor3 ThemeBorderColor3 pointer"
+          onClick={() => this.props.switchTaskDetail(item.taskID)}
+        >
           {item.taskName} >
         </div>
         <div className="flex" />
@@ -287,9 +303,11 @@ class TaskBasic extends Component {
   clickChargeAvatar(evt) {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
-    const callback = (users) => {
+    const callback = users => {
       const user = users[0];
-      this.props.dispatch(updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)));
+      this.props.dispatch(
+        updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
+      );
     };
 
     $(evt.target).quickSelectUser({
@@ -323,7 +341,7 @@ class TaskBasic extends Component {
   /**
    * 负责人 op操作
    */
-  chargeReadyFn = (evt) => {
+  chargeReadyFn = evt => {
     const that = this;
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
@@ -341,7 +359,9 @@ class TaskBasic extends Component {
           unique: true,
           callback(users) {
             const user = users[0];
-            that.props.dispatch(updateTaskCharge(taskId, user, '', () => that.afterUpdateTaskCharge(user.avatar, user.accountId)));
+            that.props.dispatch(
+              updateTaskCharge(taskId, user, '', () => that.afterUpdateTaskCharge(user.avatar, user.accountId)),
+            );
           },
         },
       });
@@ -351,7 +371,7 @@ class TaskBasic extends Component {
   /**
    * 回车失去焦点
    */
-  updateTaskNameKeyDown = (evt) => {
+  updateTaskNameKeyDown = evt => {
     if (evt.keyCode === 13) {
       evt.currentTarget.blur();
       evt.preventDefault();
@@ -406,7 +426,9 @@ class TaskBasic extends Component {
       return null;
     }
 
-    const inviterAccount = item.account.inviteAccountID ? { accountId: item.account.inviteAccountID, fullName: item.account.inviteFullName } : null;
+    const inviterAccount = item.account.inviteAccountID
+      ? { accountId: item.account.inviteAccountID, fullName: item.account.inviteFullName }
+      : null;
 
     return (
       <span key={i} className="membersListItem">
@@ -477,7 +499,9 @@ class TaskBasic extends Component {
 
     // 设为负责人
     evt.on('click', '.updateTaskCharge', () => {
-      this.props.dispatch(updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)));
+      this.props.dispatch(
+        updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
+      );
     });
 
     // 移出成员
@@ -499,7 +523,7 @@ class TaskBasic extends Component {
   /**
    * 添加成员
    */
-  addMembers = (evt) => {
+  addMembers = evt => {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     let existsIds = data.member.filter(item => item.type !== 3).map(item => item.account.accountID);
@@ -509,11 +533,11 @@ class TaskBasic extends Component {
       const specialAccounts = {}; // 外部用户
 
       if ($.isFunction(callbackInviteResult)) {
-        users.forEach((item) => {
+        users.forEach(item => {
           specialAccounts[item.account] = item.fullname;
         });
       } else {
-        users.forEach((item) => {
+        users.forEach(item => {
           userIdArr.push(item.accountId);
         });
       }
@@ -554,12 +578,14 @@ class TaskBasic extends Component {
     const tagOptions = [];
     const tagSelect = [];
 
-    tags.forEach((tag) => {
+    tags.forEach(tag => {
       tagOptions.push({ text: tag.tagName, id: tag.tagID, color: tag.color });
       tagSelect.push(tag.tagID);
     });
 
-    $('.taskTagBox:last').html('<input type="text" class="taskTagList" value="" tabIndex="-1" style="display: none;" />');
+    $('.taskTagBox:last').html(
+      '<input type="text" class="taskTagList" value="" tabIndex="-1" style="display: none;" />',
+    );
 
     selectizeLib = $('.taskTagList:last').selectize({
       valueField: 'id',
@@ -578,7 +604,13 @@ class TaskBasic extends Component {
       preload: 'focus',
       render: {
         option(data, escape) {
-          return '<div class="option"><span class="tagsIcon" style="background:' + (data.color || 'transparent') + '"></span>' + escape(data.text) + '</div>';
+          return (
+            '<div class="option"><span class="tagsIcon" style="background:' +
+            (data.color || 'transparent') +
+            '"></span>' +
+            escape(data.text) +
+            '</div>'
+          );
         },
         item(data, escape) {
           return (
@@ -600,10 +632,14 @@ class TaskBasic extends Component {
       },
       onItemAdd(tagID, $item) {
         const tagName = $item.find('.tagName').text();
-        const callback = (data) => {
+        const callback = data => {
           if (data) {
             if (!tagID) {
-              selectizeLib[0].selectize.updateOption('createNewTagsID', { id: data.id, text: data.value, color: data.extra });
+              selectizeLib[0].selectize.updateOption('createNewTagsID', {
+                id: data.id,
+                text: data.value,
+                color: data.extra,
+              });
             }
           } else {
             selectizeLib[0].selectize.removeOption(tagID || 'createNewTagsID');
@@ -619,7 +655,7 @@ class TaskBasic extends Component {
           removeTasksTag(taskId, tagID[0], () => {
             const selectize = selectizeLib[0].selectize;
             selectize.addOption([selectize.options[tagID[0]]]);
-          })
+          }),
         );
       },
     });
@@ -633,16 +669,16 @@ class TaskBasic extends Component {
     const { data } = this.props.taskDetails[taskId];
     const selectTags = data.tags.map(tag => tag.tagID);
 
-    ajaxRequest.getTagsByTaskID({ taskID: taskId, keywords }).then((source) => {
+    ajaxRequest.getTagsByTaskID({ taskID: taskId, keywords }).then(source => {
       const selectize = selectizeLib[0].selectize || {};
 
-      $.map(Object.keys(selectize.options), (key) => {
+      $.map(Object.keys(selectize.options), key => {
         if (selectTags.indexOf(selectize.options[key].id) < 0) {
           selectize.removeOption(key);
         }
       });
       const list = [];
-      $.map(source.data, (item) => {
+      $.map(source.data, item => {
         list.push({ text: item.tagName, id: item.tagID, color: item.color });
       });
       callback(list);
@@ -684,7 +720,7 @@ class TaskBasic extends Component {
   /**
    * 删除附件
    */
-  deleteAttachmentData = (data) => {
+  deleteAttachmentData = data => {
     const { taskId } = this.props;
     this.props.dispatch(deleteAttachmentData(taskId, data));
   };
@@ -692,7 +728,7 @@ class TaskBasic extends Component {
   /**
    * 编辑描述
    */
-  updateTaskSummary = (summary) => {
+  updateTaskSummary = summary => {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
 
@@ -721,7 +757,11 @@ class TaskBasic extends Component {
         )}
         <div className="taskContentBox taskContentBasicBox">
           {this.renderFolder()}
-          <ul className="parentTaskList">{data.ancestors.map((item, i) => this.renderParentItem(item, i, hasAuth && i === data.ancestors.length - 1))}</ul>
+          <ul className="parentTaskList">
+            {data.ancestors.map((item, i) =>
+              this.renderParentItem(item, i, hasAuth && i === data.ancestors.length - 1),
+            )}
+          </ul>
           <div className="flexRow mTop15">
             <span className="chargeAvatar" onClick={evt => hasAuth && this.clickChargeAvatar(evt)}>
               <UserHead
@@ -748,7 +788,11 @@ class TaskBasic extends Component {
               onKeyDown={this.updateTaskNameKeyDown}
               onBlur={this.updateTaskName}
             />
-            <span className="detailStar tip-bottom-left" data-tip={data.star ? _l('移除星标') : _l('添加星标')} onClick={this.updateTaskMemberStar}>
+            <span
+              className="detailStar tip-bottom-left"
+              data-tip={data.star ? _l('移除星标') : _l('添加星标')}
+              onClick={this.updateTaskMemberStar}
+            >
               <i className={data.star ? 'icon-task-star' : 'icon-star-hollow'} />
             </span>
           </div>
@@ -771,25 +815,22 @@ class TaskBasic extends Component {
               <i className="icon-ic_attachment_black taskContentIcon" />
               <div>
                 {!hasAuth && !data.attachments.length && <span className="detailAttsNull">{_l('无上传附件')}</span>}
-                {hasAuth &&
-                  (
-                    <UploadFilesTrigger
-                      canAddLink
-                      minWidth={130}
-                      onUploadComplete={isComplete => this.setState({ isComplete })}
-                      temporaryData={attachmentData}
-                      kcAttachmentData={kcAttachmentData}
-                      onTemporaryDataUpdate={res => this.setState({ attachmentData: res })}
-                      onKcAttachmentDataUpdate={res => this.setState({ kcAttachmentData: res })}
-                      getPopupContainer={() => document.querySelector('.taskDetailContent .nano-content')}
-                      onCancel={this.cancelAttachment}
-                      onOk={this.addTaskAttachments}
-                    >
-                      <span className="detailAttsBtn ThemeColor3">
-                        {_l('添加附件')}
-                      </span>
-                    </UploadFilesTrigger>
-                  )}
+                {hasAuth && (
+                  <UploadFilesTrigger
+                    canAddLink
+                    minWidth={130}
+                    onUploadComplete={isComplete => this.setState({ isComplete })}
+                    temporaryData={attachmentData}
+                    kcAttachmentData={kcAttachmentData}
+                    onTemporaryDataUpdate={res => this.setState({ attachmentData: res })}
+                    onKcAttachmentDataUpdate={res => this.setState({ kcAttachmentData: res })}
+                    getPopupContainer={() => document.querySelector('.taskDetailContent .nano-content')}
+                    onCancel={this.cancelAttachment}
+                    onOk={this.addTaskAttachments}
+                  >
+                    <span className="detailAttsBtn ThemeColor3">{_l('添加附件')}</span>
+                  </UploadFilesTrigger>
+                )}
 
                 <UploadFiles
                   isUpload={false}
@@ -811,7 +852,11 @@ class TaskBasic extends Component {
               <div className="membersList">
                 {data.member.map((item, i) => this.renderMemberItem(item, i, hasAuth))}
                 {hasAuth && (
-                  <span className="ThemeColor3 detailAddMember" data-tip={_l('添加任务参与者')} onClick={this.addMembers}>
+                  <span
+                    className="ThemeColor3 detailAddMember"
+                    data-tip={_l('添加任务参与者')}
+                    onClick={this.addMembers}
+                  >
                     <i className="icon-task-add-member-circle" />
                   </span>
                 )}

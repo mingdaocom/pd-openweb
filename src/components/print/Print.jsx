@@ -422,7 +422,7 @@ export default class Print extends Component {
         if (!value) {
           content = '';
         } else {
-          content = enumDefault === 1 ? formatFormulaDate(value, unit) : value;
+          content = enumDefault === 1 ? formatFormulaDate({ value, unit }) : value;
         }
         return content;
       }

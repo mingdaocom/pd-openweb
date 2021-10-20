@@ -332,7 +332,8 @@ class EditInfo extends React.Component {
               let value = this.state[con.key];
               if (con.key === 'mobilePhone' && this.iti) {
                 const countryData = this.iti.getSelectedCountryData();
-                value = _.get(value.match('(?<=' + countryData.dialCode + ')[^"]+'), 0) || '';
+                const dialCode = `+${countryData.dialCode}`;
+                value = (value || '').replace(dialCode, '');
               }
               return (
                 <TextInput

@@ -92,6 +92,18 @@ define(function (require, exports, module) {
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
     **/
+    getEnabledWatermark: function (args, options) {
+      return $.api('ProjectSetting', 'GetEnabledWatermark', args, options);
+    },
+
+    /**
+    * 获取 是否开启水印
+    * @param {Object} args 请求参数
+    * @param {string} args.projectId 网络id
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
     getOnlyManagerCreateApp: function (args, options) {
       return $.api('ProjectSetting', 'GetOnlyManagerCreateApp', args, options);
     },
@@ -120,6 +132,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -143,6 +156,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -166,6 +180,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -189,6 +204,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -212,6 +228,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -235,6 +252,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -258,6 +276,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -280,6 +299,30 @@ define(function (require, exports, module) {
     **/
     setOnlyManagerCreateApp: function (args, options) {
       return $.api('ProjectSetting', 'SetOnlyManagerCreateApp', args, options);
+    },
+
+    /**
+    * 设置 是否 只允许管理员创建应用
+    * @param {Object} args 请求参数
+    * @param {string} args.projectId 网络id
+    * @param {boolean} args.allowProjectCodeJoin 企业标识
+    * @param {string} args.logoName LOGO
+    * @param {string} args.imageName 二级域名页面背景图片
+    * @param {boolean} args.birthdayNoticeEnabled 生日提醒
+    * @param {boolean} args.isAudit 设置审批
+    * @param {boolean} args.forAll 设置允许全员可见组织结构
+    * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
+    * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
+    * @param {boolean} args.notice 设置允许Score通知
+    * @param {string} args.subDomain 设置二级域名
+    * @param {string} args.domain 删除绑定的域名
+    * @param {Object} options 配置参数
+    * @param {Boolean} options.silent 是否禁止错误弹层
+    * @returns {Promise<Boolean, ErrorModel>}
+    **/
+    setEnabledWatermark: function (args, options) {
+      return $.api('ProjectSetting', 'SetEnabledWatermark', args, options);
     },
 
     /**
@@ -307,6 +350,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名
@@ -330,6 +374,7 @@ define(function (require, exports, module) {
     * @param {boolean} args.forAll 设置允许全员可见组织结构
     * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
     * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+    * @param {boolean} args.enabledWatermark 是否 启用水印
     * @param {boolean} args.notice 设置允许Score通知
     * @param {string} args.subDomain 设置二级域名
     * @param {string} args.domain 删除绑定的域名

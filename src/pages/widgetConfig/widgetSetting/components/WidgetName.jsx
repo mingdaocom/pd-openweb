@@ -4,8 +4,8 @@ import { Input } from 'antd';
 import { SettingItem } from '../../styled';
 
 export default function WidgetName(props) {
-  const { title = _l('字段名称'), data, onChange } = props;
-  const { type, controlName, controlId } = data;
+  const { title = _l('字段名称'), data = {}, onChange } = props;
+  const { type, controlName, controlId = '' } = data;
   const $ref = useRef(null);
 
   useEffect(() => {

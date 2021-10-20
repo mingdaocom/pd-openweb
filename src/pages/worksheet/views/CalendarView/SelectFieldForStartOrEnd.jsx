@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/calendarSet/SelectStartOrEnd.jsx';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getAdvanceSetting } from 'src/util';
-
+import { getTimeControls } from './util';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -31,8 +31,8 @@ export default function SelectFieldForStartOrEnd(props) {
   const { appId, worksheetId, viewId } = base;
   const [view, setView] = useState(props.view || {});
   let { begindate = '', enddate = '' } = getAdvanceSetting(view);
-  let timeControls = controls.filter(item => item.controlId !== 'utime' && _.includes([15, 16], item.type));
-  begindate = begindate ? begindate : timeControls[0].controlId;
+  let timeControls = getTimeControls(controls) || [];
+  begindate = begindate ? begindate : (timeControls[0] || {}).controlId;
   useEffect(() => {
     setView(props.view);
   }, [props.view]);
@@ -47,7 +47,7 @@ export default function SelectFieldForStartOrEnd(props) {
   }, [begindate]);
 
   const handleChangeFn = obj => {
-    const { begindate = timeControls[0].controlId, enddate } = obj.advancedSetting;
+    const { begindate = (timeControls[0] || {}).controlId, enddate } = obj.advancedSetting;
     saveView(viewId, {
       advancedSetting: updateViewAdvancedSetting(view, { begindate, enddate }),
       editAttrs: ['advancedSetting'],
@@ -57,7 +57,7 @@ export default function SelectFieldForStartOrEnd(props) {
   const [endData, setEndData] = useState([]);
   const [isDeleteN, setIsDeleteN] = useState(isDelete);
   useEffect(() => {
-    setStartData(begindate ? timeControls.find((it, i) => it.controlId === begindate) : timeControls[0]);
+    setStartData(begindate ? timeControls.find((it, i) => it.controlId === begindate) : timeControls[0] || {});
   }, [begindate]);
   useEffect(() => {
     setIsDeleteN(begindate && (!startData || startData.length <= 0));

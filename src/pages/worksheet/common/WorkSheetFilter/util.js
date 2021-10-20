@@ -75,11 +75,7 @@ export function formatOriginFilterValue(item) {
         controlId: condition.controlId,
         controlType: condition.dataType,
         conditionGroupType,
-        keyStr:
-          condition.controlId +
-          Math.random()
-            .toString(16)
-            .slice(2),
+        keyStr: condition.controlId + Math.random().toString(16).slice(2),
         type: condition.filterType,
         dateRange: condition.dateRange,
         dateRangeType: condition.dateRangeType,
@@ -126,14 +122,14 @@ export function checkConditionAvailable(condition) {
       return values && values.length;
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
-        return !_.isUndefined(minValue) && !_.isUndefined(maxValue);
+        return !_.isUndefined(minValue) || !_.isUndefined(maxValue);
       } else {
         return !_.isUndefined(value);
       }
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       return true;
     case CONTROL_FILTER_WHITELIST.DATE.value:
-      if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
+      if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return !_.isUndefined(minValue) && !_.isUndefined(maxValue);
       } else {
         return dateRange === 10 || dateRange === 11 || dateRange === 18
@@ -178,20 +174,19 @@ export function getConditionOverrideValue(type, condition) {
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       return base;
     case CONTROL_FILTER_WHITELIST.DATE.value:
-      if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
+      if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return Object.assign({}, base, {
-          minValue: moment()
-            .add(-1, 'day')
-            .startOf('day')
-            .format(),
-          maxValue: moment()
-            .endOf('day')
-            .format(),
+          minValue: moment().add(-1, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+          maxValue: moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
           dateRange,
           dateRangeType,
         });
       } else {
-        return Object.assign({}, base, { dateRange: dateRange || 1, value, dateRangeType: dateRangeType || 1 });
+        return Object.assign({}, base, {
+          dateRange: dateRange || 1,
+          value: formatDateValue({ type, value }),
+          dateRangeType: dateRangeType || 1,
+        });
       }
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
     case CONTROL_FILTER_WHITELIST.USERS.value:
@@ -281,11 +276,7 @@ export function getDefaultCondition(control) {
   const baseCondition = {
     controlId: control.controlId,
     controlType: control.type,
-    keyStr:
-      control.controlId +
-      Math.random()
-        .toString(16)
-        .slice(2),
+    keyStr: control.controlId + Math.random().toString(16).slice(2),
     control,
     conditionGroupType,
     type:
@@ -319,8 +310,8 @@ export function redefineComplexControl(contorl) {
       },
     };
   }
-  if (contorl.type === 38 && contorl.enumDefault === 2) {
-    return { ...contorl, ...{ type: 15 } };
+  if (contorl.type === 38) {
+    return { ...contorl, ...{ type: contorl.enumDefault === 2 ? 15 : 6 } };
   }
   return { ...contorl };
 }
@@ -685,7 +676,9 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     }
   } else if (dataType === 29 || dataType === 35) {
     try {
-      condition.values = JSON.parse(value).map(r => r.sid).filter(_.identity);
+      condition.values = JSON.parse(value)
+        .map(r => r.sid)
+        .filter(_.identity);
     } catch (err) {
       condition.values = [];
     }
@@ -722,6 +715,14 @@ export function fillConditionValue({ condition, formData, relateControl }) {
   return condition;
 }
 
-/**
- * 公式-数值类型 汇总数值类型
- */
+export function formatDateValue({ type, value }) {
+  if (type === FILTER_CONDITION_TYPE.DATE_GT) {
+    // 晚于
+    return moment(value).endOf('day').format('YYYY-MM-DD HH:mm:ss');
+  } else if (type === FILTER_CONDITION_TYPE.DATE_GT) {
+    // 早于
+    return moment(value).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+  } else {
+    return value;
+  }
+}

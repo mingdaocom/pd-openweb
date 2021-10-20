@@ -203,10 +203,11 @@ export default class Attachments extends React.Component {
                 crossOrigin="anonymous"
                 className="thumbnail"
                 role="presentation"
-                src={attachment.previewUrl.replace(
-                  /\?(.*)/,
-                  '?imageMogr2/auto-orient/interlace/1|imageView2/1/w/87/h/100',
-                )}
+                src={
+                  attachment.previewUrl.indexOf('imageView2') > -1
+                    ? attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/87/h/100')
+                    : `${attachment.previewUrl}&imageView2/1/w/87/h/100`
+                }
                 style={{ width: 'auto', height: fileHeight }}
               />
             ) : (

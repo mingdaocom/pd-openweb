@@ -78,7 +78,7 @@ export default class ChartSetting extends Component {
         <PivotTableAxis
           name={_l('数值')}
           verifyNumber={true}
-          axisControls={axisControls}
+          axisControls={axisControls.concat(currentReport.formulas)}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
             onChangeCurrentReport({

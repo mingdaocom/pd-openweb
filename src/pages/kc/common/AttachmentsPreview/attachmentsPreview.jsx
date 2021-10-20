@@ -3,10 +3,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { convertImageView, addToken } from 'src/util';
 import * as postController from 'src/api/post';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
+
+import ExtIcon from '../../components/ExtIcon';
 
 import { PREVIEW_TYPE, LOADED_STATUS } from './constant/enum';
 import * as Actions from './actions/action';
@@ -68,7 +69,7 @@ class AttachmentsPreview extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.refIconCon) {
+    if (this.refIconCon && _.get(md, 'global.Account.accountId')) {
       this.handlePreviewLinkThumbnail(
         this.refIconCon,
         this.props.attachments[this.props.index].sourceNode.originLinkUrl,
@@ -181,12 +182,17 @@ class AttachmentsPreview extends React.Component {
     }
     const { attachments, index, showAttInfo, hideFunctions, extra, error } = this.props;
     const currentAttachment = attachments[index];
-    const { previewType, ext, name, previewAttachmentType } = currentAttachment;
-    let viewUrl = currentAttachment.viewUrl ? addToken(currentAttachment.viewUrl) : null;
+    const { ext, name, previewAttachmentType } = currentAttachment;
+    let { previewType } = currentAttachment;
+    let { viewUrl = '' } = currentAttachment;
     let { canDownload, showDownload } = previewUtil.getPermission(currentAttachment, { hideFunctions });
 
     if (error && error.status === LOADED_STATUS.DELETED) {
       canDownload = false;
+    }
+
+    if (ext === 'txt') {
+      previewType = PREVIEW_TYPE.MARKDOWN;
     }
 
     const isFullScreen = this.props.fullscreen; // ***** TODO 全屏
@@ -267,7 +273,7 @@ class AttachmentsPreview extends React.Component {
                         ref={imageViewer => {
                           this.refImageViewer = imageViewer;
                         }}
-                        src={convertImageView(viewUrl)}
+                        src={viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')}
                         con={this.refPreviewCon}
                         toggleFullscreen={this.props.actions.toggleFullScreen}
                         fullscreen={isFullScreen}
@@ -294,7 +300,7 @@ class AttachmentsPreview extends React.Component {
                   case PREVIEW_TYPE.MARKDOWN:
                     return (
                       <CodeViewer
-                        className="fileViewer"
+                        className={cx('fileViewer', { txtViewer: ext === 'txt' })}
                         src={viewUrl}
                         type={previewType === PREVIEW_TYPE.CODE ? 'code' : 'markdown'}
                         onError={() => {
@@ -347,7 +353,12 @@ class AttachmentsPreview extends React.Component {
                   default:
                     return (
                       <div className="canNotView">
-                        <span className={'canNotViewIcon ' + getClassNameByExt(ext)} />
+                        {getClassNameByExt(ext) === 'fileIcon-doc' ? (
+                          <ExtIcon ext={ext} />
+                        ) : (
+                          <span className={'canNotViewIcon ' + getClassNameByExt(ext)} />
+                        )}
+
                         <p className="fileName">
                           <span className="ellipsis">{name}</span>
                           {ext ? '.' + ext : ''}

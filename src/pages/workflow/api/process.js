@@ -205,6 +205,19 @@ var process = {
     return $.api(controllerName, 'processstartProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 根据流程id手动触发流程
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestStartProcessByProcessId} {processId:流程id(string),}*startProcess
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  startProcessById: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/process/startProcessById';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'processstartProcessById', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 修改流程基本信息
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

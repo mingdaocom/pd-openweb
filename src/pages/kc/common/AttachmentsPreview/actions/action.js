@@ -26,6 +26,9 @@ function addViewCount(attachment) {
 
 function loadAttachment(attachment, options = {}) {
   const promise = $.Deferred();
+
+  if (!attachment) attachment = {};
+
   let { previewAttachmentType, previewType } = attachment;
   const { refId } = attachment.sourceNode;
   addViewCount(attachment);

@@ -25,7 +25,7 @@ const NumberChartContent = styled.div`
     width: 100%;
     color: #333;
     font-weight: 500;
-    font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-family: system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   }
   .range {
     font-size: ${props => 0.5 * props.fontSize}px !important;

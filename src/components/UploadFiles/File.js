@@ -9,7 +9,7 @@ import * as postController from 'src/api/post';
 import kcService from 'src/pages/kc/api/service';
 import { editLinkAttachment } from 'src/api/attachment';
 import { getFileExtends, isDocument, formatTime } from './utils';
-import { formatFileSize, isVideo, convertImageView, addToken, getClassNameByExt } from 'src/util';
+import { formatFileSize, isVideo, addToken, getClassNameByExt } from 'src/util';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -40,33 +40,36 @@ export default class FileComponent extends Component {
     let { width } = UploadFile.getBoundingClientRect();
   }
   componentDidUpdate() {
-    if (this.linkCon && !this.linkRendered) {
+    if (this.linkCon && !this.linkRendered && _.get(md, 'global.Account.accountId')) {
       this.handlePreviewLink();
     }
   }
   onEdit(event) {
     event.stopPropagation();
     let { isEdit } = this.state;
-    setTimeout(() => {
-      this.setState(
-        {
-          isEdit: !isEdit,
-        },
-        () => {
-          if (this.editInput) {
-            this.editInput.focus();
-            this.editInput.selectionStart = 100;
-            this.editInput.selectionEnd = 100;
-          }
+    setTimeout(
+      () => {
+        this.setState(
+          {
+            isEdit: !isEdit,
+          },
+          () => {
+            if (this.editInput) {
+              this.editInput.focus();
+              this.editInput.selectionStart = 100;
+              this.editInput.selectionEnd = 100;
+            }
 
-          if (isEdit) {
-            this.setState({
-              penelVisible: false,
-            });
-          }
-        }
-      );
-    }, isEdit ? 200 : 0);
+            if (isEdit) {
+              this.setState({
+                penelVisible: false,
+              });
+            }
+          },
+        );
+      },
+      isEdit ? 200 : 0,
+    );
   }
   onKeyDown(id, event) {
     if (event.which === 13) {
@@ -79,7 +82,7 @@ export default class FileComponent extends Component {
     if (!isDownload) {
       alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
     } else {
-      window.open(addToken(url));
+      window.open(addToken(url, !window.isDingTalk));
     }
   }
   onShare(isDownload, event) {
@@ -111,6 +114,8 @@ export default class FileComponent extends Component {
         ext: getFileExtends(data.ext),
         size: data.filesize,
         path: `${data.filepath}${data.filename}`,
+        previewUrl: data.previewUrl,
+        viewUrl: data.viewUrl,
       };
     } else {
       attachment = {
@@ -119,6 +124,8 @@ export default class FileComponent extends Component {
         ext: getFileExtends(data.ext),
         size: data.filesize,
         path: `${data.filepath}${data.filename}`,
+        previewUrl: data.previewUrl,
+        viewUrl: data.viewUrl,
       };
     }
 
@@ -131,7 +138,9 @@ export default class FileComponent extends Component {
       params.name = attachment.name;
       params.ext = `.${attachment.ext}`;
       params.size = attachment.size || 0; // 临时
-      params.imgSrc = isPicture ? convertImageView(attachment.path, 2, 490) : undefined;
+      params.imgSrc = isPicture
+        ? `${attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/490')}`
+        : undefined;
       params.qiniuPath = attachment.path;
       params.isKcFolder = data.attachmentType === 5;
       // params.node = attachment;
@@ -310,18 +319,16 @@ export default class FileComponent extends Component {
     let isKc = !!fileResponse.refId;
     let fileClassName = getClassNameByExt(fileResponse.type === 1 ? false : fileResponse.fileExt);
     let isPicture = File.isPicture(fileResponse.fileExt);
-    let { twice } = fileResponse;
+    let { twice = {} } = fileResponse;
 
     return isPicture ? (
       <Fragment>
-        {
-          isKc ? (
-            <div className="UploadFiles-kcIcon">
-              <i className="icon icon-knowledge1" />
-            </div>
-          ) : null
-        }
-        {this.renderFileImage(fileResponse.viewUrl || convertImageView(`${twice.thumbnailPath}${twice.thumbnailName}`, 1, 200, 140))}
+        {isKc ? (
+          <div className="UploadFiles-kcIcon">
+            <i className="icon icon-knowledge1" />
+          </div>
+        ) : null}
+        {this.renderFileImage(twice.previewUrl ? twice.previewUrl : `${fileResponse.viewUrl}|imageView2/1/w/200/h/140`)}
       </Fragment>
     ) : (
       <div className="UploadFiles-fileAccessory">
@@ -344,7 +351,10 @@ export default class FileComponent extends Component {
     let isKc = !!fileResponse.refId;
     let { isEdit, penelVisible } = this.state;
     let isPicture = File.isPicture(fileResponse.fileExt);
-    let penelClass = cx('UploadFiles-filePanel', isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory');
+    let penelClass = cx(
+      'UploadFiles-filePanel',
+      isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
+    );
     let fileSize = formatFileSize(fileResponse.fileSize);
     let textClass = cx('UploadFiles-panelTextName', {
       ThemeColor3: !isPicture,
@@ -353,7 +363,9 @@ export default class FileComponent extends Component {
     let handleOpen = (event, isEdit) => {
       event.stopPropagation();
       if (!isEdit) {
-        isKc ? this.props.onKcTwicePreview(fileResponse.fileID, index, event) : this.props.onPreview(fileResponse.fileID, index, event);
+        isKc
+          ? this.props.onKcTwicePreview(fileResponse.fileID, index, event)
+          : this.props.onPreview(fileResponse.fileID, index, event);
       }
     };
 
@@ -368,8 +380,10 @@ export default class FileComponent extends Component {
           this.setState({ penelVisible: true });
         }}
         onMouseLeave={() => {
-          this.setState({ penelVisible: !!isEdit }), this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
-        }}>
+          this.setState({ penelVisible: !!isEdit }),
+            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
+        }}
+      >
         <div className="UploadFiles-panelText">
           {isEdit ? (
             <input
@@ -406,7 +420,8 @@ export default class FileComponent extends Component {
                     this.onConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
                   }}
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                  data-tip={_l('删除')}>
+                  data-tip={_l('删除')}
+                >
                   <i className="icon-task-new-delete" />
                 </div>
               </div>
@@ -415,16 +430,21 @@ export default class FileComponent extends Component {
             <div>
               <div
                 onClick={event => {
+                  const { onDeleteFile } = this.props;
                   event.nativeEvent.stopImmediatePropagation();
                   event.stopPropagation();
-                  // this.onConfirmDelete(this.props.onDeleteFile.bind(this, fileResponse.fileID, event));
-                  this.props.onDeleteFile(fileResponse.fileID, event);
+                  onDeleteFile && onDeleteFile(fileResponse.fileID, event);
                 }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}>
+                data-tip={_l('删除')}
+              >
                 <i className="icon-task-new-delete" />
               </div>
-              <div onClick={this.onEdit.bind(this)} className="UploadFiles-panelBtn UploadFiles-panelBtn-edit" data-tip={_l('重命名')}>
+              <div
+                onClick={this.onEdit.bind(this)}
+                className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
+                data-tip={_l('重命名')}
+              >
                 <i className="ThemeHoverColor3 icon-new_mail" />
               </div>
             </div>
@@ -437,16 +457,24 @@ export default class FileComponent extends Component {
     let fileClassName = getClassNameByExt(fileResponse.fileExt);
     let isPicture = File.isPicture(fileResponse.fileExt);
     let isMDLink = fileResponse.viewType === 5;
+    const url = fileResponse.previewUrl || fileResponse.url || '';
+
     return isPicture ? (
       <Fragment>
-        {
-          isKc ? (
-            <div className="UploadFiles-kcIcon">
-              <i className="icon icon-knowledge1" />
-            </div>
-          ) : null
-        }
-        {this.renderFileImage(isKc ? fileResponse.viewUrl : convertImageView(`${fileResponse.serverName}${fileResponse.key}`, 1, 200, 140))}
+        {isKc ? (
+          <div className="UploadFiles-kcIcon">
+            <i className="icon icon-knowledge1" />
+          </div>
+        ) : null}
+        {this.renderFileImage(
+          isKc
+            ? fileResponse.viewUrl
+            : `${
+                url.indexOf('imageView2') > -1
+                  ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+                  : url + '&imageView2/1/w/200/h/140'
+              }`,
+        )}
       </Fragment>
     ) : (
       <div className="UploadFiles-fileAccessory">
@@ -459,7 +487,8 @@ export default class FileComponent extends Component {
           className="UploadFiles-fileIconWrapper"
           ref={con => {
             this.linkCon = isMDLink && con;
-          }}>
+          }}
+        >
           <div className={cx(fileClassName, 'UploadFiles-fileIcon')} />
         </div>
         <div className="UploadFiles-fileName">
@@ -472,7 +501,10 @@ export default class FileComponent extends Component {
   renderPenel(fileResponse, index, isKc) {
     let { isEdit, penelVisible } = this.state;
     let isPicture = File.isPicture(fileResponse.fileExt);
-    let penelClass = cx('UploadFiles-filePanel', isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory');
+    let penelClass = cx(
+      'UploadFiles-filePanel',
+      isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
+    );
     let fileSize = formatFileSize(fileResponse.fileSize);
     let textClass = cx('UploadFiles-panelTextName', {
       ThemeColor3: !isPicture,
@@ -496,8 +528,10 @@ export default class FileComponent extends Component {
           this.setState({ penelVisible: true });
         }}
         onMouseLeave={() => {
-          this.setState({ penelVisible: !!isEdit, menuVisible: false }), this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
-        }}>
+          this.setState({ penelVisible: !!isEdit, menuVisible: false }),
+            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
+        }}
+      >
         <div className="UploadFiles-panelText">
           {isEdit ? (
             <input
@@ -534,7 +568,8 @@ export default class FileComponent extends Component {
                   this.props.onDeleteKcFile(fileResponse.refId, event);
                 }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}>
+                data-tip={_l('删除')}
+              >
                 <i className="icon-task-new-delete" />
               </div>
             </div>
@@ -542,16 +577,21 @@ export default class FileComponent extends Component {
             <div>
               <div
                 onClick={event => {
+                  const { onDeleteFile } = this.props;
                   event.nativeEvent.stopImmediatePropagation();
                   event.stopPropagation();
-                  // this.onConfirmDelete(this.props.onDeleteFile.bind(this, fileResponse.fileID, event));
-                  this.props.onDeleteFile(fileResponse.fileID, event);
+                  onDeleteFile && onDeleteFile(fileResponse.fileID, event);
                 }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}>
+                data-tip={_l('删除')}
+              >
                 <i className="icon-task-new-delete" />
               </div>
-              <div onClick={this.onEdit.bind(this)} className="UploadFiles-panelBtn UploadFiles-panelBtn-edit" data-tip={_l('重命名')}>
+              <div
+                onClick={this.onEdit.bind(this)}
+                className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
+                data-tip={_l('重命名')}
+              >
                 <i className="ThemeHoverColor3 icon-new_mail" />
               </div>
             </div>
@@ -585,14 +625,14 @@ export default class FileComponent extends Component {
 
     return isPicture && viewImage ? (
       <Fragment>
-        {
-          isKc ? (
+        {isKc ? (
           <div className="UploadFiles-kcIcon">
             <i className="icon icon-knowledge1" />
           </div>
-          ) : null
-        }
-        {this.renderFileImage(convertImageView(fileResponse.previewUrl || `${fileResponse.thumbnailPath}${fileResponse.thumbnailName}`, 1, 200, 140))}
+        ) : null}
+        {this.renderFileImage(
+          `${fileResponse.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`)}`,
+        )}
       </Fragment>
     ) : (isDoc || isVid) && fileResponse.previewUrl && viewImage ? (
       this.renderPreview(fileResponse, fileClassName, isDoc, isVid, isKc)
@@ -607,7 +647,8 @@ export default class FileComponent extends Component {
           className="UploadFiles-fileIconWrapper"
           ref={con => {
             this.linkCon = isMDLink && con;
-          }}>
+          }}
+        >
           <div className={cx(fileClassName, 'UploadFiles-fileIcon')} />
         </div>
         {browse ? (
@@ -642,7 +683,10 @@ export default class FileComponent extends Component {
 
     let downloadUrl = false;
     if (fileResponse.downloadUrl) {
-      downloadUrl = fileResponse.attachmentType == 5 ? `${fileResponse.downloadUrl}&shareFolderId=${fileResponse.refId}` : fileResponse.downloadUrl;
+      downloadUrl =
+        fileResponse.attachmentType == 5
+          ? `${fileResponse.downloadUrl}&shareFolderId=${fileResponse.refId}`
+          : fileResponse.downloadUrl;
     } else {
       downloadUrl = `${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${fileResponse.fileID}`;
     }
@@ -653,7 +697,10 @@ export default class FileComponent extends Component {
       browse = false;
     }
 
-    let penelClass = cx('UploadFiles-filePanel', isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory');
+    let penelClass = cx(
+      'UploadFiles-filePanel',
+      isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
+    );
     let textClass = cx('UploadFiles-panelTextName', {
       ThemeColor3: !isPicture,
     });
@@ -664,14 +711,17 @@ export default class FileComponent extends Component {
         className={penelClass}
         onClick={event => {
           event.stopPropagation();
-          browse ? this.props.onPreview(fileResponse.fileID, index, event) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
+          browse
+            ? this.props.onPreview(fileResponse.fileID, index, event)
+            : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
         }}
         onMouseEnter={() => {
           this.setState({ penelVisible: true });
         }}
         onMouseLeave={() => {
           this.setState({ penelVisible: false, menuVisible: false });
-        }}>
+        }}
+      >
         <div className="UploadFiles-panelText">
           <div className={textClass} title={`${fileResponse.originalFilename}${fileResponse.ext}`}>
             <span style={vertical}>{`${fileResponse.originalFilename}${fileResponse.ext}`}</span>
@@ -697,59 +747,66 @@ export default class FileComponent extends Component {
                   this.onConfirmDelete(this.props.onDeleteMDFile.bind(this, fileResponse, event));
                 }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}>
+                data-tip={_l('删除')}
+              >
                 <i className="icon-task-new-delete" />
               </div>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
           </div>
           <div className={cx({ hide: !browse })}>
             {/* 是否不可下载 */}
-            {!hideDownload &&
-              <div onClick={this.onDownload.bind(this, isDownload, downloadUrl)} className="UploadFiles-panelBtn" data-tip={_l('下载')}>
+            {!hideDownload && (
+              <div
+                onClick={this.onDownload.bind(this, isDownload, downloadUrl)}
+                className="UploadFiles-panelBtn"
+                data-tip={_l('下载')}
+              >
                 <i className="ThemeHoverColor3 icon-download" />
               </div>
-            }
+            )}
             {((!isMDLink && !hideDownload) ||
               !hideDownload ||
-              (isMDLink && fileResponse.accountId === md.global.Account.accountId)) && <div className="UploadFiles-panelBtn" onClick={this.onOpenMenu.bind(this)}>
-              <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
-              <div
-                className="UploadFiles-panelBtnMask"
-                data-tip={_l('更多')}
-                onMouseEnter={() => {
-                  this.setState({ moreVisible: true });
-                }}
-                onMouseLeave={() => {
-                  this.setState({ moreVisible: false });
-                }}
-              />
-              <Menu
-                style={{ width: 120, left: menuOffset, top: 30, zIndex: 100, bottom: 'inherit' }}
-                className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
-                onClickAway={() => this.setState({ menuVisible: false })}>
-                {/* 是否不可下载 且 不可保存到知识和分享 */}
-                {!isMDLink && !hideDownload && (
-                  <MenuItem onClick={this.onShare.bind(this, isDownload)}>
-                    <Icon icon="share" />
-                    <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
-                  </MenuItem>
-                )}
-                {/* 是否不可下载 且 不可保存到知识和分享 */}
-                {!hideDownload && !md.global.SysSettings.forbidSuites.includes('4') && <MenuItem onClick={this.onSaveToKc.bind(this, isDownload)}>
-                  <Icon icon="knowledge-cloud" />
-                  <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
-                </MenuItem>}
-                {isMDLink &&
-                  fileResponse.accountId === md.global.Account.accountId && (
+              (isMDLink && fileResponse.accountId === md.global.Account.accountId)) && (
+              <div className="UploadFiles-panelBtn" onClick={this.onOpenMenu.bind(this)}>
+                <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
+                <div
+                  className="UploadFiles-panelBtnMask"
+                  data-tip={_l('更多')}
+                  onMouseEnter={() => {
+                    this.setState({ moreVisible: true });
+                  }}
+                  onMouseLeave={() => {
+                    this.setState({ moreVisible: false });
+                  }}
+                />
+                <Menu
+                  style={{ width: 120, left: menuOffset, top: 30, zIndex: 100 }}
+                  className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
+                  onClickAway={() => this.setState({ menuVisible: false })}
+                >
+                  {/* 是否不可下载 且 不可保存到知识和分享 */}
+                  {!isMDLink && !hideDownload && (
+                    <MenuItem onClick={this.onShare.bind(this, isDownload)}>
+                      <Icon icon="share" />
+                      <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
+                    </MenuItem>
+                  )}
+                  {/* 是否不可下载 且 不可保存到知识和分享 */}
+                  {!hideDownload && (
+                    <MenuItem onClick={this.onSaveToKc.bind(this, isDownload)}>
+                      <Icon icon="knowledge-cloud" />
+                      <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
+                    </MenuItem>
+                  )}
+                  {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
                     <MenuItem onClick={this.onEditLink.bind(this)}>
                       <Icon icon="hr_edit" />
                       <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
                     </MenuItem>
                   )}
-              </Menu>
-            </div>}
+                </Menu>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -770,7 +827,7 @@ export default class FileComponent extends Component {
       },
       {
         silent: true,
-      }
+      },
     );
     this.previewLinkAjax.then(res => {
       if (res) {
@@ -782,7 +839,7 @@ export default class FileComponent extends Component {
           const img = $(
             '<div class="linkThumbnailCon"><span class="fileIcon-link"></span><div class="linkThumbnail"><img src="' +
               imgArr[0] +
-              '" /></div></div>'
+              '" /></div></div>',
           );
           img.find('img').on('error', () => {
             $(con).html('<div className="fileIcon-link UploadFiles-fileIcon" }></div>');
@@ -818,23 +875,24 @@ export default class FileComponent extends Component {
         ref={UploadFile => {
           this.UploadFile = UploadFile;
         }}
-        style={style}>
+        style={style}
+      >
         <div className="UploadFiles-file">
           {isDelete ? this.renderDelete() : undefined}
           {twice
             ? this.renderTwiceView(data)
             : accountId || sourceID
-              ? this.renderMDView(data)
-              : data.refId
-                ? this.renderView(data, true)
-                : data.fileID && this.renderView(data)}
+            ? this.renderMDView(data)
+            : data.refId
+            ? this.renderView(data, true)
+            : data.fileID && this.renderView(data)}
           {twice
             ? this.renderTwicePenel(data, index)
             : accountId || sourceID
-              ? this.renderMDPenel(data, index)
-              : data.refId
-                ? this.renderPenel(data, index, true)
-                : data.fileID && this.renderPenel(data, index)}
+            ? this.renderMDPenel(data, index)
+            : data.refId
+            ? this.renderPenel(data, index, true)
+            : data.fileID && this.renderPenel(data, index)}
           {!!progress && (
             <div className="UploadFiles-loadfileWrapper">
               <div>
@@ -854,11 +912,14 @@ export default class FileComponent extends Component {
                 <span style={vertical}>{`${base.fileName}${base.fileExt}`}</span>
               </div>
               <div
-                className={cx('UploadFiles-loadfileClose', { Hidden: !parseInt(progress) })}
+                className={cx('UploadFiles-loadfileClose', {
+                  //  Hidden: !parseInt(progress)
+                })}
                 data-tip={_l('取消上传')}
                 onClick={() => {
                   this.props.removeUploadingFile(base.id);
-                }}>
+                }}
+              >
                 <i className="ThemeHoverColor3 icon-close" />
               </div>
             </div>

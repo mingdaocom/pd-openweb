@@ -186,7 +186,7 @@ export default class Member extends Component {
 
     return (
       <ul className="flowDetailMembers">
-        {accounts.map((item, i) => {
+        {(accounts || []).map((item, i) => {
           return (
             <li key={i} className="flexRow" style={{ zIndex: accounts.length - i }}>
               {item.type === USER_TYPE.USER && this.renderUser(item)}

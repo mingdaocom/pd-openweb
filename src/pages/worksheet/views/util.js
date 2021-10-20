@@ -80,8 +80,10 @@ export function getRecordAttachments(coverImageStr) {
           const isPicture = File.isPicture(firstFile.ext);
           const previewUrl = _.get(firstFile, 'previewUrl');
           if (isPicture) {
-            const originImage = previewUrl.split('?')[0];
-            coverImage = `${originImage}?imageView2/0/h/200`;
+            coverImage =
+              previewUrl.indexOf('imageView2') > -1
+                ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
+                : `${previewUrl}&imageView2/0/h/200`;
           } else {
             coverImage = previewUrl;
           }

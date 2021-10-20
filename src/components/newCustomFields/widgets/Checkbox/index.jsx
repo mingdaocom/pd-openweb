@@ -99,7 +99,7 @@ export default class Widgets extends Component {
     let sources = [];
 
     checkIds.forEach(item => {
-      if (item.indexOf('add_') > -1) {
+      if ((item || '').toString().indexOf('add_') > -1) {
         sources.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       } else {
         sources.push(options.find(o => o.key === item && !o.isDeleted));
@@ -108,7 +108,7 @@ export default class Widgets extends Component {
 
     return (
       <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
-        <div className="flex">
+        <div className="flex minWidth0">
           {sources
             .filter(item => item)
             .map(item => {
@@ -131,7 +131,7 @@ export default class Widgets extends Component {
     const checkIds = JSON.parse(value || '[]');
 
     checkIds.forEach(item => {
-      if (item.indexOf('add_') > -1) {
+      if ((item || '').toString().indexOf('add_') > -1) {
         noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
     });

@@ -132,13 +132,8 @@ export default class MyAppItem extends Component {
   };
 
   render() {
-    const {
-      editAppVisible,
-      selectIconVisible,
-      delAppConfirmVisible,
-      quitAppConfirmVisible,
-      copyAppVisible,
-    } = this.state;
+    const { editAppVisible, selectIconVisible, delAppConfirmVisible, quitAppConfirmVisible, copyAppVisible } =
+      this.state;
     const {
       type,
       iconColor,
@@ -160,7 +155,8 @@ export default class MyAppItem extends Component {
     return (
       <div
         ref={this.$myAppItem}
-        className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}>
+        className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}
+      >
         <div className={cx('myAppItemWrap')}>
           <div className="myAppItem" onClick={e => this.handleClick(id, e)} onDoubleClick={this.handleDbClick}>
             <div className="myAppItemDetail" style={{ backgroundColor: iconColor }}>
@@ -185,7 +181,8 @@ export default class MyAppItem extends Component {
 
           <div
             className="star appItemIcon"
-            onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked })}>
+            onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked })}
+          >
             <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
           </div>
           {isCanEdit(permissionType, isLock) && (
@@ -205,7 +202,8 @@ export default class MyAppItem extends Component {
               popupAlign={{
                 points: ['tl', 'bl'],
                 offset: [0, 0],
-              }}>
+              }}
+            >
               <div className="myAppItemMore appItemIcon" onClick={() => this.switchVisible({ editAppVisible: true })}>
                 <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="task-point-more" />
               </div>
@@ -213,8 +211,11 @@ export default class MyAppItem extends Component {
           )}
           {delAppConfirmVisible && (
             <VerifyDel
-              name={name}
-              onOk={() => this.switchVisible({ delAppConfirmVisible: false }, this.handleApp('del'))}
+              para={{ appId: id, projectId: projectId, name: name }}
+              mode="del"
+              onOk={para =>
+                this.switchVisible({ delAppConfirmVisible: false }, this.props.handleApp({ ...para, mode: 'del' }))
+              }
               onCancel={() => this.switchVisible({ delAppConfirmVisible: false })}
             />
           )}
@@ -224,7 +225,8 @@ export default class MyAppItem extends Component {
               title={<span style={{ color: '#f44336' }}>{_l('您确认退出此应用吗?')}</span>}
               buttonType="danger"
               onOk={() => this.switchVisible({ quitAppConfirmVisible: false }, this.handleApp('quit'))}
-              onCancel={() => this.switchVisible({ quitAppConfirmVisible: false })}>
+              onCancel={() => this.switchVisible({ quitAppConfirmVisible: false })}
+            >
               <div className="Gray_75">{_l('退出此应用后，您将无法访问此应用')}</div>
             </Dialog>
           )}

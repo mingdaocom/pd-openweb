@@ -9,7 +9,7 @@ class Color extends Component {
   constructor(props) {
     super(props);
     const { style, xaxes } = props.currentReport;
-    const { colorType, colorGroupIndex, customColors } = style ? style : _.object();
+    const { colorType, colorGroupIndex, customColors } = style ? style : {};
     const defaultColors = colorGroup[0].value;
     const defaultCustomColors = defaultColors.map(item => defaultColors[0]);
     const controlColors = xaxes.options ? xaxes.options.map(item => item.color) : [];
@@ -29,7 +29,7 @@ class Color extends Component {
   handleSave = () => {
     const { currentReport, onChange } = this.props;
     const { type, colorGroupIndex, customColors } = this.state;
-    const param = _.object();
+    const param = {};
     if (type === 1) {
       param.colorGroupIndex = colorGroupIndex;
     } else {

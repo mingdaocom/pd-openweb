@@ -237,7 +237,7 @@ class UploadAssistant extends React.Component {
             alert(errTip);
           }
           const fileList = comp.state.fileList.update(err.file.id, fileItem => {
-            if (!fileItem) return fileItem;
+            if (!fileItem) fileItem = {};
             fileItem.errorText = errTip;
             fileItem.status = UPLOAD_STATUS.ERROR;
             return fileItem;
@@ -246,7 +246,8 @@ class UploadAssistant extends React.Component {
         },
         UploadProgress(up, file) {
           const fileList = comp.state.fileList.update(file.id, fileItem => {
-            fileItem.loaded = file.loaded;
+            if (!fileItem) fileItem = {};
+            fileItem.loaded = file && file['loaded'];
             fileItem.status = UPLOAD_STATUS.UPLOADING;
             return fileItem;
           });
@@ -265,6 +266,7 @@ class UploadAssistant extends React.Component {
             })
             .then(res => {
               const fileList = comp.state.fileList.update(file.id, fileItem => {
+                if (!fileItem) fileItem = {};
                 if (res) {
                   fileItem.status = UPLOAD_STATUS.COMPLETE;
                   fileItem.name = res.name + (res.ext ? '.' : '') + res.ext;

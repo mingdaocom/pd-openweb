@@ -115,7 +115,7 @@ export default class YAxis extends Component {
   renderModal() {
     const { yaxisList } = this.props;
     const { currentControlId } = this.state;
-    const control = _.find(yaxisList, { controlId: currentControlId }) || _.object();
+    const control = _.find(yaxisList, { controlId: currentControlId }) || {};
     return (
       <RenameModal
         dialogVisible={!!currentControlId}

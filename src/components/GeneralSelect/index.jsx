@@ -47,6 +47,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import autobind from './autobind';
 import DefaultUserList from './DefaultUserList';
 import DepartmentGroupUserList from './DepartmentGroupUserList';
+import DepartmentTree from './DepartmentTree';
 import ExtraUserList from './ExtraUserList';
 import DepartmentList from './DepartmentList';
 import GroupList from './GroupList';
@@ -354,7 +355,13 @@ export default class GeneraSelect extends Component {
         doAction = tabItem.actions.getContactUsers;
       } else if (tabItem.type == RenderTypes.DEPARTMENT_USER) {
         // 部门
-        doAction = tabItem.actions.getDepartments;
+        if (this.state.keywords) {
+          doAction = tabItem.actions.getDepartments;
+        } else {
+          doAction = departmentController.pagedDepartmentTrees;
+          reqData.pageIndex = 1;
+          reqData.pageSize = 20;
+        }
       } else if (tabItem.type == RenderTypes.GROUP_USER) {
         // 群组
         doAction = tabItem.actions.getGroups;
@@ -1133,19 +1140,42 @@ export default class GeneraSelect extends Component {
         );
       /** 渲染部门选人列表 */
       case RenderTypes.DEPARTMENT_USER:
-        return (
-          <DepartmentGroupUserList
-            data={mainData.data}
-            onChange={this.toogleUserSelect}
-            toggleUserItem={this.toggleUserItem}
-            allSelectUserItem={this.allSelectUserItem}
-            selectedUsers={this.selectedUsers}
-            getKeys={this.getKeys}
-            tabType={UserTabsId.DEPARTMENT}
-            unique={this.userSettings.unique}
-            keywords={this.state.keywords}
-          />
-        );
+        if (this.state.keywords) {
+          return (
+            <DepartmentGroupUserList
+              data={mainData.data}
+              onChange={this.toogleUserSelect}
+              toggleUserItem={this.toggleUserItem}
+              allSelectUserItem={this.allSelectUserItem}
+              selectedUsers={this.selectedUsers}
+              getKeys={this.getKeys}
+              tabType={UserTabsId.DEPARTMENT}
+              unique={this.userSettings.unique}
+              keywords={this.state.keywords}
+            />
+          );
+        } else {
+          return (
+            <DepartmentTree
+              data={mainData.data}
+              onChange={this.toogleUserSelect}
+              selectedUsers={this.selectedUsers}
+              userSettings={this.userSettings}
+              projectId={this.commonSettings.projectId}
+              removeSelectedData={(data) => {
+                let selectedArr = [...this.state.selectedData];
+                this.setState({
+                  selectedData: selectedArr.filter(item => !data.includes(item.data.accountId))
+                });
+              }}
+              addSelectedData={(data) => {
+                this.setState({
+                  selectedData: this.state.selectedData.concat(data)
+                });
+              }}
+            />
+          );
+        }
       /** 渲染群组选人列表 */
       case RenderTypes.GROUP_USER:
         return (
@@ -1265,7 +1295,7 @@ export default class GeneraSelect extends Component {
 
   /** 选择用户 */
   renderUsersContent() {
-    return <div className="GSelect-usersContent">{this.renderUsersList()}</div>;
+    return <div className="GSelect-usersContent h100">{this.renderUsersList()}</div>;
   }
 
   /** 选择部门 */

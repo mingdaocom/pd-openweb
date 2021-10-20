@@ -12,7 +12,7 @@ import GroupController from 'src/api/group';
 import { sendCardToChat } from 'src/api/chat';
 import _ from 'lodash';
 import '../../lib/mentionInput/js/mentionInput';
-import { isVideo, setCaretPosition } from 'src/util';
+import { isVideo, setCaretPosition, getToken } from 'src/util';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
   if (i >= length) {
@@ -71,7 +71,7 @@ export default class SendToolbar extends Component {
       .fetchUploadToken({
         type: 1,
       })
-      .then((data) => {
+      .then(data => {
         this.initUpload(data);
       });
     // AT
@@ -86,7 +86,7 @@ export default class SendToolbar extends Component {
       autoHide: false,
       mdBear: true,
       showAru: true,
-      offset:  isFileTrsnsfer ? 313 : 263,
+      offset: isFileTrsnsfer ? 313 : 263,
       relatedLeftSpace: isFileTrsnsfer ? -304 : -254,
       historyKey: `${md.global.Account.accountId || ''}_mdEmotions`,
       onMDBearSelect: (name, src, targetEmotionSrc) => {
@@ -120,9 +120,6 @@ export default class SendToolbar extends Component {
 
     $(uploadFile).plupload({
       url: md.global.FileStoreConfig.uploadHost,
-      multipart_params: {
-        token,
-      },
       file_data_name: 'file',
       multi_selection: true,
       drop_element: `ChatPanel-${session.id}`,
@@ -132,20 +129,23 @@ export default class SendToolbar extends Component {
         FilesAdded(uploader, files) {
           let count = 0;
           const emptyFile = 0;
-
+          const tokenFiles = [];
           for (let j = 0; j < files.length; j++) {
             if (File.isValid('.' + File.GetExt(files[j].name))) {
               count++;
             } else {
               uploader.removeFile(files[j]);
             }
+            let fileExt = `.${File.GetExt(files[j].name)}`;
+            let isPic = File.isPicture(fileExt);
+            tokenFiles.push({ bucket: 1, ext: fileExt }); //chat 上传都用 bucket: 1
           }
 
           const emptyFiles = files => {
             files.forEach(item => {
               uploader.removeFile(item);
             });
-          }
+          };
 
           if (count != files.length) {
             alert(_l('含有不支持格式的文件'), 3);
@@ -165,25 +165,46 @@ export default class SendToolbar extends Component {
             return false;
           }
 
-          recurShowFileConfirm(uploader, files, 0, files.length, _this.props.onPrepareUpload.bind(this));
+          getToken(tokenFiles).then(res => {
+            files.forEach((item, i) => {
+              item.token = res[i].uptoken;
+              item.key = res[i].key;
+              item.serverName = res[i].serverName;
+              item.fileName = res[i].fileName;
+            });
+            recurShowFileConfirm(uploader, files, 0, files.length, _this.props.onPrepareUpload.bind(this));
+          });
         },
         BeforeUpload(uploader, file) {
+          const fileExt = `.${File.GetExt(file.name)}`;
+          uploader.settings.multipart_params = { token: file.token };
+          uploader.settings.multipart_params.key = file.key;
+          uploader.settings.multipart_params['x:serverName'] = window.config.FilePath; //chat 上传都用 window.config.FilePath
+          uploader.settings.multipart_params['x:filePath'] = file.key ? file.key.replace(file.fileName, '') : '';
+          uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
+          uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+          );
+          uploader.settings.multipart_params['x:fileExt'] = fileExt;
           const cb = window[`chatBeforeUpload${file.id}`];
           cb && cb(uploader);
-          uploader.settings.multipart_params.key = key + utils.getUUID() + '.' + File.GetExt(file.name);
         },
         UploadProgress(uploader, file) {
-          const uploadPercent = (file.loaded / file.size * 100).toFixed(1);
+          const uploadPercent = ((file.loaded / file.size) * 100).toFixed(1);
           const cb = window[`chatUploadProgress${file.id}`];
           cb && cb(uploadPercent);
         },
         FileUploaded(uploader, file, response) {
           const uploadFile = JSON.parse(response.response);
-          const ext = `.${ File.GetExt(file.name) }`;
+          const ext = uploadFile.fileExt;
           const isPicture = File.isPicture(ext);
           const isVideoFile = isVideo(ext);
-          const msg = isPicture ? `[${_l('图片')}]` : ( isVideoFile ? `[${_l('视频')}]` :  `[${_l('文件')}] ${file.name}` );
-          const type = isPicture ? Constant.MSGTYPE_PIC : ( isVideoFile ? Constant.MSGTYPE_APP_VIDEO : Constant.MSGTYPE_FILE);
+          const msg = isPicture ? `[${_l('图片')}]` : isVideoFile ? `[${_l('视频')}]` : `[${_l('文件')}] ${file.name}`;
+          const type = isPicture
+            ? Constant.MSGTYPE_PIC
+            : isVideoFile
+            ? Constant.MSGTYPE_APP_VIDEO
+            : Constant.MSGTYPE_FILE;
           const path = window.config.FilePath + uploadFile.key;
           uploadFile.id = file.id;
           uploadFile.name = file.name;
@@ -192,15 +213,18 @@ export default class SendToolbar extends Component {
             ajax.getVideoInfo(`${path}?avinfo`).then(result => {
               const { streams } = result;
               const duration = _.filter(streams, 'duration')[0] ? _.filter(streams, 'duration')[0].duration : 0;
-              const height = _.filter(streams, 'height')[0].height;
-              const width = _.filter(streams, 'width')[0].width;
+              const height = (_.filter(streams, 'height')[0] || streams).height; // 兼容161环境的streams
+              const width = (_.filter(streams, 'width')[0] || streams).width;
               const rotate = _.filter(streams, 'tags.rotate')[0];
               let size = null;
               if (rotate) {
                 const rotateValue = rotate.tags.rotate;
-                size = rotateValue == 90 || rotateValue == 270 ? {video_height: width, video_width: height} : {video_height: height, video_width: width};
+                size =
+                  rotateValue == 90 || rotateValue == 270
+                    ? { video_height: width, video_width: height }
+                    : { video_height: height, video_width: width };
               } else {
-                size = {video_height: height, video_width: width};
+                size = { video_height: height, video_width: width };
               }
               const file = {
                 video_duration: duration,
@@ -210,10 +234,10 @@ export default class SendToolbar extends Component {
                 ...uploadFile,
               };
               uploadFile.video = file;
-              _this.props.onSendFileMsg( { file: uploadFile, type }, msg );
+              _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
             });
           } else {
-            _this.props.onSendFileMsg( { file: uploadFile, type }, msg );
+            _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
           }
         },
         Error() {},
@@ -228,7 +252,7 @@ export default class SendToolbar extends Component {
         this.setState({
           isHidden: false,
         });
-      }
+      },
     );
   }
   initKeyAT() {
@@ -287,17 +311,18 @@ export default class SendToolbar extends Component {
     });
   }
   handleKnowledgeFile() {
-    import('src/components/kc/folderSelectDialog/folderSelectDialog').then((selectNode) => {
-      selectNode.default({
-        isFolderNode: 2,
-        reRootName: true,
-        dialogTitle: _l('选择路径'),
-      })
-        .then((result) => {
+    import('src/components/kc/folderSelectDialog/folderSelectDialog').then(selectNode => {
+      selectNode
+        .default({
+          isFolderNode: 2,
+          reRootName: true,
+          dialogTitle: _l('选择路径'),
+        })
+        .then(result => {
           if (!result || !result.node) {
             return $.Deferred().reject();
           }
-          result.node.forEach((item) => {
+          result.node.forEach(item => {
             this.handleSendCardToChat(item);
           });
         })
@@ -326,10 +351,10 @@ export default class SendToolbar extends Component {
       [session.isGroup ? 'toGroupId' : 'toAccountId']: session.id,
     };
     sendCardToChat(params)
-      .then((reuslt) => {
+      .then(reuslt => {
         alert(_l('发送成功'));
       })
-      .fail((error) => {
+      .fail(error => {
         alert(_l('发送失败'), 2);
       });
   }
@@ -344,7 +369,7 @@ export default class SendToolbar extends Component {
         <div
           className="menuItem ThemeBGColor3"
           onClick={this.handleLocalFile.bind(this)}
-          ref={(uploadFile) => {
+          ref={uploadFile => {
             this.uploadFile = uploadFile;
           }}
           id={`file-${id}`}
@@ -388,7 +413,7 @@ export default class SendToolbar extends Component {
       <div className="ChatPanel-sendToolbar">
         <div
           onClick={this.handleRecord.bind(this)}
-          ref={(emotion) => {
+          ref={emotion => {
             this.emotion = emotion;
           }}
           className="icon-btn tip-top"
@@ -400,7 +425,7 @@ export default class SendToolbar extends Component {
         {session.isGroup ? (
           <div
             onClick={this.handleOpenAt.bind(this)}
-            ref={(at) => {
+            ref={at => {
               this.at = at;
             }}
             className="icon-btn tip-top-left"
@@ -408,12 +433,16 @@ export default class SendToolbar extends Component {
           >
             <i className="icon-chat-at" />
           </div>
-        ) : (
-          id === 'file-transfer' ? undefined : <div onClick={this.props.onShake.bind(this)} className="icon-btn tip-top" data-tip={_l('抖动ta的屏幕')}>
+        ) : id === 'file-transfer' ? undefined : (
+          <div onClick={this.props.onShake.bind(this)} className="icon-btn tip-top" data-tip={_l('抖动ta的屏幕')}>
             <i className="icon-chat-shake" />
           </div>
         )}
-        <div className={cx('icon-btn tip-top', {btnCapture: !isCapture})} data-tip={_l('截屏')} onClick={this.handleIpcRenderer.bind(this)}>
+        <div
+          className={cx('icon-btn tip-top', { btnCapture: !isCapture })}
+          data-tip={_l('截屏')}
+          onClick={this.handleIpcRenderer.bind(this)}
+        >
           <i className="icon-outil_capture" />
         </div>
       </div>

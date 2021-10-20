@@ -9,7 +9,7 @@ export const getSameLevelIds = (data, firstId) => {
 
   while (nextId && nextId !== '99') {
     ids.push(nextId);
-    nextId = data[nextId].nextId;
+    nextId = (data[nextId] || {}).nextId;
   }
 
   return ids;
@@ -143,16 +143,7 @@ export const checkConditionsIsNull = data => {
   (data || []).forEach(list =>
     list.forEach(item => {
       // 不是 不为空、为空、已填写、未填写、在范围内、不在范围内、选中、未选中、有、无
-      if (
-        item.conditionId !== '7' &&
-        item.conditionId !== '8' &&
-        item.conditionId !== '15' &&
-        item.conditionId !== '16' &&
-        item.conditionId !== '29' &&
-        item.conditionId !== '30' &&
-        item.conditionId !== '31' &&
-        item.conditionId !== '32'
-      ) {
+      if (!_.includes(['7', '8', '15', '16', '29', '30', '31', '32', '37', '38'], item.conditionId)) {
         if (
           _.isEmpty(item) ||
           !item.conditionValues.length ||
@@ -160,7 +151,7 @@ export const checkConditionsIsNull = data => {
         ) {
           nullFields++;
         }
-      } else if (item.conditionId === '15' || item.conditionId === '16') {
+      } else if (_.includes(['15', '16', '37', '38'], item.conditionId)) {
         if (
           !item.conditionValues.length ||
           (!(item.conditionValues[0] || {}).value &&
@@ -244,7 +235,7 @@ export const getConditionList = (type, enumDefault) => {
       break;
     case 15:
     case 16:
-      list = { ids: ['9', '10', '17', '18', '15', '16', '8', '7'], defaultConditionId: '9' };
+      list = { ids: ['9', '10', '41', '39', '37', '38', '8', '7'], defaultConditionId: '9' };
       break;
     case 19:
     case 23:
@@ -281,7 +272,7 @@ export const getConditionList = (type, enumDefault) => {
       if (enumDefault === 1) {
         list = { ids: ['9', '10', '11', '12', '13', '14', '15', '16', '8', '7'], defaultConditionId: '9' };
       } else {
-        list = { ids: ['9', '10', '17', '18', '15', '16', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '41', '39', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
       break;
   }
@@ -314,6 +305,8 @@ export const getConditionNumber = id => {
     case '34':
     case '35':
     case '36':
+    case '39':
+    case '41':
     case '42':
       count = 1;
       break;
@@ -327,6 +320,8 @@ export const getConditionNumber = id => {
       break;
     case '15':
     case '16':
+    case '37':
+    case '38':
       count = 2;
       break;
   }

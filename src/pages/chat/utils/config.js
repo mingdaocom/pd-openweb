@@ -46,7 +46,7 @@ const Config = {
   // FILE_MESSAGEREFERENCE_PLACEHODLER: seajs.data.base + 'src/components/chat/resource/images/whiteboard.png',
   // FILE_PLACEHODLER: seajs.data.base + 'src/components/chat/resource/images/message_placeholder.png',
   MSG_LENGTH_DEFAULT: 10, // 默认显示的消息条数
-  MSG_LENGTH_MORE: 10, // 加载更多一次加载的消息条数
+  MSG_LENGTH_MORE: 20, // 加载更多一次加载的消息条数
   sendInterval: 600, // 文本消息的发送时间间距
   shakeInterval: 3000, // 抖动的时间间隔
   retryInterval: 10000, // 出现重试按钮的时间间隔

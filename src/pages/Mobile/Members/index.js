@@ -158,13 +158,18 @@ class Members extends Component {
   renderBtn() {
     const { detail } = this.props.memberData;
     const isOwer = detail.permissionType === ROLE_TYPES.OWNER;
+
+    if (!isOwer) {
+      return null;
+    }
+
     return (
       <Fragment>
         <WhiteSpace size="lg" />
         <WhiteSpace size="lg" />
         <Card>
           <Card.Body className="TxtCenter Red Font15 Bold" onClick={this.handleExitApp}>
-            {isOwer ? _l('删除应用并退出') : _l('退出应用成员')}
+            {_l('删除应用')}
           </Card.Body>
         </Card>
       </Fragment>

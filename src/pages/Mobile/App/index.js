@@ -10,7 +10,7 @@ import guideImg from './img/guide.png';
 import textImg from './img/text.png';
 import okImg from './img/ok.png';
 import DocumentTitle from 'react-document-title';
-import PermissionsInfo from '../components/PermissionsInfo';
+import { AppPermissionsInfo } from '../components/AppPermissions';
 import RecordList from 'src/pages/Mobile/RecordList';
 import CustomPage from 'src/pages/Mobile/CustomPage';
 import './index.less';
@@ -151,6 +151,90 @@ class App extends Component {
     );
   }
 
+  renderAppHeader() {
+    const { isHideTabBar } = this.state;
+    const { appDetail, match } = this.props;
+    const { appName, detail, processCount } = appDetail;
+    const { params } = match;
+
+    if (detail.appNaviStyle === 2) {
+      return (
+        <div className="flexRow valignWrapper appNaviStyle2Header">
+          {isHideTabBar && (
+            <div
+              className="flex flexRow valignWrapper Gray_75 process Relative"
+              onClick={() => {
+                this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+              }}
+            >
+              <Icon className="Font17" icon="knowledge_file" />
+              <div className="mLeft5 Font14">{_l('流程事项')}</div>
+              {!!processCount && (
+                <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+              )}
+            </div>
+          )}
+          <div
+            className={cx('flex flexRow valignWrapper Gray_75 star', { hide: window.isPublicApp })}
+            onClick={() => {
+              this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
+            }}
+          >
+            <Icon className={cx('Font17', { active: detail.isMarked })} icon="star_3" />
+            <div className="mLeft5 Font14">{_l('星标')}</div>
+          </div>
+          <div
+            className="flex flexRow valignWrapper Gray_75"
+            onClick={() => {
+              this.navigateTo(`/mobile/members/${params.appId}`);
+            }}
+          >
+            <Icon className="Font17" icon="group" />
+            <div className="mLeft5 Font14">{_l('人员管理')}</div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="appName flexColumn pLeft20 pRight20">
+        <div className="content flex White flexRow valignWrapper">
+          <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
+            <span className="Gray">{appName}</span>
+          </div>
+          {isHideTabBar && (
+            <div className="Relative flexRow valignWrapper">
+              <Icon
+                icon="knowledge_file"
+                className="Font26 Gray_bd"
+                onClick={() => {
+                  this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+                }}
+              />
+              {!!processCount && (
+                <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+              )}
+            </div>
+          )}
+          <Icon
+            icon="star_3"
+            className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked, hide: window.isPublicApp })}
+            onClick={() => {
+              this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
+            }}
+          />
+          <Icon
+            icon="group"
+            className="mLeft15 Font26 Gray_bd"
+            onClick={() => {
+              this.navigateTo(`/mobile/members/${params.appId}`);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   renderSection(data) {
     const { appDetail } = this.props;
     const { appNaviStyle } = appDetail.detail;
@@ -209,50 +293,28 @@ class App extends Component {
     const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(item => item.status === 2).length;
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
     if (!detail || detail.length <= 0) {
-      return <PermissionsInfo status={2} isApp={false} appId={params.appId} />;
+      return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
-      return <PermissionsInfo status={4} isApp={false} appId={params.appId} />;
+      return <AppPermissionsInfo appStatus={4} appId={params.appId} />;
     } else {
       return (
         <Fragment>
           {appName && <DocumentTitle title={appName} />}
           {params.isNewApp && this.renderGuide()}
           <div className="flexColumn h100">
-            <div className="appName flexColumn pLeft20 pRight20">
-              <div className="content flex White flexRow valignWrapper">
-                <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
-                  <span className="Gray">{appName}</span>
-                </div>
-                {!window.isPublicApp && (
-                  <Icon
-                    icon="star_3"
-                    className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked })}
-                    onClick={() => {
-                      this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
-                    }}
-                  />
-                )}
-                <Icon
-                  icon="group"
-                  className="mLeft15 Font26 Gray_bd"
-                  onClick={() => {
-                    this.navigateTo(`/mobile/members/${params.appId}`);
-                  }}
-                />
-              </div>
-            </div>
+            {this.renderAppHeader()}
             <div className="appSectionCon flex">
               {status === 5 ||
               (detail.permissionType === ROLE_TYPES.MEMBER &&
                 appSection.length <= 1 &&
                 (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
                 // 应用无权限||成员身份 且 无任何数据
-                <PermissionsInfo status={5} isApp={true} appId={params.appId} />
+                <AppPermissionsInfo appStatus={5} appId={params.appId} />
               ) : appSection.length <= 1 &&
                 (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
                 [ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) ? (
                 // 管理员身份 且 无任何数据
-                <PermissionsInfo status={1} isApp={true} appId={params.appId} />
+                <AppPermissionsInfo appStatus={1} appId={params.appId} />
               ) : (
                 <Fragment>
                   <Accordion className={cx({ emptyAppSection: isEmptyAppSection })} defaultActiveKey={appSection.map(item => item.appSectionId)}>
@@ -276,7 +338,7 @@ class App extends Component {
               )}
             </div>
           </div>
-          {(!isHideTabBar && !window.isPublicApp) && (
+          {(!isHideTabBar && !window.isPublicApp && detail.appNaviStyle !== 2) && (
             <Back
               className="low"
               onClick={() => {
@@ -326,7 +388,7 @@ class App extends Component {
       });
       return item.workSheetInfo;
     })).slice(0, 4);
-    const data = _.find(sheetList, { workSheetId: selectedTab }) || _.object();
+    const data = _.find(sheetList, { workSheetId: selectedTab }) || {};
     const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1;
     return (
       <div className="flexColumn h100">

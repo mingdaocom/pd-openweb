@@ -78,7 +78,7 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
       return update(children, {
         $splice: [
           [
-            children.length - 1,
+            children.length,
             0,
             ...initState({
               data: [data],
@@ -221,8 +221,7 @@ function removeHierarchyTempItem({ state, data }) {
     update(node, {
       children: {
         $apply: item => {
-          item.splice(-1, 1);
-          return item;
+          return (item || []).filter(i => typeof i === 'object');
         },
       },
     }),
@@ -280,14 +279,16 @@ export function hierarchyViewState(state = [], action) {
     case 'ADD_TOP_LEVEL_STATE':
       return addTopLevelRecordState({ state, data });
     case 'ADD_TOP_LEVEL_STATE_FROM_TEMP':
+      const hasEmptyPath = _.findIndex(state || [], st => _.isEmpty(st.path)) > -1;
+      const currentLength = hasEmptyPath ? state.length - 1 : state.length;
       return update(state, {
         $splice: [
           [
-            state.length - 1,
+            currentLength,
             0,
             ...initState({
               data: [data],
-              baseIndex: Math.max(0, state.length - 1),
+              baseIndex: Math.max(0, currentLength),
             }),
           ],
         ],

@@ -245,6 +245,8 @@ class EditFlow extends Component {
         updateNodeDesc: this.updateNodeDesc,
       };
 
+      if (!data[id]) return null;
+
       const NodeComponent = nodeModules[data[id].typeId];
       // 分支
       if (data[id].typeId === NODE_TYPE.BRANCH) {
@@ -320,13 +322,13 @@ class EditFlow extends Component {
       relationType: flowInfo.relationType,
       selectNodeId,
       selectNodeType,
-      selectNodeName: selectNodeId ? flowNodeMap[selectNodeId].name : '',
+      selectNodeName: selectNodeId ? (flowNodeMap[selectNodeId] || {}).name : '',
       child: flowInfo.child,
       isCopy,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
     };
-    const startNodeError = flowNodeMap[startEventId].appId && !flowNodeMap[startEventId].appName;
+    const startNodeError = (flowNodeMap[startEventId] || {}).appId && !(flowNodeMap[startEventId] || {}).appName;
 
     return (
       <Fragment>

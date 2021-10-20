@@ -185,7 +185,10 @@ export default function RelateRecordTable(props) {
   const searchRef = useRef();
   const conRef = useRef();
   const worksheetTableRef = useRef();
-  const [{ records, count, tableVersion, lastAction }, dispatch] = useReducer(tableReducer, { records: [], count: 0 });
+  const [{ records = [], count, tableVersion, lastAction }, dispatch] = useReducer(tableReducer, {
+    records: [],
+    count: 0,
+  });
   const tableActions = createTableActions(dispatch);
   const [layoutChanged, setLayoutChanged] = useState();
   const [sheetColumnWidths, setSheetColumnWidths] = useState({});
@@ -303,6 +306,7 @@ export default function RelateRecordTable(props) {
           recordIds: [deleteRecordId],
         });
         loadRows();
+        setRelateNumOfControl(v => v - 1);
         if (!slient) {
           alert(_l('取消关联成功！'));
         }
@@ -317,7 +321,7 @@ export default function RelateRecordTable(props) {
     if (isNewRecord) {
       loadRows({ showHideTip: true });
     }
-  }, [control.controlId, JSON.stringify(relateRecordData)]);
+  }, [control.controlId, _.isEmpty(relateRecordData)]);
   useEffect(() => {
     if (!isNewRecord) {
       setTableControls([]);
@@ -438,8 +442,9 @@ export default function RelateRecordTable(props) {
         worksheetId={worksheetOfControl.worksheetId}
         rowHeadWidth={rowHeadWidth}
         rowHeight={34}
+        controls={tableControls}
         columns={overrideControls(columns)}
-        data={records.slice(0, PAGE_SIZE)}
+        data={isNewRecord ? records : records.slice(0, PAGE_SIZE)}
         sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
         sheetViewHighlightRows={highlightRows}
         renderRowHead={({ className, style, rowIndex, row }) => (
@@ -460,6 +465,7 @@ export default function RelateRecordTable(props) {
             viewId={control.viewId}
             worksheetId={worksheetOfControl.worksheetId}
             relateRecordControlPermission={controlPermission}
+            allowAdd={addVisible}
             allowEdit={allowEdit}
             pageIndex={pageIndexForHead}
             pageSize={PAGE_SIZE}
@@ -756,6 +762,7 @@ export default function RelateRecordTable(props) {
             hideRecordInfo={() => {
               setActiveRecord(undefined);
             }}
+            projectId={worksheetOfControl.projectId}
             onDeleteSuccess={() => {
               deleteRelateRow(recordId, true);
             }}

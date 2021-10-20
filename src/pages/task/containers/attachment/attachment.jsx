@@ -9,7 +9,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'previewAttachments';
 import { attachmentSwitch } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
-import { isVideo, convertImageView, addToken, getClassNameByExt } from 'src/util';
+import { isVideo, addToken, getClassNameByExt } from 'src/util';
 
 const attachmentSettings = {
   dialog:
@@ -82,7 +82,7 @@ class Attachment extends Component {
     $('body').on('click.taskAttchment', '#attachmentOperation li', function () {
       if ($(this).attr('data-type') === 'download') {
         if (attachmentSettings.itemData.allowDown === 'ok' && attachmentSettings.itemData.downloadUrl) {
-          window.open(addToken(attachmentSettings.itemData.downloadUrl));
+          window.open(addToken(attachmentSettings.itemData.downloadUrl, !window.isDingTalk));
         } else {
           alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
         }
@@ -252,7 +252,7 @@ class Attachment extends Component {
             <div className="attachmentNameBox flexRow">
               <span className="attachmentImg">
                 {extClass.indexOf('img') >= 0 && !(item.refId && !item.shareUrl) ? (
-                  <img src={convertImageView(item.filepath + item.filename, 1, 32, 32, 80)} />
+                  <img src={item.previewUrl.replace('imageView2/1/w/200/h/140', 'imageView2/1/w/32/h/32')} />
                 ) : (
                   <span className={cx('attachmentType', item.attachmentType === 5 ? 'fileIcon-folder' : extClass)} />
                 )}
@@ -312,16 +312,8 @@ class Attachment extends Component {
           <div className="taskThumbnailBox boxSizing boderRadAll_3 animatedFast">
             <div className="taskThumbnailImg">
               {(extClass.indexOf('img') >= 0 && !(item.refId && !item.shareUrl)) ||
-              (isVideo(item.ext) && (item.thumbnailPath || item.previewUrl)) ? (
-                <img
-                  src={convertImageView(
-                    isVideo(item.ext) ? item.thumbnailPath || item.previewUrl : item.filepath + item.filename,
-                    2,
-                    undefined,
-                    140,
-                    80,
-                  )}
-                />
+              (isVideo(item.ext) && item.previewUrl) ? (
+                <img src={item.previewUrl} />
               ) : (
                 <span
                   className={cx('attachmentType antiIcon', item.attachmentType === 5 ? 'fileIcon-folder' : extClass)}

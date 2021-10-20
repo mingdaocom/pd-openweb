@@ -2,19 +2,15 @@ import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { calcDate } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
-import { FORM_ERROR_TYPE, FROM } from './config';
+import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT } from './config';
 import { isRelateRecordTableControl } from 'worksheet/util';
 import { controlState, Validator, getRangeErrorType } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-
-const timeUint = {
-  1: 'm',
-  2: 'h',
-  3: 'd',
-  4: 'M',
-  5: 'y',
-};
+import moment from 'moment';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
+import { getDepartmentsByAccountId } from 'src/api/department';
+import { getCurrentProject } from 'src/util';
 
 const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
@@ -40,7 +36,7 @@ const initIntlTelInput = () => {
 const parseStaticValue = (item, staticValue) => {
   // 日期 || 日期时间
   if (item.type === 15 || item.type === 16) {
-    const unit = timeUint[item.unit] || 'd';
+    const unit = TIME_UNIT[item.unit] || 'd';
     if (staticValue === '2') {
       return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
     } else if (staticValue === '3') {
@@ -50,8 +46,8 @@ const parseStaticValue = (item, staticValue) => {
     }
   }
 
-  // 人员
-  if (item.type === 26) {
+  // 人员 || 部门
+  if (_.includes([26, 27], item.type)) {
     return JSON.parse(staticValue);
   }
 
@@ -72,25 +68,32 @@ const parseStaticValue = (item, staticValue) => {
 };
 
 // 获取动态默认值
-const getDynamicValue = (data, currentItem, masterData) => {
+export const getDynamicValue = (data, currentItem, masterData) => {
   let value = JSON.parse(currentItem.advancedSetting.defsource).map(item => {
+    if (item.isAsync) return '';
+
     // 关联他表字段
     if (item.rcid) {
       try {
-        if (currentItem.type === 26 && item.cid === 'caid') {
-          const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
-          return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
-        }
-        if (_.includes([15, 16], currentItem.type) && item.cid === 'ctime') {
-          return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
-        }
         if (masterData && item.rcid === masterData.worksheetId) {
           const targetControl = _.find(masterData.formData, c => c.controlId === item.cid);
+
+          if (_.includes([15, 16], currentItem.type)) {
+            return targetControl.value
+              ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm')
+              : '';
+          }
           return targetControl.value;
         }
         const parentControl = _.find(data, c => c.controlId === item.rcid);
         const control = JSON.parse(parentControl.value)[0];
         const sourcevalue = JSON.parse(control.sourcevalue)[item.cid];
+
+        if (_.includes([15, 16], currentItem.type) && _.includes(['ctime', 'utime'], item.cid)) {
+          return (sourcevalue ? moment(sourcevalue) : moment()).format(
+            item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm',
+          );
+        }
 
         // 关联表
         if (_.includes([29, 35], currentItem.type)) {
@@ -143,7 +146,7 @@ const getDynamicValue = (data, currentItem, masterData) => {
     return '';
   });
 
-  if (_.includes([9, 10, 11, 26], currentItem.type)) {
+  if (_.includes([9, 10, 11, 26, 27], currentItem.type)) {
     let source = [];
 
     _.remove(value, o => !o);
@@ -226,6 +229,11 @@ const parseNewFormula = (data, formulaStr, dot = 2) => {
       return getControlValue(data, { type: 31 }, controlId);
     }
 
+    // 汇总字段默认按 0 处理
+    if (_.isUndefined(column.value) && column.type === 37 && column.enumDefault2 === 6) {
+      column.value = 0;
+    }
+
     if (_.isUndefined(column.value) || column.value === '') {
       columnIsUndefined = true;
     }
@@ -287,14 +295,81 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
   let value = '';
 
   if (currentItem.enumDefault === 1) {
-    const startTime = getTime(currentItem.sourceControlId, 'start');
-    const endTime = getTime(currentItem.dataSource, 'end');
+    let startTime = getTime(currentItem.sourceControlId, 'start');
+    let endTime = getTime(currentItem.dataSource, 'end');
+    const weekday = currentItem.advancedSetting.weekday || '1234567';
+    const unit = parseInt(currentItem.unit);
 
     if (!startTime || !endTime) {
       return;
     }
 
-    value = String(Math.round(moment(endTime).diff(startTime, timeUint[currentItem.unit] || 'm', true)));
+    // 天、时、分 工作日的逻辑
+    if (unit < 4 && weekday.length < 7) {
+      // 是否负数
+      const isNegative = moment(endTime) < moment(startTime) ? -1 : 1;
+
+      if (isNegative < 0) {
+        [endTime, startTime] = [startTime, endTime];
+      }
+
+      // 相差天数
+      let timeDiff = moment(moment(endTime).format('YYYY-MM-DD')).diff(moment(startTime).format('YYYY-MM-DD'), 'd');
+      // 计算出整数周
+      const weekendCount = Math.floor(timeDiff / 7);
+
+      if (weekendCount) {
+        switch (unit) {
+          case 1:
+            value = weekendCount * weekday.length * 24 * 60;
+            break;
+          case 2:
+            value = weekendCount * weekday.length * 24;
+            break;
+          case 3:
+            value = weekendCount * weekday.length;
+            break;
+        }
+      }
+
+      // 剩下的工作日
+      let weekdayDiff = 0;
+
+      for (let i = 0; i < timeDiff % 7; i++) {
+        const day = moment(startTime).add(i, 'd').day();
+        if (_.includes(weekday.split(''), (day === 0 ? 7 : day).toString())) {
+          weekdayDiff++;
+        }
+      }
+
+      // 结束日期在非工作日多余的小时数
+      let endHour = 0;
+      const endDay = moment(endTime).day();
+      if (!_.includes(weekday.split(''), (endDay === 0 ? 7 : endDay).toString())) {
+        endHour = moment(endTime).diff(moment(endTime).format('YYYY-MM-DD'), TIME_UNIT[currentItem.unit] || 'm', true);
+      }
+
+      value =
+        (value +
+          moment(
+            moment(startTime).add(weekdayDiff, 'd').format('YYYY-MM-DD') + ' ' + moment(endTime).format('HH:mm'),
+          ).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true) -
+          endHour) *
+        isNegative;
+    } else {
+      value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
+    }
+
+    if (currentItem.dot) {
+      value = value.toString();
+      const strIndex = value.indexOf('.');
+
+      if (strIndex > -1) {
+        value = value.substring(0, strIndex + currentItem.dot);
+      }
+    } else {
+      value = String(Math.floor(value));
+    }
   } else if (currentItem.enumDefault === 2) {
     let dateColumnType = 0;
     let formulaResult;
@@ -345,7 +420,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         ? ''
         : formulaResult.result.format(dateColumnType === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
   } else if (currentItem.enumDefault === 3) {
-    const unit = timeUint[currentItem.unit] || 'd';
+    const unit = TIME_UNIT[currentItem.unit] || 'd';
     const today = moment().startOf(unit);
     const time = moment(getTime(currentItem.sourceControlId, 'start')).startOf(unit);
 
@@ -384,7 +459,7 @@ const getControlValue = (data, currentItem, controlId) => {
     return cValue;
   }
 
-  return obj.value || '';
+  return _.isUndefined(obj.value) ? '' : obj.value;
 };
 
 // 检测必填
@@ -415,8 +490,9 @@ export const checkRequired = item => {
 };
 
 // 验证必填及格式
-export const onValidator = (item, from) => {
+export const onValidator = (item, from, data, masterData) => {
   let errorType = '';
+  let errorText = '';
 
   if (!item.disabled && controlState(item, from).editable) {
     errorType = checkRequired(item);
@@ -430,7 +506,7 @@ export const onValidator = (item, from) => {
         iti.setNumber(value);
         // 香港6262开头不识别特殊处理
         errorType =
-          !value || iti.isValidNumber() || /\+8526262\d{4}$|\+86148\d{8}$/.test(value)
+          !value || iti.isValidNumber() || /\+8526262\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$/.test(value)
             ? ''
             : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
@@ -481,11 +557,25 @@ export const onValidator = (item, from) => {
       if (_.includes([15, 16], item.type)) {
         const allowweek = item.advancedSetting.allowweek || '1234567';
         const allowtime = item.advancedSetting.allowtime || '00:00-24:00';
+        const min = item.advancedSetting.min;
+        const max = item.advancedSetting.max;
         const start = parseInt(allowtime.split('-')[0]);
         const end = parseInt(allowtime.split('-')[1]);
 
         if (!value) {
           errorType = '';
+        } else if (min || max) {
+          const minDate = min
+            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
+            : '';
+          const maxDate = max
+            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
+            : '';
+
+          if ((minDate && moment(value) < moment(minDate)) || (maxDate && moment(value) > moment(maxDate))) {
+            errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
+            errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate);
+          }
         } else if (allowweek.indexOf(moment(value).day() === 0 ? '7' : moment(value).day()) === -1) {
           errorType = FORM_ERROR_TYPE.DATE;
         } else if (moment(value).hour() < start || moment(value).hour() >= end) {
@@ -499,43 +589,61 @@ export const onValidator = (item, from) => {
     }
   }
 
-  return errorType;
+  if (errorType && !errorText) {
+    errorText =
+      typeof FORM_ERROR_TYPE_TEXT[errorType] !== 'string'
+        ? FORM_ERROR_TYPE_TEXT[errorType](item)
+        : FORM_ERROR_TYPE_TEXT[errorType];
+  }
+
+  return { errorType, errorText };
 };
 
 /**
  * 自定义字段数据格式化
+ * @param {string} 网络id
  * @param {[]} data 数据源
  * @param {boolean} isCreate 是否创建
  * @param {boolean} disabled 是否全部禁用
  * @param {string} recordCreateTime 记录创建时间，编辑的时候会用到
  * @param {string} from 来源参考config.js中的FROM
+ * @param {function} onAsyncChange 异步更新
  */
 export default class DataFormat {
   constructor({
+    projectId = '',
     data = [],
     isCreate = false,
     disabled = false,
     recordCreateTime = '',
     masterData,
     from = FROM.DEFAULT,
+    onAsyncChange = () => {},
   }) {
+    this.projectId = projectId;
     this.data = _.cloneDeep(data);
     this.masterData = masterData;
     this.controlIds = [];
+    this.ruleControlIds = [];
     this.errorItems = [];
     this.recordCreateTime = recordCreateTime;
     this.from = from;
+    this.onAsyncChange = onAsyncChange;
+
+    const departmentIds = [];
+    const locationIds = [];
+    const isInit = true;
 
     // 新建初始化
     if (isCreate) {
       this.data.forEach(item => {
         if (item.value) {
-          this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true });
+          this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
         } else if (item.advancedSetting && item.advancedSetting.defsource) {
           const value = getDynamicValue(this.data, item, this.masterData);
 
           if (value) {
-            this.updateDataSource({ controlId: item.controlId, value });
+            this.updateDataSource({ controlId: item.controlId, value, isInit });
           }
         } else if (
           item.type === 38 &&
@@ -543,7 +651,7 @@ export default class DataFormat {
           item.sourceControlId &&
           item.sourceControlId[0] !== '$'
         ) {
-          const unit = timeUint[item.unit] || 'd';
+          const unit = TIME_UNIT[item.unit] || 'd';
           const today = moment().startOf(unit);
           const time = moment(item.sourceControlId).startOf(unit);
           if (item.advancedSetting.dateformulatype === '1' || _.isUndefined(item.advancedSetting.dateformulatype)) {
@@ -551,6 +659,23 @@ export default class DataFormat {
           } else {
             item.value = String(Math.floor(moment(today).diff(time, unit, true)));
           }
+        }
+
+        // 部门控件默认值当前用户
+        if (item.type === 27 && item.advancedSetting.defsource) {
+          safeParse(item.advancedSetting.defsource)
+            .filter(obj => obj.isAsync && obj.staticValue)
+            .forEach(obj => {
+              // 当前用户所在的部门
+              if (safeParse(obj.staticValue).departmentId === 'current') {
+                departmentIds.push(item.controlId);
+              }
+            });
+        }
+
+        // 定位控件默认选中当前位置
+        if (item.type === 40 && item.default === '1') {
+          locationIds.push(item.controlId);
         }
       });
     }
@@ -584,23 +709,38 @@ export default class DataFormat {
         item.value = item.dataSource;
       }
 
-      const errorType = onValidator(item, from);
+      const { errorType, errorText } = onValidator(item, from, data, masterData);
 
       if (errorType) {
         _.remove(this.errorItems, obj => obj.controlId === item.controlId);
         this.errorItems.push({
           controlId: item.controlId,
           errorType,
+          errorText,
           showError: false,
         });
       }
     });
+
+    // 获取当前用户所在的部门
+    this.getCurrentDepartment(departmentIds);
+    // 获取当前位置
+    this.getCurrentLocation(locationIds);
   }
 
   /**
    * 更新数据
    */
-  updateDataSource({ controlId, value, notInsertControlIds = false, removeUniqueItem = () => {}, data }) {
+  updateDataSource({
+    controlId,
+    value,
+    notInsertControlIds = false,
+    removeUniqueItem = () => {},
+    data,
+    isInit = false,
+  }) {
+    this.asyncControls = {};
+
     try {
       const updateSource = (controlId, value) => {
         this.data.forEach(item => {
@@ -610,13 +750,19 @@ export default class DataFormat {
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId);
 
-            const errorType = onValidator(item, this.from);
+            const { errorType, errorText } = onValidator(item, this.from, this.data, this.masterData);
             if (errorType) {
               this.errorItems.push({
                 controlId: item.controlId,
                 errorType,
+                errorText,
                 showError: true,
               });
+            }
+
+            //规则变更id集合
+            if (!_.includes(this.ruleControlIds, controlId) && !isInit) {
+              this.ruleControlIds.push(controlId);
             }
 
             // 变更控件的id集合
@@ -749,46 +895,49 @@ export default class DataFormat {
                 c => c.controlId === currentItem.sourceControlId,
               );
               if (sourceControl) {
-                const controls = records
-                  .map(record => (record.row || record)[sourceControl.controlId])
-                  .filter(_.identity);
-                if (controls.length) {
+                const valuesOfRecords = records.map(record => (record.row || record)[sourceControl.controlId]);
+                const noUndefinedValues = valuesOfRecords.filter(value => !_.isUndefined(value));
+                if (valuesOfRecords.length) {
                   const isDate =
                     currentItem.type === 15 ||
                     currentItem.type === 16 ||
                     (currentItem.type === 37 && (currentItem.enumDefault2 === 15 || currentItem.enumDefault2 === 16));
                   switch (currentItem.enumDefault) {
                     case 13: // 已填
-                      value = controls.filter(c => (sourceControl.type === 36 ? c === '1' : !!c)).length;
+                      value = noUndefinedValues.filter(c => (sourceControl.type === 36 ? c === '1' : !!c)).length;
                       break;
                     case 14: // 未填
-                      value = controls.filter(c => (sourceControl.type === 36 ? c !== '1' : !c)).length;
+                      value = noUndefinedValues.filter(c => (sourceControl.type === 36 ? c !== '1' : !c)).length;
                       break;
                     case 5: // 求和
                       value = _.sum(
-                        controls.map(c =>
-                          _.isNumber(parseFloat(c, 10)) && !_.isNaN(parseFloat(c, 10)) ? parseFloat(c, 10) : 0,
-                        ),
+                        valuesOfRecords
+                          .map(v => v || 0)
+                          .map(v =>
+                            _.isNumber(parseFloat(v, 10)) && !_.isNaN(parseFloat(v, 10)) ? parseFloat(v, 10) : 0,
+                          ),
                       );
                       break;
                     case 1: // 平均
                       value =
                         _.sum(
-                          controls.map(c =>
+                          noUndefinedValues.map(c =>
                             _.isNumber(parseFloat(c, 10)) && !_.isNaN(parseFloat(c, 10)) ? parseFloat(c, 10) : 0,
                           ),
-                        ) / controls.length;
+                        ) / noUndefinedValues.length;
                       break;
                     case 2: // 最大 最晚
                       if (isDate) {
-                        const maxDate = _.max(controls.filter(_.identity).map(c => new Date(c || 0).getTime()));
+                        const maxDate = _.max(
+                          noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
+                        );
                         value =
                           currentItem.enumDefault2 === 15
                             ? moment(maxDate).format('YYYY-MM-DD')
                             : moment(maxDate).format('YYYY-MM-DD HH:mm');
                       } else {
                         value = _.max(
-                          controls.map(c =>
+                          noUndefinedValues.map(c =>
                             _.isNumber(parseFloat(c, 10)) && !_.isNaN(parseFloat(c, 10)) ? parseFloat(c, 10) : 0,
                           ),
                         );
@@ -796,14 +945,16 @@ export default class DataFormat {
                       break;
                     case 3: // 最小 最早
                       if (isDate) {
-                        const minDate = _.min(controls.filter(_.identity).map(c => new Date(c || 0).getTime()));
+                        const minDate = _.min(
+                          noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
+                        );
                         value =
                           currentItem.enumDefault2 === 15
                             ? moment(minDate).format('YYYY-MM-DD')
                             : moment(minDate).format('YYYY-MM-DD HH:mm');
                       } else {
                         value = _.min(
-                          controls.map(c =>
+                          noUndefinedValues.map(c =>
                             _.isNumber(parseFloat(c, 10)) && !_.isNaN(parseFloat(c, 10)) ? parseFloat(c, 10) : 0,
                           ),
                         );
@@ -827,10 +978,27 @@ export default class DataFormat {
             (item.advancedSetting &&
               item.advancedSetting.defsource &&
               JSON.parse(item.advancedSetting.defsource).filter(
-                obj => (!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid),
+                obj => ((!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid)) && !obj.isAsync,
               ).length) ||
             (item.type === 37 && controlId === (item.dataSource || '').slice(1, -1)),
         );
+
+        // 受影响的异步更新控件集合
+        if (!this.asyncControls[controlId]) {
+          const ids = _.filter(
+            this.data,
+            item =>
+              item.advancedSetting &&
+              item.advancedSetting.defsource &&
+              JSON.parse(item.advancedSetting.defsource).filter(
+                obj => ((!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid)) && obj.isAsync,
+              ).length,
+          );
+
+          if (ids.length) {
+            this.asyncControls[controlId] = ids;
+          }
+        }
 
         // 递归更新受影响的控件
         effectControls.forEach(({ controlId }) => {
@@ -846,6 +1014,8 @@ export default class DataFormat {
       console.error('UpdateSource Error:', err);
       console.log('Error Control data:', controlId, value);
     }
+
+    this.getAsyncData(isInit);
   }
 
   /**
@@ -863,17 +1033,32 @@ export default class DataFormat {
   }
 
   /**
+   * 获取业务规则变更的控件的id集合
+   */
+  getUpdateRuleControlIds() {
+    return this.ruleControlIds;
+  }
+
+  /**
    * 设置异常控件
    */
-  setErrorControl(controlId, errorType) {
-    _.remove(this.errorItems, obj => obj.controlId === controlId);
+  setErrorControl(controlId, errorType, errorMessage, isInit) {
+    if (!errorMessage) {
+      _.remove(this.errorItems, obj => obj.controlId === controlId && !obj.errorText);
+    }
+    if (!isInit) {
+      if (_.findIndex(this.errorItems, it => it.controlId === controlId) > -1) {
+        return;
+      }
 
-    if (errorType) {
-      this.errorItems.push({
-        controlId,
-        errorType,
-        showError: false,
-      });
+      if (errorType || errorMessage) {
+        this.errorItems.push({
+          controlId,
+          errorType,
+          showError: true,
+          errorMessage,
+        });
+      }
     }
   }
 
@@ -882,5 +1067,140 @@ export default class DataFormat {
    */
   getErrorControls() {
     return this.errorItems;
+  }
+
+  /**
+   * 获取当前用户所在的部门
+   */
+  getCurrentDepartment(ids) {
+    if (
+      !ids.length ||
+      !md.global.Account.accountId ||
+      window.isPublicWorksheet ||
+      _.isEmpty(getCurrentProject(this.projectId))
+    )
+      return;
+
+    getDepartmentsByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] }).then(result => {
+      let departments = [];
+
+      result.maps.forEach(item => {
+        item.departments.forEach(obj => {
+          departments.push({
+            departmentId: obj.id,
+            departmentName: obj.name,
+          });
+        });
+      });
+
+      departments = JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1));
+
+      ids.forEach(controlId => {
+        this.updateDataSource({
+          controlId,
+          value: departments,
+          isInit: true,
+        });
+      });
+
+      this.onAsyncChange({
+        controlIds: ids,
+        value: departments,
+      });
+    });
+  }
+
+  /**
+   * 获取当前位置
+   */
+  getCurrentLocation(ids) {
+    if (!ids.length) return;
+
+    new MapLoader().loadJs().then(AMap => {
+      const mapObj = new AMap.Map('iCenter');
+      mapObj.plugin('AMap.Geolocation', () => {
+        const geolocation = new AMap.Geolocation();
+        geolocation.getCurrentPosition();
+        AMap.event.addListener(geolocation, 'complete', res => {
+          ids.forEach(controlId => {
+            this.updateDataSource({
+              controlId,
+              value: JSON.stringify({
+                x: res.position.lng,
+                y: res.position.lat,
+                address: res.formattedAddress || '',
+                title: (res.addressComponent || {}).building || '',
+              }),
+              isInit: true,
+            });
+          });
+
+          this.onAsyncChange({
+            controlIds: ids,
+            value: JSON.stringify({
+              x: res.position.lng,
+              y: res.position.lat,
+              address: res.formattedAddress || '',
+              title: (res.addressComponent || {}).building || '',
+            }),
+          });
+        });
+      });
+    });
+  }
+
+  /**
+   * 获取异步数据
+   */
+  getAsyncData(isInit) {
+    if (_.isEmpty(this.asyncControls)) return;
+
+    Object.keys(this.asyncControls).forEach(id => {
+      this.asyncControls[id].forEach(item => {
+        // 部门
+        if (item.type === 27) {
+          const accounts = safeParse(
+            getDynamicValue(
+              this.data,
+              Object.assign({}, item, {
+                advancedSetting: { defsource: item.advancedSetting.defsource.replace(/isAsync/gi, 'async') },
+              }),
+              this.masterData,
+            ),
+          );
+
+          if (!accounts.length) {
+            this.updateDataSource({ controlId: item.controlId, value: '[]', isInit });
+          } else {
+            getDepartmentsByAccountId({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) }).then(
+              result => {
+                const departments = [];
+
+                result.maps.forEach(item => {
+                  item.departments.forEach(obj => {
+                    departments.push({
+                      departmentId: obj.id,
+                      departmentName: obj.name,
+                    });
+                  });
+                });
+
+                // 多部门只获取第一个
+                this.updateDataSource({
+                  controlId: item.controlId,
+                  value: JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1)),
+                  isInit,
+                });
+
+                this.onAsyncChange({
+                  controlId: item.controlId,
+                  value: JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1)),
+                });
+              },
+            );
+          }
+        }
+      });
+    });
   }
 }

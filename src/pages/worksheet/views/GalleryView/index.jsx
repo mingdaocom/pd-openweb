@@ -43,17 +43,27 @@ export default class RecordGallery extends Component {
       sheetListVisible, // 左侧打开或关闭
       galleryview,
       views,
+      groupFilterWidth,
+      navGroupFilters,
+      quickFilter,
     } = nextProps;
     const { viewId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     const preView = this.props.views.find(o => o.viewId === this.props.base.viewId) || {};
     const { clicksearch } = getAdvanceSetting(currentView);
-    const isNoAs = !_.isEqual(currentView, preView) || clicksearch !== this.state.clicksearch;
+    if (clicksearch === '1' && quickFilter.length <= 0) {
+      return;
+    }
+    const isNoAs =
+      !_.isEqual(currentView, preView) ||
+      clicksearch !== this.state.clicksearch ||
+      !_.isEqual(navGroupFilters, this.props.navGroupFilters);
     if (
       sheetListVisible !== this.props.sheetListVisible ||
       isNoAs ||
       viewId !== this.props.base.viewId ||
-      chatVisible !== this.props.chatVisible
+      chatVisible !== this.props.chatVisible ||
+      groupFilterWidth !== this.props.groupFilterWidth
     ) {
       this.getFetch(nextProps);
       setTimeout(() => {
@@ -88,11 +98,9 @@ export default class RecordGallery extends Component {
   };
 
   resizeBind = () => {
-    $(this.view)
-      .find('.galleryItem')
-      .css({
-        width: this.getWith(),
-      });
+    $(this.view).find('.galleryItem').css({
+      width: this.getWith(),
+    });
   };
 
   getWith = () => {
@@ -130,7 +138,7 @@ export default class RecordGallery extends Component {
     return arr;
   };
 
-  noFilter = function() {
+  noFilter = function () {
     const { searchType, filterControls, isUnRead, sortControls = [] } = this.props.filters;
     return (
       searchType === 1 &&
@@ -141,7 +149,7 @@ export default class RecordGallery extends Component {
   };
 
   render() {
-    const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls } = this.props;
+    const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls, quickFilter } = this.props;
     const { viewId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     const { appId, worksheetId } = base;
@@ -153,7 +161,7 @@ export default class RecordGallery extends Component {
     if (galleryViewLoading) {
       return <LoadDiv size="big" className="mTop32" />;
     }
-    if (clicksearch === '1' && galleryIndex <= 0) {
+    if (clicksearch === '1' && (galleryIndex <= 0 || quickFilter.length <= 0)) {
       return (
         <div
           className="Gray_9e Font14 fastFilterNoClick"
@@ -170,7 +178,7 @@ export default class RecordGallery extends Component {
     }
     if (gallery.length <= 0) {
       if (filters.keyWords || !isEmpty(filters.filterControls)) {
-        return <ViewEmpty searchArgs={filters} />;
+        return <ViewEmpty filters={filters} />;
       }
       return (
         <NoRecords
@@ -246,6 +254,7 @@ export default class RecordGallery extends Component {
               sheetSwitchPermit={sheetSwitchPermit} // 表单权限
               allowAdd={worksheetInfo.allowAdd}
               visible
+              projectId={worksheetInfo.projectId}
               appId={appId}
               viewId={viewId}
               from={1}

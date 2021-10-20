@@ -3,8 +3,14 @@ import api from 'api/homeApp';
 import AppDetail from './AppDetail';
 import { getIds } from '../util';
 import { navigateTo } from '../../../router/navigateTo';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
 
+@connect(undefined, dispatch => ({
+  updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
+}))
 export default class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
@@ -41,6 +47,8 @@ export default class AppPkgHeader extends Component {
     api.getAppFirstInfo({ appId, appSectionId: groupId }).then(({ appSectionId, workSheetId }) => {
       if (appSectionId) {
         navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+      } else {
+        this.props.updateSheetListLoading(false);
       }
     });
   };

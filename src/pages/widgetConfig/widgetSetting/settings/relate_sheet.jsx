@@ -1,10 +1,12 @@
 import React, { useEffect, Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { RadioGroup, Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
 import update from 'immutability-helper';
+import styled from 'styled-components';
+import cx from 'classnames';
 import {
   getDisplayType,
   handleAdvancedSettingChange,
@@ -12,7 +14,7 @@ import {
   updateConfig,
   getAdvanceSetting,
 } from '../../util/setting';
-import { SettingItem } from '../../styled';
+import { EditInfo, InfoWrap, SettingItem } from '../../styled';
 import { useSheetInfo } from '../../hooks';
 import components from '../components';
 import { formatViewToDropdown } from '../../util';
@@ -23,8 +25,17 @@ import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
 
-const { ConfigRelate, BothWayRelate } = sheetComponents;
+const { ConfigRelate, BothWayRelate, SearchConfig } = sheetComponents;
 const { SheetDealDataType, RelateSheetInfo } = components;
+
+const RelateSheetWrap = styled.div`
+  .filterBtn {
+    color: #9e9e9e;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+`;
 
 export default function RelateSheet(props) {
   let { from, data, deleteWidget, onChange, globalSheetInfo, saveControls, allControls, globalSheetControls } = props;
@@ -40,18 +51,21 @@ export default function RelateSheet(props) {
     viewId,
     coverCid,
   } = data;
-  const [{ isRelateView, filterVisible }, setState] = useSetState({
+  const [{ isRelateView, searchVisible, filterVisible }, setState] = useSetState({
     isRelateView: Boolean(viewId),
     filterVisible: false,
+    searchVisible: false,
   });
   let {
     showtype = String(enumDefault),
     allowlink = '0',
     allowcancel = '1',
-    ddset,
     controlssorts = '[]',
+    ddset,
+    searchcontrol = '',
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
+  const searchfilters = getAdvanceSetting(data, 'searchfilters');
   const strDefault = data.strDefault || '000';
 
   const [isHiddenOtherViewRecord, disableAlbum, onlyRelateByScanCode] = strDefault.split('');
@@ -66,7 +80,10 @@ export default function RelateSheet(props) {
     if (!loading && !isEmpty(controls)) {
       onChange({ relationControls: controls });
     }
-  }, [dataSource, loading]);
+    if (!getAdvanceSetting(data, 'showtype')) {
+      onChange(handleAdvancedSettingChange(data, { showtype: '1' }));
+    }
+  }, [dataSource, loading, data.controlId, enumDefault]);
 
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
 
@@ -123,7 +140,7 @@ export default function RelateSheet(props) {
   };
 
   return (
-    <Fragment>
+    <RelateSheetWrap>
       {dataSource ? (
         <RelateSheetInfo name={sourceEntityName || worksheetInfo.name} id={dataSource} />
       ) : (
@@ -184,6 +201,8 @@ export default function RelateSheet(props) {
             // 非卡片 铺满整行
             if (value !== '3') {
               nextData = { ...nextData, size: WHOLE_SIZE };
+            } else {
+              nextData = handleAdvancedSettingChange(nextData, { searchfilters: '' });
             }
             // 切换为列表 必填置为false
             if (value === '2') {
@@ -206,10 +225,12 @@ export default function RelateSheet(props) {
                     ddset: String(+!checked),
                   }),
                 );
-              }}>
+              }}
+            >
               <Tooltip
                 className="hoverTip"
-                title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}>
+                title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}
+              >
                 <i className="icon pointer icon-help Gray_bd Font15" />
               </Tooltip>
             </Checkbox>
@@ -229,7 +250,8 @@ export default function RelateSheet(props) {
                       {_l('在卡片中，只能显示前3个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
                     </span>
                   }
-                  popupPlacement="bottom">
+                  popupPlacement="bottom"
+                >
                   <i className="icon icon-help pointer Gray_bd Font15" />
                 </Tooltip>
               )}
@@ -273,7 +295,8 @@ export default function RelateSheet(props) {
                         )}
                   </span>
                 }
-                popupPlacement="bottom">
+                popupPlacement="bottom"
+              >
                 <i className="icon pointer icon-help Gray_bd Font15" />
               </Tooltip>
             </div>
@@ -309,10 +332,10 @@ export default function RelateSheet(props) {
       {isSingleRelate && <DynamicDefaultValue {...props} titleControl={titleControl} />}
       {showtype !== '2' && <WidgetVerify {...props} />}
       <SettingItem>
-        <div className="settingItemTitle">{_l('设置')}</div>
+        <div className="settingItemTitle">{_l('操作')}</div>
         <div className="labelWrap" style={{ justifyContent: 'space-between' }}>
           <Checkbox
-            className="allowSelectRecords InlineBlock"
+            className="allowSelectRecords InlineBlock Gray"
             size="small"
             text={_l('允许选择已有记录')}
             disabled={showtype === '3'}
@@ -331,28 +354,40 @@ export default function RelateSheet(props) {
             }}
           />
           {_.includes([0, 1], enumDefault2) && (
-            <span
-              style={{ color: '#2196f3' }}
-              className="InlineBlock LineHeight20 TxtTop mLeft10 filterBtn Hand"
-              onClick={() => {
-                if (!filters || !filters.length || filters.length <= 0) {
-                  if (!dataSource) {
-                    alert(_l('请先选择工作表'), 3);
-                    return;
+            <Tooltip
+              title={
+                <span>
+                  {!filters || !filters.length || filters.length <= 0
+                    ? _l('过滤允许选择的记录')
+                    : _l('点击取消过滤条件')}
+                </span>
+              }
+              placement="bottomRight"
+              arrowPointAtCenter={true}
+            >
+              <span
+                className="InlineBlock LineHeight20 TxtTop mLeft10 filterBtn Hand"
+                onClick={() => {
+                  if (!filters || !filters.length || filters.length <= 0) {
+                    if (!dataSource) {
+                      alert(_l('请先选择工作表'), 3);
+                      return;
+                    }
+                    setState({
+                      filterVisible: true,
+                    });
+                  } else {
+                    onChange(
+                      handleAdvancedSettingChange(data, {
+                        filters: '',
+                      }),
+                    );
                   }
-                  setState({
-                    filterVisible: true,
-                  });
-                } else {
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      filters: '',
-                    }),
-                  );
-                }
-              }}>
-              {!filters || !filters.length || filters.length <= 0 ? _l('添加筛选条件') : _l('清除筛选条件')}
-            </span>
+                }}
+              >
+                <i className={cx('icon-worksheet_filter Font16', { ThemeColor3: filters && filters.length })}></i>
+              </span>
+            </Tooltip>
           )}
         </div>
         {filterVisible && (
@@ -420,6 +455,52 @@ export default function RelateSheet(props) {
             />
           </div>
         )}
+      </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('设置')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={!!searchcontrol}
+            onClick={() => {
+              if (searchcontrol) {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    searchcontrol: '',
+                    searchtype: '',
+                    clicksearch: '',
+                    searchfilters: '',
+                  }),
+                );
+              }
+              setState({ searchVisible: !searchcontrol });
+            }}
+            text={_l('查询设置')}
+          />
+        </div>
+        {searchcontrol && (
+          <EditInfo style={{ margin: '12px 0' }} onClick={() => setState({ searchVisible: true })}>
+            <div className="text overflow_ellipsis Gray">
+              <span className="Bold">{_l('搜索 ')}</span>
+              {get(
+                controls.find(item => item.controlId === searchcontrol),
+                'controlName',
+              ) || _l('字段已删除')}
+              {searchfilters.length > 0 && (
+                <Fragment>
+                  <span className="Bold">{_l('；筛选 ')}</span>
+                  {_l('%0个字段', searchfilters.length)}
+                </Fragment>
+              )}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+        )}
+        {searchVisible && (
+          <SearchConfig {...props} controls={controls} onClose={() => setState({ searchVisible: false })} />
+        )}
         <div className="labelWrap">
           <Checkbox
             size="small"
@@ -429,7 +510,8 @@ export default function RelateSheet(props) {
               if (checked) {
                 onChange({ viewId: '' });
               }
-            }}>
+            }}
+          >
             <span style={{ marginRight: '6px' }}>{_l('关联视图')}</span>
             <Tooltip
               popupPlacement="bottom"
@@ -439,7 +521,8 @@ export default function RelateSheet(props) {
                     '设置关联视图，根据视图来控制用户的选择范围和对关联记录的查看、操作权限。以及列表显示时的默认显示排序规则',
                   )}
                 </span>
-              }>
+              }
+            >
               <i className="icon-help Gray_bd Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
@@ -474,7 +557,8 @@ export default function RelateSheet(props) {
                     index: 0,
                   }),
                 })
-              }>
+              }
+            >
               <Tooltip
                 popupPlacement="bottom"
                 title={
@@ -483,7 +567,8 @@ export default function RelateSheet(props) {
                       '如勾选此项，则列表中会隐藏不在视图范围内的记录和没有查看权的记录。如：关联了“销售线索”中“新线索”视图时，其他状态的线索不会显示在列表，没有被分发“新线索”视图的角色也看不到任何记录。',
                     )}
                   </span>
-                }>
+                }
+              >
                 <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
               </Tooltip>
             </Checkbox>
@@ -512,7 +597,8 @@ export default function RelateSheet(props) {
                 index: 2,
               }),
             })
-          }>
+          }
+        >
           <Tooltip placement={'right'} title={_l('扫码功能只对App或企业微信/Welink移动端有效')}>
             {_l('只允许通过扫码添加关联  ')}
             <i className="icon-help Gray_9e Font16 pointer"></i>
@@ -541,6 +627,6 @@ export default function RelateSheet(props) {
           <SheetDealDataType {...props} />
         </SettingItem>
       )}
-    </Fragment>
+    </RelateSheetWrap>
   );
 }

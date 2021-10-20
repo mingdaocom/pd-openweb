@@ -34,6 +34,12 @@ export const FILTER_CONDITION_TYPE = {
   SUB: 23, // 下属
   RCEQ: 24, // 关联表 是
   RCNE: 25, // 关联表 不是
+  DATE_BETWEEN: 31, // DateBetween | 在范围内
+  DATE_NBETWEEN: 32, // DateNBetween | 不在范围内
+  DATE_GT: 33, // DateGt | >
+  DATE_GTE: 34, // DateGte | >=
+  DATE_LT: 35, // DateLt | <
+  DATE_LTE: 36, // DateLte | <=
 };
 
 function getControlConditionTypes(control) {
@@ -200,16 +206,16 @@ export const CONTROL_FILTER_WHITELIST = {
     types: [
       FILTER_CONDITION_TYPE.DATEENUM,
       FILTER_CONDITION_TYPE.NDATEENUM,
-      FILTER_CONDITION_TYPE.LT,
-      FILTER_CONDITION_TYPE.GT,
-      FILTER_CONDITION_TYPE.BETWEEN,
-      FILTER_CONDITION_TYPE.NBETWEEN,
+      FILTER_CONDITION_TYPE.DATE_LT,
+      FILTER_CONDITION_TYPE.DATE_GT,
+      FILTER_CONDITION_TYPE.DATE_BETWEEN,
+      FILTER_CONDITION_TYPE.DATE_NBETWEEN,
       FILTER_CONDITION_TYPE.ISNULL,
       FILTER_CONDITION_TYPE.HASVALUE,
     ],
     keys: [
       15, // 日期
-      16, //日期时间
+      16, // 日期时间
     ],
   },
   OPTIONS: {
@@ -387,6 +393,14 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     case FILTER_CONDITION_TYPE.RCNE:
       if (isRelateRecordMutiple) return _l('不包含');
       return _l('不是');
+    case FILTER_CONDITION_TYPE.DATE_BETWEEN:
+      return _l('在范围内');
+    case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
+      return _l('不在范围内');
+    case FILTER_CONDITION_TYPE.DATE_GT:
+      return _l('晚于');
+    case FILTER_CONDITION_TYPE.DATE_LT:
+      return _l('早于');
     default:
       return '';
   }

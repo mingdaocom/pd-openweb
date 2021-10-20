@@ -49,23 +49,23 @@ export default function HomePage({ match, location: routerLocation }) {
   const handleActionClick = action => {
     switch (action) {
       case 'addPerson':
-        require(['dialogSelectUser'], function() {
+        require(['dialogSelectUser'], function () {
           $({}).dialogSelectUser({
             title: _l('邀请用户'),
             elementId: 'projectInviteUser',
             sourceId: projectId,
             fromType: 4,
             SelectUserSettings: {
-              callback: function(users) {
-                require(['src/components/common/inviteMember/inviteMember'], function(Invite) {
+              callback: function (users) {
+                require(['src/components/common/inviteMember/inviteMember'], function (Invite) {
                   Invite.inviteByAccountIds(projectId, users);
                 });
               },
             },
             ChooseInviteSettings: {
               viewHistory: true, // 是否呈现邀请记录
-              callback: function(data, callbackInviteResult) {
-                require(['src/components/common/inviteMember/inviteMember'], function(Invite) {
+              callback: function (data, callbackInviteResult) {
+                require(['src/components/common/inviteMember/inviteMember'], function (Invite) {
                   Invite.inviteByAccounts(projectId, data, callbackInviteResult);
                 });
               },
@@ -224,7 +224,7 @@ export default function HomePage({ match, location: routerLocation }) {
               <div className="licenseInfoWrap">
                 <div className="licenseInfo">
                   <div className="licenseFlag"></div>
-                  <div className={cx("licenseType", {Hidden: versionName})}>{version.name || '免费版'}</div>
+                  <div className={cx("licenseType", {Hidden: versionName})}>{getValue(version.name || '免费版')}</div>
                   {isTrial && <span>{_l('试用')}</span>}
                   {isFree ? null : (
                     <Fragment>
@@ -233,7 +233,9 @@ export default function HomePage({ match, location: routerLocation }) {
                         <span>{getValue(expireDays || 0)}</span>
                         {_l('天')}
                       </div>
-                      <div className="expireDate">{_l('%0到期', moment(endDate).format('YYYY年MM月DD日'))}</div>
+                      <div className="expireDate">
+                        {_l('%0到期', getValue(moment(endDate).format('YYYY年MM月DD日')))}
+                      </div>
                       {getLicenseOperation()}
                     </Fragment>
                   )}

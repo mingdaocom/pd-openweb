@@ -1,7 +1,7 @@
 import './css/mobileShare.less';
 import doT from 'dot';
 var qs = require('querystring');
-import { convertImageView, addToken, formatFileSize, getClassNameByExt } from 'src/util';
+import { addToken, formatFileSize, getClassNameByExt } from 'src/util';
 var mobileShareTpl = doT.template(require('./tpl/mobileShare.htm'));
 var { ATTACHMENT_TYPE } = require('src/components/shareAttachment/enum');
 var shareajax = require('src/api/share');
@@ -230,7 +230,7 @@ MobileSharePreview.prototype = {
         MSP.downloadFile(MSP.file.downloadUrl);
       } else {
         let url = MSP.file.downloadUrl + (MSP.attachmentType === ATTACHMENT_TYPE.KC && MSP.options.shareFolderId ? '&shareFolderId=' + MSP.options.shareFolderId : '');
-        window.open(addToken(url));
+        window.open(addToken(url, !window.isDingTalk));
       }
     });
     if (MSP.$filePreview[0] && RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext) > -1) {
@@ -373,7 +373,7 @@ MobileSharePreview.prototype = {
   },
   getPreviewUrl: function(url) {
     var MSP = this;
-    return convertImageView(url.match(/.*(?=\?)|.*/)[0], 2, MSP.preview.width - 32, MSP.preview.height - 32);
+    return `${url}|imageView2/2/w/${MSP.preview.width - 32}/h/${MSP.preview.height - 32}`;
   },
   getCommonPreviewLink: function(file) {
     var MSP = this;

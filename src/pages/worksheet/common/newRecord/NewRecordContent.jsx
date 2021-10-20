@@ -72,7 +72,7 @@ function NewReccordForm(props) {
   const [formdata, setFormdata] = useState([]);
   const [relateRecordData, setRelateRecordData] = useState({});
   const [worksheetInfo, setWorksheetInfo] = useState({});
-  const { projectId, publicWorksheetShareId, visibleType } = worksheetInfo;
+  const { projectId, publicShareUrl, visibleType } = worksheetInfo;
   const [shareVisible, setShareVisible] = useState();
   const [loading, setLoading] = useState(true);
   const [errorVisible, setErrorVisible] = useState();
@@ -85,15 +85,7 @@ function NewReccordForm(props) {
         return;
       }
       setWorksheetInfo({ ...res.worksheetInfo, controls: res.controls });
-      setFormdata(
-        new DataFormat({
-          data: res.controls,
-          isCreate: true,
-          disabled: undefined,
-          recordCreateTime: undefined,
-          from,
-        }).data,
-      );
+      setFormdata(res.controls);
       setLoading(false);
       setTimeout(() => foucsInput(formcon.current), 300);
     });
@@ -109,8 +101,19 @@ function NewReccordForm(props) {
           id: control.controlId,
           value:
             control.value &&
+            control.value.rows &&
             control.value.rows.length &&
-            getSubListError(control.value, control.relationControls, control.showControls),
+            getSubListError(
+              {
+                ...control.value,
+                rules: _.get(
+                  cellObjs.current || {},
+                  `${control.controlId}.cell.worksheettable.current.table.state.rules`,
+                ),
+              },
+              control.relationControls,
+              control.showControls,
+            ),
         }))
         .filter(c => !_.isEmpty(c.value));
       if (errors.length) {
@@ -135,7 +138,7 @@ function NewReccordForm(props) {
           }
         });
       }
-      if (formcon.current.querySelector('.cellControlErrorTip')) {
+      if (formcon.current && formcon.current.querySelector('.cellControlErrorTip')) {
         hasError = true;
       }
     }
@@ -243,7 +246,7 @@ function NewReccordForm(props) {
             appId={appId}
             viewId={viewId}
             worksheetId={worksheetId}
-            publicWorksheetShareId={publicWorksheetShareId}
+            publicShareUrl={publicShareUrl}
             visibleType={visibleType}
             onClose={() => setShareVisible(false)}
           />
@@ -281,9 +284,9 @@ function NewReccordForm(props) {
             relateRecordData={relateRecordData}
             worksheetId={worksheetId}
             showError={errorVisible}
-            onChange={data => {
+            onChange={(data, { noSaveTemp } = {}) => {
               setFormdata([...data]);
-              if (needCache && viewId) {
+              if (needCache && viewId && !noSaveTemp) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));
               }
             }}

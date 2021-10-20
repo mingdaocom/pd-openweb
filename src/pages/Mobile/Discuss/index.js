@@ -44,7 +44,7 @@ class Discuss extends Component {
     this.state = {
       height: document.documentElement.clientHeight - tabsHeight - bottomHeight,
       groupId: null,
-      switchPermit: _.object(),
+      switchPermit: {},
     }
   }
   componentDidMount() {

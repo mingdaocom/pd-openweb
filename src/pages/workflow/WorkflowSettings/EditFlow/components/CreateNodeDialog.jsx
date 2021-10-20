@@ -5,6 +5,7 @@ import { Dialog, Radio, ScrollView, Support } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, TRIGGER_ID_TYPE } from '../../enum';
 import { upgradeVersionDialog } from 'src/util';
+import { getProjectLicenseInfo } from 'src/api/project';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -555,20 +556,29 @@ export default class CreateNodeDialog extends Component {
     } else if (item.type === NODE_TYPE.BRANCH && !isLast) {
       this.setState({ selectItem: item, showBranchDialog: true });
     } else {
-      const { version = { versionId: 1 }, licenseType } =
-        _.find(md.global.Account.projects || [], o => o.projectId === companyId) || {};
+      const currentProject = _.find(md.global.Account.projects || [], o => o.projectId === companyId) || {};
+      const callback = ({ version, licenseType }) => {
+        // 代码块、界面推送 Word打印模板
+        if (_.includes([14, 17, 18], item.type) && (licenseType === 0 || version.versionId === 1)) {
+          upgradeVersionDialog({ projectId: companyId, isFree: licenseType === 0 });
+        } else {
+          this.addFlowNode({
+            actionId: item.actionId,
+            appType: item.appType,
+            name: item.name,
+            prveId: nodeId,
+            typeId: item.type,
+          });
+        }
+      };
 
-      // 代码块、界面推送 Word打印模板
-      if (_.includes([14, 17, 18], item.type) && version.versionId === 1) {
-        upgradeVersionDialog({ projectId: companyId, isFree: licenseType === 0 });
-      } else {
-        this.addFlowNode({
-          actionId: item.actionId,
-          appType: item.appType,
-          name: item.name,
-          prveId: nodeId,
-          typeId: item.type,
+      // 外协
+      if (_.isEmpty(currentProject)) {
+        getProjectLicenseInfo({ projectId: companyId }).then(data => {
+          callback(data);
         });
+      } else {
+        callback(currentProject);
       }
     }
   }

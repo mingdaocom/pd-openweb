@@ -32,8 +32,8 @@ class DateTimeRange extends Component {
     const start = !!(props.selectedValue && props.selectedValue[0]);
     const end = !!(props.selectedValue && props.selectedValue[1]);
 
-    const startValue = props.selectedValue && props.selectedValue[0] ? props.selectedValue[0].toDate() : null;
-    const endValue = props.selectedValue && props.selectedValue[1] ? props.selectedValue[1].toDate() : null;
+    const startValue = props.selectedValue && props.selectedValue[0] ? moment(props.selectedValue[0]).toDate() : null;
+    const endValue = props.selectedValue && props.selectedValue[1] ? moment(props.selectedValue[1]).toDate() : null;
     const value = [startValue, endValue];
     const state = {
       /**

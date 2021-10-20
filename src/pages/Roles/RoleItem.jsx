@@ -11,6 +11,7 @@ import { CSSTransition } from 'react-transition-group';
 import styles from './style.less?module';
 import './transition.less';
 import { SortableElement } from 'react-sortable-hoc';
+import { getCurrentProject } from 'src/util';
 
 const TYPES = RoleDialog.TYPES;
 
@@ -164,6 +165,7 @@ export default class RoleItem extends PureComponent {
       transferApp,
       copyRole,
       onSelectRole,
+      projectId,
       role: { users, departmentsInfos, jobInfos, roleType },
     } = this.props;
     const isExist = !!_.find(users, ({ accountId }) => accountId === md.global.Account.accountId);
@@ -175,6 +177,7 @@ export default class RoleItem extends PureComponent {
             {_.map(users.slice(0, 6), user => (
               <UserHead
                 key={user.accountId}
+                projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
                 size={26}
                 lazy="false"
                 user={{
@@ -351,13 +354,13 @@ export default class RoleItem extends PureComponent {
         )}
         {isUserAdmin ? (
           <div className="TxtRight pTop20 pBottom20 pRight24 pLeft24">
-            {!!projectId && (
+            {!!projectId && !_.isEmpty(getCurrentProject(projectId)) && (
               <Button type="ghost" radius onClick={addJobToRole} className="pLeft10 pRight10">
                 {_l('添加职位')}
               </Button>
             )}
 
-            {!!projectId && (
+            {!!projectId && !_.isEmpty(getCurrentProject(projectId)) && (
               <Button type="ghost" radius onClick={addDepartmentToRole} className="pLeft10 pRight10 mLeft10">
                 {_l('添加部门')}
               </Button>
@@ -375,6 +378,7 @@ export default class RoleItem extends PureComponent {
   renderUserItem(user) {
     const {
       isUserAdmin,
+      projectId,
       role: { roleType },
     } = this.props;
     const { selectUserIds } = this.state;
@@ -400,6 +404,7 @@ export default class RoleItem extends PureComponent {
         >
           <UserHead
             key={user.accountId}
+            projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
             size={40}
             lazy="false"
             user={{

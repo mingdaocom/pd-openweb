@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Dropdown, Input, Checkbox } from 'ming-ui';
-import DatePicker from 'ming-ui/components/DatePicker';
+import { Dropdown, Input, Checkbox, MdAntDatePicker, MdAntDateRangePicker } from 'ming-ui';
 import { FILTER_CONDITION_TYPE, DATE_OPTIONS } from '../../enum';
-
-const RangePicker = DatePicker.RangePicker;
+import { formatDateValue } from '../../util';
 
 export default class Date extends Component {
   static propTypes = {
@@ -22,22 +20,40 @@ export default class Date extends Component {
     this.state = {};
   }
   render() {
-    const { disabled, type, value, values, minValue, maxValue, dateRange, onChange, from = '' } = this.props;
+    const {
+      control = {},
+      disabled,
+      type,
+      value,
+      values,
+      minValue,
+      maxValue,
+      dateRange,
+      onChange,
+      from = '',
+    } = this.props;
+    const showDateTime =
+      control.type === 16 && !(type === FILTER_CONDITION_TYPE.DATEENUM || type === FILTER_CONDITION_TYPE.NDATEENUM);
     return (
       <div className="worksheetFilterDateCondition">
-        {type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN ? (
+        {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (
           <div className="dateInputCon customDate">
-            <RangePicker
+            <MdAntDateRangePicker
               disabled={disabled}
-              className="ThemeHoverColor3"
-              onOk={range => {
+              defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+              showTime={showDateTime ? { format: 'HH:mm:ss' } : false}
+              format={showDateTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'}
+              onChange={(moments, times) => {
+                if (!_.isArray(moments)) {
+                  return;
+                }
                 onChange({
-                  minValue: range[0].startOf('day').format('YYYY-MM-DD'),
-                  maxValue: range[1].endOf('day').format('YYYY-MM-DD'),
+                  // minValue: showDateTime ? times[0] : moments[0].startOf('day').format('YYYY-MM-DD'),
+                  // maxValue: showDateTime ? times[1] : moments[1].endOf('day').format('YYYY-MM-DD'),
+                  minValue: moments[0].startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+                  maxValue: moments[1].endOf('day').format('YYYY-MM-DD HH:mm:ss'),
                 });
               }}
-              onClear={() => {}}
-              selectedValue={[moment(minValue), moment(maxValue)]}
             />
           </div>
         ) : (
@@ -54,7 +70,9 @@ export default class Date extends Component {
                     let changes = { value: undefined, values: [] };
                     if (newDateRange === 18) {
                       changes = {
-                        value: moment().format('YYYY-MM-DD'),
+                        value: moment(
+                          type === FILTER_CONDITION_TYPE.DATE_GT ? moment().endOf('day') : moment().startOf('day'),
+                        ).format('YYYY-MM-DD HH:mm:ss'),
                       };
                     }
                     if (newDateRange === 10 || newDateRange === 11) {
@@ -89,13 +107,20 @@ export default class Date extends Component {
             )}
             {dateRange === 18 && (
               <div className="customDate dateInputCon mTop10">
-                <DatePicker
+                <MdAntDatePicker
                   disabled={disabled}
-                  selectedValue={moment(value ? value : moment().format('YYYY-MM-DD'))}
-                  offsetTop={10}
-                  format={_l('YYYY年M月D日')}
-                  onOk={date => {
-                    onChange({ value: date.format('YYYY-MM-DD') });
+                  defaultValue={moment(value)}
+                  showTime={showDateTime ? { format: 'HH:mm:ss' } : false}
+                  format={showDateTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'}
+                  onChange={date => {
+                    if (!date) {
+                      return;
+                    }
+                    if (showDateTime) {
+                      onChange({ value: date.format('YYYY-MM-DD HH:mm:ss') });
+                    } else {
+                      onChange({ value: formatDateValue({ type, value: date }) });
+                    }
                   }}
                 />
               </div>

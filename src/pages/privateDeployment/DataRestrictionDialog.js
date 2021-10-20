@@ -61,22 +61,22 @@ export default class DataRestrictionDialog extends Component {
         onCancel={this.props.onCancel}
       >
         <div className="mTop20 mBottom20">
-          <div className="mBottom5 Font14">{_l('工作流获取批量数据上限')}</div>
+          <div className="mBottom5 Font14">{_l('工作流获取批量数据上限（建议最大1000）')}</div>
           <Input className="Width120 mRight10" value={workflowBatchGetDataLimitCount} onChange={value => { this.setState({ workflowBatchGetDataLimitCount: formattingValue(value) }) }}/>
           <span>{_l('条')}</span>
         </div>
         <div className="mBottom20">
-          <div className="mBottom5 Font14">{_l('子流程可用数据源记录数上限')}</div>
+          <div className="mBottom5 Font14">{_l('子流程可用数据源记录数上限（建议最大20000）')}</div>
           <Input className="Width120 mRight10" value={workflowSubProcessDataLimitCount} onChange={value => { this.setState({ workflowSubProcessDataLimitCount: formattingValue(value) }) }}/>
           <span>{_l('条')}</span>
         </div>
         <div className="mBottom20">
-          <div className="mBottom5 Font14">{_l('工作表Excel导入行数上限')}</div>
+          <div className="mBottom5 Font14">{_l('工作表Excel导入行数上限（建议最大40000）')}</div>
           <Input className="Width120 mRight10" value={worksheetExcelImportDataLimitCount} onChange={value => { this.setState({ worksheetExcelImportDataLimitCount: formattingValue(value) }) }}/>
           <span>{_l('行')}</span>
         </div>
         <div className="mBottom20">
-          <div className="mBottom5 Font14">{_l('工作表批量数据操作上限')}</div>
+          <div className="mBottom5 Font14">{_l('工作表批量数据操作上限（建议最大10000）')}</div>
           <Input className="Width120 mRight10" value={worktableBatchOperateDataLimitCount} onChange={value => { this.setState({ worktableBatchOperateDataLimitCount: formattingValue(value) }) }}/>
           <span>{_l('条')}</span>
         </div>

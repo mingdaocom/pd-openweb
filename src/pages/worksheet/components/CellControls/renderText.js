@@ -15,7 +15,7 @@ export default function renderText(cell, options = {}) {
       suffix = '';
       prefix = '';
     }
-    if (value === '') {
+    if (value === '' || value === null) {
       return '';
     }
     if (type === 37) {
@@ -82,7 +82,11 @@ export default function renderText(cell, options = {}) {
         if (cell.enumDefault === 2) {
           return moment(cell.value).format(cell.unit === '3' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
         } else {
-          return prefix + formatFormulaDate(cell.value, unit, suffix || prefix) + suffix;
+          return (
+            (suffix ? '' : prefix) +
+            formatFormulaDate({ value: cell.value, unit, hideUnitStr: suffix || prefix, dot: cell.dot }) +
+            suffix
+          );
         }
       case 17: // DATE_TIME_RANGE 时间段
       case 18: // DATE_TIME_RANGE 时间段

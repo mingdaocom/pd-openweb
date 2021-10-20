@@ -69,7 +69,7 @@ const VerifySettingItem = styled(SettingItem)`
 `;
 
 export default function WidgetVerify(props) {
-  const { data, onChange } = props;
+  const { data = {}, onChange } = props;
   const { type } = data;
   const Comp = CompConfig[type] || null;
   const settings = TYPES_SETTING[type] || ['required'];

@@ -456,12 +456,12 @@ class UserItem extends Component {
   render() {
     const { user, isChargeUser, isChecked, isSearch, typeCursor, projectId, selectCount } = this.props;
     const { isMinSc } = this.state;
-    let { jobInfos = [], departmentInfos = [], department = '', job = '' } = user;
-    let departmentData = departmentInfos;
+    let { jobs = [], departments = [], department = '', job = '' } = user;
+    let departmentData = departments;
     if (typeCursor === 2) {
       departmentData = department;
     }
-    let jobData = jobInfos;
+    let jobData = jobs;
     if (typeCursor === 2) {
       jobData = job;
     }
@@ -495,8 +495,8 @@ class UserItem extends Component {
                   <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
                 </td>
                 <td className="TxtMiddle pRight0">
-                  <div className="name mLeft10">
-                    <a href={'/user_' + user.accountId} className="Gray" title={user.fullname}>
+                  <div className="name mLeft10" style={{ display: 'flex' }}>
+                    <a href={'/user_' + user.accountId} className="Gray overflow_ellipsis" title={user.fullname}>
                       {user.fullname}
                     </a>
                     {isChargeUser ? (
@@ -528,9 +528,9 @@ class UserItem extends Component {
                   ? jobData
                   : jobData.map((it, i) => {
                       if (jobData.length - 1 > i) {
-                        return `${it.jobName};`;
+                        return `${it.name || it.jobName};`;
                       }
-                      return `${it.jobName}`;
+                      return `${it.name || it.jobName}`;
                     })
               }
             >
@@ -538,9 +538,9 @@ class UserItem extends Component {
                 ? jobData
                 : jobData.map((it, i) => {
                     if (jobData.length - 1 > i) {
-                      return `${it.jobName} ; `;
+                      return `${it.name || it.jobName} ; `;
                     }
-                    return `${it.jobName}`;
+                    return `${it.name || it.jobName}`;
                   })}
             </div>
           }
@@ -555,9 +555,9 @@ class UserItem extends Component {
                   ? departmentData
                   : departmentData.map((it, i) => {
                       if (departmentData.length - 1 > i) {
-                        return `${it.departmentName};`;
+                        return `${it.name || it.departmentName};`;
                       }
-                      return `${it.departmentName}`;
+                      return `${it.name || it.departmentName}`;
                     })
               }
             >
@@ -565,14 +565,14 @@ class UserItem extends Component {
                 ? departmentData
                 : departmentData.map((it, i) => {
                     if (departmentData.length - 1 > i) {
-                      return `${it.departmentName} ; `;
+                      return `${it.name || it.departmentName} ; `;
                     }
-                    return `${it.departmentName}`;
+                    return `${it.name || it.departmentName}`;
                   })}
             </div>
           }
         </td>
-        <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSite}</td>
+        <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
         <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>
         <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
         {!isMinSc && <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>}

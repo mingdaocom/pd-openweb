@@ -326,7 +326,7 @@ export default class AppLog extends React.Component {
                     className={cx(item.downLoadUrl ? 'ThemeColor3 ThemeHoverColor2 Hand' : 'Gray_9e')}
                     onClick={() => {
                       if (item.downLoadUrl) {
-                        window.open(addToken(item.downLoadUrl));
+                        window.open(addToken(item.downLoadUrl, !window.isDingTalk));
                       }
                     }}
                   >

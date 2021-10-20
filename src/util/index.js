@@ -7,6 +7,7 @@ import 'src/pages/PageHeader/components/NetState/index.less';
 import { LIGHT_COLOR, PUBLIC_KEY, APPLICATION_ICON } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'querystring';
+import { getUploadToken, getFileUploadToken } from 'src/api/qiniu';
 const {dialog: {netState: {buyBtn}}} = window.private;
 
 // 判断选项颜色是否为浅色系
@@ -296,30 +297,13 @@ export const isUrlRequest = url => {
 };
 
 /**
- * 图片展示中间页
- * @param {string} path 原图片地址
- * @param {string} mode 缩略图的裁剪方式，具体看文档 https://developer.qiniu.com/dora/manual/1279/basic-processing-images-imageview2
- * @param {string} width 宽度
- * @param {string} height 高度
- * @returns {string} 新的图片地址
- */
-export const convertImageView = (path, mode, width, height) => {
-  if (!isUrlRequest(path) || path.indexOf('UserAvatar') > -1) return path;
-  let base = `${md.global.Config.AjaxApiUrl}file/imageview?path=${escape(path)}`;
-  base += mode == null ? '' : `&mode=${mode}`;
-  base += width ? `&width=${width}` : '';
-  base += height ? `&height=${height}` : '';
-  return addToken(base);
-};
-
-/**
  * 下载地址和包含 md.global.Config.AjaxApiUrl 的 url 添加 token
  * @param {string} url
  * @returns {string} url
  */
-export const addToken = url => {
+export const addToken = (url, verificationId = true) => {
   const id = window.getCookie('md_pss_id');
-  if (id) {
+  if (verificationId && id) {
     return url;
   }
   if (url.includes('?')) {
@@ -373,6 +357,7 @@ export const getIconNameByExt = ext => {
     case 'jpeg':
     case 'gif':
     case 'bmp':
+    case 'tif':
       extType = 'img';
       break;
     case 'xls':
@@ -559,5 +544,23 @@ export const setCaretPosition = (ctrl, caretPos) => {
     ctrl.setSelectionRange(caretPos, caretPos);
   } else {
     ctrl.focus();
+  }
+};
+
+// 从 html 代码创建元素
+export function createElementFromHtml(html) {
+  const con = document.createElement('div');
+  con.innerHTML = html;
+  return con.firstElementChild;
+}
+
+/**
+ * 获取上传token
+ */
+export const getToken = (files, type = 0) => {
+  if (!md.global.Account.accountId) {
+    return getFileUploadToken({ files });
+  } else {
+    return getUploadToken({ files, type });
   }
 };
