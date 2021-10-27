@@ -7,6 +7,7 @@ import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import '../components/message.less';
 import { get } from 'lodash';
+import { getDataByFilterXSS } from '../util';
 let request = getRequest();
 function useInterval(callback, delay) {
   const savedCallback = useRef(callback);
@@ -132,7 +133,7 @@ export default function Twofactor(props) {
           }
         } else {
           if (request.ReturnUrl) {
-            location.replace(request.ReturnUrl);
+            location.replace(getDataByFilterXSS(request.ReturnUrl));
           } else {
             window.location.replace('/app/my');
           }

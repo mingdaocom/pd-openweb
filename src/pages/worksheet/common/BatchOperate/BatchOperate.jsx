@@ -242,7 +242,7 @@ class BatchOperate extends React.Component {
               className="workflowNoticeContentWrap"
               themeColor="error"
               header={NoticeHeader}
-              content={<Content>{_l('失败，有数据执行条件不满足或流程尚未启用')}</Content>}
+              content={<Content>{_l('失败，所有记录都不满足执行条件，或流程尚未启用')}</Content>}
               showClose={true}
               onClose={() => notification.close(`batchUpdateWorkflowNotice${btn.btnId}`)}
             />

@@ -263,7 +263,14 @@ export default function RelateRecordTable(props) {
       if (res.worksheet) {
         const newTableControls = control.showControls
           .map(scid => _.find(res.worksheet.template.controls.concat(SYSTEM_CONTROL), c => c.controlId === scid))
-          .filter(c => c && controlState(c).visible);
+          .filter(
+            c =>
+              c &&
+              controlState({
+                ...c,
+                controlPermissions: c.controlPermissions ? '1' + c.controlPermissions.slice(1) : '111',
+              }).visible,
+          );
         controls = newTableControls;
         setWorksheetOfControl(res.worksheet);
         setTableControls(newTableControls);

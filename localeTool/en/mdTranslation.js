@@ -35,7 +35,7 @@ var mdTranslation ={
     "应用库": "App Library",
     "应用": "Apps",
     "拥有者": "Owner",
-    "创建者": "Owner",
+    "创建者": "Creator",
     "创建时间": "Date created",
     "最近修改时间": "Last modification time",
     "触发者": "Initiator",

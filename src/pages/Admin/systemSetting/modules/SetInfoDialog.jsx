@@ -43,7 +43,7 @@ export default class SetInfoDialog extends Component {
       industryId: this.props.industryId,
       geographyId: this.props.geographyId,
       geographyName: this.props.geographyName,
-      industryName: this.props.industryName
+      industryName: this.props.industryName,
     };
   }
 
@@ -99,7 +99,8 @@ export default class SetInfoDialog extends Component {
           <div
             className={classNames('Block Red errorBox', {
               Hidden: errors.companyDisplayName && errors.companyDisplayName.msg,
-            })}>
+            })}
+          >
             {errors.companyDisplayName && errors.companyDisplayName.msg}
           </div>
         </div>
@@ -120,7 +121,8 @@ export default class SetInfoDialog extends Component {
           <div
             className={classNames('Block Red errorBox', {
               Hidden: errors.companyName && errors.companyName.msg,
-            })}>
+            })}
+          >
             {errors.companyName && errors.companyName.msg}
           </div>
         </div>
@@ -139,24 +141,25 @@ export default class SetInfoDialog extends Component {
 
   // 地址设置
   valueUpdate(data) {
-    if(data&&data.length) {
+    if (data && data.length) {
       this.setState({
         geographyName: data.map(item => item.name).join('/'),
-        geographyId: _.get(data[data.length-1], 'id')
-      })
+        geographyId: _.get(data[data.length - 1], 'id'),
+      });
     }
   }
 
   renderOrgGeography() {
-    const { geographyName } = this.state
+    const { geographyName } = this.state;
     return (
       <CityPicker
         callback={data => {
           this.valueUpdate(data);
-        }}>
+        }}
+      >
         <input
           type="text"
-          placeholder={_l("请选择所在地")}
+          placeholder={_l('请选择所在地')}
           value={geographyName}
           className="ming Input w100"
           readOnly
@@ -169,15 +172,20 @@ export default class SetInfoDialog extends Component {
   handleIndustryChange(value, item) {
     this.setState({
       industryId: value,
-      industryName: item.children
-    })
+      industryName: item.children,
+    });
   }
 
   renderOrgIndustry() {
-    const industryId = this.state.industryId ? this.state.industryId + '' : undefined
-    const { industries } = this.props
+    const industryId = this.state.industryId ? this.state.industryId + '' : undefined;
+    const { industries } = this.props;
     return (
-      <Select className="w100" placeholder={_l('请选择所在行业')} value={industryId} onChange={this.handleIndustryChange.bind(this)}>
+      <Select
+        className="w100"
+        placeholder={_l('请选择所在行业')}
+        value={industryId}
+        onChange={this.handleIndustryChange.bind(this)}
+      >
         {industries &&
           industries.map(item => {
             return (
@@ -202,33 +210,35 @@ export default class SetInfoDialog extends Component {
       industryName,
       industryId,
       geographyName,
-      geographyId
-    } = this.state;
-    projectController.setProjectInfo({
-      companyName,
-      companyDisplayName,
-      companyNameEnglish,
-      industryId,
       geographyId,
-      projectId: this.props.projectId
-    }).then((data) => {
-      if (data == 0) {
-        alert(_l('设置失败'), 2);
-      } else if (data == 1) {
-        this.props.updateValue({
-          companyDisplayName,
-          companyNameEnglish,
-          companyName,
-          industryId,
-          industryName,
-          geographyId,
-          geographyName
-        })
-        alert(_l('设置成功'));
-      } else if (data == 3) {
-        alert(_l("您输入的信息含有禁用词汇"), 3);
-      }
-    });
+    } = this.state;
+    projectController
+      .setProjectInfo({
+        companyName,
+        companyDisplayName,
+        companyNameEnglish,
+        industryId,
+        geographyId,
+        projectId: this.props.projectId,
+      })
+      .then(data => {
+        if (data == 0) {
+          alert(_l('设置失败'), 2);
+        } else if (data == 1) {
+          this.props.updateValue({
+            companyDisplayName,
+            companyNameEnglish,
+            companyName,
+            industryId,
+            industryName,
+            geographyId,
+            geographyName,
+          });
+          alert(_l('设置成功'));
+        } else if (data == 3) {
+          alert(_l('您输入的信息含有禁用词汇'), 3);
+        }
+      });
   }
 
   renderBodyContent() {
@@ -243,11 +253,14 @@ export default class SetInfoDialog extends Component {
   }
 
   hideDialog() {
-    this.setState({
-      visible: false,
-    }, () => {
-      this.props.updateValue({ visibleType: 0 })
-    });
+    this.setState(
+      {
+        visible: false,
+      },
+      () => {
+        this.props.updateValue({ visibleType: 0 });
+      },
+    );
   }
 
   render() {
@@ -263,7 +276,8 @@ export default class SetInfoDialog extends Component {
         onCancel={() => {
           this.hideDialog();
         }}
-        onOk={() => this.handleFieldSubmit()}>
+        onOk={() => this.handleFieldSubmit()}
+      >
         {this.renderBodyContent()}
       </Dialog>
     );

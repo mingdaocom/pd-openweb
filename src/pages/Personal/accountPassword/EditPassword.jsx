@@ -32,7 +32,7 @@ export default class EditPassword extends Component {
       return;
     }
     if (!this.isPasswordRule(newPassword)) {
-      let msg = this.state.passwordRegexTip || _l('8-20位，只支持字母+数字');
+      let msg = this.state.passwordRegexTip || _l('8-20位，需包含字母和数字');
       alert(msg, 3);
       $('#newInput').focus().select();
       return;
@@ -131,7 +131,7 @@ export default class EditPassword extends Component {
           placeholder={_l('新密码')}
           onChange={e => this.setState({ newPassword: e.target.value })}
         />
-        <div className="Gray_9e">{this.state.passwordRegexTip || _l('8-20位，只支持字母+数字')}</div>
+        <div className="Gray_9e">{this.state.passwordRegexTip || _l('8-20位，需包含字母和数字')}</div>
         <div className="mTop40 Right mBottom24">
           <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>
             {_l('取消')}

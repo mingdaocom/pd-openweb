@@ -39,11 +39,6 @@ export default class FileComponent extends Component {
     let { UploadFile } = this;
     let { width } = UploadFile.getBoundingClientRect();
   }
-  componentDidUpdate() {
-    if (this.linkCon && !this.linkRendered && _.get(md, 'global.Account.accountId')) {
-      this.handlePreviewLink();
-    }
-  }
   onEdit(event) {
     event.stopPropagation();
     let { isEdit } = this.state;
@@ -811,43 +806,6 @@ export default class FileComponent extends Component {
         </div>
       </div>
     );
-  }
-  handlePreviewLink() {
-    const con = this.linkCon;
-    const { data } = this.props;
-    const url = data.originLinkUrl;
-    this.linkRendered = true;
-    if (this.previewLinkAjax) {
-      this.previewLinkAjax.abort();
-    }
-    this.previewLinkAjax = postController.getLinkViewInfo(
-      {
-        url,
-        minWidth: 20,
-      },
-      {
-        silent: true,
-      },
-    );
-    this.previewLinkAjax.then(res => {
-      if (res) {
-        let imgArr = [];
-        if (res.thumbnails) {
-          imgArr = res.thumbnails;
-        }
-        if (imgArr.length) {
-          const img = $(
-            '<div class="linkThumbnailCon"><span class="fileIcon-link"></span><div class="linkThumbnail"><img src="' +
-              imgArr[0] +
-              '" /></div></div>',
-          );
-          img.find('img').on('error', () => {
-            $(con).html('<div className="fileIcon-link UploadFiles-fileIcon" }></div>');
-          });
-          $(con).html(img);
-        }
-      }
-    });
   }
   renderDelete() {
     return (

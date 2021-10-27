@@ -516,7 +516,7 @@ export function formatRecordToRelateRecord(controls, records = []) {
  * @param  {} data
  */
 
-export function getSubListError({ rows, rules }, controls = [], showControls = []) {
+export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3) {
   const result = {};
   try {
     rows.forEach(async row => {
@@ -528,7 +528,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         from: FROM.NEWRECORD,
       });
       let errorItems = formdata.getErrorControls();
-      const rulesErrors = checkRulesErrorOfRow({ rules, controls, row });
+      const rulesErrors = checkRulesErrorOfRow({ from, rules, controls, row });
       rulesErrors.forEach(errorItem => {
         if (_.includes(showControls, errorItem.controlId)) {
           result[row.rowid + '-' + errorItem.controlId] = errorItem.errorMessage;
@@ -802,9 +802,10 @@ export function isValidControlId(id) {
 /**
  * 获取记录字段规则错误
  */
-export function checkRulesErrorOfRow({ rules, controls, control, row }) {
+export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
   let errors = [];
   updateRulesData({
+    from,
     rules,
     data: controls.map(c => ({ ...c, value: row[c.controlId] })),
     updateControlIds: control ? [control.controlId] : [],
@@ -821,7 +822,7 @@ export function checkRulesErrorOfRow({ rules, controls, control, row }) {
 /**
  * 获取字段字段规则错误
  */
-export function checkRulesErrorOfRowControl({ rules, controls, control, row }) {
-  const errors = checkRulesErrorOfRow({ rules, controls, control, row });
+export function checkRulesErrorOfRowControl({ from, rules, controls, control, row }) {
+  const errors = checkRulesErrorOfRow({ from, rules, controls, control, row });
   return _.find(errors, e => e.controlId === control.controlId);
 }

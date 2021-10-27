@@ -25,7 +25,7 @@ export default class ScrollView extends Component {
     this.triggerNanoScroller();
   }
   componentWillUnmount() {
-    $(this.nanoScroller).nanoScroller({ destroy: true });
+    $(this.nanoScroller) && $(this.nanoScroller).nanoScroller && ($(this.nanoScroller).nanoScroller instanceof Function) && $(this.nanoScroller).nanoScroller({ destroy: true });
   }
   onWheel(evt) {
     const { clientHeight, scrollTop, scrollHeight } = evt.currentTarget;

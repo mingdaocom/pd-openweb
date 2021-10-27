@@ -15,7 +15,7 @@
                     <img class="SmallAvatar" src="{{= groupList.groupAvatar }}"/>
                 </div>
                 <div class="infoNoOp textNowrap mLeft15">
-                    <a href="/group/groupValidate?gID={{= groupList.groupID }}" target="_blank">{{= groupList.groupName.replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+                    <a href="/group/groupValidate?gID={{= groupList.groupID }}" target="_blank">{{= it.htmlEncodeReg(groupList.groupName).replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
                 </div>
                 <div class="date">{{= groupList.groupCreateTime }}</div>
                 <div class="companyName">{{=it.companyName(groupList.companyName)}}</div>

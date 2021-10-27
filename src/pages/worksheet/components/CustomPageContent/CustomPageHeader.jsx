@@ -11,6 +11,7 @@ import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
 import PageDesc from './PageDesc';
 import { pick } from 'lodash';
+import filterXSS from 'xss';
 
 export default function CustomPageHeader(props) {
   const {
@@ -122,7 +123,7 @@ export default function CustomPageHeader(props) {
               onClick={() => handleVisibleChange(true, 'editIntroVisible')}
               tooltipClass="sheetDescTooltip"
               popupPlacement="bottom"
-              text={<span dangerouslySetInnerHTML={{ __html: desc.replace(/\n/g, '<br />') }} />}
+              text={<span dangerouslySetInnerHTML={{ __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />') }} />}
             >
               <Icon icon="knowledge-message Font18 Gray_9" className="Hand customPageDesc" />
             </Tooltip>

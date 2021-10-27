@@ -27,6 +27,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { BatchOperate } from 'worksheet/common';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
+import filterXSS from 'xss';
 
 const Con = styled.div`
   display: flex;
@@ -162,11 +163,7 @@ function SheetHeader(props) {
                 disable={sheetDescVisible}
                 tooltipClass="sheetDescTooltip"
                 popupPlacement="bottom"
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-                text={<span dangerouslySetInnerHTML={{ __html: desc.replace(/\n/g, '<br />') }} />}
+                text={<span dangerouslySetInnerHTML={{ __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />') }} />}
               >
                 <Icon icon="knowledge-message" className="Hand sheetDesc" />
               </Tooltip>

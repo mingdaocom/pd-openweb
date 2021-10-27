@@ -90,6 +90,7 @@ export default class FillWorkseet extends React.Component {
               },
               control.relationControls,
               control.showControls,
+              2,
             ),
         }))
         .filter(c => !_.isEmpty(c.value));

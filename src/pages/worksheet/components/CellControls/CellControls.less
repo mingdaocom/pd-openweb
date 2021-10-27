@@ -639,10 +639,12 @@
 }
 
 // 日期选择控件
+.cell.cellControlDatePicker:not(.cellControlErrorStatus) {
+  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+}
 .cell.cellControlDatePicker {
   padding: 2px !important;
   padding-right: 2px !important;
-  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
   .cellControlDatePickerCon {
     .ant-picker {
       height: auto;

@@ -105,7 +105,8 @@ export default class CustomFields extends Component {
       disabled,
       recordCreateTime,
       from,
-      onAsyncChange: () => {
+      onAsyncChange: ({ controlId, value }) => {
+        this.props.onChange(this.dataFormat.getDataSource(), [controlId]);
         this.setState({
           renderData: this.getFilterDataByRule(true),
           errorItems: this.dataFormat.getErrorControls(),

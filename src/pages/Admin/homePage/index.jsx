@@ -308,7 +308,7 @@ export default function HomePage({ match, location: routerLocation }) {
                       {key === 'effectiveApkStorageCount' && (
                         <Tooltip
                           popupPlacement="top"
-                          text={<span>{_l('应用中使用的上传用量，如讨论区、附件字段（包括公开表单）')}</span>}
+                          text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
                         >
                           <span className="icon-help1 Font13 Gray_9e"></span>
                         </Tooltip>

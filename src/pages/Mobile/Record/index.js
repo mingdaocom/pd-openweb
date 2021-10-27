@@ -12,6 +12,7 @@ import RelationAction from 'src/pages/Mobile/RelationRow/RelationAction';
 import * as actions from 'src/pages/Mobile/RelationRow/redux/actions';
 import RecordAction from './RecordAction';
 import CustomFields from 'src/components/newCustomFields';
+import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import Back from '../components/Back';
 import AppPermissions from '../components/AppPermissions';
@@ -383,7 +384,12 @@ class Record extends Component {
     const titleControl = _.find(this.formData || [], control => control.attribute === 1);
     const defaultTitle = _l('未命名');
     const recordTitle = titleControl ? renderCellText(titleControl) || defaultTitle : defaultTitle;
-    const recordMuster = sheetRow.receiveControls.filter(item => isRelateRecordTableControl(item) && controlState(item, 6).visible);
+    const recordMuster = _.sortBy(
+      updateRulesData({ rules: sheetRow.rules, data: sheetRow.receiveControls }).filter(
+        control => isRelateRecordTableControl(control) && controlState(control, 6).visible,
+      ),
+      'row',
+    );
     const tabs = [{
       name: _l('详情'),
       index: 0,

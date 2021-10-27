@@ -156,7 +156,7 @@ export default class WorksheetTable extends PureComponent {
   checkRulesErrorOfControl(control, row) {
     const { controls } = this.props;
     const { rules } = this.state;
-    return checkRulesErrorOfRowControl({ rules, controls, control, row });
+    return checkRulesErrorOfRowControl({ from: 3, rules, controls, control, row });
   }
 
   updateRecordsFieldPermissionOfRules(row, control) {
@@ -170,6 +170,7 @@ export default class WorksheetTable extends PureComponent {
         return;
       }
       const formData = updateRulesData({
+        from: 3,
         rules,
         data: controls.map(c => ({ ...c, value: row[c.controlId] })),
       });

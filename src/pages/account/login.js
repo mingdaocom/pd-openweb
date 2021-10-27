@@ -11,6 +11,7 @@ import { LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import { checkLogin } from 'src/util/sso';
 import { browserIsMobile } from 'src/util';
+import { getDataByFilterXSS } from './util';
 
 let request = getRequest();
 let ActionResult = {
@@ -49,7 +50,7 @@ class LoginContainer extends React.Component {
         warnningData: {},
         emailOrTel: '', // 邮箱或手机
         verifyCode: '', // 验证码
-        password: '', // 8-20位，只支持字母+数字
+        password: '', // 8-20位，需包含字母和数字
         fullName: '', // 姓名
         regcode: '', // 企业码
         isCheck: false,
@@ -75,7 +76,7 @@ class LoginContainer extends React.Component {
     document.title = _l('登录');
     if (checkLogin()) {
       if (request.ReturnUrl) {
-        location.replace(request.ReturnUrl);
+        location.replace(getDataByFilterXSS(request.ReturnUrl));
         return;
       }
       location.href = browserIsMobile() ? `/mobile` : `/app`;
@@ -124,7 +125,7 @@ class LoginContainer extends React.Component {
       setPssId(data.sessionId);
 
       if (request.ReturnUrl) {
-        location.replace(request.ReturnUrl);
+        location.replace(getDataByFilterXSS(request.ReturnUrl));
       } else {
         window.location.replace('/app/my');
       }
@@ -297,7 +298,7 @@ class LoginContainer extends React.Component {
                 location.href = linkInvite;
               } else {
                 let request = getRequest();
-                let returnUrl = request.ReturnUrl || '';
+                let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
                 if (returnUrl.indexOf('type=privatekey') > -1) {
                   location.href = '/register.htm?ReturnUrl=' + encodeURIComponent(returnUrl);
                 } else if (isBindAccount) {

@@ -123,10 +123,9 @@ export default class RecordCard extends Component {
     const size = coverType ? 76 : 120;
     const url =
       cover && cover.previewUrl
-        ? `${cover.previewUrl.slice(
-            0,
-            cover.previewUrl.indexOf('?'),
-          )}?imageMogr2/auto-orient|imageView2/1/w/${size}/h/${size}/q/90`
+        ? cover.previewUrl.indexOf('imageView2') > -1
+          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/${size}/h/${size}`)
+          : `${cover.previewUrl}&imageView2/1/w/${size}/h/${size}`
         : null;
     return (
       <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${advancedSetting.appshowtype || '0'}`)}>

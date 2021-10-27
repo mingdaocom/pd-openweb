@@ -1,7 +1,6 @@
 import { getRequest } from 'src/util';
-import preall from 'src/common/preall';
 var loginController = require('src/api/login');
-var { removePssId, setPssId } = require('src/util/pssId');
+var { setPssId } = require('src/util/pssId');
 
 require('./style.css');
 require('./account-common.less');
@@ -107,10 +106,6 @@ TPAuth.autoBindSuc = function() {
 };
 
 TPAuth.login = function() {
-  // 先清理之前的登录状态
-  removePssId();
-  window.localStorage.removeItem('LoginCheckList');
-
   let login;
 
   if (TPAuth.options.tpParams.account && TPAuth.options.tpParams.password) {

@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
 import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import CellErrorTips from './comps/CellErrorTip';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
@@ -41,7 +43,11 @@ export default class Date extends React.Component {
 
   @autobind
   handleChange(value) {
-    const { cell, updateCell, updateEditingStatus } = this.props;
+    const { cell, updateCell, updateEditingStatus, onValidate } = this.props;
+    const error = !onValidate(value);
+    if (error) {
+      return;
+    }
     updateCell({
       value,
     });
@@ -68,6 +74,8 @@ export default class Date extends React.Component {
       popupContainer,
       editable,
       isediting,
+      rowIndex,
+      error,
       updateEditingStatus,
       onClick,
     } = this.props;
@@ -81,23 +89,36 @@ export default class Date extends React.Component {
     }
     return (
       <React.Fragment>
-        <EditableCellCon
-          onClick={onClick}
-          className={cx(className, { canedit: editable })}
-          hideOutline
-          style={style}
-          iconRef={this.editIcon}
-          iconName="bellSchedule"
-          iconClassName="dateEditIcon"
-          isediting={isediting}
-          onIconClick={() => updateEditingStatus(true)}
+        <Trigger
+          getPopupContainer={cellPopupContainer}
+          popupVisible={isediting && !!error}
+          popup={<CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+          destroyPopupOnHide
+          zIndex="1051"
+          popupAlign={{
+            points: rowIndex === 1 ? ['tl', 'bl'] : ['bl', 'tl'],
+            offset: rowIndex === 1 ? [0, -3] : [0, 0],
+          }}
         >
-          {!!value && (
-            <div className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}>
-              {renderText({ ...cell, value })}
-            </div>
-          )}
-        </EditableCellCon>
+          <EditableCellCon
+            onClick={onClick}
+            className={cx(className, { canedit: editable })}
+            hideOutline
+            style={style}
+            iconRef={this.editIcon}
+            iconName="bellSchedule"
+            iconClassName="dateEditIcon"
+            isediting={isediting}
+            onIconClick={() => updateEditingStatus(true)}
+          >
+            {!!value && (
+              <div className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}>
+                {renderText({ ...cell, value })}
+              </div>
+            )}
+            {isediting && error && <CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+          </EditableCellCon>
+        </Trigger>
         {isediting && (
           <ClickAwayable
             onClickAwayExceptions={[

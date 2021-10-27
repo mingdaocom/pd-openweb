@@ -514,12 +514,12 @@ export default class LoopContent extends Component {
       num = num.replace(/^0*/, '');
 
       if (!num || parseInt(num) < parseInt(min)) {
-        num = min;
+        num = String(min);
         evt.target.value = num;
       }
 
       if (parseInt(num) > parseInt(max)) {
-        num = max;
+        num = String(max);
         evt.target.value = num;
       }
 
@@ -708,12 +708,12 @@ export default class LoopContent extends Component {
       num = num.replace(/^0*/, '');
 
       if (!num || parseInt(num) < parseInt(min)) {
-        num = min;
+        num = String(min);
         evt.target.value = num;
       }
 
       if (parseInt(num) > parseInt(max)) {
-        num = max;
+        num = String(max);
         evt.target.value = num;
       }
 

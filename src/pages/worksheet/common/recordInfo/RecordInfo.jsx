@@ -361,6 +361,7 @@ export default class RecordInfo extends Component {
             },
             getControls(control.controlId) || control.relationControls,
             control.showControls,
+            3,
           ),
         }))
         .filter(c => !_.isEmpty(c.value));

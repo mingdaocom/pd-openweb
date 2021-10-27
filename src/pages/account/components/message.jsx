@@ -282,7 +282,7 @@ class Message extends React.Component {
           if (!this.isPasswordRule(password)) {
             warnningData.push({
               tipDom: this.password,
-              warnningText: this.state.passwordRegexTip || _l('8-20位，只支持字母+数字'),
+              warnningText: this.state.passwordRegexTip || _l('8-20位，需包含字母和数字'),
             });
             isRight = false;
           }
@@ -665,7 +665,7 @@ class Message extends React.Component {
                 $(this.password).focus();
               }}
             >
-              {type !== 'login' ? this.state.passwordRegexTip || _l('8-20位，只支持字母+数字') : _l('密码')}
+              {type !== 'login' ? this.state.passwordRegexTip || _l('8-20位，需包含字母和数字') : _l('密码')}
             </div>
             {warnningTipFn(warnningData, ['.passwordIcon', this.password], focusDiv)}
           </div>

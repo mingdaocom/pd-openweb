@@ -22,7 +22,7 @@ class FindPassword extends React.Component {
         warnningData: [],
         emailOrTel: '', // 邮箱或手机
         verifyCode: '', // 验证码
-        password: '', // 8-20位，只支持字母+数字
+        password: '', // 8-20位，需包含字母和数字
         dialCode: '',
       },
     };

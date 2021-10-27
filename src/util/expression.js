@@ -39,7 +39,7 @@ RegExp.isPasswordRule = function (str, passwordRegex) {
   if (passwordRegex) {
     return new RegExp(passwordRegex).test(str);
   }
-  return str.length >= 8 && str.length <= 20 && /[a-zA-Z]/.test(str) && /[0-9]/.test(str);
+  return /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/.test(str);
 };
 
 export default RegExp;

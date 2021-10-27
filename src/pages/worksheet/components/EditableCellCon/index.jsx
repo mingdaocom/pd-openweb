@@ -25,7 +25,6 @@ function EditableCellCon(props) {
   return (
     <Trigger
       zIndex={99}
-      action={['click']}
       popup={<div className="cellControlErrorTip">{error}</div>}
       getPopupContainer={() => popupContainer}
       popupClassName="filterTrigger"

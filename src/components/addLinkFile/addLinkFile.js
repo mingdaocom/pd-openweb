@@ -10,20 +10,20 @@ var DialogLayer = require('mdDialog').index;
 var postController = require('src/api/post');
 var doT = require('dot');
 var tpl = require('./addLinkFile.html');
-var addLinkFile = function(options) {
+var addLinkFile = function (options) {
   var DEFAULTS = {
     isEdit: false,
     location: {},
     data: {},
     showTitleTip: true,
-    callback: function() {},
+    callback: function () {},
   };
   this.options = _.assign({}, DEFAULTS, options);
   this.init();
 };
 
 addLinkFile.prototype = {
-  init: function() {
+  init: function () {
     var LF = this;
     var html = doT.template(tpl)({
       isEdit: LF.options.isEdit,
@@ -38,11 +38,11 @@ addLinkFile.prototype = {
         content: html,
         yesText: LF.options.isEdit ? _l('保存') : _l('创建'),
         noText: _l('取消'),
-        yesFn: function() {
+        yesFn: function () {
           return LF.save();
         },
       },
-      readyFn: function() {
+      readyFn: function () {
         LF.$dialog = $('#addLinkFileDialog');
         LF.$linkFileName = LF.$dialog.find('#linkFileName');
         LF.$linkFileContent = LF.$dialog.find('#linkFileContent');
@@ -51,32 +51,22 @@ addLinkFile.prototype = {
         if (LF.options.isEdit) {
           LF.$linkFileName.val(LF.options.data.name);
           LF.$linkFileContent.val(LF.options.data.originLinkUrl);
-          LF.previewDetail(LF.options.data.originLinkUrl);
         }
         LF.$linkFileContent.focus();
         LF.bindEvent();
       },
     });
   },
-  bindEvent: function() {
+  bindEvent: function () {
     var LF = this;
-    this.$linkFileContent.on('keyup', function(evt) {
-      clearTimeout(LF.timer);
-      LF.$thumbnailCon.html('');
-      LF.$linkIcon.show();
-      LF.timer = setTimeout(function() {
-        var url = LF.$linkFileContent.val();
-        LF.previewDetail(url);
-      }, 1000);
-    });
-    this.$linkFileContent.on('mouseup', function(evt) {
+    this.$linkFileContent.on('mouseup', function (evt) {
       var target = evt.target;
       if (target.selectionEnd - target.selectionStart === 0) {
         target.select();
       }
     });
   },
-  save: function() {
+  save: function () {
     var LF = this;
     var linkName = LF.$linkFileName.val().trim();
     var linkContent = LF.$linkFileContent.val().trim();
@@ -101,68 +91,17 @@ addLinkFile.prototype = {
       });
     }
   },
-  previewDetail: function(url) {
-    var LF = this;
-    LF.getLinkDetail(url).then(function(resp) {
-      if (resp.state) {
-        if (resp.data.title && LF.$linkFileName.val().trim() === '') {
-          LF.$linkFileName.val(resp.data.title);
-        }
-        if (resp.data.thumbnail) {
-          LF.$linkIcon.hide();
-          LF.$thumbnailCon.html(LF.createThumbnail(resp.data.thumbnail));
-        }
-      }
-    });
-  },
-  createThumbnail: function(src) {
+  createThumbnail: function (src) {
     var LF = this;
     var $img = $('<img />');
     $img.attr('src', src);
-    $img.on('error', function() {
+    $img.on('error', function () {
       $img.hide();
       LF.$linkIcon.show();
     });
     return $img;
   },
-  getLinkDetail: function(url) {
-    var LF = this;
-    var result = {
-      state: 0,
-      data: {
-        title: '',
-        thumbnail: '',
-      },
-    };
-    if (LF.ajaxPreview) {
-      LF.ajaxPreview.abort();
-    }
-    LF.ajaxPreview = postController.getLinkViewInfo({
-      url: url,
-      minWidth: 20,
-    });
-    return LF.ajaxPreview
-      .then(function(data) {
-        if (data) {
-          var imgArr = [];
-          result.state = 1;
-          if (data.title) {
-            result.data.title = data.title;
-          }
-          if (data.thumbnails) {
-            imgArr = data.thumbnails;
-          }
-          if (imgArr && imgArr.length) {
-            result.data.thumbnail = imgArr[0];
-          }
-        }
-        return result;
-      })
-      .fail(function() {
-        return result;
-      });
-  },
-  validate: function(str) {
+  validate: function (str) {
     var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
@@ -171,7 +110,7 @@ addLinkFile.prototype = {
     }
     return true;
   },
-  validateUrl: function(url) {
+  validateUrl: function (url) {
     if (!url.match('://') && !url.match(/^mailto:/)) {
       return true;
     } else if (url.match(/^http/)) {

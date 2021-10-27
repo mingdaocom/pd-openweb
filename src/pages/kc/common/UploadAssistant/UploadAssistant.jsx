@@ -1,4 +1,4 @@
-﻿import React, { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import qs from 'querystring';
@@ -181,10 +181,10 @@ class UploadAssistant extends React.Component {
             const folderTestDfd = $.Deferred();
             if (nativeFile && nativeFile.size % 4096 == 0 && nativeFile.size <= 102400) {
               const reader = new FileReader();
-              reader.onload = function() {
+              reader.onload = function () {
                 folderTestDfd.resolve();
               };
-              reader.onerror = function() {
+              reader.onerror = function () {
                 folderTestDfd.reject();
               };
               reader.readAsText(nativeFile);
@@ -323,13 +323,13 @@ class UploadAssistant extends React.Component {
       window.uploadLocation = '';
     }
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
       if (comp.state.fileList.find(fileItem => fileItem.status === UPLOAD_STATUS.UPLOADING)) {
         return '有文件正在上传中，确定要放弃上传？';
       }
     };
 
-    window.onresize = function() {
+    window.onresize = function () {
       comp.updateMarginRight();
     };
 
@@ -351,9 +351,7 @@ class UploadAssistant extends React.Component {
   /* 存在滚动条时头部需要加右边距*/
   updateMarginRight = () => {
     const domHeight = $('.uploadAssistant .fileListBody').height();
-    const elementHeight = $('.uploadAssistant .fileListBody')
-      .children('ul')
-      .height();
+    const elementHeight = $('.uploadAssistant .fileListBody').children('ul').height();
     let rightM = 0;
     /* 存在滚动条*/
     if (domHeight < elementHeight) {
@@ -464,32 +462,24 @@ class UploadAssistant extends React.Component {
           </div>
           <div className="chooseBtnContainer">
             <HoverState
-              id="chooseBtn"
-              onClick={this.selectFile}
+              id="selectFileTrigger"
               thisArg={this}
               hoverStateName="hoverChooseBtn"
-              className={cx('chooseBtn', this.state.hoverChooseBtn ? 'ThemeBGColor2' : 'ThemeBGColor3')}
+              className="chooseBtn ThemeHoverBGColor2 ThemeBGColor3"
             >
-              <Icon icon="knowledge-upload" />
-              <span className="chooseBtnText">{_l('上传')}</span>
-              {window.navigator.userAgent.indexOf('MDClient') === -1 && (
-                <Fragment>
-                  <Icon icon="arrow-down" />
-                  {this.state.hoverChooseBtn && (
-                    <Menu className="selectOptions">
-                      <MenuItem icon={<Icon icon="knowledge-log" />} onClick={this.selectFile}>
-                        {_l('文件')}
-                      </MenuItem>
-
-                      <MenuItem icon={<Icon icon="task-folder-solid" />} onClick={this.selectDirectory}>
-                        {_l('文件夹')}
-                      </MenuItem>
-                    </Menu>
-                  )}
-                </Fragment>
-              )}
+              <span className="chooseBtnText">{_l('选择文件')}</span>
             </HoverState>
-            <div className="hide" id="selectFileTrigger" />
+
+            {window.navigator.userAgent.indexOf('MDClient') === -1 && (
+              <HoverState
+                thisArg={this}
+                onClick={this.selectDirectory}
+                hoverStateName="hoverChooseBtn"
+                className="chooseBtn ThemeHoverBGColor2 ThemeBGColor3 mLeft20"
+              >
+                <span className="chooseBtnText">{_l('选择文件夹')}</span>
+              </HoverState>
+            )}
             <div
               className="hide"
               dangerouslySetInnerHTML={{

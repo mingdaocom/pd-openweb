@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dropdown } from 'ming-ui';
+import filterXSS from 'xss';
 import '../components/message.less';
 import cx from 'classnames';
 import RegisterController from 'src/api/register';
@@ -9,6 +10,7 @@ import { inputFocusFn, inputBlurFn, setCNFn } from '../util';
 import { setPssId } from 'src/util/pssId';
 import RegExp from 'src/util/expression';
 import { browserIsMobile } from 'src/util';
+import { getDataByFilterXSS } from '../util';
 
 export default class Create extends React.Component {
   constructor(props) {
@@ -73,7 +75,7 @@ export default class Create extends React.Component {
         code,
       } = company;
       RegisterController.createCompany({
-        companyName,
+        companyName: filterXSS(companyName),
         job,
         code: code,
         email: email,
@@ -116,7 +118,7 @@ export default class Create extends React.Component {
     const { inviteFromType } = registerData;
     let isMobile = browserIsMobile();
     let request = getRequest();
-    let returnUrl = request.ReturnUrl || '';
+    let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
 
     if (returnUrl.indexOf('type=privatekey') > -1) {
       location.href = returnUrl;

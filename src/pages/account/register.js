@@ -16,7 +16,7 @@ import './register.css';
 import { getRequest, browserIsMobile, htmlEncodeReg } from 'src/util';
 let request = getRequest();
 import preall from 'src/common/preall';
-
+import { getDataByFilterXSS } from './util';
 class RegisterContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -35,7 +35,7 @@ class RegisterContainer extends React.Component {
         projectId: request.projectId,
         emailOrTel: '', // 邮箱或手机
         verifyCode: '', // 验证码
-        password: '', // 8-20位，只支持字母+数字
+        password: '', // 8-20位，需包含字母和数字
         fullName: '', // 姓名
         regcode: '', // 企业码
         isApplyJoin: false, // 主动申请加入网络
@@ -402,7 +402,7 @@ class RegisterContainer extends React.Component {
     const { inviteFromType } = registerData;
     let isMobile = browserIsMobile();
     let request = getRequest();
-    let returnUrl = request.ReturnUrl || '';
+    let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
 
     if (returnUrl.indexOf('type=privatekey') > -1) {
       location.href = returnUrl;

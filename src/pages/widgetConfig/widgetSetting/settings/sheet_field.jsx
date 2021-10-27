@@ -105,6 +105,7 @@ export default function SheetField(props) {
         <div className="settingItemTitle">{_l('显示字段')}</div>
         <Dropdown
           trigger={['click']}
+          disabled={parsedDataSource && isSaved}
           overlay={
             <DropdownOverlay>
               <div className="searchWrap" onClick={e => e.stopPropagation()}>

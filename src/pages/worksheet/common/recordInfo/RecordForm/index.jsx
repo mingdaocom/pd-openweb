@@ -154,9 +154,11 @@ export default function RecortForm(props) {
     );
   }
   const relateRecordTableControls = _.sortBy(
-    updateRulesData({ rules: recordinfo.rules, data: formdata }).filter(
-      control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible,
-    ),
+    updateRulesData({
+      from: recordId ? 3 : 2,
+      rules: recordinfo.rules,
+      data: formdata,
+    }).filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible),
     'row',
   );
   const customwidget = useRef();

@@ -12,7 +12,7 @@
             <li>
                 <div class="infoNoOp textNowrap mLeft30">
                     <a href="/user_{{=postList.postAccountID }}" target="_blank" class="ThemeColor3">{{!postList.postUserName }}</a>：
-                    <a href="/feeddetail?itemID={{=postList.postID }}" target="_blank">{{=it.attachment(postList.postType)}}{{=it.message(postList).prefix}} {{=it.message(postList).message.replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
+                    <a href="/feeddetail?itemID={{=postList.postID }}" target="_blank">{{=it.attachment(postList.postType)}}{{=it.message(postList).prefix}} {{=it.htmlEncodeReg(it.message(postList).message).replace(it.reg, '<font class="HighLightColor">$1</font>') }}</a>
                 </div>
                 <div class="date">{{= postList.postCreateTime }}</div>
                 <div class="companyName">{{=it.companyName(postList.companyName)}}</div>

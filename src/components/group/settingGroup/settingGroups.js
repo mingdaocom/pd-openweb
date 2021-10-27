@@ -17,6 +17,9 @@ var ActionResult = {
   ApprovalUserNotExist: 3,
 };
 
+import filterXSS from 'xss';
+
+
 var tips = {
   MDGroup: _l('个人群组'),
   stateTip: _l('该群组已关闭或删除'),
@@ -141,6 +144,9 @@ $.extend(SettingGroup.prototype, {
     var _this = this;
     var options = _this.options;
     options.isRefresh.info = false;
+    result.name = filterXSS(result.name, {
+      stripIgnoreTag: true,
+    });
     options.isPost = result.isPost;
     options.isApproval = result.isApproval;
     options.isAdmin = result.isAdmin;

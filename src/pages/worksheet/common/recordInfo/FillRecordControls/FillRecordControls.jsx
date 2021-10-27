@@ -98,7 +98,7 @@ class FillRecordControls extends React.Component {
                   control.value &&
                   control.value.rows &&
                   control.value.rows.length &&
-                  getSubListError(control.value, control.relationControls, control.showControls),
+                  getSubListError(control.value, control.relationControls, control.showControls, 3),
               }))
               .filter(c => !_.isEmpty(c.value));
             if (errors.length) {

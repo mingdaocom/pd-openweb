@@ -3,6 +3,7 @@ import cx from 'classnames';
 import './taskLog.less';
 import ajaxRequest from 'src/api/taskCenter';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import filterXSS from 'xss';
 
 export default class TaskDetail extends Component {
   constructor(props) {
@@ -27,7 +28,7 @@ export default class TaskDetail extends Component {
       .getTaskLog({
         taskID: this.props.taskId,
       })
-      .then((result) => {
+      .then(result => {
         if (result.status) {
           this.setState({
             logs: result.data || [],
@@ -73,7 +74,7 @@ export default class TaskDetail extends Component {
 
     // 空状态
     if (!logs.length && !getSuccess) {
-      return <LoadDiv />
+      return <LoadDiv />;
     }
 
     return (
@@ -82,7 +83,13 @@ export default class TaskDetail extends Component {
           return (
             <div key={i} className="singleDdaily boxSizing">
               <i className={cx('singleDdailyType', this.returnIcons(item.type))} />
-              <div dangerouslySetInnerHTML={{ __html: item.msg }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: filterXSS(item.msg, {
+                    stripIgnoreTag: true,
+                  }),
+                }}
+              />
               <span className="singleDdailyTime">{createTimeSpan(item.createTime)}</span>
             </div>
           );

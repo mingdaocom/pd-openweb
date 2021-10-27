@@ -915,8 +915,8 @@ export const removeMessages = (id) => {
 export const updateMessage = message => (dispatch, getState) => {
   const { messages } = getState().chat;
   const { to, waitingid, socket } = message;
-  const currentMessage = messages[to];
-  const newCurrentMessage = currentMessage.map((item, index) => {
+  const currentMessage = messages[to] || [];
+  const newCurrentMessage = currentMessage.filter(item => item).map((item, index) => {
     if (item.waitingId === waitingid) {
       item.id = message.id;
       // 替换成服务器的时间

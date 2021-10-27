@@ -1,11 +1,10 @@
 import React from 'react';
 import cx from 'classnames';
+import filterXSS from 'xss';
+import { whiteList } from 'xss/lib/default';
+
 export const inputFocusFn = (e, cb) => {
-  $(e.target)
-    .closest('.mesDiv')
-    .addClass('current')
-    .find('.title')
-    .addClass('focusTitle');
+  $(e.target).closest('.mesDiv').addClass('current').find('.title').addClass('focusTitle');
   $(e.target)
     .closest('.errorDiv')
     .addClass('errorDivCu')
@@ -13,34 +12,19 @@ export const inputFocusFn = (e, cb) => {
     .removeClass('errorDivCu')
     .find('.warnningTip')
     .hide();
-  $(e.target)
-    .closest('.errorDiv')
-    .find('.warnningTip')
-    .removeClass('Hidden')
-    .show();
+  $(e.target).closest('.errorDiv').find('.warnningTip').removeClass('Hidden').show();
   if (cb) {
     cb();
   }
 };
 
 export const inputBlurFn = (e, cb) => {
-  $(e.target)
-    .closest('.mesDiv')
-    .find('.title')
-    .removeClass('focusTitle');
+  $(e.target).closest('.mesDiv').find('.title').removeClass('focusTitle');
   if (!e.target.value) {
-    $(e.target)
-      .closest('.mesDiv')
-      .removeClass('current');
+    $(e.target).closest('.mesDiv').removeClass('current');
   }
-  $(e.target)
-    .closest('.errorDiv')
-    .removeClass('errorDivCu');
-  $(e.target)
-    .closest('.errorDiv')
-    .find('.warnningTip')
-    .addClass('Hidden')
-    .hide();
+  $(e.target).closest('.errorDiv').removeClass('errorDivCu');
+  $(e.target).closest('.errorDiv').find('.warnningTip').addClass('Hidden').hide();
   if (cb) {
     cb();
   }
@@ -78,4 +62,20 @@ export const hasCaptcha = () => {
     document.getElementById('tcaptcha_iframe') ||
     (document.getElementsByClassName('captchaInput') && document.getElementsByClassName('captchaInput').length > 0)
   );
+};
+
+export const getDataByFilterXSS = summary => {
+  let domain = summary.split('/'); //以“/”进行分割
+  if (domain[2]) {
+    domain = domain[2];
+  } else {
+    domain = ''; //如果url不正确就取空
+  }
+  if (summary.indexOf('javascript:') >= 0 || (domain.indexOf('mingdao') < 0 && domain !== location.host)) {
+    return '/app';
+  }
+  return filterXSS(summary, {
+    stripIgnoreTag: true,
+    whiteList: Object.assign({}, whiteList, { span: ['style'] }),
+  });
 };

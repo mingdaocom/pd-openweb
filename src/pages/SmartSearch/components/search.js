@@ -465,6 +465,7 @@ Search.groupHtml = function (data, reg) {
     reg: reg,
     searchKeyword: Search.searchKeyword,
     companyName: Search.companyName,
+    htmlEncodeReg: htmlEncodeReg,
   });
   return strHtml;
 };
@@ -517,6 +518,7 @@ Search.postHtml = function (data, reg, searchKeyword) {
     attachment: attachment,
     message: messageFn,
     companyName: Search.companyName,
+    htmlEncodeReg: htmlEncodeReg,
   });
   return strHtml;
 };
@@ -564,6 +566,7 @@ Search.kcnodeHtml = function (data, reg) {
     searchKeyword: Search.searchKeyword,
     contentStr: contentStr,
     companyName: Search.companyName,
+    htmlEncodeReg: htmlEncodeReg,
   });
   return strHtml;
 };

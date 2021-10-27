@@ -11,7 +11,7 @@ export default class TreeNode extends Component {
   render() {
     const { data, treeData, depth, ...rest } = this.props;
     const { children = [], display, pathId = [], visible = false } = data;
-    if (depth > 10 || !display) return null;
+    if (!display) return null;
     const nodeItem = treeData[data.rowId];
     if (!nodeItem) return null;
     return (

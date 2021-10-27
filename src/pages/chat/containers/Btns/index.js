@@ -53,8 +53,8 @@ class Btns extends Component {
       },
     );
   }
-  handleOpenSession(data) {
-    const { groupId, accountId } = data || {};
+  handleOpenSession(data = {}) {
+    const { groupId, accountId } = data;
     if (groupId) {
       const msg = {
         to: groupId,

@@ -68,15 +68,6 @@ class AttachmentsPreview extends React.Component {
     $(document).on('keydown', this.handleKeyDown);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.refIconCon && _.get(md, 'global.Account.accountId')) {
-      this.handlePreviewLinkThumbnail(
-        this.refIconCon,
-        this.props.attachments[this.props.index].sourceNode.originLinkUrl,
-      );
-    }
-  }
-
   componentWillUnmount() {
     this.props.actions.loading();
     $(document).off('keydown', this.handleKeyDown);
@@ -139,35 +130,6 @@ class AttachmentsPreview extends React.Component {
 
   bigit = () => {
     this.refImageViewer.bigit();
-  };
-
-  handlePreviewLinkThumbnail = (iconCon, url) => {
-    const _this = this;
-    $(iconCon).html('<span class="fileIcon-link linkIcon"></span>');
-    if (this.previewLinkAjax) {
-      this.previewLinkAjax.abort();
-    }
-    this.previewLinkAjax = postController.getLinkViewInfo({
-      url,
-      minWidth: 20,
-    });
-    this.previewLinkAjax.then(data => {
-      if (data) {
-        let imgArr = [];
-        if (data.thumbnails) {
-          imgArr = data.thumbnails;
-        }
-        if (imgArr && imgArr.length) {
-          const img = $(
-            '<div class="linkThumbnailCon"><div class="linkThumbnail"><img src="' + imgArr[0] + '" /></div></div>',
-          );
-          img.find('img').on('error', () => {
-            $(iconCon).html('<span class="linkIcon"></span>');
-          });
-          $(iconCon).html(img);
-        }
-      }
-    });
   };
 
   toggleThumbnail = status => {

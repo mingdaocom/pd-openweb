@@ -161,8 +161,8 @@ md.staticglobal = md.global = {
   },
   domainSuffix: 'mingdao.com',
   SysSettings: {
-    passwordRegex: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/,
-    passwordRegexTip: window._l('8-20位，只支持字母+数字'),
+    passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
+    passwordRegexTip: window._l('8-20位，需包含字母和数字'),
   },
 };
 

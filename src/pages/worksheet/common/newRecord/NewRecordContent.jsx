@@ -113,6 +113,7 @@ function NewReccordForm(props) {
               },
               control.relationControls,
               control.showControls,
+              2,
             ),
         }))
         .filter(c => !_.isEmpty(c.value));

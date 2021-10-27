@@ -10,7 +10,7 @@
         <span class="infoLabel">{{= _l('上级部门')}}</span>
         {{? it.parentDepartment }}
         <span class="info Hand">
-            <span class="overflow_ellipsis deptName" data-departmentid="{{= it.parentDepartment.departmentId }}">{{= it.parentDepartment.departmentName }}</span>
+            <span class="overflow_ellipsis deptName" data-departmentid="{{! it.parentDepartment.departmentId }}">{{! it.parentDepartment.departmentName }}</span>
             <span class="icon-arrow-down-border arrowIcon Font16 changeParent"></span>
         </span>
         {{??}}
@@ -31,7 +31,7 @@
         <div class="singleInfo parentDepartment">
             <span class="infoLabel">{{= _l('上级部门')}}</span>
             <span class="info Hand">
-                <span class="overflow_ellipsis deptName" data-departmentid="{{= it.departmentId }}">{{= it.departmentName }}</span>
+                <span class="overflow_ellipsis deptName" data-departmentid="{{! it.departmentId }}">{{! it.departmentName }}</span>
                 <span class="icon-arrow-down-border arrowIcon Font16 changeParent"></span>
             </span>
         </div>

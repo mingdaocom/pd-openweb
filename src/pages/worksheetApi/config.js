@@ -75,12 +75,6 @@ export const MENU_LIST = [
         desc: _l('是否升序'),
       },
       {
-        name: 'keywords',
-        required: _l('否'),
-        type: 'string',
-        desc: _l('搜索文本'),
-      },
-      {
         name: 'filters',
         required: _l('否'),
         type: 'list',
@@ -208,12 +202,6 @@ export const MENU_LIST = [
         required: _l('是'),
         type: 'string',
         desc: _l('控件ID'),
-      },
-      {
-        name: 'keywords',
-        required: _l('否'),
-        type: 'string',
-        desc: _l('搜索文本'),
       },
       {
         name: 'pageSize',

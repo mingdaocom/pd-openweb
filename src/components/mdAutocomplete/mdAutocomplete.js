@@ -270,7 +270,15 @@ $.extend(MdAutocomplete.prototype, {
       scrollTop = '';
 
     if (isUp) {
-      scrollTop = $selected.offset().top - $searchContent.offset().top;
+      scrollTop =
+        $selected &&
+        $selected.offset() &&
+        $selected.offset().top &&
+        $searchContent &&
+        $searchContent.offset() &&
+        $searchContent.offset().top
+          ? $selected.offset().top - $searchContent.offset().top
+          : 0;
       // 是否看不到了
       if (scrollTop < 0) {
         scrollTop = $searchContent.scrollTop() + scrollTop;
