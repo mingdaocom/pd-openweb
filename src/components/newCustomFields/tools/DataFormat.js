@@ -4,7 +4,7 @@ import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
 import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT } from './config';
 import { isRelateRecordTableControl } from 'worksheet/util';
-import { controlState, Validator, getRangeErrorType } from './utils';
+import { controlState, Validator, getRangeErrorType, specialTelVerify } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import moment from 'moment';
@@ -505,10 +505,7 @@ export const onValidator = (item, from, data, masterData) => {
         const iti = initIntlTelInput();
         iti.setNumber(value);
         // 香港6262开头不识别特殊处理
-        errorType =
-          !value || iti.isValidNumber() || /\+8526262\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$/.test(value)
-            ? ''
-            : FORM_ERROR_TYPE.MOBILE_PHONE;
+        errorType = !value || iti.isValidNumber() || specialTelVerify(value) ? '' : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
 
       // 座机

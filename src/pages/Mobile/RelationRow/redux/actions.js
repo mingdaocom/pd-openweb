@@ -179,7 +179,6 @@ export const reset = () => (dispatch, getState) => {
     type: 'MOBILE_RELATION_LOAD_PARAMS',
     data: {
       pageIndex: 1,
-      loading: true,
       isMore: true
     }
   });

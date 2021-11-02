@@ -46,7 +46,7 @@ window.setCookie = function setCookie(name, value, expire) {
   let expireDate;
   if (!expire) {
     let nextyear = new Date();
-    nextyear.setFullYear(nextyear.getFullYear() + 10);
+    nextyear.setFullYear(nextyear.getFullYear(), nextyear.getMonth() + 1, nextyear.getDate() + 10);
     expireDate = nextyear.toGMTString();
   } else {
     expireDate = expire.toGMTString();

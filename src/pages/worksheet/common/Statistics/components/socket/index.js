@@ -30,7 +30,7 @@ export default () => {
       loading: status === 1,
       btnText: status === 2 ? _l('立即下载') : '',
       onBtnClick: () => {
-        window.open(addToken(downloadUrl));
+        window.open(addToken(downloadUrl, !window.isDingTalk));
         antNotification.close(reportId);
       }
     });

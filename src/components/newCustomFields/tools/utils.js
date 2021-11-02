@@ -359,3 +359,8 @@ export const getRangeErrorType = ({ type, value, advancedSetting }) => {
 
   return '';
 };
+
+// 特殊手机号验证是否合法
+export const specialTelVerify = value => {
+  return /\+8526262\d{4}$|\+8526660\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$/.test(value || '');
+};

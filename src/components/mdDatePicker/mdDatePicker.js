@@ -48,7 +48,7 @@
       if (!format) {
         format = 'YYYY-MM-DD';
       }
-      return $(this).data('settings').selectDate ? moment($(this).data('settings').selectDate).format(format) : '';
+      return $(this).data('settings') && $(this).data('settings').selectDate ? moment($(this).data('settings').selectDate).format(format) : '';
     },
 
     setDate: function (date) {

@@ -99,7 +99,7 @@ class ProcessRecord extends Component {
       }),
     ]).then(([sheetRow, instance]) => {
       const { receiveControls, view } = sheetRow;
-      const newReceiveControls = receiveControls.filter(
+      const newReceiveControls = receiveControls.map(c => Object.assign({}, c, { fieldPermission: '111' })).filter(
         item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId),
       );
       sheetRow.receiveControls = newReceiveControls;

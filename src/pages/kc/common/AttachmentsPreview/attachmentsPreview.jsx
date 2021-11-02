@@ -21,6 +21,15 @@ import PreviewHeader from './previewHeader/previewHeader';
 import AttachmentsLoading from './attachmentsLoading';
 import { formatFileSize, getClassNameByExt } from 'src/util';
 import './attachmentsPreview.less';
+import { getPssId } from 'src/util/pssId';
+
+const addToken = url => {
+  if (url.includes('?')) {
+    return `${url}&md_pss_id=${getPssId()}`;
+  } else {
+    return `${url}?md_pss_id=${getPssId()}`;
+  }
+};
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {
@@ -250,6 +259,9 @@ class AttachmentsPreview extends React.Component {
                   case PREVIEW_TYPE.IFRAME:
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
+                    }
+                    if (window.top !== window.self) {
+                      viewUrl = addToken(viewUrl);
                     }
                     return (
                       <iframe

@@ -14,7 +14,7 @@ export const setPssId = id => {
  * 获取 md_pss_id
  * @returns {string} md_pss_id
  */
-export const getPssId = id => {
+export const getPssId = () => {
   const storagePssId = window.localStorage.getItem('md_pss_id');
   const cookiePssId = window.getCookie('md_pss_id');
   if (cookiePssId && storagePssId !== cookiePssId) {

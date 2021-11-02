@@ -4,6 +4,7 @@ import global from 'src/api/global';
 import project from 'src/api/project';
 import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
+import { getPssId, setPssId } from 'src/util/pssId';
 function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
@@ -71,6 +72,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
       moment.locale(getMomentLocale(window.mduserlang));
     }
 
+    setPssId(getPssId());
     cb();
   });
 }
