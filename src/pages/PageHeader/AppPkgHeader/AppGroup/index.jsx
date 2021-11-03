@@ -61,7 +61,7 @@ export default class extends Component {
   }
 
   componentWillUnmount() {
-    this.removeEventBind();
+    this.removeEventBind && this.removeEventBind();
   }
   // 当前处理的分组id
   handledAppItemId = '';

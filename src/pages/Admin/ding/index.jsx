@@ -569,8 +569,8 @@ export default class Ding extends React.Component {
                 {optionTypes.map(item => {
                   return (
                     <Radio
-                      className='Block mTop20'
-                      disabled={!this.state.intergrationTodoMessageEnabled}
+                      className="Block mTop20"
+                      disabled={this.state.isCloseDing}
                       checked={this.state.intergrationClientWorkingPattern === item.key}
                       text={item.label}
                       onClick={e => this.handleChangePattern(item.key)}
@@ -581,7 +581,11 @@ export default class Ding extends React.Component {
               <div className="stepItem flexRow valignWrapper">
                 <div className="flexColumn flex">
                   <h3 className="stepTitle Font16 Gray mBottom24">{_l('流程待办同步至钉钉待办任务')}</h3>
-                  <Switch checked={this.state.intergrationTodoMessageEnabled} onClick={() => this.switchEnabled()} />
+                  <Switch
+                    disabled={this.state.isCloseDing}
+                    checked={this.state.intergrationTodoMessageEnabled}
+                    onClick={() => this.switchEnabled()}
+                  />
                   <div className="mTop16">
                     <span>
                       {_l('开启后，我的流程中的待办（待审批、待填写）同时会进入钉钉待办任务，处理状态会同步更新')}

@@ -141,7 +141,11 @@ function CustomPageContent(props) {
     updateLoading(true);
     customApi
       .getPage({ appId: pageId }, { fireImmediately: true })
-      .then(({ components, desc, adjustScreen }) => {
+      .then(({ components, desc, projectId, adjustScreen }) => {
+        components.map(item => {
+          item.projectId = projectId;
+          return item;
+        });
         updatePageInfo({ components, desc, adjustScreen, pageId });
       })
       .always(() => updateLoading(false));

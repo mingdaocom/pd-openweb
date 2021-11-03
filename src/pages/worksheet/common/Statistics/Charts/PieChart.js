@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Pie } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
 import { formatSummaryName, getIsAlienationColor } from 'src/pages/worksheet/common/Statistics/common';
+import { browserIsMobile } from 'src/util';
 
 const formatChartData = data => {
   const result = data
@@ -52,6 +53,27 @@ export default class extends Component {
       this.PieChart.destroy();
       this.PieChart = new Pie(this.chartEl, this.getPieConfig(nextProps));
       this.PieChart.render();
+    }
+  }
+  interactions(isAnnular) {
+    if (browserIsMobile()) {
+      return [
+        { type: 'element-single-selected' },
+        {
+          type: 'pie-statistic-active',
+          cfg: {
+            start: [{ trigger: 'element:click', action: 'pie-statistic:change' }, ],
+            end: [{
+              trigger: 'element:click', isEnable: (context) => {
+                const element = context.event.gEvent.target.get('element');
+                return !element || !element.getStates().includes('selected');
+              }, action: 'pie-statistic:reset'
+            }],
+          }
+        }
+      ];
+    } else {
+      return [{ type: isAnnular ? 'pie-statistic-active' : 'element-active' }];
     }
   }
   getPieConfig(props) {
@@ -133,7 +155,7 @@ export default class extends Component {
             },
           }
         : false,
-      interactions: [{ type: isAnnular ? 'pie-statistic-active' : 'element-active' }],
+      interactions: this.interactions(isAnnular),
       // events: {
       //   onRingMouseenter: (event) => {
       //     if (event.data.value !== event.data.originalValue) {

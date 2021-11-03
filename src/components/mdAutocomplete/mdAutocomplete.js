@@ -286,7 +286,14 @@ $.extend(MdAutocomplete.prototype, {
       }
     } else {
       var scrollTop =
-        $selected.offset().top + $selected.height() - $searchContent.offset().top - $searchContent.height();
+        $selected &&
+        $selected.offset() &&
+        $searchContent &&
+        $searchContent.offset() &&
+        ($selected.offset().top || $selected.offset().top === 0) &&
+        ($searchContent.offset().top || $searchContent.offset().top === 0)
+          ? $selected.offset().top + $selected.height() - $searchContent.offset().top - $searchContent.height()
+          : 0;
       // 是否看不到了
       if (scrollTop > 0) {
         scrollTop = $searchContent.scrollTop() + scrollTop;

@@ -24,10 +24,9 @@ const WidgetContent = styled.div`
 `;
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
-  const { layoutType, type, value, button, needUpdate, isFullscreen, scrollTop, editable, ids, ...rest } = props;
+  const { layoutType, type, value, button, needUpdate, isFullscreen, scrollTop, editable, ids, projectId, ...rest } = props;
   const componentType = getEnumType(type);
   const ref = useRef(null);
-
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent {..._.pick(props, ['value', 'param'])} />;
     if (componentType === 'richText') return <BraftEditor summary={value} isEditing={false} />;
@@ -44,6 +43,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           sourceType={1}
           needUpdate={needUpdate}
           worksheetId={ids.worksheetId}
+          projectId={projectId}
         />
       );
     }

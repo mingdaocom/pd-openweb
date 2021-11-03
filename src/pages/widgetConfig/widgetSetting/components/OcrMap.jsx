@@ -79,7 +79,7 @@ function MapItem(props) {
     ];
     if (!withSubList) return controls;
     const subList = getSubList();
-    subList.forEach(({ controlId, relationControls, controlName }) => {
+    subList.forEach(({ controlId, relationControls = [], controlName }) => {
       if (relationControls.length > 0) {
         controls.push({
           id: controlId,
@@ -137,7 +137,8 @@ function MapItem(props) {
                     } else {
                       setMap(ocrMap.concat(para));
                     }
-                  }}>
+                  }}
+                >
                   <i className={`icon-${getIconByType(type)}`}></i>
                   {controlName}
                 </li>
@@ -159,7 +160,8 @@ function MapItem(props) {
             <SelectFieldsWrap className="mapFieldsWrap">
               <div className="fieldsWrap">{selectableControls.map(renderControlItem)}</div>
             </SelectFieldsWrap>
-          }>
+          }
+        >
           <DropdownPlaceholder onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             {isEmpty(info) ? (
               <div className="infoWrap">
@@ -182,7 +184,8 @@ function MapItem(props) {
                     if (index > -1) {
                       setMap(update(ocrMap, { $splice: [[index, 1]] }));
                     }
-                  }}></i>
+                  }}
+                ></i>
               </div>
             )}
           </DropdownPlaceholder>
@@ -220,7 +223,8 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
         onChange(handleAdvancedSettingChange(data, { ocrmap: JSON.stringify(ocrMap) }));
         onClose();
       }}
-      onCancel={() => onClose()}>
+      onCancel={() => onClose()}
+    >
       <ConfigRelation>{renderMapDetail()}</ConfigRelation>
     </Dialog>
   );

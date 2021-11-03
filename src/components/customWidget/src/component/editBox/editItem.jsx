@@ -209,7 +209,7 @@ let targetSpec = {
     if (!monitor.isOver({ shallow: true }) && props.widget.id !== config.lastMoveIn && props.widget.type !== config.WIDGETS.EDIT_FILLER.type) {
       // 修复重复触发move
       let clientOffset = monitor.getClientOffset();
-      let componentRect = (indDOMNode(component) && findDOMNode(component).getBoundingClientRect && findDOMNode(component).getBoundingClientRect()) || {};
+      let componentRect = (findDOMNode(component) && findDOMNode(component).getBoundingClientRect && findDOMNode(component).getBoundingClientRect()) || {};
       if (!props.widget.data.half) {
         if (componentRect.left + componentRect.width / 2 > clientOffset.x) {
           // 在半边

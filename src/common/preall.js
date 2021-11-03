@@ -77,7 +77,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -121,7 +121,7 @@ function getMomentLocale(lang) {
   }
 }
 
-export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
   } else {
@@ -129,15 +129,15 @@ export default function (Comp, { allownotlogin, preloadcb, hideloading, transfer
   }
 }
 
-(function (arr) {
-  arr.forEach(function (item) {
+(function(arr) {
+  arr.forEach(function(item) {
     item.prepend =
       item.prepend ||
-      function () {
+      function() {
         var argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
-        argArr.forEach(function (argItem) {
+        argArr.forEach(function(argItem) {
           var isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });
@@ -146,3 +146,14 @@ export default function (Comp, { allownotlogin, preloadcb, hideloading, transfer
       };
   });
 })([Element.prototype, Document.prototype, DocumentFragment.prototype]);
+
+// 兼容钉钉内核63 问题
+if (!Object.fromEntries) {
+  Object.fromEntries = function(entries) {
+    let entriesObj = {};
+    entries.forEach(element => {
+      entriesObj[element[0]] = element[1];
+    });
+    return entriesObj;
+  };
+}

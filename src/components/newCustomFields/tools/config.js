@@ -61,7 +61,7 @@ export const FORM_ERROR_TYPE_TEXT = {
     const FIXED_WEEK = '1234567';
     const TEXT = ['', _l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周日')];
 
-    if (allowweek.length <= 4) {
+    if (allowweek && _.isArray(allowweek) && allowweek.length <= 4) {
       return _l(
         '请选择%0对应的日期',
         allowweek

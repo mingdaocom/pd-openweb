@@ -25,7 +25,6 @@ export default class WorksheetRowLand extends Component {
   }
   componentDidMount() {
     const { loading, appId, worksheetId, rowId } = this.state;
-    window.isWorksheetRowLand = true;
     worksheetAjax
       .getSwitchPermit({
         appId: appId,
@@ -62,9 +61,6 @@ export default class WorksheetRowLand extends Component {
       });
     }
   }
-  componentWillUnmount() {
-    window.isWorksheetRowLand = false;
-  }
   navigate(worksheetId, rowId) {
     homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId }).then(data => {
       if (data.appId) {
@@ -82,6 +78,7 @@ export default class WorksheetRowLand extends Component {
           </div>
         ) : (
           <RecordInfoWrapper
+            isWorksheetRowLand
             sheetSwitchPermit={this.state.sheetSwitchPermit}
             notDialog
             from={2}

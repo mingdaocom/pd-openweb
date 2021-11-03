@@ -233,7 +233,7 @@ function WidgetContent(props) {
         onLayoutChange={layouts => updateLayout({ layouts, layoutType, components })}
         {...getLayoutConfig()}>
         {components.map((widget, index) => {
-          const { id, type } = widget;
+          const { id, type, projectId } = widget;
           const { title, titleVisible } = widget[layoutType] || {};
           const enumType = getEnumType(type);
           return (
@@ -260,6 +260,7 @@ function WidgetContent(props) {
                 <WidgetDisplay
                   {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button'])}
                   ids={ids}
+                  projectId={projectId}
                   ref={el => {
                     displayRefs[index] = el;
                   }}

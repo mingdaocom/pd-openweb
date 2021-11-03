@@ -204,7 +204,7 @@ module.exports = {
   },
   externals: config.externals,
   resolve: config.resolve,
-  devtool: isProduction ? 'source-map' : 'eval',
+  devtool: isProduction ? undefined : 'eval',
   mode: isProduction ? 'production' : 'development',
   output: {
     filename: isProduction ? '[name].[chunkhash].entry.js' : '[name].dev.js',

@@ -263,13 +263,7 @@ class AttachmentsPreview extends React.Component {
                     if (window.top !== window.self) {
                       viewUrl = addToken(viewUrl);
                     }
-                    return (
-                      <iframe
-                        className="fileViewer iframeViewer"
-                        src={viewUrl}
-                        sandbox="allow-forms allow-scripts allow-same-origin"
-                      />
-                    );
+                    return <iframe className="fileViewer iframeViewer" src={viewUrl} />;
                   case PREVIEW_TYPE.CODE:
                   case PREVIEW_TYPE.MARKDOWN:
                     return (
@@ -417,4 +411,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(AttachmentsPreview);
+module.exports = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AttachmentsPreview);

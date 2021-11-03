@@ -32,8 +32,12 @@ export default class Date extends Component {
       onChange,
       from = '',
     } = this.props;
-    const showDateTime =
-      control.type === 16 && !(type === FILTER_CONDITION_TYPE.DATEENUM || type === FILTER_CONDITION_TYPE.NDATEENUM);
+    let timeFormat;
+    let dateFormat = 'YYYY-MM-DD';
+    if (control.type === 16 && !(type === FILTER_CONDITION_TYPE.DATEENUM || type === FILTER_CONDITION_TYPE.NDATEENUM)) {
+      timeFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'HH:mm:ss' : 'HH:mm';
+      dateFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm';
+    }
     return (
       <div className="worksheetFilterDateCondition">
         {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (
@@ -41,17 +45,15 @@ export default class Date extends Component {
             <MdAntDateRangePicker
               disabled={disabled}
               defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
-              showTime={showDateTime ? { format: 'HH:mm:ss' } : false}
-              format={showDateTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'}
+              showTime={timeFormat ? { format: timeFormat } : false}
+              format={dateFormat}
               onChange={(moments, times) => {
                 if (!_.isArray(moments)) {
                   return;
                 }
                 onChange({
-                  // minValue: showDateTime ? times[0] : moments[0].startOf('day').format('YYYY-MM-DD'),
-                  // maxValue: showDateTime ? times[1] : moments[1].endOf('day').format('YYYY-MM-DD'),
-                  minValue: moments[0].startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-                  maxValue: moments[1].endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+                  minValue: moments[0].format(dateFormat),
+                  maxValue: moments[1].format(dateFormat),
                 });
               }}
             />
@@ -110,13 +112,13 @@ export default class Date extends Component {
                 <MdAntDatePicker
                   disabled={disabled}
                   defaultValue={moment(value)}
-                  showTime={showDateTime ? { format: 'HH:mm:ss' } : false}
-                  format={showDateTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'}
+                  showTime={timeFormat ? { format: timeFormat } : false}
+                  format={dateFormat}
                   onChange={date => {
                     if (!date) {
                       return;
                     }
-                    if (showDateTime) {
+                    if (timeFormat) {
                       onChange({ value: date.format('YYYY-MM-DD HH:mm:ss') });
                     } else {
                       onChange({ value: formatDateValue({ type, value: date }) });

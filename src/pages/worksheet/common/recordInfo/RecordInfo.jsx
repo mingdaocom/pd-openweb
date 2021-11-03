@@ -152,8 +152,18 @@ export default class RecordInfo extends Component {
   }
 
   async loadRecord({ recordId, props, closeWhenNotViewData, needUpdateControlIds }) {
-    const { from, allowAdd, appId, viewId, worksheetId, instanceId, workId, hideRows, hideRecordInfo } =
-      props || this.props;
+    const {
+      from,
+      allowAdd,
+      appId,
+      viewId,
+      worksheetId,
+      instanceId,
+      workId,
+      isWorksheetRowLand,
+      hideRows,
+      hideRecordInfo,
+    } = props || this.props;
     const { tempFormdata } = this.state;
     try {
       const data = await loadRecord({
@@ -166,7 +176,7 @@ export default class RecordInfo extends Component {
         getType: this.getRowGetType(from),
         getRules: true,
       });
-      if (window.isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) {
+      if (isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) {
         data.allowEdit = false;
       }
       if (_.isBoolean(closeWhenNotViewData) && closeWhenNotViewData && !data.isViewData) {

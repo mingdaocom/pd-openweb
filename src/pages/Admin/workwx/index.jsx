@@ -311,6 +311,11 @@ export default class Workwx extends React.Component {
   stepRender = () => {
     return (
       <div className="pBottom100">
+        {!this.state.CorpId && !md.global.Config.IsLocal && (
+          <div className="infoTips">
+            {_l('因企业微信自建应用规则调整，新的对接方案正在开发，请联系顾问线下创建自建应用')}
+          </div>
+        )}
         <div className="stepItem Relative">
           <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
           {!this.state.show1 ? (

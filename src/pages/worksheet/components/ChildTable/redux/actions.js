@@ -46,6 +46,7 @@ export const loadRows = ({
   callback = () => {},
 }) => {
   const isRecordShare = /\/worksheetshare/.test(location.pathname);
+  const isPrintShare = /\/printshare/.test(location.pathname);
   const isUpdateRecordShare = /\/recordshare/.test(location.pathname);
   const isPublicQuery = /\/public\/query/.test(location.pathname);
   return (dispatch, getState) => {
@@ -59,6 +60,9 @@ export const loadRows = ({
     };
     if (isRecordShare) {
       args.shareId = (location.pathname.match(/.*\/worksheetshare\/(\w{24})/) || '')[1];
+    }
+    if (isPrintShare) {
+      args.shareId = (location.pathname.match(/.*\/printshare\/(\w{24})/) || '')[1];
     }
     if (isPublicQuery) {
       args.shareId = (location.pathname.match(/.*\/public\/query\/(\w{24})/) || '')[1];
@@ -77,6 +81,8 @@ export const loadRows = ({
     });
   };
 };
+
+export const addRows = rows => ({ type: 'ADD_ROWS', rows });
 
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
