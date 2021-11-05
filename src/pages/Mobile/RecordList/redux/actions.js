@@ -140,6 +140,7 @@ export const emptySheetRows = () => (dispatch, getState) => {
 export const emptySheetControls = () => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_CHANGE_SHEET_CONTROLS', value: [] });
   dispatch({ type: 'MOBILE_UPDATE_QUICK_FILTER', filter: [] });
+  dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
 };
 
 export const changeSheetControls = () => (dispatch, getState) => {

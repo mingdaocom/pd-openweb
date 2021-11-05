@@ -290,7 +290,7 @@ export default class UploadFiles extends Component {
 
           uploader.settings.multipart_params.key = file.key;
           uploader.settings.multipart_params['x:serverName'] = file.serverName;
-          uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+          uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
           uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
             file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,

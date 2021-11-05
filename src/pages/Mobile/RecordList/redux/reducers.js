@@ -8,7 +8,7 @@ export const base = (state = {}, action) => {
   }
 }
 
-export const workSheetLoading = (state = false, action) => {
+export const workSheetLoading = (state = true, action) => {
   switch (action.type) {
     case 'MOBILE_WORK_SHEET_UPDATE_LOADING':
       return action.loading;

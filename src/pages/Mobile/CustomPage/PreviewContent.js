@@ -128,7 +128,7 @@ function KcShareNodePreviewContent(props) {
 }
 
 function PreviewContentWrap(props) {
-  const { value } = props;
+  let { value } = props;
   const [ now, setNow ] = useState(0);
 
   if (value.includes('kcshareFolder/')) {
@@ -142,6 +142,11 @@ function PreviewContentWrap(props) {
       <KcShareNodePreviewContent value={value} />
     );
   } else {
+    if (value.includes('?')) {
+      value = `${value}&now=${now}`;
+    } else {
+      value = `${value}?now=${now}`;
+    }
     return (
       <PreviewContentWrapper>
         <div className="iconWrap flexRow valignWrapper">
@@ -155,7 +160,7 @@ function PreviewContentWrap(props) {
           />
           <Icon icon="task-new-fullscreen" className="Gray_bd" onClick={() => { window.open(value) }}/>
         </div>
-        <PreviewContent value={`${value}?now=${now}`} />
+        <PreviewContent value={value} />
       </PreviewContentWrapper>
     );
   }

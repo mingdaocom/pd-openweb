@@ -56,6 +56,7 @@ class Record extends Component {
     if (nextProps.match.params.rowId !== this.props.match.params.rowId) {
       this.setState({
         loading: true,
+        currentTab: {}
       });
       this.loadRow(nextProps);
       this.loadCustomBtns(nextProps);

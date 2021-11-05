@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { arrayOf, func, shape, string } from 'prop-types';
+import { arrayOf, func, shape, string, number } from 'prop-types';
 import { Input } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 
 const Con = styled.div`
   display: flex;
@@ -47,7 +48,7 @@ const Icon = styled.i`
 `;
 
 export default function Text(props) {
-  const { control = {}, values = [], onChange = () => {} } = props;
+  const { control = {}, values = [], filterType, onChange = () => {} } = props;
   const [isFocusing, setIsFocusing] = useState(false);
   return (
     <Con active={isFocusing}>
@@ -58,17 +59,21 @@ export default function Text(props) {
           onFocus={() => setIsFocusing(true)}
           onBlur={() => setIsFocusing(false)}
           onChange={newValue => {
-            onChange({
-              values: _.includes(
+            if (
+              _.includes(
                 [
                   WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
                   WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
                 ],
                 control.type,
               )
-                ? [newValue.replace(/ /g, '')]
-                : newValue.split(' '),
-            });
+            ) {
+              onChange({ values: [newValue.replace(/ /g, '')] });
+            } else if (filterType === FILTER_CONDITION_TYPE.LIKE) {
+              onChange({ values: newValue.split(' ') });
+            } else {
+              onChange({ values: [newValue] });
+            }
           }}
         />
       </InputCon>
@@ -84,6 +89,7 @@ export default function Text(props) {
 
 Text.propTypes = {
   control: shape({}),
+  filterType: number,
   values: arrayOf(string),
   onChange: func,
 };

@@ -91,7 +91,7 @@ export default function FilterDialog(props) {
         <SingleFilter
           canEdit
           feOnly
-          isRules={true} // 除去部门属于、不属于等
+          filterDept={true}
           filterColumnClassName="showBtnFilter"
           projectId={globalSheetInfo.projectId}
           columns={relationControls}

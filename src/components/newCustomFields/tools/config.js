@@ -57,7 +57,7 @@ export const FORM_ERROR_TYPE_TEXT = {
     if (max && selectItemsCount > +max) return _l('最多选择%0项', max);
   },
   DATE: ({ advancedSetting }) => {
-    const { allowweek } = advancedSetting;
+    const allowweek = advancedSetting.allowweek || '1234567';
     const FIXED_WEEK = '1234567';
     const TEXT = ['', _l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周日')];
 
@@ -101,8 +101,7 @@ export const FORM_ERROR_TYPE_TEXT = {
   DATE_TIME_RANGE: (value, min, max) => {
     if (max === min) return _l('请填写%0', min);
     if (max && min) {
-      if (moment(value) > moment(max) || moment(value) < moment(min))
-        return _l('请填写%0 ~ %1范围内的时间', min, max);
+      if (moment(value) > moment(max) || moment(value) < moment(min)) return _l('请填写%0 ~ %1范围内的时间', min, max);
       return;
     }
     if (min && moment(value) < moment(min)) return _l('时间不能早于%0', min);

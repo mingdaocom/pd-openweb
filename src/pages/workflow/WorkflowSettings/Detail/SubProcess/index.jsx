@@ -273,7 +273,7 @@ export default class SubProcess extends Component {
         if (result) {
           alert(_l('保存成功'));
           this.setState({ subProcessDialog: false });
-          this.updateSource({ subProcessVariables: processVariables });
+          this.updateSource({ subProcessVariables: result });
         }
       });
   };

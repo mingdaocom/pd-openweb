@@ -122,8 +122,17 @@ export default class SingleFilter extends Component {
     this.handleConditionsChange(this.state.conditions, value);
   }
   renderConditions(columns = []) {
-    const { isRules, projectId, canEdit, from, currentColumns, relateSheetList, sourceControlId, globalSheetControls } =
-      this.props;
+    const {
+      isRules,
+      projectId,
+      canEdit,
+      from,
+      currentColumns,
+      relateSheetList,
+      sourceControlId,
+      globalSheetControls,
+      filterDept,
+    } = this.props;
     const { relationType, conditions } = this.state;
     return conditions.map((condition, index) => {
       const control = _.find(columns, column => condition.controlId === column.controlId);
@@ -137,6 +146,7 @@ export default class SingleFilter extends Component {
           key={condition.keyStr}
           index={index}
           from={from}
+          filterDept={filterDept}
           sourceControlId={sourceControlId}
           condition={condition}
           conditionsLength={conditions.length}

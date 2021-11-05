@@ -144,6 +144,7 @@ export default class Condition extends Component {
       columns,
       relateSheetList,
       sourceControlId = '',
+      filterDept,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
     if (isRules && control) {
@@ -160,6 +161,11 @@ export default class Condition extends Component {
           type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
         );
       }
+    }
+    if(filterDept && control.type === 27) {
+      conditionFilterTypes = conditionFilterTypes.filter(
+        type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
+      );
     }
     const isDynamicStyle = from === 'relateSheet'; //动态值选择的特定样式
     const isDynamicValue = !_.includes(listType, condition.type) && !_.includes(listControlType, condition.controlType);

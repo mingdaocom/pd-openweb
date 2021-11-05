@@ -63,6 +63,7 @@ class RecordList extends Component {
     }
   }
   componentWillUnmount() {
+    this.props.emptySheetRows();
     this.props.emptySheetControls();
   }
   handleOpenDrawer = () => {
@@ -123,7 +124,7 @@ class RecordList extends Component {
       <Drawer
         className="filterStepListWrapper"
         position="right"
-        sidebar={this.renderSidebar(view)}
+        sidebar={_.isEmpty(view) ? null : this.renderSidebar(view)}
         open={filters.visible}
         onOpenChange={this.handleOpenDrawer}
       >

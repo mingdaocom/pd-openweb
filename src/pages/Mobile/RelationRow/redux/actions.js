@@ -8,7 +8,7 @@ const getPermissionInfo = (controlId, rowInfo, worksheet) => {
   const relateSheetControls = receiveControls.filter(
     control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
   );
-  const activeRelateSheetControl = relateSheetControls.filter(item => item.controlId === controlId)[0];
+  const activeRelateSheetControl = _.find(relateSheetControls, { controlId }) || {};
   const controlPermission = controlState(activeRelateSheetControl);
   const { enumDefault2, strDefault, controlPermissions = '111' } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
@@ -179,6 +179,7 @@ export const reset = () => (dispatch, getState) => {
     type: 'MOBILE_RELATION_LOAD_PARAMS',
     data: {
       pageIndex: 1,
+      loading: true,
       isMore: true
     }
   });
@@ -188,6 +189,9 @@ export const reset = () => (dispatch, getState) => {
       isEdit: false,
       selectedRecordIds: []
     }
+  });
+  dispatch({
+    type: 'MOBILE_RELATION_ROW_INFO', data: {}
   });
   dispatch({
     type: 'MOBILE_RELATION_ROWS',

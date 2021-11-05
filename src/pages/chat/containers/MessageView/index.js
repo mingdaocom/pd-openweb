@@ -168,7 +168,7 @@ class MessageView extends Component {
   handleGotoMessage(id) {
     const { session, messages } = this.props;
     const currentMessage = messages[session.id] || [];
-    const message = currentMessage.filter(item => item.id == id)[0];
+    const message = _.find(currentMessage, { id });
     if (message && message.id) {
       const { gotoMessageId } = this.state;
       const messageEl = $(`#Message-${message.id}`);
