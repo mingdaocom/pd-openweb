@@ -20801,6 +20801,18 @@ msgid "二维码尺寸"
 msgstr "QR Code Size"
 
 #: Disabled references:1
+msgid "二维码来源"
+msgstr "QR Code Source"
+
+#: Disabled references:1
+msgid "指定字段"
+msgstr "Specific field"
+
+#: Disabled references:1
+msgid "该字段不支持生成二维码"
+msgstr "The specific field cannot be converted to a QR code."
+
+#: Disabled references:1
 msgid "显示文字"
 msgstr "Show Words"
 

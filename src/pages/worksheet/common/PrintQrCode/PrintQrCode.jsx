@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { Dialog, Dropdown, RadioGroup, Input, Button, Support } from 'ming-ui';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import sheetAjax from 'src/api/worksheet';
+import { set, get } from 'src/util/db';
 import renderQr from './renderWorksheetRowQrCode';
 import './PrintQrCode.less';
 
@@ -27,18 +28,30 @@ export default class PrintQrCode extends Component {
   constructor(props) {
     super(props);
     const titleControl = props.columns.filter(column => column.attribute)[0];
-    this.state = {
+    const { appId, viewId, worksheetId } = props;
+    const cacheKey = `mdQrcodPrintCache_${appId}_${worksheetId}_${viewId}`;
+    const cacheConfig = get(cacheKey);
+    this.state = Object.assign({}, {
       printType: PRINT_TYPE.A4,
       layoutType: 1,
       customText: _l('扫描二维码查看'),
       printColumns: [titleControl],
       isGenerating: false,
-    };
+      selectedField: null,
+      shareType: 0
+    }, cacheConfig);
   }
 
   get maxColumnLength() {
     const { printType, layoutType } = this.state;
     return printType === PRINT_TYPE.QRCODE_RPITER && (layoutType === 0 || layoutType === 1) ? 1 : 3;
+  }
+
+  @autobind
+  cachePrintConfig () {
+    const { appId, viewId, worksheetId } = this.props;
+    const cacheKey = `mdQrcodPrintCache_${appId}_${worksheetId}_${viewId}`;
+    set(cacheKey, this.state);
   }
 
   @autobind
@@ -86,21 +99,53 @@ export default class PrintQrCode extends Component {
   @autobind
   handlePrint() {
     const { selectedRows, worksheetName, columns } = this.props;
-    const { printType, layoutType, printColumns, customText } = this.state;
+    const { printType, layoutType, printColumns, customText, selectedField, shareType } = this.state;
     const { maxColumnLength } = this;
+    this.cachePrintConfig();
     this.setState({
       isGenerating: true,
     });
+    if (shareType > 0) {
+      const fiedlQrs = selectedRows.map(data => {
+        return {
+          url: data[selectedField] || '/404',
+          texts: printColumns
+            .slice(0, maxColumnLength)
+            .map(column => {
+              return renderCellText(Object.assign({}, column, { value: data[column.controlId] }));
+            })
+            .concat(customText || [])
+        };
+      });
+      try {
+        renderQr(printType, layoutType, fiedlQrs, {
+          worksheetName,
+          cb: () => {
+            this.setState({
+              isGenerating: false,
+            });
+          },
+        });
+      } catch (e) {
+        this.setState({
+          isGenerating: false,
+        });
+        alert(_l('该字段不支持生成二维码'), 3);
+      }
+      return false;
+    }
     this.getShortUrl(urls => {
-      const qrs = selectedRows.map(data => ({
-        url: urls[data.rowid] || '/404',
-        texts: printColumns
-          .slice(0, maxColumnLength)
-          .map(column => {
-            return renderCellText(Object.assign({}, column, { value: data[column.controlId] }));
-          })
-          .concat(customText || []),
-      }));
+      const qrs = selectedRows.map(data => {
+        return {
+          url: urls[data.rowid] || '/404',
+          texts: printColumns
+            .slice(0, maxColumnLength)
+            .map(column => {
+              return renderCellText(Object.assign({}, column, { value: data[column.controlId] }));
+            })
+            .concat(customText || [])
+        };
+      });
       renderQr(printType, layoutType, qrs, {
         worksheetName,
         cb: () => {
@@ -174,9 +219,38 @@ export default class PrintQrCode extends Component {
       />
     );
   }
+  @autobind
+  renderSelectedField () {
+    const { columns } = this.props;
+    const { selectedField } = this.state;
+    return (
+      <div className="selectColumn flexRow">
+      <Dropdown
+        data={columns.map(c => ({
+          text: c.controlName + (c.attribute === 1 ? _l('（标题）') : ''),
+          value: c.controlId,
+          disabled: !!_.find(columns, () => selectedField === c.controlId),
+        }))}
+        menuClass="printQrDownlist"
+        isAppendToBody
+        maxHeight={150}
+        value={selectedField}
+        border
+        style={{
+          width: '100%',
+        }}
+        onChange={value => {
+          this.setState({
+            selectedField: value
+          });
+        }}
+      />
+      </div>
+    );
+  }
   render() {
     const { columns, visible, onHide } = this.props;
-    const { isGenerating, layoutType, printColumns, printType, customText } = this.state;
+    const { isGenerating, layoutType, shareType, printColumns, printType, customText } = this.state;
     const { maxColumnLength } = this;
     const titleControl = columns.filter(column => column.attribute)[0];
     return (
@@ -229,6 +303,31 @@ export default class PrintQrCode extends Component {
             <div className="configItem">
               <div className="itemLabel">{printType === PRINT_TYPE.A4 ? _l('排版') : _l('二维码尺寸')}</div>
               <div className="itemContent">{this.renderLayoutTypes()}</div>
+            </div>
+            <div className="configItem">
+              <div className="itemLabel">{_l('二维码来源')}</div>
+              <div className="itemContent">
+                <RadioGroup
+                  className={cx('layoutTypes', 'qr')}
+                  data={[{
+                    value: 0,
+                    text: _l('分享链接')
+                  }, {
+                    value: 1,
+                    text: _l('指定字段')
+                  }]}
+                  checkedValue={shareType}
+                  onChange={value => {
+                    this.setState({
+                      shareType: value,
+                    });
+                  }}
+                />
+              </div>
+              { shareType > 0 && <div className="desc">{_l('选择字段')}</div> }
+              <div className="itemContent">
+                { shareType > 0 && this.renderSelectedField() }
+              </div>
             </div>
             <div className="configItem">
               <div className="itemLabel">{_l('显示文字')}</div>

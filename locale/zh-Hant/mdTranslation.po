@@ -19509,6 +19509,18 @@ msgid "二维码尺寸"
 msgstr "二維碼尺寸"
 
 #: Disabled references:1
+msgid "二维码来源"
+msgstr "二維碼來源"
+
+#: Disabled references:1
+msgid "指定字段"
+msgstr "指定欄位"
+
+#: Disabled references:1
+msgid "该字段不支持生成二维码"
+msgstr "該欄位不支持生成二維碼"
+
+#: Disabled references:1
 msgid "显示文字"
 msgstr "顯示文字"
 
