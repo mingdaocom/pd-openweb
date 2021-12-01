@@ -288,7 +288,7 @@ export default class ConfigControl extends Component {
     }
 
     if (relateMapping.length) {
-      alert(_l('他表字段不可为空'), 3);
+      alert(_l('未选择匹配字段'), 3);
       return false;
     }
 

@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { List, Flex, ActionSheet, Modal, ActivityIndicator, Accordion, Switch, TabBar } from 'antd-mobile';
-import { Icon } from 'ming-ui';
+import { Icon, WaterMark } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
 import { ROLE_TYPES } from 'pages/Roles/config';
@@ -25,11 +25,12 @@ class App extends Component {
     const { match, history } = props;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
+    const hideSheetVisible = localStorage.getItem(`hideSheetVisible-${match.params.appId}`);
     this.state = {
       isHideTabBar,
-      hideSheetVisible: true,
-      selectedTab: match.params.worksheetId || 'more'
-    }
+      hideSheetVisible: hideSheetVisible ? false : true,
+      selectedTab: match.params.worksheetId || 'more',
+    };
     if (isHideTabBar) {
       sessionStorage.setItem('hideTabBar', true);
     }
@@ -45,7 +46,7 @@ class App extends Component {
     const nextWorksheetId = nextProps.match.params.worksheetId;
     if (nextWorksheetId !== this.props.match.params.worksheetId) {
       this.setState({
-        selectedTab: nextWorksheetId ? nextWorksheetId : 'more'
+        selectedTab: nextWorksheetId ? nextWorksheetId : 'more',
       });
     }
   }
@@ -72,59 +73,64 @@ class App extends Component {
     if (appNaviStyle === 2 && !params.worksheetId) {
       const { appSectionId, workSheetInfo } = appSectionDetail[0];
       const { workSheetId } = workSheetInfo[0];
-      this.navigateTo(`/mobile/app/${params.appId}/${appSectionId}/${workSheetId}`);
+      window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}/${workSheetId}`);
     }
-  }
+  };
 
   handleOpenSheet = (data, item) => {
     const { params } = this.props.match;
     if (item.type === 0) {
-      this.navigateTo(`/mobile/recordList/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
+      const storage =localStorage.getItem(`mobileViewSheet-${item.workSheetId}`)
+      let viewId = storage || ''
+      this.navigateTo(`/mobile/recordList/${params.appId}/${data.appSectionId}/${item.workSheetId}${viewId ? `/${viewId}` : ''}`);
     }
     if (item.type === 1) {
-      this.navigateTo(`/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}?title=${item.workSheetName}`);
+      this.navigateTo(
+        `/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}?title=${item.workSheetName}`,
+      );
     }
-  }
+  };
 
-  handleSwitchSheet = (item) => {
+  handleSwitchSheet = item => {
     const { params } = this.props.match;
     const { appSectionId } = item;
     this.navigateTo(`/mobile/app/${params.appId}/${appSectionId}/${item.workSheetId}`);
-  }
+  };
 
   renderList(data) {
     const { hideSheetVisible } = this.state;
     return (
       <List>
-        {data.workSheetInfo.filter(item => hideSheetVisible ? true : item.status !== 2).map(item => (
-          <Item
-            multipleLine
-            key={item.workSheetId}
-            thumb={<SvgIcon url={item.iconUrl} fill="#757575" size={22} />}
-            extra={item.status === 2 ? <Icon icon="public-folder-hidden" /> : null}
-            onClick={e => {
-              if (_.includes(e.target.classList, 'icon-public-folder-hidden')) {
-                return;
-              }
-              this.handleOpenSheet(data, item);
-            }}>
-            <span className="Font16 Gray Bold LineHeight40">{item.workSheetName}</span>
-          </Item>
-        ))}
+        {data.workSheetInfo
+          .filter(item => (hideSheetVisible ? true : item.status !== 2))
+          .map(item => (
+            <Item
+              multipleLine
+              key={item.workSheetId}
+              thumb={<SvgIcon url={item.iconUrl} fill="#757575" size={22} />}
+              extra={item.status === 2 ? <Icon icon="public-folder-hidden" /> : null}
+              onClick={e => {
+                if (_.includes(e.target.classList, 'icon-public-folder-hidden')) {
+                  return;
+                }
+                this.handleOpenSheet(data, item);
+              }}
+            >
+              <span className="Font16 Gray Bold LineHeight40">{item.workSheetName}</span>
+            </Item>
+          ))}
       </List>
-    )
+    );
   }
 
   renderSudoku(data) {
     const { hideSheetVisible } = this.state;
     return (
       <Flex className="sudokuWrapper" wrap="wrap">
-        {
-          data.workSheetInfo.filter(item => hideSheetVisible ? true : item.status !== 2).map(item => (
-            <div
-              key={item.workSheetId}
-              className="sudokuItemWrapper"
-            >
+        {data.workSheetInfo
+          .filter(item => (hideSheetVisible ? true : item.status !== 2))
+          .map(item => (
+            <div key={item.workSheetId} className="sudokuItemWrapper">
               <div
                 className="sudokuItem flexColumn valignWrapper"
                 onClick={() => {
@@ -136,16 +142,15 @@ class App extends Component {
                 <div className="name">{item.workSheetName}</div>
               </div>
             </div>
-          ))
-        }
+          ))}
       </Flex>
-    )
+    );
   }
 
   renderHeader(data) {
     return (
       <Fragment>
-        <Icon icon="expand_more"/>
+        <Icon icon="expand_more" />
         <div className="mLeft5">{data.name}</div>
       </Fragment>
     );
@@ -265,7 +270,7 @@ class App extends Component {
         <div style={{ overflow: 'scroll' }}>{_l('您所在的部门被加入了此应用，只能由应用管理员进行操作')}</div>
       </Modal>
     );
-  }
+  };
 
   renderGuide = () => {
     const { params } = this.props.match;
@@ -283,14 +288,16 @@ class App extends Component {
         />
       </div>
     );
-  }
+  };
 
   renderContent() {
     const { appDetail, match } = this.props;
     const { appName, detail, appSection, status } = appDetail;
     const { isHideTabBar, hideSheetVisible } = this.state;
     const { params } = match;
-    const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(item => item.status === 2).length;
+    const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(
+      item => item.status === 2,
+    ).length;
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
@@ -317,7 +324,10 @@ class App extends Component {
                 <AppPermissionsInfo appStatus={1} appId={params.appId} />
               ) : (
                 <Fragment>
-                  <Accordion className={cx({ emptyAppSection: isEmptyAppSection })} defaultActiveKey={appSection.map(item => item.appSectionId)}>
+                  <Accordion
+                    className={cx({ emptyAppSection: isEmptyAppSection })}
+                    defaultActiveKey={appSection.map(item => item.appSectionId)}
+                  >
                     {appSection.filter(item => item.workSheetInfo.length).map(item => this.renderSection(item))}
                   </Accordion>
                   {[ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) && !!editHideSheetVisible && (
@@ -325,10 +335,15 @@ class App extends Component {
                       <Switch
                         checked={hideSheetVisible}
                         color="#2196F3"
-                        onChange={(checked) => {
+                        onChange={checked => {
                           this.setState({
-                            hideSheetVisible: checked
+                            hideSheetVisible: checked,
                           });
+                          if (checked) {
+                            localStorage.removeItem(`hideSheetVisible-${params.appId}`);
+                          } else {
+                            localStorage.setItem(`hideSheetVisible-${params.appId}`, true);
+                          }
                         }}
                       />
                       <span className="Font15 Gray_9e">{_l('查看隐藏项')}</span>
@@ -338,7 +353,7 @@ class App extends Component {
               )}
             </div>
           </div>
-          {(!isHideTabBar && !window.isPublicApp && detail.appNaviStyle !== 2) && (
+          {!isHideTabBar && !window.isPublicApp && detail.appNaviStyle !== 2 && (
             <Back
               className="low"
               onClick={() => {
@@ -348,51 +363,42 @@ class App extends Component {
           )}
           {!this.props.isQuitSuccess && this.renderModal()}
         </Fragment>
-      )
+      );
     }
   }
 
   renderRecordList(data) {
     const { type } = data;
     if (type === 0) {
-      return (
-        <RecordList now={Date.now()}/>
-      )
+      return <RecordList now={Date.now()} />;
     }
     if (type === 1) {
-      return (
-        <CustomPage pageTitle={data.workSheetName} now={Date.now()}/>
-      )
+      return <CustomPage pageTitle={data.workSheetName} now={Date.now()} />;
     }
   }
 
-  render() {
+  renderBody() {
     const { appSection, detail } = this.props.appDetail;
-
-    if (this.props.isAppLoading) {
-      return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
-      )
-    }
 
     if ([0, 1].includes(detail.appNaviStyle)) {
       return this.renderContent();
     }
 
     const { selectedTab, isHideTabBar } = this.state;
-    const sheetList = _.flatten(appSection.map(item => {
-      item.workSheetInfo.forEach((sheet) => {
-        sheet.appSectionId = item.appSectionId;
-      });
-      return item.workSheetInfo;
-    })).slice(0, 4);
+    const sheetList = _.flatten(
+      appSection.map(item => {
+        item.workSheetInfo.forEach(sheet => {
+          sheet.appSectionId = item.appSectionId;
+        });
+        return item.workSheetInfo;
+      }),
+    ).slice(0, 4);
     const data = _.find(sheetList, { workSheetId: selectedTab }) || {};
     const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1;
+
     return (
       <div className="flexColumn h100">
-        <div className={cx('flex overflowHidden', {recordListWrapper: !isHideNav})}>
+        <div className={cx('flex overflowHidden', { recordListWrapper: !isHideNav })}>
           {selectedTab === 'more' ? this.renderContent() : this.renderRecordList(data)}
         </div>
         <TabBar
@@ -402,21 +408,18 @@ class App extends Component {
           hidden={isHideNav}
           noRenderContent={true}
         >
-          {
-            sheetList.map((item, index) => (
-              <TabBar.Item
-                title={item.workSheetName}
-                key={item.workSheetId}
-                icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
-                selectedIcon={<SvgIcon url={item.iconUrl} fill="#33a3f4" size={20} />}
-                selected={selectedTab === item.workSheetId}
-                onPress={() => {
-                  this.handleSwitchSheet(item);
-                }}
-               >
-              </TabBar.Item>
-            ))
-          }
+          {sheetList.map((item, index) => (
+            <TabBar.Item
+              title={item.workSheetName}
+              key={item.workSheetId}
+              icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
+              selectedIcon={<SvgIcon url={item.iconUrl} fill="#33a3f4" size={20} />}
+              selected={selectedTab === item.workSheetId}
+              onPress={() => {
+                this.handleSwitchSheet(item);
+              }}
+            ></TabBar.Item>
+          ))}
           <TabBar.Item
             title={_l('更多')}
             key="more"
@@ -427,18 +430,35 @@ class App extends Component {
               const { params } = this.props.match;
               this.navigateTo(`/mobile/app/${params.appId}`);
             }}
-          >
-          </TabBar.Item>
+          ></TabBar.Item>
         </TabBar>
         {!isHideTabBar && (
           <Back
-            className={cx({low: isHideNav})}
+            className={cx({ low: isHideNav })}
             onClick={() => {
               this.navigateTo('/mobile/appHome');
             }}
           />
         )}
       </div>
+    );
+  }
+
+  render() {
+    const { isAppLoading, appDetail } = this.props;
+    
+    if (isAppLoading) {
+      return (
+        <Flex justify="center" align="center" className="h100">
+          <ActivityIndicator size="large" />
+        </Flex>
+      );
+    }
+
+    const { detail } = appDetail;
+
+    return (
+      <WaterMark projectId={detail.projectId}>{this.renderBody()}</WaterMark>
     )
   }
 }

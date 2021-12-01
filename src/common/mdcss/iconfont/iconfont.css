@@ -1,11 +1,11 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.eot?t=1629958487779'); /* IE9 */
-  src: url('iconfont.eot?t=1629958487779#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('iconfont.woff2?t=1629958487779') format('woff2'),
-       url('iconfont.woff?t=1629958487779') format('woff'),
-       url('iconfont.ttf?t=1629958487779') format('truetype'),
-       url('iconfont.svg?t=1629958487779#MD_Icon') format('svg');
+  src: url('iconfont.eot?t=1633916434458'); /* IE9 */
+  src: url('iconfont.eot?t=1633916434458#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('iconfont.woff2?t=1633916434458') format('woff2'),
+       url('iconfont.woff?t=1633916434458') format('woff'),
+       url('iconfont.ttf?t=1633916434458') format('truetype'),
+       url('iconfont.svg?t=1633916434458#MD_Icon') format('svg');
 }
 
 .MD_Icon {
@@ -14,6 +14,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-milestone:before {
+  content: "\e620";
+}
+
+.icon-gantt:before {
+  content: "\e61f";
 }
 
 .icon-a-arrowback:before {

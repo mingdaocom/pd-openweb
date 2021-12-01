@@ -2,10 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import Back from '../../components/Back';
-import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace } from 'antd-mobile';
+import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace, Modal } from 'antd-mobile';
 import { WithoutRows } from 'src/pages/Mobile/RecordList/SheetRows';
 import cx from 'classnames';
 import './index.less';
+
+const prompt = Modal.prompt;
 
 class ApplyList extends React.Component {
   constructor(props) {
@@ -82,11 +84,20 @@ class ApplyList extends React.Component {
                           <span
                             className="InlineBlock toBeBtn rejectBtn"
                             onClick={() => {
-                              this.props.dispatch(actions.editAppApplyStatus({
-                                id: item.id,
-                                appId: params.appId,
-                                status: 3,
-                              }));
+                              prompt(_l('拒绝'), _l('请填写拒绝的原因'), [
+                                { text: _l('取消') },
+                                {
+                                  text: _l('确认'),
+                                  onPress: value => {
+                                    this.props.dispatch(actions.editAppApplyStatus({
+                                      id: item.id,
+                                      appId: params.appId,
+                                      status: 3,
+                                      remark: value
+                                    }));
+                                  }
+                              }
+                              ]);
                             }}
                           >
                             {_l('拒绝')}

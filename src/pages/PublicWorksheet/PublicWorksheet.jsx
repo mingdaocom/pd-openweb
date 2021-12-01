@@ -51,6 +51,7 @@ export default class PublicWorksheet extends React.Component {
         alert(_l('地址有误，无法找到相关数据！'), 2);
       }
       const shareId = urlMatch[1];
+      window.publicWorksheetShareId = shareId;
       this.shareId = shareId;
       getPublicWorksheet(shareId, (err, info) => {
         if (err) {

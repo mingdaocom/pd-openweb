@@ -2,7 +2,7 @@ export const controllerName = 'Worksheet';
 import { getPssId } from 'src/util/pssId';
 
 export default {
-  // server: () => 'http://172.16.0.87:8086',
+  // server: () => 'http://172.16.1.191:8086',
   server: () => md.global.Config.WsReportUrl,
   ajaxOptions: {
     url: '',

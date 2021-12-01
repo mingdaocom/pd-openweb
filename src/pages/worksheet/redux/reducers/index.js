@@ -6,6 +6,7 @@ import * as hierarchyView from './hierarchyView';
 import * as sheetview from './sheetview';
 import * as galleryview from './galleryview';
 import * as calendarview from './calendarview';
+import * as gunterView from './gunterview';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -59,4 +60,5 @@ export default combineReducers({
   sheetview: combineReducers(sheetview),
   galleryview: combineReducers(galleryview),
   calendarview: combineReducers(calendarview),
+  gunterView: combineReducers(gunterView),
 });

@@ -203,6 +203,11 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/workflow/MyProcess'),
     title: _l('我的流程'),
   },
+  gunterExport: {
+    path: '/app/:appId/:worksheetId/:viewId/gunterExport',
+    component: () => import('src/pages/worksheet/views/GunterView/components/GunterExport'),
+    title: _l('正在导出，请稍候...'),
+  },
 
   my: {
     path: '/app/my',
@@ -246,6 +251,7 @@ const withoutHeaderPathList = [
   'worksheet/formSet',
   'mobile',
   'worksheet/uploadTemplateSheet',
+  'gunterExport'
 ];
 const withoutChatPathList = [
   'chat',
@@ -269,6 +275,7 @@ const withoutChatPathList = [
   'weixinAppCourse',
   'mobile',
   'worksheet/uploadTemplateSheet',
+  'gunterExport'
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

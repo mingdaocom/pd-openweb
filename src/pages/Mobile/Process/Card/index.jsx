@@ -1,14 +1,14 @@
 import React, { Fragment, Component } from 'react';
-import Icon from 'ming-ui/components/Icon';
+import { Icon, Button } from 'ming-ui';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import {
-  ACTION_TYPES,
-  TYPE_TO_STYLE,
-  FLOW_NODE_TYPE_STATUS,
-  INSTANCELOG_STATUS,
-} from 'src/pages/workflow/MyProcess/config';
+import { FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
+import OtherAction from 'src/pages/Mobile/ProcessRecord/OtherAction';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import instance from 'src/pages/workflow/api/instance';
+import { processInformTabs } from 'src/pages/Mobile/Process/ProcessInform';
 
 const TABS = {
   WAITING_DISPOSE: 1, // 待处理
@@ -18,83 +18,61 @@ const TABS = {
 };
 
 export default class Card extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      otherActionVisible: false,
+      action: '',
+      instance: null
+    }
+  }
+  processInformTabs = processInformTabs.map(item => item.id)
+  handleApprove = (event, action) => {
+    const { item } = this.props;
+    event.stopPropagation();
+    instanceVersion.get({
+      id: item.id,
+      workId: item.workId,
+    }).then(data => {
+      this.setState({
+        action,
+        instance: data,
+        otherActionVisible: true
+      });
+    });
+  }
+  handleAction = (action, content, forwardAccountId, backNodeId, signature) => {
+    this.setState({ submitLoading: true, otherActionVisible: false });
+    if (_.includes(['pass', 'overrule'], action)) {
+      const { item, onApproveDone } = this.props;
+      const data = { opinion: content, backNodeId, signature };
+      instance[ACTION_TO_METHOD[action]]({
+        id: item.id,
+        workId: item.workId,
+        ...data,
+      }).then((data) => {
+        if (data) {
+          alert(_l('操作成功'));
+          onApproveDone(item);
+        }
+      });
+    }
+  }
   renderHeader() {
-    const { stateTab, item } = this.props;
+    const { currentTab, item, time } = this.props;
     const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;
-    const type =
-      ACTION_TYPES[
-        stateTab === TABS.MY_SPONSOR && !_.isEmpty(currentWorkFlowNodes)
-          ? currentWorkFlowNodes[currentWorkFlowNodes.length - 1].type
-          : flowNodeType
-      ];
-    const { icon, bg, shallowBg } = TYPE_TO_STYLE[type.id];
 
     let RenderState = null;
-    let RenderRightHander = null;
-    let RenderInfo = null;
 
-    if (stateTab === TABS.WAITING_DISPOSE || stateTab === TABS.WAITING_EXAMINE) {
+    if (currentTab == 'completeMySponsor') {
+      RenderState = this.renderInstanceStatu();
+    } else if (currentTab == 'completeDispose') {
+      RenderState = this.renderNodeState();
+    } else {
       RenderState = (
-        <div className="state bold valignWrapper maxWidth" style={{ backgroundColor: bg }}>
-          <Icon icon={icon} className="mRight5" />
-          <div className="Font13 overflow_ellipsis">{flowNode.name}</div>
+        <div className="flowNode bold valignWrapper">
+          <div className="Font12 Gray_75">{flowNode.name}</div>
         </div>
-      );
-      RenderRightHander = <div className="Gray_9e">{createTimeSpan(workItem.receiveTime)}</div>;
-    }
-    if (stateTab === TABS.WAITING_EXAMINE) {
-      RenderRightHander = <span className="Gray_75">{createTimeSpan(workItem.receiveTime)}</span>;
-    }
-    if (stateTab === TABS.MY_SPONSOR) {
-      const currentWorkFlowNode = currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
-      RenderState = (
-        <div className="state bold valignWrapper" style={{ backgroundColor: shallowBg }}>
-          <Icon style={{ color: bg }} icon={icon} className="mRight5" />
-          <div style={{ color: bg }} className="Font13 overflow_ellipsis">
-            {currentWorkFlowNode ? currentWorkFlowNode.name : flowNode.name}
-          </div>
-        </div>
-      );
-      RenderInfo = <div className="info mLeft10 Gray_75 Font13">{_l('处理中…')}</div>;
-      RenderRightHander = <div className="Gray_9e">{createTimeSpan(item.createDate)}</div>;
-    }
-    if (stateTab === TABS.COMPLETE) {
-      const { type } = this.props;
-      const { operationType, operationTime } = workItem;
-      if (type === 0) {
-        const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
-        const { text, bg, icon } = INSTANCELOG_STATUS[instanceStatus];
-        RenderState = (
-          <Fragment>
-            <div className="state bold valignWrapper" style={{ backgroundColor: bg }}>
-              {icon ? <Icon icon={icon} className="mRight5" /> : null}
-              <div className="Font13 overflow_ellipsis">{text}</div>
-            </div>
-            {instanceLog && instanceLog.cause && instanceStatus !== 5 ? (
-              <div className="Font13 mLeft10 Gray_75">{`${instanceLog.cause === 40007 ? '' : _l('节点：')}${
-                FLOW_FAIL_REASON[instanceLog.cause]
-              }`}</div>
-            ) : null}
-          </Fragment>
-        );
-      } else {
-        if (FLOW_NODE_TYPE_STATUS[flowNodeType][operationType]) {
-          const { text, color } = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
-          RenderInfo = (
-            <div className="Font13 mLeft10 bold" style={{ color }}>
-              {text}
-            </div>
-          );
-        }
-        RenderState = (
-          <div className="state bold valignWrapper" style={{ color: '#9E9E9E' }}>
-            <Icon icon={icon} className="mRight5" />
-            <div className="Font13 overflow_ellipsis">{flowNode.name}</div>
-          </div>
-        );
-      }
-      RenderRightHander = (
-        <div className="Gray_9e">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
       );
     }
 
@@ -102,44 +80,112 @@ export default class Card extends Component {
       <div className="mobileProcessCardHeader valignWrapper">
         <div className="stateWrapper valignWrapper flex">
           {RenderState}
-          {RenderInfo}
         </div>
-        {RenderRightHander}
+        <div className="Gray_9e ellipsis time">{time}</div>
       </div>
     );
   }
   renderInfo() {
     const { currentTab, item } = this.props;
-    if (currentTab === 'untreated') {
-      return <div className="state">{`${_l('等待')}${item.flowNode.name}`}</div>;
-    } else if (currentTab === 'mySponsor') {
-      return <div className="Font13 mLeft10 bold Gray_75">{_l('处理中…')}</div>
-    } else {
-      const { flowNodeType, workItem } = item;
-      const { operationType } = workItem;
+    const { flowNode, flowNodeType, workItem } = item;
+    const { passBatchType, overruleBatchType, btnMap } = flowNode;
+    const { operationType } = workItem;
+    if (currentTab === 'waitingApproval') {
+      return (
+        <div className="valignWrapper mLeft10 approveBtnWrapper">
+          {passBatchType === -1 && (
+            <Button
+              className="backlog"
+              type="ghostgray"
+              size="small"
+            >
+              {_l('待办')}
+            </Button>
+          )}
+          {passBatchType !== -1 && (
+            <Button
+              className="pass mRight5"
+              type="ghostgray"
+              size="small"
+              onClick={(event) => {
+                this.handleApprove(event, 'pass');
+              }}
+            >
+              {btnMap[4] || _l('通过')}
+            </Button>
+          )}
+          {overruleBatchType !== -1 && (
+            <Button
+              className="overrule"
+              type="ghostgray"
+              size="small"
+              onClick={(event) => {
+                this.handleApprove(event, 'overrule');
+              }}
+            >
+              {btnMap[5] || _l('否决')}
+            </Button>
+          )}
+        </div>
+      );
+    }
+    if (currentTab === 'mySponsor') {
+      return <div className="Font13 mLeft10 bold Gray_75">{_l('处理中…')}</div>;
+    }
+    if (['all', 'already', 'unread'].includes(currentTab)) {
       const { text, color } = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
-      if (FLOW_NODE_TYPE_STATUS[flowNodeType][operationType]) {
-        return (
-          <div className="Font13 mLeft10 bold" style={{ color }}>
-            {text}
-          </div>
-        );
-      }
+      const isAlready = flowNodeType === 5 && operationType === 1;
+      return <div className="Font13 mLeft10 bold" style={{ color: isAlready ? '#9e9e9e' : color }}>{text}</div>;
     }
     return null;
   }
-  renderHeader2() {
-    const { item, time } = this.props;
-    const { app } = item;
+  renderNodeState() {
+    const { item } = this.props;
+    const { flowNodeType, workItem } = item;
+    const { operationType } = workItem;
+    const node = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
+    if (node) {
+      const { text, color, shallowBg } = node;
+      return (
+        <div className="nodeState bold valignWrapper" style={{ color, backgroundColor: shallowBg, borderRadius: 3 }}>
+          {text}
+        </div>
+      )
+    } else {
+      return null;
+    }
+  }
+  renderInstanceStatu() {
+    const { item } = this.props;
+    const { workItem, instanceLog, status } = item;
+    const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
+    const { text, bg, shallowBg, icon } = INSTANCELOG_STATUS[instanceStatus];
     return (
-      <div className="mobileProcessCardHeader valignWrapper">
-        <div className="stateWrapper valignWrapper flex">
+      <Fragment>
+        <div className="nodeState bold valignWrapper" style={{ color: bg, backgroundColor: shallowBg }}>
+          {icon ? <Icon icon={icon} className="mRight5" /> : null}
+          <div className="Font13">{text}</div>
+        </div>
+      </Fragment>
+    );
+  }
+  renderFooter() {
+    const { item } = this.props;
+    const { app, process } = item;
+    return (
+      <div className="mobileProcessCardFooter valignWrapper">
+        <div className="stateWrapper valignWrapper flex overflow_ellipsis">
           <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
             <SvgIcon url={app.iconUrl} fill="#fff" size={16} addClassName="mTop4" />
           </div>
-          <div className="flexRow flex ellipsis valignWrapper">
-            <span className="Gray_75 ellipsis">{app.name}</span>
-            <div className="Gray_9e ellipsis time">{time}</div>
+          <div className="flexRow Gray_75 flex valignWrapper">
+            <span className="appName overflow_ellipsis">
+              {app.name}
+            </span>
+            <span className="processName overflow_ellipsis">
+              <span className="dot"></span>
+              {process.name}
+            </span>
           </div>
         </div>
         {this.renderInfo()}
@@ -147,50 +193,53 @@ export default class Card extends Component {
     );
   }
   renderBody() {
-    const { renderBodyTitle } = this.props;
+    const { currentTab, item, renderBodyTitle } = this.props;
+    const { createAccount, controls } = item;
     return (
       <div className="mobileProcessCardBody flexColumn">
-        <span>{renderBodyTitle()}</span>
-      </div>
-    );
-  }
-  renderFooter() {
-    const { item, stateTab, type } = this.props;
-    const { app, createDate, process, createAccount, workItem } = item;
-    return (
-      <div className="mobileProcessCardFooter valignWrapper Font13">
-        <div className="valignWrapper flex overflowHidden">
-          <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
-            <SvgIcon url={app.iconUrl} fill="#fff" size={16} addClassName="mTop4" />
-          </div>
-          <span className="Gray_75 ellipsis">
-            {app.name}
-            <span className="dot"></span>
-            {process.name}
-          </span>
+        <div className="valignWrapper">
+          <img className="accountAvatar" src={createAccount.avatar} />
+          <span className="ellipsis">{renderBodyTitle()}</span>
         </div>
-        {stateTab === TABS.WAITING_EXAMINE ? (
-          <div
-            className="Gray_75 alreadyRead"
-            onClick={event => {
-              event.stopPropagation();
-              this.props.onAlreadyRead(item);
-            }}>
-            <Icon icon="ok" />
-            <span className="mLeft5">{_l('已读')}</span>
-          </div>
-        ) : null}
+        {this.processInformTabs.includes(currentTab) && (
+          <span className="Gray_9e Font13 mTop8 ellipsis">{item.workItem.opinion}</span>
+        )}
+        <div className="flexColumn mTop10">
+          {controls.map(item => (
+            <div key={item.controlId} className="Font12 flexRow mTop4">
+              <div className="Gray_9e mRight10">{item.controlName}</div>
+              <div className="flex overflow_ellipsis">{item.value || '--'}</div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
   render() {
+    const { otherActionVisible, action, instance } = this.state;
     const { onClick } = this.props;
     return (
-      <div className="mobileProcessCardWrapper" onClick={onClick}>
-        {this.renderHeader2()}
-        {this.renderBody()}
-        {/*this.renderFooter()*/}
-      </div>
+      <Fragment>
+        <div className="mobileProcessCardWrapper" onClick={onClick}>
+          {this.renderHeader()}
+          {this.renderBody()}
+          {this.renderFooter()}
+        </div>
+        {otherActionVisible && (
+          <OtherAction
+            visible={otherActionVisible}
+            action={action}
+            selectedUser={_.object()}
+            instance={instance}
+            onAction={this.handleAction}
+            onHide={() => {
+              this.setState({
+                otherActionVisible: false,
+              });
+            }}
+          />
+        )}
+      </Fragment>
     );
   }
 }

@@ -65,12 +65,6 @@ class Discuss extends Component {
     this.props.dispatch(actions.emptySheetDiscussion());
     this.props.dispatch(actions.emptySheetLogs());
   }
-  navigateTo(url) {
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-    this.props.history.push(url);
-  }
   getGroupInfo() {
     const { params } = this.props.match;
     const { appId, worksheetId } = params;
@@ -100,7 +94,7 @@ class Discuss extends Component {
               rowId={rowId}
               height={style.height}
               onReply={(discussionId, name) => {
-                this.navigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || null}/${discussionId}|${name}`);
+                window.mobileNavigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || null}/${discussionId}|${name}`);
               }}
             />
           </div>
@@ -126,7 +120,7 @@ class Discuss extends Component {
               alert(_l('预览模式下，不能操作'), 3);
               return;
             }
-            this.navigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || ''}`);
+            window.mobileNavigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || ''}`);
           }}
         >
           <div className="text">{_l('参与讨论...')}</div>
@@ -141,9 +135,9 @@ class Discuss extends Component {
               return;
             }
             if (rowId) {
-              this.navigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${rowId}`);
+              window.mobileNavigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${rowId}`);
             } else if (groupId) {
-              this.navigateTo(`/mobile/recordList/${params.appId}/${groupId}/${params.worksheetId}`);
+              window.mobileNavigateTo(`/mobile/recordList/${params.appId}/${groupId}/${params.worksheetId}`);
             } else {
               history.back();
             }

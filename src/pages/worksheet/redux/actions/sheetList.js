@@ -192,7 +192,7 @@ export function sortSheetList(appId, appSectionId, sheetList) {
       .updateSectionChildSort({
         appId,
         appSectionId,
-        workSheetIds: sheetList.map(item => item.workSheetId),
+        workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
       })
       .then(result => {});
   };

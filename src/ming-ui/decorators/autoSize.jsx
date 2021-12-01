@@ -1,6 +1,5 @@
 import React from 'react';
 import { emitter } from 'worksheet/util';
-import { autobind } from 'core-decorators';
 
 export default function (Comp, { onlyWidth } = {}) {
   return class AutoSizer extends React.PureComponent {
@@ -95,8 +94,7 @@ export default function (Comp, { onlyWidth } = {}) {
       }, 100);
     }
 
-    @autobind
-    handleUpdate() {
+    handleUpdate = () => {
       if (this.con) {
         this.setState({
           size: {

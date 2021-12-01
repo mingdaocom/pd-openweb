@@ -140,7 +140,7 @@ export default class CellControl extends React.Component {
     const { tableFromModule, cellUniqueValidate, clearCellError } = this.props;
     let { errorType } = onValidator(cell);
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
-      return cellUniqueValidate(cell.controlId, cell.value) ? '' : 'UNIQUE';
+      errorType = cellUniqueValidate(cell.controlId, cell.value) ? '' : 'UNIQUE';
     }
     this.errorCleared = !errorType;
     return errorType;
@@ -199,7 +199,7 @@ export default class CellControl extends React.Component {
 
   @autobind
   handleUpdateEditing(isediting, cb = () => {}) {
-    const { cell, row, clearCellError, scrollTo, updateEditingControls, onCellFocus } = this.props;
+    const { cell, row, clearCellError, scrollTo, updateEditingControls, onCellFocus = () => {} } = this.props;
     const { error } = this;
     onCellFocus(isediting);
     const cellFullVisible = isediting && this.checkCellFullVisible();
@@ -306,6 +306,9 @@ export default class CellControl extends React.Component {
     if (row && _.isEmpty(row)) {
       return <div className={className} style={style} />;
     }
+    if (!cell.advancedSetting) {
+      cell.advancedSetting = {};
+    }
     if (cell.type === 37) {
       cell.isSubtotal = true;
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
@@ -316,7 +319,7 @@ export default class CellControl extends React.Component {
       }
     }
     const controlPermission = controlState(cell);
-    this.editable = canedit && row && (row.allowedit || isSubList) && controlPermission.editable && !cell.isSubtotal;
+    this.editable = canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal;
     if (!controlPermission.visible) {
       if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         return <div className={className} onClick={this.props.onClick} style={style} />;

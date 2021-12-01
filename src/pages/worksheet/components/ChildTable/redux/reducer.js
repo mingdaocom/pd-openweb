@@ -28,6 +28,8 @@ function rows(state = [], action) {
       } else {
         return state.concat(action.row);
       }
+    case 'ADD_ROWS':
+      return state.concat(action.rows);
     case 'UPDATE_ROW':
       return state.map(row => (row.rowid === action.rowid ? { ...row, ...action.value } : row));
     case 'DELETE_ROW':

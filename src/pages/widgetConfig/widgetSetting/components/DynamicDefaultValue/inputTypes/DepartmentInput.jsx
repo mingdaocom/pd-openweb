@@ -1,11 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { OtherFieldList, SelectOtherField } from '../components';
+import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import update from 'immutability-helper';
-import { Dropdown, Menu } from 'antd';
-import { DropdownContent } from '../../../../styled';
 
 @connect(({ appPkg }) => ({
   projectId: appPkg.projectId,
@@ -26,25 +24,15 @@ export default class DepartmentInput extends Component {
       onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
     }
   };
-  handleClick = key => {
-    const { globalSheetInfo, onDynamicValueChange } = this.props;
+  handleClick = () => {
+    const { globalSheetInfo, onDynamicValueChange, data = {} } = this.props;
     const { projectId } = globalSheetInfo;
-    if (key === 'current') {
-      onDynamicValueChange([
-        {
-          rcid: '',
-          cid: '',
-          staticValue: JSON.stringify({ departmentName: _l('当前用户所在部门'), departmentId: 'current' }),
-          isAsync: true,
-        },
-      ]);
-      return;
-    }
+    const unique = data.enumDefault === 0;
     // eslint-disable-next-line no-new
     new DialogSelectGroups({
       projectId,
       isIncludeRoot: false,
-      unique: true,
+      unique: unique,
       showCreateBtn: false,
       selectFn: arr => {
         const value = arr.map(({ departmentId, departmentName }) => ({
@@ -56,26 +44,20 @@ export default class DepartmentInput extends Component {
       },
     });
   };
+  onTriggerClick = () => {
+    const { defaultType } = this.props;
+    defaultType && this.$wrap.triggerClick();
+  };
   render() {
+    const { defaultType } = this.props;
     return (
       <DynamicValueInputWrap>
-        <Dropdown
-          trigger={['click']}
-          overlay={
-            <DropdownContent>
-              {[
-                { key: 'current', text: _l('当前用户所在部门') },
-                { key: 'assign', text: _l('指定部门') },
-              ].map(({ key, text }) => (
-                <div className="item" key={key} onClick={() => this.handleClick(key)}>
-                  {text}
-                </div>
-              ))}
-            </DropdownContent>
-          }>
-          <OtherFieldList {...this.props} removeItem={this.removeItem} />
-        </Dropdown>
-        <SelectOtherField {...this.props} />
+        {defaultType ? (
+          <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
+        ) : (
+          <OtherFieldList {...this.props} removeItem={this.removeItem} onClick={this.handleClick} />
+        )}
+        <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
       </DynamicValueInputWrap>
     );
   }

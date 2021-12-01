@@ -22,7 +22,7 @@ import CommonUserHandle from '../../components/CommonUserHandle';
 import { APP_CONFIG, ADVANCE_AUTHORITY } from '../config';
 import ExportApp from 'src/pages/Admin/appManagement/modules/ExportApp';
 import { getIds, compareProps, getItem, setItem, isCanEdit } from '../../util';
-import EditAppIntro from './EditAppIntro';
+import EditAppIntro from './EditIntro';
 import AppGroup from '../AppGroup';
 import AllOptionList from './AllOptionList';
 import AppNavStyle from './AppNavStyle/index';
@@ -64,6 +64,7 @@ export default class AppInfo extends Component {
       optionListVisible: false,
       copyAppVisible: false,
       data: {},
+      hasChange: false,
     };
   }
 
@@ -419,7 +420,7 @@ export default class AppInfo extends Component {
           animation="zoom"
           style={{ width: '800px' }}
           maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-          bodyStyle={{ minHeight: '480px' }}
+          bodyStyle={{ minHeight: '480px', padding: 0 }}
           maskAnimation="fade"
           mousePosition={mousePosition}
           closeIcon={<Icon icon="close" />}
@@ -428,8 +429,20 @@ export default class AppInfo extends Component {
             description={description}
             permissionType={permissionType}
             isEditing={!description && isAuthorityApp}
-            onSave={val => this.handleEditApp('', { description: val })}
-            onCancel={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
+            changeSetting={() => {
+              this.setState({
+                hasChange: true,
+              });
+            }}
+            onSave={value => {
+              this.handleEditApp('', { description: !value ? (this.state.hasChange ? value : description) : value });
+              this.setState({
+                hasChange: false,
+              });
+            }}
+            onCancel={() =>
+              this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })
+            }
           />
         </RcDialog>
         {delAppConfirmVisible && (

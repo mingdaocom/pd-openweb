@@ -96,6 +96,9 @@ export default class User extends React.Component {
     const { worksheetId, cell, projectId, updateEditingStatus } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
+    if (!target) {
+      return;
+    }
     const filterAccountIds = value.map(item => item.accountId);
     const callback = data => {
       if (cell.enumDefault === 0) {

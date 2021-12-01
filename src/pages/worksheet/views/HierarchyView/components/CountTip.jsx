@@ -2,6 +2,7 @@ import React from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
+import { browserIsMobile } from 'src/util'
 
 const CountTip = styled(FlexCenter)`
   box-sizing: border-box;
@@ -29,6 +30,6 @@ export default ({ count, rowId, visible, onClick }) => (
     }}
   >
     <span>{count}</span>
-    {count > 0 && !visible && <i className="icon icon-navigate_next" />}
+    {count > 0 && !visible && !browserIsMobile() && <i className="icon icon-navigate_next" />}
   </CountTip>
 );

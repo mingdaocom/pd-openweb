@@ -3390,3 +3390,13 @@ Copyright (c) 2015 Daniel Eden
     transform: rotate(360deg);
   }
 }
+
+@keyframes stretch {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}

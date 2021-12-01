@@ -36,15 +36,19 @@ export default class ValidPassWord extends Component {
             // 2 password error
             // 3 need transfter admin
             // 4 need apply to Mingdao
+            // 5 last one forbind exit
             this.props.closeDialog();
             switch (result) {
               case 1:
               case 3:
                 this.props.transferAdminProject(projectId, companyName, this.state.password, result);
                 break;
+              case 5:
+                alert(_l('最后一位成员无法退出组织'), 3);
+                break;
               case 0:
               default:
-                alert(_l('操作失败'));
+                alert(_l('操作失败'), 2);
             }
           }
         })

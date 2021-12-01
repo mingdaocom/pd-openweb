@@ -420,6 +420,7 @@ class TaskDetail extends Component {
             '#chat',
             '#chatPanel',
             '.warpDatePicker',
+            '.ck'
           ]}
           onClickAway={this.closeDetail}
         >

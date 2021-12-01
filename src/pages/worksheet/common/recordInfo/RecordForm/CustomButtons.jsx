@@ -240,10 +240,7 @@ export default class CustomButtons extends React.Component {
     this.setStateFn({ rowInfo });
     const caseStr = btn.writeObject + '' + btn.writeType;
     const relationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.relationControl);
-    const addRelationControl = _.find(
-      rowInfo.receiveControls.concat(rowInfo.receiveControls || []),
-      c => c.controlId === btn.addRelationControl,
-    );
+    const addRelationControl = _.find(rowInfo.receiveControls || [], c => c.controlId === btn.addRelationControl);
     this.activeBtn = btn;
     this.fillRecordProps = {};
     switch (caseStr) {

@@ -10,6 +10,7 @@ import { includes, find, get } from 'lodash';
 import { isDisabledCreate } from '../../util';
 import { useSetState } from 'react-use';
 import { useDrop } from 'react-dnd-latest';
+import { browserIsMobile } from 'src/util';
 
 export default function Board(props) {
   const {
@@ -161,7 +162,7 @@ export default function Board(props) {
       ) || [],
       item => item.rowId === rowId,
     );
-
+  const isMobile = browserIsMobile();
   return (
     <div ref={drop} className={cx('boardDataRecordListWrap')}>
       <BoardTitle
@@ -194,6 +195,7 @@ export default function Board(props) {
               boardData={boardData}
               worksheetInfo={worksheetInfo}
               viewControl={viewControl}
+              sheetSwitchPermit={sheetSwitchPermit}
               computeHeight={computeHeight}
               updateTitleData={data => updateTitleData({ key: list.key, index, data })}
               {..._.pick(list, ['fieldPermission'])}
@@ -203,7 +205,7 @@ export default function Board(props) {
           {loading && <LoadDiv />}
         </div>
       </ScrollView>
-      {isShowAddRecord() && <AddRecord noItem={!list.data.length} onAddRecord={handleAddRecord} />}
+      {!isMobile && isShowAddRecord() && <AddRecord noItem={!list.data.length} onAddRecord={handleAddRecord} />}
       {createRecordVisible && (
         <NewRecord
           visible

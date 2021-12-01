@@ -78,7 +78,7 @@ export default function RelateSheet(props) {
   useEffect(() => {
     //  切换控件手动更新
     if (!loading && !isEmpty(controls)) {
-      onChange({ relationControls: controls });
+      onChange({ relationControls: controls, sourceEntityName: worksheetInfo.name });
     }
     if (!getAdvanceSetting(data, 'showtype')) {
       onChange(handleAdvancedSettingChange(data, { showtype: '1' }));
@@ -87,8 +87,6 @@ export default function RelateSheet(props) {
 
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
 
-  // 关联单条
-  const isSingleRelate = enumDefault === 1;
   const isListDisplay = String(showtype) === '2';
   const filterControls = _.filter(relationControls, item => !_.includes([22, 43], item.type));
   const titleControl = _.find(filterControls, item => item.attribute === 1);
@@ -204,9 +202,13 @@ export default function RelateSheet(props) {
             } else {
               nextData = handleAdvancedSettingChange(nextData, { searchfilters: '' });
             }
-            // 切换为列表 必填置为false
+            // 切换为列表 必填置为false, 默认值清空
             if (value === '2') {
-              nextData = { ...nextData, required: false };
+              nextData = {
+                ...nextData,
+                required: false,
+                advancedSetting: Object.assign(nextData.advancedSetting, { defsource: '' }),
+              };
             }
             onChange(nextData);
           }}
@@ -329,7 +331,7 @@ export default function RelateSheet(props) {
           </SettingItem>
         </Fragment>
       )}
-      {isSingleRelate && <DynamicDefaultValue {...props} titleControl={titleControl} />}
+      <DynamicDefaultValue {...props} titleControl={titleControl} />
       {showtype !== '2' && <WidgetVerify {...props} />}
       <SettingItem>
         <div className="settingItemTitle">{_l('操作')}</div>
@@ -599,10 +601,12 @@ export default function RelateSheet(props) {
             })
           }
         >
-          <Tooltip placement={'right'} title={_l('扫码功能只对App或企业微信/Welink移动端有效')}>
+          <span>
             {_l('只允许通过扫码添加关联  ')}
-            <i className="icon-help Gray_9e Font16 pointer"></i>
-          </Tooltip>
+            <Tooltip placement={'bottom'} title={_l('扫码功能只对App或钉钉移动端、Welink移动端、微信移动端有效')}>
+              <i className="icon-help Gray_9e Font16 pointer"></i>
+            </Tooltip>
+          </span>
         </Checkbox>
       </SettingItem>
       {!!+onlyRelateByScanCode && (

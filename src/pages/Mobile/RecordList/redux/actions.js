@@ -1,4 +1,6 @@
 import sheetAjax from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
+import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 // import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
 
 const WORKSHEET_TABLE_PAGESIZE = 20;
@@ -6,6 +8,10 @@ const WORKSHEET_TABLE_PAGESIZE = 20;
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_UPDATE_BASE',
+    base,
+  });
+  dispatch({
+    type: 'WORKSHEET_UPDATE_BASE',
     base,
   });
 }
@@ -19,8 +25,9 @@ export const loadWorksheet = () => (dispatch, getState) => {
     getTemplate: true,
     getViews: true,
   }).then(workSheetInfo => {
-    dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
+    dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
+    dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
   });
   sheetAjax.getSwitchPermit({
     appId: base.appId,
@@ -31,13 +38,23 @@ export const loadWorksheet = () => (dispatch, getState) => {
       value: res,
     });
   });
+  homeAppAjax.getAppDetail({
+    appId: base.appId
+  }).then(data => {
+    const isCharge = isHaveCharge(data.permissionType, data.isLock);
+    dispatch({
+      type: 'MOBILE_UPDATE_IS_CHARGE',
+      value: isCharge
+    });
+  });
 }
 
-export const fetchSheetRows = () => (dispatch, getState) => {
-  const { base, filters, sheetView, quickFilter } = getState().mobile;
+export const fetchSheetRows = (params) => (dispatch, getState) => {
+  const { base, filters, sheetView, quickFilter, mobileNavGroupFilters } = getState().mobile;
   const { appId, worksheetId, viewId } = base;
   const { keyWords } = filters;
   const { pageIndex } = sheetView;
+  let extraParams = params ? { ...params } : {};
   dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
   sheetAjax.getFilterRows({
     worksheetId,
@@ -63,6 +80,8 @@ export const fetchSheetRows = () => (dispatch, getState) => {
         'maxValue',
       ]),
     ),
+    navGroupFilters: mobileNavGroupFilters,
+    ...extraParams,
   }).then(sheetRowsAndTem => {
     const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
     const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
@@ -70,6 +89,10 @@ export const fetchSheetRows = () => (dispatch, getState) => {
     dispatch({
       type,
       data: currentSheetRows
+    });
+    dispatch({
+      type: 'CHANGE_GALLERY_VIEW_DATA',
+      list: currentSheetRows
     });
     dispatch(changeSheetControls());
     dispatch({
@@ -149,7 +172,7 @@ export const changeSheetControls = () => (dispatch, getState) => {
   const { viewId } = base;
   const firstView = _.isEmpty(views) ? {} : views[0];
   const view = viewId ? _.find(views, { viewId }) || {} : firstView;
-  const newControls = template.controls.filter(item => {
+  const newControls = (template && template.controls || []).filter(item => {
     if (item.attribute === 1) {
       return true;
     }
@@ -203,3 +226,11 @@ const updateWorksheetShareUrl = viewId => (dispatch, getState) => {
       worksheetInfo.shareUrl = shareUrl;
     });
 };
+
+export const changeMobileGroupFilters = data => (dispatch, getState) => {
+  dispatch({ type: 'CHANGE_MOBILE_GROUPFILTERS', data })
+}
+
+export const changeMobielSheetLoading  = loading => (dispatch, getState) => {
+  dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading })
+}

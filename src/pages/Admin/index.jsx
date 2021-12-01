@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { LoadDiv, WaterMark } from 'ming-ui';
 import Config from './config';
 import AdminCommon from './common/common';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import Menu from './menu';
 import ApplyComp from './apply';
 import Empty from './common/TableEmpty';
@@ -98,19 +98,23 @@ export default class AdminEntryPoint extends PureComponent {
       [],
     );
     const isExtend = JSON.parse(localStorage.getItem('adminList_isUp'));
+    const projectId = _.get(this.props, 'match.params.projectId');
+
     return (
-      <div className="adminMainContent w100">
-        <div className="flexRow w100 mainContainerWrapper">
-          <Menu isExtend={isExtend} menuList={routes} />
-          <div id="mainContainer" className="Relative">
-            <Switch>
-              {childRoutes.map(({ path, exact, component }) => {
-                return <Route key={path} exact={exact} path={path} component={getComponent(component)} />;
-              })}
-            </Switch>
+      <WaterMark projectId={projectId}>
+        <div className="adminMainContent w100">
+          <div className="flexRow w100 mainContainerWrapper">
+            <Menu isExtend={isExtend} menuList={routes} />
+            <div id="mainContainer" className="Relative">
+              <Switch>
+                {childRoutes.map(({ path, exact, component }) => {
+                  return <Route key={path} exact={exact} path={path} component={getComponent(component)} />;
+                })}
+              </Switch>
+            </div>
           </div>
         </div>
-      </div>
+      </WaterMark>
     );
   }
 

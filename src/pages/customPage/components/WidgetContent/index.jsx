@@ -33,6 +33,11 @@ const LayoutContent = styled.div`
     border-radius: 3px;
     overflow: auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+    &.richText {
+      .editorNull {
+        border: none;
+      }
+    }
     &.analysis {
       overflow: visible;
     }
@@ -231,7 +236,8 @@ function WidgetContent(props) {
         // draggableHandle=".customPageDraggableHandle"
         layout={getLayout(components)}
         onLayoutChange={layouts => updateLayout({ layouts, layoutType, components })}
-        {...getLayoutConfig()}>
+        {...getLayoutConfig()}
+      >
         {components.map((widget, index) => {
           const { id, type, projectId } = widget;
           const { title, titleVisible } = widget[layoutType] || {};
@@ -246,7 +252,8 @@ function WidgetContent(props) {
                       value={title}
                       placeholder={_l('标题')}
                       onBlur={() => setEdit(false)}
-                      onChange={e => updateWidget({ widget, title: e.target.value, layoutType })}></input>
+                      onChange={e => updateWidget({ widget, title: e.target.value, layoutType })}
+                    ></input>
                   ) : (
                     title
                   )}
@@ -256,7 +263,8 @@ function WidgetContent(props) {
                 className={cx('widgetContent', enumType, {
                   haveTitle: titleVisible,
                   iframeNoneEvent: enumType === 'embedUrl' && editable,
-                })}>
+                })}
+              >
                 <WidgetDisplay
                   {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button'])}
                   ids={ids}

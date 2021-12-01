@@ -27,6 +27,7 @@
     box-sizing: border-box;
     background-color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    min-height: 200px;
     .historyHeader {
       display: flex;
       align-items: center;
@@ -67,7 +68,8 @@
           border-bottom: none;
         }
       }
-      .triggerData {
+      .triggerData,
+      .cause {
         margin-right: 24px;
       }
       .noMoreDataText {
@@ -123,7 +125,11 @@
       .time {
         min-width: 160px;
       }
-      .triggerData {
+      .retry {
+        min-width: 55px;
+      }
+      .triggerData,
+      .cause {
         margin-right: 24px;
       }
     }
@@ -133,9 +139,13 @@
       border-bottom: 1px solid #ddd;
       padding: 15px 0;
       cursor: pointer;
+      position: relative;
       .status,
       .triggerTime {
         min-width: 160px;
+      }
+      .retry {
+        min-width: 55px;
       }
     }
 
@@ -204,12 +214,14 @@
         .itemInfo {
           display: flex;
           align-items: center;
-          padding: 0 24px;
-          height: 90px;
+          padding: 10px 24px;
+          min-height: 90px;
           border-radius: 6px;
+          position: relative;
           .title {
             margin-left: 40px;
             font-weight: 550;
+            min-width: 0;
           }
         }
         .logWrap {
@@ -224,6 +236,7 @@
               align-items: center;
               padding: 20px 0;
               border-bottom: 1px solid #ddd;
+              position: relative;
               &:last-child {
                 border: none;
               }
@@ -237,12 +250,21 @@
                 }
               }
               .flowItemHistory {
-                min-width: 120px;
+                min-width: 220px;
+                align-items: center;
               }
               .operationPerson {
                 flex: 3;
+                margin-right: 15px;
+                min-width: 0;
                 .info {
                   margin-top: 12px;
+                }
+                .personDetail {
+                  align-items: center;
+                }
+                .personInfo {
+                  white-space: normal;
                 }
               }
               .overrule,
@@ -258,6 +280,7 @@
                 align-items: center;
                 flex: 2;
                 min-width: 0;
+                margin-right: 15px;
                 .nodeName {
                   margin-left: 12px;
                 }
@@ -265,6 +288,38 @@
             }
           }
         }
+        .historyDetailRetry {
+          float: right;
+          margin-top: 5px;
+        }
+      }
+      .historyDetailRetry {
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0px 6px 0 4px;
+        border-radius: 4px;
+        border: 1px solid #2196f3;
+        background-color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        color: #2196f3;
+        &.historyDetailRetryDisabled {
+          color: #bdbdbd;
+          background-color: #f5f5f5;
+          border-color: #ddd;
+        }
+      }
+      .historyDetailRetryResult {
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0px 6px 0 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(33, 150, 243, .2);
+        background-color: rgba(33, 150, 243, .1);
+        font-size: 12px;
+        color: #2196f3;
       }
     }
   }
@@ -335,5 +390,32 @@
       border-radius: 9px;
       background: rgba(33, 150, 243, 0.12);
     }
+  }
+}
+
+.workflowRetryLoading {
+  height: 3px;
+  width: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #2196f3;
+  animation: retryFadeMove .6s linear infinite forwards;
+}
+
+@keyframes retryFadeMove {
+  from {
+    width: 10px;
+    left: 0;
+  }
+
+  50% {
+    width: 500px;
+    left: 20%;
+  }
+
+  to {
+    width: 0;
+    left: 100%;
   }
 }

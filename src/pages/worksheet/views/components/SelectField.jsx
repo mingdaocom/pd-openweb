@@ -28,6 +28,12 @@ const VIEW_TYPE_INFO = {
     title: _l('日历视图'),
     detail: _l('选择一个日期类型的字段，数据将按照此字段中的日期显示在日历上。'),
   },
+  5: {
+    icon: 'gantt',
+    color: '#01BCD5',
+    title: _l('甘特图'),
+    detail: _l('根据任务时间和任务之间建立的依赖关系全局显示任务安排。'),
+  },
 };
 
 const SelectFieldWrap = styled.div`
@@ -95,7 +101,7 @@ const VerifyButton = styled(Button)`
 export default class SelectField extends Component {
   static propTypes = {
     fields: arrayOf(shape({ type: number })),
-    viewType: oneOf([1, 2, 4]),
+    viewType: oneOf([1, 2, 4, 5]),
     handleSelect: func,
     toCustomWidget: func,
   };
@@ -163,7 +169,7 @@ export default class SelectField extends Component {
           <RevertButton onClick={toCustomWidget}>{_l('编辑表单')}</RevertButton>
         </DisplayFieldWrap>
       );
-    } else if (viewType === 4) {
+    } else if ([4, 5].includes(viewType)) {
       return <DisplayFieldWrap>{this.props.context}</DisplayFieldWrap>;
     }
     return <ConfigureHierarchyView fields={fields} handleSelect={handleSelect} {...rest} />;

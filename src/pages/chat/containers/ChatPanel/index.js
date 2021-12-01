@@ -114,7 +114,7 @@ class ChatPanel extends Component {
   }
   render() {
     const { loading, isError } = this.state;
-    const { currentSession, currentSessionList, visible } = this.props;
+    const { currentSession, currentSessionList = [], visible } = this.props;
     const exceptions = [
       '.ChatList-wrapper',
       // '.ChatList-wrapper .SessionList-scrollView',

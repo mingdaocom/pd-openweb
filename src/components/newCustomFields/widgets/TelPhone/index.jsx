@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import { FROM } from '../../tools/config';
+import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -9,6 +12,7 @@ export default class Widgets extends Component {
     value: PropTypes.string,
     onChange: PropTypes.func,
     onBlur: PropTypes.func,
+    from: PropTypes.number,
   };
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -23,27 +27,39 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { disabled, hint, value, onBlur, onChange } = this.props;
+    const { disabled, hint, value, onBlur, onChange, from } = this.props;
 
     return (
-      <input
-        type="text"
-        className={cx('customFormControlBox', { controlDisabled: disabled })}
-        ref={text => {
-          this.text = text;
-        }}
-        placeholder={hint}
-        disabled={disabled}
-        defaultValue={value}
-        onChange={this.onChange}
-        onBlur={event => {
-          if (event.target.value.trim() !== value) {
-            onChange(event.target.value.trim());
-          }
+      <Fragment>
+        <input
+          type="text"
+          className={cx('customFormControlBox', { controlDisabled: disabled })}
+          ref={text => {
+            this.text = text;
+          }}
+          placeholder={hint}
+          disabled={disabled}
+          defaultValue={value}
+          onChange={this.onChange}
+          onBlur={event => {
+            if (event.target.value.trim() !== value) {
+              onChange(event.target.value.trim());
+            }
 
-          onBlur();
-        }}
-      />
+            onBlur();
+          }}
+        />
+
+        {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && from === FROM.SHARE)) && !!value && (
+          <a
+            href={`tel:${value.replace(/-/g, '')}`}
+            className="Absolute customFormControlTelBtn"
+            style={{ right: 0, top: 10 }}
+          >
+            <Icon icon="phone22" className="Font16 ThemeColor3" />
+          </a>
+        )}
+      </Fragment>
     );
   }
 }

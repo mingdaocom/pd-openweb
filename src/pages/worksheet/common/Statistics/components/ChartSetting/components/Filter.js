@@ -37,6 +37,7 @@ export default class Filter extends Component {
     this.state = {
       appearFilters: [],
       filterItem: [],
+      oldConditions: props.filterItem
     };
   }
   componentDidMount() {}
@@ -50,6 +51,11 @@ export default class Filter extends Component {
     this.singleFilter.addCondition(_.find(columns, { controlId: data.controlId }));
   };
   saveFilter = conditions => {
+    const { oldConditions } = this.state;
+    if (_.isEqual(oldConditions, conditions)) {
+      return
+    }
+    this.setState({ oldConditions: conditions });
     conditions = conditions.map(item => {
       const isTime = isTimeControl(item.dataType);
       const isMoment = moment.isMoment(item.value);

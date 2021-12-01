@@ -93,7 +93,9 @@ export default class RelateRecprd extends React.Component {
       return null;
     }
     return records.map((record, index) => (
-      <RecordCardCellRelareRecord key={index}>{renderCellText({ ...titleControl, value: record.name })}</RecordCardCellRelareRecord>
+      <RecordCardCellRelareRecord key={index}>
+        {renderCellText({ ...titleControl, value: record.name })}
+      </RecordCardCellRelareRecord>
     ));
   }
 
@@ -121,6 +123,7 @@ export default class RelateRecprd extends React.Component {
       from,
       formdata,
       recordId,
+      worksheetId,
       cell,
       editable,
       isediting,
@@ -172,7 +175,7 @@ export default class RelateRecprd extends React.Component {
             dataSource={cell.dataSource}
             entityName={cell.sourceEntityName}
             enumDefault2={cell.enumDefault2}
-            parentWorksheetId={cell.worksheetId}
+            parentWorksheetId={worksheetId}
             controlId={cell.controlId}
             controls={cell.relationControls}
             coverCid={cell.coverCid}

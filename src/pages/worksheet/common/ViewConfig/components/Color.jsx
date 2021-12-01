@@ -36,7 +36,7 @@ const CalendarColorChoose = styled.div`
 // 颜色
 export default class Color extends React.Component {
   render() {
-    const { worksheetControls = [], view, handleChange } = this.props;
+    const { worksheetControls = [], view, handleChange, txt, title } = this.props;
     const { advancedSetting = {} } = view;
     const { colorid } = advancedSetting;
     let colorControls = worksheetControls.filter(item => _.includes([9, 11], item.type));
@@ -44,11 +44,9 @@ export default class Color extends React.Component {
     let isDelete = colorid && !worksheetControls.find(it => it.controlId === colorid);
     return (
       <React.Fragment>
-        <div className="title Font13 bold mTop32">{_l('日程颜色')}</div>
+        <div className="title Font13 bold mTop32">{title}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_9e viewSetText">
-            {_l('选择一个单选项字段，数据将按照此字段中的选项颜色来标记日程颜色，用于区分日程类型。')}
-          </p>
+          <p className="mTop6 mBottom8 Gray_9e viewSetText">{txt}</p>
           <CalendarColorChoose>
             <Select
               className={cx('dropColor', { isDelete })}
@@ -57,7 +55,10 @@ export default class Color extends React.Component {
                   isDelete ? (
                     <span className="Red">{_l('该字段已删除')}</span>
                   ) : (
-                    <span className="Gray">{colorData.controlName}</span>
+                    <span className="Gray">
+                      <i className={cx('icon Gray_9e mRight5 Font14', 'icon-' + getIconByType(colorData.type))}></i>
+                      {colorData.controlName}
+                    </span>
                   )
                 ) : (
                   <span className="Gray_bd">{_l('请选择')}</span>

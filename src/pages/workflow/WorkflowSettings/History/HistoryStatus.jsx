@@ -10,7 +10,7 @@ const STATUS2ICON = {
   filter: 'workflow_suspend',
   overrule: 'workflow_suspend',
 };
-export default ({ statusCode = 1, config = FLOW_STATUS, className, size = 30 }) => {
+export default ({ statusCode = 1, config = FLOW_STATUS, className, size = 30, color = '#333', textSize = 14 }) => {
   const { status, text } = config[statusCode];
   return (
     <div className={cx('historyStatus', className)}>
@@ -21,7 +21,9 @@ export default ({ statusCode = 1, config = FLOW_STATUS, className, size = 30 }) 
           <Icon icon={STATUS2ICON[status]} style={{ fontSize: size / 1.5 }} />
         )}
       </div>
-      <div className="statusText Font14">{text}</div>
+      <div className="statusText" style={{ color, fontSize: textSize + 'px' }}>
+        {text}
+      </div>
     </div>
   );
 };

@@ -18,29 +18,35 @@ const DISPLAY_OPTIONS = [
 const ADVANCE_SETTING = [
   {
     value: 1,
-    text: _l('作为成员'),
     children: (
-      <Tooltip placement="bottom" title={_l('加入的人员允许查看记录')}>
-        <i className="icon-help Gray_9e Font16 mLeft5"></i>
-      </Tooltip>
+      <span>
+        {_l('作为成员')}
+        <Tooltip placement="bottom" title={_l('加入的人员允许查看记录')}>
+          <i className="icon-help Gray_9e Font16 mLeft5"></i>
+        </Tooltip>
+      </span>
     ),
   },
   {
     value: 2,
-    text: _l('作为记录拥有者'),
     children: (
-      <Tooltip placement="bottom" title={_l('加入的人员可以管理记录')}>
-        <i className="icon-help Gray_9e Font16 mLeft5"></i>
-      </Tooltip>
+      <span>
+        {_l('作为记录拥有者')}
+        <Tooltip placement="bottom" title={_l('加入的人员可以管理记录')}>
+          <i className="icon-help Gray_9e Font16 mLeft5"></i>
+        </Tooltip>
+      </span>
     ),
   },
   {
     value: 0,
-    text: _l('仅用于记录人员数据'),
     children: (
-      <Tooltip placement="bottom" title={_l('加入的人员将仅作为数据记录，不会授予任何权限')}>
-        <i className="icon-help Gray_9e Font16 mLeft5"></i>
-      </Tooltip>
+      <span>
+        {_l('仅用于记录人员数据')}
+        <Tooltip placement="bottom" title={_l('加入的人员将仅作为数据记录，不会授予任何权限')}>
+          <i className="icon-help Gray_9e Font16 mLeft5"></i>
+        </Tooltip>
+      </span>
     ),
   },
 ];

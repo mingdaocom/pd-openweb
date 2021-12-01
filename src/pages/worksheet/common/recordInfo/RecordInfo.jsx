@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { autobind } from 'core-decorators';
 import styled from 'styled-components';
-import { Dialog, EditingBar } from 'ming-ui';
+import { Dialog, EditingBar, WaterMark } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
 import { emitter, getSubListError, updateOptionsOfControls, isRelateRecordTableControl } from 'worksheet/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
@@ -88,12 +88,13 @@ export default class RecordInfo extends Component {
         return item.rowid === props.recordId;
       }),
     };
+    this.hadWaterMark = window.hadWaterMark;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
     this.refreshEvents = {};
     this.cellObjs = {};
   }
   componentDidMount() {
-    emitter.addListener('RELOAD_RECORDINFO_DIALOG', this.debounceRefresh);
+    emitter.addListener('RELOAD_RECORDINFO', this.debounceRefresh);
     window.addEventListener('keydown', this.bindPrevNextKeyEvent);
     this.loadRecord({ recordId: this.state.recordId });
   }
@@ -110,7 +111,7 @@ export default class RecordInfo extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.bindPrevNextKeyEvent);
-    emitter.removeListener('RELOAD_RECORDINFO_DIALOG', this.debounceRefresh);
+    emitter.removeListener('RELOAD_RECORDINFO', this.debounceRefresh);
   }
 
   getFormWidth(props) {
@@ -160,6 +161,8 @@ export default class RecordInfo extends Component {
       worksheetId,
       instanceId,
       workId,
+      rules,
+      isWorksheetQuery,
       isWorksheetRowLand,
       hideRows,
       hideRecordInfo,
@@ -174,7 +177,7 @@ export default class RecordInfo extends Component {
         workId,
         recordId,
         getType: this.getRowGetType(from),
-        getRules: true,
+        getRules: !rules,
       });
       if (isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) {
         data.allowEdit = false;
@@ -187,7 +190,7 @@ export default class RecordInfo extends Component {
         }
       }
       this.setState({
-        recordinfo: { ...data, allowAdd },
+        recordinfo: { ...data, allowAdd, ...(data.rules ? {} : { rules }), isWorksheetQuery },
         tempFormdata: needUpdateControlIds
           ? tempFormdata
               .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
@@ -493,7 +496,7 @@ export default class RecordInfo extends Component {
     const { updateRows } = this.props;
     const { recordId, recordinfo } = this.state;
     const changedValue = { ownerid: JSON.stringify([newOwner]) };
-    updateRows([recordId], record, changedValue);
+    updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
     this.setState({
       recordinfo: { ...recordinfo, ownerAccount: newOwner },
     });
@@ -510,7 +513,7 @@ export default class RecordInfo extends Component {
       }
     });
     this.setState({
-      tempFormdata: recordinfo.receiveControls.map(c => {
+      tempFormdata: (recordinfo.receiveControls || []).map(c => {
         if (c.type === 34 && _.includes(updateControlIds, c.controlId)) {
           return { ...c, value: { num: c.value, action: 'reset' } };
         } else {
@@ -622,168 +625,174 @@ export default class RecordInfo extends Component {
       recordTitle,
       allowEdit: _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
     };
+    let Con = !this.hadWaterMark && recordinfo.projectId ? WaterMark : React.Fragment;
     return (
-      <RecordInfoContext.Provider value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }) }}>
-        {this.renderDialogs()}
-        {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && (
-          <EditingBar
-            style={{ width: sideVisible ? formWidth : '100%' }}
-            visible={iseditting}
-            defaultTop={-50}
-            visibleTop={8}
-            title={_l('正在修改表单数据 ···')}
-            onUpdate={this.handleFormSave}
-            onCancel={this.handleCancelChange}
-          />
-        )}
-        <div
-          className={cx('recordInfoCon flexColumn', { abnormal, isWorkflow: from === RECORD_INFO_FROM.WORKFLOW })}
-          ref={con => (this.con = con)}
-          onClick={e => e.stopPropagation()}
-        >
-          {!abnormal && (
-            <Header
-              loading={loading}
-              viewId={viewId}
-              header={header}
-              isSmall={isSmall}
-              sideVisible={sideVisible}
-              sheetSwitchPermit={sheetSwitchPermit}
-              recordbase={recordbase}
-              recordinfo={recordinfo}
-              iseditting={iseditting}
-              showPrevNext={showPrevNext}
-              switchRecord={this.switchRecord}
-              currentSheetRows={currentSheetRows}
-              currentIndex={currentIndex}
-              registeRefreshEvents={(key, fn) => {
-                this.refreshEvents[key] = fn;
-              }}
-              onRefresh={this.handleRefresh}
-              onSave={this.handleFormSave}
-              refreshRotating={refreshBtnNeedLoading}
-              hideRecordInfo={hideRecordInfo}
-              reloadRecord={this.handleRefresh}
-              onSideIconClick={() => {
-                if (from !== RECORD_INFO_FROM.WORKFLOW) {
-                  localStorage.setItem('recordinfoSideVisible', sideVisible ? '' : 'true');
-                }
-                this.setState({ sideVisible: !sideVisible });
-              }}
-              onCancel={this.handleCancel}
-              onUpdate={(changedValue, record) => {
-                updateRows([recordId], record, changedValue);
-                const newFormData = recordinfo.receiveControls.map(c =>
-                  _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
-                );
-                Object.keys(changedValue).forEach(key => {
-                  if (_.isFunction(this.refreshEvents[key])) {
-                    this.refreshEvents[key]();
-                  }
-                });
-                this.setState({
-                  formFlag: Math.random().toString(),
-                  tempFormdata: newFormData,
-                  recordinfo: { ...recordinfo, receiveControls: newFormData },
-                });
-              }}
-              onDelete={this.handleDelete}
-              handleAddSheetRow={(row, afterRowId) => {
-                this.loadRecord({ recordId: row.rowid });
-                this.setState({
-                  recordId: row.rowid,
-                  currentIndex: currentIndex + 1,
-                });
-                handleAddSheetRow(row, afterRowId);
-              }}
+      <Con projectId={recordinfo.projectId}>
+        <RecordInfoContext.Provider value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }) }}>
+          {this.renderDialogs()}
+          {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && (
+            <EditingBar
+              style={{ width: sideVisible ? formWidth : '100%' }}
+              visible={iseditting}
+              defaultTop={-50}
+              visibleTop={8}
+              title={_l('正在修改表单数据 ···')}
+              onUpdate={this.handleFormSave}
+              onCancel={this.handleCancelChange}
             />
           )}
-          <div className="recordBody flex flexRow">
-            {dragMaskVisible && (
-              <DragMask
-                value={formWidth}
-                min={400}
-                max={width - 343}
-                onChange={value => {
-                  localStorage.setItem('RECORDINFO_FORMWIDTH', value);
-                  this.setState({ dragMaskVisible: false, formWidth: value });
+          <div
+            className={cx('recordInfoCon flexColumn', { abnormal, isWorkflow: from === RECORD_INFO_FROM.WORKFLOW })}
+            ref={con => (this.con = con)}
+            onClick={e => e.stopPropagation()}
+          >
+            {!abnormal && (
+              <Header
+                loading={loading}
+                viewId={viewId}
+                header={header}
+                isSmall={isSmall}
+                sideVisible={sideVisible}
+                sheetSwitchPermit={sheetSwitchPermit}
+                recordbase={recordbase}
+                recordinfo={recordinfo}
+                iseditting={iseditting}
+                showPrevNext={showPrevNext}
+                switchRecord={this.switchRecord}
+                currentSheetRows={currentSheetRows}
+                currentIndex={currentIndex}
+                registeRefreshEvents={(key, fn) => {
+                  this.refreshEvents[key] = fn;
+                }}
+                onRefresh={this.handleRefresh}
+                onSave={this.handleFormSave}
+                refreshRotating={refreshBtnNeedLoading}
+                hideRecordInfo={hideRecordInfo}
+                reloadRecord={this.handleRefresh}
+                onSideIconClick={() => {
+                  if (from !== RECORD_INFO_FROM.WORKFLOW) {
+                    localStorage.setItem('recordinfoSideVisible', sideVisible ? '' : 'true');
+                  }
+                  this.setState({ sideVisible: !sideVisible });
+                }}
+                onCancel={this.handleCancel}
+                onUpdate={(changedValue, record) => {
+                  updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
+                  const newFormData = recordinfo.receiveControls.map(c =>
+                    _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
+                  );
+                  Object.keys(changedValue).forEach(key => {
+                    if (_.isFunction(this.refreshEvents[key])) {
+                      this.refreshEvents[key]();
+                    }
+                  });
+                  this.setState({
+                    formFlag: Math.random().toString(),
+                    tempFormdata: newFormData,
+                    recordinfo: { ...recordinfo, receiveControls: newFormData },
+                  });
+                }}
+                onDelete={this.handleDelete}
+                handleAddSheetRow={(row, afterRowId) => {
+                  this.loadRecord({ recordId: row.rowid });
+                  this.setState({
+                    recordId: row.rowid,
+                    currentIndex: currentIndex + 1,
+                  });
+                  handleAddSheetRow(row, afterRowId);
                 }}
               />
             )}
-            <RecordForm
-              ignoreHeader={from === RECORD_INFO_FROM.WORKFLOW && header && viewId}
-              from={from}
-              formWidth={sideVisible ? formWidth : width}
-              loading={loading}
-              recordbase={recordbase}
-              mountRef={recordform => (this.recordform = recordform)}
-              registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
-              formFlag={formFlag}
-              abnormal={abnormal}
-              recordinfo={recordinfo}
-              formdata={tempFormdata}
-              controlProps={{
-                isCharge,
-                refreshRecord: this.handleRefresh,
-                registeRefreshEvents: (id, fn) => {
-                  this.refreshEvents[id] = fn;
-                },
-                sideVisible,
-                formWidth,
-              }}
-              worksheetId={worksheetId}
-              view={view}
-              showError={showError}
-              iseditting={iseditting}
-              sheetSwitchPermit={sheetSwitchPermit}
-              registeRefreshEvents={(key, fn) => {
-                this.refreshEvents[key] = fn;
-              }}
-              updateRecordDailogOwner={this.updateRecordOwner}
-              updateRows={updateRows}
-              reloadControls={needUpdateControlIds => {
-                if (!needUpdateControlIds || !needUpdateControlIds.length) {
-                  return;
-                }
-                this.loadRecord({
-                  recordId,
-                  needUpdateControlIds,
-                });
-              }}
-              onChange={this.handleFormChange}
-              updateRelateRecordNum={(controlId, num) => {
-                if (!this.recordform) {
-                  return;
-                }
-                this.recordform.current.dataFormat.updateDataSource({
-                  controlId,
-                  value: String(num),
-                  notInsertControlIds: true,
-                });
-                this.recordform.current.updateRenderData();
-                this.setState({
-                  tempFormdata: tempFormdata.map(item =>
-                    item.controlId === controlId ? { ...item, value: String(num) } : item,
-                  ),
-                });
-              }}
-              onSave={this.handleFormSave}
-              onCancel={this.handleCancelChange}
-              currentIndex={currentIndex}
-            />
-            {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
-            {!abnormal && sideVisible && (
-              <RecordInfoRight
-                className="flex"
+            <div className="recordBody flex flexRow">
+              {dragMaskVisible && (
+                <DragMask
+                  value={formWidth}
+                  min={400}
+                  max={width - 343}
+                  onChange={value => {
+                    localStorage.setItem('RECORDINFO_FORMWIDTH', value);
+                    this.setState({ dragMaskVisible: false, formWidth: value });
+                  }}
+                />
+              )}
+              <RecordForm
+                ignoreHeader={from === RECORD_INFO_FROM.WORKFLOW && header && viewId}
+                from={from}
+                formWidth={sideVisible ? formWidth : width}
+                loading={loading}
                 recordbase={recordbase}
-                workflow={workflow}
+                mountRef={recordform => (this.recordform = recordform)}
+                registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+                formFlag={formFlag}
+                abnormal={abnormal}
+                recordinfo={recordinfo}
+                formdata={tempFormdata}
+                controlProps={{
+                  isCharge,
+                  refreshRecord: this.handleRefresh,
+                  registeRefreshEvents: (id, fn) => {
+                    this.refreshEvents[id] = fn;
+                  },
+                  sideVisible,
+                  formWidth,
+                }}
+                worksheetId={worksheetId}
+                view={view}
+                showError={showError}
+                iseditting={iseditting}
                 sheetSwitchPermit={sheetSwitchPermit}
-                projectId={this.props.projectId}
+                registeRefreshEvents={(key, fn) => {
+                  this.refreshEvents[key] = fn;
+                }}
+                updateRecordDailogOwner={this.updateRecordOwner}
+                updateRows={updateRows}
+                reloadControls={needUpdateControlIds => {
+                  if (!needUpdateControlIds || !needUpdateControlIds.length) {
+                    return;
+                  }
+                  this.loadRecord({
+                    recordId,
+                    needUpdateControlIds,
+                  });
+                }}
+                onChange={this.handleFormChange}
+                updateRelateRecordNum={(controlId, num) => {
+                  if (!this.recordform) {
+                    return;
+                  }
+                  this.recordform.current.dataFormat.updateDataSource({
+                    controlId,
+                    value: String(num),
+                    notInsertControlIds: true,
+                  });
+                  this.recordform.current.updateRenderData();
+                  this.setState({
+                    tempFormdata: tempFormdata.map(item =>
+                      item.controlId === controlId ? { ...item, value: String(num) } : item,
+                    ),
+                  });
+                }}
+                onSave={this.handleFormSave}
+                onCancel={this.handleCancelChange}
+                currentIndex={currentIndex}
               />
-            )}
+              {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
+              {!abnormal && sideVisible && (
+                <RecordInfoRight
+                  className="flex"
+                  recordbase={recordbase}
+                  workflow={workflow}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  projectId={this.props.projectId}
+                  controls={this.props.controls}
+                  formFlag={formFlag}
+                  formdata={tempFormdata}
+                />
+              )}
+            </div>
           </div>
-        </div>
-      </RecordInfoContext.Provider>
+        </RecordInfoContext.Provider>
+      </Con>
     );
   }
 }

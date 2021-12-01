@@ -1,0 +1,75 @@
+
+.gunterChart {
+  overflow: hidden;
+  background-color: #fff;
+  &Header {
+    width: 100%;
+    height: 60px;
+    position: relative;
+    .headerWrapper {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .headerScroll {
+      border-bottom: 1px solid #ececec;
+    }
+    .majorTimeAxis {
+      height: 32px;
+      line-height: 32px;
+    }
+    .minorTimeAxis {
+      height: 28px;
+      line-height: 28px;
+    }
+  }
+  &Wrapper {
+    .today {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 1px;
+      z-index: 1;
+      background-color: #F44336;
+    }
+  }
+  &Scroller {
+    .weekEndDay {
+      border-right-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    .item {
+      border-right: 1px solid rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+.gunterDivider {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  width: 16px;
+  height: 32px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  background-color: #fff;
+  &:hover {
+    border-color: #2196f3;
+    background-color: #2196f3;
+    .icon {
+      color: #fff !important;
+    }
+  }
+  &.hideGrouping {
+    .icon {
+      transform: scale(1.7) rotateZ(180deg) translateY(1px) !important;
+    }    
+  }
+  .icon {
+    transform: scale(1.8);
+  }
+}
+

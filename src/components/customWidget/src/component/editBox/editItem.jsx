@@ -247,7 +247,7 @@ let sourceType = 'editWidget';
 let sourceSpec = {
   beginDrag(props, monitor, component) {
     clearTimeout(component.time);
-    let componentRect = (indDOMNode(component) && findDOMNode(component).getBoundingClientRect && findDOMNode(component).getBoundingClientRect()) || {};
+    let componentRect = (findDOMNode(component) && findDOMNode(component).getBoundingClientRect && findDOMNode(component).getBoundingClientRect()) || {};
     config.offset = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,

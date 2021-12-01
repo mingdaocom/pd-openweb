@@ -19,7 +19,7 @@ var instance = {
    * 审批-转审
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -79,7 +79,7 @@ var instance = {
    * 对应各种操作
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -92,7 +92,7 @@ var instance = {
    * 审批-否决
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -105,7 +105,7 @@ var instance = {
    * 审批-通过
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -118,7 +118,7 @@ var instance = {
    * 撤回
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -131,7 +131,7 @@ var instance = {
    * 审批-加签
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -144,7 +144,7 @@ var instance = {
    * 填写动作-提交
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -157,7 +157,7 @@ var instance = {
    * 填写动作-填写转给其他人
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),operationType:操作类型(integer),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),opinion:意见(string),signature:签名(ref),workId:workId(string),}*requestWork
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

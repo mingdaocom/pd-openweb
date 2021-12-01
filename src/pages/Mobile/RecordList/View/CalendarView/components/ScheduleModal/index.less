@@ -1,0 +1,115 @@
+.mobileSchedulekModal {
+  height: 93%;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  .am-modal-content {
+    height: 100%;
+    .am-modal-header{
+      height: 44px;
+      padding: 0;
+      .am-modal-title {
+        line-height: 44px;
+        position: relative;
+        .closeIcon {
+          position: absolute;
+          font-size: 24px;
+          right: 16px;
+          top: 10px;
+          color: #2196F3;
+        }
+      }
+    }
+    .am-modal-body {
+      background-color: #F2F2F2;
+      padding: 0 8px;
+      height: calc(~"100% - 44px");
+      .tab {
+        display: flex;
+        height: 32px;
+        line-height: 32px;
+        margin: 6px 7px 0;
+        background-color: rgba(118,118,128,0.12);
+        border-radius: 9px;
+        padding: 1px 0;
+        box-sizing: border-box;
+        & >li {
+          width: 33.33%;
+        }
+        .current {
+          height: 28px;
+          line-height: 28px;
+          background-color: #fff;
+          border-radius: 7px;
+          border: 1px solid rgba(0,0,0,0.04);
+          box-shadow: 0 3px 8px 0px  rgba(0,0,0,0.16);
+        }
+      }
+      .searchWrapper {
+        display: flex;
+        height: 36px;
+        background: #fff;
+        border-radius: 18px;
+        margin: 14px 7px 10px;
+        position: relative;
+        padding-left: 38px;
+        .searchIcon {
+          width: 14px;
+          height: 14px;
+          position: absolute;
+          top: 8px;
+          left: 16px;
+        }
+        .cursorText {
+          width: 100%;
+          font-size: 14px;
+          border: none;
+          border-radius: 0 18px 18px 0;
+        }
+        .am-list-item {
+          flex: 1;
+          height: 36px;
+          min-height: 36px;
+          padding: 0;
+        }
+      }
+      .recordListBox {
+        max-height: calc(~"100% - 99px");
+        .listContainer {
+          .listItem {
+            background-color: #fff;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            border: 1px solid #EAEAEA;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.12);
+            text-align: left;
+            padding: 12px 14px 14px 14px;
+            position: relative;
+            .colorLeft{
+              background-color: #fff;
+              content: '';
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              left: 0;
+              width: 3px;
+            }
+            .title {
+              color: #333;
+            }
+          }
+          .timeStr {
+            margin-top: 16px;
+            margin-bottom: 12px;
+            color: #757575;
+            font-size: 13px;
+            text-align: left;
+            padding-left: 8px;
+          }
+        }
+      }
+      .noData{
+        padding-top: 20px;
+      }
+    }
+  }
+}

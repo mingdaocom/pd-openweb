@@ -76,7 +76,7 @@ export default class ImportExcel extends React.Component {
           });
           comp.setState({ fileList });
         },
-        UploadProgress(up, file) {
+        UploadProgress(up, file = {}) {
           const fileList = comp.state.fileList.update(file.id, fileItem => {
             fileItem.loaded = file.loaded;
             fileItem.status = UPLOAD_STATUS.UPLOADING;

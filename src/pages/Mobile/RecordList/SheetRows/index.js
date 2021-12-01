@@ -34,7 +34,7 @@ class SheetRows extends Component {
     }
   }
   renderRow = item => {
-    const { worksheetControls, navigateTo, base, view, worksheetInfo } = this.props;
+    const { worksheetControls, base, view, worksheetInfo } = this.props;
     return (
       <WingBlank size="md">
         <CustomRecordCard
@@ -44,7 +44,7 @@ class SheetRows extends Component {
           controls={worksheetControls}
           allowAdd={worksheetInfo.allowAdd}
           onClick={() => {
-            navigateTo(
+            window.mobileNavigateTo(
               `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
                 item.rowid
               }`,
@@ -96,7 +96,6 @@ export const WithoutRows = props => {
       <img className="img" src={withoutRows} />
       <WhiteSpace size="md" />
       <div className="text">{props.text}</div>
-      {props.children}
     </Flex>
   );
 };

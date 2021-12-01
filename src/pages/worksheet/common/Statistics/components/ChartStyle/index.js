@@ -9,7 +9,7 @@ import Label from './components/Label';
 import XAxis from './components/XAxis';
 import yAxisPanelGenerator from './components/YAxis';
 import unitPanelGenerator from './components/Unit';
-import Color from './components/Color';
+import Color from './components/Color/index';
 import FontSize from './components/FontSize';
 import { reportTypes, LegendTypeData } from 'src/pages/worksheet/common/Statistics/Charts/common';
 import './index.less';

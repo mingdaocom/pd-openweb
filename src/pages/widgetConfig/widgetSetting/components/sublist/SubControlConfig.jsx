@@ -65,6 +65,7 @@ export default function SubControlConfig({
     globalSheetInfo,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
+    hideSearchAndFun: true,
   };
   return (
     <SubControlConfigWrap>

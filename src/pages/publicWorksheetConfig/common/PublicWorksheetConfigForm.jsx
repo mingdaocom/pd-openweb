@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, RichText } from 'ming-ui';
 import Skeleton from 'src/router/Application/Skeleton';
 import * as actions from '../redux/actions';
 import { Absolute, BlackBtn, Hr } from '../components/Basics';
@@ -15,7 +15,6 @@ import AppearanceConfig from './AppearanceConfig';
 import FormPreview from './FormPreview';
 import { themes } from '../enum';
 import { getDisabledControls, overridePos } from '../utils';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import cx from 'classnames';
 
 const TopBar = styled.div(
@@ -65,9 +64,7 @@ class PublicWorksheetConfigForm extends React.Component {
   componentDidMount() {
     window.scrollToFormEnd = () => {
       if (this.con) {
-        $(this.con)
-          .find('.nano')
-          .nanoScroller({ scroll: 'bottom' });
+        $(this.con).find('.nano').nanoScroller({ scroll: 'bottom' });
       }
     };
   }
@@ -141,18 +138,12 @@ class PublicWorksheetConfigForm extends React.Component {
                     />
                   </div>
                   <div className="worksheetDescription WordBreak">
-                    {/* <EditableText mutiLine turnLine minHeight={21} emptyStyle={{ color: '#bdbdbd' }} emptyTip={_l('点击设置说明')} value={worksheetInfo.desc} onChange={value => (updateWorksheetInfo({ desc: value }))} /> */}
-                    <BraftEditor
-                      cacheKey={`descText-${Math.round(Math.random() * 10)}`}
-                      isEditing={isEditing}
-                      auth={true}
-                      placeholder={_l('点击设置说明')}
-                      className={cx('customFormControlBox', { customFormEditor: isEditing })}
-                      summary={worksheetInfo.desc || ''}
-                      joinEditing={() => this.setState({ isEditing: true })}
-                      onCancel={() => this.setState({ isEditing: false })}
+                    <RichText
+                      data={worksheetInfo.desc || ''}
+                      minHeight={46}
+                      className={`descText-${Math.round(Math.random() * 10)}`}
+                      // disabled={disabled}
                       onSave={value => {
-                        this.setState({ isEditing: false });
                         updateWorksheetInfo({ desc: value });
                       }}
                     />

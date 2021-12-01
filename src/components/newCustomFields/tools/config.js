@@ -127,3 +127,6 @@ export const TIME_UNIT = {
   4: 'M',
   5: 'y',
 };
+
+//非文本类控件
+export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 36];

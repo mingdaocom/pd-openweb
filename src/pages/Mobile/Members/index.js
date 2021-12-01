@@ -105,8 +105,9 @@ class Members extends Component {
                     </Flex.Item>
                     <Flex.Item className="TxtMiddle TxtRight moreAction">
                       <span className="Gray_75 Bold">
-                        {_l('%0人', item.users.length)}
-                        {item.departmentsInfos.length > 0 && `、${_l('%0个部门', item.departmentsInfos.length)}`}
+                        {!_.isEmpty(item.users) && _l('%0人', item.users.length)}
+                        {!_.isEmpty(item.users) && !_.isEmpty(item.departmentsInfos) && `、`}
+                        {!_.isEmpty(item.departmentsInfos) && _l('%0个部门', item.departmentsInfos.length)}
                       </span>
                       <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75" />
                     </Flex.Item>

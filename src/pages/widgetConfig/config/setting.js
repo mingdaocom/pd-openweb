@@ -46,3 +46,9 @@ export const UNIT_TYPE = [
   { text: _l('小时'), value: '2' },
   { text: _l('分钟'), value: '1' },
 ];
+
+export const DEFAULT_SETTING_OPTIONS = [
+  { text: _l('可新增明细'), id: 'allowadd' },
+  { text: _l('可编辑已有明细'), id: 'allowedit' },
+  { text: _l('可删除已有明细'), id: 'allowcancel' },
+];

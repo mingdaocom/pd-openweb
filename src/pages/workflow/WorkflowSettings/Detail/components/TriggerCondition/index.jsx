@@ -907,12 +907,7 @@ export default class TriggerCondition extends Component {
       filedTypeId === 32 ||
       filedTypeId === 33
     ) {
-      if (
-        _.includes(
-          data[i][j].conditionValues.map(obj => obj.value),
-          value,
-        )
-      ) {
+      if (_.includes(data[i][j].conditionValues.map(obj => obj.value), value)) {
         _.remove(data[i][j].conditionValues, obj => obj.value === value);
       } else {
         data[i][j].conditionValues.push({ value });
@@ -972,7 +967,9 @@ export default class TriggerCondition extends Component {
       if (typeof value === 'string') {
         _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
       } else if (isSingle) {
-        data[i][j].conditionValues = [{ value: { key: value[0].departmentId, value: value[0].departmentName } }];
+        data[i][j].conditionValues = [
+          { value: { key: (value[0] || {}).departmentId, value: (value[0] || {}).departmentName } },
+        ];
       } else {
         value.forEach(item => {
           data[i][j].conditionValues.push({ value: { key: item.departmentId, value: item.departmentName } });

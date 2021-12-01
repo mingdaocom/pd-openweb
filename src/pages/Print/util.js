@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { renderCellText } from 'worksheet/components/CellControls';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { SYSTOPRINT } from './config';
-import { getSelectedOptions } from 'src/pages/worksheet/util';
+import { RichText } from 'ming-ui';
 import _ from 'lodash';
 /*
   获取控件呈现内容
@@ -192,7 +192,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     }
     case 41:
     case 10010:
-      return value ? <div className="richText" dangerouslySetInnerHTML={{ __html: value }}></div> : '';
+      return value ? <RichText data={value} className="richText" disabled={true} /> : '';
     case 30: {
       if (item.sourceControlType <= 0) {
         return '';
@@ -259,9 +259,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                       pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
                         ? pictureAttachments[index].previewUrl.replace(
                             /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                            'imageView2/1/w/1200/h/600/q/90',
+                            'imageView2/1/w/1200/q/90',
                           )
-                        : `${pictureAttachments[index].previewUrl}&imageView2/1/w/1200/h/600/q/90`
+                        : `${pictureAttachments[index].previewUrl}&imageView2/1/w/1200/q/90`
                     }
                     alt=""
                   />

@@ -73,7 +73,7 @@ export default class Card extends Component {
     this.request = report.getData(
       {
         reportId,
-        version: '6.3',
+        version: '6.5',
         reload
       },
       {

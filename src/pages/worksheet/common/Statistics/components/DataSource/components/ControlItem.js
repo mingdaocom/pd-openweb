@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import { useDrag } from 'react-dnd-latest';
 import { Icon } from 'ming-ui';
+import { Checkbox } from 'antd';
 import { isTimeControl, isNumberControl, isRelateSheetControl } from 'src/pages/worksheet/common/Statistics/common';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
@@ -19,6 +20,14 @@ const SourceBox = ({ item, isActive }) => {
       style={{ opacity: isDragging ? 0.4 : 1 }}
       className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 Font13 Gray pointer"
     >
+      {/*
+      <Checkbox
+        className="mRight10"
+        checked={false}
+        onChange={(e) => {}}
+      >
+      </Checkbox>
+      */}
       <Icon
         className={cx('Gray_75 Font20 mRight10', {
           active: isActive,

@@ -208,7 +208,7 @@ export function compareControlType(widget, type) {
   return false;
 }
 
-export function getFilterTypes(type, control = {}, conditionType) {
+export function getFilterTypes(type, control = {}, conditionType, from) {
   let types = [];
   const typeKey = getTypeKey(type);
   if (_.includes([19, 23, 24], type)) {
@@ -219,6 +219,7 @@ export function getFilterTypes(type, control = {}, conditionType) {
       FILTER_CONDITION_TYPE.HASVALUE,
       FILTER_CONDITION_TYPE.BETWEEN,
       FILTER_CONDITION_TYPE.NBETWEEN,
+      ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
     ].map(filterType => ({
       value: filterType,
       text: getFilterTypeLabel(typeKey, filterType, control),
@@ -374,7 +375,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.TEXTAREA_INPUT_2:
     case API_ENUM_TO_TYPE.CONCATENATE:
       // 除了检查框、自由连接、等级、他表字段以外所有能取到文本值的字段类型
-      // 除分段、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总外
+      // 除分段、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表外
       typeList = [
         API_ENUM_TO_TYPE.SWITCH,
         API_ENUM_TO_TYPE.RELATION,
@@ -395,6 +396,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.SIGNATURE,
         API_ENUM_TO_TYPE.RELATESHEET,
         API_ENUM_TO_TYPE.SUBTOTAL,
+        API_ENUM_TO_TYPE.SUBLIST,
       ];
       return _.filter(contorls, items => !_.includes(typeList, items.type));
     // 电话、证件、邮件
@@ -483,20 +485,20 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
           !_.includes([API_ENUM_TO_TYPE.SUBTOTAL], it.type) ||
           (it.type === API_ENUM_TO_TYPE.SUBTOTAL && 6 !== it.enumDefault2), //汇总（日期类型）
       );
-    // 单选项
-    // 多选项
+    // 单选项(选项集)
+    // 多选项(选项集)
     case API_ENUM_TO_TYPE.OPTIONS_9:
     case API_ENUM_TO_TYPE.OPTIONS_10:
     case API_ENUM_TO_TYPE.OPTIONS_11:
-      // 单选项、多选项、文本
-      typeList = [
-        API_ENUM_TO_TYPE.OPTIONS_9,
-        API_ENUM_TO_TYPE.OPTIONS_10,
-        API_ENUM_TO_TYPE.OPTIONS_11,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-      ];
-      return _.filter(contorls, items => _.includes(typeList, items.type));
+      // 单选项、多选项(相同选项集的其他字段)
+      typeList = [API_ENUM_TO_TYPE.OPTIONS_9, API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11];
+      return _.filter(
+        contorls,
+        items =>
+          _.includes(typeList, items.type) &&
+          items.dataSource === control.dataSource &&
+          items.controlId !== control.controlId,
+      );
     // 关联单条
     case API_ENUM_TO_TYPE.RELATESHEET:
       return _.filter(
@@ -631,7 +633,8 @@ export function fillConditionValue({ condition, formData, relateControl }) {
   ) {
     condition.value = value;
   } else if (
-    dataType === 15
+    dataType === 15 ||
+    dataType === 16
     // || dataType === 38 // 公式日期
     // TODO 汇总日期类
   ) {

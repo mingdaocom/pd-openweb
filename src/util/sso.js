@@ -104,7 +104,6 @@ export const getGlobalMeta = cb => {
     async: true,
     succees: result => {
       const data = result.data;
-      window.VirtualPath = data.VirtualPath;
       window.config = data.config;
       if (!window.md) {
         window.md = { global: data['md.global'] };

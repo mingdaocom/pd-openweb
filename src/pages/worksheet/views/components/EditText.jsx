@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from 'ming-ui';
 
-export default function EditText({ content, onBlur }) {
+export default function EditText({ content, onBlur, style }) {
   const [value, setValue] = useState(content);
   const $ref = useRef(null);
   useEffect(() => {
@@ -25,6 +25,7 @@ export default function EditText({ content, onBlur }) {
         minHeight: '22px',
         marginBottom: '-6px',
         padding: '0 14px',
+        ...style,
       }}
       className="editTitleTextInput"
       value={value}

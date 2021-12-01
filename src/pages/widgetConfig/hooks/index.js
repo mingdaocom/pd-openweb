@@ -13,7 +13,12 @@ export const useSheetInfo = ({ worksheetId, ...rest }) => {
     getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
       .then(res => {
         const { views, template } = res;
-        setData({ info: res, views, controls: _.get(template, 'controls') || [] });
+        setData({
+          info: res,
+          views,
+          noAuth: res.resultCode === 1 && res.roleType === 0,
+          controls: _.get(template, 'controls') || [],
+        });
       })
       .always(() => {
         setLoading(false);

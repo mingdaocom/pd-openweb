@@ -4,7 +4,7 @@ import './index.less';
 import cx from 'classnames';
 import { RENDER_RECORD_NECESSARY_ATTR, getRecordAttachments } from '../util';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -16,6 +16,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import { addRecord } from 'worksheet/common/newRecord';
+import { navigateTo } from 'src/router/navigateTo';
 
 @connect(
   state => ({ ...state.sheet, chatVisible: state.chat.visible, sheetListVisible: state.sheetList.isUnfold }),
@@ -32,7 +33,8 @@ export default class RecordGallery extends Component {
   }
 
   componentDidMount() {
-    this.getFetch(this.props);
+    let hasGroupFilter = this.props.hasGroupFilter ? this.props.hasGroupFilter : false; // mobile画廊视图是否有分组列表，若有在mobile进行数据更新
+    !hasGroupFilter && this.getFetch(this.props);
     window.addEventListener('resize', this.resizeBind);
   }
 
@@ -51,6 +53,7 @@ export default class RecordGallery extends Component {
     const currentView = views.find(o => o.viewId === viewId) || {};
     const preView = this.props.views.find(o => o.viewId === this.props.base.viewId) || {};
     const { clicksearch } = getAdvanceSetting(currentView);
+    let hasGroupFilter = this.props.hasGroupFilter ? this.props.hasGroupFilter : false;
     if (clicksearch === '1' && quickFilter.length <= 0) {
       return;
     }
@@ -65,7 +68,7 @@ export default class RecordGallery extends Component {
       chatVisible !== this.props.chatVisible ||
       groupFilterWidth !== this.props.groupFilterWidth
     ) {
-      this.getFetch(nextProps);
+      !hasGroupFilter && this.getFetch(nextProps);
       setTimeout(() => {
         this.resizeBind();
       }, 1000);
@@ -150,9 +153,8 @@ export default class RecordGallery extends Component {
 
   render() {
     const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls, quickFilter } = this.props;
-    const { viewId } = base;
+    const { viewId, appId, worksheetId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
-    const { appId, worksheetId } = base;
     const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex } = galleryview;
     const { coverCid } = currentView;
     let { coverposition = '2', abstract = '', clicksearch } = getAdvanceSetting(currentView);
@@ -177,7 +179,7 @@ export default class RecordGallery extends Component {
       );
     }
     if (gallery.length <= 0) {
-      if (filters.keyWords || !isEmpty(filters.filterControls)) {
+      if (filters.keyWords || !isEmpty(filters.filterControls) || browserIsMobile()) {
         return <ViewEmpty filters={filters} />;
       }
       return (
@@ -226,8 +228,13 @@ export default class RecordGallery extends Component {
             return (
               <div
                 className="galleryItem"
-                style={{ width: this.getWith() }}
+                style={browserIsMobile() ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
                 onClick={() => {
+                  if (browserIsMobile()) {
+                    let url = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
+                    navigateTo(url);
+                    return;
+                  }
                   this.setState({ recordId: item.rowid, recordInfoVisible: true });
                 }}
               >
@@ -264,12 +271,13 @@ export default class RecordGallery extends Component {
               view={currentView}
               recordId={recordId}
               worksheetId={worksheetId}
+              rules={worksheetInfo.rules}
               updateSuccess={(ids, updated, data) => {
                 this.props.updateRow(data);
               }}
               onDeleteSuccess={data => {
                 // 删除行数据后重新加载页面
-                this.props.deleteRow(data[0]);
+                this.props.deleteRow();
                 this.setState({ recordInfoVisible: false });
               }}
               handleAddSheetRow={data => {

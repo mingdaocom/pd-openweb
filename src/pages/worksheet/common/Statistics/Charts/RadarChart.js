@@ -95,6 +95,9 @@ export default class extends Component {
             },
           },
         },
+        label: {
+          offset: 23
+        }
       },
       yAxis: {
         line: null,

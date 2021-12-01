@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import Trigger from 'rc-trigger';
 import { Select, DatePicker } from 'antd';
 import { Icon, ScrollView, Menu, MenuItem, Tooltip } from 'ming-ui';
-import { dropdownScopeData, dropdownDayData, isPastAndFuture, isSystemControl, timeParticleSizeDropdownData } from 'src/pages/worksheet/common/Statistics/common';
+import { dropdownScopeData, dropdownDayData, isPastAndFuture, isSystemControl, timeParticleSizeDropdownData, isTimeControl } from 'src/pages/worksheet/common/Statistics/common';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import worksheetAjax from 'src/api/worksheet';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -144,6 +144,18 @@ export default class extends Component {
                 columns={worksheetInfo.columns}
                 conditions={filterItem}
                 onConditionsChange={(conditions, localConditions) => {
+                  conditions = conditions.map(item => {
+                    const isTime = isTimeControl(item.dataType);
+                    const isMoment = moment.isMoment(item.value);
+                    if (isTime && isMoment) {
+                      return {
+                        ...item,
+                        value: item.value.format('YYYY-MM-DD')
+                      }
+                    } else {
+                      return item;
+                    }
+                  });
                   this.props.onUpdateFilter({
                     ...filter,
                     filterControls: conditions,

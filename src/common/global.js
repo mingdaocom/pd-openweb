@@ -262,6 +262,9 @@ window.safeParse = (str, type) => {
   }
 };
 
+window.safeParseArray = str => {
+  return window.safeParse(str, 'array');
+};
 /**
  * 格式化时间
  * @param {string} dateStr 具体的日期字符串，格式为 yyyy-MM-dd HH:mm:ss
@@ -645,6 +648,4 @@ window.createTimeSpan = dateStr => {
     script.text = xhrObj.responseText;
     document.head.appendChild(script);
   }
-
-  window.mduserlang = lang;
 })();

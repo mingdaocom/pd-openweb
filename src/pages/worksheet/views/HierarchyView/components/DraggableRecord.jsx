@@ -11,6 +11,7 @@ import CountTip from './CountTip';
 import Components from '../../components';
 import { noop, pick } from 'lodash';
 import { useDrag, useDrop } from 'react-dnd-latest';
+import { browserIsMobile } from 'src/util';
 
 const OperationWrap = styled(FlexCenter)`
   position: absolute;
@@ -54,6 +55,7 @@ export default function DraggableRecord(props) {
     moveMultiSheetRecord,
     worksheetInfo,
     appId,
+    searchRecordId,
   } = props;
   const { rowId, visible, path = [], pathId = [], children } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -155,8 +157,13 @@ export default function DraggableRecord(props) {
   drag(drop($dragDropRef));
 
   return (
-    <div className={cx('recordItemWrap', { normalOver: isOver && canDrop, directParentOver: isOver && !canDrop })}>
-      <div ref={$dragDropRef} className="dragDropRecordWrap">
+    <div
+      className={cx('recordItemWrap', {
+        normalOver: isOver && canDrop,
+        directParentOver: isOver && !canDrop,
+      })}
+    >
+      <div ref={$dragDropRef} id={rowId} className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}>
         <Components.EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
           data={{ ...recordData, rowId }}
@@ -167,6 +174,7 @@ export default function DraggableRecord(props) {
           onCopySuccess={data => {
             onCopySuccess({ path, pathId, item: data });
           }}
+          updateTitleData={updateTitleData}
         />
       </div>
       {isEditTitle && (
@@ -191,7 +199,7 @@ export default function DraggableRecord(props) {
             onClick={() => toggleChildren({ rowId, visible: !visible, path, pathId })}
           />
         )}
-        {canAddChildren() && (
+        {canAddChildren() && !browserIsMobile() && (
           <AddRecord
             onAdd={() =>
               handleAddRecord({

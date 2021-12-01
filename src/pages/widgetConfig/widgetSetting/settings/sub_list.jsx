@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dialog, Menu, MenuItem, LoadDiv, Support } from 'ming-ui';
+import { Dialog, Menu, MenuItem, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
@@ -18,6 +18,10 @@ import { canSetAsTitle, getAdvanceSetting, resortControlByColRow, dealControlDat
 import subListComponents from '../components/sublist';
 import { isEmpty, find, filter } from 'lodash';
 import { DEFAULT_INTRO_LINK } from '../../config';
+import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
+import DynamicDefaultValue from '../components/DynamicDefaultValue';
+import WidgetVerify from '../components/WidgetVerify';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
@@ -41,10 +45,12 @@ export default function SubListSetting(props) {
   const { status, allControls, info, data, globalSheetInfo, onChange } = props;
   const { widgetName, icon, intro, moreIntroLink } = info;
   const { worksheetId: currentWorksheetId } = globalSheetInfo;
-  const { controlId, dataSource, relationControls = [], showControls = [] } = data;
+  const { controlId, dataSource, relationControls = [], showControls = [], advancedSetting = {} } = data;
+  const batchcids = getAdvanceSetting(data, 'batchcids') || [];
   const [sheetInfo, setInfo] = useState({});
   const [subListMode, setMode] = useState('new');
   const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(batchcids.length > 0);
 
   const [{ setTitleVisible, switchVisible, sortVisible }, setConfig] = useSetState({
     setTitleVisible: false,
@@ -52,6 +58,13 @@ export default function SubListSetting(props) {
     sortVisible: false,
   });
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
+  const worksheetControls = relationControls
+    .filter(item => item.type === 29)
+    .map(({ controlId: value, controlName: text }) => ({ value, text }));
+
+  useEffect(() => {
+    setVisible(batchcids.length > 0);
+  }, [controlId]);
 
   useEffect(() => {
     const { saveIndex } = status;
@@ -249,6 +262,7 @@ export default function SubListSetting(props) {
       {!dataSource && <AddSubList {...props} onOk={onOk} />}
       {subListMode !== 'new' && <Components.RelateSheetInfo name={sheetInfo.name} id={sheetInfo.worksheetId} />}
       <SettingItem>{getConfigContent()}</SettingItem>
+      <WidgetVerify {...props} />
       {relationControls.length > 0 && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
@@ -256,13 +270,16 @@ export default function SubListSetting(props) {
             <div className="overflow_ellipsis Gray">
               {sorts.length > 0
                 ? sorts.reduce((p, item) => {
-                    const control = relationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                    const sortsRelationControls = relationControls
+                      .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
+                      .concat(SYSTEM_CONTROLS);
+                    const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
                     const flag = item.isAsc === true ? 2 : 1;
                     const { text } = getSortData(control.type, control).find(item => item.value === flag);
                     const value = _l('%0: %1', control.controlName, text);
                     return p ? `${p}；${value}` : value;
                   }, '')
-                : _l('创建时间-旧的在前')}
+                : _l('创建时间-最旧的在前')}
             </div>
             <div className="edit">
               <i className="icon-edit"></i>
@@ -273,6 +290,74 @@ export default function SubListSetting(props) {
           )}
         </SettingItem>
       )}
+      <DynamicDefaultValue {...props} />
+      <SettingItem>
+        <div className="settingItemTitle">{_l('操作')}</div>
+        {DEFAULT_SETTING_OPTIONS.map(item => {
+          return (
+            <Checkbox
+              className="mTop4 Block"
+              size="small"
+              text={item.text}
+              checked={advancedSetting[item.id] === '1'}
+              onClick={checked =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    [item.id]: checked ? '0' : '1',
+                  }),
+                )
+              }
+            />
+          );
+        })}
+      </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('设置')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={visible}
+            text={_l('批量选择添加明细')}
+            onClick={checked => {
+              setVisible(!checked);
+              if (checked) {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    batchcids: JSON.stringify([]),
+                  }),
+                );
+              }
+            }}
+          >
+            <Tooltip
+              placement={'bottom'}
+              title={_l(
+                '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
+              )}
+            >
+              <i className="icon-help Gray_bd Font16 pointer"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
+        {visible && (
+          <Dropdown
+            border
+            style={{ marginTop: '10px' }}
+            trigger={['click']}
+            placeholder={_l('选择子表中的关联记录字段')}
+            noneContent={_l('没有可选字段')}
+            value={batchcids[0] || undefined}
+            data={worksheetControls}
+            onChange={value => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  batchcids: JSON.stringify([value]),
+                }),
+              );
+            }}
+          />
+        )}
+      </SettingItem>
       {subListMode !== 'new' && dataSource !== currentWorksheetId && (
         <SheetComponents.BothWayRelate
           worksheetInfo={sheetInfo}

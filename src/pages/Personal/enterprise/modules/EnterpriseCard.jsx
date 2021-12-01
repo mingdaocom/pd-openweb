@@ -15,7 +15,7 @@ import './index.less';
 
 const optionsList = [
   { icon: 'icon-edit_17', label: _l('编辑组织名片'), click: 'handleEdit', key: 'editCard' },
-  { icon: 'icon-enterprise_tool', label: _l('管理后台'), click: 'handleGoAdmin', key: 'manage' },
+  { icon: 'icon-enterprise_tool', label: _l('组织管理'), click: 'handleGoAdmin', key: 'manage' },
   { icon: 'icon-manage', label: _l('我的汇报关系'), click: 'handleRelation', key: 'reportRelation' },
   { icon: 'icon-exit', label: _l('退出组织'), click: 'handleExit', key: 'exit' },
 ];

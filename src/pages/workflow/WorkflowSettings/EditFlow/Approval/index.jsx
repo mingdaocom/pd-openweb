@@ -26,6 +26,10 @@ export default class Approval extends Component {
       );
     }
 
+    if (item.multipleLevelType !== 0) {
+      return <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>;
+    }
+
     if (!item.accounts.length) {
       return (
         <div className="pLeft8 pRight8 red">
@@ -73,7 +77,7 @@ export default class Approval extends Component {
             onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <MembersAvatar accounts={item.accounts} type={item.typeId} />
+              <MembersAvatar accounts={item.multipleLevelType !== 0 ? [{}] : item.accounts} type={item.typeId} />
             </div>
             <NodeOperate nodeClassName="BGViolet" {...this.props} />
             <div className="workflowContent">{this.renderContent()}</div>

@@ -28,8 +28,7 @@ export default class SearchContent extends Component {
   componentWillMount() {
     const { searchKeyword } = this.props;
     if (searchKeyword) {
-      this.request(searchKeyword);
-      this.getAllAddressbookByKeywords(searchKeyword);
+      this.requestDebounce(searchKeyword);
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -43,7 +42,7 @@ export default class SearchContent extends Component {
   requestDebounce = _.debounce(searchKeyword => {
     this.request(searchKeyword);
     this.getAllAddressbookByKeywords(searchKeyword);
-  }, 300);
+  }, 500);
   request(searchKeyword) {
     const { leftLoading } = this.state;
     this.setState({
@@ -98,41 +97,10 @@ export default class SearchContent extends Component {
   }
   formattingText(content) {
     const { searchKeyword } = this.state;
-    return htmlEncodeReg(content).replace(new RegExp(`(${searchKeyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'), '<span class="ThemeColor3">$1</span>');
-  }
-  handleClickAway() {
-    //   $('#SmartSearchResultDiv').hide();
-  }
-  renderTop() {
-    const { leftLoading, searchKeyword, result, rightResult } = this.state;
-    if (leftLoading) {
-      return (
-        <div className="top">
-          <div onClick={this.handleGoto.bind(this)} className="desc">
-            {`${_l('搜索')}`}
-            <a className="ThemeColor3 Font18">{searchKeyword}</a> >
-          </div>
-        </div>
-      );
-    } else {
-      const leftTotalCount = result ? result.reduce((count, item) => count + item.count, 0) : 0;
-      const { groups = { list: [] }, accounts = { list: [] } } = rightResult;
-      const count = groups.list.length + accounts.list.length + leftTotalCount;
-      if (count) {
-        return (
-          <div className="top">
-            <div className="desc" dangerouslySetInnerHTML={{ __html: _l('共搜索到%0个结果 ', `<a class="ThemeColor3 Font18">${count}</a>`) }} />
-            <div className="erweiterteSuche ThemeColor3" onClick={this.handleGoto.bind(this)}>{`${_l('前往查看详情')} >`}</div>
-          </div>
-        );
-      } else {
-        return (
-          <div className="top">
-            <div className="desc">{_l('抱歉，未找到匹配的搜索结果。建议您使用其他关键字')}</div>
-          </div>
-        );
-      }
-    }
+    return htmlEncodeReg(content).replace(
+      new RegExp(`(${searchKeyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'),
+      '<span class="ThemeColor3">$1</span>',
+    );
   }
   renderHeader(name, count, type) {
     return (
@@ -172,7 +140,9 @@ export default class SearchContent extends Component {
           {taskList.map(item => (
             <a target="_blank" href={`/apps/task/task_${item.taskID}`} className="item" key={item.taskID}>
               <i className="icon-check_circle" />
-              <span dangerouslySetInnerHTML={{ __html: this.formattingText(`${item.taskUserName}：${item.taskContent}`) }} />
+              <span
+                dangerouslySetInnerHTML={{ __html: this.formattingText(`${item.taskUserName}：${item.taskContent}`) }}
+              />
             </a>
           ))}
         </div>
@@ -188,7 +158,11 @@ export default class SearchContent extends Component {
           {kcnodeList.map(item => (
             <a target="_blank" href={item.link} className="item" key={item.nodeId}>
               <i className={cx(getClassNameByExt(`.${File.GetExt(item.fileName)}`), 'fileIcon')} />
-              <span dangerouslySetInnerHTML={{ __html: this.formattingText(`${item.postCreateAccountName}：${item.fileName}`) }} />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: this.formattingText(`${item.postCreateAccountName}：${item.fileName}`),
+                }}
+              />
             </a>
           ))}
         </div>
@@ -271,7 +245,7 @@ export default class SearchContent extends Component {
         </div>
       );
     } else {
-      const { accounts, groups } = rightResult;
+      const { groups = { list: [] }, accounts = { list: [] } } = rightResult;
       if (accounts.list.length || groups.list.length) {
         return (
           <ScrollView>
@@ -285,10 +259,8 @@ export default class SearchContent extends Component {
     }
   }
   render() {
-    const { result } = this.state;
     return (
-      <ClickAwayable component="div" id="SmartSearchResultDiv" onClickAway={this.handleClickAway.bind(this)} onClickAwayExceptions={['#SmartSearch']}>
-        {/* {this.renderTop()} */}
+      <ClickAwayable component="div" id="SmartSearchResultDiv" onClickAwayExceptions={['#SmartSearch']}>
         <div className="searchContent">
           <div className="other">{this.renderLeftContent()}</div>
           <div className="addressBook">{this.renderRightContent()}</div>

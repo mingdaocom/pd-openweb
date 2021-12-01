@@ -260,9 +260,11 @@ export default function HomePage({ match, location: routerLocation }) {
                 <span>{_l('当前账户余额 (￥)')}</span>
                 <span className="balance">{getValue(data.balance || 0).toLocaleString()}</span>
               </div>
-              <div className={cx("recharge", {Hidden: recharge})} onClick={() => handleClick('recharge')}>
-                {_l('充值')}
-              </div>
+              {!isFree && (
+                <div className={cx("recharge", {Hidden: recharge})} onClick={() => handleClick('recharge')}>
+                  {_l('充值')}
+                </div>
+              )}
             </div>
           </div>
         </div>

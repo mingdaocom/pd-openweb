@@ -1,5 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import { setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
 import { isTimeStyle, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
@@ -52,6 +52,7 @@ export function updateFormatData() {
       });
     });
     dispatch({ type: 'CHANGE_CALENDAR_FORMAT', data: list });
+    dispatch({ type: 'CHANGE_MOBILE_CURRENTDATA', data: list})
   };
 }
 
@@ -73,7 +74,8 @@ export const refresh = () => {
 export const fetchExternal = () => {
   return (dispatch, getState) => {
     let show = !!window.localStorage.getItem('CalendarShowExternal');
-    if (!show) {
+    let isMobile = browserIsMobile()
+    if (!show && !isMobile) {
       dispatch(getEventScheduledData('eventNoScheduled'));
     } else {
       dispatch(getEventScheduledData(dispatch(getInitType())));
@@ -195,7 +197,7 @@ export function getCalendarData() {
     } = getAdvanceSetting(currentView);
     let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
     let timeControls = getTimeControls(controls);
-    let startData = begindate ? timeControls.find(it => it.controlId === begindate) || {} : timeControls[0];
+    let startData = begindate ? timeControls.find(it => it.controlId === begindate) || {} : timeControls[0] || {};
 
     const btnList = isTimeStyle(startData)
       ? 'today prev,next dayGridMonth,timeGridWeek,timeGridDay'
@@ -224,7 +226,7 @@ export function getCalendarData() {
         unweekday,
         colorOptions: colorList.options || [],
         btnList,
-        initialView: typeStr ? typeStr : getCalendarViewType(calendarType ,startData),
+        initialView: typeStr ? typeStr : getCalendarViewType(calendarType, startData),
       },
     });
   };
@@ -380,7 +382,7 @@ export function getEventList({
       let s = rowsData.data;
       if (keyWords) {
         let seachData = s.sort((a, b) => {
-          return new Date(a[begindate]) - new Date(b[begindate]);
+          return a[begindate] && b[begindate] && new Date(a[begindate].replace(/-/g, '/')) - new Date(b[begindate].replace(/-/g, '/'));
         });
         dispatch({
           type: 'CHANGE_CALENDAR_LIST',
@@ -395,7 +397,7 @@ export function getEventList({
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: false });
       } else {
         s = s.sort((a, b) => {
-          return new Date(a[begindate]) - new Date(b[begindate]);
+          return a[begindate] && b[begindate] && new Date(a[begindate].replace(/-/g, '/')) - new Date(b[begindate].replace(/-/g, '/'));
         });
         if (isAdd) {
           l = isUp ? s.concat(l) : l.concat(s);
@@ -601,7 +603,7 @@ export function updateEventData(rowId, data, time) {
         events =
           typeEvent === 'eventScheduled' //非排期数据不需要重新根据时间排序
             ? events.sort((a, b) => {
-                return new Date(a.start) - new Date(b.start);
+                return a.start && b.start && new Date(a.start.replace(/-/g, '/')) - new Date(b.start.replace(/-/g, '/'));
               })
             : events;
         updataRowIds = add
@@ -625,4 +627,25 @@ export function updateEventData(rowId, data, time) {
       }
     }
   };
+}
+
+export const mobileIsShowMoreClick = (flag) => (dispatch, getState) => {
+  dispatch({
+    type: 'SHOW_MOBILE_MORE_CLICK',
+    flag,
+  })
+}
+
+export const changeMobileCurrentData = (data) => (dispatch, getState) => {
+  dispatch({
+    type: 'CHANGE_MOBILE_CURRENTDATA',
+    data
+  })
+}
+
+export const changeMobileCurrentDate = (date) => (dispatch, getState) => {
+  dispatch({
+    type: 'CHANGE_MOBILE_CURRENTDATE',
+    date
+  })
 }

@@ -46,11 +46,15 @@ export default function SubList({ data }) {
                 <tbody>
                   <tr>
                     {showControls.map((controlId, index) => {
-                      const { enumDefault, type } =
-                        _.find(relationControls, item => item.controlId === controlId) || {};
+                      const {
+                        enumDefault,
+                        type,
+                        advancedSetting = {},
+                      } = _.find(relationControls, item => item.controlId === controlId) || {};
                       return (
                         <td key={controlId} style={{ width: `${widths[index]}px` }}>
-                          {(type === 34 || (type === 29 && String(enumDefault) === '2')) && (
+                          {(type === 34 ||
+                            (type === 29 && String(enumDefault) === '2' && advancedSetting.showtype === '2')) && (
                             <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
                           )}
                         </td>

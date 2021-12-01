@@ -370,8 +370,8 @@ export default class RelateRecordCards extends Component {
     const { showAddRecord, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
     const isMobile = browserIsMobile();
-    const isWxWork = false;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const isCard =
       parseInt(advancedSetting.showtype, 10) === 1 ||
       (from === FROM.H5_ADD && parseInt(advancedSetting.showtype, 10) === 2);
@@ -411,14 +411,14 @@ export default class RelateRecordCards extends Component {
                 ) : null}
               </Fragment>
             )}
-          {onlyRelateByScanCode && !(isWxWork || isWeLink) && (
+          {onlyRelateByScanCode && !(isWeLink || isDing) && (
             <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
           )}
           {(!records.length || enumDefault === 2) &&
             from !== FROM.SHARE &&
             enumDefault2 !== 11 &&
             onlyRelateByScanCode &&
-            (isWxWork || isWeLink) &&
+            (isWeLink || isDing) &&
             !disabled && (
               <RelateScanQRCode
                 worksheetId={dataSource}

@@ -62,7 +62,7 @@ const OperationWrap = styled.div`
 `;
 
 export default function WidgetOperation(props) {
-  const { isActive, fromType, data = {}, parentRef, handleOperate, globalSheetInfo, ...rest } = props;
+  const { isActive, fromType, data = {}, parentRef, handleOperate, queryConfig, globalSheetInfo, ...rest } = props;
   const { type, controlId, attribute, showControls = [], dataSource, sourceControl } = data;
 
   const getActualControls = () => {
@@ -89,7 +89,8 @@ export default function WidgetOperation(props) {
               onClick={e => {
                 e.stopPropagation();
                 handleOperate('hide');
-              }}>
+              }}
+            >
               <i className="icon-visibility_off1" />
             </div>
           </Tooltip>
@@ -107,8 +108,9 @@ export default function WidgetOperation(props) {
             className="delWidget operationIconWrap"
             onClick={e => {
               e.stopPropagation();
-              handleOperate('delete');
-            }}>
+              handleOperate('delete', queryConfig);
+            }}
+          >
             <i className="icon-hr_delete" />
           </div>
         </Tooltip>
@@ -116,7 +118,7 @@ export default function WidgetOperation(props) {
     }
     const handleDelete = e => {
       if (e && e.stopPropagation) e.stopPropagation();
-      handleOperate('delete');
+      handleOperate('delete', queryConfig);
       setVisible({ deleteConfirmVisible: false });
     };
 
@@ -148,13 +150,15 @@ export default function WidgetOperation(props) {
                 {_l('仅删除此控件')}
               </Button>
             </DeleteBothWayRelateWrap>
-          }>
+          }
+        >
           <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
             <div
               className="delWidget operationIconWrap"
               onClick={e => {
                 e.stopPropagation();
-              }}>
+              }}
+            >
               <i className="icon-hr_delete" />
             </div>
           </Tooltip>
@@ -167,13 +171,15 @@ export default function WidgetOperation(props) {
         onVisibleChange={visible => setVisible({ deleteConfirmVisible: visible })}
         // getPopupContainer={() => parentRef.current}
         onCancel={() => setVisible({ deleteConfirmVisible: false })}
-        onOk={handleDelete}>
+        onOk={handleDelete}
+      >
         <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
           <div
             className="delWidget operationIconWrap"
             onClick={e => {
               e.stopPropagation();
-            }}>
+            }}
+          >
             <i className="icon-hr_delete" />
           </div>
         </Tooltip>
@@ -191,7 +197,8 @@ export default function WidgetOperation(props) {
               onClick={e => {
                 e.stopPropagation();
                 handleOperate('setAsTitle');
-              }}>
+              }}
+            >
               <i className="icon-ic_title" />
             </div>
           </Tooltip>
@@ -202,8 +209,9 @@ export default function WidgetOperation(props) {
               className="copyControl operationIconWrap"
               onClick={e => {
                 e.stopPropagation();
-                handleOperate('copy');
-              }}>
+                handleOperate('copy', queryConfig);
+              }}
+            >
               <i className="icon-copy" />
             </div>
           </Tooltip>

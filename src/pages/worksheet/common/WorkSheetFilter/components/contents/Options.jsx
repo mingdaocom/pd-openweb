@@ -58,7 +58,11 @@ export default class Options extends Component {
         : [];
     }
   }
-  getAreaLevel(type) {
+  getAreaLevel(type, filterType) {
+    const isAreaContain = _.includes([FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN], filterType);
+    if (isAreaContain) {
+      return 3;
+    }
     if (type === 19) {
       return 1; // 省
     }
@@ -135,7 +139,7 @@ export default class Options extends Component {
       return <TagCon disabled={disabled} data={seletedOptions} onRemove={this.removeItem} />;
     }
     if (_.includes([19, 23, 24], control.type)) {
-      const areaLevel = this.getAreaLevel(control.type);
+      const areaLevel = this.getAreaLevel(control.type, type);
       return (
         <div className="worksheetFilterOptionsCondition" ref={con => (this.con = con)}>
           <CityPicker

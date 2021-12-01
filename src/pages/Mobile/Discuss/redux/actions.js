@@ -77,3 +77,15 @@ export const emptySheetLogs = () => {
     data: [],
   };
 }
+
+export const getMobileDiscussionCount = ({ worksheetId, rowId }) => (dispatch, getState) => {
+  discussionAjax.getDiscussionsCount({
+    sourceId: worksheetId + '|' + rowId,
+    sourceType: 8,
+  }).then(res => {
+    dispatch({
+      type:'MOBILE_SET_DISCUSSION_COUNT',
+      data:res.data || 0
+    })
+  })
+}

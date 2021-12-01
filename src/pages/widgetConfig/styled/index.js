@@ -78,53 +78,6 @@ export const SettingItem = styled.div`
       flex-basis: 50%;
     }
   }
-  .braftEditor {
-    border: 1px solid #e0e0e0;
-    border-radius: 3px;
-
-    .BraftEditor-container {
-      .headings-dropdown {
-        min-width: auto;
-        border: none;
-        .dropdown-handler {
-          width: auto;
-          span {
-            width: auto !important;
-          }
-        }
-      }
-      .BraftEditor-controlBar {
-        .braft-link-editor {
-          width: 300px;
-          .buttons button {
-            padding: 0 12px;
-          }
-        }
-        > .control-item:nth-child(10) {
-          display: none;
-        }
-        .control-item {
-          height: 24px;
-          border: none;
-          min-width: auto;
-        }
-        button,
-        .control-item-group,
-        .control-item .dropdown-handler > span {
-          min-width: 24px;
-          height: 24px;
-          line-height: 24px;
-          padding: 0;
-          i,
-          i:before {
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
-          }
-        }
-      }
-    }
-  }
   .customTip {
     margin-top: 6px;
     position: relative;
@@ -277,7 +230,7 @@ export const SelectFieldsWrap = styled.div`
     .title {
       padding: 12px 0 0 16px;
       font-weight: bold;
-      max-width: 200px;
+      max-width: 220px;
       margin-bottom: 8px;
     }
   }

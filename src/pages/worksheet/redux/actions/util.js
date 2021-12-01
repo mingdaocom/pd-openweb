@@ -43,3 +43,19 @@ export function wrapAjax(func) {
     return cache[func.name];
   };
 }
+
+export function getItemByRowId(rowId = null, data = []) {
+  if (rowId) {
+    const treeFind = tree => {
+      for (const item of tree) {
+        if (item.rowId === rowId) return item;
+        if (item.children && item.children.length > 0) {
+          const res = treeFind(item.children);
+          if (res) return res;
+        }
+      }
+      return null;
+    };
+    return treeFind(data);
+  }
+}

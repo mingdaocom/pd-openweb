@@ -8,6 +8,7 @@ import { getConditionOverrideValue, getFilterTypes } from '../util';
 import { FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../enum';
 import { Select } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
+import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 // 为空 不为空  在范围内 不在范围内
 const listType = [
   FILTER_CONDITION_TYPE.ISNULL,
@@ -162,13 +163,16 @@ export default class Condition extends Component {
         );
       }
     }
-    if(filterDept && control.type === 27) {
+    if (filterDept && control && control.type === 27) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
       );
     }
-    const isDynamicStyle = from === 'relateSheet'; //动态值选择的特定样式
-    const isDynamicValue = !_.includes(listType, condition.type) && !_.includes(listControlType, condition.controlType);
+    const isDynamicStyle = from === 'relateSheet'; // 动态值选择的特定样式
+    const isDynamicValue =
+      !_.includes(listType, condition.type) &&
+      !_.includes(listControlType, condition.controlType) &&
+      !isCustomOptions(control);
     return (
       <div className={cx('conditionItem', { readonly: !canEdit, conditionItemForDynamicStyle: isDynamicStyle })}>
         <div

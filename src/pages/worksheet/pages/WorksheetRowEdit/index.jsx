@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
 import { LoadDiv, Button, Icon, ScrollView } from 'ming-ui';
+import { getSubListError } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import './index.less';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
@@ -34,12 +35,15 @@ class WorksheetRowEdit extends Component {
   }
 
   customwidget = React.createRef();
+  cellObjs = {};
 
   /**
    * 获取记录详情
    */
   getLinkDetail() {
     const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
+
+    window.recordShareLinkId = id;
 
     worksheetAjax.getLinkDetail({ id }).then(data => {
       if (data.resultCode === 1) {
@@ -105,7 +109,54 @@ class WorksheetRowEdit extends Component {
     }
 
     const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
-    const { data, updateControlIds, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
+    let { data, updateControlIds, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
+
+    const subListControls = data.filter(item => item.type === 34);
+    if (subListControls.length) {
+      const errors = subListControls
+        .map(control => ({
+          id: control.controlId,
+          value:
+            control.value &&
+            control.value.rows &&
+            control.value.rows.length &&
+            getSubListError(
+              {
+                rows: control.value.rows,
+                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+              },
+              control.relationControls,
+              control.showControls,
+              2,
+            ),
+        }))
+        .filter(c => !_.isEmpty(c.value));
+      if (errors.length) {
+        hasError = true;
+        errors.forEach(error => {
+          const errorSublist = (this.cellObjs || {})[error.id];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: !_.isEmpty(error.value),
+              cellErrors: error.value,
+            });
+          }
+        });
+      } else {
+        subListControls.forEach(control => {
+          const errorSublist = (this.cellObjs || {})[control.controlId];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: false,
+              cellErrors: {},
+            });
+          }
+        });
+      }
+      if (document.querySelector('.worksheetRowEditBox .cellControlErrorTip')) {
+        hasError = true;
+      }
+    }
 
     if (hasError) {
       this.setState({ showError: true });
@@ -175,6 +226,7 @@ class WorksheetRowEdit extends Component {
           worksheetId={data.worksheetId}
           recordId={data.rowId}
           showError={showError}
+          registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           openRelateRecord={this.getRowRelationRowsData}
         />
 

@@ -274,25 +274,23 @@ export function calcDate(date, expression) {
   if (!date) {
     return { error: true };
   }
-  date = moment(date);
-  let cals;
   try {
-    cals = expression.match(/([+-]([0-9]+(.[0-9]{1,3})?)[YMdhm])/g);
+    let result = moment(date);
+    const regexp = /([/+/-]){1}(\d+(\.\d+)?)+([YQMwdhms]){1}/g;
+    let match = regexp.exec(expression);
+    while (match) {
+      const operator = match[1];
+      const number = Number(match[2]);
+      const unit = match[4];
+      if (/^[+-]$/.test(operator) && number && typeof number === 'number' && /^[YQMwdhms]$/.test(unit)) {
+        result = result[operator === '+' ? 'add' : 'subtract'](Math.round(number), unit);
+      }
+      match = regexp.exec(expression);
+    }
+    return { result };
   } catch (err) {
-    return { error: true };
+    return { error: err };
   }
-  (cals || []).forEach(cal => {
-    if (!cal.match(/^([+-])([0-9]+(.[0-9]{1,3})?)[YMdhm]$/)) {
-      return;
-    }
-    const [full, operator, numStr, no, unit] = cal.match(/^([+-])([0-9]+(.[0-9]{1,3})?)([YMdhm])$/);
-    const num = parseFloat(numStr, 10);
-    if (!_.isNumber(num)) {
-      return;
-    }
-    date = date[operator === '+' ? 'add' : 'subtract'](Math.round(num), unit);
-  });
-  return { result: date };
 }
 
 /**
@@ -741,7 +739,7 @@ export function parseRecordTempValue(value, originFormData) {
               isAdd: true,
               controls: c.relationControls,
               rows: data[c.controlId],
-              action: 'clearAndset',
+              action: 'clearAndSet',
             },
           }
         : { ...c, value: data[c.controlId] },
@@ -825,4 +823,177 @@ export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
 export function checkRulesErrorOfRowControl({ from, rules, controls, control, row }) {
   const errors = checkRulesErrorOfRow({ from, rules, controls, control, row });
   return _.find(errors, e => e.controlId === control.controlId);
+}
+
+/**
+ * 获取字段数据类型
+ * return [string, array, number, object]
+ */
+export function getValueTypeOfControl(control) {
+  control = typeof control === 'number' ? { typeof: control } : control;
+  const { type } = control;
+  if (
+    type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET ||
+    type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER ||
+    type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT
+  ) {
+    return 'array';
+  }
+  if (type === WIDGETS_TO_API_TYPE_ENUM.NUMBER) {
+    return 'number';
+  }
+  return 'string';
+}
+/**
+ * 对将复杂字段数据处理成简单数据 用来呈现或参与计算
+ * return undefined string number bool [string] [number]
+ */
+export function formatControlValue(cell) {
+  try {
+    if (!cell) {
+      return;
+    }
+    let { type, value } = cell;
+    let parsedData, selectedOptions;
+    if (type === 37) {
+      if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
+        type = 2;
+        value = Math.round(parseFloat(cell.value) * 100) + '%';
+      } else {
+        type = cell.enumDefault2 || 6;
+      }
+    }
+    switch (type) {
+      case 19: // AREA_INPUT 地区
+      case 23: // AREA_INPUT 地区
+      case 24: // AREA_INPUT 地区
+        return JSON.parse(value).name;
+      case 17: // DATE_TIME_RANGE 时间段
+      case 18: // DATE_TIME_RANGE 时间段
+        if (value === '' || value === '["",""]') {
+          return;
+        }
+        return JSON.parse(value);
+      case 40: // LOCATION 定位
+        parsedData = JSON.parse(value) || {};
+        return _.isObject(parsedData) ? `${parsedData.title || ''} ${parsedData.address || ''}` : undefined;
+      // 组件
+      case 9: // OPTIONS 单选 平铺
+      case 10: // MULTI_SELECT 多选
+      case 11: // OPTIONS 单选 下拉
+        selectedOptions = getSelectedOptions(cell.options, cell.value);
+        return selectedOptions.map((option, index) => option.value);
+      case 26: // USER_PICKER 成员
+        parsedData = JSON.parse(value);
+        if (!_.isArray(parsedData)) {
+          parsedData = [parsedData];
+        }
+        return parsedData.filter(user => !!user).map(user => user.fullname);
+      case 27: // GROUP_PICKER 部门
+        return JSON.parse(cell.value).map((department, index) =>
+          department.departmentName ? department.departmentName : _l('该部门已删除'),
+        );
+      case 36: // SWITCH 检查框
+        return value === '1' || value === 1;
+      case 14: // ATTACHMENT 附件
+        return JSON.parse(value).map(attachment => `${attachment.originalFilename + attachment.ext}`);
+      case 35: // CASCADER 级联
+        parsedData = JSON.parse(value);
+        return _.isArray(parsedData) && parsedData.length ? parsedData[0].name : undefined;
+      case 29: // RELATESHEET 关联表
+        if (_.isNumber(+value) && !_.isNaN(+value)) {
+          parsedData = new Array(+value).fill();
+        } else {
+          parsedData = JSON.parse(value);
+          parsedData =
+            _.isArray(parsedData) &&
+            parsedData
+              .map(record =>
+                formatControlValue(_.assign({}, cell, { type: cell.sourceControlType || 2, value: record.name })),
+              )
+              .filter(_.identity);
+        }
+        return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
+      case 34: // SUBLIST 子表
+        return _.isObject(value) ? _.get(value, 'rows') : [...new Array(value++)];
+      case 30: // SHEETFIELD 他表字段
+        return formatControlValue(
+          _.assign({}, cell, {
+            type: cell.sourceControlType || 2,
+            advancedSetting: _.get(cell, 'sourceControl.advancedSetting') || {},
+          }),
+        );
+      default:
+        return value;
+    }
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+/**
+ * 给控件赋值用来验证函数表达式
+ */
+export function getDefaultValueOfControl(control) {
+  switch (control.sourceControlType || control.type) {
+    case WIDGETS_TO_API_TYPE_ENUM.TEXT: // 文本 2
+      return '1';
+    case WIDGETS_TO_API_TYPE_ENUM.NUMBER: // 数值 6
+    case WIDGETS_TO_API_TYPE_ENUM.MONEY: // 金额 8
+      return 1;
+    case WIDGETS_TO_API_TYPE_ENUM.EMAIL: // 邮箱 5
+      return 'a@b.com';
+    case WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE: // 手机 4
+      return '+8618799999999';
+    case WIDGETS_TO_API_TYPE_ENUM.DATE: // 日期 15
+      return moment().format('YYYY-MM-DD');
+    case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME: // 日期 16
+      return moment().format('YYYY-MM-DD HH:mm');
+    case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU: // 单选 9
+    case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT: // 多选 10
+    case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER: // 成员 26
+    case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT: // 部门 27
+    case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET: // 关联记录 29
+      return '[]';
+    case WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE: // 省 19
+    case WIDGETS_TO_API_TYPE_ENUM.AREA_CITY: // 省市 23
+      return '{name: "china"}';
+    case WIDGETS_TO_API_TYPE_ENUM.SUB_LIST: // 子表 34
+    case WIDGETS_TO_API_TYPE_ENUM.SWITCH: // 检查框 36
+      return 1;
+    default:
+      return '1';
+  }
+}
+
+export function runCode(code) {
+  return new vm.Script(code).runInNewContext();
+}
+
+/**
+ * 验证函数表达式基础语法
+ */
+export function validateFnExpression(expression) {
+  expression = expression.replace(/[\r\r\n ]/g, '');
+  expression = expression.replace(/([A-Z]+)(?=\()/g, 'test');
+  expression = expression.replace(/\$((\w{8}(-\w{4}){3}-\w{12})|[0-9a-z]{24})\$/g, '1');
+  try {
+    runCode(`function test() {return '-';}${expression}`);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+/**
+ * 对字段的 advancedSettings 进行解析处理
+ */
+export function parseAdvancedSetting(setting) {
+  return {
+    allowadd: setting.allowadd === '1', // 子表允许新增
+    allowcancel: setting.allowcancel === '1', // 子表允许删除
+    allowedit: setting.allowedit === '1', // 子表允许编辑
+    batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
+  };
 }

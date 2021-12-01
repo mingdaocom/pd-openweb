@@ -19,6 +19,7 @@ const WAIT_TEXT = {
 const SIGN_TYPE = {
   1: _l('需全员通过'),
   2: _l('只需一人通过，需全员否决'),
+  4: _l('及以上的成员通过后即视为节点通过'),
 };
 
 const MULTIPLE_OPERATION = {
@@ -261,7 +262,7 @@ export default class StepItem extends Component {
 
   render() {
     const { data, currentWork, currentType } = this.props;
-    const { workId, flowNode, workItems, countersign, countersignType } = data || {};
+    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } = data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork = workId === currentWork.workId;
 
@@ -288,19 +289,23 @@ export default class StepItem extends Component {
             )}
           >
             {flowNode.name}
+            {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
           </div>
           <div className="stepContentWrap mTop10">
             {countersign && (
               <div className="signTypeWrap flexRow">
                 {countersignType === 3 ? (
                   <Fragment>
-                    <span>{currentType === 3 ? _l('填写') : _l('或签')}: </span>
+                    <span className="nowrap">{currentType === 3 ? _l('填写') : _l('或签')}：</span>
                     <div className="signType">{MULTIPLE_OPERATION[currentType]}</div>
                   </Fragment>
                 ) : (
                   <Fragment>
-                    <span>{_l('会签')}: </span>
-                    <div className="signType">{SIGN_TYPE[countersignType]}</div>
+                    <span className="nowrap">{_l('会签')}：</span>
+                    <div className="signType">
+                      {condition ? condition + '%' : ''}
+                      {SIGN_TYPE[countersignType]}
+                    </div>
                   </Fragment>
                 )}
               </div>

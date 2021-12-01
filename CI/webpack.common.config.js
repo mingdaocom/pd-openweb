@@ -24,6 +24,7 @@ module.exports = {
       ? ['src/library/jquery/1.8.3/jquery', 'src/library/lodash/lodash.min', 'src/library/moment/moment.min']
       : ['src/library/jquery/1.8.3/jquery-debug', 'src/library/lodash/lodash', 'src/library/moment/moment']
     ).concat([
+      'src/library/vm.js',
       'src/library/jquery/1.8.3/jqueryAnimate',
       'src/library/jquery/1.8.3/jquery.mousewheel.min',
       'src/library/plupload/plupload.full.min',

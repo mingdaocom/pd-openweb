@@ -14,6 +14,7 @@ import Statistics from 'worksheet/common/Statistics';
 import Discussion from 'worksheet/common/Discussion';
 import SearchInput from 'worksheet/components/SearchInput';
 import { emitter } from 'worksheet/util';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import {
   addNewRecord,
   updateWorksheetInfo,
@@ -163,7 +164,13 @@ function SheetHeader(props) {
                 disable={sheetDescVisible}
                 tooltipClass="sheetDescTooltip"
                 popupPlacement="bottom"
-                text={<span dangerouslySetInnerHTML={{ __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />') }} />}
+                text={
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />'),
+                    }}
+                  />
+                }
               >
                 <Icon icon="knowledge-message" className="Hand sheetDesc" />
               </Tooltip>
@@ -210,27 +217,32 @@ function SheetHeader(props) {
           )}
         </div>
         <VerticalCenter>
-          <SearchInput
-            viewId={viewId}
-            className="queryInput"
-            onOk={value => {
-              updateFiltersWithView({ keyWords: (value || '').trim() });
-            }}
-            onClear={() => {
-              updateFiltersWithView({ keyWords: '' });
-            }}
-          />
-          <WorkSheetFilter
-            isCharge={isCharge}
-            appId={appId}
-            viewId={viewId}
-            projectId={projectId}
-            worksheetId={worksheetId}
-            columns={controls}
-            onChange={({ searchType, filterControls }) => {
-              updateFiltersWithView({ searchType, filterControls });
-            }}
-          />
+          {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
+          String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
+            <Fragment>
+              <SearchInput
+                viewId={viewId}
+                className="queryInput"
+                onOk={value => {
+                  updateFiltersWithView({ keyWords: (value || '').trim() });
+                }}
+                onClear={() => {
+                  updateFiltersWithView({ keyWords: '' });
+                }}
+              />
+              <WorkSheetFilter
+                isCharge={isCharge}
+                appId={appId}
+                viewId={viewId}
+                projectId={projectId}
+                worksheetId={worksheetId}
+                columns={controls}
+                onChange={({ searchType, filterControls }) => {
+                  updateFiltersWithView({ searchType, filterControls });
+                }}
+              />
+            </Fragment>
+          )}
           {!window.isPublicApp && (
             <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
               <span className="mRight16 mTop4">

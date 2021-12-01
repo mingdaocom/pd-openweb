@@ -18,5 +18,5 @@ export const AT_ALL_TEXT = {
   [SOURCE_TYPE.KNOWLEDGE]: _l('知识全体成员'),
   [SOURCE_TYPE.ATTENDANCE]: _l('审批全体成员'),
   [SOURCE_TYPE.WORKSHEET]: _l('工作表全体成员'),
-  [SOURCE_TYPE.WORKSHEETROW]: _l('记录全体成员'),
+  [SOURCE_TYPE.WORKSHEETROW]: _l('全体参与者'),
 };

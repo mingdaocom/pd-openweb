@@ -40,7 +40,7 @@ export default class Widgets extends Component {
   };
 
   onBlur = () => {
-    let { value, dot } = this.props;
+    let { value, dot, onChange, onBlur } = this.props;
     this.setState({ isEditing: false });
 
     if (value === '-') {
@@ -49,7 +49,9 @@ export default class Widgets extends Component {
       value = parseFloat(value).toFixed(dot);
     }
 
-    this.props.onChange(value);
+    onChange(value);
+    onBlur();
+
     if (navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);

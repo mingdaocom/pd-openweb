@@ -38,11 +38,14 @@ export default ({ data, onChange }) => {
                 ...handleAdvancedSettingChange(data, { dismanual: '' }),
                 strDefault: updateConfig({ config: strDefault, value: +!checked, index: 1 }),
               })
-            }>
-            <Tooltip placement={'right'} title={_l('扫码功能只对App或企业微信/Welink移动端有效')}>
+            }
+          >
+            <span>
               {_.includes([1, 2], type) ? _l('启用扫码输入') : _l('只允许移动端输入')}
-              <i className="icon-help Gray_9e Font16 pointer"></i>
-            </Tooltip>
+              <Tooltip placement={'bottom'} title={_l('扫码功能只对App或钉钉移动端、Welink移动端、微信移动端有效')}>
+                <i className="icon-help Gray_9e Font16 pointer"></i>
+              </Tooltip>
+            </span>
           </Checkbox>
         </div>
       </SettingItem>

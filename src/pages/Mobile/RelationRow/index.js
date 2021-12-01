@@ -24,7 +24,7 @@ class Home extends Component {
     const { controlId, params } = this.props;
     return (
       <Fragment>
-        <div className="flexColumn flex" style={{ overflow: 'hidden auto' }} onScroll={this.handleScroll}>
+        <div className="flexColumn flex" style={{ overflowX: 'hidden', overflowY: 'auto' }} onScroll={this.handleScroll}>
           <RelationList {...params} />
         </div>
         <RelationAction controlId={controlId} />

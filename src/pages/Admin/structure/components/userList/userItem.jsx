@@ -7,7 +7,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import importUserController from 'src/api/importUser';
 import userController from 'src/api/user';
 import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
-import { updateUserOpList, addUserToSet, removeUserFromSet, emptyUserSet } from '../../actions/current';
+import { updateUserOpList, addUserToSet, removeUserFromSet, emptyUserSet, fetchApproval } from '../../actions/current';
 import cx from 'classnames';
 import TransferDialog from '../../modules/dialogHandover';
 import Approval from '../../modules/dialogApproval';
@@ -411,6 +411,7 @@ class UserItem extends Component {
             () => {
               if (isOk) {
                 dispatch(loadApprovalUsers(projectId, 1));
+                dispatch(fetchApproval(projectId));
               }
             },
           );

@@ -2,15 +2,26 @@ import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { calcDate } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
-import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT } from './config';
+import uuid from 'uuid';
+import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, UN_TEXT_TYPE } from './config';
 import { isRelateRecordTableControl } from 'worksheet/util';
-import { controlState, Validator, getRangeErrorType, specialTelVerify } from './utils';
+import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
+import {
+  controlState,
+  Validator,
+  getRangeErrorType,
+  formatFiltersValue,
+  getCurrentValue,
+  specialTelVerify,
+} from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import moment from 'moment';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
 import { getDepartmentsByAccountId } from 'src/api/department';
+import { getFilterRows } from 'src/api/worksheet';
 import { getCurrentProject } from 'src/util';
+import _ from 'lodash';
 
 const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
@@ -86,8 +97,8 @@ export const getDynamicValue = (data, currentItem, masterData) => {
           return targetControl.value;
         }
         const parentControl = _.find(data, c => c.controlId === item.rcid);
-        const control = JSON.parse(parentControl.value)[0];
-        const sourcevalue = JSON.parse(control.sourcevalue)[item.cid];
+        const control = JSON.parse(parentControl.value || '[]')[0];
+        const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
 
         if (_.includes([15, 16], currentItem.type) && _.includes(['ctime', 'utime'], item.cid)) {
           return (sourcevalue ? moment(sourcevalue) : moment()).format(
@@ -105,7 +116,10 @@ export const getDynamicValue = (data, currentItem, masterData) => {
         }
 
         // 数值类控件
-        if (_.includes([6, 8, 31], currentItem.type) || (currentItem.type === 38 && currentItem.enumDefault === 2)) {
+        if (
+          _.includes([6, 8, 28, 31], currentItem.type) ||
+          (currentItem.type === 38 && currentItem.enumDefault === 2)
+        ) {
           try {
             let cValue = 0;
             const { options } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
@@ -118,6 +132,12 @@ export const getDynamicValue = (data, currentItem, masterData) => {
           } catch (err) {
             return sourcevalue;
           }
+        }
+
+        //文本类控件(默认值为选项、成员、部门等异化)
+        if (_.includes([2], currentItem.type)) {
+          const currentControl = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
+          return getCurrentValue(currentControl, sourcevalue, currentItem);
         }
 
         return sourcevalue;
@@ -136,6 +156,12 @@ export const getDynamicValue = (data, currentItem, masterData) => {
         return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
       }
 
+      //文本类控件(默认值为选项、成员、部门等多异化)
+      if (_.includes([2], currentItem.type)) {
+        const currentControl = _.find(data, c => c.controlId === item.cid);
+        return getCurrentValue(currentControl, (currentControl || {}).value, currentItem);
+      }
+
       return getControlValue(data, currentItem, item.cid);
     }
 
@@ -146,7 +172,7 @@ export const getDynamicValue = (data, currentItem, masterData) => {
     return '';
   });
 
-  if (_.includes([9, 10, 11, 26, 27], currentItem.type)) {
+  if (_.includes([9, 10, 11, 26, 27, 29], currentItem.type)) {
     let source = [];
 
     _.remove(value, o => !o);
@@ -200,7 +226,7 @@ const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId }) => {
 };
 
 // 处理公式
-const parseNewFormula = (data, formulaStr, dot = 2) => {
+const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
   let columnIsUndefined;
 
   formulaStr = formulaStr
@@ -219,7 +245,11 @@ const parseNewFormula = (data, formulaStr, dot = 2) => {
 
   const expression = formulaStr.replace(/\$.+?\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
-    const column = _.find(data, obj => obj.controlId === controlId);
+    let column = Object.assign(
+      {},
+      _.find(data, obj => obj.controlId === controlId),
+    );
+
     if (!column) {
       columnIsUndefined = true;
       return undefined;
@@ -234,9 +264,15 @@ const parseNewFormula = (data, formulaStr, dot = 2) => {
       column.value = 0;
     }
 
-    if (_.isUndefined(column.value) || column.value === '') {
+    if ((_.isUndefined(column.value) || column.value === '') && nullzero !== '1') {
       columnIsUndefined = true;
     }
+
+    // 不存在按0处理
+    if (nullzero === '1' && !column.value) {
+      column.value = '0';
+    }
+
     return parseFloat(
       _.find([6, 8, 28, 31, 37], c => c === column.type || c === column.sourceControlType)
         ? column.value
@@ -250,6 +286,20 @@ const parseNewFormula = (data, formulaStr, dot = 2) => {
     ? { columnIsUndefined }
     : { result: typeof result.result === 'number' ? parseFloat(result.result.toFixed(dot)) : null };
 };
+
+// 函数处理
+function calcDefaultValueFunction({ formData, fnControl }) {
+  let expression = _.get(safeParse(fnControl.advancedSetting.defaultfunc), 'expression');
+  if (!expression) {
+    return '';
+  }
+  const result = execValueFunction(expression, formData, fnControl);
+  if (result.error) {
+    console.log(result);
+  } else {
+    return String(_.isUndefined(result.value) ? '' : result.value);
+  }
+}
 
 // 处理日期公式
 const parseDateFormula = (data, currentItem, recordCreateTime) => {
@@ -447,7 +497,7 @@ const getControlValue = (data, currentItem, controlId) => {
   // 选项控件的分值可以被数值类控件引用
   if (
     _.includes([9, 10, 11], obj.type) &&
-    (_.includes([6, 8, 31], currentItem.type) || (currentItem.type === 38 && currentItem.enumDefault === 2))
+    (_.includes([6, 8, 28, 31], currentItem.type) || (currentItem.type === 38 && currentItem.enumDefault === 2))
   ) {
     let cValue = 0;
 
@@ -615,6 +665,7 @@ export default class DataFormat {
     recordCreateTime = '',
     masterData,
     from = FROM.DEFAULT,
+    searchConfig = [],
     onAsyncChange = () => {},
   }) {
     this.projectId = projectId;
@@ -625,6 +676,7 @@ export default class DataFormat {
     this.errorItems = [];
     this.recordCreateTime = recordCreateTime;
     this.from = from;
+    this.searchConfig = searchConfig;
     this.onAsyncChange = onAsyncChange;
 
     const departmentIds = [];
@@ -636,6 +688,14 @@ export default class DataFormat {
       this.data.forEach(item => {
         if (item.value) {
           this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
+        } else if (item.advancedSetting && item.advancedSetting.defaultfunc) {
+          const value = calcDefaultValueFunction({
+            formData: this.data,
+            fnControl: item,
+          });
+          if (value) {
+            this.updateDataSource({ controlId: item.controlId, value, isInit });
+          }
         } else if (item.advancedSetting && item.advancedSetting.defsource) {
           const value = getDynamicValue(this.data, item, this.masterData);
 
@@ -673,6 +733,11 @@ export default class DataFormat {
         // 定位控件默认选中当前位置
         if (item.type === 40 && item.default === '1') {
           locationIds.push(item.controlId);
+        }
+
+        // 公式设置视为0配置
+        if (item.type === 31 && item.advancedSetting && item.advancedSetting.nullzero === '1') {
+          this.updateDataSource({ controlId: item.controlId, value: item.value, isInit });
         }
       });
     }
@@ -723,6 +788,11 @@ export default class DataFormat {
     this.getCurrentDepartment(departmentIds);
     // 获取当前位置
     this.getCurrentLocation(locationIds);
+
+    //新建记录初始时,固定值全走
+    if (this.searchConfig.length > 0 && isCreate) {
+      this.updateDataBySearchConfigs({ searchType: 'init' });
+    }
   }
 
   /**
@@ -735,14 +805,26 @@ export default class DataFormat {
     removeUniqueItem = () => {},
     data,
     isInit = false,
+    searchByChange = false,
   }) {
     this.asyncControls = {};
 
     try {
-      const updateSource = (controlId, value) => {
+      const updateSource = (controlId, value, currentSearchByChange) => {
         this.data.forEach(item => {
           if (item.controlId === controlId) {
             item.value = value;
+
+            // 等级控件
+            if (item.type === 28) {
+              const maxCount = item.enumDefault === 1 ? 5 : 10;
+              item.value = Math.min(parseInt(Number(value || 0)), maxCount);
+            }
+
+            const needSearch = this.getFilterConfigs(item, 'onBlur');
+            if (currentSearchByChange ? _.includes(UN_TEXT_TYPE, item.type) : needSearch.length > 0) {
+              this.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
+            }
 
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId);
@@ -782,6 +864,7 @@ export default class DataFormat {
       };
       const depthUpdateData = (controlId, depth, value) => {
         const currentItem = _.find(this.data, item => item.controlId === controlId);
+        let currentSearchByChange = searchByChange;
 
         // 最多递归5层
         if (depth > 5) {
@@ -791,6 +874,8 @@ export default class DataFormat {
 
         // 更新当前的控件值
         if (value === undefined) {
+          //由默认值等引起的更新
+          currentSearchByChange = false;
           // 大写金额控件
           if (currentItem.type === 25) {
             value = nzh.cn
@@ -809,7 +894,12 @@ export default class DataFormat {
 
           // 公式控件
           if (currentItem.type === 31) {
-            const formulaResult = parseNewFormula(this.data, currentItem.dataSource, currentItem.dot);
+            const formulaResult = parseNewFormula(
+              this.data,
+              currentItem.dataSource,
+              currentItem.dot,
+              currentItem.advancedSetting.nullzero,
+            );
             value = formulaResult.error || formulaResult.columnIsUndefined ? '' : formulaResult.result;
           }
 
@@ -825,7 +915,12 @@ export default class DataFormat {
 
               // 公式
               if (singleControl.type === 31) {
-                const formulaResult = parseNewFormula(this.data, singleControl.dataSource, singleControl.dot);
+                const formulaResult = parseNewFormula(
+                  this.data,
+                  singleControl.dataSource,
+                  singleControl.dot,
+                  singleControl.advancedSetting.nullzero,
+                );
                 if (formulaResult.columnIsUndefined) {
                   return '';
                 }
@@ -841,6 +936,15 @@ export default class DataFormat {
           // 日期公式控件
           if (currentItem.type === 38) {
             value = parseDateFormula(this.data, currentItem, this.recordCreateTime);
+          }
+
+          // 动态默认值 函数
+          if (currentItem.advancedSetting && currentItem.advancedSetting.defaultfunc) {
+            delete currentItem.advancedSetting.defsource;
+            value = calcDefaultValueFunction({
+              formData: this.data,
+              fnControl: currentItem,
+            });
           }
 
           // 动态默认值
@@ -964,7 +1068,7 @@ export default class DataFormat {
           }
         }
 
-        updateSource(controlId, value);
+        updateSource(controlId, value, currentSearchByChange);
 
         // 受影响的控件集合
         const effectControls = _.filter(
@@ -977,6 +1081,9 @@ export default class DataFormat {
               JSON.parse(item.advancedSetting.defsource).filter(
                 obj => ((!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid)) && !obj.isAsync,
               ).length) ||
+            ((item.advancedSetting && _.get(safeParse(item.advancedSetting.defaultfunc), 'expression')) || '').indexOf(
+              controlId,
+            ) > -1 ||
             (item.type === 37 && controlId === (item.dataSource || '').slice(1, -1)),
         );
 
@@ -1090,19 +1197,22 @@ export default class DataFormat {
         });
       });
 
-      departments = JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1));
+      departments = _.uniq(departments, 'departmentId');
 
       ids.forEach(controlId => {
+        const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
+        const value = enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
+
         this.updateDataSource({
           controlId,
-          value: departments,
+          value,
           isInit: true,
         });
-      });
 
-      this.onAsyncChange({
-        controlIds: ids,
-        value: departments,
+        this.onAsyncChange({
+          controlId,
+          value,
+        });
       });
     });
   }
@@ -1171,7 +1281,7 @@ export default class DataFormat {
           } else {
             getDepartmentsByAccountId({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) }).then(
               result => {
-                const departments = [];
+                let departments = [];
 
                 result.maps.forEach(item => {
                   item.departments.forEach(obj => {
@@ -1182,16 +1292,22 @@ export default class DataFormat {
                   });
                 });
 
+                departments = JSON.stringify(
+                  item.enumDefault === 0
+                    ? _.uniq(departments, 'departmentId').slice(0, 1)
+                    : _.uniq(departments, 'departmentId'),
+                );
+
                 // 多部门只获取第一个
                 this.updateDataSource({
                   controlId: item.controlId,
-                  value: JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1)),
+                  value: departments,
                   isInit,
                 });
 
                 this.onAsyncChange({
                   controlId: item.controlId,
-                  value: JSON.stringify(_.uniq(departments, 'departmentId').slice(0, 1)),
+                  value: departments,
                 });
               },
             );
@@ -1200,4 +1316,152 @@ export default class DataFormat {
       });
     });
   }
+
+  /**
+   * 能否执行查询（条件字段、字段值存在&&有值）
+   */
+  getSearchStatus = (filters = [], controls = []) => {
+    return _.every(filters, item => {
+      //筛选值字段
+      const fieldExit =
+        item.dynamicSource && item.dynamicSource.length > 0
+          ? (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value
+          : true;
+      //条件字段
+      const conditionExit = _.find(controls, con => con.controlId === item.controlId);
+      return conditionExit && fieldExit;
+    });
+  };
+
+  /**
+   * 查询记录
+   */
+  getFilterRowsData = (filters = [], sourceId, pageSize) => {
+    const formatFilters = formatFiltersValue(filters, this.data);
+    let params = {
+      filterControls: formatFilters,
+      pageSize,
+      pageIndex: 1,
+      searchType: 1,
+      status: 1,
+      worksheetId: sourceId,
+      getType: 7,
+    };
+    if (window.isPublicWorksheet) {
+      params.formId = window.publicWorksheetShareId;
+    }
+    return getFilterRows(params);
+  };
+
+  /**
+   * 根据查询配置更新数据
+   */
+  getFilterConfigs = (control = {}, searchType) => {
+    switch (searchType) {
+      case 'init':
+        return this.searchConfig.filter(({ items = [] }) =>
+          _.every(items, item => (item.dynamicSource || []).length === 0),
+        );
+      case 'onBlur':
+        return this.searchConfig
+          .filter(({ controlId }) => controlId !== control.controlId)
+          .filter(({ items = [] }) =>
+            _.some(items, item => _.get(item.dynamicSource[0] || {}, 'cid') === control.controlId),
+          );
+      default:
+        return [];
+    }
+  };
+
+  /**
+   * 根据查询配置更新数据
+   */
+  updateDataBySearchConfigs = ({ control = {}, searchType }) => {
+    const filterSearchConfig = this.getFilterConfigs(control, searchType);
+    filterSearchConfig.forEach(currentConfig => {
+      const updateData = value => {
+        this.updateDataSource({
+          controlId: currentConfig.controlId,
+          value,
+        });
+        this.onAsyncChange({
+          controlId: currentConfig.controlId,
+          value,
+        });
+      };
+      if (currentConfig) {
+        const { items = [], configs = [], templates = [], sourceId, controlType, controlId } = currentConfig;
+        const controls = _.get(templates[0] || {}, 'controls') || [];
+        //当前配置查询的控件
+        const currentControl = _.find(this.data, da => da.controlId === controlId);
+        // 满足查询时机
+        const canSearch = this.getSearchStatus(items, controls);
+        //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
+        if (templates.length > 0 && controls.length > 0 && canSearch && currentControl) {
+          //关联记录
+          if (_.includes([29], controlType) && _.get(currentControl.advancedSetting || {}, 'showtype') !== '2') {
+            //关联单条取第一条记录
+            this.getFilterRowsData(items, sourceId, currentControl.enumDefault === 1 ? 1 : 50).then(res => {
+              if (res.resultCode === 1) {
+                const newValue = (res.data || []).map(item => {
+                  return {
+                    sourcevalue: JSON.stringify(item),
+                    type: 8,
+                    sid: item.rowid,
+                  };
+                });
+                updateData(JSON.stringify(newValue));
+              }
+            });
+          } else {
+            //子表和普通字段需判断映射字段存在与否
+            const canMapConfigs = configs.filter(({ cid, subCid }) => {
+              return _.find(controls, c => c.controlId === subCid) && currentControl.type === 34
+                ? _.find(currentControl.relationControls || [], re => re.controlId === cid)
+                : currentControl.controlId === cid;
+            });
+            if (canMapConfigs.length > 0) {
+              this.getFilterRowsData(items, sourceId, controlType === 34 ? 50 : 1).then(res => {
+                if (res.resultCode === 1) {
+                  const filterData = res.data || [];
+                  //子表
+                  if (controlType === 34) {
+                    const newValue = [];
+                    filterData.forEach(item => {
+                      let row = {};
+                      canMapConfigs.map(({ cid = '', subCid = '' }) => {
+                        if (_.find(currentControl.relationControls || [], re => re.controlId === cid)) {
+                          row[cid] = item[subCid];
+                        }
+                      });
+                      //映射明细所有字段值不为空
+                      if (_.some(Object.values(row), i => !_.isUndefined(i))) {
+                        newValue.push({
+                          ...row,
+                          rowid: `temprowid-${uuid.v4()}`,
+                          allowedit: true,
+                          addTime: new Date().getTime(),
+                        });
+                      }
+                    });
+                    updateData({
+                      action: 'clearAndSet',
+                      rows: newValue,
+                    });
+                  } else {
+                    //普通字段取第一条
+                    const currentId = _.get(canMapConfigs[0] || {}, 'subCid');
+                    //取该控件值去填充
+                    const item = _.find(controls, c => c.controlId === currentId);
+                    const value = getCurrentValue(item, (filterData[0] || {})[currentId], currentControl);
+                    value && updateData(value);
+                  }
+                }
+              });
+            }
+          }
+        }
+      }
+    });
+  };
 }

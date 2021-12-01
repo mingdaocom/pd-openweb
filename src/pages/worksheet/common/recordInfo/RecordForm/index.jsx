@@ -303,6 +303,7 @@ export default function RecortForm(props) {
                   data={formdata.filter(control => !(view.controls || []).includes(control.controlId))}
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
+                  isWorksheetQuery={recordinfo.isWorksheetQuery}
                   disabled={!allowEdit}
                   projectId={recordinfo.projectId}
                   worksheetId={worksheetId}

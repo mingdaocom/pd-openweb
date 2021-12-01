@@ -28,6 +28,7 @@ const Con = styled.div`
 const Title = styled.div`
   font-weight: 500;
   font-size: 14px;
+  line-height: 20px;
   color: #333;
 `;
 
@@ -106,7 +107,7 @@ function click(func) {
 
 export default function RecordCoverCard(props) {
   const { disabled, width, title, controls, data, cover, onClick, onDelete, viewId } = props;
-  const coverSize = 47 + 28 * controls.slice(0, 3).length;
+  const coverSize = 50 + 28 * controls.slice(0, 3).length;
   const isMobile = browserIsMobile();
   return (
     <Con onClick={onClick} style={width ? { width } : {}} className={!disabled && 'Hand'}>
@@ -165,7 +166,7 @@ export default function RecordCoverCard(props) {
 RecordCoverCard.propTypes = {
   disabled: PropTypes.bool,
   title: PropTypes.string,
-  width: PropTypes.number,
+  width: PropTypes.string,
   controls: PropTypes.arrayOf(PropTypes.shape({})),
   data: PropTypes.shape({}),
   cover: PropTypes.string,

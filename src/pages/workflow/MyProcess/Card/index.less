@@ -2,32 +2,51 @@
 .card {
   &Wrapper {
     width: 100%;
-    padding: 12px 16px;
+    padding: 14px 16px 14px;
     margin-bottom: 12px;
     background-color: #fff;
     box-sizing: border-box;
     transition: box-shadow 0.3s;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+    position: relative;
+    overflow: hidden;
 
     &:hover {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
       .alreadyRead {
         display: block;
       }
+      .examineTime {
+        display: none;
+      }
+    }
+    &:last-child {
+      margin-bottom: 30px;
+    }
+    .ant-checkbox-wrapper input {
+      display: none;
+    }
+    .approveChecked {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background-color: #1890ff;
     }
   }
   &Header {
     justify-content: space-between;
     .state {
       color: #fff;
-      padding: 4px 11px;
+      padding: 1px 11px;
       border-radius: 25px;
-      background-color: #F5F5F5;
+      background-color: #ebebeb;
     }
     .alreadyRead {
       color: #757575;
-      padding: 3px 15px 3px 9px;
+      padding: 1px 15px 1px 9px;
       border-radius: 25px;
       cursor: pointer;
       display: none;
@@ -35,23 +54,6 @@
         color: #2196F3;
         background-color: #2196F333;
       }
-    }
-  }
-  &Body {
-    color: #333;
-    font-size: 15px;
-    padding: 12px 0;
-    font-weight: 500;
-    word-break: break-all;
-  }
-  &Footer {
-    justify-content: space-between;
-
-    .user img {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      margin: 0 10px;
     }
     .appIcon {
       width: 22px;
@@ -70,10 +72,49 @@
     .dot {
       width: 5px;
       height: 5px;
-      margin: 2px 8px;
+      margin: 2px 6px;
       border-radius: 50%;
       display: inline-block;
       background-color: #9E9E9E;
+    }
+  }
+  &Body {
+    color: #333;
+    font-size: 15px;
+    padding: 12px 0 0;
+    font-weight: 500;
+    word-break: break-all;
+    .conent {
+      align-items: flex-start;
+    }
+    .avatarWrapper {
+      border-radius: 24px;
+      background-color: #eaeaea;
+      .accountAvatar {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+      }
+      .fullName {
+        font-weight: initial;
+      }
+    }
+  }
+  &Footer {
+    flex-wrap: wrap;
+    .controlWrapper {
+      width: 25%;
+      padding-right: 10px;
+    }
+    .controlValue {
+      display: -webkit-box;
+      /* autoprefixer: off */
+      -webkit-box-orient: vertical;
+      /* autoprefixer: on */
+      -webkit-line-clamp: 3;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      overflow: hidden;
     }
   }
 }

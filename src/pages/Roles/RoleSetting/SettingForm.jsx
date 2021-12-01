@@ -216,7 +216,7 @@ export default class extends PureComponent {
 
   toggleAllViewAuth(key, checked) {
     const { roleDetail, onChange } = this.props;
-    const sheets = roleDetail.sheets.map(item => changeSheetModel(item, key, checked));
+    const sheets = (roleDetail.sheets || []).map(item => changeSheetModel(item, key, checked));
 
     onChange({
       ...roleDetail,

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { string, func } from 'prop-types';
 import cx from 'classnames';
-import Icon from 'ming-ui/components/Icon';
+import { Icon, LoadDiv } from 'ming-ui';
 import HistoryStatus from './HistoryStatus';
 import NodeIcon from './NodeIcon';
 import api from '../../api/instance';
@@ -14,6 +14,7 @@ import {
   ACTION_TYPE,
   COUNTER_TYPE,
 } from './config';
+import { resetInstance } from '../../api/instanceVersion';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -27,7 +28,10 @@ export default class HistoryDetail extends Component {
 
   state = {
     data: {},
+    isRetry: false,
   };
+
+  retryPosition = '';
 
   componentWillMount() {
     this.getData();
@@ -62,11 +66,11 @@ export default class HistoryDetail extends Component {
 
     return (
       <Fragment>
-        <div className="personDetail flex Gray_75">
+        <div className="personDetail flex Gray_75 flexRow">
           {_.includes([3, 4, 5], type) && (
             <Fragment>
               <div className="personInfo">
-                <span>{_l('%0人: ', NODE_TYPE[type].text)}</span>
+                <span>{_l('%0人：', NODE_TYPE[type].text)}</span>
                 {names.map(
                   (item, index) =>
                     item && (
@@ -85,9 +89,9 @@ export default class HistoryDetail extends Component {
         </div>
         {countersign && _.includes([1, 2], countersignType) ? (
           <div className="info">
-            <span>{_l('会签: ')}</span>
+            <span>{_l('会签：')}</span>
             <span>{COUNTER_TYPE[countersignType]}</span>
-            {names.some(item => item.action === 5) && <span className="overrule">{_l(', 审批被否决')}</span>}
+            {names.some(item => item && item.action === 5) && <span className="overrule">{_l(', 审批被否决')}</span>}
           </div>
         ) : (
           names.map((item, key) => {
@@ -96,7 +100,7 @@ export default class HistoryDetail extends Component {
               if (!action) return <div key={key} />;
               return _.includes([2, 8, 16], action) ? (
                 <div key={key} className="actionDetail flexRow Gray_75">
-                  <div className="actionType">{_l('%0: ', ACTION_TYPE[action].text)}</div>
+                  <div className="actionType">{_l('%0：', ACTION_TYPE[action].text)}</div>
                   {target && <div className="actionTarget">{target}</div>}
                 </div>
               ) : (
@@ -122,14 +126,59 @@ export default class HistoryDetail extends Component {
     );
   }
 
+  renderRetryBtn(retryPosition) {
+    const { data, isRetry } = this.state;
+    const { instanceLog, logs } = data;
+    const { cause } = instanceLog;
+
+    if ((data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4) {
+      return (
+        <div
+          className={cx(
+            'historyDetailRetry',
+            isRetry ? 'historyDetailRetryDisabled' : 'ThemeHoverColor2 ThemeHoverBorderColor2',
+          )}
+          data-tip={_l('从失败或中止的节点处开始重试')}
+          onClick={e => {
+            this.retryPosition = retryPosition;
+            this.resetInstance(e);
+          }}
+        >
+          <Icon className="Font14 mRight3" icon="refresh1" />
+          {_l('重试')}
+          {!!logs.length && '#' + logs.length}
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  resetInstance = e => {
+    const { isRetry } = this.state;
+    const { id } = this.props;
+
+    e.stopPropagation();
+
+    if (isRetry) return;
+
+    this.setState({ isRetry: true });
+
+    resetInstance({ instanceId: id }).then(data => {
+      this.setState({ data, isRetry: false });
+    });
+  };
+
   render() {
-    const { data } = this.state;
-    if (_.isEmpty(data)) return null;
+    const { data, isRetry } = this.state;
+    if (_.isEmpty(data)) return <LoadDiv />;
 
     const { onClick } = this.props;
-    const { works, title, createDate } = data;
+    const { works, title, createDate, instanceLog, completeType } = data;
+    const { cause, nodeName, causeMsg } = instanceLog;
     const { status } = FLOW_STATUS[data.status];
-    const { bgColor } = STATUS2COLOR[status];
+    const { color, bgColor } = STATUS2COLOR[status];
+
     return (
       <div className="historyDetailWrap">
         <div className="header" onClick={onClick}>
@@ -138,27 +187,59 @@ export default class HistoryDetail extends Component {
         </div>
         <div className="detailContent">
           <div className={cx('itemInfo', status)} style={{ backgroundColor: bgColor }}>
-            <HistoryStatus statusCode={data.status} size={44} />
-            <div className="title Font18 flex overflow_ellipsis">{title}</div>
-            <div className="time Font15 Gray_75">{createDate}</div>
+            {isRetry && this.retryPosition === 'header' && <div className="workflowRetryLoading"></div>}
+            <HistoryStatus statusCode={data.status} size={44} color={color} textSize={18} />
+            <div className="title flex mRight15">
+              <div className="overflow_ellipsis Font18">{_l('数据：') + title}</div>
+              <div style={{ color }}>
+                {cause
+                  ? cause === 40007
+                    ? FLOW_FAIL_REASON[cause]
+                    : `${_l('节点: ')} ${nodeName}, ${FLOW_FAIL_REASON[cause] || causeMsg}`
+                  : ''}
+              </div>
+            </div>
+            <div className="time">
+              <div className="Font15 Gray_75">{createDate}</div>
+              {this.renderRetryBtn('header')}
+            </div>
           </div>
           <div className="logWrap">
             <div className="logTitle Font16 Gray_75">{_l('日志')}</div>
             <ul className="logList">
               {works.map((item, index) => {
-                const { flowNode, startDate, endDate, status } = item;
+                const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort } = item;
                 const { name } = flowNode;
                 const { type } = NODE_TYPE[flowNode.child && flowNode.type === 0 ? 16 : flowNode.type] || {};
+
                 return (
                   <li key={index}>
-                    <HistoryStatus className="flowItemHistory" config={NODE_STATUS} statusCode={status} />
-                    <div className="originNode ">
-                      <NodeIcon type={type} appType={flowNode.appType} actionId={flowNode.actionId} />
-                      <div className="nodeName Font15 overflow_ellipsis">{name}</div>
+                    {isRetry && index === works.length - 1 && this.retryPosition === 'list' && (
+                      <div className="workflowRetryLoading"></div>
+                    )}
+
+                    <div className="flowItemHistory flexRow">
+                      <HistoryStatus config={NODE_STATUS} statusCode={status} />
+                      {index !== works.length - 1 && !!(logs || []).length && (
+                        <span className="mLeft8">
+                          <div className="historyDetailRetryResult">{_l('重试') + '#' + logs.length}</div>
+                        </span>
+                      )}
+                      {index === works.length - 1 && <span className="mLeft8">{this.renderRetryBtn('list')}</span>}
                     </div>
+
+                    <div className="originNode">
+                      <NodeIcon type={type} appType={flowNode.appType} actionId={flowNode.actionId} />
+                      <div className="nodeName Font15 overflow_ellipsis">
+                        {name}
+                        {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+                      </div>
+                    </div>
+
                     <div className="operationPerson">
                       {flowNode.type === 16 ? this.renderSubProcess(item) : this.renderOperationInfo(item)}
                     </div>
+
                     <div className="operationTime Gray_75">
                       <div className="enterTime">{`${_l('进入:')} ${moment(startDate).format(
                         'YYYY-MM-DD HH:mm:ss',
@@ -172,6 +253,12 @@ export default class HistoryDetail extends Component {
                   </li>
                 );
               })}
+
+              {completeType === 1 && (
+                <li className="pBottom0 pTop25">
+                  <div className="TxtCenter Gray_9e w100">{_l('流程已结束')}</div>
+                </li>
+              )}
             </ul>
           </div>
         </div>

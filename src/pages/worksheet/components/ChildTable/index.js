@@ -19,6 +19,7 @@ export default class extends React.Component {
       onChange({
         rows: state.rows,
         lastAction: state.lastAction,
+        originRows: state.originRows,
       });
     });
   }

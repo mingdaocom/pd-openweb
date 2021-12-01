@@ -160,6 +160,7 @@ export const VIEW_DISPLAY_TYPE = enumType({
   4: 'calendar',
   3: 'gallery',
   2: 'structure',
+  5: 'gunter',
 });
 
 export const VIEW_TYPE_ICON = [
@@ -168,6 +169,7 @@ export const VIEW_TYPE_ICON = [
   { icon: 'event', color: '#F64082', text: _l('日历'), id: 'calendar' },
   { icon: 'gallery_view', color: '#3949ab', text: _l('画廊'), id: 'gallery' },
   { icon: 'hierarchy', color: '#9C27AF', text: _l('层级'), id: 'structure' },
+  { icon: 'gantt', color: '#01BCD5', text: _l('甘特图'), id: 'gunter' }
 ];
 
 export const WORKSHEET_VIEW_PAGE_SIZE = {

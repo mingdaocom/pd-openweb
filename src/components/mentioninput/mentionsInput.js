@@ -550,16 +550,58 @@ Modified by Kenneth Auchenberg
       var elmDropDownList = $('<ul>').appendTo(elmAutocompleteList).hide();
 
       if (results.accounts && results.accounts.length > 0) {
+        let atDataIndex = null;
+        let userIndex = null;
+
+        results.accounts.map((item, i) => {
+          if (item.isAtData && !atDataIndex) {
+            atDataIndex = i;
+          }
+          if (!item.isAtData && !item.isAll && !userIndex) {
+            userIndex = i;
+          }
+        });
         _.each(results.accounts, function (item, index) {
           var itemUid = _.uniqueId('mention_');
-          var template = item.isAll
-            ? '<div class="itemContent"><span class="wMax100 InlineBlock LineHeight40 pTop5 pBottom5 ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span></div>'
-            : '<div class="itemContent"><div><span class="fullname ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span><span class="Gray_a"  title={{! it.profession}}>{{! it.profession || ""}}</span></div><div>{{? !it.isAll}}<span class="Gray_a">{{! it.companyName}}</span>{{?}}</div></div>';
-
+          let template = '';
+          if (item.isAll) {
+            template =
+              `<div class="itemContent"><span class="wMax100 InlineBlock pTop5 ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span><br/><span class="Gray_9e pBottom5 InlineBlock">${_l('所有记录成员与参与讨论的人')}</span></div>`;
+          } else {
+            if (settings.forReacordDiscussion) {
+              if (item.isAtData) {
+                template = `<div class="itemContent">
+                {{? !it.job && !it.companyName}}
+                <div style="line-height:38px" >
+                {{??}}
+                <div>
+                {{?}}
+                <span class="fullname Gray" title={{! it.fullname }}>{{! it.fullname}}</span>
+                </div>
+                {{? it.job || it.companyName}}
+                <div>
+                <span class="Gray_a"  title={{! it.job}}>{{! it.job || ""}}</span>
+                {{? it.job && it.companyName}}
+                  <span class="Gray_a">/</span>
+                {{?}}
+                {{? !it.isAll}}
+                  <span class="Gray_a">{{! it.companyName}}</span>
+                {{?}}
+                </div>
+                {{?}}
+              </div>`;
+              } else {
+                template = `<div class="itemContent">{{? !it.profession && !it.companyName}}<div style="line-height:38px">{{??}}<div>{{?}}<span class="fullname Gray" title={{! it.fullname }}>{{! it.fullname}}</span></div>{{? it.profession || it.companyName}} <div>{{? it.profession}}<span class="Gray_a" title={{! it.profession}}>{{! it.profession}}</span>{{?}}{{? it.profession && it.companyName}}<span class="Gray_a">/</span>{{?}}{{? !it.isAll}}<span class="Gray_a">{{! it.companyName}}</span>{{?}}</div>{{?}}</div>`;
+              }
+            } else {
+              template =
+                '<div class="itemContent"><div><span class="fullname ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span>{{? it.profession}}<span class="Gray_a" title={{! it.profession}}>{{! it.profession}}</span>{{?}}</div><div>{{? !it.isAll}}<span class="Gray_a">{{! it.companyName}}</span>{{?}}</div></div>';
+            }
+          }
           autocompleteItemCollection[itemUid] = {
             id: htmlEncodeReg(item.accountId || item.id),
             value: item.fullname,
-            avatar: item.avatarMiddle,
+            avatar: item.isAtData ? item.avatar : item.avatarMiddle,
             display: htmlEncodeReg(item.fullname),
             type: 'user',
             content: utils.highlightTerm(doT.template(template)(item), query),
@@ -572,6 +614,15 @@ Modified by Kenneth Auchenberg
 
           if (index === 0) {
             selectAutoCompleteItem(elmListItem);
+          }
+          if (settings.forReacordDiscussion && atDataIndex === index && !query) {
+            let elmListItem = $(`<div class='title mTop6 Bold Gray_9e'>${_l('参与者')}</div>`);
+            elmListItem.appendTo(elmDropDownList);
+          }
+
+          if (settings.forReacordDiscussion && userIndex === index && !query) {
+            let elmListItem = $(`<div class='title mTop6 Bold Gray_9e'>${_l('最常协作')}</div>`);
+            elmListItem.appendTo(elmDropDownList);
           }
 
           if (settings.showAvatars) {
@@ -668,44 +719,92 @@ Modified by Kenneth Auchenberg
       elmDropDownList.show();
     }
 
-    function doSearch(query) {
+    function getUsers(query, recordAtdatas = []) {
       if (promiseObj && promiseObj.abort && promiseObj.state() === 'pending') {
         promiseObj.abort();
       }
-
-      if (atLetterArr.indexOf(currentType) > -1) {
-        promiseObj = userAjax.getUsersByKeywords({
-          search: settings.searchType,
-          keywords: query,
-        });
-        promiseObj.then(function getUsersByKeywordsCb(responseData) {
-          if (!query) {
-            var additionalTerm = null;
-            if (settings.isAtAll) {
-              // @全体任务成员
-              additionalTerm = {
-                id: 'atAll',
-                fullname: AT_ALL_TEXT[settings.sourceType],
-              };
-            }
-            if (settings.isAtAll && settings.sourceType === SOURCE_TYPE.POST) {
-              additionalTerm = {
-                id: 'isCommentAtAll',
-                fullname: AT_ALL_TEXT[settings.sourceType],
-              };
-            }
-            if (additionalTerm) {
-              responseData.accounts.splice(0, 0, {
+      if (recordAtdatas.length > 15 && settings.forReacordDiscussion) {
+        let responseData = {};
+        responseData.accounts = [
+          {
+            isAll: true,
+            avatarMiddle: '/staticfiles/images/atAllUser.png',
+            id: 'atAll',
+            fullname: AT_ALL_TEXT[settings.sourceType],
+            type: 'user',
+          },
+        ].concat(recordAtdatas);
+        return populateDropdown(query, responseData);
+      }
+      promiseObj = userAjax.getUsersByKeywords({
+        search: settings.searchType,
+        keywords: query,
+      });
+      promiseObj.then(function getUsersByKeywordsCb(responseData) {
+        if (!query) {
+          var additionalTerm = null;
+          if (settings.isAtAll) {
+            // @全体任务成员
+            additionalTerm = {
+              id: 'atAll',
+              fullname: AT_ALL_TEXT[settings.sourceType],
+            };
+          }
+          if (settings.isAtAll && settings.sourceType === SOURCE_TYPE.POST) {
+            additionalTerm = {
+              id: 'isCommentAtAll',
+              fullname: AT_ALL_TEXT[settings.sourceType],
+            };
+          }
+          let data = [];
+          if (additionalTerm) {
+            data = [
+              {
                 isAll: true,
-                avatarMiddle: '/staticfiles/images/taskAtUserAll.png',
+                avatarMiddle: '/staticfiles/images/atAllUser.png',
                 id: additionalTerm.id,
                 fullname: additionalTerm.fullname,
                 type: 'user',
-              });
-            }
+              },
+            ];
           }
-          populateDropdown(query, responseData);
-        });
+          if (recordAtdatas.length > 0 && settings.forReacordDiscussion) {
+            let ids = recordAtdatas.map(o => o.accountId);
+            responseData.accounts = data.concat(recordAtdatas).concat(
+              _.take(
+                responseData.accounts.filter(o => !ids.includes(o.accountId)),
+                20 - recordAtdatas.length,
+              ).map(o => {
+                return {
+                  ...o,
+                  isAtData: false,
+                };
+              }),
+            );
+          } else {
+            responseData.accounts = data.concat(responseData.accounts);
+          }
+        }
+        populateDropdown(query, responseData);
+      });
+    }
+
+    function doSearch(query) {
+      if (atLetterArr.indexOf(currentType) > -1) {
+        //!query 使用localStorage  atData
+        if (settings.forReacordDiscussion && !query) {
+          let atData = localStorage.getItem('atData') || '[]';
+          let recordAtdatas = JSON.parse(atData) || [];
+          recordAtdatas = recordAtdatas.map(o => {
+            return {
+              ...o,
+              isAtData: true,
+            };
+          });
+          getUsers(query, recordAtdatas);
+        } else {
+          getUsers(query);
+        }
       } else if (settings.showCategory && categoryLetterArr.indexOf(currentType) > -1) {
         promiseObj = categoryAjax.autoCompleteCategory({ keywords: query });
 

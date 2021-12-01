@@ -107,5 +107,10 @@ export const ROUTE_CONFIG = {
     path: '/mobile/searchRecord/:appId/:worksheetId/:viewId',
     component: () => import('src/pages/Mobile/SearchRecord'),
     title: _l('搜索'),
+  },
+  groupFilterDetail: {
+    path: '/mobile/groupFilterDetail/:worksheetId/:viewId/:appId/:rowId/:txt',
+    component: () => import('src/pages/Mobile/RecordList/GroupFilterDetail'),
+    title: _l('筛选分组'),
   }
 };

@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import { string, number, func } from 'prop-types';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import cx from 'classnames';
-import { Dropdown, Icon } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
+import { Select } from 'antd';
 import { FlexCenter } from 'worksheet/styled';
 import { getItem, setItem } from './util';
+import { browserIsMobile } from 'src/util';
+import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
+import 'src/pages/worksheet/views/GunterView/Chart/components/ToolBar/index.less';
 
 const SCALE_LIMIT = {
   min: 50,
@@ -13,37 +17,39 @@ const SCALE_LIMIT = {
 
 const ToolBarWrap = styled(FlexCenter)`
   position: absolute;
-  bottom: 50px;
+  bottom: 32px;
   left: 24px;
   background-color: #fff;
-  border-radius: 18px;
-  height: 36px;
-  padding: 0 10px;
+  border-radius: 26px;
+  height: 44px;
+  padding: 0 22px 0 16px;
   z-index: 9;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  ${props =>
+    props.browserIsMobile &&
+    css`
+      left: 0;
+      bottom: 20px;
+      margin-left: 16px;
+      padding: 0 22px 0 10px;
+    `};
   .adjustScale {
     display: flex;
     align-items: center;
+    .searchIcon {
+      color: #757575;
+    }
   }
   .toOrigin {
     margin: 0 12px;
   }
-  .shrink {
-    margin: 0 12px;
-  }
   .genScreenshot,
-  .toOrigin,
-  .shrink,
-  .enlarge {
+  .toOrigin {
     cursor: pointer;
   }
-  .shrink,
-  .enlarge {
-    color: #757575;
-    &.disableAdjustSize {
-      color: #bdbdbd;
-      cursor: not-allowed;
-    }
+  .disableAdjustSize {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   .scale {
     font-size: 13px;
@@ -51,19 +57,41 @@ const ToolBarWrap = styled(FlexCenter)`
   }
   .expand {
     .Dropdown--input {
+      padding: 5px 7px 5px 18px;
       .value {
         font-size: 13px;
+      }
+      .icon {
+        margin-left: 4px !important;
       }
     }
   }
 `;
 
+const SelectWrap = styled(Select)`
+  width: 80px;
+  .ant-select-selection-item {
+    text-align: center;
+  }
+  &.ant-select-single.ant-select-open .ant-select-selection-item {
+    color: inherit;
+  }
+  .ant-select-selection-search-input {
+    display: none;
+  }
+  &:hover {
+    .icon-arrow-down {
+      color: #2196f3 !important;
+    }
+  }
+`;
+
 const DISPLAY_HIERARCHY = [
-  { value: '1', text: _l('1级') },
-  { value: '2', text: _l('2级') },
-  { value: '3', text: _l('3级') },
-  { value: '4', text: _l('4级') },
-  { value: '5', text: _l('5级') },
+  { value: 1, name: _l('1级') },
+  { value: 2, name: _l('2级') },
+  { value: 3, name: _l('3级') },
+  { value: 4, name: _l('4级') },
+  { value: 5, name: _l('5级') },
 ];
 export default class ToolBar extends Component {
   updateStorage = data => {
@@ -84,43 +112,72 @@ export default class ToolBar extends Component {
     this.updateStorage({ scale: nextScale });
   };
   render() {
-    const { scale, level, onClick } = this.props;
+    const { scale, level, onClick, searchData, updateSearchRecord, view } = this.props;
     return (
-      <ToolBarWrap>
-        {/* <div data-tip={_l('生成截图')} className="toolItem genScreenshot" onClick={() => onClick('genScreenshot')}>
-          <Icon className="Font18 Gray_75" icon="15_2_picture" />
-        </div> */}
-        <div className="toolItem expand">
-          <Dropdown
-            renderTitle={() => <span>{level ? _l('%0级', level) : _l('展开')}</span>}
-            value={level}
-            data={DISPLAY_HIERARCHY}
-            onChange={this.changeDisplayLevel}
-          />
-        </div>
+      <ToolBarWrap browserIsMobile={browserIsMobile()} className="flexRow valignWrappe">
+        {!browserIsMobile() && (
+          <Tooltip text={<span>{_l('导出为图片')}</span>}>
+            <Icon
+              icon="download"
+              className="Gray_75 Font18 mRight14 pointer"
+              onClick={() => onClick('genScreenshot')}
+            />
+          </Tooltip>
+        )}
+        <SelectWrap
+          suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
+          defaultActiveFirstOption={false}
+          defaultOpen={false}
+          dropdownClassName="gunterToolBarSelectWrapper"
+          value={level || _l('展开')}
+          bordered={false}
+          virtual={false}
+          onChange={this.changeDisplayLevel}
+        >
+          {DISPLAY_HIERARCHY.map(item => (
+            <Select.Option key={item.value} value={item.value} className="gunterToolBarSelectOptionWrapper">
+              {item.name}
+            </Select.Option>
+          ))}
+        </SelectWrap>
         {/* <div data-tip={_l('回到原点')} className="toolItem toOrigin" onClick={() => onClick('toOrigin')}>
           <Icon className="Font16 Gray_75" icon="Position" />
         </div> */}
         <div className="toolItem adjustScale">
-          <div className="scale">{`${scale}%`}</div>
-          <div
-            data-tip={_l('缩小')}
-            className={cx('shrink', {
-              disableAdjustSize: scale <= SCALE_LIMIT.min,
-            })}
-            onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
-          >
-            <Icon icon="maximizing_a2" />
-          </div>
-          <div
-            data-tip={_l('放大')}
-            className={cx('enlarge', {
-              disableAdjustSize: scale >= SCALE_LIMIT.max,
-            })}
-            onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
-          >
-            <Icon icon="plus" />
-          </div>
+          {!browserIsMobile() ? <div className="scale">{`${scale}%`}</div> : null}
+          <Tooltip text={<span>{_l('缩小')}</span>}>
+            <Icon
+              className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
+                disableAdjustSize: scale <= SCALE_LIMIT.min,
+              })}
+              icon="minus"
+              onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
+            />
+          </Tooltip>
+          <Tooltip text={<span>{_l('放大')}</span>}>
+            <Icon
+              className={cx('Font19 Gray_75 pointer mLeft6', {
+                disableAdjustSize: scale >= SCALE_LIMIT.max,
+              })}
+              icon="add1"
+              onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
+            />
+          </Tooltip>
+          {browserIsMobile() && (
+            <SearchRecord
+              overlayClassName="mobileSearchRecordDropdown"
+              queryKey={searchData.queryKey}
+              data={searchData.data}
+              onSearch={record => {
+                updateSearchRecord(view, record);
+              }}
+              onClose={() => {
+                updateSearchRecord(view, null);
+              }}
+            >
+              <Icon className="searchIcon Font18 mLeft16" icon="search" />
+            </SearchRecord>
+          )}
         </div>
       </ToolBarWrap>
     );

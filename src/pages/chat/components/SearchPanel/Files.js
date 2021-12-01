@@ -14,7 +14,7 @@ const format = (res) => {
     file.$size = utils.formatFileSize(file.size);
     file.iconClass = getClassNameByExt(`.${File.GetExt(file.name)}`);
     if (file.type === 2) {
-      file.previewUrl = `${file.url}?imageView2/0/w/100/h/100/q/90`;
+      file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
     return file;
   });

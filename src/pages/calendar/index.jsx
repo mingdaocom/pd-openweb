@@ -20,9 +20,9 @@ export default class CalendarEntrypoint extends Component {
     toolBar.bindEvent();
 
     let promise;
-    if (getCookie('i18n_langtag') === 'zh-Hant') {
+    if ((getCookie('i18n_langtag') || getNavigatorLang()) === 'zh-Hant') {
       promise = import('./modules/calendarControl/lang/zh-tw');
-    } else if (getCookie('i18n_langtag') !== 'en') {
+    } else if ((getCookie('i18n_langtag') || getNavigatorLang()) !== 'en') {
       promise = import('./modules/calendarControl/lang/zh-cn');
     } else {
       promise = Promise.resolve();

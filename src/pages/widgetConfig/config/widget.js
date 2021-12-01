@@ -416,10 +416,18 @@ export const DEFAULT_DATA = {
     controlName: _l('子表'),
     size: 12,
     enumDefault: 2,
+    advancedSetting: {
+      allowadd: '1',
+      allowcancel: '1',
+      allowedit: '1',
+    },
   },
   SWITCH: {
     controlName: _l('检查框'),
     size: 6,
+    advancedSetting: {
+      defsource: '[{"cid":"","rcid":"","staticValue":"0"}]',
+    },
   },
   SUBTOTAL: {
     controlName: _l('汇总'),

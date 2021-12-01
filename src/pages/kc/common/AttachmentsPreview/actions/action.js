@@ -30,7 +30,7 @@ function loadAttachment(attachment, options = {}) {
   if (!attachment) attachment = {};
 
   let { previewAttachmentType, previewType } = attachment;
-  const { refId } = attachment.sourceNode;
+  const { refId } = attachment.sourceNode || {};
   addViewCount(attachment);
   let attachmentPromise = Object.assign({}, attachment);
   if (

@@ -163,7 +163,6 @@ export default class ChartDialog extends Component {
         this.reportConfigRequest.abort();
       }
       data.filter.filterId = null;
-      data.version = '6.3';
       this.reportConfigRequest = reportConfig.getData(data, { fireImmediately: false });
       this.reportConfigRequest
         .then(result => {
@@ -183,7 +182,7 @@ export default class ChartDialog extends Component {
         });
     } else {
       // 成员 || 管理员放大
-      const { filter, sorts } = data;
+      const { filter, sorts, version } = data;
       if (this.reportRequest && this.reportRequest.state() === 'pending') {
         this.reportRequest.abort();
       }
@@ -198,7 +197,7 @@ export default class ChartDialog extends Component {
             filterControls: filter.filterControls,
             sorts,
           };
-      params.version = '6.3';
+      params.version = version;
       this.reportRequest = reportRequest.getData(params, { fireImmediately: false });
       this.reportRequest
         .then(result => {
@@ -222,7 +221,7 @@ export default class ChartDialog extends Component {
     const { currentReport, worksheetInfo, axisControls, reportId } = this.state;
     const { report, isPublic, sourceType } = this.props;
     const newCurrentReport = _.cloneDeep(currentReport);
-    const { yaxisList, splitId, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
+    const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
 
     if (pivotTable) {
       const { columnSummary, lineSummary } = pivotTable;
@@ -254,13 +253,14 @@ export default class ChartDialog extends Component {
       appId: worksheetInfo.worksheetId,
       name: newCurrentReport.name || _l('未命名图表'),
       id: reportId || '',
+      version: '6.5'
     });
   }
   handleUpdateOwnerId() {
     const { report } = this.props;
     this.props.onUpdateOwnerId(report);
   }
-  handleBlur = () => {
+  handleBlur = (event) => {
     const { currentReport } = this.state;
     this.props.onBlur(event);
     this.setState({

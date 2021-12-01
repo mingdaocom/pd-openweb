@@ -59,10 +59,10 @@
     }
     .customFormControlBox {
       border-color: #e0e0e0 !important;
-      &:not(.formBoxNoBorder):not(.braftEditorFixed):not(.relateRecord) {
+      &:not(.formBoxNoBorder):not(.relateRecord) {
         padding-right: 12px !important;
       }
-      &:not([type='tel']):not(.formBoxNoBorder):not(.braftEditorFixed):not(.relateRecord) {
+      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -89,6 +89,16 @@
         background: #fff !important;
         border-color: #e0e0e0 !important;
       }
+    }
+    .customFormControlTel {
+      .customFormControlBox {
+        &.controlDisabled {
+          padding-left: 12px !important;
+        }
+      }
+    }
+    .customFormControlTelBtn {
+      display: none;
     }
   }
 
@@ -305,63 +315,6 @@
       &.customFormEditor {
         background: #fff !important;
         border-color: #2196f3 !important;
-      }
-
-      &.braftEditorFixed {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        z-index: 1000;
-        padding: 0;
-        border: none;
-        .BraftEditor-container {
-          background: #f7f7f7;
-          height: auto;
-          .headings-dropdown,
-          .braft-font-size-dropdown {
-            min-width: auto;
-            margin-left: 10px;
-            .dropdown-handler {
-              width: auto;
-              span {
-                width: auto !important;
-              }
-            }
-          }
-          .BraftEditor-controlBar {
-            .control-item {
-              height: 24px;
-            }
-            button,
-            .control-item-group,
-            .control-item .dropdown-handler > span {
-              min-width: 24px;
-              width: 24px;
-              height: 24px;
-              line-height: 24px;
-              padding: 0;
-              i,
-              i:before {
-                width: 24px;
-                height: 24px;
-                line-height: 24px;
-              }
-            }
-          }
-          .BraftEditor-content {
-            height: 215px;
-          }
-        }
-        .mdEditorFooter {
-          margin-top: 0;
-          padding: 8px 12px;
-          background: #f7f7f7;
-          > div:not(.mdEditorCancel):not(.mdEditorSave):not(.flex) {
-            display: none;
-          }
-        }
       }
 
       &.formBoxNoBorder {

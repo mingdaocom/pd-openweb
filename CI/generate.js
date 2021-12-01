@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const ejs = require('ejs');
+const moment = require('moment');
 const cheerio = require('cheerio');
 const minify = require('html-minifier').minify;
 const { htmlTemplatesPath, getEntryName, getEntryFromHtml } = require('./utils');
@@ -49,6 +50,7 @@ function generate() {
       }
       html = ejs.compile(html)({
         apiServer: isProduction ? apiServer : '/api/',
+        releaseDate: moment().format('YYYY/MM/DD HH:mm:SS'),
         publicPath,
       });
       const $ = cheerio.load(html);

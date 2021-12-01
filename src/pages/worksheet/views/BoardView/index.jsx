@@ -1,6 +1,6 @@
 ﻿import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, Icon } from 'ming-ui';
 import { every, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -227,7 +227,14 @@ function BoardView(props) {
               sortRecord={sortRecord}
               selectControl={selectControl()}
               addRecord={addRecord}
-              {..._.pick(props, ['appId', 'viewId', 'searchRow', 'updateBoardViewData', 'isCharge'])}
+              {..._.pick(props, [
+                'appId',
+                'viewId',
+                'searchRow',
+                'updateBoardViewData',
+                'isCharge',
+                'sheetSwitchPermit',
+              ])}
               {...rest}
             />
           );

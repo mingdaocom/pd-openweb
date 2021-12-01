@@ -121,7 +121,7 @@ export default class SearchMember extends Component {
           this.adjustViewport('down');
         }
       );
-    } else if (which === 13 && flattenResult.length) {
+    } else if (which === 13 && flattenResult.length && currentIndex !== -1) {
       this.handleOpenSession(flattenResult[currentIndex]);
     } else if (which === 27) {
       this.handleClose();

@@ -62,9 +62,10 @@ export default class Widgets extends Component {
     const { isEditing } = this.state;
     const disabledInput = advancedSetting.dismanual === '1';
     const isSingleLine = enumDefault === 2;
-    const isWxWork = false;
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger');
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const startTextScanCode = !disabled && (isWxWork || isWeLink) && strDefault.split('')[1] === '1';
+    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+    const startTextScanCode = !disabled && (isWx || isWeLink || isDing) && strDefault.split('')[1] === '1';
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {

@@ -64,12 +64,6 @@ class Search extends Component {
       });
     }));
   }
-  navigateTo(url) {
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-    this.props.history.push(url);
-  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSearchSheetRows.length !== this.props.currentSearchSheetRows.length) {
       this.setState({
@@ -108,7 +102,7 @@ class Search extends Component {
           controls={worksheetControls}
           allowAdd={currentSheetInfo.allowAdd}
           onClick={() => {
-            this.navigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`);
+            window.mobileNavigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`);
           }}
         />
       </WingBlank>

@@ -45,8 +45,9 @@ export default class RecordCardListDialog extends Component {
   };
   constructor(props) {
     super(props);
+    const clickSearch = _.get(props.control, 'advancedSetting.clicksearch') === '1';
     this.state = {
-      loading: true,
+      loading: !clickSearch,
       list: [],
       controls: [],
       sortControls: [],
@@ -57,6 +58,7 @@ export default class RecordCardListDialog extends Component {
       showNewRecord: false,
       keyWords: props.keyWords,
     };
+    this.clickSearch = clickSearch;
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
   }
   componentDidMount() {
@@ -70,11 +72,13 @@ export default class RecordCardListDialog extends Component {
               allowAdd: data.allowAdd,
               worksheetInfo: data,
             },
-            this.loadRecorcd,
+            this.clickSearch ? () => {} : this.loadRecorcd,
           );
         });
     } else {
-      this.loadRecorcd();
+      if (!this.clickSearch) {
+        this.loadRecorcd();
+      }
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -128,11 +132,6 @@ export default class RecordCardListDialog extends Component {
         sortControls,
         filterControls,
       };
-      if (parentWorksheetId && recordId && controlId && multiple) {
-        args.relationWorksheetId = parentWorksheetId;
-        args.rowId = recordId;
-        args.controlId = controlId;
-      }
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
       args = {
@@ -148,7 +147,13 @@ export default class RecordCardListDialog extends Component {
         getType: 7,
         sortControls,
         filterControls,
+        formId: window.publicWorksheetShareId,
       };
+    }
+    if (parentWorksheetId && controlId) {
+      args.relationWorksheetId = parentWorksheetId;
+      args.rowId = recordId;
+      args.controlId = controlId;
     }
     getFilterRowsPromise(args)
       .then(res => {
@@ -283,8 +288,9 @@ export default class RecordCardListDialog extends Component {
     return cardControls.filter(c => !!c);
   }
   renderSearchWrapper() {
-    const isWxWork = false;
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger');
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const { relateSheetId, onOk, onClose, control, formData } = this.props;
     const { keyWords } = this.state;
     const filterControls = getFilter({ control, formData });
@@ -307,7 +313,7 @@ export default class RecordCardListDialog extends Component {
             }}
           />
         ) : (
-          (isWxWork || isWeLink) && (
+          (isWx || isWeLink || isDing) && (
             <RelateScanQRCode
               worksheetId={relateSheetId}
               filterControls={filterControls}
@@ -343,17 +349,8 @@ export default class RecordCardListDialog extends Component {
       onOk,
       onClose,
     } = this.props;
-    const {
-      loading,
-      loadouted,
-      error,
-      list,
-      controls,
-      selectedRecordIds,
-      keyWords,
-      worksheet,
-      showNewRecord,
-    } = this.state;
+    const { loading, loadouted, error, list, controls, selectedRecordIds, keyWords, worksheet, showNewRecord } =
+      this.state;
     const { cardControls } = this;
     const formData = this.props.formData.filter(_.identity);
     const titleControl = formData.filter(c => c && c.attribute === 1);
@@ -438,7 +435,11 @@ export default class RecordCardListDialog extends Component {
                     <p className="emptyTip Gray_9e">{_l('没有权限')}</p>
                   ) : (
                     <p className="emptyTip Gray_9e">
-                      {keyWords ? _l('无匹配的结果') : _l('暂无%0', worksheet.entityName || _l('记录'))}
+                      {keyWords
+                        ? _l('无匹配的结果')
+                        : this.clickSearch
+                        ? _l('输入关键字搜索记录')
+                        : _l('暂无%0', worksheet.entityName || _l('记录'))}
                     </p>
                   )}
                 </div>

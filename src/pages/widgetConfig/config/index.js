@@ -22,6 +22,16 @@ export const OPTION_COLORS_LIST = [
   '#D3D3D3',
 ];
 export const OPTION_COLORS_LIST_HOVER = [
+  '#1E85D9',
+  '#07B0B0',
+  '#00A83B',
+  '#E0C112',
+  '#E68600',
+  '#DB1F1F',
+  '#D12A86',
+  '#6900D1',
+  '#273DAB',
+  '#2E2E2E',
   '#A3D6FF',
   '#A9E9E9',
   '#A3E9BC',
@@ -32,16 +42,6 @@ export const OPTION_COLORS_LIST_HOVER = [
   '#CDA3F8',
   '#B3BCEA',
   '#BDBDBD',
-  '#1E85D9',
-  '#07B0B0',
-  '#00A83B',
-  '#E0C112',
-  '#E68600',
-  '#DB1F1F',
-  '#DB1F1F',
-  '#6900D1',
-  '#273DAB',
-  '#2E2E2E',
 ];
 /* 不可以作为标题字段的控件
   36: 检查框
@@ -88,15 +88,15 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35];
  * 富文本
  * 签名
  */
-export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 41, 42];
+export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 36, 41, 42];
 
-export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 26, 27, 28];
+export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36];
 
 // 无描述控件
 export const NO_DES_WIDGET = [22, 10010];
 
 // 无验证
-export const NO_VERIFY_WIDGET = [21, 22, 25, 29, 30, 31, 32, 33, 37, 38, 43, 10010];
+export const NO_VERIFY_WIDGET = [21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 10010];
 /**
  * 无属性验证控件
  */
@@ -122,6 +122,6 @@ export const NOT_NEED_DELETE_CONFIRM = [22, 25, 30, 31, 32, 37, 38, 43, 10010];
 // 没有宽度设置的控件
 export const NOT_HAVE_WIDTH_CONFIG = [43];
 
-export const MAX_CONTROLS_COUNT = 200;
+export const MAX_CONTROLS_COUNT = 2000;
 
 export const HAVE_CONFIG_SUB_LIST = [3, 15, 16];

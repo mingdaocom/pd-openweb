@@ -121,7 +121,7 @@ export default class extends Component {
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, splitId, style, reportId } = props.reportData;
+    const { map, displaySetup, xaxes, yaxisList, split, style, reportId } = props.reportData;
     const {
       isPile,
       isPerPile,
@@ -138,7 +138,7 @@ export default class extends Component {
     const data = formatChartData(map, yaxisList);
     const isVertical = showChartType === 1;
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || splitId) ? formatDataCount(data, isVertical, newYaxisList) : null;
+    const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : null;
     const maxValue = getMaxValue(data);
     const minValue = getMinValue(data);
     const colors = getChartColors(style);
@@ -146,6 +146,7 @@ export default class extends Component {
     const isAlienationColor = getIsAlienationColor(props.reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
     const isCustomColor = style ? (style.colorType === 2 && isAlienationColor) : false;
+    let index = -1;
 
     const baseConfig = {
       data,
@@ -173,6 +174,10 @@ export default class extends Component {
         : this.getxAxis(displaySetup, xaxes.particleSizeType),
       animation: true,
       color: isOptionsColor ? getAlienationColor.bind(this, xaxes) : (isCustomColor ? this.getCustomColor.bind(this, data, colors) : colors),
+      // color: () => {
+      //   index = index + 1;
+      //   console.log('index', index);
+      // },
       legend: showLegend
         ? {
             position,

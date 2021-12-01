@@ -9,6 +9,7 @@ import { browserIsMobile } from 'src/util';
 export default function RowDetailModal(props) {
   const {
     disabled,
+    allowDelete,
     className,
     title,
     visible,
@@ -46,7 +47,7 @@ export default function RowDetailModal(props) {
             <span className="text">{_l('下一条')}</span>
           </Button>
           <div className="flex" />
-          {!disabled && (
+          {!disabled && allowDelete && (
             <IconBtn
               className="headerBtn Hand ThemeHoverColor3 delete"
               onClick={() => {
@@ -94,6 +95,7 @@ export default function RowDetailModal(props) {
 
 RowDetailModal.propTypes = {
   disabled: PropTypes.bool,
+  allowDelete: PropTypes.bool,
   visible: PropTypes.bool,
   className: PropTypes.string,
   onClose: PropTypes.func,

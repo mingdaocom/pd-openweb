@@ -266,16 +266,16 @@ export default class DataSource extends Component {
   }
   renderControls() {
     const { currentReport } = this.props;
-    const { xaxes, yaxisList, splitId, pivotTable, rightY, formulas } = currentReport;
+    const { xaxes, yaxisList, split, pivotTable, rightY, formulas } = currentReport;
     const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
-    const rightSplitId = rightY ? rightY.splitId : null;
+    const rightSplitId = rightY ? rightY.split.controlId : null;
     const alreadySelectControlId = pivotTable
       ? [
           ...pivotTable.lines.map(item => item.controlId),
           ...pivotTable.columns.map(item => item.controlId),
           ...yaxisList.map(item => item.controlId),
         ]
-      : [xaxes.controlId, splitId, ...yaxisList.map(item => item.controlId), ...rightYaxisList, rightSplitId];
+      : [xaxes.controlId, split.controlId, ...yaxisList.map(item => item.controlId), ...rightYaxisList, rightSplitId];
     const { currentAxisControls } = this.state;
     return (
       <Fragment>

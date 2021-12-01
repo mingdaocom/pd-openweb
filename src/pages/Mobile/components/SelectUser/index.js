@@ -227,17 +227,25 @@ export default class SelectUser extends Component {
     return (
       <div className="searchWrapper">
         <Icon icon="h5_search" />
-        <input
-          type="text"
-          placeholder={_l('搜索')}
-          value={searchValue}
-          onChange={e => {
-            this.setState({ searchValue: e.target.value });
+        <form
+          action="#"
+          className="flex"
+          onSubmit={(e) => {
+            e.preventDefault();
           }}
-          onKeyDown={event => {
-            event.which === 13 && this.handleSearch();
-          }}
-        />
+        >
+          <input
+            type="text"
+            placeholder={_l('搜索')}
+            value={searchValue}
+            onChange={e => {
+              this.setState({ searchValue: e.target.value });
+            }}
+            onKeyDown={event => {
+              event.which === 13 && this.handleSearch();
+            }}
+          />
+        </form>
         {searchValue ? (
           <Icon
             icon="workflow_cancel"

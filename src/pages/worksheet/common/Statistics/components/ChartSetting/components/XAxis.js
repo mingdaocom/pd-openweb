@@ -32,13 +32,15 @@ export default class XAxis extends Component {
     };
   }
   handleUpdateTimeParticleSizeType = value => {
-    const { xaxes } = this.props.currentReport;
+    const { xaxes, sorts } = this.props.currentReport;
+    const id = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
     this.props.onChangeCurrentReport(
       {
         xaxes: {
           ...xaxes,
           particleSizeType: value,
         },
+        sorts: sorts.filter(item => _.findKey(item) !== id)
       },
       true,
     );
@@ -104,6 +106,7 @@ export default class XAxis extends Component {
   };
   handleClear = () => {
     const { xaxes, sorts } = this.props.currentReport;
+    const id = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
     this.props.onChangeCurrentReport(
       {
         xaxes: {
@@ -114,7 +117,7 @@ export default class XAxis extends Component {
           emptyType: 0,
           xaxisEmpty: false,
         },
-        sorts: sorts.filter(item => _.findKey(item) !== xaxes.controlId)
+        sorts: sorts.filter(item => _.findKey(item) !== id)
       },
       true,
     );
@@ -160,15 +163,17 @@ export default class XAxis extends Component {
     );
   }
   renderOverlay() {
+    const { disableParticleSizeTypes } = this.props;
     const { xaxes, reportType } = this.props.currentReport;
     const isOption = isOptionControl(xaxes.controlType);
     const isTime = isTimeControl(xaxes.controlType);
     const isArea = reportType !== reportTypes.CountryLayer && isAreaControl(xaxes.controlType);
-    const timeData = isTime
-      ? xaxes.controlType === 16
-        ? timeParticleSizeDropdownData
-        : timeParticleSizeDropdownData.filter(item => ![6, 7].includes(item.value))
-      : null;
+    const timeData = (isTime
+    ? xaxes.controlType === 16
+      ? timeParticleSizeDropdownData
+      : timeParticleSizeDropdownData.filter(item => ![6, 7].includes(item.value))
+    : []).filter(item => ![8, 9, 10, 11].includes(item.value));
+    const timeGather = timeParticleSizeDropdownData.filter(item => [8, 9, 10, 11].includes(item.value));
     return (
       <Menu className="chartControlMenu chartMenu">
         <Menu.Item
@@ -178,10 +183,48 @@ export default class XAxis extends Component {
         >
           {_l('重命名')}
         </Menu.Item>
-        {(isTime || isArea) && (
+        {isTime && (
           <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
-            {(timeData || areaParticleSizeDropdownData).map(item => (
+            <Menu.ItemGroup title={_l('时间')}>
+              {timeData.map(item => (
+                <Menu.Item
+                  className="valignWrapper"
+                  disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                  style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                  key={item.value}
+                  onClick={() => {
+                    this.handleUpdateTimeParticleSizeType(item.value);
+                  }}
+                >
+                  <div className="flex">{item.text}</div>
+                  <div className="Gray_75 Font12">{item.getTime()}</div>
+                </Menu.Item>
+              ))}
+            </Menu.ItemGroup>
+            <Menu.Divider />
+            <Menu.ItemGroup title={_l('集合')}>
+              {timeGather.map(item => (
+                <Menu.Item
+                  className="valignWrapper"
+                  disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                  style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                  key={item.value}
+                  onClick={() => {
+                    this.handleUpdateTimeParticleSizeType(item.value);
+                  }}
+                >
+                  <div className="flex">{item.text}</div>
+                  <div className="Gray_75 Font12">{item.getTime()}</div>
+                </Menu.Item>
+              ))}
+            </Menu.ItemGroup>
+          </Menu.SubMenu>
+        )}
+        {isArea && (
+          <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
+            {areaParticleSizeDropdownData.map(item => (
               <Menu.Item
+                disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
                 style={{ width: 120, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
                 key={item.value}
                 onClick={() => {
@@ -219,7 +262,7 @@ export default class XAxis extends Component {
             }
           </Menu.SubMenu>
         )}
-        {!isTime && ![reportTypes.PieChart].includes(reportType) && (
+        {!isTime && (
           <Menu.Item
             className="flexRow valignWrapper"
             onClick={() => {

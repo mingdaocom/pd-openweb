@@ -742,6 +742,9 @@ body .Hidden {
 .pTop5 {
   padding-top: 5px !important;
 }
+.pTop6 {
+  padding-top: 6px !important;
+}
 .pTop7 {
   padding-top: 7px !important;
 }
@@ -1941,4 +1944,8 @@ body > object {
 
 .pre .MdLoader-path {
   stroke: #ccc;
+}
+
+.nowrap {
+  white-space: nowrap;
 }

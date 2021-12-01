@@ -1,7 +1,70 @@
-
 .mobileFillRecordControlsModal {
   height: 95%;
   overflow: hidden;
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
+}
+.actionSheetModal {
+  .header {
+    line-height: 24px;
+    justify-content: space-between;
+    padding: 15px 15px 20px;
+    color: #9e9e9e;
+    .closeIcon {
+      width: 24px;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+    }
+  }
+  .customBtnLists {
+    padding: 0 15px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-weight: 500;
+    .customBtnItem {
+      min-width: calc(~'100%/2 - 10px');
+      height: 32px;
+      line-height: 32px;
+      text-align: left;
+      padding: 0 14px;
+      border-radius: 20px;
+      color: #fff;
+      margin: 0 5px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .opcIcon{
+      color: rgba(255, 255, 255, .8);
+    }
+    .disabled {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #757575;
+    }
+  }
+  .customBtnLists::after {
+    width: 50%;
+    height: 0px;
+    display: block;
+    content: '';
+  }
+  .extrBtnBox {
+    line-height: 56px;
+    font-weight: 500;
+    .extraBtnItem {
+      text-align: left;
+      padding-left: 22px;
+      color: #f44336;
+      .delIcon {
+        margin-right: 30px;
+        line-height: 56px;
+      }
+    }
+    .extraBtnItem:first-child {
+      .delTxt {
+        border-top: 1px solid #eaeaea;
+        font-size: 500;
+      }
+    }
+  }
 }

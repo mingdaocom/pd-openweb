@@ -21,13 +21,23 @@ const Con = styled.span`
     margin: 5px 8px 0 12px;
   }
   .open,
+  .operateBtn,
   .moreOperate {
     display: none;
   }
+  .operateBtn {
+    margin: 0 13px;
+  }
+  .operateBtn,
   .open .icon {
     font-size: 18px;
     color: #9e9e9e;
     cursor: pointer;
+    top: 2px;
+    position: relative;
+    &.delete:hover {
+      color: #f44336;
+    }
   }
   .delete {
     display: none;
@@ -40,6 +50,7 @@ const Con = styled.span`
   &:not(.disabled).hover {
     .delete,
     .open,
+    .operateBtn,
     .moreOperate {
       display: inline-block;
     }
@@ -51,8 +62,11 @@ const Con = styled.span`
 
 export default function RowHead(props) {
   const {
+    row = {},
     changeSheetLayoutVisible,
     disabled,
+    allowAdd,
+    allowCancel,
     className,
     style,
     rowIndex,
@@ -62,6 +76,8 @@ export default function RowHead(props) {
     saveSheetLayout = () => {},
     resetSehetLayout = () => {},
   } = props;
+  const isSavedData = !/^temp/.test(row.rowid);
+  const hideOperate = disabled || (isSavedData && (!allowAdd || !allowCancel));
   if (rowIndex === 0) {
     return (
       <div className={className} style={style}>
@@ -77,11 +93,11 @@ export default function RowHead(props) {
     );
   }
   return (
-    <Con className={cx(className, { disabled })} style={style}>
+    <Con className={cx(className, { disabled: disabled || (isSavedData && !allowAdd && !allowCancel) })} style={style}>
       <span className="rowIndex">
-        <span className="num">{rowIndex}</span>
+        <span className={cx('num', { ThemeColor3: !isSavedData })}>{rowIndex}</span>
       </span>
-      {!disabled && (
+      {!hideOperate && (
         <RecordOperate
           popupAlign={{
             offset: [-12, 0],
@@ -98,6 +114,12 @@ export default function RowHead(props) {
           onCopy={onCopy}
         />
       )}
+      {!disabled && isSavedData && allowAdd && !allowCancel && (
+        <i className="operateBtn icon icon-copy hand ThemeHoverColor3" onClick={onCopy}></i>
+      )}
+      {!disabled && isSavedData && allowCancel && !allowAdd && (
+        <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
+      )}
       <span className="open" onClick={() => onOpen(rowIndex - 1)}>
         <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>
       </span>
@@ -109,6 +131,9 @@ export default function RowHead(props) {
 
 RowHead.propTypes = {
   className: PropTypes.string,
+  row: PropTypes.shape({}),
+  allowAdd: PropTypes.bool,
+  allowCancel: PropTypes.bool,
   disabled: PropTypes.bool,
   rowIndex: PropTypes.number,
   style: PropTypes.shape({}),

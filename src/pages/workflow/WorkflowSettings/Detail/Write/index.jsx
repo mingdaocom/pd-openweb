@@ -177,6 +177,7 @@ export default class Write extends Component {
                     selectNodeId={data.selectNodeId}
                     data={data.formProperties}
                     updateSource={this.updateSource}
+                    showCard={true}
                   />
                 </Fragment>
               )}

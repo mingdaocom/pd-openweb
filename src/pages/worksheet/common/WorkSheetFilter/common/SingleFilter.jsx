@@ -79,7 +79,12 @@ export default class SingleFilter extends Component {
     if (_.includes(noCheckConditionAvailable, from)) {
       this.handleConditionsChange(newConditions);
     } else {
-      if (!_.isEqual(conditions, newConditions)) {
+      if (
+        !_.isEqual(
+          conditions.map(c => _.omit(c, ['folded', 'control'])),
+          newConditions.map(c => _.omit(c, ['folded', 'control'])),
+        )
+      ) {
         const availableConditions = newConditions.filter(condition => checkConditionAvailable(condition));
         this.handleConditionsChange(availableConditions);
       }
@@ -193,6 +198,7 @@ export default class SingleFilter extends Component {
         {canEdit && (
           <AddCondition
             from={from}
+            comp={this.props.comp}
             filterColumnClassName={filterColumnClassName}
             conditionCount={conditions.length}
             columns={columns}

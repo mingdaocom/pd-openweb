@@ -17,7 +17,6 @@
     "File": false,
     "LoadDiv": false,
     "Modernizr": false,
-    "VirtualPath": false,
     "Windows": false,
     "Zepto": false,
     "_": false,
@@ -37,7 +36,9 @@
     "moment": true,
     "System": true,
     "getNavigatorLang": true,
-    "safeParse": true
+    "safeParse": true,
+    "safeParseArray": true,
+    "vm": true
   },
   "parser": "babel-eslint",
   "plugins": [

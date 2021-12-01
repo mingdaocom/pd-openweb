@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
 import Card from 'src/pages/worksheet/common/Statistics/Card/Card';
 import styled from 'styled-components';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import { getEnumType } from '../../util';
 import ButtonList from './ButtonList';
 import PreviewContent from '../previewContent';
+import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -29,7 +29,8 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
   const ref = useRef(null);
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent {..._.pick(props, ['value', 'param'])} />;
-    if (componentType === 'richText') return <BraftEditor summary={value} isEditing={false} />;
+    if (componentType === 'richText')
+      return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
     if (componentType === 'button') {
       return <ButtonList editable={editable} button={button} ids={ids} layoutType={layoutType} {...rest} />;
     }

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { Fragment, useState, useRef, useEffect } from 'react';
 import { useSetState, useTitle } from 'react-use';
-import { getWorksheetControls, saveWorksheetControls } from 'src/api/worksheet';
+import { getWorksheetControls, saveWorksheetControls, getQueryBySheetId } from 'src/api/worksheet';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import { flatten, isFunction, pick, head, isEmpty, get, find, isEqual } from 'lodash';
+import { flatten, isFunction, pick, head, isEmpty, get, find, isEqual, findIndex } from 'lodash';
 import { getItem, setItem } from 'src/util';
 import { useSheetInfo } from './hooks';
 import Header from './Header';
@@ -15,6 +15,8 @@ import { getUrlPara, genWidgetsByControls, genControlsByWidgets, returnMasterPag
 import Components from './widgetSetting/components';
 import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
+import ErrorState from 'src/components/errorPage/errorState';
+import { navigateTo } from 'src/router/navigateTo';
 
 const WidgetConfig = styled.div`
   height: 100%;
@@ -36,6 +38,8 @@ export default function Container(props) {
   const [widgets, setWidgets] = useState([]);
   // 选中的控件
   const [activeWidget, setActiveWidget] = useState({});
+  //查询工作表配置
+  const [queryConfigs, setQueryConfigs] = useState([]);
 
   const $switchArgs = useRef(null);
 
@@ -47,10 +51,10 @@ export default function Container(props) {
   let $originControls = useRef([]);
 
   const {
-    data: { info: globalInfo },
+    data: { info: globalInfo, noAuth },
   } = useSheetInfo({ worksheetId: sourceId });
 
-  useTitle(_l('编辑字段 - %0', get(globalInfo, 'name')));
+  useTitle(_l('编辑字段 - %0', get(globalInfo, 'name') || ''));
 
   const handleSizeChange = (id, data) => {
     const path = getPathById(widgets, id);
@@ -115,6 +119,23 @@ export default function Container(props) {
     // 取第一个控件作为激活控件
     setActiveWidget(head(head(widgets)));
   };
+
+  const getQueryConfigs = (hasSearchQuery = false) => {
+    if (hasSearchQuery || (globalInfo && globalInfo.isWorksheetQuery)) {
+      setLoading(true);
+      getQueryBySheetId({ worksheetId: sourceId })
+        .then(res => {
+          setQueryConfigs(res);
+        })
+        .always(() => {
+          setLoading(false);
+        });
+    }
+  };
+
+  useEffect(() => {
+    getQueryConfigs();
+  }, [globalInfo]);
 
   useEffect(() => {
     setLoading({ getLoading: true });
@@ -192,6 +213,13 @@ export default function Container(props) {
           : head(flattenControls);
 
         setActiveWidget(nextActiveWidget);
+        //初始isWorksheetQuery为false, 新控件保存时手动判断是否要拉取配置
+        const needGetQuery = (controls || []).filter(control => {
+          if (control.advancedSetting) {
+            return control.advancedSetting.defaulttype === '2';
+          }
+        });
+        getQueryConfigs(needGetQuery.length > 0);
       })
       .always(() => {
         setLoading({ saveLoading: false });
@@ -215,6 +243,17 @@ export default function Container(props) {
     });
   };
 
+  const updateQueryConfigs = (value = {}, mode) => {
+    const index = findIndex(queryConfigs, item => item.controlId === value.controlId);
+    let newQueryConfigs = queryConfigs.slice();
+    if (mode) {
+      index > -1 && newQueryConfigs.splice(index, 1);
+    } else {
+      index > -1 ? newQueryConfigs.splice(index, 1, value) : newQueryConfigs.push(value);
+    }
+    setQueryConfigs(newQueryConfigs);
+  };
+
   const widgetProps = {
     activeWidget,
     setActiveWidget,
@@ -225,6 +264,8 @@ export default function Container(props) {
     saveControls,
     status,
     getLoading,
+    queryConfigs,
+    updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId']),
@@ -261,39 +302,52 @@ export default function Container(props) {
   };
 
   return (
-    <WidgetConfig>
-      <Header
-        {...globalInfo}
-        worksheetId={sourceId}
-        showSaveButton={!getLoading}
-        saveLoading={saveLoading}
-        onClose={handleClose}
-        onBack={handleClose}
-        onSave={handleSave}
-      />
-      <Content {...widgetProps} />
-      {status.noTitleControl && (
-        <Components.NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />
+    <Fragment>
+      {noAuth ? (
+        <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>
+          <ErrorState
+            text={_l('权限不足，无法编辑')}
+            showBtn
+            btnText={_l('返回')}
+            callback={() => navigateTo(`/app/${globalInfo.appId}/${globalInfo.groupId}/${globalInfo.worksheetId}`)}
+          />
+        </div>
+      ) : (
+        <WidgetConfig>
+          <Header
+            {...globalInfo}
+            worksheetId={sourceId}
+            showSaveButton={!getLoading}
+            saveLoading={saveLoading}
+            onClose={handleClose}
+            onBack={handleClose}
+            onSave={handleSave}
+          />
+          <Content {...widgetProps} />
+          {status.noTitleControl && (
+            <Components.NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />
+          )}
+          {status.modify && (
+            <Components.VerifyModifyDialog
+              onOk={() => {
+                handleSave();
+                cancelSubmit($switchArgs.current);
+                localStorage.removeItem(`worksheetConfig-${sourceId}`);
+                setStatus({ modify: false });
+              }}
+              onCancel={() => {
+                setStatus({ modify: false });
+              }}
+              onClose={() => {
+                setStatus({ modify: false });
+                cancelSubmit($switchArgs.current);
+                localStorage.removeItem(`worksheetConfig-${sourceId}`);
+              }}
+            />
+          )}
+          {saveLoading && <div className="savingMask"></div>}
+        </WidgetConfig>
       )}
-      {status.modify && (
-        <Components.VerifyModifyDialog
-          onOk={() => {
-            handleSave();
-            cancelSubmit($switchArgs.current);
-            localStorage.removeItem(`worksheetConfig-${sourceId}`);
-            setStatus({ modify: false });
-          }}
-          onCancel={() => {
-            setStatus({ modify: false });
-          }}
-          onClose={() => {
-            setStatus({ modify: false });
-            cancelSubmit($switchArgs.current);
-            localStorage.removeItem(`worksheetConfig-${sourceId}`);
-          }}
-        />
-      )}
-      {saveLoading && <div className="savingMask"></div>}
-    </WidgetConfig>
+    </Fragment>
   );
 }

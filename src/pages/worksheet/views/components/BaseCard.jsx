@@ -2,6 +2,7 @@ import React, { memo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CellControl, { renderCellText } from 'worksheet/components/CellControls';
 import RecordOperate from 'worksheet/components/RecordOperate';
+import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import cx from 'classnames';
 import { Icon } from 'src';
@@ -13,6 +14,8 @@ import CardCoverImage from './CardCoverImage';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getCardDisplayPara, getMultiRelateViewConfig, isListRelate, isTextTitle } from '../util';
+import { browserIsMobile } from 'src/util';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 
 const RecordItemWrap = styled.div`
   display: flex;
@@ -224,6 +227,24 @@ const BaseCard = props => {
       <div className="emptyHolder"> </div>
     );
 
+    if (item.type === 36) {
+      const { visible, editable } = controlState(item);
+      return (
+        visible && (
+          <div onClick={e => e.stopPropagation()}>
+            <Checkbox
+              disabled={!editable}
+              text={item.controlName}
+              checked={Number(item.value || 0)}
+              onClick={checked => {
+                props.onChange(item, checked ? '0' : '1');
+              }}
+            />
+          </div>
+        )
+      );
+    }
+
     if (isShowControlName() && item.controlName) {
       return (
         <FlexCenter>
@@ -263,6 +284,7 @@ const BaseCard = props => {
       offset: [16, -8],
     };
   };
+  const isMobile = browserIsMobile();
   return (
     <RecordItemWrap
       ref={$ref}
@@ -295,7 +317,7 @@ const BaseCard = props => {
       </div>
       {/* // 封面图片右放置 */}
       {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
-      {
+      {!isMobile && (
         <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           {isHaveRecordOperate() ? (
             <RecordOperate
@@ -334,7 +356,7 @@ const BaseCard = props => {
             )
           )}
         </div>
-      }
+      )}
     </RecordItemWrap>
   );
 };

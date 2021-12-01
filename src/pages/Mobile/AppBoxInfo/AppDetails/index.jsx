@@ -3,7 +3,6 @@ import { withRouter } from 'react-router-dom';
 import { Carousel, Toast } from 'antd-mobile';
 import AddDialog from './AddDialog';
 import './index.less';
-import { navigateTo } from 'src/router/navigateTo';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { pick, isEqual, map } from 'lodash';
 import Linkify from 'react-linkify';
@@ -57,7 +56,7 @@ class AppDetails extends React.Component {
     }).then(result => {
       const { data } = result.data;
       if (data.length <= 0) {
-        return navigateTo(!md.global.Account.accountId ? '/library' : '/app/lib');
+        return window.mobileNavigateTo(!md.global.Account.accountId ? '/library' : '/app/lib');
       } else {
         this.setState({
           ...this.state,

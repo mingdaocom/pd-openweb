@@ -2,7 +2,6 @@ import React, { Fragment, Component } from 'react';
 import { Icon } from 'ming-ui';
 import { withRouter } from 'react-router-dom';
 import { Modal, List, Toast } from 'antd-mobile';
-import { navigateTo } from 'src/router/navigateTo';
 import axios from 'axios';
 import './AddDialog.less';
 

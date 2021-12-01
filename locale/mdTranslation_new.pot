@@ -1,14 +1,30 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-8-5 9:16:26 ├F10: AM┤+08:00\n"
+"POT-Creation-Date: 2021-11-18 3:58:43 ├F10: PM┤+08:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: i18n.POTGenerator\n"
 
 #: Disabled references:1
-msgid "应用在钉钉PC端打开方式"
+msgid "8-20位，需包含字母和数字"
+msgstr ""
+
+#: Disabled references:1
+msgid "所有记录成员与参与讨论的人"
+msgstr ""
+
+#: Disabled references:1
+msgid "输入关键字搜索记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "应用中本年的附件上传量，上传即占用，删除不会恢复"
+msgstr ""
+
+#: Disabled references:1
+msgid "因企业微信自建应用规则调整，新的对接方案正在开发，请联系顾问线下创建自建应用"
 msgstr ""
 
 #: Disabled references:1
@@ -16,26 +32,110 @@ msgid "打开后，填写者在提交数据前需要输入\n验证码，用于�
 msgstr ""
 
 #: Disabled references:1
-msgid "a.[用户]获取用户邮箱信息"
+msgid "请填写拒绝原因"
 msgstr ""
 
 #: Disabled references:1
-msgid "d.[消息]以应用的身份发消息"
+msgid "请填写拒绝的原因"
 msgstr ""
 
 #: Disabled references:1
-msgid "f.[通讯录]以应用身份访问通讯录（历史版本）"
+msgid "扫码功能只对明道云App或钉钉移动端、Welink移动端、微信移动端有效"
 msgstr ""
 
 #: Disabled references:1
-msgid "选择一个单选类型的字段，数据将按照此字段中的选项分组显示在看板中。支持字段：单选、多选、等级、人员、关联表记录（单条）"
+msgid "创建时间-最旧的在前"
 msgstr ""
 
 #: Disabled references:1
-msgid "每个选项单列一行,将所有不重复项加为新的选项"
+msgid "失败，所有记录都不满足执行条件，或流程尚未启用"
 msgstr ""
 
 #: Disabled references:1
-msgid "应用于所有记录中的按钮，无法从当前视图中删除"
+msgid "导出为图片"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0至%1"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择当前子表字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择查询表字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "最多50条"
+msgstr ""
+
+#: Disabled references:1
+msgid "将查询到的最多50条记录字段写入子表字段，每行记录添加为一行子表明细"
+msgstr ""
+
+#: Disabled references:1
+msgid "触发者在通讯录中的"
+msgstr ""
+
+#: Disabled references:1
+msgid "短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgstr ""
+
+#: Disabled references:1
+msgid "千分比"
+msgstr ""
+
+#: Disabled references:1
+msgid "参数不合法"
+msgstr ""
+
+#: Disabled references:1
+msgid "除数不能为0"
+msgstr ""
+
+#: Disabled references:1
+msgid "计算人员、部门、多选、子表或关联表的数量"
+msgstr ""
+
+#: Disabled references:1
+msgid "将文本等类型的值转为数值"
+msgstr ""
+
+#: Disabled references:1
+msgid "将数值等类型的值转为文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前视图使用的“%0”和“%1”的字段类型不同，视图将使用日期时间的字段类型绘制。建议使用两个同为日期类型或同为日期时间类型的字段。"
+msgstr ""
+
+#: Disabled references:1
+msgid "导出失败，请缩小视图类型再尝试~"
+msgstr ""
+
+#: Disabled references:1
+msgid "不允许添加记录数量和计算字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "颜色规则"
+msgstr ""
+
+#: Disabled references:1
+msgid "中间值"
+msgstr ""
+
+#: Disabled references:1
+msgid "格式模式"
+msgstr ""
+
+#: Disabled references:1
+msgid "按色阶"
+msgstr ""
+
+#: Disabled references:1
+msgid "按范围"
 msgstr ""
 

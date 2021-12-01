@@ -17,9 +17,10 @@ export default function RowDetailModal(props) {
     onClose,
     onDelete,
     onSwitch,
+    allowDelete
   } = props;
   const formContent = useRef(null);
-  const type = data.updatedControlIds ? 'edit' : 'new';
+  const type = data.updatedControlIds || !data.rowid.includes('temp') ? 'edit' : 'new';
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
@@ -36,7 +37,7 @@ export default function RowDetailModal(props) {
             ></i>
           </div>
         )}
-        {type === 'edit' && !disabled && (
+        {type === 'edit' && !disabled && allowDelete && (
           <i
             className="headerBtn icon icon-task-new-delete mRight10 Font18"
             onClick={() => {
@@ -57,24 +58,10 @@ export default function RowDetailModal(props) {
       </div>
       <div className="forCon flex leftAlign">
         {type === 'edit' && <div className="title Font18 Gray flex bold leftAlign ellipsis mBottom10">{title}</div>}
-        <RowDetail isMobile disabled={disabled} from={5} ref={formContent} {...props} />
+        <RowDetail isMobile from={5} ref={formContent} {...props} disabled={type === 'new' ? false : disabled} />
       </div>
-      {!disabled && (
+      {!(type === 'new' ? false : disabled) && (
         <div className="footer btnsWrapper valignWrapper flexRow">
-          {/*type === 'edit' && (
-              <WingBlank className="flex" size="sm">
-                <Button type="ghost" className="bold" onClick={onClose}>
-                  {_l('取消')}
-                </Button>
-              </WingBlank>
-            )*/}
-          {/*type === 'new' && (
-            <WingBlank className="flex" size="sm">
-              <Button type="ghost" className="bold" onClick={() => formContent.current.handleSave(true)}>
-                {_l('继续创建下一条')}
-              </Button>
-            </WingBlank>
-          )*/}
           <WingBlank className="flex" size="sm">
             <Button type="primary" className="bold" onClick={() => formContent.current.handleSave()}>
               {_l('保存')}

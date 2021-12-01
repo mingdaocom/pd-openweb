@@ -30,3 +30,12 @@ export const sheetAttachments = (state = [], action) => {
       return state;
   }
 }
+
+export const discussionCount = (state = 0, action) => {
+  switch (action.type) {
+    case 'MOBILE_SET_DISCUSSION_COUNT':
+      return action.data;
+    default:
+      return state;
+  }
+}

@@ -65,7 +65,7 @@ class RelationAction extends Component {
           if (data.isSuccess) {
             const { relationRows } = this.props;
             const newRelationRows = relationRows.filter(n => !selectedRecordIds.includes(n.rowid));
-            updateRelationRows(newRelationRows, -1);
+            updateRelationRows(newRelationRows, -selectedRecordIds.length);
             this.handleSetEdit(false);
             alert(_l('删除成功！'));
           } else {
@@ -87,7 +87,7 @@ class RelationAction extends Component {
           if (data.isSuccess) {
             const { relationRows } = this.props;
             const newRelationRows = relationRows.filter(n => !selectedRecordIds.includes(n.rowid));
-            updateRelationRows(newRelationRows, -1);
+            updateRelationRows(newRelationRows, -selectedRecordIds.length);
             this.handleSetEdit(false);
             alert(_l('取消关联成功！'));
           } else {
@@ -134,7 +134,7 @@ class RelationAction extends Component {
   pushRelationRows(items) {
     const { relationRows, updateRelationRows } = this.props;
     const newRelationRows = items.concat(relationRows);
-    updateRelationRows(newRelationRows, 1);
+    updateRelationRows(newRelationRows, items.length);
   }
   handleSetShowRelevanceRecord = visible => {
     const { relationRow } = this.props;

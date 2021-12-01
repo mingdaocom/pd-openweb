@@ -99,7 +99,8 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, splitId, sorts, style } = props.reportData;
+    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
+    const splitId = split.controlId;
     const { xdisplay, ydisplay } = displaySetup;
     const { position } = getLegendType(displaySetup.legendType);
     const sortsKey = sorts.map(n => _.findKey(n));

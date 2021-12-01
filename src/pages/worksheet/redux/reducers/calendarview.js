@@ -113,3 +113,32 @@ export function calendarFormatData(state = [], action) {
       return state;
   }
 }
+// 点击日期更多数据h5显示弹层
+export const mobileMoreClickVisible = (state = false, action) => {
+  switch (action.type) {
+    case 'SHOW_MOBILE_MORE_CLICK':
+      return action.flag;
+    default:
+      return state;
+  }
+}
+
+// 点击日期当天的数据
+export const mobileCurrentCalendatData = (state = [], action) => {
+  switch (action.type) {
+    case 'CHANGE_MOBILE_CURRENTDATA':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
+// //点击日期
+export const mobileCurrentDate = (state = '', action) => {
+  switch (action.type) {
+    case 'CHANGE_MOBILE_CURRENTDATE':
+      return action.date; 
+    default:
+      return state;
+  }
+}

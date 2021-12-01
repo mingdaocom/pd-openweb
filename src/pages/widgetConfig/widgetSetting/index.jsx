@@ -44,11 +44,19 @@ const SettingWrap = styled.div`
 `;
 
 function WidgetSetting(props) {
-  const { widgets, activeWidget: data = {}, handleDataChange, setActiveWidget, setWidgets, ...rest } = props;
-
+  const {
+    widgets = [],
+    activeWidget: data = {},
+    handleDataChange,
+    queryConfigs = [],
+    setActiveWidget,
+    setWidgets,
+    ...rest
+  } = props;
   const { type, controlId, advancedSetting = {} } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
+  const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
 
   const onChange = (obj, callback) => {
     handleDataChange(controlId, { ...data, ...obj }, callback);
@@ -59,7 +67,7 @@ function WidgetSetting(props) {
     setActiveWidget({ ...data, size: value });
   };
 
-  const allProps = { ...rest, data, info, widgets, onChange: onChange };
+  const allProps = { ...rest, data, info, widgets, queryConfig, onChange: onChange };
   const Components = Settings[ENUM_TYPE];
 
   const renderSetting = () => {
@@ -71,23 +79,29 @@ function WidgetSetting(props) {
           {/* 子表走单独逻辑 */}
           {!includes([34], type) && (
             <Fragment>
-              <WidgetIntro {...allProps} />
+              {!rest.withoutIntro && <WidgetIntro {...allProps} />}
               {/* // 备注字段没名字 */}
               {type !== 10010 && <WidgetName {...allProps} />}
             </Fragment>
           )}
-          {!NO_CUSTOM_SETTING_CONTROL.includes(type) && <Components {...allProps} />}
-          {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
-          {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
-          {(HAVE_CONFIG_CONTROL.includes(type) || (type === 10 && advancedSetting.checktype === '1')) && (
-            <ControlSetting {...allProps} />
+          {/* rest.type 已指定类型的情况下不可更改 */}
+          {!NO_CUSTOM_SETTING_CONTROL.includes(type) && !rest.type && <Components {...allProps} />}
+          {/* 快速创建字段暂时隐藏更多内容 */}
+          {!rest.quickAddControl && (
+            <Fragment>
+              {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
+              {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
+              {(HAVE_CONFIG_CONTROL.includes(type) || (type === 10 && advancedSetting.checktype === '1')) && (
+                <ControlSetting {...allProps} />
+              )}
+              {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
+              {/* // 文本控件移动端输入 */}
+              {includes([2], type) && <WidgetMobileInput {...allProps} />}
+              {canAdjustWidth(widgets, data) && <WidgetWidth {...allProps} handleClick={handleAdjustWidthClick} />}
+              {HAS_EXPLAIN_CONTROL.includes(type) && <WidgetExplain {...allProps} />}
+              {!NO_DES_WIDGET.includes(type) && <WidgetDes {...allProps} />}
+            </Fragment>
           )}
-          {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
-          {/* // 文本控件移动端输入 */}
-          {includes([2], type) && <WidgetMobileInput {...allProps} />}
-          {canAdjustWidth(widgets, data) && <WidgetWidth {...allProps} handleClick={handleAdjustWidthClick} />}
-          {HAS_EXPLAIN_CONTROL.includes(type) && <WidgetExplain {...allProps} />}
-          {!NO_DES_WIDGET.includes(type) && <WidgetDes {...allProps} />}
         </div>
       </ScrollView>
     );

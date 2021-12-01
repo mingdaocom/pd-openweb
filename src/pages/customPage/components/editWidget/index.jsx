@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import { Icon } from 'ming-ui';
-import { Button } from 'antd';
-import Dialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
 import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { connect } from 'react-redux';
 import EmbedUrl from './EmbedUrl';
-import RichText from './RichText';
 import { FlexCenter, getEnumType, reportCountLimit } from '../../util';
 import { widgets } from '../../enum';
 import Analysis from './analysis';
 import ButtonComp from './button';
+import RcDialog from 'rc-dialog';
+import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 
 const Header = styled(FlexCenter)`
   position: absolute;
@@ -33,13 +32,16 @@ const EditWidgetContent = styled.div`
   height: 100%;
 `;
 const TYPE_TO_COMPONENTS = {
-  richText: RichText,
   embedUrl: EmbedUrl,
   analysis: Analysis,
   button: ButtonComp,
 };
 
 function EditWidget(props) {
+  const [show, setShow] = useState(true);
+  const [top, setTop] = useState(0);
+  const [left, setLeft] = useState(300);
+  // const [hasChange, setHasChange] = useState(false);
   const { components, widget, onClose, mode, addWidget, updateWidget } = props;
   const type = getEnumType(widget.type);
   const Comp = TYPE_TO_COMPONENTS[type];
@@ -58,18 +60,31 @@ function EditWidget(props) {
     updateWidget({ widget, ...obj });
   };
   return _.includes(['richText'], type) ? (
-    <Dialog
-      className="editWidgetDialogWrap"
-      visible
+    <RcDialog
+      className="appIntroDialog editWidgetDialogWrap"
+      wrapClassName="appIntroDialogWrapCenter"
+      visible={show}
       onClose={onClose}
-      closeIcon={<Icon icon="close Font26 Gray_75 ThemeHoverColor3" />}>
-      <Header>
-        <div className="typeName">{widgets[type].name}</div>
-      </Header>
-      <EditWidgetContent>
-        <Comp {...props} onEdit={handleEdit} />
-      </EditWidgetContent>
-    </Dialog>
+      animation="zoom"
+      maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+      bodyStyle={{ minHeight: '680px', padding: 0 }}
+      maskAnimation="fade"
+      mousePosition={{ x: left, y: top }}
+      closeIcon={<Icon icon="close" />}
+    >
+      <Editor
+        className="appIntroDescriptionEditor "
+        summary={widget.value}
+        isEditing={true}
+        permissionType={100} //可编辑的权限
+        onSave={value => {
+          handleEdit({ value });
+        }}
+        onCancel={onClose}
+        cacheKey="appIntroDescription"
+        title={widgets[type].name}
+      />
+    </RcDialog>
   ) : (
     <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} />
   );

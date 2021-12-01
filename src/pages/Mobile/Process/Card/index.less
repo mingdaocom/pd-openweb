@@ -10,45 +10,22 @@
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
 
-    .stateWrapper {
-      width: 0;
-      .state {
-        min-width: 20%;
-        max-width: 45%;
-        overflow: hidden;
-      }
-      .info {
-        width: 30%;
-      }
-      .maxWidth {
-        max-width: 100%;
-      }
+    .nodeState {
+      color: #fff;
+      padding: 3px 11px;
+      border-radius: 25px;
+      background-color: #ebebeb;
     }
   }
   &Header {
-    justify-content: space-between;
-    .state {
-      font-weight: bold;
-      color: #2196F3;
-      font-size: 13px;
-    }
-    .appIcon {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 24px;
-      color: #fff;
-      font-size: 17px;
-      margin-right: 10px;
-    }
     .time {
-      border-left: 1px solid #BDBDBD;
       padding-left: 7px;
       margin-left: 7px;
-      height: 15px;
-      line-height: 17px;
+    }
+    .flowNode {
+      border-radius: 3px;
+      padding: 4px 12px;
+      background-color: #F2F2F2;
     }
   }
   &Body {
@@ -56,33 +33,54 @@
     font-size: 15px;
     padding: 12px 0;
     font-weight: 500;
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      word-break: break-all;
+    .accountAvatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 10px;
     }
   }
   &Footer {
     justify-content: space-between;
-
-    .alreadyRead {
-      color: #757575;
-      padding: 3px 15px 3px 9px;
-      border-radius: 25px;
-      cursor: pointer;
-      &:active {
-        color: #2196F3 !important;
-        background-color: #2196F333;
+    .state {
+      font-weight: bold;
+      color: #2196F3;
+      font-size: 13px;
+    }
+    .appIcon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 17px;
+      margin-right: 10px;
+    }
+    .dot {
+      width: 5px;
+      height: 5px;
+      margin: 2px 6px;
+      border-radius: 50%;
+      display: inline-block;
+      background-color: #9E9E9E;
+    }
+    .approveBtnWrapper {
+      .pass, .overrule, .backlog {
+        border-color: #EFEFEF !important;
+        border-radius: 19px;
+        padding: 2px 0;
+      }
+      .pass {
+        color: #4CAF50 !important;
+      }
+      .overrule {
+        color: #F44336 !important;
       }
     }
-    .user img {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      margin: 0 10px;
+    .appName, .processName {
+      max-width: 50%;
     }
   }
 }

@@ -113,7 +113,7 @@ class Commenter extends React.Component {
       .height(textareaMinHeight);
     // 缓存未发送成功的讨论
     if (this.props.storageId) {
-      $textarea.on('keyup', function() {
+      $textarea.on('keyup', function () {
         const text = $.trim($(this).val());
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
@@ -126,7 +126,7 @@ class Commenter extends React.Component {
     // @
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
-
+      localStorage.setItem('atData', JSON.stringify(this.props.atData || []));
       $textarea.mentionsInput(
         Object.assign(
           {
@@ -136,6 +136,7 @@ class Commenter extends React.Component {
             showCategory: sourceType === SOURCE_TYPE.POST,
             isAtAll: true,
             sourceType,
+            forReacordDiscussion: this.props.forReacordDiscussion,
           },
           this.props.mentionsOptions,
         ),
@@ -180,6 +181,13 @@ class Commenter extends React.Component {
     if (nextProps.storageId && nextProps.storageId !== this.props.storageId) {
       this.textarea.value = window.localStorage.getItem('commenter-' + nextProps.storageId) || '';
     }
+    if (
+      !nextProps.disableMentions &&
+      !_.isEqual(this.props.atData, nextProps.atData) &&
+      nextProps.forReacordDiscussion
+    ) {
+      localStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -197,7 +205,7 @@ class Commenter extends React.Component {
           })
           .height(height);
       } else {
-        setTimeout(function() {
+        setTimeout(function () {
           $textarea.height(height);
         }, 0);
       }
@@ -288,7 +296,7 @@ class Commenter extends React.Component {
             knowledgeAttach: JSON.stringify(kcAttachmentData),
           })
           .then(
-            function(result) {
+            function (result) {
               if (result.success === 'True') {
                 dfd.resolve(result);
               } else {
@@ -296,7 +304,7 @@ class Commenter extends React.Component {
               }
               return dfd.promise();
             },
-            function(xhr) {
+            function (xhr) {
               var text;
               try {
                 var resObject = JSON.parse(xhr.responseText);
@@ -311,7 +319,7 @@ class Commenter extends React.Component {
           .done(resData => {
             this.props.onSubmit(resData.comment);
           })
-          .fail(function(text) {
+          .fail(function (text) {
             alert(text || _l('操作失败'), 2);
           });
       } else {
@@ -338,15 +346,11 @@ class Commenter extends React.Component {
                 } else {
                   alert(_l('操作失败，请稍后重试'), 2);
                 }
-                return $.Deferred()
-                  .reject()
-                  .promise();
+                return $.Deferred().reject().promise();
               }
             },
             () => {
-              return $.Deferred()
-                .reject()
-                .promise();
+              return $.Deferred().reject().promise();
             },
           )
           .done(resData => {

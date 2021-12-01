@@ -77,6 +77,15 @@ export const viewResultCode = (state = 1, action) => {
   }
 }
 
+export const isCharge = (state = false, action) => {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_IS_CHARGE':
+      return action.value;
+    default:
+      return state;
+  }
+}
+
 export const sheetSwitchPermit = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_SHEET_PERMISSION_INIT':
@@ -101,6 +110,15 @@ export const sheetRowLoading = (state = true, action) => {
       return true;
     case 'MOBILE_FETCH_SHEETROW_SUCCESS':
       return false;
+    default:
+      return state;
+  }
+}
+
+export const mobileNavGroupFilters = (state = [], action) => {
+  switch (action.type) {
+    case 'CHANGE_MOBILE_GROUPFILTERS':
+      return action.data;
     default:
       return state;
   }

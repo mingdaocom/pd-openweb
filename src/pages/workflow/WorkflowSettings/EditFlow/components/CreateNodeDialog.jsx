@@ -143,7 +143,7 @@ export default class CreateNodeDialog extends Component {
               type: 11,
               name: _l('发送邮件'),
               appType: 3,
-              actionId: '201',
+              actionId: '202',
               iconColor: '#2196f3',
               iconName: 'icon-workflow_email',
             },

@@ -5,6 +5,7 @@ import TransitionGroup from 'react-addons-transition-group';
 import ViewGroup from './ViewGroup';
 import TooltipSetting from '../TooltipSetting';
 import styles from './style.less?module';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 
 export const changeSheetModel = (sheet, type, checked) => {
   const KEYS = {
@@ -152,7 +153,7 @@ export default class extends PureComponent {
                       <div className={'boxSizing pLeft24 TxtLeft overflow_ellipsis ' + styles.viewSettingItemMax}>
                         <Icon
                           className="Gray_bd mRight8 Font14"
-                          icon={view.type === 0 ? 'view' : view.type === 1 ? 'kanban' : 'hierarchy'}
+                          icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.type] }).icon}
                         />
                         {view.viewName}
                       </div>

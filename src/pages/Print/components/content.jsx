@@ -41,18 +41,8 @@ export default class Con extends React.Component {
     });
   }
   loadWorksheetShortUrl = () => {
-    const {
-      appId,
-      worksheetId,
-      viewId,
-      rowId,
-      printId,
-      type,
-      from,
-      printType,
-      isDefault,
-      projectId,
-    } = this.props.params;
+    const { appId, worksheetId, viewId, rowId, printId, type, from, printType, isDefault, projectId } =
+      this.props.params;
     sheetAjax
       .getWorksheetShareUrl({
         worksheetId,
@@ -381,7 +371,9 @@ export default class Con extends React.Component {
                             workItemLog.fields.map(({ name, toValue }) => <span>{_l('%0: %1', name, toValue)}</span>)}
                           <br />
                           {signature ? (
-                            <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />
+                            <div className="infoSignature">
+                              {signature.server && <img src={`${signature.server}`} alt="" srcset="" height="100" />}
+                            </div>
                           ) : null}
                         </td>
                       </tr>

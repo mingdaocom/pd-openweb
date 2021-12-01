@@ -12,6 +12,8 @@ import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { updateWorksheetRow } from 'src/api/worksheet';
 import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
+import { browserIsMobile } from 'src/util';
+import { navigateTo } from 'src/router/navigateTo';
 
 const RELATION_SHEET_TYPE = 29;
 
@@ -161,6 +163,12 @@ function SortableRecordItem(props) {
     <div
       ref={drag}
       onClick={() => {
+        // h5跳转至详情页
+        if (browserIsMobile()) {
+          let url = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
+          navigateTo(url);
+          return;
+        }
         if (!recordInfoVisible) {
           showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
         }
@@ -170,6 +178,7 @@ function SortableRecordItem(props) {
       <Components.EditableCard
         ref={$ref}
         data={data}
+        type="board"
         canDrag={canDrag(props)}
         currentView={{ ...currentView, projectId: worksheetInfo.projectId, appId }}
         allowCopy={worksheetInfo.allowAdd}
@@ -184,6 +193,7 @@ function SortableRecordItem(props) {
         onCopySuccess={item => onCopySuccess({ key: keyType, item })}
         onDelete={() => delBoardViewRecord({ key: keyType, rowId })}
         sheetSwitchPermit={sheetSwitchPermit}
+        updateTitleData={updateTitleControlData}
       />
       {isEditTitle && (
         <Components.RecordPortal closeEdit={closeEdit}>
@@ -206,6 +216,7 @@ function SortableRecordItem(props) {
           from={1}
           visible
           recordId={recordInfoRowId}
+          rules={worksheetInfo.rules}
           projectId={worksheetInfo.projectId}
           currentSheetRows={getCurrentSheetRows()}
           worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}

@@ -10,7 +10,7 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import './index.less';
 
-const tabs = [{
+export const processInformTabs = [{
   name: _l('全部'),
   id: 'all',
 }, {
@@ -30,7 +30,7 @@ export default class ProcessInform extends Component {
       list: [],
       loading: false,
       isMore: true,
-      currentTab: tabs[0].id,
+      currentTab: processInformTabs[0].id,
       searchValue: '',
       countData: {},
     }
@@ -146,15 +146,14 @@ export default class ProcessInform extends Component {
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
-          <div className="pLeft10 pRight10" key={item.workId}>
+          <div className="pLeft10 pRight10" key={item.id}>
             <Card
               item={item}
               type={filter ? filter.type : null}
               time={createTimeSpan(item.workItem.receiveTime)}
               currentTab={currentTab}
               renderBodyTitle={() => {
-                const { flowNode } = item;
-                return `${flowNode.name}: ${item.title}`;
+                return item.title;
               }}
               onClick={() => {
                 this.props.history.push(`/mobile/processRecord/${item.id}/${item.workId}`);
@@ -172,10 +171,10 @@ export default class ProcessInform extends Component {
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
-          <div className="processTabs z-depth-1">
+          <div className="processTabs mBottom10 z-depth-1">
             <Tabs
               tabBarInactiveTextColor="#9e9e9e"
-              tabs={tabs}
+              tabs={processInformTabs}
               onTabClick={this.handleChangeCompleteTab}
               renderTab={tab => (
                 <span>{tab.name} {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}</span>

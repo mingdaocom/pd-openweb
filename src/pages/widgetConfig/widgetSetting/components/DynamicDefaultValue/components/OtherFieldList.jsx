@@ -2,8 +2,9 @@ import React from 'react';
 import { string } from 'prop-types';
 import OtherField from './OtherField';
 import { OtherFieldList, FieldInfo, RelateControl } from '../styled';
-import { getDateType, getControlType } from '../util';
+import { getDateType, getControlType, showClear } from '../util';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import { CHECKBOX_TYPES } from '../config';
 
 const isOnlySelect = (dynamicValue, data) => {
   const type = getControlType(data);
@@ -32,8 +33,13 @@ const parseValue = value => {
   }
   return value;
 };
+
 export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateSheet, titleControl, ...rest }) => (
-  <OtherFieldList isHaveField={isOnlySelect(dynamicValue, data)} onClick={onClick}>
+  <OtherFieldList
+    isHaveField={isOnlySelect(dynamicValue, data)}
+    onClick={onClick}
+    isHaveClear={showClear(data, dynamicValue)}
+  >
     {dynamicValue.map(item => {
       if (item.staticValue) {
         const type = getControlType(data);
@@ -53,7 +59,8 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                   onClick={e => {
                     e.stopPropagation();
                     removeItem(accountId);
-                  }}>
+                  }}
+                >
                   <i className="icon-close" />
                 </div>
               </FieldInfo>
@@ -72,7 +79,8 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                   onClick={e => {
                     e.stopPropagation();
                     removeItem(departmentId);
-                  }}>
+                  }}
+                >
                   <i className="icon-close" />
                 </div>
               </FieldInfo>
@@ -97,8 +105,22 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
               />
             );
           }
+          if (type === 'switch') {
+            const text = _.get(_.find(CHECKBOX_TYPES, ct => ct.id === item.staticValue) || {}, 'text');
+            return (
+              <OtherField
+                className="timeField"
+                dynamicValue={dynamicValue}
+                data={data}
+                item={item}
+                text={text}
+                {...rest}
+              />
+            );
+          }
           if (type === 'relateSheet') {
             const parsedValue = parseValue(value);
+            const removeValue = item.staticValue;
             if (_.isArray(parsedValue)) {
               return parsedValue.map(item => {
                 let name;
@@ -118,13 +140,14 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                 return (
                   <RelateControl>
                     <i className="icon-link-worksheet" />
-                    <span>{name}</span>
+                    <span className="overflow_ellipsis">{name}</span>
                     <i
                       className="icon-close"
                       onClick={e => {
                         e.stopPropagation();
-                        removeRelateSheet();
-                      }}></i>
+                        removeRelateSheet(removeValue);
+                      }}
+                    ></i>
                   </RelateControl>
                 );
               });
@@ -132,13 +155,14 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
             return (
               <RelateControl>
                 <i className="icon-link-worksheet" />
-                <span>{value}</span>
+                <span className="overflow_ellipsis">{value}</span>
                 <i
                   className="icon-close"
                   onClick={e => {
                     e.stopPropagation();
-                    removeRelateSheet();
-                  }}></i>
+                    removeRelateSheet(removeValue);
+                  }}
+                ></i>
               </RelateControl>
             );
           }
@@ -151,5 +175,16 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
         return <OtherField dynamicValue={dynamicValue} data={data} item={item} {...rest} />;
       }
     })}
+    {showClear(data, dynamicValue) && (
+      <div
+        className="clearOp"
+        onClick={e => {
+          e.stopPropagation();
+          rest.onDynamicValueChange([]);
+        }}
+      >
+        <span className="icon icon-closeelement-bg-circle Font15"></span>
+      </div>
+    )}
   </OtherFieldList>
 );

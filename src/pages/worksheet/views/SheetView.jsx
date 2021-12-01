@@ -49,7 +49,6 @@ class TableView extends React.Component {
     super(props);
     this.state = {};
     this.tableId = uuid.v4();
-    this.debounceUpdateRecord = _.debounce(this.updateRecordEvent, 1000);
   }
 
   componentDidMount() {
@@ -60,7 +59,7 @@ class TableView extends React.Component {
       setRowsEmpty();
     }
     document.body.addEventListener('click', this.outerClickEvent);
-    emitter.addListener('RELOAD_RECORDINFO_DIALOG', this.debounceUpdateRecord);
+    emitter.addListener('RELOAD_RECORDINFO', this.updateRecordEvent);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -107,7 +106,7 @@ class TableView extends React.Component {
 
   componentWillUnmount() {
     document.body.removeEventListener('click', this.outerClickEvent);
-    emitter.removeListener('RELOAD_RECORDINFO_DIALOG', this.debounceUpdateRecord);
+    emitter.removeListener('RELOAD_RECORDINFO', this.updateRecordEvent);
   }
 
   @autobind
@@ -421,7 +420,7 @@ class TableView extends React.Component {
     } = this.props;
     const { loading, rows } = sheetViewData;
     const { sheetSelectedRows = [], sheetColumnWidths, fixedColumnCount, defaultScrollLeft } = sheetViewConfig;
-    const { worksheetId, projectId, allowAdd, rules = [] } = worksheetInfo;
+    const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery } = worksheetInfo;
     const { recordId, recordInfoVisible, activeRelateTableContorlIdOfRecord } = this.state;
     const { lineNumberBegin, columns } = this;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
@@ -431,10 +430,13 @@ class TableView extends React.Component {
       <React.Fragment>
         {recordInfoVisible && (
           <RecordInfo
+            controls={controls}
             sheetSwitchPermit={sheetSwitchPermit}
             projectId={projectId}
             showPrevNext
             needUpdateRows
+            rules={rules}
+            isWorksheetQuery={isWorksheetQuery}
             isCharge={isCharge}
             allowAdd={allowAdd}
             appId={appId}

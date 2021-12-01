@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { autobind } from 'core-decorators';
 import Linkify from 'react-linkify';
-import { Button, Dialog } from 'ming-ui';
+import { Button, Dialog, RichText } from 'ming-ui';
 import captcha from 'src/components/captcha';
 import CustomFields from 'src/components/newCustomFields';
 import { Hr } from 'src/pages/publicWorksheetConfig/components/Basics';
@@ -12,7 +12,6 @@ import { getSubListError } from 'worksheet/util';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import './index.less';
-import 'src/components/braftEditor/braftEditor.less';
 
 const newWhiteList = Object.assign({}, whiteList, { span: ['style'] });
 const ImgCon = styled.div`
@@ -194,7 +193,7 @@ export default class FillWorkseet extends React.Component {
   render() {
     const { loading, publicWorksheetInfo = {}, rules } = this.props;
     const { formData, showError } = this.state;
-    const { name, desc, worksheetId, logoUrl, submitBtnName } = publicWorksheetInfo;
+    const { name, desc, worksheetId, logoUrl, submitBtnName, isWorksheetQuery } = publicWorksheetInfo;
     return (
       <React.Fragment>
         <div className="infoCon" style={{ padding: '0 30px' }}>
@@ -207,15 +206,9 @@ export default class FillWorkseet extends React.Component {
           )}
           <div className="worksheetName">{name || _l('未命名表单')}</div>
           <div className="mdEditor">
-            <p
-              className="worksheetDescription WordBreak mdEditorContent "
-              dangerouslySetInnerHTML={{
-                __html: filterXSS(desc, {
-                  stripIgnoreTag: true,
-                  whiteList: newWhiteList,
-                }),
-              }}
-            ></p>
+            {!!desc && (
+              <RichText data={desc || ''} className="worksheetDescription WordBreak mdEditorContent " disabled={true} />
+            )}
           </div>
         </div>
         <Hr style={{ margin: '16px 0' }} />
@@ -227,6 +220,7 @@ export default class FillWorkseet extends React.Component {
               data={formData}
               from={4}
               worksheetId={worksheetId}
+              isWorksheetQuery={isWorksheetQuery}
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
               onChange={(data, id) => {

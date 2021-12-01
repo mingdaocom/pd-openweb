@@ -48,10 +48,14 @@ export default class WorkSheetCommentList extends Component {
       change,
       discussions,
       addCallback,
+      forReacordDiscussion,
+      atData,
     } = this.props;
     const { isOnlyMe } = this.state;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
     const props = {
+      forReacordDiscussion,
+      atData,
       placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('发表评论'),
       activePlaceholder: _l('输入@成员，按Ctrl+Enter快速发布'),
       sourceId: id,

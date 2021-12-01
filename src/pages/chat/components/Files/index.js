@@ -15,7 +15,7 @@ export const splitFiles = list => {
   const oSplit = {};
   list.forEach(file => {
     if (file.type === 2) {
-      file.previewUrl = `${file.url}?imageView2/0/w/100/h/100/q/90`;
+      file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
     file.$date = createTimeSpan(file.time);
     file.$size = utils.formatFileSize(file.size);

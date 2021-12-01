@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iconfont viewer</title>
+    <script src="__lib/toast.js"></script>
+    <link rel="stylesheet" href="/__/src/common/mdcss/iconfont/mdfont.css">
+    <style>
+        .icon-con {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .icon {
+            cursor: pointer;
+            margin: 4px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        input {
+            margin: 5px;
+            width: 600px;
+            border: none;
+            border: 2px solid #ddd;
+            font-size: 17px;
+            border-radius: 3px;
+            padding: 6px 10px;
+        }
+
+        .tinyToast {
+            font-family: monospace;
+            background-color: #2196f3 !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 30px !important;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" placeholder="输入 icon name 进行筛选， 单击 icon 会复制 icon name">
+    <div class="icon-con"></div>
+    <script>
+        document.querySelector("input").onkeyup = e => {
+            window.showIcons = window.icons.filter(icon => new RegExp(e.target.value).test(icon));
+            render();
+        }
+        function setClipboard(text) {
+            var blob = new Blob([text], { type: 'text/plain' });
+            var item = new ClipboardItem({ 'text/plain': blob });
+            navigator.clipboard.write([item]).then(() => {
+                tinyToast.show(`"${text}" was copied!`).hide(800)
+            });
+        }
+        function render() {
+            document.querySelector(".icon-con").innerHTML = window.showIcons.map(icon => `<i class="icon icon-${icon}" title="${icon}" onclick="setClipboard('${icon}')"></i>`).join('')
+        }
+        async function main() {
+            const css = await fetch("/__/src/common/mdcss/iconfont/iconfont.css").then(r => r.text());
+            let icons = [];
+            const regexp = /\.icon-(\w+):/g;
+            let match = regexp.exec(css)
+            while (match) {
+                icons.push(match[1]);
+                match = regexp.exec(css)
+            }
+            window.showIcons = window.icons = icons;
+            render()
+        }
+        main()
+    </script>
+</body>
+
+</html>

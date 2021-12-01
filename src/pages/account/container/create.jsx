@@ -238,7 +238,7 @@ export default class Create extends React.Component {
                 $(this.companyName).focus();
               }}
             >
-              {_l('组织')}
+              {_l('组织名称')}
             </div>
             {_.find(warnningData, it => it.tipDom === this.companyName || it.tipDom === '.companyName') && (
               <div

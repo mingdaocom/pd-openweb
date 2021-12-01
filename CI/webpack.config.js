@@ -2,6 +2,7 @@ var path = require('path');
 const WebpackBar = require('webpackbar');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
@@ -61,7 +62,7 @@ module.exports = {
             ignoreOrder: true,
           }),
         ]
-      : [],
+      : [new CaseSensitivePathsPlugin()],
   ),
   optimization: {
     minimizer: [

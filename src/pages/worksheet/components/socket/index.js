@@ -149,6 +149,13 @@ export default function initWorksheetSocket() {
   if (!socket) return;
   socket.on('workflow', data => {
     const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType } = data;
+    if (status === 2 || (type === 4 && status === 1)) {
+      emitter.emit('RELOAD_RECORDINFO', {
+        worksheetId,
+        recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
+        closeWhenNotViewData: true,
+      });
+    }
     if (storeId) {
       if (total === finished && !complete[storeId]) {
         complete[storeId] = data;
@@ -177,13 +184,6 @@ export default function initWorksheetSocket() {
       });
     } else {
       const { id } = STATUS[status];
-      if (status === 2 || (type === 4 && status === 1)) {
-        emitter.emit('RELOAD_RECORDINFO_DIALOG', {
-          worksheetId,
-          recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
-          closeWhenNotViewData: true,
-        });
-      }
       const props = {
         themeColor: STATUS[String(status)].theme,
         header: <NoticeHeader {...data} />,

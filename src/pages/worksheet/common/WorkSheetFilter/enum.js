@@ -163,6 +163,7 @@ export const CONTROL_FILTER_WHITELIST = {
     keys: [
       2, // 文本框
       3, // 电话号码
+      4, // 座机
       5, // 邮件地址
       7, // 证件
       32, // 文本组合

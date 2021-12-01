@@ -14,7 +14,7 @@ export default class FileMessage extends Component {
       cancelShow: false,
     };
     const { files } = this.props.message.msg;
-    this.iconClassName = getClassNameByExt(File.GetExt(files.name));
+    this.iconClassName = getClassNameByExt(File.GetExt((files || {}).name));
     this.uploader = null;
   }
   componentDidMount() {
@@ -78,7 +78,7 @@ export default class FileMessage extends Component {
     const { files } = message.msg;
     const { progress, cancel, cancelShow } = this.state;
     const isKc = message.card ? message.card.md === 'kcfile' : false;
-    const size = formatFileSize(files.fsize);
+    const size = formatFileSize((files || {}).fsize);
     return (
       <div className="Message-file" onClick={this.handleMessageFilePreview.bind(this)}>
         <div className="Message-fileIcon">

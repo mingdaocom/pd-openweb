@@ -126,6 +126,7 @@ export default class RecordInfoWrapper extends Component {
       ) : (
         <RecordInfoComp
           ref={this.recordinfo}
+          notDialog={notDialog}
           {...{
             ...this.props,
             ...extendsProps,

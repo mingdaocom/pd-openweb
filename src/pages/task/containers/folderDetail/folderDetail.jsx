@@ -11,12 +11,12 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
 import ajaxRequest from 'src/api/taskCenter';
 import editFolder from '../../components/editFolder/editFolder';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import ScrollView from 'ming-ui/components/ScrollView';
 import UserHead from 'src/pages/feed/components/userHead';
-
+import RichText from 'ming-ui/components/RichText';
+import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 class FolderDetail extends Component {
   constructor(props) {
     super(props);
@@ -90,7 +90,7 @@ class FolderDetail extends Component {
 
     // 获取描述
     this.folderPostPromise = ajaxRequest.getFolderDetail({ folderID: folderId });
-    this.folderPostPromise.then((result) => {
+    this.folderPostPromise.then(result => {
       this.folderPostPromise = false;
 
       if (!this.mounted) {
@@ -154,7 +154,7 @@ class FolderDetail extends Component {
   /**
    * 更新描述
    */
-  updateFolderDesc = (describe) => {
+  updateFolderDesc = describe => {
     const { data } = this.state;
 
     // 退出编辑
@@ -166,7 +166,7 @@ class FolderDetail extends Component {
           folderID: this.props.taskConfig.folderId,
           describe,
         })
-        .then((source) => {
+        .then(source => {
           if (source.status) {
             alert('修改成功');
             this.setState({ data: Object.assign({}, data, { describe: source.data }) });
@@ -212,7 +212,7 @@ class FolderDetail extends Component {
   /**
    * 将项目托付给他人
    */
-  bindUpdateFolderChargeEvents = (evt) => {
+  bindUpdateFolderChargeEvents = evt => {
     const that = this;
     const { data } = this.state;
 
@@ -239,7 +239,7 @@ class FolderDetail extends Component {
    */
   renderFolderAdmin() {
     const { data } = this.state;
-    const getOpHtml = (accountId) => {
+    const getOpHtml = accountId => {
       let opHtml = '';
 
       if (data.chargeUser.accountID === md.global.Account.accountId) {
@@ -251,7 +251,9 @@ class FolderDetail extends Component {
       } else if (data.isAdmin) {
         opHtml = `
           <span class="folderDetailOpBtn updateFolderMember borderRight ThemeColor3">${_l('设为成员')}</span>
-          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3">${accountId === md.global.Account.accountId ? _l('退出') : _l('移出')}</span>
+          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3">${
+            accountId === md.global.Account.accountId ? _l('退出') : _l('移出')
+          }</span>
         `;
       }
 
@@ -281,7 +283,10 @@ class FolderDetail extends Component {
         })}
         {data.isAdmin && (
           <span data-tip={_l('添加项目管理员')}>
-            <i className="icon-task-add-member-circle pointer ThemeColor3" onClick={evt => this.addFolderMembersEvents(evt, true)} />
+            <i
+              className="icon-task-add-member-circle pointer ThemeColor3"
+              onClick={evt => this.addFolderMembersEvents(evt, true)}
+            />
           </span>
         )}
       </li>
@@ -305,13 +310,15 @@ class FolderDetail extends Component {
       } else if (data.isAdmin) {
         // 负责人多一个设为负责人操作项
         if (data.chargeUser.accountID === md.global.Account.accountId) {
-          opHtml = `<span class="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3">${_l('设为负责人')}</span>`;
+          opHtml = `<span class="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3">${_l(
+            '设为负责人',
+          )}</span>`;
         }
         opHtml += `
           <span class="folderDetailOpBtn updateFolderAdmin borderRight ThemeColor3">${_l('设为管理员')}</span>
-          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3 ${data.chargeUser.accountID === md.global.Account.accountId ? 'fixWidth' : ''}">${_l(
-          '移出'
-        )}</span>
+          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3 ${
+            data.chargeUser.accountID === md.global.Account.accountId ? 'fixWidth' : ''
+          }">${_l('移出')}</span>
         `;
       } else if (accountId === md.global.Account.accountId) {
         opHtml = `
@@ -366,7 +373,10 @@ class FolderDetail extends Component {
 
         {data.isAdmin && (
           <span data-tip={_l('添加项目成员')}>
-            <i className="icon-task-add-member-circle pointer ThemeColor3" onClick={evt => this.addFolderMembersEvents(evt, false)} />
+            <i
+              className="icon-task-add-member-circle pointer ThemeColor3"
+              onClick={evt => this.addFolderMembersEvents(evt, false)}
+            />
           </span>
         )}
       </li>
@@ -420,7 +430,7 @@ class FolderDetail extends Component {
     const { data } = this.state;
     const { folderId, projectId } = this.props.taskConfig;
     let existsIds = [data.chargeUser.accountID];
-    const callback = (users) => {
+    const callback = users => {
       this.addFolderMembers(users, isAdmin);
     };
 
@@ -469,7 +479,7 @@ class FolderDetail extends Component {
               folderID: this.props.taskConfig.folderId,
               chargeAccountID: accountId,
             })
-            .then((source) => {
+            .then(source => {
               if (source.status) {
                 const data = _.cloneDeep(this.state.data);
                 const oldCharge = _.cloneDeep(data.chargeUser);
@@ -514,7 +524,7 @@ class FolderDetail extends Component {
         accountID: accountId,
         isAdmin,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           const data = _.cloneDeep(this.state.data);
           const member = {
@@ -566,7 +576,7 @@ class FolderDetail extends Component {
           accountID: accountId,
           isRemoveTaskMember: false,
         })
-        .then((source) => {
+        .then(source => {
           if (source.status) {
             if (accountId === md.global.Account.accountId) {
               alert(_l('退出成功'));
@@ -601,7 +611,7 @@ class FolderDetail extends Component {
         memberID: accountId,
         isAdmin,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           const data = _.cloneDeep(this.state.data);
           const member = {
@@ -638,7 +648,7 @@ class FolderDetail extends Component {
           folderID: that.props.taskConfig.folderId,
           accountID: accountId,
         })
-        .then((source) => {
+        .then(source => {
           if (source.status) {
             const data = _.cloneDeep(that.state.data);
             _.remove(data.applyMembers, item => item.accountID === accountId);
@@ -659,11 +669,11 @@ class FolderDetail extends Component {
 
     // 外部用户
     if ($.isFunction(callbackInviteResult)) {
-      users.forEach((item) => {
+      users.forEach(item => {
         specialAccounts[item.account] = item.fullname;
       });
     } else {
-      users.forEach((item) => {
+      users.forEach(item => {
         userIdArr.push(item.accountId);
       });
     }
@@ -675,7 +685,7 @@ class FolderDetail extends Component {
         specialAccounts: specialAccounts,
         isAdmin,
       })
-      .then((source) => {
+      .then(source => {
         if ($.isFunction(callbackInviteResult)) {
           callbackInviteResult({ status: source.status });
         }
@@ -705,7 +715,8 @@ class FolderDetail extends Component {
   editRange = () => {
     const { folderId, projectId } = this.props.taskConfig;
     const data = _.cloneDeep(this.state.data);
-    const projectName = $('.networkFolderList[data-projectid=' + projectId + '] .allFolders .overflow_ellipsis').html() || _l('个人');
+    const projectName =
+      $('.networkFolderList[data-projectid=' + projectId + '] .allFolders .overflow_ellipsis').html() || _l('个人');
 
     editFolder.init({
       projectId,
@@ -713,7 +724,7 @@ class FolderDetail extends Component {
       folderId,
       visibility: data.visibility,
       selectGroup: data.groupInfo.map(item => item.groupID).join(','),
-      callback: (folderObj) => {
+      callback: folderObj => {
         data.visibility = folderObj.visibility;
         data.groupInfo = folderObj.groupInfo || [];
         this.setState({ data });
@@ -778,7 +789,7 @@ class FolderDetail extends Component {
   /**
    * 添加讨论
    */
-  onSubmit = (item) => {
+  onSubmit = item => {
     const discussions = [item].concat(this.state.discussions);
     this.setState({ discussions });
   };
@@ -786,7 +797,7 @@ class FolderDetail extends Component {
   /**
    * 刪除讨论
    */
-  removeDiscussionsCallback = (discussionId) => {
+  removeDiscussionsCallback = discussionId => {
     const discussions = [].concat(this.state.discussions);
     _.remove(discussions, item => item.discussionId === discussionId);
     this.setState({ discussions });
@@ -809,7 +820,7 @@ class FolderDetail extends Component {
         pageIndex: logPageIndex,
         pageSize: 20,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           if (!this.mounted) {
             return;
@@ -889,23 +900,40 @@ class FolderDetail extends Component {
               <span className="projectDetail"> {_l('项目描述')}</span>
               {isAddedApk && (
                 <div className="ellipsis mLeft8 Gray_75">
-                  <Icon icon="info" className="Font17"/>
+                  <Icon icon="info" className="Font17" />
                   <span className="mLeft3">{_l('此项目已被"%0"应用关联', apkName)}</span>
                 </div>
               )}
             </div>
             <div className="descContainer">
-              <BraftEditor
-                cacheKey={folderId}
-                isEditing={isEditing}
-                auth={data.isAdmin}
-                className={isEditing ? '' : 'folderDetailDesc'}
-                summary={data.describe}
-                placeholder={_l('说明这个项目希望达成的目标和计划…')}
-                joinEditing={() => data.isAdmin && this.setState({ isEditing: true })}
-                onCancel={() => this.setState({ isEditing: false })}
-                onSave={this.updateFolderDesc}
-              />
+              {!isEditing ? (
+                <RichText
+                  key={folderId}
+                  className="taskDetailEdit"
+                  data={data.describe}
+                  disabled={true}
+                  minHeight={40}
+                  placeholder={_l('说明这个项目希望达成的目标和计划…')}
+                  onClickNull={e => {
+                    data.isAdmin &&
+                      this.setState({
+                        isEditing: true,
+                      });
+                  }}
+                />
+              ) : (
+                <Editor
+                  toorIsBottom
+                  className="taskDetailEdit appIntroDescriptionEditor"
+                  summary={data.describe}
+                  isEditing={data.isAdmin && isEditing}
+                  permissionType={100} //可编辑的权限
+                  onSave={this.updateFolderDesc}
+                  onCancel={() => this.setState({ isEditing: false })}
+                  cacheKey={folderId}
+                  title={_l('描述')}
+                />
+              )}
             </div>
           </div>
 
@@ -940,7 +968,11 @@ class FolderDetail extends Component {
                   ) : data.visibility === 2 ? (
                     _l('对所有同事公开')
                   ) : (
-                    <span dangerouslySetInnerHTML={{ __html: _l('对群组 %0 公开', '<span class="bold">' + groupNames + '</span>') }} />
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: _l('对群组 %0 公开', '<span class="bold">' + groupNames + '</span>'),
+                      }}
+                    />
                   )}
                 </span>
                 {data.isAdmin && (
@@ -958,14 +990,23 @@ class FolderDetail extends Component {
 
           <div className="folderDetailTabList boderRadAll_3 mTop10">
             <ul className="folderDetailTab relative">
-              <li className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 1 })} onClick={() => this.switchTabs(1)}>
+              <li
+                className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 1 })}
+                onClick={() => this.switchTabs(1)}
+              >
                 {_l('讨论')}
               </li>
-              <li className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 2 })} onClick={() => this.switchTabs(2)}>
+              <li
+                className={cx('commItem ThemeBorderColor3 ThemeColor3', { active: tabIndex === 2 })}
+                onClick={() => this.switchTabs(2)}
+              >
                 {_l('日志')}
               </li>
               {tabIndex === 1 && (
-                <span className={cx('isOnlyLook', { checked: onlyLook })} onClick={() => this.setState({ onlyLook: !onlyLook })}>
+                <span
+                  className={cx('isOnlyLook', { checked: onlyLook })}
+                  onClick={() => this.setState({ onlyLook: !onlyLook })}
+                >
                   <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                   {_l('只显示和我有关')}
                 </span>
@@ -981,7 +1022,7 @@ class FolderDetail extends Component {
                   nullCommentList={this.nullCommentList()}
                   updateCommentList={list => this.setState({ discussions: list })}
                   removeComment={this.removeDiscussionsCallback}
-                  manualRef={(commentList) => {
+                  manualRef={commentList => {
                     this.commentList = commentList;
                   }}
                 >

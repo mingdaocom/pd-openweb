@@ -10,16 +10,55 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import { getRequest } from 'src/util';
 import './index.less';
+import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 
 const tabs = [{
-  name: _l('未处理'),
+  name: _l('待办'),
   id: 'untreated',
-}, {
-  name: _l('已处理'),
-  id: 'processed',
+  icon: 'access_time',
+  className: 'Font18',
+  tabs: [{
+    name: _l('待审批'),
+    id: 'waitingApproval',
+    param: {
+      type: 4
+    }
+  }, {
+    name: _l('待填写'),
+    id: 'waitingWrite',
+    param: {
+      type: 3
+    }
+  }]
 }, {
   name: _l('我发起的'),
   id: 'mySponsor',
+  icon: 'send',
+  className: 'Font18',
+  tabs: [],
+  param: {
+    type: 0
+  }
+}, {
+  name: _l('已完成'),
+  id: 'processed',
+  icon: 'succeed-one-o',
+  className: 'Font15',
+  tabs: [{
+    name: _l('已处理'),
+    id: 'completeDispose',
+    param: {
+      type: -1,
+      complete: true
+    }
+  }, {
+    name: _l('我发起的'),
+    id: 'completeMySponsor',
+    param: {
+      type: 0,
+      complete: true
+    }
+  }]
 }];
 
 export default class ProcessMatters extends Component {
@@ -31,7 +70,8 @@ export default class ProcessMatters extends Component {
       list: [],
       loading: false,
       isMore: true,
-      currentTab: tabs[0].id,
+      bottomTab: tabs[0],
+      topTab: tabs[0].tabs[0],
       searchValue: '',
       countData: {},
       appCount: {}
@@ -43,7 +83,7 @@ export default class ProcessMatters extends Component {
   }
   getTodoList() {
     const param = {};
-    const { loading, isMore, currentTab, searchValue } = this.state;
+    const { loading, isMore, topTab, bottomTab, searchValue } = this.state;
     const { appId } = getRequest();
 
     if (loading || !isMore) {
@@ -57,9 +97,6 @@ export default class ProcessMatters extends Component {
     if (this.request && this.request.state() === 'pending') {
       this.request.abort();
     }
-    if (currentTab === 'processed') {
-      param.complete = true;
-    }
     if (searchValue) {
       param.keyword = searchValue;
     }
@@ -71,8 +108,8 @@ export default class ProcessMatters extends Component {
     this.request = instanceVersion.getTodoList({
       pageSize,
       pageIndex,
-      type: currentTab === 'mySponsor' ? 0 : -1,
       ...param,
+      ...topTab ? topTab.param : bottomTab.param
     });
 
     this.request.then(result => {
@@ -88,16 +125,16 @@ export default class ProcessMatters extends Component {
     const { appId } = getRequest();
     if (appId) {
       Promise.all([
-        instanceVersion.getTodoListFilter({ type: -1 }).then(),
-        instanceVersion.getTodoListFilter({ type: 0 }).then()
+        instanceVersion.getTodoListFilter({ type: 4 }).then(),
+        instanceVersion.getTodoListFilter({ type: 3 }).then()
       ]).then(result => {
-        const [untreatedList, mySponsorList] = result;
-        const untreated = _.find(untreatedList, { app: { id: appId } });
-        const mySponsor = _.find(mySponsorList, { app: { id: appId } });
+        const [approveList, writeList] = result;
+        const approve = _.find(approveList, { app: { id: appId } });
+        const write = _.find(writeList, { app: { id: appId } });
         this.setState({
           appCount: {
-            untreatedCount: untreated ? untreated.count : 0,
-            mySponsorCount: mySponsor ? mySponsor.count : 0
+            approveCount: approve ? approve.count : 0,
+            writeCount: write ? write.count : 0
           }
         });
       });
@@ -109,13 +146,25 @@ export default class ProcessMatters extends Component {
       });
     }
   }
-  handleChangeCompleteTab = tab => {
+  handleChangeCompleteTab = (tab) => {
     this.setState({
       loading: false,
       pageIndex: 1,
       isMore: true,
       list: [],
-      currentTab: tab.id,
+      bottomTab: tab,
+      topTab: tab.tabs[0]
+    }, () => {
+      this.getTodoList();
+    });
+  }
+  handleChangeTopTab = tab => {
+    this.setState({
+      loading: false,
+      pageIndex: 1,
+      isMore: true,
+      list: [],
+      topTab: tab,
     }, () => {
       this.getTodoList();
     });
@@ -123,23 +172,33 @@ export default class ProcessMatters extends Component {
   handleScrollEnd = tab => {
     this.getTodoList();
   }
+  handleApproveDone = ({ id }) => {
+    const { list, countData } = this.state;
+    this.setState({
+      list: list.filter(item => item.id !== id),
+      countData: {
+        ...countData,
+        waitingApproval: countData.waitingApproval - 1,
+      }
+    });
+  }
   renderCount(tab) {
     const { countData, appCount } = this.state;
     const { appId } = getRequest();
 
-    if (tab.id === 'untreated') {
+    if (tab.id === 'waitingWrite') {
       if (appId) {
-        return appCount.untreatedCount ? `(${appCount.untreatedCount})` : null;
+        return appCount.writeCount ? `(${appCount.writeCount})` : null;
       } else {
-        return countData.waitingDispose ? `(${countData.waitingDispose})` : null;
+        return countData.waitingWrite ? `(${countData.waitingWrite})` : null;
       }
     }
 
-    if (tab.id === 'mySponsor') {
+    if (tab.id === 'waitingApproval') {
       if (appId) {
-        return appCount.mySponsorCount ? `(${appCount.mySponsorCount})` : null;
+        return appCount.approveCount ? `(${appCount.approveCount})` : null;
       } else {
-        return countData.mySponsor ? `(${countData.mySponsor})` : null;
+        return countData.waitingApproval ? `(${countData.waitingApproval})` : null;
       }
     }
   }
@@ -158,7 +217,12 @@ export default class ProcessMatters extends Component {
             });
           }}
           onKeyDown={event => {
-            event.which === 13 && this.handleChangeCompleteTab({ id: this.state.currentTab });
+            const { bottomTab, topTab } = this.state;
+            if (topTab) {
+              event.which === 13 && this.handleChangeTopTab(topTab);
+            } else {
+              event.which === 13 && this.handleChangeCompleteTab(bottomTab);
+            }
           }}
         />
         {searchValue ? (
@@ -169,7 +233,12 @@ export default class ProcessMatters extends Component {
               this.setState({
                 searchValue: '',
               }, () => {
-                this.handleChangeCompleteTab({ id: this.state.currentTab });
+                const { bottomTab, topTab } = this.state;
+                if (topTab) {
+                  this.handleChangeTopTab(topTab);
+                } else {
+                  this.handleChangeCompleteTab(bottomTab);
+                }
               });
             }}
           />
@@ -186,22 +255,23 @@ export default class ProcessMatters extends Component {
     );
   }
   renderContent() {
-    const { stateTab, list, loading, pageIndex, filter, currentTab } = this.state;
+    const { stateTab, list, loading, pageIndex, filter, bottomTab, topTab } = this.state;
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
-          <div className="pLeft10 pRight10" key={item.workId}>
+          <div className="pLeft10 pRight10" key={item.id}>
             <Card
               item={item}
               type={filter ? filter.type : null}
               time={createTimeSpan(item.workItem.receiveTime)}
-              currentTab={currentTab}
+              currentTab={topTab ? topTab.id : bottomTab.id}
               renderBodyTitle={() => {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
               }}
               onClick={() => {
                 this.props.history.push(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
+              onApproveDone={this.handleApproveDone}
             />
           </div>
         ))}
@@ -211,29 +281,43 @@ export default class ProcessMatters extends Component {
     );
   }
   render() {
-    const { currentTab } = this.state;
+    const { bottomTab, topTab } = this.state;
+    const currentTabs = bottomTab.tabs;
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
-          <div className="processTabs z-depth-1">
+          <div className="processTabs mBottom10 z-depth-1">
             <Tabs
               tabBarInactiveTextColor="#9e9e9e"
-              tabs={tabs}
-              onTabClick={this.handleChangeCompleteTab}
+              tabs={currentTabs}
+              page={topTab ? _.findIndex(currentTabs, { id: topTab.id }) : -1}
+              onTabClick={this.handleChangeTopTab}
               renderTab={tab => (
                 <span>{tab.name} {this.renderCount(tab)}</span>
               )}>
             </Tabs>
           </div>
-          <Back
-            className="low"
-            onClick={() => {
-              history.back();
-            }}
-          />
-          {['processed', 'mySponsor'].includes(currentTab) ? this.renderInput() : null}
+          {['processed', 'mySponsor'].includes(bottomTab.id) ? this.renderInput() : null}
           {this.renderContent()}
+          <div className="processTabs bottomProcessTabs">
+            <Tabs
+              tabBarInactiveTextColor="#9e9e9e"
+              tabs={tabs}
+              onTabClick={this.handleChangeCompleteTab}
+              renderTab={tab => (
+                <div className="flexColumn valignWrapper">
+                  <Icon className={tab.className} icon={tab.icon} />
+                  <span className="Font12 mTop2">{tab.name}</span>
+                </div>
+              )}>
+            </Tabs>
+          </div>
         </div>
+        <Back
+          onClick={() => {
+            history.back();
+          }}
+        />
       </div>
     );
   }

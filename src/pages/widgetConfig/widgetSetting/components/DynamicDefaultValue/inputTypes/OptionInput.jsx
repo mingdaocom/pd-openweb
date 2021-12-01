@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
-import { ControlTag, DropdownContent, DropdownPlaceholder, SettingItem } from '../../../../styled';
-import { find, head, includes, isEmpty, pull } from 'lodash';
-import { SelectOtherField, OtherField } from '../components';
-import { getOptions, parseOptionValue } from '../../../../util/setting';
+import { DropdownContent, SettingItem } from '../../../../styled';
+import { find, head, includes, isEmpty } from 'lodash';
+import { SelectOtherField, OtherField, DynamicInput } from '../components';
+import { getOptions } from '../../../../util/setting';
 
 const DefaultOptionSetting = styled(SettingItem)`
   .holder {
@@ -90,13 +90,14 @@ const DefaultOptionsMenu = styled(DropdownContent)`
 `;
 
 export default function DefaultOptions(props) {
-  const { data, dynamicValue, onDynamicValueChange, clearOldDefault, onChange } = props;
+  const { data, dynamicValue, onDynamicValueChange, clearOldDefault, onChange, defaultType } = props;
   const { type, default: defaultValue, enumDefault2 } = data;
   const [visible, setVisible] = useState(false);
   const checkedValue = dynamicValue.map(item => item.staticValue);
   const colorful = enumDefault2 === 1;
   const options = getOptions(data);
   const isMulti = data.type === 10;
+  const $wrap = createRef(null);
 
   useEffect(() => {
     if (defaultValue) {
@@ -144,69 +145,80 @@ export default function DefaultOptions(props) {
     }
   };
 
+  const onTriggerClick = () => {
+    defaultType && $wrap.current.triggerClick();
+  };
+
   return (
     <DefaultOptionSetting>
-      <div className="content">
-        <Dropdown
-          trigger={['click']}
-          visible={visible}
-          onVisibleChange={setVisible}
-          overlay={
-            <DefaultOptionsMenu onClick={e => e.stopPropagation()}>
-              <div
-                className="clearDefault hoverText"
-                onClick={() => {
-                  onChange({ default: '' });
-                  setVisible(false);
-                }}>
-                {_l('清除默认值')}
-              </div>
-              {options.map(({ key, color, value }) => {
-                const checked = includes(checkedValue, key);
-                return (
-                  <div className={cx('optionItem', { checked })} key={key} onClick={() => switchChecked(key)}>
-                    {colorful && color && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
-                    <div className="text">{value}</div>
-                    {checked && <i className="icon-done"></i>}
-                  </div>
-                );
+      {defaultType ? (
+        <DynamicInput {...props} onTriggerClick={onTriggerClick} />
+      ) : (
+        <div className="content">
+          <Dropdown
+            trigger={['click']}
+            visible={visible}
+            onVisibleChange={setVisible}
+            overlay={
+              <DefaultOptionsMenu onClick={e => e.stopPropagation()}>
+                <div
+                  className="clearDefault hoverText"
+                  onClick={() => {
+                    onChange({ default: '' });
+                    setVisible(false);
+                  }}
+                >
+                  {_l('清除默认值')}
+                </div>
+                {options.map(({ key, color, value }) => {
+                  const checked = includes(checkedValue, key);
+                  return (
+                    <div className={cx('optionItem', { checked })} key={key} onClick={() => switchChecked(key)}>
+                      {colorful && color && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
+                      <div className="text">{value}</div>
+                      {checked && <i className="icon-done"></i>}
+                    </div>
+                  );
+                })}
+              </DefaultOptionsMenu>
+            }
+          >
+            <div className="defaultOptionsWrap">
+              {dynamicValue.map(({ cid, rcid, staticValue }) => {
+                if (cid) {
+                  return (
+                    <OtherField
+                      {...props}
+                      item={{ cid, rcid }}
+                      className={cx({ singleOption: includes([9, 11], type) })}
+                    />
+                  );
+                }
+                if (staticValue) {
+                  const option = find(options, item => item.key === staticValue) || {};
+                  return (
+                    <div className={cx('option pointer', { isDeleted: isEmpty(option) })}>
+                      {colorful && option.color && (
+                        <div className="colorWrap" style={{ backgroundColor: option.color }}></div>
+                      )}
+                      <div className="text">{option.value || _l('已删除')}</div>
+                      <i
+                        className="icon-close"
+                        onClick={e => {
+                          e.stopPropagation();
+                          removeItem({ cid, rcid, staticValue });
+                        }}
+                      ></i>
+                    </div>
+                  );
+                }
+                return null;
               })}
-            </DefaultOptionsMenu>
-          }>
-          <div className="defaultOptionsWrap" onClick={() => setVisible(true)}>
-            {dynamicValue.map(({ cid, rcid, staticValue }) => {
-              if (cid) {
-                return (
-                  <OtherField
-                    {...props}
-                    item={{ cid, rcid }}
-                    className={cx({ singleOption: includes([9, 11], type) })}
-                  />
-                );
-              }
-              const option = find(options, item => item.key === staticValue) || {};
-              if (staticValue) {
-                return (
-                  <div className={cx('option pointer', { isDeleted: isEmpty(option) })}>
-                    {colorful && option.color && (
-                      <div className="colorWrap" style={{ backgroundColor: option.color }}></div>
-                    )}
-                    <div className="text">{option.value || _l('已删除')}</div>
-                    <i
-                      className="icon-close"
-                      onClick={e => {
-                        e.stopPropagation();
-                        removeItem({ cid, rcid, staticValue });
-                      }}></i>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        </Dropdown>
-      </div>
-      <SelectOtherField {...props} onDynamicValueChange={handleFieldClick} />
+            </div>
+          </Dropdown>
+        </div>
+      )}
+      <SelectOtherField {...props} onDynamicValueChange={handleFieldClick} ref={$wrap} />
     </DefaultOptionSetting>
   );
 }

@@ -1,6 +1,6 @@
 import sheetAjax from 'src/api/worksheet';
 import update from 'immutability-helper';
-import { dealData, getParaIds, getHierarchyViewIds } from './util';
+import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './util';
 import { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
 import { getItem } from '../../views/util';
@@ -12,19 +12,24 @@ export function expandedMultiLevelHierarchyData(args) {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const { searchType, ...rest } = sheet.filters || {};
+    const { pageSize = 50 } = sheet.hierarchyView.hierarchyDataStatus;
     sheetAjax
       .getFilterRows({
         ...args,
         ...rest,
         ...getParaIds(sheet),
-        pageSize: 50,
+        pageSize,
         searchType: searchType || 1,
       })
       .then(({ data, count, resultCode }) => {
         if (resultCode === 1) {
           const treeData = dealData(data);
+          // 第一次调用少于1000条，加载全量数据
+          const needGetOne =
+            ((count < 1000 && pageSize === 50) || (count > 1000 && pageSize === 1000)) &&
+            sheet.hierarchyView.hierarchyTopLevelDataCount === 0;
           dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
-          dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false, pageIndex: 1 } });
+          dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: needGetOne, pageIndex: 1 } });
           dispatch({
             type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
             count: count,
@@ -33,6 +38,10 @@ export function expandedMultiLevelHierarchyData(args) {
             type: 'EXPAND_HIERARCHY_VIEW_STATE',
             data: { treeData, data, level: +args.layer },
           });
+
+          if (needGetOne) {
+            dispatch(getDefaultHierarchyData());
+          }
         }
       });
   };
@@ -561,15 +570,19 @@ export function initHierarchyRelateSheetControls(payload) {
 export function getDefaultHierarchyData(view) {
   return (dispatch, getState) => {
     const { sheet } = getState();
+    const count = sheet.hierarchyView.hierarchyTopLevelDataCount || 0;
     const { viewId, viewControl, viewControls, childType } = isEmpty(view) ? getCurrentView(sheet) : view;
     if (!viewControl && isEmpty(viewControls)) return;
-    // 层级视图刷新
-    dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: true } });
+    // 层级视图刷新(本表小于1000条加载全量数据)
+    dispatch({
+      type: 'CHANGE_HIERARCHY_DATA_STATUS',
+      data: { loading: true, pageSize: count > 1000 || Number(childType) === 2 ? 50 : 1000 },
+    });
     if (_.includes(['1', '0'], String(childType))) {
       const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
       dispatch(
         expandedMultiLevelHierarchyData({
-          layer: level || '3',
+          layer: level || (count > 1000 ? '1' : '5'),
         }),
       );
     } else {
@@ -593,3 +606,34 @@ export function addMultiRelateHierarchyControls(ids) {
     });
   };
 }
+
+export const updateHierarchySearchRecord = record => {
+  return (dispatch, getState) => {
+    const { sheet } = getState();
+    const count = sheet.hierarchyView.hierarchyTopLevelDataCount || 0;
+    if (count < 1000) {
+      if (record) {
+        //向上展开所有层级
+        const currentItem = getItemByRowId(record.rowid, sheet.hierarchyView.hierarchyViewState);
+        if (currentItem) {
+          dispatch({ type: 'CHANGE_HIERARCHY_DATA_VISIBLE', data: currentItem });
+          //定位到可视区域
+          setTimeout(() => {
+            const searchEl = document.getElementById(`${record.rowid}`);
+            if (searchEl) {
+              searchEl.scrollIntoView({
+                inline: 'center',
+                block: 'center',
+              });
+            }
+          }, 100);
+        }
+      }
+      //搜索命中
+      dispatch({ type: 'CHANGE_HIERARCHY_SEARCH_RECORD_ID', data: record ? record.rowid : null });
+    } else {
+      //打开记录详情
+      dispatch({ type: 'CHANGE_HIERARCHY_RECORD_INFO_ID', data: record ? record.rowid : null });
+    }
+  };
+};

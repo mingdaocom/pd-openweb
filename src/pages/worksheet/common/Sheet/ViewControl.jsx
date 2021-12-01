@@ -11,6 +11,7 @@ import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
 import { exportSheet } from 'worksheet/common/ExportSheet';
 import ViewItems from 'worksheet/components/ViewItems';
 import Pagination from 'worksheet/components/Pagination';
+import SearchRecord from 'worksheet/views/components/SearchRecord';
 import { navigateTo } from 'src/router/navigateTo';
 import {
   refreshSheet,
@@ -19,10 +20,13 @@ import {
   saveView,
   loadCustomButtons,
   updateCustomButtons,
+  updateWorksheetControls,
+  updateSearchRecord,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { getSearchData } from 'worksheet/views/util';
 import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
 const Con = styled.div`
   display: flex;
@@ -55,6 +59,7 @@ function ViewControl(props) {
     sheetButtons,
     viewConfigVisible,
     setViewConfigVisible,
+    searchData,
   } = props;
   // funcs
   const {
@@ -67,6 +72,8 @@ function ViewControl(props) {
     loadCustomButtons,
     updateCustomButtons,
     addMultiRelateHierarchyControls,
+    updateWorksheetControls,
+    updateSearchRecord,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, rowsSummary } = sheetViewData;
@@ -170,9 +177,26 @@ function ViewControl(props) {
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`);
         }}
       />
+      {/**本表层级视图、甘特图 */}
+      {((Number(view.viewType) === 2 && _.includes([0, 1], Number(view.childType))) || Number(view.viewType) === 5) && (
+        <SearchRecord
+          queryKey={searchData.queryKey}
+          data={searchData.data}
+          onSearch={record => {
+            updateSearchRecord(view, record);
+          }}
+          onClose={() => {
+            updateSearchRecord(view, null);
+          }}
+        >
+          <Tooltip popupPlacement="bottom" text={<span>{_l('查找')}</span>}>
+            <i className={cx('icon icon-search Gray_9e Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
+          </Tooltip>
+        </SearchRecord>
+      )}
       <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
         <i
-          className={cx('icon icon-task-later refresh Gray_bd Font18 pointer ThemeHoverColor3 mTop2')}
+          className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
             refreshSheet(view);
           }}
@@ -229,7 +253,8 @@ function ViewControl(props) {
             '#chat',
             '.boxEditFastFilter',
             '.boxEditFastFilterCover',
-            '.ant-picker-dropdown'
+            '.ant-picker-dropdown',
+            '.quickAddControlDialog',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -257,6 +282,7 @@ function ViewControl(props) {
           refreshFn={(worksheetId, appId, viewId, rowId) => {
             loadCustomButtons({ worksheetId, appId, viewId, rowId });
           }}
+          updateWorksheetControls={updateWorksheetControls}
         />
       )}
       {createCustomBtnVisible && (
@@ -281,7 +307,7 @@ function ViewControl(props) {
             '.mdAlertDialog',
             '.ant-cascader-menus',
             '.ant-tree-select-dropdown',
-            '.ant-picker-dropdown'
+            '.ant-picker-dropdown',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}
@@ -323,7 +349,6 @@ function ViewControl(props) {
             setActiveFastFilterId(id);
           }}
           updateCurrentView={data => {
-            // console.log(data)
             saveView(viewId, _.pick(data, data.editAttrs || []));
           }}
         />
@@ -366,6 +391,7 @@ export default connect(
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
     buttons: state.sheet.buttons,
     sheetButtons: state.sheet.sheetButtons,
+    searchData: getSearchData(state.sheet),
   }),
   dispatch =>
     bindActionCreators(
@@ -379,6 +405,8 @@ export default connect(
         loadCustomButtons,
         updateCustomButtons,
         addMultiRelateHierarchyControls,
+        updateWorksheetControls,
+        updateSearchRecord,
       },
       dispatch,
     ),

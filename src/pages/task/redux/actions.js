@@ -612,7 +612,7 @@ export const updateTaskSummary = (taskId, summary) => (dispatch, getState) => {
         data: taskDetail,
       });
 
-      alert(_l('修改成功'));
+      // alert(_l('修改成功'));
     } else {
       errorMessage(result.error);
     }

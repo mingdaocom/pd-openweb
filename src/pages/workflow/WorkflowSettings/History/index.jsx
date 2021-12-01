@@ -291,6 +291,11 @@ class History extends Component {
           <HistoryHeader onFilter={this.handleFilter} />
           <HistoryList
             data={data}
+            updateSource={(item, index) => {
+              const newData = [].concat(data);
+              newData[index] = item;
+              this.setState({ data: newData });
+            }}
             getMore={this.getMore}
             hasMoreData={hasMoreData}
             onClick={selectActionId => this.setState({ selectActionId })}

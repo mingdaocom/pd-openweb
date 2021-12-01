@@ -202,7 +202,7 @@ class External extends Component {
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
-      <div id="externalEvents">
+      <div id="externalEvents" className="externalEvents" >
         {this.props.showExternal ? (
           <div className="listBox">
             <div className="searchWrapper">

@@ -45,7 +45,7 @@ const Con = styled.div`
 function QuickFilter(props) {
   const { view, filters, controls, updateQuickFilter, onHideSidebar } = props;
   const width = document.documentElement.clientWidth - 60;
-  const showQueryBtn = view.advancedSetting.enablebtn === '1';
+  const showQueryBtn = view.advancedSetting && view.advancedSetting.enablebtn && view.advancedSetting.enablebtn === '1';
   const store = useRef({});
   const [values, setValues] = useState({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 300));

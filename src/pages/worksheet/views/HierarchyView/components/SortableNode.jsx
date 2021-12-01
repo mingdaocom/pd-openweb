@@ -7,6 +7,8 @@ import { getItem } from '../../util';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
+import { browserIsMobile } from 'src/util';
+import { navigateTo } from 'src/router/navigateTo';
 
 export default class SortableRecordItem extends Component {
   static propTypes = {
@@ -29,6 +31,19 @@ export default class SortableRecordItem extends Component {
   }
   componentDidMount() {
     this.drawConnector();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.recordInfoId &&
+      nextProps.recordInfoId !== this.props.recordInfoId &&
+      nextProps.recordInfoId === this.props.data.rowId
+    ) {
+      this.setState({
+        recordInfoVisible: true,
+        recordInfoRowId: nextProps.recordInfoId,
+      });
+    }
   }
 
   componentDidUpdate() {
@@ -91,6 +106,15 @@ export default class SortableRecordItem extends Component {
     draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
   };
   handleRecordVisible = rowId => {
+    if (browserIsMobile()) {
+      const { appId } = this.props;
+      let { worksheetId, viewId } = { ...this.getRecordInfoPara() };
+      let url = viewId
+        ? `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`
+        : `/mobile/record/${appId}/${worksheetId}/${rowId}`;
+      navigateTo(url);
+      return;
+    }
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {
@@ -121,6 +145,10 @@ export default class SortableRecordItem extends Component {
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
+    const recordInfoPara = this.getRecordInfoPara();
+    if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
+      recordInfoPara.rules = worksheetInfo.rules;
+    }
     return (
       <Fragment>
         <div
@@ -132,7 +160,7 @@ export default class SortableRecordItem extends Component {
           <div id={`svg-${pathId.join('-')}`} className="svgWrap" />
           <DraggableRecord
             {...this.props}
-            viewParaOfRecord={this.getRecordInfoPara()}
+            viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}
             onUpdate={(value, relateSheet) =>
               updateHierarchyData({ path, pathId, recordId: rowId, value, relateSheet })
@@ -155,7 +183,7 @@ export default class SortableRecordItem extends Component {
             }
             appId={appId}
             deleteRows={(_, rows) => deleteHierarchyRecord({ rows, path, pathId })}
-            {...this.getRecordInfoPara()}
+            {...recordInfoPara}
           />
         )}
       </Fragment>

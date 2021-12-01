@@ -7,7 +7,7 @@ import { updateConfig } from '../../util/setting';
 import { SettingItem } from '../../styled';
 
 export default ({ from, data, info, onChange }) => {
-  let { fieldPermission = '111', type } = data;
+  let { fieldPermission = '111', type } = data || {};
   fieldPermission = fieldPermission || '111';
   const [visible, editable, canAdd] = fieldPermission.split('');
   if (from === 'subList') return null;

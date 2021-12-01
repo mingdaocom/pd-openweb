@@ -7,8 +7,8 @@ import styled from 'styled-components';
 const Content = styled(Flex)`
   display: flex;
   color: #2196F3;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background-color: #fff;
   position: fixed;
@@ -20,7 +20,7 @@ const Content = styled(Flex)`
   }
   .icon {
     font-size: 33px;
-    margin-top: 3px;
+    margin-top: -2px;
   }
 `;
 

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { Input } from 'antd';
 import { DynamicValueInputWrap } from '../styled';
-import { OtherFieldList, SelectOtherField } from '../components';
+import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 
 export default function (props) {
-  const { onDynamicValueChange, dynamicValue = [], data = {} } = props;
+  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
   const { staticValue = '', cid = '' } = dynamicValue[0] || {};
   const [value, setValue] = useState(staticValue);
   const [isDynamic, setDynamic] = useState(!!cid);
+  const $wrap = createRef(null);
 
   useEffect(() => {
     setValue(staticValue);
@@ -22,9 +23,14 @@ export default function (props) {
     setValue(value);
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: value }]);
   };
+  const onTriggerClick = () => {
+    defaultType && $wrap.current.triggerClick();
+  };
   return (
     <DynamicValueInputWrap>
-      {isDynamic ? (
+      {defaultType ? (
+        <DynamicInput {...props} onTriggerClick={onTriggerClick} />
+      ) : isDynamic ? (
         <OtherFieldList
           onClick={() => {
             if (!cid) {
@@ -46,7 +52,7 @@ export default function (props) {
           onChange={e => handleChange(e.target.value)}
         />
       )}
-      <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} />
+      <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />
     </DynamicValueInputWrap>
   );
 }

@@ -64,6 +64,7 @@ export default class GalleryItem extends React.Component {
               });
           }}
           onCopySuccess={this.props.onCopySuccess}
+          updateTitleData={this.updateTitleData}
         />
         {isEditTitle && (
           <RecordPortal closeEdit={() => this.setState({ isEditTitle: false })}>

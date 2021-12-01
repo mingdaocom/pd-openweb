@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { formatrChartValue } from './common';
+import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl } from 'src/pages/worksheet/common/Statistics/common';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
 
 const PivotTableContent = styled.table`
   border-spacing: 0;
@@ -42,6 +44,7 @@ const PivotTableContent = styled.table`
  * 将连续的单元格合并
  */
 const uniqMerge = data => {
+  data = data.map((item, index) => item || _l('空'));
   for(let i = data.length - 1; i >= 0; i--) {
     let current = data[i];
     let last = data[i - 1];
@@ -76,7 +79,7 @@ const mergeTableCell = list => {
           let end = i + n.length;
           return uniqMerge(item.data.slice(i, end));
         } else if (_.isString(n)) {
-          return item.data[i];
+          return item.data[i] || _l('空');
         } else {
           return false;
         }
@@ -99,8 +102,8 @@ const mergeColumnsCell = (data, yaxisList) => {
       index: i,
       data: [],
     });
-    data.forEach(item => {
-      if (item.y) {
+    data.filter(item => !item.summary_col).forEach(item => {
+      if (item.y && item.y.length) {
         result[i].data.push(item.y[i]);
       }
     });
@@ -108,7 +111,7 @@ const mergeColumnsCell = (data, yaxisList) => {
 
   mergeTableCell(result).forEach((item, index) => {
     item.data.forEach((n, i) => {
-      data[i].y[index] = n;
+      data.filter(item => !item.summary_col)[i].y[index] = n;
     });
   });
 
@@ -119,18 +122,18 @@ const mergeColumnsCell = (data, yaxisList) => {
     item.data = data.map(n => {
       if (_.isNumber(n)) {
         const current = _.find(yaxisList, { controlId: t_id });
-        if (current && [0, 1].includes(current.magnitude)) {
-          const newYaxisList = yaxisList.map(item => {
-            return {
-              ...item,
-              magnitude: 1,
-              ydot: '',
-            };
-          });
-          return formatrChartValue(current.dot ? Number(n.toFixed(current.dot)) : n, false, newYaxisList, t_id, false);
-        } else {
+        // if (current && [0, 1].includes(current.magnitude)) {
+        //   const newYaxisList = yaxisList.map(item => {
+        //     return {
+        //       ...item,
+        //       magnitude: 1,
+        //       ydot: '',
+        //     };
+        //   });
+        //   return formatrChartValue(current.dot ? Number(n.toFixed(current.dot)) : n, false, newYaxisList, t_id, false);
+        // } else {
           return formatrChartValue(n, false, yaxisList, t_id, false);
-        }
+        // }
       } else {
         return n;
       }
@@ -146,18 +149,47 @@ const mergeLinesCell = (data, lines, valueMap) => {
     const res = item[key].map(item => {
       return valueMap[key] ? (valueMap[key][item] || item) : item;
     });
-    const target = _.find(lines, { controlId: key }) || {};
+    const target = _.find(lines, { cid: key }) || {};
+    const isTime = isTimeControl(target.controlType);
+    const isArea = isAreaControl(target.controlType);
+    const name = target.rename || target.controlName;
+    if (isTime) {
+      return {
+        name: target.particleSizeType ? `${name}(${ _.find(timeParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
+        data: res,
+      }
+    }
+    if (isArea) {
+      return {
+        name: target.particleSizeType ? `${name}(${ _.find(areaParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
+        data: res,
+      }
+    }
     return {
-      name: target.rename || target.controlName,
+      name,
       data: res,
-    };
+    }
   });
   return mergeTableCell(result);
 }
 
+@errorBoundary
 export default class extends Component {
   constructor(props) {
     super(props);
+  }
+  rendercolumnName(columnItem) {
+    const { rename, controlName, controlType, particleSizeType } = columnItem;
+    const name = rename || controlName;
+    const isTime = isTimeControl(controlType);
+    const isArea = isAreaControl(controlType);
+    if (isTime) {
+      return particleSizeType ? `${name}(${ _.find(timeParticleSizeDropdownData, { value: particleSizeType }).text })` : name;
+    }
+    if (isArea) {
+      return particleSizeType ? `${name}(${ _.find(areaParticleSizeDropdownData, { value: particleSizeType }).text })` : name;
+    }
+    return name;
   }
   renderColumnTotal() {
     const { columns, pivotTable, yaxisList } = this.props.reportData;
@@ -210,7 +242,7 @@ export default class extends Component {
             {
               columns.map((columnItem, index) => (
                 <tr key={index}>
-                  <th colSpan={xFields.length}>{columnItem.rename || columnItem.controlName}</th>
+                  <th colSpan={xFields.length}>{this.rendercolumnName(columnItem)}</th>
                   { (index == 0 && columnSummary.location === 3) && this.renderColumnTotal() }
                   {
                     result.map((item, i) => (
@@ -221,10 +253,10 @@ export default class extends Component {
                             key={i}
                             colSpan={item.y[index].length}
                           >
-                            {valueMap[columnItem.controlId] ? valueMap[columnItem.controlId][item.y[index].value] : item.y[index].value}
+                            {valueMap[columnItem.cid] ? valueMap[columnItem.cid][item.y[index].value] : item.y[index].value}
                           </th>
                         ) : (
-                          <th key={i}>{valueMap[columnItem.controlId] ? (valueMap[columnItem.controlId][item.y[index]] || item.y[index]) : item.y[index]}</th>
+                          <th key={i}>{valueMap[columnItem.cid] ? (valueMap[columnItem.cid][item.y[index]] || item.y[index]) : item.y[index]}</th>
                         )
                       ) : null
                     ))

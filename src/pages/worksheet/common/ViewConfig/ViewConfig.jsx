@@ -17,6 +17,7 @@ import HierarchyViewSetting from './hierarchyViewSetting';
 import SortConditions from './components/SortConditions';
 import MobileSet from './components/mobileSet/MobileSet';
 import CalendarSet from './components/calendarSet/index';
+import GunterSet from './components/gunterSet/index';
 import FastFilter from './components/fastFilter';
 import NavGroup from './components/navGroup';
 import './ViewConfig.less';
@@ -329,8 +330,7 @@ class ViewConfigCon extends Component {
                 return (
                   <React.Fragment>
                     {(item.type === 'MobileSet' ||
-                      (['sheet', 'gallery'].includes(viewTypeText) &&
-                        ['FastFilter', 'NavGroup'].includes(item.type)) ||
+                      (['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type)) ||
                       (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'CustomAction') ||
                       item.type === 'Filter') && (
                       <React.Fragment>
@@ -403,6 +403,19 @@ class ViewConfigCon extends Component {
         {/* 日历视图基本配置 */}
         {isCalendar && (
           <CalendarSet
+            {...this.props}
+            updateCurrentView={view => {
+              this.props.updateCurrentView(
+                Object.assign(view, {
+                  filters: formatValuesOfOriginConditions(view.filters),
+                }),
+              );
+            }}
+          />
+        )}
+        {/* gunter视图基本配置 */}
+        {viewTypeText === 'gunter' && (
+          <GunterSet
             {...this.props}
             updateCurrentView={view => {
               this.props.updateCurrentView(
@@ -671,10 +684,26 @@ class ViewConfigCon extends Component {
   renderSort = () => {
     const { moreSort } = this.state;
     const { columns } = this.props;
+    const { view } = this.props;
+    const { begindate = '' } = getAdvanceSetting(view);
+    let useSortListByTimeView = ['gunter', 'calendar'].includes(VIEW_DISPLAY_TYPE[view.viewType]);
+    let columnsList = columns.filter(o => ![43, 10010].includes(o.type));
+    let isUnableBegindate = begindate && columns.find(o => o.controlId === begindate);
     return (
       <div className="commonConfigItem">
         <SortConditions
-          columns={columns.filter(o => ![43].includes(o.type))}
+          columns={
+            ///甘特图 默认排序方式：第一排序：视图中设置的开始时间字段，最旧的在前，第二排序：创建时间，最新的在前
+            useSortListByTimeView
+              ? [
+                  {
+                    controlId: 'ctime',
+                    controlName: _l('创建时间'),
+                    type: 16,
+                  },
+                ].concat(columnsList)
+              : columnsList
+          }
           sortConditions={moreSort}
           onChange={value => {
             const first = value[0] || {};

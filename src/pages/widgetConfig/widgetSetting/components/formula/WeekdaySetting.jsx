@@ -68,11 +68,11 @@ export default function WeekdaySetting({ data, onChange }) {
         _.find(WEEKDAY_TYPE, we => we.value === item),
         'text',
       );
-      text && weekdayText.push(text[1]);
+      text && weekdayText.push(text);
     });
     return isContinue && weekdayText.length > 1
-      ? _l('周%0至周%1', weekdayText[0], weekdayText[weekdayText.length - 1])
-      : `周${weekdayText.join('、')}`;
+      ? _l('%0至%1', weekdayText[0], weekdayText[weekdayText.length - 1])
+      : _l(`${weekdayText.join('、')}`);
   };
 
   const renderPanel = () => {

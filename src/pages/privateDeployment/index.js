@@ -14,7 +14,7 @@ import privateGuide from 'src/api/privateGuide';
 import weixinCode from './images/weixin.png';
 import './index.less';
 
-const LicenseVersions = [_l('社区版'), _l('标准版'), _l('企业版'), _l('大型企业版')];
+const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型企业版')];
 
 const formatDate = date => {
   const year = moment(date).format('YYYY');

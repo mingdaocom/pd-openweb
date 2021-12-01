@@ -1,58 +1,47 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
+import { RichText } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
-
+import autoSize from 'ming-ui/decorators/autoSize';
+@autoSize
 export default class Widgets extends Component {
   static propTypes = {
-    recordId: PropTypes.string,
-    controlId: PropTypes.string,
     disabled: PropTypes.bool,
     value: PropTypes.string,
     onChange: PropTypes.func,
   };
 
-  state = {
-    isEditing: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isEditing: false,
+      width: props.width,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.width !== this.props.width) {
+      this.setState({
+        width: nextProps.width,
+      });
+    }
+  }
 
   onChange = value => {
     this.props.onChange(value);
   };
 
   render() {
-    const { recordId, controlId, disabled, value } = this.props;
-    const { isEditing } = this.state;
-
-    if (browserIsMobile()) {
-      return (
-        <BraftEditor
-          cacheKey={`${recordId}-${controlId}`}
-          isEditing={isEditing}
-          auth={!disabled}
-          className={cx('customFormControlBox', { controlDisabled: disabled }, { braftEditorFixed: isEditing })}
-          summary={value || ''}
-          joinEditing={() => !disabled && this.setState({ isEditing: true })}
-          onCancel={() => this.setState({ isEditing: false })}
-          onSave={value => {
-            this.onChange(value);
-            this.setState({ isEditing: false });
-          }}
-        />
-      );
-    }
+    const { disabled, value, type, flag } = this.props;
 
     return (
-      <BraftEditor
-        actualSave={true}
-        cacheKey={`${recordId}-${controlId}`}
-        isEditing={isEditing}
-        auth={!disabled}
-        className={cx('customFormControlBox', { controlDisabled: disabled }, { customFormEditor: isEditing })}
-        summary={value || ''}
-        joinEditing={() => !disabled && this.setState({ isEditing: true })}
-        onCancel={() => this.setState({ isEditing: false })}
+      <RichText
+        maxWidth={this.state.width}
+        id={flag}
+        data={value || ''}
+        className={cx('customFormItemControl', { remarkControl: type === 10010, richTextForM: browserIsMobile() })}
+        disabled={disabled}
         onActualSave={this.onChange}
       />
     );

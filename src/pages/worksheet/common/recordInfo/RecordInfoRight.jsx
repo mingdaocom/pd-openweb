@@ -5,7 +5,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 
 export default function RecordInfoRight(props) {
-  const { className, recordbase, workflow, sheetSwitchPermit, onFold, projectId } = props;
+  const { className, recordbase, workflow, sheetSwitchPermit, onFold, projectId, formFlag, formdata } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
   let hiddenTabs = [];
   if (isSubList) {
@@ -36,6 +36,10 @@ export default function RecordInfoRight(props) {
         worksheetId={worksheetId}
         onFold={onFold}
         projectId={projectId}
+        controls={props.controls}
+        forReacordDiscussion={true}
+        formFlag={formFlag}
+        formdata={formdata}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE } from './config';
+import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 
 export const convertControl = type => {
   switch (type) {
@@ -175,7 +177,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       let options = JSON.parse(result.value || '[]');
 
       options.forEach((item, i) => {
-        if (item.indexOf('add_') > -1) {
+        if ((item || '').indexOf('add_') > -1) {
           options[i] = JSON.stringify({
             color: '#2196f3',
             value: item.split('add_')[1],
@@ -255,7 +257,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
           resultvalue = resultvalue.concat(
             result.value.updated
               .map(rowid => {
-                const isNew = /^temprowid-\w+/.test(rowid);
+                const isNew = /^(temp|default)/.test(rowid);
                 let row = _.find(control.value.rows, r => r.rowid === rowid);
                 if (!row) {
                   return undefined;
@@ -294,7 +296,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
  * @param  {} data 控件所在记录数据[可选]
  */
 export function getTitleTextFromControls(controls, data, titleSourceControlType) {
-  let titleControl = _.find(controls, control => control.attribute === 1);
+  let titleControl = _.find(controls, control => control.attribute === 1) || {};
   if (titleSourceControlType) {
     titleControl.sourceControlType = titleSourceControlType;
   }
@@ -360,7 +362,120 @@ export const getRangeErrorType = ({ type, value, advancedSetting }) => {
   return '';
 };
 
+const FILTER_TYPE = {
+  26: 'accountId',
+  27: 'departmentId',
+  29: 'sid',
+};
+
+export const formatFiltersValue = (filters = [], data = []) => {
+  let conditions = formatValuesOfOriginConditions(filters) || [];
+  conditions.forEach(item => {
+    if (item.dynamicSource && item.dynamicSource.length > 0) {
+      const cid = _.get(item.dynamicSource[0] || {}, 'cid');
+      const currentControl = _.find(data, da => da.controlId === cid);
+      //排除为空、不为空、在范围，不在范围类型
+      if (currentControl && currentControl.value && !_.includes([7, 8, 11, 12, 31, 32], item.filterType)) {
+        //普通数值类
+        if (_.includes([6, 8, 25, 31, 37], currentControl.type)) {
+          item.value = currentControl.value;
+          return;
+        }
+        //普通文本
+        if (_.includes([2, 3, 5, 7, 28, 32, 33], currentControl.type)) {
+          item.values = [currentControl.value];
+          return;
+        }
+        //日期特殊处理
+        if (
+          _.includes([15, 16], currentControl.type) ||
+          (currentControl.type === 38 && currentControl.enumDefault === 2)
+        ) {
+          item.dateRange = 18;
+          item.value = currentControl.value;
+          return;
+        }
+        //单选
+        if (_.includes([9, 10, 11], currentControl.type)) {
+          item.values = JSON.parse(currentControl.value) || [];
+          return;
+        }
+        //人员、部门、关联表
+        if (_.includes([26, 27, 29], currentControl.type)) {
+          item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          return;
+        }
+      }
+    } else {
+      //数值类型 在范围 ｜ 不在范围处理
+      if (_.includes([6, 8, 25, 31, 37], item.dataType) && _.includes([11, 12], item.filterType)) {
+        delete item.value;
+        delete item.values;
+      }
+    }
+  });
+  return conditions;
+};
+
+// 工作表查询部门、地区、用户赋值特殊处理
+export const getCurrentValue = (item, data, control) => {
+  if (!item || !control) return data;
+  switch (control.type) {
+    //当前控件文本
+    case 2:
+      switch (item.type) {
+        //用户
+        case 26:
+          return JSON.parse(data || '[]')
+            .map(item => (item.accountId === md.global.Account.accountId ? md.global.Account.fullname : item.fullname))
+            .join('、');
+        //部门
+        case 27:
+          return JSON.parse(data || '[]')
+            .map(item => item.departmentName)
+            .join('、');
+        //地区
+        case 19:
+        case 23:
+        case 24:
+          return JSON.parse(data || '{}').name;
+        // 单选、多选
+        case 9:
+        case 10:
+        case 11:
+          const ids = JSON.parse(data || '[]');
+          return (item.options || [])
+            .filter(item => _.includes(ids, item.key) && !item.isDeleted)
+            .map(i => i.value)
+            .join('、');
+        //公式
+        case 31:
+          const dot = item.dot || 0;
+          return Number(data || 0).toFixed(dot);
+        default:
+          return data;
+      }
+    //控件为数值、金额、等级
+    case 6:
+    case 8:
+    case 28:
+      //选项赋分值
+      if (isEnableScoreOption(item)) {
+        const selectOptions = (item.options || []).filter(item => _.includes(JSON.parse(data || '[]'), item.key));
+        return selectOptions.reduce((total, cur) => {
+          return total + Number(cur.score || 0);
+        }, 0);
+      } else {
+        return data;
+      }
+    default:
+      return data;
+  }
+};
+
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+8526262\d{4}$|\+8526660\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$/.test(value || '');
+  return /\+8526262\d{4}$|\+8526660\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
+    value || '',
+  );
 };

@@ -15,6 +15,7 @@ import {
 } from 'worksheet/common/WorkSheetFilter/enum';
 import { conditionTypeListData } from '../../config';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
+import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
 
 // 为空 不为空  在范围内 不在范围内
@@ -112,9 +113,13 @@ export default class Condition extends Component {
       conditionTypeListDataFilter = conditionTypeListDataFilter.filter(item => item.value === 2);
     }
 
-    let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
+    let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type, 'rule');
     if (control) {
-      if (control.type === 29 && control.enumDefault === 2 && _.get(control.advancedSetting || {}, 'showtype') === '2') {
+      if (
+        control.type === 29 &&
+        control.enumDefault === 2 &&
+        _.get(control.advancedSetting || {}, 'showtype') === '2'
+      ) {
         conditionFilterTypes = conditionFilterTypes.filter(
           type => !_.includes([FILTER_CONDITION_TYPE.RCEQ, FILTER_CONDITION_TYPE.RCNE], type.value),
         );
@@ -128,6 +133,7 @@ export default class Condition extends Component {
         );
       }
     }
+    const dynamicValueDisabled = isCustomOptions(control);
     return (
       <div className="conditionItem mTop10">
         <div className="conditionItemHeader">
@@ -166,6 +172,7 @@ export default class Condition extends Component {
                         <Select
                           className="ruleListSelect"
                           dropdownClassName="ruleListSelectDropdown"
+                          disabled={dynamicValueDisabled}
                           value={isDynamicsource ? 2 : 1}
                           options={conditionTypeListDataFilter}
                           suffixIcon={<Icon icon="arrow-down-border Font14" />}

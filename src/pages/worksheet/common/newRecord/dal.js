@@ -11,21 +11,13 @@ export function getControlsForNewRecord(
   defaultFormDataEditable,
 ) {
   return new Promise((resolve, reject) => {
-    let promise;
-    const args = {
+    getWorksheetInfo({
       worksheetId: worksheetId,
       handleDefault: true,
       getTemplate: true,
-    };
-    promise = $.when(
-      getWorksheetInfo(args),
-      getControlRules({
-        worksheetId,
-        type: 1, // 1字段显隐
-      }),
-    );
-    promise
-      .then((data, rules) => {
+      getRules: true,
+    })
+      .then(data => {
         let controls = data.template.controls
           .filter(c => !_.includes(['caid', 'ownerid', 'ctime', 'utime'], c.controlId))
           .map(control => {
@@ -95,7 +87,7 @@ export function getControlsForNewRecord(
           }
           return { ...control };
         });
-        resolve({ worksheetInfo: { ...data, rules }, controls });
+        resolve({ worksheetInfo: { ...data }, controls });
       })
       .fail(reject);
   });

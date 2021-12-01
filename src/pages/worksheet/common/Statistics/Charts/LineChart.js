@@ -146,7 +146,7 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, xaxes, yaxisList, splitId, style } = props.reportData;
+    const { map, contrastMap, displaySetup, xaxes, yaxisList, style } = props.reportData;
     const { xdisplay, ydisplay } = displaySetup;
     const { position } = getLegendType(displaySetup.legendType);
     const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;

@@ -18,6 +18,8 @@ export const RENDER_RECORD_NECESSARY_ATTR = [
   'dataSource',
   'relationControls',
   'advancedSetting',
+  'controlPermissions',
+  'fieldPermission',
 ];
 
 // 可作为摘要的控件
@@ -151,3 +153,42 @@ export const isDisabledCreate = permit => {
 };
 
 export const isAllowQuickSwitch = permit => isOpenPermit(permitList.quickSwitch, permit);
+
+export const getSearchData = sheet => {
+  const {
+    base,
+    views,
+    controls,
+    hierarchyView: { hierarchyViewState = [], hierarchyViewData = {} },
+    gunterView: { grouping = [] },
+  } = sheet;
+  const view = find(views, item => item.viewId === base.viewId) || {};
+  const titleControlId = (_.find(controls, { attribute: 1 }) || {}).controlId;
+  let data = [];
+
+  if (Number(view.viewType) === 2) {
+    hierarchyViewState.map(row => {
+      const getPathId = (item, pathId = []) => {
+        //搜索结果显示三级路径
+        const newPathId = pathId.concat(item.rowId);
+        const value = (newPathId || [])
+          .map(pid => (hierarchyViewData[pid] || {})[titleControlId])
+          .filter(i => !!i)
+          .join('/');
+        value && data.push({ [titleControlId]: value, rowid: item.rowId });
+        if (item.children && item.children.length > 0 && item.pathId && item.pathId.length < 3) {
+          item.children.map(i => getPathId(i, newPathId));
+        }
+      };
+      getPathId(row, []);
+    });
+  } else if (Number(view.viewType) === 5) {
+    data = _.flatten(
+      grouping.map(item => {
+        return item.rows.filter(item => item.diff > 0);
+      }),
+    );
+  }
+
+  return { queryKey: titleControlId, data };
+};

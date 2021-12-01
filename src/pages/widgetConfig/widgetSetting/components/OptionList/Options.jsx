@@ -16,6 +16,7 @@ import SelectColor from './SelectColor';
 import { OPTION_COLORS_LIST } from '../../../config';
 import AssignValue from './AssignValue';
 import BatchAdd from './BatchAdd';
+import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
 
 const OptionsWrap = styled.div`
   margin-top: 8px;
@@ -290,6 +291,7 @@ export default function SelectOptions(props) {
         updateOption={updateOption}
         focusIndex={focusIndex}
         checkedValue={checkedValue}
+        helperClass="selectOptionSortableList"
       />
       <HandleOption>
         <div className="addOptions" onClick={addOption}>

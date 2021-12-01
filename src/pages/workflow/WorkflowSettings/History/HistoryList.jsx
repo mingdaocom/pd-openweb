@@ -8,6 +8,7 @@ const HISTORY_TITLE = [
   { id: 'triggerData', text: _l('触发流程数据') },
   { id: 'cause', text: _l('原因') },
   { id: 'time', text: _l('触发时间') },
+  { id: 'retry', text: '' },
 ];
 export default class HistoryList extends Component {
   static propTypes = {
@@ -18,7 +19,7 @@ export default class HistoryList extends Component {
         instanceLog: shape({ cause: number, nodeName: string }),
         status: number,
         title: string,
-      })
+      }),
     ),
     getMore: func,
     hasMoreData: bool,
@@ -33,10 +34,14 @@ export default class HistoryList extends Component {
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
-          {HISTORY_TITLE.map((item) => {
+          {HISTORY_TITLE.map(item => {
             const { id, text } = item;
             return (
-              <li key={id} style={{ fontWeight: 600 }} className={cx('Gray_75 Font14', id, { flex: _.includes(['cause', 'triggerData'], id) })}>
+              <li
+                key={id}
+                style={{ fontWeight: 600 }}
+                className={cx('Gray_75 Font14', id, { flex: _.includes(['cause', 'triggerData'], id) })}
+              >
                 {text}
               </li>
             );
@@ -45,9 +50,11 @@ export default class HistoryList extends Component {
         {data.length ? (
           <ul className={cx('historyList', { littleData: data.length < 20 })}>
             {data.map((item, index) => (
-              <HistoryListItem key={index} {...item} {...res} />
+              <HistoryListItem key={index} index={index} {...item} {...res} />
             ))}
-            {!hasMoreData && data.length > 20 && <div className="noMoreDataText Font16 Gray_9e">{_l('没有更多数据')}</div>}
+            {!hasMoreData && data.length > 20 && (
+              <div className="noMoreDataText Font16 Gray_9e">{_l('没有更多数据')}</div>
+            )}
           </ul>
         ) : (
           <div className="emptyListWrap">

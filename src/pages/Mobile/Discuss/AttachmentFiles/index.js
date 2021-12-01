@@ -156,7 +156,7 @@ export class UploadFileWrapper extends Component {
             ele.setAttribute('capture', 'camera');
           }
         } else {
-          ele.setAttribute('accept', 'image/*');
+          ele && ele.setAttribute('accept', 'image/*');
         }
       },
     };

@@ -91,6 +91,10 @@ export function initConfigDetail(id, data, currentReport) {
     });
   }
 
+  if (_.isEmpty(result.split)) {
+    result.split = _.object();
+  }
+
   if (id) {
     if (xaxes.controlId) {
       const data = _.find(axisControls, { controlId: xaxes.controlId }) || {};
@@ -209,7 +213,8 @@ export function initConfigDetail(id, data, currentReport) {
  * 只有满足柱图、x轴非时间控件、y数值只有一个、没有拆分时才能异化颜色配置
  */
 export function getIsAlienationColor(currentReport) {
-  const { reportType, xaxes, yaxisList, splitId } = currentReport;
+  const { reportType, xaxes, yaxisList, split } = currentReport;
+  const splitId = split ? split.controlId : null;
   return [reportTypes.BarChart, reportTypes.PieChart].includes(reportType) && !_.isEmpty(xaxes.options) && !isTimeControl(xaxes.controlType) && yaxisList.length === 1 && _.isEmpty(splitId);
 }
 
@@ -747,7 +752,8 @@ export const fillMapKey = result => {
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
 export const fillValueMap = result => {
-  const { map, valueMap, reportType, xaxes, splitId, rightY, status } = result;
+  const { map, valueMap, reportType, xaxes, split, rightY, status } = result;
+  const splitId = split ? split.controlId : '';
 
   if (!status) {
     return result;
@@ -789,7 +795,7 @@ export const fillValueMap = result => {
   }
 
   if (reportType === reportTypes.DualAxes) {
-    const rightSplitIdValueMap = valueMap[rightY.splitId];
+    const rightSplitIdValueMap = valueMap[rightY.split.controlId];
     result.contrastMap.forEach(control => {
       control.originalKey = control.key;
       control.key = _.isEmpty(rightSplitIdValueMap) ? control.key : rightSplitIdValueMap[control.key] || control.key;
@@ -921,14 +927,19 @@ export const dropdownDayData = [
  * 时间控件的粒度
  */
 export const timeParticleSizeDropdownData = [
-  { text: _l('分'), value: 7 },
-  { text: _l('时'), value: 6 },
-  { text: _l('天'), value: 1 },
-  { text: _l('周'), value: 2 },
-  { text: _l('月'), value: 3 },
-  { text: _l('季'), value: 4 },
-  { text: _l('年'), value: 5 },
+  { text: _l('年'), value: 5, getTime: () => moment().year() },
+  { text: _l('季'), value: 4, getTime: () => moment().format('YYYY[Q]Q') },
+  { text: _l('月'), value: 3, getTime: () => moment().format('YYYY/MM') },
+  { text: _l('周'), value: 2, getTime: () => moment().format('YYYY[W]WW') },
+  { text: _l('日'), value: 1, getTime: () => moment().format('YYYY/MM/DD') },
+  { text: _l('时'), value: 6, getTime: () => moment().format('YYYY/MM/DD HH') + _l('时')  },
+  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') },
+  { text: _l('季'), value: 8, getTime: () => moment().format('[Q]Q') },
+  { text: _l('月'), value: 9, getTime: () => moment().format('MM') },
+  { text: _l('日'), value: 10, getTime: () => moment().format('DD') },
+  { text: _l('时'), value: 11, getTime: () => moment().format('HH') }
 ];
+
 
 /**
  * 地区控件的粒度
@@ -938,6 +949,16 @@ export const areaParticleSizeDropdownData = [
   { text: _l('市'), value: 2 },
   { text: _l('区/县'), value: 3 },
 ];
+
+/**
+ * 找到过滤禁用的粒度类型
+ */
+export const filterDisableParticleSizeTypes = (targetId, array) => {
+  return array.filter(item => {
+    const [ id, type ] = item.split('-');
+    return id === targetId;
+  }).map(item => Number(item.split('-')[1]));
+}
 
 /**
  * 数值控件的计算类型
@@ -1037,6 +1058,48 @@ export function getPerfectFontSize(el, sum, size) {
   let proportion = sumSize.width / sumSize.height;
   let fontSize = width < height * proportion ? height < (proportion = width / proportion) ? defaultProportion : Math.max(proportion, defaultProportion) : Math.max(height, defaultProportion);
   return Math.floor(fontSize);
+}
+
+
+const rgbToHex = (r, g, b) => {
+  var hex = ((r<<16) | (g<<8) | b).toString(16);
+  return '#' + new Array(Math.abs(hex.length - 7)).join('0') + hex;
+}
+
+const hexToRgb = (hex) => {
+  var rgb = [];
+  for(var i = 1; i < 7; i += 2){
+    rgb.push(parseInt('0x' + hex.slice(i,i + 2)));
+  }
+  return rgb;
+}
+
+/**
+ * 根据开始颜色和结束颜色获取渐变颜色
+ */
+export const getGradientColors = (startColor, endColor, step) => {
+  let sColor = hexToRgb(startColor);
+  let eColor = hexToRgb(endColor);
+
+  let rStep = (eColor[0] - sColor[0]) / step;
+  let gStep = (eColor[1] - sColor[1]) / step;
+  let bStep = (eColor[2] - sColor[2]) / step;
+
+  let gradientColorArr = [];
+
+  for(var i = 0;i < step; i++){
+    gradientColorArr.push(
+      rgbToHex(
+        parseInt(
+          rStep * i + sColor[0]),
+          parseInt(gStep * i + sColor[1]),
+          parseInt(bStep * i + sColor[2]
+        )
+      )
+    );
+  }
+
+  return gradientColorArr;
 }
 
 

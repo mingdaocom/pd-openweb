@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import { NODE_TYPE } from '../../enum';
+import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
+import { NODE_TYPE, TRIGGER_ID_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import { Member, SelectUserDropDown, SingleControlValue, DetailHeader, DetailFooter } from '../components';
 
@@ -12,6 +12,7 @@ export default class Email extends Component {
       saveRequest: false,
       showSelectUserDialog: false,
       cacheKey: +new Date(),
+      showSelectCCUserDialog: false,
     };
   }
 
@@ -82,7 +83,7 @@ export default class Email extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, accounts } = data;
+    const { name, fields, actionId, appType, accounts, ccAccounts } = data;
     let hasError = false;
 
     if (!accounts.length) {
@@ -115,10 +116,11 @@ export default class Email extends Component {
         nodeId: this.props.selectNodeId,
         flowNodeType: this.props.selectNodeType,
         name: name.trim(),
-        fields: data.fields,
-        actionId: data.actionId,
-        appType: data.appType,
+        fields,
+        actionId,
+        appType,
         accounts,
+        ccAccounts,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -132,14 +134,34 @@ export default class Email extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, showSelectUserDialog, cacheKey } = this.state;
+    const { data, showSelectUserDialog, cacheKey, showSelectCCUserDialog } = this.state;
+    const list = [
+      { text: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: TRIGGER_ID_TYPE.SEND_EMAIL },
+      {
+        text: _l('群发单显（采用一对一单独发送，每个收件人只能看到自己的地址）'),
+        value: TRIGGER_ID_TYPE.SEND_EMAIL_SINGLE_DISPLAY,
+      },
+    ];
 
     return (
       <Fragment>
-        <div className="mTop20 bold">{_l('发送给')}</div>
 
+        <div className="mTop20 bold">{_l('发送方式')}</div>
+        <Dropdown
+          className="flowDropdown mTop10"
+          data={list}
+          value={data.actionId}
+          border
+          onChange={actionId => {
+            this.updateSource({
+              actionId,
+              ccAccounts: actionId === TRIGGER_ID_TYPE.SEND_EMAIL_SINGLE_DISPLAY ? [] : data.ccAccounts,
+            });
+          }}
+        />
+
+        <div className="mTop20 bold">{_l('收件人')}</div>
         <Member type={NODE_TYPE.MESSAGE} accounts={data.accounts} updateSource={this.updateSource} />
-
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -159,6 +181,36 @@ export default class Email extends Component {
             onClose={() => this.setState({ showSelectUserDialog: false })}
           />
         </div>
+
+        {data.actionId === TRIGGER_ID_TYPE.SEND_EMAIL && (
+          <Fragment>
+            <div className="mTop20 bold">{_l('抄送人')}</div>
+            <Member
+              type={NODE_TYPE.MESSAGE}
+              accounts={data.ccAccounts}
+              updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
+            />
+            <div
+              className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+              onClick={() => this.setState({ showSelectCCUserDialog: true })}
+            >
+              <i className="Font28 icon-task-add-member-circle mRight10" />
+              {_l('选择人员、邮箱地址或输入邮箱')}
+              <SelectUserDropDown
+                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                specialType={5}
+                visible={showSelectCCUserDialog}
+                companyId={this.props.companyId}
+                processId={this.props.processId}
+                nodeId={this.props.selectNodeId}
+                unique={false}
+                accounts={data.ccAccounts}
+                updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
+                onClose={() => this.setState({ showSelectCCUserDialog: false })}
+              />
+            </div>
+          </Fragment>
+        )}
 
         {data.fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId);
@@ -202,7 +254,7 @@ export default class Email extends Component {
         <DetailHeader
           data={{ ...data, selectNodeType: this.props.selectNodeType }}
           icon="icon-workflow_email"
-          bg="BGBlueAsh"
+          bg="BGBlue"
           closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />

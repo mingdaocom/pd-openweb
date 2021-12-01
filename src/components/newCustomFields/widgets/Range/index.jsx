@@ -41,7 +41,7 @@ export default class Widgets extends Component {
       <div className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}>
         {enumDefault !== 1 && (
           <span className="mRight12" style={{ width: 35, color: disabled ? '#c1c1c1' : '#333' }}>
-            {value || 0}/10
+            {(value || 0) > 10 ? 10 : value}/10
           </span>
         )}
         <div className="flex">
@@ -86,7 +86,13 @@ export default class Widgets extends Component {
 
     if (browserIsMobile()) {
       return (
-        <Picker disabled={disabled} data={data} value={[parseInt(value)]} cols={1} onChange={([val]) => this.onChange(val)}>
+        <Picker
+          disabled={disabled}
+          data={data}
+          value={[parseInt(value)]}
+          cols={1}
+          onChange={([val]) => this.onChange(val)}
+        >
           {this.renderContent()}
         </Picker>
       );

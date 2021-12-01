@@ -80,10 +80,10 @@ function start() {
       function onFail(err) {
         _alert(JSON.stringify(err));
       }
-      if (!dd.ios && !dd.android && !dd.pc) {
-        alert('请在钉钉客户端内打开');
-        location.href = '/';
-      }
+      // if (!dd.ios && !dd.android && !dd.pc) {
+      //   _alert('请在钉钉客户端内打开');
+      //   location.href = '/';
+      // }
 
       // 钉钉
       ajax.post({

@@ -1,0 +1,89 @@
+.mobileBoxCalendar {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  .externalEvents {
+    display: none;
+  }
+  .fc-header-toolbar {
+    .fc-toolbar-chunk:nth-child(2) {
+      display: flex;
+      margin-left: 60px;
+      > div {
+        display: flex;
+        .fc-toolbar-title {
+          position: unset;
+          transform: unset;
+          font-size: 14px;
+        }
+        .fc-button-primary {
+          color: #9E9E9E;
+        }
+        .fc-button-primary:first-child {
+          padding: 0 22px 0 0;
+        }
+        .fc-button-primary:last-child {
+          padding: 0 0 0 22px;
+          margin: 0;
+        }
+      }
+    }
+    .fc-toolbar-chunk:last-child {
+      .fc-button-primary {
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: #fff;
+        border: 1px solid #9E9E9E;
+        color: #9E9E9E;
+        font-size: 16px;
+        font-weight: 700;
+        padding: 0;
+      }
+    }
+  }
+  .fc-daygrid-day-top {
+    .fc-daygrid-day-number {
+      .lunar {
+        font-size: 9px;
+        -webkit-transform:scale(0.75)
+      }
+      .num {
+        font-size: 13px;
+      }
+    }
+  }
+  .fc-daygrid-dot-event:hover,
+  .fc-daygrid-dot-event.fc-event-mirror {
+    background: unset;
+  }
+  .expandIcon {
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    left: 14px;
+    top: 8px;
+    color: #9E9E9E;
+    .schedule {
+      font-size: 28px;
+    }
+    .totalNum {
+      position: absolute;
+      right: 0;
+      bottom: -3px;
+      font-size: 10px;
+    }
+  }
+
+  .boxCalendar .fc-button-primary:not(:disabled):hover{
+    background-color: #fff;
+  }
+  .boxCalendar .fc .fc-daygrid-more-link:hover{
+    background-color: #fff;
+  }
+  .boxCalendar .fc-button-primary:not(:disabled):hover, 
+  .boxCalendar .fc-button-primary:not(:disabled):active {
+    color: #9e9e99;
+  }
+}

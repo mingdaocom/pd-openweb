@@ -169,13 +169,17 @@ export default class RecordCardListDialog extends Component {
     }
     if (!window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
-      if (parentWorksheetId && controlId) {
-        args.relationWorksheetId = parentWorksheetId;
-        args.rowId = recordId;
-        args.controlId = controlId;
-      }
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
+      if (window.recordShareLinkId) {
+        args.linkId = window.recordShareLinkId;
+      }
+      args.formId = window.publicWorksheetShareId;
+    }
+    if (parentWorksheetId && controlId) {
+      args.relationWorksheetId = parentWorksheetId;
+      args.rowId = recordId;
+      args.controlId = controlId;
     }
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
@@ -490,8 +494,19 @@ export default class RecordCardListDialog extends Component {
                     this.setState({ showNewRecord: false });
                   }}
                   onAdd={row => {
-                    onOk([row]);
-                    onClose();
+                    if (multiple) {
+                      this.setState(
+                        {
+                          list: [row, ...list],
+                        },
+                        () => {
+                          this.handleSelect(row, true);
+                        },
+                      );
+                    } else {
+                      onOk([row]);
+                      onClose();
+                    }
                   }}
                 />
               )}

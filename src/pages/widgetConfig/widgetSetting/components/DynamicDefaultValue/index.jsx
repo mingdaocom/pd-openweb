@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Components from './inputTypes';
+import SubSheet from './inputTypes/SubSheet';
 import { getControlType } from './util';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
-import DateInput from './inputTypes/DateInput';
+import { DEFAULT_TYPES } from './config';
 import { Tooltip } from 'ming-ui';
 
 const {
   TextInput,
   PhoneInput,
   DepartmentInput,
+  DateInput,
   EmailInput,
   NumberInput,
   UserInput,
   OptionInput,
-  SingleRelateSheet,
+  RelateSheet,
   ScoreInput,
+  AreaInput,
+  SwitchInput,
 } = Components;
 
 const TYPE_TO_COMP = {
@@ -26,32 +30,58 @@ const TYPE_TO_COMP = {
   department: DepartmentInput,
   date: DateInput,
   user: UserInput,
-  relateSheet: SingleRelateSheet,
+  relateSheet: RelateSheet,
   score: ScoreInput,
   option: OptionInput,
+  area: AreaInput,
+  subList: SubSheet,
+  switch: SwitchInput,
 };
 
 export default function DynamicDefaultValue(props) {
-  const { data, allControls, onChange } = props;
-  const { dataSource, enumDefault } = data;
+  const { data, allControls, onChange, queryConfig = {}, updateQueryConfigs } = props;
+  const { dataSource, enumDefault, advancedSetting = {} } = data;
   const type = getControlType(data);
+  const showtype = advancedSetting.showtype || String(enumDefault);
   if (!type) return null;
   // 选项集才有默认值
   if (type === 'option' && !dataSource) return null;
-  // 部门多选没有动态默认值
-  if (type === 'department' && enumDefault === 1) return null;
+  //关联多条列表没有默认值
+  if (data.type === 29 && enumDefault === 2 && showtype === '2') return null;
   const Comp = TYPE_TO_COMP[type];
 
   const dynamicValue = getAdvanceSetting(data, 'defsource') || [];
+  //工作表或函数
+  const { defaulttype = '' } = getAdvanceSetting(data);
+  let defaultType = DEFAULT_TYPES[defaulttype] || '';
+  let dynamicData = defaultType ? getAdvanceSetting(data, defaultType) || {} : {};
+  //子表自定义类型异化
+  if (dynamicValue.length > 0 && type === 'subList' && defaultType === 'dynamiccustom') {
+    dynamicData = dynamicValue[0] || {};
+  }
 
   // 更新data
   const handleDynamicValueChange = value => {
-    onChange(handleAdvancedSettingChange(data, { defsource: JSON.stringify(value) }));
+    onChange(
+      handleAdvancedSettingChange(data, {
+        defsource: JSON.stringify(value),
+        defaulttype: '',
+        defaultfunc: '',
+        dynamicsrc: '',
+      }),
+    );
   };
 
   const clearOldDefault = (para = { default: '' }) => {
     onChange(para);
   };
+
+  useEffect(() => {
+    //清空查询配置
+    if (!_.get(dynamicData, 'id') && queryConfig.id) {
+      updateQueryConfigs(queryConfig, 'delete');
+    }
+  }, [defaultType]);
 
   return (
     <SettingItem>
@@ -70,6 +100,8 @@ export default function DynamicDefaultValue(props) {
         data={data}
         controls={allControls}
         dynamicValue={dynamicValue}
+        defaultType={defaultType}
+        dynamicData={dynamicData}
         clearOldDefault={clearOldDefault}
         onDynamicValueChange={handleDynamicValueChange}
       />

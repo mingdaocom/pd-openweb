@@ -1,11 +1,10 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
+import { WaterMark } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
 import CustomFields from 'src/components/newCustomFields';
-import { getCellValue } from 'src/pages/worksheet/constants/common';
 import sheetAjax from 'src/api/worksheet';
 import Back from '../components/Back';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
@@ -107,11 +106,12 @@ class AddRecord extends Component {
     return (
       <Fragment>
         <DocumentTitle title={`${_l('添加')}${sheetRow.entityName}`} />
-        <div className="flex pTop5" style={{ overflow: 'hidden auto' }}>
+        <div className="flex pTop5" style={{ overflowX: 'hidden', overflowY: 'auto' }}>
           <CustomFields
             ref={this.customwidget}
             worksheetId={params.worksheetId}
             projectId={sheetRow.projectId}
+            isWorksheetQuery={sheetRow.isWorksheetQuery}
             from={5}
             showError={showError}
             data={controls}
@@ -136,17 +136,22 @@ class AddRecord extends Component {
     );
   }
   render() {
-    const { loading } = this.state;
-    return (
-      <div className="mobileSheetRowRecord flexColumn h100">
-        {loading ? (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
-        ) : (
-          this.renderContent()
-        )}
+    const { loading, sheetRow } = this.state;
+
+    if (loading) {
+      <div className="flexColumn h100">
+        <Flex justify="center" align="center" className="h100">
+          <ActivityIndicator size="large" />
+        </Flex>
       </div>
+    }
+
+    return (
+      <WaterMark projectId={sheetRow.projectId}>
+        <div className="mobileSheetRowRecord flexColumn h100">
+          {this.renderContent()}
+        </div>
+      </WaterMark>
     );
   }
 }

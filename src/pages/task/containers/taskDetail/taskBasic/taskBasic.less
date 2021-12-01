@@ -9,7 +9,7 @@
       color: #9d9d9d;
     }
     span:not(:hover) {
-      color: #757575!important;
+      color: #757575 !important;
     }
   }
   .detailFolder {
@@ -29,8 +29,8 @@
       border-bottom-width: 1px;
       border-style: dotted;
       &:not(:hover) {
-        color: #757575!important;
-        border-bottom-color: #757575!important;
+        color: #757575 !important;
+        border-bottom-color: #757575 !important;
       }
     }
     .detailFolderName {
@@ -39,7 +39,7 @@
     .taskDeatilFolderName {
       font-size: 13px;
       &:not(:hover) {
-        color: #9e9e9e!important;
+        color: #9e9e9e !important;
       }
     }
     .taskDeatilFolderStage {
@@ -49,14 +49,14 @@
       border-radius: 12px;
       &.disabled,
       &:not(:hover) {
-        background: rgba(0, 0, 0, .13)!important;
+        background: rgba(0, 0, 0, 0.13) !important;
       }
       .Dropdown--input {
         color: #fff;
         padding: 3px 5px 2px 10px;
       }
       .icon-arrow-down-border {
-        font-size: 12px!important;
+        font-size: 12px !important;
       }
     }
     .folderBtn {
@@ -64,7 +64,7 @@
       visibility: hidden;
       margin-left: 15px;
       &:not(:hover) {
-        color: #9e9e9e!important;
+        color: #9e9e9e !important;
       }
     }
   }
@@ -84,8 +84,8 @@
         border-style: dotted;
         height: 20px;
         &:not(:hover) {
-          color: #757575!important;
-          border-bottom-color: #757575!important;
+          color: #757575 !important;
+          border-bottom-color: #757575 !important;
         }
       }
       .parentBtn {
@@ -93,7 +93,7 @@
         visibility: hidden;
         margin-left: 15px;
         &:not(:hover) {
-          color: #9e9e9e!important;
+          color: #9e9e9e !important;
         }
       }
     }
@@ -104,13 +104,13 @@
     margin-top: 2px;
   }
   .detailTaskName {
-    font-size: 23px!important;
+    font-size: 23px !important;
     width: 100%;
-    padding: 0 7px!important;
+    padding: 0 7px !important;
     resize: none;
     border-width: 1px;
     border-style: solid;
-    background: #f5f5f5;
+    background: #f7f7f7;
     margin-left: 10px;
     margin-right: 10px;
     &:hover:not(:focus) {
@@ -118,7 +118,7 @@
     }
     &:not(:focus),
     &:disabled {
-      border-color: #f5f5f5 !important;
+      border-color: #f7f7f7 !important;
     }
   }
   .detailStar {
@@ -150,16 +150,56 @@
     }
   }
   .detailSummary {
-    padding: 0 15px 0 45px;
+    padding: 0 0 0 45px;
     box-sizing: border-box;
     width: 100%;
     min-height: 51px;
     position: relative;
-    .taskDetailEdit {
-      .editorNull {
-        margin-top: 16px;
-        vertical-align: top;
-        display: inline-block;
+    margin-right: -1px;
+    & > div {
+      background: #f7f7f7;
+    }
+    .ck-rounded-corners .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
+      border-right: 0px !important;
+      border-top: 0px !important;
+    }
+    .appIntroDescriptionEditor {
+      .ck-sticky-panel {
+        display: block !important;
+      }
+      .ck .ck-content {
+        background: #f7f7f7 !important;
+        border-left: 1px solid #dddddd !important;
+        border-top: 1px solid #f7f7f7 !important;
+        border-right: 1px solid #f7f7f7 !important;
+        border-bottom: 1px solid #f7f7f7 !important;
+        &.ck-focused {
+          background: #fff !important;
+          border: 1px solid #2196f3 !important;
+        }
+      }
+    }
+    .editorNull {
+      min-height: 51px;
+      line-height: 51px;
+      border: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+    .mdEditorContent {
+      overflow-x: hidden;
+    }
+    .ck .ck-content {
+      border: 0;
+      padding-top: 5px;
+    }
+    .mdEditorCancel {
+      font-size: 13px;
+      cursor: pointer;
+      line-height: 32px;
+
+      &:not(:hover) {
+        color: #9e9e9e !important;
       }
     }
   }
@@ -241,7 +281,7 @@
       }
       input {
         border: none;
-        vertical-align: sub!important;
+        vertical-align: sub !important;
         vertical-align: top\0;
         margin-top: -1px !important;
       }
@@ -249,7 +289,7 @@
         vertical-align: middle;
       }
       .item ~ input {
-        vertical-align: middle!important;
+        vertical-align: middle !important;
       }
       .item:hover .remove {
         display: inline-block !important;

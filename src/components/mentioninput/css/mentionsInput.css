@@ -14,7 +14,6 @@
 .mentions-input-box .mentions-autocomplete-list {
   display: none;
   background-color: #fff;
-  border: 1px solid #e3e3e3;
   position: absolute;
   left: 0;
   right: 0;
@@ -50,6 +49,7 @@
   white-space: nowrap;
   position: relative;
   box-sizing: initial;
+  height: 50px;
 }
 
 .mentions-input-box .mentions-autocomplete-list .mentions-autocomplete-list-category {
@@ -136,8 +136,13 @@
   text-overflow: ellipsis;
   display: inline-block;
 }
-.mentions-autocomplete-list .itemContent .fullname {
+/* .mentions-autocomplete-list .itemContent .fullname {
   max-width: 80px !important;
+} */
+.mentions-autocomplete-list .title {
+  border-top: 1px solid #eaeaea;
+  padding: 8px;
+  font-size: 12px;
 }
 .mentions-autocomplete-list li[data-ref-type='user'] > .itemContent > div:first-child > span {
   max-width: 200px;

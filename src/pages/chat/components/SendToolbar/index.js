@@ -205,40 +205,11 @@ export default class SendToolbar extends Component {
             : isVideoFile
             ? Constant.MSGTYPE_APP_VIDEO
             : Constant.MSGTYPE_FILE;
-          const path = window.config.FilePath + uploadFile.key;
           uploadFile.id = file.id;
           uploadFile.name = file.name;
           uploadFile.ft = isPicture ? 1 : 2;
-          if (isVideoFile) {
-            ajax.getVideoInfo(`${path}?avinfo`).then(result => {
-              const { streams } = result;
-              const duration = _.filter(streams, 'duration')[0] ? _.filter(streams, 'duration')[0].duration : 0;
-              const height = (_.filter(streams, 'height')[0] || streams).height; // 兼容161环境的streams
-              const width = (_.filter(streams, 'width')[0] || streams).width;
-              const rotate = _.filter(streams, 'tags.rotate')[0];
-              let size = null;
-              if (rotate) {
-                const rotateValue = rotate.tags.rotate;
-                size =
-                  rotateValue == 90 || rotateValue == 270
-                    ? { video_height: width, video_width: height }
-                    : { video_height: height, video_width: width };
-              } else {
-                size = { video_height: height, video_width: width };
-              }
-              const file = {
-                video_duration: duration,
-                video_pic: `${path}?vframe/jpg/offset/0/rotate/auto|imageView2/2/w/400/h/400/format/jpg`,
-                url: path,
-                ...size,
-                ...uploadFile,
-              };
-              uploadFile.video = file;
-              _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
-            });
-          } else {
-            _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
-          }
+
+          _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
         },
         Error() {},
       },

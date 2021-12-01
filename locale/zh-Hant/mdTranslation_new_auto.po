@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mingdao-web\n"
-"POT-Creation-Date:  2021-8-5 9:16:39 ├F10: AM┤+08:00\n"
+"POT-Creation-Date:  2021-11-18 3:58:55 ├F10: PM┤+08:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,37 +10,139 @@ msgstr ""
 "Last-Translator: beckjin <beck.jin@mingdao.com>\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date:  2021-8-5 9:16:39 ├F10: AM┤-0400\n"
+"PO-Revision-Date:  2021-11-18 3:58:55 ├F10: PM┤-0400\n"
 
 #: Disabled references:1
-msgid "应用在钉钉PC端打开方式"
-msgstr "應用在釘釘PC端開啟方式"
+msgid "8-20位，需包含字母和数字"
+msgstr "8-20位，需包含字母和數字"
 
 #: Disabled references:1
-msgid "打开后，填写者在提交数据前需要输入验证码，用于防止恶意或重复数据提交。"
-msgstr "開啟後，填寫者在提交資料前需要輸入驗證碼，用於防止惡意或重複資料提交。"
+msgid "所有记录成员与参与讨论的人"
+msgstr "所有記錄成員與參與討論的人"
 
 #: Disabled references:1
-msgid "a.[用户]获取用户邮箱信息"
-msgstr "a.[使用者]獲取使用者郵箱資訊"
+msgid "输入关键字搜索记录"
+msgstr "輸入關鍵字搜尋記錄"
 
 #: Disabled references:1
-msgid "d.[消息]以应用的身份发消息"
-msgstr "d.[訊息]以應用的身份發訊息"
+msgid "应用中本年的附件上传量，上传即占用，删除不会恢复"
+msgstr "應用中本年的附件上傳量，上傳即佔用，刪除不會恢復"
 
 #: Disabled references:1
-msgid "f.[通讯录]以应用身份访问通讯录（历史版本）"
-msgstr "f.[通訊錄]以應用身份訪問通訊錄（歷史版本）"
+msgid "因企业微信自建应用规则调整，新的对接方案正在开发，请联系顾问线下创建自建应用"
+msgstr "因企業微信自建應用規則調整，新的對接方案正在開發，請聯絡顧問線下建立自建應用"
 
 #: Disabled references:1
-msgid "选择一个单选类型的字段，数据将按照此字段中的选项分组显示在看板中。支持字段：单选、多选、等级、人员、关联表记录（单条）"
-msgstr "選擇一個單選型別的欄位，資料將按照此欄位中的選項分組顯示在看板中。支援欄位：單選、多選、等級、人員、關聯表記錄（單條）"
+msgid "打开后，填写者在提交数据前需要输入
+验证码，用于防止恶意或重复数据提交。"
+msgstr "開啟後，填寫者在提交資料前需要輸入
+驗證碼，用於防止惡意或重複資料提交。"
 
 #: Disabled references:1
-msgid "每个选项单列一行,将所有不重复项加为新的选项"
-msgstr "每個選項單列一行,將所有不重複項加為新的選項"
+msgid "请填写拒绝原因"
+msgstr "請填寫拒絕原因"
 
 #: Disabled references:1
-msgid "应用于所有记录中的按钮，无法从当前视图中删除"
-msgstr "應用於所有記錄中的按鈕，無法從當前檢視中刪除"
+msgid "请填写拒绝的原因"
+msgstr "請填寫拒絕的原因"
+
+#: Disabled references:1
+msgid "扫码功能只对明道云App或钉钉移动端、Welink移动端、微信移动端有效"
+msgstr "掃碼功能只對明道雲App或釘釘移動端、Welink移動端、微信移動端有效"
+
+#: Disabled references:1
+msgid "创建时间-最旧的在前"
+msgstr "建立時間-最舊的在前"
+
+#: Disabled references:1
+msgid "失败，所有记录都不满足执行条件，或流程尚未启用"
+msgstr "失敗，所有記錄都不滿足執行條件，或流程尚未啟用"
+
+#: Disabled references:1
+msgid "导出为图片"
+msgstr "匯出為圖片"
+
+#: Disabled references:1
+msgid "%0至%1"
+msgstr "%0至%1"
+
+#: Disabled references:1
+msgid "选择当前子表字段"
+msgstr "選擇當前子表欄位"
+
+#: Disabled references:1
+msgid "选择查询表字段"
+msgstr "選擇查詢表欄位"
+
+#: Disabled references:1
+msgid "最多50条"
+msgstr "最多50條"
+
+#: Disabled references:1
+msgid "将查询到的最多50条记录字段写入子表字段，每行记录添加为一行子表明细"
+msgstr "將查詢到的最多50條記錄欄位寫入子表欄位，每行記錄新增為一行子表明細"
+
+#: Disabled references:1
+msgid "触发者在通讯录中的"
+msgstr "觸發者在通訊錄中的"
+
+#: Disabled references:1
+msgid "短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgstr "簡訊0.05元/條，自動從企業賬務中心扣費。70字計一條簡訊，超過70字以67字每條計費。每個標點、空格、英文字母都算一個字。簡訊實際傳送可能有10-20分鐘的延時。"
+
+#: Disabled references:1
+msgid "千分比"
+msgstr "千分比"
+
+#: Disabled references:1
+msgid "参数不合法"
+msgstr "引數不合法"
+
+#: Disabled references:1
+msgid "除数不能为0"
+msgstr "除數不能為0"
+
+#: Disabled references:1
+msgid "计算人员、部门、多选、子表或关联表的数量"
+msgstr "計算人員、部門、多選、子表或關聯表的數量"
+
+#: Disabled references:1
+msgid "将文本等类型的值转为数值"
+msgstr "將文字等型別的值轉為數值"
+
+#: Disabled references:1
+msgid "将数值等类型的值转为文本"
+msgstr "將數值等型別的值轉為文字"
+
+#: Disabled references:1
+msgid "当前视图使用的“%0”和“%1”的字段类型不同，视图将使用日期时间的字段类型绘制。建议使用两个同为日期类型或同为日期时间类型的字段。"
+msgstr "當前檢視使用的“%0”和“%1”的欄位型別不同，檢視將使用日期時間的欄位型別繪製。建議使用兩個同為日期型別或同為日期時間型別的欄位。"
+
+#: Disabled references:1
+msgid "导出失败，请缩小视图类型再尝试~"
+msgstr "匯出失敗，請縮小檢視型別再嘗試~"
+
+#: Disabled references:1
+msgid "不允许添加记录数量和计算字段"
+msgstr "不允許新增記錄數量和計算欄位"
+
+#: Disabled references:1
+msgid "颜色规则"
+msgstr "顏色規則"
+
+#: Disabled references:1
+msgid "中间值"
+msgstr "中間值"
+
+#: Disabled references:1
+msgid "格式模式"
+msgstr "格式模式"
+
+#: Disabled references:1
+msgid "按色阶"
+msgstr "按色階"
+
+#: Disabled references:1
+msgid "按范围"
+msgstr "按範圍"
 

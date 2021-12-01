@@ -187,7 +187,7 @@ export default function HierarchyViewSetting(props) {
   };
 
   const getAvailableControls = () => {
-    const { worksheetId } = _.last(viewControls);
+    const { worksheetId = '' } = _.last(viewControls) || {};
     if (controlLoading) return;
     setControls({ controlLoading: true });
     getWorksheetInfo({ worksheetId, getTemplate: true })

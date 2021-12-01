@@ -5,6 +5,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import { getAppSimpleInfo } from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
+import _ from 'lodash';
 
 export default class WorkSheetComment extends React.Component {
   static propTypes = {
@@ -19,6 +20,7 @@ export default class WorkSheetComment extends React.Component {
     this.state = {
       discussions: [],
       worksheetInfo: {},
+      atData: [],
     };
   }
   componentDidMount() {
@@ -34,12 +36,62 @@ export default class WorkSheetComment extends React.Component {
         this.setState({ worksheetInfo: data });
       });
     }
+    this.getAtData();
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.formFlag !== this.props.formFlag) {
+      this.getAtData(nextProps);
+    }
   }
   componentWillUnmount() {
     if (this.$scrollCon) {
       this.$scrollCon.removeEventListener('scroll', this.handleRecordRightContentScroll);
     }
   }
+  getAtData = nextProps => {
+    const { formdata = [] } = nextProps || this.props;
+    const { discussions = [] } = this.state;
+    let data = [];
+    formdata
+      .filter(o => o.type === 26)
+      .map(o => {
+        let d;
+        try {
+          d = JSON.parse(o.value).map(item => {
+            return Object.assign({}, item, { job: o.controlName });
+          });
+        } catch (err) {
+          d = [];
+        }
+        data = data.concat(d);
+      });
+    let accountsInMessage = [];
+    let dis = discussions.map(o => {
+      accountsInMessage = accountsInMessage.concat(o.accountsInMessage);
+      return o.createAccount;
+    });
+    data = data
+      //参与讨论的
+      .concat(dis.map(item => Object.assign({}, item, { job: _l('讨论') })))
+      //@到的
+      .concat(accountsInMessage.map(item => Object.assign({}, item, { job: _l('讨论') })))
+      //排除自己以及未指定等
+      .filter(
+        d =>
+          !(
+            ['user-undefined', 'user-publicform', md.global.Account.accountId].includes(d.accountId) ||
+            d.accountId.indexOf('user-') >= 0
+          ),
+      );
+    let hash = {};
+    const data2 = data.reduce((preVal, curVal) => {
+      hash[curVal.accountId] ? '' : (hash[curVal.accountId] = true && preVal.push(curVal));
+      return preVal;
+    }, []);
+    this.setState({
+      atData: data2,
+    });
+  };
   @autobind
   handleRecordRightContentScroll(e) {
     if (
@@ -69,16 +121,18 @@ export default class WorkSheetComment extends React.Component {
     }
   }
   render() {
-    const { disableScroll, addCallback, projectId } = this.props;
+    const { disableScroll, addCallback, projectId, forReacordDiscussion } = this.props;
     const { worksheetInfo } = this.state;
     const commenterProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       scrollToListTop: this.scrollToListTop.bind(this),
       change: (payload, discussion) => {
         this.setState(payload);
+        this.getAtData();
       },
       addCallback,
       projectId,
+      forReacordDiscussion,
     };
     const commentListProps = {
       worksheet: this.props,
@@ -87,8 +141,10 @@ export default class WorkSheetComment extends React.Component {
       },
       change: (payload, discussion) => {
         this.setState(payload);
+        this.getAtData();
       },
       addCallback,
+      forReacordDiscussion,
     };
 
     return (
@@ -100,7 +156,11 @@ export default class WorkSheetComment extends React.Component {
               this.scrollView = scrollView;
             }}
           >
-            <WorkSheetCommentList {...commentListProps} discussions={this.state.discussions} />
+            <WorkSheetCommentList
+              {...commentListProps}
+              discussions={this.state.discussions}
+              atData={this.state.atData}
+            />
           </div>
         ) : (
           <ScrollView
@@ -111,10 +171,14 @@ export default class WorkSheetComment extends React.Component {
             updateEvent={this.handleScroll}
             preserveScrollTop
           >
-            <WorkSheetCommentList {...commentListProps} discussions={this.state.discussions} />
+            <WorkSheetCommentList
+              {...commentListProps}
+              discussions={this.state.discussions}
+              atData={this.state.atData}
+            />
           </ScrollView>
         )}
-        <WorkSheetCommenter {...commenterProps} discussions={this.state.discussions} />
+        <WorkSheetCommenter {...commenterProps} discussions={this.state.discussions} atData={this.state.atData} />
       </div>
     );
   }

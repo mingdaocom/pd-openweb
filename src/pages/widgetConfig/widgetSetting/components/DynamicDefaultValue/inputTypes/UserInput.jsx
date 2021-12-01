@@ -1,9 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { string, arrayOf, shape, func } from 'prop-types';
-import { OtherFieldList, SelectOtherField } from '../components';
+import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import update from 'immutability-helper';
-import { FULL_LINE_CONTROL } from '../../../../config';
 
 export default class DateInput extends Component {
   static propTypes = {
@@ -70,11 +69,20 @@ export default class DateInput extends Component {
       });
     });
   };
+  onTriggerClick = () => {
+    const { defaultType } = this.props;
+    defaultType && this.$wrap.triggerClick();
+  };
   render() {
+    const { defaultType } = this.props;
     return (
       <DynamicValueInputWrap>
-        <OtherFieldList {...this.props} removeItem={this.removeItem} onClick={this.selectUser} />
-        <SelectOtherField {...this.props} />
+        {defaultType ? (
+          <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
+        ) : (
+          <OtherFieldList {...this.props} removeItem={this.removeItem} onClick={this.selectUser} />
+        )}
+        <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
       </DynamicValueInputWrap>
     );
   }

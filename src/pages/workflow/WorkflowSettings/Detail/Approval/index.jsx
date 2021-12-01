@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, Checkbox, LoadDiv } from 'ming-ui';
+import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio } from 'ming-ui';
 import cx from 'classnames';
 import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
@@ -54,6 +54,78 @@ export default class Approval extends Component {
   }
 
   /**
+   * 更新data数据
+   */
+  updateSource = (obj, callback = () => {}) => {
+    this.props.haveChange(true);
+    this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
+  };
+
+  /**
+   * 保存
+   */
+  onSave = () => {
+    const { data, saveRequest } = this.state;
+    const {
+      name,
+      selectNodeId,
+      accounts,
+      countersignType,
+      operationTypeList,
+      isCallBack,
+      callBackType,
+      formProperties,
+      passBtnName,
+      overruleBtnName,
+      auth,
+      condition,
+      multipleLevelType,
+      multipleLevel,
+    } = data;
+
+    if (!selectNodeId) {
+      alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
+    if (!accounts.length && multipleLevelType === 0) {
+      alert(_l('必须指定审批人'), 2);
+      return;
+    }
+
+    if (saveRequest) {
+      return;
+    }
+
+    flowNode
+      .saveNode({
+        processId: this.props.processId,
+        nodeId: this.props.selectNodeId,
+        flowNodeType: this.props.selectNodeType,
+        name: name.trim(),
+        selectNodeId,
+        multipleLevelType,
+        multipleLevel,
+        accounts,
+        countersignType,
+        condition,
+        operationTypeList,
+        isCallBack,
+        callBackType,
+        formProperties,
+        passBtnName: passBtnName.trim() || _l('通过'),
+        overruleBtnName: overruleBtnName.trim() || _l('否决'),
+        auth,
+      })
+      .then(result => {
+        this.props.updateNodeData(result);
+        this.props.closeDetail();
+      });
+
+    this.setState({ saveRequest: true });
+  };
+
+  /**
    * 下拉框更改
    */
   onChange = selectNodeId => {
@@ -66,6 +138,36 @@ export default class Approval extends Component {
       this.getCallBackNodeNames(selectNodeId, data.callBackType);
     }
   };
+
+  /**
+   * 渲染审批人
+   */
+  renderApprovalUser() {
+    const { data } = this.state;
+    const list = [
+      { text: _l('自定义'), value: 0 },
+      { text: _l('按部门层级逐级审批'), value: 1 },
+    ];
+
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop20">{_l('审批人')}</div>
+        <div className="flexRow mTop10">
+          {list.map((item, i) => (
+            <div className="flex" key={i}>
+              <Radio
+                text={item.text}
+                checked={data.multipleLevelType === item.value || (item.value === 1 && data.multipleLevelType === 2)}
+                onClick={() => this.updateSource({ multipleLevelType: item.value, accounts: [], multipleLevel: -1 })}
+              />
+            </div>
+          ))}
+        </div>
+
+        {data.multipleLevelType === 0 ? this.renderMember() : this.renderApprovalEnd()}
+      </Fragment>
+    );
+  }
 
   /**
    * render member
@@ -106,70 +208,211 @@ export default class Approval extends Component {
   }
 
   /**
-   * 更新data数据
+   * 渲染审批终点
    */
-  updateSource = (obj, callback = () => {}) => {
-    this.props.haveChange(true);
-    this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
-  };
+  renderApprovalEnd() {
+    const { data } = this.state;
+    const multipleLevelList = [
+      { text: _l('最高级'), value: -1 },
+      { text: _l('2级'), value: 2 },
+      { text: _l('3级'), value: 3 },
+      { text: _l('4级'), value: 4 },
+      { text: _l('5级'), value: 5 },
+      { text: _l('6级'), value: 6 },
+      { text: _l('7级'), value: 7 },
+      { text: _l('8级'), value: 8 },
+      { text: _l('9级'), value: 9 },
+      { text: _l('10级'), value: 10 },
+      { text: _l('11级'), value: 11 },
+      { text: _l('12级'), value: 12 },
+      { text: _l('13级'), value: 13 },
+      { text: _l('14级'), value: 14 },
+      { text: _l('15级'), value: 15 },
+      { text: _l('16级'), value: 16 },
+      { text: _l('17级'), value: 17 },
+      { text: _l('18级'), value: 18 },
+      { text: _l('19级'), value: 19 },
+      { text: _l('20级'), value: 20 },
+    ];
+
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop20">{_l('审批终点')}</div>
+        <div className="flexRow alignItemsCenter mTop10">
+          {_l('触发者在通讯录中的')}
+          <Dropdown
+            className="flowDropdown mLeft10 mRight10"
+            style={{ width: 120 }}
+            data={multipleLevelList}
+            value={data.multipleLevel}
+            border
+            onChange={multipleLevel => {
+              this.updateSource({ multipleLevel });
+            }}
+          />
+          {_l('部门负责人')}
+        </div>
+        <div className="flexRow alignItemsCenter mTop20">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('仅主部门负责人需要审批')}
+            checked={data.multipleLevelType === 2}
+            onClick={checked => this.updateSource({ multipleLevelType: checked ? 1 : 2 })}
+          />
+          <span
+            className="workflowDetailTipsWidth mLeft5 Gray_9e"
+            data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
+          >
+            <i className="Font14 icon-workflow_help" />
+          </span>
+        </div>
+      </Fragment>
+    );
+  }
 
   /**
-   * 保存
+   * 渲染审批方式
    */
-  onSave = () => {
-    const { data, saveRequest } = this.state;
-    const {
-      name,
-      selectNodeId,
-      accounts,
-      countersignType,
-      operationTypeList,
-      isCallBack,
-      callBackType,
-      formProperties,
-      passBtnName,
-      overruleBtnName,
-      auth,
-    } = data;
+  renderApprovalMode() {
+    const { data } = this.state;
+    const personsPassing = [
+      { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
+      { text: _l('会签（需所有审批人通过）'), value: 1 },
+      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
+      { text: _l('会签（按比例投票通过）'), value: 4 },
+    ];
+    const conditionList = [
+      { text: '10%', value: '10' },
+      { text: '20%', value: '20' },
+      { text: '30%', value: '30' },
+      { text: '40%', value: '40' },
+      { text: '50%', value: '50' },
+      { text: '60%', value: '60' },
+      { text: '70%', value: '70' },
+      { text: '80%', value: '80' },
+      { text: '90%', value: '90' },
+      { text: '100%', value: '100' },
+    ];
 
-    if (!selectNodeId) {
-      alert(_l('必须先选择一个对象'), 2);
-      return;
-    }
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop20">{_l('多人审批时采用的审批方式')}</div>
+        <Dropdown
+          className="flowDropdown mTop10"
+          data={personsPassing}
+          value={data.countersignType}
+          border
+          onChange={countersignType => {
+            let condition = '';
+            if (countersignType === 4) {
+              condition = '100';
+            }
+            this.updateSource({ countersignType, operationTypeList: [], isCallBack: false, condition });
+          }}
+        />
+        {data.countersignType === 4 && (
+          <Fragment>
+            <div className="Font13 bold mTop25">{_l('通过比例')}</div>
+            <div className="mTop10 flexRow alignItemsCenter">
+              <Dropdown
+                className="flowDropdown mRight10"
+                style={{ width: 120 }}
+                data={conditionList}
+                value={data.condition}
+                border
+                onChange={condition => {
+                  this.updateSource({ condition });
+                }}
+              />
+              {_l('及以上的成员通过后即视为节点通过')}
+            </div>
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
 
-    if (!accounts.length) {
-      alert(_l('必须指定审批人'), 2);
-      return;
-    }
+  /**
+   * 渲染审批设置
+   */
+  renderApprovalSettings() {
+    const { data } = this.state;
 
-    if (saveRequest) {
-      return;
-    }
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop25">{_l('审批设置')}</div>
+        {data.countersignType !== 2 && (
+          <Checkbox
+            className="mTop15 flexRow"
+            text={_l('允许审批人转审')}
+            checked={_.includes(data.operationTypeList, 6)}
+            onClick={checked => this.switchApprovalSettings(!checked, 6)}
+          />
+        )}
+        {_.includes([1, 2, 4], data.countersignType) && (
+          <Checkbox
+            className="mTop15 flexRow"
+            text={_l('允许添加审批人')}
+            checked={_.includes(data.operationTypeList, 16)}
+            onClick={checked => this.switchApprovalSettings(!checked, 16)}
+          />
+        )}
+        {!_.includes([1, 2, 4], data.countersignType) && (
+          <Checkbox
+            className="mTop15 flexRow"
+            text={_l('允许审批人加签')}
+            checked={_.includes(data.operationTypeList, 7)}
+            onClick={checked => this.switchApprovalSettings(!checked, 7)}
+          />
+        )}
+        {data.countersignType !== 2 && (
+          <Fragment>
+            <div className={cx('flexRow alignItemsCenter', data.isCallBack ? 'mTop10' : 'mTop15')}>
+              <Checkbox
+                className="flex flexRow"
+                text={_l('否决后，允许退回')}
+                disabled={data.countersignType === 2}
+                checked={data.isCallBack}
+                onClick={checked => {
+                  this.updateSource({ isCallBack: !checked, callBackType: 0 });
+                  if (data.selectNodeId && !checked) {
+                    this.getCallBackNodeNames(data.selectNodeId, 0);
+                  }
+                }}
+              />
 
-    flowNode
-      .saveNode({
-        processId: this.props.processId,
-        nodeId: this.props.selectNodeId,
-        flowNodeType: this.props.selectNodeType,
-        name: name.trim(),
-        selectNodeId,
-        accounts,
-        countersignType,
-        operationTypeList,
-        isCallBack,
-        callBackType,
-        formProperties,
-        passBtnName: passBtnName.trim() || _l('通过'),
-        overruleBtnName: overruleBtnName.trim() || _l('否决'),
-        auth,
-      })
-      .then(result => {
-        this.props.updateNodeData(result);
-        this.props.closeDetail();
-      });
-
-    this.setState({ saveRequest: true });
-  };
+              {data.isCallBack && (
+                <Fragment>
+                  <div className="Gray_75">{_l('处理完成后')}</div>
+                  <Dropdown
+                    menuStyle={{ left: 'inherit', right: 0 }}
+                    style={{ marginTop: -1 }}
+                    data={[
+                      { text: _l('重新执行流程'), value: 0 },
+                      { text: _l('直接返回审批节点'), value: 1 },
+                    ]}
+                    value={data.callBackType}
+                    onChange={callBackType => {
+                      this.updateSource({ callBackType });
+                      if (data.selectNodeId) {
+                        this.getCallBackNodeNames(data.selectNodeId, callBackType);
+                      }
+                    }}
+                  />
+                </Fragment>
+              )}
+            </div>
+            {data.isCallBack && (
+              <div className="backBox">
+                <div className="Font12 Gray_9e">{_l('允许退回的节点')}</div>
+                <div className="mTop4">{data.callBackNodeList.join('、') || _l('无可退回节点')}</div>
+              </div>
+            )}
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
 
   /**
    * 切换审批设置
@@ -254,6 +497,7 @@ export default class Approval extends Component {
       { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
       { text: _l('会签（需所有审批人通过）'), value: 1 },
       { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
+      { text: _l('会签（按比例投票通过）'), value: 4 },
     ];
     const authTypeListText = {
       1: _l('签名'),
@@ -262,7 +506,6 @@ export default class Approval extends Component {
       4: _l('二级：实名+实人+网证（开发中...）'),
       5: _l('一级：实名+实人+网证+实证（开发中...）'),
     };
-
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
     }
@@ -289,94 +532,9 @@ export default class Approval extends Component {
                 onChange={this.onChange}
               />
 
-              <div className="Font13 bold mTop20">{_l('审批人')}</div>
-              {this.renderMember()}
-
-              <div className="Font13 bold mTop20">{_l('多人审批时采用的审批方式')}</div>
-              <Dropdown
-                className="flowDropdown mTop10"
-                data={personsPassing}
-                value={data.countersignType}
-                border
-                onChange={countersignType => {
-                  this.updateSource({ countersignType, operationTypeList: [], isCallBack: false });
-                }}
-              />
-
-              <div className="Font13 bold mTop25">{_l('审批设置')}</div>
-
-              {data.countersignType !== 2 && (
-                <Checkbox
-                  className="mTop15 flexRow"
-                  text={_l('允许审批人转审')}
-                  checked={_.includes(data.operationTypeList, 6)}
-                  onClick={checked => this.switchApprovalSettings(!checked, 6)}
-                />
-              )}
-
-              {_.includes([1, 2], data.countersignType) && (
-                <Checkbox
-                  className="mTop15 flexRow"
-                  text={_l('允许添加审批人')}
-                  checked={_.includes(data.operationTypeList, 16)}
-                  onClick={checked => this.switchApprovalSettings(!checked, 16)}
-                />
-              )}
-
-              {!_.includes([1, 2], data.countersignType) && (
-                <Checkbox
-                  className="mTop15 flexRow"
-                  text={_l('允许审批人加签')}
-                  checked={_.includes(data.operationTypeList, 7)}
-                  onClick={checked => this.switchApprovalSettings(!checked, 7)}
-                />
-              )}
-
-              {data.countersignType !== 2 && (
-                <Fragment>
-                  <div className={cx('flexRow alignItemsCenter', data.isCallBack ? 'mTop10' : 'mTop15')}>
-                    <Checkbox
-                      className="flex flexRow"
-                      text={_l('否决后，允许退回')}
-                      disabled={data.countersignType === 2}
-                      checked={data.isCallBack}
-                      onClick={checked => {
-                        this.updateSource({ isCallBack: !checked, callBackType: 0 });
-                        if (data.selectNodeId && !checked) {
-                          this.getCallBackNodeNames(data.selectNodeId, 0);
-                        }
-                      }}
-                    />
-
-                    {data.isCallBack && (
-                      <Fragment>
-                        <div className="Gray_75">{_l('处理完成后')}</div>
-                        <Dropdown
-                          menuStyle={{ left: 'inherit', right: 0 }}
-                          style={{ marginTop: -1 }}
-                          data={[
-                            { text: _l('重新执行流程'), value: 0 },
-                            { text: _l('直接返回审批节点'), value: 1 },
-                          ]}
-                          value={data.callBackType}
-                          onChange={callBackType => {
-                            this.updateSource({ callBackType });
-                            if (data.selectNodeId) {
-                              this.getCallBackNodeNames(data.selectNodeId, callBackType);
-                            }
-                          }}
-                        />
-                      </Fragment>
-                    )}
-                  </div>
-                  {data.isCallBack && (
-                    <div className="backBox">
-                      <div className="Font12 Gray_9e">{_l('允许退回的节点')}</div>
-                      <div className="mTop4">{data.callBackNodeList.join('、') || _l('无可退回节点')}</div>
-                    </div>
-                  )}
-                </Fragment>
-              )}
+              {this.renderApprovalUser()}
+              {this.renderApprovalMode()}
+              {this.renderApprovalSettings()}
 
               <div className="Font13 bold mTop25">{_l('审批意见')}</div>
               <div className="flexRow mTop15">
@@ -439,6 +597,7 @@ export default class Approval extends Component {
                     selectNodeId={data.selectNodeId}
                     data={data.formProperties}
                     updateSource={this.updateSource}
+                    showCard={true}
                   />
                 </Fragment>
               )}
@@ -460,7 +619,10 @@ export default class Approval extends Component {
           </ScrollView>
         </div>
         <DetailFooter
-          isCorrect={data.selectNodeId && !!data.accounts.length}
+          isCorrect={
+            data.selectNodeId &&
+            ((!!data.accounts.length && data.multipleLevelType === 0) || data.multipleLevelType !== 0)
+          }
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}
         />

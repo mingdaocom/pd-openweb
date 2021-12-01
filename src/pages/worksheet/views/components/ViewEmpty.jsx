@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
+import { browserIsMobile } from 'src/util';
+import { Flex, WhiteSpace } from 'antd-mobile';
+import withoutRows from './assets/withoutRows.png';
+
 const ViewEmptyWrap = styled.div`
   position: absolute;
   top: 50%;
@@ -34,6 +38,11 @@ const ViewEmptyWrap = styled.div`
   }
 `;
 
+const MobileViewEmpty = styled.div`
+  width: 100%;
+  height: 100%;
+`
+
 const STATUS_INFO = {
   empty: { text: _l('暂未添加记录'), icon: 'draft-box' },
   filter: { text: _l('没有符合条件的记录'), icon: 'draft-box' },
@@ -50,6 +59,17 @@ export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
 
   const status = getStatus();
   const { icon, text } = STATUS_INFO[status];
+  const isMobile = browserIsMobile()
+  if(isMobile) {
+    return (<MobileViewEmpty>
+      <Flex className="withoutRows" direction="column" justify="center" align="center">
+        <img className="img" src={withoutRows} />
+        <WhiteSpace size="md" />
+        <div className="text">{_l('此视图下暂无记录')}</div>
+      </Flex>
+    </MobileViewEmpty>);
+  }
+
 
   return (
     <ViewEmptyWrap className={status}>

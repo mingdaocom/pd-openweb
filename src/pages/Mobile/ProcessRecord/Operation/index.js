@@ -6,7 +6,6 @@ import { OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config'
 
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 
-@withRouter
 class Operation extends Component {
   constructor(props) {
     super(props);

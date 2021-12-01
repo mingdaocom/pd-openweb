@@ -44,7 +44,6 @@ export default class TagTextarea extends React.Component {
     super(props);
     this.state = {
       active: false,
-      fnIsActive: false,
     };
   }
 
@@ -78,16 +77,6 @@ export default class TagTextarea extends React.Component {
             obj.origin !== 'setValue')
         ) {
           obj.cancel();
-        }
-        if (obj.origin !== 'inserttag') {
-          this.setState({
-            fnIsActive: false,
-          });
-        }
-        if (obj.origin === 'insertfn') {
-          this.setState({
-            fnIsActive: true,
-          });
         }
         let { text } = obj;
         // 事件内，mode只能从每次this.props取，不然取不到最新
@@ -220,8 +209,15 @@ export default class TagTextarea extends React.Component {
 
   @autobind
   insertColumnTag(id) {
-    const { fnIsActive } = this.state;
-    this.cmObj.replaceRange(`$${id}$` + (fnIsActive ? ',' : ''), this.cmObj.getCursor(), undefined, 'inserttag');
+    const position = this.cmObj.getCursor();
+    const editorValue = this.cmObj.getValue();
+
+    this.cmObj.replaceRange(
+      `${editorValue[position.ch - 1] === '$' ? ',' : ''}$${id}$`,
+      position,
+      undefined,
+      'inserttag',
+    );
     this.cmObj.focus();
     if (this.cmcon) {
       this.cmcon.scrollTop = this.cmcon.scrollHeight - this.cmcon.clientHeight;

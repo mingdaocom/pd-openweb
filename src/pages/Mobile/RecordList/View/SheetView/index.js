@@ -33,15 +33,7 @@ class SheetView extends Component {
   constructor(props) {
     super(props);
   }
-  navigateTo = (url) => {
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-    this.props.history.push(url);
-  }
-  componentDidMount() {
-    this.props.fetchSheetRows();
-  }
+  componentDidMount() {}
   renderWithoutRows() {
     const { match, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view } = this.props;
 
@@ -66,7 +58,7 @@ class SheetView extends Component {
               <Button
                 className="addRecordBtn valignWrapper mTop10"
                 onClick={() => {
-                  this.navigateTo(
+                  window.mobileNavigateTo(
                     `/mobile/addRecord/${match.params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
                   );
                 }}
@@ -102,7 +94,7 @@ class SheetView extends Component {
       currentSheetRows.length ? (
         <SheetRows
           view={view}
-          navigateTo={this.navigateTo}
+          navigateTo={window.mobileNavigateTo}
         />
       ) : (
         this.renderWithoutRows()

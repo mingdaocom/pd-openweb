@@ -36,7 +36,7 @@ export default class SubList extends React.Component {
     const controlPermission = controlState({ ...this.props }, this.props.from);
     const getWorksheetInfoPromise =
       this.props.from !== FROM.PUBLIC ? sheetAjax.getWorksheetInfo : publicWorksheetAjax.getWorksheetInfo;
-    getWorksheetInfoPromise({ worksheetId, getTemplate: true }).then(info => {
+    getWorksheetInfoPromise({ worksheetId, getTemplate: true, getRules: true }).then(info => {
       this.setState({
         loading: false,
         controls: info.template.controls.map(c => ({
@@ -45,12 +45,13 @@ export default class SubList extends React.Component {
             isRelateRecordTableControl(c) || c.type === 34 ? '000' : controlPermission.editable ? '111' : '101',
         })),
         projectId: info.projectId,
+        info,
       });
     });
   }
 
   @autobind
-  handleChange({ rows, lastAction = {} }) {
+  handleChange({ rows, originRows = [], lastAction = {} }) {
     const { value, recordId, onChange } = this.props;
     const { controls } = this.state;
     const isAdd = !recordId;
@@ -63,7 +64,7 @@ export default class SubList extends React.Component {
         });
       } else if (lastAction.type === 'CLEAR_AND_SET_ROWS') {
         onChange({
-          deleted: lastAction.deleted,
+          deleted: originRows.map(r => r.rowid),
           updated: rows.map(r => r.rowid),
           controls,
           rows: rows,
@@ -76,9 +77,11 @@ export default class SubList extends React.Component {
           updated = value.updated || [];
         } catch (err) {}
         if (lastAction.type === 'DELETE_ROW') {
-          deleted = _.uniq(deleted.concat(lastAction.rowid)).filter(id => !/^temprowid-\w+/.test(id));
+          deleted = _.uniq(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
           updated = _.uniq(updated.concat(lastAction.rowid));
+        } else if (lastAction.type === 'ADD_ROWS') {
+          updated = _.uniq(updated.concat(lastAction.rows.map(r => r.rowid)));
         }
         onChange({
           deleted,
@@ -92,7 +95,7 @@ export default class SubList extends React.Component {
 
   render() {
     const { from, registerCell, worksheetId, recordId, formData, disabled } = this.props;
-    const { controls, projectId } = this.state;
+    const { controls, projectId, info } = this.state;
     const control = { ...this.props };
     const { loading } = this.state;
     return (
@@ -102,6 +105,8 @@ export default class SubList extends React.Component {
       >
         {!loading && (
           <ChildTable
+            entityName={info.entityName}
+            rules={info.rules}
             registerCell={registerCell}
             from={from}
             control={control}

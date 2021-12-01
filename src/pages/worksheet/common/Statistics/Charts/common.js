@@ -157,6 +157,16 @@ export const numberLevel = [{
   suffix: '',
   format: value => value
 }, {
+  value: 7,
+  text: _l('百分比'),
+  suffix: '%',
+  format: value => value * 100
+}, {
+  value: 8,
+  text: _l('千分比'),
+  suffix: '‰',
+  format: value => value * 1000
+}, {
   value: 2,
   text: _l('千'),
   suffix: 'K',
@@ -194,22 +204,22 @@ export const formatYaxisList = (map, yaxisList, id) => {
     if ((id ? item.controlId == id : index === 0) && item.magnitude === 0) {
       if (maxValue >= 1000000000) {
         item.magnitude = 6;
-        item.suffix = numberLevel[6].suffix;
+        item.suffix = _.find(numberLevel, { value: 6 }).suffix
       } else if (maxValue >= 100000000) {
         item.magnitude = 5;
-        item.suffix = numberLevel[5].suffix;
+        item.suffix = _.find(numberLevel, { value: 5 }).suffix
       } else if (maxValue >= 1000000) {
         item.magnitude = 4;
-        item.suffix = numberLevel[4].suffix;
+        item.suffix = _.find(numberLevel, { value: 4 }).suffix
       } else if (maxValue >= 10000) {
         item.magnitude = 3;
-        item.suffix = numberLevel[3].suffix;
+        item.suffix = _.find(numberLevel, { value: 3 }).suffix
       } else if (maxValue >= 1000) {
         item.magnitude = 2;
-        item.suffix = numberLevel[2].suffix;
+        item.suffix = _.find(numberLevel, { value: 2 }).suffix
       } else {
         item.magnitude = 1;
-        item.suffix = numberLevel[1].suffix;
+        item.suffix = _.find(numberLevel, { value: 1 }).suffix;
       }
     }
   });
@@ -225,16 +235,18 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, ydot, suffix, dot } = data;
+  const { magnitude, ydot, suffix, dot, controlId } = data;
+  const isRecordCount = controlId === 'record_count';
+
   const { format } = _.find(numberLevel, { value: magnitude });
   if (magnitude === 0) {
     return format(value, ydot);
   } else if (magnitude === 1) {
     let newValue = null;
     if (ydot === '') {
-      newValue = Number(value.toFixed(Number.isInteger(value) ? 0 : dot)).toLocaleString();
+      newValue = value.toFixed(dot);
     } else {
-      newValue = value.toFixed(Number.isInteger(value) ? 0 : ydot);
+      newValue = value.toFixed(isRecordCount ? 0 : ydot);
     }
     return `${newValue}${suffix}`;
   } else {

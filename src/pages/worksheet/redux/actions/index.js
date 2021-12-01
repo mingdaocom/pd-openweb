@@ -6,8 +6,10 @@ import { formatValues } from 'worksheet/common/WorkSheetFilter/util';
 import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
+import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunterview';
 import { initBoardViewData } from './boardView';
-import { getDefaultHierarchyData } from './hierarchy';
+import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
+import { updateGunterSearchRecord } from './gunterview';
 import { wrapAjax } from './util';
 import _ from 'lodash';
 
@@ -193,6 +195,8 @@ export function refreshSheet(view, options) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
       dispatch(galleryViewRefresh());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
+      dispatch(resetLoadGunterView());
     }
   };
 }
@@ -212,6 +216,8 @@ export function addNewRecord(data, view) {
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
       dispatch(galleryViewRefresh());
       dispatch(getNavGroupCount());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
+      dispatch(addGunterNewRecord(data));
     }
   };
 }
@@ -366,3 +372,40 @@ export function copyCustomPage(para) {
     });
   };
 }
+
+// 更新viewControl搜索
+export function updateSearchRecord(view = {}, record) {
+  return function (dispatch) {
+    if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
+      dispatch(updateHierarchySearchRecord(record));
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
+      dispatch(updateGunterSearchRecord(record));
+    }
+  };
+}
+
+// 初始化移动端甘特图所需要的数据
+export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
+  return function (dispatch) {
+    const headersConfig = {
+      Authorization: `access_token ${access_token}`,
+    }
+    const base = {
+      appId,
+      worksheetId,
+      viewId
+    }
+    dispatch({
+      type: 'WORKSHEET_UPDATE_BASE',
+      base,
+    });
+    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(res => {
+      dispatch({
+        type: 'WORKSHEET_INIT',
+        value: res,
+      });
+    });
+  }
+}
+
+

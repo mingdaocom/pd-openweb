@@ -14,7 +14,6 @@ import WorksheetFileMessage from '../../components/Message/WorksheetFileMessage'
 import KcFileMessage from '../../components/Message/KcFileMessage';
 import AudioMessage from '../../components/Message/AudioMessage';
 import CardMessage from '../../components/Message/CardMessage';
-import VideoMessage from '../../components/Message/VideoMessage';
 import MapMessage from '../../components/Message/MapMessage';
 
 import Constant from '../../utils/constant';
@@ -146,7 +145,7 @@ class Message extends Component {
       case Constant.MSGTYPE_AUDIO:
         return <AudioMessage message={message} />;
       case Constant.MSGTYPE_APP_VIDEO:
-        return <VideoMessage message={message} session={session} />;
+        return <FileMessage message={message} session={session} />;
       case Constant.MSGTYPE_MAP:
         return <MapMessage message={message} />;
       default:
@@ -156,7 +155,7 @@ class Message extends Component {
   renderUserMessage() {
     const { moreVisible } = this.state;
     const { message, session } = this.props;
-    const { fromAccount, isDuplicated, timestamp, isMine, unreadLine, isMineMessage } = message;
+    const { fromAccount = {}, isDuplicated, timestamp, isMine, unreadLine, isMineMessage } = message;
     return (
       <div data-isminemessage={isMineMessage || false}>
         {unreadLine ? (

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './index.less';
 import cx from 'classnames';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, Icon } from 'ming-ui';
 import flowNode from '../../../../api/flowNode';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38];
@@ -15,6 +15,7 @@ export default class WriteFields extends Component {
     hideTypes: [],
     readonlyControlTypes: [],
     updateSource: () => {},
+    showCard: false,
   };
 
   componentDidMount() {
@@ -117,8 +118,26 @@ export default class WriteFields extends Component {
     updateSource({ formProperties });
   }
 
+  onChangeCard(id, showCard) {
+    const { data, updateSource } = this.props;
+    const formProperties = _.cloneDeep(data);
+
+    if (formProperties.filter(item => !!item.showCard).length >= 8 && !!showCard) {
+      alert(_l('最多可设置8个字段'), 2);
+      return;
+    }
+
+    formProperties.forEach(item => {
+      if (item.id === id) {
+        item.showCard = showCard;
+      }
+    });
+
+    updateSource({ formProperties });
+  }
+
   render() {
-    const { data, hideTypes } = this.props;
+    const { data, hideTypes, showCard } = this.props;
 
     return (
       <ul className={cx('mTop15', { flowDetailWriteControls: data.length })}>
@@ -147,7 +166,7 @@ export default class WriteFields extends Component {
               />
             )}
           </div>
-          <div className="mLeft16 mRight16">
+          <div className="mLeft16">
             {!_.includes(hideTypes, 3) && (
               <Checkbox
                 className="InlineBlock Font12 TxtMiddle"
@@ -158,6 +177,16 @@ export default class WriteFields extends Component {
                 }
                 onClick={checked => this.updateAllSettings({ key: 'REQUIRED', checked: !checked })}
               />
+            )}
+          </div>
+          <div className="mLeft16 mRight16 cursorDefault" style={{ width: 60 }}>
+            {showCard && (
+              <span
+                className="tip-bottom-left"
+                data-tip={_l('指定摘要字段，显示在我的流程列表中，方便快速了解待处理事项的内容。')}
+              >
+                {_l('摘要')}
+              </span>
             )}
           </div>
         </li>
@@ -185,12 +214,17 @@ export default class WriteFields extends Component {
                   />
                 )}
               </div>
-              <div className="mLeft16 mRight16">
+              <div className="mLeft16">
                 {!this.isDisabled(item, 'REQUIRED') && !_.includes(hideTypes, 3) && (
                   <Checkbox
                     checked={item.property === 3}
                     onClick={checked => this.onChange(item.id, checked ? 2 : 3)}
                   />
+                )}
+              </div>
+              <div className="mLeft16 mRight16" style={{ width: 60 }}>
+                {showCard && !_.includes([14, 21, 40, 41, 42, 43], item.type) && (
+                  <Checkbox checked={item.showCard} onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)} />
                 )}
               </div>
             </li>

@@ -4,6 +4,7 @@ import './taskBasic.less';
 import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskCenter';
 import Textarea from 'ming-ui/components/Textarea';
+import RichText from 'ming-ui/components/RichText';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
   afterUpdateTaskStar,
@@ -23,7 +24,6 @@ import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import Dropdown from 'ming-ui/components/Dropdown';
 import { navigateTo } from 'src/router/navigateTo';
 import { htmlDecodeReg } from 'src/util';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import {
   updateTaskName,
   updateTaskCharge,
@@ -736,7 +736,7 @@ class TaskBasic extends Component {
       this.props.dispatch(updateTaskSummary(taskId, summary));
     }
 
-    this.setState({ isEditing: false });
+    // this.setState({ isEditing: false });
   };
 
   render() {
@@ -798,18 +798,35 @@ class TaskBasic extends Component {
           </div>
           <div className="taskContentBoxBG mTop10">
             <div className="detailSummary">
-              <i className="icon-edit taskContentIcon" />
-              <BraftEditor
-                cacheKey={taskId}
-                isEditing={isEditing}
-                auth={hasAuth}
-                className="taskDetailEdit"
-                summary={data.summary}
-                placeholder={hasAuth ? _l('添加描述') : _l('未添加描述')}
-                joinEditing={() => hasAuth && this.setState({ isEditing: true })}
-                onCancel={() => this.setState({ isEditing: false })}
-                onSave={this.updateTaskSummary}
+              <i
+                className="icon-edit taskContentIcon Hand"
+                onClick={() => {
+                  hasAuth && this.setState({ isEditing: true });
+                }}
               />
+              {!isEditing ? (
+                <RichText
+                  key={taskId}
+                  className="taskDetailEdit"
+                  data={data.summary}
+                  disabled={true}
+                  minHeight={40}
+                  placeholder={hasAuth ? _l('添加描述') : _l('未添加描述')}
+                  onClickNull={e => {
+                    hasAuth &&
+                      this.setState({
+                        isEditing: true,
+                      });
+                  }}
+                />
+              ) : (
+                <RichText
+                  maxWidth={550}
+                  data={data.summary || ''}
+                  onSave={this.updateTaskSummary}
+                  className={cx('taskDetailEdit appIntroDescriptionEditor')}
+                />
+              )}
             </div>
             <div className="detailAtts">
               <i className="icon-ic_attachment_black taskContentIcon" />

@@ -1,0 +1,115 @@
+﻿.appIntroDialog {
+  .mdEditor {
+    position: relative;
+    width: 100%;
+
+    .editorNull {
+      padding: 0 24px;
+      color: #ccc;
+    }
+
+    .editorContent {
+      height: 500px;
+      overflow: hidden !important;
+      .ck-content {
+        min-height: calc(~'(100% - 30px)');
+        height: calc(~'(100% - 30px)');
+        box-sizing: border-box;
+      }
+      .ck-editor {
+        min-height: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      .ck-editor__main {
+        min-height: calc(~'(100% - 75px)'); //ck-toolbar的高度75
+        height: calc(~'(100% - 75px)');
+        box-sizing: border-box;
+        overflow: auto;
+        padding-bottom: 10px;
+      }
+    }
+
+    .mdEditorContent {
+      font-size: 14px;
+      // max-height: 600px;
+      overflow: auto;
+      word-break: break-all;
+      .ck-editor__main {
+        padding: 15px 20px;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      p {
+        padding: 0;
+        margin: 0;
+        min-height: 20px;
+      }
+
+      ul {
+        list-style-type: disc;
+        margin-left: 16px;
+        font-size: 14px;
+      }
+
+      ol {
+        margin-left: 16px;
+        font-size: 14px;
+        list-style-type: decimal;
+
+        li {
+          list-style-position: outside;
+        }
+      }
+    }
+
+    #editorFiles {
+      visibility: hidden;
+      position: absolute;
+    }
+
+    .mdEditorHeader {
+      box-sizing: border-box;
+      height: 55px;
+      align-items: center;
+      padding: 0 24px;
+
+      .caption {
+        font-size: 17px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .mdEditorTipColor {
+        color: #9e9e9e;
+      }
+
+      .mdEditorCancel {
+        font-size: 13px;
+        cursor: pointer;
+
+        &:not(:hover) {
+          color: #9e9e9e !important;
+        }
+      }
+
+      .mdEditorSave {
+        font-size: 13px;
+        cursor: pointer;
+        color: #fff;
+        border-radius: 3px;
+        margin-left: 32px;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 22px;
+      }
+    }
+  }
+}
+
+.ck-body-wrapper .ck-balloon-panel {
+  z-index: 1052 !important;
+}

@@ -120,6 +120,8 @@ export default function DisplayItem(props) {
     globalSheetInfo = {},
     path,
     handleHide,
+    queryConfigs = [],
+    updateQueryConfigs,
   } = props;
   const { type, controlId, dataSource, sourceControlId } = data;
   const { worksheetId: globalSheetId } = globalSheetInfo;
@@ -287,6 +289,8 @@ export default function DisplayItem(props) {
       if (isExceedMaxControlLimit(allControls)) return;
       setActiveWidget(newWidget);
       setWidgets(update(widgets, { $splice: [[row + 1, 0, [newWidget]]] }));
+      const curentQuery = _.find(queryConfigs, item => item.controlId === data.controlId) || {};
+      updateQueryConfigs({ ...curentQuery, id: `${uuidv4()}_new`, controlId: newWidget.controlId });
       return;
     }
     if (mode === 'setAsTitle') {
@@ -321,6 +325,7 @@ export default function DisplayItem(props) {
         return;
       }
       setWidgets(deleteWidgetById({ widgets, controlId, path }));
+      updateQueryConfigs({ controlId }, 'delete');
       return;
     }
     if (mode === 'hide') {

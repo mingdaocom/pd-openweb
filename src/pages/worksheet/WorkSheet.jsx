@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import qs from 'querystring';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { LoadDiv, WaterMark } from 'ming-ui';
 import store from 'redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
 import CustomPage from 'src/pages/customPage';
@@ -49,6 +49,8 @@ class WorkSheet extends Component {
       worksheetId: id,
     });
     this.setCache(this.props.match.params);
+    // 禁止浏览器触摸板触发的前进后退
+    document.body.style.overscrollBehaviorX = 'none';
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading } = nextProps;
@@ -81,6 +83,8 @@ class WorkSheet extends Component {
   componentWillUnmount() {
     $(document.body).removeClass('fixedScreen');
     this.props.updateSheetListLoading(true);
+    // 取消禁止浏览器触摸板触发的前进后退
+    document.body.style.overscrollBehaviorX = null;
   }
   /**
    * 设置缓存
@@ -142,7 +146,9 @@ class WorkSheet extends Component {
     this.pending = true;
     const enumType = type === 'worksheet' ? 0 : 1;
 
-    const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${type === 'customPage' ? 'hr_workbench' : '1_0_home'}.svg`;
+    const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${
+      type === 'customPage' ? 'hr_workbench' : '1_0_home'
+    }.svg`;
 
     addWorkSheet(
       {
@@ -166,8 +172,8 @@ class WorkSheet extends Component {
       },
     );
   };
-  renderRightComp = ({ id, appId, groupId, viewId, currentSheet }) => {
-    const { sheetList, isCharge, sheetListLoading, match } = this.props;
+  renderRightComp = ({ id, appId, groupId, currentSheet }) => {
+    const { sheetList, isCharge, sheetListLoading, match, projectId } = this.props;
     const { type } = currentSheet;
     if (sheetListLoading) {
       return <LoadDiv size="big" className="mTop32" />;
@@ -184,33 +190,38 @@ class WorkSheet extends Component {
         />
       );
     }
-    if (type) {
-      return <CustomPageContent ids={match.params} currentSheet={currentSheet} />;
-    } else {
-      return <Sheet flag={qs.parse((location.search || '').slice(1)).flag} />;
-    }
+
+    return type ? (
+      <CustomPageContent ids={match.params} currentSheet={currentSheet} />
+    ) : (
+      <Sheet flag={qs.parse((location.search || '').slice(1)).flag} />
+    );
   };
   render() {
-    const { visible, sheetList, pageId, match } = this.props;
+    const { visible, sheetList, pageId, match, projectId } = this.props;
     const { appId, groupId } = match.params;
     const id = this.getValidedWorksheetId();
     const currentSheet = _.find(sheetList, { workSheetId: id }) || {};
+
     return (
-      <div className="worksheet flexRow">
-        <WorkSheetLeft appId={appId} groupId={groupId} id={id} onCreateItem={this.handleCreateItem} />
-        {this.renderRightComp({ ...match.params, currentSheet, id })}
-        {visible &&
-          ReactDOM.createPortal(
-            <CustomPage
-              updateName={name =>
-                this.updateName({ appId, groupId, name, workSheetId: pageId || id, icon: currentSheet.icon })
-              }
-              sheetList={sheetList}
-              ids={{ appId, groupId, pageId: pageId || id }}
-            />,
-            document.body,
-          )}
-      </div>
+      <WaterMark projectId={projectId}>
+        <div className="worksheet flexRow">
+          <WorkSheetLeft appId={appId} groupId={groupId} id={id} onCreateItem={this.handleCreateItem} />
+          {this.renderRightComp({ ...match.params, currentSheet, id })}
+
+          {visible &&
+            ReactDOM.createPortal(
+              <CustomPage
+                updateName={name =>
+                  this.updateName({ appId, groupId, name, workSheetId: pageId || id, icon: currentSheet.icon })
+                }
+                sheetList={sheetList}
+                ids={{ appId, groupId, pageId: pageId || id }}
+              />,
+              document.body,
+            )}
+        </div>
+      </WaterMark>
     );
   }
 }
@@ -222,6 +233,7 @@ export default withRouter(
       sheetList: state.sheetList.data,
       isCharge: state.sheetList.isCharge,
       worksheetId: state.sheet.base.worksheetId,
+      projectId: state.sheet.worksheetInfo.projectId,
       ..._.pick(state.customPage, ['visible', 'pageId']),
     }),
     dispatch =>

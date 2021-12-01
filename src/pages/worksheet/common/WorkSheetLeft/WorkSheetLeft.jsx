@@ -318,7 +318,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  data: state.sheetList.isCharge ? state.sheetList.data : state.sheetList.data.filter(item => item.status === 1),
+  data: state.sheetList.isCharge ? state.sheetList.data.filter(_ => _) : state.sheetList.data.filter(item => item.status === 1),
   loading: state.sheetList.loading,
   isCharge: state.sheetList.isCharge,
   isUnfold: state.sheetList.isUnfold,

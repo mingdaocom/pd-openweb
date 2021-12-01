@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { getAdvanceSetting, getClassNameByExt } from 'src/util';
+import { getAdvanceSetting, getClassNameByExt, browserIsMobile } from 'src/util';
 import { filter, includes, head, get } from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -61,6 +61,9 @@ const CoverImageWrap = styled.div`
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     .coverWrap {
       height: 170px;
+    }
+    .mobileOverWrap {
+      height: 100px;
     }
   }
   &.display-circle,
@@ -189,22 +192,23 @@ export default function CardCoverImage(props) {
   };
 
   const getCover = () => {
+    const isMobile = browserIsMobile();
     if (!coverImage) {
       return (
-        <div className="coverWrap emptyCoverWrap">
+        <div className={cx('coverWrap', 'emptyCoverWrap', {'mobileOverWrap': isMobile})}>
           <img src={emptyCover}></img>
         </div>
       );
     }
     if (coverImage) {
       return (
-        <div className="coverWrap" onClick={previewAttachment} style={getStyle()}>
+        <div className={cx('coverWrap', '', {'mobileOverWrap': isMobile})} onClick={previewAttachment} style={getStyle()}>
           {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
         </div>
       );
     }
     return (
-      <div className="coverWrap" onClick={previewAttachment}>
+      <div className={cx('coverWrap', '', {'mobileOverWrap': isMobile})} onClick={previewAttachment}>
         <div className={cx('fileIcon', getClassNameByExt(ext))}></div>
         {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
       </div>

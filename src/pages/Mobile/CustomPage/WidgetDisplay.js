@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import ButtonList from 'src/pages/customPage/components/WidgetContent/ButtonList';
 import { getEnumType } from 'src/pages/customPage/util';
 import { addRecord } from 'src/pages/customPage/redux/action';
 import PreviewContent from './PreviewContent';
 import ChartContent from './ChartContent';
+import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -27,9 +27,9 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { type, value, name, button, ids } = props;
+  const { type, value, name, button, ids, param } = props;
   const componentType = getEnumType(type);
-  const [ dimensions, setDimensions ] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const ref = useRef(null);
 
   useEffect(() => {
@@ -40,16 +40,31 @@ function WidgetDisplay(props) {
     const paddingVertical = 8 * 2;
     setDimensions({ width: width - paddingHorizontal, height: height - paddingVertical });
   }, []);
-
   const renderContent = () => {
-    if (componentType === 'embedUrl') return <PreviewContent value={value} />;
-    if (componentType === 'richText') return <BraftEditor summary={value} isEditing={false} />;
-    if (componentType === 'button') return <ButtonList editable={false} button={button} ids={ids} layoutType="mobile" addRecord={(data) => { addRecord(data)(); }} />;
+    if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} />;
+    if (componentType === 'richText')
+      return <RichText summary={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
+    if (componentType === 'button')
+      return (
+        <ButtonList
+          editable={false}
+          button={button}
+          ids={ids}
+          layoutType="mobile"
+          addRecord={data => {
+            addRecord(data)();
+          }}
+        />
+      );
     if (componentType === 'analysis') return <ChartContent reportId={value} name={name} dimensions={dimensions} />;
   };
 
   return (
-    <WidgetContent className={`mobile${fistLetterUpper(componentType)} flexColumn`} ref={ref} componentType={componentType}>
+    <WidgetContent
+      className={`mobile${fistLetterUpper(componentType)} flexColumn`}
+      ref={ref}
+      componentType={componentType}
+    >
       {renderContent()}
     </WidgetContent>
   );

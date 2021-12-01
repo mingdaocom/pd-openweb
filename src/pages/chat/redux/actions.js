@@ -869,16 +869,20 @@ export const addMessage = (newMessage, prevMessage) => (dispatch, getState) => {
     message.isPrepare = newMessage.isPrepare || false;
   }
 
+  const id = newMessage.togroup || newMessage.touser;
+
+  if (_.isEmpty(id)) return;
+
   if (prevMessage) {
     dispatch({
       type: 'ADD_MESSAGE',
-      id: newMessage.togroup || newMessage.touser,
+      id,
       result: utils.formatMessage(message, prevMessage),
     });
   } else {
     dispatch({
       type: 'SET_MESSAGE',
-      id: newMessage.togroup || newMessage.touser,
+      id,
       result: [utils.formatMessage(message, prevMessage)],
     });
   }
@@ -940,10 +944,6 @@ export const updateMessage = message => (dispatch, getState) => {
           }
         };
         // item.refer = message.refer;
-      }
-      // 短视频消息
-      if (item.type === Constant.MSGTYPE_APP_VIDEO) {
-        item.msg.files = message.video;
       }
       // 转成系统消息
       if ('isContact' in message) {

@@ -1,8 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import Icon from 'ming-ui/components/Icon';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { Dialog, Icon, Button, LoadDiv, ScrollView, Signature } from 'ming-ui';
+import { Tooltip } from 'antd';
 import Card from './Card';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
@@ -14,7 +13,8 @@ import './index.less';
 const dateScope = getDateScope();
 
 export const TABS = {
-  WAITING_DISPOSE: 1, // 待处理
+  WAITING_APPROVE: 0,  // 待审批
+  WAITING_FILL: 1,    // 待填写
   WAITING_EXAMINE: 2, // 待查看
   MY_SPONSOR: 3, // 我发起
   COMPLETE: 4, // 已完成
@@ -22,8 +22,11 @@ export const TABS = {
 
 export const getStateParam = tab => {
   let param = {};
-  if (tab === TABS.WAITING_DISPOSE) {
-    param = { type: -1 };
+  if (tab === TABS.WAITING_APPROVE) {
+    param = { type: 4 };
+  }
+  if (tab === TABS.WAITING_FILL) {
+    param = { type: 3 };
   }
   if (tab === TABS.WAITING_EXAMINE) {
     param = {
@@ -133,20 +136,6 @@ class FilterNav extends Component {
 }
 
 const SECOND_TABS = {
-  [TABS.WAITING_DISPOSE]: [
-    {
-      name: _l('全部'),
-      value: { type: -1 },
-    },
-    {
-      name: _l('待填写'),
-      value: { type: 3 },
-    },
-    {
-      name: _l('待审批'),
-      value: { type: 4 },
-    },
-  ],
   [TABS.COMPLETE]: [
     {
       name: _l('已处理'),
@@ -171,19 +160,19 @@ export default class MyProcess extends Component {
   };
   constructor(props) {
     super(props);
-    let stateTab = TABS.WAITING_DISPOSE;
+    let stateTab = TABS.WAITING_APPROVE;
     let filter = null;
 
     if (props.match) {
-      let { type = '1', secondType = '1' } = props.match.params;
+      let { type = '0', secondType = '1' } = props.match.params;
       stateTab = parseInt(type);
       secondType = parseInt(secondType);
 
-      if (stateTab < 1 || stateTab > 4) {
-        stateTab = 1;
+      if (stateTab < 0 || stateTab > 4) {
+        stateTab = 0;
       }
 
-      if ((stateTab === 1 || stateTab === 4) && secondType >= 1 && secondType <= 3) {
+      if (stateTab === 4 && secondType >= 1 && secondType <= 3) {
         filter = SECOND_TABS[stateTab][secondType - 1].value;
       }
     }
@@ -197,11 +186,15 @@ export default class MyProcess extends Component {
       pageSize: 30,
       filter,
       selectCard: null,
+      approveCards: [],
       param: {},
       visible: false,
       isLoading: true,
       isResetFilter: false,
       countData: {},
+      approveType: null,
+      rejectVisible: false,
+      passVisible: false
     };
   }
   componentDidMount() {
@@ -292,7 +285,7 @@ export default class MyProcess extends Component {
         isMore: true,
         list: [],
         filter: null,
-        visible: false,
+        // visible: false,
       },
       this.getTodoList,
     );
@@ -341,7 +334,7 @@ export default class MyProcess extends Component {
     const { list, visible } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingExamine, myProcessCount } = countData;
-    const newList = list.filter(n => n.workId !== item.workId);
+    const newList = list.filter(n => n.id !== item.id);
     this.setState({
       list: newList,
       visible: newList.length ? visible : false,
@@ -352,11 +345,49 @@ export default class MyProcess extends Component {
       myProcessCount: myProcessCount - 1,
     });
   };
+  hanndleApprove = (type, batchType) => {
+    const { approveCards } = this.state;
+    const signatureCard = _.find(approveCards, { flowNode: { [batchType]: 1 } });
+    if (signatureCard) {
+      this.setState({ approveType: type });
+    } else {
+      this.handleBatchApprove(null, type);
+    }
+  };
+  handleBatchApprove = (signature, approveType) => {
+    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
+    const { approveCards } = this.state;
+    const selects = approveCards.map(({ id, workId, flowNode }) => {
+      const data = { id, workId };
+      if (flowNode[batchType] === 1) {
+        return {
+          ...data,
+          signature
+        }
+      } else {
+        return data;
+      }
+    });
+    instanceVersion.batch({
+      type: 4,
+      batchOperationType: approveType,
+      selects
+    }).then(result => {
+      if (result) {
+        alert('操作成功');
+        this.setState({ approveCards: [] });
+        this.handleChangeTab(TABS.WAITING_APPROVE);
+        getTodoCount().then(countData => {
+          this.updateCountData(countData);
+        });
+      }
+    });
+  }
   handleSave = item => {
     const { list } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingWrite, waitingApproval, waitingDispose, myProcessCount } = countData;
-    const newList = list.filter(n => n.workId !== item.workId);
+    const newList = list.filter(n => n.id !== item.id);
 
     this.setState({
       list: newList,
@@ -384,7 +415,7 @@ export default class MyProcess extends Component {
   };
   renderHeader = () => {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
-    const { waitingDispose, waitingExamine, mySponsor } = countData;
+    const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
     const { stateTab, filter } = this.state;
     return (
       <div className="header card">
@@ -394,13 +425,22 @@ export default class MyProcess extends Component {
         </div>
         <div className="statesTab">
           <div
-            className={cx('item', { active: stateTab === TABS.WAITING_DISPOSE })}
+            className={cx('item', { active: stateTab === TABS.WAITING_APPROVE })}
             onClick={() => {
-              this.handleChangeTab(TABS.WAITING_DISPOSE);
+              this.handleChangeTab(TABS.WAITING_APPROVE);
             }}
           >
-            <span>{_l('待处理')}</span>
-            {waitingDispose > 0 ? <span className="count red">{waitingDispose}</span> : null}
+            <span>{_l('待审批')}</span>
+            {waitingApproval > 0 ? <span className="count red">{waitingApproval}</span> : null}
+          </div>
+          <div
+            className={cx('item', { active: stateTab === TABS.WAITING_FILL })}
+            onClick={() => {
+              this.handleChangeTab(TABS.WAITING_FILL);
+            }}
+          >
+            <span>{_l('待填写')}</span>
+            {waitingWrite > 0 ? <span className="count red">{waitingWrite}</span> : null}
           </div>
           <div
             className={cx('item', { active: stateTab === TABS.WAITING_EXAMINE })}
@@ -420,6 +460,7 @@ export default class MyProcess extends Component {
             <span>{_l('我发起的')}</span>
             {mySponsor > 0 ? <span className="count">{mySponsor}</span> : null}
           </div>
+          <div className="cuttingLine"></div>
           <div
             className={cx('item', { active: stateTab === TABS.COMPLETE })}
             onClick={() => {
@@ -437,7 +478,7 @@ export default class MyProcess extends Component {
                   icon="launch"
                   className="pointer Font22 Gray_9d ThemeHoverColor3"
                   onClick={() => {
-                    if (_.includes([TABS.WAITING_DISPOSE, TABS.COMPLETE], stateTab) && filter) {
+                    if (_.includes([TABS.COMPLETE], stateTab) && filter) {
                       let secondType;
 
                       SECOND_TABS[stateTab].forEach((item, index) => {
@@ -472,41 +513,127 @@ export default class MyProcess extends Component {
     );
   }
   renderFilter() {
-    const { stateTab, visible, filter } = this.state;
+    const { stateTab, visible, filter, approveCards } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
-    const { waitingDispose, waitingExamine, mySponsor } = countData;
+    const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
 
-    if (stateTab === TABS.WAITING_DISPOSE) {
+    if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
+      const isApprove = TABS.WAITING_APPROVE === stateTab;
+      const count = isApprove ? waitingApproval : waitingWrite;
+      const { passVisible, rejectVisible } = this.state;
       return (
-        <div className={cx('filterWrapper', { hide: waitingDispose <= 0 })}>
-          <Filter
-            visible={visible}
-            filter={filter}
-            handleOpen={() => this.setState({ visible: true })}
-            handleClear={() => {
-              this.setState({ isResetFilter: true });
-            }}
-          />
-          <FilterNav
-            data={SECOND_TABS[TABS.WAITING_DISPOSE]}
-            checked={filter}
-            onChange={value => {
-              const { filter } = this.state;
-              this.setState(
-                {
-                  pageIndex: 1,
-                  isMore: true,
-                  loading: false,
-                  list: [],
-                  filter: {
-                    ...filter,
-                    ...value,
-                  },
-                },
-                this.getTodoList,
-              );
-            }}
-          />
+        <div className={cx('filterWrapper', { hide: count <= 0 })}>
+          <div className="valignWrapper flex">
+            <Filter
+              visible={visible}
+              filter={filter}
+              handleOpen={() => this.setState({ visible: true })}
+              handleClear={() => {
+                this.setState({ isResetFilter: true });
+              }}
+            />
+          </div>
+          {isApprove && (
+            <div className="valignWrapper Font14">
+              {!_.isEmpty(approveCards) && (
+                <div className="bold mRight24">{_l('已选择%0项', approveCards.length)}</div>
+              )}
+              <Tooltip
+                overlayClassName="myProcessApproveOverlay"
+                overlayStyle={{ width: 320, maxWidth: 320 }}
+                align={{ offset: [40, -5] }}
+                placement="bottomRight"
+                arrowPointAtCenter={true}
+                trigger={['click']}
+                color="#FFF"
+                title={(
+                  <div className="pAll10 flexColumn">
+                    <span className="Gray Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
+                    <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={() => { $('.passApprove').click(); }}
+                      >
+                        {_l('取消')}
+                      </Button>
+                      <Button
+                        type="success"
+                        size="small"
+                        onClick={() => {
+                          if (_.isEmpty(approveCards)) {
+                            alert(_l('请先勾选需要处理的审批'), 3);
+                            return;
+                          }
+                          this.hanndleApprove(4, 'passBatchType');
+                          $('.passApprove').click();
+                        }}
+                      >
+                        {_l('通过')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                visible={passVisible}
+                onVisibleChange={passVisible => {
+                  if (_.isEmpty(approveCards)) {
+                    alert(_l('请先勾选需要处理的审批'), 3);
+                  } else {
+                    this.setState({ passVisible });
+                  }
+                }}
+              >
+                <div className={cx('passApprove bold pointer', { active: passVisible })}>{_l('通过审批')}</div>
+              </Tooltip>
+              <Tooltip
+                overlayClassName="myProcessApproveOverlay"
+                overlayStyle={{ width: 320, maxWidth: 320 }}
+                align={{ offset: [40, -5] }}
+                placement="bottomRight"
+                arrowPointAtCenter={true}
+                trigger={['click']}
+                color="#FFF"
+                title={(
+                  <div className="pAll10 flexColumn">
+                    <span className="Gray Font15">{_l('您将否决选择的%0个审批事项', approveCards.length)}</span>
+                    <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={() => { $('.rejectApprove').click() }}
+                      >
+                        {_l('取消')}
+                      </Button>
+                      <Button
+                        type="danger"
+                        size="small"
+                        onClick={() => {
+                          if (_.isEmpty(approveCards)) {
+                            alert(_l('请先勾选需要处理的审批'), 3);
+                            return;
+                          }
+                          this.hanndleApprove(5, 'overruleBatchType');
+                          $('.rejectApprove').click();
+                        }}
+                      >
+                        {_l('否决')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                visible={_.isEmpty(approveCards) ? false : rejectVisible}
+                onVisibleChange={rejectVisible => {
+                  if (_.isEmpty(approveCards)) {
+                    alert(_l('请先勾选需要处理的审批'), 3);
+                  } else {
+                    this.setState({ rejectVisible });
+                  }
+                }}
+              >
+                <div className={cx('rejectApprove bold pointer', { active: rejectVisible })}>{_l('否决审批')}</div>
+              </Tooltip>
+            </div>
+          )}
         </div>
       );
     }
@@ -584,24 +711,76 @@ export default class MyProcess extends Component {
       );
     }
   }
+  renderSignatureDialog() {
+    const { approveCards, approveType } = this.state;
+    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
+    const signatureApproveCards = approveCards.filter(item => item.flowNode[batchType] === 1);
+    return (
+      <Dialog
+        visible
+        width={650}
+        title={_l('输入签名')}
+        onOk={() => {
+          if (this.signature.checkContentIsEmpty()) {
+            alert(_l('请填写签名', 2));
+            return;
+          }
+          this.signature.saveSignature(signature => {
+            this.handleBatchApprove(signature, this.state.approveType);
+            this.setState({ approveType: null });
+          });
+        }}
+        onCancel={() => {
+          this.setState({ approveType: null });
+        }}
+      >
+        <div className="Gray_75 Font14 mBottom10">{_l('包含需要%0个需要签名的审批事项', signatureApproveCards.length)}</div>
+        <Signature
+          ref={signature => {
+            this.signature = signature;
+          }}
+        />
+        <div className="mTop20 BorderBottom borderColor_ef"></div>
+      </Dialog>
+    );
+  }
   renderContent() {
-    const { list, stateTab, loading, filter } = this.state;
+    const { list, stateTab, loading, filter, approveCards } = this.state;
+
     if (!loading && _.isEmpty(list)) {
-      return this.renderWithoutData();
+      return (
+        <div className="content">
+          {this.renderWithoutData()}
+        </div>
+      );
     }
+
     return (
       <ScrollView onScrollEnd={this.handleScrollEnd} className="flex">
         <div className="content">
           {list.map(item => (
             <Card
-              key={item.workId}
+              key={item.id}
               item={item}
               type={filter ? filter.type : null}
               stateTab={stateTab}
+              approveChecked={!_.isEmpty(_.find(approveCards, { id: item.id }))}
               onAlreadyRead={this.handleAlreadyRead}
               onClick={() => {
                 this.setState({
                   selectCard: item,
+                });
+              }}
+              onAddApproveRecord={(item) => {
+                const { approveCards } = this.state;
+                this.setState({
+                  approveCards: approveCards.concat(item)
+                });
+              }}
+              onRemoveApproveRecord={(id) => {
+                const { approveCards } = this.state;
+                this.setState({
+                  approveCards: approveCards.filter(item => item.id !== id)
                 });
               }}
             />
@@ -616,49 +795,49 @@ export default class MyProcess extends Component {
     );
   }
   render() {
-    const { stateTab, selectCard, param, visible, filter, isLoading, isResetFilter } = this.state;
+    const { stateTab, selectCard, param, visible, filter, isLoading, isResetFilter, approveType } = this.state;
 
     return (
       <div className="myProcessWrapper">
         {this.renderHeader()}
-        {isLoading ? (
-          <div className="content valignWrapper">
-            <LoadDiv size="big" />
-          </div>
-        ) : (
-          <div className={cx('filterContentWrapper', visible ? 'filterContentExtend' : 'filterContentClose')}>
-            <FilterConTent
-              isResetFilter={isResetFilter}
-              param={param}
-              stateTab={stateTab}
-              visible={visible}
-              handleChangeVisible={() => this.setState({ visible: false })}
-              onChange={data => {
-                const isSampleFilter = [TABS.MY_SPONSOR, TABS.WAITING_EXAMINE].includes(stateTab);
-                this.setState(
-                  {
-                    pageIndex: 1,
-                    isMore: true,
-                    loading: false,
-                    isResetFilter: false,
-                    list: [],
-                    filter: isSampleFilter
-                      ? data
-                      : {
-                          ...filter,
-                          ...data,
-                        },
-                  },
-                  this.getTodoList,
-                );
-              }}
-            />
+        <div className={cx('filterContentWrapper', visible ? 'filterContentExtend' : 'filterContentClose')}>
+          <FilterConTent
+            isResetFilter={isResetFilter}
+            param={param}
+            stateTab={stateTab}
+            visible={visible}
+            handleChangeVisible={() => this.setState({ visible: false })}
+            onChange={data => {
+              const isSampleFilter = [TABS.MY_SPONSOR, TABS.WAITING_EXAMINE].includes(stateTab);
+              this.setState(
+                {
+                  pageIndex: 1,
+                  isMore: true,
+                  loading: false,
+                  isResetFilter: false,
+                  list: [],
+                  filter: isSampleFilter
+                    ? data
+                    : {
+                        ...filter,
+                        ...data,
+                      },
+                },
+                this.getTodoList,
+              );
+            }}
+          />
+          {isLoading ? (
+            <div className="flexColumn loadoingWrapper pTop100">
+              <LoadDiv size="big" />
+            </div>
+          ) : (
             <div className="flexColumn">
               {this.renderFilter()}
               {this.renderContent()}
             </div>
-          </div>
-        )}
+          )}
+        </div>
         {selectCard ? (
           <ExecDialog
             id={selectCard.id}
@@ -672,7 +851,7 @@ export default class MyProcess extends Component {
               }
             }}
             onSave={() => {
-              if (stateTab === TABS.WAITING_DISPOSE) {
+              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);
               }
             }}
@@ -680,12 +859,12 @@ export default class MyProcess extends Component {
               if (stateTab === TABS.WAITING_EXAMINE) {
                 this.handleRead(this.state.selectCard);
               }
-              if (stateTab === TABS.WAITING_DISPOSE) {
+              if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);
               }
               if (stateTab === TABS.MY_SPONSOR || stateTab === TABS.COMPLETE) {
                 const { list } = this.state;
-                const newList = list.filter(n => n.workId !== selectCard.workId);
+                const newList = list.filter(n => n.id !== selectCard.id);
                 this.setState({
                   list: newList,
                 });
@@ -701,6 +880,7 @@ export default class MyProcess extends Component {
             }}
           />
         ) : null}
+        {approveType && this.renderSignatureDialog()}
       </div>
     );
   }

@@ -6,6 +6,7 @@ import PreviewContent from 'src/pages/customPage/components/previewContent';
 import cx from 'classnames';
 import share from 'src/api/share';
 import { getIconNameByExt } from 'src/util';
+import { genUrl } from 'src/pages/customPage/util';
 
 const PreviewContentWrapper = styled.div`
   height: 100%;
@@ -127,8 +128,14 @@ function KcShareNodePreviewContent(props) {
   );
 }
 
+function parseLink(link, param) {
+  const url = genUrl(link, param);
+  if (!/^https?:\/\//.test(url)) return `https://${url}`;
+  return url;
+}
+
 function PreviewContentWrap(props) {
-  let { value } = props;
+  let { value, param } = props;
   const [ now, setNow ] = useState(0);
 
   if (value.includes('kcshareFolder/')) {
@@ -142,11 +149,13 @@ function PreviewContentWrap(props) {
       <KcShareNodePreviewContent value={value} />
     );
   } else {
-    if (value.includes('?')) {
-      value = `${value}&now=${now}`;
-    } else {
-      value = `${value}?now=${now}`;
-    }
+    value = parseLink(value, param.concat({
+      key: 'now',
+      value: {
+        data: now,
+        type: 'static'
+      }
+    }));
     return (
       <PreviewContentWrapper>
         <div className="iconWrap flexRow valignWrapper">

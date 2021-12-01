@@ -123,7 +123,7 @@ export default class CustomPage extends Component {
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
               <div className={cx('widgetContent', { haveTitle: titleVisible })}>
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'value', 'needUpdate', 'button', 'name'])}
+                  {..._.pick(widget, ['type', 'value', 'needUpdate', 'button', 'name', 'param'])}
                   ids={{
                     appId: params.appId,
                     groupId: params.groupId,

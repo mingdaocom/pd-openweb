@@ -1,7 +1,7 @@
 import React, { Fragment, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
 import { LoadDiv } from 'ming-ui';
 import { connect } from 'react-redux';
 import { saveAs } from 'file-saver';
@@ -21,12 +21,13 @@ import './index.less';
 import { ITEM_TYPE, SCROLL_CONFIG } from './config';
 import DragLayer from './components/DragLayer';
 import EmptyHierarchy from './EmptyHierarchy';
-import { isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
+import { isAllowQuickSwitch, isDisabledCreate, isTextTitle, getSearchData } from '../util';
 import { isEmpty } from 'lodash';
 import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { useSetState } from 'react-use';
 import { updateWorksheetControls } from '../../redux/actions';
+import { browserIsMobile } from 'src/util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -89,12 +90,13 @@ function Hierarchy(props) {
     getAssignChildren,
     changeHierarchyChildrenVisible,
     initHierarchyRelateSheetControls,
+    recordInfoId,
     ...rest
   } = props;
   const { scale: configScale, level: configLevel = '' } = getItem(`hierarchyConfig-${viewId}`) || {};
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
-    scale: configScale || 100,
+    scale: (!browserIsMobile() && configScale) || 100,
     level: configLevel,
     addRecordDefaultValue: '',
     createRecordVisible: false,
@@ -147,12 +149,21 @@ function Hierarchy(props) {
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');
+    const height = $wrap.scrollHeight;
+    const width = $wrap.scrollWidth;
+    let copyDom = $wrap.cloneNode(true);
+    copyDom.style.width = width;
+    copyDom.style.height = height;
+    document.querySelector('body').appendChild(copyDom);
+    const name = (view.name || 'scrennshot') + '.png';
     try {
-      html2canvas($wrap, { allowTaint: true, backgroundColor: '#f0f0f0' }).then(canvas => {
-        canvas.toBlob(blob => saveAs(blob, 'scrennshot.png'));
+      domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
+        saveAs(blob, name);
+        document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
       alert(_l('生成失败'));
+      document.querySelector('body').removeChild(copyDom);
     }
   };
 
@@ -266,7 +277,7 @@ function Hierarchy(props) {
       };
     }
     return {
-      ..._.pick(worksheetInfo, ['worksheetId', 'entityName','projectId']),
+      ..._.pick(worksheetInfo, ['worksheetId', 'entityName', 'projectId']),
       viewId,
     };
   };
@@ -382,7 +393,7 @@ function Hierarchy(props) {
     // 多表关联根据控件id获取默认关联
     if (childType === 2) {
       const index = addRecordPath.path.length;
-      const sourceControlId = viewControls[index].controlId;
+      const sourceControlId = (viewControls[index] || {}).controlId;
       const { worksheetId: relateSheetId } = viewControls[index] || {};
       const { controlId } =
         (hierarchyRelateSheetControls[relateSheetId] || []).find(item => item.sourceControlId === sourceControlId) ||
@@ -398,7 +409,6 @@ function Hierarchy(props) {
       viewControl === 'create' ||
       (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
       !_.isEmpty(viewControls);
-
     if (!isHaveSelectControl) {
       return (
         <SelectField
@@ -418,7 +428,8 @@ function Hierarchy(props) {
     }
 
     const renderHierarchy = () => {
-      return isEmpty(hierarchyViewState) && (filters.keyWords || !isEmpty(filters.filterControls)) ? (
+      return (isEmpty(hierarchyViewState) && (filters.keyWords || !isEmpty(filters.filterControls))) ||
+        (isEmpty(hierarchyViewState) && browserIsMobile()) ? (
         <ViewEmpty filters={filters} viewFilter={view.filters || []} />
       ) : (
         <Fragment>
@@ -471,6 +482,7 @@ function Hierarchy(props) {
                     viewId={viewId}
                     worksheetId={worksheetId}
                     allowAdd={worksheetInfo.allowAdd}
+                    recordInfoId={recordInfoId}
                     createTextTitleRecord={createTextTitleRecord}
                   />
                 );
@@ -482,28 +494,35 @@ function Hierarchy(props) {
     };
 
     return (
-      <RecordStructureWrap className="hierarchyViewWrap" ref={$wrapRef} onScroll={_.throttle(handleScroll)}>
+      <RecordStructureWrap
+        className="hierarchyViewWrap"
+        ref={$wrapRef}
+        onScroll={_.throttle(handleScroll)}
+        style={browserIsMobile() ? { paddingLeft: '20px' } : {}}
+      >
         {loading ? <LoadDiv /> : renderHierarchy()}
       </RecordStructureWrap>
     );
   };
   return (
     <div ref={drop} className="structureViewWrap">
-      <LeftBoundary
-        {..._.pick(props, ['becomeTopLevelRecord'])}
-        showAdd={
-          !isDisabledCreate(sheetSwitchPermit) &&
-          !_.isEmpty(hierarchyViewData) &&
-          (viewControl || !_.isEmpty(viewControls))
-        }
-        onClick={() =>
-          handleAddRecord({
-            isTextTitle: isTextTitle(controls),
-            path: [],
-            pathId: [],
-          })
-        }
-      />
+      {!browserIsMobile() && (
+        <LeftBoundary
+          {..._.pick(props, ['becomeTopLevelRecord'])}
+          showAdd={
+            !isDisabledCreate(sheetSwitchPermit) &&
+            !_.isEmpty(hierarchyViewData) &&
+            (viewControl || !_.isEmpty(viewControls))
+          }
+          onClick={() =>
+            handleAddRecord({
+              isTextTitle: isTextTitle(controls),
+              path: [],
+              pathId: [],
+            })
+          }
+        />
+      )}
       <DragLayer
         scale={scale}
         treeData={hierarchyViewData}
@@ -518,6 +537,9 @@ function Hierarchy(props) {
           level={level}
           onClick={handleToolClick}
           showLevelData={showLevelData}
+          searchData={props.searchData}
+          updateSearchRecord={props.updateSearchRecord}
+          view={view}
         />
       )}
       {renderContent()}
@@ -540,6 +562,7 @@ const ConnectedHierarchyView = connect(
   state => ({
     ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit']),
     ..._.get(state.sheet, 'hierarchyView'),
+    searchData: getSearchData(state.sheet),
   }),
   dispatch => bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls }, dispatch),
 )(Hierarchy);

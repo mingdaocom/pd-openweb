@@ -92,7 +92,7 @@ export default class extends Component {
 
     const findName = (value) => {
       const item = _.find(data, { originalName: value });
-      return item ? item.name : value;
+      return item ? item.name || _l('空') : value;
     }
 
     const baseConfig = {
@@ -113,7 +113,7 @@ export default class extends Component {
         ? {
             position,
             flipPage: true,
-            itemHeight: 20,
+            itemHeight: 20
           }
         : false,
       statistic: displaySetup.showTotal
@@ -150,8 +150,8 @@ export default class extends Component {
                     newYaxisList,
                   )}`
                 : '';
-              const percentText = displaySetup.showPercent ? `(${(item.percent * 100).toFixed(0)}%)` : '';
-              return `${dimensionText} ${numberText} ${percentText}`;
+              const percentText = displaySetup.showPercent ? `(${(item.percent * 100).toFixed(2)}%)` : '';
+              return `${dimensionText || _l('空')} ${numberText} ${percentText}`;
             },
           }
         : false,

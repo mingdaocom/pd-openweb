@@ -58,17 +58,20 @@ export default class CustomFields extends Component {
       descMore: [],
       rules: props.rules || [],
       rulesLoading: !props.disableRules && !props.rules,
+      searchConfig: [],
     };
   }
 
   componentWillMount() {
-    const { data, disabled } = this.props;
-    const { rulesLoading, rules } = this.state;
+    const { data, disabled, isWorksheetQuery } = this.props;
+    const { rulesLoading, rules, searchConfig } = this.state;
 
-    if (!rulesLoading) {
+    if (!rulesLoading && !isWorksheetQuery) {
       this.initSource(data, disabled);
     } else if (rulesLoading && _.isEmpty(rules)) {
       this.getRules();
+    } else if (isWorksheetQuery && !searchConfig.length) {
+      this.getSearchConfig();
     }
   }
 
@@ -88,6 +91,9 @@ export default class CustomFields extends Component {
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
     }
+    if (this.props.isWorksheetQuery !== nextProps.isWorksheetQuery && nextProps.isWorksheetQuery) {
+      this.getSearchConfig(nextProps);
+    }
   }
 
   con = React.createRef();
@@ -105,6 +111,7 @@ export default class CustomFields extends Component {
       disabled,
       recordCreateTime,
       from,
+      searchConfig: this.state.searchConfig,
       onAsyncChange: ({ controlId, value }) => {
         this.props.onChange(this.dataFormat.getDataSource(), [controlId]);
         this.setState({
@@ -149,6 +156,17 @@ export default class CustomFields extends Component {
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
       this.setState({ rules }, () => this.initSource(data, disabled));
+    });
+  };
+
+  /**
+   * 获取查询配置
+   */
+  getSearchConfig = nextProps => {
+    const { worksheetId, data, disabled } = nextProps || this.props;
+
+    sheetAjax.getQueryBySheetId({ worksheetId }).then(searchConfig => {
+      this.setState({ searchConfig }, () => this.initSource(data, disabled));
     });
   };
 
@@ -458,6 +476,7 @@ export default class CustomFields extends Component {
                 removeUniqueItem: id => {
                   _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
                 },
+                searchByChange: true,
               });
               this.setState({ renderData: this.getFilterDataByRule(), errorItems: this.dataFormat.getErrorControls() });
 
@@ -467,12 +486,14 @@ export default class CustomFields extends Component {
               }
             }
           }}
-          onBlur={() =>
-            item.unique &&
-            item.value &&
-            item.value.trim() &&
-            this.checkControlUnique(controlId, type, item.value.trim())
-          }
+          onBlur={() => {
+            if (item.unique && item.value && item.value.trim()) {
+              this.checkControlUnique(controlId, type, item.value.trim());
+            }
+            if (item.value && item.value.trim()) {
+              this.dataFormat.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
+            }
+          }}
           openRelateSheet={openRelateSheet}
           registerCell={cell => registerCell({ item, cell })}
           formData={this.dataFormat

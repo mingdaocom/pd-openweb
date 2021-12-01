@@ -43,7 +43,7 @@ export default class Widgets extends Component {
           } else if (currentItem.subCid) {
             // 子表
             newValue = {
-              action: 'clearAndset',
+              action: 'clearAndSet',
               rows: item.childs,
             };
           } else {

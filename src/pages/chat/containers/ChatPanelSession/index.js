@@ -243,7 +243,6 @@ class ChatPanelSession extends Component {
     const currentReferMessage = referMessage[session.id];
     const messageType = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const atParam = session.isGroup ? this.getAtParam(session.id) : false;
-    const video = param.file && param.file.video;
     const sendMsg = {
       ...param,
       atParam,
@@ -260,10 +259,6 @@ class ChatPanelSession extends Component {
         msgid: currentReferMessage.id,
       };
     }
-    if (video) {
-      sendMsg.video = video;
-      delete sendMsg.file.video;
-    }
     this.props.dispatch(actions.addMessage(sendMsg, currentMessages[currentMessages.length - 1]));
     this.props.dispatch(
       actions.updateSessionList({
@@ -276,7 +271,6 @@ class ChatPanelSession extends Component {
       this.props.dispatch(actions.updateMessage({
         to: session.id,
         referMessage: sendMsg.referMessage,
-        video: video,
         ...result,
       }));
       // this.props.dispatch(actions.updateMessage(message));

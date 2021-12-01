@@ -18,8 +18,8 @@ export default class MessageRefer extends Component {
   }
   handlePreview(event) {
     const { message } = this.props;
-    const { files } = message.msgdetail;
-    const { card } = message;
+    const { card, msgdetail = {} } = message;
+    const { files } = msgdetail;
 
     if (files) {
       event.stopPropagation();

@@ -54,7 +54,7 @@ export default class SortConditions extends React.Component {
     }
   }
 
-  getNewState(props) {
+  getNewState = props => {
     props = props || this.props;
     const { showSystemControls, sortConditions } = props;
     let { columns } = props;
@@ -68,22 +68,22 @@ export default class SortConditions extends React.Component {
       sortConditions:
         sortConditions && sortConditions.length
           ? this.getValideSortConditions(columns, sortConditions)
-          : [{ controlId: 'ctime', isAsc: false }],
+          : [{ controlId: 'ctime', isAsc: true }],
     };
-  }
+  };
 
-  getValideSortConditions(columns, moreSort) {
+  getValideSortConditions = (columns, moreSort) => {
     let valideSortConditions = moreSort.filter(sc => _.find(columns, c => c.controlId === sc.controlId));
     if (!valideSortConditions.length) {
       valideSortConditions = [{ controlId: 'ctime', isAsc: false }];
     }
     return valideSortConditions;
-  }
+  };
 
-  handleChange(newSortConditions) {
+  handleChange = newSortConditions => {
     const { onChange } = this.props;
     onChange(newSortConditions);
-  }
+  };
 
   @autobind
   handleChangeSortControl(index, value) {
@@ -138,7 +138,7 @@ export default class SortConditions extends React.Component {
     this.handleChange(newSortConditions);
   }
 
-  getCanSelectColumns(controlId) {
+  getCanSelectColumns = controlId => {
     const { columns, sortConditions } = this.state;
     const control = _.find(columns, c => c.controlId === controlId);
     const sortConditionControls = sortConditions
@@ -161,15 +161,15 @@ export default class SortConditions extends React.Component {
         itemContentStyle: { padding: '0 30px' },
         iconName: getIconByType(c.type),
       }));
-  }
+  };
 
-  getSortTypes(controlId) {
+  getSortTypes = controlId => {
     const { columns } = this.state;
     const control = _.find(columns, c => c.controlId === controlId) || {};
     return getSortData(control.type, control);
-  }
+  };
 
-  renderCondtions() {
+  renderCondtions = () => {
     const { columns } = this.state;
     const { sortConditions } = this.state;
     return sortConditions.map((condition, index) => {
@@ -220,7 +220,7 @@ export default class SortConditions extends React.Component {
         </div>
       );
     });
-  }
+  };
 
   render() {
     const { className } = this.props;

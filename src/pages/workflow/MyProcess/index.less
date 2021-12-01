@@ -102,12 +102,15 @@
       background-color: #fce4e3;
     }
   }
+  .cuttingLine {
+    height: 20px;
+    width: 1px;
+    background-color: #bdbdbd8a;
+  }
 
   .withoutData {
-    // width: 100%;
-    // height: 100%;
     flex: 1;
-    min-height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -146,6 +149,21 @@
         background-color: #2196F333;
       }
     }
+    .passApprove, .rejectApprove {
+      border-radius: 24px;
+      &:hover, &.active {
+        background-color: #ebebeb;
+      }
+    }
+    .passApprove {
+      color: #4caf50;
+      padding: 5px 13px;
+      margin-right: 2px;
+    }
+    .rejectApprove {
+      padding: 5px 13px;
+      color: #f44336;
+    }
   }
 
   .filterNav {
@@ -183,9 +201,11 @@
   }
 
   .filterWrapper, .content {
+    margin: 0 auto;
+  }
+  .filterWrapper, .content, .loadoingWrapper {
     min-width: 1000px;
     max-width: 1400px;
-    margin: 0 auto;
     padding: 0 12px;
   }
 
@@ -195,6 +215,14 @@
 
   .content {
     flex: 1;
-    height: 100%;
+  }
+}
+
+.myProcessApproveOverlay {
+  .ant-tooltip-inner {
+    padding: 4px 8px;
+  }
+  .ant-tooltip-arrow {
+    display: none;
   }
 }

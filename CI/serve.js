@@ -77,6 +77,21 @@ const middlewareList = [
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件
       next();
+    } else if (req.url && req.url.startsWith('/__')) {
+      // 访问静态文件
+      const url = new URL(`http://md.md${req.url}`);
+      const filePath = path.join(
+        __dirname,
+        url.pathname[3] === '/' ? '../' : '../CI/devServe',
+        url.pathname.slice(3) + (/\./.test(url.pathname) ? '' : '.html'),
+      );
+      const rs = fs.createReadStream(filePath);
+      rs.on('error', () => {
+        console.log('can not find ' + url.pathname + ' ' + filePath);
+        res.statusCode = 404;
+        res.end('404');
+      });
+      rs.pipe(res);
     } else if (_.findIndex(rewrites, rule => new RegExp(rule.match, rule.ignoreCase ? 'i' : '').test(req.url)) > -1) {
       // 根据配置的 nginx rewrite 重定向请求
       const matchedIndex = _.findIndex(rewrites, rule =>
@@ -115,7 +130,7 @@ const middlewareList = [
   },
 ];
 
-async function serve({ done = () => {} } = {}) {
+async function serve({ done = () => {}, needOpen = true } = {}) {
   var port = await getValuedPort();
   var server = http.createServer(function (req, res) {
     const stack = middlewareList.slice(0);
@@ -171,7 +186,9 @@ async function serve({ done = () => {} } = {}) {
         局域网地址: `http://${lanIps[0]}:${port}`,
         'api 服务器': apiServer,
       });
-      open(localUrl + '/app/my');
+      if (needOpen) {
+        open(localUrl + '/app/my');
+      }
       done();
     } else {
       console.log('\nstart failed ! 💣💀💣', err);
@@ -179,3 +196,4 @@ async function serve({ done = () => {} } = {}) {
   });
 }
 module.exports = serve;
+// serve({ needOpen: false });

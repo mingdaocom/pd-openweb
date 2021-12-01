@@ -5,17 +5,12 @@ import { Parser } from 'hot-formula-parser';
 import cx from 'classnames';
 import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
 import { includes } from 'lodash';
-import { Button, TagTextarea, Dropdown } from 'ming-ui';
+import { TagTextarea, Dropdown, Checkbox } from 'ming-ui';
 import PointerConfig from '../PointerConfig';
 import NumberUnit from '../NumberUnit';
 import ColumnListDropdown from '../ColumnListDropdown';
-import {
-  getControlValue,
-  getControlTextValue,
-  getFormulaControls,
-  createWorksheetColumnTag,
-  genControlTag,
-} from '../../../util/data';
+import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getControlValue, getControlTextValue, getFormulaControls, genControlTag } from '../../../util/data';
 import { FORMULA } from './enum';
 import FnList from './FnList';
 import { SettingItem } from '../../../styled';
@@ -261,6 +256,7 @@ export default class Formula extends React.Component {
     let { data, allControls, worksheetData, onChange } = this.props;
     const { selectColumnVisible, showInSideFormulaSelect, shoOutSideFormulaSelect, calType, fnmatch } = this.state;
     const dataSource = data.dataSource || '';
+    const nullzero = _.get(data.advancedSetting || {}, 'nullzero');
     let formulaValue = this.getFormulaFromDataSource(calType, dataSource);
     const fnListEle = (
       <FnList
@@ -289,7 +285,9 @@ export default class Formula extends React.Component {
             data={this.getCommonCalType()}
             value={calType}
             onChange={type => {
-              onChange({ enumDefault: type });
+              onChange(
+                handleAdvancedSettingChange({ ...data, enumDefault: type }, { nullzero: type === 1 ? '1' : '0' }),
+              );
               this.setState({
                 calType: type,
                 formulaStr: '',
@@ -361,6 +359,22 @@ export default class Formula extends React.Component {
             )}
           </div>
         </SettingItem>
+        {data.type === 31 && calType === FORMULA.CUSTOM.type && (
+          <SettingItem>
+            <Checkbox
+              size="small"
+              checked={nullzero === '1'}
+              text={_l('参与计算的字段值为空时，视为0')}
+              onClick={checked => {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    nullzero: checked ? '0' : '1',
+                  }),
+                );
+              }}
+            />
+          </SettingItem>
+        )}
         <SettingItem>
           <div className="settingItemTitle">{_l('单位')}</div>
           <PreSuffix data={data} onChange={onChange} />

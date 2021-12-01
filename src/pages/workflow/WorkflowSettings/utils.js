@@ -5,7 +5,7 @@ import { NODE_TYPE, APP_TYPE, TRIGGER_ID_TYPE } from './enum';
  */
 export const getSameLevelIds = (data, firstId) => {
   const ids = [firstId];
-  let nextId = data[firstId].nextId;
+  let nextId = (data[firstId] || {}).nextId;
 
   while (nextId && nextId !== '99') {
     ids.push(nextId);
@@ -240,6 +240,8 @@ export const getConditionList = (type, enumDefault) => {
     case 19:
     case 23:
     case 24:
+      list = { ids: ['1', '2', '3', '4', '35', '36', '8', '7'], defaultConditionId: '1' };
+      break;
     case 28:
       list = { ids: ['1', '2', '8', '7'], defaultConditionId: '1' };
       break;

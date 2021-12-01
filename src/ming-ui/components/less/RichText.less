@@ -1,0 +1,108 @@
+.disabled {
+  .ck-sticky-panel {
+    display: none !important;
+  }
+  .todo-list {
+    position: relative;
+    &::before {
+      content: ' ';//防止 disabled的状态下 被激活
+      position: absolute;
+      top: 0;
+      z-index: 1;
+      left: 0;
+      width: 40px;
+      bottom: 0;
+    }
+  }
+}
+
+.ck-content {
+  [dir='rtl'] .todo-list .todo-list__label > input {
+    left: 0;
+    margin-right: 0;
+    right: -25px;
+    margin-left: -15px;
+  }
+  ul,
+  ol {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+    list-style-type: disc !important;
+    li {
+      display: list-item !important;
+      list-style-type: disc !important;
+      text-align: -webkit-match-parent !important;
+      ::marker {
+        unicode-bidi: isolate;
+        font-variant-numeric: tabular-nums;
+        text-transform: none;
+        text-indent: 0px !important;
+        text-align: start !important;
+        text-align-last: start !important;
+      }
+    }
+  }
+  ol {
+    li {
+      list-style-type: decimal !important;
+    }
+  }
+  .todo-list {
+    list-style: none !important;
+    li {
+      list-style-type: none !important;
+      margin-bottom: 5px !important;
+      .todo-list {
+        margin-top: 5px !important;
+      }
+    }
+    .todo-list__label {
+      .todo-list__label__description {
+        vertical-align: middle !important;
+      }
+      & > input {
+        width: 16px !important;
+        height: 16px !important;
+        cursor: pointer;
+        &:hover:before {
+          box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+      }
+      & > input:before {
+        display: block;
+        position: absolute;
+        box-sizing: border-box;
+        content: ' ';
+        width: 100%;
+        height: 100%;
+        border: 1px solid #333;
+        background: #fff;
+        border-radius: 2px;
+        transition: all 0.25s ease-in-out;
+      }
+      & > input[checked]:before {
+        left: 0;
+        transform: rotate(0);
+        background: #26ab33 !important;
+        border-color: #26ab33 !important;
+      }
+      & > input:after {
+        top: 30%;
+        display: block;
+        position: absolute;
+        box-sizing: content-box;
+        pointer-events: none;
+        content: ' ';
+        border-left: 0 solid transparent;
+        transform: rotate(45deg);
+      }
+      & > input[checked]:after {
+        background-color: #26ab33 !important;
+        border-color: #fff !important;
+      }
+    }
+  }
+}

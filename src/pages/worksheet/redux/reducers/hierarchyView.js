@@ -54,6 +54,29 @@ const genTree = (
   return children;
 };
 
+//向上展开全部记录
+const updateHierarchyVisible = ({ state = [], currentItem }) => {
+  const { pathId = [], rowId } = currentItem;
+  //本身不展开
+  const filterPathId = pathId.filter(id => id !== rowId);
+  const index = _.findIndex(state, da => _.includes(filterPathId, da.rowId));
+  if (index > -1) {
+    const treeChange = tree => {
+      for (const item of tree) {
+        if (item.children && item.children.length > 0) {
+          treeChange(item.children);
+        }
+        return _.includes(filterPathId, item.rowId) ? { ...item, visible: true } : item;
+      }
+      return tree;
+    };
+    const newData = treeChange([state[index]]);
+    return update(state, { $splice: [[index, 1, newData]] });
+  } else {
+    return state;
+  }
+};
+
 // 展开多级记录
 const expandedHierarchyView = ({ data, treeData, level }) => {
   const parents = _.filter(data, item => !item.pid);
@@ -304,6 +327,8 @@ export function hierarchyViewState(state = [], action) {
       return addTextTitleRecord({ state, data });
     case 'REMOVE_HIERARCHY_TEMP_ITEM':
       return removeHierarchyTempItem({ state, data });
+    case 'CHANGE_HIERARCHY_DATA_VISIBLE':
+      return updateHierarchyVisible({ state, currentItem: data });
     default:
       return state;
   }
@@ -331,7 +356,7 @@ export function hierarchyViewData(state = {}, action) {
   }
 }
 
-export function hierarchyDataStatus(state = { loading: false, hasMoreData: true, pageIndex: 1 }, action) {
+export function hierarchyDataStatus(state = { loading: false, hasMoreData: true, pageIndex: 1, pageSize: 50 }, action) {
   const { type, data } = action;
   switch (type) {
     case 'CHANGE_HIERARCHY_DATA_STATUS':
@@ -367,6 +392,24 @@ export function hierarchyRelateSheetControls(state = {}, action) {
       }, {});
     case 'ADD_HIERARCHY_RELATE_SHEET_CONTROLS':
       return addRelateControls(state, payload);
+    default:
+      return state;
+  }
+}
+
+export function searchRecordId(state = null, action) {
+  switch (action.type) {
+    case 'CHANGE_HIERARCHY_SEARCH_RECORD_ID':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
+export function recordInfoId(state = null, action) {
+  switch (action.type) {
+    case 'CHANGE_HIERARCHY_RECORD_INFO_ID':
+      return action.data;
     default:
       return state;
   }

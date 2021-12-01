@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import SelectStartOrEnd from './SelectStartOrEnd';
+import SelectStartOrEnd from '../SelectStartOrEndControl/SelectStartOrEnd';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { Checkbox } from 'ming-ui';
 import Color from '../Color';
@@ -9,7 +9,7 @@ let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周�
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
-import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
+import { getCalendarViewType, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
 const CalendarTypeChoose = styled.div`
   ul > li {
     margin-top: 10px;
@@ -104,8 +104,44 @@ export default function CalendarSet(props) {
   return (
     <React.Fragment>
       <div className="title Font13 bold">{_l('日期')}</div>
-      <SelectStartOrEnd {...props} handleChange={handleChange} isDelete={isDelete} />
-      <Color {...props} handleChange={handleChange} />
+      <SelectStartOrEnd
+        {...props}
+        handleChange={obj => {
+          const { begindate } = obj;
+          const { moreSort } = view;
+          // 第一次创建calendar时，配置排序数据
+          if (!!begindate && !moreSort) {
+            let data = {};
+            data = {
+              sortCid: begindate,
+              editAttrs: ['moreSort', 'sortCid', 'sortType', 'advancedSetting'],
+              moreSort: [
+                { controlId: begindate, isAsc: true },
+                { controlId: 'ctime', isAsc: false },
+              ],
+              sortType: 2,
+            };
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
+              editAttrs: ['advancedSetting'],
+              ...data,
+            });
+          } else {
+            handleChange(obj);
+          }
+        }}
+        isDelete={isDelete}
+        timeControls={getTimeControls(worksheetControls)}
+        begindateOrFirst
+      />
+      <Color
+        {...props}
+        handleChange={handleChange}
+        title={_l('日程颜色')}
+        txt={_l('选择一个单选项字段，数据将按照此字段中的选项颜色来标记日程颜色，用于区分日程类型')}
+      />
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
       <CalendarTypeChoose>
         <ul className="calendarTypeChoose">

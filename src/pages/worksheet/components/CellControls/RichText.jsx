@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dialog } from 'ming-ui';
-import BraftEditor from 'src/components/braftEditor/braftEditor';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
-
+import { RichText } from 'ming-ui';
 export default class Text extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -39,7 +38,7 @@ export default class Text extends React.Component {
     updateCell({
       value,
     });
-    updateEditingStatus(false);
+    // updateEditingStatus(false);
     this.setState({
       value,
     });
@@ -56,13 +55,10 @@ export default class Text extends React.Component {
         anim={false}
         onCancel={() => updateEditingStatus(false)}
       >
-        <BraftEditor
-          autoFocus
-          isEditing={true}
-          className={cx('cellControlRichTextDialog', { controlDisabled: false }, { customFormEditor: false })}
-          summary={this.state.value || ''}
-          onCancel={() => updateEditingStatus(false)}
+        <RichText
+          data={this.state.value || ''}
           onSave={this.handleChange}
+          className={cx('cellControlRichTextDialog')}
         />
       </Dialog>
     );

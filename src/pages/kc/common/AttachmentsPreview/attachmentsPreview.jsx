@@ -19,17 +19,10 @@ import ThumbnailGuide from './thumbnailGuide';
 import AttachmentInfo from './attachmentInfo';
 import PreviewHeader from './previewHeader/previewHeader';
 import AttachmentsLoading from './attachmentsLoading';
-import { formatFileSize, getClassNameByExt } from 'src/util';
+import { formatFileSize, getClassNameByExt, addToken } from 'src/util';
 import './attachmentsPreview.less';
 import { getPssId } from 'src/util/pssId';
 
-const addToken = url => {
-  if (url.includes('?')) {
-    return `${url}&md_pss_id=${getPssId()}`;
-  } else {
-    return `${url}?md_pss_id=${getPssId()}`;
-  }
-};
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {
@@ -126,19 +119,19 @@ class AttachmentsPreview extends React.Component {
   };
 
   smallit = () => {
-    this.refImageViewer.smallit();
+    this.refImageViewer && this.refImageViewer.smallit();
   };
 
   fitit = () => {
-    this.refImageViewer.fitit();
+    this.refImageViewer && this.refImageViewer.fitit();
   };
 
   rotate = () => {
-    this.refImageViewer.rotate();
+    this.refImageViewer && this.refImageViewer.rotate();
   };
 
   bigit = () => {
-    this.refImageViewer.bigit();
+    this.refImageViewer && this.refImageViewer.bigit();
   };
 
   toggleThumbnail = status => {
@@ -260,9 +253,7 @@ class AttachmentsPreview extends React.Component {
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
-                    if (window.top !== window.self) {
-                      viewUrl = addToken(viewUrl);
-                    }
+                    viewUrl = addToken(viewUrl, false);
                     return (
                       <iframe
                         className="fileViewer iframeViewer"

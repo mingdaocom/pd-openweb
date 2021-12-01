@@ -24,6 +24,11 @@ export default class Widgets extends Component {
     onChange: PropTypes.func,
     formData: PropTypes.arrayOf(PropTypes.shape({})),
     masterData: PropTypes.object,
+    onBlur: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onBlur: () => {},
   };
 
   state = {
@@ -46,14 +51,18 @@ export default class Widgets extends Component {
       disabled,
       type,
       controlId,
-      value,
       from,
       controlName,
       advancedSetting = {},
       compProps = {},
       formData,
       masterData,
+      onBlur,
     } = this.props;
+    let { value } = this.props;
+    if (/^\d+$/.test(String(value)) && String(value).length < 5) {
+      value = '';
+    }
     const allowweek = advancedSetting.allowweek || '1234567';
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeinterval = advancedSetting.timeinterval || '1';
@@ -212,7 +221,10 @@ export default class Widgets extends Component {
           }
         }}
         onFocus={() => this.setState({ isFocus: true })}
-        onBlur={() => this.setState({ isFocus: false })}
+        onBlur={() => {
+          this.setState({ isFocus: false });
+          onBlur();
+        }}
         onChange={this.onChange}
         onOk={this.onChange}
         {...compProps}

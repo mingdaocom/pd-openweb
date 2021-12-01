@@ -82,7 +82,7 @@ export default class RelateRecordList extends React.PureComponent {
     }
     let filterControls;
     if (control && control.advancedSetting.filters) {
-      if (worksheetInfo) {
+      if (worksheetInfo && worksheetInfo.template) {
         control.relationControls = worksheetInfo.template.controls;
       }
       filterControls = getFilter({ control, formData });
@@ -108,17 +108,20 @@ export default class RelateRecordList extends React.PureComponent {
       getType: 7,
       filterControls,
     };
+    if (parentWorksheetId && controlId) {
+      args.relationWorksheetId = parentWorksheetId;
+      args.controlId = controlId;
+    }
     if (this.searchAjax && _.isFunction(this.searchAjax.abort)) {
       this.searchAjax.abort();
     }
     if (!window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
-      if (parentWorksheetId && controlId) {
-        args.relationWorksheetId = parentWorksheetId;
-        args.rowId = recordId;
-        args.controlId = controlId;
-      }
     } else {
+      if (window.recordShareLinkId) {
+        args.linkId = window.recordShareLinkId;
+      }
+      args.formId = window.publicWorksheetShareId;
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     }
     this.searchAjax = getFilterRowsPromise(args);

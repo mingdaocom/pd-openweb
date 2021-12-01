@@ -11,7 +11,6 @@ import { ROUTE_CONFIG } from './config';
 import './index.less';
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 
 const isIphonex = () => {
   if (typeof window !== 'undefined' && window) {
@@ -29,13 +28,23 @@ class App extends Component {
     if (isWxWork && isIphonex()) {
       document.body.classList.add('wxworkBody');
     }
-    if (isWeLink) {
-      $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
-    }
     socketInit();
   }
   componentDidMount() {
     this.switchPath(this.props.location);
+    if (window.navigator.userAgent.toLowerCase().includes('iphone')) {
+      sessionStorage.setItem('entryUrl', location.href);
+    }
+    window.mobileNavigateTo = (url, isReplace) => {
+      if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
+        url = url + '#publicapp' + window.publicAppAuthorization;
+      }
+      if (isReplace) {
+        this.props.history.replace(url);
+      } else {
+        this.props.history.push(url);
+      }
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {

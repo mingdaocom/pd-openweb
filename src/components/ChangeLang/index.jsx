@@ -8,7 +8,7 @@ export default function ChangeLang() {
       require(['../dropDown'], function (Dropdown) {
         const dropdown = new Dropdown({
           element: $(inputRef.current),
-          defaultValue: getCookie('i18n_langtag') || 'zh-Hans',
+          defaultValue: getCookie('i18n_langtag') || getNavigatorLang() || 'zh-Hans',
           data: [
             {
               key: '简体中文',

@@ -1,10 +1,99 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
 import RenameModal from './RenameModal';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import { isNumberControl, normTypes } from 'src/pages/worksheet/common/Statistics/common';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+
+const SortableItemContent = styled.div`
+  position: relative;
+  &:hover {
+    .sortableDrag {
+      opacity: 1;
+    }
+  }
+  .sortableDrag {
+    position: absolute;
+    top: 7px;
+    left: -18px;
+    opacity: 0;
+    &:hover {
+      opacity: 1;
+    }
+  }
+`;
+
+const renderOverlay = ({ controlId, controlType, normType }, { onNormType, onChangeControlId }) => {
+  const isNumber = isNumberControl(controlType, false);
+  return (
+    <Menu className="chartControlMenu chartMenu">
+      <Menu.Item
+        onClick={() => {
+          onChangeControlId(controlId);
+        }}
+      >
+        {_l('重命名')}
+      </Menu.Item>
+      {isNumber && (
+        <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
+          {normTypes.map(item => (
+            <Menu.Item
+              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onNormType(controlId, item.value);
+              }}
+            >
+              {item.text}
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      )}
+    </Menu>
+  );
+}
+
+const SortableItem = SortableElement(props => {
+  const { item, onClear, onNormType, onChangeControlId } = props;
+  const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
+  const isNumber = isNumberControl(item.controlType, false);
+  return (
+    <SortableItemContent>
+      <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+      <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
+        <Tooltip title={tip}>
+          <span className="Gray flex ellipsis">
+            {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
+            {item.rename || item.controlName || _l('该控件不存在')}
+          </span>
+        </Tooltip>
+        <Dropdown overlay={renderOverlay(item, { onNormType, onChangeControlId })} trigger={['click']}>
+          <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+        </Dropdown>
+        <Icon
+          className="Gray_9e Font18 pointer mLeft10"
+          icon="close"
+          onClick={() => {
+            onClear(item.controlId);
+          }}
+        />
+      </div>
+    </SortableItemContent>
+  );
+});
+
+const SortableList = SortableContainer(({ list, ...otherProps }) => {
+  return (
+    <div>
+      {list.map((item, index) => (
+        <SortableItem key={index} sortIndex={index} index={index} item={item} {...otherProps} />
+      ))}
+    </div>
+  );
+});
 
 export default class YAxis extends Component {
   constructor(props) {
@@ -26,7 +115,7 @@ export default class YAxis extends Component {
       isAlert && alert(_l('只允许添加数值和公式字段'), 2);
       return false;
     }
-  };
+  }
   handleAddControl = data => {
     const { yaxisList, currentReport, onChangeCurrentReport } = this.props;
 
@@ -47,16 +136,19 @@ export default class YAxis extends Component {
         yaxisList: newYaxisList,
       });
     }
-  };
+  }
   handleClear = id => {
-    const { currentReport, yaxisList, splitId, onChangeCurrentReport } = this.props;
+    const { currentReport, yaxisList, split, onChangeCurrentReport } = this.props;
     const newYaxisList = yaxisList.filter(item => item.controlId !== id);
     onChangeCurrentReport({
       yaxisList: newYaxisList,
-      splitId: newYaxisList.length ? splitId : '',
+      split: {
+        ...split,
+        controlId: newYaxisList.length ? split.controlId : ''
+      },
       sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
     });
-  };
+  }
   handleNormType = (id, value) => {
     const { yaxisList, onChangeCurrentReport } = this.props;
     const newYaxisList = yaxisList.map(item => {
@@ -68,7 +160,10 @@ export default class YAxis extends Component {
     onChangeCurrentReport({
       yaxisList: newYaxisList,
     });
-  };
+  }
+  handleChangeControlId = (controlId) => {
+    this.setState({ currentControlId: controlId });
+  }
   handleChangeRename = name => {
     const { currentControlId } = this.state;
     const { yaxisList, onChangeCurrentReport } = this.props;
@@ -81,36 +176,14 @@ export default class YAxis extends Component {
     onChangeCurrentReport({
       yaxisList: newYaxisList,
     });
-  };
-  renderOverlay({ controlId, controlType, normType }) {
-    const { reportType } = this.props.currentReport;
-    const isNumber = isNumberControl(controlType, false);
-    return (
-      <Menu className="chartControlMenu chartMenu">
-        <Menu.Item
-          onClick={() => {
-            this.setState({ currentControlId: controlId });
-          }}
-        >
-          {_l('重命名')}
-        </Menu.Item>
-        {isNumber && (
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-            {normTypes.map(item => (
-              <Menu.Item
-                style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
-                key={item.value}
-                onClick={() => {
-                  this.handleNormType(controlId, item.value);
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
-          </Menu.SubMenu>
-        )}
-      </Menu>
-    );
+  }
+  handleSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex === newIndex) return;
+    const { yaxisList, onChangeCurrentReport } = this.props;
+    const newYaxisList = arrayMove(yaxisList, oldIndex, newIndex);
+    onChangeCurrentReport({
+      yaxisList: newYaxisList,
+    });
   }
   renderModal() {
     const { yaxisList } = this.props;
@@ -129,32 +202,8 @@ export default class YAxis extends Component {
       />
     );
   }
-  renderAxis(item) {
-    const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
-    const isNumber = isNumberControl(item.controlType, false);
-    return (
-      <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
-        <Tooltip title={tip}>
-          <span className="Gray flex ellipsis">
-            {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
-            {item.rename || item.controlName || _l('该控件不存在')}
-          </span>
-        </Tooltip>
-        <Dropdown overlay={this.renderOverlay(item)} trigger={['click']}>
-          <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
-        </Dropdown>
-        <Icon
-          className="Gray_9e Font18 pointer mLeft10"
-          icon="close"
-          onClick={() => {
-            this.handleClear(item.controlId);
-          }}
-        />
-      </div>
-    );
-  }
   render() {
-    const { name, currentReport, yaxisList, splitId } = this.props;
+    const { name, currentReport, yaxisList, split } = this.props;
     const { reportType } = currentReport;
     const only = [
       reportTypes.PieChart,
@@ -165,8 +214,17 @@ export default class YAxis extends Component {
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
-        {yaxisList.map(item => this.renderAxis(item))}
-        {!only && _.isEmpty(splitId) && (
+        <SortableList
+          axis="xy"
+          helperClass="sortableNumberField"
+          list={yaxisList}
+          shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
+          onClear={this.handleClear}
+          onNormType={this.handleNormType}
+          onChangeControlId={this.handleChangeControlId}
+          onSortEnd={this.handleSortEnd}
+        />
+        {!only && _.isEmpty(split.controlId) && (
           <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />
         )}
         {only && _.isEmpty(yaxisList) && (

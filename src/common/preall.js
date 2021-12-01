@@ -18,7 +18,6 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   }
   global.getGlobalMeta(args).then(data => {
     if (allownotlogin || window.isPublicApp) {
-      window.VirtualPath = data.VirtualPath;
       window.config = data.config;
       if (!window.md) {
         window.md = { global: data['md.global'] };
@@ -42,7 +41,6 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
       return;
     }
 
-    window.VirtualPath = data.VirtualPath;
     window.config = data.config;
     window.md.global = data['md.global'];
     window.md.global.Config.ServiceTel = '010-53153053';
@@ -68,8 +66,9 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
       fetch('/docpreview/fonts/229');
     }, 10000);
 
-    if (window.mduserlang) {
-      moment.locale(getMomentLocale(window.mduserlang));
+    const lang = getCookie('i18n_langtag') || getNavigatorLang();
+    if (lang) {
+      moment.locale(getMomentLocale(lang));
     }
 
     setPssId(getPssId());
@@ -151,7 +150,7 @@ export default function(Comp, { allownotlogin, preloadcb, hideloading, transfert
 if (!Object.fromEntries) {
   Object.fromEntries = function(entries) {
     let entriesObj = {};
-    entries.forEach(element => {
+    (entries || []).forEach(element => {
       entriesObj[element[0]] = element[1];
     });
     return entriesObj;

@@ -3,7 +3,7 @@ import DocumentTitle from 'react-document-title';
 import { Tabs, Flex, ActivityIndicator, Drawer } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { Icon, Button } from 'ming-ui';
+import { Icon, Button, WaterMark } from 'ming-ui';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import Back from '../components/Back';
@@ -11,14 +11,12 @@ import AppPermissions from '../components/AppPermissions';
 import QuickFilter from './QuickFilter';
 import State from './State';
 import View from './View';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { getAdvanceSetting } from 'src/util';
+import cx from 'classnames';
 
-const shieldingViewType = [VIEW_DISPLAY_TYPE.board, VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.calendar].map(item =>
-  Number(item),
-);
 
 @withRouter
 @AppPermissions
@@ -28,16 +26,6 @@ class RecordList extends Component {
   }
   componentDidMount() {
     this.getApp(this.props);
-  }
-  navigateTo = (url, isReplace) => {
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-    if (isReplace) {
-      this.props.history.replace(url);
-    } else {
-      this.props.history.push(url);
-    }
   }
   getApp(props) {
     const { params } = props.match;
@@ -63,15 +51,18 @@ class RecordList extends Component {
     }
   }
   componentWillUnmount() {
-    this.props.emptySheetRows();
     this.props.emptySheetControls();
   }
+  setCache = params => {
+    const { worksheetId, viewId } = params;
+    localStorage.setItem(`mobileViewSheet-${worksheetId}`, viewId);
+  };
   handleOpenDrawer = () => {
     const { filters } = this.props;
     this.props.updateFilters({
-      visible: !filters.visible
+      visible: !filters.visible,
     });
-  }
+  };
   handleChangeView = view => {
     const { match, now } = this.props;
     const { params } = match;
@@ -79,47 +70,53 @@ class RecordList extends Component {
       this.props.updateBase({ viewId: view.viewId });
       this.props.resetSheetView();
     } else {
-      this.navigateTo(`/mobile/recordList/${params.appId}/${params.groupId}/${params.worksheetId}/${view.viewId}`, true);
+      window.mobileNavigateTo(
+        `/mobile/recordList/${params.appId}/${params.groupId}/${params.worksheetId}/${view.viewId}`,
+        true,
+      );
     }
-  }
+  };
   renderSidebar(view) {
     const { fastFilters = [] } = view;
     const { worksheetInfo } = this.props;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const filters = fastFilters.map(filter => ({
-      ...filter,
-      control: _.find(sheetControls, c => c.controlId === filter.controlId),
-    })).filter(c => c.control);
-    return (
-      <QuickFilter
-        view={view}
-        filters={filters}
-        controls={sheetControls}
-        onHideSidebar={this.handleOpenDrawer}
-      />
-    );
+    const filters = fastFilters
+      .map(filter => ({
+        ...filter,
+        control: _.find(sheetControls, c => c.controlId === filter.controlId),
+      }))
+      .filter(c => c.control);
+    return <QuickFilter view={view} filters={filters} controls={sheetControls} onHideSidebar={this.handleOpenDrawer} />;
   }
-  render() {
-    const { base, worksheetInfo, sheetSwitchPermit, workSheetLoading, match, currentSheetRows, filters } = this.props;
+  renderContent() {
+    const {
+      base,
+      worksheetInfo,
+      sheetSwitchPermit,
+      workSheetLoading,
+      match,
+      currentSheetRows,
+      filters,
+      controls,
+      calendarview,
+    } = this.props;
     const { viewId } = base;
-
-    if (workSheetLoading) {
-      return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
-      );
-    }
-
-    if (worksheetInfo.resultCode !== 1) {
-      return <State type="sheet" />;
-    }
-
     const { views, name } = worksheetInfo;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { params } = match;
     const viewIndex = viewId ? _.findIndex(views, { viewId }) : 0;
 
+    const { calendarData = {} } = calendarview;
+    const { begindate = '' } = getAdvanceSetting(view);
+    const { startData } = calendarData;
+    const isDelete = begindate && (!startData || !startData.controlId);
+    const { viewControl, viewControls } = view;
+    const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
+      ? viewControl === 'create' ||
+        (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
+        !_.isEmpty(viewControls) ||
+        !(!begindate || isDelete)
+      : true;
     return (
       <Drawer
         className="filterStepListWrapper"
@@ -136,33 +133,38 @@ class RecordList extends Component {
               tabs={views}
               page={viewIndex === -1 ? 999 : viewIndex}
               onTabClick={view => {
+                this.setCache({viewId: view.viewId, worksheetId: params.worksheetId});
                 this.handleChangeView(view);
+                this.props.changeMobileGroupFilters([]);
               }}
               renderTab={tab => <span className="ellipsis">{tab.name}</span>}
             ></Tabs>
           </div>
-          <View view={view}/>
+          <View view={view} />
           {!location.href.includes('mobile/app') && (
             <Back
+              style={[0, 1, 3, 4].includes(view.viewType) ? { bottom: '20px' } : {}}
               onClick={() => {
-                this.navigateTo(`/mobile/app/${params.appId}`);
+                window.mobileNavigateTo(`/mobile/app/${params.appId}`);
               }}
             />
           )}
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           worksheetInfo.allowAdd &&
-          currentSheetRows.length &&
-          !shieldingViewType.includes(view.viewType) ? (
+          isHaveSelectControl ? (
             <div className="addRecordItemWrapper">
               <Button
-                className="addRecordBtn flex valignWrapper"
+                className={cx('addRecordBtn flex valignWrapper', {
+                  Right: [2, 5].includes(view.viewType) && currentSheetRows.length,
+                  mRight16: [2, 5].includes(view.viewType) && currentSheetRows.length,
+                })}
                 onClick={() => {
-                  this.navigateTo(
+                  window.mobileNavigateTo(
                     `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
                   );
                 }}
               >
-                <Icon icon="add" className="Font22" />
+                <Icon icon="add" className="Font22 mRight5" />
                 {worksheetInfo.entityName}
               </Button>
             </div>
@@ -170,6 +172,24 @@ class RecordList extends Component {
         </div>
       </Drawer>
     );
+  }
+  render() {
+    const { base, worksheetInfo, workSheetLoading } = this.props;
+    const { viewId } = base;
+
+    if (workSheetLoading) {
+      return (
+        <Flex justify="center" align="center" className="h100">
+          <ActivityIndicator size="large" />
+        </Flex>
+      );
+    }
+
+    if (worksheetInfo.resultCode !== 1) {
+      return <State type="sheet" />;
+    }
+
+    return <WaterMark projectId={worksheetInfo.projectId}>{this.renderContent()}</WaterMark>;
   }
 }
 
@@ -180,11 +200,21 @@ export default connect(
     sheetSwitchPermit: state.mobile.sheetSwitchPermit,
     currentSheetRows: state.mobile.currentSheetRows,
     workSheetLoading: state.mobile.workSheetLoading,
-    filters: state.mobile.filters
+    filters: state.mobile.filters,
+    controls: state.sheet.controls,
+    calendarview: state.sheet.calendarview,
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['updateBase', 'loadWorksheet', 'resetSheetView', 'emptySheetControls', 'emptySheetRows', 'updateFilters']),
+      _.pick(actions, [
+        'updateBase',
+        'loadWorksheet',
+        'resetSheetView',
+        'emptySheetControls',
+        'emptySheetRows',
+        'updateFilters',
+        'changeMobileGroupFilters',
+      ]),
       dispatch,
-  ),
+    ),
 )(RecordList);

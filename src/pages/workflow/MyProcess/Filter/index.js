@@ -129,7 +129,7 @@ export default class Filter extends Component {
     const { stateTab } = this.props;
     const { type, searchValue, createAccount, apkId, processId, operationType, status, dateScopeIndex } = this.state;
 
-    if ([TABS.WAITING_DISPOSE, TABS.WAITING_EXAMINE].includes(stateTab)) {
+    if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
       return searchValue || !_.isEmpty(createAccount) || apkId || processId;
     }
     if (stateTab === TABS.MY_SPONSOR) {
@@ -241,12 +241,11 @@ export default class Filter extends Component {
     const { searchValue } = this.state;
     return (
       <div className="mBottom16">
-        <div className="Font12 mBottom10">{_l('名称')}</div>
         <div className="inputWrapper valignWrapper Relative">
           <input
             value={searchValue}
             type="text"
-            placeholder={_l('搜索记录名称')}
+            placeholder={_l('搜索名称和摘要')}
             onChange={event => {
               this.setState(
                 {
@@ -371,51 +370,55 @@ export default class Filter extends Component {
     return (
       <div className="todoListFilter">
         <div className="Font13 mBottom10 bold">{_l('应用/流程')}</div>
-        <div>
+        <div className="w100">
           {loading ? (
             <LoadDiv size="middle" />
           ) : (
-            list.map(item => (
-              <Fragment key={item.app.id}>
-                <div className="flexRow valignWrapper appItem">
-                  <Icon
-                    icon={item.visible ? 'arrow-down' : 'arrow-right-tip'}
-                    className="flexRow valignWrapper pointer Gray_75 iconArrow"
-                    onClick={() => {
-                      this.handleOpenProcesses(item.app.id);
-                    }}
-                  />
-                  <div
-                    className={cx('flexRow valignWrapper flex pointer content', { active: apkId === item.app.id })}
-                    onClick={() => {
-                      this.setState({ apkId: item.app.id, processId: '' }, this.handleChange);
-                    }}
-                  >
-                    <div className="appIcon flexRow valignWrapper" style={{ backgroundColor: item.app.iconColor }}>
-                      <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
-                    </div>
-                    <div className="flex processAppName ellipsis">{item.app.name}</div>
-                    <div className="Gray_9e">{item.count}</div>
-                  </div>
-                </div>
-                {item.visible && (
-                  <Fragment>
-                    {item.processes.map(item => (
-                      <div
-                        key={item.id}
-                        className={cx('flexRow valignWrapper processesItem pointer', { active: processId === item.id })}
-                        onClick={() => {
-                          this.setState({ processId: item.id, apkId: '' }, this.handleChange);
-                        }}
-                      >
-                        <div className="flex ellipsis">{item.name}</div>
-                        <div className="Gray_75">{item.count}</div>
+            list.length ? (
+              list.map(item => (
+                <Fragment key={item.app.id}>
+                  <div className="flexRow valignWrapper appItem">
+                    <Icon
+                      icon={item.visible ? 'arrow-down' : 'arrow-right-tip'}
+                      className="flexRow valignWrapper pointer Gray_75 iconArrow"
+                      onClick={() => {
+                        this.handleOpenProcesses(item.app.id);
+                      }}
+                    />
+                    <div
+                      className={cx('flexRow valignWrapper flex pointer content', { active: apkId === item.app.id })}
+                      onClick={() => {
+                        this.setState({ apkId: item.app.id, processId: '' }, this.handleChange);
+                      }}
+                    >
+                      <div className="appIcon flexRow valignWrapper" style={{ backgroundColor: item.app.iconColor }}>
+                        <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
                       </div>
-                    ))}
-                  </Fragment>
-                )}
-              </Fragment>
-            ))
+                      <div className="flex processAppName ellipsis">{item.app.name}</div>
+                      <div className="Gray_9e">{item.count}</div>
+                    </div>
+                  </div>
+                  {item.visible && (
+                    <Fragment>
+                      {item.processes.map(item => (
+                        <div
+                          key={item.id}
+                          className={cx('flexRow valignWrapper processesItem pointer', { active: processId === item.id })}
+                          onClick={() => {
+                            this.setState({ processId: item.id, apkId: '' }, this.handleChange);
+                          }}
+                        >
+                          <div className="flex ellipsis">{item.name}</div>
+                          <div className="Gray_75">{item.count}</div>
+                        </div>
+                      ))}
+                    </Fragment>
+                  )}
+                </Fragment>
+              ))
+            ) : (
+              <div className="Gray_9d withoutData" style={{ height: 100 }}>{_l('暂无搜索结果')}</div>
+            )
           )}
         </div>
       </div>
@@ -439,7 +442,7 @@ export default class Filter extends Component {
         <div className="flex filterContent">
           {stateTab == TABS.COMPLETE && this.renderDateScope()}
           {this.renderSearchName()}
-          {[TABS.WAITING_DISPOSE, TABS.WAITING_EXAMINE].includes(stateTab) && this.renderAccount()}
+          {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab) && this.renderAccount()}
           {stateTab == TABS.COMPLETE && (
             <Fragment>
               {[5, -1].includes(type) && this.renderAccount()}
@@ -458,7 +461,7 @@ export default class Filter extends Component {
               />
             </Fragment>
           )}
-          {[TABS.WAITING_DISPOSE, TABS.WAITING_EXAMINE, TABS.MY_SPONSOR].includes(stateTab) &&
+          {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE, TABS.MY_SPONSOR].includes(stateTab) &&
             this.renderTodoListFilter()}
         </div>
       </div>

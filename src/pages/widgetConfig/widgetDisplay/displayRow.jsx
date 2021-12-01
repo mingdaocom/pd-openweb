@@ -8,6 +8,7 @@ import DisplayItem from './displayItem';
 import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
 import Components from './components';
 import { isFullLineDragItem } from '../util/drag';
+import { MAX_CONTROLS_COUNT } from '../config';
 
 const DisplayRowListWrap = styled.div`
   flex: 1;
@@ -130,8 +131,8 @@ export default function DisplayRow(props) {
           <header>
             <p>
               <span>{_l('表单设计')}</span>
-              <span className="controlNum Font12 Gray_9e" data-tip={_l('最多添加200个字段')}>
-                {_l('%0/200', allControls.length)}
+              <span className="controlNum Font12 Gray_9e" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
+                {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
               </span>
             </p>
             {!isEmpty(widgets) && <Components.QuickArrange {...props} />}

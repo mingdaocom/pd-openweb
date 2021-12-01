@@ -229,7 +229,7 @@ class Btns extends Component {
     const { visible } = this.props;
     const { menuVisible, tooltipVisible, dark } = this.state;
     const direction = visible ? 'top' : 'left';
-    const isEn = getCookie('i18n_langtag') == 'en';
+    const isEn = (getCookie('i18n_langtag') || getNavigatorLang()) == 'en';
     return (
       <div className={name}>
         <Tooltip popupPlacement={direction} text={<span>{_l('搜索')}</span>}>

@@ -6,7 +6,7 @@ import GroupingAxis from './components/GroupingAxis';
 import PivotTableAxis from './components/PivotTableAxis';
 import Filter from './components/Filter';
 import AreaScope from './components/AreaScope';
-import { chartType, getAxisText } from '../../common';
+import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes } from '../../common';
 import { reportTypes } from '../../Charts/common';
 import './index.less';
 
@@ -45,12 +45,15 @@ export default class ChartSetting extends Component {
   }
   renderPivotTableAxis(x, y) {
     const { currentReport, axisControls, onChangeCurrentReport } = this.props;
+    const { lines, columns } = currentReport.pivotTable;
+    const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
       <Fragment>
         <PivotTableAxis
           name={x}
           axisControls={axisControls}
-          list={currentReport.pivotTable.lines}
+          list={lines}
+          disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(lines, id) => {
             onChangeCurrentReport({
               pivotTable: {
@@ -64,7 +67,8 @@ export default class ChartSetting extends Component {
         <PivotTableAxis
           name={y}
           axisControls={axisControls}
-          list={currentReport.pivotTable.columns}
+          list={columns}
+          disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(columns, id) => {
             onChangeCurrentReport({
               pivotTable: {
@@ -78,6 +82,7 @@ export default class ChartSetting extends Component {
         <PivotTableAxis
           name={_l('数值')}
           verifyNumber={true}
+          disableParticleSizeTypes={[]}
           axisControls={axisControls.concat(currentReport.formulas)}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
@@ -92,18 +97,24 @@ export default class ChartSetting extends Component {
   }
   renderChartAxis(x, y) {
     const { currentReport, axisControls, onChangeCurrentReport } = this.props;
-    const { reportType, displaySetup, rightY } = currentReport;
+    const { reportType, displaySetup, xaxes, split, rightY } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
+    const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
       <Fragment>
         {
           ![reportTypes.NumberChart].includes(reportType) && (
-            <XAxis name={x} currentReport={currentReport} onChangeCurrentReport={onChangeCurrentReport} />
+            <XAxis
+              name={x}
+              disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
+              currentReport={currentReport}
+              onChangeCurrentReport={onChangeCurrentReport}
+            />
           )
         }
         <YAxis
           name={isDualAxes ? _l('数值(左Y轴)') : y}
-          splitId={currentReport.splitId}
+          split={currentReport.split}
           yaxisList={currentReport.yaxisList}
           currentReport={currentReport}
           onChangeCurrentReport={(data) => {
@@ -127,7 +138,7 @@ export default class ChartSetting extends Component {
           isDualAxes && (
             <YAxis
               name={_l('数值(右Y轴)')}
-              splitId={rightY.splitId}
+              split={rightY.split}
               yaxisList={rightY.yaxisList}
               currentReport={currentReport}
               onChangeCurrentReport={(data) => {
@@ -154,11 +165,16 @@ export default class ChartSetting extends Component {
           [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) && (
             <GroupingAxis
               name={isDualAxes ? _l('分组(左Y轴)') : _l('分组')}
-              splitId={currentReport.splitId}
+              split={currentReport.split}
               yaxisList={currentReport.yaxisList}
+              disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
-              onChangeCurrentReport={(data) => {
-                onChangeCurrentReport(data, true);
+              onChangeCurrentReport={(data, deleteId) => {
+                onChangeCurrentReport({
+                  splitId: null,
+                  split: data,
+                  sorts: currentReport.sorts.filter(item => _.findKey(item) !== deleteId)
+                }, true);
               }}
             />
           )
@@ -167,15 +183,18 @@ export default class ChartSetting extends Component {
           isDualAxes && (
             <GroupingAxis
               name={_l('分组(右Y轴)')}
-              splitId={currentReport.rightY.splitId}
+              split={currentReport.rightY.split}
               yaxisList={currentReport.rightY.yaxisList}
+              disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
-              onChangeCurrentReport={(data) => {
+              onChangeCurrentReport={(data, deleteId) => {
                 onChangeCurrentReport({
                   rightY: {
                     ...currentReport.rightY,
-                    ...data,
-                  }
+                    splitId: null,
+                    split: data,
+                  },
+                  sorts: currentReport.sorts.filter(item => _.findKey(item) !== deleteId)
                 }, true);
               }}
             />

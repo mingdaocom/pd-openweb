@@ -229,7 +229,11 @@ export default function RelateRecordTable(props) {
   async function loadRows({ showHideTip } = {}) {
     try {
       if (isNewRecord) {
-        const worksheetInfo = await getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true });
+        const worksheetInfo = await getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          getRules: true,
+        });
         const newTableControls = control.showControls
           .map(scid => _.find(worksheetInfo.template.controls.concat(SYSTEM_CONTROL), c => c.controlId === scid))
           .filter(c => c && controlState(c).visible);
@@ -253,6 +257,7 @@ export default function RelateRecordTable(props) {
         keywords: keywordsForSearch,
         pageSize: PAGE_SIZE,
         getWorksheet: pageIndex === 1,
+        getRules: pageIndex === 1,
         sortId: (sortControl || {}).controlId,
         isAsc: (sortControl || {}).isAsc,
       });
@@ -447,6 +452,7 @@ export default function RelateRecordTable(props) {
         noRenderEmpty
         projectId={worksheetOfControl.projectId}
         worksheetId={worksheetOfControl.worksheetId}
+        // rules={worksheetOfControl.rules}
         rowHeadWidth={rowHeadWidth}
         rowHeight={34}
         controls={tableControls}
@@ -763,6 +769,7 @@ export default function RelateRecordTable(props) {
             recordId={activeRecord && activeRecord.id}
             activeRelateTableContorlId={activeRecord && activeRecord.activeRelateTableContorlIdOfRecord}
             worksheetId={worksheetOfControl.worksheetId}
+            // rules={worksheetOfControl.rules}
             updateRows={([rowid], newrecord) => {
               tableActions.updateRecord(newrecord);
             }}

@@ -1,16 +1,50 @@
-import React from 'react';
-import { Input } from 'ming-ui';
+import React, { useState, useEffect, createRef } from 'react';
+import { Input } from 'antd';
+import { DynamicValueInputWrap } from '../styled';
+import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 
-export default function ScoreDefaultValue(props) {
-  const { onDynamicValueChange, data, dynamicValue } = props;
+export default function (props) {
+  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
+  const { staticValue = '', cid = '' } = dynamicValue[0] || {};
   const maxValue = data.enumDefault === 1 ? 5 : 10;
-  const getValue = () => {
-    const { staticValue } = dynamicValue[0] || { staticValue: '' };
-    return staticValue ? Math.min(maxValue, staticValue) : '';
+  const [isDynamic, setDynamic] = useState(!!cid);
+  const $wrap = createRef(null);
+
+  useEffect(() => {
+    setDynamic(!!cid);
+  }, [data.controlId, cid]);
+
+  const setDynamicValue = newValue => {
+    onDynamicValueChange(newValue || []);
   };
+
   const handleChange = value => {
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: value ? Math.min(parseFloat(value), maxValue) : '' }]);
   };
-  const value = getValue();
-  return <Input value={value} style={{ width: '100%' }} onBlur={() => {}} onChange={handleChange} />;
+
+  const onTriggerClick = () => {
+    defaultType && $wrap.current.triggerClick();
+  };
+  return (
+    <DynamicValueInputWrap>
+      {defaultType ? (
+        <DynamicInput {...props} onTriggerClick={onTriggerClick} />
+      ) : isDynamic ? (
+        <OtherFieldList
+          onClick={() => {
+            setDynamic(false);
+          }}
+          {...props}
+        />
+      ) : (
+        <Input
+          autoFocus
+          value={staticValue}
+          style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
+          onChange={e => handleChange(e.target.value)}
+        />
+      )}
+      <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />
+    </DynamicValueInputWrap>
+  );
 }

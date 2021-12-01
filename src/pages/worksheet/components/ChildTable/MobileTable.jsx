@@ -3,11 +3,20 @@ import { Icon } from 'ming-ui';
 import PropTypes from 'prop-types';
 import CellControl from 'worksheet/components/CellControls';
 import styled from 'styled-components';
+import { Modal } from 'antd-mobile';
 import cx from 'classnames';
+
+const alert = Modal.alert;
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
     background-color: #F7F7F7;
+  }
+  .tableIndex {
+    width: 30px !important;
+    .icon-task-new-delete {
+      margin-left: -4px;
+    }
   }
   .mobileTableItem {
     width: 0;
@@ -36,7 +45,7 @@ const MobileTableContent = styled.div`
 `;
 
 export default function MobileTable(props) {
-  const { onOpen, controls, rows, isEdit } = props;
+  const { onOpen, controls, rows, isEdit, allowcancel, onDelete } = props;
   const defaultMaxLength = 10;
   const [ maxShowLength, setMaxShowLength ] = useState(defaultMaxLength);
   const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
@@ -45,11 +54,32 @@ export default function MobileTable(props) {
   return (
     <MobileTableContent>
       <div className="mobileTableHeader flexRow valignWrapper">
+        {!_.isEmpty(showRows) && <div className="mobileTableItem tableIndex"></div>}
         { showControls.map((c, cIndex) => <div key={cIndex} className={cx('mobileTableItem flex', { mRight30: cIndex === showControls.length - 1 })}> {c.controlName} </div>) }
       </div>
       {
         showRows.map((row, i) => (
           <div className="flexRow valignWrapper" key={i}>
+            <div className="mobileTableItem tableIndex">
+              {isEdit && (row.updatedControlIds || allowcancel) ? (
+                <i
+                  className="icon icon-task-new-delete Font16 Gray_9e"
+                  onClick={() => {
+                    alert(_l('确定删除此记录 ?'), '', [
+                      { text: _l('取消') },
+                      {
+                        text: <span className="Red">{_l('确定')}</span>,
+                        onPress: () => {
+                          onDelete(row.rowid);
+                        },
+                      },
+                    ]);
+                  }}
+                ></i>
+              ) : (
+                i + 1
+              )}
+            </div>
             { showControls.map((c, cIndex) => (
               <div
                 key={cIndex}

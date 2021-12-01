@@ -56,17 +56,22 @@ export default class Attachments extends React.Component {
       if (value.attachmentData && value.attachments && value.knowledgeAtts) {
         value = [...value.attachments, ...value.knowledgeAtts, ...value.attachmentData];
       }
-      value = value.map(attachment =>
-        attachment.createTime || !_.isUndefined(attachment.fileSize)
-          ? {
-              ext: attachment.ext || attachment.fileExt,
-              fileID: attachment.fileID || attachment.fileId,
-              originalFilename: attachment.originalFilename,
-              previewUrl: attachment.previewUrl || attachment.viewUrl || `${attachment.serverName}${attachment.key}`,
-              refId: attachment.refID || attachment.refId,
-            }
-          : attachment,
-      );
+      value = value.map(attachment => {
+        const newAttachment =
+          attachment.createTime || !_.isUndefined(attachment.fileSize)
+            ? {
+                ext: attachment.ext || attachment.fileExt,
+                fileID: attachment.fileID || attachment.fileId,
+                originalFilename: attachment.originalFileName || attachment.originalFilename,
+                previewUrl: attachment.previewUrl || attachment.viewUrl || `${attachment.serverName}${attachment.key}`,
+                refId: attachment.refID || attachment.refId,
+              }
+            : attachment;
+        if (newAttachment.ext === '.') {
+          newAttachment.ext = '';
+        }
+        return newAttachment;
+      });
     } catch (err) {
       return [];
     }
@@ -155,7 +160,8 @@ export default class Attachments extends React.Component {
             return Object.assign({}, attachment, {
               previewAttachmentType: 'QINIU',
               path: attachment.previewUrl,
-              name: (attachment.originalFilename || _l('图片')) + attachment.ext,
+              ext: attachment.ext.slice(1),
+              name: attachment.originalFilename || _l('图片'),
             });
           }
           return Object.assign({}, attachment, {
@@ -205,15 +211,20 @@ export default class Attachments extends React.Component {
                 role="presentation"
                 src={
                   attachment.previewUrl.indexOf('imageView2') > -1
-                    ? attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/87/h/100')
-                    : `${attachment.previewUrl}&imageView2/1/w/87/h/100`
+                    ? attachment.previewUrl.replace(
+                        /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                        'imageView2/1/w/87/h/100',
+                      )
+                    : attachment.previewUrl.indexOf('?') > -1
+                    ? `${attachment.previewUrl}&imageView2/1/w/87/h/100`
+                    : `${attachment.previewUrl}?imageView2/1/w/87/h/100`
                 }
                 style={{ width: 'auto', height: fileHeight }}
               />
             ) : (
               <span
                 className={`fileIcon ${getClassNameByExt(attachment.ext)}`}
-                title={attachment.originalFilename + attachment.ext}
+                title={attachment.originalFilename + (attachment.ext || '')}
                 style={{ width: fileWidth, height: fileHeight }}
               />
             )}

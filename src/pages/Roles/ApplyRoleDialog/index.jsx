@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, ScrollView, Dialog } from 'ming-ui';
+import { Button, ScrollView, Dialog, Textarea } from 'ming-ui';
 import UserHead from 'src/pages/feed/components/userHead';
 import { rolePropType } from '../config';
 import ApplyAction from './ApplyAction';
-
 import Ajax from 'src/api/appManagement';
-
 import styles from './style.less?module';
 
 export default class extends React.PureComponent {
@@ -65,9 +63,20 @@ export default class extends React.PureComponent {
           <span
             className={styles.rejectAction + ' Hand'}
             onClick={() => {
-              this.changeApplyStatus({
-                appId,
-                id,
+              Dialog.confirm({
+                title: _l('拒绝'),
+                closable: false,
+                anim: false,
+                description: <Textarea height={120} id="applyRoleRefuse" placeholder={_l('请填写拒绝原因')} />,
+                onOk: () => {
+                  const remark = document.getElementById('applyRoleRefuse').value.trim();
+
+                  this.changeApplyStatus({
+                    appId,
+                    id,
+                    remark,
+                  });
+                },
               });
             }}
           >

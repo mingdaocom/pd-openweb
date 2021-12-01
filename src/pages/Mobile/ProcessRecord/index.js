@@ -11,6 +11,7 @@ import CustomFields from 'src/components/newCustomFields';
 import RelationList from 'src/pages/Mobile/RelationRow/RelationList';
 import RelationAction from 'src/pages/Mobile/RelationRow/RelationAction';
 import * as actions from 'src/pages/Mobile/RelationRow/redux/actions';
+import * as dicussionActions from 'src/pages/Mobile/Discuss/redux/actions';
 import Sidebar from './Sidebar';
 import OtherAction from './OtherAction';
 import Operation from './Operation';
@@ -24,6 +25,7 @@ import {
   ACTION_LIST,
   ACTION_TO_METHOD,
   OPERATION_TYPE,
+  OPERATION_LIST
 } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
 
@@ -59,6 +61,8 @@ class ProcessRecord extends Component {
     };
   }
   customwidget = React.createRef();
+  recordRef = React.createRef();
+  operrationRef = React.createRef();
   componentDidMount() {
     const { params } = this.props.match;
     worksheetAjax.getWorkItem({
@@ -69,6 +73,7 @@ class ProcessRecord extends Component {
         this.setState({ isError: true, loading: false });
         return;
       }
+      this.props.getMobileDiscussionCount({ worksheetId, rowId })
       this.setState({
         viewId,
         rowId,
@@ -99,7 +104,7 @@ class ProcessRecord extends Component {
       }),
     ]).then(([sheetRow, instance]) => {
       const { receiveControls, view } = sheetRow;
-      const newReceiveControls = receiveControls.map(c => Object.assign({}, c, { fieldPermission: '111' })).filter(
+      const newReceiveControls = viewId ? receiveControls : receiveControls.map(c => Object.assign({}, c, { fieldPermission: '111' })).filter(
         item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId),
       );
       sheetRow.receiveControls = newReceiveControls;
@@ -300,6 +305,7 @@ class ProcessRecord extends Component {
         onUpdateAction={(info) => {
           this.setState(info);
         }}
+        ref={this.operrationRef}
       />
     );
   }
@@ -307,14 +313,26 @@ class ProcessRecord extends Component {
     const { instance, submitLoading, submitAction } = this.state;
     const { operationTypeList, btnMap = {} } = instance;
     const actionList = operationTypeList[0];
+    const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
+    const buttons = newOperationTypeList.map(item => {
+      return OPERATION_LIST[item];
+    });
     return (
       <div className="footerHandle flexRow">
+        {buttons.map((item,index) => (<div key={index} className="flexColumn optionBtn bold" onClick={()=>{
+          if(this.operrationRef.current) {
+            this.operrationRef.current.handleOperation(index)
+          }
+        }}>
+          <div><Icon icon={item.icon} className="Font20"></Icon></div>
+          <div className="Font12">{item.text}</div>
+        </div>))}
         {actionList.map((item, index) => {
           let { id, text } = ACTION_LIST[item];
           return (
             <div
               key={id}
-              className={cx('headerBtn pointer flex', id, { disable: submitLoading && submitAction === id })}
+              className={cx('headerBtn pointer flex bold', id, { disable: submitLoading && submitAction === id, })}
               onClick={() => {
                 this.handleFooterBtnClick(id);
               }}
@@ -323,8 +341,8 @@ class ProcessRecord extends Component {
                 _l('提交中...')
               ) : (
                 <Fragment>
-                  {id === 'pass' || id === 'submit' || id === 'revoke' ? <Icon icon="plus-interest" /> : null}
-                  {id === 'overrule' ? <Icon icon="closeelement-bg-circle" /> : null}
+                  {/* {id === 'pass' || id === 'submit' || id === 'revoke' ? <Icon icon="plus-interest" /> : null}
+                  {id === 'overrule' ? <Icon icon="closeelement-bg-circle" /> : null} */}
                   <span>{btnMap[item] || text}</span>
                 </Fragment>
               )}
@@ -334,8 +352,16 @@ class ProcessRecord extends Component {
       </div>
     );
   }
+  navigateTo = url => {
+    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
+      url = url + '#publicapp' + window.publicAppAuthorization;
+    }
+    this.props.history.push(url);
+  }
   renderRecordHandle() {
     const { sheetRow, rowId, worksheetId, viewId, customBtns, isEdit, currentTab } = this.state;
+    let copyCustomBtns = _.cloneDeep(customBtns)
+    let showBtnsOut = copyCustomBtns.length && copyCustomBtns.length >= 2 ? customBtns.slice(0, 2) : (copyCustomBtns.length ? copyCustomBtns : [])
 
     if (currentTab.id) {
       return <RelationAction controlId={currentTab.id}/>
@@ -349,7 +375,7 @@ class ProcessRecord extends Component {
               <Fragment>
                 <WingBlank className="flex" size="sm">
                   <Button
-                    className="Font14 bold Gray_75"
+                    className="Font13 bold Gray_75"
                     onClick={() => {
                       const { sheetRow, originalData } = this.state;
                       this.setState({
@@ -368,7 +394,7 @@ class ProcessRecord extends Component {
                 <WingBlank className="flex" size="sm">
                   <Button
                     type="primary"
-                    className="Font14 bold"
+                    className="Font13 bold"
                     onClick={() => {
                       this.handleSave(() => {
                         this.loadCustomBtns();
@@ -381,30 +407,39 @@ class ProcessRecord extends Component {
               </Fragment>
             ) : (
               <Fragment>
-                <WingBlank className="flex" size="sm">
+                <WingBlank className="flex mLeft6 mRight6" size="sm">
                   <Button
-                    className="Font14 edit bold"
+                    className="Font13 edit letterSpacing"
                     onClick={() => {
                       this.setState({ isEdit: true, random: Date.now() });
                     }}
                   >
-                    <Icon icon="workflow_write" className="Font18 mRight5" />
+                    <Icon icon="workflow_write" className="Font15 mRight7" />
                     <span>{_l('编辑')}</span>
                   </Button>
                 </WingBlank>
-                {!_.isEmpty(customBtns) && (
-                  <WingBlank className="flex" size="sm">
+                {showBtnsOut.map(item => {
+                  let disabled = (this.recordRef.current && this.recordRef.current.state.btnDisable[item.btnId]) || item.disabled;
+                  return (<WingBlank className="flex flexShink mLeft6 mRight6" size="sm" key={item.btnId}>
                     <Button
-                      className="Font14 more bold"
+                      className={cx('Font13 optBtn', 'bold', { disabled })}
+                      style={disabled ? {} : { backgroundColor: item.color, color: "#fff" }}
                       onClick={() => {
-                        this.setState({ recordActionVisible: true });
-                      }}
-                      type="primary"
-                    >
-                      {_l('更多操作')}
+                        if (disabled) { return }
+                        if (this.recordRef.current) {
+                          this.recordRef.current.handleTriggerCustomBtn(item)
+                        }
+                      }}>
+                      <Icon icon={item.icon || 'custom_actions'} className={cx('Font15 mRight7', {opcIcon: !item.icon && !disabled})}/>
+                      <span>{item.name}</span>
                     </Button>
-                  </WingBlank>
-                )}
+                  </WingBlank>);
+                })}
+                {!_.isEmpty(customBtns) && customBtns.length > 2 && (<div className="moreOperation Font12 bold" onClick={() => {
+                  this.setState({ recordActionVisible: true });
+                }}>
+                  <Icon icon="expand_less" className="Font20" />
+                </div>)}
               </Fragment>
             )
           }
@@ -421,6 +456,8 @@ class ProcessRecord extends Component {
           hideRecordActionVisible={() => {
             this.setState({ recordActionVisible: false });
           }}
+          navigateTo={this.navigateTo}
+          ref={this.recordRef}
         />
       </Fragment>
     );
@@ -541,6 +578,21 @@ class ProcessRecord extends Component {
       </Tabs>
     );
   }
+  renderChatMessage = () => {
+    const { discussionCount, base = {} } = this.props;
+    const { appId } = base;
+    let { worksheetId, rowId } = this.state;
+    return (
+      <div className="chatMessage Font13" onClick={() => {
+        this.props.history.push(
+          `/mobile/discuss/${appId}/${worksheetId}/null/${rowId}?processRecord`,
+        );
+      }}>
+        <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
+        <span>{discussionCount}</span>
+      </div>
+    );
+  }
   renderContent() {
     const { viewId, sheetRow, instance, rowId, worksheetId, currentTab, isEdit } = this.state;
     const { relationRow } = this.props;
@@ -594,11 +646,6 @@ class ProcessRecord extends Component {
                     </div>
                   </div>
                   <Icon icon="workflow" className="Font20 mRight10" onClick={this.handleOpenChange} />
-                  {
-                    (!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink)) && (
-                      <Icon icon="more_horiz" className="Font24" onClick={() => { this.setState({ operationVisible: true }) }} />
-                    )
-                  }
                 </div>
               </div>
               <div className="title pLeft15 pRight15">
@@ -626,7 +673,8 @@ class ProcessRecord extends Component {
         ) : (
           _.isEmpty(currentTab.id) && this.renderProcessHandle()
         )}
-        <Back onClick={() => { history.back() }} />
+        <Back onClick={() => { history.back() }} style={{ bottom: "105px" }} />
+        {(!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink)) && this.renderChatMessage()}
         {this.renderActionSheet()}
       </Drawer>
     );
@@ -651,11 +699,11 @@ class ProcessRecord extends Component {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['loadParams', 'relationRow'])
+    ..._.pick(state.mobile, ['loadParams', 'relationRow', 'discussionCount', 'base'])
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['updatePageIndex', 'reset']),
+      {..._.pick(actions, ['updatePageIndex', 'reset']), ..._.pick(dicussionActions, ['getMobileDiscussionCount'])},
       dispatch,
   ),
 )(ProcessRecord);

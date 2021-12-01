@@ -6,12 +6,13 @@ import BoardView from './BoardView';
 import HierarchyView from './HierarchyView';
 import GalleryView from 'worksheet/views/GalleryView';
 import CalendarView from 'worksheet/views/CalendarView';
+import GunterView from 'worksheet/views/GunterView/enter';
 import Skeleton from 'src/router/Application/Skeleton';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import styled from 'styled-components';
 
-const { board, sheet, calendar, gallery, structure } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
   height: 100%;
@@ -29,6 +30,7 @@ const TYPE_TO_COMP = {
   [gallery]: GalleryView,
   [calendar]: CalendarView,
   [structure]: HierarchyView,
+  [gunter]: GunterView,
 };
 function View(props) {
   const { loading, view, activeViewStatus } = props;
@@ -75,6 +77,7 @@ function View(props) {
   ]);
 
   const Component = TYPE_TO_COMP[String(view.viewType)];
+
   return (
     <Con>
       {!Component || activeViewStatus !== 1 ? <UnNormal resultCode={activeViewStatus} /> : <Component {...viewProps} />}

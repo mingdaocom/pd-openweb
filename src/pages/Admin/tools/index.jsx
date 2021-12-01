@@ -39,6 +39,12 @@ const indexConfig = [
     click: 'handleChangeVisible',
     desc: _l('可以导出用户、群组、任务列表'),
   },
+  {
+    label: _l('水印设置'),
+    key: 'watermark',
+    click: 'setEnabledWatermark',
+    desc: _l('开启后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀'),
+  },
 ];
 
 export default class AdminTools extends Component {
@@ -66,11 +72,18 @@ export default class AdminTools extends Component {
       groups: [],
       attachments: [],
       loading: false,
+      watermark: false,
     };
   }
 
+  componentDidMount() {
+    projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
+      this.setState({ watermark: res.enabledWatermark });
+    });
+  }
+
   toggleComp(level) {
-    if(Config.project.licenseType === 0) {
+    if (Config.project.licenseType === 0) {
       AdminCommon.freeUpdateDialog();
       return;
     }
@@ -83,7 +96,7 @@ export default class AdminTools extends Component {
 
   uploadFiled() {
     const _this = this;
-    require(['uploadAttachment'], function() {
+    require(['uploadAttachment'], function () {
       _this.uploadAttachmentObj = $('#hidUploadAttachment').uploadAttachment({
         checkDocVersionUrl: '',
         pluploadID: '#uploadAttachment',
@@ -91,7 +104,7 @@ export default class AdminTools extends Component {
         showDownload: false,
         checkProjectLimitFileSizeUrl: '',
         bucketType: '1',
-        callback: function(attachments, totalSize) {
+        callback: function (attachments, totalSize) {
           _this.setState({
             attachments,
           });
@@ -119,7 +132,7 @@ export default class AdminTools extends Component {
   }
 
   handleChangeVisible(key, value) {
-    if(Config.project.licenseType === 0) {
+    if (Config.project.licenseType === 0) {
       AdminCommon.freeUpdateDialog();
       return;
     }
@@ -131,7 +144,7 @@ export default class AdminTools extends Component {
   //选择用户
   selectUser() {
     const _this = this;
-    require(['dialogSelectUser'], function() {
+    require(['dialogSelectUser'], function () {
       $({}).dialogSelectUser({
         showMoreInvite: false,
         SelectUserSettings: {
@@ -141,7 +154,7 @@ export default class AdminTools extends Component {
           filterOthers: true,
           filterOtherProject: true,
           dataRange: 2,
-          callback: function(userArr) {
+          callback: function (userArr) {
             _this.setState({
               users: userArr,
             });
@@ -154,11 +167,11 @@ export default class AdminTools extends Component {
   //选择群组
   selectGroups() {
     const _this = this;
-    require(['src/components/dialogSelectGroups'], function(dialogSelectGroups) {
+    require(['src/components/dialogSelectGroups'], function (dialogSelectGroups) {
       new dialogSelectGroups({
         defaultGroups: _this.state.groups,
         projectId: Config.projectId,
-        selectCallback: function(groupArr) {
+        selectCallback: function (groupArr) {
           _this.setState({
             groups: groupArr,
           });
@@ -281,6 +294,21 @@ export default class AdminTools extends Component {
       });
   }
 
+  setEnabledWatermark() {
+    const { watermark } = this.state;
+
+    projectSettingController
+      .setEnabledWatermark({ projectId: Config.projectId, enabledWatermark: !watermark })
+      .then(res => {
+        if (res) {
+          this.setState({ watermark: !watermark });
+          setTimeout(() => {
+            location.reload();
+          }, 500);
+        }
+      });
+  }
+
   render() {
     const {
       level,
@@ -297,6 +325,7 @@ export default class AdminTools extends Component {
       projectAdminUserCount,
       projectDepartmentChargeUserCount,
       loading,
+      watermark,
     } = this.state;
     const title = headerTitle[level];
     if (loading) {
@@ -308,13 +337,13 @@ export default class AdminTools extends Component {
           projectId={Config.projectId}
           visible={exportVisible}
           handleChangeVisible={this.handleChangeVisible.bind(this)}
-        ></ExportDialog>
+        />
         <div className="otherHeader">
           <Icon
             icon="backspace"
             className={cx('Hand mRight18 TxtMiddle Font24 adminHeaderIconColor', { hidden: level === 'index' })}
             onClick={() => this.toggleComp('index')}
-          ></Icon>
+          />
           <span className="Font17">{title}</span>
         </div>
 
@@ -331,7 +360,7 @@ export default class AdminTools extends Component {
               />
               <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 Gray_75">
                 <span className="InlineBlock ThemeColor3 Hand adminHoverColor" id="uploadAttachment">
-                  <i className="icon-attachment"></i>
+                  <i className="icon-attachment" />
                   {_l('添加附件')}
                 </span>
                 <input type="hidden" id="hidUploadAttachment" />
@@ -392,7 +421,7 @@ export default class AdminTools extends Component {
                       <span
                         className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"
                         onClick={this.handleRemove.bind(this, 'groups', 'groupId', item.groupId)}
-                      ></span>
+                      />
                     </span>
                   );
                 })}
@@ -416,7 +445,7 @@ export default class AdminTools extends Component {
                       <span
                         className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"
                         onClick={this.handleRemove.bind(this, 'users', 'accountId', item.accountId)}
-                      ></span>
+                      />
                     </span>
                   );
                 })}
@@ -440,13 +469,17 @@ export default class AdminTools extends Component {
                 <div className="toolItemLabel">{item.label}</div>
                 <div className="toolItemRight">
                   <div>
-                    <button
-                      type="button"
-                      className="ming Button Button--link ThemeColor3 adminHoverColor"
-                      onClick={this[item.click].bind(this, item.key, true)}
-                    >
-                      {item.clickValue}
-                    </button>
+                    {item.key === 'watermark' ? (
+                      <Switch checked={watermark} onClick={this[item.click].bind(this)} />
+                    ) : (
+                      <button
+                        type="button"
+                        className="ming Button Button--link ThemeColor3 adminHoverColor"
+                        onClick={this[item.click].bind(this, item.key, true)}
+                      >
+                        {item.clickValue}
+                      </button>
+                    )}
                   </div>
                   <div className="toolItemDescribe mLeft5">{item.desc}</div>
                 </div>

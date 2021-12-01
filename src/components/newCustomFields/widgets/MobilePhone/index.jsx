@@ -4,6 +4,9 @@ import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import { FROM } from '../../tools/config';
+import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -16,6 +19,7 @@ export default class Widgets extends Component {
     onInputKeydown: PropTypes.func,
     enumDefault: PropTypes.number,
     advancedSetting: PropTypes.any,
+    from: PropTypes.number,
   };
 
   state = {
@@ -48,7 +52,7 @@ export default class Widgets extends Component {
   }
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.value !== this.props.value && this.props.value !== undefined && this.input) {
+    if (nextProps.value !== this.props.value && (nextProps.value || this.props.value !== undefined) && this.input) {
       this.setValue(nextProps.value);
       if (!nextProps.value && this.iti) {
         this.iti.setCountry(this.initialCountry());
@@ -82,9 +86,7 @@ export default class Widgets extends Component {
     const countryData = this.iti.getSelectedCountryData();
     let value;
     if (!_.keys(countryData).length) {
-      value = $(this.input)
-        .val()
-        .replace(/ /g, '');
+      value = $(this.input).val().replace(/ /g, '');
     } else {
       value = this.iti.getNumber();
     }
@@ -94,7 +96,7 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { disabled, hint, inputClassName, onBlur, onInputKeydown, enumDefault } = this.props;
+    const { disabled, hint, inputClassName, onBlur, onInputKeydown, enumDefault, from, value } = this.props;
     const { hideCountry } = this.state;
 
     return (
@@ -110,6 +112,12 @@ export default class Widgets extends Component {
           onBlur={onBlur}
           onKeyDown={onInputKeydown}
         />
+
+        {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && from === FROM.SHARE)) && !!value && (
+          <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
+            <Icon icon="phone22" className="Font16 ThemeColor3" />
+          </a>
+        )}
       </div>
     );
   }

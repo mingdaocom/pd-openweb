@@ -1,9 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { withRouter } from 'react-router-dom';
 import { getRequest } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
-import { Flex, ActivityIndicator, Modal, List, WhiteSpace, WingBlank, Button, Tabs } from 'antd-mobile';
+import { Modal } from 'antd-mobile';
+import { Icon } from 'ming-ui';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { startProcess } from 'src/pages/workflow/api/process';
@@ -17,14 +17,12 @@ const CUSTOM_BUTTOM_CLICK_TYPE = {
   FILL_RECORD: 3,
 };
 
-@withRouter
 class RecordAction extends Component {
   constructor(props) {
     super(props);
     this.state = {
       fillRecordVisible: false,
       newRecordVisible: false,
-      switchPermit: [],
       btnDisable: {},
       shareUrl: '',
       rowInfo: {},
@@ -34,28 +32,19 @@ class RecordAction extends Component {
     this.editable = editable == 'true';
   }
   componentDidMount() {
-    const { appId } = this.props;
-    if (!this.isSubList && appId) {
-      this.getSwitchPermit();
-    }
-    if (navigator.share && appId) {
-      this.getWorksheetShareUrl();
-    }
     IM.socket.on('workflow', this.receiveWorkflow);
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.recordActionVisible && !this.props.recordActionVisible && !this.state.shareUrl) {
+      const { appId } = this.props;
+      if (navigator.share && appId) {
+        this.getWorksheetShareUrl();
+      }
+    }
+  }
+  recef = React.createRef();
   componentWillUnmount() {
     IM.socket.off('workflow', this.receiveWorkflow);
-  }
-  getSwitchPermit() {
-    const { appId, worksheetId } = this.props;
-    worksheetAjax.getSwitchPermit({
-      appId: appId,
-      worksheetId: worksheetId,
-    }).then(res => {
-      this.setState({
-        switchPermit: res,
-      });
-    });
   }
   getWorksheetShareUrl() {
     const { appId, worksheetId, rowId, viewId } = this.props;
@@ -70,12 +59,6 @@ class RecordAction extends Component {
         shareUrl,
       });
     });
-  }
-  navigateTo = url => {
-    if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-      url = url + '#publicapp' + window.publicAppAuthorization;
-    }
-    this.props.history.push(url);
   }
   receiveWorkflow = (data) => {
     const { storeId, status } = data;
@@ -271,7 +254,7 @@ class RecordAction extends Component {
   }
   handleOpenDiscuss = () => {
     const { appId, worksheetId, viewId, rowId } = this.props;
-    this.navigateTo(`/mobile/discuss/${appId}/${worksheetId}/${viewId}/${rowId}`);
+    window.mobileNavigateTo(`/mobile/discuss/${appId}/${worksheetId}/${viewId}/${rowId}`);
   }
   handleOpenShare = () => {
     const { shareUrl } = this.state;
@@ -431,64 +414,63 @@ class RecordAction extends Component {
       hideRecordActionVisible,
       customBtns,
       viewId,
-      appId
+      appId,
+      switchPermit
     } = this.props;
-    const { switchPermit, btnDisable, shareUrl } = this.state;
+    const { btnDisable, shareUrl } = this.state;
     return (
       <Modal
         popup
+        forceRender
         animationType="slide-up"
         className="actionSheetModal"
         visible={recordActionVisible}
         onClose={hideRecordActionVisible}
       >
-        <List className="mobileActionSheetList">
-          <div className="actionHandleList">
-            {customBtns.map(item => (
-              <List.Item
-                className={cx({ disabled: btnDisable[item.btnId] || item.disabled })}
-                key={item.btnId}
-                onClick={() => {
-                  if (btnDisable[item.btnId] || item.disabled) {
-                    return;
-                  }
-                  this.handleTriggerCustomBtn(item);
-                }}
-              >
-                {item.name}
-              </List.Item>
-            ))}
-            {appId && (
-              <Fragment>
-                {this.isSubList || !isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) ? null : (
-                  <List.Item onClick={this.handleOpenDiscuss}>{_l('查看讨论')}</List.Item>
-                )}
-                {shareUrl && isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
-                  <List.Item onClick={this.handleOpenShare}>{_l('分享')}</List.Item>
-                )}
-                {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (
-                  <List.Item className="delete" onClick={this.handleDeleteAlert}>
-                    {_l('删除')}
-                  </List.Item>
-                )}
-              </Fragment>
-            )}
+        <React.Fragment>
+          <div className="flexRow header">
+            <span className="Font1">{sheetRow.titleName}</span>
+            <div className="closeIcon" onClick={hideRecordActionVisible}>
+              <Icon icon="close" />
+            </div>
           </div>
-          <WhiteSpace size="sm" />
-          <List.Item onClick={hideRecordActionVisible}>
-            {_l('取消')}
-          </List.Item>
-        </List>
+          <div className="flexRow customBtnLists Font13">
+            {customBtns.map(item => (<div
+              key={item.btnId}
+              className={cx('flex', 'customBtnItem', { disabled: btnDisable[item.btnId] || item.disabled })}
+              style={btnDisable[item.btnId] || item.disabled ? {} : { backgroundColor: item.color }}
+              onClick={() => {
+                if (btnDisable[item.btnId] || item.disabled) {
+                  return;
+                }
+                this.handleTriggerCustomBtn(item);
+              }}
+            >
+              <Icon icon={item.icon || 'custom_actions'} className={cx('mRight7 Font15', { opcIcon: !item.icon && !item.disabled })}/>
+              <span >{item.name}</span>
+            </div>))}
+          </div>
+          {appId ? (<div className="extrBtnBox">
+              { shareUrl && isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) && (<div className="flexRow extraBtnItem">
+                <Icon icon="share" className="Font18 delIcon" style={{color: '#757575'}} />
+                <div className="flex delTxt Font13 Gray" onClick={this.handleOpenShare}>{_l("分享")}</div>
+              </div>)}
+              {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (<div className="flexRow extraBtnItem">
+                <Icon icon="delete_12" className="Font18 delIcon" />
+                <div className="flex delTxt Font13" onClick={this.handleDeleteAlert}>{_l("删除")}</div>
+              </div>)}
+          </div>) : null}
+        </React.Fragment>
       </Modal>
     );
   }
   render() {
     return (
-      <Fragment>
+      <div ref={this.recef}>
         {this.renderRecordAction()}
         {this.renderFillRecord()}
         {this.renderNewRecord()}
-      </Fragment>
+      </div>
     )
   }
 }

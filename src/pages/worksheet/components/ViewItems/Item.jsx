@@ -28,7 +28,7 @@ export default class Item extends Component {
   isDisabledConfig = () => {
     const { currentView } = this.props;
     const { viewType, viewControl, viewControls, childType } = currentView;
-    if (_.includes(['0', '3', '4'], String(viewType))) return false;
+    if (_.includes(['0', '3', '4', '5'], String(viewType))) return false;
     if (String(viewType) === '2' && String(childType) === '2' && !_.isEmpty(viewControls)) return false;
     if (_.includes(['1', '2'], String(viewType)) && viewControl) return false;
     return true;
@@ -71,7 +71,7 @@ export default class Item extends Component {
                     changeViewDisplayType(
                       getDefaultViewSet({
                         ...item,
-                        viewControl: '',
+                        // viewControl: '',
                         viewControls: [],
                         viewType: VIEW_DISPLAY_TYPE[viewType],
                         filters: item.filters, // formatValuesOfOriginConditions(item.filters),
