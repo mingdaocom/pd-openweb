@@ -345,7 +345,7 @@ class EditFlow extends Component {
         <Detail {...detailProps} />
         <CreateNodeDialog
           companyId={flowInfo.companyId}
-          isLast={nodeId ? flowNodeMap[nodeId].nextId === '99' : false}
+          isLast={nodeId ? (flowNodeMap[nodeId] || {}).nextId === '99' : false}
           nodeId={isCopy ? '' : nodeId}
           nodeType={nodeType}
           actionId={actionId}

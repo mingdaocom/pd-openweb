@@ -1406,6 +1406,7 @@ export default class DataFormat {
                 const newValue = (res.data || []).map(item => {
                   return {
                     sourcevalue: JSON.stringify(item),
+                    row: item,
                     type: 8,
                     sid: item.rowid,
                   };

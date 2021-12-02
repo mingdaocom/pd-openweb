@@ -209,11 +209,12 @@ export default class TagTextarea extends React.Component {
 
   @autobind
   insertColumnTag(id) {
+    const { mode, autoComma } = this.props;
     const position = this.cmObj.getCursor();
     const editorValue = this.cmObj.getValue();
 
     this.cmObj.replaceRange(
-      `${editorValue[position.ch - 1] === '$' ? ',' : ''}$${id}$`,
+      `${mode === MODE.FORMULA && autoComma && editorValue[position.ch - 1] === '$' ? ',' : ''}$${id}$`,
       position,
       undefined,
       'inserttag',

@@ -26,8 +26,8 @@ export default class RelationFields extends Component {
   renderRelationTitle(item) {
     return (
       <Fragment>
-        <span>{item.controlName}</span>
-        <span className="Gray_9e mRight5">{_l('（关联表“%0”）', item.sourceEntityName)}</span>
+        <span>{(item || {}).controlName}</span>
+        <span className="Gray_9e mRight5">{_l('（关联表“%0”）', (item || {}).sourceEntityName)}</span>
       </Fragment>
     );
   }

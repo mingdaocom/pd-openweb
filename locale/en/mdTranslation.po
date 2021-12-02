@@ -5862,7 +5862,7 @@ msgstr "Registration means consent"
 
 #: Disabled references:1
 msgid "《使用条款》"
-msgstr "《Terms of Use》"
+msgstr "《Terms of Service》"
 
 #: Disabled references:1
 msgid "与"

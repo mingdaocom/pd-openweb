@@ -35,8 +35,8 @@ export default class AudioMessage extends Component {
           audioPlaying: true,
         });
         this.audio = new player({
-          mp3_url: files.url + '?avthumb/mp3',
-          wav_url: files.url + '?avthumb/wav',
+          mp3_url: files.url,
+          wav_url: files.url,
           onStop: () => {
             this.setState({
               audioPlaying: false,

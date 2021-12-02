@@ -43,8 +43,8 @@ export default class SideAppGroup extends Component {
   // 动态设置max-height属性以使展开收起动画更顺滑
   computeMaxHeight = isShow => {
     const $ele = this.$appGroupWrap.current;
-    const { scrollHeight } = $ele;
-    if (isShow) {
+    if (isShow && $ele) {
+      const { scrollHeight } = $ele;
       $ele.style.maxHeight = `${scrollHeight}px`;
       $ele.style.transition = `all ${Math.min(Math.max(scrollHeight * 0.0005, 0.1), 0.6)}s ease-in`;
     }

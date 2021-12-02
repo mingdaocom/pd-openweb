@@ -1465,7 +1465,7 @@ var mdTranslation ={
     "密码错误次数过多被锁定，请 20 分钟后再试，或 重置密码": "Too many password errors. Your account has been locked. Please try again in 20 minutes or reset the password.",
     "%0邀请您加入": "%0 invites you to join",
     "点注册即代表同意": "Registration means consent",
-    "《使用条款》": "《Terms of Use》",
+    "《使用条款》": "《Terms of Service》",
     "与": "and",
     "《隐私条款》": "《Privacy Policy》",
     "注册并加入": "Register and join",

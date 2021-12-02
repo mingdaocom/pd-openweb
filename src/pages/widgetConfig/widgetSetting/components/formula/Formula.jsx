@@ -307,6 +307,7 @@ export default class Formula extends React.Component {
           <div className="formulaCon">
             <div className="formulaBox">
               <TagTextarea
+                autoComma
                 mode={calType === FORMULA.CUSTOM.type ? 2 : 3}
                 defaultValue={formulaValue}
                 maxHeight={140}
