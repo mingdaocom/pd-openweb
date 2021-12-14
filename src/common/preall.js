@@ -16,6 +16,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   if (transfertoken && urlparams.token) {
     args.token = urlparams.token;
   }
+  parseShareId();
   global.getGlobalMeta(args).then(data => {
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config;
@@ -76,7 +77,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   });
 }
 
-const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -120,7 +121,7 @@ function getMomentLocale(lang) {
   }
 }
 
-export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
   } else {
@@ -128,15 +129,15 @@ export default function(Comp, { allownotlogin, preloadcb, hideloading, transfert
   }
 }
 
-(function(arr) {
-  arr.forEach(function(item) {
+(function (arr) {
+  arr.forEach(function (item) {
     item.prepend =
       item.prepend ||
-      function() {
+      function () {
         var argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
-        argArr.forEach(function(argItem) {
+        argArr.forEach(function (argItem) {
           var isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });
@@ -148,11 +149,33 @@ export default function(Comp, { allownotlogin, preloadcb, hideloading, transfert
 
 // 兼容钉钉内核63 问题
 if (!Object.fromEntries) {
-  Object.fromEntries = function(entries) {
+  Object.fromEntries = function (entries) {
     let entriesObj = {};
     (entries || []).forEach(element => {
       entriesObj[element[0]] = element[1];
     });
     return entriesObj;
   };
+}
+
+/** 存储分发类入口 状态 和 分享id */
+
+function parseShareId() {
+  window.shareState = {};
+  if (/\/worksheetshare/.test(location.pathname)) {
+    window.shareState.isRecordShare = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/worksheetshare\/(\w{24})/) || '')[1];
+  }
+  if (/\/printshare/.test(location.pathname)) {
+    window.shareState.isPrintShare = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/printshare\/(\w{24})/) || '')[1];
+  }
+  if (/\/public\/query/.test(location.pathname)) {
+    window.shareState.isPublicQuery = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/query\/(\w{24})/) || '')[1];
+  }
+  if (/\/recordshare/.test(location.pathname)) {
+    window.shareState.isUpdateRecordShare = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/recordshare\/(\w{24})/) || '')[1];
+  }
 }

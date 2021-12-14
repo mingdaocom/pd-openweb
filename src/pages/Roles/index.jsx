@@ -17,6 +17,7 @@ import RoleItem from './RoleItem';
 import ApplyDialog from './ApplyRoleDialog';
 import { ROLE_TYPES, ROLE_CONFIG } from './config';
 import { getCurrentProject } from 'src/util';
+import DocumentTitle from 'react-document-title';
 
 function RequestMap() {
   this.map = {};
@@ -638,6 +639,7 @@ export default class extends PureComponent {
 
     return (
       <div className={styles.roleWrapper}>
+        <DocumentTitle title={`${appDetail.name || ''} - ${_l('用户')}`} />
         <div className={styles.topBar}>
           <div className={styles.topBarContent}>
             <i

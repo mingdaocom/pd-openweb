@@ -18,6 +18,8 @@ import ListName from './components/ListName';
 import { FLOW_TYPE, FLOW_TYPE_NULL, START_APP_TYPE } from './config/index';
 import { connect } from 'react-redux';
 import SvgIcon from 'src/components/SvgIcon';
+import DocumentTitle from 'react-document-title';
+import HomeAjax from 'src/api/homeApp';
 
 @errorBoundary
 class AppWorkflowList extends Component {
@@ -31,6 +33,7 @@ class AppWorkflowList extends Component {
       selectFilter: '',
       keywords: '',
       createWorkflowVisible: false,
+      appDetail: {},
     };
   }
 
@@ -69,6 +72,7 @@ class AppWorkflowList extends Component {
       if (result) {
         this.getList(this.state.type);
         this.getCount();
+        this.getAppDetail();
       } else {
         navigateTo(`/app/${appId}`);
       }
@@ -109,6 +113,19 @@ class AppWorkflowList extends Component {
       .then(result => {
         this.setState({ count: result });
       });
+  }
+
+  /**
+   * 获取应用详情
+   */
+  getAppDetail() {
+    const appId = this.props.match.params.appId;
+
+    HomeAjax.getAppDetail({
+      appId,
+    }).then(res => {
+      this.setState({ appDetail: res });
+    });
   }
 
   /**
@@ -409,7 +426,7 @@ class AppWorkflowList extends Component {
 
   render() {
     const { url, params } = this.props.match;
-    const { type, loading, list, selectFilter, createWorkflowVisible, count } = this.state;
+    const { type, loading, list, selectFilter, createWorkflowVisible, count, appDetail } = this.state;
     const filterList = [[{ text: type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部'), value: '' }], []];
     const TYPES = [
       { text: _l('工作表事件'), value: FLOW_TYPE.APP, display: true },
@@ -427,6 +444,7 @@ class AppWorkflowList extends Component {
 
     return (
       <div className="workflowList flexColumn">
+        <DocumentTitle title={`${appDetail.name || ''} - ${_l('工作流')}`} />
         <div className="workflowHeader flexRow">
           <div className="flex">
             <i

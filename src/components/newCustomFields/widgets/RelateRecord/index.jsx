@@ -80,34 +80,45 @@ export default class Widgets extends Component {
     showtype = parseInt(showtype, 10);
     const controlPermission = controlState({ ...this.props }, from);
     const records = this.getRecordsData();
-    return (<React.Fragment>
-      { (showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile()) ? <RelateRecordCards
-        editable={controlPermission.editable}
-        control={{ ...this.props }}
-        records={(enumDefault === 1 && browserIsMobile() && showtype === RELATE_RECORD_SHOW_TYPE.DROPDOWN) ? records.filter((_, index) => !index) : records}
-        multiple={enumDefault === 2}
-        onChange={this.handleChange}
-      /> : <RelateRecordDropdown
-        control={{ ...this.props }}
-        formData={formData}
-        disabled={disabled || !controlPermission.editable}
-        selected={records}
-        from={from}
-        viewId={viewId}
-        recordId={recordId}
-        dataSource={dataSource}
-        entityName={sourceEntityName}
-        enumDefault2={enumDefault2}
-        parentWorksheetId={worksheetId}
-        controlId={controlId}
-        controls={relationControls}
-        multiple={enumDefault === 2}
-        coverCid={coverCid}
-        showControls={showControls}
-        allowOpenRecord={advancedSetting.allowlink === '1'}
-        showCoverAndControls={advancedSetting.ddset === '1'}
-        onChange={this.handleChange}
-      /> }
-    </React.Fragment>);
+    return (
+      <React.Fragment>
+        {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
+          <RelateRecordCards
+            allowOpenRecord={advancedSetting.allowlink === '1'}
+            editable={controlPermission.editable}
+            control={{ ...this.props }}
+            records={
+              enumDefault === 1 && browserIsMobile() && showtype === RELATE_RECORD_SHOW_TYPE.DROPDOWN
+                ? records.filter((_, index) => !index)
+                : records
+            }
+            multiple={enumDefault === 2}
+            onChange={this.handleChange}
+          />
+        ) : (
+          <RelateRecordDropdown
+            control={{ ...this.props }}
+            formData={formData}
+            disabled={disabled || !controlPermission.editable}
+            selected={records}
+            from={from}
+            viewId={viewId}
+            recordId={recordId}
+            dataSource={dataSource}
+            entityName={sourceEntityName}
+            enumDefault2={enumDefault2}
+            parentWorksheetId={worksheetId}
+            controlId={controlId}
+            controls={relationControls}
+            multiple={enumDefault === 2}
+            coverCid={coverCid}
+            showControls={showControls}
+            allowOpenRecord={advancedSetting.allowlink === '1'}
+            showCoverAndControls={advancedSetting.ddset === '1'}
+            onChange={this.handleChange}
+          />
+        )}
+      </React.Fragment>
+    );
   }
 }

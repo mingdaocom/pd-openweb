@@ -273,7 +273,8 @@ export function getFilterTypes(type, control = {}, conditionType, from) {
 
 export function getDefaultCondition(control) {
   const conditionGroupKey = getTypeKey(control.type);
-  const conditionGroupType = CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
+  const conditionGroupType =
+    CONTROL_FILTER_WHITELIST[conditionGroupKey] && CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
   const baseCondition = {
     controlId: control.controlId,
     controlType: control.type,

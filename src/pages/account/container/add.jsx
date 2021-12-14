@@ -35,6 +35,7 @@ export default class Add extends React.Component {
     if (res) {
       params.ticket = res.ticket;
       params.randStr = res.randstr;
+      params.captchaType = md.staticglobal.CaptchaType();
     }
     RegisterController.checkProjectCode(params).then(
       data => {

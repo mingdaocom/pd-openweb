@@ -31,7 +31,7 @@ module.exports = (function ($) {
       fileNamePrefix: '', // 文件名前缀
       onlyFolder: false, // 只要文件夹这一级 文件ID为GUID
       onlyOne: false, // 只允许上传一个文件
-      bucketType: '3', // 1 webchat  2 BUG反馈  3主站文档
+      bucketType: null, // 1 webchat  2 BUG反馈  3主站文档
       showDownload: true, // 是否允许设置可下载
       showArrow: true,
       arrowLeft: 9,
@@ -499,7 +499,10 @@ module.exports = (function ($) {
                         }
                         let fileExt = `.${File.GetExt(file.name)}`;
                         let isPic = File.isPicture(fileExt);
-                        tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
+                        tokenFiles.push({
+                          bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
+                          ext: fileExt,
+                        });
                         _this.cancelUploadEvent(file.id);
                       }
                     } else {
@@ -507,7 +510,10 @@ module.exports = (function ($) {
                         var file = files[i];
                         let fileExt = `.${File.GetExt(files[i].name)}`;
                         let isPic = File.isPicture(fileExt);
-                        tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
+                        tokenFiles.push({
+                          bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
+                          ext: fileExt,
+                        });
                       }
                     }
 

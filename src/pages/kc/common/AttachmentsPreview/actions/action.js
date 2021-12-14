@@ -54,32 +54,35 @@ function loadAttachment(attachment, options = {}) {
       });
     });
   } else if (previewAttachmentType === 'COMMON_ID') {
-    attachmentPromise = attachmentAjax
-      .getAttachmentDetail({
-        fileId: attachment.sourceNode.fileId || attachment.sourceNode.fileID,
-      })
-      .then(data => {
-        if (!data) {
-          promise.reject({
-            text: '文件不存在',
-            status: LOADED_STATUS.DELETED,
-          });
-          return promise;
-        }
-        if (options.disableNoPeimission && data.refId && !data.shareUrl) {
-          promise.reject({
-            text: '您权限不足，无法分享，请联系管理员或文件上传者',
-            status: LOADED_STATUS.DELETED,
-          });
-        }
-        return Object.assign({}, attachment, {
-          previewType: data.viewType,
-          viewUrl: data.viewUrl,
-          previewAttachmentType: 'COMMON',
-          sourceNode: data,
-          originNode: attachment.sourceNode,
+    const args = {
+      fileId: attachment.sourceNode.fileId || attachment.sourceNode.fileID,
+    };
+    if (window.shareState && window.shareState.shareId) {
+      args.shareId = window.shareState.shareId;
+      args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
+    }
+    attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
+      if (!data) {
+        promise.reject({
+          text: '文件不存在',
+          status: LOADED_STATUS.DELETED,
         });
+        return promise;
+      }
+      if (options.disableNoPeimission && data.refId && !data.shareUrl) {
+        promise.reject({
+          text: '您权限不足，无法分享，请联系管理员或文件上传者',
+          status: LOADED_STATUS.DELETED,
+        });
+      }
+      return Object.assign({}, attachment, {
+        previewType: data.viewType,
+        viewUrl: data.viewUrl,
+        previewAttachmentType: 'COMMON',
+        sourceNode: data,
+        originNode: attachment.sourceNode,
       });
+    });
   }
 
   $.when(attachmentPromise)

@@ -23,7 +23,7 @@ export default class RecordInfo extends Component {
   getCurrentSheetRows() {
     const { row, grouping } = this.props;
     const { groupId } = row;
-    const { rows } = _.find(grouping, { key: groupId });
+    const { rows } = _.find(grouping, { key: groupId }) || {};
     return rows;
   }
   render() {

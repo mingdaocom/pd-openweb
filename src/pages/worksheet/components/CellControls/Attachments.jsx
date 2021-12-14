@@ -70,6 +70,7 @@ export default class Attachments extends React.Component {
         if (newAttachment.ext === '.') {
           newAttachment.ext = '';
         }
+        newAttachment.origin = attachment;
         return newAttachment;
       });
     } catch (err) {
@@ -120,13 +121,18 @@ export default class Attachments extends React.Component {
   }
 
   @autobind
-  handleChange(array) {
+  handleChange() {
     const { updateCell, updateEditingStatus } = this.props;
     const { value, temporaryAttachments, temporaryKnowledgeAtts } = this.state;
     const submitData = {};
-    submitData.attachmentData = value;
-    submitData.attachments = (temporaryAttachments || []).map(a => ({ ...a, isEdit: false }));
-    submitData.knowledgeAtts = (temporaryKnowledgeAtts || []).map(a => ({ ...a, isEdit: false })) || [];
+    const tempSavedAttachments = value.filter(c => /^o_/.test(c.fileID) && !c.refId).map(c => c.origin);
+    const tempSavedKcAttachments = value.filter(c => /^o_/.test(c.fileID) && c.refId).map(c => c.origin);
+    submitData.attachmentData = value.filter(c => !/^o_/.test(c.fileID)).map(c => c.origin);
+    submitData.attachments = (temporaryAttachments || [])
+      .concat(tempSavedAttachments)
+      .map(a => ({ ...a, isEdit: false }));
+    submitData.knowledgeAtts =
+      (temporaryKnowledgeAtts || []).concat(tempSavedKcAttachments).map(a => ({ ...a, isEdit: false })) || [];
     updateCell(
       {
         editType: 1,

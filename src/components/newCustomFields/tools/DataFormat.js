@@ -245,10 +245,7 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
 
   const expression = formulaStr.replace(/\$.+?\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
-    let column = Object.assign(
-      {},
-      _.find(data, obj => obj.controlId === controlId),
-    );
+    let column = Object.assign({}, _.find(data, obj => obj.controlId === controlId));
 
     if (!column) {
       columnIsUndefined = true;
@@ -365,6 +362,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
 
       // 相差天数
       let timeDiff = moment(moment(endTime).format('YYYY-MM-DD')).diff(moment(startTime).format('YYYY-MM-DD'), 'd');
+
       // 计算出整数周
       const weekendCount = Math.floor(timeDiff / 7);
 
@@ -382,30 +380,34 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         }
       }
 
-      // 剩下的工作日
-      let weekdayDiff = 0;
+      let weekDayHour = 0;
+      for (let i = 0; i <= timeDiff % 7; i++) {
+        const newStart = moment(startTime).add(i, 'd');
+        const day = newStart.day();
 
-      for (let i = 0; i < timeDiff % 7; i++) {
-        const day = moment(startTime).add(i, 'd').day();
         if (_.includes(weekday.split(''), (day === 0 ? 7 : day).toString())) {
-          weekdayDiff++;
+          // 是同一天
+          if (moment(startTime).isSame(endTime, 'd')) {
+            value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
+          } else {
+            if (i !== timeDiff % 7) {
+              weekDayHour += moment(
+                moment(newStart)
+                  .add(1, 'd')
+                  .format('YYYY-MM-DD'),
+              ).diff(i === 0 ? newStart : newStart.format('YYYY-MM-DD'), TIME_UNIT[currentItem.unit] || 'm', true);
+            } else {
+              weekDayHour += moment(newStart.format('YYYY-MM-DD') + moment(endTime).format(' HH:mm')).diff(
+                moment(newStart).format('YYYY-MM-DD'),
+                TIME_UNIT[currentItem.unit] || 'm',
+                true,
+              );
+            }
+          }
         }
       }
 
-      // 结束日期在非工作日多余的小时数
-      let endHour = 0;
-      const endDay = moment(endTime).day();
-      if (!_.includes(weekday.split(''), (endDay === 0 ? 7 : endDay).toString())) {
-        endHour = moment(endTime).diff(moment(endTime).format('YYYY-MM-DD'), TIME_UNIT[currentItem.unit] || 'm', true);
-      }
-
-      value =
-        (value +
-          moment(
-            moment(startTime).add(weekdayDiff, 'd').format('YYYY-MM-DD') + ' ' + moment(endTime).format('HH:mm'),
-          ).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true) -
-          endHour) *
-        isNegative;
+      value = (value + weekDayHour) * isNegative;
     } else {
       value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
     }

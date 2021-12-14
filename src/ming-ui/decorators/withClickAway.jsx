@@ -92,7 +92,7 @@ function withClickAway(exceptionList, Component = exceptionList) {
       this.mounted = false;
       this.unbindClickAway();
     }
-    checkClickAway(e) {
+    checkClickAway(e = {}) {
       if (!this.mounted) {
         return;
       }

@@ -13,6 +13,9 @@ import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/uti
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 export default class Item extends Component {
+  static defaultProps = {
+    item: {},
+  }
   constructor(props) {
     super(props);
     this.state = {

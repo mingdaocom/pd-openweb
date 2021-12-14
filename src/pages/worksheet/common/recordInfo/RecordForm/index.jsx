@@ -239,6 +239,7 @@ export default function RecortForm(props) {
       scrollTop: $relateRecordBlockCon[0].offsetTop - $recordInfoFormScroll.height() + 112 + 34 * 11,
     });
   }
+  const isMobile = browserIsMobile();
   return (
     <div className="recordInfoForm flexColumn" ref={recordForm} style={{ width: !abnormal ? formWidth : '100%' }}>
       {(from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || from === RECORD_INFO_FROM.WORKFLOW) && recordTitle && (
@@ -297,7 +298,7 @@ export default function RecortForm(props) {
                 <CustomFields
                   forceFull={formWidth < 500 ? 1 : undefined}
                   ref={customwidget}
-                  from={recordId ? 3 : 2}
+                  from={recordId ? 3 : isMobile ? 5 : 2}
                   flag={formFlag}
                   controlProps={controlProps}
                   data={formdata.filter(control => !(view.controls || []).includes(control.controlId))}
@@ -317,7 +318,7 @@ export default function RecortForm(props) {
               </div>
             </div>
             <div className={cx('relateRecordBlockCon', { flex: isSplit })}>
-              {!browserIsMobile() && !!relateRecordTableControls.length && (
+              {!isMobile && !!relateRecordTableControls.length && (
                 <RelateRecordBlock
                   formWidth={formWidth}
                   sideVisible={controlProps.sideVisible}

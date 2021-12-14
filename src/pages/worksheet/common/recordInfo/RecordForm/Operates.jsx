@@ -84,6 +84,9 @@ export default class Operates extends Component {
   }
 
   setButtonShowNum() {
+    if (!this.customButtonsCon.current) {
+      return;
+    }
     const { customBtns } = this.state;
     let buttonShowNum = 3;
     const containerWidth = this.customButtonsCon.current.clientWidth - 20;

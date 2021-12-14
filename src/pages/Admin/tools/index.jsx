@@ -103,7 +103,7 @@ export default class AdminTools extends Component {
         folder: 'Accessories',
         showDownload: false,
         checkProjectLimitFileSizeUrl: '',
-        bucketType: '1',
+        bucketType: 1,
         callback: function (attachments, totalSize) {
           _this.setState({
             attachments,

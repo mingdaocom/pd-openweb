@@ -43,7 +43,7 @@ function WidgetDisplay(props) {
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} />;
     if (componentType === 'richText')
-      return <RichText summary={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
+      return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
     if (componentType === 'button')
       return (
         <ButtonList

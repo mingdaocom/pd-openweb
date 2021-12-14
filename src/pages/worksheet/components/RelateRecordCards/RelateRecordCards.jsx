@@ -233,7 +233,7 @@ export default class RelateRecordCards extends Component {
   };
 
   renderRecordsCon() {
-    const { width, control, records } = this.props;
+    const { width, control, records, allowOpenRecord } = this.props;
     const {
       appId,
       viewId,
@@ -327,7 +327,7 @@ export default class RelateRecordCards extends Component {
             disabled={disabled}
             title={record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)}
             onClick={
-              disabled && !recordId
+              !allowOpenRecord || (disabled && !recordId)
                 ? () => {}
                 : () => {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
@@ -474,7 +474,6 @@ export default class RelateRecordCards extends Component {
               filterRelatesheetControlIds={[controlId]}
               defaultRelatedSheet={this.getDefaultRelateSheetValue()}
               controlId={controlId}
-              recordId={recordId}
               visible={showAddRecord}
               onClose={() => this.setState({ showAddRecord: false, mobileRecordkeyWords: '' })}
               onOk={this.handleAdd}

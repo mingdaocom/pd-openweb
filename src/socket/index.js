@@ -6,6 +6,7 @@ import appSocketInit from 'src/pages/Admin/appManagement/socket';
 import exportPivotTableSocket from 'worksheet/common/Statistics/components/socket';
 import customNotice from './customNotice';
 import { getPssId } from 'src/util/pssId';
+import { notification } from 'antd';
 
 export const socketInit = () => {
   if (window.IM === undefined) {
@@ -24,6 +25,9 @@ export const socketInit = () => {
 };
 
 export default () => {
+  notification.config({
+    maxCount: 3
+  });
   // socket 初始化
   socketInit();
   // 自定义按钮监听

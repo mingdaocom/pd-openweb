@@ -8,7 +8,7 @@ export function groupingScroll(state = null, action) {
   }
 }
 
-export function chartScroll(state = null, action) {
+export function chartScroll(state = { on: _.noop, off: _.noop }, action) {
   switch (action.type) {
     case 'CHANGE_GUNTER_CHART_SCROLL':
       return action.data;
