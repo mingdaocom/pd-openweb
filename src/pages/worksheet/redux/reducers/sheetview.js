@@ -103,7 +103,7 @@ export function sheetViewData(state = initialSheetViewData, action) {
   switch (action.type) {
     // 开始获取记录数据
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
-      return { ...state, loading: true };
+      return { ...state, loading: !(action.value || {}).noLoading };
     // 更新记录数据
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS':
     case 'WORKSHEET_SHEETVIEW_UPDATE_ROWS':

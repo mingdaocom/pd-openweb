@@ -66,7 +66,7 @@ const getBoardViewPara = (sheet = {}, view) => {
   const { base, controls } = sheet;
   const { viewId, appId } = base;
   view = view || getCurrentView(sheet);
-  const { worksheetId, viewControl } = view;
+  const { worksheetId, viewControl, advancedSetting } = view;
   if (!viewControl) {
     return;
   }
@@ -85,7 +85,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     ...sheet.filters,
   };
   if (relationWorksheetId) {
-    para = { ...para, relationWorksheetId };
+    para = { ...para, relationWorksheetId, kanbanSize: advancedSetting && advancedSetting.hidenone === '1' ? 50 : 20 };
   }
   return para;
 };
@@ -105,20 +105,13 @@ export function initBoardViewData(view) {
       loading: true,
     });
     dispatch({ type: 'CHANGE_BOARD_VIEW_STATE', payload: { kanbanIndex: 1, hasMoreData: true } });
-    getBoardViewDataFillPage({ para, boardViewData: [], dispatch });
+    getBoardViewDataFillPage({ para, dispatch });
   };
 }
 
 // 拉取看板数据以填满页面
-function getBoardViewDataFillPage({ para, boardViewData, dispatch }) {
-  const haveContentKanban = boardViewData.filter(item => item.totalNum > 0);
-  if (haveContentKanban.length >= 20) {
-    dispatch({
-      type: 'CHANGE_BOARD_VIEW_LOADING',
-      loading: false,
-    });
-    return;
-  }
+function getBoardViewDataFillPage({ para, dispatch }) {
+  const isRelateHide = para.relationWorksheetId && para.kanbanSize === 50;
   getFilterRows(para).then(({ data, resultCode }) => {
     if (resultCode !== 1) {
       dispatch({
@@ -131,25 +124,16 @@ function getBoardViewDataFillPage({ para, boardViewData, dispatch }) {
       });
     }
 
-    const existedKeys = boardViewData.map(item => item.key);
-    const filterData = data.filter(item => !includes(existedKeys, item.key));
-    const nextData = boardViewData.concat(filterData);
-    dispatch(changeBoardViewData(nextData));
-    dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(nextData)));
+    dispatch(changeBoardViewData(data));
+    dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
 
-    if (data.length < 20) {
-      dispatch({
-        type: 'CHANGE_BOARD_VIEW_LOADING',
-        loading: false,
-      });
-      dispatch({ type: 'CHANGE_BOARD_VIEW_STATE', payload: { kanbanIndex: para.kanbanIndex, hasMoreData: false } });
-      return;
-    }
-
-    getBoardViewDataFillPage({
-      para: { ...para, kanbanIndex: para.kanbanIndex + 1 },
-      boardViewData: nextData,
-      dispatch,
+    dispatch({
+      type: 'CHANGE_BOARD_VIEW_LOADING',
+      loading: false,
+    });
+    dispatch({
+      type: 'CHANGE_BOARD_VIEW_STATE',
+      payload: { kanbanIndex: para.kanbanIndex, hasMoreData: isRelateHide ? false : !(data.length < 20) },
     });
   });
 }

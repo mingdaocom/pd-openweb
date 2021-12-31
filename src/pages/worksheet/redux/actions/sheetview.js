@@ -9,11 +9,11 @@ import {
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig } from 'worksheet/util';
 import { wrapAjax } from './util';
-import { getNavGroupCount } from './index'
+import { getNavGroupCount } from './index';
 const wrappedGetFilterRows = wrapAjax(getFilterRows);
 const wrappedGetFilterRowsReport = wrapAjax(getFilterRowsReport);
 
-export const fetchRows = ({ isFirst, changeView } = {}) => {
+export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
@@ -27,6 +27,9 @@ export const fetchRows = ({ isFirst, changeView } = {}) => {
     }
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
+      value: {
+        noLoading,
+      },
     });
     dispatch(getWorksheetSheetViewSummary());
     wrappedGetFilterRows({
@@ -117,7 +120,7 @@ export function updateControlOfRow({ recordId, controlId, value, editType }, opt
     })
       .then(res => {
         if (res.resultCode === 1) {
-          dispatch(getNavGroupCount())
+          dispatch(getNavGroupCount());
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
@@ -174,7 +177,7 @@ export function hideRows(rowIds) {
         rowIds,
       });
     }
-    dispatch(getNavGroupCount())
+    dispatch(getNavGroupCount());
   };
 }
 
@@ -186,7 +189,7 @@ export function updateRows(rowIds, value) {
   };
 }
 
-export function refresh({ resetPageIndex } = {}) {
+export function refresh({ resetPageIndex, noLoading } = {}) {
   return (dispatch, getState) => {
     const {
       filters,
@@ -202,7 +205,7 @@ export function refresh({ resetPageIndex } = {}) {
     if (needClickToSearch && _.isEmpty(quickFilter)) {
       dispatch(setRowsEmpty());
     } else {
-      dispatch(fetchRows());
+      dispatch(fetchRows({ noLoading }));
     }
   };
 }

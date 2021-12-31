@@ -8,7 +8,7 @@ import { SettingItem } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
 
 export default function EditOptionList(props) {
-  const { onOk, options, globalSheetInfo, onCancel, ...rest } = props;
+  const { onOk, options, globalSheetInfo = {}, onCancel, ...rest } = props;
   const appId = props.appId || globalSheetInfo.appId;
   const $ref = useRef(null);
   const [name, setName] = useState(props.name);

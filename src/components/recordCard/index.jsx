@@ -133,8 +133,9 @@ export default class RecordCard extends Component {
             role="presentation"
             onClick={this.handleCoverClick}
             src={
-              cover.previewUrl.slice(0, cover.previewUrl.indexOf('?')) +
-              '?imageMogr2/auto-orient|imageView2/1/w/76/h/76/q/90'
+              cover.previewUrl.indexOf('imageView2') > -1
+                ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/76/h/76/q/90`)
+                : `${cover.previewUrl}&imageView2/1/w/76/h/76/q/90`
             }
           />
         )}

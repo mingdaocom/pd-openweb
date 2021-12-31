@@ -69,7 +69,7 @@ module.exports = function(opt) {
           ajax = AccountController.checkAccount({
             ticket: res.ticket,
             randStr: res.randstr,
-            captchaType: md.staticglobal.CaptchaType(),
+            captchaType: md.staticglobal.getCaptchaType(),
             password: encrypt(password),
           });
           ajax.then(function(data) {
@@ -83,10 +83,10 @@ module.exports = function(opt) {
           });
         };
 
-        if (md.staticglobal.CaptchaType() === 1) {
+        if (md.staticglobal.getCaptchaType() === 1) {
           new captcha(throttled);
         } else {
-          new TencentCaptcha(md.staticglobal.TencentAppId, throttled).show();
+          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
         }
       });
     },

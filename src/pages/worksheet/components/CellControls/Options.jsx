@@ -81,7 +81,7 @@ export default class Options extends React.Component {
     const error = !onValidate(value);
     this.setState({
       value,
-      oldValue: value,
+      ...(error ? {} : { oldValue: value }),
     });
     if (error) {
       return;
@@ -97,15 +97,15 @@ export default class Options extends React.Component {
   @autobind
   handleExit(target) {
     const { cell, error, updateEditingStatus } = this.props;
-    if (error) {
+    const isMultiple = cell.type === 10;
+    if (!isMultiple || !error) {
+      updateEditingStatus(false);
+    } else if (error) {
       updateEditingStatus(false);
       this.setState({
         value: this.state.oldValue,
       });
       return;
-    }
-    if (!error) {
-      updateEditingStatus(false);
     }
   }
 

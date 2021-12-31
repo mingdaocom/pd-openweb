@@ -114,7 +114,7 @@ export default class SubList extends React.Component {
             recordId={recordId}
             masterData={{
               worksheetId,
-              formData: formData.map(c => _.pick(c, ['controlId', 'type', 'value'])).filter(c => !!c.value),
+              formData: formData.map(c => _.pick(c, ['controlId', 'type', 'value', 'options'])).filter(c => !!c.value),
             }}
             projectId={projectId}
             onChange={this.handleChange}

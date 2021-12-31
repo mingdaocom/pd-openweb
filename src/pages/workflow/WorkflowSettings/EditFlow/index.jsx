@@ -207,10 +207,10 @@ class EditFlow extends Component {
   };
 
   /**
-   * 更新节点说明
+   * 更新节点别名和说明
    */
-  updateNodeDesc = (id, desc) => {
-    this.props.dispatch(updateNodeDesc(id, desc));
+  updateNodeDesc = (id, alias, desc) => {
+    this.props.dispatch(updateNodeDesc(id, alias, desc));
   };
 
   /**

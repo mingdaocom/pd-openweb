@@ -32,9 +32,6 @@ const Con = styled.div`
       cursor: pointer !important;
       border: none !important;
       min-height: 30px;
-      .ant-select-selection-search {
-        display: none;
-      }
       .customAntSelectPlaceHolder,
       .ant-select-selection-placeholder {
         color: #bdbdbd !important;
@@ -113,7 +110,7 @@ export default function Options(props) {
     return (
       <Con>
         <Dropdown
-          {...control}
+          {...{ ...control, advancedSetting: { ...control.advancedSetting, allowadd: '0' } }}
           default={undefined}
           dropdownClassName="scrollInTable"
           value={JSON.stringify(values)}

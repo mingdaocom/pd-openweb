@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { Icon, ScrollView, LoadDiv, Dialog, Dropdown } from 'ming-ui';
 import HistoryHeader from './HistoryHeader';
 import HistoryList from './HistoryList';
 import HistoryDetail from './HistoryDetail';
@@ -12,6 +11,8 @@ import process from '../../api/process';
 import UserHead from 'src/pages/feed/components/userHead';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { FLOW_STATUS } from './config';
+import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -35,6 +36,8 @@ class History extends Component {
       historyIndex: 1,
       historyIsMore: true,
       historyList: [],
+      showFilter: false,
+      filters: {},
     };
   }
 
@@ -53,10 +56,15 @@ class History extends Component {
 
   getData = () => {
     const processId = this.props.flowInfo.id;
-    const { pageIndex, workId, instanceId } = this.state;
+    const { pageIndex, workId, instanceId, filters } = this.state;
     const { pageSize, filterPara } = this;
+    let para = { pageIndex, processId, pageSize, workId, instanceId, ...filterPara };
 
-    const para = { pageIndex, processId, pageSize, workId, instanceId, ...filterPara };
+    if (_.isEmpty(filters) && !para.startDate) {
+      para.startDate = moment()
+        .add(-6, 'M')
+        .format('YYYY/MM/DD HH:mm');
+    }
 
     !this.requestPending &&
       api
@@ -100,7 +108,7 @@ class History extends Component {
   handleRestoreVisible = id => {
     const { flowInfo } = this.props;
 
-    Confirm({
+    Dialog.confirm({
       title: _l('确定恢复到指定版本吗？'),
       description: _l('执行此操作后，流程将回滚到指定的发布版本。您未发布的流程修改将会被清除，此操作无法撤回'),
       okText: _l('确定恢复'),
@@ -228,16 +236,32 @@ class History extends Component {
     );
   }
 
+  formatData = data => {
+    return Object.keys(data).map(key => ({ ...data[key], value: key }));
+  };
+
+  renderTimePlaceholder = () => {
+    const { filters } = this.state;
+    const [startTime, endTime] = (filters.time || []).map(item => item && moment(item).format('YYYY/MM/DD HH:mm'));
+    if (!startTime && !endTime) return <span className="placeholder">{_l('最大跨度180天')}</span>;
+    return `${startTime} ~ ${endTime}`;
+  };
+
   render() {
     const { flowInfo } = this.props;
-    const { data, selectActionId, hasMoreData, historyVisible } = this.state;
+    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
+    const isMoreHistory = !_.isEmpty(filters) && !showFilter;
 
     if (selectActionId) {
       return (
         <ScrollView className="workflowHistoryWrap flex">
           <div className="workflowHistoryContentWrap">
-            <HistoryDetail id={selectActionId} onClick={() => this.setState({ selectActionId: '' })} />
+            <HistoryDetail
+              id={selectActionId}
+              disabled={isMoreHistory}
+              onClick={() => this.setState({ selectActionId: '' })}
+            />
           </div>
         </ScrollView>
       );
@@ -247,9 +271,52 @@ class History extends Component {
       <ScrollView className="workflowHistoryWrap flex">
         <div className="lastPublishInfo">
           <div className="flex Gray">
-            {!parentId && !lastPublishDate
-              ? _l('待流程发布后，在此处查看流程的运行历史')
-              : _l('可查看最近一年内的流程运行记录')}
+            {!parentId && !lastPublishDate ? (
+              _l('待流程发布后，在此处查看流程的运行历史')
+            ) : isMoreHistory ? (
+              <Fragment>
+                {_l('流程状态：')}
+                <span
+                  className="pointer ThemeHoverColor3"
+                  onClick={() => {
+                    this.setState({ showFilter: true });
+                  }}
+                >
+                  {FLOW_STATUS[filters.status].text}
+                </span>
+                <span className="mLeft15">{_l('筛选时间：')}</span>
+                <span
+                  className="pointer ThemeHoverColor3"
+                  onClick={() => {
+                    this.setState({ showFilter: true });
+                  }}
+                >
+                  {this.renderTimePlaceholder()}
+                </span>
+
+                <span
+                  className="mLeft15 pointer ThemeColor3 ThemeHoverColor2"
+                  onClick={() => {
+                    this.setState({ filters: {} });
+                    this.handleFilter({});
+                  }}
+                >
+                  {_l('清除筛选')}
+                </span>
+              </Fragment>
+            ) : (
+              <Fragment>
+                {_l('默认查看最近半年内的流程运行记录')}
+                <span
+                  className="mLeft10 ThemeColor3 ThemeHoverColor2 pointer"
+                  onClick={() => {
+                    this.setState({ showFilter: true });
+                  }}
+                >
+                  {_l('查看更早')}
+                </span>
+              </Fragment>
+            )}
           </div>
           {parentId ? (
             <div>
@@ -288,9 +355,22 @@ class History extends Component {
 
         <div className="workflowHistoryContentWrap">
           {this.renderInstanceContent()}
-          <HistoryHeader onFilter={this.handleFilter} />
+          <HistoryHeader
+            filters={
+              isMoreHistory
+                ? {
+                    status: filters.status,
+                    startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
+                    endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
+                  }
+                : {}
+            }
+            hideStatusAndDate={isMoreHistory}
+            onFilter={this.handleFilter}
+          />
           <HistoryList
             data={data}
+            disabled={isMoreHistory}
             updateSource={(item, index) => {
               const newData = [].concat(data);
               newData[index] = item;
@@ -301,6 +381,57 @@ class History extends Component {
             onClick={selectActionId => this.setState({ selectActionId })}
           />
         </div>
+
+        <Dialog
+          className="workflowHistoryBox"
+          closable={false}
+          visible={showFilter}
+          title={_l('筛选条件')}
+          okDisabled={!filters.status || !filters.time}
+          onCancel={() => {
+            this.setState({ showFilter: false, filters: {} });
+            this.handleFilter({});
+          }}
+          onOk={() => {
+            this.handleFilter({
+              status: filters.status,
+              startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
+              endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
+            });
+            this.setState({ showFilter: false });
+          }}
+        >
+          <div>{_l('流程状态')}</div>
+          <Dropdown
+            className="w100 mTop10"
+            isAppendToBody
+            border
+            onChange={status => this.setState({ filters: Object.assign({}, filters, { status }) })}
+            value={filters.status}
+            data={this.formatData(FLOW_STATUS)}
+            placeholder={_l('请选择')}
+          />
+          <div className="mTop20 mBottom10">{_l('时间范围')}</div>
+          <DateRangePicker
+            mode="datetime"
+            timeMode="minute"
+            selectedValue={filters.time || ['', '']}
+            children={
+              <div className="filterTimeRange">
+                <div>{this.renderTimePlaceholder()}</div>
+                <Icon icon="bellSchedule" className="Gray_9e Font18" />
+              </div>
+            }
+            onOk={time => {
+              if (time[1] - time[0] > 180 * 24 * 60 * 60 * 1000) {
+                alert('最大跨度180天');
+              } else {
+                this.setState({ filters: Object.assign({}, filters, { time }) });
+              }
+            }}
+            onClear={() => this.setState({ filters: Object.assign({}, filters, { time: '' }) })}
+          />
+        </Dialog>
       </ScrollView>
     );
   }

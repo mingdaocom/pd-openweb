@@ -12,6 +12,7 @@ import cx from 'classnames';
 import { checkLogin } from 'src/util/sso';
 import { browserIsMobile } from 'src/util';
 import { getDataByFilterXSS } from './util';
+import preall from 'src/common/preall';
 
 let request = getRequest();
 let ActionResult = {
@@ -342,4 +343,6 @@ class LoginContainer extends React.Component {
   }
 }
 
-ReactDOM.render(<LoginContainer />, document.querySelector('#app'));
+const Comp = preall(LoginContainer, { allownotlogin: true });
+
+ReactDOM.render(<Comp />, document.querySelector('#app'));

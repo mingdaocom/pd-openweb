@@ -3,7 +3,6 @@ import SelectStartOrEnd from '../SelectStartOrEndControl/SelectStartOrEnd';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { Checkbox } from 'ming-ui';
 import Color from '../Color';
-import { string } from 'mathjs';
 let obj = [_l('月'), _l('周'), _l('日')];
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周天')];
 import styled from 'styled-components';
@@ -148,10 +147,10 @@ export default function CalendarSet(props) {
           {obj.map((it, i) => {
             return (
               <li
-                className={cx('Hand', { current: string(i) === calendarType })}
+                className={cx('Hand', { current: String(i) === calendarType })}
                 onClick={() => {
-                  handleChange({ calendarType: string(i) });
-                  window.localStorage.setItem('CalendarViewType', getCalendarViewType(string(i), startData));
+                  handleChange({ calendarType: String(i) });
+                  window.localStorage.setItem('CalendarViewType', getCalendarViewType(String(i), startData));
                 }}
               >
                 {it}

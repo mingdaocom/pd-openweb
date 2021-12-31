@@ -131,6 +131,7 @@ export default class CellControl extends React.Component {
       cell.type === 33 ||
       cell.type === 21 ||
       cell.type === 28 ||
+      cell.type === 34 ||
       cell.type === 36 ||
       (cell.type === 29 && parseInt(cell.advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST)
     );
@@ -303,6 +304,13 @@ export default class CellControl extends React.Component {
     if (isediting) {
       className += ' isediting';
     }
+    if (_.isObject(cell.value) && cell.value.customCell && cell.value.type === 'text') {
+      return (
+        <div style={style} className={className}>
+          <span style={cell.value.style}>{cell.value.value}</span>
+        </div>
+      );
+    }
     if (row && _.isEmpty(row)) {
       return <div className={className} style={style} />;
     }
@@ -360,14 +368,6 @@ export default class CellControl extends React.Component {
       clearError: () => this.setState({ error: null }),
       onValidate: this.onValidate,
     };
-    // 自定义呈现
-    if (_.isObject(cell.value) && cell.value.customCell && cell.value.type === 'text') {
-      return (
-        <div style={style} className={className}>
-          <span style={cell.value.style}>{cell.value.value}</span>
-        </div>
-      );
-    }
     if (isTextControl) {
       if (cell.type === 41 || cell.type === 32 || cell.type === 10010) {
         needLineLimit = true;

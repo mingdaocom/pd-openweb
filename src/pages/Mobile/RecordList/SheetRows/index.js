@@ -23,7 +23,18 @@ class SheetRows extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSheetRows.length !== this.props.currentSheetRows.length) {
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows({ ...nextProps.currentSheetRows }),
+        dataSource: this.state.dataSource.cloneWithRows(nextProps.currentSheetRows),
+      });
+    }
+    if (nextProps.batchOptCheckedData.length !== this.props.batchOptCheckedData) {
+      const rows = nextProps.currentSheetRows.map(item => {
+        return {
+          check: nextProps.batchOptCheckedData.includes(item.rowid),
+          ...item,
+        }
+      });
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(rows),
       });
     }
   }
@@ -34,7 +45,7 @@ class SheetRows extends Component {
     }
   }
   renderRow = item => {
-    const { worksheetControls, base, view, worksheetInfo } = this.props;
+    const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData } = this.props;
     return (
       <WingBlank size="md">
         <CustomRecordCard
@@ -43,6 +54,9 @@ class SheetRows extends Component {
           view={view}
           controls={worksheetControls}
           allowAdd={worksheetInfo.allowAdd}
+          batchOptVisible={batchOptVisible}
+          batchOptCheckedData={batchOptCheckedData}
+          changeBatchOptData={this.props.changeBatchOptData}
           onClick={() => {
             window.mobileNavigateTo(
               `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
@@ -117,11 +131,13 @@ export default connect(
     currentSheetRows: state.mobile.currentSheetRows,
     worksheetControls: state.mobile.worksheetControls,
     sheetRowLoading: state.mobile.sheetRowLoading,
-    sheetView: state.mobile.sheetView
+    sheetView: state.mobile.sheetView,
+    batchOptVisible: state.mobile.batchOptVisible,
+    batchOptCheckedData: state.mobile.batchOptCheckedData,
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['changePageIndex']),
+      _.pick(actions, ['changePageIndex', 'changeBatchOptData']),
       dispatch,
   ),
 )(SheetRows);

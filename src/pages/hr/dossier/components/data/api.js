@@ -377,7 +377,7 @@ const ApiData = [
     groupType: 903,
     groups: [
       {
-        name: '明道云登录凭证',
+        name: '登录凭证',
         groupType: 0,
         fields: [
           {

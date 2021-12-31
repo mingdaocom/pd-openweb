@@ -315,17 +315,9 @@
 }
 
 #registerBox,
-.loginContainer {
+.loginContainer,
+.registerContainer {
   .backspaceT {
-    &:hover {
-      color: #1182dd;
-
-      .backspace {
-        background: url(../img/backspaceH.png) no-repeat;
-        background-size: contain;
-      }
-    }
-
     .backspace {
       vertical-align: -2px;
       display: inline-block;
@@ -334,6 +326,14 @@
       margin-right: 6px;
       background: url(../img/backspace.png) no-repeat;
       background-size: contain;
+    }
+    &:hover {
+      color: #1182dd;
+
+      .backspace {
+        background: url(../img/backspaceH.png) no-repeat;
+        background-size: contain;
+      }
     }
   }
 }

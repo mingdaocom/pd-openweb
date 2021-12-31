@@ -17,7 +17,7 @@
           font-size: 14px;
         }
         .fc-button-primary {
-          color: #9E9E9E;
+          color: #9e9e9e;
         }
         .fc-button-primary:first-child {
           padding: 0 22px 0 0;
@@ -35,8 +35,8 @@
         text-align: center;
         line-height: 20px;
         background-color: #fff;
-        border: 1px solid #9E9E9E;
-        color: #9E9E9E;
+        border: 1px solid #9e9e9e;
+        color: #9e9e9e;
         font-size: 16px;
         font-weight: 700;
         padding: 0;
@@ -47,7 +47,7 @@
     .fc-daygrid-day-number {
       .lunar {
         font-size: 9px;
-        -webkit-transform:scale(0.75)
+        -webkit-transform: scale(0.75);
       }
       .num {
         font-size: 13px;
@@ -64,7 +64,7 @@
     position: absolute;
     left: 14px;
     top: 8px;
-    color: #9E9E9E;
+    color: #9e9e9e;
     .schedule {
       font-size: 28px;
     }
@@ -76,14 +76,44 @@
     }
   }
 
-  .boxCalendar .fc-button-primary:not(:disabled):hover{
+  .boxCalendar .fc-button-primary:not(:disabled):hover {
     background-color: #fff;
   }
-  .boxCalendar .fc .fc-daygrid-more-link:hover{
+  .boxCalendar .fc .fc-daygrid-more-link:hover {
     background-color: #fff;
   }
-  .boxCalendar .fc-button-primary:not(:disabled):hover, 
+  .boxCalendar .fc-button-primary:not(:disabled):hover,
   .boxCalendar .fc-button-primary:not(:disabled):active {
     color: #9e9e99;
+  }
+  .fc-view-harness {
+    .fc-timeGridDay-view {
+      .fc-scrollgrid {
+        .fc-scrollgrid-section {
+          .fc-timegrid-body {
+            tr {
+              td {
+                height: 36px;
+              }
+            }
+          }
+        }
+      }
+    }
+    .fc-dayGridDay-view {
+      .fc-scrollgrid {
+        .fc-scrollgrid-section {
+          .fc-daygrid-body {
+            .fc-daygrid-day-events{
+              .fc-daygrid-event-harness{
+                .fc-daygrid-event{
+                  min-height: 36px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

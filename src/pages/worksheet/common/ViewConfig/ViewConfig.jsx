@@ -3,7 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { fieldCanSort, getSortData, filterHidedControls } from 'src/pages/worksheet/util';
 import Trigger from 'rc-trigger';
-import { Icon, Tooltip, ScrollView, Menu, MenuItem, CheckBlock, Radio } from 'ming-ui';
+import { Icon, Tooltip, ScrollView, Menu, MenuItem, CheckBlock, Radio, Dropdown } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import sheetAjax from 'src/api/worksheet';
@@ -47,7 +47,7 @@ const viewTypeConfig = [
   { type: 'Setting', name: _l('设置'), icon: '' }, // 设置
   { type: 'Filter', name: _l('数据过滤'), icon: 'worksheet_filter' }, // 筛选
   { type: 'Sort', name: _l('排序'), icon: 'folder-sort' }, // 排序
-  { type: 'Controls', name: _l('隐藏字段'), icon: 'visibility_off' }, // 字段
+  { type: 'Controls', name: _l('显示字段'), icon: 'visibility' }, // 字段
   { type: 'Color', name: _l('颜色'), icon: 'task-color' }, // 颜色
   { type: 'FastFilter', name: _l('快速筛选'), icon: 'smart_button_black_24dp' }, // 快速筛选
   { type: 'NavGroup', name: _l('筛选列表'), icon: 'list' }, // 快速筛选
@@ -136,7 +136,7 @@ class ViewConfigCon extends Component {
     const sortingColumns = formatSortingColumns(columns);
     const sortType = view.sortType || this.getDefaultSortValue(sortCid, sortingColumns);
     const { showControlName = true, showControls = [], controls = [] } = view;
-    const { customdisplay = '0' } = getAdvanceSetting(view); //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
+    const { customdisplay = '0', refreshtime = '0' } = getAdvanceSetting(view); //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
     const syssort = getAdvanceSetting(view, 'syssort') || SYS.filter(o => !controls.includes(o));
     const sysids = getAdvanceSetting(view, 'sysids') || [];
     // sysids：显示的系统字段 syssort：系统字段顺序
@@ -153,6 +153,7 @@ class ViewConfigCon extends Component {
       sortType,
       moreSort: view.moreSort || [],
       customdisplay: customdisplay === '1' || showControls.length > 0 ? '1' : '0', // 是否配置自定义显示列
+      refreshtime,
       showControlName, //显示字段名称
       sysids,
       syssort,
@@ -230,6 +231,7 @@ class ViewConfigCon extends Component {
       controlsSorts,
       rowHeight,
       customdisplay,
+      refreshtime,
       displayControls,
       sysids,
       syssort,
@@ -254,6 +256,7 @@ class ViewConfigCon extends Component {
       ...config,
       advancedSetting: updateViewAdvancedSetting(view, {
         customdisplay,
+        refreshtime,
         sysids: JSON.stringify(sysids),
         syssort: JSON.stringify(syssort),
       }),
@@ -298,7 +301,7 @@ class ViewConfigCon extends Component {
     };
     let hideLengthStr = (
       <span>
-        <span className="titleTxt">{_l('隐藏字段')}</span>
+        <span className="titleTxt">{_l('显示字段')}</span>
         {columnsList.length - controlsList.length > 0 && (
           <span className="Gray_9e InlineBlock mLeft5 numText">{`${columnsList.length - controlsList.length}/${
             columnsList.length
@@ -385,7 +388,15 @@ class ViewConfigCon extends Component {
   }
 
   renderViewSetting() {
-    const { showControls = [], controlsSorts, rowHeight, customdisplay = '0', sysids, syssort } = this.state;
+    const {
+      showControls = [],
+      controlsSorts,
+      rowHeight,
+      customdisplay = '0',
+      refreshtime = '0',
+      sysids,
+      syssort,
+    } = this.state;
     const { columns, view } = this.props;
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
@@ -477,6 +488,62 @@ class ViewConfigCon extends Component {
                 }}
               />
             </div>
+            <div className="commonConfigItem Font13 bold">{_l('自动刷新')}</div>
+            <div className="Gray_9e mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
+            <div className="commonConfigItem mTop12 mBottom32">
+              <Dropdown
+                className="w100"
+                border
+                value={refreshtime}
+                data={[
+                  {
+                    text: _l('关闭'),
+                    value: '0',
+                  },
+                  // {
+                  //   text: _l('10秒'),
+                  //   value: '10',
+                  // },
+                  {
+                    text: _l('30秒'),
+                    value: '30',
+                  },
+                  {
+                    text: _l('1分钟'),
+                    value: '60',
+                  },
+                  {
+                    text: _l('2分钟'),
+                    value: '120',
+                  },
+                  {
+                    text: _l('3分钟'),
+                    value: '180',
+                  },
+                  {
+                    text: _l('4分钟'),
+                    value: '240',
+                  },
+                  {
+                    text: _l('5分钟'),
+                    value: '300',
+                  },
+                ]}
+                onChange={value => {
+                  this.setState(
+                    {
+                      refreshtime: value,
+                    },
+                    () => {
+                      this.handleSave({
+                        editAttrs: ['advancedSetting'],
+                      });
+                    },
+                  );
+                }}
+              />
+            </div>
+
             <div className="commonConfigItem Font13 bold">{_l('显示列')}</div>
             <div className="flexRow commonConfigItem ming Dropdown w100 mTop15 hideColumns">
               <div className="">

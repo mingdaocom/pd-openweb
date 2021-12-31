@@ -17,7 +17,6 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 
-
 @withRouter
 @AppPermissions
 class RecordList extends Component {
@@ -99,8 +98,14 @@ class RecordList extends Component {
       filters,
       controls,
       calendarview,
+      batchOptVisible,
+      appColor,
+      history,
+      appDetail,
     } = this.props;
     const { viewId } = base;
+    const { detail } = appDetail;
+    const { appNaviStyle } = detail;
     const { views, name } = worksheetInfo;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { params } = match;
@@ -117,6 +122,8 @@ class RecordList extends Component {
         !_.isEmpty(viewControls) ||
         !(!begindate || isDelete)
       : true;
+    const { hash } = history.location;
+    const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
     return (
       <Drawer
         className="filterStepListWrapper"
@@ -127,36 +134,59 @@ class RecordList extends Component {
       >
         <div className="flexColumn h100">
           <DocumentTitle title={name} />
-          <div className="viewTabs z-depth-1">
-            <Tabs
-              tabBarInactiveTextColor="#9e9e9e"
-              tabs={views}
-              page={viewIndex === -1 ? 999 : viewIndex}
-              onTabClick={view => {
-                this.setCache({viewId: view.viewId, worksheetId: params.worksheetId});
-                this.handleChangeView(view);
-                this.props.changeMobileGroupFilters([]);
-              }}
-              renderTab={tab => <span className="ellipsis">{tab.name}</span>}
-            ></Tabs>
-          </div>
+          {!batchOptVisible && (
+            <div className="viewTabs z-depth-1">
+              <Tabs
+                tabBarInactiveTextColor="#9e9e9e"
+                tabs={views}
+                page={viewIndex === -1 ? 999 : viewIndex}
+                onTabClick={view => {
+                  this.setCache({ viewId: view.viewId, worksheetId: params.worksheetId });
+                  this.handleChangeView(view);
+                  this.props.changeMobileGroupFilters([]);
+                  localStorage.setItem(`mobileViewSheet-${view.viewId}`, view.viewType);
+                }}
+                renderTab={tab => <span className="ellipsis">{tab.name}</span>}
+              ></Tabs>
+            </div>
+          )}
           <View view={view} />
-          {!location.href.includes('mobile/app') && (
+          {!batchOptVisible && (!md.global.Account.isPortal || (md.global.Account.isPortal && appNaviStyle !== 2)) && (
             <Back
-              style={[0, 1, 3, 4].includes(view.viewType) ? { bottom: '20px' } : {}}
+              style={
+                !isHideTabBar && location.href.includes('mobile/app')
+                  ? [1, 3, 4].includes(view.viewType) ||
+                    (appNaviStyle === 2 && !_.isEmpty(view.navGroup) && view.navGroup.length)
+                    ? { bottom: '78px' }
+                    : { bottom: '130px' }
+                  : [1, 3, 4].includes(view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
+                  ? { bottom: '20px' }
+                  : { bottom: '78px' }
+              }
               onClick={() => {
-                window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+                if (!isHideTabBar && location.href.includes('mobile/app')) {
+                  window.mobileNavigateTo('/mobile/appHome');
+                } else {
+                  window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+                }
               }}
             />
           )}
+          {view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
+            <div className="batchOperation" onClick={() => this.props.changeBatchOptVisible(true)}>
+              <Icon icon={'task-complete'} className="Font24" />
+            </div>
+          )}
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           worksheetInfo.allowAdd &&
-          isHaveSelectControl ? (
+          isHaveSelectControl &&
+          !batchOptVisible ? (
             <div className="addRecordItemWrapper">
               <Button
+                style={{ backgroundColor: appColor }}
                 className={cx('addRecordBtn flex valignWrapper', {
-                  Right: [2, 5].includes(view.viewType) && currentSheetRows.length,
-                  mRight16: [2, 5].includes(view.viewType) && currentSheetRows.length,
+                  Right: ([2, 5].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
+                  mRight16: ([2, 5].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
                 })}
                 onClick={() => {
                   window.mobileNavigateTo(
@@ -195,13 +225,20 @@ class RecordList extends Component {
 
 export default connect(
   state => ({
-    base: state.mobile.base,
-    worksheetInfo: state.mobile.worksheetInfo,
-    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
-    currentSheetRows: state.mobile.currentSheetRows,
-    workSheetLoading: state.mobile.workSheetLoading,
-    filters: state.mobile.filters,
-    controls: state.sheet.controls,
+    ..._.pick(
+      state.mobile,
+      'base',
+      'worksheetInfo',
+      'sheetSwitchPermit',
+      'currentSheetRows',
+      'workSheetLoading',
+      'filters',
+      'controls',
+      'appColor',
+      'batchOptVisible',
+      'isCharge',
+      'appDetail',
+    ),
     calendarview: state.sheet.calendarview,
   }),
   dispatch =>
@@ -214,6 +251,7 @@ export default connect(
         'emptySheetRows',
         'updateFilters',
         'changeMobileGroupFilters',
+        'changeBatchOptVisible',
       ]),
       dispatch,
     ),

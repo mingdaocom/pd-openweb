@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio } from 'ming-ui';
+import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio, Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
@@ -81,6 +81,7 @@ export default class Approval extends Component {
       condition,
       multipleLevelType,
       multipleLevel,
+      batch,
     } = data;
 
     if (!selectNodeId) {
@@ -116,6 +117,7 @@ export default class Approval extends Component {
         passBtnName: passBtnName.trim() || _l('通过'),
         overruleBtnName: overruleBtnName.trim() || _l('否决'),
         auth,
+        batch,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -144,10 +146,7 @@ export default class Approval extends Component {
    */
   renderApprovalUser() {
     const { data } = this.state;
-    const list = [
-      { text: _l('自定义'), value: 0 },
-      { text: _l('按部门层级逐级审批'), value: 1 },
-    ];
+    const list = [{ text: _l('自定义'), value: 0 }, { text: _l('按部门层级逐级审批'), value: 1 }];
 
     return (
       <Fragment>
@@ -387,10 +386,7 @@ export default class Approval extends Component {
                   <Dropdown
                     menuStyle={{ left: 'inherit', right: 0 }}
                     style={{ marginTop: -1 }}
-                    data={[
-                      { text: _l('重新执行流程'), value: 0 },
-                      { text: _l('直接返回审批节点'), value: 1 },
-                    ]}
+                    data={[{ text: _l('重新执行流程'), value: 0 }, { text: _l('直接返回审批节点'), value: 1 }]}
                     value={data.callBackType}
                     onChange={callBackType => {
                       this.updateSource({ callBackType });
@@ -410,6 +406,28 @@ export default class Approval extends Component {
             )}
           </Fragment>
         )}
+        <Checkbox
+          className="mTop15 flexRow"
+          text={
+            <span>
+              {_l('允许批量审批')}
+              <Tooltip
+                popupPlacement="bottom"
+                text={
+                  <span>
+                    {_l(
+                      '允许审批人批量处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见）字段。',
+                    )}
+                  </span>
+                }
+              >
+                <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+              </Tooltip>
+            </span>
+          }
+          checked={data.batch}
+          onClick={checked => this.updateSource({ batch: !checked })}
+        />
       </Fragment>
     );
   }

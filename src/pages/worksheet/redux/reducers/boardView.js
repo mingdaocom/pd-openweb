@@ -108,7 +108,7 @@ const updateRecord = (state, data) => {
           rows: [currentItem],
           totalNum: 1,
         };
-        if (name) nextBoard = { ...nextBoard, name };
+        nextBoard = { ...nextBoard, name: name || data.targetName };
         if (_.get(data, ['info', 'type'])) nextBoard = { ...nextBoard, type: data.info.type };
         return update(state, {
           [keyIndex]: { rows: { $splice: [[rowIndex, 1]] }, totalNum: { $apply: item => item - 1 } },
@@ -151,7 +151,7 @@ const updateTitleData = (state, obj) => {
 };
 
 function updateMultiSelectBoard(boardData, data) {
-  const { rowId, item, prevValue, currentValue } = data;
+  const { rowId, item, prevValue, currentValue, info = {}, selectControl = {} } = data;
   const prevKeys = JSON.parse(prevValue || '[]');
   const currKeys = JSON.parse(currentValue || '[]');
 
@@ -159,48 +159,60 @@ function updateMultiSelectBoard(boardData, data) {
    * 获取增加记录和移除记录的看板 并分别更新
    * 若取消所有勾选则将记录移动至未分类
    * 若记录之前没有任何勾选项 则从未分类中移除
+   * 新增的记录不在已有看板中，新增看板
    */
   const addRecordKeys = currKeys.length > 0 ? currKeys.filter(key => !prevKeys.includes(key)) : ['-1'];
   const removeRecordKeys = prevKeys.length > 0 ? prevKeys.filter(key => !currKeys.includes(key)) : ['-1'];
   if (addRecordKeys.length) {
     addRecordKeys.forEach(key => {
       const index = boardData.findIndex(item => item.key === key);
-      boardData = update(boardData, {
-        [index]: { totalNum: { $apply: item => item + 1 }, rows: { $push: [JSON.stringify(item)] } },
-      });
+      if (index > 0) {
+        boardData = update(boardData, {
+          [index]: { totalNum: { $apply: item => item + 1 }, rows: { $push: [JSON.stringify(item)] } },
+        });
+      } else {
+        const name = (_.find(selectControl.options || [], i => i.key === key) || {}).value;
+        boardData = update(boardData, {
+          $push: [{ key: data.key, name, type: info.type, rows: [JSON.stringify(item)], totalNum: 1 }],
+        });
+      }
     });
   }
   if (removeRecordKeys.length) {
     removeRecordKeys.forEach(key => {
       const index = boardData.findIndex(item => item.key === key);
-      boardData = update(boardData, {
-        [index]: {
-          totalNum: { $apply: item => item - 1 },
-          rows: {
-            $apply: list => {
-              const ids = list.map(item => _.get(JSON.parse(item), 'rowid'));
-              const rowIndex = ids.findIndex(id => id === rowId);
-              return update(list, { $splice: [[rowIndex, 1]] });
+      if (index > 0) {
+        boardData = update(boardData, {
+          [index]: {
+            totalNum: { $apply: item => item - 1 },
+            rows: {
+              $apply: list => {
+                const ids = list.map(item => _.get(JSON.parse(item), 'rowid'));
+                const rowIndex = ids.findIndex(id => id === rowId);
+                return update(list, { $splice: [[rowIndex, 1]] });
+              },
             },
           },
-        },
-      });
+        });
+      }
     });
   }
   // 更新当前存在的记录
   currKeys.forEach(key => {
     const index = boardData.findIndex(item => item.key === key);
-    boardData = update(boardData, {
-      [index]: {
-        rows: {
-          $apply: list => {
-            const ids = list.map(item => _.get(JSON.parse(item), 'rowid'));
-            const rowIndex = ids.findIndex(id => id === rowId);
-            return update(list, { $splice: [[rowIndex, 1, JSON.stringify(item)]] });
+    if (index > 0) {
+      boardData = update(boardData, {
+        [index]: {
+          rows: {
+            $apply: list => {
+              const ids = list.map(item => _.get(JSON.parse(item), 'rowid'));
+              const rowIndex = ids.findIndex(id => id === rowId);
+              return update(list, { $splice: [[rowIndex, 1, JSON.stringify(item)]] });
+            },
           },
         },
-      },
-    });
+      });
+    }
   });
 
   return boardData;

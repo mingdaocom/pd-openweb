@@ -50,6 +50,9 @@ export default function (expression, formData, control = {}) {
     try {
       let result = eval(expression);
       switch (control.type) {
+        case WIDGETS_TO_API_TYPE_ENUM.TEXT:
+          result = _.isUndefined(result) ? '' : result;
+          break;
         case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
           result = String(result).toLowerCase() === 'true' ? 1 : 0;
           break;
@@ -58,6 +61,10 @@ export default function (expression, formData, control = {}) {
           try {
             result = result.match(/[\d\.]+/)[0];
           } catch (err) {}
+          break;
+        case WIDGETS_TO_API_TYPE_ENUM.DATE:
+        case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
+          result = result && moment(result).isValid() ? moment(result).format() : undefined;
           break;
       }
       if (_.isNaN(result)) {

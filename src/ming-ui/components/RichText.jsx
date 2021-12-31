@@ -363,6 +363,7 @@ export default ({
             ],
           },
           image: {
+            resizeUnit: 'px',
             toolbar: [
               'imageTextAlternative',
               'imageStyle:inline',

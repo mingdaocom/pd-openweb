@@ -97,7 +97,7 @@ class Header extends Component {
   /**
    * 刷新
    */
-  refresh = _.debounce(this.props.refreshDetail, 300);
+  refresh = _.debounce(this.props.refreshDetail, 500);
 
   /**
    * 添加子任务

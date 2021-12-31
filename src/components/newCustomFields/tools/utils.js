@@ -146,10 +146,12 @@ function formatRowToServer(row, controls = []) {
       if (!c) {
         return undefined;
       } else {
-        return _.pick(formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }), [
-          'controlId',
-          'value',
-        ]);
+        return _.pick(
+          c.type === 14
+            ? { ...c, editType: 1, value: row[key] }
+            : formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }),
+          ['controlId', 'value', 'editType'],
+        );
       }
     })
     .filter(c => c && c.controlId && !_.isUndefined(c.value));
@@ -448,6 +450,10 @@ export const getCurrentValue = (item, data, control) => {
             .filter(item => _.includes(ids, item.key) && !item.isDeleted)
             .map(i => i.value)
             .join('、');
+        //关联记录单条
+        case 29:
+          const formatData = JSON.parse(data || '[]')[0] || {};
+          return formatData.name;
         //公式
         case 31:
           const dot = item.dot || 0;

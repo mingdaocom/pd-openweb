@@ -185,6 +185,8 @@ export function addWorksheetRow(
           triggerUniqueError(data.badData);
         } else if (data.resultCode === 14) {
           alert(_l('验证码错误'), 3);
+        } else if (data.resultCode === 8) {
+          alert(_l('你访问的表单已停止数据收集！'), 2);
         } else {
           alert(_l('提交发生错误'), 3);
         }

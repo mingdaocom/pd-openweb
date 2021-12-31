@@ -518,15 +518,16 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
   const result = {};
   try {
     rows.forEach(async row => {
-      const controldata = controls
-        .filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).editable)
-        .map(c => ({ ...c, value: row[c.controlId] || '' }));
+      const rulesResult = checkRulesErrorOfRow({ from, rules, controls, row });
+      const rulesErrors = rulesResult.errors;
+      const controldata = rulesResult.formData.filter(
+        c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
+      );
       const formdata = new DataFormat({
         data: controldata,
         from: FROM.NEWRECORD,
       });
       let errorItems = formdata.getErrorControls();
-      const rulesErrors = checkRulesErrorOfRow({ from, rules, controls, row });
       rulesErrors.forEach(errorItem => {
         if (_.includes(showControls, errorItem.controlId)) {
           result[row.rowid + '-' + errorItem.controlId] = errorItem.errorMessage;
@@ -802,7 +803,7 @@ export function isValidControlId(id) {
  */
 export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
   let errors = [];
-  updateRulesData({
+  const formData = updateRulesData({
     from,
     rules,
     data: controls.map(c => ({ ...c, value: row[c.controlId] })),
@@ -814,14 +815,14 @@ export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
       }
     },
   });
-  return errors;
+  return { formData, errors };
 }
 
 /**
  * 获取字段字段规则错误
  */
 export function checkRulesErrorOfRowControl({ from, rules, controls, control, row }) {
-  const errors = checkRulesErrorOfRow({ from, rules, controls, control, row });
+  const errors = checkRulesErrorOfRow({ from, rules, controls, control, row }).errors;
   return _.find(errors, e => e.controlId === control.controlId);
 }
 
@@ -864,6 +865,11 @@ export function formatControlValue(cell) {
       }
     }
     switch (type) {
+      case 6: // NUMBER 数值
+      case 8: // MONEY 金额
+        return String(value).trim() !== '' && _.isNumber(Number(value)) && !_.isNaN(Number(value))
+          ? Number(value)
+          : undefined;
       case 19: // AREA_INPUT 地区
       case 23: // AREA_INPUT 地区
       case 24: // AREA_INPUT 地区

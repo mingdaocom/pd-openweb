@@ -423,6 +423,19 @@ class WorksheetSahre extends React.Component {
             });
             return;
           }
+          if (data.resultCode === 8 && isPublicquery) {
+            //查询已关闭 visibleType: 1,
+            this.setState({
+              listLoading: false,
+              loading: false,
+              step: SHARE_TYPE.PUBLICQUERYINPUT,
+              rowsList: [],
+              publicqueryRes: {
+                visibleType: 1,
+              },
+            });
+            return;
+          }
           if (data.resultCode === 7) {
             this.setState({
               listLoading: false,

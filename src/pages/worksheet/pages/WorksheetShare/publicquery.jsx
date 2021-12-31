@@ -152,14 +152,14 @@ class Publicquery extends React.Component {
                     }),
                     ticket: res.ticket,
                     randStr: res.randstr,
-                    captchaType: md.staticglobal.CaptchaType(),
+                    captchaType: md.staticglobal.getCaptchaType(),
                   });
                 }
               };
-              if (md.staticglobal.CaptchaType() === 1) {
+              if (md.staticglobal.getCaptchaType() === 1) {
                 new captcha(callback);
               } else {
-                new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+                new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
               }
             }}
           >

@@ -97,7 +97,12 @@ export default class NodeOperate extends Component {
         className="workflowNotes"
         placement="bottom"
         arrowPointAtCenter={true}
-        title={<div style={{ whiteSpace: 'pre-wrap' }}>{item.desc}</div>}
+        title={
+          <Fragment>
+            {item.alias && <div>{_l('别名：%0', item.alias)}</div>}
+            {item.desc && <div style={{ whiteSpace: 'pre-wrap' }}>{item.desc}</div>}
+          </Fragment>
+        }
       >
         <Box
           className="Font15 pointer icon-knowledge-message"
@@ -118,22 +123,70 @@ export default class NodeOperate extends Component {
     const { processId, item, updateNodeDesc } = this.props;
 
     Dialog.confirm({
-      title: _l('节点说明'),
+      className: 'processNodeBox',
+      title: _l('节点别名和说明'),
       width: 540,
       description: (
-        <textarea
-          id="workflowNodeNotes"
-          className="boderRadAll_4 pAll10 Gray"
-          placeholder={_l('请输入节点说明')}
-          defaultValue={item.desc}
-          autoFocus
-        />
+        <Fragment>
+          <div className="Gray">{_l('别名')}</div>
+          <div className="mTop5 Gray_75 Font12">
+            {_l(
+              '用于在邮件节点中插入动态值时指代当前节点，比使用节点ID更有辨识度。节点别名仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头，不可重复。',
+            )}
+          </div>
+          <div className="relative">
+            <div className="processNodeErrorMessage Hidden">
+              {_l('非法字符')}
+              <i className="processNodeErrorArrow" />
+            </div>
+            <input
+              type="text"
+              id="processNodeAlias"
+              className="processNodeAlias mTop10"
+              placeholder={_l('请输入别名')}
+              defaultValue={item.alias}
+              maxLength={64}
+              onChange={e => {
+                const alias = e.target.value.trim();
+
+                $('.processNodeBox .processNodeErrorMessage').toggleClass(
+                  'Hidden',
+                  !(alias && !/^[a-zA-Z]{1}\w*$/.test(alias)),
+                );
+              }}
+            />
+          </div>
+
+          <div className="Gray mTop15">{_l('说明')}</div>
+          <textarea
+            id="workflowNodeNotes"
+            className="boderRadAll_4 pAll10 Gray mTop10"
+            placeholder={_l('请输入节点说明')}
+            defaultValue={item.desc}
+          />
+        </Fragment>
       ),
       okText: _l('保存'),
       onOk: () => {
-        const value = document.getElementById('workflowNodeNotes').value.trim();
-        flowNode.nodeDesc({ processId, nodeId: item.id, desc: value }).then(() => {
-          updateNodeDesc(item.id, value);
+        return new Promise((resolve, reject) => {
+          const alias = document.getElementById('processNodeAlias').value.trim();
+          const desc = document.getElementById('workflowNodeNotes').value.trim();
+
+          if (alias && !/^[a-zA-Z]{1}\w*$/.test(alias)) {
+            alert(_l('请输入正确的别名'), 2);
+            reject(true);
+          } else {
+            flowNode.nodeDesc({ processId, nodeId: item.id, alias, desc }).then(result => {
+              if (result) {
+                updateNodeDesc(item.id, alias, desc);
+                resolve();
+              } else {
+                document.getElementById('processNodeAlias').value = '';
+                alert(_l('该别名已存在'), 2);
+                reject(true);
+              }
+            });
+          }
         });
       },
     });
@@ -214,7 +267,7 @@ export default class NodeOperate extends Component {
     const { item, copyBranchNode } = this.props;
     const list = [
       { text: _l('修改名称'), icon: 'edit', events: () => this.setState({ isEdit: true }) },
-      { text: _l('编辑节点说明'), icon: 'knowledge-message', events: () => this.addNodeDescribe() },
+      { text: _l('编辑节点别名和说明'), icon: 'knowledge-message', events: () => this.addNodeDescribe() },
       { text: _l('节点复制'), icon: 'copy', events: copyBranchNode },
       {
         text: _l('删除'),
@@ -269,7 +322,7 @@ export default class NodeOperate extends Component {
 
         {!_.includes([NODE_TYPE.FIRST, NODE_TYPE.BRANCH_ITEM], item.typeId) && <CopyNode {...this.props} />}
 
-        {item.desc && this.renderNodeDescribe()}
+        {(item.alias || item.desc) && this.renderNodeDescribe()}
 
         {this.renderMoreOperate()}
 

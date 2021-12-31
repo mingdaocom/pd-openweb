@@ -633,3 +633,54 @@
     }
   }
 }
+
+.processNodeBox {
+  .processNodeAlias {
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    height: 36px;
+    line-height: 36px;
+    width: 100%;
+    font-size: 13px;
+    color: #333;
+    &:focus {
+      border-color: #2196f3;
+    }
+    &::-webkit-input-placeholder {
+      color: #bdbdbd;
+    }
+    &:-moz-placeholder {
+      color: #bdbdbd;
+    }
+    &::-moz-placeholder {
+      color: #bdbdbd;
+    }
+    &:-ms-input-placeholder {
+      color: #bdbdbd;
+    }
+  }
+  .processNodeErrorMessage {
+    position: absolute;
+    bottom: 36px;
+    transform: translateY(-7px);
+    z-index: 1;
+    left: 0;
+    border-radius: 3px;
+    color: #fff;
+    padding: 5px 12px;
+    white-space: nowrap;
+    background: #f44336;
+    font-size: 12px;
+    .processNodeErrorArrow {
+      position: absolute;
+      transform: translateY(-5px);
+      z-index: 1;
+      left: 12px;
+      background: transparent;
+      border: 6px solid transparent;
+      border-top-color: #f44336;
+      bottom: -17px;
+    }
+  }
+}

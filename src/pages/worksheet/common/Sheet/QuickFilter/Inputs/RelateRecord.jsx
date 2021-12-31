@@ -111,8 +111,7 @@ export default function RelateRecord(props) {
         advancedSetting={{}}
         controls={relationControls}
         selected={!values}
-        allowOpenRecord={allowlink === '1'}
-        showCoverAndControls={ddset === '1' || parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD}
+        showCoverAndControls={true}
         popupContainer={() => document.body}
         multiple={isMultiple}
         renderSelected={active ? undefined : renderSelected}

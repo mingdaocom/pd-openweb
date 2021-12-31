@@ -8,6 +8,7 @@ import { LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import { sendTwofactorVerifyCode } from 'src/api/login';
 import captcha from 'src/components/captcha';
+import preall from 'src/common/preall';
 
 let request = getRequest();
 let ActionResult = {
@@ -132,7 +133,7 @@ class TwofactorContainer extends React.Component {
       }
       this.sendTwofactorVerifyCode(
         Object.assign({}, res, {
-          captchaType: md.staticglobal.CaptchaType(),
+          captchaType: md.staticglobal.getCaptchaType(),
         }),
         () => {
           this.sendFn();
@@ -140,10 +141,10 @@ class TwofactorContainer extends React.Component {
       );
     };
     if (needTicket) {
-      if (md.staticglobal.CaptchaType() === 1) {
+      if (md.staticglobal.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
-        new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
       }
     } else {
       callback();
@@ -219,4 +220,6 @@ class TwofactorContainer extends React.Component {
   }
 }
 
-ReactDOM.render(<TwofactorContainer />, document.querySelector('#app'));
+const Comp = preall(TwofactorContainer, { allownotlogin: true });
+
+ReactDOM.render(<Comp />, document.querySelector('#app'));

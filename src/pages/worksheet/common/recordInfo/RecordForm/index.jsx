@@ -195,6 +195,9 @@ export default function RecortForm(props) {
   useEffect(() => {
     if (!recordId) {
       try {
+        if (customwidget.current && customwidget.current.dataFormat) {
+          onChange(customwidget.current.dataFormat.getDataSource(), { noSaveTemp: true });
+        }
         onChange(customwidget.current.dataFormat.getDataSource(), { noSaveTemp: true });
       } catch (err) {
         console.log(err);
@@ -292,6 +295,8 @@ export default function RecortForm(props) {
                   recordbase={recordbase}
                   recordinfo={recordinfo}
                   updateRecordDailogOwner={updateRecordDailogOwner}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  viewId={viewId}
                 />
               )}
               <div className={cx('recordInfoFormContent', { noAuth: !allowEdit })}>

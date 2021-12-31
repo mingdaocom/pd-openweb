@@ -175,7 +175,7 @@ export default function RelateSheet(props) {
           checkedValue={enumDefault}
           onChange={value => {
             if (value === 1) {
-              let nextData = { ...data, enumDefault: 1, size: WHOLE_SIZE / 2 };
+              let nextData = { ...data, enumDefault: 1 };
               // 从关联多条列表切换到关联单条自动切换为单条卡片
               if (showtype === '2') {
                 nextData = handleAdvancedSettingChange(nextData, { showtype: '1' });
@@ -183,7 +183,7 @@ export default function RelateSheet(props) {
               onChange(nextData);
               return;
             }
-            onChange({ enumDefault: value, size: value === 2 ? WHOLE_SIZE : data.size });
+            onChange({ enumDefault: value, size: value === 2 && showtype !== '3' ? WHOLE_SIZE : data.size });
           }}
           size="small"
         />
@@ -198,7 +198,7 @@ export default function RelateSheet(props) {
             let nextData = handleAdvancedSettingChange(data, { showtype: value });
             // 非卡片 铺满整行
             if (value !== '3') {
-              nextData = { ...nextData, size: WHOLE_SIZE };
+              nextData = { ...nextData };
             } else {
               nextData = handleAdvancedSettingChange(nextData, { searchfilters: '' });
             }
@@ -544,12 +544,12 @@ export default function RelateSheet(props) {
             }}
           />
         )}
-        {isRelateView && showtype === '2' && (
+        {showtype === '2' && (
           <div className="labelWrap">
             <Checkbox
               className="allowSelectRecords"
               size="small"
-              text={_l('隐藏不在视图范围内的记录')}
+              text={_l('按用户权限查看')}
               checked={!!+isHiddenOtherViewRecord}
               onClick={checked =>
                 onChange({
@@ -566,7 +566,7 @@ export default function RelateSheet(props) {
                 title={
                   <span>
                     {_l(
-                      '如勾选此项，则列表中会隐藏不在视图范围内的记录和没有查看权的记录。如：关联了“销售线索”中“新线索”视图时，其他状态的线索不会显示在列表，没有被分发“新线索”视图的角色也看不到任何记录。',
+                      '未勾选时，用户在关联列表中可以查看所有关联数据。勾选后，按照用户对关联的工作表/视图的权限查看，隐藏无权限的数据或字段',
                     )}
                   </span>
                 }

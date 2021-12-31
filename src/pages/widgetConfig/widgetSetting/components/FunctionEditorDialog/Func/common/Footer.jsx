@@ -1,7 +1,7 @@
 import React from 'react';
 import { func } from 'prop-types';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { Button, Support } from 'ming-ui';
 
 const FooterCon = styled.div`
   height: 90px;
@@ -18,7 +18,7 @@ export default function Footer(props) {
   const { onClose, onSave } = props;
   return (
     <FooterCon>
-      <a href="/">{_l('使用帮助')}</a>
+      <Support href="https://help.mingdao.com/function.html" type={3} text={_l('使用帮助')} />
       <div className="flex"></div>
       <Button type="link" onClick={onClose}>
         {_l('取消')}

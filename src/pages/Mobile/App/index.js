@@ -99,6 +99,8 @@ class App extends Component {
 
   renderList(data) {
     const { hideSheetVisible } = this.state;
+    const { appDetail } = this.props;
+    const { detail } = appDetail;
     return (
       <List>
         {data.workSheetInfo
@@ -107,7 +109,7 @@ class App extends Component {
             <Item
               multipleLine
               key={item.workSheetId}
-              thumb={<SvgIcon url={item.iconUrl} fill="#757575" size={22} />}
+              thumb={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={22} />}
               extra={item.status === 2 ? <Icon icon="public-folder-hidden" /> : null}
               onClick={e => {
                 if (_.includes(e.target.classList, 'icon-public-folder-hidden')) {
@@ -125,6 +127,8 @@ class App extends Component {
 
   renderSudoku(data) {
     const { hideSheetVisible } = this.state;
+    const { appDetail } = this.props;
+    const { detail } = appDetail;
     return (
       <Flex className="sudokuWrapper" wrap="wrap">
         {data.workSheetInfo
@@ -138,7 +142,7 @@ class App extends Component {
                 }}
               >
                 {item.status === 2 && <Icon icon="public-folder-hidden" />}
-                <SvgIcon addClassName="mTop20" url={item.iconUrl} fill="#757575" size={30} />
+                <SvgIcon addClassName="mTop20" url={item.iconUrl} fill={detail.iconColor} size={30} />
                 <div className="name">{item.workSheetName}</div>
               </div>
             </div>
@@ -379,6 +383,7 @@ class App extends Component {
 
   renderBody() {
     const { appSection, detail } = this.props.appDetail;
+    const { batchOptVisible } = this.props;
 
     if ([0, 1].includes(detail.appNaviStyle)) {
       return this.renderContent();
@@ -401,44 +406,38 @@ class App extends Component {
         <div className={cx('flex overflowHidden', { recordListWrapper: !isHideNav })}>
           {selectedTab === 'more' ? this.renderContent() : this.renderRecordList(data)}
         </div>
-        <TabBar
-          unselectedTintColor="#949494"
-          tintColor="#33A3F4"
-          barTintColor="white"
-          hidden={isHideNav}
-          noRenderContent={true}
-        >
-          {sheetList.map((item, index) => (
+        {!batchOptVisible && (
+          <TabBar
+            unselectedTintColor="#949494"
+            tintColor={detail.iconColor}
+            barTintColor="white"
+            hidden={isHideNav}
+            noRenderContent={true}
+          >
+            {sheetList.map((item, index) => (
+              <TabBar.Item
+                title={item.workSheetName}
+                key={item.workSheetId}
+                icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
+                selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}
+                selected={selectedTab === item.workSheetId}
+                onPress={() => {
+                  this.handleSwitchSheet(item);
+                }}
+              ></TabBar.Item>
+            ))}
             <TabBar.Item
-              title={item.workSheetName}
-              key={item.workSheetId}
-              icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
-              selectedIcon={<SvgIcon url={item.iconUrl} fill="#33a3f4" size={20} />}
-              selected={selectedTab === item.workSheetId}
+              title={_l('更多')}
+              key="more"
+              icon={<Icon className="Font20" icon="menu" />}
+              selectedIcon={<Icon className="Font20" icon="menu" />}
+              selected={selectedTab === 'more'}
               onPress={() => {
-                this.handleSwitchSheet(item);
+                const { params } = this.props.match;
+                this.navigateTo(`/mobile/app/${params.appId}`);
               }}
             ></TabBar.Item>
-          ))}
-          <TabBar.Item
-            title={_l('更多')}
-            key="more"
-            icon={<Icon className="Font20" icon="menu" />}
-            selectedIcon={<Icon className="Font20" icon="menu" />}
-            selected={selectedTab === 'more'}
-            onPress={() => {
-              const { params } = this.props.match;
-              this.navigateTo(`/mobile/app/${params.appId}`);
-            }}
-          ></TabBar.Item>
-        </TabBar>
-        {!isHideTabBar && (
-          <Back
-            className={cx({ low: isHideNav })}
-            onClick={() => {
-              this.navigateTo('/mobile/appHome');
-            }}
-          />
+          </TabBar>
         )}
       </div>
     );
@@ -464,11 +463,12 @@ class App extends Component {
 }
 
 export default connect(state => {
-  const { appDetail, isAppLoading, isQuitSuccess } = state.mobile;
+  const { appDetail, isAppLoading, isQuitSuccess, batchOptVisible } = state.mobile;
   // status: null, // 0: 加载中 1:正常 2:关闭 3:删除 4:不是应用成员 5:是应用成员但未分配视图
   return {
     appDetail,
     isAppLoading,
     isQuitSuccess,
+    batchOptVisible,
   };
 })(App);

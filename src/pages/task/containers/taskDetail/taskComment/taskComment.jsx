@@ -30,7 +30,7 @@ class TaskComment extends Component {
 
   render() {
     const { taskId, taskDetails } = this.props;
-    const { data } = taskDetails[taskId];
+    const { data } = taskDetails[taskId] || {};
 
     return (
       <div className="taskComment clearfix">

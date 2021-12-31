@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { arrayOf, func, number, shape } from 'prop-types';
+import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { refreshSheet, updateQuickFilter, resetQuickFilter } from 'worksheet/redux/actions';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import Conditions from './Conditions';
 
 const Con = styled.div`
@@ -26,7 +27,7 @@ function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
 function QuickFilter(props) {
-  const { width, view, controls, filters = [], refreshSheet, updateQuickFilter, resetQuickFilter } = props;
+  const { width, view, projectId, controls, filters = [], refreshSheet, updateQuickFilter, resetQuickFilter } = props;
   const filtersLength = useRef(filters.length);
   const needClickSearch = useRef(_.get(view, 'advancedSetting.clicksearch'));
   let colNum = 2;
@@ -84,10 +85,13 @@ function QuickFilter(props) {
   return (
     <Con>
       <Conditions
+        projectId={projectId}
         operateIsNewLine={operateIsNewLine}
         firstIsFullLine={firstIsFullLine}
         view={view}
-        controls={controls}
+        controls={controls.filter(c =>
+          _.includes(FASTFILTER_CONDITION_TYPE, c.type === 30 ? c.sourceControlType : c.type),
+        )}
         filters={visibleFilters}
         colNum={colNum}
         fullShow={fullShow}
@@ -103,6 +107,7 @@ function QuickFilter(props) {
 
 QuickFilter.propTypes = {
   width: number,
+  projectId: string,
   filters: arrayOf(shape({})),
   view: shape({}),
   controls: arrayOf(shape({})),

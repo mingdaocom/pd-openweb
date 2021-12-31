@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
+import cx from 'classnames';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import webCache from 'src/api/webCache';
@@ -17,6 +18,9 @@ import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import { getRandomString } from 'src/util';
+const {
+  app: { addAppItem },
+} = window.private;
 
 function loadLinkStyle(url) {
   const head = document.getElementsByTagName('head')[0];
@@ -39,14 +43,11 @@ class AppHome extends React.Component {
     this.state = {
       width: document.documentElement.clientWidth,
       countData: {},
-      modal: false,
       guideStep: 0,
     };
   }
   componentDidMount() {
-    const maturityTime = moment(md.global.Account.createTime)
-      .add(7, 'day')
-      .format('YYYY-MM-DD');
+    const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
     const isAdmin = md.global.Account.projects[0]
       ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
       : false;
@@ -106,14 +107,35 @@ class AppHome extends React.Component {
   };
   showActionSheet = () => {
     const { hideTemplateLibrary } = md.global.SysSettings;
-    const BUTTONS = [hideTemplateLibrary ? null : _l('从应用库添加'), _l('创建自定义应用'), _l('取消')].filter(item => item);
+    const BUTTONS = [
+      hideTemplateLibrary ? null : { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
+      { name: _l('自定义创建'), icon: 'add', iconClass: 'Font22' },
+    ].filter(item => item);
 
     ActionSheet.showActionSheetWithOptions(
       {
-        options: BUTTONS,
-        cancelButtonIndex: BUTTONS.length - 1,
+        options: BUTTONS.map(item => (
+          <Fragment>
+            <Icon className={cx('mRight10 Gray_9e', item.iconClass)} icon={item.icon} />
+            <span className="Bold">{item.name}</span>
+          </Fragment>
+        )),
+        message: (
+          <div className="flexRow header">
+            <span className="Font13">{_l('添加应用')}</span>
+            <div
+              className="closeIcon"
+              onClick={() => {
+                ActionSheet.close();
+              }}
+            >
+              <Icon icon="close" />
+            </div>
+          </div>
+        ),
       },
       buttonIndex => {
+        if (buttonIndex === -1) return;
         if (hideTemplateLibrary) {
           buttonIndex = buttonIndex + 1;
         }
@@ -121,9 +143,8 @@ class AppHome extends React.Component {
           this.props.history.push(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          this.setState({
-            modal: true,
-          });
+          const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'));
+          Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },
     );
@@ -156,28 +177,6 @@ class AppHome extends React.Component {
           </div>
           <span className="bold">{_l('流程通知')}</span>
         </div>
-        <Modal
-          transparent
-          className="createInfoModal"
-          visible={this.state.modal}
-          maskClosable={false}
-          onClose={() => {
-            this.setState({ modal: false });
-          }}
-          title={
-            <span className="LineHeight22">
-              {_l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'))}
-            </span>
-          }
-          footer={[
-            {
-              text: _l('我知道了'),
-              onPress: () => {
-                this.setState({ modal: false });
-              },
-            },
-          ]}
-        ></Modal>
       </div>
     );
   }
@@ -241,7 +240,7 @@ class AppHome extends React.Component {
       const list = type === 'validProject' || type === 'expireProject' ? data.projectApps : data;
       const distance = ((this.state.width - 12) / 4 - 56) / 2;
       return (
-        <React.Fragment key={`${type}-${getRandomString()}`}>
+        <Fragment key={`${type}-${getRandomString()}`}>
           <div className="pTop30" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
             {this.forTitle(data, type)}
           </div>
@@ -250,6 +249,7 @@ class AppHome extends React.Component {
               return this.renderItem(item);
             })}
             {type === 'validProject' &&
+              !addAppItem.addAppIcon &&
               !(_.find(md.global.Account.projects, item => item.projectId === data.projectId) || {}).cannotCreateApp &&
               this.renderItem({
                 id: 'add',
@@ -259,7 +259,7 @@ class AppHome extends React.Component {
                 onClick: this.showActionSheet,
               })}
           </Flex>
-        </React.Fragment>
+        </Fragment>
       );
     }
   }
@@ -349,14 +349,14 @@ class AppHome extends React.Component {
     const { guideStep } = this.state;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="listConBox h100">
           {this.renderProcess()}
           {this.renderContent()}
           <TabBar action="appHome" />
         </div>
         {guideStep ? this.renderGuide() : null}
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

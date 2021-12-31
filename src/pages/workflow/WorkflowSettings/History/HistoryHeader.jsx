@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { func } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import Dropdown from '../../components/Dropdown';
 import Search from '../../components/Search';
 import { FLOW_STATUS } from './config';
+import moment from 'moment';
 
 export default class HistoryHeader extends Component {
   static propTypes = {
@@ -20,7 +21,7 @@ export default class HistoryHeader extends Component {
     searchVal: '',
   };
 
-  formatData = (data) => {
+  formatData = data => {
     return Object.keys(data).map(key => ({ ...data[key], value: key }));
   };
 
@@ -52,7 +53,7 @@ export default class HistoryHeader extends Component {
     this.props.onFilter(this.handlePara());
   };
 
-  handleFilter = (obj) => {
+  handleFilter = obj => {
     this.setState(obj, this.onFilterParaChanged);
   };
 
@@ -60,6 +61,21 @@ export default class HistoryHeader extends Component {
     const { status, time } = this.state;
     const data = this.formatData(FLOW_STATUS);
     data.unshift({ value: 'all', text: _l('所有状态') });
+
+    if (this.props.hideStatusAndDate) {
+      return (
+        <div className="historyHeader">
+          <div className="filterName">
+            <Search
+              handleChange={searchVal =>
+                this.props.onFilter(Object.assign({}, this.props.filters, { title: searchVal.trim() }))
+              }
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="historyHeader">
         <div className="statusDropdown">
@@ -75,6 +91,7 @@ export default class HistoryHeader extends Component {
           mode="datetime"
           timeMode="minute"
           placeholder={_l('筛选时间范围')}
+          min={moment().add(-6, 'M')}
           selectedValue={time}
           children={
             <div className="filterTimeRange">

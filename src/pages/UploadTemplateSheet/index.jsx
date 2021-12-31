@@ -163,7 +163,7 @@ export default class UploadTemplateSheet extends React.Component {
           it.advancedSetting &&
           it.advancedSetting.showtype === '1' && //关联表卡片
           it.showControls.map(o => {
-            let data = it.relationControls.find(a => o === a.controlId);
+            let data = (it.relationControls || []).find(item => o === item.controlId);
             if (data) {
               if (
                 data.attribute === 1 ||

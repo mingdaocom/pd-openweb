@@ -1,8 +1,8 @@
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 // 筛选方式
 const TEXT_TYPE = [
-  { text: _l('是'), value: FILTER_CONDITION_TYPE.EQ },
-  { text: _l('包含'), value: FILTER_CONDITION_TYPE.LIKE },
+  { text: _l('精准搜索'), value: FILTER_CONDITION_TYPE.EQ },
+  { text: _l('模糊搜索'), value: FILTER_CONDITION_TYPE.LIKE },
 ];
 export const TEXT = {
   //文本
@@ -63,6 +63,11 @@ export const OPTIONS = {
     9, // 单选 平铺
     // 36, // 检查框
     29, // 关联表
+    26, // 成员
+    27, // 部门
+    19, // 地区 19'省23'省-市'24'省-市-县'
+    23, // 地区 19'省23'省-市'24'省-市-县'
+    24, // 地区 19'省23'省-市'24'省-市-县'
   ],
   txt: '允许选择数量',
   // },
@@ -173,14 +178,14 @@ export const FASTFILTER_CONDITION_TYPE = [
   16, // 日期
   17, // 时间段 日期17 日期时间18
   18, // 时间段 日期17 日期时间18
-  // 19, // 地区 19'省23'省-市'24'省-市-县'
-  // 23, // 地区 19'省23'省-市'24'省-市-县'
-  // 24, // 地区 19'省23'省-市'24'省-市-县'
+  19, // 地区 19'省23'省-市'24'省-市-县'
+  23, // 地区 19'省23'省-市'24'省-市-县'
+  24, // 地区 19'省23'省-市'24'省-市-县'
   // 21, // 自由连接
   // 22, // 分段
   // 25, // 大写金额
-  // 26, // 成员
-  // 27, // 部门
+  26, // 成员
+  27, // 部门
   // 28, // 等级
   29, // 关联表
   // 30, // 他表字段

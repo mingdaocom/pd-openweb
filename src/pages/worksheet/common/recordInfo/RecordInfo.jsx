@@ -190,7 +190,12 @@ export default class RecordInfo extends Component {
         }
       }
       this.setState({
-        recordinfo: { ...data, allowAdd, ...(data.rules ? {} : { rules }), isWorksheetQuery },
+        recordinfo: {
+          ...data,
+          allowAdd,
+          ...(data.rules ? {} : { rules }),
+          isWorksheetQuery: isWorksheetQuery || _.isUndefined(isWorksheetQuery),
+        },
         tempFormdata: needUpdateControlIds
           ? tempFormdata
               .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
@@ -625,9 +630,10 @@ export default class RecordInfo extends Component {
       recordTitle,
       allowEdit: _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
     };
-    let Con = !this.hadWaterMark && recordinfo.projectId ? WaterMark : React.Fragment;
+    const useWaterMark = !this.hadWaterMark && recordinfo.projectId;
+    let Con = useWaterMark ? WaterMark : React.Fragment;
     return (
-      <Con projectId={recordinfo.projectId}>
+      <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
         <RecordInfoContext.Provider value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }) }}>
           {this.renderDialogs()}
           {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && (

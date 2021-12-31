@@ -177,11 +177,17 @@ class RecordCalendar extends Component {
     if (!this.isSafari()) {
       document.querySelector('.fc-view-harness-active').addEventListener('dblclick', this.dbClickDay, true);
     }
-    $('.fc-toolbar-chunk')
-      .last()
-      .on('click', () => {
+    if (browserIsMobile()) {
+      $('.fc-toolbar-chunk').on('click', () => {
         this.getEventsFn();
       });
+    } else {
+      $('.fc-toolbar-chunk')
+        .last()
+        .on('click', () => {
+          this.getEventsFn();
+        });
+    }
   };
 
   getEventsFn = () => {
@@ -420,7 +426,13 @@ class RecordCalendar extends Component {
     const { calendarData = {}, editable } = calendarview;
     const { appId, worksheetId, viewId } = base;
     const currentView = this.getCurrentView(this.props);
-    const { begindate = '', enddate = '', colorid = '', hour24 = '0' } = getAdvanceSetting(currentView);
+    const {
+      begindate = '',
+      enddate = '',
+      colorid = '',
+      hour24 = '0',
+      calendarType = '0',
+    } = getAdvanceSetting(currentView);
     const { recordInfoVisible, recordId, isLoading, rows = [], showPrevNext = false } = this.state;
     const { calenderEventList } = calendarview;
     const typeEvent = this.props.getInitType();
@@ -429,6 +441,18 @@ class RecordCalendar extends Component {
     const { height, calendarFormatData } = this.state;
     const isDelete = begindate && (!startData || !startData.controlId);
     let isHaveSelectControl = !begindate || isDelete; // 是否选中了开始时间 //开始时间字段已删除
+    let mobileInitialView =
+      calendarType === '0'
+        ? 'dayGridMonth'
+        : calendarType === '1'
+        ? isTimeStyle(startData)
+          ? 'timeGridWeek'
+          : 'dayGridWeek'
+        : calendarType === '2'
+        ? isTimeStyle(startData)
+          ? 'timeGridDay'
+          : 'dayGridDay'
+        : '';
     if (isHaveSelectControl) {
       return (
         <Wrap>
@@ -531,10 +555,10 @@ class RecordCalendar extends Component {
               themeSystem="bootstrap"
               height={height}
               ref={this.calendarComponentRef}
-              initialView={browserIsMobile() ? 'dayGridMonth' : initialView} // 选中的日历模式
+              initialView={!browserIsMobile() ? initialView : mobileInitialView} // 选中的日历模式
               headerToolbar={{
-                right: btnList,
-                center: 'title',
+                right: browserIsMobile() ? 'today' : btnList,
+                center: browserIsMobile() ? 'prev,title next' : 'title',
                 left: '',
               }}
               views={{
@@ -592,7 +616,7 @@ class RecordCalendar extends Component {
                 }
                 return (
                   <React.Fragment>
-                    {item.view.type !== 'dayGridMonth' && this.getLunar(item)}
+                    {item.view.type !== 'dayGridMonth' && !browserIsMobile() && this.getLunar(item)}
                     <div className="num">{st}</div>
                   </React.Fragment>
                 );
@@ -665,17 +689,29 @@ class RecordCalendar extends Component {
                 let time = info.event._def.extendedProps[begindate] || '';
                 let d = $(info.el.offsetParent).find('.fc-event-time');
                 if (!info.event.allDay && info.view.type !== 'dayGridMonth') {
-                  d.html(moment(time).format('HH:mm'));
+                  if (!browserIsMobile()) {
+                    d.html(moment(time).format('HH:mm'));
+                  } else {
+                    d.html(``);
+                  }
                 } else {
                   if (hour24 === '0') {
                     //12小时
                     let hour = new Date(time.replace(/\-/g, '/')).getHours();
                     let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
                     let h = hour % 12 <= 0 ? 12 : hour % 12;
-                    d.html(`${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`);
+                    if (!browserIsMobile()) {
+                      d.html(`${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`);
+                    } else {
+                      d.html(``);
+                    }
                   } else {
                     //24小时
-                    d.html(moment(time).format('HH:mm'));
+                    if (!browserIsMobile()) {
+                      d.html(moment(time).format('HH:mm'));
+                    } else {
+                      d.html(``);
+                    }
                   }
                 }
                 if (info.event.allDay) {

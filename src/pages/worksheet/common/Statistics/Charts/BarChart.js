@@ -14,16 +14,17 @@ import {
 } from './common';
 import { formatSummaryName, getIsAlienationColor } from 'src/pages/worksheet/common/Statistics/common';
 
-const formatDataCount = (data, isVertical, newYaxisList) => {
+export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalName'));
   return result.map(item => {
-    const { originalName } = item[0];
+    const { originalName, name } = item[0];
     const count = item.reduce((count, item) => count + item.value, 0);
     const value = formatrChartValue(count, false, newYaxisList);
     const data = {
       type: 'text',
       position: {
         originalName,
+        name,
         value: count,
       },
       content: value,

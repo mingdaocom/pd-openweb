@@ -83,7 +83,7 @@ export default class RecordCardListDialog extends Component {
       showNewRecord: false,
       selectAll: false,
     };
-    this.debounceLoadRecord = _.debounce(this.loadRecord, 500);
+    this.handleSearch = _.debounce(this.handleSearch, 500);
   }
   componentDidMount() {
     const { control } = this.props;
@@ -126,7 +126,7 @@ export default class RecordCardListDialog extends Component {
       worksheetInfo,
     } = this.state;
     let getFilterRowsPromise, args;
-    const pageSize = 20;
+    const pageSize = 50;
     let filterControls;
     if (control && control.advancedSetting.filters) {
       if (worksheetInfo) {
@@ -221,7 +221,7 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
       },
-      this.debounceLoadRecord,
+      this.loadRecord,
     );
   }
   @autobind
@@ -233,7 +233,7 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
       },
-      this.debounceLoadRecord,
+      this.loadRecord,
     );
   }
   @autobind
@@ -513,7 +513,7 @@ export default class RecordCardListDialog extends Component {
               {showList && canSelectAll && (
                 <Checkbox
                   className="InlineBlock mTop8"
-                  text={_l('全选')}
+                  text={_l('全选（已选择%0/%1条）', selectedRecords.length, list.length)}
                   checked={selectAll}
                   onClick={() => {
                     this.setState({ selectAll: !selectAll, selectedRecords: selectAll ? [] : list.slice(0, 1000) });
@@ -541,7 +541,9 @@ export default class RecordCardListDialog extends Component {
                     disabled={!selectedRecords.length}
                     onClick={this.handleConfirm}
                   >
-                    {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
+                    {multiple && !canSelectAll && selectedRecords.length
+                      ? _l('确定(%0)', selectedRecords.length)
+                      : _l('确定')}
                   </Button>
                 </span>
               )}

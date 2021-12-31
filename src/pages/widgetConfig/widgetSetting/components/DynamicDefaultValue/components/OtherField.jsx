@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, useState, useEffect } from 'react';
 import { string } from 'prop-types';
 import cx from 'classnames';
 import update from 'immutability-helper';
-import { getControlType } from '../util';
+import { getControlType, getControls } from '../util';
 import { OtherFieldWrap } from '../styled';
 import { SYSTEM_FIELD_TO_TEXT } from '../config';
 
@@ -18,7 +18,13 @@ export default function OtherField(props) {
     globalSheetControls = [],
   } = props;
   const { worksheetId } = globalSheetInfo;
-  const controls = props.controls.concat(globalSheetControls);
+  const originControls = props.controls.concat(globalSheetControls);
+  const [controls, setControls] = useState(originControls);
+
+  useEffect(() => {
+    setControls(originControls);
+  }, [data.controlId]);
+
   const getFieldName = (controls, fieldId) => {
     if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
     return (
@@ -30,18 +36,20 @@ export default function OtherField(props) {
   };
   const getFieldNameById = (item, controls) => {
     const { cid, rcid } = item;
+    const filterControls = getControls({ data, controls, isCurrent: true });
     if (rcid) {
       // 子表控件中 如果是主记录
       if (rcid === worksheetId) {
-        return { fieldName: getFieldName(controls, cid) };
+        return { fieldName: getFieldName(filterControls, cid) };
       }
       const record = _.find(controls, item => item.controlId === rcid);
+      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls') });
       return {
         recordName: _.get(record, 'controlName'),
-        fieldName: getFieldName(_.get(record, 'relationControls'), cid),
+        fieldName: getFieldName(reFilterControls, cid),
       };
     } else {
-      return { fieldName: getFieldName(controls, cid) };
+      return { fieldName: getFieldName(filterControls, cid) };
     }
   };
   const delField = tag => {
@@ -86,7 +94,8 @@ export default function OtherField(props) {
           onClick={e => {
             e.stopPropagation();
             delField(item);
-          }}></i>
+          }}
+        ></i>
       )}
     </OtherFieldWrap>
   );

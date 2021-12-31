@@ -175,7 +175,7 @@ BindAccount.sendChangeAccountVerifyCode = function(obj) {
         account: accountInfo,
         ticket: res.ticket,
         randStr: res.randstr,
-        captchaType: md.staticglobal.CaptchaType(),
+        captchaType: md.staticglobal.getCaptchaType(),
       })
       .then(function(data) {
         if (data === 1) {
@@ -212,10 +212,10 @@ BindAccount.sendChangeAccountVerifyCode = function(obj) {
       });
   };
 
-  if (md.staticglobal.CaptchaType() === 1) {
+  if (md.staticglobal.getCaptchaType() === 1) {
     new captcha(callback);
   } else {
-    new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
   }
 };
 // 更新绑定帐号
@@ -303,7 +303,7 @@ BindAccount.validateBindAccount = function(obj, $txtLoginPassword, callback) {
       .checkAccount({
         ticket: res.ticket,
         randStr: res.randstr,
-        captchaType: md.staticglobal.CaptchaType(),
+        captchaType: md.staticglobal.getCaptchaType(),
         password: encrypt(password),
       })
       .then(function(data) {
@@ -327,10 +327,10 @@ BindAccount.validateBindAccount = function(obj, $txtLoginPassword, callback) {
       .fail();
   };
 
-  if (md.staticglobal.CaptchaType() === 1) {
+  if (md.staticglobal.getCaptchaType() === 1) {
     new captcha(throttled);
   } else {
-    new TencentCaptcha(md.staticglobal.TencentAppId, throttled).show();
+    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
   }
 };
 // 向手机或邮箱发送验证码

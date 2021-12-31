@@ -87,3 +87,16 @@ export const dealBoardViewData = props => {
     return res;
   }
 };
+
+export const getTargetName = (value, controls = {}, { type, enumDefault }) => {
+  if (type === 26) {
+    return value;
+  } else if ([9, 11].includes(type)) {
+    const findItem = _.find(controls.options || [], i => i.key === JSON.parse(value || [])[0]);
+    return findItem.value;
+  } else if (type === 29) {
+    return JSON.parse(value || {}).name;
+  } else if (type === 28) {
+    return value + `${enumDefault === 2 ? _l('级') : _l('星')}`;
+  }
+};

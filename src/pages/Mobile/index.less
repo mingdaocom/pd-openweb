@@ -17,6 +17,33 @@ input::placeholder {
   color: #bdbdbd;
 }
 
+.am-action-sheet {
+  .header {
+    line-height: 24px;
+    justify-content: space-between;
+    color: #9e9e9e;
+    .closeIcon {
+      width: 24px;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+    }
+  }
+  .am-action-sheet-button-list-item {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    text-align: left;
+    padding: 0 18px;
+    overflow: hidden;
+    &:last-child {
+      margin-bottom: 10px;
+    }
+  }
+  .am-action-sheet-button-list-item::before {
+    content: none !important;
+  }
+}
+
 .am-action-sheet, .actionSheetModal {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;

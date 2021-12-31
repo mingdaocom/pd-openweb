@@ -35,7 +35,7 @@ export default class Today extends Component {
       todayVisible: false,
       direction: 'left'
     }
-    this.debounceScroll = _.debounce(this.handleScroll, 300);
+    this.debounceScroll = _.debounce(this.handleScroll, 500);
   }
   componentDidMount() {
     const { chartScroll } = this.props.gunterView;

@@ -66,6 +66,7 @@ export default function SelectOptionList(props) {
           <Dropdown
             isAppendToBody
             border
+            openSearch
             value={app}
             data={formatAppsToDropdown(apps, appId)}
             onChange={value => setInfo({ app: value })}

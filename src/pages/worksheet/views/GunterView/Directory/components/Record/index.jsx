@@ -96,7 +96,7 @@ export default class Record extends Component {
       endTimeEdit: false,
       recordInfoVisible: false
     }
-    this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 200);
+    this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 500);
   }
   get canedit() {
     const { row, base, sheetSwitchPermit } = this.props;

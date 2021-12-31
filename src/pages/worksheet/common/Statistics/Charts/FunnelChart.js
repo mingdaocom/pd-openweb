@@ -108,7 +108,7 @@ export default class extends Component {
     this.FunnelChart.render();
   }
   componentWillUnmount() {
-    this.FunnelChart.destroy();
+    this.FunnelChart && this.FunnelChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { map, displaySetup } = nextProps.reportData;

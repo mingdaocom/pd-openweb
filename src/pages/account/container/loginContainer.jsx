@@ -136,7 +136,7 @@ export default class Container extends React.Component {
         () => {
           this.doLogin(
             Object.assign({}, res, {
-              captchaType: md.staticglobal.CaptchaType(),
+              captchaType: md.staticglobal.getCaptchaType(),
             }),
           );
         },
@@ -144,10 +144,10 @@ export default class Container extends React.Component {
     };
     if (isValid()) {
       if (isFrequentLoginError) {
-        if (md.staticglobal.CaptchaType() === 1) {
+        if (md.staticglobal.getCaptchaType() === 1) {
           new captcha(callback);
         } else {
-          new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
         }
       } else {
         callback();

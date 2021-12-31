@@ -4,6 +4,9 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import './index.less';
 import 'src/pages/Mobile/MyHome/index.less';
+const {
+  app: { appManagementHeader },
+} = window.private;
 
 @withRouter
 export default class TabBar extends Component {
@@ -15,27 +18,27 @@ export default class TabBar extends Component {
     return (
       <div className="appTabBar">
         <div
-          className={cx('itemTab', {action: action === 'appHome'})}
+          className={cx('itemTab', { action: action === 'appHome' })}
           onClick={() => {
             history.push('/mobile/appHome');
           }}
         >
-          <Icon icon="workbench"/>
+          <Icon icon="workbench" />
           <span>{_l('首页')}</span>
         </div>
         {!md.global.SysSettings.hideTemplateLibrary && (
           <div
-            className={cx('itemTab', {action: action === 'appBox'})}
+            className={cx('itemTab', { action: action === 'appBox' })}
             onClick={() => {
               history.push('/mobile/appBox');
             }}
           >
-            <Icon icon="application_library"/>
+            <Icon icon="application_library" />
             <span>{_l('应用库')}</span>
           </div>
         )}
         <div
-          className={cx('itemTab', {action: action === 'myHome'})}
+          className={cx('itemTab', { action: action === 'myHome' })}
           onClick={() => {
             history.push('/mobile/myHome');
           }}

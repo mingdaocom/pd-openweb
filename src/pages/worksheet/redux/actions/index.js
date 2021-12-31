@@ -269,8 +269,21 @@ export function updateQuickFilter(filter = [], view) {
         if (c.values) {
           result.values = result.values.filter(_.identity);
         }
+        // 关联记录
         if (c.dataType === 29) {
           result.values = result.values.map(v => v.rowid);
+        }
+        // 人员
+        if (c.dataType === 26) {
+          result.values = result.values.map(v => v.accountId);
+        }
+        // 部门
+        if (c.dataType === 27) {
+          result.values = result.values.map(v => v.departmentId);
+        }
+        // 地区
+        if (_.includes([19, 23, 24], c.dataType)) {
+          result.values = result.values.map(v => v.id);
         }
         return result;
       }),
@@ -389,23 +402,23 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
   return function (dispatch) {
     const headersConfig = {
       Authorization: `access_token ${access_token}`,
-    }
+    };
     const base = {
       appId,
       worksheetId,
-      viewId
-    }
+      viewId,
+    };
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
       base,
     });
-    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(res => {
-      dispatch({
-        type: 'WORKSHEET_INIT',
-        value: res,
-      });
-    });
-  }
+    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(
+      res => {
+        dispatch({
+          type: 'WORKSHEET_INIT',
+          value: res,
+        });
+      },
+    );
+  };
 }
-
-

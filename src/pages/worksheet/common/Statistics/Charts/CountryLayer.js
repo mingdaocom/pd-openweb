@@ -155,7 +155,10 @@ export default class extends Component {
     if (!nextProps.loading && this.props.loading) {
       const { map } = nextProps.reportData;
       const data = setColorLavel(map);
-      this.CountryLayerChart && this.CountryLayerChart.updateData(data);
+      const { CountryLayerChart } = this;
+      if (CountryLayerChart && CountryLayerChart.updateData) {
+        CountryLayerChart.updateData(data);
+      }
     }
   }
   getChartConfig(props) {

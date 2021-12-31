@@ -64,7 +64,9 @@ export const isCustomOptions = (item = {}) => {
 // 根据类型筛选 可用的动态默认值类型
 const FILTER = {
   // 文本
-  2: item => _.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId),
+  2: item =>
+    (_.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId)) ||
+    isSingleRelate(item),
   3: item => _.includes([3], item.type),
   4: item => _.includes([4], item.type),
   5: item => _.includes(CAN_AS_EMAIL_DYNAMIC_FIELD, item.type),

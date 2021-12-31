@@ -48,7 +48,7 @@ function QuickFilter(props) {
   const showQueryBtn = view.advancedSetting && view.advancedSetting.enablebtn && view.advancedSetting.enablebtn === '1';
   const store = useRef({});
   const [values, setValues] = useState({});
-  const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 300));
+  const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(() =>
     filters.map(filter => ({
       ...filter,

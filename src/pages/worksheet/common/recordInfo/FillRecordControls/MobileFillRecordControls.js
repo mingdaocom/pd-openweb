@@ -3,6 +3,7 @@ import { WingBlank, Button } from 'antd-mobile';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
+import { getSubListError } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 
@@ -27,7 +28,7 @@ const Con = styled.div`
       text-decoration: none;
     }
     .edit {
-      color: #2196F3;
+      color: #2196f3;
     }
     .am-button {
       height: 36px;
@@ -36,7 +37,9 @@ const Con = styled.div`
     .am-button-primary:hover {
       color: #fff;
     }
-    .am-button, .am-button::before, .am-button-active::before{
+    .am-button,
+    .am-button::before,
+    .am-button-active::before {
       border-radius: 50px;
     }
   }
@@ -86,13 +89,52 @@ class FillRecordControls extends React.Component {
       showError: false,
     };
   }
-
+  cellObjs = {};
   customwidget = React.createRef();
+  formcon = React.createRef();
   handleSave = () => {
-    const { onSubmit } = this.props;
+    const { onSubmit, writeControls } = this.props;
     const { formData, updatedControlIds, showError } = this.state;
-    const customwidgetData = this.customwidget.current.getSubmitData();
-    const { hasRuleError, hasError } = customwidgetData;
+    let { data, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
+    data = data.filter(item => _.find(writeControls, writeControl => writeControl.controlId === item.controlId));
+    const subListControls = formData.filter(item => item.type === 34);
+    if (subListControls.length) {
+      const errors = subListControls
+        .map(control => ({
+          id: control.controlId,
+          value:
+            control.value &&
+            control.value.rows &&
+            control.value.rows.length &&
+            getSubListError(control.value, control.relationControls, control.showControls, 3),
+        }))
+        .filter(c => !_.isEmpty(c.value));
+      if (errors.length) {
+        hasError = true;
+        errors.forEach(error => {
+          const errorSublist = (this.cellObjs || {})[error.id];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: !_.isEmpty(error.value),
+              cellErrors: error.value,
+            });
+          }
+        });
+      } else {
+        subListControls.forEach(control => {
+          const errorSublist = (this.cellObjs || {})[control.controlId];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: false,
+              cellErrors: {},
+            });
+          }
+        });
+      }
+      if (this.formcon.current.querySelector('.cellControlErrorTip')) {
+        hasError = true;
+      }
+    }
 
     if (hasError && !showError) {
       this.setState({
@@ -121,26 +163,30 @@ class FillRecordControls extends React.Component {
     const { formData, updatedControlIds, showError } = this.state;
     return (
       <Con>
-        <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
-          <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
-          <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
-        </div>
         <div className="flex customFieldsWrapper">
-          <CustomFields
-            ref={this.customwidget}
-            data={formData}
-            recordId={recordId}
-            from={6}
-            projectId={projectId}
-            worksheetId={worksheetId}
-            showError={showError}
-            onChange={(data, ids) => {
-              this.setState({
-                formData: data,
-                updatedControlIds: _.unique(updatedControlIds.concat(ids)),
-              });
-            }}
-          />
+          <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
+            <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
+            <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
+          </div>
+          <div ref={this.formcon}>
+            <CustomFields
+              isWorksheetQuery
+              ref={this.customwidget}
+              data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
+              recordId={recordId}
+              from={6}
+              projectId={projectId}
+              worksheetId={worksheetId}
+              showError={showError}
+              registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+              onChange={(data, ids) => {
+                this.setState({
+                  formData: data,
+                  updatedControlIds: _.unique(updatedControlIds.concat(ids)),
+                });
+              }}
+            />
+          </div>
         </div>
         <div className="btnsWrapper flexRow">
           <WingBlank className="flex" size="sm">

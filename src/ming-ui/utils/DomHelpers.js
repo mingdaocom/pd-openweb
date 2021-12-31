@@ -1,5 +1,5 @@
 ﻿export function isDescendant(parent, child) {
-  let node = child.parentNode;
+  let node = child && child.parentNode || null;
   while (node != null) {
     if (node === parent) {
       return true;

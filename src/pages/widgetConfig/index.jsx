@@ -105,7 +105,7 @@ export default function Container(props) {
     let paras = new URLSearchParams(location.href);
     const targetControlId = paras.get('targetControl');
     if (targetControlId) {
-      const activeControl = flattenControls.find(item => item.controlId === targetControlId);
+      const activeControl = flattenControls.find(item => item.controlId === targetControlId) || {};
       setActiveWidget(activeControl);
       // 滚动到激活控件
       setTimeout(() => {

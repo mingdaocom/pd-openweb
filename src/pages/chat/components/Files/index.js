@@ -56,7 +56,7 @@ export class FileItem extends Component {
       {
         fileid: item.fileId,
         name: item.name,
-        path: window.config.FilePath + item.key,
+        path: item.url,
         previewAttachmentType: 'QINIU',
       },
     ];

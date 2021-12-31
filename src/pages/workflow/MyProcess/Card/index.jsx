@@ -175,8 +175,8 @@ export default class Card extends Component {
   }
   renderCheckBox() {
     const { item, approveChecked, onAddApproveRecord, onRemoveApproveRecord } = this.props;
-    const { passBatchType, overruleBatchType } = item.flowNode || {};
-    const disabled = [-1, -2].includes(passBatchType) || [-1, -2].includes(overruleBatchType);
+    const { batchType } = item.flowNode || {};
+    const disabled = [-1, -2].includes(batchType);
     return (
       <div
         className="mLeft10"
@@ -184,7 +184,7 @@ export default class Card extends Component {
           event.stopPropagation();
         }}
       >
-        <Tooltip title={disabled ? _l('需要填写审批意见或者必填项，请单独操作') : null}>
+        <Tooltip title={disabled ? _l('未开启批量审批或需要填写审批意见、必填项，请单独操作') : null}>
           <Checkbox
             disabled={disabled}
             checked={approveChecked}

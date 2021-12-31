@@ -143,8 +143,8 @@ export default class CreateRecordAndTask extends Component {
         <div className="Font13 bold mTop25">{data.appType === APP_TYPE.SHEET ? _l('新增记录') : _l('创建任务')}</div>
 
         {fields.map((item, i) => {
-          const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId);
-          const { controlName, sourceEntityName } = singleObj || {};
+          const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
+          const { controlName, sourceEntityName } = singleObj;
 
           return (
             <div key={item.fieldId} className="relative">

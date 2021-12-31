@@ -14,6 +14,7 @@ export default class ActionFields extends Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
+    title: PropTypes.string,
     header: PropTypes.node,
     footer: PropTypes.node,
     noItemTips: PropTypes.string,
@@ -27,12 +28,14 @@ export default class ActionFields extends Component {
         appType: PropTypes.number,
         appTypeName: PropTypes.any,
         actionId: PropTypes.string,
+        nAlias: PropTypes.any,
         items: PropTypes.arrayOf(
           PropTypes.shape({
             type: PropTypes.number,
             value: PropTypes.string,
             field: PropTypes.string,
             text: PropTypes.string,
+            cAlias: PropTypes.any,
           }).isRequired,
         ).isRequired,
       }).isRequired,
@@ -81,6 +84,8 @@ export default class ActionFields extends Component {
     appType,
     actionId,
     isSourceApp,
+    nAlias,
+    cAlias,
   ) => {
     this.props.handleFieldClick({
       nodeId,
@@ -92,6 +97,8 @@ export default class ActionFields extends Component {
       appType,
       actionId,
       isSourceApp,
+      nAlias,
+      cAlias,
     });
   };
 
@@ -106,6 +113,7 @@ export default class ActionFields extends Component {
       noData,
       onClickAwayExceptions,
       openSearch,
+      title,
     } = this.props;
     const { activeIndex, keywords } = this.state;
     let condition = _.cloneDeep(this.props.condition);
@@ -122,6 +130,7 @@ export default class ActionFields extends Component {
         onClickAwayExceptions={onClickAwayExceptions}
         onClickAway={onClose}
       >
+        {title && <div className="pLeft16 pRight16 mTop15">{title}</div>}
         {openSearch && (
           <div
             className="flexRow mTop5 mBottom5"
@@ -171,10 +180,9 @@ export default class ActionFields extends Component {
                   />
                   <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
                   {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], item.appType) && (
-                    <div
-                      className="mLeft15 mRight10 Gray_9e ellipsis"
-                      style={{ maxWidth: 150 }}
-                    >{`${item.appTypeName}“${item.appName}”`}</div>
+                    <div className="mLeft15 mRight10 Gray_9e ellipsis" style={{ maxWidth: 150 }}>{`${
+                      item.appTypeName
+                    }“${item.appName}”`}</div>
                   )}
                   <Icon
                     icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
@@ -204,6 +212,8 @@ export default class ActionFields extends Component {
                             item.appType,
                             item.actionId,
                             item.isSourceApp,
+                            item.nAlias,
+                            obj.cAlias,
                           );
                         }}
                       >

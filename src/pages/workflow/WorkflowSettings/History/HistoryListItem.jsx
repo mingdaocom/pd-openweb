@@ -14,6 +14,7 @@ export default ({
   onClick,
   index,
   updateSource,
+  disabled,
 }) => {
   const { cause, nodeName, causeMsg } = instanceLog;
   const { color } = STATUS2COLOR[FLOW_STATUS[status].status];
@@ -50,7 +51,7 @@ export default ({
         {displayedDate.isValid() ? displayedDate.format('YYYY-MM-DD HH:mm:ss') : ''}
       </div>
       <div className="retry">
-        {((status === 3 && _.includes([20001, 20002], cause)) || status === 4) && (
+        {((status === 3 && _.includes([20001, 20002], cause)) || status === 4) && !disabled && (
           <span
             data-tip={_l('重试')}
             onClick={e => {

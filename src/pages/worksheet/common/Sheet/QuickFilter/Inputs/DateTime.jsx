@@ -1,12 +1,9 @@
 import React, { setState, useState } from 'react';
 import styled from 'styled-components';
-import { Dropdown } from 'ming-ui';
+import { Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import cx from 'classnames';
 import { func, shape, string } from 'prop-types';
-import DatePicker from 'ming-ui/components/DatePicker';
 import { DATE_OPTIONS } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-
-const RangePicker = DatePicker.RangePicker;
 
 const Con = styled.div`
   position: relative;
@@ -52,23 +49,16 @@ const Content = styled.div`
 `;
 
 const RangePickerCon = styled.div`
-  .mui-datetime-picker {
-    line-height: 32px;
-    padding: 0 6px 0 10px;
-    display: block;
-    > span {
-      max-width: 100%;
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      vertical-align: top;
-    }
+  .ant-picker-input > input {
+    font-size: 13px !important;
+  }
+  .ant-picker-suffix {
+    display: none;
   }
 `;
 
 const Icon = styled.i`
-  font-size: 18px;
+  font-size: 13px;
   color: #9e9e9e;
   margin-right: 8px;
   &.icon-cancel {
@@ -86,7 +76,7 @@ const Icon = styled.i`
 `;
 
 export default function DateTime(props) {
-  const { dateRange, minValue, maxValue, advancedSetting = {}, onChange = () => {} } = props;
+  const { control, dateRange, minValue, maxValue, advancedSetting = {}, onChange = () => {} } = props;
   const [active, setActive] = useState();
   let allowedDateRange = [];
   try {
@@ -94,27 +84,32 @@ export default function DateTime(props) {
   } catch (err) {}
   const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
+  let timeFormat;
+  let dateFormat = 'YYYY-MM-DD';
+  if (control.type === 16) {
+    timeFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'HH:mm:ss' : 'HH:mm';
+    dateFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm';
+  }
   return (
     <Con className={cx({ active })}>
       <Content className={cx({ isEmpty })}>
         {showDatePicker ? (
           <RangePickerCon>
-            <RangePicker
-              defaultVisible={!_.isEmpty(allowedDateRange)}
-              className="ThemeHoverColor3"
-              onOk={range => {
+            <MdAntDateRangePicker
+              defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+              showTime={timeFormat ? { format: timeFormat } : false}
+              format={dateFormat}
+              onChange={moments => {
+                if (!_.isArray(moments)) {
+                  return;
+                }
                 onChange({
                   dateRange: 18,
                   filterType: 11,
-                  minValue: range[0].startOf('day').format('YYYY-MM-DD'),
-                  maxValue: range[1].endOf('day').format('YYYY-MM-DD'),
+                  minValue: moments[0].format(dateFormat),
+                  maxValue: moments[1].format(dateFormat),
                 });
               }}
-              onClear={() => {
-                onChange({ filterType: 11, dateRange: 0, minValue: undefined, maxValue: undefined });
-              }}
-              selectedValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : undefined}
-              onVisibleChange={setActive}
             />
           </RangePickerCon>
         ) : (

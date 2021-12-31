@@ -111,7 +111,7 @@ export default class InitPasswordDialog extends React.Component {
               account: _this.iti.getNumber(),
               ticket: res.ticket,
               randStr: res.randstr,
-              captchaType: md.staticglobal.CaptchaType(),
+              captchaType: md.staticglobal.getCaptchaType(),
             })
             .then(data => {
               if (data === 1) {
@@ -144,10 +144,10 @@ export default class InitPasswordDialog extends React.Component {
       { leading: true },
     );
 
-    if (md.staticglobal.CaptchaType() === 1) {
+    if (md.staticglobal.getCaptchaType() === 1) {
       new captcha(throttled);
     } else {
-      new TencentCaptcha(md.staticglobal.TencentAppId, throttled).show();
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
     }
   }
 

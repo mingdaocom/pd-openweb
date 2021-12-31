@@ -74,6 +74,7 @@ export default function Header(props) {
         {searchFilters && !!searchFilters.length && (
           <FilterCon>
             <Filter
+              control={control}
               controls={controls}
               quickFilters={quickFilters}
               searchFilters={enrichFilters(searchFilters)}

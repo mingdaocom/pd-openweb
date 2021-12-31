@@ -8,6 +8,9 @@ import login from 'src/api/login';
 const { Item } = List;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 const isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+const {
+  app: { commonUserHandle },
+} = window.private;
 
 export default class MyHome extends Component {
   constructor(props) {
@@ -22,7 +25,7 @@ export default class MyHome extends Component {
         location.href = '/network';
       }
     });
-  }
+  };
   render() {
     return (
       <div className="MyHome flexColumn h100">
@@ -33,12 +36,16 @@ export default class MyHome extends Component {
               <span className="profession overflow_ellipsis">{md.global.Account.profession}</span>
             </div>
             <div>
-              <img className="avatarMiddle" src={md.global.Account.avatar}/>
+              <img className="avatarMiddle" src={md.global.Account.avatar} />
             </div>
           </div>
           <List className="body flex mTop20">
             <Item
-              thumb={<div className="businessWrapper valignWrapper flexRow"><Icon icon="business" className="Font16"/></div>}
+              thumb={
+                <div className="businessWrapper valignWrapper flexRow">
+                  <Icon icon="business" className="Font16" />
+                </div>
+              }
               arrow="horizontal"
               onClick={() => {
                 this.props.history.push(`/mobile/enterprise`);
@@ -46,27 +53,27 @@ export default class MyHome extends Component {
             >
               {_l('组织')}
             </Item>
-            {
-              md.global.Config.IsLocal || (isWxWork || isDingTalk) ? null : (
-                <Fragment>
-                  <Item
-                    thumb={<Icon icon="workflow_help" className="Font26"/>}
-                    arrow="horizontal"
-                    onClick={() => {
-                      this.props.history.push(`/mobile/iframe/help`);
-                    }}
-                  >
-                    {_l('帮助中心')}
-                  </Item>
-                </Fragment>
-              )
-            }
+            {commonUserHandle.help || md.global.Config.IsLocal || isWxWork || isDingTalk ? null : (
+              <Fragment>
+                <Item
+                  thumb={<Icon icon="workflow_help" className="Font26" />}
+                  arrow="horizontal"
+                  onClick={() => {
+                    this.props.history.push(`/mobile/iframe/help`);
+                  }}
+                >
+                  {_l('帮助中心')}
+                </Item>
+              </Fragment>
+            )}
           </List>
-          {(isWxWork || isDingTalk) ? null : (
-            <a className='logOutBtn' onClick={this.logout} rel="external">{_l('退出登录')}</a>
+          {isWxWork || isDingTalk ? null : (
+            <a className="logOutBtn" onClick={this.logout} rel="external">
+              {_l('退出登录')}
+            </a>
           )}
         </div>
-        <TabBar action="myHome"/>
+        <TabBar action="myHome" />
       </div>
     );
   }

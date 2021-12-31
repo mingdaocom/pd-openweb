@@ -60,6 +60,7 @@ class TableView extends React.Component {
     }
     document.body.addEventListener('click', this.outerClickEvent);
     emitter.addListener('RELOAD_RECORDINFO', this.updateRecordEvent);
+    this.handleSetAutoRefresh();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -80,6 +81,11 @@ class TableView extends React.Component {
       } else {
         setRowsEmpty();
       }
+    }
+    if (
+      _.get(this.props, 'view.advancedSetting.refreshtime') !== _.get(nextProps, 'view.advancedSetting.refreshtime')
+    ) {
+      this.handleSetAutoRefresh(nextProps);
     }
   }
 
@@ -107,6 +113,22 @@ class TableView extends React.Component {
   componentWillUnmount() {
     document.body.removeEventListener('click', this.outerClickEvent);
     emitter.removeListener('RELOAD_RECORDINFO', this.updateRecordEvent);
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+    }
+  }
+
+  handleSetAutoRefresh(props) {
+    const { view, refresh } = props || this.props;
+    const refreshtime = _.get(view, 'advancedSetting.refreshtime');
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+    }
+    if (refreshtime && _.includes(['10', '30', '60', '120', '180', '240', '300'], refreshtime)) {
+      this.refreshTimer = setInterval(() => {
+        refresh({ noLoading: true });
+      }, Number(refreshtime) * 1000);
+    }
   }
 
   @autobind

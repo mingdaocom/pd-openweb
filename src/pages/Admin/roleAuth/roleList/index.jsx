@@ -88,16 +88,14 @@ class RoleList extends React.Component {
             };
           });
         } else {
-          return $.Deferred()
-            .reject()
-            .promise();
+          return $.Deferred().reject().promise();
         }
       })
-      .fail(() => {
+      .fail(errors => {
         this.setState({
           isLoading: false,
         });
-        alert(_l('获取列表失败'), 2);
+        alert(errors.errorMessage || _l('获取列表失败'), 2);
       });
   }
 
@@ -107,7 +105,14 @@ class RoleList extends React.Component {
     const isHrVisible = md.global.Account.projects.find(o => o.projectId === projectId).isHrVisible;
 
     return _.map(list, role => (
-      <RoleItem isHrVisible={isHrVisible} isApply={isApply} role={role} projectId={projectId} callback={this.fetchRoles} key={role.roleId} />
+      <RoleItem
+        isHrVisible={isHrVisible}
+        isApply={isApply}
+        role={role}
+        projectId={projectId}
+        callback={this.fetchRoles}
+        key={role.roleId}
+      />
     ));
   }
 

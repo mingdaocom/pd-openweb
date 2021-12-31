@@ -94,7 +94,7 @@ export const getDynamicValue = (data, currentItem, masterData) => {
               ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm')
               : '';
           }
-          return targetControl.value;
+          return getControlValue(masterData.formData, currentItem, item.cid);
         }
         const parentControl = _.find(data, c => c.controlId === item.rcid);
         const control = JSON.parse(parentControl.value || '[]')[0];
@@ -245,7 +245,10 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
 
   const expression = formulaStr.replace(/\$.+?\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
-    let column = Object.assign({}, _.find(data, obj => obj.controlId === controlId));
+    let column = Object.assign(
+      {},
+      _.find(data, obj => obj.controlId === controlId),
+    );
 
     if (!column) {
       columnIsUndefined = true;
@@ -314,7 +317,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         if (!timestr) {
           return;
         }
-        if (column.type === 15) {
+        if (column.type === 15 || (column.type === 30 && column.sourceControlType === 15)) {
           if (pos === 'start') {
             timestr = moment(timestr).set({
               hour: 0,
@@ -391,11 +394,11 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
             value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
           } else {
             if (i !== timeDiff % 7) {
-              weekDayHour += moment(
-                moment(newStart)
-                  .add(1, 'd')
-                  .format('YYYY-MM-DD'),
-              ).diff(i === 0 ? newStart : newStart.format('YYYY-MM-DD'), TIME_UNIT[currentItem.unit] || 'm', true);
+              weekDayHour += moment(moment(newStart).add(1, 'd').format('YYYY-MM-DD')).diff(
+                i === 0 ? newStart : newStart.format('YYYY-MM-DD'),
+                TIME_UNIT[currentItem.unit] || 'm',
+                true,
+              );
             } else {
               weekDayHour += moment(newStart.format('YYYY-MM-DD') + moment(endTime).format(' HH:mm')).diff(
                 moment(newStart).format('YYYY-MM-DD'),

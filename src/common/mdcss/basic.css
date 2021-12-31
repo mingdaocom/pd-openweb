@@ -1949,3 +1949,8 @@ body > object {
 .nowrap {
   white-space: nowrap;
 }
+
+/* 强制显示五星红旗 */
+.iti__tw {
+  background-position: -1049px 0 !important;
+}

@@ -8,6 +8,9 @@ import RelateRecord from './RelateRecord';
 import Options from './Options';
 import DateTime from './DateTime';
 import CheckboxComp from './CheckboxComp';
+import Users from './Users';
+import Departments from './Departments';
+import Areas from './Areas';
 import UnNormal from './UnNormal';
 import _ from 'lodash';
 import { shape } from 'prop-types';
@@ -63,6 +66,23 @@ export const DateTimeTypes = [
 ];
 mapToComp(DateTimeTypes, DateTime);
 
+export const UsersTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
+];
+mapToComp(UsersTypes, Users);
+
+export const DepartmentsTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门
+];
+mapToComp(DepartmentsTypes, Departments);
+
+export const AreasTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
+  WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
+  WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
+];
+mapToComp(AreasTypes, Areas);
+
 mapToComp([-10000], UnNormal); // 异常状态
 
 export function validate(condition) {
@@ -81,6 +101,11 @@ export function validate(condition) {
         WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选
         WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选
         WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉
+        WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
+        WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 成员
+        WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
+        WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
+        WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
       ],
       dataType,
     )
@@ -128,6 +153,9 @@ export function validate(condition) {
 }
 
 export default function Input(props) {
+  const { advancedSetting = {} } = props;
+  const { allowitem } = advancedSetting;
+  const isMultiple = String(allowitem) === '2';
   let { type } = props.control;
   if (type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && props.control) {
     type = props.control.sourceControlType || -10000;
@@ -136,7 +164,11 @@ export default function Input(props) {
     type = props.control.enumDefault2 || 6;
   }
   const Condition = Comps[type];
-  return Condition ? <Condition {...props} value={_.isUndefined(props.value) ? '' : props.value} /> : <span />;
+  return Condition ? (
+    <Condition {...props} isMultiple={isMultiple} value={_.isUndefined(props.value) ? '' : props.value} />
+  ) : (
+    <span />
+  );
 }
 
 Input.propTypes = {

@@ -8,9 +8,9 @@ import SheetView from './SheetView';
 import HierarchyView from './HierarchyView';
 import BoardView from './BoardView';
 import GalleryView from './GalleryView';
-import CalendarView from './CalendarView'
-import GunterView from './GunterView'
-import GroupFilter from '../GroupFilter'
+import CalendarView from './CalendarView';
+import GunterView from './GunterView';
+import GroupFilter from '../GroupFilter';
 import State from '../State';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
@@ -30,15 +30,21 @@ class View extends Component {
     super(props);
   }
   componentDidMount() {
+    let { viewId, appId, worksheetId } = this.props.base || {};
     if (this.props.mobileNavGroupFilters.length) {
       this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
     } else {
       this.props.fetchSheetRows();
     }
+    this.props.updateMobileViewPermission({ viewId, appId, worksheetId });
   }
-  componentWillReceiveProps(nextProps){
-    if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)){
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
+    }
+    if (this.props.view.viewId !== nextProps.view.viewId) {
+      let { viewId, appId, worksheetId } = nextProps.base || {};
+      this.props.updateMobileViewPermission({ viewId, appId, worksheetId });
     }
   }
   renderError() {
@@ -52,13 +58,13 @@ class View extends Component {
           )}
         </div>
       </Flex>
-    )
+    );
   }
   render() {
     const { view, viewResultCode, base, isCharge } = this.props;
-    
+
     if (viewResultCode !== 1) {
-      return <State resultCode={viewResultCode} type="view" />
+      return <State resultCode={viewResultCode} type="view" />;
     }
 
     const Component = TYPE_TO_COMP[String(view.viewType)];
@@ -66,19 +72,19 @@ class View extends Component {
       ...base,
       isCharge,
       view,
-    }
+    };
 
     let hasGroupFilter =
       !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType)); // 是否存在分组列表
     let routerInfo = window.location.pathname.includes('groupFilterDetail');
     if (hasGroupFilter && !routerInfo) {
-      return (<GroupFilter {...this.props} changeMobielSheetLoading={this.props.changeMobielSheetLoading} />);
+      return <GroupFilter {...this.props} changeMobielSheetLoading={this.props.changeMobielSheetLoading} />;
     }
     return (
       <div className="overflowHidden flex mobileView flexColumn Relative">
         <Component {...viewProps} />
       </div>
-    )
+    );
   }
 }
 
@@ -87,12 +93,18 @@ export default connect(
     ..._.pick(state.mobile, ['base', 'isCharge', 'worksheetInfo', 'viewResultCode', 'mobileNavGroupFilters']),
     controls: state.sheet.controls,
     views: state.sheet.views,
-    ...state.sheet
+    ...state.sheet,
   }),
   dispatch =>
     bindActionCreators(
-      { ..._.pick({ ...actions, ...worksheetActions }, ['fetchSheetRows', 'getNavGroupCount', 'changeMobielSheetLoading'])},
+      {
+        ..._.pick({ ...actions, ...worksheetActions }, [
+          'fetchSheetRows',
+          'getNavGroupCount',
+          'changeMobielSheetLoading',
+          'updateMobileViewPermission',
+        ]),
+      },
       dispatch,
-  ),
+    ),
 )(View);
-

@@ -35,7 +35,7 @@ export default class Add extends React.Component {
     if (res) {
       params.ticket = res.ticket;
       params.randStr = res.randstr;
-      params.captchaType = md.staticglobal.CaptchaType();
+      params.captchaType = md.staticglobal.getCaptchaType();
     }
     RegisterController.checkProjectCode(params).then(
       data => {
@@ -83,9 +83,7 @@ export default class Add extends React.Component {
         warnningText,
       },
       () => {
-        $(this.regcode)
-          .closest('.mesDiv')
-          .addClass('errorDiv');
+        $(this.regcode).closest('.mesDiv').addClass('errorDiv');
         $(this.regcode).focus();
       },
     );
@@ -110,7 +108,7 @@ export default class Add extends React.Component {
                 $('.errorDiv').removeClass('errorDiv');
                 setDataFn({
                   ...registerData,
-                  regcode: e.target.value,
+                  regcode: e.target.value.trim(),
                 });
               }}
               value={regcode}
@@ -171,7 +169,7 @@ export default class Add extends React.Component {
                 () => {
                   this.doAddProjectCode(
                     Object.assign({}, res, {
-                      captchaType: md.staticglobal.CaptchaType(),
+                      captchaType: md.staticglobal.getCaptchaType(),
                     }),
                     () => {
                       changeStep('editInfo');
@@ -181,10 +179,10 @@ export default class Add extends React.Component {
               );
             };
             if (this.state.isFrequentLoginError) {
-              if (md.staticglobal.CaptchaType() === 1) {
+              if (md.staticglobal.getCaptchaType() === 1) {
                 new captcha(callback);
               } else {
-                new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+                new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
               }
             } else {
               callback();

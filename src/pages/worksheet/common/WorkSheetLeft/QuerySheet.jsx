@@ -22,7 +22,7 @@ export default class QuerySheet extends Component {
       isLoading: false,
       listVisible: false,
     };
-    this.searchSheet = _.debounce(this.getSearchData, 200);
+    this.searchSheet = _.debounce(this.getSearchData, 500);
   }
   hideSearchList = function () {
     this.setState({ listVisible: false });

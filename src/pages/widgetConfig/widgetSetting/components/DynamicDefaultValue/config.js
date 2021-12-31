@@ -30,7 +30,7 @@ export const CAN_AS_SWITCH_DYNAMIC_FIELD = [36];
 export const CAN_AS_OTHER_DYNAMIC_FIELD = [15, 16, 26, 27];
 
 // 有函数动态值的控件
-export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 8, 15, 16, 28, 36];
+export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 8, 15, 16, 36];
 
 // 没有动态字段值的控件
 export const CAN_NOT_AS_FIELD_DYNAMIC_FIELD = [34];

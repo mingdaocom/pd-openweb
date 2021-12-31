@@ -18,6 +18,7 @@ export default class Text extends Component {
   }
   componentDidMount() {
     const { onChange } = this.props;
+    const comp = this;
     if (this.input) {
       this.selectize = $(this.input).selectize({
         plugins: ['remove_button'],
@@ -26,7 +27,7 @@ export default class Text extends Component {
         persist: false,
         openOnFocus: false,
         maxOptions: 0,
-        create: (input) => {
+        create: input => {
           return {
             value: input,
             text: input,
@@ -37,7 +38,23 @@ export default class Text extends Component {
             return `<div class="create ThemeColor3">${_l('使用"%0"', data.input)}</div>`;
           },
         },
-        onChange: (selectizevalue) => {
+        onInitialize: function () {
+          const $selectize = this;
+          if (this.$control_input[0]) {
+            this.$control_input[0].addEventListener('paste', e => {
+              const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
+              if (pasteValue && /\n/.test(pasteValue)) {
+                const items = pasteValue.split('\n');
+                onChange({ values: comp.props.values.concat(items) });
+                items.forEach(item => {
+                  $selectize.createItem(item);
+                });
+                e.preventDefault();
+              }
+            });
+          }
+        },
+        onChange: selectizevalue => {
           onChange({ values: selectizevalue ? selectizevalue.split(',') : [] });
         },
       })[0].selectize;
@@ -46,8 +63,10 @@ export default class Text extends Component {
   render() {
     let { values, disabled } = this.props;
     values = !values ? [] : values;
-    return (<div className={cx('worksheetFilterTextCondition', { disabled })}>
-      <input type="text" ref={input => (this.input = input)} value={values.join(',')} readOnly />
-    </div>);
+    return (
+      <div className={cx('worksheetFilterTextCondition', { disabled })}>
+        <input type="text" ref={input => (this.input = input)} value={values.join(',')} readOnly />
+      </div>
+    );
   }
 }

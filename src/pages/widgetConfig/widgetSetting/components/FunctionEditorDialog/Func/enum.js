@@ -2,8 +2,12 @@ import moment from 'moment';
 import { calcDate } from 'worksheet/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 
+function newDate(dateStr) {
+  return new Date(moment(dateStr).valueOf());
+}
+
 function isDateStr(str) {
-  return new Date(str).toString() !== 'Invalid Date';
+  return newDate(str).toString() !== 'Invalid Date';
 }
 
 export const functions = {
@@ -21,7 +25,11 @@ export const functions = {
     }
     let result = moment(end).diff(moment(start), 'day');
     if (excludeDate.length) {
-      result = result - excludeDate.filter(d => moment(d).isBetween(start, end)).length;
+      result =
+        result -
+        excludeDate.filter(
+          d => moment(d).isBetween(start, end, 'day') || moment(d).isSame(start, 'day') || moment(d).isSame(end, 'day'),
+        ).length;
     }
     // TODO 处理工作日逻辑
     const startWeekDay = moment(start).day();
@@ -47,38 +55,43 @@ export const functions = {
   },
   // 返回分钟数
   MINUTE: function (dateStr) {
-    const minute = new Date(dateStr).getMinutes();
+    const minute = newDate(dateStr).getMinutes();
     return _.isNumber(minute) && !_.isNaN(minute) ? minute : undefined;
   },
   // 返回小时数
   HOUR: function (dateStr) {
-    const hour = new Date(dateStr).getHours();
+    const hour = newDate(dateStr).getHours();
     return _.isNumber(hour) && !_.isNaN(hour) ? hour : undefined;
   },
   // 返回星期数
   WEEKDAY: function (dateStr) {
-    const weekday = new Date(dateStr).getDay() + 1;
-    return _.isNumber(weekday) && !_.isNaN(weekday) ? weekday : undefined;
+    if (_.isEmpty(dateStr)) return '';
+    let weekday = newDate(dateStr).getDay();
+    weekday = weekday === 0 ? 7 : weekday;
+    return _.isNumber(weekday) && !_.isNaN(weekday) ? weekday : '';
   },
   // 返回天数
   DAY: function (dateStr) {
-    const date = new Date(dateStr).getDate();
+    if (_.isEmpty(dateStr)) return '';
+    const date = newDate(dateStr).getDate();
     return _.isNumber(date) && !_.isNaN(date) ? date : undefined;
   },
   // 返回月份
   MONTH: function (dateStr) {
-    const month = new Date(dateStr).getMonth() + 1;
+    if (_.isEmpty(dateStr)) return '';
+    const month = newDate(dateStr).getMonth() + 1;
     return _.isNumber(month) && !_.isNaN(month) ? month : undefined;
   },
   // 返回年份
   YEAR: function (dateStr) {
-    const year = new Date(dateStr).getFullYear();
+    if (_.isEmpty(dateStr)) return '';
+    const year = newDate(dateStr).getFullYear();
     return _.isNumber(year) && !_.isNaN(year) ? year : undefined;
   },
   // 为日期加减时间
   DATEADD: function (date, expression, format = 1) {
     const { result } = calcDate(date, expression);
-    return result.format(format === 1 ? 'YYYY/MM/DD' : 'YYYY/MM/DD HH:mm:ss');
+    return result.format(format === 1 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
   },
   // 两个日期间的时长
   DATEIF: function (begin, end, type = 1, unit = 'd') {
@@ -119,7 +132,7 @@ export const functions = {
     );
   },
   DATENOW: function () {
-    return moment().format('YYYY/MM/DD HH:mm:ss');
+    return moment().format('YYYY-MM-DD HH:mm:ss');
   },
   // 计对象数量
   COUNTARRAY: function (values) {
@@ -138,12 +151,6 @@ export const functions = {
   },
   // 返回随机数
   RANDBETWEEN: function (begin, end) {
-    if (_.isEmpty(begin) && begin !== 0) {
-      throw new Error(_l('参数不合法'));
-    }
-    if (_.isEmpty(end) && end !== 0) {
-      throw new Error(_l('参数不合法'));
-    }
     begin = Math.round(Number(begin));
     end = Math.round(Number(end));
     if (!_.isNumber(begin) || _.isNaN(end)) {
@@ -375,7 +382,7 @@ export const functionDetails = {
     title: _l("计算两个日期间包含的工作日数；输出单位恒定为'天'"),
     des: _l(`<bb>NETWORKDAY(开始日期,结束日期,[节假日期1,节假日期2,...])</bb></br>
         <li>[节假日期组]：使用字段值或固定值指明哪些天是节假日；如果不指定这个参数，系统只会自动排除掉周六及周日</li>
-        <b>示例：=NETWORKDAY('2021-3-8','2021-3-14','2021-3-8') ，结果：4天</b></br>
+        <b>示例：=NETWORKDAY('2021-3-8','2021-3-14',['2021-3-8']) ，结果：4天</b></br>
         计算 2021-3-8 至 2021-3-14 期间的工作日，排除三八妇女节
         `),
   },
@@ -434,9 +441,10 @@ export const functionDetails = {
     type: 'date',
     title: _l('对某个日期（时间）添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间'),
     des: _l(`<bb>DATEADD(初始日期,计算式,[输出格式])</bb></br>
+        <li>计算式：'+'或'-'代表添加或减去；时间段的单位，'Y'代表年、'M'代表月、'd'代表天、'h'代表小时、'm'代表分钟</li>
         <li>[输出格式]：1代表日期格式，2代表日期时间格式；如果不指定这个参数，则默认是类型1</li>
-        <b>示例：=DATEADD('2008/11/11 12:23','+8h',2) ，结果：2008/11/11 20:23</b></br>
-        求 2008/11/11 12:23 8小时后的时间点，结果保持日期时间格式`),
+        <b>示例：=DATEADD('2008-11-11 12:23','+8h',2) ，结果：2008-11-11 20:23</b></br>
+        求 2008-11-11 12:23 8小时后的时间点，结果保持日期时间格式`),
   },
   DATEIF: {
     name: _l('两个日期间的时长'),
@@ -454,7 +462,7 @@ export const functionDetails = {
     type: 'date',
     title: _l('返回当前时间'),
     des: _l(`<bb>DATENOW()</bb></br>
-      <b>示例：=DATENOW() ，结果：Mon Sep 27 2021 10:20:51 GMT+0800 (中国标准时间)</b>`),
+      <b>示例：=DATENOW() ，结果：2008-11-11 12:23</b>`),
   },
   // math 数学函数
   COUNTARRAY: {
@@ -750,23 +758,32 @@ export const functionDetails = {
 };
 
 // 支持参与函数计算的字段
-export const allowFunctionCalcControlTypes = [
-  WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本 2
-  WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值 6
-  WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额 8
-  WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮箱 5
-  WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机 4
-  WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期 15
-  WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期 16
-  WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选 9
-  WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选 10
-  WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉 11
-  WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员 26
-  WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门 27
-  WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 省 19
-  WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
-  WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
-  WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
-  WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, // 关联记录 29
-  WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
-];
+export function checkTypeSupportForFunction(control) {
+  if (
+    [
+      WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本 2
+      WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值 6
+      WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额 8
+      WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮箱 5
+      WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机 4
+      WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期 15
+      WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期 16
+      WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选 9
+      WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选 10
+      WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉 11
+      WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员 26
+      WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门 27
+      WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 省 19
+      WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
+      WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
+      WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
+      WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
+      WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件 7
+    ].indexOf(control.type) > -1
+  ) {
+    return true;
+  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
+    // 关联记录 29
+    return String(control.advancedSetting.showtype) !== '2';
+  }
+}

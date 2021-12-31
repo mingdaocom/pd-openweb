@@ -179,9 +179,10 @@ export const updateNodeData = data => (dispatch, getState) => {
 };
 
 // 更新单个节点说明
-export const updateNodeDesc = (id, desc) => (dispatch, getState) => {
+export const updateNodeDesc = (id, alias, desc) => (dispatch, getState) => {
   const { workflowDetail } = _.cloneDeep(getState().workflow);
 
+  workflowDetail.flowNodeMap[id].alias = alias;
   workflowDetail.flowNodeMap[id].desc = desc;
 
   dispatch({

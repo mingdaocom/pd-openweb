@@ -149,6 +149,9 @@ export default class RecordCardListDialog extends Component {
         filterControls,
         formId: window.publicWorksheetShareId,
       };
+      if (window.recordShareLinkId) {
+        args.linkId = window.recordShareLinkId;
+      }
     }
     if (parentWorksheetId && controlId) {
       args.relationWorksheetId = parentWorksheetId;

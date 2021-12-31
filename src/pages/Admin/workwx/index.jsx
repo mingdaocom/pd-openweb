@@ -312,9 +312,23 @@ export default class Workwx extends React.Component {
     return (
       <div className="pBottom100">
         {!this.state.CorpId && !md.global.Config.IsLocal && (
-          <div className="infoTips">
-            {_l('因企业微信自建应用规则调整，新的对接方案正在开发，请联系顾问线下创建自建应用')}
-          </div>
+          <div
+            className="infoTips"
+            onClick={event => {
+              const { target } = event;
+              if (target.tagName === 'SPAN') {
+                target.classList.contains('contactCustomer') &&
+                  window.KF5SupportBoxAPI &&
+                  window.KF5SupportBoxAPI.open();
+              }
+            }}
+            dangerouslySetInnerHTML={{
+              __html: _l(
+                '因企业微信规则调整，新的对接方案正在开发，支持线下完成对接。您可以%0或者电话咨询客服，联系电话：010-53153053',
+                `<span class="contactCustomer pointer ThemeColor3">${_l('在线咨询客服')}</span>`,
+              ),
+            }}
+          />
         )}
         <div className="stepItem Relative">
           <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>

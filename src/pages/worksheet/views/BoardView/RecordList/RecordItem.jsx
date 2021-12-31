@@ -14,6 +14,7 @@ import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
 import { browserIsMobile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { getTargetName } from '../util';
 
 const RELATION_SHEET_TYPE = 29;
 
@@ -186,7 +187,13 @@ function SortableRecordItem(props) {
         onUpdate={(updated, item) => {
           updateBoardViewRecord(
             updated[viewControl]
-              ? { key: keyType, rowId, target: updated[viewControl], item }
+              ? {
+                  key: keyType,
+                  rowId,
+                  target: updated[viewControl],
+                  item,
+                  targetName: getTargetName(item[viewControl], selectControl, list),
+                }
               : { key: keyType, rowId, item },
           );
         }}
@@ -243,7 +250,9 @@ function SortableRecordItem(props) {
               };
               // 如果看板控件没改变 无需传递target参数
               if (updateControls[viewControl] !== undefined) {
-                return { ...para, target: updateControls[viewControl] };
+                const target = updateControls[viewControl];
+                const targetName = getTargetName(newItem[viewControl], selectControl, list);
+                return { ...para, target, targetName };
               }
               return para;
             };
@@ -252,7 +261,7 @@ function SortableRecordItem(props) {
               const { value } = _.find(data.fields, item => item.controlId === viewControl) || {};
               const currentValue = updateControls[viewControl];
               if (currentValue !== value) {
-                updateMultiSelectBoard({ ...getPara(), prevValue: value, currentValue });
+                updateMultiSelectBoard({ ...getPara(), prevValue: value, currentValue, selectControl });
                 return;
               }
             }

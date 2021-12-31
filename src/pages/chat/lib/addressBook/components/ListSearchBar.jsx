@@ -13,7 +13,7 @@ export default class SearchBar extends React.Component {
       value: props.keywords || '',
     };
     this.addHandler = this.addHandler.bind(this);
-    this.search = _.debounce(props.search, 10);
+    this.search = _.debounce(props.search, 500);
     this.searchHandler = this.searchHandler.bind(this);
   }
 

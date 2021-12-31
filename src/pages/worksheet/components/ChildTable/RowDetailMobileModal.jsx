@@ -20,7 +20,7 @@ export default function RowDetailModal(props) {
     allowDelete
   } = props;
   const formContent = useRef(null);
-  const type = data.updatedControlIds || !data.rowid.includes('temp') ? 'edit' : 'new';
+  const type = (!_.isEmpty(data.updatedControlIds) || !data.rowid.includes('temp')) ? 'edit' : 'new';
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>

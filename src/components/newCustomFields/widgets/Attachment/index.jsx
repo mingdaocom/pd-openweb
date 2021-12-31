@@ -71,7 +71,12 @@ export default class Widgets extends Component {
     } catch (err) {
       this.setState({ loading: false, value: '' });
     }
-    getAttachmentToList({ fileIds })
+    const args = { fileIds };
+    if (window.shareState && window.shareState.shareId) {
+      args.shareId = window.shareState.shareId;
+      args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
+    }
+    getAttachmentToList(args)
       .then(data => {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
@@ -226,9 +231,7 @@ export default class Widgets extends Component {
                 this.setState({
                   isComplete,
                 });
-                if (isComplete) {
-                  this.filesChanged(files, 'attachments');
-                }
+                this.filesChanged(files, 'attachments');
               }}
             >
               <Icon icon="attachment" />

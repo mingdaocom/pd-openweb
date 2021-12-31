@@ -199,5 +199,6 @@ class FindPassword extends React.Component {
   }
 }
 
-const WrappedComp = md.global.Config.IsLocal ? preall(FindPassword, { allownotlogin: true }) : FindPassword;
+const WrappedComp = preall(FindPassword, { allownotlogin: true });
+
 ReactDOM.render(<WrappedComp />, document.querySelector('#app'));

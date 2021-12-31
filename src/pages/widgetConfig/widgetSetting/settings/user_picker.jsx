@@ -1,9 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { RadioGroup, Checkbox } from 'ming-ui';
+import React, { Fragment } from 'react';
+import { RadioGroup } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { string } from 'prop-types';
 import { SettingItem } from '../../styled';
-import { WHOLE_SIZE } from '../../config/Drag';
 
 const DISPLAY_OPTIONS = [
   {
@@ -59,7 +57,7 @@ export default function UserPicker({ from, data, onChange }) {
           size="middle"
           checkedValue={enumDefault}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value, size: value ? WHOLE_SIZE : WHOLE_SIZE / 2 })}
+          onChange={value => onChange({ enumDefault: value })}
         />
       </SettingItem>
       {from !== 'subList' && (

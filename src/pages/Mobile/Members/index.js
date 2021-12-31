@@ -196,7 +196,7 @@ class Members extends Component {
           <Back
             className="low"
             onClick={() => {
-              history.back();
+              this.props.history.push(`/mobile/app/${detail.id}`);
             }}
           />
         </div>

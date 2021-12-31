@@ -9,12 +9,15 @@ import { FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, 
 import { Select } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import _ from 'lodash';
 // 为空 不为空  在范围内 不在范围内
 const listType = [
   FILTER_CONDITION_TYPE.ISNULL,
   FILTER_CONDITION_TYPE.HASVALUE,
   FILTER_CONDITION_TYPE.BETWEEN,
   FILTER_CONDITION_TYPE.NBETWEEN,
+  FILTER_CONDITION_TYPE.DATE_BETWEEN,
+  FILTER_CONDITION_TYPE.DATE_NBETWEEN,
 ];
 // 附件 检查框 地区 地区 地区
 const listControlType = [
@@ -81,6 +84,10 @@ export default class Condition extends Component {
     const { condition, onChange } = this.props;
     const overrideValue = getConditionOverrideValue(type, condition);
     onChange(overrideValue);
+
+    if (_.includes(listType, type)) {
+      this.setState({ isDynamicsource: false });
+    }
   }
 
   renderOption = () => {
@@ -166,6 +173,20 @@ export default class Condition extends Component {
     if (filterDept && control && control.type === 27) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
+      );
+    }
+    if (from === 'subTotal' && control && _.includes([19, 23, 24, 35], control.type)) {
+      conditionFilterTypes = conditionFilterTypes.filter(
+        type =>
+          !_.includes(
+            [
+              FILTER_CONDITION_TYPE.BETWEEN,
+              FILTER_CONDITION_TYPE.NBETWEEN,
+              FILTER_CONDITION_TYPE.LIKE,
+              FILTER_CONDITION_TYPE.NCONTAIN,
+            ],
+            type.value,
+          ),
       );
     }
     const isDynamicStyle = from === 'relateSheet'; // 动态值选择的特定样式

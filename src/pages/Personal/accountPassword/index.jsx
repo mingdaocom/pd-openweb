@@ -331,7 +331,7 @@ export default class AccountChart extends React.Component {
             .sendProjectBindEmail({
               ticket: res.ticket,
               randStr: res.randstr,
-              captchaType: md.staticglobal.CaptchaType(),
+              captchaType: md.staticglobal.getCaptchaType(),
             })
             .then(function(data) {
               if (data) {
@@ -346,10 +346,10 @@ export default class AccountChart extends React.Component {
       { leading: true },
     );
 
-    if (md.staticglobal.CaptchaType() === 1) {
+    if (md.staticglobal.getCaptchaType() === 1) {
       new captcha(throttled);
     } else {
-      new TencentCaptcha(md.staticglobal.TencentAppId, throttled).show();
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
     }
   }
 

@@ -17,6 +17,7 @@ import { conditionTypeListData } from '../../config';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
+import _ from 'lodash';
 
 // 为空 不为空  在范围内 不在范围内
 const listType = [
@@ -24,6 +25,8 @@ const listType = [
   FILTER_CONDITION_TYPE.HASVALUE,
   FILTER_CONDITION_TYPE.BETWEEN,
   FILTER_CONDITION_TYPE.NBETWEEN,
+  FILTER_CONDITION_TYPE.DATE_BETWEEN,
+  FILTER_CONDITION_TYPE.DATE_NBETWEEN,
 ];
 // 附件 检查框 地区 地区 地区
 const listControlType = [
@@ -73,6 +76,10 @@ export default class Condition extends Component {
       dynamicSource: condition.dynamicSource,
       isDynamicsource: condition.isDynamicsource,
     };
+    if (_.includes(listType, type)) {
+      options.isDynamicsource = false;
+      options.dynamicSource = [];
+    }
     if (condition.fullValues) {
       options.fullValues = condition.fullValues;
     }

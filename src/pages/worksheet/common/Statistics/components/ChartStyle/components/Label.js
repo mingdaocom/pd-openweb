@@ -74,7 +74,7 @@ export default class Label extends Component {
                 {_l('显示%0', reportType === reportTypes.FunnelChart ? _l('转化率') : _l('数据'))}
               </Checkbox>
             </div>
-            {reportType === reportTypes.BarChart && displaySetup.isPile && (
+            {[reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) && displaySetup.isPile && (
               <div className="flexRow valignWrapper">
                 <Checkbox
                   className="mLeft0 mBottom16"

@@ -156,8 +156,8 @@ export const isAllowQuickSwitch = permit => isOpenPermit(permitList.quickSwitch,
 
 export const getSearchData = sheet => {
   const {
-    base,
-    views,
+    base = {},
+    views = [],
     controls,
     hierarchyView: { hierarchyViewState = [], hierarchyViewData = {} },
     gunterView: { grouping = [] },

@@ -149,10 +149,19 @@ export const DropdownPlaceholder = styled.div`
     &.disabled {
       border-color: #ddd;
     }
+    &.deleted {
+      border-color: #FF0000;
+    }
   }
   &.disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;
+  }
+  &.deleted {
+    background-color: rgba(251,238,241);
+    color: #FF0000;
+    border: 1px solid #FF0000;
+    cursor: pointer;
   }
   &.invalid {
     border-color: currentColor !important;

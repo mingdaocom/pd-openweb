@@ -38,7 +38,7 @@ export default class RelateRecord extends Component {
       keyWords: '',
       showAddRecordDialog: false, // 新建记录
     };
-    this.searchRecord = _.debounce(this.getRows, 200);
+    this.searchRecord = _.debounce(this.getRows, 500);
     this.$relateRecord = React.createRef();
   }
   componentWillMount = function() {

@@ -146,7 +146,7 @@ export default class FillWorkseet extends React.Component {
             ? {
                 ticket: res.ticket,
                 randStr: res.randstr,
-                captchaType: md.staticglobal.CaptchaType(),
+                captchaType: md.staticglobal.getCaptchaType(),
               }
             : {},
         },
@@ -179,10 +179,10 @@ export default class FillWorkseet extends React.Component {
       return false;
     } else {
       if (needCaptcha) {
-        if (md.staticglobal.CaptchaType() === 1) {
+        if (md.staticglobal.getCaptchaType() === 1) {
           captcha(submit);
         } else {
-          new TencentCaptcha(md.staticglobal.TencentAppId, submit).show();
+          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit).show();
         }
       } else {
         submit();

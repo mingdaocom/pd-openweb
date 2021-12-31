@@ -128,6 +128,7 @@ function Sheet(props) {
     view,
     activeViewStatus,
     viewId: view.viewId,
+    projectId: worksheetInfo.projectId,
     isCharge,
     openNewRecord,
     viewConfigVisible,

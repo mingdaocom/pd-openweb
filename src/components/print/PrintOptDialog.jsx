@@ -22,13 +22,17 @@ export default class PrintOptDialog extends Component {
     let controlOption = [];
     if (props.controlOption === 'all') {
       controlOption.splice(0, controlOption.length);
-      props.reqInfo.controls.filter(item => !item.printHide).forEach((item, index) => {
-        if (item && item.controlId) {
-          controlOption.push(item.controlId);
-        }
-      });
+      const { reqInfo = {} } = props;
+      const { controls = [], formControls = [] } = reqInfo;
+      controls
+        .filter(item => !item.printHide)
+        .forEach((item, index) => {
+          if (item && item.controlId) {
+            controlOption.push(item.controlId);
+          }
+        });
       if (!this.props.worksheetId) {
-        props.reqInfo.formControls.forEach((formControlItem) => {
+        formControls.forEach(formControlItem => {
           if (formControlItem.tempControls.filter(item => item.needEvaluate).length > 0) {
             controlOption.push('formDetailEvaluate-' + formControlItem.formId);
           }

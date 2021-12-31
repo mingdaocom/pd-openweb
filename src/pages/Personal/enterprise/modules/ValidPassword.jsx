@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import account from 'src/api/account';
 import { encrypt } from 'src/util';
+import captcha from 'src/components/captcha';
+import cx from 'classnames';
 import './index.less';
 
 export default class ValidPassWord extends Component {
@@ -18,43 +20,45 @@ export default class ValidPassWord extends Component {
     } else {
       this.setState({ disabled: true });
       const { projectId, companyName } = this.props;
-      account
-        .validateExitProject({
-          password: encrypt(this.state.password),
-          projectId,
-        })
-        .done(result => {
-          if (result === 2) {
-            alert(_l('密码错误'), 3);
-            $('inputBox')
-              .val('')
-              .focus();
-          } else {
-            // result
-            // 0 failed
-            // 1 success
-            // 2 password error
-            // 3 need transfter admin
-            // 4 need apply to Mingdao
-            // 5 last one forbind exit
-            this.props.closeDialog();
-            switch (result) {
-              case 1:
-              case 3:
-                this.props.transferAdminProject(projectId, companyName, this.state.password, result);
-                break;
-              case 5:
-                alert(_l('最后一位成员无法退出组织'), 3);
-                break;
-              case 0:
-              default:
-                alert(_l('操作失败'), 2);
-            }
+
+      var throttled = _.throttle(
+        res => {
+          if (res.ret === 0) {
+            account
+              .validateExitProject({
+                password: encrypt(this.state.password),
+                projectId,
+                ticket: res.ticket,
+                randStr: res.randstr,
+                captchaType: md.staticglobal.getCaptchaType(),
+              })
+              .done(result => {
+                if (result === 2) {
+                  alert(_l('密码错误'), 3);
+                  $('inputBox').val('').focus();
+                } else {
+                  // result
+                  // 1 success
+                  // 2 password error
+                  // 3 need transfter admin
+                  this.props.closeDialog();
+                  this.props.transferAdminProject(projectId, companyName, this.state.password, result);
+                }
+              })
+              .always(() => {
+                this.setState({ disabled: false });
+              });
           }
-        })
-        .always(() => {
-          this.setState({ disabled: false });
-        });
+        },
+        10000,
+        { leading: true },
+      );
+
+      if (md.staticglobal.getCaptchaType() === 1) {
+        new captcha(throttled);
+      } else {
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
+      }
     }
   }
 
@@ -77,8 +81,12 @@ export default class ValidPassWord extends Component {
           <button
             type="button"
             disabled={disabled}
-            className="btn ming Button Button--primary"
-            onClick={() => this.handleSubmit()}
+            className={cx('btn ming Button Button--primary', { 'Button--disabled': disabled })}
+            onClick={() => {
+              if (!disabled) {
+                this.handleSubmit();
+              }
+            }}
           >
             {_l('确认')}
           </button>

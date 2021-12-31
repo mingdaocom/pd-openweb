@@ -21,7 +21,7 @@
 
 .workflowSettings {
   .workflowDetailTransition-enter {
-    transform: translateX(560px);
+    transform: translateX(640px);
     transition: all 250ms ease-out;
   }
 
@@ -35,12 +35,12 @@
   }
 
   .workflowDetailTransition-leave.workflowDetailTransition-leave-active {
-    transform: translateX(560px);
+    transform: translateX(640px);
   }
 
   .workflowDetail {
     z-index: 11;
-    width: 560px;
+    width: 640px;
     position: absolute;
     top: 0;
     right: 0;
@@ -691,6 +691,15 @@
       cursor: pointer;
       &:hover {
         color: #9e9e9e;
+      }
+    }
+    .ck {
+      .ck-content {
+        background: #fff !important;
+      }
+      .ck-sticky-panel .ck-toolbar,
+      .ck-blurred {
+        border-color: #ddd !important;
       }
     }
   }

@@ -55,7 +55,7 @@ function formatSearchFilters(filters = [], controls = []) {
 }
 
 export default function Header(props) {
-  const { searchFilters, controls, quickFilters, onFilter } = props;
+  const { searchFilters, controls, quickFilters, onFilter, control = {} } = props;
   const [popupVisible, setPopupVisible] = useState(false);
   return (
     <Trigger
@@ -77,6 +77,7 @@ export default function Header(props) {
                 '.ant-select-dropdown',
                 '.ant-picker-dropdown',
                 '.rc-trigger-popup',
+                '#dialogSelectDept_container'
               ].join(','),
             )[0];
             return $targetTarget;
@@ -90,6 +91,8 @@ export default function Header(props) {
               showQueryBtn
               colNum={1}
               controls={controls}
+              appId={control.appId}
+              projectId={control.projectId}
               filters={formatSearchFilters(searchFilters, controls)}
               queryText={_l('筛选')}
               updateQuickFilter={filters => {
@@ -105,6 +108,7 @@ export default function Header(props) {
       }
       getPopupContainer={() => document.body}
       popupClassName="filterTrigger"
+      zIndex={1000}
       popupAlign={{
         points: ['tr', 'br'],
         overflow: {

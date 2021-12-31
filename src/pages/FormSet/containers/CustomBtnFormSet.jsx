@@ -288,7 +288,7 @@ function CustomBtnFormSet(props) {
                                 views: it.displayViews
                                   .filter(o => !!o)
                                   .map(o => {
-                                    let d = worksheetInfo.views.find(it => it.viewId === o);
+                                    let d = (worksheetInfo.views || []).find(it => it.viewId === o);
                                     if (!!d && !!o) {
                                       return {
                                         viewId: o,

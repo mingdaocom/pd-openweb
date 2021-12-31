@@ -65,6 +65,7 @@ class DiaActionTree extends React.Component {
         dispatch(
           getFullTree({
             departmentId,
+            isGetAll: true,
             expandedKeys,
             afterRequest() {
               dispatch(updateCursor(departmentId));
@@ -103,18 +104,21 @@ class DiaActionTree extends React.Component {
       <ul
         className="diaActionTree"
         ref={diaUl => (this.diaUl = diaUl)}
-        style={{ left: this.props.dropData.left, top: this.props.dropData.top }}>
+        style={{ left: this.props.dropData.left, top: this.props.dropData.top }}
+      >
         <li
           onClick={() => {
             this.handleClick();
-          }}>
+          }}
+        >
           {_l('添加子部门')}
         </li>
         <li
           // style={{ borderBottom: '1px solid #eaeaea' }}
           onClick={() => {
             this.openSettingDialog();
-          }}>
+          }}
+        >
           {_l('编辑部门')}
         </li>
         {/* <li className='' onClick={() => { }}>{_l('查看全部层级成员')}</li> */}

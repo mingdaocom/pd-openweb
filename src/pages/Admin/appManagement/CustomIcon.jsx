@@ -181,7 +181,13 @@ export default class CustomIcon extends Component {
         </div>
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (
-            <span className="Gray_9e">{_l('上传的图标可用于应用、工作表的图标选择，格式仅支持SVG')}</span>
+            <span className="Gray_9e">
+              {_l('上传的图标可用于应用、工作表的图标选择，使用SVG格式的单色图标')}（{_l('推荐下载地址')}
+              <a className="ThemeColor3 ThemeHoverColor2" href="https://www.iconfont.cn" target="_blank">
+                iconfont
+              </a>
+              ）。
+            </span>
           ) : (
             <Fragment>
               <span>{_l('已选中%0个', selected.length)}</span>

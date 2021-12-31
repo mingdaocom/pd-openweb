@@ -319,7 +319,7 @@ class Message extends React.Component {
           verifyCodeType: codeType,
           ticket: res.ticket,
           randStr: res.randstr,
-          captchaType: md.staticglobal.CaptchaType(),
+          captchaType: md.staticglobal.getCaptchaType(),
         };
         let thenFn = data => {
           const { ActionResult } = Config;
@@ -397,10 +397,10 @@ class Message extends React.Component {
         }
       };
 
-      if (md.staticglobal.CaptchaType() === 1) {
+      if (md.staticglobal.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
-        new TencentCaptcha(md.staticglobal.TencentAppId, callback).show();
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
       }
     }
   };
@@ -527,8 +527,8 @@ class Message extends React.Component {
                       ...dataList,
                       warnningData: data,
                       emailOrTel: this.iti
-                        ? e.target.value.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '')
-                        : e.target.value,
+                        ? e.target.value.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '').trim()
+                        : e.target.value.trim(),
                       dialCode: this.iti
                         ? this.state.isMobile
                           ? `+${this.iti.getSelectedCountryData().dialCode}`

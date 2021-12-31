@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import account from 'src/api/account';
-import { encrypt, htmlEncodeReg } from 'src/util';
+import { htmlEncodeReg } from 'src/util';
 import './index.less';
 
 export default class ExitDialog extends Component {
@@ -34,16 +34,16 @@ export default class ExitDialog extends Component {
   }
 
   handleExit() {
-    var accountId = this.state.userInfo.accountId
-    var $btn = $("#submitBtn");
-    $btn
-      .removeClass('Button--primary')
-      .addClass('Button--disabled')
-      .prop('disabled', true);
+    var accountId = this.state.userInfo.accountId;
+    if (this.props.needTransfer && !accountId) {
+      alert('请指定成员');
+      return;
+    }
+    var $btn = $('#submitBtn');
+    $btn.removeClass('Button--primary').addClass('Button--disabled').prop('disabled', true);
     account
       .exitProject({
         projectId: this.props.projectId,
-        password: encrypt(this.props.password),
         newAdminAccountId: accountId,
       })
       .done(result => {
@@ -56,19 +56,14 @@ export default class ExitDialog extends Component {
           case 3:
             this.props.transferAdminProject(this.props.projectId, this.props.companyName, thi.props.password, result);
             break;
-          case 4:
-            alert(_l('您是该组织唯一成员，无法退出，请联系客服'), 3);
-            break;
-          case 0:
+          case 2:
           default:
-            alert(_l('操作失败'));
+            alert(_l('操作失败'), 3);
+            break;
         }
       })
-      .always(function() {
-        $btn
-          .addClass('Button--primary')
-          .removeClass('Button--disabled')
-          .prop('disabled', false);
+      .always(function () {
+        $btn.addClass('Button--primary').removeClass('Button--disabled').prop('disabled', false);
       });
   }
 

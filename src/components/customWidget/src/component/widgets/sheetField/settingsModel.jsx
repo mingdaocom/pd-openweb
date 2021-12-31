@@ -35,7 +35,7 @@ class SettingsModel extends React.Component {
       sheetFieldList: [],
       loadingField: false,
     };
-    this.searchSheet = _.debounce(this.getRelateSheetControl, 200);
+    this.searchSheet = _.debounce(this.getRelateSheetControl, 500);
   }
 
   handleChange() {

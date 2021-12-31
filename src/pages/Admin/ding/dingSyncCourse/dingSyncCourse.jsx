@@ -162,7 +162,7 @@ export default class DingSyncCourse extends React.Component {
         return str;
       },
     });
-    this.clipboard.on('success', function() {
+    this.clipboard.on('success', function () {
       alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
     });
   };
@@ -201,14 +201,10 @@ export default class DingSyncCourse extends React.Component {
         height: height,
         canvas: canvas,
       }).then(canvas => {
-        $('.download')
-          .attr('href', canvas.toDataURL())[0]
-          .click();
+        $('.download').attr('href', canvas.toDataURL())[0].click();
       });
     } else {
-      $('.download')
-        .attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0]
-        .click();
+      $('.download').attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0].click();
     }
   };
 
@@ -395,9 +391,7 @@ export default class DingSyncCourse extends React.Component {
             </p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-2.png" alt={_l('完善接口信息')} />
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-3.png" alt={_l('完善接口信息')} />
-            <p className="Font14 Gray_75 mTop24 LineHeight22">
-              {_l('首页可以找到CorpId，填入对应输入框内')}
-            </p>
+            <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('首页可以找到CorpId，填入对应输入框内')}</p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-4.png" alt={_l('完善接口信息')} />
             <h3 className="Font18 Gray mTop40">{_l('5.申请开通企业通讯录权限')}</h3>
             <p className="Font14 Gray_75 mTop24 LineHeight22">
@@ -415,10 +409,14 @@ export default class DingSyncCourse extends React.Component {
           </Fragment>
         )}
         <h3 className="Font18 Gray mTop40">{_l('%0.发布应用', this.state.addApp ? 5 : 6)}</h3>
-        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('切换至“版本管理与发布”，配置可使用范围，点击“确认发布”后即可')}</p>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">
+          {_l('切换至“版本管理与发布”，配置可使用范围，点击“确认发布”后即可')}
+        </p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/6.png" alt={_l('发布应用')} />
         <h3 className="Font18 Gray mTop40">{_l('%0.设置使用范围', this.state.addApp ? 6 : 7)}</h3>
-        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('应用发布后，仍然可以根据企业自身需求改变应用的可使用范围')}</p>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">
+          {_l('应用发布后，仍然可以根据企业自身需求改变应用的可使用范围')}
+        </p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/7.png" alt={_l('设置使用范围')} />
       </React.Fragment>
     );
@@ -457,6 +455,36 @@ export default class DingSyncCourse extends React.Component {
               }}
             >
               {_l('前往配置')}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    if (this.state.isWX && !md.global.Config.IsLocal) {
+      return (
+        <div className="wechartWork card TxtCenter">
+          <img
+            className="mTop80"
+            src="/src/pages/Admin/ding/dingSyncCourse/img/wechat_work.png"
+            alt={_l('企业微信')}
+            width="56"
+          />
+          <div className="TxtCenter mTop30">
+            <h2 className="Font20 Gray">{_l('将此应用添加到企业微信工作台')}</h2>
+            <p className="mTop30 Font14 Gray_75 LineHeight22">
+              {_l('因企业微信规则调整，新的对接方案正在开发，支持线下完成对接。')}
+            </p>
+            <p className="Font14 mBottom30 Gray_75 LineHeight22">
+              {_l('您可以在线咨询客服或者电话咨询客服，联系电话：010-53153053')}
+            </p>
+            <Button
+              type="primary"
+              className="goDingSetting"
+              onClick={e => {
+                window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open();
+              }}
+            >
+              {_l('联系客服')}
             </Button>
           </div>
         </div>

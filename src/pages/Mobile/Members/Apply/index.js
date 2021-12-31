@@ -4,6 +4,7 @@ import * as actions from './redux/actions';
 import Back from '../../components/Back';
 import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace, Modal } from 'antd-mobile';
 import { WithoutRows } from 'src/pages/Mobile/RecordList/SheetRows';
+import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 
@@ -28,21 +29,27 @@ class ApplyList extends React.Component {
   showActionSheet = (id) => {
     const { applyList, roleList } = this.props.applyData;
     const { params } = this.props.match;
-    let str = _.map(roleList, (item, i) => {
+    const BUTTONS = _.map(roleList, (item, i) => {
       return (
-        <span key={`${item.roleId}-${i}`}>
+        <span className="Bold" key={`${item.roleId}-${i}`}>
           {_l('设为%0', item.name)}
         </span>
       );
     });
-    let BUTTONS = [...str, <span style={{ color: '#2196f3' }}>{_l('取消')}</span>];
     ActionSheet.showActionSheetWithOptions({
       options: BUTTONS,
-      cancelButtonIndex: BUTTONS.length - 1,
       maskClosable: true,
-      message: _l('设置应用角色'),
+      message: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('申请管理')}</span>
+          <div className="closeIcon" onClick={() => { ActionSheet.close(); }}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
       'data-seed': 'logId',
     }, (buttonIndex) => {
+      if (buttonIndex === -1) return;
       if (buttonIndex < roleList.length) {
         this.props.dispatch(actions.editAppApplyStatus({
           id,

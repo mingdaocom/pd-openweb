@@ -1,4 +1,3 @@
-
 export const base = (state = {}, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_BASE':
@@ -6,7 +5,7 @@ export const base = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 export const workSheetLoading = (state = true, action) => {
   switch (action.type) {
@@ -15,7 +14,7 @@ export const workSheetLoading = (state = true, action) => {
     default:
       return state;
   }
-}
+};
 
 export const currentSheetRows = (state = [], action) => {
   switch (action.type) {
@@ -26,7 +25,7 @@ export const currentSheetRows = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const worksheetInfo = (state = {}, action) => {
   switch (action.type) {
@@ -35,7 +34,7 @@ export const worksheetInfo = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 export const filters = (state = { keyWords: '', quickFilterKeyWords: '', visible: false }, action) => {
   switch (action.type) {
@@ -44,7 +43,7 @@ export const filters = (state = { keyWords: '', quickFilterKeyWords: '', visible
     default:
       return state;
   }
-}
+};
 
 export const quickFilter = (state = [], action) => {
   switch (action.type) {
@@ -53,20 +52,23 @@ export const quickFilter = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
-export const sheetView = (state = {
-  pageIndex: 1,
-  isMore: true,
-  count: 0
-}, action) => {
+export const sheetView = (
+  state = {
+    pageIndex: 1,
+    isMore: true,
+    count: 0,
+  },
+  action,
+) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_SHEET_VIEW':
       return { ...state, ...action.sheetView };
     default:
       return state;
   }
-}
+};
 
 export const viewResultCode = (state = 1, action) => {
   switch (action.type) {
@@ -75,7 +77,7 @@ export const viewResultCode = (state = 1, action) => {
     default:
       return state;
   }
-}
+};
 
 export const isCharge = (state = false, action) => {
   switch (action.type) {
@@ -84,7 +86,16 @@ export const isCharge = (state = false, action) => {
     default:
       return state;
   }
-}
+};
+
+export const appColor = (state = '#2196F3', action) => {
+  switch (action.type) {
+    case 'MOBILE_APP_COLOR':
+      return action.value;
+    default:
+      return state;
+  }
+};
 
 export const sheetSwitchPermit = (state = [], action) => {
   switch (action.type) {
@@ -93,7 +104,7 @@ export const sheetSwitchPermit = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const worksheetControls = (state = [], action) => {
   switch (action.type) {
@@ -102,7 +113,7 @@ export const worksheetControls = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const sheetRowLoading = (state = true, action) => {
   switch (action.type) {
@@ -113,7 +124,7 @@ export const sheetRowLoading = (state = true, action) => {
     default:
       return state;
   }
-}
+};
 
 export const mobileNavGroupFilters = (state = [], action) => {
   switch (action.type) {
@@ -122,4 +133,30 @@ export const mobileNavGroupFilters = (state = [], action) => {
     default:
       return state;
   }
-}
+};
+export const batchOptVisible = (state = false, action) => {
+  switch (action.type) {
+    case 'CHABGE_MOBILE_BATCHOPT_VISIBLE':
+      return action.flag;
+    default:
+      return state;
+  }
+};
+
+export const batchOptCheckedData = (state = [], action) => {
+  switch (action.type) {
+    case 'CAHNGE_BATCHOPT_CHECKED':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+export const mobileViewPermission = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_MOBILEVIEW_PERMISSION':
+      return action.data;
+    default:
+      return state;
+  }
+};

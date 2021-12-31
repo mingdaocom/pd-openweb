@@ -155,6 +155,7 @@ class FillRecordControls extends React.Component {
         <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
         <div ref={this.formcon}>
           <CustomFields
+            isWorksheetQuery
             ref={this.customwidget}
             popupContainer={document.body}
             data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}

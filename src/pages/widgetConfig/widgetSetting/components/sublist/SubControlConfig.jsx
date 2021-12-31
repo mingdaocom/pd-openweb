@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Setting from '../../settings';
 import DynamicDefaultValue from '../DynamicDefaultValue';
-import { HAVE_CONFIG_SUB_LIST, NO_VERIFY_WIDGET, HAS_DYNAMIC_DEFAULT_VALUE_CONTROL } from '../../../config';
+import {
+  HAVE_CONFIG_SUB_LIST,
+  NO_VERIFY_WIDGET,
+  HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
+  NO_PERMISSION_WIDGET,
+} from '../../../config';
 import { enumWidgetType } from '../../../util';
 import WidgetVerify from '../WidgetVerify';
 import components from '../';
 import ControlSetting from '../ControlSetting';
-const { WidgetIntro, WidgetName } = components;
+const { WidgetIntro, WidgetName, WidgetPermission } = components;
 
 const SubControlConfigWrap = styled.div`
   position: absolute;
@@ -89,6 +94,7 @@ export default function SubControlConfig({
       )}
       {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...subListProps} />}
       {HAVE_CONFIG_SUB_LIST.includes(type) && <ControlSetting {...subListProps} />}
+      {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...subListProps} />}
       {/* {!_.includes(NO_CONTENT_CONTROL, type) && (
         <div className="widgetCommonConfig">
           {!_.includes(NO_GUIDE_TEXT_CONTROL, type) && <WidgetExplain value={hint} onChange={changeWidgetData} />}

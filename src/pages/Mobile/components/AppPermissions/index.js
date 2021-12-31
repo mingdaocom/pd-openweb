@@ -89,10 +89,21 @@ const appPermissions = (Component) => {
       }
     }
     componentDidMount() {
-      const { params } = this.props.match;
+      const { params, path } = this.props.match;
       if (['undefined', 'null'].includes(params.appId)) {
         this.setState({ loading: false });
         return
+      }
+      if (path.includes('recordList')) {
+        homeAppAjax.getPageInfo({
+          id: params.worksheetId,
+          sectionId: params.groupId
+        }).then(data => {
+          const { wsType } = data;
+          if (wsType === 1) {
+            window.mobileNavigateTo(`/mobile/customPage/${params.appId}/${params.groupId}/${params.worksheetId}`);
+          }
+        });
       }
       homeAppAjax.checkApp({
         appId: params.appId,

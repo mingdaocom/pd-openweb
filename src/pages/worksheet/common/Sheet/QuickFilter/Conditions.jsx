@@ -97,23 +97,13 @@ function turnControl(control) {
 }
 
 function conditionAdapter(condition) {
-  if (
-    _.includes(
-      [
-        WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
-        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
-      ],
-      condition.control.type,
-    )
-  ) {
-    condition.filterType = 1;
-  }
   delete condition.control;
   return condition;
 }
 
 export default function Conditions(props) {
   const {
+    projectId,
     queryText,
     className,
     view = {},
@@ -134,7 +124,7 @@ export default function Conditions(props) {
     ? _.get(view, 'advancedSetting.enablebtn') === '1'
     : props.showQueryBtn;
   const store = useRef({});
-  const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 300));
+  const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(
     () =>
       filters
@@ -203,6 +193,7 @@ export default function Conditions(props) {
           <Label className="label">{item.control.controlName}</Label>
           <Content className="content">
             <FilterInput
+              projectId={projectId}
               {...item}
               {...values[i]}
               onChange={(change = {}) => {
@@ -267,6 +258,7 @@ export default function Conditions(props) {
 }
 
 Conditions.propTypes = {
+  projectId: string,
   className: string,
   queryText: string,
   colNum: number,

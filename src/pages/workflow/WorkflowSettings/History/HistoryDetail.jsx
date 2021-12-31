@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { string, func } from 'prop-types';
+import { string, func, bool } from 'prop-types';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
 import HistoryStatus from './HistoryStatus';
@@ -19,6 +19,7 @@ import { resetInstance } from '../../api/instanceVersion';
 export default class HistoryDetail extends Component {
   static propTypes = {
     id: string,
+    disabled: bool,
     onClick: func,
   };
 
@@ -127,11 +128,12 @@ export default class HistoryDetail extends Component {
   }
 
   renderRetryBtn(retryPosition) {
+    const { disabled } = this.props;
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
 
-    if ((data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4) {
+    if (((data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4) && !disabled) {
       return (
         <div
           className={cx(
@@ -187,7 +189,7 @@ export default class HistoryDetail extends Component {
         </div>
         <div className="detailContent">
           <div className={cx('itemInfo', status)} style={{ backgroundColor: bgColor }}>
-            {isRetry && this.retryPosition === 'header' && <div className="workflowRetryLoading"></div>}
+            {isRetry && this.retryPosition === 'header' && <div className="workflowRetryLoading" />}
             <HistoryStatus statusCode={data.status} size={44} color={color} textSize={18} />
             <div className="title flex mRight15">
               <div className="overflow_ellipsis Font18">{_l('数据：') + title}</div>
@@ -209,13 +211,13 @@ export default class HistoryDetail extends Component {
             <ul className="logList">
               {works.map((item, index) => {
                 const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort } = item;
-                const { name } = flowNode;
+                const { name, alias } = flowNode;
                 const { type } = NODE_TYPE[flowNode.child && flowNode.type === 0 ? 16 : flowNode.type] || {};
 
                 return (
                   <li key={index}>
                     {isRetry && index === works.length - 1 && this.retryPosition === 'list' && (
-                      <div className="workflowRetryLoading"></div>
+                      <div className="workflowRetryLoading" />
                     )}
 
                     <div className="flowItemHistory flexRow">
@@ -230,9 +232,12 @@ export default class HistoryDetail extends Component {
 
                     <div className="originNode">
                       <NodeIcon type={type} appType={flowNode.appType} actionId={flowNode.actionId} />
-                      <div className="nodeName Font15 overflow_ellipsis">
-                        {name}
-                        {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+                      <div className="nodeName Font15 overflow_ellipsis flexColumn">
+                        <div>
+                          {name}
+                          {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+                        </div>
+                        {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
                       </div>
                     </div>
 

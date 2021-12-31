@@ -4,9 +4,10 @@ import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { handleChangeOwner, updateRecordOwner } from '../crtl';
-
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 export default function FormHeader(props) {
-  const { recordbase, recordinfo, view = {}, updateRecordDailogOwner } = props;
+  const { recordbase, recordinfo, view = {}, updateRecordDailogOwner, sheetSwitchPermit = {}, viewId } = props;
   const { isCharge, worksheetId, recordId, recordTitle, isSmall } = recordbase;
   const {
     allowEdit,
@@ -26,6 +27,10 @@ export default function FormHeader(props) {
     !_.find(view.controls, controlId => controlId === 'ownerid') &&
     controlState(ownerControl).visible;
   const ownerEditable = allowEdit && ownerControl && controlState(ownerControl).editable;
+  let isOpenLogs = true;
+  if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
+    isOpenLogs = false;
+  }
   return (
     <div className={cx('recordInfoFormHeader Gray_9e', { isSmall })}>
       <div className="worksheetNameCon" style={{ marginTop: 16 }}>
@@ -37,7 +42,7 @@ export default function FormHeader(props) {
           <span className="worksheetName Gray_9e InlineBlock">{worksheetName}</span>
         )}
         <div className="Right">
-          {createTime && (
+          {createTime && isOpenLogs && (
             <span className="lastLog InlineBlock Font12 Gray_9e">
               {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
               {createTime === updateTime ? _l(' 创建于 ') : _l(' 更新于 ')}
@@ -45,7 +50,7 @@ export default function FormHeader(props) {
             </span>
           )}
           {showOwner && (
-            <span className="owner Font12 Gray_9e">
+            <span className={cx('owner Font12 Gray_9e', { noBorder: !isOpenLogs })}>
               {_l('拥有者')}：
               <span
                 className={cx('ownerBlock', { disabled: !ownerEditable, Hand: ownerEditable })}

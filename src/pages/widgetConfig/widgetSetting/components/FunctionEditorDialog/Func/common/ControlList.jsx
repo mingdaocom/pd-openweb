@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { func, arrayOf, shape, string } from 'prop-types';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { allowFunctionCalcControlTypes } from '../enum';
+import { checkTypeSupportForFunction } from '../enum';
 
 const Con = styled.div`
   padding: 10px 0;
@@ -30,7 +30,7 @@ const Icon = styled.i`
 export default function ControlList(props) {
   const { keywords, controls, insertTagToEditor } = props;
   const [visibleControls, setVisibleControls] = useState(
-    controls.filter(c => c.controlName && _.includes(allowFunctionCalcControlTypes, c.type)),
+    controls.filter(c => c.controlName && checkTypeSupportForFunction(c)),
   );
   return (
     <Con>

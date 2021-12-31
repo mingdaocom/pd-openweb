@@ -251,7 +251,7 @@ const mergeSearchDepartments = (state, action) => {
 };
 
 const entities = (state = initialState, action) => {
-  const { type, response, departmentId, department, id, curDepartmentId } = action;
+  const { type, response, departmentId, department, id, curDepartmentId, isGetAll } = action;
   let { getDepartmentIds, newDepartments, departments } = state;
   if (type === 'PROJECT_ID_CHANGED') return initialState;
   if (typeof ACTIONS[type] === 'undefined') return state;
@@ -293,9 +293,21 @@ const entities = (state = initialState, action) => {
   }
   if (type === ACTIONS.FULL_TREE_SUCCESS) {
     let data = mergeSearchDepartments(state, action);
+    let departments = response;
+    // if (isGetAll) {
+    //   let data = newDepartments.map(o => {
+    //     if (o.departmentId === response[0].departmentId) {
+    //       return response[0];
+    //     } else {
+    //       return o;
+    //     }
+    //   });
+    //   departments = data;
+    // }
+    // console.log(departments);
     return {
       ...data,
-      newDepartments: response,
+      newDepartments: departments,
       expandedKeys: getParentsId(response, curDepartmentId),
     };
   }

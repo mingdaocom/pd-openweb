@@ -1,8 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
-import { NODE_TYPE, TRIGGER_ID_TYPE } from '../../enum';
+import { ScrollView, LoadDiv, Dropdown, Radio, RichText } from 'ming-ui';
+import { NODE_TYPE, TRIGGER_ID_TYPE, CONTROLS_NAME } from '../../enum';
 import flowNode from '../../../api/flowNode';
-import { Member, SelectUserDropDown, SingleControlValue, DetailHeader, DetailFooter } from '../components';
+import {
+  Member,
+  SelectUserDropDown,
+  SingleControlValue,
+  DetailHeader,
+  DetailFooter,
+  ActionFields,
+} from '../components';
+import copy from 'copy-to-clipboard';
 
 export default class Email extends Component {
   constructor(props) {
@@ -13,6 +21,8 @@ export default class Email extends Component {
       showSelectUserDialog: false,
       cacheKey: +new Date(),
       showSelectCCUserDialog: false,
+      fieldsVisible: false,
+      fieldsData: [],
     };
   }
 
@@ -134,13 +144,17 @@ export default class Email extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, showSelectUserDialog, cacheKey, showSelectCCUserDialog } = this.state;
+    const { data, showSelectUserDialog, cacheKey, showSelectCCUserDialog, fieldsVisible, fieldsData } = this.state;
     const list = [
       { text: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: TRIGGER_ID_TYPE.SEND_EMAIL },
       {
         text: _l('群发单显（采用一对一单独发送，每个收件人只能看到自己的地址）'),
         value: TRIGGER_ID_TYPE.SEND_EMAIL_SINGLE_DISPLAY,
       },
+    ];
+    const contentTypes = [
+      { text: _l('纯文本'), value: 0 },
+      { text: _l('富文本（支持html样式）'), value: 1 },
     ];
 
     return (
@@ -214,33 +228,137 @@ export default class Email extends Component {
 
         {data.fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId);
+
           return (
             <div key={i} className="relative">
               <div className="mTop15 ellipsis Font13 bold">
                 {singleObj.controlName}
                 {singleObj.required && <span className="mLeft5 red">*</span>}
               </div>
-              {singleObj.controlId === 'attachments' && (
-                <div className="mTop5 Gray_75">{_l('附件总大小不超过10M')}</div>
+              {item.fieldId === 'attachments' && <div className="mTop5 Gray_75">{_l('附件总大小不超过10M')}</div>}
+
+              {item.fieldId === 'content' && (
+                <div className="flexRow mTop10 relative">
+                  {contentTypes.map((obj, j) => (
+                    <div className="flex" key={j}>
+                      <Radio
+                        text={obj.text}
+                        checked={!!obj.value === item.isRichText}
+                        onClick={() => {
+                          let newFields = [].concat(data.fields);
+
+                          newFields[i].isRichText = !!obj.value;
+                          newFields[i].fieldValue = '';
+                          this.updateSource({ fields: newFields });
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div
+                    className="pointer Gray_75 ThemeHoverColor3 mLeft30"
+                    onClick={this.insertFields}
+                    style={{ visibility: item.isRichText ? 'visible' : 'hidden' }}
+                  >
+                    <i className="icon-workflow_other Font14" />
+                    {_l('节点对象')}
+                  </div>
+                  {fieldsVisible && !!fieldsData.length && (
+                    <ActionFields
+                      className="actionFields"
+                      openSearch
+                      style={{ marginTop: -8 }}
+                      title={_l('点击复制节点对象代码，粘贴到需要的位置')}
+                      noItemTips={_l('没有可用的字段')}
+                      noData={_l('没有可用的节点对象')}
+                      condition={fieldsData}
+                      handleFieldClick={({ nodeId, fieldValueId, nAlias, cAlias }) => {
+                        this.setState({ fieldsVisible: false });
+                        copy(`#{${nAlias || nodeId}.${cAlias || fieldValueId}}`);
+                        alert(_l('已复制'));
+                      }}
+                      onClose={() => this.setState({ fieldsVisible: false })}
+                    />
+                  )}
+                </div>
               )}
-              <SingleControlValue
-                key={cacheKey + i}
-                companyId={this.props.companyId}
-                processId={this.props.processId}
-                selectNodeId={this.props.selectNodeId}
-                controls={data.controls}
-                formulaMap={data.formulaMap}
-                fields={data.fields}
-                updateSource={this.updateSource}
-                item={item}
-                i={i}
-              />
+
+              {item.fieldId === 'content' && item.isRichText ? (
+                <Fragment>
+                  <RichText
+                    className="mTop8"
+                    showTool
+                    minHeight={200}
+                    data={item.fieldValue || ''}
+                    onActualSave={value => {
+                      let newFields = [].concat(data.fields);
+
+                      newFields[i].fieldValue = value;
+                      this.updateSource({ fields: newFields });
+                    }}
+                  />
+                </Fragment>
+              ) : (
+                <SingleControlValue
+                  key={cacheKey + i}
+                  companyId={this.props.companyId}
+                  processId={this.props.processId}
+                  selectNodeId={this.props.selectNodeId}
+                  controls={data.controls}
+                  formulaMap={data.formulaMap}
+                  fields={data.fields}
+                  updateSource={this.updateSource}
+                  item={item}
+                  i={i}
+                />
+              )}
             </div>
           );
         })}
       </Fragment>
     );
   }
+
+  /**
+   * 插入字段
+   */
+  insertFields = () => {
+    const { processId, selectNodeId } = this.props;
+
+    if (!this.state.fieldsData.length) {
+      flowNode
+        .getFlowNodeAppDtos({
+          processId,
+          nodeId: selectNodeId,
+          type: 2,
+        })
+        .then(result => {
+          const fieldsData = result.map(obj => {
+            return {
+              text: obj.nodeName,
+              id: obj.nodeId,
+              nodeTypeId: obj.nodeTypeId,
+              appName: obj.appName,
+              appType: obj.appType,
+              appTypeName: obj.appTypeName,
+              actionId: obj.actionId,
+              nAlias: obj.alias,
+              items: obj.controls.map(o => {
+                return {
+                  type: o.type,
+                  value: o.controlId,
+                  field: CONTROLS_NAME[o.type],
+                  text: o.controlName,
+                  cAlias: o.alias,
+                };
+              }),
+            };
+          });
+          this.setState({ fieldsData, fieldsVisible: true });
+        });
+    } else {
+      this.setState({ fieldsVisible: true });
+    }
+  };
 
   render() {
     const { data } = this.state;

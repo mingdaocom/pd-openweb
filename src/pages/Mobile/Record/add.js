@@ -139,11 +139,13 @@ class AddRecord extends Component {
     const { loading, sheetRow } = this.state;
 
     if (loading) {
-      <div className="flexColumn h100">
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
-      </div>
+      return (
+        <div className="flexColumn h100">
+          <Flex justify="center" align="center" className="h100">
+            <ActivityIndicator size="large" />
+          </Flex>
+        </div>
+      );
     }
 
     return (

@@ -18,9 +18,14 @@ const promiseList = [
   REQUEST_ACTIONS.APPROVAL_USER_REQUEST,
   REQUEST_ACTIONS.USER_REQUEST,
 ];
-const getApiByRequestType = (type, { departmentId }) => {
+const getApiByRequestType = (type, { departmentId, isGetAll }) => {
   if (type === REQUEST_ACTIONS.USER_REQUEST) {
     return departmentId ? departmentController.getProjectDepartmentUsers : departmentController.getNoDepartmentUsers;
+  }
+  if (type === REQUEST_ACTIONS.FULL_TREE_REQUEST) {
+    return isGetAll
+      ? departmentController.getProjectDepartmentFullTreeByDepartmentId
+      : departmentController.getOneDepartmentFullTree;
   }
   const dict = {
     [REQUEST_ACTIONS.ALL_USER_REQUEST]: userController.pagedNormalUserList, //全公司
@@ -30,7 +35,7 @@ const getApiByRequestType = (type, { departmentId }) => {
     [CURRENT_ACTIONS.INACTIVE_LOAD]: importUserController.getUnusedInfosByProjectIdCount, //整个网络的导入用户，未被使用的总数
     [CURRENT_ACTIONS.APPROVAL_LOAD]: projectController.getProjectUnauditedUserCount, //获取网络内待审批用户数量
     [SEARCH_ACTIONS.SEARCH_REQUEST]: departmentController.searchDeptAndUsers,
-    [REQUEST_ACTIONS.FULL_TREE_REQUEST]: departmentController.getOneDepartmentFullTree,
+    // [REQUEST_ACTIONS.FULL_TREE_REQUEST]: departmentController.getOneDepartmentFullTree,
     [JOB_ACTIONS.JOB_USER_REQUEST]: jobController.pagedJobAccounts, //根据职位id获取user
     [JOB_ACTIONS.JOB_LIST_REQUEST]: jobController.getJobs, // 获取职位list
   };

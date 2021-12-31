@@ -7,6 +7,7 @@ import { getRowRelationRows, getSwitchPermit, editWorksheetControls } from 'src/
 import update from 'immutability-helper';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { replaceByIndex } from 'worksheet/util';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -150,7 +151,7 @@ function getCellWidths(control) {
   } catch (err) {}
   if (widths.length) {
     control.showControls
-      .map(scid => _.find(control.relationControls.concat(SYSTEM_CONTROL), c => c.controlId === scid))
+      .map(scid => _.find((control.relationControls || []).concat(SYSTEM_CONTROL), c => c.controlId === scid))
       .filter(c => c && controlState(c).visible)
       .forEach((c, i) => {
         result[c.controlId] = widths[i];
@@ -273,7 +274,9 @@ export default function RelateRecordTable(props) {
               c &&
               controlState({
                 ...c,
-                controlPermissions: c.controlPermissions ? '1' + c.controlPermissions.slice(1) : '111',
+                controlPermissions: isHiddenOtherViewRecord
+                  ? c.controlPermissions
+                  : replaceByIndex(control.controlPermissions || '111', 0, '1'),
               }).visible,
           );
         controls = newTableControls;
@@ -285,11 +288,10 @@ export default function RelateRecordTable(props) {
         showHideTip &&
         !keywordsForSearch &&
         isLastPage &&
-        res.count < +relateNum.current &&
-        controls[0]
+        res.count < +relateNum.current
       ) {
         newRecords.push({
-          [controls[0].controlId]: {
+          [controls[0] ? controls[0].controlId : 'tip']: {
             customCell: true,
             type: 'text',
             value: _l('%0条记录已隐藏', +relateNum.current - res.count),
@@ -391,7 +393,7 @@ export default function RelateRecordTable(props) {
   }, [count, records, lastAction]);
   const columns = tableControls.length
     ? tableControls.filter(c => !_.find(sheetHiddenColumnIds, id => c.controlId === id))
-    : [{}];
+    : [{ controlId: 'tip' }];
   const controlPermission = controlState(control, recordId ? 3 : 2);
   const addVisible =
     !control.disabled &&
@@ -508,7 +510,7 @@ export default function RelateRecordTable(props) {
               }
               editWorksheetControls({
                 worksheetId,
-                controls: [newControl],
+                controls: [{ ..._.pick(newControl, ['controlId', 'advancedSetting']), editattrs: ['advancedSetting'] }],
               }).then(res => {
                 setLayoutChanged(false);
               });

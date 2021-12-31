@@ -11,6 +11,7 @@ import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
 import { getRequest } from 'src/util';
 import WidgetDisplay from './WidgetDisplay';
+import AppPermissions from '../components/AppPermissions';
 import 'react-grid-layout/css/styles.css';
 
 const getLayout = components =>
@@ -47,6 +48,7 @@ const LayoutContent = styled.div`
 `;
 
 @withRouter
+@AppPermissions
 export default class CustomPage extends Component {
   constructor(props) {
     super(props);
@@ -149,7 +151,8 @@ export default class CustomPage extends Component {
           <Back
             className="low"
             onClick={() => {
-              history.back();
+              const { params } = this.props.match;
+              window.mobileNavigateTo(`/mobile/app/${params.appId}`);
             }}
           />
         )}

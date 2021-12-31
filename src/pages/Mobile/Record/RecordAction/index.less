@@ -34,8 +34,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .opcIcon{
-      color: rgba(255, 255, 255, .8);
+    .opcIcon {
+      color: rgba(255, 255, 255, 0.8);
     }
     .disabled {
       background-color: rgba(0, 0, 0, 0.05);
@@ -64,6 +64,64 @@
       .delTxt {
         border-top: 1px solid #eaeaea;
         font-size: 500;
+      }
+    }
+  }
+}
+
+.failureInfoModal {
+  height: calc(~'100% - 40px');
+  background-color: #f2f2f2;
+  border-radius: 12px 12px 0 0;
+  .am-modal-content {
+    border-radius: 12px 12px 0 0;
+    .am-modal-header {
+      padding: 0;
+      .header {
+        height: 44px;
+        line-height: 44px;
+        font-size: 17px;
+        font-weight: 700;
+        padding: 0 16px;
+        background-color: #fff;
+        color: #333;
+        .closeIcon {
+          color: #2195f2;
+          line-height: 44px;
+        }
+      }
+    }
+    .am-modal-body {
+      height: calc(~'100% - 44px');
+      background-color: #f2f2f2;
+      padding-top: 10px;
+    }
+  }
+}
+
+.runInfoModal {
+  .am-modal-content {
+    background-color: unset;
+    .am-modal-body {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      padding: 0 40px;
+      .optRunInfo {
+        color: #333;
+        padding: 24px 24px 32px;
+        background-color: #fff;
+        .infoHeader {
+          font-size: 17px;
+          font-weight: 700;
+          text-align: center;
+          margin-bottom: 23px;
+        }
+        .num {
+          font-size: 14px;
+          text-align: left;
+          margin-bottom: 10px;
+        }
       }
     }
   }

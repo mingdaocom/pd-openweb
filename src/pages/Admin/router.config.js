@@ -138,7 +138,7 @@ export const menuList = [
       },
       {
         icon: 'icon-build',
-        name: _l('工具'),
+        name: _l('管理工具'),
         key: 'announcement',
         routes: [
           {

@@ -66,6 +66,7 @@ function NewReccordForm(props) {
   } = props;
   const tempNewRecord = needCache && viewId && localStorage.getItem('tempNewRecord_' + viewId);
   const cellObjs = useRef({});
+  const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
   const [restoreVisible, setRestoreVisible] = useState(!!tempNewRecord);
@@ -93,7 +94,7 @@ function NewReccordForm(props) {
   function newRecord(options = {}) {
     if (!customwidget.current) return;
     let { data, hasError, hasRuleError } = customwidget.current.getSubmitData();
-
+    isSubmitting.current = true;
     const subListControls = data.filter(item => item.type === 34);
     if (subListControls.length) {
       const errors = subListControls
@@ -111,7 +112,7 @@ function NewReccordForm(props) {
                   `${control.controlId}.cell.worksheettable.current.table.state.rules`,
                 ),
               },
-              control.relationControls,
+              _.get(cellObjs.current, `${control.controlId}.cell.controls`) || control.relationControls,
               control.showControls,
               2,
             ),
@@ -182,6 +183,7 @@ function NewReccordForm(props) {
         customwidget,
         setRequesting,
         resetForm: ({ newControls } = {}) => {
+          isSubmitting.current = false;
           if (!autoFill) {
             setFormdata(worksheetInfo.controls);
             setRelateRecordData({});
@@ -286,6 +288,9 @@ function NewReccordForm(props) {
             worksheetId={worksheetId}
             showError={errorVisible}
             onChange={(data, { noSaveTemp } = {}) => {
+              if (isSubmitting.current) {
+                return;
+              }
               setFormdata([...data]);
               if (needCache && viewId && !noSaveTemp) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));

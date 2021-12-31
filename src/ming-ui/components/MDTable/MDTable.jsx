@@ -231,6 +231,13 @@ export default class MDTable extends React.Component {
     let isScrollVer = Math.abs(deltaY) > Math.abs(deltaX);
 
     if ((isScrollVer && this.heightScroll) || (!isScrollVer && this.widthScroll)) {
+      if (
+        this.scrollver &&
+        ((deltaY > 0 && this.scrollver.scrollTop === 0) ||
+          (deltaY < 0 && this.scrollver.scrollTop + this.scrollver.clientHeight === this.scrollver.scrollHeight))
+      ) {
+        return;
+      }
       event.stopPropagation();
       event.preventDefault();
     }
@@ -460,7 +467,7 @@ export default class MDTable extends React.Component {
     this.setState({
       columnWidthChangeMaskVisible: true,
       maskLeft: defaultLeft,
-      maskMinLeft: defaultLeft - (columnWidth - 60),
+      maskMinLeft: defaultLeft - (columnWidth - 10),
       maskMaxLeft: window.innerWidth,
       maskOnChange: left => {
         this.setState({

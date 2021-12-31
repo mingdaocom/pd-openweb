@@ -131,7 +131,7 @@ function BoardView(props) {
 
   useEffect(() => {
     initBoardViewData();
-  }, [viewId]);
+  }, [viewId, view.viewControl]);
 
   const handleSelectField = obj => {
     if (!isCharge) return;

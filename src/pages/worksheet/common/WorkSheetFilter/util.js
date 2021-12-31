@@ -596,7 +596,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     },
   ];
   const filterControl = _.find(
-    relateControl.relationControls.concat(systemControls),
+    (relateControl.relationControls || []).concat(systemControls),
     item => item.controlId === controlId,
   );
   if (!dynamicSource || !filterControl) {

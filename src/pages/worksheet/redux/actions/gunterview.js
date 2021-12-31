@@ -189,7 +189,9 @@ export const resetLoadGunterView = () => {
   return (dispatch, getState) => {
     const { gunterView } = getState().sheet;
     const { chartScroll } = gunterView;
-    chartScroll && chartScroll.disable();
+    if (chartScroll && chartScroll.disable) {
+      chartScroll.disable();
+    }
     dispatch(refreshGunterView());
     dispatch(fetchRows());
   }

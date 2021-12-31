@@ -65,7 +65,7 @@ export default function WidgetIntro(props) {
     }
     // 下拉转多选需要设置排列方式
     if (type === 11) {
-      onChange({ type: 10, size: WHOLE_SIZE, advancedSetting: { direction: '0' } });
+      onChange({ type: 10, advancedSetting: { direction: '0' } });
       return;
     }
     if (type === 37) {

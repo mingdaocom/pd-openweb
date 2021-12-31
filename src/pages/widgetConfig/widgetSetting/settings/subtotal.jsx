@@ -68,10 +68,12 @@ export default function Subtotal(props) {
   );
 
   // 获取汇总关联表控件的表id
-  const { dataSource: worksheetId } = getControlByControlId(allControls, parsedDataSource);
+  const { dataSource: worksheetId, relationControls } = getControlByControlId(allControls, parsedDataSource);
   const { loading, data: sheetData } = useSheetInfo({ worksheetId });
-
-  const availableControls = (sheetData.controls || []).concat(SYSTEM_CONTROL);
+  // 空白子表手动取值
+  const availableControls = (sheetData.info || {}).worksheetId
+    ? sheetData.controls
+    : (relationControls || []).concat(SYSTEM_CONTROL);
 
   const selectedControl = getControlByControlId(availableControls, sourceControlId);
   const totalType = getTotalType(selectedControl);
@@ -81,7 +83,7 @@ export default function Subtotal(props) {
   const filtersCache = useRef(filters);
 
   const filterControls = filterByTypeAndSheetFieldType(
-    resortControlByColRow(availableControls),
+    resortControlByColRow(availableControls || []),
     type => !includes([22, 25, 29, 30, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
@@ -232,7 +234,7 @@ export default function Subtotal(props) {
             {visible && (
               <FilterDialog
                 {...props}
-                relationControls={sheetData.controls}
+                relationControls={availableControls}
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/sheet19.html"
                 onChange={({ filters }) => {
@@ -257,7 +259,7 @@ export default function Subtotal(props) {
               <FilterItemTexts
                 {...props}
                 loading={loading}
-                controls={sheetData.controls}
+                controls={availableControls}
                 editFn={() => setVisible(true)}
               />
             )}

@@ -19,7 +19,10 @@ class DialogSelectDept extends React.Component {
       loading: false,
       keywords: '',
       showCreateBtn: false,
-      project: md.global.Account.projects.filter(project => project.projectId === props.projectId)[0],
+      project:
+        ((md.global.Account.projects || []).filter(project => project.projectId === props.projectId).length &&
+          md.global.Account.projects.filter(project => project.projectId === props.projectId)[0]) ||
+        {},
       selectedDepartment: props.selectedDepartment || [],
       pageSize: 100,
       departmentMoreIds: [],
@@ -28,7 +31,7 @@ class DialogSelectDept extends React.Component {
       rootLoading: false,
     };
 
-    this.search = _.debounce(this.fetchData.bind(this));
+    this.search = _.debounce(this.fetchData.bind(this), 500);
   }
   promise = null;
 
@@ -519,6 +522,11 @@ module.exports = function (opts) {
     width: options.displayType === 'mobile' ? '100%' : 480,
     container: {
       header: options.title,
+    },
+    callback: function () {
+      if (typeof opts.onClose === 'function') {
+        opts.onClose();
+      }
     },
   };
   const listProps = {

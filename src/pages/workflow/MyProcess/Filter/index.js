@@ -151,7 +151,7 @@ export default class Filter extends Component {
   handleClose = () => {
     this.props.handleChangeVisible();
   };
-  handleChange = () => {
+  handleChange = _.debounce(() => {
     const { stateTab } = this.props;
     const { type, searchValue, createAccount, apkId, processId, status, dateScopeIndex } = this.state;
     const operationType = this.state.operationType.value;
@@ -182,7 +182,7 @@ export default class Filter extends Component {
     }
 
     this.props.onChange(param);
-  };
+  }, 500);
   handleReset = () => {
     this.setState(
       {
@@ -251,7 +251,7 @@ export default class Filter extends Component {
                 {
                   searchValue: event.target.value.trim(),
                 },
-                _.debounce(this.handleChange),
+                this.handleChange,
               );
             }}
           />
@@ -373,52 +373,52 @@ export default class Filter extends Component {
         <div className="w100">
           {loading ? (
             <LoadDiv size="middle" />
-          ) : (
-            list.length ? (
-              list.map(item => (
-                <Fragment key={item.app.id}>
-                  <div className="flexRow valignWrapper appItem">
-                    <Icon
-                      icon={item.visible ? 'arrow-down' : 'arrow-right-tip'}
-                      className="flexRow valignWrapper pointer Gray_75 iconArrow"
-                      onClick={() => {
-                        this.handleOpenProcesses(item.app.id);
-                      }}
-                    />
-                    <div
-                      className={cx('flexRow valignWrapper flex pointer content', { active: apkId === item.app.id })}
-                      onClick={() => {
-                        this.setState({ apkId: item.app.id, processId: '' }, this.handleChange);
-                      }}
-                    >
-                      <div className="appIcon flexRow valignWrapper" style={{ backgroundColor: item.app.iconColor }}>
-                        <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
-                      </div>
-                      <div className="flex processAppName ellipsis">{item.app.name}</div>
-                      <div className="Gray_9e">{item.count}</div>
+          ) : list.length ? (
+            list.map(item => (
+              <Fragment key={item.app.id}>
+                <div className="flexRow valignWrapper appItem">
+                  <Icon
+                    icon={item.visible ? 'arrow-down' : 'arrow-right-tip'}
+                    className="flexRow valignWrapper pointer Gray_75 iconArrow"
+                    onClick={() => {
+                      this.handleOpenProcesses(item.app.id);
+                    }}
+                  />
+                  <div
+                    className={cx('flexRow valignWrapper flex pointer content', { active: apkId === item.app.id })}
+                    onClick={() => {
+                      this.setState({ apkId: item.app.id, processId: '' }, this.handleChange);
+                    }}
+                  >
+                    <div className="appIcon flexRow valignWrapper" style={{ backgroundColor: item.app.iconColor }}>
+                      <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
                     </div>
+                    <div className="flex processAppName ellipsis">{item.app.name}</div>
+                    <div className="Gray_9e">{item.count}</div>
                   </div>
-                  {item.visible && (
-                    <Fragment>
-                      {item.processes.map(item => (
-                        <div
-                          key={item.id}
-                          className={cx('flexRow valignWrapper processesItem pointer', { active: processId === item.id })}
-                          onClick={() => {
-                            this.setState({ processId: item.id, apkId: '' }, this.handleChange);
-                          }}
-                        >
-                          <div className="flex ellipsis">{item.name}</div>
-                          <div className="Gray_75">{item.count}</div>
-                        </div>
-                      ))}
-                    </Fragment>
-                  )}
-                </Fragment>
-              ))
-            ) : (
-              <div className="Gray_9d withoutData" style={{ height: 100 }}>{_l('暂无搜索结果')}</div>
-            )
+                </div>
+                {item.visible && (
+                  <Fragment>
+                    {item.processes.map(item => (
+                      <div
+                        key={item.id}
+                        className={cx('flexRow valignWrapper processesItem pointer', { active: processId === item.id })}
+                        onClick={() => {
+                          this.setState({ processId: item.id, apkId: '' }, this.handleChange);
+                        }}
+                      >
+                        <div className="flex ellipsis">{item.name}</div>
+                        <div className="Gray_75">{item.count}</div>
+                      </div>
+                    ))}
+                  </Fragment>
+                )}
+              </Fragment>
+            ))
+          ) : (
+            <div className="Gray_9d withoutData" style={{ height: 100 }}>
+              {_l('暂无搜索结果')}
+            </div>
           )}
         </div>
       </div>

@@ -287,7 +287,7 @@ export const DEFAULT_DATA = {
   NUMBER: {
     controlName: _l('数值'),
     size: 6,
-    dot: 2,
+    dot: 0,
     hint: _l('请填写数值'),
   },
   CRED: {
@@ -302,7 +302,7 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
     enumDefault2: 2,
     unit: _l('元'),
-    dot: 0,
+    dot: 2,
     hint: _l('请填写金额'),
     advancedSetting: {
       suffix: _l('元'),

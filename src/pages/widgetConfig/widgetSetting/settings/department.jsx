@@ -1,8 +1,6 @@
 import React, { Fragment } from 'react';
-import { string } from 'prop-types';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import { WHOLE_SIZE } from '../../config/Drag';
 import { handleAdvancedSettingChange } from '../../util/setting';
 
 const DEPARTMENT_TYPES = [
@@ -29,7 +27,7 @@ export default function Department({ data, onChange }) {
             if (type !== enumDefault) {
               onChange(
                 handleAdvancedSettingChange(
-                  { ...data, enumDefault: type, size: type === 1 ? WHOLE_SIZE : data.size },
+                  { ...data, enumDefault: type },
                   { defsource: '' },
                 ),
               );

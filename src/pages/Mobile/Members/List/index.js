@@ -44,15 +44,29 @@ class MemberList extends Component {
 
   showActionSheet = (roleId, userIds, roleType, data) => {
     const { detail } = this.props.memberList;
-    const BUTTONS = detail.projectId ? [_l('添加人员'), _l('添加部门'), _l('取消')] : [_l('添加人员'), _l('取消')];
+    const addUser = { name: _l('添加人员'), icon: 'hr_person_add', iconClass: 'Font20'  };
+    const BUTTONS = detail.projectId ? [addUser, { name: _l('添加部门'), icon: 'group_add1', iconClass: 'Font22' }] : [addUser];
     ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS,
-      cancelButtonIndex: BUTTONS.length - 1,
+      options: BUTTONS.map(item => (
+        <Fragment>
+          <Icon className={cx('mRight15 Gray_9e', item.iconClass)} icon={item.icon}/>
+          <span className="Bold">{item.name}</span>
+        </Fragment>
+      )),
       maskClosable: true,
       'data-seed': 'logId',
+      message: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('人员管理')}</span>
+          <div className="closeIcon" onClick={() => { ActionSheet.close(); }}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
       wrapProps,
     },
       (buttonIndex) => {
+        if (buttonIndex === -1) return;
         if (buttonIndex === 0) {
           this.setState({
             type: 'user',
@@ -103,10 +117,12 @@ class MemberList extends Component {
   showActionUserSheet = (accountId, departmentId, data) => {
     const { detail } = this.props.memberList;
     const { params } = this.props.match;
-    const BUTTONS_Owers = [_l('将应用托付给他人'), _l('取消')];
-    const BUTTONS_Admins_Other = [_l('更换角色'), _l('移除'), _l('取消')];
-    const BUTTONS_Admins_Me = [_l('更换角色'), _l('退出'), _l('取消')];
-    const BUTTONS_Members = [_l('退出'), _l('取消')];
+    const changeRole = { name: _l('更换角色'), icon: 'refresh', iconClass: 'Gray_9e Font18' };
+    const exit = { name: _l('退出'), icon: 'exit_to_app2', iconClass: 'Font20' };
+    const BUTTONS_Owers = [{ name: _l('将应用托付给他人'), icon: 'forward2', iconClass: 'Gray_9e' }];
+    const BUTTONS_Admins_Other = [changeRole, { name: _l('移除'), icon: 'task-new-delete', iconClass: 'Font18' }];
+    const BUTTONS_Admins_Me = [changeRole, exit];
+    const BUTTONS_Members = [exit];
     let BUTTONS = '';
     // 管理员
     const isAdmin = detail.permissionType === ROLE_TYPES.ADMIN;
@@ -129,14 +145,27 @@ class MemberList extends Component {
       BUTTONS = BUTTONS_Members;
     }
     ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS,
-      cancelButtonIndex: BUTTONS.length - 1,
-      destructiveButtonIndex: isOwer && isMe ? null : BUTTONS.length - 2,
+      options: BUTTONS.map(item => (
+        <Fragment>
+          <Icon className={cx('mRight10', item.iconClass)} icon={item.icon}/>
+          <span className="Bold">{item.name}</span>
+        </Fragment>
+      )),
+      destructiveButtonIndex: isOwer && isMe ? null : BUTTONS.length - 1,
       maskClosable: true,
       'data-seed': 'logId',
+      message: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('人员管理')}</span>
+          <div className="closeIcon" onClick={() => { ActionSheet.close(); }}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
       wrapProps,
     },
       (buttonIndex) => {
+        if (buttonIndex === -1) return;
         if (buttonIndex === 0 && (isAdmin || (accountId != md.global.Account.accountId && isOwer))) {
           // 更换角色
           this.props.history.push(`/mobile/changeRole/${!detail.projectId ? 'individual' : detail.projectId}/${params.appId}/${params.roleId}/${accountId}/${departmentId}`);
@@ -226,7 +255,7 @@ class MemberList extends Component {
         <Back
           className="low"
           onClick={() => {
-            history.back();
+            this.props.history.push(`/mobile/members/${detail.id}`);
           }}
         />
         {this.state.selectUserVisible && (

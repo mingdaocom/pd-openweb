@@ -20,27 +20,14 @@ class SearchInput extends Component {
       result: [],
     };
 
-    this.debounced = _.debounce(searchUser, 30, {
-      leading: true,
-    });
-  }
-
-  promise = null;
-
-  handler(value) {
-    this.setState({
-      keywords: value,
-      isLoading: true,
-    }, () => {
-      if (this.promise &&
-        this.promise.state() === 'pending' &&
-        this.promise.abort) this.promise.abort();
+    this.debounced = _.debounce(() => {
+      if (this.promise && this.promise.state() === 'pending' && this.promise.abort) this.promise.abort();
 
       const { keywords } = this.state;
-      this.promise = this.debounced({
+      this.promise = searchUser({
         keywords,
-      })
-      this.promise.then((res) => {
+      });
+      this.promise.then(res => {
         if (res && res.allCount) {
           const { list, allCount } = res;
           const { result } = this.state;
@@ -57,7 +44,21 @@ class SearchInput extends Component {
           });
         }
       });
-    })
+    }, 500);
+  }
+
+  promise = null;
+
+  handler(value) {
+    this.setState(
+      {
+        keywords: value,
+        isLoading: true,
+      },
+      () => {
+        this.debounced();
+      },
+    );
   }
 
   renderSearchResult() {
@@ -66,12 +67,21 @@ class SearchInput extends Component {
     if (keywords === '' || !showList) return null;
     if (result.length) {
       return (
-        <ClickAwayable className='searchUserList' onClickAway={() => this.setState({ showList: false, })}>
-          {_.map(result, (user) => {
+        <ClickAwayable className="searchUserList" onClickAway={() => this.setState({ showList: false })}>
+          {_.map(result, user => {
             return (
-              <div onClick={() => { dispatch(fetchParent(user.accountId)); }} className="resultItem ThemeHoverBGColor7" key={user.accountId}>
-                <div className='Font16 Gray'>{user.fullname}</div>
-                <div className='Font13 Gray_75 info'><span className="department">{user.department}</span><span className="job">{user.job}</span></div>
+              <div
+                onClick={() => {
+                  dispatch(fetchParent(user.accountId));
+                }}
+                className="resultItem ThemeHoverBGColor7"
+                key={user.accountId}
+              >
+                <div className="Font16 Gray">{user.fullname}</div>
+                <div className="Font13 Gray_75 info">
+                  <span className="department">{user.department}</span>
+                  <span className="job">{user.job}</span>
+                </div>
               </div>
             );
           })}
@@ -79,7 +89,7 @@ class SearchInput extends Component {
       );
     } else if (!isLoading) {
       return (
-        <div className='searchUserList'>
+        <div className="searchUserList">
           <div className="nullDataDiv pLeft10">{_l('暂无搜索结果')}</div>
         </div>
       );
@@ -95,12 +105,28 @@ class SearchInput extends Component {
   render() {
     const { keywords } = this.state;
     return (
-      <div className='searchBox Relative'>
-        <span className='Left mTop6 mLeft5 icon-search Font16 Gray_9' />
-        <div className='searchDiv'>
-          <input type='text' id='searchText' placeholder={_l('搜索部门/员工')} value={keywords} className={keywords.length ? 'Gray' : ''} onChange={(event) => { this.handler(event.target.value); }} />
+      <div className="searchBox Relative">
+        <span className="Left mTop6 mLeft5 icon-search Font16 Gray_9" />
+        <div className="searchDiv">
+          <input
+            type="text"
+            id="searchText"
+            placeholder={_l('搜索部门/员工')}
+            value={keywords}
+            className={keywords.length ? 'Gray' : ''}
+            onChange={event => {
+              this.handler(event.target.value);
+            }}
+          />
         </div>
-        {keywords && keywords.length ? <span className="Right icon-close Font14 mTop6 mRight5 Gray_9 Hand" onClick={(event) => { this.handler(''); }} /> : null}
+        {keywords && keywords.length ? (
+          <span
+            className="Right icon-close Font14 mTop6 mRight5 Gray_9 Hand"
+            onClick={event => {
+              this.handler('');
+            }}
+          />
+        ) : null}
         {this.renderSearchResult()}
       </div>
     );

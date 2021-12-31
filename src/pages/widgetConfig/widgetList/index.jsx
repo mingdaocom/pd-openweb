@@ -64,7 +64,7 @@ const WidgetList = styled.div`
       padding: 0;
       cursor: pointer;
       span {
-        line-height: 20px;
+        line-height: 12px;
         flex-grow: 0;
         padding-right: 12px;
         word-break: break-all;

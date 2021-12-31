@@ -155,9 +155,13 @@ md.staticglobal = md.global = {
     worksheetRowAppID: 'c8bc1b25-2bbe-4334-b1e3-be1b207f3126',
   },
   AjaxRequestQueue: [],
-  TencentAppId: '2098831062',
-  CaptchaType: () => {
-    return 1;
+  getCaptchaType: () => {
+
+    return window.localStorage.getItem('captchaType')
+      ? parseInt(window.localStorage.getItem('captchaType'))
+      : navigator.userAgent.toLowerCase().match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
+      ? 1
+      : md.global.Config.CaptchaType || 0;
   },
   domainSuffix: 'mingdao.com',
   SysSettings: {

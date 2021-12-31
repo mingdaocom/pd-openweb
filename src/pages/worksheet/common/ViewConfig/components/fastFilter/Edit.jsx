@@ -277,13 +277,21 @@ function Edit(params) {
         <div className="title">{data.txt}</div>
         <Radio.Group
           onChange={e => {
-            updateViewSet({ [data.key]: e.target.value });
+            // 单选只支持下拉
+            if (data.key === 'allowitem' && e.target.value === 1) {
+              updateViewSet({ [data.key]: e.target.value, direction: 2 });
+            } else {
+              updateViewSet({ [data.key]: e.target.value });
+            }
           }}
           value={JSON.parse(advancedSetting[data.key]) || data.default}
         >
           {data.types.map(o => {
             return (
-              <Radio value={o.value}>
+              <Radio
+                value={o.value}
+                disabled={data.key === 'direction' && Number(advancedSetting.allowitem) === 1 && o.value === 1} // 平铺类型只支持多选
+              >
                 {o.text}
                 {o.txt && <span className="Gray_9e">{o.txt}</span>}
               </Radio>

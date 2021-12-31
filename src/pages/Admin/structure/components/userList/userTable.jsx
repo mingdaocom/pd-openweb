@@ -169,7 +169,7 @@ UserTable.propTypes = {};
 
 const mapStateToProp = (state, ownProps) => {
   const {
-    pagination: { userList },
+    pagination: { userList = {} },
     entities: { users, departments, searchUsers },
     current: { selectedAccountIds = [], activeAccountId, typeCursor, isSelectAll, departmentId },
     search: { accountIds = [], showSeachResult = false },

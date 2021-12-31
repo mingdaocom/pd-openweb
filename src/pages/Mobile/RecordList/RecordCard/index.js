@@ -197,19 +197,40 @@ export default class RecordCard extends Component {
       </div>
     );
   }
+  checkedCurrentRow = (e, data) => {
+    e.stopPropagation();
+    const { changeBatchOptData, batchOptCheckedData } = this.props;
+    let copyBatchOptCheckedData = batchOptCheckedData ? [...batchOptCheckedData] : [];
+    if (batchOptCheckedData.includes(data.rowid)) {
+      changeBatchOptData(copyBatchOptCheckedData.filter(item => item !== data.rowid));
+    } else {
+      copyBatchOptCheckedData.push(data.rowid);
+      changeBatchOptData(copyBatchOptCheckedData);
+    }
+  };
   render() {
-    const { view, data, onClick } = this.props;
+    const { view, data, onClick, batchOptVisible } = this.props;
     const { advancedSetting, coverCid } = view;
+    let batchOptChecked = batchOptVisible && data.check;
     return (
       <div
         className={cx('mobileWorksheetRecordCard', {
           coverRight: [undefined, '0'].includes(advancedSetting.coverposition),
+          batchOptStyle: batchOptChecked,
         })}
-        onClick={onClick}
+        onClick={batchOptVisible ? e => this.checkedCurrentRow(e, data) : onClick}
         key={data.rowid}
       >
         {coverCid && this.renderCover()}
         {this.renderContent()}
+        {batchOptVisible && (
+          <div
+            className={cx('batchOptCheck', { batchOptChecked: batchOptChecked })}
+            onClick={e => this.checkedCurrentRow(e, data)}
+          >
+            <Icon icon="done" />
+          </div>
+        )}
       </div>
     );
   }

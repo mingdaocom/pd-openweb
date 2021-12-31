@@ -7,7 +7,7 @@ const userInfoList = [
   { label: _l('姓名'), key: 'fullname' },
   { label: _l('部门'), key: 'departmentInfos' },
   { label: _l('职位'), key: 'jobInfos' },
-  { label: _l('工作地点'), key: 'fullname' },
+  { label: _l('工作地点'), key: 'workSite' },
   { label: _l('工号'), key: 'jobNumber' },
 ];
 

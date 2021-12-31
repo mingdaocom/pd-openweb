@@ -165,6 +165,7 @@ export default function DefaultOptions(props) {
                   className="clearDefault hoverText"
                   onClick={() => {
                     onChange({ default: '' });
+                    onDynamicValueChange([]);
                     setVisible(false);
                   }}
                 >

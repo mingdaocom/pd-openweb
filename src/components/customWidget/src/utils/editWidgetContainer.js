@@ -344,7 +344,7 @@ export default class EditWidgetContainer {
       list.forEach(widget => {
         // 4: 数值  5：金额   18：公式  19：时间段   当前的不能选中
         if ((widget.type === 4 || widget.type === 5 || widget.type === 18 || widget.type === 19) && widget.id !== id) {
-          if (dataSource.indexOf(widget.id) >= 0 && enumDefault > 1) {
+          if (dataSource && dataSource.indexOf(widget.id) >= 0 && enumDefault > 1) {
             // 已存在的并且不是自定义，自定义允许多次选择
             widget.highLight = true;
           } else {

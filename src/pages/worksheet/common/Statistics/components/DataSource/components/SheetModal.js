@@ -37,7 +37,7 @@ export default class SheetModal extends Component {
               appId={appId}
               value={worksheetInfo.worksheetId}
               currentWorksheetId={worksheetInfo.worksheetId}
-              onChange={(appId, worksheetId, { workSheetName: worksheetName }) => {
+              onChange={(appId, worksheetId) => {
                 if (worksheetId !== worksheetInfo.worksheetId) {
                   this.setState({ newWorksheetId: worksheetId });
                 }

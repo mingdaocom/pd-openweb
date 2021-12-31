@@ -137,17 +137,19 @@ export const FULL_TREE_FAILURE = 'FULL_TREE_FAILURE';
  * @param afterRequest
  */
 export const getFullTree =
-  ({ departmentId, collapseAll = false, expandedKeys = [], afterRequest }) =>
+  ({ departmentId, collapseAll = false, expandedKeys = [], afterRequest, isGetAll }) =>
   dispatch => {
     return dispatch({
       departmentId: COMPANY_DEPARMENTID,
       curDepartmentId: departmentId,
       collapseAll,
       expandedKeys,
+      isGetAll,
       [CALL_API]: {
         types: [FULL_TREE_REQUEST, FULL_TREE_SUCCESS, FULL_TREE_FAILURE],
         params: {
           departmentId,
+          isGetAll,
         },
         afterRequest,
       },

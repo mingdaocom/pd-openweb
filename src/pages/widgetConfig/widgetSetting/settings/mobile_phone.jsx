@@ -15,7 +15,7 @@ const DISPLAY_OPTIONS = [
 
 export default function Text(props) {
   const { data, onChange } = props;
-  const { type, controlId } = data;
+  const { type, controlId, hint = '' } = data;
   return (
     <Fragment>
       <SettingItem>
@@ -25,7 +25,11 @@ export default function Text(props) {
           data={DISPLAY_OPTIONS}
           onChange={value => {
             if (controlId.includes('-')) {
-              onChange({ type: value, controlName: DISPLAY_OPTIONS.find(item => item.value === value).text });
+              onChange({
+                type: value,
+                controlName: DISPLAY_OPTIONS.find(item => item.value === value).text,
+                hint: value === 3 ? _l('请填写手机号码') : _l('请填写座机号码'),
+              });
               return;
             }
             onChange({ type: value });

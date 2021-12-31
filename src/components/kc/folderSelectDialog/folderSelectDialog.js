@@ -1,4 +1,4 @@
-﻿
+
 import './folderSelectStyle.css';
 
 import '../layerMain.css';
@@ -514,7 +514,10 @@ module.exports = (function($) {
         .end()
         .find('.folderNode')
         .html(LoadDiv());
-      var projectArr = md.global.Account.projects.map(function(item) {
+      var projectArr = (
+        (_.isArray(_.get(md, 'global.Account.projects')) && _.get(md, 'global.Account.projects')) ||
+        []
+      ).map(function (item) {
         return $.extend({ rootList: [] }, item);
       });
       projectArr.push({

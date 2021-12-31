@@ -44,6 +44,7 @@ class CreateBtn extends Component {
         dispatch(
           getFullTree({
             departmentId,
+            isGetAll: true,
             afterRequest() {
               dispatch(updateCursor(departmentId));
               dispatch(loadUsers(departmentId));

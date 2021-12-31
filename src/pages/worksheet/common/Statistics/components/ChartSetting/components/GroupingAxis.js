@@ -36,7 +36,7 @@ export default class GroupingAxis extends Component {
       this.props.onChangeCurrentReport({
         ...split,
         controlId: data.controlId,
-        particleSizeType: allowTypes[0],
+        particleSizeType: (isTime || isArea) ? allowTypes[0] : 0,
       });
     }
   };

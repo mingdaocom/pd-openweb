@@ -34,7 +34,7 @@ export default class RelateRecordList extends React.PureComponent {
       records: [],
       pageIndex: 1,
     };
-    this.handleSearch = _.debounce(this.handleSearch, 300);
+    this.handleSearch = _.debounce(this.handleSearch, 500);
   }
 
   componentDidMount() {
@@ -250,7 +250,7 @@ export default class RelateRecordList extends React.PureComponent {
           </div>
         </div>
         <div style={{ borderTop: '1px solid #ddd' }} />
-        {allowNewRecord && allowAdd && !window.isPublicWorksheet && !error && (
+        {allowNewRecord && allowAdd && !window.isPublicWorksheet && (!error || error === 'notCorrectCondition') && (
           <div className="RelateRecordList-create" onClick={onNewRecord}>
             <i className="icon icon-plus"></i> {worksheet.entityName || (control && control.sourceEntityName)}
           </div>

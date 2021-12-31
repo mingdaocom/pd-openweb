@@ -69,7 +69,11 @@ export default class CustomFields extends Component {
     if (!rulesLoading && !isWorksheetQuery) {
       this.initSource(data, disabled);
     } else if (rulesLoading && _.isEmpty(rules)) {
-      this.getRules();
+      this.getRules(undefined, () => {
+        if (isWorksheetQuery && !searchConfig.length) {
+          this.getSearchConfig();
+        }
+      });
     } else if (isWorksheetQuery && !searchConfig.length) {
       this.getSearchConfig();
     }
@@ -151,11 +155,14 @@ export default class CustomFields extends Component {
   /**
    * 获取字段显示规则
    */
-  getRules = nextProps => {
+  getRules = (nextProps, cb = () => {}) => {
     const { worksheetId, data, disabled } = nextProps || this.props;
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
-      this.setState({ rules }, () => this.initSource(data, disabled));
+      this.setState({ rules }, () => {
+        this.initSource(data, disabled);
+        cb();
+      });
     });
   };
 

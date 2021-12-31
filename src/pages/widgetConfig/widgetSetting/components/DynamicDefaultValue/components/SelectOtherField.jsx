@@ -114,18 +114,10 @@ export default class SelectOtherField extends Component {
 
   getCurrentField = data => {
     let types = OTHER_FIELD_LIST;
-    //公网隐藏函数入口
-    const isLocal =
-      location.href.indexOf('localhost') > -1 ||
-      location.href.indexOf('meihua') > -1 ||
-      location.href.indexOf('sandbox') > -1;
-    if (!isLocal) {
+    // 没有函数的控件
+    if (!_.includes(CAN_AS_FX_DYNAMIC_FIELD, data.type)) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FX);
     }
-    // 没有函数的控件
-    // if (!_.includes(CAN_AS_FX_DYNAMIC_FIELD, data.type)) {
-    //   types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FX);
-    // }
     // 没有动态值的控件
     if (_.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type)) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FIELD);

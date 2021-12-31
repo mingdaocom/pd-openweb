@@ -11,7 +11,7 @@ import {
   getChartColors
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
-import { formatChartData as formatBarChartData } from './BarChart';
+import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import { formatSummaryName } from 'src/pages/worksheet/common/Statistics/common';
 
 const getLineChartXAxis = (controlId, data) => {
@@ -67,6 +67,7 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.hideOverlapText !== oldDisplaySetup.hideOverlapText ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      displaySetup.showPileTotal !== oldDisplaySetup.showPileTotal ||
       displaySetup.xdisplay.showDial !== oldDisplaySetup.xdisplay.showDial ||
       displaySetup.xdisplay.showTitle !== oldDisplaySetup.xdisplay.showTitle ||
       displaySetup.xdisplay.title !== oldDisplaySetup.xdisplay.title ||
@@ -101,7 +102,7 @@ export default class extends Component {
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
     const splitId = split.controlId;
-    const { xdisplay, ydisplay } = displaySetup;
+    const { xdisplay, ydisplay, showPileTotal, isPile } = displaySetup;
     const { position } = getLegendType(displaySetup.legendType);
     const sortsKey = sorts.map(n => _.findKey(n));
     const leftSorts = yaxisList.filter(item => sortsKey.includes(item.controlId));
@@ -121,6 +122,8 @@ export default class extends Component {
 
     const newYaxisList = formatYaxisList(data, yaxisList);
     const newRightYaxisList = formatYaxisList(lineData, rightY.yaxisList);
+
+    const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || splitId) ? formatDataCount(data, true, newYaxisList) : null;
 
     if (isLeftSort) {
       names = data.map(item => item.name);
@@ -172,6 +175,7 @@ export default class extends Component {
             },
           }
         : false,
+      annotations: countConfig,
     };
 
     const lineConfig = {

@@ -473,5 +473,7 @@ class RegisterContainer extends React.Component {
     );
   }
 }
-const WrappedComp = md.global.Config.IsLocal ? preall(RegisterContainer, { allownotlogin: true }) : RegisterContainer;
+
+const WrappedComp = preall(RegisterContainer, { allownotlogin: true });
+
 ReactDOM.render(<WrappedComp />, document.querySelector('#app'));

@@ -67,6 +67,7 @@ class ChildTable extends React.Component {
       loading: !!props.recordId,
     };
     this.state.sheetColumnWidths = this.getSheetColumnWidths();
+    this.controls = props.controls;
     props.registerCell(this);
   }
 
@@ -118,8 +119,8 @@ class ChildTable extends React.Component {
       nextControl.controlId !== control.controlId ||
       !_.isEqual(nextControl.showControls, control.showControls) ||
       !_.isEqual(
-        control.relationControls.map(a => a.fieldPermission),
-        nextControl.relationControls.map(a => a.fieldPermission),
+        (control.relationControls || []).map(a => a.fieldPermission),
+        (nextControl.relationControls || []).map(a => a.fieldPermission),
       )
     ) {
       this.setState({ controls: this.getControls(nextProps) });
@@ -192,7 +193,7 @@ class ChildTable extends React.Component {
         if (!_.find(showControls, scid => control.controlId === scid)) {
           control.fieldPermission = '000';
         } else {
-          control.fieldPermission = replaceByIndex(replaceByIndex(control.fieldPermission || '111', 0, '1'), 2, '1');
+          control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
         }
         control.controlPermissions = '111';
         return control;
@@ -684,7 +685,9 @@ class ChildTable extends React.Component {
                     };
                     editWorksheetControls({
                       worksheetId: this.props.masterData.worksheetId,
-                      controls: [_.omit(newControl, ['value'])],
+                      controls: [
+                        { ..._.pick(newControl, ['controlId', 'advancedSetting']), editattrs: ['advancedSetting'] },
+                      ],
                     }).then(res => {
                       if (res.data) {
                         closePopup();
