@@ -21,6 +21,8 @@ const ImgCon = styled.div`
   height: 59px;
   img {
     height: 59px;
+    max-width: 100%;
+    object-fit: contain;
   }
   .icon {
     position: absolute;

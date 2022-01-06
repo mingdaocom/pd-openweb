@@ -33,7 +33,7 @@ const editableBlock = createReactClass({
   renameHandle() {
     const value = this.state.value;
     if (!this.props.validateFileName(value)) {
-      this.inputFileName.getDOMNode().focus();
+      this.inputFileName.focus();
       return false;
     }
     if (value !== this.state.value2) {

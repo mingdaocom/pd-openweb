@@ -214,7 +214,7 @@ function createUploader(option) {
     let chunkSize = up.getOption && up.getOption('chunk_size');
     chunkSize = chunkSize || (up.settings && up.settings.chunk_size);
     if (uploader.runtime === 'html5' && chunkSize) {
-      if (file.size < chunkSize) {
+      if (file.size <= chunkSize) {
         directUpload(up, file);
       } else {
         let localFileInfo = localStorage.getItem(file.name);

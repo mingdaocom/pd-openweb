@@ -46,6 +46,7 @@ function StartEndTime(props) {
         <DateInput
           {...props}
           controls={allControls}
+          hideSearchAndFun
           dynamicValue={min}
           onDynamicValueChange={value => handleValueChange(value, 'min')}
         />
@@ -62,6 +63,7 @@ function StartEndTime(props) {
       {max && (
         <DateInput
           {...props}
+          hideSearchAndFun
           controls={allControls}
           dynamicValue={max}
           onDynamicValueChange={value => handleValueChange(value, 'max')}
