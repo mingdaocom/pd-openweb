@@ -1,7 +1,8 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore, replenishRet } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
-const { t, i, ret, url, code, p } = getRequest();
+const { t, i, ret, url, code, p, pc_slide = '' } = getRequest();
+const isPcSlide = pc_slide.includes('true');
 const isMobile = browserIsMobile();
 
 function start() {
@@ -66,12 +67,12 @@ function start() {
     if (checkLogin()) {
       // expDate && checkLogin() && isBefore(expDate)
       if (ret) {
-        location.href = `/${decodeURIComponent(ret)}`;
+        location.href = `/${replenishRet(ret, pc_slide)}`;
       } else {
         if (i) {
-          location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+          location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
         } else {
-          location.href = isMobile ? `/mobile/appHome` : `/app/my`;
+          location.href = isMobile || isPcSlide ? `/mobile/appHome` : `/app/my`;
         }
       }
     } else {
@@ -103,7 +104,7 @@ function start() {
                   const isDingDingSidebar = (ret || '').includes('#noredirect');
                   const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(ret || '')}&i=${
                     i || ''
-                  }&code=${code}`;
+                  }&code=${code}&pc_slide=${pc_slide}`;
                   if (dd.pc && !isDingDingSidebar) {
                     if (clientWorkingPattern === 1) {
                       document.body.innerText = '已在默认浏览器打开';

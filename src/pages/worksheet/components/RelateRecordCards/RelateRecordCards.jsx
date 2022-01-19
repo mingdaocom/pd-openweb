@@ -295,7 +295,7 @@ export default class RelateRecordCards extends Component {
                   record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)
                 }
                 onClick={
-                  disabled || !recordId
+                  (disabled && !recordId) || (control.isSubList && _.get(window, 'shareState.shareId'))
                     ? () => {}
                     : () => {
                         if (from === FROM.SHARE || from === FROM.WORKFLOW) {

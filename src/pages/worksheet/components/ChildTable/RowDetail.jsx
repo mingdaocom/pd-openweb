@@ -136,7 +136,7 @@ export default class RowDetail extends React.Component {
           from={2}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}
-          data={formdata}
+          data={formdata.map(c => ({ ...c, isSubList: true }))}
           getMasterFormData={getMasterFormData}
           flag={flag}
           projectId={projectId}

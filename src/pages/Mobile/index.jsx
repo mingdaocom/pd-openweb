@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import { navigateTo } from 'src/router/navigateTo';
+import DeclareConfirm from './components/DeclareConfirm';
 import preall from 'src/common/preall';
 import genRouteComponent from 'src/router/genRouteComponent';
 import store from 'src/redux/configureStore';
@@ -21,6 +22,7 @@ const isIphonex = () => {
 
 @preall
 @withRouter
+@DeclareConfirm
 class App extends Component {
   constructor(props) {
     super(props);

@@ -82,6 +82,27 @@ export const getRequest = () => {
   return theRequest;
 };
 
+export const replenishRet = (ret, pc_slide) => {
+  const url = decodeURIComponent(ret);
+  const isHash = url.includes('#');
+  const isPcSlide = pc_slide.includes('true');
+  const add = url => {
+    return url.includes('?') ? `${url}&pc_slide=true` : `${url}?pc_slide=true`;
+  }
+
+  if (!isPcSlide) {
+    return url;
+  }
+
+  if (isHash) {
+    const [ page, hash ] = url.split('#');
+    const newUrl = add(page);
+    return `${newUrl}#${hash}`;
+  } else {
+    return add(url);
+  }
+}
+
 export const checkLogin = () => {
   let isLoing = false;
   ajax.post({

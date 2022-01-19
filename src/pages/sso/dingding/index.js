@@ -1,19 +1,20 @@
 
 
-import { ajax, login, browserIsMobile, getRequest, getCurrentTime, checkLogin } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, getCurrentTime, checkLogin, replenishRet } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
-const { code, state, i, ret } = getRequest();
+const { code, state, i, ret, pc_slide = '' } = getRequest();
+const isPcSlide = pc_slide.includes('true');
 const isMobile = browserIsMobile();
 
 if (checkLogin()) {
   if (ret) {
-    location.href = `/${decodeURIComponent(ret)}`;
+    location.href = `/${replenishRet(ret, pc_slide)}`;
   } else {
     if (i) {
-      location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+      location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
     } else {
-      location.href = isMobile ? `/mobile/appHome` : `/app/my`;
+      location.href = isMobile || isPcSlide ? `/mobile/appHome` : `/app/my`;
     }
   }
 } else {
@@ -34,12 +35,12 @@ if (checkLogin()) {
         // localStorage.setItem('md_pss_id_exp', getCurrentTime(date));
         setPssId(sessionId);
         if (ret) {
-          location.href = `/${decodeURIComponent(ret)}`;
+          location.href = `/${replenishRet(ret, pc_slide)}`;
         } else {
           if (i) {
-            location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+            location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
           } else {
-            location.href = isMobile ? `/mobile/appHome` : `/app/my`;
+            location.href = isMobile || isPcSlide ? `/mobile/appHome` : `/app/my`;
           }
         }
       } else {

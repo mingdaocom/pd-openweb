@@ -330,4 +330,60 @@
   }
 }
 
+.enableDeclareDialog {
+  .mui-dialog-body {
+    overflow: hidden;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-tabs {
+    flex: 1;
+  }
+  .ant-tabs-nav-wrap, .ant-tabs-nav-list {
+    width: 100%;
+  }
+  .ant-tabs-tab {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+  .ant-tabs-ink-bar {
+    width: 100px !important;
+    margin-left: 170px;
+  }
+  .ant-tabs-content-holder,
+  .ant-tabs-content,
+  .enableDeclareRichText,
+  .ck-editor,
+  .ck-editor__main,
+  .ck-content {
+    height: 100%;
+  }
+  .ck-editor__main {
+    box-sizing: border-box;
+    height: calc(~'100% - 70px') !important;
+    overflow: auto;
+  }
+  .ck .ck-content {
+    background-color: #fff !important;
+  }
+  .ck .ck-content, .ck .ck-content.ck-focused, .editorNull {
+    border: none !important;
+  }
+  .edit{
+    &:hover, &:hover .icon {
+      color: #2196f3 !important;
+    }
+  }
+  .editFooter {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
 

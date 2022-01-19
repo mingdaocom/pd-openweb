@@ -120,6 +120,8 @@ define(function (require, exports, module) {
     * @param {string} args.endTime 结束时间 日历视图
     * @param {integer} args.kanbanSize 页大小
     * @param {integer} args.kanbanIndex 页码
+    * @param {string} args.formId 
+    * @param {string} args.linkId 填写链接id
     * @param {string} args.ticket 验证码返票据
     * @param {string} args.randStr 票据随机字符串
     * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -267,6 +269,8 @@ define(function (require, exports, module) {
     * @param {string} args.endTime 结束时间 日历视图
     * @param {integer} args.kanbanSize 页大小
     * @param {integer} args.kanbanIndex 页码
+    * @param {string} args.formId 
+    * @param {string} args.linkId 填写链接id
     * @param {string} args.ticket 验证码返票据
     * @param {string} args.randStr 票据随机字符串
     * @param {} args.captchaType 验证码类型（默认腾讯云）

@@ -23,8 +23,10 @@ AllowBindAccountNoVerify:bool 是否允许绑定账号不验证
 PasswordRegex:string 密码正则表达式
 PasswordRegexTip:string 密码正则表达式说明文字
 EnableTwoFactorAuthentication:bool 是否启用双因素认证
+TwoFactorAuthenticationPriorityType:int 双因素认证优先的账号类型（1：手机号，2：邮箱）
 FirstLoginResetPassword:bool 首次登录需要重置密码
 PasswordOverdueDays:int 密码过期时间，0代表不过期
+EnableDeclareConfirm:bool 是否开启申明确认
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}

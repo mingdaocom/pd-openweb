@@ -477,6 +477,9 @@ define(function (require, exports, module) {
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络id
     * @param {string} args.password 密码
+    * @param {string} args.ticket 验证码返票据
+    * @param {string} args.randStr 票据随机字符串
+    * @param {} args.captchaType 验证码类型（默认腾讯云）
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}
@@ -489,7 +492,6 @@ define(function (require, exports, module) {
     * 退出网络（全部交接给小秘书）
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络id
-    * @param {string} args.password 密码
     * @param {string} args.newAdminAccountId 新管理员账号id
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层

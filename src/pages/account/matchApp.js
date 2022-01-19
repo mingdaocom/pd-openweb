@@ -4,7 +4,7 @@ var request = getRequest();
 var MatchApp = {};
 
 MatchApp.options = {
-  downloadPage: '/m/mobile.htm',
+  downloadPage: '/network',
   appProtocol: 'mingdao://',
   url: '',
 };

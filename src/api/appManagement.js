@@ -582,6 +582,7 @@ define(function (require, exports, module) {
     * @param {string} args.appId 应用id
     * @param {integer} args.status 状态 2=通过，3=拒绝
     * @param {string} args.roleId 角色id（拒绝时可空）
+    * @param {string} args.remark 备注，拒绝理由
     * @param {Object} options 配置参数
     * @param {Boolean} options.silent 是否禁止错误弹层
     * @returns {Promise<Boolean, ErrorModel>}

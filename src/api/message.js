@@ -29,20 +29,6 @@ define(function (require, exports, module) {
     },
 
     /**
-    * 发送手机短信消息
-    * @param {Object} args 请求参数
-    * @param {array} args.accountIds 账号id
-    * @param {string} args.content 内容
-    * @param {string} args.projectId 网络id
-    * @param {Object} options 配置参数
-    * @param {Boolean} options.silent 是否禁止错误弹层
-    * @returns {Promise<Boolean, ErrorModel>}
-    **/
-    sendMobilePhoneMessageToAccountIds: function (args, options) {
-      return $.api('Message', 'SendMobilePhoneMessageToAccountIds', args, options);
-    },
-
-    /**
     * 发通告
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络id

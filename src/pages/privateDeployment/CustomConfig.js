@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, Checkbox, Dialog, Input } from 'ming-ui';
 import Trigger from 'rc-trigger';
+import DeclareDialog from './DeclareDialog';
 import privateSysSetting from 'src/api/privateSysSetting';
+import privateDeclare from 'src/api/privateDeclare';
 import { formatNumberFromInput } from 'src/util';
 
 export default class CustomConfig extends Component {
@@ -13,6 +15,8 @@ export default class CustomConfig extends Component {
       appDialogVisible: false,
       passwordDialogVisible: false,
       firstLoginResetPasswordDialogVisible: false,
+      enableDeclareDialogVisible: false,
+      declareData: {},
       downloadAppRedirectUrl: SysSettings.downloadAppRedirectUrl,
       hideDownloadApp: SysSettings.hideDownloadApp,
       onlyAdminCreateApp: SysSettings.onlyAdminCreateApp,
@@ -26,8 +30,19 @@ export default class CustomConfig extends Component {
       passwordRegexTip: SysSettings.passwordRegexTip,
       firstLoginResetPassword: SysSettings.firstLoginResetPassword,
       passwordOverdueDays: SysSettings.passwordOverdueDays,
-      passwordOverdueDaysVisible: !!SysSettings.passwordOverdueDays
+      passwordOverdueDaysVisible: !!SysSettings.passwordOverdueDays,
+      enableDeclareConfirm: SysSettings.enableDeclareConfirm,
     };
+  }
+
+  componentDidMount() {
+    privateDeclare.getDeclare().then(data => {
+      if (data) {
+        this.setState({
+          declareData: data
+        });
+      }
+    });
   }
 
   handleChangeCheckboxValue = () => {
@@ -44,7 +59,8 @@ export default class CustomConfig extends Component {
       passwordRegex,
       passwordRegexTip,
       firstLoginResetPassword,
-      passwordOverdueDays
+      passwordOverdueDays,
+      enableDeclareConfirm
     } = this.state;
     privateSysSetting.editSysSettings({
       settings: {
@@ -60,7 +76,8 @@ export default class CustomConfig extends Component {
         passwordRegex,
         passwordRegexTip,
         firstLoginResetPassword,
-        passwordOverdueDays
+        passwordOverdueDays,
+        enableDeclareConfirm
       }
     }).then(result => {
       if (result) {
@@ -78,6 +95,7 @@ export default class CustomConfig extends Component {
         md.global.SysSettings.passwordRegexTip = passwordRegexTip;
         md.global.SysSettings.firstLoginResetPassword = firstLoginResetPassword;
         md.global.SysSettings.passwordOverdueDays = passwordOverdueDays;
+        md.global.SysSettings.enableDeclareConfirm = enableDeclareConfirm;
       }
     });
   }
@@ -132,7 +150,10 @@ export default class CustomConfig extends Component {
       passwordRegexTip,
       firstLoginResetPassword,
       passwordOverdueDays,
-      passwordOverdueDaysVisible
+      passwordOverdueDaysVisible,
+      enableDeclareDialogVisible,
+      enableDeclareEdit,
+      declareData
     } = this.state;
     return (
       <Fragment>
@@ -225,6 +246,23 @@ export default class CustomConfig extends Component {
             )
           }
         </Dialog>
+        <DeclareDialog
+          visible={enableDeclareDialogVisible}
+          declareData={declareData}
+          onChangeDeclareData={(data) => {
+            this.setState({
+              declareData: {
+                ...declareData,
+                ...data,
+              }
+            });
+          }}
+          onCancel={() => {
+            this.setState({
+              enableDeclareDialogVisible: false
+            });
+          }}
+        />
       </Fragment>
     );
   }
@@ -232,6 +270,7 @@ export default class CustomConfig extends Component {
   render() {
     const { onClose } = this.props;
     const {
+      declareData,
       onlyAdminCreateApp,
       hideDownloadApp,
       forbidSuites,
@@ -241,7 +280,8 @@ export default class CustomConfig extends Component {
       hideTemplateLibrary,
       allowBindAccountNoVerify,
       enableTwoFactorAuthentication,
-      firstLoginResetPassword
+      firstLoginResetPassword,
+      enableDeclareConfirm,
     } = this.state;
 
     return (
@@ -312,53 +352,87 @@ export default class CustomConfig extends Component {
         </div>
         <div className="customConfigItme flexRow">
           <div className="name Gray_75 Font13">{_l('其他')}</div>
-          <div className="mRight40">
-            <Checkbox
-              className="Gray Font13"
-              checked={hideDownloadApp}
-              onClick={value => { this.setState({ hideDownloadApp: !value }, this.handleChangeCheckboxValue) }}
-            >
-              {_l('隐藏 App 下载入口')}
-            </Checkbox>
-            <div className={cx('mTop10 mLeft25', { disable: hideDownloadApp })}>
-              <span className="Gray_75">{downloadAppRedirectUrl ? _l('已设置') : _l('定制版 App 用户下载地址设置')}</span>
-              <span className="pointer mLeft10 setting" onClick={() => { !hideDownloadApp && this.setState({ appDialogVisible: true }) }}>
-                {downloadAppRedirectUrl ? _l('修改') : _l('设置')}
-              </span>
+          <div className="flexColumn">
+            <div className="flexRow">
+              <div className="mRight40">
+                <Checkbox
+                  className="Gray Font13"
+                  checked={hideDownloadApp}
+                  onClick={value => { this.setState({ hideDownloadApp: !value }, this.handleChangeCheckboxValue) }}
+                >
+                  {_l('隐藏 App 下载入口')}
+                </Checkbox>
+                <div className={cx('mTop10 mLeft25', { disable: hideDownloadApp })}>
+                  <span className="Gray_75">{downloadAppRedirectUrl ? _l('已设置') : _l('定制版 App 用户下载地址设置')}</span>
+                  <span className="pointer mLeft10 setting" onClick={() => { !hideDownloadApp && this.setState({ appDialogVisible: true }) }}>
+                    {downloadAppRedirectUrl ? _l('修改') : _l('设置')}
+                  </span>
+                </div>
+              </div>
+              <div className="flexRow mRight60">
+                <Checkbox
+                  className="Gray Font13"
+                  checked={hideHelpTip}
+                  onClick={value => { this.setState({ hideHelpTip: !value }, this.handleChangeCheckboxValue) }}
+                >
+                  {_l('隐藏帮助提示')}
+                </Checkbox>
+                <span className="mLeft10 tip-top pointer" data-tip={_l('隐藏后，系统内跳转到帮助中心的『帮助提示』都会被隐藏')}>
+                  <Icon icon="sidebar_help" className="Font15 Gray_9e" />
+                </span>
+              </div>
+              <div className="flexRow mRight60">
+                <Checkbox
+                  className="Gray Font13"
+                  checked={hideRegister}
+                  onClick={value => { this.setState({ hideRegister: !value }, this.handleChangeCheckboxValue) }}
+                >
+                  {_l('隐藏注册入口')}
+                </Checkbox>
+              </div>
+              <div className="flexRow mRight60">
+                <Checkbox
+                  className="Gray Font13"
+                  checked={allowBindAccountNoVerify}
+                  onClick={value => { this.setState({ allowBindAccountNoVerify: !value }, this.handleChangeCheckboxValue) }}
+                >
+                  {_l('关闭邮箱和手机号验证')}
+                </Checkbox>
+                <span className="mLeft10 tip-top pointer" data-tip={_l('关闭后，绑定手机或邮箱则不需要合法性验证')}>
+                  <Icon icon="sidebar_help" className="Font15 Gray_9e" />
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="flexRow mRight60">
-            <Checkbox
-              className="Gray Font13"
-              checked={hideHelpTip}
-              onClick={value => { this.setState({ hideHelpTip: !value }, this.handleChangeCheckboxValue) }}
-            >
-              {_l('隐藏帮助提示')}
-            </Checkbox>
-            <span className="mLeft10 tip-top pointer" data-tip={_l('隐藏后，系统内跳转到帮助中心的『帮助提示』都会被隐藏')}>
-              <Icon icon="sidebar_help" className="Font15 Gray_9e" />
-            </span>
-          </div>
-          <div className="flexRow mRight60">
-            <Checkbox
-              className="Gray Font13"
-              checked={hideRegister}
-              onClick={value => { this.setState({ hideRegister: !value }, this.handleChangeCheckboxValue) }}
-            >
-              {_l('隐藏注册入口')}
-            </Checkbox>
-          </div>
-          <div className="flexRow mRight60">
-            <Checkbox
-              className="Gray Font13"
-              checked={allowBindAccountNoVerify}
-              onClick={value => { this.setState({ allowBindAccountNoVerify: !value }, this.handleChangeCheckboxValue) }}
-            >
-              {_l('关闭邮箱和手机号验证')}
-            </Checkbox>
-            <span className="mLeft10 tip-top pointer" data-tip={_l('关闭后，绑定手机或邮箱则不需要合法性验证')}>
-              <Icon icon="sidebar_help" className="Font15 Gray_9e" />
-            </span>
+            <div className="flexColumn mTop20">
+              <div className="flexRow mRight60">
+                <Checkbox
+                  className="Gray Font13"
+                  checked={enableDeclareConfirm}
+                  onClick={value => {
+                    this.setState({ enableDeclareConfirm: !value }, this.handleChangeCheckboxValue);
+                    if (!value && !declareData.declareId) {
+                      this.setState({ enableDeclareDialogVisible: true });
+                    }
+                  }}
+                >
+                  {_l('登录到 web 移动端提示协议和隐私')}
+                </Checkbox>
+                <span className="mLeft10 tip-top pointer" data-tip={_l('当用户登录到 web 移动端时必须同意《服务协议》和《隐私政策》才能继续使用')}>
+                  <Icon icon="sidebar_help" className="Font15 Gray_9e" />
+                </span>
+              </div>
+              {declareData.declareId && (
+                <div
+                  className="pointer mTop10 mLeft25"
+                  style={{ color: '#2196F3' }}
+                  onClick={() => {
+                    this.setState({ enableDeclareDialogVisible: true });
+                  }}
+                >
+                  {_l('服务协议和隐私政策')}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {this.renderDialog()}

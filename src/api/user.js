@@ -1,22 +1,6 @@
 define(function (require, exports, module) {
   module.exports = {
     /**
-    * 根据关键词自动联想用户
-    * @param {Object} args 请求参数
-    * @param {string} args.projectId 网络Id
-    * @param {string} args.keywords 关键词
-    * @param {integer} args.maxRows 最大行
-    * @param {boolean} args.filterMySelf 过滤自己
-    * @param {string} args.toAccountId ToAccountId
-    * @param {Object} options 配置参数
-    * @param {Boolean} options.silent 是否禁止错误弹层
-    * @returns {Promise<Boolean, ErrorModel>}
-    **/
-    getAutoUsersByKeywords: function (args, options) {
-      return $.api('User', 'GetAutoUsersByKeywords', args, options);
-    },
-
-    /**
     * 分页 获取一般用户列表
     * @param {Object} args 请求参数
     * @param {string} args.projectId 网络Id
