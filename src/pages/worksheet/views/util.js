@@ -74,7 +74,12 @@ export function getRecordAttachments(coverImageStr) {
   let allAttachments = [];
   try {
     if (coverImageStr) {
-      const coverArr = JSON.parse(coverImageStr);
+      let coverArr = '';
+      try {
+        coverArr = JSON.parse(coverImageStr);
+      } catch (e) {
+        coverArr = '';
+      }
       if (_.isArray(coverArr) && coverArr.length) {
         allAttachments = allAttachments.concat(coverArr.filter(file => !!file.previewUrl));
         const firstFile = _.head(allAttachments);

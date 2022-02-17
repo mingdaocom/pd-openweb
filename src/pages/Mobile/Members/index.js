@@ -140,7 +140,7 @@ class Members extends Component {
         <Card onClick={() => { this.props.history.push(`/mobile/applyList/${params.appId}`); }}>
           <Card.Body>
             <Flex direction="row">
-              <Flex.Item className="Gray Font17 overflow_ellipsis">
+              <Flex.Item className="Gray Font17 overflow_ellipsis pendingApply">
                 {_l('待处理的申请')}
               </Flex.Item>
               <Flex.Item className="TxtMiddle TxtRight moreAction">

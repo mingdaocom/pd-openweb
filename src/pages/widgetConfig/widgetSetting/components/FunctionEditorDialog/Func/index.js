@@ -3,7 +3,6 @@ import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import EventEmitter from 'events';
 import { validateFnExpression } from 'src/pages/worksheet/util';
-import execValueFunction from './exec';
 import SelectFnControl from './common/SelectFnControl';
 import CodeEdit from './common/CodeEdit';
 import Tip from './common/Tip';
@@ -53,7 +52,11 @@ const TipCon = styled.div`
 `;
 
 export default function Func(props) {
-  const { value: { expression } = {}, control, controls, onClose, onSave } = props;
+  const { value: { expression } = {}, title, renderTag, onClose, controlGroups, onSave } = props;
+  let { controls = [] } = props;
+  if (_.isArray(controlGroups)) {
+    controls = _.flatten(controlGroups.map(group => group.controls));
+  }
   const codeEditor = useRef();
   const editorFunctions = key => {
     return (...args) => {
@@ -68,9 +71,7 @@ export default function Func(props) {
     if (codeEditor.current) {
       const expression = codeEditor.current.getValue();
       let available = validateFnExpression(expression);
-      const controlIds = (expression.match(/\$((\w{8}(-\w{4}){3}-\w{12})|[0-9a-z]{24})\$/g) || []).map(id =>
-        id.slice(1, -1),
-      );
+      const controlIds = (expression.match(/\$(.+?)\$/g) || []).map(id => id.slice(1, -1));
       if (controlIds.filter(id => !_.find(controls, { controlId: id })).length) {
         // 存在已删除字段
         available = false;
@@ -89,6 +90,7 @@ export default function Func(props) {
       <Main>
         <SelectFnControlCon>
           <SelectFnControl
+            controlGroups={controlGroups}
             controls={controls}
             insertTagToEditor={editorFunctions('insertTag')}
             insertFn={editorFunctions('insertFn')}
@@ -96,10 +98,10 @@ export default function Func(props) {
         </SelectFnControlCon>
         <Dev>
           <CodeEditCon>
-            <CodeEdit value={expression} control={control} controls={controls} ref={codeEditor} />
+            <CodeEdit value={expression} title={title} controls={controls} ref={codeEditor} renderTag={renderTag} />
           </CodeEditCon>
           <TipCon>
-            <Tip control={control} />
+            <Tip />
           </TipCon>
           <Footer onClose={onClose} onSave={handleSave} />
         </Dev>
@@ -112,6 +114,8 @@ Func.propTypes = {
   value: shape({}),
   control: shape({}),
   controls: arrayOf(shape({})),
+  controlGroups: arrayOf(shape({})), // { controlName, controlId }
+  renderTag: func,
   onClose: func,
   onSave: func,
 };

@@ -118,36 +118,9 @@ export default class YAxis extends Component {
   }
   handleAddControl = data => {
     const { yaxisList, currentReport, onChangeCurrentReport } = this.props;
-
     if (this.handleVerification(data, true)) {
-      const axis = {
-        controlId: data.controlId,
-        controlName: data.controlName,
-        controlType: data.type,
-        magnitude: 0,
-        suffix: '',
-        ydot: 2,
-        normType: 1,
-        dot: data.dot,
-        rename: '',
-      };
-      const newYaxisList = yaxisList.concat(axis);
-      onChangeCurrentReport({
-        yaxisList: newYaxisList,
-      });
+      this.props.onAddAxis(data);
     }
-  }
-  handleClear = id => {
-    const { currentReport, yaxisList, split, onChangeCurrentReport } = this.props;
-    const newYaxisList = yaxisList.filter(item => item.controlId !== id);
-    onChangeCurrentReport({
-      yaxisList: newYaxisList,
-      split: {
-        ...split,
-        controlId: newYaxisList.length ? split.controlId : ''
-      },
-      sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
-    });
   }
   handleNormType = (id, value) => {
     const { yaxisList, onChangeCurrentReport } = this.props;
@@ -219,7 +192,7 @@ export default class YAxis extends Component {
           helperClass="sortableNumberField"
           list={yaxisList}
           shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
-          onClear={this.handleClear}
+          onClear={this.props.onRemoveAxis}
           onNormType={this.handleNormType}
           onChangeControlId={this.handleChangeControlId}
           onSortEnd={this.handleSortEnd}

@@ -9,6 +9,7 @@ import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import './index.less';
 import cx from 'classnames'
+import { getAppFeaturesVisible } from 'src/util';
 
 const isHome = location.pathname.indexOf('app/my') !== -1;
 const { app: { commonUserHandle: {help} }} = window.private
@@ -78,7 +79,10 @@ export default class CommonUserHandle extends Component {
   render() {
     const { globalSearchVisible, countData, myProcessVisible, userVisible } = this.state;
     const { type } = this.props;
-    if (window.isPublicApp) {
+
+    // 获取url参数
+    const { tr } = getAppFeaturesVisible();
+    if (window.isPublicApp || !tr) {
       return null;
     }
     return (

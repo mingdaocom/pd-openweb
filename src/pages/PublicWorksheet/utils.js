@@ -1,4 +1,4 @@
-import qs from 'querystring';
+import qs from 'query-string';
 const userAgent = navigator.userAgent;
 
 function getBrowserInfo() {
@@ -29,11 +29,14 @@ function getDeviceInfo() {
   var OS = navigator.platform;
   if (userAgent.indexOf('Android') > -1) {
     return 'Android';
-  } if (userAgent.indexOf('iPhone') > -1) {
+  }
+  if (userAgent.indexOf('iPhone') > -1) {
     return 'iPhone';
-  } if (userAgent.indexOf('Mac') > -1) {
+  }
+  if (userAgent.indexOf('Mac') > -1) {
     return 'Mac';
-  } if (OS === 'Win32' || OS === 'Windows') {
+  }
+  if (OS === 'Win32' || OS === 'Windows') {
     return 'Windows';
   } else {
     return _l('未知');
@@ -49,11 +52,11 @@ function getSystemInfo() {
   } else if (OS === 'Win32' || OS === 'Windows') {
     return 'Windows';
   } else if (OS === 'Mac68K' || OS === 'MacPPC' || OS === 'Macintosh' || OS === 'MacIntel') {
-      return 'Mac OS';
+    return 'Mac OS';
   } else if (OS === 'X11') {
-      return 'Unix';
+    return 'Unix';
   } else if (String(OS).indexOf('Linux') > -1) {
-      return 'Linux';
+    return 'Linux';
   } else {
     return _l('未知');
   }

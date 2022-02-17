@@ -14,6 +14,7 @@ export default class GetMoreRecord extends Component {
       data: {},
       saveRequest: false,
       showOtherWorksheet: false,
+      cacheKey: +new Date(),
     };
   }
 
@@ -44,7 +45,7 @@ export default class GetMoreRecord extends Component {
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       result.name = this.props.selectNodeName;
-      this.setState({ data: result });
+      this.setState({ data: result, cacheKey: +new Date() });
     });
   }
 
@@ -246,10 +247,11 @@ export default class GetMoreRecord extends Component {
    * 渲染筛选条件
    */
   renderTriggerCondition() {
-    const { data } = this.state;
+    const { data, cacheKey } = this.state;
 
     return (
       <FilterAndSort
+        key={cacheKey}
         companyId={this.props.companyId}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}

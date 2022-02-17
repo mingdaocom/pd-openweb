@@ -1,5 +1,5 @@
 /* eslint-disable no-bitwise */
-import qs from 'querystring';
+import qs from 'query-string';
 import moment from 'moment';
 import base64 from 'js-base64';
 import { assign, trim, isObject, isEmpty } from 'lodash';
@@ -283,16 +283,14 @@ export function humanDateTime(time) {
  * URL安全的Base64编码
  **/
 export function getUrlBase64Encode(str) {
-  return base64encode(str)
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-');
+  return base64encode(str).replace(/\//g, '_').replace(/\+/g, '-');
 }
 
 let isIe;
 export function isIE() {
   isIe =
     isIe ||
-    (function() {
+    (function () {
       let undef;
       let rv = -1; // Return value assumes failure.
       const ua = window.navigator.userAgent;

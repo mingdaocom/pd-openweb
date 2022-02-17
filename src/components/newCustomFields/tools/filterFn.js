@@ -2,13 +2,24 @@ import {
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
+  DATE_OPTIONS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import moment from 'moment';
 import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getArrBySpliceType, isRelateMoreList } from 'src/pages/FormSet/components/columnRules/config';
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
-import _ from 'lodash';
+import { FORM_ERROR_TYPE } from './config';
+
+const getValueByDateRange = dateRange => {
+  let value;
+  _.flattenDeep(DATE_OPTIONS).map(o => {
+    if (o.value === dateRange) {
+      value = parseInt(o.text.replace(/\D/g, '')) || 0;
+    }
+  });
+  return value;
+};
 
 const dayFn = (filterData = {}, value, isGT, type) => {
   let { dateRange, dynamicSource = [] } = filterData;
@@ -90,10 +101,20 @@ const dayFn = (filterData = {}, value, isGT, type) => {
         : moment().add(1, 'year').endOf('year').format('YYYY-MM-DD');
     // { text: _l('过去...天'), value: 10 },
     case 10:
-      return moment().subtract(value, 'day').format('YYYY-MM-DD');
+    case 21:
+    case 22:
+    case 23:
+      return moment()
+        .subtract(getValueByDateRange(dateRange) || value, 'day')
+        .format('YYYY-MM-DD');
     // { text: _l('将来...天'), value: 11 },
     case 11:
-      return moment().add(value, 'day').format('YYYY-MM-DD');
+    case 31:
+    case 32:
+    case 33:
+      return moment()
+        .add(getValueByDateRange(dateRange) || value, 'day')
+        .format('YYYY-MM-DD');
     // { text: _l('指定时间'), value: 18 },
     case 18:
       return moment(value).format('YYYY-MM-DD');
@@ -784,7 +805,7 @@ export const checkValueAvailable = (rule = {}, data = [], from) => {
       const ids = getIds(arr);
       return _.some(ids, id => {
         const da = _.find(data, d => d.controlId === id);
-        return da && controlState(da, from).visible;
+        return da && controlState(da, from).visible & !da.hidden;
       });
     });
   }
@@ -856,6 +877,7 @@ const replaceStr = (str, index, value) => {
   return str.substring(0, index) + value + str.substring(index + 1);
 };
 
+// 更新业务规则权限属性
 const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item = {} }) => {
   //子表或关联记录
   const isSubList = _.includes([29, 34], item.type);
@@ -883,8 +905,8 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
     if (_.includes(attrs, 5)) {
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
-      const { errorType, errorText } = onValidator({ ...it, required, fieldPermission }, from);
-      checkRuleValidator(it.controlId, errorType, errorText);
+      const { errorText } = onValidator({ ...it, required, fieldPermission }, from);
+      checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
       if (_.includes(attrs, 3)) {
@@ -907,6 +929,7 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
   it.disabled = disabled;
 };
 
+// 过滤不必要走（字段都删除）的业务规则
 const getAvailableFilters = (rules = [], formatData = []) => {
   //过滤禁用规则及单个且数组中字段全部删除情况
   let filterRules = [];
@@ -924,6 +947,18 @@ const getAvailableFilters = (rules = [], formatData = []) => {
     }
   });
   return filterRules;
+};
+
+// 移除必填错误
+const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {
+  controls.map(con => {
+    const { controlId = '', childControlIds = [] } = con;
+    if (!childControlIds.length) {
+      checkRuleValidator(controlId, FORM_ERROR_TYPE.RULE_REQUIRED, '');
+    } else {
+      childControlIds.map(child => checkRuleValidator(child, FORM_ERROR_TYPE.RULE_REQUIRED, ''));
+    }
+  });
 };
 
 // 字段显示规则计算
@@ -976,6 +1011,11 @@ export const updateRulesData = ({
             currentType = isAvailable ? 2 : 1;
           }
 
+          // 条件变更需要移除必填错误
+          if (currentType === 5 && !isAvailable) {
+            removeRequireError(controls, checkRuleValidator);
+          }
+
           if (!_.includes([1, 2], currentType) && !isAvailable) {
             return;
           }
@@ -1025,7 +1065,7 @@ export const updateRulesData = ({
           const { filterControlIds = [], availableControlIds = [] } = checkValueAvailable(rule, formatData, from);
           if (_.includes([6], type)) {
             //过滤已经塞进去的错误
-            filterControlIds.map(id => checkRuleValidator(id, '', ''));
+            filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, ''));
             availableControlIds.map(controlId => {
               if (!relateRuleType['errorMsg'][controlId]) {
                 //错误提示(checkAllUpdate为true全操作，否则操作变更的字段updateControlIds)
@@ -1040,7 +1080,7 @@ export const updateRulesData = ({
       formatData.forEach(it => {
         const errorMsg = relateRuleType['errorMsg'][it.controlId] || '';
         if (errorMsg) {
-          checkRuleValidator(it.controlId, onValidator(it, from).errorType, errorMsg);
+          checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0]);
         }
       });
     }

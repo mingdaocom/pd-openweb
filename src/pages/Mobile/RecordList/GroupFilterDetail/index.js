@@ -37,10 +37,10 @@ class GroupFilterDetail extends Component {
       const { params } = this.props.match;
       const { viewId, appId, worksheetId, rowId } = params;
       this.props.updateBase({ viewId, appId, worksheetId, rowId });
-      this.props.loadWorksheet();
     } else {
       this.getNavGroupFitlers(this.props);
     }
+    this.props.loadWorksheet();
     this.loadCustomBtns();
   }
   componentWillReceiveProps(nextProps) {
@@ -271,7 +271,6 @@ class GroupFilterDetail extends Component {
       ...args,
     }).then(data => {
       if (!data) {
-        alert(_l('失败，所有记录都不满足执行条件，或流程尚未启用'));
         this.setState({ runInfoVisible: false });
       } else {
         this.showRunInfo(true);
@@ -311,6 +310,7 @@ class GroupFilterDetail extends Component {
       filters,
       batchOptVisible,
       batchOptCheckedData,
+      appColor,
       mobileViewPermission,
     } = this.props;
     const view = _.find(views, { viewId }) || (viewId === 'all' && views[0]) || {};
@@ -337,6 +337,7 @@ class GroupFilterDetail extends Component {
             <div className="addRecordItemWrapper">
               <Button
                 className="addRecordBtn flex valignWrapper"
+                style={{ backgroundColor: appColor }}
                 onClick={() => {
                   window.mobileNavigateTo(
                     `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
@@ -417,6 +418,7 @@ export default connect(
     worksheetControls: state.mobile.worksheetControls,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
     navGroupFilters: state.sheet.navGroupFilters,
+    appColor: state.mobile.appColor,
     mobileViewPermission: state.mobile.mobileViewPermission,
   }),
   dispatch =>

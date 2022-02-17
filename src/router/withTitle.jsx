@@ -10,6 +10,12 @@ export default class WithTitle extends Component {
 
   renderComponentWithTitle = props => {
     const { title, component: Comp, ...rest } = this.props;
+
+    // 外部门户 并且应用id对应不上
+    if (md.global.Account.isPortal && md.global.Account.appId !== _.get(this.props, 'computedMatch.params.appId')) {
+      location.href = `${window.subPath}/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+    }
+
     return (
       <Fragment>
         {title && <DocumentTitle title={title} />}

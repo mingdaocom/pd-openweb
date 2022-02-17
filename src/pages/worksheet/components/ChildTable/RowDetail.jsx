@@ -43,22 +43,15 @@ export default class RowDetail extends React.Component {
 
   @autobind
   handleChange() {
-    if (!this.customwidget.current) {
+    const { data, isMobile, onSave } = this.props;
+    if (!this.customwidget.current || isMobile) {
       return;
     }
-    const { data, isMobile, onSave } = this.props;
     const submitData = this.customwidget.current.getSubmitData({ silent: true });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.data;
-    // if (submitData.hasError) {
-    //   this.setState({
-    //     showError: true,
-    //   });
-    // }
     const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    if (!isMobile) {
-      onSave({ ...data, ...row, empty: false }, updateControlIds);
-    }
+    onSave({ ...data, ...row, empty: false }, updateControlIds);
   }
 
   @autobind
@@ -113,7 +106,8 @@ export default class RowDetail extends React.Component {
   }
 
   render() {
-    const { disabled, worksheetId, projectId, controls, data, getMasterFormData, handleUniqueValidate } = this.props;
+    const { disabled, worksheetId, projectId, controls, data, getMasterFormData, handleUniqueValidate, appId } =
+      this.props;
     const { flag, showError } = this.state;
     const formdata = _.isEmpty(data)
       ? controls
@@ -136,10 +130,11 @@ export default class RowDetail extends React.Component {
           from={2}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}
-          data={formdata.map(c => ({ ...c, isSubList: true }))}
+          data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
           getMasterFormData={getMasterFormData}
           flag={flag}
           projectId={projectId}
+          appId={appId}
           showError={showError}
           checkCellUnique={handleUniqueValidate}
           onChange={this.handleChange}

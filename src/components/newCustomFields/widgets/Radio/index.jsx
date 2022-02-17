@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
-import { MobileRadio, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { isLightColor } from 'src/util';
-import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
@@ -66,49 +64,20 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { from, disabled, advancedSetting, options, value } = this.props;
+    const { disabled, advancedSetting } = this.props;
     const { direction } = advancedSetting || {};
-    const isMobile = _.includes([FROM.H5_ADD, FROM.H5_EDIT], from);
-    const Comp = isMobile ? MobileRadio : props => props.children;
-    const checkIds = JSON.parse(value || '[]');
 
     return (
-      <Comp
-        disabled={disabled}
-        data={options.filter(item => !item.isDeleted)}
-        value={checkIds}
-        callback={this.onChange}
-        renderText={this.renderList}
+      <div
+        className={cx(
+          'customFormControlBox formBoxNoBorder',
+          { controlDisabled: disabled },
+          { groupColumn: direction === '1' || browserIsMobile() },
+        )}
+        style={{ height: 'auto' }}
       >
-        <div
-          className={cx(
-            'customFormControlBox',
-            { formBoxNoBorder: !isMobile },
-            { controlDisabled: disabled },
-            { groupColumn: direction === '1' || browserIsMobile() },
-          )}
-          style={{ height: 'auto' }}
-        >
-          {isMobile ? (
-            <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
-              <div className="flex minWidth0">
-                {checkIds.length ? (
-                  checkIds.map(value => (
-                    <div key={value} className="mTop5 mBottom5">
-                      {this.renderList(options.find(item => item.key === value))}
-                    </div>
-                  ))
-                ) : (
-                  <span className="Gray_bd">{_l('请选择')}</span>
-                )}
-              </div>
-              {!disabled && <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />}
-            </div>
-          ) : (
-            <RadioGroup disabled={disabled} data={this.getData()} onChange={this.onChange} />
-          )}
-        </div>
-      </Comp>
+        <RadioGroup disabled={disabled} data={this.getData()} onChange={this.onChange} />
+      </div>
     );
   }
 }

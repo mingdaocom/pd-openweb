@@ -1,10 +1,10 @@
-import { arrayOf, shape, string } from 'prop-types';
+import { arrayOf, func, shape, string, bool } from 'prop-types';
 import React, { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import FunctionEditor from './FunctionEditor';
 
 const Con = styled.div`
-  padding: 20px 0 0;
+  padding: ${({ readOnly }) => (readOnly ? '10px 14px' : '20px 0 0;')}
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -23,9 +23,18 @@ const Title = styled.div`
   }
 `;
 
+const PlaceHolder = styled.div`
+  z-index: 2;
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  color: #9e9e9e;
+  font-size: 14px;
+`;
+
 const Editor = styled.div`
   flex: 1;
-  padding: 20px 0;
+  padding: ${({ readOnly }) => (readOnly ? '0px' : '20px 0;')}
   overflow: hidden;
   .CodeMirror {
     font-family: Monaco, monospace;
@@ -39,14 +48,17 @@ const Editor = styled.div`
 `;
 
 function CodeEdit(props, ref) {
-  const { value, control, controls } = props;
+  const { mode, value, title, placeholder, controls, renderTag, onClick = () => {} } = props;
+  const readOnly = mode === 'read';
   const editorDomRef = useRef();
   const editorRef = useRef();
   useEffect(() => {
     if (editorDomRef.current) {
       const functionEditor = new FunctionEditor(editorDomRef.current, {
         value,
+        options: { readOnly: mode === 'read' ? 'nocursor' : undefined },
         getControlName: controlId => (_.find(controls, { controlId }) || {}).controlName,
+        renderTag,
       });
       editorRef.current = window.functionEditor = functionEditor;
     }
@@ -61,9 +73,10 @@ function CodeEdit(props, ref) {
     getValue: () => editorRef.current.editor.getValue(),
   }));
   return (
-    <Con>
-      <Title ref={ref}>{control.controlName}</Title>
-      <Editor ref={editorDomRef} />
+    <Con readOnly={readOnly} onClick={onClick}>
+      {!readOnly && <Title ref={ref}>{title}</Title>}
+      {readOnly && !value && placeholder && <PlaceHolder>{placeholder}</PlaceHolder>}
+      <Editor readOnly={readOnly} ref={editorDomRef} />
     </Con>
   );
 }
@@ -72,6 +85,10 @@ export default forwardRef(CodeEdit);
 
 CodeEdit.propTypes = {
   value: string,
-  control: shape({}),
+  mode: bool,
+  title: string,
+  placeholder: string,
   controls: arrayOf(shape({})),
+  renderTag: func,
+  onClick: func,
 };

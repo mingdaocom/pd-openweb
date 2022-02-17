@@ -1,0 +1,107 @@
+.porTalSort,
+.portalList {
+  // margin-left: -25px;
+  cursor: pointer;
+  height: 36px;
+  line-height: 36px;
+  .set,
+  .del,
+  .icon-drag {
+    opacity: 0;
+    vertical-align: top;
+    line-height: 36px;
+    display: inline-block;
+    margin-left:-5px;
+  }
+  &:hover {
+    .set,
+    .del,
+    .icon-drag {
+      opacity: 1;
+    }
+  }
+  .sortBox {
+    width: 16px;
+  }
+  .controlN {
+    width: 150px;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    line-height: 36px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    vertical-align: top;
+    .Dropdown--input {
+      padding: 0 !important;
+      display: flex;
+    }
+    .Dropdown--placeholder {
+      flex: 1 !important;
+    }
+    .icon-arrow-down-border:before {
+      line-height: 36px;
+    }
+  }
+  .ming.Checkbox {
+    line-height: 36px;
+  }
+  .controlName {
+    flex: 1;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    line-height: 36px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    vertical-align: top;
+  }
+  .disable {
+    background: #f8f8f8;
+  }
+  .mandatory {
+    width: 63px;
+    height: 36px;
+    background: #f8f8f8;
+    border-radius: 4px;
+    line-height: 36px;
+    box-sizing: border-box;
+    color: #9e9e9e;
+    &.disable {
+      background: #fff;
+    }
+    &.isRequired {
+      color: #2196f3;
+    }
+  }
+  .set {
+    color: #9e9e9e;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+  .del {
+    color: #9e9e9e;
+    margin-left: 5px;
+    &:hover {
+      color: red;
+    }
+  }
+  .noName {
+    color: #bdbdbd;
+    &::placeholder {
+      color: #bdbdbd;
+    }
+  }
+}
+.portalList {
+  z-index: 1000000;
+  position: fixed !important;
+  .set,
+  .del,
+  .icon-drag {
+    opacity: 1;
+  }
+}

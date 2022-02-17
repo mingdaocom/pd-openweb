@@ -23,12 +23,6 @@ const Body = styled.div`
   margin: 0 -24px;
 `;
 
-const Tip = styled.div`
-  margin-top: 16px;
-  font-size: 13px;
-  color: #9e9e9e;
-`;
-
 const SearchIcon = styled.div`
   width: 130px;
   height: 130px;
@@ -60,7 +54,7 @@ const trashReducer = (state, action) => {
   }
 };
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 const createActions = (dispatch, state) => ({
   loadRows: ({
@@ -140,6 +134,7 @@ export default function WorkSheetTrash(props) {
   } = props;
   const headerRef = useRef();
   const needRestoreRelation = useRef(true);
+  const [isAll, setIsAll] = useState(false);
   const [selected, setSelected] = useState([]);
   const [selectRows, setSelectRows] = useState([]);
   const [sortControl, setSortControl] = useState();
@@ -166,6 +161,7 @@ export default function WorkSheetTrash(props) {
     >
       <Con>
         <TrashBatchOperate
+          isCharge={isCharge}
           selectedLength={selected.length}
           totalLength={records.length}
           entityName={worksheetInfo.entityName}
@@ -180,17 +176,29 @@ export default function WorkSheetTrash(props) {
                   worksheetId,
                   rowIds: hasAuthRowIds,
                 };
+                if (isAll) {
+                  delete args.rowIds;
+                  args.isAll = true;
+                  args.excludeRowIds = records.filter(r => !_.includes(selected, r.rowid)).map(r => r.rowid);
+                }
                 args.restoreRelation = !!needRestoreRelation.current;
-                restoreWorksheetRows(args).then(() => {
-                  if (selectRows.length === selected.length) {
+                restoreWorksheetRows(args).then(res => {
+                  if (!res.isSuccess) {
+                    alert(_l('恢复失败'), 3);
+                    return;
+                  }
+                  setIsAll(false);
+                  if (res.successCount === selected.length) {
                     alert(_l('恢复成功'));
                     setSelected([]);
                     reloadWorksheet();
                     actions.deleteRecord(hasAuthRowIds);
                   } else {
-                    alert(_l('恢复成功，无编辑权限的记录无法恢复'));
-                    setSelected(hasAuthRowIds);
+                    alert(_l('恢复成功，部分数据已被彻底删除无法恢复'));
+                    setSelected([]);
                     reloadWorksheet();
+                    loadRows({ pageIndex: 1 });
+                    return;
                   }
                   if (records.length - hasAuthRowIds === 0 && pageIndex > 1) {
                     loadRows({ pageIndex: 1 });
@@ -222,8 +230,10 @@ export default function WorkSheetTrash(props) {
           }}
           onHardDelete={() => {
             Dialog.confirm({
-              title: _l('彻底删除%0', worksheetInfo.entityName),
+              title: <span style={{ color: '#f44336' }}>{_l('彻底删除%0', worksheetInfo.entityName)}</span>,
+              buttonType: 'danger',
               description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
+              okText: _l('删除'),
               onOk: () => {
                 if (hasAuthRowIds.length === 0) {
                   alert(_l('无权限删除选择的记录'), 3);
@@ -234,12 +244,18 @@ export default function WorkSheetTrash(props) {
                     appId,
                     rowIds: hasAuthRowIds,
                   };
+                  if (isAll) {
+                    delete args.rowIds;
+                    args.isAll = true;
+                    args.excludeRowIds = records.filter(r => !_.includes(selected, r.rowid)).map(r => r.rowid);
+                  }
                   removeWorksheetRows(args).then(() => {
                     if (selectRows.length === selected.length) {
                       alert(_l('删除成功'));
                     } else {
                       alert(_l('删除成功，无编辑权限的记录无法删除'));
                     }
+                    setIsAll(false);
                     setSelected([]);
                     reloadWorksheet();
                     actions.deleteRecord(hasAuthRowIds);
@@ -251,6 +267,7 @@ export default function WorkSheetTrash(props) {
         />
         <Header
           ref={headerRef}
+          entityName={worksheetInfo.entityName}
           title={`${_l('回收站')}（${worksheetInfo.name}）`}
           isCharge={isCharge}
           projectId={projectId}
@@ -323,10 +340,16 @@ export default function WorkSheetTrash(props) {
             renderRowHead={({ className, style, rowIndex, row }) => (
               <RowHead
                 isTrash
+                // canSelectAll
                 className={className}
                 style={{ ...style, width: 80 }}
                 lineNumberBegin={lineNumberBegin}
                 selectedIds={selected}
+                onSelectAllWorksheet={() => {
+                  setIsAll(true);
+                  setSelected(records.map(row => row.rowid));
+                  setSelectRows(records);
+                }}
                 onSelect={newSelected => {
                   const selectRows = [];
                   newSelected.forEach(rowId => {
@@ -350,7 +373,6 @@ export default function WorkSheetTrash(props) {
             emptyText={_l('没有搜索结果')}
           />
         </Body>
-        <Tip> {_l('提示：已删除的%0保留60天后自动清除', worksheetInfo.entityName)} </Tip>
       </Con>
     </Modal>
   );

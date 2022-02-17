@@ -10,7 +10,7 @@ import { isEmpty } from 'lodash';
 
 const Con = styled.div`
   display: inline-block;
-  padding: 0 24px 0 40px !important;
+  padding: ${({ rowHeadOnlyNum }) => (rowHeadOnlyNum ? '0 12px !important' : '0 24px 0 40px !important')};
   font-size: 13px;
   line-height: 34px;
   text-align: center;
@@ -36,6 +36,9 @@ const Con = styled.div`
       }
     }
   }
+  ${({ readonly }) =>
+    !readonly &&
+    `
   &.hover,
   &.selected {
     .number {
@@ -49,12 +52,14 @@ const Con = styled.div`
     .moreOperate {
       display: inline-block;
     }
-  }
+  }`}
 `;
 
 export default function RowHead(props) {
   const {
+    readonly,
     isTrash,
+    rowHeadOnlyNum,
     isCharge,
     tableId,
     layoutChangeVisible,
@@ -106,10 +111,10 @@ export default function RowHead(props) {
     return <Con className={cx(className, { selected })} style={style} />;
   }
   return (
-    <Con className={cx(className, { selected })} style={style}>
+    <Con rowHeadOnlyNum={rowHeadOnlyNum} className={cx(className, { selected })} style={style} readonly={readonly}>
       {rowIndex !== 0 && (
         <React.Fragment>
-          {!isTrash && (
+          {!readonly && !isTrash && (
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
               formdata={columns.map(c => ({ ...c, value: row[c.controlId] }))}
@@ -147,22 +152,24 @@ export default function RowHead(props) {
             />
           )}
           <div className="number">{lineNumberBegin + rowIndex}</div>
-          <div className="checkbox">
-            <Checkbox
-              checked={selected}
-              size="small"
-              onClick={() => {
-                if (selectedIds.indexOf(row.rowid) > -1) {
-                  onSelect(selectedIds.filter(s => s !== row.rowid));
-                } else {
-                  onSelect(_.uniq(selectedIds.concat(row.rowid)));
-                }
-              }}
-            />
-          </div>
+          {!readonly && (
+            <div className="checkbox">
+              <Checkbox
+                checked={selected}
+                size="small"
+                onClick={() => {
+                  if (selectedIds.indexOf(row.rowid) > -1) {
+                    onSelect(selectedIds.filter(s => s !== row.rowid));
+                  } else {
+                    onSelect(_.uniqBy(selectedIds.concat(row.rowid)));
+                  }
+                }}
+              />
+            </div>
+          )}
         </React.Fragment>
       )}
-      {rowIndex === 0 && (
+      {!readonly && rowIndex === 0 && (
         <div className="topCheckbox">
           {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSehetLayout} />}
           <div className="checkboxCon">
@@ -225,6 +232,7 @@ export default function RowHead(props) {
 }
 
 RowHead.propTypes = {
+  readonly: PropTypes.bool,
   isTrash: PropTypes.bool,
   style: PropTypes.shape({}),
   allWorksheetIsSelected: PropTypes.bool,

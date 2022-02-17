@@ -54,7 +54,13 @@ const Splitter = styled.div`
 `;
 
 export default function Number(props) {
-  const { value, minValue = '', maxValue = '', filterType, onChange = () => {} } = props;
+  const { value, minValue = '', maxValue = '', filterType, onChange = () => {}, onEnterDown = () => {} } = props;
+  function update(changes, type) {
+    if (_.isUndefined(filterType)) {
+      changes.filterType = type;
+    }
+    onChange(changes);
+  }
   return (
     <Con>
       {filterType === FILTER_CONDITION_TYPE.BETWEEN ? (
@@ -65,8 +71,9 @@ export default function Number(props) {
               value={minValue}
               valueFilter={formatNumberFromInput}
               onChange={newValue => {
-                onChange({ minValue: newValue.trim(), filterType: FILTER_CONDITION_TYPE.BETWEEN });
+                update({ minValue: newValue.trim() }, FILTER_CONDITION_TYPE.BETWEEN);
               }}
+              onKeyDown={e => e.keyCode === 13 && onEnterDown()}
             />
           </RangeInput>
           <Splitter>-</Splitter>
@@ -76,8 +83,9 @@ export default function Number(props) {
               value={maxValue}
               valueFilter={formatNumberFromInput}
               onChange={newValue => {
-                onChange({ maxValue: newValue.trim(), filterType: FILTER_CONDITION_TYPE.BETWEEN });
+                update({ maxValue: newValue.trim() }, FILTER_CONDITION_TYPE.BETWEEN);
               }}
+              onKeyDown={e => e.keyCode === 13 && onEnterDown()}
             />
           </RangeInput>
         </RangeInputCon>
@@ -87,8 +95,9 @@ export default function Number(props) {
           value={value}
           valueFilter={formatNumberFromInput}
           onChange={newValue => {
-            onChange({ value: newValue.trim(), filterType: FILTER_CONDITION_TYPE.EQ });
+            update({ value: newValue.trim() }, FILTER_CONDITION_TYPE.EQ);
           }}
+          onKeyDown={e => e.keyCode === 13 && onEnterDown()}
         />
       )}
     </Con>

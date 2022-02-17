@@ -159,6 +159,7 @@ export default class Widgets extends Component {
       projectId,
       viewIdForPermit = '',
       enumDefault2,
+      advancedSetting,
     } = this.props;
     let { disabled } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
@@ -191,6 +192,9 @@ export default class Widgets extends Component {
       knowledgeAtts = data.knowledgeAtts;
       attachmentData = data.attachmentData;
     }
+    
+    // 已上传附件总数
+    const originCount = (attachments || []).length + (knowledgeAtts || []).length + (attachmentData || []).length;
 
     if (browserIsMobile()) {
       return (
@@ -225,6 +229,8 @@ export default class Widgets extends Component {
               from={from}
               className="Block"
               inputType={enumDefault2}
+              advancedSetting={advancedSetting}
+              originCount={originCount}
               disabledGallery={strDefault.split('')[0] === '1'}
               files={attachments || []}
               onChange={(files, isComplete = false) => {
@@ -249,6 +255,7 @@ export default class Widgets extends Component {
 
     disabled = disabled || isOnlyAllowMobile;
 
+
     return (
       <div
         className={cx('customFormControlBox', { controlDisabled: disabled })}
@@ -267,6 +274,8 @@ export default class Widgets extends Component {
             canAddLink={false}
             minWidth={130}
             showAttInfo={false}
+            advancedSetting={advancedSetting}
+            originCount={originCount}
             attachmentData={[]}
             onUploadComplete={isComplete => {
               this.setState({ isComplete }, () => {

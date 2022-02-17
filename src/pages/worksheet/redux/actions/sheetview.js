@@ -3,6 +3,7 @@ import {
   updateWorksheetRow,
   saveWorksheetView,
   getFilterRows,
+  getFilterRowsTotalNum,
   getFilterRowsReport,
   getViewPermission,
 } from 'src/api/worksheet';
@@ -11,35 +12,28 @@ import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig 
 import { wrapAjax } from './util';
 import { getNavGroupCount } from './index';
 const wrappedGetFilterRows = wrapAjax(getFilterRows);
+const wrappedGetFilterRowsTotalNum = wrapAjax(getFilterRowsTotalNum);
 const wrappedGetFilterRowsReport = wrapAjax(getFilterRowsReport);
 
 export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId } = base;
+    const { appId, viewId, worksheetId, chartId, showAsSheetView } = base;
     let { pageSize, pageIndex, sortControls } = sheetview.sheetFetchParams;
     if (changeView) {
       pageIndex = 1;
       dispatch(resetView());
     }
-    if (changeView || isFirst) {
-      dispatch(setViewLayout(viewId));
-    }
-    dispatch({
-      type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
-      value: {
-        noLoading,
-      },
-    });
-    dispatch(getWorksheetSheetViewSummary());
-    wrappedGetFilterRows({
+    const args = {
       worksheetId,
       pageSize,
       pageIndex,
       status: 1,
       appId,
       viewId,
+      reportId: chartId || undefined,
       sortControls,
+      notGetTotal: true,
       ...filters,
       fastFilters: quickFilter.map(f =>
         _.pick(f, [
@@ -55,14 +49,42 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
         ]),
       ),
       navGroupFilters,
-    }).then(res => {
+      ...(showAsSheetView ? { getType: 0 } : {}),
+    };
+    if (changeView || isFirst) {
+      dispatch(setViewLayout(viewId));
+    }
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
+      value: {
+        noLoading,
+      },
+    });
+    dispatch(getWorksheetSheetViewSummary());
+    wrappedGetFilterRows(args).then(res => {
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
         rows: res.data,
-        count: res.count,
         resultCode: res.resultCode,
       });
+      if (chartId) {
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+          count: res.count,
+        });
+      }
     });
+    if (pageIndex === 1 && !chartId) {
+      wrappedGetFilterRowsTotalNum(args).then(data => {
+        const count = parseInt(data, 10);
+        if (!_.isNaN(count)) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+            count,
+          });
+        }
+      });
+    }
   };
 };
 
@@ -195,10 +217,10 @@ export function refresh({ resetPageIndex, noLoading } = {}) {
       filters,
       quickFilter,
       views,
-      base: { viewId },
+      base: { chartId, viewId },
     } = getState().sheet;
     const view = _.find(views, { viewId });
-    const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+    const needClickToSearch = !chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
     if (filters.keyWords || resetPageIndex) {
       dispatch(changePageIndex(1));
     }
@@ -430,7 +452,7 @@ function setViewLayout(viewId) {
 export function getWorksheetSheetViewSummary() {
   return (dispatch, getState) => {
     const { base, sheetview, filters, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId } = base;
+    const { appId, viewId, worksheetId, chartId } = base;
     const { rowsSummary } = sheetview.sheetViewData;
     let savedData = {};
     try {
@@ -448,6 +470,7 @@ export function getWorksheetSheetViewSummary() {
       appId,
       viewId,
       worksheetId,
+      reportId: chartId || undefined,
       columnRpts,
       filterControls: [],
       keyWords: '',

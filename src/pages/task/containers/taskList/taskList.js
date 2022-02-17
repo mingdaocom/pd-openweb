@@ -447,7 +447,7 @@ class TaskList extends Component {
         // 判断有无更多
         let size = 0;
         $.map(data.data, (folder, i) => {
-          size += folder.tasks.length;
+          size += (folder.tasks || []).length;
         });
         taskListSettings.isMore = size >= config.pageSize;
 

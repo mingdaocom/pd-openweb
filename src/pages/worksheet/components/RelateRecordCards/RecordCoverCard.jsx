@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import CellControl from 'worksheet/components/CellControls';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { checkCellIsEmpty } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
+import CardCellControls from './CardCellControls';
 
 const Con = styled.div`
   display: inline-flex;
@@ -62,42 +61,6 @@ const ControlCon = styled.div`
   overflow: hidden;
 `;
 
-const Control = styled.div`
-  display: flex;
-  flex-direction: row;
-  font-size: 12px;
-  line-height: 28px;
-  .label {
-    width: 40%;
-    max-width: 160px;
-    color: #9e9e9e;
-  }
-  .content {
-    flex: 1;
-    height: 28px;
-    overflow: hidden;
-    white-space: nowrap;
-    .cellOptions,
-    .cellDepartments,
-    .cellUsers,
-    .RelateRecordDropdown {
-      overflow: hidden;
-      width: 100%;
-    }
-    * {
-      font-size: 12px !important;
-    }
-  }
-`;
-
-const Empty = styled.span`
-  display: inline-block;
-  width: 22px;
-  height: 6px;
-  background: #eaeaea;
-  border-radius: 3px;
-`;
-
 function click(func) {
   return e => {
     e.stopPropagation();
@@ -124,22 +87,7 @@ export default function RecordCoverCard(props) {
         <Title key="title" className="ellipsis" title={title} style={{ marginBottom: controls.length ? 8 : 0 }}>
           {title}
         </Title>
-        {controls.slice(0, 3).map((control, i) => (
-          <Control key={i}>
-            <div className="label ellipsis">{control.controlName}</div>
-            <div className={`content control${control.type}`}>
-              {!checkCellIsEmpty(data[control.controlId]) ? (
-                <CellControl
-                  cell={Object.assign({}, control, { value: data[control.controlId] })}
-                  from={4}
-                  viewId={viewId}
-                />
-              ) : (
-                <Empty />
-              )}
-            </div>
-          </Control>
-        ))}
+        <CardCellControls width={width} controls={controls} data={data} viewId={viewId} />
       </ControlCon>
       {cover && !!controls.length && (
         <img

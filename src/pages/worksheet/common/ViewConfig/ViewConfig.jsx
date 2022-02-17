@@ -22,14 +22,11 @@ import FastFilter from './components/fastFilter';
 import NavGroup from './components/navGroup';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
+import { updateViewAdvancedSetting, CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 
 const SysSortColumn = styled.div`
-  .commonConfigItem {
-    // line-height: 36px;
-  }
   .workSheetChangeColumn {
     .searchBar,
     .quickOperate {
@@ -400,8 +397,10 @@ class ViewConfigCon extends Component {
     const { columns, view } = this.props;
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43], c.type),
+      c => !!c.controlName && !_.includes([22, 10010, 43, 45], c.type),
     );
+    // 画廊视图封面需要嵌入字段，其他配置过滤
+    const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
     /* 多表关联层级视图 */
     const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
     const isCalendar = viewTypeText === 'calendar';
@@ -451,6 +450,7 @@ class ViewConfigCon extends Component {
                 'searchRows',
               ])}
               worksheetControls={filteredColumns}
+              coverColumns={coverColumns}
               updateCurrentView={view => {
                 this.props.updateCurrentView(
                   Object.assign(view, {
@@ -600,7 +600,7 @@ class ViewConfigCon extends Component {
                   onChange={({ newShowControls, newControlSorts }) => {
                     this.setState(
                       {
-                        showControls: _.uniq(
+                        showControls: _.uniqBy(
                           newShowControls.concat(
                             filteredColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
                           ),
@@ -650,7 +650,7 @@ class ViewConfigCon extends Component {
 
   renderFilter = () => {
     const { existingFilters } = this.state;
-    const { columns, view, projectId } = this.props;
+    const { columns, view, projectId, appId } = this.props;
     return (
       <Fragment>
         <div className="flexRow commonConfigItem">
@@ -709,6 +709,7 @@ class ViewConfigCon extends Component {
           feOnly
           filterColumnClassName="sheetViewFilterColumnOption"
           projectId={projectId}
+          appId={appId}
           columns={segmentation(columns)}
           conditions={view.filters}
           onConditionsChange={conditions => {
@@ -754,7 +755,7 @@ class ViewConfigCon extends Component {
     const { view } = this.props;
     const { begindate = '' } = getAdvanceSetting(view);
     let useSortListByTimeView = ['gunter', 'calendar'].includes(VIEW_DISPLAY_TYPE[view.viewType]);
-    let columnsList = columns.filter(o => ![43, 10010].includes(o.type));
+    let columnsList = columns.filter(o => !CAN_NOT_AS_VIEW_SORT.includes(o.type));
     let isUnableBegindate = begindate && columns.find(o => o.controlId === begindate);
     return (
       <div className="commonConfigItem">
@@ -795,7 +796,8 @@ class ViewConfigCon extends Component {
 
   renderSetting = () => {
     const { viewSetting } = this.state;
-    const { showCreateCustomBtnFn, worksheetId, appId, view, btnData, refreshFn, btnList } = this.props;
+    const { showCreateCustomBtnFn, worksheetId, appId, columns, view, btnData, refreshFn, btnList, viewId } =
+      this.props;
     const { hidebtn } = getAdvanceSetting(view); //隐藏不可用按钮 1：隐藏 0或者空：不隐藏
     switch (viewSetting) {
       case 'CustomAction': // 自定义动作
@@ -829,7 +831,15 @@ class ViewConfigCon extends Component {
         return this.renderControls();
       case 'Color': // 颜色
       case 'MobileSet': // 移动端设置
-        return <MobileSet {...this.props} />;
+        return (
+          <MobileSet
+            {...this.props}
+            coverColumns={filterHidedControls(columns, view.controls, false).filter(
+              c => !!c.controlName && !_.includes([45], c.type), //移动端暂不支持嵌入字段作为封面
+            )}
+          />
+        );
+
       case 'FastFilter': // 快速筛选
         return <FastFilter {...this.props} />;
       case 'NavGroup': // 分组筛选

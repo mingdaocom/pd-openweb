@@ -5,23 +5,23 @@
         {{#def.buildUser:user}}
     {{~}}
 
-    {{?isHide}}
+    {{? isHide && it.tabIndex === 0 }}
     <li class="listTip mBottom5 mTop5 ThemeColor3 ThemeHoverColor2 listTipMore pointer">{{=_l('更多')}}</li>
     {{?}}
 
     {{isHide = false;}}
     {{?}}
-    {{? it.isCooperation }}
+    {{? it.isCooperation && it.tabIndex === 0 }}
     <li class="listTip mBottom5 mTop5">{{=it.tip.cooperate}}</li>
     {{?}}
     {{~ it.users:user}}
         {{#def.buildUser:user}}
     {{~}}
-    {{? it.users.length == 0 && it.isCooperation }}
+    {{? it.users.length == 0 && it.isCooperation && it.tabIndex === 0 }}
     <li class="nullTip">
         {{= it.isCooperation? _l('没有经常协作的联系人'):_l('没有符合条件的联系人') }}
     </li>
-    {{?? it.users.length  == 0 }}
+    {{?? it.users.length  == 0 && it.tabIndex === 0 }}
     <li class="nullTip">
         {{= _l('暂无结果') }}
     </li>

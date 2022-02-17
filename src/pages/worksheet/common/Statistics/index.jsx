@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import ReactDOM, { render } from 'react-dom';
 import cx from 'classnames';
+import { Provider } from 'react-redux';
+import { configureStore } from 'src/redux/configureStore';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -8,7 +10,6 @@ import { Icon, LoadDiv, Button, ScrollView } from 'ming-ui';
 import { Tooltip } from 'antd';
 import Card from './Card';
 import ChartDialog from './ChartDialog';
-import PageMove from './components/PageMove';
 import reportConfig from './api/reportConfig';
 import report from './api/report';
 import reportSort from './api/reportSort';
@@ -37,7 +38,10 @@ const exceptions = [
   '.ant-dropdown',
   '.ant-dropdown-menu',
   '.ant-picker-dropdown',
+  '.rc-trigger-popup'
 ];
+
+const store = configureStore();
 
 const SortableItem = SortableElement(({ item, ...other }) => {
   return (
@@ -77,9 +81,7 @@ export default class Statistics extends Component {
       roleType: 1,
       chartWidth: 0,
       pageIndex: 1,
-      pageLoading: false,
-      showPageMove: false,
-      currentReportId: '',
+      pageLoading: false
     };
   }
   componentDidMount() {
@@ -101,7 +103,7 @@ export default class Statistics extends Component {
     this.getReportConfigList();
   }
   getReportConfigList() {
-    const { activeSheetId } = this.props;
+    const { worksheetId } = this.props;
     const { ownerId, pageIndex, reports, pageLoading, loading } = this.state;
     const loadingKey = pageIndex > 1 ? 'pageLoading' : 'loading';
     if ((pageIndex > 1 ? pageLoading : false) || !pageIndex) {
@@ -115,7 +117,7 @@ export default class Statistics extends Component {
     }
     this.request = report.list(
       {
-        appId: activeSheetId,
+        appId: worksheetId,
         isOwner: !!ownerId,
         pageIndex,
         pageSize: 10,
@@ -143,72 +145,14 @@ export default class Statistics extends Component {
       this.getReportConfigList,
     );
   }
-  handleUpdateOwnerId({ id }) {
-    const { ownerId, reports } = this.state;
-    reportConfig
-      .updateOwnerId({
-        ownerId: ownerId ? '' : md.global.Account.accountId,
-        reportId: id,
-      })
-      .then(result => {
-        if (result) {
-          alert(_l('移出成功'));
-          this.setState({
-            reports: reports.filter(item => item.id !== id),
-          });
-        }
-      });
-  }
-  handleChangeCopyCustomPageVisible({ id }) {
-    this.setState({
-      currentReportId: id,
-      showPageMove: true,
-    });
-  }
-  handleCopyCustomPage(pageId) {
-    const { currentReportId } = this.state;
-    reportConfig
-      .copyReport({
-        reportId: currentReportId,
-        sourceType: 1,
-        pageId,
-      })
-      .then(result => {
-        alert(_l('操作成功'));
-      });
-  }
-  handleUpdateName(id, name) {
-    const { ownerId, reports } = this.state;
-    const newReports = reports.map(item => {
-      if (item.id === id) {
-        item.name = name;
-      }
-      return item;
-    });
-    this.setState({
-      reports: newReports,
-    });
-  }
   handleDelete(reportId) {
     const { reports } = this.state;
-    reportConfig
-      .deleteReport({
-        reportId,
-      })
-      .then(result => {
-        this.setState({
-          reports: reports.filter(item => item.id !== reportId),
-        });
-      });
+    this.setState({
+      reports: reports.filter(item => item.id !== reportId),
+    });
   }
-
   handleOpenGlobalStatisticsPanel() {
-    const { isFullScreen, activeSheetId } = this.props;
-    const props = {
-      activeSheetId,
-      isFullScreen: true,
-      onClose: _.noop,
-    };
+    const { isFullScreen } = this.props;
     if (isFullScreen) {
       const el = document.querySelector('.GlobalStatisticsPanel');
       ReactDOM.unmountComponentAtNode(el);
@@ -218,16 +162,29 @@ export default class Statistics extends Component {
       const div = document.createElement('DIV');
       div.className = 'GlobalStatisticsPanel';
       $('#container').append(div);
-      render(<Statistics {...props} />, document.querySelector('.GlobalStatisticsPanel'));
+      render(this.renderStatistics(), document.querySelector('.GlobalStatisticsPanel'));
       window.statisticsResize = _.debounce(() => {
-        render(<Statistics {...props} />, document.querySelector('.GlobalStatisticsPanel'));
+        render(this.renderStatistics(), document.querySelector('.GlobalStatisticsPanel'));
       }, 200);
       $(window).on('resize', window.statisticsResize);
     }
   }
+  renderStatistics() {
+    const { worksheetId } = this.props;
+    const props = {
+      worksheetId,
+      isFullScreen: true,
+      onClose: _.noop,
+    }
+    return (
+      <Provider store={store}>
+        <Statistics {...props} />
+      </Provider>
+    );
+  }
   handleSortEnd({ oldIndex, newIndex }) {
     if (oldIndex === newIndex) return;
-    const { activeSheetId } = this.props;
+    const { worksheetId } = this.props;
     const { reports, ownerId } = this.state;
     const newReports = arrayMove(reports, oldIndex, newIndex);
     this.setState({
@@ -235,7 +192,7 @@ export default class Statistics extends Component {
     });
     reportSort
       .updateReportSort({
-        appId: activeSheetId,
+        appId: worksheetId,
         isOwner: !!ownerId,
         reportIds: newReports.map(item => item.id),
       })
@@ -259,31 +216,6 @@ export default class Statistics extends Component {
   }
   shouldCancelStart({ target }) {
     return !target.classList.contains('icon-drag');
-  }
-  handleBlur(event) {
-    const { value } = event.target;
-    this.setState({
-      newReport: { name: value },
-    });
-  }
-  renderDialog() {
-    const { showPageMove } = this.state;
-    return (
-      showPageMove && (
-        <PageMove
-          appId={this.props.appId}
-          onOk={pageId => {
-            this.handleCopyCustomPage(pageId);
-          }}
-          onCancel={() => {
-            this.setState({
-              showPageMove: false,
-              currentReportId: '',
-            });
-          }}
-        />
-      )
-    );
   }
   renderHeader() {
     const { ownerId, roleType } = this.state;
@@ -341,12 +273,8 @@ export default class Statistics extends Component {
       shouldCancelStart: this.shouldCancelStart,
       onSortEnd: this.handleSortEnd.bind(this),
       width: isFullScreen ? chartWidth : '',
-      onUpdateOwnerId: this.handleUpdateOwnerId.bind(this),
-      onCopyCustomPage: this.handleChangeCopyCustomPageVisible.bind(this),
-      onUpdateName: this.handleUpdateName.bind(this),
-      onDelete: this.handleDelete.bind(this),
-      onGetReportConfigList: this.handleSwitchView.bind(this),
-    };
+      onRemove: this.handleDelete.bind(this)
+    }
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd.bind(this)}>
         <div className="StatisticsPanel-content">
@@ -397,6 +325,7 @@ export default class Statistics extends Component {
   }
   render() {
     const { dialogVisible, newReport, loading, reports, ownerId } = this.state;
+    const { worksheetId, viewId, appId, projectId } = this.props;
     return (
       <div className="StatisticsPanel">
         <ClickAwayable onClickAway={this.props.onClose.bind(this)} onClickAwayExceptions={exceptions}>
@@ -414,17 +343,17 @@ export default class Statistics extends Component {
           )}
           {dialogVisible ? (
             <ChartDialog
-              {...this.props}
-              chartType={reportTypes.BarChart}
+              worksheetId={worksheetId}
+              viewId={ownerId ? viewId : null}
+              appId={appId}
+              projectId={projectId}
               settingVisible={true}
-              isPublic={!ownerId}
+              ownerId={ownerId}
               permissions={true}
               report={newReport}
-              onBlur={this.handleBlur.bind(this)}
               updateDialogVisible={this.handleUpdateDialogVisible.bind(this)}
             />
           ) : null}
-          {this.renderDialog()}
         </ClickAwayable>
       </div>
     );

@@ -1,11 +1,11 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.eot?t=1633916434458'); /* IE9 */
-  src: url('iconfont.eot?t=1633916434458#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('iconfont.woff2?t=1633916434458') format('woff2'),
-       url('iconfont.woff?t=1633916434458') format('woff'),
-       url('iconfont.ttf?t=1633916434458') format('truetype'),
-       url('iconfont.svg?t=1633916434458#MD_Icon') format('svg');
+  src: url('iconfont.eot?t=1642664012407'); /* IE9 */
+  src: url('iconfont.eot?t=1642664012407#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('iconfont.woff2?t=1642664012407') format('woff2'),
+       url('iconfont.woff?t=1642664012407') format('woff'),
+       url('iconfont.ttf?t=1642664012407') format('truetype'),
+       url('iconfont.svg?t=1642664012407#MD_Icon') format('svg');
 }
 
 .MD_Icon {
@@ -14,6 +14,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-home_dashboard:before {
+  content: "\ea1f";
+}
+
+.icon-pbc:before {
+  content: "\ecaa";
+}
+
+.icon-access_time_filled:before {
+  content: "\eca9";
+}
+
+.icon-stats_table_chart:before {
+  content: "\ebed";
+}
+
+.icon-tune1:before {
+  content: "\e625";
+}
+
+.icon-external_users:before {
+  content: "\ebf7";
 }
 
 .icon-milestone:before {
@@ -624,7 +648,7 @@
   content: "\ec33";
 }
 
-.icon-help1:before {
+.icon-novice-circle:before {
   content: "\ec34";
 }
 
@@ -946,10 +970,6 @@
 
 .icon-stats_numerical_chart:before {
   content: "\ebec";
-}
-
-.icon-stats_table_chart:before {
-  content: "\ebed";
 }
 
 .icon-stats_biaxial_chart:before {
@@ -2778,10 +2798,6 @@
 
 .icon-grain:before {
   content: "\e91f";
-}
-
-.icon-novice-circle:before {
-  content: "\ea1f";
 }
 
 .icon-sp_week_white:before {

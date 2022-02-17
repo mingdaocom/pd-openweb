@@ -3,7 +3,7 @@ import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
 import { Button, Icon, Dropdown, ScrollView, LoadDiv } from 'ming-ui';
-import qs from 'querystring';
+import qs from 'query-string';
 import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
@@ -191,26 +191,32 @@ class AppWorkflowList extends Component {
    */
   renderListItem(item) {
     const { type, list } = this.state;
+    const ICON = {
+      timer: 'icon-hr_surplus',
+      User: 'icon-hr_structure',
+      ExternalUser: 'icon-folder-public',
+    };
 
     return (
       <Fragment key={item.groupId}>
-        {!_.includes([FLOW_TYPE.OTHER, FLOW_TYPE.USER], type) && (
+        {!_.includes([FLOW_TYPE.OTHER], type) && (
           <div className="manageListName flexRow">
             {type !== FLOW_TYPE.OTHER_APP && item.groupId !== 'otherSubProcess' && (
               <Fragment>
                 {item.iconUrl ? (
                   <SvgIcon url={item.iconUrl} fill="#9e9e9e" size={20} addClassName="mTop2 mRight5" />
                 ) : (
-                  <i
-                    className={cx(
-                      'Gray_9e Font20 mRight5',
-                      item.groupId === 'timer' ? 'icon-hr_surplus' : 'icon-worksheet',
-                    )}
-                  />
+                  <i className={cx('Gray_9e Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
                 )}
               </Fragment>
             )}
-            {item.groupName}
+            {item.groupId === 'timer'
+              ? _l('定时触发')
+              : item.groupId === 'User'
+              ? _l('组织人员事件触发')
+              : item.groupId === 'ExternalUser'
+              ? _l('外部用户事件触发')
+              : item.groupName}
           </div>
         )}
 
@@ -218,9 +224,11 @@ class AppWorkflowList extends Component {
           <div key={data.id} className="flexRow manageList">
             <div
               className={cx('iconWrap mLeft10', { unable: !data.enabled })}
-              style={{ backgroundColor: START_APP_TYPE[data.child ? 'subprocess' : data.startAppType].iconColor }}
+              style={{
+                backgroundColor: (START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconColor,
+              }}
             >
-              <Icon icon={START_APP_TYPE[data.child ? 'subprocess' : data.startAppType].iconName} />
+              <Icon icon={(START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconName} />
             </div>
             <div className="flex name mLeft10 mRight40">
               <ListName item={data} />
@@ -289,6 +297,11 @@ class AppWorkflowList extends Component {
       21: {
         1: _l('当创建部门时'),
         3: _l('当解散部门时'),
+      },
+      23: {
+        1: _l('当新用户注册时'),
+        4: _l('当用户登录时'),
+        3: _l('当用户被删除时'),
       },
     };
 
@@ -446,29 +459,8 @@ class AppWorkflowList extends Component {
       <div className="workflowList flexColumn">
         <DocumentTitle title={`${appDetail.name || ''} - ${_l('工作流')}`} />
         <div className="workflowHeader flexRow">
-          <div className="flex">
-            <i
-              className="icon-backspace Font20 Gray_9e ThemeHoverColor3 pointer mRight20"
-              onClick={() => {
-                const storage = JSON.parse(
-                  localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`),
-                );
-
-                if (storage) {
-                  const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-                  navigateTo(
-                    `/app/${params.appId}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join(
-                      '/',
-                    )}`,
-                  );
-                } else {
-                  navigateTo(`/app/${params.appId}`);
-                }
-              }}
-            />
-            <span className="Font17 bold">{_l('自动化工作流')}</span>
-          </div>
-          <ul className="menuTab">
+          <div className="flex" />
+          <ul className="menuTab flexRow">
             {TYPES.map(item =>
               count[item.value] > 0 || item.display ? (
                 <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
@@ -480,8 +472,8 @@ class AppWorkflowList extends Component {
               ) : null,
             )}
           </ul>
-          <div className="flex flexRow workflowHeaderBtn">
-            <div className="flex" />
+          <div className="flex" />
+          <div className="workflowHeaderBtn">
             <Button
               size="small"
               icon="add"

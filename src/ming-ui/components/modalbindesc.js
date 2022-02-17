@@ -13,7 +13,10 @@ if (!window.escbind) {
       ) {
         activeElement.blur();
       } else {
-        const fnitem = _.max(window.closeFns, 'index');
+        const fnitem = _.maxBy(
+          Object.keys(window.closeFns).map(k => window.closeFns[k]),
+          'index',
+        );
         if (fnitem && typeof fnitem.fn === 'function') {
           fnitem.fn(e);
           if (Object.keys(window.closeFns).length === 0) {

@@ -1,12 +1,12 @@
 import JSEncrypt from 'jsencrypt';
 import React from 'react';
 import update from 'immutability-helper';
-import { get, capitalize, isString } from 'lodash';
+import { get, upperFirst, isString } from 'lodash';
 import { Dialog } from 'ming-ui';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { LIGHT_COLOR, PUBLIC_KEY, APPLICATION_ICON } from './enum';
 import { getPssId } from 'src/util/pssId';
-import qs from 'querystring';
+import qs from 'query-string';
 import { getUploadToken, getFileUploadToken } from 'src/api/qiniu';
 const {dialog: {netState: {buyBtn}}} = window.private;
 
@@ -57,7 +57,7 @@ export const exportAll = r => {
   r.keys().forEach(item => {
     const key = item.match(/\/(\w*)\./)[1];
     const component = r(item);
-    const capitalKey = capitalize(key);
+    const capitalKey = upperFirst(key);
     if (isString(component)) {
       componentConfig[capitalKey] = component;
     } else {
@@ -302,8 +302,8 @@ export const isUrlRequest = url => {
  * @returns {string} url
  */
 export const addToken = (url, verificationId = true) => {
-  const id = window.getCookie('md_pss_id');
-  if (verificationId && id) {
+  const id = window.getCookie('md_pss_id') || window.localStorage.getItem('md_pss_id');
+  if (verificationId && id && !md.global.Account.isPortal) {
     return url;
   }
   if (url.includes('?')) {
@@ -358,6 +358,7 @@ export const getIconNameByExt = ext => {
     case 'gif':
     case 'bmp':
     case 'tif':
+    case 'tiff':
       extType = 'img';
       break;
     case 'xls':
@@ -474,7 +475,7 @@ export const htmlEncodeReg = str => {
   const encodeHTMLRules = { '&': '&#38;', '<': '&lt;', '>': '&gt;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
   const matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
   return str
-    ? str.toString().replace(matchHTML, function (m) {
+    ? str.toString().replace(matchHTML, function(m) {
         return encodeHTMLRules[m] || m;
       })
     : '';
@@ -500,7 +501,7 @@ export const htmlDecodeReg = str => {
   };
   const matchHTML = /&#(38|60|62|34|39|47);|&(amp|lt|gt|quot);/g;
   return str
-    ? str.toString().replace(matchHTML, function (m) {
+    ? str.toString().replace(matchHTML, function(m) {
         return decodeHTMLRules[m] || m;
       })
     : '';
@@ -563,4 +564,58 @@ export const getToken = (files, type = 0) => {
   } else {
     return getUploadToken({ files, type });
   }
+};
+
+/**
+ * jQuery Promise 转为标准 Promise
+ */
+export function jP2Promise(jPFunction) {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      jPFunction(...args)
+        .then(resolve)
+        .fail(reject)
+        .always(Promise.finally);
+    });
+  };
+}
+
+/**
+ * 路由添加子路径
+ */
+export function addSubPathOfRoutes(routes, subPath) {
+  if (!subPath) {
+    return routes;
+  }
+  const newRoutes = _.cloneDeep(routes);
+  Object.keys(newRoutes).forEach(key => {
+    newRoutes[key].path = subPath + newRoutes[key].path;
+  });
+  return newRoutes;
+}
+
+/**
+ * 获取应用界面特性是否可见
+ */
+export const getAppFeaturesVisible = () => {
+  const { s, tb, tr, ln, rp } = qs.parse(location.search.substr(1));
+
+  return {
+    s: s !== 'no',
+    tb: tb !== 'no',
+    tr: tr !== 'no',
+    ln: ln !== 'no',
+    rp: rp !== 'no',
+  };
+};
+
+/**
+ * 获取应用界面特性路径
+ */
+export const getAppFeaturesPath = () => {
+  const { s, tb, tr, ln, rp } = getAppFeaturesVisible();
+
+  return [s ? '' : 's=no', tb ? '' : 'tb=no', tr ? '' : 'tr=no', ln ? '' : 'ln=no', rp ? '' : 'rp=no']
+    .filter(o => o)
+    .join('&');
 };

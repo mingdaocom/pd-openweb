@@ -12,6 +12,7 @@ import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordCard from 'src/components/recordCard';
 import { fieldCanSort } from 'src/pages/worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import Header from './Header';
 import './recordCardListDialog.less';
 
@@ -46,17 +47,20 @@ export default class RecordCardListDialog extends Component {
     parentWorksheetId: PropTypes.string, // 记录所在表id
     recordId: PropTypes.string, // 记录id
     controlId: PropTypes.string, // 他表字段id
+    allowAdd: PropTypes.bool, // 是否有新建记录权限
     allowNewRecord: PropTypes.bool, // 允许新建记录
     coverCid: PropTypes.string, // 封面字段 id
     showControls: PropTypes.arrayOf(PropTypes.string), // 显示在卡片里的字段 id 数组
     filterRowIds: PropTypes.arrayOf(PropTypes.string), // 过滤的记录
     filterRelatesheetControlIds: PropTypes.arrayOf(PropTypes.string), // 过滤的关联表控件对应控件id
     defaultRelatedSheet: PropTypes.shape({}),
+    singleConfirm: PropTypes.bool, // 单选需要确认
     multiple: PropTypes.bool, // 是否多选
     visible: PropTypes.bool, // 弹窗显示
     control: PropTypes.shape({}), // 关联表控件
     onClose: PropTypes.func, // 关闭回掉
     onOk: PropTypes.func, // 确定回掉
+    onText: PropTypes.string,
     formData: PropTypes.arrayOf(PropTypes.shape({})),
   };
   static defaultProps = {
@@ -67,11 +71,12 @@ export default class RecordCardListDialog extends Component {
     onClose: () => {},
     onOk: () => {},
     formData: [],
+    singleConfirm: false,
   };
   constructor(props) {
     super(props);
     this.state = {
-      allowAdd: false,
+      allowAdd: props.allowAdd || false,
       loading: true,
       list: [],
       controls: [],
@@ -158,7 +163,18 @@ export default class RecordCardListDialog extends Component {
         _.pick(
           {
             ...f,
-            values: f.dataType === 29 ? f.values.map(v => v.rowid) : f.values,
+            values: (f.values || []).map(v => {
+              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
+                return v.rowid;
+              }
+              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+                return v.accountId;
+              }
+              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+                return v.departmentId;
+              }
+              return v;
+            }),
           },
           ['controlId', 'dataType', 'spliceType', 'filterType', 'dateRange', 'value', 'values', 'minValue', 'maxValue'],
         ),
@@ -185,7 +201,7 @@ export default class RecordCardListDialog extends Component {
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
         this.setState({
-          list: _.uniq(
+          list: _.uniqBy(
             list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
             'rowid',
           ),
@@ -238,7 +254,7 @@ export default class RecordCardListDialog extends Component {
   }
   @autobind
   handleSelect(record, selected) {
-    const { maxCount, selectedCount, multiple, onOk, onClose } = this.props;
+    const { maxCount, selectedCount, multiple, onOk, onClose, singleConfirm } = this.props;
     const { selectedRecords } = this.state;
     if (multiple) {
       if (selected && selectedCount + selectedRecords.length + 1 > maxCount) {
@@ -250,6 +266,8 @@ export default class RecordCardListDialog extends Component {
           ? selectedRecords.concat(record)
           : selectedRecords.filter(r => r.rowid !== record.rowid),
       });
+    } else if (singleConfirm) {
+      this.setState({ selectedRecords: [record] });
     } else {
       onOk([record]);
       onClose();
@@ -338,6 +356,8 @@ export default class RecordCardListDialog extends Component {
       defaultRelatedSheet,
       onOk,
       onClose,
+      singleConfirm,
+      onText,
     } = this.props;
     const {
       loading,
@@ -374,6 +394,7 @@ export default class RecordCardListDialog extends Component {
           {!error && (
             <Header
               entityName={worksheet.entityName}
+              projectId={worksheet.projectId}
               control={control}
               searchConfig={searchConfig}
               controls={controls}
@@ -494,7 +515,7 @@ export default class RecordCardListDialog extends Component {
                     this.setState({ showNewRecord: false });
                   }}
                   onAdd={row => {
-                    if (multiple) {
+                    if (multiple || singleConfirm) {
                       this.setState(
                         {
                           list: [row, ...list],
@@ -530,7 +551,7 @@ export default class RecordCardListDialog extends Component {
                   }}
                 />
               )}
-              {multiple && (
+              {(multiple || singleConfirm) && (
                 <span className="Right">
                   <Button type="link" onClick={onClose}>
                     {_l('取消')}
@@ -543,7 +564,7 @@ export default class RecordCardListDialog extends Component {
                   >
                     {multiple && !canSelectAll && selectedRecords.length
                       ? _l('确定(%0)', selectedRecords.length)
-                      : _l('确定')}
+                      : onText || _l('确定')}
                   </Button>
                 </span>
               )}

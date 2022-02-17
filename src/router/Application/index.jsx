@@ -5,13 +5,14 @@ import ROUTE_CONFIG from './config';
 import ajaxRequest from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
 import UnusualContent from './UnusualContent';
-import './index.less';
+import FixedContent from './FixedContent';
 import { getIds } from '../../pages/PageHeader/util';
 import { connect } from 'react-redux';
 import { setAppStatus } from '../../pages/PageHeader/redux/action';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 
 @connect(
-  undefined,
+  state => ({ appPkg: state.appPkg }),
   dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) })
 )
 export default class Application extends Component {
@@ -80,10 +81,16 @@ export default class Application extends Component {
     let { status } = this.state;
     const {
       location: { pathname },
+      appPkg
     } = this.props;
     const { appId } = getIds(this.props);
+    const { permissionType, fixed } = appPkg;
+    const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
     if (status === 0) {
       return <LoadDiv />;
+    }
+    if (fixed && !isAuthorityApp) {
+      return <FixedContent appPkg={appPkg} />
     }
     if (_.includes([1], status) || (status === 5 && _.includes(pathname, 'role'))) {
       return <Switch>{this.genRouteComponent(ROUTE_CONFIG)}</Switch>;

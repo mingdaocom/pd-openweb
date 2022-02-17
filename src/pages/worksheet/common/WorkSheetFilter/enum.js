@@ -40,6 +40,8 @@ export const FILTER_CONDITION_TYPE = {
   DATE_GTE: 34, // DateGte | >=
   DATE_LT: 35, // DateLt | <
   DATE_LTE: 36, // DateLte | <=
+  NORMALUSER: 41, //NORMALUSER | 是常规用户
+  PORTALUSER: 42, //PORTALUSER | 是外部门户用户
 };
 
 function getControlConditionTypes(control) {
@@ -84,6 +86,7 @@ function getControlConditionTypes(control) {
     case WIDGETS_TO_API_TYPE_ENUM.RELATION:
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
     case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE:
+    case WIDGETS_TO_API_TYPE_ENUM.LOCATION:
       return [FILTER_CONDITION_TYPE.HASVALUE, FILTER_CONDITION_TYPE.ISNULL];
     // 日期类型
     case WIDGETS_TO_API_TYPE_ENUM.DATE:
@@ -199,6 +202,7 @@ export const CONTROL_FILTER_WHITELIST = {
       14, // 附件
       21, // 自由连接
       36, // 检查框
+      40, // 定位
       42, // 签名
     ],
   },
@@ -323,6 +327,7 @@ export const API_ENUM_TO_TYPE = {
   AUTOID: 33, // 自动编号
   SWITCH: 36, // 检查框
   SUBTOTAL: 37, // 汇总
+  LOCATION: 40, //定位
   RICH_TEXT: 41, // _l('富文本'),
   SIGNATURE: 42, // _l('签名'),
   REMARK: 10010, // 备注
@@ -402,6 +407,10 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       return _l('晚于');
     case FILTER_CONDITION_TYPE.DATE_LT:
       return _l('早于');
+    case FILTER_CONDITION_TYPE.NORMALUSER:
+      return _l('是常规用户');
+    case FILTER_CONDITION_TYPE.PORTALUSER:
+      return _l('是外部门户用户');
     default:
       return '';
   }
@@ -444,46 +453,4 @@ export const DATE_OPTIONS = [
     { text: _l('将来30天'), value: 33 },
   ],
   [{ text: _l('指定时间'), value: 18 }],
-];
-
-// 字段显示规则支持的字段类型
-export const RULES_CONDITION_TYPE = [
-  1, // 文本
-  2, // 文本
-  3, // 电话
-  4, // 电话
-  5, // 邮箱
-  6, // 数值
-  7, // 证件
-  8, // 金额
-  9, // 9单选
-  10, // 多选10
-  11, // 11单选
-  14, // 附件
-  15, // 日期
-  16, // 日期
-  17, // 时间段 日期17 日期时间18
-  18, // 时间段 日期17 日期时间18
-  19, // 地区 19'省23'省-市'24'省-市-县'
-  23, // 地区 19'省23'省-市'24'省-市-县'
-  24, // 地区 19'省23'省-市'24'省-市-县'
-  21, // 自由连接
-  // 22, // 分段
-  25, // 大写金额
-  26, // 成员
-  27, // 部门
-  28, // 等级
-  29, // 关联表
-  // 30, // 他表字段
-  31, // 公式  31数值计算 38日期计算
-  38, // 公式  31数值计算 38日期计算
-  32, // 文本组合
-  33, // 自动编号
-  36, // 检查框
-  37, // 汇总
-  // 41, // _l('富文本'),
-  42, // _l('签名'),
-  // 10010, // 备注
-  35, //级联选择
-  34, //子表
 ];

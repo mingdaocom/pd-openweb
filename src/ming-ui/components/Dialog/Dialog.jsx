@@ -98,6 +98,14 @@ class Dialog extends Component {
      */
     closable: PropTypes.bool,
     /**
+     * 是否显示底部按钮
+     */
+    showFooter: PropTypes.bool,
+    /**
+     * 是否显示取消按钮
+     */
+    showCancel: PropTypes.bool,
+    /**
      * 对话框的可见性
      */
     visible: PropTypes.bool,
@@ -155,6 +163,8 @@ class Dialog extends Component {
     maxHeight: 1000,
     updateTrigger: null,
     anim: false,
+    showCancel: true,
+    showFooter: true,
   };
 
   constructor(props) {
@@ -249,17 +259,20 @@ class Dialog extends Component {
           >
             {this.props.children}
           </div>
-          <DialogFooter
-            footer={props.footer}
-            okText={props.okText}
-            cancelText={props.cancelText}
-            okDisabled={props.okDisabled}
-            onOk={this.handleOk}
-            action={props.action}
-            onCancel={this.handleCancel}
-            confirm={props.confirm}
-            buttonType={props.buttonType}
-          />
+          {props.showFooter && (
+            <DialogFooter
+              footer={props.footer}
+              okText={props.okText}
+              cancelText={props.cancelText}
+              okDisabled={props.okDisabled}
+              onOk={this.handleOk}
+              action={props.action}
+              onCancel={this.handleCancel}
+              confirm={props.confirm}
+              showCancel={props.showCancel}
+              buttonType={props.buttonType}
+            />
+          )}
         </DialogBase>
       );
     }

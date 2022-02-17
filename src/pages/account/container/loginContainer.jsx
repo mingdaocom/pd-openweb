@@ -166,6 +166,7 @@ export default class Container extends React.Component {
         </div>
         <Message
           type="login"
+          keys={openLDAP && isNetwork ? ['fullName', 'password'] : ['emailOrTel', 'password']}
           openLDAP={openLDAP}
           dataList={loginData}
           isNetwork={isNetwork}

@@ -100,6 +100,8 @@ export const convertControl = type => {
 
     case 43:
       return 'OCR'; // 文字识别
+    case 45:
+      return 'Embed'; // 文字识别
   }
 };
 
@@ -270,7 +272,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
                     newOldControl: formatRowToServer(row, control.relationControls),
                   };
                 } else {
-                  if (row.updatedControlIds) {
+                  if (row && row.updatedControlIds) {
                     row = _.pick(row, row.updatedControlIds);
                     delete row.updatedControlIds;
                   }
@@ -468,6 +470,7 @@ export const getCurrentValue = (item, data, control) => {
       //选项赋分值
       if (isEnableScoreOption(item)) {
         const selectOptions = (item.options || []).filter(item => _.includes(JSON.parse(data || '[]'), item.key));
+        if (!selectOptions.length) return '';
         return selectOptions.reduce((total, cur) => {
           return total + Number(cur.score || 0);
         }, 0);
@@ -484,4 +487,19 @@ export const specialTelVerify = value => {
   return /\+8526262\d{4}$|\+8526660\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
     value || '',
   );
+};
+
+export const compareWithTime = (start, end, type) => {
+  const startTime = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
+  const endTime = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+  switch (type) {
+    case 'isBefore':
+      return startTime < endTime;
+    case 'isSameAndBefore':
+      return startTime <= endTime;
+    case 'isAfter':
+      return startTime > endTime;
+    case 'isSameAndAfter':
+      return startTime >= endTime;
+  }
 };

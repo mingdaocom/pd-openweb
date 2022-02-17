@@ -15,7 +15,9 @@
         {{?data.status === 3}}
         <span class="name overflow_ellipsis ThemeColor3">
             {{! data.fullname }}
+            {{? !data.isPortal}}
             <span class="icon-folder-public smallEarth"></span>
+            {{?}}
         </span>
         {{??}}
         <a
@@ -26,7 +28,13 @@
         >
             {{! data.fullname }} {{=data.status === 2 ? _l('帐号已注销') : ''}}
         </a>
-        {{?}} {{? isUser }}
+        {{?}}
+
+        {{? data.isPortal}}
+        <div class="cardContentDesc userCard">
+            <span class="overflow_ellipsis contentItem">{{!data.mobilePhone}}</span>
+        </div>
+        {{?? isUser }}
         <div class="cardContentDesc userCard">
             {{?data.currentProjectName}} {{?data.orgName}}
             <span class="overflow_ellipsis contentItem">{{!data.orgName}}</span>

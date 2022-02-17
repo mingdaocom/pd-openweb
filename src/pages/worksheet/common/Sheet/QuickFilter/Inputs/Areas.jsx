@@ -66,7 +66,7 @@ export default function Areas(props) {
       handleClose={() => {
         setActive(false);
         if (tempArea.current) {
-          onChange({ values: isMultiple ? _.uniq([...values, tempArea.current], 'id') : [tempArea.current] });
+          onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
         }
       }}
     >

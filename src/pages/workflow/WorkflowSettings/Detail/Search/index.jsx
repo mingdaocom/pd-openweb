@@ -388,12 +388,13 @@ export default class Search extends Component {
    * 渲染字段和规则
    */
   renderFieldAndRule() {
-    const { data } = this.state;
+    const { data, cacheKey } = this.state;
 
     if (!data.appId && !data.selectNodeId) return null;
 
     return (
       <FilterAndSort
+        key={cacheKey}
         companyId={this.props.companyId}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}

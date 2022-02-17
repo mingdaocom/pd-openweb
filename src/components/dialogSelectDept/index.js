@@ -29,6 +29,7 @@ class DialogSelectDept extends React.Component {
       rootPageIndex: 1,
       rootPageAll: false,
       rootLoading: false,
+      showProjectAll: false,
     };
 
     this.search = _.debounce(this.fetchData.bind(this), 500);
@@ -107,6 +108,7 @@ class DialogSelectDept extends React.Component {
 
   fetchData() {
     this.setState({ loading: true });
+    const isAdmin = location.href.indexOf('admin') > -1;
     if (this.promise && this.promise.state() === 'pending') {
       this.promise.abort();
     }
@@ -125,10 +127,14 @@ class DialogSelectDept extends React.Component {
     param = usePageDepartment
       ? { ...param, pageIndex: this.state.rootPageIndex, pageSize: this.state.pageSize }
       : param;
-    this.promise = departmentController[
-      location.href.indexOf('admin') > -1 ? 'searchProjectDepartment2' : 'searchDepartment2'
-    ](param)
+    this.promise = departmentController[isAdmin ? 'searchProjectDepartment2' : 'searchDepartment2'](param)
       .done(data => {
+        let showProjectAll = true;
+        if (!isAdmin) {
+          showProjectAll = !data.item1;
+          data = data.item2;
+        }
+
         let list = !usePageDepartment
           ? getTree(data)
           : usePageDepartment && this.state.rootPageIndex <= 1
@@ -145,6 +151,7 @@ class DialogSelectDept extends React.Component {
           loading: false,
           rootLoading: false,
           rootPageAll: usePageDepartment && (list.length % this.state.pageSize > 0 || data.length <= 0),
+          showProjectAll,
           ...states,
         });
       })
@@ -377,6 +384,7 @@ class DialogSelectDept extends React.Component {
 
   render() {
     const dialogProps = this.props.dialogProps;
+    const { showProjectAll } = this.state;
     dialogProps.container.yesFn = this.selectFn.bind(this);
     return (
       <DialogLayer
@@ -423,7 +431,7 @@ class DialogSelectDept extends React.Component {
                 )}
               </div>
             )}
-            {this.props.allProject && (
+            {this.props.allProject && showProjectAll && (
               <div
                 className="mTop24 Font13 overflow_ellipsis Hand pBottom10"
                 onClick={this.toggle.bind(this, {

@@ -74,7 +74,7 @@ export default class Zoom extends Component {
   }
   render() {
     const { periodType } = this.props;
-    const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType }) || _.object();
+    const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType }) || {};
     const reduceDisable = periodType === PERIOD_TYPE.year && minDayWidth <= defaultMinDayWidth;
     const addDisable = periodType === PERIOD_TYPE.day && minDayWidth >= defaultMinDayWidth;
     return (

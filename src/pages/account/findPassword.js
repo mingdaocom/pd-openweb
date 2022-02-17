@@ -120,6 +120,8 @@ class FindPassword extends React.Component {
         </div>
         <Message
           type="findPassword"
+          keys={['emailOrTel', 'code', 'password']}
+          maxLength="6"
           dataList={this.state.loginData}
           setDataFn={(data, callback) => {
             this.setState(

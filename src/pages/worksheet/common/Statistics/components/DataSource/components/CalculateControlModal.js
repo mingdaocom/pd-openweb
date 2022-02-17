@@ -37,6 +37,7 @@ class CalculateControl extends Component {
       formulaStr: editCalculateControl ? editCalculateControl.dataSource : '',
       fnmatch: '',
       showInSideFormulaSelect: false,
+      dropdownVisible: false
     };
   }
   handleSave = () => {
@@ -175,7 +176,7 @@ class CalculateControl extends Component {
   };
   render() {
     const { axisControls } = this.props;
-    const { controlName, showInSideFormulaSelect, formulaStr } = this.state;
+    const { controlName, showInSideFormulaSelect, formulaStr, dropdownVisible } = this.state;
     return (
       <div>
         <div className="mBottom10">{_l('名称')}</div>
@@ -191,7 +192,15 @@ class CalculateControl extends Component {
         />
         <div className="flexRow valignWrapper mTop16 mBottom10">
           <div className="flex Font14">{_l('计算')}</div>
-          <Dropdown trigger={['click']} placement="bottomRight" overlay={this.renderControlOverlay()}>
+          <Dropdown
+            trigger={['click']}
+            placement="bottomRight"
+            visible={dropdownVisible}
+            onVisibleChange={(value, e) => {
+              this.setState({ dropdownVisible: value });
+            }}
+            overlay={this.renderControlOverlay()}
+          >
             <div className="flexRow valignWrapper pointer" style={{ color: '#2196F3' }}>
               <Icon className="Font20" icon="add" />
               <span className="Font13">{_l('选择字段')}</span>

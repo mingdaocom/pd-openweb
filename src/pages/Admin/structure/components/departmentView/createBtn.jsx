@@ -50,7 +50,7 @@ class CreateBtn extends Component {
               dispatch(loadUsers(departmentId));
               $.publish('SCROLL_TO_DEPARTMENT', departmentId);
             },
-          })
+          }),
         );
       },
     });
@@ -65,9 +65,11 @@ class CreateBtn extends Component {
           display: 'flex',
           alignItems: 'center'
         }}
-        onClick={this.handleClick}>
-        <span className="mRight8 icon-add Font20" />
-        {_l('创建部门')}
+      >
+        <span className="creatDepartmentTxt" onClick={this.handleClick}>
+          <span className="mRight3 icon-add Font20 TxtMiddle" />
+          {_l('创建部门')}
+        </span>
       </span>
     );
   }

@@ -63,6 +63,7 @@ export default function RelateSheet(props) {
     controlssorts = '[]',
     ddset,
     searchcontrol = '',
+    dismanual = 0,
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
   const searchfilters = getAdvanceSetting(data, 'searchfilters');
@@ -88,7 +89,7 @@ export default function RelateSheet(props) {
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
 
   const isListDisplay = String(showtype) === '2';
-  const filterControls = _.filter(relationControls, item => !_.includes([22, 43], item.type));
+  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45], item.type));
   const titleControl = _.find(filterControls, item => item.attribute === 1);
 
   useEffect(() => {
@@ -146,7 +147,7 @@ export default function RelateSheet(props) {
           {...props}
           value={dataSource}
           onOk={({ sheetId, control, sheetName }) => {
-            let para = { dataSource: sheetId, size: WHOLE_SIZE / 2 };
+            let para = { dataSource: sheetId, size: WHOLE_SIZE };
             // 关联本表
             if (sheetId === sourceId) {
               onChange({ ...para, controlName: _l('父'), enumDefault2: 0 }, widgets => {
@@ -183,7 +184,7 @@ export default function RelateSheet(props) {
               onChange(nextData);
               return;
             }
-            onChange({ enumDefault: value, size: value === 2 && showtype !== '3' ? WHOLE_SIZE : data.size });
+            onChange({ enumDefault: value, size: WHOLE_SIZE });
           }}
           size="small"
         />
@@ -249,7 +250,7 @@ export default function RelateSheet(props) {
                   className="hoverTip"
                   title={
                     <span>
-                      {_l('在卡片中，只能显示前3个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
+                      {_l('在卡片中，最多可显示9个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
                     </span>
                   }
                   popupPlacement="bottom"
@@ -587,7 +588,17 @@ export default function RelateSheet(props) {
         />
       )}
       <SettingItem className="withSplitLine">
-        <div className="settingItemTitle">{_l('移动端输入')}</div>
+        <div className="settingItemTitle">
+          {_l('限制移动端输入')}
+          <Tooltip
+            placement={'bottom'}
+            title={_l(
+              '支持移动app和在钉钉，微信，welink中使用的web移动端应用；暂不支持企业微信，和其他方式使用的web移动端应用',
+            )}
+          >
+            <i className="icon-help Gray_9e Font16 pointer"></i>
+          </Tooltip>
+        </div>
         <Checkbox
           size="small"
           checked={!!+onlyRelateByScanCode}
@@ -600,34 +611,38 @@ export default function RelateSheet(props) {
               }),
             })
           }
-        >
-          <span>
-            {_l('只允许通过扫码添加关联  ')}
-            <Tooltip placement={'bottom'} title={_l('扫码功能只对App或钉钉移动端、Welink移动端、微信移动端有效')}>
-              <i className="icon-help Gray_9e Font16 pointer"></i>
-            </Tooltip>
-          </span>
-        </Checkbox>
+          text={_l('扫码添加关联  ')}
+        />
       </SettingItem>
       {!!+onlyRelateByScanCode && (
         <SettingItem>
           <div className="settingItemTitle" style={{ fontWeight: 'normal' }}>
-            {_l('App额外功能')}
+            {_l('选项')}
           </div>
-          <Checkbox
-            size="small"
-            checked={!!+disableAlbum}
-            onClick={checked =>
-              onChange({
-                strDefault: updateConfig({
-                  config: strDefault,
-                  value: +!checked,
-                  index: 1,
-                }),
-              })
-            }
-            text={_l('禁用相册')}
-          />
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={dismanual === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
+              text={_l('禁止手动输入')}
+            />
+          </div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={!!+disableAlbum}
+              onClick={checked =>
+                onChange({
+                  strDefault: updateConfig({
+                    config: strDefault,
+                    value: +!checked,
+                    index: 1,
+                  }),
+                })
+              }
+              text={_l('禁用相册')}
+            />
+          </div>
           <SheetDealDataType {...props} />
         </SettingItem>
       )}

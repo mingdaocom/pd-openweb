@@ -109,6 +109,7 @@ class AddRecord extends Component {
         <div className="flex pTop5" style={{ overflowX: 'hidden', overflowY: 'auto' }}>
           <CustomFields
             ref={this.customwidget}
+            appId={params.appId || ''}
             worksheetId={params.worksheetId}
             projectId={sheetRow.projectId}
             isWorksheetQuery={sheetRow.isWorksheetQuery}
@@ -150,9 +151,7 @@ class AddRecord extends Component {
 
     return (
       <WaterMark projectId={sheetRow.projectId}>
-        <div className="mobileSheetRowRecord flexColumn h100">
-          {this.renderContent()}
-        </div>
+        <div className="mobileSheetRowRecord flexColumn h100">{this.renderContent()}</div>
       </WaterMark>
     );
   }

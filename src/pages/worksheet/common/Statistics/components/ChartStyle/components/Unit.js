@@ -2,6 +2,31 @@ import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Collapse, Select, Input } from 'antd';
 import { reportTypes, numberLevel } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import styled from 'styled-components';
+
+const FixTypeWrapper = styled.div`
+  position: relative;
+  .ant-select {
+    position: absolute;
+    z-index: 1;
+    border-right: 1px solid #d9d9d9;
+  }
+  .ant-select-selector {
+    width: 80px !important;
+    border: none !important;
+    background-color: transparent !important;
+    height: 28px !important;
+    &:hover {
+      border-color: #d9d9d9;
+    }
+  }
+  .ant-select-arrow {
+    right: 4px;
+  }
+  .ant-input {
+    padding-left: 90px;
+  }
+`;
 
 class Unit extends Component {
   constructor(props) {
@@ -66,9 +91,21 @@ class Unit extends Component {
       yaxisList: data,
     });
   };
+  handleChangeFixType = (value, current) => {
+    const { yaxisList, onChangeYaxisList } = this.props;
+    const data = _.cloneDeep(yaxisList).map(item => {
+      if (item.controlId === current.controlId) {
+        item.fixType = value;
+      }
+      return item;
+    });
+    onChangeYaxisList({
+      yaxisList: data,
+    });
+  };
   render() {
     const { data, isPivotTable } = this.props;
-    const { magnitude, ydot, suffix } = data;
+    const { magnitude, ydot, suffix, fixType } = data;
     return (
       <Fragment>
         <div className="mBottom15">
@@ -120,15 +157,29 @@ class Unit extends Component {
           />
         </div>
         <div className="mBottom15">
-          <div className="mBottom8">{_l('后缀')}</div>
-          <Input
-            className="chartInput"
-            value={suffix}
-            disabled={[0].includes(magnitude)}
-            onChange={event => {
-              this.handleChangeSuffix(event.target.value, data);
-            }}
-          />
+          <div className="mBottom8">{_l('单位')}</div>
+          <FixTypeWrapper className="valignWrapper">
+            <Select
+              className="chartSelect"
+              disabled={[0].includes(magnitude)}
+              value={fixType || 0}
+              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              onChange={value => {
+                this.handleChangeFixType(value, data);
+              }}
+            >
+              <Select.Option className="selectOptionWrapper" key={1} value={1}>{_l('前缀')}</Select.Option>
+              <Select.Option className="selectOptionWrapper" key={0} value={0}>{_l('后缀')}</Select.Option>
+            </Select>
+            <Input
+              className="chartInput flex"
+              value={suffix}
+              disabled={[0].includes(magnitude)}
+              onChange={event => {
+                this.handleChangeSuffix(event.target.value, data);
+              }}
+            />
+          </FixTypeWrapper>
         </div>
       </Fragment>
     );
@@ -136,7 +187,7 @@ class Unit extends Component {
 }
 
 export default function unitPanelGenerator(props) {
-  const { currentReport, onChangeCurrentReport, ...collapseProps } = props;
+  const { currentReport, changeCurrentReport, ...collapseProps } = props;
   const { reportType, yaxisList, rightY } = currentReport;
   const isPivotTable = reportType === reportTypes.PivotTable;
   const isDualAxes = reportType === reportTypes.DualAxes;
@@ -155,7 +206,7 @@ export default function unitPanelGenerator(props) {
                   data={item}
                   yaxisList={yaxisList}
                   onChangeYaxisList={data => {
-                    onChangeCurrentReport({
+                    changeCurrentReport({
                       ...data,
                       displaySetup: {
                         ...currentReport.displaySetup,
@@ -177,7 +228,7 @@ export default function unitPanelGenerator(props) {
                 data={firstYaxis}
                 yaxisList={yaxisList}
                 onChangeYaxisList={data => {
-                  onChangeCurrentReport({
+                  changeCurrentReport({
                     ...data,
                     displaySetup: {
                       ...currentReport.displaySetup,
@@ -195,7 +246,7 @@ export default function unitPanelGenerator(props) {
                 data={firstRightYaxis}
                 yaxisList={rightYaxisList}
                 onChangeYaxisList={data => {
-                  onChangeCurrentReport({
+                  changeCurrentReport({
                     displaySetup: {
                       ...currentReport.displaySetup,
                       magnitudeUpdateFlag: Date.now(),

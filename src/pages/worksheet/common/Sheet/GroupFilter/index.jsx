@@ -150,7 +150,7 @@ function GroupFilter(props) {
   } = props;
   const { appId, worksheetId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
-  const navGroup = view.navGroup.length > 0 ? view.navGroup[0] : {};
+  const navGroup = _.isEmpty(view.navGroup) ? {} : view.navGroup[0];
   let [keywords, setKeywords] = useState();
   const [navGroupData, setGroupFilterData] = useState([]);
   const [rowIdForFilter, setRowIdForFilter] = useState('');

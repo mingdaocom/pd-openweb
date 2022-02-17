@@ -238,7 +238,7 @@ export function addWorkSheet(args, cb) {
     appManagementAjax
       .addWorkSheet({
         ...args,
-        icon: type === 0 ? '1_0_home' : 'hr_workbench',
+        icon: type === 0 ? '1_worksheet' : '1_0_home',
       })
       .then(result => {
         const { pageId, workSheetId, templateId } = result;
@@ -288,7 +288,7 @@ export function copyCustomPage(para) {
           workSheetName: para.name,
           type: 1,
           status: 1,
-          icon: para.icon || 'hr_workbench',
+          icon: para.icon || '1_0_home',
           iconColor: para.iconColor || '#616161',
           iconUrl: para.iconUrl,
         };

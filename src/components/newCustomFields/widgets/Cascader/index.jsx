@@ -147,7 +147,7 @@ export default class Widgets extends Component {
         }
 
         this.ajax = '';
-        this.cacheData = keywords ? result.data : _.uniq(this.cacheData.concat(result.data), 'rowid');
+        this.cacheData = keywords ? result.data : _.uniqBy(this.cacheData.concat(result.data), 'rowid');
         this.deepDataUpdate(keywords ? 'searchOptions' : 'options', _.cloneDeep(options), data, rowId);
       } else {
         this.setState({ isError: true });

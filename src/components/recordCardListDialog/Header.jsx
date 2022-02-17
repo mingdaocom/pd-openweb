@@ -52,7 +52,7 @@ function enrichFilters(filters) {
 }
 
 export default function Header(props) {
-  const { entityName, control = {}, controls, quickFilters, searchConfig, onFilter, onSearch } = props;
+  const { entityName, projectId, control = {}, controls, quickFilters, searchConfig, onFilter, onSearch } = props;
   const inputRef = createRef();
   const { searchFilters } = searchConfig;
   const searchControl = searchConfig.searchControl || _.find(controls, { attribute: 1 }) || {};
@@ -74,6 +74,7 @@ export default function Header(props) {
         {searchFilters && !!searchFilters.length && (
           <FilterCon>
             <Filter
+              projectId={projectId}
               control={control}
               controls={controls}
               quickFilters={quickFilters}

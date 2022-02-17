@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { Icon } from 'src';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
-import { groupBy, max, head, keys, sortBy, isEmpty } from 'lodash';
+import { groupBy, maxBy, head, keys, sortBy, isEmpty } from 'lodash';
 import { deleteOptionsCollection, getCollectionsByAppId } from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
 import { getOptions } from '../../../widgetConfig/util/setting';
@@ -124,7 +124,7 @@ const OptionItem = props => {
   return (
     <ListItem style={{ ...getPos() }}>
       <div className="title Bold">
-        <div className="name">
+        <div className="name ellipsis">
           {name}
           {` ( ${options.length} )`}
         </div>
@@ -143,7 +143,7 @@ const OptionItem = props => {
           .map(({ color, value }) => (
             <li>
               {colorful && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
-              <div className="name">{value}</div>
+              <div className="name ellipsis">{value}</div>
             </li>
           ))}
         {options.length > 15 && <li className="more">{_l('更多 ...')}</li>}
@@ -184,7 +184,7 @@ export default function AllOptionList(props) {
       const cols = groupBy(pos, 'left');
       return head(
         sortBy(
-          keys(cols).map(key => max(cols[key], 'y')),
+          keys(cols).map(key => maxBy(cols[key], 'y')),
           'y',
         ),
       );

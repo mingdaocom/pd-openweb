@@ -18,14 +18,15 @@ export default function FormHeader(props) {
     updateTime,
     createAccount = {},
     editAccount,
-    templateControls,
+    formData,
+    appId,
   } = recordinfo;
   const ownerRef = useRef();
-  const ownerControl = _.find(templateControls, c => c.controlId === 'ownerid');
+  const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
   const showOwner =
     !_.isEmpty(ownerAccount) &&
     !_.find(view.controls, controlId => controlId === 'ownerid') &&
-    controlState(ownerControl).visible;
+    (controlState(ownerControl).visible || ownerControl.controlId === 'ownerid');
   const ownerEditable = allowEdit && ownerControl && controlState(ownerControl).editable;
   let isOpenLogs = true;
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
@@ -34,7 +35,7 @@ export default function FormHeader(props) {
   return (
     <div className={cx('recordInfoFormHeader Gray_9e', { isSmall })}>
       <div className="worksheetNameCon" style={{ marginTop: 16 }}>
-        {!window.isPublicApp ? (
+        {!(window.isPublicApp || md.global.Account.isPortal) ? (
           <a className="worksheetName Gray_9e InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
             {worksheetName}
           </a>
@@ -59,12 +60,18 @@ export default function FormHeader(props) {
                   if (ownerEditable) {
                     handleChangeOwner({
                       recordId,
+                      appId,
                       ownerAccountId: ownerAccount.accountId,
                       projectId,
                       target: ownerRef.current,
                       changeOwner: async (users, accountId) => {
                         try {
-                          const { account, record } = await updateRecordOwner({ worksheetId, recordId, accountId });
+                          const { account, record } = await updateRecordOwner({
+                            worksheetId,
+                            recordId,
+                            accountId:
+                              accountId === 'user-self' ? _.get(md, ['global', 'Account', 'accountId']) : accountId,
+                          });
                           updateRecordDailogOwner(account, record);
                           alert(_l('修改成功'));
                         } catch (err) {

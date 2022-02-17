@@ -188,6 +188,9 @@ export default class Text extends React.Component {
       cell.type === 3 ||
       cell.type === 4;
     const isediting = canedit && this.props.isediting;
+    if (cell.type === 7) {
+      value = (value || '').toUpperCase();
+    }
     const editProps = {
       ref: this.input,
       value,
@@ -202,6 +205,7 @@ export default class Text extends React.Component {
       value = '';
     }
     const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
+    const text = renderText({ ...cell, value });
     const editcontent = (
       <ClickAwayable
         onClickAwayExceptions={[this.editIcon && this.editIcon.current]}
@@ -281,7 +285,7 @@ export default class Text extends React.Component {
             (() => {
               if (cell.type === 2) {
                 return (
-                  <span title={renderText({ ...cell, value })}>
+                  <span title={text}>
                     <Linkify
                       className={cx('worksheetCellPureString cellControl linelimit', { ellipsis: isMobile })}
                       properties={{
@@ -291,20 +295,23 @@ export default class Text extends React.Component {
                         },
                       }}
                     >
-                      {renderText({ ...cell, value })}
+                      {text}
                     </Linkify>
                   </span>
                 );
               } else if (cell.type === 5 && !isMobile) {
                 return (
-                  <a href={`mailto:${value}`} onClick={e => e.stopPropagation()}>
+                  <a href={`mailto:${value}`} title={text} onClick={e => e.stopPropagation()}>
                     {value}
                   </a>
                 );
               } else {
                 return (
-                  <div className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}>
-                    {renderText({ ...cell, value })}
+                  <div
+                    className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}
+                    title={text}
+                  >
+                    {text}
                   </div>
                 );
               }

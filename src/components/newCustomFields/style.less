@@ -42,7 +42,7 @@
 
     .customFormItemControl {
       .customFormControlBox {
-        &.customFormControlOCR  {
+        &.customFormControlOCR {
           border-color: #e0e0e0 !important;
           max-width: 100%;
           > span {
@@ -808,13 +808,20 @@
   z-index: 1;
   left: 0;
   color: #fff;
-  padding: 3px 12px;
+  padding: 3px 8px;
   white-space: nowrap;
   background: #f44336;
   font-size: 12px;
 
   span {
     white-space: normal;
+    .delIcon {
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.24);
+      &:hover {
+        color: rgba(0, 0, 0, 0.5);
+      }
+    }
   }
 
   .customFormErrorArrow {
@@ -894,7 +901,7 @@ input.customFormControlBox:disabled {
       display: none;
     }
     .ant-select-selection-item {
-      opacity: .4;
+      opacity: 0.4;
       color: #333;
     }
   }

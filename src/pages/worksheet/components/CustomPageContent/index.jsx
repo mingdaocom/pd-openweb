@@ -18,6 +18,8 @@ import {
 } from 'src/pages/worksheet/redux/actions/sheetList';
 import customApi from 'src/pages/worksheet/common/Statistics/api/custom.js';
 import CustomPageHeader from './CustomPageHeader';
+import { browserIsMobile } from 'src/util';
+import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 
 const CustomPageContentWrap = styled.div`
@@ -43,6 +45,7 @@ const CustomPageContentWrap = styled.div`
       display: flex;
       align-items: center;
       cursor: pointer;
+      min-width: 0;
       .pageName {
         margin: 0 6px;
         font-size: 18px;
@@ -60,14 +63,18 @@ const CustomPageContentWrap = styled.div`
         color: #2196f3;
       }
     }
-    .fullScreenIcon {
-      padding-top: 2px;
-    }
     .iconWrap {
       color: #9e9e9e;
       &:hover {
         color: #2196f3;
       }
+    }
+    .svgWrap {
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      justify-content: center;
+      line-height: initial;
     }
   }
   .content {
@@ -115,10 +122,12 @@ function CustomPageContent(props) {
     adjustScreen,
     updatePageInfo,
     updateLoading,
-    appName,
+    apk,
     ids,
   } = props;
-  const { workSheetId: pageId, workSheetName: name } = currentSheet;
+  const { workSheetId: pageId, workSheetName } = currentSheet;
+  const appName = props.appName || apk.appName;
+  const pageName = props.pageName || workSheetName;
   const ref = useRef(null);
   const [show, toggle] = useToggle(false);
 
@@ -126,27 +135,21 @@ function CustomPageContent(props) {
     toggle(false);
   };
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
-
-  // useEffect(() => {
-  //   if (activeSheetId !== pageId) {
-  //     changeActiveSheetStatus(pageId);
-  //   }
-  // }, [pageId]);
-
-  useEffect(() => {
-    document.title = _l('%0 - %1', appName, name);
-  }, [appName, name]);
+  const isMobile = browserIsMobile();
 
   useEffect(() => {
     updateLoading(true);
     customApi
       .getPage({ appId: pageId }, { fireImmediately: true })
-      .then(({ components, desc, projectId, adjustScreen }) => {
-        components.map(item => {
-          item.projectId = projectId;
-          return item;
+      .then(({ components, desc, apk, adjustScreen, name }) => {
+        updatePageInfo({
+          components,
+          desc,
+          adjustScreen,
+          pageId,
+          apk: apk || {},
+          pageName: name
         });
-        updatePageInfo({ components, desc, adjustScreen, pageId });
       })
       .always(() => updateLoading(false));
   }, [pageId]);
@@ -157,6 +160,7 @@ function CustomPageContent(props) {
 
     return (
       <WebLayout
+        layoutType={isMobile ? 'mobile' : 'web'}
         adjustScreen={adjustScreen}
         className={cx('customPageContent', { isFullscreen })}
         from="display"
@@ -177,6 +181,7 @@ function CustomPageContent(props) {
 
   return (
     <CustomPageContentWrap>
+      <DocumentTitle title={`${appName} - ${pageName}`} />
       <CustomPageHeader {...props} toggle={toggle} />
       <div ref={ref} className="content">
         {/* {isFullscreen && !_.isEmpty(ref.current) && (
@@ -195,12 +200,11 @@ function CustomPageContent(props) {
 
 export default connect(
   ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { isUnfold } }) => ({
-    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen']),
+    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName']),
     isCharge,
-    sheetListVisible: isUnfold,
-    activeSheetId: base.workSheetId,
     appName: appPkg.name,
-    projectId: appPkg.projectId,
+    sheetListVisible: isUnfold,
+    activeSheetId: base.workSheetId
   }),
   dispatch =>
     bindActionCreators(

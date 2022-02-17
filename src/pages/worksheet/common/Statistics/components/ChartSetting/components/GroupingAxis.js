@@ -24,7 +24,7 @@ export default class GroupingAxis extends Component {
     } else {
       return true;
     }
-  };
+  }
   handleAddControl = data => {
     if (this.handleVerification(data, true)) {
       const { split, disableParticleSizeTypes } = this.props;
@@ -34,28 +34,23 @@ export default class GroupingAxis extends Component {
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
       const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
       this.props.onChangeCurrentReport({
-        ...split,
         controlId: data.controlId,
         particleSizeType: (isTime || isArea) ? allowTypes[0] : 0,
       });
     }
-  };
+  }
   handleClear = () => {
     const { split } = this.props;
-    const id = split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId;
     this.props.onChangeCurrentReport({
-      ...split,
       controlId: '',
       particleSizeType: 0
-    }, id);
-  };
+    });
+  }
   handleUpdateTimeParticleSizeType = (value) => {
     const { split } = this.props;
-    const id = split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId;
     this.props.onChangeCurrentReport({
-      ...split,
       particleSizeType: value
-    }, id);
+    });
   }
   renderTimeOverlay() {
     const { split, disableParticleSizeTypes } = this.props;

@@ -13,6 +13,7 @@ import { sendCardToChat } from 'src/api/chat';
 import _ from 'lodash';
 import '../../lib/mentionInput/js/mentionInput';
 import { isVideo, setCaretPosition, getToken } from 'src/util';
+import { errorCode } from 'src/components/UploadFiles';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
   if (i >= length) {
@@ -211,7 +212,15 @@ export default class SendToolbar extends Component {
 
           _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
         },
-        Error() {},
+        Error(uploader, error) {
+          if (error.code === 50001) {
+            alert(error.message, 2);
+          } else if (errorCode[error.code]) {
+            alert(errorCode[error.code], 2);
+          } else {
+            alert(_l('上传失败'), 2);
+          }
+        },
       },
     });
 
@@ -305,7 +314,7 @@ export default class SendToolbar extends Component {
     this.setState({ visible: false });
   }
   handleIpcRenderer() {
-    ipcRenderer && ipcRenderer.send('cutpic', 'O');
+    window.ipcRenderer && window.ipcRenderer.send('cutpic', 'O');
   }
   handleSendCardToChat(file) {
     const { session } = this.props;

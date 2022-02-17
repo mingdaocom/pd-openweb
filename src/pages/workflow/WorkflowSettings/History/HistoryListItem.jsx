@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import HistoryStatus from './HistoryStatus';
 import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from './config';
-import { Icon } from 'ming-ui';
-import { resetInstance } from '../../api/instanceVersion';
+import { resetInstance, endInstance } from '../../api/instanceVersion';
 
 export default ({
   status,
@@ -20,10 +19,12 @@ export default ({
   const { color } = STATUS2COLOR[FLOW_STATUS[status].status];
   const displayedDate = moment(createDate);
   const [isRetry, setRetry] = useState(false);
+  const showRetry = (status === 3 && _.includes([20001, 20002], cause)) || status === 4;
+  const showSuspend = status === 1;
 
   return (
     <li className="historyListItem" onClick={() => onClick(id)}>
-      {isRetry && <div className="workflowRetryLoading"></div>}
+      {isRetry && <div className="workflowRetryLoading" />}
       <div className={cx('status', status)}>
         <div className="iconWrap">
           <HistoryStatus statusCode={status} />
@@ -51,22 +52,22 @@ export default ({
         {displayedDate.isValid() ? displayedDate.format('YYYY-MM-DD HH:mm:ss') : ''}
       </div>
       <div className="retry">
-        {((status === 3 && _.includes([20001, 20002], cause)) || status === 4) && !disabled && (
+        {(showRetry || showSuspend) && !disabled && (
           <span
-            data-tip={_l('重试')}
+            className="ThemeColor3 ThemeHoverColor2"
             onClick={e => {
               e.stopPropagation();
               if (isRetry) return;
 
               setRetry(true);
 
-              resetInstance({ instanceId: id }).then(res => {
+              (showRetry ? resetInstance : endInstance)({ instanceId: id }).then(res => {
                 updateSource(Object.assign(res, { id }), index);
                 setRetry(false);
               });
             }}
           >
-            <Icon className={cx('Font18 Gray_9e', { ThemeHoverColor3: !isRetry })} icon="refresh1" />
+            {showRetry ? _l('重试') : _l('中止')}
           </span>
         )}
       </div>

@@ -50,7 +50,7 @@ function loadPosts(options, pageOptions, currentCount = 0) {
       options,
       { lType }
     );
-    options = _.pick(options, v => !_.isNull(v));
+    options = _.pickBy(options, v => !_.isNull(v));
 
     if (options.lType === 'project') {
       if (typeof options.projectId === 'undefined') options.range = 0;

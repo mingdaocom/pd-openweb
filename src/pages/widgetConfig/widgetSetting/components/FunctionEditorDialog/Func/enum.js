@@ -1,9 +1,12 @@
-import moment from 'moment';
-import { calcDate } from 'worksheet/util';
+import dayjs from 'dayjs';
+var isBetween = require('dayjs/plugin/isBetween');
+dayjs.extend(isBetween);
+import _ from 'lodash';
+import { calcDate } from 'worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 
 function newDate(dateStr) {
-  return new Date(moment(dateStr).valueOf());
+  return new Date(dayjs(dateStr).valueOf());
 }
 
 function isDateStr(str) {
@@ -13,35 +16,31 @@ function isDateStr(str) {
 export const functions = {
   // 两个日期间的工作日
   NETWORKDAY: function (start, end, excludeDate = [], workDays = [1, 2, 3, 4, 5]) {
+    excludeDate = excludeDate.filter(_.identity);
     if (!isDateStr(start)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
     if (!isDateStr(end)) {
       throw new Error(_l('结束日期不是日期类型'));
     }
-    const endIsBeforeStart = moment(end).isBefore(moment(start));
+    const endIsBeforeStart = dayjs(end).isBefore(dayjs(start));
     if (endIsBeforeStart) {
       [start, end] = [end, start];
     }
-    let result = moment(end).diff(moment(start), 'day');
-    if (excludeDate.length) {
-      result =
-        result -
-        excludeDate.filter(
-          d => moment(d).isBetween(start, end, 'day') || moment(d).isSame(start, 'day') || moment(d).isSame(end, 'day'),
-        ).length;
-    }
+    let result = dayjs(end).diff(dayjs(start), 'day') + 1;
     // TODO 处理工作日逻辑
-    const startWeekDay = moment(start).day();
-    const endWeekDay = moment(end).day();
+    const startWeekDay = dayjs(start).day();
+    const endWeekDay = dayjs(end).day();
     if (result > 7) {
       const startWorkDayLength = [...new Array(7 - startWeekDay)]
         .map((d, i) => startWeekDay + i)
         .filter(d => _.includes(workDays, d)).length;
-      const endWorkDayLength = [...new Array(endWeekDay)].map((d, i) => i).filter(d => _.includes(workDays, d)).length;
+      const endWorkDayLength = [...new Array(endWeekDay)]
+        .map((d, i) => i + 1)
+        .filter(d => _.includes(workDays, d)).length;
       result =
         _.intersection(
-          [0, 1, 2, 3, 4, 5, 6].map((d, i) => i),
+          [1, 2, 3, 4, 5, 6, 7].map((d, i) => i),
           workDays,
         ).length *
           Math.floor((result - (7 - startWeekDay) - endWeekDay) / 7) +
@@ -50,6 +49,15 @@ export const functions = {
     } else {
       const days = [...new Array(result)].map((d, i) => Number((startWeekDay + i).toString(7).slice(-1)));
       result = days.filter(d => _.includes(workDays, d)).length;
+    }
+    if (excludeDate.length) {
+      result =
+        result -
+        excludeDate.filter(
+          d =>
+            _.includes(workDays, dayjs(d).day()) &&
+            (dayjs(d).isBetween(start, end, 'day') || dayjs(d).isSame(start, 'day') || dayjs(d).isSame(end, 'day')),
+        ).length;
     }
     return endIsBeforeStart ? -1 * result : result;
   },
@@ -101,29 +109,32 @@ export const functions = {
     if (!isDateStr(end)) {
       throw new Error(_l('结束日期不是日期类型'));
     }
-    if (!/^[YMdhm]$/.test(unit)) {
+    if (!/^[YyMdhm]$/.test(unit)) {
       throw new Error(_l('单位不合法'));
+    }
+    if (unit === 'Y') {
+      unit = 'y';
     }
     if (type === 1) {
       if (/^\d{4}(-\d{2}){2}$/.test(begin)) {
-        begin = moment(begin).startOf('day');
+        begin = dayjs(begin).startOf('day');
       }
       if (/^\d{4}(-\d{2}){2}$/.test(end)) {
-        end = moment(end).startOf('day');
+        end = dayjs(end).startOf('day');
       }
     } else {
       if (/^\d{4}(-\d{2}){2}$/.test(begin)) {
-        begin = moment(begin).startOf('day');
+        begin = dayjs(begin).startOf('day');
       }
       if (/^\d{4}(-\d{2}){2}$/.test(end)) {
-        end = moment(end).add(1, 'day').startOf('day');
+        end = dayjs(end).add(1, 'day').startOf('day');
       }
     }
-    const result = moment(end).diff(begin, unit);
+    const result = dayjs(end).diff(begin, unit);
     return (
       result +
       ({
-        Y: _l('年'),
+        y: _l('年'),
         M: _l('月'),
         d: _l('天'),
         h: _l('小时'),
@@ -132,7 +143,7 @@ export const functions = {
     );
   },
   DATENOW: function () {
-    return moment().format('YYYY-MM-DD HH:mm:ss');
+    return dayjs().format('YYYY-MM-DD HH:mm:ss');
   },
   // 计对象数量
   COUNTARRAY: function (values) {
@@ -235,6 +246,19 @@ export const functions = {
         typeof item !== 'undefined' && String(item).trim() !== '' && item !== null && !_.isNaN(item) && item !== false,
     ).length;
   },
+  // 计空值数
+  COUNTBLANK: function (...array) {
+    return array.filter(
+      item =>
+        !(
+          typeof item !== 'undefined' &&
+          String(item).trim() !== '' &&
+          item !== null &&
+          !_.isNaN(item) &&
+          item !== false
+        ),
+    ).length;
+  },
   // 乘积
   PRODUCT: function (...args) {
     return args
@@ -277,6 +301,14 @@ export const functions = {
   // 转为数值
   NUMBER: function (value) {
     return Number(value);
+  },
+  // 求幂
+  POWER: function (base, exponent) {
+    return Math.pow(base, exponent);
+  },
+  // 求对数
+  LOG: function (logarithm, base) {
+    return Math.log(logarithm) / Math.log(base);
   },
   // 替换文本
   REPLACE: function (text, begin = 1, length = 0, newText = '') {
@@ -332,6 +364,7 @@ export const functions = {
   // 合并文本
   CONCAT: function (...args) {
     let result = '';
+    args = args.filter(a => !_.isUndefined(a) && !_.isNull(a)).map(String);
     while (args.length) {
       result += args.shift() || '';
     }
@@ -340,6 +373,14 @@ export const functions = {
   // 强制转文本
   STRING: function (value) {
     return String(value || '');
+  },
+  // 删除空格
+  TRIM: function (value) {
+    return String(value || '').trim();
+  },
+  // 删除所有空格
+  CLEAN: function (value) {
+    return String(value || '').replace(/ /g, '');
   },
   // 条件语句
   IF: function (expression, trueResult, falseResult) {
@@ -365,6 +406,119 @@ export const functions = {
   TRUE: function () {
     return true;
   },
+  // 是否为空
+  ISBLANK: function (value) {
+    return typeof value === 'undefined' || value === null || value === '' || value === '[]';
+  },
+  // 高级函数
+  ENCODEURI: function (value) {
+    return encodeURI(String(value || ''));
+  },
+  DECODEURI: function (value) {
+    return decodeURI(String(value || ''));
+  },
+  ENCODEURICOMPONENT: function (value) {
+    return encodeURIComponent(String(value || ''));
+  },
+  DECODEURICOMPONENT: function (value) {
+    return decodeURIComponent(String(value || ''));
+  },
+  // 计算经纬度坐标距离
+  DISTANCE: function (location1, location2) {
+    let lon1, lat1, lon2, lat2;
+    if (_.isObject(location1)) {
+      lon1 = location1.x;
+      lat1 = location1.y;
+    } else if (typeof location1 === 'string' && /^\d+(\.\d+)?,\d+(\.\d+)?$/.test(location1)) {
+      lon1 = parseFloat(location1.split(',')[0]);
+      lat1 = parseFloat(location1.split(',')[1]);
+    }
+    if (_.isObject(location2)) {
+      lon2 = location2.x;
+      lat2 = location2.y;
+    } else if (typeof location2 === 'string' && /^\d+(\.\d+)?,\d+(\.\d+)?$/.test(location2)) {
+      lon2 = parseFloat(location2.split(',')[0]);
+      lat2 = parseFloat(location2.split(',')[1]);
+    }
+    if (!(lon1 && lat1 && lon2 && lat2)) {
+      return;
+    }
+    if (lat1 === lat2 && lon1 === lon2) {
+      return 0;
+    } else {
+      var radlat1 = (Math.PI * lat1) / 180;
+      var radlat2 = (Math.PI * lat2) / 180;
+      var theta = lon1 - lon2;
+      var radtheta = (Math.PI * theta) / 180;
+      var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+      if (dist > 1) {
+        dist = 1;
+      }
+      dist = Math.acos(dist);
+      dist = (dist * 180) / Math.PI;
+      dist = dist * 60 * 1.1515 * 1.609344;
+      return dist;
+    }
+  },
+  // 查找单个文本
+  FIND: function (text = '', start, end) {
+    if (start) {
+      start = start.replace(/([(?[*)])/g, '\\$1');
+    }
+    if (end) {
+      end = end.replace(/([(?[*)])/g, '\\$1');
+    }
+    if (!text || (!start && !end)) {
+      return text;
+    } else if (!start) {
+      return (text.match(new RegExp(`^(.+?)${end}`)) || '')[1];
+    } else if (!end) {
+      return (text.match(new RegExp(`${start}(.+?)$`)) || '')[1];
+    } else {
+      return (text.match(new RegExp(`${start}(.+?)${end}`)) || '')[1];
+    }
+  },
+  // 查找多个文本
+  FINDA: function (text = '', start, end) {
+    if (!start || !end) {
+      return [];
+    }
+    if (start) {
+      start = start.replace(/([(?[*)])/g, '\\$1');
+    }
+    if (end) {
+      end = end.replace(/([(?[*)])/g, '\\$1');
+    }
+    const regexp = new RegExp(`${start}(.+?)${end}`, 'g');
+    const result = [];
+    var match = regexp.exec(text);
+    while (match != null) {
+      result.push(match[1]);
+      match = regexp.exec(text);
+    }
+    return result;
+  },
+  SPLIT: function (text = '', splitter = '') {
+    return text.split(splitter);
+  },
+  JOIN: function (list = [], splitter = '') {
+    return list.join(splitter);
+  },
+  INCLUDE: function (value, matchStr) {
+    if (!value || !matchStr) {
+      return;
+    }
+    return String(value).indexOf(matchStr) > -1;
+  },
+  GETPOSITION: function (value = {}, key) {
+    if (key === 'x,y') {
+      return value.x && value.y ? `${value.x},${value.y}` : '';
+    }
+    return value[key] || '';
+  },
+  COUNTCHAR: function (value) {
+    return value.replace(/(\r\n|\n)/g, '').length;
+  },
 };
 
 export const functionTypes = {
@@ -372,9 +526,10 @@ export const functionTypes = {
   date: _l('日期函数'),
   string: _l('文本函数'),
   flow: _l('逻辑函数'),
+  advanced: _l('高级函数'),
 };
 
-export const functionDetails = {
+const functionDetailsMap = {
   // date 日期函数
   NETWORKDAY: {
     name: _l('两个日期间的工作日'),
@@ -473,14 +628,6 @@ export const functionDetails = {
           <b>示例：=COUNTARRAY(工序) ，结果：7</b></br>
           计算名称为“工序”的子表数量（实际有7道工序）`),
   },
-  // SUMIF: {
-  //   name: _l('条件求和'),
-  //   type: 'math',
-  //   title: _l('待定'),
-  //   des: _l(''),
-  //   fn: () => {},
-  // },
-  // COUNTIF: { name: _l('条件计数'), type: 'math', title: _l('待定'), des: _l(''), fn: () => {} },
   RANDBETWEEN: {
     name: _l('返回随机数'),
     type: 'math',
@@ -497,7 +644,6 @@ export const functionDetails = {
     des: _l(`<bb>ROUNDDOWN(数值,位数)</bb></br>
       <b>示例：=ROUNDDOWN(3.14159265,4) ，结果：3.1415</b></br>
       保留 3.14159265 的四位小数`),
-    fn: _.floor,
   },
   ROUNDUP: {
     name: _l('向上舍入'),
@@ -506,7 +652,6 @@ export const functionDetails = {
     des: _l(`<bb>ROUNDUP(数值,位数)</bb></br>
         <b>示例：=ROUNDUP(3.14159265,4) ，结果：3.1416</b></br>
         保留 3.14159265 的四位小数`),
-    fn: _.ceil,
   },
   ROUND: {
     name: _l('四舍五入'),
@@ -523,7 +668,6 @@ export const functionDetails = {
     des: _l(`<bb>MOD(被除数,除数)</bb></br>
       <b>示例：=MOD(15,4) ，结果：3</b></br>
       计算 15 除以 4 的余数`),
-    fn: _.round,
   },
   INT: {
     name: _l('求整'),
@@ -551,6 +695,15 @@ export const functionDetails = {
       <b>示例：=COUNTA(1月,2月,3月) ，结果：2</b></br>
       计算第一季度指标的完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成`),
   },
+  COUNTBLANK: {
+    name: _l('计空值数'),
+    type: 'math',
+    title: _l('计算参数中包含的空值个数'),
+    des: _l(`
+      <bb>COUNTBLANK(数值1,数值2...)</bb></br>
+      <b>示例：=COUNTBLANK(1月,2月,3月) ，结果：1</b></br>
+      计算第一季度指标的未完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成`),
+  },
   PRODUCT: {
     name: _l('乘积'),
     type: 'math',
@@ -559,9 +712,6 @@ export const functionDetails = {
       <bb>PRODUCT(数值1,数值2...)</bb></br>
       <b>示例：=PRODUCT(15,4) ，结果：60</b></br>
       计算 15 乘以 4 的积`),
-    fn: (...args) => {
-      return args.reduce((a, b) => Number(a) * Number(b));
-    },
   },
   MAX: {
     name: _l('最大值'),
@@ -571,7 +721,6 @@ export const functionDetails = {
         <bb>MAX(数值1,数值2...)</bb></br>
         <b>示例：=MAX(10,20,30) ，结果：30</b></br>
         返回10,20,30中最大的数字`),
-    fn: (...args) => _.max(args),
   },
   MIN: {
     name: _l('最小值'),
@@ -581,7 +730,6 @@ export const functionDetails = {
       <bb>MIN(数值1,数值2...)</bb></br>
       <b>示例：=MIN(10,20,30) ，结果：10</b></br>
       返回10,20,30中最小的数字`),
-    fn: (...args) => _.min(args),
   },
   AVERAGE: {
     name: _l('平均值'),
@@ -591,9 +739,6 @@ export const functionDetails = {
     <bb>AVERAGE(数值1,数值2...)</bb></br>
     <b>示例：=AVERAGE(10,20,30) ，结果：20</b></br>
     计算10,20,30的平均值`),
-    fn: (...args) => {
-      return _.sum(args) / args.length;
-    },
   },
   SUM: {
     name: _l('求和'),
@@ -603,7 +748,6 @@ export const functionDetails = {
     <bb>SUM(数值1,数值2...)</bb></br>
     <b>示例：=SUM(10,20,30) ，结果：60</b></br>
       计算10,20,30的和`),
-    fn: (...args) => _.sum(args),
   },
   NUMBER: {
     name: _l('强制转为数值'),
@@ -613,6 +757,22 @@ export const functionDetails = {
     <bb>NUMBER(文本)</bb></br>
     <b>示例：=NUMBER(IF(TRUE(),'-1','0'))+5，结果：4</b></br>
     将 '-1' 和 5 相加（if输出的结果类型固定为文本）`),
+  },
+  POWER: {
+    name: _l('计算数字的乘幂'),
+    type: 'math',
+    des: _l(`
+    <bb>POWER(底数，指数)</bb></br>
+    <b>示例：=POWER(2,3)，结果：8</b></br>
+    计算2的3次方`),
+  },
+  LOG: {
+    name: _l('计算以指定数字为底的对数'),
+    type: 'math',
+    des: _l(`
+    <bb>LOG(真数,底数)</bb></br>
+    <b>示例：=LOG(8,2)，结果：3</b></br>
+    计算以2为底8的对数`),
   },
   // string 文本函数
   REPLACE: {
@@ -701,6 +861,24 @@ export const functionDetails = {
         <b>示例：=STRING(-1)+STRING(5)，结果：'-15'</b><br />
         将-1、5两个数值拼接在一起`),
   },
+  TRIM: {
+    name: _l('删除空格'),
+    type: 'string',
+    title: _l('删除文本首尾的空格'),
+    des: _l(`
+        <bb>TRIM(文本)</bb><br />
+        <b>示例：=TRIM(' 南京 ')，结果：'南京'</b><br />
+        删除首尾空格`),
+  },
+  CLEAN: {
+    name: _l('删除文本中所有空格'),
+    type: 'string',
+    title: _l('删除文本中所有空格'),
+    des: _l(`
+        <bb>CLEAN(文本)</bb><br />
+        <b>示例：=CLEAN('135 3425 7715')，结果："13534257715"</b><br />
+        删除手机号码字段中间的空格`),
+  },
   // flow 逻辑函数
   IF: {
     name: _l('条件语句'),
@@ -744,7 +922,7 @@ export const functionDetails = {
         对成绩是否刚好等于60分求反（实则刚好60分）`),
   },
   FALSE: {
-    name: _l('返回false'),
+    name: _l('返回 false'),
     type: 'flow',
     title: _l('直接返回逻辑值FALSE'),
     des: _l(`<bb>FALSE()</bb></br><b>示例：=FALSE() ，结果：FALSE</b>`),
@@ -755,7 +933,198 @@ export const functionDetails = {
     title: _l('直接返回逻辑值TRUE'),
     des: _l(`<bb>TRUE()</bb></br><b>示例：=TRUE() ，结果：TRUE</b>`),
   },
+  ISBLANK: {
+    name: _l('判断为空'),
+    type: 'flow',
+    title: _l('判断单元格是否为空，如果为空，返回TRUE，否则返回FALSE'),
+    des: _l(`
+        <bb>ISBLANK(文本)</bb><br />
+        <b>示例：=ISBLANK($年龄$)，结果：TRUE</b><br />
+        判断年龄字段是否为空`),
+  },
+  // 高级函数
+  ENCODEURI: {
+    name: _l('URI 编码'),
+    type: 'advanced',
+    title: _l('将文本转换为URI编码，可以对包含中文字符的网址进行编码'),
+    des: _l(`
+        不转义 , / ? : @ & = + $ # <br />
+        <bb>ENCODEURL(文本)</bb><br />
+        <b>示例：=ENCODEURI('name=系统')，结果：'name=%E7%B3%BB%E7%BB%9F'</b><br />
+        对文本“name=系统”进行编码`),
+  },
+  DECODEURI: {
+    name: _l('URI 解码'),
+    type: 'advanced',
+    title: _l('将URI编码转换为文本，可以对包含中文字符的网址进行解码'),
+    des: _l(`
+        <bb>DECODEURI(文本)</bb><br />
+        <b>示例：=DECODEURI('name=%E7%B3%BB%E7%BB%9F')，结果："name=系统"</b><br />
+        对文本“name=%E7%B3%BB%E7%BB%9F”进行解码`),
+  },
+  ENCODEURICOMPONENT: {
+    name: _l('URI 组件编码'),
+    type: 'advanced',
+    title: _l('将文本转换为URI编码，可以对包含中文字符的网址进行编码'),
+    des: _l(`
+        转义 , / ? : @ & = + $ # <br />
+        <bb>ENCODEURL(文本)</bb><br />
+        <b>示例：=ENCODEURI('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'</b><br />
+        对文本“name=系统”进行编码`),
+  },
+  DECODEURICOMPONENT: {
+    name: _l('URI 组件解码'),
+    type: 'advanced',
+    title: _l('将URI编码转换为文本，可以对包含中文字符的网址进行解码'),
+    des: _l(`
+        <bb>DECODEURI(文本)</bb><br />
+        <b>示例：=DECODEURI('name%3D%E7%B3%BB%E7%BB%9F')，结果："name=系统"</b><br />
+        对文本“name%3D%E7%B3%BB%E7%BB%9F”进行解码`),
+  },
+  DISTANCE: {
+    name: _l('计算两地间的距离'),
+    type: 'advanced',
+    title: _l('计算两地间的距离，结果单位为千米'),
+    des: _l(`
+        <bb>DISTANCE(定位字段1,定位字段2)</bb><br />
+        <li>定位字段：如果需要设为静态值，格式为“经度,维度”</li>
+        <b>示例：=DISTANCE("121.4224,31.1785",目的地定位)，结果：2.1358(km)</b><br />
+        计算上海市第六人民医院到漕河泾智汇园的距离`),
+  },
+  FIND: {
+    name: _l('查找单个文本'),
+    type: 'string',
+    title: _l('返回指定间隔符之间的文本内容（只返回从左到右查找到的第一个）'),
+    des: _l(`
+        <bb>FIND(原文本, 开始字符, 结束字符)</bb><br />
+        <li>开始字符：如果是空，表示从第一个字符开始返回</li>
+        <li>结束字符：如果是空，表示返回直至最后一个字符</li>
+        <b>示例：=FIND(“1天23小时15分钟”,"","天")，结果：1</b><br />
+        获取日期时间计算结果的“天”`),
+  },
+  FINDA: {
+    name: _l('查找多个文本'),
+    type: 'string',
+    title: _l('返回指定间隔符之间的文本内容，从左到右查找所有内容，并将结果打包成数组返回'),
+    des: _l(`
+        <bb>FIND(原文本, 开始字符, 结束字符)</bb><br />
+        <li>开始字符：如果是空，将无法得到结果</li>
+        <li>结束字符：如果是空，将无法得到结果</li>
+        <b>示例：=FINDA(“(X2022)2f8f0af(NZP001)”,"(",")")，结果：X2022,NZP001</b><br />
+        获取条码中两组括号间的内容，并写入另一个文本字段中`),
+  },
+  SPLIT: {
+    name: _l('分割文本'),
+    type: 'string',
+    title: _l('按照指定的间隔符分割文本，将分割结果打包成数组返回'),
+    des: _l(`
+        <bb>SPLIT(原文本,间隔符)</bb><br />
+        <li>间隔符：如果为空，将分割每一个字符</li>
+        <b>示例：=SPLIT("HX045-SZ190-NZ021-LS097","-")，结果：'HX045,SZ190,NZ021,LS097'</b><br />
+        以“-”分割1组带4个物料ID的文本，并写入另一个文本字段中`),
+  },
+  JOIN: {
+    name: _l('合并文本'),
+    type: 'string',
+    title: _l('按照指定的间隔符把数组元素拼接成文本'),
+    des: _l(`
+        <bb>JOIN(数组,间隔符)</bb><br />
+        <b>示例：=JOIN(部门字段,"-")，结果："产品部-销售部-研发部"</b><br />
+        把部门字段里的多个部门拼接成一个字符串整体`),
+  },
+  INCLUDE: {
+    name: _l('是否包含'),
+    type: 'flow',
+    title: _l('判断一个文本中是否包含指定的字符内容'),
+    des: _l(`
+        <bb>INCLUDE(原文本,检索的字符)</bb><br />
+        <b>示例：=INCLUDE("上海市闵行区钦州北路",'闵行')，结果：TRUE</b><br />
+        判断文本里是否包含"闵行"`),
+  },
+  GETPOSITION: {
+    name: _l('返回定位相关信息'),
+    type: 'advanced',
+    title: _l('从某个定位字段返回位置标题、详细地址或经纬度'),
+    des: _l(`
+        <bb>GETPOSITION(定位字段,需要的信息)</bb><br />
+        <li>需要的信息：'title'-位置标题；'address'-详细地址；'x'-经度；'y'-纬度；'x,y'-经纬度</li>
+        <b>示例：=GETPOSITION(打卡地点,'address')，结果：'上海市徐汇区漕河泾新兴技术开发区上海漕河泾开发区智汇园'</b><br />
+        返回打卡地点的详细地址`),
+  },
+  COUNTCHAR: {
+    name: _l('计字符数'),
+    type: 'math',
+    title: _l('计算文本字段的字符数量'),
+    des: _l(`
+        <bb>COUNTCHAR(文本)</bb><br />
+        <b>示例：=COUNTCHAR(标题)，结果：12</b><br />
+        计算标题“通过函数计算赋字段默认值”的字数`),
+  },
 };
+
+export const functionDetails = _.pick(
+  functionDetailsMap,
+  _.uniqBy(
+    [
+      // 对方法进行排序
+      /** 数学 */
+      'SUM',
+      'AVERAGE',
+      'MIN',
+      'MAX',
+      'PRODUCT',
+      'COUNTA',
+      'ABS',
+      'INT',
+      'MOD',
+      'ROUND',
+      'ROUNDUP',
+      'ROUNDDOWN',
+      'POWER',
+      'LOG',
+      'COUNTIF',
+      'SUMIF',
+      'COUNTBLANK',
+      'COUNTARRAY',
+      'COUNTCHAR',
+      'RANDBETWEEN',
+      'NUMBER',
+      /** 文本 */
+      'CONCAT',
+      'REPLACE',
+      'MID',
+      'LEFT',
+      'RIGHT',
+      'TRIM',
+      'CLEAN',
+      'CLEAN',
+      'REPT',
+      'LOWER',
+      'UPPER',
+      'FIND',
+      'FINDA',
+      'SPLIT',
+      'JOIN',
+      'STRING',
+      /** 逻辑 */
+      'IF',
+      'OR',
+      'AND',
+      'NOT',
+      'ISBLANK',
+      'INCLUDE',
+      'FALSE',
+      'TRUE',
+      /** 高级 */
+      'ENCODEURI',
+      'ENCODEURICOMPONENT',
+      'DECODEURI',
+      'DECODEURICOMPONENT',
+      'DISTANCE',
+      'GETPOSITION',
+    ].concat(Object.keys(functionDetailsMap)),
+  ),
+);
 
 // 支持参与函数计算的字段
 export function checkTypeSupportForFunction(control) {
@@ -778,6 +1147,7 @@ export function checkTypeSupportForFunction(control) {
       WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
       WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
       WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
+      WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 定位 40
       WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件 7
     ].indexOf(control.type) > -1
   ) {

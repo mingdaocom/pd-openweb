@@ -50,7 +50,7 @@ export function ireplyPostIds(state = [], action) {
     case 'POST_RELOAD_SUCCESS':
       return getPostIdsFromPostList(action.postList, true);
     case 'POST_LOAD_MORE_SUCCESS':
-      return _.uniq(state.concat(getPostIdsFromPostList(action.postList, true)));
+      return _.uniqBy(state.concat(getPostIdsFromPostList(action.postList, true)));
     default:
       return state;
   }
@@ -74,7 +74,7 @@ export function postIds(state = [], action) {
     case 'POST_RELOAD_SUCCESS':
       return getPostIdsFromPostList(action.postList);
     case 'POST_LOAD_MORE_SUCCESS':
-      return _.uniq(state.concat(getPostIdsFromPostList(action.postList)));
+      return _.uniqBy(state.concat(getPostIdsFromPostList(action.postList)));
     default:
       return state;
   }
@@ -88,7 +88,7 @@ export function topPostIds(state = [], action) {
       return [];
     case 'POST_ADD_SUCCESS':
     case 'POST_UPDATE_SUCCESS':
-      if (action.postItem.isFeedtop) state = _.uniq(state.concat([action.postItem.postID]));
+      if (action.postItem.isFeedtop) state = _.uniqBy(state.concat([action.postItem.postID]));
       else state = state.filter(id => id !== action.postItem.postID);
       return state;
     case 'POST_REMOVE_SUCCESS':

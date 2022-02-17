@@ -17,6 +17,7 @@ import Link from './Link';
 import SubProcess from './SubProcess';
 import Push from './Push';
 import File from './File';
+import Template from './Template';
 import FindSystem from './FindSystem';
 
 export default {
@@ -38,6 +39,7 @@ export default {
   16: SubProcess,
   17: Push,
   18: File,
+  19: Template,
   1000: FindSystem,
   1001: FindSystem,
 };

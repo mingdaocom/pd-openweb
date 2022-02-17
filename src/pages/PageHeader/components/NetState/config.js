@@ -5,6 +5,8 @@ export const MODULE_NUMBER_TO_TYPE = {
   22: 'sheetRecordTotal',
   40: 'project',
   80: 'ocr',
+  90: 'portaluser', //超人数
+  100: 'portalupgrade',
 };
 
 export const VERSION = {
@@ -61,6 +63,16 @@ export const PAID_VERSION_TO_TEXT = {
       explain: _l('标准版单个工作表下最多可创建10万条行记录，请升级版本以创建更多行记录'),
       btnText: _l('立即升级'),
     },
+    portaluser: {
+      hint: _l('外部用户人数额度不足'),
+      explain: _l('外部用户人数已达到上限，请购买外部用户扩充包'),
+      btnText: _l('购买外部用户扩充包'),
+    },
+    portalupgrade: {
+      hint: _l('账号余额不足'),
+      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      btnText: _l('立即充值'),
+    },
   },
 
   // 专业版
@@ -81,6 +93,16 @@ export const PAID_VERSION_TO_TEXT = {
       explain: _l('专业版单个工作表下最多可创建100万条行记录，请升级版本以创建更多行记录'),
       btnText: _l('立即升级'),
     },
+    portaluser: {
+      hint: _l('外部用户人数额度不足'),
+      explain: _l('外部用户人数已达到上限，请购买外部用户扩充包'),
+      btnText: _l('购买外部用户扩充包'),
+    },
+    portalupgrade: {
+      hint: _l('账号余额不足'),
+      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      btnText: _l('立即充值'),
+    },
   },
   // 旗舰版
   topLevel: {
@@ -99,6 +121,16 @@ export const PAID_VERSION_TO_TEXT = {
       explain: _l('当前版本工作表下最多可创建10万条行记录，请升级版本'),
       btnText: _l('010-53103053 转 1'),
     },
+    portaluser: {
+      hint: _l('外部用户人数额度不足'),
+      explain: _l('外部用户人数已达到上限，请购买外部用户扩充包'),
+      btnText: _l('购买外部用户扩充包'),
+    },
+    portalupgrade: {
+      hint: _l('账号余额不足'),
+      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      btnText: _l('立即充值'),
+    },
   },
 
   // 单应用版
@@ -114,6 +146,16 @@ export const PAID_VERSION_TO_TEXT = {
     sheetRecord: {
       hint: _l('工作表行记录数量已达到最大值'),
       explain: _l('当前版本工作表下最多可创建10万条行记录，请联系顾问提供支持'),
+    },
+    portaluser: {
+      hint: _l('外部用户人数额度不足'),
+      explain: _l('外部用户人数已达到上限，请购买外部用户扩充包'),
+      btnText: _l('购买外部用户扩充包'),
+    },
+    portalupgrade: {
+      hint: _l('账号余额不足'),
+      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      btnText: _l('立即充值'),
     },
   },
 };
@@ -135,6 +177,16 @@ export const EXPERIENCE_VERSION_TO_TEXT = {
     explain: _l('专业版 (试用) 单个工作表下最多可创建100万条行记录，请付费升级正式版以扩展更多用量'),
     btnText: _l('立即购买'),
   },
+  portaluser: {
+    hint: _l('外部用户人数额度不足'),
+    explain: _l('外部用户人数已达到上限，请购买付费版本'),
+    btnText: _l('立即购买'),
+  },
+  portalupgrade: {
+    hint: _l('账号余额不足'),
+    explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+    btnText: _l('立即充值'),
+  },
 };
 
 // 免费版
@@ -153,6 +205,16 @@ export const OVERDUE_NET_TEXT = {
     hint: _l('单个工作表行记录数量已达到最大值'),
     explain: _l('免费版最多可创建1万条行记录，请升级以继续'),
     btnText: _l('立即购买'),
+  },
+  portaluser: {
+    hint: _l('外部用户人数额度不足'),
+    explain: _l('外部用户人数已达到上限，请购买付费版本'),
+    btnText: _l('立即购买'),
+  },
+  portalupgrade: {
+    hint: _l('账号余额不足'),
+    explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+    btnText: _l('立即充值'),
   },
 };
 

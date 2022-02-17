@@ -29,6 +29,15 @@ const Icon = styled(TextBlock)`
   :hover {
     color: #2196f3;
   }
+  ${({ theme }) =>
+    theme === 'light' &&
+    `
+    background: #fff;
+    border: 1px solid #ddd;
+    :hover {
+      border-color: #2196f3;
+    }
+  `}
 `;
 const TextIcon = styled(TextBlock)`
   cursor: pointer;
@@ -42,12 +51,22 @@ const TextIcon = styled(TextBlock)`
   :hover {
     color: #2196f3;
   }
+  ${({ theme }) =>
+    theme === 'light' &&
+    `
+    background: #fff;
+    border: 1px solid #ddd;
+    :hover {
+      border-color: #2196f3;
+    }
+  `}
 `;
 
 export default class ShareUrl extends React.Component {
   static propTypes = {
     copyShowText: PropTypes.bool,
     url: PropTypes.string,
+    theme: PropTypes.string,
     showPreview: PropTypes.bool,
     customBtns: PropTypes.arrayOf(
       PropTypes.shape({
@@ -71,16 +90,16 @@ export default class ShareUrl extends React.Component {
     var clicboardObject = new Clipboard(this.copy, {
       text: () => this.props.url,
     });
-    clicboardObject.on('success', function() {
+    clicboardObject.on('success', function () {
       alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方'));
     });
-    clicboardObject.on('error', function() {
+    clicboardObject.on('error', function () {
       alert(_l('复制失败'), 3);
     });
   }
 
   render() {
-    const { url, style, customBtns = [], className = '', copyShowText } = this.props;
+    const { url, style, customBtns = [], className = '', theme = 'default', copyShowText, copyTip } = this.props;
     const { showinput } = this.state;
     const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}`;
     const qrurlDownload = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}&size=20&download=true`;
@@ -106,18 +125,26 @@ export default class ShareUrl extends React.Component {
         </Url>
         {customBtns.map((btn, index) => (
           <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
-            <Icon onClick={btn.onClick}>
+            <Icon theme={theme} onClick={btn.onClick}>
               <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
             </Icon>
           </Tooltip>
         ))}
         {copyShowText ? (
-          <TextIcon ref={copy => (this.copy = copy)}>
-            <span className="text">{_l('复制')}</span>
-          </TextIcon>
+          !copyTip ? (
+            <TextIcon theme={theme} ref={copy => (this.copy = copy)}>
+              <span className="text">{_l('复制')}</span>
+            </TextIcon>
+          ) : (
+            <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+              <TextIcon theme={theme} ref={copy => (this.copy = copy)}>
+                <span className="text">{_l('复制')}</span>
+              </TextIcon>
+            </Tooltip>
+          )
         ) : (
           <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
-            <Icon ref={copy => (this.copy = copy)}>
+            <Icon theme={theme} ref={copy => (this.copy = copy)}>
               <i className="icon-content-copy"></i>
             </Icon>
           </Tooltip>
@@ -135,19 +162,17 @@ export default class ShareUrl extends React.Component {
               <img src={qrurl} />
               <p className="ThemeColor3">
                 <span
-                  className="Hand"
                   onClick={() => {
                     saveAs(qrurlDownload, 'qrcode.jpg');
                   }}
                 >
-                  {' '}
-                  {_l('点击下载')}{' '}
+                  {_l('点击下载')}
                 </span>
               </p>
             </React.Fragment>
           }
         >
-          <Icon>
+          <Icon theme={theme} className="Hand">
             <i className="icon-qr_code Font22 LineHeight36"></i>
           </Icon>
         </Tooltip>

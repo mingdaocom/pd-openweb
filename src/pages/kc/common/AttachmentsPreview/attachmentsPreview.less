@@ -661,9 +661,19 @@
     }
   }
   .statusBar {
-    .imageOperate,
+    .tip,
     .icon-apps {
       display: none !important;
+    }
+    .imageOperate {
+      * {
+        display: none !important;
+      }
+      .icon-zoom_in2,
+      .icon-zoom_out,
+      .originImage {
+        display: inline-block !important;
+      }
     }
   }
 }

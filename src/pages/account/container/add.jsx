@@ -69,6 +69,8 @@ export default class Add extends React.Component {
             str = _l('你加入的组织用户额度不足，请联系该组织管理员');
           } else if (data.joinProjectResult === 6) {
             str = _l('验证码错误');
+          } else if (data.joinProjectResult === 7) {
+            str = _l('该组织ID不允许被搜索，请联系该组织管理员');
           }
           alert(str, 3);
         }

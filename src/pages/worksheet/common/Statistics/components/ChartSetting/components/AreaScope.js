@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { CityPicker, Input, Icon } from 'ming-ui';
-import { Select } from 'antd';
+import { Select, Checkbox } from 'antd';
 
 const area = [{
   text: _l('全国'),
@@ -62,10 +62,9 @@ export default class extends Component {
     }, true);
   }
   render() {
-    const { country } = this.props;
+    const { country, style, onChangeCurrentReport } = this.props;
     const level = country.particleSizeType - 1;
     const scopeLevel = country.particleSizeType == 1 ? '' : country.particleSizeType;
-
     return (
       <div className="fieldWrapper mBottom20">
         <div className="title flexRow Font13 Bold valignWrapper mBottom12">{_l('范围')}</div>
@@ -89,9 +88,25 @@ export default class extends Component {
             level={level}
             callback={this.handleChangeFilterCode}
           >
-            <Input readOnly className="w100 pointer" value={country.filterCodeName} />
+            <Input readOnly className="w100 pointer mBottom15" value={country.filterCodeName} />
           </CityPicker>
         )}
+        <div className="flexRow valignWrapper">
+          <Checkbox
+            className="mLeft0 mBottom16 Font13"
+            checked={style.isDrillDownLayer}
+            onChange={(event) => {
+              onChangeCurrentReport({
+                style: {
+                  ...style,
+                  isDrillDownLayer: !style.isDrillDownLayer
+                }
+              });
+            }}
+          >
+            {_l('允许选取地图')}
+          </Checkbox>
+        </div>
       </div>
     )
   }

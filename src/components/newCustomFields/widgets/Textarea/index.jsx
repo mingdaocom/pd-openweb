@@ -62,10 +62,11 @@ export default class Widgets extends Component {
     const { isEditing } = this.state;
     const disabledInput = advancedSetting.dismanual === '1';
     const isSingleLine = enumDefault === 2;
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger');
+    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    const startTextScanCode = !disabled && (isWx || isWeLink || isDing) && strDefault.split('')[1] === '1';
+    const startTextScanCode = !disabled && ((isWx && !isWxWork) || isWeLink || isDing) && strDefault.split('')[1] === '1';
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {
@@ -99,7 +100,7 @@ export default class Widgets extends Component {
           <input
             type="text"
             className="customFormControlBox escclose"
-            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%' }}
+            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%', paddingTop: 2 }}
             ref={text => {
               this.text = text;
             }}

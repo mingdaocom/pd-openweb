@@ -3,7 +3,7 @@ import { ScrollView, Dialog, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import { APP_TYPE, DATE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
-import { checkConditionsIsNull, getIcons, getColor } from '../../utils';
+import { checkConditionsIsNull, getIcons, getColor, checkJSON } from '../../utils';
 import { DetailHeader, DetailFooter } from '../components';
 import LoopContent from './LoopContent';
 import WebhookContent from './WebhookContent';
@@ -67,7 +67,7 @@ export default class Start extends Component {
   /**
    * 保存
    */
-  onSave = (close = true) => {
+  onSave = ({ close = true, isUpdate = undefined } = {}) => {
     const { child } = this.props;
     const { data, saveRequest } = this.state;
     // 处理按时间触发时间日期
@@ -93,6 +93,9 @@ export default class Start extends Component {
       frequency,
       weekDays,
       config,
+      controls = [],
+      returnJson,
+      returns = [],
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -120,6 +123,11 @@ export default class Start extends Component {
       if (repeatType === DATE_TYPE.CUSTOM && config && !this.checkTimingTriggerConfig(config)) {
         return;
       }
+
+      if (returnJson && !checkJSON(returnJson)) {
+        alert(_l('自定义数据返回JSON格式错误，请修改'), 2);
+        return;
+      }
     }
 
     flowNode
@@ -144,6 +152,12 @@ export default class Start extends Component {
         frequency,
         weekDays,
         config,
+        isUpdate,
+        controls: controls.map(o => {
+          return Object.assign(o, { workflowRequired: o.required });
+        }),
+        returnJson,
+        returns: returns.filter(o => !!o.name),
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -244,7 +258,7 @@ export default class Start extends Component {
   };
 
   render() {
-    const { processId, child } = this.props;
+    const { processId, selectNodeId, child } = this.props;
     const { data } = this.state;
 
     if (_.isEmpty(data)) {
@@ -298,12 +312,13 @@ export default class Start extends Component {
                   <WebhookContent
                     data={data}
                     processId={processId}
+                    selectNodeId={selectNodeId}
                     updateSource={this.updateSource}
-                    onSave={() => this.onSave(false)}
+                    onSave={() => this.onSave({ close: false, isUpdate: true })}
                   />
                 )}
                 {data.appType === APP_TYPE.CUSTOM_ACTION && <CustomAction data={data} />}
-                {_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT], data.appType) && (
+                {_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], data.appType) && (
                   <UserAndDepartment
                     {...this.props}
                     data={data}
@@ -321,9 +336,18 @@ export default class Start extends Component {
             ((data.appType === APP_TYPE.SHEET || data.appType === APP_TYPE.DATE) && data.appId) ||
             data.appType === APP_TYPE.LOOP ||
             (data.appType === APP_TYPE.WEBHOOK && data.controls.length) ||
-            _.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.CUSTOM_ACTION], data.appType)
+            _.includes(
+              [APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.CUSTOM_ACTION, APP_TYPE.EXTERNAL_USER],
+              data.appType,
+            )
           }
-          onSave={this.onSave}
+          onSave={() => {
+            if (data.appType === APP_TYPE.WEBHOOK) {
+              this.onSave({ isUpdate: false });
+            } else {
+              this.onSave();
+            }
+          }}
           closeDetail={this.props.closeDetail}
         />
       </Fragment>

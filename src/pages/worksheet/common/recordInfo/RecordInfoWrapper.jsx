@@ -44,7 +44,7 @@ export default class RecordInfoWrapper extends Component {
   async init() {
     const { instanceId, workId } = this.props;
     let { worksheetId, recordId, sheetSwitchPermit, viewId = '' } = this.props;
-    if (this.props.from === RECORD_INFO_FROM.WORKFLOW) {
+    if (this.props.from === RECORD_INFO_FROM.WORKFLOW && (!worksheetId || !recordId)) {
       // 获取记录信息
       try {
         const res = await getWorkItem({

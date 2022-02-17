@@ -8,6 +8,7 @@ export default class SearchInput extends Component {
   static propTypes = {
     active: PropTypes.bool,
     className: PropTypes.string,
+    placeholder: PropTypes.string,
     onClear: PropTypes.func,
     onOk: PropTypes.func,
     onFocus: PropTypes.func,
@@ -36,11 +37,11 @@ export default class SearchInput extends Component {
   }
   render() {
     const { value, isFocus } = this.state;
-    const { className, onOk, onClear, onFocus, onBlur } = this.props;
+    const { className, onOk, onClear, onFocus, onBlur , placeholder } = this.props;
     return (
       <div className={cx('searchInputComp', className, { default: !isFocus })}>
         <div className="inputCon">
-          <Tooltip disable={isFocus} popupPlacement="bottom" text={<span>{_l('搜索')}</span>}>
+          <Tooltip disable={isFocus} popupPlacement="bottom" text={<span>{ placeholder || _l('搜索') }</span>}>
             <i
               className="icon icon-search Gray_9e"
               onClick={() => {
@@ -59,7 +60,7 @@ export default class SearchInput extends Component {
             ref={inputEl => {
               this.inputEl = inputEl;
             }}
-            placeholder={_l('搜索')}
+            placeholder={ placeholder || _l('搜索') }
             type="text"
             value={value}
             onKeyUp={e => {

@@ -178,9 +178,7 @@ export const destroyGunterView = () => {
 export const refreshGunterView = (time) => {
   return (dispatch, getState) => {
     const { gunterView } = getState().sheet;
-    if (gunterView.periodType) {
-      dispatch(updataPeriodType(gunterView.periodType, time));
-    }
+    dispatch(updataPeriodType(gunterView.periodType, time));
     dispatch({ type: 'CHANGE_GUNTER_IS_REFRESH', data: !gunterView.isRefresh });
   };
 }
@@ -210,7 +208,7 @@ export const updataPeriodType = (value, time) => {
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: value });
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(value) });
     localStorage.setItem('gunterViewType', value);
-    let data = _.object();
+    let data = {};
     if (value === PERIOD_TYPE.day) {
       const { gunterView } = getState().sheet;
       const { onlyWorkDay } = gunterView.viewConfig;
@@ -265,7 +263,7 @@ export const createRecord = (id, isMilepost = false) => {
     const { controls, gunterView } = getState().sheet;
     const { grouping, viewConfig, periodList } = gunterView;
     const { startId, endId, startType, endType, milepost } = viewConfig;
-    const titleControl = _.find(controls, { attribute: 1 }) || _.object();
+    const titleControl = _.find(controls, { attribute: 1 }) || {};
     let editIndex = null;
     const newGrouping = grouping.map(group => {
       if (group.key === id) {
@@ -581,6 +579,7 @@ export const moveGroupingRow = (data, newKey, oldKey) => {
         newRows = item.rows.filter(item => item.rowid !== data.rowid);
       }
       if (item.key === newKey) {
+        data.groupId = newKey;
         item.rows.push(data);
         newRows = item.rows;
       }
@@ -790,7 +789,7 @@ export const loadRightPeriodList = () => {
       const end = moment(endValue).add((movePeriodCount / 2), 'Y');
       data = getYears(start, end);
     }
-    
+
     dispatch(updatePeriodList(data));
   };
 }

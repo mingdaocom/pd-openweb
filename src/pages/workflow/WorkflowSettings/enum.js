@@ -18,6 +18,7 @@ export const NODE_TYPE = {
   SUB_PROCESS: 16,
   PUSH: 17,
   FILE: 18,
+  TEMPLATE: 19,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -37,6 +38,7 @@ export const TRIGGER_ID_TYPE = {
   TOTAL_STATISTICS: '105',
   SEND_EMAIL_SINGLE_DISPLAY: '201',
   SEND_EMAIL: '202',
+  SEND_TEMPLATE_MESSAGE: '203',
   FROM_WORKSHEET: '400',
   FROM_RECORD: '401',
   FROM_ADD: '402',
@@ -60,6 +62,8 @@ export const APP_TYPE = {
   FILE: 14,
   USER: 20,
   DEPARTMENT: 21,
+  TEMPLATE: 22,
+  EXTERNAL_USER: 23,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -224,7 +228,7 @@ export const TIME_TYPE_NAME = {
   3: _l('天'),
 };
 
-export const NODE_SUPPORT_HREF = {
+export const SUPPORT_HREF = {
   // worksheet
   '0-1': 'https://help.mingdao.com/flow7.html',
   // loop
@@ -252,11 +256,13 @@ export const NODE_SUPPORT_HREF = {
   // 删除记录
   '6-3': 'https://help.mingdao.com/flow18.html',
   // 获取关联记录
-  '6-20': 'https://help.mingdao.com/flow14.html',
+  '6-20': 'https://help.mingdao.com/flow49.html',
   // 批量新增
   '6-21': 'https://help.mingdao.com/flow11.html',
-  // search
-  7: 'https://help.mingdao.com/flow13.html',
+  // 从工作表获取一条指定记录
+  '7-406': 'https://help.mingdao.com/flow49.html',
+  // 从多条数据节点获取一条指定记录
+  '7-407': 'https://help.mingdao.com/flow49.html',
   // Webhook
   8: 'https://help.mingdao.com/flow33.html',
   // 公式
@@ -271,8 +277,22 @@ export const NODE_SUPPORT_HREF = {
   13: 'https://help.mingdao.com/flow15.html',
   // 代码块
   14: 'https://help.mingdao.com/flow34.html',
+  // 获取链接
+  15: 'https://help.mingdao.com/flow28.html',
+  // 子流程
+  16: 'https://help.mingdao.com/flow29.html',
   // 界面推送
   17: 'https://help.mingdao.com/flow32.html',
+  // 获取记录打印文件
+  18: 'https://help.mingdao.com/flow30.html',
+  // 发送服务号消息
+  19: 'https://help.mingdao.com/flow_wechat.html',
+  // 获取单条系统信息
+  1000: 'https://help.mingdao.com/flow44.html',
+  // 获取多条系统信息
+  1001: 'https://help.mingdao.com/flow45.html',
+  // 什么是排队中
+  queue: 'https://help.mingdao.com/flow65.html',
 };
 
 export const RELATION_TYPE = {

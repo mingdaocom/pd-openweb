@@ -17,7 +17,7 @@ class VoteList extends React.Component {
   };
 
   state = {
-    checkedOptions: _.pluck(_.filter(this.props.voteItem.Options, o => _.some(o.member, m => m.aid === md.global.Account.accountId)), 'optionIndex'),
+    checkedOptions: _.map(_.filter(this.props.voteItem.Options, o => _.some(o.member, m => m.aid === md.global.Account.accountId)), 'optionIndex'),
   };
 
   handleVote = () => {
@@ -50,7 +50,7 @@ class VoteList extends React.Component {
           alert(_l('最多可以选择%0项', this.props.voteItem.AvailableNumber));
         } else {
           checkedOptions.push(optionIndex);
-          checkedOptions = _.uniq(checkedOptions);
+          checkedOptions = _.uniqBy(checkedOptions);
         }
       } else {
         // 单选
@@ -69,7 +69,7 @@ class VoteList extends React.Component {
       <div>
         <ul>
           {_(voteItem.Options)
-            .sortByOrder([voteItem.isPostVote ? 'count' : undefined, 'optionIndex'], [false, true])
+            .orderBy([voteItem.isPostVote ? 'count' : undefined, 'optionIndex'], [false, true])
             .map((o, i) => (
               <VoteItem
                 key={i}

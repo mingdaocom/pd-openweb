@@ -109,7 +109,7 @@ export default class MobileCityPicker extends Component {
     if (particularlyCity.includes(item.id) && newSelectCitys.length === 2) {
       callback([item]);
     } else {
-      callback(_.uniq(newSelectCitys).length !== newSelectCitys.length ? _.uniq(newSelectCitys) : newSelectCitys);
+      callback(_.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys);
     }
 
     if (particularlyCity.includes(item.id)) {

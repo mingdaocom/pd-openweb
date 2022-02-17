@@ -186,6 +186,7 @@ class AppHome extends React.Component {
         <div
           className="myAppItem mTop24"
           onClick={e => {
+            localStorage.removeItem('currentNavWorksheetId'); 
             data.onClick ? data.onClick() : this.props.history.push(`/mobile/app/${data.id}`);
           }}
         >
@@ -195,7 +196,7 @@ class AppHome extends React.Component {
             ) : (
               <Icon icon={data.icon} className="Font30" />
             )}
-            {data.id === 'add' ? null : <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} />}
+            {data.id === 'add' || !data.fixed ? null : <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} fixed={data.fixed} />}
           </div>
           <span className="breakAll LineHeight16 Font13 mTop10 contentText" style={{ WebkitBoxOrient: 'vertical' }}>
             {data.name}
@@ -267,9 +268,11 @@ class AppHome extends React.Component {
     return (
       <div className="flexColumn flex valignWrapper justifyContentCenter">
         <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">{STATUS_TO_TEXT[status].text}</p>
-        <Button className="addApp bold Font17" onClick={this.showActionSheet}>
-          {_l('添加应用')}
-        </Button>
+        {!addAppItem.addAppIcon && (
+          <Button className="addApp bold Font17" onClick={this.showActionSheet}>
+            {_l('添加应用')}
+          </Button>
+        )}
       </div>
     );
   }

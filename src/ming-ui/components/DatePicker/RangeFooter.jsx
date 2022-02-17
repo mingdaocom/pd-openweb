@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import moment from 'moment';
-import { padLeft } from 'lodash';
 import classNames from 'classnames';
 import TimePicker from 'ming-ui/components/TimePicker/TimePicker';
 import Dropdown from 'ming-ui/components/Dropdown';
@@ -71,40 +70,40 @@ class RangeFooter extends Component {
     if (this.props.mode === 'task') {
       const extraOptions = {
         showMinute: false,
-        optionFormatter: n => `${padLeft(n, 2, 0)}:00`,
+        optionFormatter: n => `${String(n).padStart(2, 0)}:00`,
         resultFormatter: m => (m ? m.format('HH:00') : '— —'),
       };
       startExtraOptions = Object.assign(
         {
-          onChange: (val) => {
+          onChange: val => {
             if (val) {
               props.onStartTimeSelect(val);
             } else {
               props.onStartTimeSelect(
                 moment(startValue || new Date())
                   .startOf('day')
-                  .add(9, 'hour')
+                  .add(9, 'hour'),
               );
             }
           },
         },
-        extraOptions
+        extraOptions,
       );
       endExtraOptions = Object.assign(
         {
-          onChange: (val) => {
+          onChange: val => {
             if (val) {
               props.onEndTimeSelect(val);
             } else {
               props.onEndTimeSelect(
                 moment(endValue || new Date())
                   .startOf('day')
-                  .add(18, 'hour')
+                  .add(18, 'hour'),
               );
             }
           },
         },
-        extraOptions
+        extraOptions,
       );
     }
 
@@ -156,7 +155,7 @@ class RangeFooter extends Component {
         <Dropdown
           defaultValue={this.props.halfStart}
           data={halfOptions}
-          onChange={(value) => {
+          onChange={value => {
             this.halfOnChange(value, 'start');
           }}
         />
@@ -169,7 +168,7 @@ class RangeFooter extends Component {
         <Dropdown
           defaultValue={this.props.halfEnd}
           data={halfOptions}
-          onChange={(value) => {
+          onChange={value => {
             this.halfOnChange(value, 'end');
           }}
         />

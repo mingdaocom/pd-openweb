@@ -1,7 +1,7 @@
 ﻿import preall from 'src/common/preall';
 var css = require('./css/style.less');
 var shareajax = require('src/api/share');
-var qs = require('querystring');
+var qs = require('query-string');
 var doT = require('dot');
 var { addToken } = require('src/util');
 var frameTpl = doT.template(require('./tpl/frame.html'));

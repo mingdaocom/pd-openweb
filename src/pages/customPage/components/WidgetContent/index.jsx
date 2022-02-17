@@ -119,10 +119,12 @@ function WidgetContent(props) {
     updateLayout = _.noop,
     insertTitle = _.noop,
     addRecord = _.noop,
+    updatePageInfo = _.noop,
     setWidget,
     isFullscreen = false,
     scrollTop = 0,
     adjustScreen,
+    apk
   } = props;
   const [loading, setLoading] = useState(false);
   const [isEdit, setEdit] = useState(false);
@@ -156,6 +158,7 @@ function WidgetContent(props) {
       case 'setting':
         setWidget(widget);
         break;
+      case 'move':
       case 'del':
         delWidget(widget);
         break;
@@ -210,6 +213,7 @@ function WidgetContent(props) {
     const maxH = max(components.map(item => get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
     return { ...config, rowHeight: ($wrap.offsetHeight - 64) / maxH - 10 };
   };
+
   return (
     <Fragment>
       <AutoWidthGridLayout
@@ -222,7 +226,7 @@ function WidgetContent(props) {
         isDraggable={editable}
         isResizable={editable}
         isFullscreen={isFullscreen}
-        draggableCancel=".componentTitle"
+        draggableCancel=".disableDrag"
         onResizeStop={(layout, oldItem = {}) => {
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
@@ -239,13 +243,13 @@ function WidgetContent(props) {
         {...getLayoutConfig()}
       >
         {components.map((widget, index) => {
-          const { id, type, projectId } = widget;
+          const { id, type } = widget;
           const { title, titleVisible } = widget[layoutType] || {};
           const enumType = getEnumType(type);
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && (
-                <div className="componentTitle overflow_ellipsis">
+                <div className="componentTitle overflow_ellipsis disableDrag">
                   {editable || isEdit ? (
                     <input
                       ref={$input}
@@ -266,9 +270,9 @@ function WidgetContent(props) {
                 })}
               >
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button'])}
+                  {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button', 'name'])}
                   ids={ids}
-                  projectId={projectId}
+                  projectId={apk.projectId}
                   ref={el => {
                     displayRefs[index] = el;
                   }}
@@ -280,10 +284,13 @@ function WidgetContent(props) {
                 />
                 {editable && (
                   <Tools
+                    appId={ids.appId}
+                    pageId={ids.pageId}
                     widget={widget}
                     layoutType={layoutType}
                     titleVisible={titleVisible}
                     handleToolClick={clickType => handleToolClick(clickType, { widget, index })}
+                    updatePageInfo={updatePageInfo}
                   />
                 )}
               </div>
@@ -297,7 +304,10 @@ function WidgetContent(props) {
 
 export default errorBoundary(
   connect(
-    state => ({ chatVisible: state.chat.visible, sheetListVisible: state.sheetList.isUnfold }),
+    state => ({
+      chatVisible: state.chat.visible,
+      sheetListVisible: state.sheetList.isUnfold
+    }),
     dispatch => bindActionCreators(actions, dispatch),
   )(WidgetContent),
 );

@@ -214,7 +214,7 @@ class PreviewHeader extends React.Component {
           )}
         </div>
         <div className="flexRow Width500 btns">
-          {showSaveToKnowlege && (
+          {showSaveToKnowlege && !md.global.Account.isPortal && (
             <Trigger
               popupVisible={this.state.showSaveTo}
               onPopupVisibleChange={visible => {
@@ -285,7 +285,7 @@ class PreviewHeader extends React.Component {
               </div>
             </Trigger>
           )}
-          {canDownload && showShare && (
+          {canDownload && showShare && !md.global.Account.isPortal && (
             <div className="shareNode">
               <span className="normal" data-tip={_l('分享')}>
                 <i

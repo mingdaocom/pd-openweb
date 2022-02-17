@@ -75,19 +75,21 @@ class TabList extends React.Component {
       return (
         <div className="jobListBox">
           <div className="ThemeColor3 pTop10 pBottom10">
-            <span
-              className="Hand mLeft24 creatDepartment"
-              onClick={() => {
-                this.setState({
-                  showPositionDialog: !this.state.showPositionDialog,
-                  isNew: true,
-                  jobName: '',
-                  jobId: '',
-                });
-              }}
-            >
-              <span className="mRight8 icon-add Font20" />
-              {_l('创建职位')}
+            <span className="Hand mLeft24 creatDepartment">
+              <span
+                className="creatDepartmentTxt"
+                onClick={() => {
+                  this.setState({
+                    showPositionDialog: !this.state.showPositionDialog,
+                    isNew: true,
+                    jobName: '',
+                    jobId: '',
+                  });
+                }}
+              >
+                <span className="mRight3 icon-add Font20 TxtMiddle" />
+                {_l('创建职位')}
+              </span>
             </span>
           </div>
           <ul
@@ -214,7 +216,7 @@ class TabList extends React.Component {
               }}
               className={cx({ current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}
             >
-              <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="user_company" />
+              <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="person" />
               <span>{_l('全组织')}</span>
             </li>
             <li
@@ -223,7 +225,7 @@ class TabList extends React.Component {
               }}
               className={cx({ current: cursor === root && typeCursor === 2 })}
             >
-              <Icon className="Font16 Gray_9e listName mRight10" icon="user_activation" />
+              <Icon className="Font16 Gray_9e listName mRight10" icon="check_circle" />
               <span>
                 {_l('未激活')}
                 {inActiveNumber > 0 && typeCursor !== 2 && (
@@ -237,7 +239,7 @@ class TabList extends React.Component {
               }}
               className={cx({ current: cursor === root && typeCursor === 3 })}
             >
-              <Icon className="Font16 Gray_9e listName mRight10" icon="user_Review" />
+              <Icon className="Font16 Gray_9e listName mRight10" icon="access_time_filled" />
               <span>
                 {_l('待审核')}
                 {approveNumber > 0 && typeCursor !== 3 && (

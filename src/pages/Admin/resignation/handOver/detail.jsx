@@ -60,9 +60,9 @@ const defaultWorksheetState = {
   currentWorksheetType: 5,
 };
 
-export const callDialogSelectUser = function(projectId) {
+export const callDialogSelectUser = function (projectId) {
   var dfd = $.Deferred();
-  require(['dialogSelectUser'], function() {
+  require(['dialogSelectUser'], function () {
     $({}).dialogSelectUser({
       title: _l('选择负责人'),
       showMoreInvite: false,
@@ -73,7 +73,7 @@ export const callDialogSelectUser = function(projectId) {
         filterOtherProject: true,
         filterOthers: true,
         unique: true,
-        callback: function(users) {
+        callback: function (users) {
           dfd.resolve(users);
         },
       },
@@ -107,7 +107,7 @@ export default class Detail extends React.Component {
 
       ...defaultOaState,
       ...defaultWorksheetState,
-      showMenuList: false
+      showMenuList: false,
     };
   }
 
@@ -261,10 +261,7 @@ export default class Detail extends React.Component {
             projectId,
             accountId,
             transferAccountId: users[0].accountId,
-            listTranser: _(selectItems)
-              .values()
-              .map(item => _.pick(item, ['sourceType', 'sourceId', 'completeType']))
-              .value(),
+            listTranser: _.values(selectItems).map(item => _.pick(item, ['sourceType', 'sourceId', 'completeType'])),
           });
         } else {
           return TransferController.transferMany({
@@ -362,7 +359,8 @@ export default class Detail extends React.Component {
               className="Bold overflow_ellipsis"
               href={`/user_${user.accountId}`}
               title={user.fullname}
-              target="_blank">
+              target="_blank"
+            >
               {user.fullname}
               {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null}
             </a>
@@ -399,7 +397,8 @@ export default class Detail extends React.Component {
                     ...defaultWorksheetState,
                     currentType: tab,
                   });
-                }}>
+                }}
+              >
                 {typeNames[tab]}
               </li>
             );
@@ -412,18 +411,23 @@ export default class Detail extends React.Component {
                 selectItems: {},
                 ...defaultWorksheetState,
                 currentType: TYPES.OA,
-                showMenuList: !this.state.showMenuList
+                showMenuList: !this.state.showMenuList,
               });
-            }}>
-            <span>{typeNames[TYPES.OA]}<i className="icon-arrow-down-border Font10"></i></span>
-            {showMenuList&&this.renderOATabs()}
+            }}
+          >
+            <span>
+              {typeNames[TYPES.OA]}
+              <i className="icon-arrow-down-border Font10"></i>
+            </span>
+            {showMenuList && this.renderOATabs()}
           </li>
         </ul>
         <span
           className="Right  ThemeColor3 Font13 Hand adminHoverColor"
           onClick={() => {
             this.transferByType();
-          }}>
+          }}
+        >
           {_l('交接所有“%0”', typeNames[currentType])}
         </span>
       </div>
@@ -442,9 +446,10 @@ export default class Detail extends React.Component {
                 pageIndex: 1,
                 currentOAType: 1,
                 currentOACompleteType: OA_COMPLETE_TYPES.ALL,
-                showMenuList: !this.state.showMenuList
+                showMenuList: !this.state.showMenuList,
               });
-            }}>
+            }}
+          >
             {_l('表单')}
           </span>
           <span
@@ -454,9 +459,10 @@ export default class Detail extends React.Component {
                 pageIndex: 1,
                 currentOAType: 2,
                 currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
-                showMenuList: !this.state.showMenuList
+                showMenuList: !this.state.showMenuList,
               });
-            }}>
+            }}
+          >
             {_l('流程')}
           </span>
           <span
@@ -466,9 +472,10 @@ export default class Detail extends React.Component {
                 pageIndex: 1,
                 currentOAType: 3,
                 currentOACompleteType: OA_COMPLETE_TYPES.UNDONE,
-                showMenuList: !this.state.showMenuList
+                showMenuList: !this.state.showMenuList,
               });
-            }}>
+            }}
+          >
             {_l('角色')}
           </span>
         </div>
@@ -490,7 +497,8 @@ export default class Detail extends React.Component {
                 selectItems: {},
                 currentWorksheetType: WORKSHEET_TYPES.WORKSHEET,
               });
-            }}>
+            }}
+          >
             {_l('工作表')}
           </span>
           <span
@@ -501,7 +509,8 @@ export default class Detail extends React.Component {
                 selectItems: {},
                 currentWorksheetType: WORKSHEET_TYPES.WORKSHEET_ROW,
               });
-            }}>
+            }}
+          >
             {_l('表记录')}
           </span>
         </div>
@@ -523,11 +532,11 @@ export default class Detail extends React.Component {
     if (!isLoading && !list.length) {
       const detail = {
         icon: 'icon-sp_assignment_turned_in_white',
-        desc: _l('无数据')
-      }
+        desc: _l('无数据'),
+      };
       return (
         <tr>
-          <Empty detail={detail}/>
+          <Empty detail={detail} />
         </tr>
       );
     }
@@ -592,7 +601,8 @@ export default class Detail extends React.Component {
                   className="Hand ThemeColor3 TxtMiddle adminHoverColor"
                   onClick={() => {
                     this.transfer(item);
-                  }}>
+                  }}
+                >
                   {_l('更改负责人')}
                 </span>
               </td>
@@ -663,7 +673,8 @@ export default class Detail extends React.Component {
                     className="TxtMiddle Hand ThemeHoverColor2 ThemeColor3 adminHoverColor"
                     onClick={() => {
                       this.transferMultiple();
-                    }}>
+                    }}
+                  >
                     {_l('批量更改负责人')}
                   </span>
                 ) : (
@@ -714,16 +725,15 @@ export default class Detail extends React.Component {
                         // 返回列表并重新加载
                         returnCallback(true);
                       } else {
-                        return $.Deferred()
-                          .reject()
-                          .promise();
+                        return $.Deferred().reject().promise();
                       }
                     })
                     .fail(() => {
                       alert(_l('操作失败'), 2);
                     });
                 });
-              }}>
+              }}
+            >
               {_l('一键交接所有模块')}
             </Button>
           </div>

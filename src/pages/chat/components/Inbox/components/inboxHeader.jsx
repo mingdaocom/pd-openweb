@@ -45,19 +45,20 @@ export default class InboxHeader extends React.Component {
         <Dropdown
           value={type}
           data={parsedData}
-          onChange={changeType}
+          onChange={(data) => {
+            this.handleClick(false);
+            changeType(data);
+          }}
         />
       );
     }
   }
 
-  handleClick(flag) {
-    return () => {
-      const { inboxFavorite, changeFaviorite } = this.props;
-      if (inboxFavorite !== flag) {
-        changeFaviorite(flag);
-      }
-    };
+  handleClick = (flag) => {
+    const { inboxFavorite, changeFaviorite } = this.props;
+    if (inboxFavorite !== flag) {
+      changeFaviorite(flag);
+    }
   }
 
   render() {
@@ -73,12 +74,12 @@ export default class InboxHeader extends React.Component {
         <div className='inboxType Absolute'>{title}</div>
         <span
           className={clsNameFunc(!inboxFavorite)}
-          onClick={this.handleClick(false)}>
+          onClick={() => { this.handleClick(false) }}>
           {this.renderDropDown()}
         </span>
         <span
           className={clsNameFunc(inboxFavorite)}
-          onClick={this.handleClick(true)}>{_l('星标')}</span>
+          onClick={() => { this.handleClick(true) }}>{_l('星标')}</span>
         <antd.Dropdown overlay={this.renderOverlay()} trigger={['click']} placement="bottomRight" overlayClassName="inboxFilterDropdown">
           <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
             {

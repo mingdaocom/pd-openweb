@@ -51,7 +51,16 @@ export default class Widgets extends Component {
         <List data={JSON.parse(value || '[]')} from={from} disabled={disabled} onDelete={this.itemOnDelete} />
 
         {!disabled && (
-          <button className="customFormRelationBtn Gray_75 ThemeHoverColor3 pointer w100 TxtLeft" onClick={() => this.setState({ dialogVisible: true })}>
+          <button
+            className="customFormRelationBtn Gray_75 ThemeHoverColor3 pointer w100 TxtLeft"
+            onClick={() => {
+              if (md.global.Account.isPortal) {
+                alert('您不是该组织成员，请联系管理员！', 3);
+                return;
+              }
+              this.setState({ dialogVisible: true });
+            }}
+          >
             <Icon icon="plus" className="mRight5" />
             <span>{_l('自由连接...')}</span>
           </button>

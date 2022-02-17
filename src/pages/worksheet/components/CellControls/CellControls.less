@@ -109,51 +109,6 @@
   }
 }
 
-// 附件
-.cellAttachments {
-  display: inline-block;
-  width: 600px;
-  .cellAttachment {
-    margin-bottom: 4px;
-    display: inline-block;
-    max-width: 100px;
-    height: 24px;
-    .thumbnail,
-    .fileIcon {
-      cursor: pointer;
-      margin-right: 5px;
-      height: 24px;
-      width: 21px;
-    }
-    img.thumbnail {
-      box-sizing: border-box;
-      border-radius: 2px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-  }
-  .cellAttachmentSignature {
-    .thumbnail {
-      width: auto !important;
-    }
-  }
-  .moreAttachment {
-    display: inline-block;
-    text-align: center;
-    height: 24px;
-    width: 21px;
-    line-height: 22px;
-    border-radius: 2px;
-    color: #9d9d9d;
-    background-color: #e0e0e0;
-    font-size: 20px;
-  }
-  .loadingCon {
-    .MdLoader {
-      margin: 0;
-    }
-  }
-}
-
 // 关联
 .cellRelations {
   display: inline-block;
@@ -403,7 +358,8 @@
   }
 }
 
-.control-2 {
+.control-2,
+.control-32 {
   // 文本
   .worksheetCellPureString {
     white-space: break-spaces;

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import qs from 'querystring';
+import qs from 'query-string';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import store from 'redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
@@ -47,6 +47,7 @@ class WorkSheet extends Component {
       viewId,
       groupId,
       worksheetId: id,
+      chartId: new URL(location.href).searchParams.get('chartId'),
     });
     this.setCache(this.props.match.params);
     // 禁止浏览器触摸板触发的前进后退
@@ -147,7 +148,7 @@ class WorkSheet extends Component {
     const enumType = type === 'worksheet' ? 0 : 1;
 
     const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${
-      type === 'customPage' ? 'hr_workbench' : '1_0_home'
+      type === 'customPage' ? '1_0_home' : '1_worksheet'
     }.svg`;
 
     addWorkSheet(
@@ -178,7 +179,7 @@ class WorkSheet extends Component {
     if (sheetListLoading) {
       return <LoadDiv size="big" className="mTop32" />;
     }
-    if (_.isEmpty(sheetList) || _.isEmpty(currentSheet)) {
+    if ((_.isEmpty(sheetList) || _.isEmpty(currentSheet)) && !md.global.Account.isPortal) {
       const emptySheet = id && _.isEmpty(currentSheet);
       return (
         <WorksheetEmpty

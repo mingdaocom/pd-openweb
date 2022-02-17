@@ -70,7 +70,7 @@ export function sheetFetchParams(state = initialSheetFetchParams, action) {
     case 'WORKSHEET_SHEETVIEW_CHANGE_PAGEINDEX':
       return { ...state, pageIndex: action.pageIndex };
     case 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE':
-      return { ...state, pageSize: action.pageSize };
+      return { ...state, pageSize: action.pageSize, pageIndex: 1 };
     case 'WORKSHEET_SHEETVIEW_UPDATE_SORTS':
       return {
         ...state,
@@ -107,7 +107,10 @@ export function sheetViewData(state = initialSheetViewData, action) {
     // 更新记录数据
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS':
     case 'WORKSHEET_SHEETVIEW_UPDATE_ROWS':
-      return { ...state, loading: false, rows: action.rows, count: action.count };
+      return { ...state, loading: false, rows: action.rows };
+    // 更新记录页数
+    case 'WORKSHEET_SHEETVIEW_UPDATE_COUNT':
+      return { ...state, count: action.count };
     // 更新单个记录数据
     case 'WORKSHEET_SHEETVIEW_UPDATE_ROWS_BY_ROWIDS':
       return {

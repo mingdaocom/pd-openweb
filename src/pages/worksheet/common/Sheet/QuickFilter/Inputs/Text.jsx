@@ -76,7 +76,7 @@ const AdvancePasteIcon = styled.span`
 `;
 
 export default function Text(props) {
-  const { control = {}, values = [], filterType, onChange = () => {} } = props;
+  const { control = {}, values = [], filterType, onChange = () => {}, onEnterDown = () => {} } = props;
   const [isFocusing, setIsFocusing] = useState(false);
   const [isMultiple, setIsMultiple] = useState(false);
   const [valueForMultiple, setValueForMultiple] = useState();
@@ -95,6 +95,7 @@ export default function Text(props) {
             <Input
               placeholder={_l('搜索')}
               value={values.join(' ')}
+              onKeyDown={e => e.keyCode === 13 && onEnterDown()}
               onFocus={() => setIsFocusing(true)}
               onBlur={() => setIsFocusing(false)}
               onChange={newValue => {
@@ -158,7 +159,7 @@ export default function Text(props) {
               .filter(_.identity);
             setValueForMultiple(v);
             setIsMultiple(!!newValues.length);
-            onChange({ values: newValues });
+            onChange({ values: newValues }, { forceUpdate: true });
           }}
         />
       )}

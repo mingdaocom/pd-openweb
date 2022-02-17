@@ -1,20 +1,26 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'antd';
 import ChartDialog from '../ChartDialog';
 import login from 'src/api/login';
 import report from '../api/report';
-import reportConfig from '../api/reportConfig';
-import { fillValueMap, exportPivotTable } from '../common';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { fillValueMap } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import MoreOverlay from './MoreOverlay';
 import charts from '../Charts';
+import { browserIsMobile, getAppFeaturesPath } from 'src/util';
 import './Card.less';
 
-const confirm = Dialog.confirm;
+const isMobile = browserIsMobile();
+const isPublicShare = location.href.includes('public/page');
 
 let isCheckLogin = true;
 
+@errorBoundary
 export default class Card extends Component {
   static defaultProps = {
     needEnlarge: true,
@@ -23,18 +29,18 @@ export default class Card extends Component {
     super(props);
     this.state = {
       dialogVisible: false,
-      dropdownValue: 0,
       reportData: {},
       loading: true,
       settingVisible: true,
-    };
+      scopeVisible: false,
+      sheetVisible: false,
+      activeData: undefined
+    }
   }
-
   componentDidMount() {
     const { id } = this.props.report;
     this.getData(id);
   }
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.needUpdate !== this.props.needUpdate) {
       this.getData(nextProps.report.id);
@@ -43,8 +49,7 @@ export default class Card extends Component {
   componentWillUnmount = () => {
     clearInterval(this.timer);
     this.abortRequest();
-  };
-
+  }
   initInterval = () => {
     clearInterval(this.timer);
     const { report, needRefresh = true } = this.props;
@@ -65,8 +70,7 @@ export default class Card extends Component {
     if (this.request && this.request.state() === 'pending' && this.request.abort) {
       this.request.abort();
     }
-  };
-
+  }
   getData = (reportId, reload = false) => {
     this.setState({ loading: true });
     this.abortRequest();
@@ -87,66 +91,55 @@ export default class Card extends Component {
       });
     });
     this.initInterval();
-  };
-  handleDropdownChange(value) {
-    this.setState({
-      dropdownValue: value,
-    });
   }
-  handleDelete() {
-    const { id, name } = this.props.report;
-    confirm({
-      title: <span className="Red">{_l('您确定要删除表“%0” ?', name)}</span>,
-      onOk: () => {
-        this.props.onDelete(id);
-      },
-    });
-  }
-  handleBlur(event) {
-    const { id, name: oldName } = this.props.report;
-    const value = event.target.value.trim();
-    if (value) {
-      reportConfig
-        .updateReportName({
-          reportId: id,
-          name: value,
-        })
-        .then(
-          result => {
-            this.props.onUpdateName(id, value);
-          },
-          error => {}
-        );
-    } else {
-      this.props.onUpdateName(id, oldName);
-    }
-  }
-  handleUpdateOwnerId() {
-    const { report } = this.props;
-    this.props.onUpdateOwnerId(report);
-  }
-  handleCopyCustomPage() {
-    const { report } = this.props;
-    this.props.onCopyCustomPage(report);
-  }
-  handleOperateClick = (settingVisible) => {
+  handleOperateClick = ({ settingVisible, sheetVisible = false, activeData }) => {
     this.setState({
       dialogVisible: true,
       settingVisible,
+      scopeVisible: false,
+      sheetVisible,
+      activeData
     });
-  };
+  }
+  handleOpenChartDialog = (data) => {
+    const { id } = this.props.report;
+    const { reportData } = this.state;
+    const { appId, filter, style } = reportData;
+    const viewDataType = style ? (style.viewDataType || 1) : 1;
+    if (viewDataType === 2 && filter.viewId && ![VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(filter.viewType.toString())) {
+      report.getReportSingleCacheId({
+        ...data,
+        isPersonal: true,
+        reportId: id
+      }).then(result => {
+        if (result.id) {
+          window.open(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`);
+        }
+      });
+    } else {
+      this.handleOperateClick({
+        settingVisible: false,
+        sheetVisible: true,
+        activeData: data
+      });
+    }
+  }
   renderChart() {
     const { id } = this.props.report;
     const { loading, reportData } = this.state;
     const { reportType } = reportData;
     const Chart = charts[reportType];
     return (
-      <div className="content flexColumn">
-        <Chart loading={loading} reportData={{
+      <Chart
+        loading={loading}
+        isThumbnail={true}
+        isViewOriginalData={!isMobile && !isPublicShare}
+        onOpenChartDialog={this.handleOpenChartDialog}
+        reportData={{
           ...reportData,
           reportId: id
-        }} />
-      </div>
+        }}
+      />
     );
   }
   renderContent() {
@@ -182,42 +175,95 @@ export default class Card extends Component {
       );
     } else {
       return (
-        loading ? <Loading /> : reportData.status ? this.renderContent() : <Abnormal />
+        <div className="content flexColumn">
+          {loading ? <Loading /> : reportData.status ? this.renderContent() : <Abnormal />}
+        </div>
       );
     }
   }
   render() {
-    const { dialogVisible, reportData, settingVisible } = this.state;
+    const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
     const { report, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId } = this.props;
     const permissions = ownerId || _.includes([1, 2], roleType);
+    const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
-      <div className={cx(`statisticsCard statisticsCard-${report.id}`, { card: !sourceType, padding: !sourceType })}>
+      <div className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, { card: !sourceType, padding: !sourceType })}>
         <div className="header">
-          <div className="flex ellipsis pointer">
-            <span className="bold">{report.name || reportData.name}</span>
+          <div className="flex valignWrapper ellipsis">
+            <div className="pointer ellipsis bold">{reportData.name}</div>
+            {reportData.desc && (
+              <Tooltip title={reportData.desc} placement="bottom">
+                <Icon
+                  icon="info"
+                  className="Font18 pointer Gray_9e mLeft7 mRight7"
+                />
+              </Tooltip>
+            )}
           </div>
-          <div className="operateIconWrap">
-            {permissions && (
-              <span data-tip={_l('设置')} className="iconItem" onClick={() => { this.handleOperateClick(true) }}>
-                <Icon icon="settings" />
+          <div className="operateIconWrap valignWrapper Relative">
+            {needEnlarge && !isPublicShare && isSheetView && (
+              <span
+                className="iconItem"
+                data-tip={_l('以表格显示')}
+                onClick={() => {
+                  this.setState({
+                    dialogVisible: true,
+                    sheetVisible: true,
+                    settingVisible: false,
+                    scopeVisible: false,
+                    activeData: undefined
+                  });
+                }}
+              >
+                <Icon icon="stats_table_chart" />
               </span>
             )}
-            {
-              reportData.reportType === reportTypes.PivotTable && needEnlarge && (
-                <span data-tip={_l('导出')} className="iconItem" onClick={() => { exportPivotTable(report.id, sourceType ? worksheetId : null) }}>
-                  <Icon icon="file_download" />
-                </span>
-              )
-            }
             {needRefresh && (
               <span onClick={() => this.getData(report.id, true)} data-tip={_l('刷新')} className="iconItem freshDataIconWrap">
                 <Icon icon="rotate" />
               </span>
             )}
             {needEnlarge && (
-              <span className="iconItem" data-tip={_l('放大')} onClick={() => { this.handleOperateClick(false) }}>
+              <span
+                className="iconItem"
+                data-tip={_l('放大')}
+                onClick={() => {
+                  this.handleOperateClick({
+                    settingVisible: false,
+                    activeData: undefined
+                  });
+                }}
+              >
                 <Icon icon="task-new-fullscreen" />
               </span>
+            )}
+            {needEnlarge && !isPublicShare && (
+              <MoreOverlay
+                className="iconItem Font20"
+                permissions={sourceType ? null : permissions}
+                reportType={reportData.reportType}
+                report={{
+                  ...report,
+                  desc: reportData.desc
+                }}
+                getPopupContainer={() => document.querySelector(`.statisticsCard-${report.id} .header .ant-dropdown-open`)}
+                worksheetId={sourceType ? worksheetId : null}
+                onOpenSetting={permissions ? () => {
+                  this.handleOperateClick({
+                    settingVisible: true,
+                    activeData: undefined
+                  });
+                } : null}
+                onOpenFilter={() => {
+                  this.setState({
+                    dialogVisible: true,
+                    sheetVisible: false,
+                    settingVisible: false,
+                    scopeVisible: true,
+                    activeData: undefined
+                  });
+                }}
+              />
             )}
             {permissions && (
               <span data-tip={_l('拖拽')} className="iconItem">
@@ -227,19 +273,34 @@ export default class Card extends Component {
           </div>
         </div>
         {this.renderBody()}
-        {dialogVisible ? (
+        {dialogVisible && (
           <ChartDialog
             {...this.props}
+            activeData={activeData}
+            worksheetId={reportData.appId}
             settingVisible={settingVisible}
+            scopeVisible={scopeVisible}
+            sheetVisible={sheetVisible}
             permissions={permissions}
-            onBlur={this.handleBlur.bind(this)}
-            onDelete={this.handleDelete.bind(this)}
             dialogVisible={dialogVisible}
-            updateDialogVisible={({ dialogVisible }) => {
+            updateDialogVisible={({ dialogVisible, isRequest, reportId, reportName, reportDesc }) => {
               this.setState({ dialogVisible });
+              if (reportName !== reportData.name || reportDesc !== reportData.desc) {
+                this.setState({
+                  reportData: {
+                    ...reportData,
+                    name: reportName,
+                    desc: reportDesc
+                  }
+                });
+              }
+              if (isRequest) {
+                this.getData(reportId);
+              }
             }}
+            onRemove={this.props.onRemove}
           />
-        ) : null}
+        )}
       </div>
     );
   }

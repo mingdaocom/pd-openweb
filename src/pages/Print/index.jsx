@@ -40,6 +40,7 @@ class PrintForm extends React.Component {
       error: false,
       ajaxUrlStr: '',
       showPdf: false,
+      saveLoading: false,
     };
   }
   componentWillMount = () => {
@@ -287,7 +288,13 @@ class PrintForm extends React.Component {
   };
 
   saveFn = () => {
-    const { params, printData } = this.state;
+    const { params, printData, saveLoading } = this.state;
+    if (saveLoading) {
+      return;
+    }
+    this.setState({
+      saveLoading: true,
+    });
     const { name, views, orderNumber, titleChecked, receiveControls } = printData;
     if (!_.trim(name)) {
       alert(_l('请输入模板名称'), 3);
@@ -357,12 +364,11 @@ class PrintForm extends React.Component {
         this.setState(
           {
             isChange: false,
+            saveLoading: false,
           },
           () => {
             if (this.props.onBack) {
-              setTimeout(() => {
-                this.props.onBack();
-              }, 500);
+              this.props.onBack();
             } else {
               this.setState({
                 params: {

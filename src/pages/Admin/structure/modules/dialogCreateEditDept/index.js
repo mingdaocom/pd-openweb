@@ -139,32 +139,6 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
     });
   });
 
-  var checkAjax = null;
-  this.$name.on('keyup', function () {
-    var deptName = _this.$name.val();
-    if (deptName) {
-      if (checkAjax && checkAjax.state() === 'pending' && checkAjax.abort) {
-        checkAjax.abort();
-      }
-      checkAjax = departmentController
-        .checkDepartmentNameExists({
-          projectId: options.projectId,
-          departmentName: deptName,
-          departmentId: options.type === 'create' ? undefined : options.departmentId,
-        })
-        .done(function (result) {
-          // 已存在
-          if (result) {
-            _this.$icon.hide();
-          } else {
-            _this.$icon.show();
-          }
-        });
-    } else {
-      _this.$icon.hide();
-    }
-  });
-
   this.$content.on('click', '.chargeUserDel', function(evt) {
     if ($(evt.target).closest('.chargerUserItem').length) {
       $(evt.target).closest('.chargerUserItem').remove();

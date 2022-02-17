@@ -880,6 +880,8 @@ class RecordCalendar extends Component {
                     });
                 }
               }}
+              // eventMaxStack={1}  //日 时间视图事件 最大显示数
+              // slotEventOverlap={false} //日 时间视图事件显示方式 并列
               {...mobileCalendarSetting}
             />
           ) : (

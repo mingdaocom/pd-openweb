@@ -15,26 +15,32 @@ export default function (key, props) {
   if (props.isDynamicsource) {
     return <RelateFilter {...props} />;
   }
-  if ((props.type === FILTER_CONDITION_TYPE.ISNULL || props.type === FILTER_CONDITION_TYPE.HASVALUE) && key !== CONTROL_FILTER_WHITELIST.BOOL.value) {
+  if (
+    _.includes(
+      [
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+        FILTER_CONDITION_TYPE.NORMALUSER,
+        FILTER_CONDITION_TYPE.PORTALUSER,
+      ],
+      props.type,
+    ) &&
+    key !== CONTROL_FILTER_WHITELIST.BOOL.value
+  ) {
     return <DiabledInput />;
   }
   if (
-    key === CONTROL_FILTER_WHITELIST.CASCADER.value
-    && (
-      props.type === FILTER_CONDITION_TYPE.RCEQ
-      || props.type === FILTER_CONDITION_TYPE.RCNE
-      || props.type === FILTER_CONDITION_TYPE.BETWEEN
-      || props.type === FILTER_CONDITION_TYPE.NBETWEEN
-    )
+    key === CONTROL_FILTER_WHITELIST.CASCADER.value &&
+    (props.type === FILTER_CONDITION_TYPE.RCEQ ||
+      props.type === FILTER_CONDITION_TYPE.RCNE ||
+      props.type === FILTER_CONDITION_TYPE.BETWEEN ||
+      props.type === FILTER_CONDITION_TYPE.NBETWEEN)
   ) {
     return <Cascader {...props} />;
   }
   if (
-    key === CONTROL_FILTER_WHITELIST.RELATE_RECORD.value
-    && (
-      props.type === FILTER_CONDITION_TYPE.RCEQ
-      || props.type === FILTER_CONDITION_TYPE.RCNE
-    )
+    key === CONTROL_FILTER_WHITELIST.RELATE_RECORD.value &&
+    (props.type === FILTER_CONDITION_TYPE.RCEQ || props.type === FILTER_CONDITION_TYPE.RCNE)
   ) {
     return <RelateRecord {...props} />;
   }

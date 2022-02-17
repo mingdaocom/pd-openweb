@@ -15,7 +15,7 @@ import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
 import CreateNew from './CreateNew';
 import WorkSheetItem from './WorkSheetItem';
 import './WorkSheetLeft.less';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getAppFeaturesVisible } from 'src/util';
 
 function getProjectfoldedFromStorage() {
   let result = {};
@@ -194,7 +194,7 @@ class WorkSheetLeft extends Component {
       alert(_l('请填写名称'));
       return;
     }
-    onCreateItem({ type, name: name.slice(0, 25), icon: 'hr_workbench' });
+    onCreateItem({ type, name: name.slice(0, 25), icon: type === 0 ? '1_worksheet' : '1_0_home' });
     this.setState({ createType: '' });
   };
   getAlign = () => {
@@ -223,7 +223,7 @@ class WorkSheetLeft extends Component {
             this.switchCreateType('customPage');
           }}
         >
-          <i className="icon-hr_workbench  Font16"></i>
+          <i className="icon-home_dashboard  Font18"></i>
           <span className="mLeft5">{_l('自定义页面')}</span>
         </MenuItem>
       </Menu>
@@ -293,8 +293,11 @@ class WorkSheetLeft extends Component {
     const { id, loading, isUnfold, data, guidanceVisible } = this.props;
     const { createType } = this.state;
     const sheetInfo = _.find(data, { workSheetId: id }) || {};
+
+    // 获取url参数
+    const { ln } = getAppFeaturesVisible();
     return (
-      <div className={cx('workSheetLeft flexRow', { workSheetLeftHide: !isUnfold })}>
+      <div className={cx('workSheetLeft flexRow', { workSheetLeftHide: !isUnfold && ln, hide: !ln })}>
         {loading || _.isEmpty(data) ? <Skeleton active={true} /> : this.renderContent()}
         {!!createType && (
           <CreateNew type={createType} onCreate={this.handleCreate} onCancel={() => this.switchCreateType('')} />
@@ -318,7 +321,9 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  data: state.sheetList.isCharge ? state.sheetList.data.filter(_ => _) : state.sheetList.data.filter(item => item.status === 1),
+  data: state.sheetList.isCharge
+    ? state.sheetList.data.filter(_ => _)
+    : state.sheetList.data.filter(item => item.status === 1 && !item.navigateHide),//左侧列表状态为1 且 角色权限没有设置隐藏
   loading: state.sheetList.loading,
   isCharge: state.sheetList.isCharge,
   isUnfold: state.sheetList.isUnfold,

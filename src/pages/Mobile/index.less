@@ -1,5 +1,6 @@
-
-#app, html, body {
+#app,
+html,
+body {
   height: 100%;
 }
 
@@ -44,7 +45,8 @@ input::placeholder {
   }
 }
 
-.am-action-sheet, .actionSheetModal {
+.am-action-sheet,
+.actionSheetModal {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   overflow: hidden;
@@ -65,7 +67,7 @@ input::placeholder {
     color: red !important;
   }
   .am-whitespace {
-    background-color: #EDEDED;
+    background-color: #ededed;
   }
   .disabled .am-list-content {
     color: #33333380 !important;
@@ -80,4 +82,9 @@ input::placeholder {
   overflow: hidden;
   transform: none !important;
 }
-
+.appListMobile {
+  .am-modal-mask,
+  .am-modal-wrap {
+    z-index: 1000 !important;
+  }
+}

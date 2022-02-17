@@ -50,12 +50,15 @@ function formatSearchFilters(filters = [], controls = []) {
     if (control && _.includes([6, 8], control.type)) {
       f.filterType = 11;
     }
+    if (control && _.includes([10], control.type)) {
+      f.advancedSetting.allowitem = '2';
+    }
     return f;
   });
 }
 
 export default function Header(props) {
-  const { searchFilters, controls, quickFilters, onFilter, control = {} } = props;
+  const { projectId, searchFilters, controls, quickFilters, onFilter, control = {} } = props;
   const [popupVisible, setPopupVisible] = useState(false);
   return (
     <Trigger
@@ -77,7 +80,7 @@ export default function Header(props) {
                 '.ant-select-dropdown',
                 '.ant-picker-dropdown',
                 '.rc-trigger-popup',
-                '#dialogSelectDept_container'
+                '#dialogSelectDept_container',
               ].join(','),
             )[0];
             return $targetTarget;
@@ -92,7 +95,7 @@ export default function Header(props) {
               colNum={1}
               controls={controls}
               appId={control.appId}
-              projectId={control.projectId}
+              projectId={projectId}
               filters={formatSearchFilters(searchFilters, controls)}
               queryText={_l('筛选')}
               updateQuickFilter={filters => {

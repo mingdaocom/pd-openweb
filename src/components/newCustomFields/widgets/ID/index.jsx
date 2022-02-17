@@ -14,17 +14,22 @@ export default class Widgets extends Component {
 
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
-      this.text.value = nextProps.value || '';
+      this.text.value = this.formatValue(nextProps.value || '');
     }
   }
 
+  formatValue = val => {
+    return (val || '').toUpperCase();
+  };
+
   onChange = event => {
-    const value = event.target.value;
+    const value = this.formatValue(event.target.value);
     this.props.onChange(value);
   };
 
   render() {
     const { disabled, hint, value, onBlur, onChange } = this.props;
+    const defaultValue = this.formatValue(value);
 
     return (
       <input
@@ -35,12 +40,13 @@ export default class Widgets extends Component {
         }}
         placeholder={hint}
         disabled={disabled}
-        defaultValue={value}
+        defaultValue={defaultValue}
         maxLength={18}
         onChange={this.onChange}
         onBlur={event => {
-          if (event.target.value.trim() !== value) {
-            onChange(event.target.value.trim());
+          const newVal = this.formatValue(event.target.value.trim());
+          if (newVal !== defaultValue) {
+            onChange(newVal);
           }
 
           onBlur();

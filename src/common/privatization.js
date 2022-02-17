@@ -54,6 +54,8 @@ window.private = Object.freeze({
       app: false, //应用
       workflows: false, //工作流
       announcement: false, //工具
+      portal: false, // 外部用户
+      weixin: false, // 微信公众号
     },
     //首页购买
     homePage: {

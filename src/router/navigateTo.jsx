@@ -13,7 +13,7 @@ export function urlStackBack(e) {
   }
 }
 
-window.location.goto = function(url, isReplace = false) {
+window.location.goto = function (url, isReplace = false) {
   if (isReplace) {
     window.location.replace(url);
   } else {
@@ -69,6 +69,7 @@ export function clearZombie() {
 
 /** 跳转到 url */
 export function navigateTo(url, isReplace = false) {
+  url = (window.subPath || '') + url;
   clearZombie();
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
     url = url + '#publicapp' + window.publicAppAuthorization;

@@ -15,6 +15,7 @@ import {
   getArrBySpliceType,
   isRelateMoreList,
 } from './config';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import cx from 'classnames';
 class ColumnRulesCon extends React.Component {
@@ -35,12 +36,13 @@ class ColumnRulesCon extends React.Component {
   }
 
   renderFilterItemTexts = (filters = [], disabled = false) => {
-    const { worksheetControls } = this.props;
+    const { worksheetControls = [] } = this.props;
+    const formatControls = worksheetControls.map(redefineComplexControl);
     let filterItemTexts = getArrBySpliceType(filters).map(item => {
       return item.map(it => {
-        let transData = filterData(worksheetControls, [it], true, worksheetControls);
+        let transData = filterData(formatControls, [it], true, formatControls);
         if (it.dataType === 29) {
-          const control = _.find(worksheetControls || [], con => con.controlId === it.controlId);
+          const control = _.find(formatControls || [], con => con.controlId === it.controlId);
           if (isRelateMoreList(control, it)) {
             transData = [{ ...transData[0], name: _l('字段已删除') }];
           }

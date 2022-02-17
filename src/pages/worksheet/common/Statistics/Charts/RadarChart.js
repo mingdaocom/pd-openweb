@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Radar } from '@antv/g2plot';
 import {
   formatControlInfo,
@@ -9,7 +9,8 @@ import {
   formatYaxisList,
   getChartColors
 } from './common';
-import { formatSummaryName } from 'src/pages/worksheet/common/Statistics/common';
+import { Dropdown, Menu } from 'antd';
+import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
 
 const formatChartData = (data, yaxisList) => {
   const result = [];
@@ -22,6 +23,7 @@ const formatChartData = (data, yaxisList) => {
         const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
+          groupKey: element.originalKey,
           value: target[0].v,
           name,
         });
@@ -37,12 +39,21 @@ export default class extends Component {
     this.state = {
       originalCount: 0,
       count: 0,
+      dropdownVisible: false,
+      dropdownMenu: [],
+      offset: {},
+      match: null
     }
     this.RadarChart = null;
   }
   componentDidMount() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
     const config = this.getComponentConfig(this.props);
     this.RadarChart = new Radar(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.RadarChart.on('element:click', this.handleClick);
+    }
     this.RadarChart.render();
   }
   componentWillUnmount() {
@@ -60,6 +71,40 @@ export default class extends Component {
     ) {
       const config = this.getComponentConfig(nextProps);
       this.RadarChart.update(config);
+    }
+  }
+  handleClick = ({ data, gEvent }) => {
+    const { xaxes, split } = this.props.reportData;
+    const currentData = data.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: isNumber ? Number(currentData.name) : currentData.name
+    }
+    if (split.controlId) {
+      param[split.cid] = currentData.groupKey;
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: gEvent.x + 20,
+        y: gEvent.y
+      },
+      match: param,
+      dropdownMenu: _.isArray(currentData) ? currentData : []
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    const data = {
+      isPersonal: false,
+      match
+    }
+    this.setState({ dropdownVisible: false });
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
     }
   }
   getComponentConfig(props) {
@@ -96,8 +141,11 @@ export default class extends Component {
           },
         },
         label: {
-          offset: 23
-        }
+          offset: 23,
+          autoHide: true,
+          autoEllipsis: true,
+        },
+        verticalLimitLength: 100
       },
       yAxis: {
         line: null,
@@ -125,10 +173,11 @@ export default class extends Component {
         showCrosshairs: false,
         showMarkers: true,
         formatter: ({ value, groupName }) => {
-          const { name } = formatControlInfo(groupName);
+          const { name, id } = formatControlInfo(groupName);
+          const { dot } = _.find(yaxisList, { controlId: id }) || {};
           return {
             name,
-            value: value ? value.toLocaleString() : value,
+            value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
       },
@@ -167,18 +216,67 @@ export default class extends Component {
       count
     });
   }
+  renderOverlay() {
+    const { dropdownMenu } = this.state;
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        {dropdownMenu.length ? (
+          <Fragment>
+            <div className="Gray_75 pLeft15 pRight15 pTop10 pBottom10">{_l('查看原始数据')}</div>
+            {dropdownMenu.map((item, index) => (
+              <Menu.Item
+                key={index}
+                onClick={() => {
+                  const { xaxes, split } = this.props.reportData;
+                  const isNumber = isNumberControl(xaxes.controlType);
+                  const param = {
+                    [xaxes.cid]: isNumber ? Number(item.name) : item.name
+                  }
+                  if (split.controlId) {
+                    param[split.controlId] = item.groupKey;
+                  }
+                  this.setState({ match: param }, this.handleRequestOriginalData);
+                }}
+              >
+                <div className="flexRow valignWrapper">
+                  <span>{item.name}</span>
+                </div>
+              </Menu.Item>
+            ))}
+          </Fragment>
+        ) : (
+          <Menu.Item onClick={this.handleRequestOriginalData}>
+            <div className="flexRow valignWrapper">
+              <span>{_l('查看原始数据')}</span>
+            </div>
+          </Menu.Item>
+        )}
+      </Menu>
+    );
+  }
   render() {
-    const { count, originalCount } = this.state;
+    const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {displaySetup.showTotal ? (
           <div>
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

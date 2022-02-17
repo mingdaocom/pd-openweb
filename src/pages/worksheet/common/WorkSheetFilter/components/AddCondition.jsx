@@ -47,7 +47,7 @@ export default class AddCondition extends Component {
       columns = columns.filter(item => !_.includes(SYS, item.controlId));
     }
     if (keyword) {
-      columns = columns.filter(c => c.controlName.indexOf(keyword) > -1);
+      columns = columns.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1);
     }
     return (
       <div className={cx('Hand addFilterCondition', { nodata: !conditionCount, active: columnListVisible })}>
@@ -61,6 +61,7 @@ export default class AddCondition extends Component {
                 <Input
                   placeholder={_l('搜索')}
                   manualRef={this.inputRef}
+                  value={keyword}
                   onChange={e => {
                     this.setState({ keyword: this.inputRef.current.value });
                   }}
@@ -70,7 +71,7 @@ export default class AddCondition extends Component {
                 className={cx('worksheetFilterColumnOptionList', filterColumnClassName)}
                 onClickAwayExceptions={['.columnsFilter']}
                 onClickAway={() => {
-                  this.setState({ columnListVisible: false });
+                  this.setState({ columnListVisible: false, keyword: '' });
                 }}
                 style={this.props.style}
               >

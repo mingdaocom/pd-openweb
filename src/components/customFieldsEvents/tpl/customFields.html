@@ -172,7 +172,7 @@
   </div>
 
   {{? it.hasAuth !== false}}
-    <textarea placeholder="{{=hint }}" class="customTextarea {{=isNull ? '' : 'Hidden'}}" data-blursave="true" maxlength="3000" data-required="{{=item.required}}" data-autofill="true">{{=item.value }}</textarea>
+    <textarea placeholder="{{=hint }}" class="customTextarea {{=isNull ? '' : 'Hidden'}}" data-blursave="true" maxlength="10000" data-required="{{=item.required}}" data-autofill="true">{{=item.value }}</textarea>
     {{? item.dataList && item.dataList.length }}
       <ul class="custom-autofill">
         {{~item.dataList:label}}
@@ -299,8 +299,8 @@
 
 {{##def.dropDown:item:
   {{ var _dropdownValue = (item.value ? item.value : item.default); }}
-  {{var dropdownName = (_dropdownValue !== '0' && _.result(_.find(item.options, 'key', _dropdownValue), 'value')) ? _.result(_.find(item.options, 'key', _dropdownValue), 'value') : (item.hint ? item.hint : _l('请选择'));}}
-  <div class="customDropdownBox multipleDropdown ThemeBorderColor4 {{=(_dropdownValue !== '0' && _.result(_.find(item.options, 'key', _dropdownValue), 'value')) ? '' : 'empty' }}"
+  {{var dropdownName = (_dropdownValue !== '0' && _.result(_.find(item.options, function(o) { return o.key === _dropdownValue }), 'value')) ? _.result(_.find(item.options, function(o) { return o.key === _dropdownValue }), 'value') : (item.hint ? item.hint : _l('请选择'));}}
+  <div class="customDropdownBox multipleDropdown ThemeBorderColor4 {{=(_dropdownValue !== '0' && _.result(_.find(item.options, function(o) { return o.key === _dropdownValue }), 'value')) ? '' : 'empty' }}"
       data-type="{{=_dropdownValue }}"
       data-required="{{=item.required}}"
       data-source="{{=item.dataSource}}"

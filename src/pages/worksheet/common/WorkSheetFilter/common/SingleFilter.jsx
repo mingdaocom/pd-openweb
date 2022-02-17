@@ -130,6 +130,7 @@ export default class SingleFilter extends Component {
     const {
       isRules,
       projectId,
+      appId,
       canEdit,
       from,
       currentColumns,
@@ -148,6 +149,7 @@ export default class SingleFilter extends Component {
           isRules={isRules}
           canEdit={canEdit}
           projectId={projectId}
+          appId={appId}
           key={condition.keyStr}
           index={index}
           from={from}

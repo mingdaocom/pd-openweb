@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
@@ -216,7 +217,7 @@ export default class RecordCardListDialog extends Component {
     if (multiple) {
       this.setState({
         selectedRecordIds: selected
-          ? _.unique(selectedRecordIds.concat(record.rowid))
+          ? _.uniqBy(selectedRecordIds.concat(record.rowid))
           : selectedRecordIds.filter(id => id !== record.rowid),
       });
     } else {
@@ -291,7 +292,8 @@ export default class RecordCardListDialog extends Component {
     return cardControls.filter(c => !!c);
   }
   renderSearchWrapper() {
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger');
+    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const { relateSheetId, onOk, onClose, control, formData } = this.props;
@@ -316,7 +318,7 @@ export default class RecordCardListDialog extends Component {
             }}
           />
         ) : (
-          (isWx || isWeLink || isDing) && (
+          ((isWx && !isWxWork) || isWeLink || isDing) && (
             <RelateScanQRCode
               worksheetId={relateSheetId}
               filterControls={filterControls}
@@ -483,4 +485,14 @@ export default class RecordCardListDialog extends Component {
       </Modal>
     );
   }
+}
+
+export function mobileSelectRecord(props) {
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  function destory() {
+    ReactDOM.unmountComponentAtNode(div);
+    document.body.removeChild(div);
+  }
+  ReactDOM.render(<RecordCardListDialog visible {...props} onClose={destory} />, div);
 }

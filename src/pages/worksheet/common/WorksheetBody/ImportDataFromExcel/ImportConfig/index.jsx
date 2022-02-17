@@ -183,6 +183,14 @@ export default class ImportConfig extends Component {
     const { fileName, fileList, hideImportConfig } = this.props;
     const { importSheetIndex, titleLine, selectRow, showCancelDialog, hoverIndex } = this.state;
     const selectSheet = _.find(fileList, item => item.sheetNumber === importSheetIndex);
+
+    // 过滤掉空行
+    const emptyRows = (selectSheet.rows || []).filter(item => !(item.cells || []).some(cell => cell.value));
+    const rows = (selectSheet.rows || []).filter(item => (item.cells || []).some(cell => cell.value));
+    selectSheet.rows = rows.concat(emptyRows);
+    selectSheet.rows.map((item, index) => {
+      item.rowNumber = index;
+    });
     const hasSheetImport = _.findIndex(fileList, item => item.state) > -1;
 
     return (

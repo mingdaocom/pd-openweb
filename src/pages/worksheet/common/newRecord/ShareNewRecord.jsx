@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Modal, Switch } from 'ming-ui';
+import { updatePublicWorksheetState } from 'src/api/publicWorksheet';
 import { Tip75, Hr } from 'src/pages/publicWorksheetConfig/components/Basics';
 import ShareUrl from 'src/pages/publicWorksheetConfig/components/ShareUrl';
 import { VISIBLE_TYPE } from 'src/pages/publicWorksheetConfig/enum';
-import { updateWorksheetVisibleType } from './dal';
 
 const Midddle = styled.span`
   vertical-align: middle;
@@ -31,7 +31,7 @@ export default function ShareNewRecord(props) {
               onClick={async () => {
                 const newVisibleType = visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
                 try {
-                  await updateWorksheetVisibleType(worksheetId, newVisibleType);
+                  await updatePublicWorksheetState({ worksheetId, newVisibleType });
                   setVisibleType(newVisibleType);
                 } catch (err) {
                   alert(_l('更新公开表单状态失败'), 2);
@@ -75,6 +75,5 @@ ShareNewRecord.propTypes = {
   isCharge: PropTypes.bool,
   publicShareUrl: PropTypes.string,
   visibleType: PropTypes.number,
-  onUpdateWorksheetVisibleType: PropTypes.func,
   onClose: PropTypes.func,
 };

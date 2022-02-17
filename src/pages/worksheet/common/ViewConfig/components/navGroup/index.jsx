@@ -274,7 +274,7 @@ export default function NavGroup(params) {
       htmlData.types = relateSheetInfo;
       if (relateSheetInfo.length <= 0) {
         htmlData.types = [
-          { text: <span className="Gray_9e">{_l('关联的工作表中没有层级视图，请先去添加一个')}</span>, isTip: true },
+          { text: <span className="Gray_9e">{_l('关联表中没有本表关联类型的层级视图，请先去添加一个')}</span>, isTip: true },
         ];
       }
     }

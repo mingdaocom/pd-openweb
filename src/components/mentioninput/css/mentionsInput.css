@@ -25,8 +25,8 @@
   -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
   -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
-
-  width: 350px;
+  width: 100%;
+  max-width: 350px;
   max-height: 460px;
   overflow: auto;
 }

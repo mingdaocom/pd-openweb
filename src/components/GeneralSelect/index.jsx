@@ -1008,7 +1008,7 @@ export default class GeneraSelect extends Component {
               };
             })
           );
-          selectedData = _.uniq(_arr, function ({ type, data: { accountId } }) {
+          selectedData = _.uniqBy(_arr, function ({ type, data: { accountId } }) {
             return type === ChooseType.USER && accountId;
           });
         }

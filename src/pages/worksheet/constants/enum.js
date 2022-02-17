@@ -243,4 +243,4 @@ export const SYSTEM_CONTROLS = [
   },
 ];
 
-export const CONTROL_EDITABLE_BALCKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42];
+export const CONTROL_EDITABLE_BALCKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 45];

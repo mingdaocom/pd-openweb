@@ -48,7 +48,7 @@ export default class Start extends Component {
       ((item.appType === APP_TYPE.SHEET || item.appType === APP_TYPE.DATE) && !item.appName) ||
       (item.appType === APP_TYPE.LOOP && !item.executeTime) ||
       (item.appType === APP_TYPE.WEBHOOK && !item.count) ||
-      (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT], item.appType) && !item.triggerId)
+      (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType) && !item.triggerId)
     ) {
       return <div className="workflowStartNull">{_l('设置触发方式')}</div>;
     }
@@ -197,7 +197,7 @@ export default class Start extends Component {
     }
 
     // 人员与部门
-    if (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT], item.appType)) {
+    if (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType)) {
       const TEXT = {
         [APP_TYPE.USER]: {
           [TRIGGER_ID_TYPE.ADD]: _l('当新人入职时'),
@@ -206,6 +206,11 @@ export default class Start extends Component {
         [APP_TYPE.DEPARTMENT]: {
           [TRIGGER_ID_TYPE.ADD]: _l('当创建部门时'),
           [TRIGGER_ID_TYPE.DELETE]: _l('当解散部门时'),
+        },
+        [APP_TYPE.EXTERNAL_USER]: {
+          [TRIGGER_ID_TYPE.ADD]: _l('当新用户注册时'),
+          [TRIGGER_ID_TYPE.ONLY_EDIT]: _l('当用户登录时'),
+          [TRIGGER_ID_TYPE.DELETE]: _l('当用户被删除时'),
         },
       };
       return (

@@ -4,6 +4,7 @@ import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { Modal, Button, WingBlank, List, Checkbox, Toast } from 'antd-mobile';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
+import externalPortalAjax from 'src/api/externalPortal';
 import './index.less';
 
 const { CheckboxItem } = Checkbox;
@@ -74,26 +75,46 @@ export default class SelectUser extends Component {
     }
 
     const { pageIndex, pageSize, users, searchValue } = this.state;
-    const { projectId, isRangeData, filterWorksheetId, filterWorksheetControlId } = this.props;
+    const { projectId, isRangeData, filterWorksheetId, filterWorksheetControlId, userType, appId } = this.props;
 
-    if (isRangeData) {
-      this.request = userAjax.getProjectContactUserListByApp({
-        keywords: searchValue,
-        projectId,
-        pageIndex,
-        pageSize,
-        filterWorksheetId,
-        filterWorksheetControlId,
-      });
+    if (userType === 2) {
+      this.request = externalPortalAjax
+        .getUsersByApp({
+          projectId,
+          appId,
+          pageIndex,
+          pageSize,
+          keywords: searchValue ? searchValue : undefined,
+        })
+        .then(res => {
+          let userList = res.map(item => ({ ...item, fullname: item.name }));
+          this.setState({
+            users: users.concat(userList),
+            loading: false,
+            pageIndex: pageIndex + 1,
+            isMore: userList.length === pageSize,
+          });
+        });
     } else {
-      this.request = userAjax.getContactUserList({
-        keywords: searchValue,
-        projectId,
-        filterFriend: false,
-        includeUndefinedAndMySelf: false,
-        pageIndex,
-        pageSize,
-      });
+      if (isRangeData) {
+        this.request = userAjax.getProjectContactUserListByApp({
+          keywords: searchValue,
+          projectId,
+          pageIndex,
+          pageSize,
+          filterWorksheetId,
+          filterWorksheetControlId,
+        });
+      } else {
+        this.request = userAjax.getContactUserList({
+          keywords: searchValue,
+          projectId,
+          filterFriend: false,
+          includeUndefinedAndMySelf: false,
+          pageIndex,
+          pageSize,
+        });
+      }
     }
 
     this.request.then(result => {
@@ -118,7 +139,6 @@ export default class SelectUser extends Component {
     });
 
     const { projectId } = this.props;
-
     departmentAjax
       .getContactProjectDepartments({
         projectId,
@@ -230,7 +250,7 @@ export default class SelectUser extends Component {
         <form
           action="#"
           className="flex"
-          onSubmit={(e) => {
+          onSubmit={e => {
             e.preventDefault();
           }}
         >
@@ -519,12 +539,12 @@ export default class SelectUser extends Component {
     );
   }
   renderUsers() {
-    const { isRangeData } = this.props;
+    const { isRangeData, userType } = this.props;
     const { users, loading, pageIndex } = this.state;
     return (
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
-          {!isRangeData && this.renderDepartment()}
+          {!isRangeData && userType === 1 && this.renderDepartment()}
           <List className="leftAlign" renderHeader={() => 'A-Z'}>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">
@@ -578,12 +598,14 @@ export default class SelectUser extends Component {
   }
   renderContent() {
     const { departmentVisible } = this.state;
+    const { userType } = this.state;
     return (
       <div className="flex flexColumn">
         {this.renderSearch()}
         {this.renderSelected()}
-        {departmentVisible ? this.renderDepartment() : null}
-        {departmentVisible ? null : this.renderUsers()}
+        {departmentVisible && userType === 1 ? this.renderDepartment() : null}
+        {departmentVisible && userType === 1 ? null : this.renderUsers()}
+        {userType === 2 && this.renderUsers()}
       </div>
     );
   }

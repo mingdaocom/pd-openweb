@@ -150,7 +150,7 @@ class YAxis extends Component {
 }
 
 export default function yAxisPanelGenerator(props) {
-  const { currentReport, onChangeCurrentReport, ...collapseProps } = props;
+  const { currentReport, changeCurrentReport, ...collapseProps } = props;
   const { displaySetup, rightY, reportType, yreportType } = currentReport;
   const isDualAxes = reportType === reportTypes.DualAxes;
   const isBarChart = reportType === reportTypes.BarChart;
@@ -174,7 +174,7 @@ export default function yAxisPanelGenerator(props) {
               event.stopPropagation();
             }}
             onChange={checked => {
-              onChangeCurrentReport({
+              changeCurrentReport({
                 displaySetup: {
                   ...displaySetup,
                   ydisplay: {
@@ -192,9 +192,9 @@ export default function yAxisPanelGenerator(props) {
           yreportType={yreportType}
           isDualAxes={isDualAxes}
           ydisplay={displaySetup.ydisplay}
-          onChangeCurrentReport={onChangeCurrentReport}
+          onChangeCurrentReport={changeCurrentReport}
           onChangeDisplayValue={data => {
-            onChangeCurrentReport({
+            changeCurrentReport({
               displaySetup: {
                 ...displaySetup,
                 ydisplay: data,
@@ -217,7 +217,7 @@ export default function yAxisPanelGenerator(props) {
                 event.stopPropagation();
               }}
               onChange={checked => {
-                onChangeCurrentReport({
+                changeCurrentReport({
                   rightY: {
                     ...rightY,
                     display: {
@@ -238,7 +238,7 @@ export default function yAxisPanelGenerator(props) {
             isRight={true}
             ydisplay={rightY.display.ydisplay}
             onChangeDisplayValue={data => {
-              onChangeCurrentReport({
+              changeCurrentReport({
                 rightY: {
                   ...rightY,
                   display: {

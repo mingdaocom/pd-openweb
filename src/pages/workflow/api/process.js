@@ -73,6 +73,21 @@ var process = {
     return $.api(controllerName, 'processgetHistory', args, $.extend(base, options));
   },
   /**
+   * 根据工作表控件获取流程
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.appId] 工作表id
+   * @param {string} [args.companyId] 网络id
+   * @param {string} [args.controlId] 控件id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getProcessByControlId: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/process/getProcessByControlId';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'processgetProcessByControlId', args, $.extend(base, options));
+  },
+  /**
    * 根据流程id查询流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -182,7 +197,7 @@ var process = {
    * 保存流程全局配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {保存流程配置} {allowRevoke:允许触发者撤回(boolean),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：逐条执行(integer),isSaveVariables:是否只保存流程参数(boolean),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),}*saveProcessConfigRequest
+   * @param {保存流程配置} {allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：逐条执行(integer),isSaveVariables:是否只保存流程参数(boolean),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),}*saveProcessConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -208,7 +223,7 @@ var process = {
    * 根据流程id手动触发流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcessByProcessId} {processId:流程id(string),}*startProcess
+   * @param {RequestStartProcessByProcessId} {processId:流程id(string),sourceId:行记录id(string),}*startProcess
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

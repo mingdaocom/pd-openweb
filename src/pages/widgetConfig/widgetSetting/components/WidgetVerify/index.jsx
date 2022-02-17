@@ -6,9 +6,11 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
+import AttachmentVerify from './AttachmentVerify';
 
 const CompConfig = {
   2: TextVerify,
+  14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
 };
@@ -24,6 +26,14 @@ const TYPES_SETTING = {
   4: ['required', 'unique'],
   5: ['required', 'unique'],
   7: ['required', 'unique'],
+};
+
+const TYPES_SETTING_PORTAL = {
+  2: ['required'],
+  3: ['required'],
+  4: ['required'],
+  5: ['required'],
+  7: ['required'],
 };
 
 const TYPE_TO_TEXT = {
@@ -69,10 +79,10 @@ const VerifySettingItem = styled(SettingItem)`
 `;
 
 export default function WidgetVerify(props) {
-  const { data = {}, onChange } = props;
+  const { data = {}, onChange, fromPortal } = props;
   const { type } = data;
   const Comp = CompConfig[type] || null;
-  const settings = TYPES_SETTING[type] || ['required'];
+  const settings = fromPortal ? TYPES_SETTING_PORTAL[type] || ['required'] : TYPES_SETTING[type] || ['required'];
   const { max = '', min = '', checkrange = '0', allowweek = '', allowtime = '' } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
   return (

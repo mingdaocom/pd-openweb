@@ -1,313 +1,135 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Icon, Input, Dialog, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, Dialog, ScrollView, LoadDiv } from 'ming-ui';
 import { DndProvider } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import reportConfig from '../api/reportConfig';
-import reportRequest from '../api/report';
-import { Tabs, Button, ConfigProvider, Dropdown, Menu, Tooltip, Divider } from 'antd';
+import { Tabs, Button, ConfigProvider, Tooltip } from 'antd';
 import DataSource from '../components/DataSource';
 import ChartSetting from '../components/ChartSetting';
 import ChartStyle from '../components/ChartStyle';
-import Sort from '../components/Sort';
+import ChartAnalyse from '../components/ChartAnalyse';
 import FilterScope from '../components/FilterScope';
-import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
-import HeaderDisplaySetup from '../components/HeaderDisplaySetup';
-import charts from '../Charts';
+import { Loading } from '../components/ChartStatus';
+import MoreOverlay from '../Card/MoreOverlay';
+import Chart from './Chart';
+import Header from './Header';
+import Operation from './Operation';
+import DisplaySetup from './DisplaySetup';
 import worksheetAjax from 'src/api/worksheet';
-import {
-  formatValuesOfOriginConditions,
-  redefineComplexControl,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import {
-  chartNav,
-  isTimeControl,
-  fillValueMap,
-  mergeReportData,
-  initConfigDetail,
-  exportPivotTable,
-  normTypes,
-} from '../common';
+import DocumentTitle from 'react-document-title';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { chartNav, getNewReport } from '../common';
 import { reportTypes } from '../Charts/common';
 import './index.less';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actions from '../redux/actions.js';
 
+@connect(
+  state => ({
+    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'reportData', 'filterItem', 'detailLoading', 'loading', 'base', 'direction'])
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)
 export default class ChartDialog extends Component {
   static propTypes = {
-    type: PropTypes.string,
     appId: PropTypes.string,
     projectId: PropTypes.string,
-    activeSheetId: PropTypes.string,
+    worksheetId: PropTypes.string,
+    nodialog: PropTypes.bool,
     settingVisible: PropTypes.bool,
-    isPublic: PropTypes.bool,
+    scopeVisible: PropTypes.bool,
     permissions: PropTypes.bool,
     report: PropTypes.shape({}),
-    onBlur: PropTypes.func,
     updateDialogVisible: PropTypes.func,
     onGetReportConfigList: PropTypes.func,
-  };
+  }
   static defaultProps = {
+    nodialog: false,
     settingVisible: true,
-    isPublic: true,
+    scopeVisible: false,
+    sheetVisible: false,
     permissions: true,
-  };
+  }
   constructor(props) {
     super(props);
-    const { settingVisible, report, activeSheetId, chartType } = props;
+    const { settingVisible, scopeVisible, sheetVisible, report, worksheetId, viewId, activeData } = props;
     this.state = {
       reportId: report.id,
-      chartType,
-      axisControls: [],
-      activeSheetId,
+      worksheetId,
+      viewId,
       settingVisible,
-      scopeVisible: false,
-      isEdit: false,
-      currentReport: {},
-      reportData: {},
-      detailLoading: false,
+      scopeVisible,
+      sheetVisible,
       saveLoading: false,
-      loading: false,
-      filterItem: [],
-      worksheetInfo: {},
       chartIsUnfold: true,
       dataIsUnfold: true,
-      saveData: null,
-    };
+      activeData
+    }
   }
   componentDidMount() {
     this.getReportConfigDetail();
   }
+  componentWillUnmount() {
+    this.props.destroy();
+  }
+  componentWillReceiveProps(nextProps) {
+    const { activeData } = this.state;
+    if (!nextProps.loading && this.props.loading && !_.isEmpty(activeData)) {
+      this.props.requestOriginalData(activeData);
+      this.setState({ activeData: null });
+    }
+  }
   getReportConfigDetail(reportType) {
-    const { report, permissions, settingVisible, sourceType } = this.props;
-    const { reportId, activeSheetId, chartType } = this.state;
-
-    if (reportType) {
-      this.setState({ loading: true });
-    } else {
-      this.setState({ detailLoading: true });
-    }
-
-    reportConfig
-      .getReportConfigDetail({
-        reportId,
-        appId: activeSheetId,
-        reportType: reportType || chartType,
-      })
-      .then(result => {
-        const { currentReport, axisControls } = initConfigDetail(reportId, result, this.state.currentReport);
-
-        this.setState({
-          currentReport,
-          axisControls,
-        });
-
-        if (reportType) {
-          this.getReportData();
-        } else {
-          this.getWorksheetInfo(activeSheetId || result.appId);
-        }
-      });
-  }
-  getWorksheetInfo(worksheetId) {
-    const { currentReport } = this.state;
-    const { filter } = currentReport;
-    Promise.all([
-      worksheetAjax.getWorksheetInfo({
-        worksheetId,
-        getTemplate: true,
-        getViews: true,
-      }),
-      filter.filterId
-        ? worksheetAjax.getWorksheetFilterById({
-            filterId: filter.filterId,
-          })
-        : null,
-    ]).then(result => {
-      const [worksheetResult, filterResult] = result;
-      const param = {
-        detailLoading: false,
-        worksheetInfo: {
-          worksheetId,
-          name: worksheetResult.name,
-          views: worksheetResult.views,
-          columns: worksheetResult.template.controls.map(item => {
-            return redefineComplexControl(item);
-          }),
-        },
-      }
-      if (filterResult) {
-        param.currentReport = {
-          ...currentReport,
-          filter: {
-            ...filter,
-            filterControls: formatValuesOfOriginConditions(filterResult.items),
-          },
-        }
-        param.filterItem = filterResult.items;
-      }
-      this.setState(param);
-      this.getReportData();
+    const { report, permissions, sheetVisible, ownerId, sourceType } = this.props;
+    const { reportId, worksheetId, viewId, settingVisible } = this.state;
+    this.props.changeBase({
+      permissions,
+      report,
+      sourceType,
+      isPublic: !ownerId,
+      sheetId: worksheetId,
+      viewId,
+      settingVisible,
+      sheetVisible
     });
-  }
-  getReportData() {
-    const { report, permissions } = this.props;
-    const { reportData, loading, settingVisible } = this.state;
-    const { id } = report;
-    const data = this.getCurrentNewReport();
-    this.setState({
-      loading: true,
-    });
-    if (settingVisible) {
-      // 管理员
-      if (this.reportConfigRequest && this.reportConfigRequest.state() === 'pending') {
-        this.reportConfigRequest.abort();
-      }
-      data.filter.filterId = null;
-      this.reportConfigRequest = reportConfig.getData(data, { fireImmediately: false });
-      this.reportConfigRequest
-        .then(result => {
-          const { currentReport } = this.state;
-          const param = mergeReportData(currentReport, result, id);
-          this.setState({
-            reportData: fillValueMap(result),
-            loading: false,
-            currentReport: {
-              ...currentReport,
-              ...param,
-            }
-          });
-        })
-        .fail(result => {
-          this.setState({ loading: false });
-        });
-    } else {
-      // 成员 || 管理员放大
-      const { filter, sorts, version } = data;
-      if (this.reportRequest && this.reportRequest.state() === 'pending') {
-        this.reportRequest.abort();
-      }
-      const params = _.isEmpty(reportData)
-        ? { reportId: id }
-        : {
-            reportId: id,
-            particleSizeType: data.particleSizeType,
-            filterRangeId: filter.filterRangeId,
-            rangeType: filter.rangeType,
-            rangeValue: filter.rangeValue,
-            filterControls: filter.filterControls,
-            sorts,
-          };
-      params.version = version;
-      this.reportRequest = reportRequest.getData(params, { fireImmediately: false });
-      this.reportRequest
-        .then(result => {
-          const { currentReport } = this.state;
-          const param = mergeReportData(currentReport, result, id);
-          this.setState({
-            reportData: fillValueMap(result),
-            loading: false,
-            currentReport: {
-              ...currentReport,
-              ...param,
-            }
-          });
-        })
-        .fail(result => {
-          this.setState({ loading: false });
-        });
-    }
-  }
-  getCurrentNewReport() {
-    const { currentReport, worksheetInfo, axisControls, reportId } = this.state;
-    const { report, isPublic, sourceType } = this.props;
-    const newCurrentReport = _.cloneDeep(currentReport);
-    const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
-
-    if (pivotTable) {
-      const { columnSummary, lineSummary } = pivotTable;
-      if (_.isEmpty(columnSummary.name)) {
-        columnSummary.name = _.find(normTypes, { value: columnSummary.type }).text;
-      }
-      if (_.isEmpty(lineSummary.name)) {
-        lineSummary.name = _.find(normTypes, { value: lineSummary.type }).text;
-      }
-    }
-
-    if (newCurrentReport.summary && _.isEmpty(newCurrentReport.summary.name)) {
-      newCurrentReport.summary.name = _.find(normTypes, { value: newCurrentReport.summary.type }).text;
-    }
-
-    if (rightY) {
-      if (rightY.summary && _.isEmpty(rightY.summary.name)) {
-        rightY.summary.name = _.find(normTypes, { value: rightY.summary.type }).text;
-      }
-    }
-
-    // 来自自定义页面
-    if (sourceType) {
-      newCurrentReport.sourceType = sourceType;
-    }
-
-    return Object.assign(newCurrentReport, {
-      isPublic,
-      appId: worksheetInfo.worksheetId,
-      name: newCurrentReport.name || _l('未命名图表'),
-      id: reportId || '',
-      version: '6.5'
-    });
-  }
-  handleUpdateOwnerId() {
-    const { report } = this.props;
-    this.props.onUpdateOwnerId(report);
-  }
-  handleBlur = (event) => {
-    const { currentReport } = this.state;
-    this.props.onBlur(event);
-    this.setState({
-      isEdit: false,
-      currentReport: Object.assign(currentReport, { name: event.target.value }),
+    this.props.getReportConfigDetail({
+      reportId,
+      appId: worksheetId,
+      reportType
     });
   }
   handleCancel = () => {
-    const { saveData } = this.state;
-    if (saveData) {
-      this.handleSaveCallBack();
-    } else {
-      this.props.updateDialogVisible({
-        dialogVisible: false,
-        isRequest: false,
-      });
-    }
-  };
+    const { currentReport } = this.props;
+    this.props.updateDialogVisible({
+      dialogVisible: false,
+      isRequest: false,
+      reportName: currentReport.name,
+      reportDesc: currentReport.desc
+    });
+  }
   handleSave = () => {
-    const data = this.getCurrentNewReport();
+    const data = getNewReport(this.props);
     delete data.filter.filterControls;
     reportConfig.saveReportConfig(data).then(result => {
-      this.setState({
-        saveLoading: false,
+      const { updateDialogVisible } = this.props;
+      updateDialogVisible({
+        dialogVisible: false,
+        isRequest: true,
         reportId: result.reportId,
-        saveData: {
-          reportId: result.reportId,
-          reportName: data.name,
-        },
-      }, () => {
-        this.handleCancel();
+        reportName: data.name,
       });
     });
-  };
-  handleSaveCallBack = () => {
-    const { saveData } = this.state;
-    const { onGetReportConfigList, updateDialogVisible } = this.props;
-    updateDialogVisible({
-      dialogVisible: false,
-      isRequest: true,
-      ...saveData,
-    });
-    this.setState({ saveData: null });
-    onGetReportConfigList && onGetReportConfigList();
-  };
+  }
   handleVerifySave = () => {
-    const { xaxes, yaxisList, reportType } = this.state.currentReport;
+    const { xaxes, yaxisList, reportType, pivotTable } = this.props.currentReport;
+    if (!reportType) {
+      alert(_l('请选择图表类型'), 2);
+      return;
+    }
     if (reportType == reportTypes.NumberChart) {
       if (_.isEmpty(yaxisList)) {
         alert(_l('请配置维度后再保存图表'), 2);
@@ -316,19 +138,25 @@ export default class ChartDialog extends Component {
       }
       return;
     }
-    if (reportType !== reportTypes.PivotTable) {
-      if (_.isEmpty(yaxisList) || _.isEmpty(xaxes.controlId)) {
+    if (reportType == reportTypes.PivotTable) {
+      if (_.isEmpty(yaxisList) || (_.isEmpty(pivotTable.lines) && _.isEmpty(pivotTable.columns))) {
         alert(_l('请配置维度和数值后再保存图表'), 2);
       } else {
         this.handleSaveFilter();
       }
       return;
     } else {
-      this.handleSaveFilter();
+      if (_.isEmpty(yaxisList) || _.isEmpty(xaxes.controlId)) {
+        alert(_l('请配置维度和数值后再保存图表'), 2);
+      } else {
+        this.handleSaveFilter();
+      }
+      return;
     }
-  };
+    this.handleSaveFilter();
+  }
   handleSaveFilter = () => {
-    const { filterItem, currentReport, worksheetInfo } = this.state;
+    const { filterItem, currentReport, worksheetInfo } = this.props;
     const { filter } = currentReport;
     const { appId } = this.props;
 
@@ -350,275 +178,91 @@ export default class ChartDialog extends Component {
         module: 2,
       })
       .then(result => {
-        this.setState(
-          {
-            currentReport: {
-              ...currentReport,
-              filter: {
-                ...filter,
-                filterId: result.filterId,
-              },
-            },
-          },
-          this.handleSave,
-        );
+        this.props.changeCurrentReport({
+          filter: {
+            ...filter,
+            filterId: result.filterId
+          }
+        });
+        this.handleSave();
       });
-  };
+  }
+  handleChangeSheetVisible = (value) => {
+    this.props.changeBase({
+      sheetVisible: value
+    });
+  }
   handleUpdateReportType(type) {
-    const { currentReport, loading } = this.state;
+    const { currentReport, loading } = this.props;
     if (loading || type === currentReport.reportType) return;
     this.getReportConfigDetail(type);
   }
-  handleDisplaySetup = (data, isRequest = false) => {
-    const { currentReport } = this.state;
-    this.setState(
-      {
-        currentReport: {
-          ...currentReport,
-          displaySetup: data,
-        },
-      },
-      () => {
-        isRequest && this.getReportData();
-      },
-    );
-  };
-  handleChangeCurrentReport = (data, isRequest = false) => {
-    const { currentReport } = this.state;
-    this.setState(
-      {
-        currentReport: {
-          ...currentReport,
-          ...data,
-        },
-      },
-      () => {
-        isRequest && this.getReportData();
-      },
-    );
-  };
-  handleChangeFilterItem = (filterItem, conditions) => {
-    const { currentReport } = this.state;
-    this.setState({ filterItem });
-    this.handleChangeCurrentReport(
-      {
-        filter: {
-          ...currentReport.filter,
-          filterControls: conditions,
-        },
-      },
-      true,
-    );
-  };
-  renderMore() {
-    const { ownerId, report, onUpdateOwnerId, onCopyCustomPage, onDelete } = this.props;
-    return (
-      <Menu className="chartMenu">
-        <Menu.Item
-          className="pLeft10"
-          onClick={() => {
-            onUpdateOwnerId(report);
-          }}
-        >
-          <div className="flexRow valignWrapper">
-            <Icon className="Gray_9e Font18 mLeft5 mRight5" icon={ownerId ? 'worksheet_public' : 'minus-square'} />
-            <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
-          </div>
-        </Menu.Item>
-        <Menu.Item
-          className="pLeft10"
-          onClick={() => {
-            onCopyCustomPage(report);
-          }}
-        >
-          <div className="flexRow valignWrapper">
-            <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="content-copy" />
-            <span>{_l('复制到自定义页面')}</span>
-          </div>
-        </Menu.Item>
-        <Divider className="mTop5 mBottom5" />
-        <Menu.Item className="pLeft10" onClick={onDelete}>
-          <div className="flexRow valignWrapper">
-            <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="task-new-delete" />
-            <span>{_l('删除')}</span>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
-  }
   renderHeader() {
-    const { report, permissions, sourceType } = this.props;
-    const { saveLoading, settingVisible, isEdit, currentReport } = this.state;
-    const { id } = report;
+    const { report, permissions, sourceType, currentReport, worksheetInfo, base, onRemove, ownerId } = this.props;
+    const { saveLoading, settingVisible } = this.state;
+    const isPublicShareChart = location.href.includes('public/chart');
+    const isPublicSharePage = location.href.includes('public/page');
     return (
-      <div className="header">
-        {isEdit ? (
-          <Input
-            autoFocus
-            placeholder=""
-            className="flex mRight20"
-            defaultValue={currentReport.name}
-            onBlur={this.handleBlur}
-            onKeyDown={event => {
-              event.which === 13 && this.handleBlur(event);
-            }}
-          />
-        ) : (
-          <div className="ellipsis pointer">
-            <span
-              className="bold Font16"
-              onDoubleClick={() => {
-                if (permissions) {
-                  this.setState({
-                    isEdit: true,
-                  });
-                }
-              }}
-            >
-              {currentReport.name}
-            </span>
-            {permissions && (
-              <Icon
-                className="Font18 pointer Gray_9e mLeft7"
-                icon="workflow_write"
-                onClick={() => {
-                  this.setState({
-                    isEdit: true,
-                  });
-                }}
-              />
-            )}
-          </div>
-        )}
+      <div className="header valignWrapper">
+        <Header {...this.props} />
         <div className="flexRow valignWrapper">
-          {
-            settingVisible && (
-              <ConfigProvider autoInsertSpaceInButton={false}>
-                <Button className="buttonSave" block shape="round" type="primary" onClick={this.handleVerifySave}>
-                  {saveLoading ? <LoadDiv size="small" /> : _l('保存')}
-                </Button>
-              </ConfigProvider>
-            )
-          }
-          {!settingVisible && id && sourceType !== 1 && (
-            <span data-tip={_l('设置')}>
+          {settingVisible && (
+            <ConfigProvider autoInsertSpaceInButton={false}>
+              <Button className="buttonSave" block shape="round" type="primary" onClick={this.handleVerifySave}>
+                {saveLoading ? <LoadDiv size="small" /> : _l('保存')}
+              </Button>
+            </ConfigProvider>
+          )}
+          {!settingVisible && report.id && permissions && sourceType !== 1 && (
+            <Tooltip title={_l('设置')} placement="bottom">
               <Icon
                 icon="settings"
                 className={cx('Font20 pointer Gray_9e', { active: settingVisible })}
                 onClick={() => {
-                  const newFilter = {
-                    ...currentReport.filter,
-                    filterControls: [],
-                  };
                   this.setState({
                     settingVisible: !settingVisible,
                     scopeVisible: false,
-                    currentReport: {
-                      ...currentReport,
-                      filter: newFilter,
-                    }
                   }, () => {
-                    this.getReportData();
+                    this.props.changeBase({
+                      settingVisible: !settingVisible,
+                      sheetVisible: false,
+                      reportSingleCacheId: null,
+                      apkId: null,
+                      match: null
+                    });
+                    this.props.getReportData();
                   });
                 }}
               />
-            </span>
+            </Tooltip>
           )}
-          {permissions && id && sourceType !== 1 && (
-            <Dropdown overlay={this.renderMore()} trigger={['click']}>
-              <Icon className="Font24 pointer Gray_9e mLeft16" icon="more_horiz" />
-            </Dropdown>
+          {!settingVisible && this.renderChartOperation()}
+          {!settingVisible && !isPublicShareChart && !isPublicSharePage && (
+            <MoreOverlay
+              className="Gray_9e pointer mLeft16 Font24"
+              reportType={currentReport.reportType}
+              permissions={sourceType ? null : permissions}
+              isMove={sourceType ? false : true}
+              report={report}
+              sheetVisible={base.sheetVisible}
+              appId={worksheetInfo.appId}
+              worksheetId={sourceType ? worksheetInfo.worksheetId : null}
+              onRemove={permissions && report.id && sourceType !== 1 ? onRemove : null}
+              ownerId={ownerId}
+            />
           )}
-          <span data-tip={_l('关闭')} className="mLeft16">
-            <Icon icon="close" className="Font24 pointer Gray_9e" onClick={this.handleCancel} />
-          </span>
+          {!isPublicShareChart && (
+            <Tooltip title={_l('关闭')} placement="bottom">
+              <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={this.handleCancel} />
+            </Tooltip>
+          )}
         </div>
+        {isPublicShareChart && <DocumentTitle title={currentReport.name}/>}
       </div>
     );
   }
-  renderChart() {
-    const { reportData, currentReport, reportId } = this.state;
-    const { reportType } = reportData;
-    const Chart = charts[reportType];
-
-    if ([reportTypes.PivotTable].includes(reportType)) {
-      const { data, columns, ylist, lines, valueMap } = reportData;
-      return _.isEmpty(data.data) ? (
-        <WithoutData />
-      ) : (
-        <Chart
-          reportData={{
-            ...currentReport,
-            data,
-            columns,
-            ylist,
-            lines: currentReport.pivotTable ? _.merge(lines, currentReport.pivotTable.lines) : lines,
-            valueMap,
-          }}
-        />
-      );
-    }
-    if (reportTypes.CountryLayer === reportType) {
-      const { map, country } = reportData;
-      return map.length ? (
-        <Chart
-          reportData={{
-            ...currentReport,
-            map,
-            country,
-          }}
-        />
-      ) : (
-        <WithoutData />
-      );
-    }
-    if (
-      [
-        reportTypes.BarChart,
-        reportTypes.LineChart,
-        reportTypes.RadarChart,
-        reportTypes.FunnelChart,
-        reportTypes.DualAxes,
-      ].includes(reportType)
-    ) {
-      const { map, contrastMap } = reportData;
-      return map.length || contrastMap.length ? (
-        <Chart
-          reportData={{
-            ...currentReport,
-            map,
-            contrastMap,
-            reportId
-          }}
-        />
-      ) : (
-        <WithoutData />
-      );
-    }
-    if ([reportTypes.PieChart].includes(reportType)) {
-      const { aggregations } = reportData;
-      return aggregations.length && aggregations.filter(item => item.v).length ? (
-        <Chart
-          reportData={{
-            ...currentReport,
-            aggregations,
-            reportId
-          }}
-        />
-      ) : (
-        <WithoutData />
-      );
-    }
-    if ([reportTypes.NumberChart].includes(reportType)) {
-      const params = {
-        ...reportData,
-        yaxisList: currentReport.yaxisList,
-      };
-      return <Chart reportData={params} />;
-    }
-  }
   renderCharts() {
-    const { currentReport } = this.state;
+    const { currentReport } = this.props;
     const { reportType } = currentReport;
     return (
       <div className="charts flexRow pLeft20 pRight20">
@@ -637,17 +281,24 @@ export default class ChartDialog extends Component {
       </div>
     );
   }
+  renderChart() {
+    const { base } = this.props;
+    const { settingVisible, scopeVisible } = this.state;
+    return (
+      <Chart
+        sheetVisible={base.sheetVisible}
+        settingVisible={settingVisible}
+        scopeVisible={scopeVisible}
+        renderHeaderDisplaySetup={this.renderHeaderDisplaySetup}
+        changeSheetVisible={(visible) => {
+          this.handleChangeSheetVisible(visible);
+        }}
+      />
+    );
+  }
   renderSetting() {
-    const { projectId, sourceType } = this.props;
-    const {
-      currentReport,
-      reportData,
-      axisControls,
-      worksheetInfo,
-      filterItem,
-      chartIsUnfold,
-    } = this.state;
-    const xAxisisTime = isTimeControl(currentReport.xaxes.controlId, axisControls);
+    const { projectId } = this.props;
+    const { chartIsUnfold } = this.state;
 
     if (!chartIsUnfold) {
       return (
@@ -685,27 +336,13 @@ export default class ChartDialog extends Component {
             {this.renderCharts()}
             <Tabs className="chartTabs pLeft20 pRight20" defaultActiveKey="setting">
               <Tabs.TabPane tab={_l('配置')} key="setting">
-                <ChartSetting
-                  sourceType={sourceType}
-                  projectId={projectId}
-                  filterItem={filterItem}
-                  currentReport={currentReport}
-                  axisControls={axisControls}
-                  worksheetInfo={worksheetInfo}
-                  onUpdateDisplaySetup={this.handleDisplaySetup}
-                  onChangeCurrentReport={this.handleChangeCurrentReport}
-                  onChangeFilterItem={this.handleChangeFilterItem}
-                />
+                <ChartSetting projectId={projectId} />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('样式')} key="style">
-                <ChartStyle
-                  xAxisisTime={xAxisisTime}
-                  currentReport={currentReport}
-                  reportData={reportData}
-                  worksheetInfo={worksheetInfo}
-                  onUpdateDisplaySetup={this.handleDisplaySetup}
-                  onChangeCurrentReport={this.handleChangeCurrentReport}
-                />
+                <ChartStyle />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab={_l('分析')} key="analyse">
+                <ChartAnalyse />
               </Tabs.TabPane>
             </Tabs>
           </ScrollView>
@@ -713,210 +350,110 @@ export default class ChartDialog extends Component {
       </div>
     );
   }
-  renderHeaderDisplaySetup() {
-    const { currentReport, reportData, axisControls, settingVisible } = this.state;
-    const isDualAxes = reportTypes.DualAxes === currentReport.reportType;
-    const { xaxes, displaySetup, yreportType, sorts } = currentReport;
-    const xAxisisTime = isTimeControl(xaxes.controlId, axisControls);
+  renderHeaderDisplaySetup = () => {
+    const { settingVisible } = this.state;
     return (
-      <div className="flexRow valignWrapper Font13 Gray_75">
-        {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.FunnelChart, reportTypes.DualAxes].includes(
-          currentReport.reportType,
-        ) && settingVisible && (
-          <Fragment>
-            <HeaderDisplaySetup
-              title={isDualAxes ? _l('左Y轴(%0)', _.find(chartNav, { type: yreportType || 1 }).name) : null}
-              displaySetup={displaySetup}
-              mapKeys={Object.keys(reportData.map || [])}
-              reportType={isDualAxes ? yreportType : reportData.reportType}
-              xAxisisTime={xAxisisTime}
-              onUpdateDisplaySetup={(data, name) => {
-                if (name === 'default') {
-                  this.handleChangeCurrentReport(
-                    {
-                      displaySetup: data,
-                      sorts: [],
-                    },
-                    true,
-                  );
-                } else if (name === 'isPile' && !isDualAxes && _.find(sorts, xaxes.controlId)) {
-                  this.handleChangeCurrentReport({
-                    displaySetup: data,
-                    sorts: sorts.filter(item => _.findKey(item) !== xaxes.controlId),
-                  });
-                } else {
-                  this.handleDisplaySetup(data);
-                }
-              }}
-              chartType={reportData.reportType}
-            />
-            {currentReport.rightY && currentReport.rightY.display && (
-              <HeaderDisplaySetup
-                title={_l('右Y轴(折线图)')}
-                displaySetup={currentReport.rightY.display}
-                mapKeys={Object.keys(reportData.contrastMap || [])}
-                reportType={currentReport.rightY.reportType}
-                xAxisisTime={xAxisisTime}
-                onUpdateDisplaySetup={data => {
-                  this.setState({
-                    currentReport: {
-                      ...currentReport,
-                      rightY: {
-                        ...currentReport.rightY,
-                        display: data,
-                      },
-                    },
-                  });
-                }}
-              />
-            )}
-          </Fragment>
-        )}
-      </div>
+      <DisplaySetup settingVisible={settingVisible}>
+        {settingVisible && this.renderChartOperation()}
+      </DisplaySetup>
     );
   }
-  renderChartHeader() {
-    const { sourceType, permissions } = this.props;
-    const { settingVisible, scopeVisible, currentReport, reportData, reportId, worksheetInfo, axisControls } = this.state;
-    const xAxisisTime = isTimeControl(currentReport.xaxes.controlId, axisControls);
+  renderChartOperation = () => {
+    const { sourceType, base, direction } = this.props;
+    const { settingVisible, scopeVisible } = this.state;
     return (
-      <div className="chartHeader mBottom10">
-        {this.renderHeaderDisplaySetup()}
-        <div className="flexRow valignWrapper">
-          {reportTypes.PivotTable == reportData.reportType && !settingVisible && (
-            <Tooltip title={_l('导出')} placement="bottom">
-              <div
-                className="displaySetup flexRow valignWrapper"
-                onClick={() => {
-                  exportPivotTable(reportId, sourceType ? worksheetInfo.worksheetId : null);
-                }}
-              >
-                <div className="item h100 pAll5">
-                  <Icon className="Font20 Gray_9e" icon="file_download" />
-                </div>
-              </div>
-            </Tooltip>
-          )}
-          {!settingVisible && (
-            <div
-              className="displaySetup flexRow valignWrapper"
-              onClick={() => {
-                this.setState({
-                  scopeVisible: !scopeVisible
-                });
-              }}
-            >
-              <div className="item h100 pAll5">
-                <Icon className={cx('Font20 Gray_9e', { active: scopeVisible })} icon="filter" />
-              </div>
-            </div>
-          )}
-          <Sort
-            controls={axisControls}
-            xAxisisTime={xAxisisTime}
-            currentReport={currentReport}
-            reportType={reportData.reportType}
-            map={reportData.map}
-            valueMap={reportData.valueMap}
-            onChangeCurrentReport={data => {
-              this.handleChangeCurrentReport(data, true);
-            }}
-          />
-        </div>
-      </div>
+      <Fragment>
+        <Operation
+          sheetVisible={base.sheetVisible}
+          direction={direction}
+          settingVisible={settingVisible}
+          scopeVisible={scopeVisible}
+          sourceType={sourceType}
+          onChangeScopeVisible={( scopeVisible ) => {
+            this.setState({ scopeVisible });
+          }}
+          onChangeSheetVisible={() => {
+            if (settingVisible) {
+              this.props.changeDirection('vertical');
+            }
+            this.handleChangeSheetVisible(!base.sheetVisible);
+          }}
+          onChangeDirection={() => {
+            if (base.sheetVisible) {
+              this.props.changeDirection();
+            } else {
+              this.handleChangeSheetVisible(!base.sheetVisible);
+            }
+          }}
+        />
+      </Fragment>
     );
   }
   renderContent() {
     const {
       settingVisible,
-      currentReport,
-      reportData,
-      loading,
-      worksheetInfo,
-      axisControls,
       dataIsUnfold,
       reportId,
-      filterItem,
       scopeVisible
     } = this.state;
-    const { permissions, appId, projectId, sourceType } = this.props;
-    const { viewId } = currentReport.filter;
-    const view = _.find(worksheetInfo.views, { viewId });
-    const xAxisisTime = isTimeControl(currentReport.xaxes.controlId, axisControls);
+    const {
+      permissions,
+      appId,
+      projectId,
+      sourceType,
+      ownerId
+    } = this.props;
+
     return (
-      <Fragment>
-        <div className="chart flexColumn">
-          {reportData.status ? this.renderChartHeader() : null}
-          {loading ? <Loading /> : reportData.status ? this.renderChart() : <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} />}
-        </div>
-        {settingVisible && permissions ? (
+      <ErrorBoundary>
+        {this.renderChart()}
+        {settingVisible && permissions && (
           <div className="ChartDialogSetting flexRow h100">
             <DndProvider key="statistics" context={window} backend={HTML5Backend}>
               <DataSource
                 dataIsUnfold={dataIsUnfold}
+                ownerId={ownerId}
                 appId={appId}
                 projectId={projectId}
                 sourceType={sourceType}
-                worksheetInfo={worksheetInfo}
-                axisControls={axisControls}
-                currentReport={currentReport}
-                onChangeCurrentReport={this.handleChangeCurrentReport}
                 onChangeDataIsUnfold={() => {
                   this.setState({
                     dataIsUnfold: !dataIsUnfold,
                   });
                 }}
-                onChangeSheetId={activeSheetId => {
-                  const { reportType } = this.state.reportData;
-                  this.setState(
-                    {
-                      chartType: reportType,
-                      reportData: {},
-                      currentReport: {
-                        ...currentReport,
-                        xaxes: {},
-                        yaxisList: [],
-                      },
-                      activeSheetId,
-                      reportId: null,
-                    },
-                    () => {
-                      this.getReportConfigDetail();
-                    },
-                  );
+                onChangeSheetId={worksheetId => {
+                  const { reportType } = this.props.reportData;
+                  this.props.changeSheetId(worksheetId);
+                  this.setState({ worksheetId, reportId: null });
                 }}
               />
               {this.renderSetting()}
             </DndProvider>
           </div>
-        ) : null}
+        )}
         {scopeVisible && (
           <div className="ChartDialogSetting flexRow h100">
-          <FilterScope
-            worksheetInfo={worksheetInfo}
-            id={reportId}
-            projectId={projectId}
-            xAxisisTime={xAxisisTime}
-            currentReport={currentReport}
-            filterItem={filterItem}
-            controls={axisControls.filter(item => isTimeControl(item.type))}
-            onChangeCurrentReport={this.handleChangeCurrentReport}
-            onUpdateFilter={filter => {
-              this.setState({
-                currentReport: {
-                  ...currentReport,
-                  filter
-                }
-              }, this.getReportData);
-            }}
-          />
+            <FilterScope id={reportId} projectId={projectId} />
           </div>
         )}
-      </Fragment>
+      </ErrorBoundary>
     );
   }
   render() {
-    const { reportData, detailLoading } = this.state;
+    const { nodialog, reportData, detailLoading } = this.props;
+
+    const content = detailLoading || _.isEmpty(reportData) ? <Loading /> : this.renderContent();
+
+    if (nodialog) {
+      return (
+        <div className="ChartDialog">
+          {this.renderHeader()}
+          <div className="flexRow flex overflowHidden">
+            {content}
+          </div>
+        </div>
+      );
+    }
 
     const dialogProps = {
       className: 'ChartDialog',
@@ -928,10 +465,10 @@ export default class ChartDialog extends Component {
       onCancel: this.handleCancel,
       closable: false,
       title: this.renderHeader(),
-    };
+    }
 
     return (
-      <Dialog {...dialogProps}>{detailLoading || _.isEmpty(reportData) ? <Loading /> : this.renderContent()}</Dialog>
+      <Dialog {...dialogProps}>{content}</Dialog>
     );
   }
 }

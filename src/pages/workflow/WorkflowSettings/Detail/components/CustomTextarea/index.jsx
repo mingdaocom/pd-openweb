@@ -8,6 +8,7 @@ export default class CustomTextarea extends Component {
   static propTypes = {
     processId: PropTypes.string,
     selectNodeId: PropTypes.string,
+    sourceAppId: PropTypes.string,
     type: PropTypes.number,
     height: PropTypes.number,
     content: PropTypes.string,
@@ -24,6 +25,7 @@ export default class CustomTextarea extends Component {
     getRef: () => {},
     onFocus: () => {},
     operatorsSetMargin: false,
+    sourceAppId: '',
     className: '',
   };
 
@@ -45,7 +47,20 @@ export default class CustomTextarea extends Component {
   }
 
   render() {
-    const { processId, selectNodeId, type, height, content, formulaMap, onFocus, onChange, updateSource, operatorsSetMargin, className } = this.props;
+    const {
+      processId,
+      selectNodeId,
+      sourceAppId,
+      type,
+      height,
+      content,
+      formulaMap,
+      onFocus,
+      onChange,
+      updateSource,
+      operatorsSetMargin,
+      className,
+    } = this.props;
     const { fieldsVisible } = this.state;
 
     return (
@@ -81,9 +96,15 @@ export default class CustomTextarea extends Component {
           fieldsVisible={fieldsVisible}
           processId={processId}
           selectNodeId={selectNodeId}
+          sourceAppId={sourceAppId}
           handleFieldClick={obj => {
             const newFormulaMap = _.cloneDeep(formulaMap);
-            newFormulaMap[obj.nodeId] = { type: obj.nodeTypeId, appType: obj.appType, actionId: obj.actionId, name: obj.nodeName };
+            newFormulaMap[obj.nodeId] = {
+              type: obj.nodeTypeId,
+              appType: obj.appType,
+              actionId: obj.actionId,
+              name: obj.nodeName,
+            };
             newFormulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName };
 
             updateSource({ formulaMap: newFormulaMap }, () => {

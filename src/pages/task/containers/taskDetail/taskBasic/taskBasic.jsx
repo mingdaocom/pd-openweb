@@ -806,11 +806,13 @@ class TaskBasic extends Component {
               />
               {!isEditing ? (
                 <RichText
-                  key={taskId}
+                  id={taskId}
                   className="taskDetailEdit"
+                  dropdownPanelPosition={{ right: 'initial' }}
                   data={data.summary}
                   disabled={true}
                   minHeight={40}
+                  maxHeight={500}
                   placeholder={hasAuth ? _l('添加描述') : _l('未添加描述')}
                   onClickNull={e => {
                     hasAuth &&
@@ -821,10 +823,13 @@ class TaskBasic extends Component {
                 />
               ) : (
                 <RichText
+                  id={taskId}
                   maxWidth={550}
                   data={data.summary || ''}
                   onSave={this.updateTaskSummary}
                   className={cx('taskDetailEdit appIntroDescriptionEditor')}
+                  maxHeight={500}
+                  dropdownPanelPosition={{ right: 'initial' }}
                 />
               )}
             </div>

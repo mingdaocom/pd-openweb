@@ -7,6 +7,7 @@ import 'quickSelectUser';
 import cx from 'classnames';
 import SelectUser from 'src/pages/Mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -29,45 +30,59 @@ export default class Widgets extends Component {
    * 选择用户
    */
   pickUser = event => {
-    const { projectId = '', enumDefault, advancedSetting = {}, worksheetId, controlId } = this.props;
+    const { projectId = '', enumDefault, advancedSetting = {}, worksheetId, controlId, appId } = this.props;
     const value = this.getUserValue();
     const filterAccountIds = value.map(item => item.accountId);
     const that = this;
+    const tabType = getTabTypeBySelectUser(this.props);
+
+    if (
+      tabType === 1 &&
+      md.global.Account.isPortal &&
+      !_.find(md.global.Account.projects, item => item.projectId === projectId)
+    ) {
+      alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+      return;
+    }
 
     if (browserIsMobile()) {
       this.setState({ showSelectUser: true });
     } else {
-      $(event.target).quickSelectUser({
-        showQuickInvite: false,
-        showMoreInvite: false,
-        isTask: false,
-        isRangeData: !!advancedSetting.userrange,
-        filterWorksheetId: worksheetId,
-        filterWorksheetControlId: controlId,
-        prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
-          ? [
-              {
-                accountId: md.global.Account.accountId,
-                fullname: _l('我自己'),
-                avatar: md.global.Account.avatar,
-              },
-            ]
-          : [],
-        filterAccountIds,
-        minHeight: 400,
-        offset: {
-          top: 16,
-          left: 0,
-        },
-        zIndex: 10001,
-        SelectUserSettings: {
-          unique: enumDefault === 0,
-          projectId: projectId,
+      $(event.target)
+        .closest('.addBtn')
+        .quickSelectUser({
+          showQuickInvite: false,
+          showMoreInvite: false,
+          isTask: false,
+          isRangeData: !!advancedSetting.userrange,
+          tabType,
+          appId,
+          filterWorksheetId: worksheetId,
+          filterWorksheetControlId: controlId,
+          prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
+            ? [
+                {
+                  accountId: md.global.Account.accountId,
+                  fullname: _l('我自己'),
+                  avatar: md.global.Account.avatar,
+                },
+              ]
+            : [],
           filterAccountIds,
-          callback: that.onSave,
-        },
-        selectCb: that.onSave,
-      });
+          minHeight: 400,
+          offset: {
+            top: 16,
+            left: 0,
+          },
+          zIndex: 10001,
+          SelectUserSettings: {
+            unique: enumDefault === 0,
+            projectId: projectId,
+            filterAccountIds,
+            callback: that.onSave,
+          },
+          selectCb: that.onSave,
+        });
     }
   };
 
@@ -86,7 +101,7 @@ export default class Widgets extends Component {
   onSave = users => {
     const { enumDefault, onChange } = this.props;
     const value = this.getUserValue();
-    const newAccounts = enumDefault === 0 ? users : _.uniq(value.concat(users), 'accountId');
+    const newAccounts = enumDefault === 0 ? users : _.uniqBy(value.concat(users), 'accountId');
 
     onChange(JSON.stringify(newAccounts));
   };
@@ -100,7 +115,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, from, advancedSetting = {}, worksheetId, controlId } = this.props;
+    const { projectId, disabled, enumDefault, from, advancedSetting = {}, worksheetId, controlId, appId } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
     const isMobile = browserIsMobile();
@@ -164,6 +179,8 @@ export default class Widgets extends Component {
             projectId={projectId}
             visible={true}
             type="user"
+            userType={getTabTypeBySelectUser(this.props)}
+            appId={appId || ''}
             isRangeData={!!advancedSetting.userrange}
             filterWorksheetId={worksheetId}
             filterWorksheetControlId={controlId}

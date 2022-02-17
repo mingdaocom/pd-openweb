@@ -7,6 +7,7 @@
   LINK: 5, // 链接文件
   VIDEO: 6,
   NEW_PAGE: 7,
+  TXT: 8,
 };
 
 const FROM_TYPE = {
@@ -22,7 +23,7 @@ const FROM_TYPE = {
 function createDict(map) {
   const result = {};
   for (const key in map) {
-    map[key].forEach((ext) => {
+    map[key].forEach(ext => {
       result[ext] = PREVIEW_TYPE[key] || PREVIEW_TYPE.OTHER;
     });
   }
@@ -30,7 +31,7 @@ function createDict(map) {
 }
 
 const extType = {
-  PICTURE: ['jpg', 'gif', 'png', 'jpeg', 'bmp', 'webp', 'heic', 'tif'],
+  PICTURE: ['jpg', 'gif', 'png', 'jpeg', 'bmp', 'webp', 'heic', 'tif', 'tiff'],
   VIDEO: ['mov', 'mp4', 'avi', 'mkv', '3gp', '3g2', 'm4v', 'rm', 'rmvb', 'webm'],
   IFRAME: ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'txt', 'ai', 'psd'],
   MARKDOWN: ['md', 'markdown'],

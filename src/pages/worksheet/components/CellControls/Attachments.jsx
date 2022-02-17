@@ -1,133 +1,408 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
-import cx from 'classnames';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import UploadFiles from 'src/components/UploadFiles';
-import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import attachmentAjax from 'src/api/attachment';
-import { FROM } from './enum';
-import EditableCellCon from '../EditableCellCon';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import Trigger from 'rc-trigger';
+import { useClickAway } from 'react-use';
+import { Tooltip } from 'ming-ui';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getClassNameByExt } from 'src/util';
+import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
+import { deleteAttachmentOfControl } from 'worksheet/api';
+import { getClassNameByExt, formatFileSize } from 'src/util';
+import { bool, func, number, shape, string } from 'prop-types';
 
-export default class Attachments extends React.Component {
-  static propTypes = {
-    className: PropTypes.string,
-    style: PropTypes.shape({}),
-    editable: PropTypes.bool,
-    isediting: PropTypes.bool,
-    from: PropTypes.number,
-    rowHeight: PropTypes.number,
-    popupContainer: PropTypes.any,
-    cell: PropTypes.shape({ value: PropTypes.string }),
-    value: PropTypes.string,
-    updateCell: PropTypes.func,
-    onClick: PropTypes.func,
-    updateEditingStatus: PropTypes.func,
-  };
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: this.parseValue(props.cell.value),
-    };
-  }
-
-  componentDidMount() {
-    const { from } = this.props;
-    if (from === FROM.LAND) {
-      this.fetchAttachmentDetailList();
+const Con = styled.div`
+  &:hover {
+    .CutCon {
+      margin-right: 34px;
+    }
+    .OperateIcon {
+      display: inline-block;
     }
   }
+`;
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: this.parseValue(nextProps.cell.value) });
+const CutCon = styled.div`
+  max-width: 500px;
+  overflow: hidden;
+  white-space: nowrap;
+`;
+
+const EditingCon = styled.div`
+  padding: 5px 6px 0px;
+  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+  background-color: #fff;
+  font-size: 0px;
+  .AttachmentCon {
+    margin-bottom: 5px;
+  }
+`;
+
+const AttachmentCon = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-right: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  &:hover {
+    .hoverMask {
+      display: inline-block;
     }
   }
+`;
 
-  editIcon = React.createRef();
+const AttachmentImage = styled.img`
+  vertical-align: middle;
+`;
 
-  parseValue(valueStr, errCb) {
-    let value = [];
-    try {
-      value = JSON.parse(valueStr);
-      if (value.attachmentData && value.attachments && value.knowledgeAtts) {
-        value = [...value.attachments, ...value.knowledgeAtts, ...value.attachmentData];
+const AttachmentDoc = styled.span`
+  vertical-align: middle;
+`;
+
+const ShadowInset = styled.span`
+  position: absolute;
+  border-radius: 2px;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.05);
+`;
+
+const ImageHoverMask = styled.span`
+  position: absolute;
+  border-radius: 2px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: none;
+`;
+
+const OperateIcon = styled.div`
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  text-align: center;
+  line-height: 34px;
+  color: #9e9e9e;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const HoverPreviewPanelCon = styled.div`
+  text-align: center;
+  width: 240px;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.24);
+  border-radius: 6px;
+  background-color: #fff;
+  overflow: hidden;
+  .fileDetail {
+    text-align: left;
+    font-size: 13px;
+    padding: 8px 16px;
+    word-break: break-all;
+  }
+  .fileName {
+    color: #333;
+  }
+  .panelFooter {
+    margin-top: 2px;
+  }
+  .fileSize {
+    color: #9e9e9e;
+  }
+  .deleteBtn {
+    cursor: pointer;
+    float: right;
+    color: #9e9e9e;
+    font-size: 18px;
+    &:hover {
+      color: #f44336;
+    }
+  }
+`;
+
+const ImageCoverCon = styled.div`
+  background-color: #f5f5f5;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ImageCover = styled.img`
+  max-width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+`;
+
+const Add = styled.div`
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  margin-right: 4px;
+  margin-bottom: 5px;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  text-align: center;
+  .icon {
+    font-size: 16px;
+    color: #ccc;
+    line-height: inherit;
+  }
+`;
+
+function parseValue(valueStr, errCb) {
+  let value = [];
+  try {
+    value = JSON.parse(valueStr);
+    if (value.attachmentData && value.attachments && value.knowledgeAtts) {
+      value = [...value.attachments, ...value.knowledgeAtts, ...value.attachmentData];
+    }
+    value = value.map(attachment => {
+      const newAttachment =
+        attachment.createTime || !_.isUndefined(attachment.fileSize)
+          ? {
+              ext: attachment.ext || attachment.fileExt,
+              fileID: attachment.fileID || attachment.fileId,
+              originalFilename: attachment.originalFileName || attachment.originalFilename,
+              previewUrl: attachment.previewUrl || attachment.viewUrl || `${attachment.serverName}${attachment.key}`,
+              refId: attachment.refID || attachment.refId,
+              filesize: attachment.fileSize || attachment.filesize,
+            }
+          : attachment;
+      if (newAttachment.ext === '.') {
+        newAttachment.ext = '';
       }
-      value = value.map(attachment => {
-        const newAttachment =
-          attachment.createTime || !_.isUndefined(attachment.fileSize)
-            ? {
-                ext: attachment.ext || attachment.fileExt,
-                fileID: attachment.fileID || attachment.fileId,
-                originalFilename: attachment.originalFileName || attachment.originalFilename,
-                previewUrl: attachment.previewUrl || attachment.viewUrl || `${attachment.serverName}${attachment.key}`,
-                refId: attachment.refID || attachment.refId,
-              }
-            : attachment;
-        if (newAttachment.ext === '.') {
-          newAttachment.ext = '';
+      newAttachment.origin = attachment;
+      return newAttachment;
+    });
+  } catch (err) {
+    return [];
+  }
+  return value;
+}
+
+function previewAttachment(attachments, index, sheetSwitchPermit = [], viewId = '') {
+  require(['previewAttachments'], previewAttachments => {
+    const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
+    let hideFunctions = ['editFileName'];
+    if (!recordAttachmentSwitch) {
+      /* 是否不可下载 且 不可保存到知识和分享 */
+      hideFunctions.push('download', 'share', 'saveToKnowlege');
+    }
+    previewAttachments({
+      index: index || 0,
+      fromType: 4,
+      attachments: attachments.map(attachment => {
+        if (attachment.fileID.slice(0, 2) === 'o_') {
+          return Object.assign({}, attachment, {
+            previewAttachmentType: 'QINIU',
+            path: attachment.origin.url || attachment.previewUrl,
+            ext: attachment.ext.slice(1),
+            name: attachment.originalFilename || _l('图片'),
+          });
         }
-        newAttachment.origin = attachment;
-        return newAttachment;
-      });
-    } catch (err) {
-      return [];
-    }
-    return value;
-  }
-
-  fetchAttachmentDetailList() {
-    const { cell } = this.props;
-    const attachmentsData = this.parseValue(cell.value, () => {
-      this.setState({ error: true });
-    });
-    if (!attachmentsData.length) {
-      return;
-    }
-    attachmentAjax
-      .getAttachmentToList({
-        fileIds: attachmentsData.map(a => a.fileID),
-      })
-      .then(list => {
-        this.setState({
-          attachmentDetailList: list,
-          loading: false,
+        return Object.assign({}, attachment, {
+          previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
         });
-      })
-      .fail(err => {
-        alert(_l('获取附件信息失败'), 3);
-      });
-  }
-
-  @autobind
-  updateCellCallback(data) {
-    const { cell } = this.props;
-    let parsedValue = [];
-    try {
-      parsedValue = JSON.parse(data[cell.controlId]);
-    } catch (err) {}
-    this.setState({
-      value: parsedValue.map(file => ({
-        ext: file.ext,
-        fileID: file.fileID,
-        originalFilename: file.originalFilename,
-        previewUrl: file.previewUrl,
-        refId: file.refId,
-      })),
+      }),
+      showThumbnail: true,
+      hideFunctions: hideFunctions,
+      disableNoPeimission: true,
     });
-  }
+  });
+}
 
-  @autobind
-  handleChange() {
-    const { updateCell, updateEditingStatus } = this.props;
-    const { value, temporaryAttachments, temporaryKnowledgeAtts } = this.state;
+function HoverPreviewPanel(props, cb = () => {}) {
+  const { isSubList, editable, cell = {}, attachment = {}, cellInfo = {}, onUpdate, deleteLocalAttachment } = props;
+  const { originalFilename, ext = '', filesize } = attachment;
+  const { controlId } = cell;
+  const { appId, viewId, worksheetId, recordId } = cellInfo;
+  function handleDelete() {
+    if (isSubList && /^o_/.test(attachment.fileID)) {
+      deleteLocalAttachment(attachment.fileID);
+    } else {
+      deleteAttachmentOfControl(
+        {
+          appId,
+          viewId,
+          worksheetId,
+          recordId,
+          controlId,
+          attachment,
+        },
+        (err, data) => {
+          if (err) {
+            alert(_l('删除失败，请稍后重试'), 2);
+          } else {
+            if (isSubList) {
+              deleteLocalAttachment(attachment.fileID);
+            } else {
+              onUpdate(data[controlId]);
+            }
+          }
+        },
+      );
+    }
+  }
+  return (
+    <HoverPreviewPanelCon onClick={e => e.stopPropagation()}>
+      {File.isPicture(attachment.ext) && (
+        <ImageCoverCon>
+          <ImageCover
+            src={attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160')}
+          />
+        </ImageCoverCon>
+      )}
+      <div className="fileDetail">
+        <div className="fileName">{originalFilename + ext}</div>
+        <div className="panelFooter">
+          <span className="fileSize">{formatFileSize(filesize)}</span>
+          {editable && (
+            <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
+              <i className="icon icon-trash deleteBtn" onClick={handleDelete}></i>
+            </Tooltip>
+          )}
+        </div>
+      </div>
+    </HoverPreviewPanelCon>
+  );
+}
+
+function Attachment(props) {
+  const {
+    isSubList,
+    editable,
+    index,
+    viewId,
+    cell,
+    cellInfo,
+    cellWidth,
+    fileWidth,
+    fileHeight,
+    attachments,
+    sheetSwitchPermit,
+    onUpdate,
+    deleteLocalAttachment,
+  } = props;
+  const { attachment } = props;
+  return (
+    <Trigger
+      action={['hover']}
+      popup={
+        <HoverPreviewPanel
+          isSubList={isSubList}
+          editable={editable}
+          attachment={attachment}
+          cell={cell}
+          cellInfo={cellInfo}
+          onUpdate={onUpdate}
+          deleteLocalAttachment={deleteLocalAttachment}
+        />
+      }
+      getPopupContainer={() => document.body}
+      destroyPopupOnHide
+      mouseEnterDelay={0.4}
+      popupAlign={{
+        points: ['tl', 'bl'],
+        offset: [0, 4],
+        overflow: {
+          adjustY: true,
+          adjustX: true,
+        },
+      }}
+    >
+      <AttachmentCon
+        className="AttachmentCon"
+        style={{ maxWidth: cellWidth }}
+        onClick={e => {
+          previewAttachment(attachments, index, sheetSwitchPermit, viewId);
+          e.stopPropagation();
+        }}
+      >
+        {File.isPicture(attachment.ext) && <ShadowInset />}
+        {File.isPicture(attachment.ext) && <ImageHoverMask className="hoverMask" />}
+        {File.isPicture(attachment.ext) ? (
+          <AttachmentImage
+            crossOrigin="anonymous"
+            role="presentation"
+            src={attachment.previewUrl.replace(
+              /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+              'imageView2/2/h/' + fileHeight,
+            )}
+            style={{ width: 'auto', height: fileHeight }}
+          />
+        ) : (
+          <AttachmentDoc
+            className={`fileIcon ${getClassNameByExt(attachment.ext)}`}
+            title={attachment.originalFilename + (attachment.ext || '')}
+            style={{ width: fileWidth, height: fileHeight }}
+          />
+        )}
+      </AttachmentCon>
+    </Trigger>
+  );
+}
+
+export default function cellAttachments(props) {
+  const {
+    isSubList,
+    from = 1,
+    className,
+    style,
+    projectId,
+    viewId,
+    sheetSwitchPermit,
+    isediting,
+    error,
+    cell = {},
+    rowHeight = 34,
+    popupContainer,
+    onClick,
+    updateEditingStatus,
+    updateCell,
+    ...rest
+  } = props;
+  let { editable } = props;
+  const { value, strDefault = '', advancedSetting } = cell;
+  const [, onlyAllowMobileInput] = strDefault.split('');
+  if (cell.type === 14 && onlyAllowMobileInput === '1') {
+    editable = false;
+  }
+  const [uploadFileVisible, setUploadFileVisible] = useState(false);
+  const [attachments, setAttachments] = useState(parseValue(value));
+  const [temporaryAttachments, setTemporaryAttachments] = useState([]);
+  const [temporaryKnowledgeAtts, setTemporaryKnowledgeAtts] = useState([]);
+  const fileHeight = rowHeight - 10;
+  const fileWidth = (fileHeight * 21) / 24;
+  const ref = useRef(null);
+  useClickAway(ref, e => {
+    if (
+      !e.target.closest(
+        [
+          '#folderSelectDialog_container',
+          '#addLinkFileDialog_container',
+          '.attachmentsPreview',
+          '.UploadFilesTriggerPanel',
+          '.triggerTraget',
+        ].join(','),
+      )
+    ) {
+      updateEditingStatus(false);
+    }
+  });
+  useEffect(() => {
+    setAttachments(parseValue(value));
+  }, [value]);
+  function handleChange(_attachments) {
+    const attachmentList = _attachments || attachments;
     const submitData = {};
-    const tempSavedAttachments = value.filter(c => /^o_/.test(c.fileID) && !c.refId).map(c => c.origin);
-    const tempSavedKcAttachments = value.filter(c => /^o_/.test(c.fileID) && c.refId).map(c => c.origin);
-    submitData.attachmentData = value.filter(c => !/^o_/.test(c.fileID)).map(c => c.origin);
+    const tempSavedAttachments = attachmentList.filter(c => /^o_/.test(c.fileID) && !c.refId).map(c => c.origin);
+    const tempSavedKcAttachments = attachmentList.filter(c => /^o_/.test(c.fileID) && c.refId).map(c => c.origin);
+    submitData.attachmentData = attachmentList.filter(c => !/^o_/.test(c.fileID)).map(c => c.origin);
     submitData.attachments = (temporaryAttachments || [])
       .concat(tempSavedAttachments)
       .map(a => ({ ...a, isEdit: false }));
@@ -139,180 +414,130 @@ export default class Attachments extends React.Component {
         value: JSON.stringify(submitData),
       },
       {
-        callback: this.updateCellCallback,
+        callback: data => {
+          let parsedValue = [];
+          try {
+            parsedValue = JSON.parse(data[cell.controlId]);
+          } catch (err) {}
+          setAttachments(
+            parsedValue.map(file => ({
+              ext: file.ext,
+              fileID: file.fileID,
+              originalFilename: file.originalFilename,
+              previewUrl: file.previewUrl,
+              refId: file.refId,
+            })),
+          );
+        },
       },
     );
     updateEditingStatus(false);
-    this.setState({
-      temporaryAttachments: [],
-      temporaryKnowledgeAtts: [],
-    });
+    setTemporaryAttachments([]);
+    setTemporaryKnowledgeAtts([]);
   }
-
-  previewAttachment(attachments, index) {
-    require(['previewAttachments'], previewAttachments => {
-      const { sheetSwitchPermit = [], viewId = '' } = this.props;
-      const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
-      let hideFunctions = ['editFileName'];
-      if (!recordAttachmentSwitch) {
-        /* 是否不可下载 且 不可保存到知识和分享 */
-        hideFunctions.push('download', 'share', 'saveToKnowlege');
-      }
-      previewAttachments({
-        index: index || 0,
-        fromType: 4,
-        attachments: attachments.map(attachment => {
-          if (attachment.fileID.slice(0, 2) === 'o_') {
-            return Object.assign({}, attachment, {
-              previewAttachmentType: 'QINIU',
-              path: attachment.previewUrl,
-              ext: attachment.ext.slice(1),
-              name: attachment.originalFilename || _l('图片'),
-            });
-          }
-          return Object.assign({}, attachment, {
-            previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
-          });
-        }),
-        showThumbnail: true,
-        hideFunctions: hideFunctions,
-        disableNoPeimission: true,
-      });
-    });
-  }
-
-  renderLand(attachmentsData) {
-    const { loading, attachmentDetailList } = this.state;
-    return loading ? (
-      <LoadDiv className="loadingCon" />
-    ) : (
-      <UploadFiles isUpload={false} attachmentData={attachmentDetailList} projectId={this.props.projectId} />
-    );
-  }
-
-  renderCommon(attachmentsData) {
-    const { rowHeight } = this.props;
-    const attachmentLength = attachmentsData.length;
-    if (attachmentLength > 11) {
-      attachmentsData = attachmentsData.slice(0, 10);
-    }
-    const fileHeight = rowHeight - 10;
-    const fileWidth = (fileHeight * 21) / 24;
-    return (
-      <React.Fragment>
-        {attachmentsData.map((attachment, index) => (
-          <div
-            onClick={e => {
-              this.previewAttachment(attachmentsData, index);
-              e.stopPropagation();
-            }}
-            key={index}
-            className={'cellAttachment ellipsis Hand rowHeight' + rowHeight}
-            style={{ height: fileHeight }}
-          >
-            {File.isPicture(attachment.ext) ? (
-              <img
-                crossOrigin="anonymous"
-                className="thumbnail"
-                role="presentation"
-                src={
-                  attachment.previewUrl.indexOf('imageView2') > -1
-                    ? attachment.previewUrl.replace(
-                        /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                        'imageView2/1/w/87/h/100',
-                      )
-                    : attachment.previewUrl.indexOf('?') > -1
-                    ? `${attachment.previewUrl}&imageView2/1/w/87/h/100`
-                    : `${attachment.previewUrl}?imageView2/1/w/87/h/100`
-                }
-                style={{ width: 'auto', height: fileHeight }}
-              />
-            ) : (
-              <span
-                className={`fileIcon ${getClassNameByExt(attachment.ext)}`}
-                title={attachment.originalFilename + (attachment.ext || '')}
-                style={{ width: fileWidth, height: fileHeight }}
-              />
-            )}
-          </div>
-        ))}
-        {attachmentLength > 11 && (
-          <span className="moreAttachment">
-            <i className="icon icon-task-point-more" />
-          </span>
-        )}
-      </React.Fragment>
-    );
-  }
-
-  render() {
-    const {
-      isediting,
-      from = 1,
-      className,
-      cell,
-      style,
-      popupContainer,
-      onClick,
-      updateEditingStatus,
-      projectId,
-    } = this.props;
-    let { editable } = this.props;
-    const { value } = this.state;
-    const { strDefault = '10' } = cell;
-    const [disableAlbum, onlyAllowMobileInput] = strDefault.split('');
-    if (cell.type === 14 && onlyAllowMobileInput === '1') {
-      editable = false;
-    }
-    return (
+  const attachmentsComp = attachments.map((attachment, index) => (
+    <Attachment
+      isSubList={isSubList}
+      editable={editable}
+      cell={cell}
+      popupContainer={popupContainer}
+      attachment={attachment}
+      cellWidth={style.width - 12}
+      fileHeight={fileHeight}
+      fileWidth={fileWidth}
+      cellInfo={rest}
+      index={index}
+      attachments={attachments}
+      sheetSwitchPermit={sheetSwitchPermit}
+      viewId={viewId}
+      onUpdate={valueStr => {
+        setAttachments(parseValue(valueStr));
+      }}
+      deleteLocalAttachment={id => {
+        handleChange(attachments.filter(a => a.fileID !== id));
+      }}
+    />
+  ));
+  if (isediting) {
+    const popContent = (
       <UploadFilesTrigger
+        advancedSetting={advancedSetting}
+        id={cell.controlId + rest.recordId}
         projectId={projectId}
         noWrap
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
-        popupVisible={isediting && editable}
+        popupVisible={editable && (uploadFileVisible || !attachments.length)}
         from={from}
         canAddLink={false}
         minWidth={130}
         showAttInfo={false}
         attachmentData={[]}
-        onUploadComplete={isComplete => {
-          this.setState({ isComplete });
-        }}
-        temporaryData={this.state.temporaryAttachments || []}
+        temporaryData={temporaryAttachments}
         onTemporaryDataUpdate={res => {
-          this.setState({ temporaryAttachments: res });
+          setTemporaryAttachments(res);
         }}
-        kcAttachmentData={this.state.temporaryKnowledgeAtts || []}
+        kcAttachmentData={temporaryKnowledgeAtts}
         onKcAttachmentDataUpdate={res => {
-          this.setState({ temporaryKnowledgeAtts: res });
+          setTemporaryKnowledgeAtts(res);
         }}
         getPopupContainer={() => document.body}
         onCancel={() => {
-          updateEditingStatus(false);
+          setUploadFileVisible(false);
         }}
         onClose={() => {
-          updateEditingStatus(false);
+          setUploadFileVisible(false);
         }}
-        onOk={this.handleChange}
+        onOk={() => {
+          handleChange();
+        }}
       >
-        <EditableCellCon
-          onClick={onClick}
-          className={cx(className, { canedit: editable })}
-          style={style}
-          iconRef={this.editIcon}
-          iconName="attachment"
-          iconClassName="dateEditIcon"
-          isediting={isediting && editable}
-          onIconClick={() => {
-            updateEditingStatus(true);
-          }}
-        >
-          <div className="cellAttachments cellControl">
-            {(from === FROM.COMMON || from === FROM.RELATE_WORKSHEET || from === FROM.CARD) && this.renderCommon(value)}
-            {from === FROM.LAND && this.renderLand(value)}
-          </div>
-        </EditableCellCon>
+        <EditingCon ref={ref} style={{ width: style.width, minHeight: style.height }}>
+          {attachmentsComp}
+          <Add
+            style={{ width: fileWidth, height: fileHeight, lineHeight: fileHeight - 2 + 'px' }}
+            onClick={() => setUploadFileVisible(true)}
+          >
+            <i className="icon icon-plus"></i>
+          </Add>
+        </EditingCon>
       </UploadFilesTrigger>
     );
+    return (
+      <Trigger
+        zIndex={99}
+        popup={popContent}
+        getPopupContainer={popupContainer}
+        popupClassName="filterTrigger"
+        popupVisible={isediting}
+        destroyPopupOnHide
+        popupAlign={{
+          points: ['tl', 'tl'],
+        }}
+      >
+        <div className={className} style={style} onClick={onClick} />
+      </Trigger>
+    );
   }
+  return (
+    <Con className={className} style={style} onClick={onClick}>
+      <CutCon className="CutCon">{attachmentsComp}</CutCon>
+      {editable && (
+        <OperateIcon className="OperateIcon">
+          <i className="ThemeHoverColor3 icon icon-attachment" onClick={() => updateEditingStatus(true)} />
+        </OperateIcon>
+      )}
+    </Con>
+  );
 }
+
+cellAttachments.propTypes = {
+  className: string,
+  style: string,
+  isediting: bool,
+  error: bool,
+  cell: shape({}),
+  rowHeight: number,
+  popupContainer: func,
+  onClick: func,
+  updateEditingStatus: func,
+};

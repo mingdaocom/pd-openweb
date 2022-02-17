@@ -79,7 +79,7 @@ export default function OtherField(props) {
     }
   };
   if (text) return <span style={{ height: '26px' }}>{text}</span>;
-  const isText = getControlType(data) === 'text';
+  const isText = getControlType(data) === 'text' || data.type === 45;
   const { fieldName, recordName } = getFieldNameById(item, controls);
   const isFieldDelete = isFieldDeleteFn(item, controls);
   return (

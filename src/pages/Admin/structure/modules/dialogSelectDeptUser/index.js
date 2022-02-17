@@ -122,7 +122,7 @@ SelectDeptUser.prototype.updateSelectedUsers = function (payload) {
   var users = isUnique ? [] : options.selectedUsers.slice();
   if (isChecked) {
     users.push(accountId);
-    options.selectedUsers = _.uniq(users);
+    options.selectedUsers = _.uniqBy(users);
   } else {
     options.selectedUsers = _.pull(users, accountId);
   }

@@ -64,10 +64,13 @@ export default function InfoHeader(props) {
       setDiscussCount(data.data);
     });
   }
-  useEffect(() => {
-    rowId.current = recordId;
-    loadDiscussionsCount();
-  }, [recordId]);
+  useEffect(
+    () => {
+      rowId.current = recordId;
+      loadDiscussionsCount();
+    },
+    [recordId],
+  );
   useEffect(() => {
     emitter.addListener('RELOAD_RECORDINFO_DISCUSS', loadDiscussionsCount);
     return () => {
@@ -98,7 +101,7 @@ export default function InfoHeader(props) {
             onClick={iseditting ? () => {} : onRefresh}
           >
             <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>}>
-              <i className="icon icon-task-later"></i>
+              <i className="icon icon-task-later" />
             </Tooltip>
           </span>
           {!iseditting ? (
@@ -116,25 +119,26 @@ export default function InfoHeader(props) {
               handleAddSheetRow={handleAddSheetRow}
             />
           ) : (
-            <div className="flex"></div>
+            <div className="flex" />
           )}
           {/* 查看日志权限 查看讨论和文件权限 默认true */}
           {(isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId) ||
-            isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) && (
-            <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-              <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
-                <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`}></i>
-              </span>
-              {!sideVisible && !!discussCount && (
-                <span className="discussCount">
-                  {discussCount > 99 ? '99+' : discussCount}
-                  <span className="text">{_l('条讨论')}</span>
+            isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) &&
+            !md.global.Account.isPortal && (
+              <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
+                <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
+                  <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
                 </span>
-              )}
-            </SodeBarIcon>
-          )}
+                {!sideVisible && !!discussCount && (
+                  <span className="discussCount">
+                    {discussCount > 99 ? '99+' : discussCount}
+                    <span className="text">{_l('条讨论')}</span>
+                  </span>
+                )}
+              </SodeBarIcon>
+            )}
           <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
-            <i className="icon icon-close"></i>
+            <i className="icon icon-close" />
           </IconBtn>
         </div>
       )}

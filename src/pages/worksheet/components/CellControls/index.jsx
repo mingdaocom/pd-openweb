@@ -216,7 +216,7 @@ export default class CellControl extends React.Component {
         updateEditingControls(isediting);
       }
       if (!isediting && !error) {
-        clearCellError(`${row.rowid}-${cell.controlId}`);
+        clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
         $('.mdTableErrorTip').remove();
       }
       setTimeout(
@@ -290,6 +290,7 @@ export default class CellControl extends React.Component {
       tableScrollTop,
       sheetSwitchPermit,
       viewId,
+      appId,
     } = this.props;
     const { isediting } = this.state;
     const error = this.error;
@@ -340,6 +341,7 @@ export default class CellControl extends React.Component {
     const isTextControl = checkIsTextControl(cell.type);
     let needLineLimit;
     const props = {
+      isSubList,
       worksheetId,
       className,
       style,
@@ -362,6 +364,7 @@ export default class CellControl extends React.Component {
       error,
       sheetSwitchPermit,
       viewId,
+      appId,
       updateCell: this.handleUpdateCell,
       onClick: this.clickHandle,
       updateEditingStatus: this.handleUpdateEditing,
@@ -417,6 +420,7 @@ export default class CellControl extends React.Component {
       return (
         <CellControl
           {...props}
+          className={'control-30 ' + props.className}
           cell={Object.assign({}, cell, {
             type: cell.sourceControlType,
             advancedSetting: _.get(cell, 'sourceControl.advancedSetting') || {},

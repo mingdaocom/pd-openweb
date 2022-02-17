@@ -12,6 +12,8 @@ import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import { APP_TYPE } from '../enum';
+import _ from 'lodash';
+import { selectRecord } from 'src/components/recordCardListDialog';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },
@@ -94,6 +96,7 @@ class Header extends Component {
                 publish: true,
                 lastPublishDate: moment().format('YYYY-MM-DD HH:mm:ss'),
                 publishStatus: 2,
+                startAppId: result.process.startNode.appId,
               }),
             );
 
@@ -178,27 +181,82 @@ class Header extends Component {
   };
 
   /**
+   * 渲染执行按钮
+   */
+  renderActionBtn() {
+    const { isProgressing } = this.state;
+    const { flowInfo } = this.props;
+    const TEXT = {
+      [APP_TYPE.LOOP]: {
+        tip: _l('立即触发一条流程，执行时间即为系统的当前时间'),
+      },
+      default: {
+        tip: _l('手动选择一条数据源，立即触发一条流程'),
+      },
+    };
+    const btnText = TEXT[flowInfo.startAppType === APP_TYPE.LOOP ? APP_TYPE.LOOP : 'default'];
+
+    if (
+      flowInfo.publishStatus === 2 &&
+      flowInfo.enabled &&
+      _.includes([APP_TYPE.SHEET, APP_TYPE.LOOP, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType)
+    ) {
+      return (
+        <span
+          className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3 workflowDetailTipsWidth"
+          data-tip={btnText.tip}
+          onClick={this.action}
+        >
+          {isProgressing ? _l('执行中...') : _l('立即执行')}
+        </span>
+      );
+    }
+
+    return null;
+  }
+
+  /**
    * 立即执行
    */
   action = () => {
-    const { flowInfo } = this.props;
+    const { flowInfo, tabIndex } = this.props;
     const { isProgressing } = this.state;
+    const actionProcess = sourceId => {
+      this.setState({ isProgressing: true });
+
+      process.startProcessById({ processId: flowInfo.id, sourceId }).then(result => {
+        if (result) {
+          alert(_l('执行成功'));
+        }
+
+        this.setState({ isProgressing: false });
+        // 手动刷新一下历史数据
+        if (tabIndex === 2) {
+          document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
+        }
+      });
+    };
 
     if (isProgressing) return false;
 
-    this.setState({ isProgressing: true });
-
-    process.startProcessById({ processId: flowInfo.id }).then(result => {
-      if (result) {
-        alert(_l('执行成功'));
-      }
-
-      this.setState({ isProgressing: false });
-    });
+    if (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType)) {
+      selectRecord({
+        canSelectAll: false,
+        multiple: false,
+        singleConfirm: true,
+        relateSheetId: flowInfo.startAppId,
+        onText: _l('开始测试'),
+        onOk: selectedRecords => {
+          actionProcess(selectedRecords[0].rowid);
+        },
+      });
+    } else {
+      actionProcess();
+    }
   };
 
   render() {
-    const { visible, showPublishDialog, publishErrorVisible, errorInfo, isProgressing } = this.state;
+    const { visible, showPublishDialog, publishErrorVisible, errorInfo } = this.state;
     const { tabIndex, switchTabs, flowInfo } = this.props;
 
     return (
@@ -249,15 +307,7 @@ class Header extends Component {
             </div>
           ) : (
             <Fragment>
-              {flowInfo.publishStatus === 2 && flowInfo.enabled && flowInfo.startAppType === APP_TYPE.LOOP && (
-                <span
-                  className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3 workflowDetailTipsWidth"
-                  data-tip={_l('忽略触发器配置，立即触发一条流程，执行时间即为系统的当前时间')}
-                  onClick={this.action}
-                >
-                  {isProgressing ? _l('执行中...') : _l('立即执行')}
-                </span>
-              )}
+              {this.renderActionBtn()}
 
               <Switch
                 status={flowInfo.enabled ? 'active' : 'close'}

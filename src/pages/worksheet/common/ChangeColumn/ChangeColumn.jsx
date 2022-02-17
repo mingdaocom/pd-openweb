@@ -29,7 +29,7 @@ const SortableItem = SortableElement(({ index, selected, column, handleItemClick
 const SortableList = SortableContainer(({ filteredColumns, selected, handleItemClick, maxHeight = '' }) => {
   return (
     <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }}>
-      {!filteredColumns.length && <div className="emptyTip">{_l('没有搜索结果')}</div>}
+      {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
       {filteredColumns.map((column, i) => (
         <SortableItem index={i} selected={selected} column={column} handleItemClick={handleItemClick} />
       ))}
@@ -133,7 +133,7 @@ export default class ChangeColumn extends Component {
     } = this.props;
     const { search, controlsSorts } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
-      column => column.controlName.indexOf(search) > -1,
+      column => column.controlName.toLowerCase().indexOf(search.toLowerCase()) > -1,
     );
     const quickOperate = (
       <div className="quickOperate">

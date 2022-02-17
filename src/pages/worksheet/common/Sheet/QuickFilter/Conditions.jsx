@@ -104,6 +104,7 @@ function conditionAdapter(condition) {
 export default function Conditions(props) {
   const {
     projectId,
+    appId,
     queryText,
     className,
     view = {},
@@ -194,14 +195,20 @@ export default function Conditions(props) {
           <Content className="content">
             <FilterInput
               projectId={projectId}
+              appId={appId}
               {...item}
               {...values[i]}
-              onChange={(change = {}) => {
+              onChange={(change = {}, { forceUpdate } = {}) => {
                 store.current.activeType = item.control.type;
                 const newValues = { ...values, [i]: { ...values[i], ...change } };
                 setValues(newValues);
-                if (!showQueryBtn && !_.isEmpty(newValues)) {
+                if ((!showQueryBtn || forceUpdate) && !_.isEmpty(newValues)) {
                   update(newValues);
+                }
+              }}
+              onEnterDown={() => {
+                if (showQueryBtn) {
+                  update();
                 }
               }}
             />

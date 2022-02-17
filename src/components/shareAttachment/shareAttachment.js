@@ -23,7 +23,7 @@ import { getClassNameByExt } from 'src/util';
 var toMobileDailog = require('./toMobile').default;
 
 // 目的地选择列表组件
-var SelectSendTo = function(options, callback) {
+var SelectSendTo = function (options, callback) {
   this.options = options;
   this.callback = callback;
   if (this.options.type === SEND_TO_TYPE.TASK) {
@@ -52,7 +52,7 @@ var SelectSendTo = function(options, callback) {
 };
 
 SelectSendTo.prototype = {
-  init: function() {
+  init: function () {
     var ST = this;
     var options = ST.options;
     var $selectSendTo = $(options.el);
@@ -67,17 +67,17 @@ SelectSendTo.prototype = {
     ST.elements.$footerBtn = $sendTo.find('.footerBtn');
     ST.bindEvent();
   },
-  bindEvent: function() {
+  bindEvent: function () {
     var ST = this;
     // 点击其它关闭搜索列表
-    $(document).on('click.hideShareAttSearchList', function(e) {
+    $(document).on('click.hideShareAttSearchList', function (e) {
       if (!$(e.target).closest('.searchListCon').length) {
         ST.hideList();
       }
       e.stopPropagation();
     });
     // 按键up触发搜索
-    ST.elements.$searchInput.on('keyup', function(e) {
+    ST.elements.$searchInput.on('keyup', function (e) {
       var keywords = _.trim($(this).val());
       if (
         e.keyCode === 37 ||
@@ -92,8 +92,8 @@ SelectSendTo.prototype = {
       ST.fetchList();
     });
     // 点击搜索栏触发搜索
-    ST.elements.$selected.on('click', function(e) {
-      ST.elements.$listPanel.show(0, 0, function() {
+    ST.elements.$selected.on('click', function (e) {
+      ST.elements.$listPanel.show(0, 0, function () {
         if (!ST.defaultListData) {
           ST.fetchList(true);
         }
@@ -102,13 +102,13 @@ SelectSendTo.prototype = {
       ST.elements.$selected.hide();
       e.stopPropagation();
     });
-    ST.elements.$searchList.on('click', '.listItem', function(e) {
+    ST.elements.$searchList.on('click', '.listItem', function (e) {
       e.stopPropagation();
       var $this = $(this);
       var key = $this.data('key');
       ST.select(key);
     });
-    ST.elements.$searchList.on('wheel', function(e) {
+    ST.elements.$searchList.on('wheel', function (e) {
       e = e.originalEvent;
       var target = e.currentTarget;
       var clientHeight = target.clientHeight;
@@ -121,20 +121,20 @@ SelectSendTo.prototype = {
       }
     });
     // 绑定创建
-    ST.elements.$footerBtn.on('click', function() {
+    ST.elements.$footerBtn.on('click', function () {
       ST.create()
-        .then(function(result) {
+        .then(function (result) {
           ST.listData = [result];
           ST.listTplData = ST.formatDataTplData([result]);
           ST.defaultListData = undefined;
           ST.select(0);
         })
-        .fail(function(err) {
+        .fail(function (err) {
           alert(_l('创建失败'), 2);
         });
     });
   },
-  fetchList: function(isFirst) {
+  fetchList: function (isFirst) {
     var ST = this;
     ST.elements.$searchList.html(
       listItemTpl({
@@ -146,7 +146,7 @@ SelectSendTo.prototype = {
       size: 20,
       projectId: ST.options.type === SEND_TO_TYPE.CHAT ? undefined : 'all',
     })
-      .then(function(listData) {
+      .then(function (listData) {
         if (isFirst) {
           ST.defaultListData = listData;
         }
@@ -154,11 +154,11 @@ SelectSendTo.prototype = {
         ST.listTplData = ST.formatDataTplData(listData);
         ST.renderList();
       })
-      .fail(function(err) {
+      .fail(function (err) {
         alert(_l('获取数据失败'), 2);
       });
   },
-  renderList: function() {
+  renderList: function () {
     var ST = this;
     ST.elements.$searchList.html(
       listItemTpl({
@@ -166,7 +166,7 @@ SelectSendTo.prototype = {
       }),
     );
   },
-  select: function(key) {
+  select: function (key) {
     var ST = this;
     var html;
     var selectedItem = ST.listTplData[key];
@@ -182,10 +182,10 @@ SelectSendTo.prototype = {
     ST.elements.$selected.html(html);
     ST.hideList();
   },
-  formatDataTplData: function(data) {
+  formatDataTplData: function (data) {
     var ST = this;
     var formatTpl = ST.formatTpl;
-    return data.map(function(item) {
+    return data.map(function (item) {
       var result = {};
       if (formatTpl.value) {
         result.value = item[formatTpl.value];
@@ -196,7 +196,7 @@ SelectSendTo.prototype = {
       return result;
     });
   },
-  hideList: function() {
+  hideList: function () {
     var ST = this;
     ST.elements.$listPanel.hide();
     ST.elements.$searchInput.hide();
@@ -204,7 +204,7 @@ SelectSendTo.prototype = {
   },
 };
 
-var ShareAttachment = function(options, callbacks) {
+var ShareAttachment = function (options, callbacks) {
   this.options = _.assign(
     {},
     {
@@ -224,7 +224,7 @@ var ShareAttachment = function(options, callbacks) {
 };
 
 ShareAttachment.prototype = {
-  init: function() {
+  init: function () {
     var SA = this;
     var options = SA.options;
     var html = mainTpl({
@@ -283,20 +283,20 @@ ShareAttachment.prototype = {
       SA.fetchBaseData(SA.initModules.bind(SA));
     }
   },
-  bindEvent: function() {
+  bindEvent: function () {
     var SA = this;
-    SA.$dialog.on('change', '#fileName', function() {
+    SA.$dialog.on('change', '#fileName', function () {
       SA.newFileName = $(this).val();
     });
-    SA.$dialog.on('click', '.shareAttachmentFooter .yes', function() {
+    SA.$dialog.on('click', '.shareAttachmentFooter .yes', function () {
       SA.share();
     });
-    SA.$dialog.on('click', '.shareAttachmentFooter .no', function() {
+    SA.$dialog.on('click', '.shareAttachmentFooter .no', function () {
       if (SA.dialog) {
         SA.dialog.closeDialog();
       }
     });
-    SA.$dialog.on('click', '.addDescBtn', function() {
+    SA.$dialog.on('click', '.addDescBtn', function () {
       SA.$dialog.find('.addDescBtn').hide();
       SA.$dialog.find('.descCon').removeClass('hide');
       $('#shareDesc').focus();
@@ -316,7 +316,7 @@ ShareAttachment.prototype = {
     }
     return true;
   },
-  initModules: function() {
+  initModules: function () {
     var SA = this;
     var options = SA.options;
     if (
@@ -351,27 +351,27 @@ ShareAttachment.prototype = {
       callback();
     });
   },
-  fetchBaseData: function(callback) {
+  fetchBaseData: function (callback) {
     var SA = this;
     switch (SA.options.attachmentType) {
       case ATTACHMENT_TYPE.COMMON:
         shareAttachmentByPost({
           fileId: SA.options.id,
         })
-          .then(function(data) {
+          .then(function (data) {
             SA.options.node = data;
             if (callback && typeof callback === 'function') {
               callback(data);
             }
           })
-          .fail(function(err) {
+          .fail(function (err) {
             console.log(err);
           });
         break;
       case ATTACHMENT_TYPE.KC:
         getNodeDetail({
           id: SA.options.id,
-        }).then(function(data) {
+        }).then(function (data) {
           if (!data) {
             alert(_l('您权限不足，无法分享，请联系管理员或文件上传者'), 3);
             return;
@@ -386,14 +386,14 @@ ShareAttachment.prototype = {
         _convertToOtherAttachment({
           qiniuUrl: SA.options.qiniuPath,
         })
-          .then(function(data) {
+          .then(function (data) {
             SA.options.priviteBucketUrl = data.data;
             SA.options.node = SA.formatQiniuPath(data.data);
             if (callback && typeof callback === 'function') {
               callback(data);
             }
           })
-          .fail(function(err) {
+          .fail(function (err) {
             console.log(err);
           });
         break;
@@ -430,7 +430,7 @@ ShareAttachment.prototype = {
         break;
     }
   },
-  initSendToTarget: function() {
+  initSendToTarget: function () {
     var SA = this;
     var dataArr;
     if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
@@ -439,32 +439,12 @@ ShareAttachment.prototype = {
           id: SEND_TO_TYPE.CHAT,
           name: _l('消息'),
         },
-        {
-          id: SEND_TO_TYPE.WECHAT,
-          name: _l('微信'),
-        },
-        {
-          id: SEND_TO_TYPE.QQ,
-          name: _l('QQ'),
-        },
       ];
     } else if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
       dataArr = [
         {
           id: SEND_TO_TYPE.CHAT,
           name: _l('消息'),
-        },
-        {
-          id: SEND_TO_TYPE.WECHAT,
-          name: _l('微信'),
-        },
-        {
-          id: SEND_TO_TYPE.QQ,
-          name: _l('QQ'),
-        },
-        {
-          id: SEND_TO_TYPE.QR,
-          name: _l('二维码'),
         },
       ];
     } else {
@@ -489,18 +469,6 @@ ShareAttachment.prototype = {
           id: SEND_TO_TYPE.KC,
           name: _l('知识'),
         },
-        {
-          id: SEND_TO_TYPE.WECHAT,
-          name: _l('微信'),
-        },
-        {
-          id: SEND_TO_TYPE.QQ,
-          name: _l('QQ'),
-        },
-        {
-          id: SEND_TO_TYPE.QR,
-          name: _l('二维码'),
-        },
       ];
     }
     SA.$dialog.find('#sendToTarget').MDSelect({
@@ -508,12 +476,12 @@ ShareAttachment.prototype = {
       zIndex: 1,
       dataArr: dataArr,
       lineHeight: 30,
-      onChange: function(value) {
+      onChange: function (value) {
         SA.activeSendToOther(parseInt(value, 10));
       },
     });
   },
-  initSelectTargetList: function() {
+  initSelectTargetList: function () {
     var SA = this;
     var left = 10;
     var targetBtnWidth = 50 + 36;
@@ -522,20 +490,17 @@ ShareAttachment.prototype = {
     var $listCon = $targetBtnList.find('.listCon');
     var $prevBtn = $targetBtnList.find('.prev');
     var $nextBtn = $targetBtnList.find('.next');
-    SA.$dialog
-      .find('.selectTargetCon')
-      .addClass('inited')
-      .removeClass('hide');
+    SA.$dialog.find('.selectTargetCon').addClass('inited').removeClass('hide');
     $listCon.width($listCon.find('.targetBtn').length * targetBtnWidth);
     showControlBtn();
-    $targetBtnList.on('click', '.prev, .next', function() {
+    $targetBtnList.on('click', '.prev, .next', function () {
       left += targetBtnWidth * targetBtnNums * ($(this).hasClass('prev') ? 1 : -1);
       showControlBtn();
       $listCon.animate({
         left: left,
       });
     });
-    $targetBtnList.on('click', '.targetBtn', function() {
+    $targetBtnList.on('click', '.targetBtn', function () {
       var type = $(this).data('type');
       SA.activeSendToOther(type);
     });
@@ -552,7 +517,7 @@ ShareAttachment.prototype = {
       }
     }
   },
-  initSelectPermission: function() {
+  initSelectPermission: function () {
     var SA = this;
     var $changeShare = SA.$dialog.find('.changeShare');
     var $closedTip = SA.$dialog.find('.closedTip');
@@ -619,8 +584,8 @@ ShareAttachment.prototype = {
       dataArr: permissionList,
       lineHeight: 30,
       wordLength: 20,
-      onChange: function(value) {
-        SA.updateShareType(value, function(visibleType) {
+      onChange: function (value) {
+        SA.updateShareType(value, function (visibleType) {
           // 当知识分享权限变动，切换模块显示
           var $selectTargetCon = SA.$dialog.find('.selectTargetCon');
           var $copyLinkCon = SA.$dialog.find('.copyLinkCon');
@@ -676,12 +641,12 @@ ShareAttachment.prototype = {
       SA.$dialog
         .find('.selectSharePermission')
         .addClass('noPermission')
-        .on('click', function(e) {
+        .on('click', function (e) {
           alert(_l('无权修改，请联系管理员'), 3);
         });
     }
   },
-  updateShareType: function(value, cb) {
+  updateShareType: function (value, cb) {
     var SA = this;
     let updateFunc;
     switch (SA.options.attachmentType) {
@@ -699,26 +664,23 @@ ShareAttachment.prototype = {
     }
     updateFunc(value, cb);
   },
-  initCopyLinkBtn: function() {
+  initCopyLinkBtn: function () {
     var SA = this;
     SA.$dialog.find('#linkContent').val(SA.options.node.shareUrl);
-    SA.$dialog
-      .find('.copyLinkCon')
-      .removeClass('hide')
-      .addClass('inited');
+    SA.$dialog.find('.copyLinkCon').removeClass('hide').addClass('inited');
     var clicboardObject = new Clipboard(SA.$dialog.find('#copyLinkBtn')[0], {
-      text: function(trigger) {
+      text: function (trigger) {
         return SA.options.node.shareUrl;
       },
     });
-    clicboardObject.on('success', function() {
+    clicboardObject.on('success', function () {
       alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方'));
     });
-    clicboardObject.on('error', function() {
+    clicboardObject.on('error', function () {
       alert(_l('复制失败，请手动复制'), 3);
     });
   },
-  initSelectSendTo: function(type, callback) {
+  initSelectSendTo: function (type, callback) {
     var SA = this;
     window.selectSendTo = new SelectSendTo(
       {
@@ -728,7 +690,7 @@ ShareAttachment.prototype = {
       callback,
     );
   },
-  activeSendToOther: function(type) {
+  activeSendToOther: function (type) {
     var SA = this;
     var $sendToOther = SA.$dialog.find('.sendToOther');
     var $sendToContent = SA.$dialog.find('.sendToContent');
@@ -736,15 +698,12 @@ ShareAttachment.prototype = {
     SA.options.node.allowDown = true;
     var shareDesc;
     if (SA.$dialog.find('#shareDesc').is(':visible')) {
-      shareDesc = SA.$dialog
-        .find('#shareDesc')
-        .val()
-        .trim();
+      shareDesc = SA.$dialog.find('#shareDesc').val().trim();
     }
     // 删除消息和任务已选择的数据
     delete SA.selectedChat;
     delete SA.selectedTask;
-    if ([SEND_TO_TYPE.FEED, SEND_TO_TYPE.WECHAT, SEND_TO_TYPE.CALENDAR, SEND_TO_TYPE.QQ].indexOf(type) < 0) {
+    if ([SEND_TO_TYPE.FEED, SEND_TO_TYPE.CALENDAR].indexOf(type) < 0) {
       SA.initSendToTarget();
     }
     if (SA.options.attachmentType !== ATTACHMENT_TYPE.KC && SA.dialogEle.$canDownloadSwitch.length) {
@@ -764,16 +723,16 @@ ShareAttachment.prototype = {
         $sendToContent.empty().append($('<input type="hidden" id="selectSendTo">'));
         $sendToContent.show();
         SA.$dialog.find('.selectTargetCon').addClass('hide');
-        SA.initSelectSendTo(SEND_TO_TYPE.CHAT, function(data) {
+        SA.initSelectSendTo(SEND_TO_TYPE.CHAT, function (data) {
           SA.selectedChat = data;
         });
         break;
       }
       case SEND_TO_TYPE.FEED: {
         $sendToContent.empty();
-        require(['s'], function(s) {
+        require(['s'], function (s) {
           var sObj = {
-            callback: function(postItem) {
+            callback: function (postItem) {
               if (SA.dialog) {
                 SA.dialog.closeDialog();
               }
@@ -807,20 +766,10 @@ ShareAttachment.prototype = {
         $sendToContent.empty().append($('<input type="hidden" id="selectSendTo">'));
         $sendToContent.show();
         SA.$dialog.find('.selectTargetCon').addClass('hide');
-        SA.initSelectSendTo(SEND_TO_TYPE.TASK, function(data) {
+        SA.initSelectSendTo(SEND_TO_TYPE.TASK, function (data) {
           SA.selectedTask = data;
         });
         console.log('TASK');
-        break;
-      }
-      case SEND_TO_TYPE.WECHAT: {
-        SA.sendToMobile(type);
-        console.log('WECHAT');
-        break;
-      }
-      case SEND_TO_TYPE.QQ: {
-        SA.sendToMobile(type);
-        console.log('QQ');
         break;
       }
       case SEND_TO_TYPE.QR: {
@@ -831,7 +780,7 @@ ShareAttachment.prototype = {
       case SEND_TO_TYPE.CALENDAR: {
         $sendToContent.empty();
         var cObj = {
-          callback: function(source) {
+          callback: function (source) {
             if (source && SA.dialog) {
               SA.dialog.closeDialog();
             }
@@ -855,7 +804,7 @@ ShareAttachment.prototype = {
         if (shareDesc) {
           cObj.Message = shareDesc;
         }
-        require(['c'], function(c) {
+        require(['c'], function (c) {
           c(cObj);
         });
         break;
@@ -870,8 +819,8 @@ ShareAttachment.prototype = {
         $sendToContent.empty();
         SA.$dialog.find('.selectTargetCon').addClass('hide');
         $sendToContent.html('<span class="kcPath ThemeColor3">' + _l('请选择文件夹') + '</span>');
-        $sendToContent.on('click', '.kcPath', function() {
-          SA.selectKcPath(function(result, path) {
+        $sendToContent.on('click', '.kcPath', function () {
+          SA.selectKcPath(function (result, path) {
             SA.kcPath = result;
             $sendToContent.html('<span class="kcPath ThemeColor3">' + path + '</span>');
           });
@@ -887,12 +836,12 @@ ShareAttachment.prototype = {
       SA.dialog.dialogCenter();
     }
   },
-  showFooter: function() {
+  showFooter: function () {
     var SA = this;
     var $shareAttachmentFooter = SA.$dialog.find('.shareAttachmentFooter');
     $shareAttachmentFooter.removeClass('hide');
   },
-  selectKcPath: function(callback) {
+  selectKcPath: function (callback) {
     require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
       folderDg({
         dialogTitle: _l('选择路径'),
@@ -907,7 +856,7 @@ ShareAttachment.prototype = {
             var position = result.node.position;
             var positionArr = position.split('/');
             var isOmit = false;
-            positionArr.forEach(function(part, i) {
+            positionArr.forEach(function (part, i) {
               if (i > 1) {
                 if (i > positionArr.length - 4) {
                   var partStr = part;
@@ -923,7 +872,7 @@ ShareAttachment.prototype = {
           }
           path = path
             .split('/')
-            .map(function(str) {
+            .map(function (str) {
               return '<span class="pathStr ellipsis">' + str + '</span>';
             })
             .join('/');
@@ -934,7 +883,7 @@ ShareAttachment.prototype = {
         });
     });
   },
-  sendToMobile: function(sendToType) {
+  sendToMobile: function (sendToType) {
     var SA = this;
     var options = SA.options;
     var attachmentType = options.attachmentType;
@@ -951,13 +900,8 @@ ShareAttachment.prototype = {
           updateNode({
             id: options.node.id,
             visibleType: NODE_VISIBLE_TYPE.PUBLIC,
-          }).then(function(data) {
-            alert(
-              _l(
-                '已将链接设为“任何人可预览”，您的%0好友可直接打开',
-                sendToType === SEND_TO_TYPE.WECHAT ? _l('微信') : _l('QQ'),
-              ),
-            );
+          }).then(function (data) {
+            alert(_l('已将链接设为“任何人可预览”，可直接打开'));
             SA.options.node.visibleType = NODE_VISIBLE_TYPE.PUBLIC;
             SA.$dialog
               .find('#selectSharePermission')
@@ -992,15 +936,12 @@ ShareAttachment.prototype = {
       file: file,
     });
   },
-  share: function() {
+  share: function () {
     var SA = this;
     var node = SA.options.node;
     var allowDown = true;
     var attachmentType = SA.options.attachmentType;
-    var shareDesc = SA.$dialog
-      .find('#shareDesc')
-      .val()
-      .trim();
+    var shareDesc = SA.$dialog.find('#shareDesc').val().trim();
     var params = {};
     var files;
     if (SA.options.attachmentType !== ATTACHMENT_TYPE.KC && SA.dialogEle.$canDownloadSwitch.length) {
@@ -1114,13 +1055,13 @@ ShareAttachment.prototype = {
           sendPromise = sendCardToChat(params);
         }
         sendPromise
-          .then(function(data) {
+          .then(function (data) {
             alert(_l('发送成功'));
             if (SA.dialog) {
               SA.dialog.closeDialog();
             }
           })
-          .fail(function(err) {
+          .fail(function (err) {
             alert(_l('发送失败'), err);
           });
         break;
@@ -1165,7 +1106,7 @@ ShareAttachment.prototype = {
           params.attachments = JSON.stringify([node]);
         }
         addDiscussion(params)
-          .then(function(data) {
+          .then(function (data) {
             if (data.error) {
               alert(_l('分享失败'));
               return;
@@ -1175,12 +1116,9 @@ ShareAttachment.prototype = {
               SA.dialog.closeDialog();
             }
           })
-          .fail(function(err) {
+          .fail(function (err) {
             alert(_l('分享失败'), err);
           });
-        break;
-      }
-      case SEND_TO_TYPE.WECHAT: {
         break;
       }
       case SEND_TO_TYPE.CALENDAR: {
@@ -1212,20 +1150,16 @@ ShareAttachment.prototype = {
           }
           saveToKnowledge(attachmentType, sourceData)
             .save(SA.kcPath)
-            .then(function(message) {
+            .then(function (message) {
               // alert(message || '保存成功');
               if (SA.dialog) {
                 SA.dialog.closeDialog();
               }
             })
-            .fail(function(message) {
+            .fail(function (message) {
               alert(message || _l('保存失败'), 3);
             });
         });
-        break;
-      }
-      case SEND_TO_TYPE.QQ: {
-        console.log('QQ');
         break;
       }
       default: {
@@ -1233,7 +1167,7 @@ ShareAttachment.prototype = {
       }
     }
   },
-  formatQiniuPath: function(qiniuUrl) {
+  formatQiniuPath: function (qiniuUrl) {
     var SA = this;
     var url = SA.parseUrl(qiniuUrl);
     var key = url.pathname.slice(1);
@@ -1247,7 +1181,7 @@ ShareAttachment.prototype = {
       filePath: key.replace(fullName, ''),
     };
   },
-  parseUrl: function(url) {
+  parseUrl: function (url) {
     var a = document.createElement('a');
     a.href = url;
     return {
@@ -1260,7 +1194,7 @@ ShareAttachment.prototype = {
       origin: a.origin,
     };
   },
-  previewFile: function() {
+  previewFile: function () {
     var SA = this;
     SA.dialogEle.$fileIcon = SA.$dialog.find('.fileIcon');
     SA.dialogEle.$fileSize = SA.$dialog.find('.fileSize');
@@ -1272,7 +1206,7 @@ ShareAttachment.prototype = {
       SA.loadDocIcon();
     }
   },
-  loadDocIcon: function() {
+  loadDocIcon: function () {
     var SA = this;
     var fileIconClass = SA.options.isKcFolder
       ? SA.options.node && SA.options.node.isOpenShare
@@ -1287,14 +1221,14 @@ ShareAttachment.prototype = {
     SA.dialogEle.$fileIcon.removeClass().addClass('fileIcon ' + fileIconClass);
     SA.dialogEle.$fileSize.text(formatFileSize(SA.file.size).replace(/ /g, ''));
   },
-  loadPicture: function() {
+  loadPicture: function () {
     var SA = this;
     SA.dialogEle.$thumbnailCon.removeClass('hide');
     var reader = new FileReader();
     var img = document.createElement('img');
     img.addEventListener(
       'error',
-      function() {
+      function () {
         SA.dialogEle.$thumbnail.hide();
         SA.loadDocIcon();
       },
@@ -1303,11 +1237,11 @@ ShareAttachment.prototype = {
     img.src = SA.file.imgSrc;
     SA.dialogEle.$thumbnail.append(img).show();
   },
-  getFullFileName: function() {
+  getFullFileName: function () {
     var SA = this;
     return SA.dialogEle.$fileName.val() + (SA.file.ext ? '.' + SA.file.ext : '');
   },
-  validate: function(str) {
+  validate: function (str) {
     var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
@@ -1323,7 +1257,7 @@ ShareAttachment.prototype = {
       id: SA.options.id,
       visibleType: visibleType,
     })
-      .then(function(data) {
+      .then(function (data) {
         if (SA.options.isKcFolder) {
           SA.options.node.visibleType = visibleType;
           SA.options.node.isOpenShare = visibleType === NODE_VISIBLE_TYPE.PUBLIC;
@@ -1337,7 +1271,7 @@ ShareAttachment.prototype = {
           SA.callbacks.performUpdateItem(parseInt(visibleType, 10));
         }
       })
-      .fail(function(err) {
+      .fail(function (err) {
         alert(_l('修改失败'), 3);
       });
   },
@@ -1349,14 +1283,14 @@ ShareAttachment.prototype = {
       viewId: SA.options.viewId,
       shareRange: visibleType,
     })
-      .then(function(data) {
+      .then(function (data) {
         alert(_l('修改成功'));
         callback(visibleType);
         if (SA.callbacks.updateView) {
           SA.callbacks.updateView({ shareRange: visibleType });
         }
       })
-      .fail(function(err) {
+      .fail(function (err) {
         alert(_l('修改失败'), 3);
       });
   },
@@ -1368,14 +1302,14 @@ ShareAttachment.prototype = {
       rowId: SA.options.rowId,
       shareRange: visibleType,
     })
-      .then(function(data) {
+      .then(function (data) {
         alert(_l('修改成功'));
         callback(visibleType);
         if (SA.callbacks.updateShareRangeOfRecord) {
           SA.callbacks.updateShareRangeOfRecord(visibleType);
         }
       })
-      .fail(function(err) {
+      .fail(function (err) {
         alert(_l('修改失败'), 3);
       });
   },
@@ -1385,11 +1319,11 @@ ShareAttachment.prototype = {
     }
     return str;
   },
-  getExt: function(ext) {
+  getExt: function (ext) {
     return !ext ? '' : ext[0] === '.' ? ext.slice(1) : ext;
   },
 };
 
-export default function(options, callbacks) {
+export default function (options, callbacks) {
   return new ShareAttachment(options, callbacks);
 }

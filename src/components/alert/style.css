@@ -9,6 +9,7 @@
 
 .mdAlertDialog {
   position: fixed;
+  display: flex;
   background-color: black;
   color: white;
   padding: 13px 20px 13px 15px;

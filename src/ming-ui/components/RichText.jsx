@@ -8,7 +8,7 @@ import cx from 'classnames';
 import '@mdfe/ckeditor5-custom-build/build/translations/zh.js';
 import '@mdfe/ckeditor5-custom-build/build/translations/en.js';
 const Wrapper = styled.div(
-  ({ minHeight, maxWidth }) => `
+  ({ minHeight, maxWidth, maxHeight, dropdownPanelPosition = {} }) => `
   .ck {
     .ck-sticky-panel {
       display: none;
@@ -46,13 +46,13 @@ const Wrapper = styled.div(
       }
       .ck-dropdown__panel.ck-dropdown__panel_ne,
       .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se{
-        left: initial;
-        right: 0;
+        left: ${dropdownPanelPosition.left ? dropdownPanelPosition.left : 'initial'} ;
+        right:  ${dropdownPanelPosition.right ? dropdownPanelPosition.right : '0'};
       }
     }
     .ck-content {
       min-height: ${minHeight || 90}px !important;
-      // max-height: 640px !important;
+      max-height: ${maxHeight ? `${maxHeight}px` : 'initial'} ;
       border: 1px solid #f7f7f7 !important;
       font-size: 13px !important;
       background: #f7f7f7 !important;
@@ -110,20 +110,6 @@ const Wrapper = styled.div(
     color: #bdbdbd;
     border: 1px solid #dddddd;
     overflow: hidden;
-  }
-  &.publicRichText{
-    .ck .ck-content {
-      max-height: 600px !important;
-    }
-  }
-  &.richTextForM,&.taskDetailEdit{
-    .ck .ck-content {
-      max-height: 500px !important;
-    }
-    .ck-dropdown__panel.ck-dropdown__panel_ne,
-    .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se{
-      right: initial!important;
-    }
   }
   &.remarkControl{
     .ck .ck-content {
@@ -261,6 +247,9 @@ export default ({
   changeSetting,
   id,
   maxWidth,
+  maxHeight,
+  dropdownPanelPosition,
+  toolbarList,
 }) => {
   const editorDiv = useRef();
   let editorDom = useRef();
@@ -298,6 +287,8 @@ export default ({
       className={cx(className, { disabled, showTool })}
       minHeight={minHeight}
       maxWidth={maxWidth}
+      maxHeight={maxHeight}
+      dropdownPanelPosition={dropdownPanelPosition}
       ref={editorDiv}
       onClick={() => {
         onClickNull && disabled && onClickNull();
@@ -309,49 +300,51 @@ export default ({
         config={{
           language: lang(),
           toolbar: {
-            items: [
-              'undo',
-              'redo',
-              'removeFormat',
-              '|',
-              'paragraph',
-              'heading1',
-              'heading2',
-              'heading3',
-              '|',
-              'fontFamily',
-              'fontSize',
-              'fontColor',
-              'highlight',
-              '|',
-              'bold',
-              'italic',
-              'underline',
-              'strikethrough',
-              'subscript',
-              'superscript',
-              '|',
-              'bulletedList',
-              'numberedList',
-              'todoList',
-              '|',
-              'alignment',
-              'indent',
-              'outdent',
-              '|',
-              'horizontalLine',
-              'blockQuote',
-              'link',
-              'code',
-              'imageUpload',
-              'mediaEmbed',
-              'insertTable',
-              'codeBlock',
-              '|',
-              'sourceEditing',
-              'findAndReplace',
-              // 'htmlEmbed',
-            ],
+            items: toolbarList
+              ? toolbarList
+              : [
+                  'undo',
+                  'redo',
+                  'removeFormat',
+                  '|',
+                  'paragraph',
+                  'heading1',
+                  'heading2',
+                  'heading3',
+                  '|',
+                  'fontFamily',
+                  'fontSize',
+                  'fontColor',
+                  'highlight',
+                  '|',
+                  'bold',
+                  'italic',
+                  'underline',
+                  'strikethrough',
+                  'subscript',
+                  'superscript',
+                  '|',
+                  'bulletedList',
+                  'numberedList',
+                  'todoList',
+                  '|',
+                  'alignment',
+                  'indent',
+                  'outdent',
+                  '|',
+                  'horizontalLine',
+                  'blockQuote',
+                  'link',
+                  'code',
+                  'imageUpload',
+                  'mediaEmbed',
+                  'insertTable',
+                  'codeBlock',
+                  '|',
+                  'sourceEditing',
+                  'findAndReplace',
+                  // 'htmlEmbed',
+                ],
             shouldNotGroupWhenFull: showTool,
           },
           heading: {
@@ -431,6 +424,7 @@ export default ({
           htmlSupport: {
             allow: [
               {
+                name: /^(p|span|div|img|iframe|table|tbody|thead|tfoot|tr|td|th|col|colgroup|caption|hr|br|ul|ol|li|blockquote|em|h[2-6])$/,
                 styles: true,
               },
             ],

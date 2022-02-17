@@ -68,7 +68,7 @@ export default function Options(props) {
               if (_.includes(values, o.key)) {
                 handleChange({ values: values.filter(v => v !== o.key) });
               } else {
-                handleChange({ values: multiple ? _.uniq(values.concat(o.key)) : [o.key] });
+                handleChange({ values: multiple ? _.uniqBy(values.concat(o.key)) : [o.key] });
               }
             }}
           >

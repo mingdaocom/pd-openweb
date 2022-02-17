@@ -16,7 +16,7 @@ import { getControlsSorts, getDefaultShowControls, handleAdvancedSettingChange }
 import Components from '../components';
 import { canSetAsTitle, getAdvanceSetting, resortControlByColRow, dealControlData } from '../../util';
 import subListComponents from '../components/sublist';
-import { isEmpty, find, filter } from 'lodash';
+import _, { isEmpty, find, filter } from 'lodash';
 import { DEFAULT_INTRO_LINK } from '../../config';
 import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
@@ -46,6 +46,7 @@ export default function SubListSetting(props) {
   const { widgetName, icon, intro, moreIntroLink } = info;
   const { worksheetId: currentWorksheetId } = globalSheetInfo;
   const { controlId, dataSource, relationControls = [], showControls = [], advancedSetting = {} } = data;
+  const { allowadd, allowsingle } = advancedSetting;
   const batchcids = getAdvanceSetting(data, 'batchcids') || [];
   const [sheetInfo, setInfo] = useState({});
   const [subListMode, setMode] = useState('new');
@@ -67,7 +68,17 @@ export default function SubListSetting(props) {
   }, [controlId]);
 
   useEffect(() => {
+    // 兼容老数据
+    if (_.isUndefined(allowsingle) && !batchcids.length) {
+      onChange(handleAdvancedSettingChange(data, { allowsingle: '1' }));
+    }
+  }, [allowsingle]);
+
+  useEffect(() => {
     const { saveIndex } = status;
+    if ((window.subListSheetConfig[dataSource] || {}).saveIndex === saveIndex) {
+      return;
+    }
     if (saveIndex) {
       setLoading(true);
       getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
@@ -80,6 +91,13 @@ export default function SubListSetting(props) {
             relationControls: dealControlData(controls),
             showControls,
           });
+          window.subListSheetConfig = {
+            [dataSource]: {
+              status: true,
+              mode: res.type === 2 ? 'new' : 'relate',
+              saveIndex,
+            },
+          };
         })
         .always(() => {
           setLoading(false);
@@ -94,12 +112,21 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
+    if ((window.subListSheetConfig[dataSource] || {}).status) {
+      setMode(_.get(window.subListSheetConfig[dataSource], 'mode'));
+      return;
+    }
     setLoading(true);
     getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
       .then(res => {
         const controls = _.get(res, ['template', 'controls']).filter(item => item.controlId !== 'ownerid');
         const defaultShowControls = getDefaultShowControls(controls);
         setInfo(res);
+        window.subListSheetConfig[dataSource] = {
+          status: true,
+          mode: res.type === 2 ? 'new' : 'relate',
+          saveIndex: status.saveIndex,
+        };
         setMode(res.type === 2 ? 'new' : 'relate');
         let nextData = {
           showControls: isEmpty(showControls) ? defaultShowControls : showControls,
@@ -147,6 +174,9 @@ export default function SubListSetting(props) {
         okText: _l('确定'),
         onOk: () => {
           setMode('relate');
+          if (window.subListSheetConfig[dataSource]) {
+            window.subListSheetConfig[dataSource].mode = 'relate';
+          }
           changeSheet({
             sourceWorksheetId: currentWorksheetId,
             worksheetId: dataSource,
@@ -311,53 +341,71 @@ export default function SubListSetting(props) {
           );
         })}
       </SettingItem>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('设置')}</div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={visible}
-            text={_l('批量选择添加明细')}
-            onClick={checked => {
-              setVisible(!checked);
-              if (checked) {
+      {allowadd === '1' && (
+        <SettingItem>
+          <div className="settingItemTitle Normal">{_l('新增方式')}</div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={allowsingle === '1'}
+              text={_l('单行添加')}
+              onClick={checked => {
+                if (checked && !batchcids.length) return;
                 onChange(
                   handleAdvancedSettingChange(data, {
-                    batchcids: JSON.stringify([]),
+                    allowsingle: checked ? '0' : '1',
                   }),
                 );
-              }
-            }}
-          >
-            <Tooltip
-              placement={'bottom'}
-              title={_l(
-                '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
-              )}
+              }}
+            />
+          </div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={visible}
+              text={_l('批量选择添加')}
+              onClick={checked => {
+                if (checked && allowsingle !== '1') return;
+                setVisible(!checked);
+                if (checked) {
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      batchcids: JSON.stringify([]),
+                    }),
+                  );
+                }
+              }}
             >
-              <i className="icon-help Gray_bd Font16 pointer"></i>
-            </Tooltip>
-          </Checkbox>
-        </div>
-        {visible && (
-          <Dropdown
-            border
-            style={{ marginTop: '10px' }}
-            trigger={['click']}
-            placeholder={_l('选择子表中的关联记录字段')}
-            noneContent={_l('没有可选字段')}
-            value={batchcids[0] || undefined}
-            data={worksheetControls}
-            onChange={value => {
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  batchcids: JSON.stringify([value]),
-                }),
-              );
-            }}
-          />
-        )}
-      </SettingItem>
+              <Tooltip
+                placement={'bottom'}
+                title={_l(
+                  '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
+                )}
+              >
+                <i className="icon-help Gray_bd Font16 pointer"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+          {visible && (
+            <Dropdown
+              border
+              style={{ marginTop: '10px' }}
+              trigger={['click']}
+              placeholder={_l('选择子表中的关联记录字段')}
+              noneContent={_l('没有可选字段')}
+              value={batchcids[0] || undefined}
+              data={worksheetControls}
+              onChange={value => {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    batchcids: JSON.stringify([value]),
+                  }),
+                );
+              }}
+            />
+          )}
+        </SettingItem>
+      )}
       {subListMode !== 'new' && dataSource !== currentWorksheetId && (
         <SheetComponents.BothWayRelate
           worksheetInfo={sheetInfo}

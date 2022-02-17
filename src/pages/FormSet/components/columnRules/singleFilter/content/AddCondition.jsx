@@ -30,7 +30,7 @@ export default class AddCondition extends Component {
   handleSearch = _.throttle(() => {
     this.setState({
       columnsFilter: this.state.keyword
-        ? this.props.columns.filter(item => item.controlName.indexOf(_.trim(this.state.keyword)) > -1)
+        ? this.props.columns.filter(item => item.controlName.toLowerCase().indexOf(_.trim(this.state.keyword.toLowerCase())) > -1)
         : this.props.columns,
     });
   }, 100);

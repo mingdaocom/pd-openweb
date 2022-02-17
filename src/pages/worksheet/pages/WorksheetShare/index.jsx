@@ -42,6 +42,7 @@ class WorksheetSahre extends React.Component {
       viewId: '',
       appId: '',
       controlId: '',
+      dataTitle: '',
       shareId: '',
       rowDetail: [],
       rowDetailStep2: [], // 详情
@@ -52,7 +53,9 @@ class WorksheetSahre extends React.Component {
         rowsList: [],
         count: 0,
         titleHeader: '',
+        dataTitle: '',
       },
+      exported: false,
       appName: '',
       iconColor,
       controlSort: {
@@ -61,7 +64,9 @@ class WorksheetSahre extends React.Component {
       },
       isFormDetail: false,
       worksheetName: '',
-      querydata: null, //公开查询的筛选数据
+      querydata: {}, //公开查询的筛选数据
+      rowIds: [],
+      controlsId: [],
     };
     this.promiseShareInfo = null;
     this.promiseRowsData = null;
@@ -125,9 +130,9 @@ class WorksheetSahre extends React.Component {
         shareId: id,
       });
     }
-    this.promiseShareInfo.then(res => {
+    this.promiseShareInfo.then((res = {}) => {
       const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res;
-      const { viewId = '', rowId = '' } = res;
+      const { viewId = '', rowId = '', exported = false } = res;
       this.setState(
         {
           appId,
@@ -135,15 +140,24 @@ class WorksheetSahre extends React.Component {
           rowId,
           viewId,
           publicqueryRes: res,
+          exported,
         },
         () => {
-          if (!isPublicquery) {
-            this.loadSheet(1, id);
-            this.getHeaderData(appId);
-          } else {
+          if (!viewId && !appId) {
+            //视图已删除或链接已失效
             this.setState({
               loading: false,
+              error: true,
             });
+          } else {
+            if (!isPublicquery) {
+              this.loadSheet(1, id);
+              this.getHeaderData(appId);
+            } else {
+              this.setState({
+                loading: false,
+              });
+            }
           }
         },
       );
@@ -308,6 +322,7 @@ class WorksheetSahre extends React.Component {
   };
 
   setStep = (n, titleHeader, isFormDetail) => {
+    const { rowRelationRowsData } = this.state;
     const data = {
       step: n,
       isFormDetail: !!isFormDetail,
@@ -318,22 +333,16 @@ class WorksheetSahre extends React.Component {
       },
       rowDetail: n <= 2 ? this.state.rowDetailStep2 : this.state.rowDetail,
     };
-    if (!titleHeader) {
-      this.setState({
-        ...data,
-      });
-    } else {
-      this.setState({
-        ...data,
-        rowRelationRowsData: {
-          ...this.state.rowRelationRowsData,
-          titleHeader: titleHeader,
-        },
-      });
-    }
+
+    // 设置关联记录字段标题
+    if (titleHeader) rowRelationRowsData.titleHeader = titleHeader;
+    this.setState({
+      ...data,
+      rowRelationRowsData,
+    });
   };
 
-  loadSheet = (pageIndex, id, querydata) => {
+  loadSheet = (pageIndex, id, querydata = {}) => {
     const {
       listLoading,
       pageSize,
@@ -470,6 +479,9 @@ class WorksheetSahre extends React.Component {
                 rowDetailStep2: getRowDetail,
                 relationRowDetailResultCode: data.resultCode,
                 worksheetName: data.worksheet.name,
+                dataTitle: controls.find(o => o.attribute == '1').controlName || '',
+                rowIds: _.get(data, ['data']).map(item => item.rowid),
+                controlsId: _.get(data, ['template', 'controls']).map(item => item.controlId),
               });
             },
           );
@@ -557,12 +569,19 @@ class WorksheetSahre extends React.Component {
       printData,
       relationRowDetailResultCode,
       pageIndex,
+      pageSize,
       worksheetName,
       viewName,
       publicqueryRes,
       isPublicquery,
       viewSet,
       controlId,
+      exported,
+      projectId,
+      dataTitle,
+      rowIds,
+      controlsId,
+      querydata = {},
     } = this.state;
     let { rowDetail } = this.state;
     const isListDetail = step === SHARE_TYPE.WORKSHEETDETAIL || step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL;
@@ -651,6 +670,17 @@ class WorksheetSahre extends React.Component {
             {...nameList}
             isPublicquery={isPublicquery}
             publicqueryRes={publicqueryRes}
+            exported={exported && rowIds.length > 0}
+            viewId={viewId}
+            worksheetId={step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL ? nextWorksheetId : worksheetId}
+            appId={appId}
+            projectId={projectId}
+            rowIds={rowIds}
+            controlsId={controlsId}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            filterControls={querydata.controls}
+            relationRowsName={rowRelationRowsData.titleHeader}
           />
         )}
         <div
@@ -690,6 +720,7 @@ class WorksheetSahre extends React.Component {
                   cardControls = cardControls.map(o => {
                     return { ...o, relationControls: data.template.controls };
                   });
+                  const dataTitle = cardControls.find(control => control.attribute == '1');
                   this.setState({
                     controlId: id,
                     rowRelationRowsData: {
@@ -701,6 +732,7 @@ class WorksheetSahre extends React.Component {
                       count: data.count,
                       projectId: data.worksheet.projectId,
                       titleHeader,
+                      dataTitle: dataTitle.controlName || '',
                     },
                     loading: false,
                     listLoading: false,
@@ -735,10 +767,11 @@ class WorksheetSahre extends React.Component {
                   ? this.loadSheet(pageIndex, shareId)
                   : this.getRowRelationRowsData(controlId, pageIndex);
               }}
-              pageIndex={this.state.pageIndex}
-              pageSize={this.state.pageSize}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
               {...nameList}
               isPublicquery={isPublicquery}
+              dataTitle={step === SHARE_TYPE.WORKSHEETDNEXT ? rowRelationRowsData.dataTitle : dataTitle}
             />
           )}
         </div>

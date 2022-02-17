@@ -18,7 +18,7 @@ export default class extends Component {
         appSectionId: groupId,
         workSheetId,
         workSheetName: newName,
-        icon: newIcon || icon || '1_0_home',
+        icon: newIcon || icon || '1_worksheet',
       })
       .then(data => {
         this.props.updateSheetList(workSheetId, {

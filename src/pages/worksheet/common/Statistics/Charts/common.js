@@ -84,8 +84,8 @@ export const getChartColors = (style) => {
 /**
  * 获取异化的样式
  */
-export const getAlienationColor = (xaxes, { originalName }) => {
-  const item = _.find(xaxes.options, { key: originalName });
+export const getAlienationColor = (xaxes, { originalId }) => {
+  const item = _.find(xaxes.options, { key: originalId });
   return item ? item.color : '#E0E0E0';
 }
 
@@ -235,7 +235,7 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, ydot, suffix, dot, controlId } = data;
+  const { magnitude, ydot, suffix, dot, controlId, fixType } = data;
   const isRecordCount = controlId === 'record_count';
 
   const { format } = _.find(numberLevel, { value: magnitude });
@@ -248,10 +248,10 @@ export const formatControlValueDot = (value, data) => {
     } else {
       newValue = value.toFixed(isRecordCount ? 0 : ydot);
     }
-    return `${newValue}${suffix}`;
+    return fixType ? `${suffix}${newValue}` : `${newValue}${suffix}`;
   } else {
     const result = format(value).toFixed(ydot);
-    return `${result}${suffix}`;
+    return fixType ? `${suffix}${result}` : `${result}${suffix}`;
   }
 }
 
@@ -263,7 +263,8 @@ export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyVa
     return value;
   } else {
     if (isPerPile) {
-      return `${(value * 100).toFixed(Number.isInteger(value) ? 0 : 2)}%`;
+      const { ydot = 2 } = yaxisList[0] || {};
+      return `${(value * 100).toFixed(Number.isInteger(value) ? 0 : ydot)}%`;
     } else {
       return formatControlValueDot(value, id ? _.find(yaxisList, { controlId: id }) : yaxisList[0]);
     }
@@ -280,11 +281,11 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
     if (_.isEmpty(yaxisList)) {
       return value;
     }
-    const { magnitude, ydot, suffix, dot } = yaxisList[0];
+    const { magnitude, ydot, suffix, dot, fixType } = yaxisList[0];
     const { format } = _.find(numberLevel, { value: magnitude });
     if (magnitude) {
       const result = format(value);
-      return magnitude === 1 ? result : `${result}${suffix}`;
+      return magnitude === 1 ? result : fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else {
       return format(value);
     }

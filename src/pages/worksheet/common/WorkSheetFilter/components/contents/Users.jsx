@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import 'dialogSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 export default class Users extends Component {
   static propTypes = {
@@ -54,7 +55,8 @@ export default class Users extends Component {
   }
   @autobind
   addUser() {
-    const { projectId, from = '' } = this.props;
+    const { projectId, from = '', control = {}, appId } = this.props;
+    const tabType = getTabTypeBySelectUser(control);
     const _this = this;
     if (this.props.disabled) {
       return;
@@ -65,11 +67,13 @@ export default class Users extends Component {
       isTask: false,
       includeUndefinedAndMySelf: from !== 'rule',
       includeSystemField: from !== 'rule' && from !== 'subTotal',
+      tabType,
       offset: {
         top: 0,
         left: 1,
       },
       zIndex: 10001,
+      appId,
       filterAccountIds: from === 'rule' || from === 'subTotal' ? [] : [md.global.Account.accountId],
       SelectUserSettings: {
         projectId,

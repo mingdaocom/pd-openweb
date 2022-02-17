@@ -4,10 +4,11 @@ import { Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import update from 'immutability-helper';
-import { Dropdown } from 'antd';
+import { Dropdown, Input } from 'antd';
 import { keys, includes, isEmpty, findIndex } from 'lodash';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { compareWithTime } from 'src/components/newCustomFields/tools/utils';
 
 const WeekWrap = styled(DropdownContent)`
   max-height: 280px;
@@ -62,10 +63,15 @@ const WEEKDAYS = {
 export default function DateVerify({ data, onChange }) {
   const { type } = data;
   const { allowweek = '', allowtime = '' } = getAdvanceSetting(data);
+  const [originStart, originEnd] = allowtime.split('-');
   const [{ weekVisible, startTimeVisible, endTimeVisible }, setVisible] = useSetState({
     weekVisible: false,
     startTimeVisible: false,
     endTimeVisible: false,
+  });
+  const [{ startTime, endTime }, setTime] = useSetState({
+    startTime: originStart,
+    endTime: originEnd,
   });
   const handleWeekChange = key => {
     const weeks = allowweek.split('');
@@ -79,6 +85,37 @@ export default function DateVerify({ data, onChange }) {
     const idx = findIndex(weeks, item => +item > +key);
     return update(weeks, { $splice: [[idx, 0, key]] }).join('');
   };
+  const handleTimeChange = (e, key) => {
+    let value = e.target.value.trim();
+    const reg = /^\D*(?:\d{0,2}(?:\:\d{0,2})?)$/;
+    if (value === '' || reg.test(value)) {
+      setTime({ [key]: value });
+    }
+  };
+  const handleTimeBlur = (e, key) => {
+    const value = e.target.value.trim();
+    const formatValue = value
+      .split(':')
+      .map(c => c.padStart(2, 0))
+      .join(':');
+    let [startVal, endVal] = allowtime.split('-');
+    if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(formatValue)) {
+      if (key === 'startTime' && compareWithTime(formatValue, endVal, 'isBefore')) {
+        startVal = formatValue;
+      }
+      if (key === 'endTime' && compareWithTime(startVal, formatValue, 'isBefore')) {
+        endVal = formatValue;
+      }
+    }
+    setTime({ startTime: startVal, endTime: endVal });
+    onChange(handleAdvancedSettingChange(data, { allowtime: `${startVal}-${endVal}` }));
+  };
+  useEffect(() => {
+    setTime({
+      startTime: originStart,
+      endTime: originEnd,
+    });
+  }, [allowtime]);
   useEffect(() => {
     if (type === 15) {
       onChange(handleAdvancedSettingChange(data, { allowtime: '' }));
@@ -145,7 +182,7 @@ export default function DateVerify({ data, onChange }) {
             />
           </div>
           {allowtime && (
-            <div className="timeFieldWrap">
+            <div className="timeFieldWrap flexRow">
               <Dropdown
                 visible={startTimeVisible}
                 onVisibleChange={v => setVisible({ startTimeVisible: v })}
@@ -159,7 +196,8 @@ export default function DateVerify({ data, onChange }) {
                         <div
                           key={v}
                           className={cx('item', { disabled })}
-                          onClick={() => {
+                          onClick={e => {
+                            e.preventDefault();
                             if (disabled) return;
                             setVisible({ startTimeVisible: false });
                             onChange(handleAdvancedSettingChange(data, { allowtime: `${v}-${nextVal}` }));
@@ -172,9 +210,15 @@ export default function DateVerify({ data, onChange }) {
                   </WeekWrap>
                 }
               >
-                <DropdownPlaceholder className={cx('flex', { active: startTimeVisible })} color="#333">
-                  {allowtime.split('-')[0]}
-                </DropdownPlaceholder>
+                <Input
+                  className="mTop12 allowTimeSelect1"
+                  onFocus={() => {
+                    document.getElementsByClassName('allowTimeSelect1')[0].select();
+                  }}
+                  value={startTime}
+                  onChange={e => handleTimeChange(e, 'startTime')}
+                  onBlur={e => handleTimeBlur(e, 'startTime')}
+                />
               </Dropdown>
               <span>-</span>
               <Dropdown
@@ -190,7 +234,8 @@ export default function DateVerify({ data, onChange }) {
                         <div
                           key={v}
                           className={cx('item', { disabled })}
-                          onClick={() => {
+                          onClick={e => {
+                            e.preventDefault();
                             if (disabled) return;
                             setVisible({ endTimeVisible: false });
                             onChange(handleAdvancedSettingChange(data, { allowtime: ` ${preVal}-${v}` }));
@@ -203,9 +248,15 @@ export default function DateVerify({ data, onChange }) {
                   </WeekWrap>
                 }
               >
-                <DropdownPlaceholder className={cx('flex', { active: endTimeVisible })} color="#333">
-                  {allowtime.split('-')[1]}
-                </DropdownPlaceholder>
+                <Input
+                  className="mTop12 allowTimeSelect2"
+                  value={endTime}
+                  onFocus={() => {
+                    document.getElementsByClassName('allowTimeSelect2')[0].select();
+                  }}
+                  onChange={e => handleTimeChange(e, 'endTime')}
+                  onBlur={e => handleTimeBlur(e, 'endTime')}
+                />
               </Dropdown>
             </div>
           )}

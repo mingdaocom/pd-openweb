@@ -35,8 +35,6 @@ export default class Filter extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      appearFilters: [],
-      filterItem: [],
       oldConditions: props.filterItem
     };
   }
@@ -93,6 +91,7 @@ export default class Filter extends Component {
             }}
             filterColumnClassName="sheetStatisticsFilterColumnOption"
             canEdit={true}
+            appId={worksheetInfo.appId}
             projectId={projectId}
             columns={worksheetInfo.columns}
             conditions={filterItem}

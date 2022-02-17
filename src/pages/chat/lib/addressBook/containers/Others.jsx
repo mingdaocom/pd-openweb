@@ -18,7 +18,7 @@ const formatContactsData = (store, list) => {
       result[title] = [];
     }
     result[title].push(item);
-    // result[title] = _.uniq(result[title], (item) => item.accountId);
+    // result[title] = _.uniqBy(result[title], (item) => item.accountId);
   });
 
   return result;

@@ -123,6 +123,4 @@ export default function Tip(props) {
   );
 }
 
-Tip.propTypes = {
-  control: shape({}),
-};
+Tip.propTypes = {};

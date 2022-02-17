@@ -81,7 +81,7 @@ export default function RelateRecordList(props) {
                     if (_.find(selected, { rowid: record.rowid })) {
                       onChange(selected.filter(r => r.rowid !== record.rowid));
                     } else {
-                      onChange(multiple ? _.uniq(selected.concat(record)) : [record]);
+                      onChange(multiple ? _.uniqBy(selected.concat(record)) : [record]);
                     }
                   }}
                 >

@@ -44,8 +44,16 @@ export default class DisplayControl extends React.Component {
       c =>
         c.attribute !== 1 &&
         !!c.controlName &&
-        !_.includes([22, 10010, 43], c.type) &&
-        !(_.includes([29], c.type) && c.enumDefault === 2),
+        !_.includes([22, 10010, 43, 45], c.type) &&
+        //除了关联表多条下拉和列表
+        !(
+          (
+            _.includes([29], c.type) &&
+            c.enumDefault === 2 && // enumDefault: 1, // 数量1-一条， 2-多条
+            ['3', '2'].includes(_.get(c.advancedSetting || {}, 'showtype'))
+          )
+          // 1: _l('卡片'),2: _l('列表'),3: _l('下拉框'),
+        ),
     );
     const { appshowtype } = getAdvanceSetting(view);
     return (

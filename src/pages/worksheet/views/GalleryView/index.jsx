@@ -17,7 +17,9 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import { addRecord } from 'worksheet/common/newRecord';
 import { navigateTo } from 'src/router/navigateTo';
+import autoSize from 'ming-ui/decorators/autoSize';
 
+@autoSize
 @connect(
   state => ({ ...state.sheet, chatVisible: state.chat.visible, sheetListVisible: state.sheetList.isUnfold }),
   dispatch => bindActionCreators(actions, dispatch),
@@ -69,9 +71,7 @@ export default class RecordGallery extends Component {
       groupFilterWidth !== this.props.groupFilterWidth
     ) {
       !hasGroupFilter && this.getFetch(nextProps);
-      setTimeout(() => {
-        this.resizeBind();
-      }, 1000);
+      this.resizeBind(nextProps);
     }
     this.setState({ clicksearch });
   }
@@ -100,21 +100,22 @@ export default class RecordGallery extends Component {
     }
   };
 
-  resizeBind = () => {
-    $(this.view).find('.galleryItem').css({
-      width: this.getWith(),
-    });
+  resizeBind = nextProps => {
+    $(this.view)
+      .find('.galleryItem')
+      .css({
+        width: this.getWith(nextProps),
+      });
   };
 
-  getWith = () => {
-    const { base, views } = this.props;
-    const { viewId } = base;
+  getWith = (props = this.props) => {
+    let { base = {}, views = [], width } = props;
+    const { viewId = '' } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const { coverposition = '2' } = getAdvanceSetting(view);
     const isTopCover = coverposition === '2'; // 封面上
-    const viewWidth = $(this.view).width();
-    let width = Math.floor(viewWidth / Math.floor(viewWidth / (!isTopCover ? 336 : 246)));
-    return width;
+    width = width - 8 * 2; //padding:8px;
+    return Math.floor(width / Math.floor(width / (!isTopCover ? 336 : 246)));
   };
 
   formData = row => {
@@ -209,12 +210,13 @@ export default class RecordGallery extends Component {
           }}
         >
           {gallery.map((item, index) => {
-            let { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
+            const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
             let data = {
+              coverData: { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
+              coverImage,
               allAttachments,
               allowEdit: item.allowedit,
               allowDelete: item.allowdelete,
-              coverImage,
               rawRow: item,
               fields: this.formData(item),
               rowId: item.rowid,

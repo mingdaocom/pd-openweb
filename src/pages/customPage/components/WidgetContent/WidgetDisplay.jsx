@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
-import Card from 'src/pages/worksheet/common/Statistics/Card/Card';
+import Card from 'src/pages/worksheet/common/Statistics/Card';
 import styled from 'styled-components';
 import { getEnumType } from '../../util';
 import ButtonList from './ButtonList';
@@ -24,7 +24,7 @@ const WidgetContent = styled.div`
 `;
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
-  const { layoutType, type, value, button, needUpdate, isFullscreen, scrollTop, editable, ids, projectId, ...rest } = props;
+  const { layoutType, type, value, button, needUpdate, isFullscreen, scrollTop, editable, ids, projectId, name, ...rest } = props;
   const componentType = getEnumType(type);
   const ref = useRef(null);
   const renderContent = () => {
@@ -40,7 +40,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           ref={$cardRef}
           needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
           needRefresh={!editable}
-          report={{ id: value }}
+          report={{ id: value, name }}
           sourceType={1}
           needUpdate={needUpdate}
           worksheetId={ids.worksheetId}

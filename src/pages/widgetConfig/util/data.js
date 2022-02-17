@@ -110,7 +110,7 @@ export function dealRelateSheetDefaultValue(data) {
     },
   });
 }
-export function dealUserId(data) {
+export function dealUserId(data, dataType) {
   const value = _.get(data, ['advancedSetting', 'defsource']) || '[]';
   try {
     const settings = value && JSON.parse(value);
@@ -120,10 +120,10 @@ export function dealUserId(data) {
         $apply: item => {
           const { staticValue } = item;
           if (typeof staticValue === 'string' && staticValue) {
-            const { accountId } = JSON.parse(staticValue);
+            const accountId = JSON.parse(staticValue || '{}')[dataType];
             return { ...item, staticValue: accountId };
           }
-          if (staticValue.accountId) return { ...item, staticValue: staticValue.accountId };
+          if (staticValue[dataType]) return { ...item, staticValue: staticValue[dataType] };
           return item;
         },
       }),
@@ -344,7 +344,12 @@ export const formatControlsData = (controls = []) => {
 
     // 用户id替换
     if (type === 26) {
-      return dealUserId(data);
+      return dealUserId(data, 'accountId');
+    }
+
+    // 用户id替换
+    if (type === 27) {
+      return dealUserId(data, 'departmentId');
     }
 
     if (type === 29) {

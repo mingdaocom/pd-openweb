@@ -16,7 +16,7 @@ function Chart({ data }) {
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
   const Charts = charts[data.reportType];
   const WithoutDataComponent = <WithoutData />;
-  const ChartComponent = <Charts reportData={data} />;
+  const ChartComponent = <Charts reportData={data} isThumbnail={true} />;
 
   switch (data.reportType) {
     case reportTypes.BarChart:

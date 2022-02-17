@@ -298,7 +298,7 @@ export default class EditRecord extends Component {
       hasError,
       formFlag,
     } = this.state;
-    const { projectId, worksheetId, hideEditRecord } = this.props;
+    const { projectId, worksheetId, hideEditRecord, appId } = this.props;
     const selectedControl = controlsForSelect.filter(control => control.controlId === selectedControlId)[0] || {};
     return (
       <Dialog
@@ -383,6 +383,7 @@ export default class EditRecord extends Component {
                   .filter(control => control.controlId === selectedControlId)
                   .map(c => ({ ...c, size: 12 }))}
                 projectId={projectId}
+                appId={appId}
                 worksheetId={worksheetId}
                 showError={showError}
                 onChange={data => {

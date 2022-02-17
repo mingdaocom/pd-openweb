@@ -306,7 +306,7 @@ class QrPdf {
         const titleTextCanvas = genTextCanvas({
           text: qrs[qrindex].texts[0]
             ? cutString(qrs[qrindex].texts[0], (textWidth || width) - 5, secFontSize, topLines)
-            : _('未命名'),
+            : _l('未命名'),
           fontSize: secFontSize,
           color: '#333',
           width: textWidth,
@@ -402,7 +402,7 @@ class QrPdf {
     const pixelScale = 2;
     const qrdataurl = getQrDataurl(qrs[0].url);
     const titleTextCanvas = genTextCanvas({
-      text: qrs[0].texts[0] ? cutString(qrs[0].texts[0], textWidth || width, secFontSize) : _('未命名'),
+      text: qrs[0].texts[0] ? cutString(qrs[0].texts[0], textWidth || width, secFontSize) : _l('未命名'),
       fontSize: secFontSize,
       color: '#333',
       width: textWidth || width,

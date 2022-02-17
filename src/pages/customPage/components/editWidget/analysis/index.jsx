@@ -8,8 +8,6 @@ import CreateAnalysis from './CreateAnalysis';
 export default function Analysis(props) {
   const { widget, onEdit, onUpdate, onClose, ids, projectId, sheetList } = props;
   const { appId } = ids;
-  // 创建的图表类型
-  const [chartType, setType] = useState('');
 
   const [visible, setVisible] = useState(Boolean(widget.value));
 
@@ -21,48 +19,14 @@ export default function Analysis(props) {
 
   const { worksheetId, worksheetName, viewId, views } = dataSource;
 
-  // 工作表的控件作为统计图表的x轴
-  const [columns, setColumns] = useState([]);
-
-  // 格式化控件作为统计图表的X轴
-  const formatControlsToColumns = (controls = []) => controls.map(item => ({ data: item }));
-
-  useEffect(() => {
-    if (!worksheetId) return;
-    sheetAjax
-      .getWorksheetInfo({
-        worksheetId,
-        getTemplate: true,
-        getViews: true,
-        appId,
-      })
-      .then(res => {
-        const { views = [], template = {} } = res;
-        setDataSource({ views });
-        setColumns(formatControlsToColumns(template.controls));
-      });
-  }, [worksheetId]);
-
-  const handleClick = e => {
-    const className = e.target.className;
-    if (className === 'mask') {
-      onClose();
-    }
-  };
-  const handleCreate = reportType => {
-    if (!worksheetId) {
-      alert(_l('创建统计图前，必须选择工作表'));
-      return;
-    }
-    setType(reportType);
+  const handleCreate = () => {
     setVisible(true);
-  };
+  }
 
   return (
     <Fragment>
-      {!chartType && !report.id && (
+      {!visible && !report.id && (
         <CreateAnalysis
-          onClick={handleClick}
           onCreate={handleCreate}
           dataSource={dataSource}
           setDataSource={setDataSource}
@@ -71,27 +35,21 @@ export default function Analysis(props) {
       )}
       {visible && (
         <ChartDialog
-          chartType={chartType}
           sourceType={1}
-          scopeVisible={false}
           worksheetName={worksheetName}
           appId={appId}
           projectId={projectId}
-          activeSheetId={worksheetId}
-          activeViewId={viewId}
-          columns={columns}
-          views={views}
+          worksheetId={worksheetId}
+          viewId={viewId}
           report={report}
-          onWorksheetDeleted={() => {
-            setVisible(false);
-            setReport({ id: '' });
-          }}
-          onBlur={event => {
-            setReport({ name: event.target.value });
-          }}
-          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName: name }) => {
-            if (reportId || name) {
-              onEdit({ value: reportId, name });
+          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportDesc }) => {
+            if (reportId) {
+              onEdit({ value: reportId });
+              onClose();
+              return;
+            }
+            if (report.id && reportName !== widget.name) {
+              onEdit({ name: reportName });
               onClose();
               return;
             }

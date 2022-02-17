@@ -35,6 +35,7 @@ const listControlType = [
   API_ENUM_TO_TYPE.AREA_INPUT_24,
   API_ENUM_TO_TYPE.AREA_INPUT_19,
   API_ENUM_TO_TYPE.AREA_INPUT_23,
+  API_ENUM_TO_TYPE.LOCATION,
 ];
 
 //附件 检查框 自由链接 子表 签名
@@ -44,6 +45,7 @@ const showListControlType = [
   API_ENUM_TO_TYPE.RELATION,
   API_ENUM_TO_TYPE.SUBLIST,
   API_ENUM_TO_TYPE.SIGNATURE,
+  API_ENUM_TO_TYPE.LOCATION,
 ];
 
 export default class Condition extends Component {

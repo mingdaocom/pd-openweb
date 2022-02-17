@@ -38,10 +38,10 @@ const WORKFLOW_TRIGGER_MODE = [
     ],
   },
   {
-    text: _l('组织'),
+    text: _l('人员'),
     subClass: [
       {
-        title: _l('人员事件触发'),
+        title: _l('组织人员事件触发'),
         explain: _l('当组织中有人员入职/离职时触发'),
         startEventAppType: 20,
       },
@@ -50,6 +50,11 @@ const WORKFLOW_TRIGGER_MODE = [
       //   explain: _l('当组织中有部门创建/解散时触发'),
       //   startEventAppType: 21,
       // },
+      {
+        title: _l('外部用户事件触发'),
+        explain: _l('当外部用户注册、登录或被删除时触发'),
+        startEventAppType: 23,
+      },
     ],
   },
   {

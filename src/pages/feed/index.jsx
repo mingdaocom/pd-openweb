@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import qs from 'querystring';
+import qs from 'query-string';
 import Feed from './components/app/feed';
 import { changeListType, changeTitle } from './redux/postActions';
 import postEnum from './constants/postEnum';
@@ -43,8 +43,6 @@ export default class CalendarEntrypoint extends Component {
     this.props.dispatch(changeTitle(null));
   }
   render() {
-    return (
-      <Feed />
-    );
+    return <Feed />;
   }
 }

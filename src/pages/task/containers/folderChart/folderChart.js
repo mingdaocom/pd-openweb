@@ -1,16 +1,16 @@
 ﻿import React, { Component } from 'react';
+import ReactDom from 'react-dom';
+import { Column, Pie } from '@antv/g2plot';
 import './css/folderChart.less';
 import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskFolderStatistics';
 import doT from 'dot';
-import echarts from 'echarts';
 import filterXss from 'xss';
 import { listLoadingContent } from '../../utils/taskComm';
 import { errorMessage } from '../../utils/utils';
 import 'bootstrap-daterangepicker';
 import 'bootstrap-daterangepicker/daterangepicker.css';
 import '@mdfe/date-picker-tpl/datePickerTpl.css';
-import './customed';
 import datePickerTpl from '@mdfe/date-picker-tpl';
 import config from '../../config/config';
 import 'mdDialog';
@@ -56,9 +56,7 @@ class FolderChart extends Component {
 
     folderChartSettings.type = 1;
     folderChartSettings.data = '';
-    folderChartSettings.startDate = moment()
-      .subtract(6, 'd')
-      .format('YYYY-MM-DD');
+    folderChartSettings.startDate = moment().subtract(6, 'd').format('YYYY-MM-DD');
     folderChartSettings.endDate = moment().format('YYYY-MM-DD');
     folderChartSettings.isAuto = true;
     folderChartSettings.chargeAccountIDs = [];
@@ -70,7 +68,7 @@ class FolderChart extends Component {
       .getFolderStatisticsNow({
         folderID: folderId,
       })
-      .then((source) => {
+      .then(source => {
         if (viewType !== config.folderViewType.folderChart) {
           return;
         }
@@ -80,13 +78,8 @@ class FolderChart extends Component {
             isFirst: true,
             type: folderChartSettings.type,
             data: source.data,
-            timeTxt:
-              moment()
-                .subtract(6, 'd')
-                .format('YYYY/MM/DD') +
-              ' - ' +
-              moment().format('YYYY/MM/DD'),
-          })
+            timeTxt: moment().subtract(6, 'd').format('YYYY/MM/DD') + ' - ' + moment().format('YYYY/MM/DD'),
+          }),
         );
 
         this.updateCustomFun();
@@ -114,16 +107,13 @@ class FolderChart extends Component {
         click() {
           const $folderChartTime = $('.folderChartNavBox .folderChartTime');
           const $folderChartChargeBox = $('.folderChartNavBox .folderChartChargeBox');
-          $(this)
-            .addClass('active ThemeColor3 ThemeBorderColor3')
-            .siblings()
-            .removeClass();
+          $(this).addClass('active ThemeColor3 ThemeBorderColor3').siblings().removeClass();
 
           folderChartSettings.type = $(this).index() + 1;
           $('#taskList .folderChartBox').html(
             doT.template(folderChart)({
               type: folderChartSettings.type,
-            })
+            }),
           );
 
           // 刷新图表
@@ -145,38 +135,29 @@ class FolderChart extends Component {
           }
         },
       },
-      '.folderChartNavBox .folderChartNav li:not(.active)'
+      '.folderChartNavBox .folderChartNav li:not(.active)',
     );
 
     // 日期切换
     $('body').on('click.folderChart', '.folderChartTime li:not(.activeClass):not([data-type=custom])', function () {
       const date = $(this).data('type');
       const isDialog = $(this).closest('#folderChartMaxView').length;
-      const $el = isDialog ? $('#folderChartMaxView .folderChartTime li[data-type=custom]') : $('.folderChartNavBox .folderChartTime li[data-type=custom]');
+      const $el = isDialog
+        ? $('#folderChartMaxView .folderChartTime li[data-type=custom]')
+        : $('.folderChartNavBox .folderChartTime li[data-type=custom]');
 
-      $(this)
-        .addClass('activeClass ThemeBorderColor3 ThemeBGColor3')
-        .siblings('li')
-        .removeClass();
+      $(this).addClass('activeClass ThemeBorderColor3 ThemeBGColor3').siblings('li').removeClass();
 
       $(this)
         .siblings('.folderChartTimeTxt')
-        .html(
-          moment()
-            .subtract(date, 'd')
-            .format('YYYY/MM/DD') +
-            ' - ' +
-            moment().format('YYYY/MM/DD')
-        );
+        .html(moment().subtract(date, 'd').format('YYYY/MM/DD') + ' - ' + moment().format('YYYY/MM/DD'));
       // 重新绑定自定义日期
       that.updateCustomFun($el, moment().subtract(date, 'd'));
       // 刷新图表
       that.updateTimeRefreshChart(
         isDialog,
-        moment()
-          .subtract(date, 'd')
-          .format('YYYY-MM-DD'),
-        moment().format('YYYY-MM-DD')
+        moment().subtract(date, 'd').format('YYYY-MM-DD'),
+        moment().format('YYYY-MM-DD'),
       );
     });
 
@@ -221,7 +202,9 @@ class FolderChart extends Component {
     $('body').on('click.folderChart', '.folderChartChargeLists .folderChartSelectBtn', function () {
       $(this).toggleClass('ThemeBorderColor3 ThemeBGColor3');
       const $List = $(this).closest('.folderChartChargeList');
-      if ($List.find('.folderChartChargeLists .ThemeBGColor3').length === $List.find('.folderChartChargeLists li').length) {
+      if (
+        $List.find('.folderChartChargeLists .ThemeBGColor3').length === $List.find('.folderChartChargeLists li').length
+      ) {
         $List.find('.folderChartSelectAll').addClass('ThemeBorderColor3 ThemeBGColor3');
       } else {
         $List.find('.folderChartSelectAll').removeClass('ThemeBorderColor3 ThemeBGColor3');
@@ -270,24 +253,12 @@ class FolderChart extends Component {
       const $folderChartBoxTitle = $(this).siblings('.folderChartBoxTitle');
       const title = $folderChartBoxTitle.text();
       const tipTitle = $folderChartBoxTitle.find('span:last').attr('data-tip');
-      const activeTime = $('#taskList')
-        .find('.folderChartTimeTxt')
-        .html();
-      const activeBtn =
-        $('#taskList')
-          .find('.activeClass')
-          .index() - 1;
+      const activeTime = $('#taskList').find('.folderChartTimeTxt').html();
+      const activeBtn = $('#taskList').find('.activeClass').index() - 1;
 
       folderChartSettings.maxSort = folderChartSettings.sort;
       folderChartSettings.chartView =
-        folderChartSettings.type === 4
-          ? $(this).data('id')
-          : parseInt(
-              $(this)
-                .attr('id')
-                .replace(/\D/g, ''),
-              10
-            );
+        folderChartSettings.type === 4 ? $(this).data('id') : parseInt($(this).attr('id').replace(/\D/g, ''), 10);
       folderChartSettings.isAutoMax = folderChartSettings.isAuto;
       folderChartSettings.chargeAccountIDsMax = folderChartSettings.chargeAccountIDs;
 
@@ -311,10 +282,14 @@ class FolderChart extends Component {
       }
     });
 
-    $(document).on('click.folderChart', (event) => {
+    $(document).on('click.folderChart', event => {
       const $target = $(event.target);
 
-      if (!$target.is($('.folderChartChargeBtn')) && !$target.parent().is($('.folderChartChargeBtn')) && !$target.closest('.folderChartChargeList').length) {
+      if (
+        !$target.is($('.folderChartChargeBtn')) &&
+        !$target.parent().is($('.folderChartChargeBtn')) &&
+        !$target.closest('.folderChartChargeList').length
+      ) {
         $('.folderChartChargeList').addClass('Hidden');
       }
     });
@@ -327,7 +302,11 @@ class FolderChart extends Component {
   /**
    * 项目下任务统计请求数据
    */
-  getDailyFolderStatistics(startDate = folderChartSettings.startDate, endDate = folderChartSettings.endDate, isDialog = false) {
+  getDailyFolderStatistics(
+    startDate = folderChartSettings.startDate,
+    endDate = folderChartSettings.endDate,
+    isDialog = false,
+  ) {
     const { folderId } = this.props.taskConfig;
 
     ajaxRequest
@@ -336,7 +315,7 @@ class FolderChart extends Component {
         startDate,
         endDate,
       })
-      .then((source) => {
+      .then(source => {
         if (isDialog) {
           this['folderCharts' + folderChartSettings.chartView]('folderChartsMax', source.data); // 渲染图表
         } else {
@@ -349,7 +328,11 @@ class FolderChart extends Component {
   /**
    * 获取负责人数据
    */
-  getTaskChargeStatistics(isAuto = folderChartSettings.isAuto, chargeAccountIDs = folderChartSettings.chargeAccountIDs, isDialog = false) {
+  getTaskChargeStatistics(
+    isAuto = folderChartSettings.isAuto,
+    chargeAccountIDs = folderChartSettings.chargeAccountIDs,
+    isDialog = false,
+  ) {
     const { folderId } = this.props.taskConfig;
 
     ajaxRequest
@@ -358,7 +341,7 @@ class FolderChart extends Component {
         isAuto,
         chargeAccountIDs: chargeAccountIDs,
       })
-      .then((source) => {
+      .then(source => {
         if (isDialog) {
           this['folderCharts' + folderChartSettings.chartView]('folderChartsMax', source.data); // 渲染图表
         } else {
@@ -378,7 +361,7 @@ class FolderChart extends Component {
       .getFolderStageStatistics({
         folderID: folderId,
       })
-      .then((source) => {
+      .then(source => {
         folderChartSettings.data = source.data;
         this.updateCharts();
       });
@@ -394,7 +377,7 @@ class FolderChart extends Component {
       .getTaskCharges({
         folderID: folderId,
       })
-      .then((source) => {
+      .then(source => {
         if (source.data) {
           const list = doT.template(chargeList)(source.data);
           if ($('#folderChartMaxView').length) {
@@ -447,9 +430,12 @@ class FolderChart extends Component {
         startDate,
         endDate,
       })
-      .then((source) => {
+      .then(source => {
         if (source.code === 1) {
-          this.folderChartsBar('folderChartsMax', _.find(source.data, 'controlId', folderChartSettings.chartView));
+          this.folderChartsBar(
+            'folderChartsMax',
+            _.find(source.data, ({ controlId }) => controlId === folderChartSettings.chartView),
+          );
         }
       });
   }
@@ -473,7 +459,10 @@ class FolderChart extends Component {
         // 自定义字段
         if (folderChartSettings.type === 4) {
           const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
-          const source = _.find(folderChartSettings.data, 'controlId', folderChartSettings.chartView);
+          const source = _.find(
+            folderChartSettings.data,
+            ({ controlId }) => controlId === folderChartSettings.chartView,
+          );
 
           if (type === 9 || type === 10 || type === 11) {
             $('#maxViewUpdateTime').addClass('Hidden');
@@ -486,7 +475,10 @@ class FolderChart extends Component {
           }
         } else {
           const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
-          this.updateCustomFun($('#folderChartMaxView .folderChartTime li[data-type=custom]'), moment().subtract(date, 'd'));
+          this.updateCustomFun(
+            $('#folderChartMaxView .folderChartTime li[data-type=custom]'),
+            moment().subtract(date, 'd'),
+          );
           // 渲染图表
           this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
         }
@@ -497,1226 +489,558 @@ class FolderChart extends Component {
   }
 
   folderCharts1(id = 'folderCharts1', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesAmountData = [];
-    const seriesCompleteData = [];
+    const data = [];
     for (const item of source) {
-      if (source.length === 7) {
-        xAxisData.push(moment(item.date).format('MM/DD ddd'));
-      } else {
-        xAxisData.push(moment(item.date).format('MM/DD'));
-      }
-      seriesAmountData.push(item.underway);
-      seriesCompleteData.push(item.completed);
+      const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
+      data.push({
+        date,
+        name: _l('未完成'),
+        value: item.underway,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.completed,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      toolbox: { show: true },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesAmountData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompleteData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts2(id = 'folderCharts2', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesUnderwayNData = [];
-    const seriesUnderwayAData = [];
-    const seriesUnderwayUData = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesUnderwayNData.push(item.underway_N);
-      seriesUnderwayAData.push(item.underway_A);
-      seriesUnderwayUData.push(item.underway_U);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('正常'),
+        value: item.underway_N,
+      });
+      data.push({
+        date,
+        name: _l('逾期'),
+        value: item.underway_A,
+      });
+      data.push({
+        date,
+        name: _l('未设置'),
+        value: item.underway_U,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [_l('正常'), _l('逾期'), _l('未设置')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#22c3aa', '#626c91', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('正常'),
-          type: 'line',
-          stack: _l('正常'),
-          areaStyle: {
-            normal: {
-              opacity: 0.3,
-            },
-          },
-          data: seriesUnderwayNData,
-        },
-        {
-          name: _l('逾期'),
-          type: 'line',
-          stack: _l('逾期'),
-          areaStyle: {
-            normal: {
-              opacity: 0.2,
-            },
-          },
-          data: seriesUnderwayAData,
-        },
-        {
-          name: _l('未设置'),
-          type: 'line',
-          stack: _l('未设置'),
-          areaStyle: {
-            normal: {
-              opacity: 0.1,
-            },
-          },
-          data: seriesUnderwayUData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts3(id = 'folderCharts3', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesCompletedNData = [];
-    const seriesCompletedAData = [];
-    const seriesCompletedUData = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesCompletedNData.push(item.completed_N);
-      seriesCompletedAData.push(item.completed_A);
-      seriesCompletedUData.push(item.completed_U);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('正常'),
+        value: item.completed_N,
+      });
+      data.push({
+        date,
+        name: _l('逾期'),
+        value: item.completed_A,
+      });
+      data.push({
+        date,
+        name: _l('未设置'),
+        value: item.completed_U,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [_l('按时'), _l('逾期'), _l('未设置')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#626c91', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('按时'),
-          type: 'line',
-          stack: _l('按时'),
-          areaStyle: {
-            normal: {
-              opacity: 0.3,
-            },
-          },
-          data: seriesCompletedNData,
-        },
-        {
-          name: _l('逾期'),
-          type: 'line',
-          stack: _l('逾期'),
-          areaStyle: {
-            normal: {
-              opacity: 0.2,
-            },
-          },
-          data: seriesCompletedAData,
-        },
-        {
-          name: _l('未设置'),
-          type: 'line',
-          stack: _l('未设置'),
-          areaStyle: {
-            normal: {
-              opacity: 0.1,
-            },
-          },
-          data: seriesCompletedUData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts4(id = 'folderCharts4', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesTimespanData = [];
-    const seriesTimespanUndData = [];
-    const seriesTimespanComData = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesTimespanData.push(this.updateChartTime(item.timespan));
-      seriesTimespanUndData.push(this.updateChartTime(item.timespan_Und));
-      seriesTimespanComData.push(this.updateChartTime(item.timespan_Com));
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('总时间'),
+        value: item.timespan,
+      });
+      data.push({
+        date,
+        name: _l('未完成'),
+        value: item.timespan_Und,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.timespan_Com,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [_l('总时间'), _l('未完成'), _l('已完成')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#22c3aa', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('总时间'),
-          type: 'line',
-          stack: _l('总时间'),
-          data: seriesTimespanData,
-        },
-        {
-          name: _l('未完成'),
-          type: 'line',
-          stack: _l('未完成'),
-          data: seriesTimespanUndData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'line',
-          stack: _l('已完成'),
-          data: seriesTimespanComData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts5(id = 'folderCharts5', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesNewTaskData = [];
-    const seriesCompleteTaskData = [];
+    const data = [];
     for (const item of source) {
-      if (source.length === 7) {
-        xAxisData.push(moment(item.date).format('MM/DD ddd'));
-      } else {
-        xAxisData.push(moment(item.date).format('MM/DD'));
-      }
-      seriesNewTaskData.push(item.newTasks);
-      seriesCompleteTaskData.push(item.completedTasks);
+      const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
+      data.push({
+        date,
+        name: _l('新增'),
+        value: item.newTasks,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.completedTasks,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('新增'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#22c3aa', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('新增'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesNewTaskData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompleteTaskData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts6(id = 'folderCharts6', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesMemberAmountData = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesMemberAmountData.push(item.memberAmount);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('人数'),
+        value: item.memberAmount,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [_l('人数')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#626c91'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('人数'),
-          type: 'line',
-          data: seriesMemberAmountData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts13(id = 'folderCharts13', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesTimespanBurnDownData = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesTimespanBurnDownData.push(item.timespan_BurnDown);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('所有未完成任务的总剩余时间'),
+        value: item.timespan_BurnDown,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-      },
-      legend: {
-        data: [_l('所有未完成任务的总剩余时间')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#626c91'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('所有未完成任务的总剩余时间'),
-          type: 'line',
-          data: seriesTimespanBurnDownData,
-        },
-      ],
-    };
 
-    myChart.setOption(option);
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
+      },
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
+    };
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts14(id = 'folderCharts14', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesNotStarted = [];
-    const seriesNotStarted_A = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesNotStarted.push(item.notStarted);
-      seriesNotStarted_A.push(item.notStarted_A);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('未开始'),
+        value: item.notStarted,
+      });
+      data.push({
+        date,
+        name: _l('延期未开始'),
+        value: item.notStarted_A,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-      },
-      legend: {
-        data: [_l('未开始'), _l('延期未开始')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#22c3aa', '#626c91', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('未开始'),
-          type: 'line',
-          data: seriesNotStarted,
-        },
-        {
-          name: _l('延期未开始'),
-          type: 'line',
-          data: seriesNotStarted_A,
-        },
-      ],
-    };
 
-    myChart.setOption(option);
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
+      },
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
+    };
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts15(id = 'folderCharts15', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesGoing = [];
-    const seriesGoing_U = [];
-    const seriesGoing_A = [];
+    const data = [];
     for (const item of source) {
-      xAxisData.push(moment(item.date).format('MM/DD'));
-      seriesGoing_U.push(item.going_U);
-      seriesGoing.push(item.going - item.going_U - item.going_A);
-      seriesGoing_A.push(item.going_A);
+      const date = moment(item.date).format(`MM/DD`);
+      data.push({
+        date,
+        name: _l('未设置'),
+        value: item.going_U,
+      });
+      data.push({
+        date,
+        name: _l('正常'),
+        value: item.going - item.going_U - item.going_A,
+      });
+      data.push({
+        date,
+        name: _l('逾期'),
+        value: item.going_A,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-      },
-      legend: {
-        data: [_l('未设置'), _l('正常'), _l('逾期')],
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#22c3aa', '#626c91', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('未设置'),
-          type: 'line',
-          data: seriesGoing_U,
-        },
-        {
-          name: _l('正常'),
-          type: 'line',
-          data: seriesGoing,
-        },
-        {
-          name: _l('逾期'),
-          type: 'line',
-          data: seriesGoing_A,
-        },
-      ],
-    };
 
-    myChart.setOption(option);
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
+      },
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
+    };
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts7(id = 'folderCharts7', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const yAxisData = [];
-    const seriesAmountData = [];
-    const seriesCompleteData = [];
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('amount', source));
-
+    const data = [];
     for (const item of source) {
-      yAxisData.push(filterXss(item.fullName).substr(0, 10));
-      seriesAmountData.push(item.underway);
-      seriesCompleteData.push(item.completed);
+      const date = filterXss(item.fullName).substr(0, 10);
+      data.push({
+        date,
+        name: _l('未完成'),
+        value: item.underway,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.completed,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 0,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'value',
-          position: 'top',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      yAxis: [
-        {
-          type: 'category',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          data: yAxisData,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesAmountData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompleteData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts8(id = 'folderCharts8', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const yAxisData = [];
-    const seriesCompletedNData = [];
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('completed_N', source));
-
+    const data = [];
     for (const item of source) {
-      yAxisData.push(filterXss(item.fullName).substr(0, 10));
-      seriesCompletedNData.push(item.completed_N);
+      const date = filterXss(item.fullName).substr(0, 10);
+      data.push({
+        date,
+        name: _l('按时完成任务数'),
+        value: item.completed_N,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('按时完成任务数'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 0,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea'],
-      xAxis: [
-        {
-          type: 'value',
-          position: 'top',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      yAxis: [
-        {
-          type: 'category',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          data: yAxisData,
-        },
-      ],
-      series: [
-        {
-          name: _l('按时完成任务数'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesCompletedNData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts9(id = 'folderCharts9', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const yAxisData = [];
-    const seriesUnderwayANData = [];
-    const seriesCompletedANData = [];
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('underway_A', source));
-
+    const data = [];
     for (const item of source) {
-      yAxisData.push(filterXss(item.fullName).substr(0, 10));
-      seriesUnderwayANData.push(item.underway_A);
-      seriesCompletedANData.push(item.completed_A);
+      const date = filterXss(item.fullName).substr(0, 10);
+      data.push({
+        date,
+        name: _l('未完成'),
+        value: item.underway_A,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.completed_A,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 0,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'value',
-          position: 'top',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      yAxis: [
-        {
-          type: 'category',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          data: yAxisData,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesUnderwayANData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompletedANData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts10(id = 'folderCharts10', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const yAxisData = [];
-    const seriesTimespanUndNData = [];
-    const seriesTimespanComData = [];
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('timespan_Und', source));
-
+    const data = [];
     for (const item of source) {
-      yAxisData.push(filterXss(item.fullName).substr(0, 10));
-      seriesTimespanUndNData.push(this.updateChartTime(item.timespan_Und));
-      seriesTimespanComData.push(this.updateChartTime(item.timespan_Com));
+      const date = filterXss(item.fullName).substr(0, 10);
+      data.push({
+        date,
+        name: _l('未完成'),
+        value: this.updateChartTime(item.timespan_Und),
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: this.updateChartTime(item.timespan_Com),
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 0,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'value',
-          position: 'top',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      yAxis: [
-        {
-          type: 'category',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          data: yAxisData,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesTimespanUndNData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesTimespanComData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts11(id = 'folderCharts11', source = folderChartSettings.data) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const yAxisData = [];
-    const seriesCompletedTimeAvgData = [];
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('completedTimeAvg', source));
-
+    const data = [];
     for (const item of source) {
-      yAxisData.push(filterXss(item.fullName).substr(0, 10));
-      seriesCompletedTimeAvgData.push(this.updateChartTime(item.completedTimeAvg));
+      const date = filterXss(item.fullName).substr(0, 10);
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: this.updateChartTime(item.completedTimeAvg),
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 0,
-        left: 10,
-        right: 20,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#22c3aa'],
-      xAxis: [
-        {
-          type: 'value',
-          position: 'top',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      yAxis: [
-        {
-          type: 'category',
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          data: yAxisData,
-        },
-      ],
-      series: [
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesCompletedTimeAvgData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderCharts12(id = 'folderCharts12') {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesUnderwayData = [];
-    const seriesCompleteData = [];
+    // 数据排序
+    const data = [];
     for (const item of folderChartSettings.data.stages) {
-      xAxisData.push(item.stageName);
-      seriesUnderwayData.push(item.sUnderway);
-      seriesCompleteData.push(item.sCompleted);
+      const date = item.stageName;
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.sUnderway,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.sCompleted,
+      });
     }
 
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesUnderwayData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompleteData,
-        },
-      ],
+      data,
+      isGroup: false,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderChartsPie(id, source) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const legendData = [];
-    const seriesData = [];
+    // 数据排序
+    const data = [];
     for (const item of source.options) {
       const name = item.name.length > 6 && id !== 'folderChartsMax' ? item.name.substring(0, 5) + '...' : item.name;
-      legendData.push({ name, icon: 'pin' });
-      seriesData.push({ name, value: item.count });
+      const count = item.count;
+      data.push({ name, count });
     }
 
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b} : {c} ({d}%)',
-      },
-      legend: {
-        orient: 'horizontal',
-        bottom: 0,
-        data: legendData,
-      },
-      series: [
-        {
-          name: source.controlName,
-          type: 'pie',
-          radius: '40%',
-          center: ['50%', '45%'],
-          data: seriesData,
-          itemStyle: {
-            emphasis: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)',
-            },
-          },
-        },
-      ],
+    // 绘制图表
+    const config = {
+      appendPadding: 10,
+      data,
+      angleField: 'count',
+      colorField: 'type',
+      radius: 0.9,
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Pie($('#' + id)[0], config).render();
   }
 
+  /**
+   * 绘制柱状图
+   */
   folderChartsBar(id, source) {
-    const myChart = echarts.init($('#' + id)[0], 'customed');
-    const xAxisData = [];
-    const seriesUnderwayData = [];
-    const seriesCompleteData = [];
+    // 数据排序
+    const data = [];
     for (const item of source.dailyStatistics) {
-      if (source.dailyStatistics.length === 7) {
-        xAxisData.push(moment(item.date).format('MM/DD ddd'));
-      } else {
-        xAxisData.push(moment(item.date).format('MM/DD'));
-      }
-      seriesUnderwayData.push(item.underway_Sum);
-      seriesCompleteData.push(item.completed_Sum);
+      const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.underway_Sum,
+      });
+      data.push({
+        date,
+        name: _l('已完成'),
+        value: item.completed_Sum,
+      });
     }
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-          lineStyle: {
-            color: 'transparent',
-          },
-        },
+
+    // 绘制图表
+    const config = {
+      label: {
+        position: 'middle',
+        layout: [],
       },
-      toolbox: { show: true },
-      legend: {
-        data: [{ name: _l('未完成'), icon: 'pin' }, { name: _l('已完成'), icon: 'pin' }],
-        align: 'left',
-        bottom: 0,
-      },
-      grid: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 35,
-        containLabel: true,
-      },
-      color: ['#0091ea', '#ddd'],
-      xAxis: [
-        {
-          type: 'category',
-          data: xAxisData,
-          axisLine: { show: true },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: {
-            lineStyle: { type: 'dashed' },
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitNumber: 4,
-          minInterval: 1,
-        },
-      ],
-      series: [
-        {
-          name: _l('未完成'),
-          type: 'bar',
-          barWidth: '40%',
-          stack: 'true',
-          data: seriesUnderwayData,
-        },
-        {
-          name: _l('已完成'),
-          type: 'bar',
-          stack: 'true',
-          data: seriesCompleteData,
-        },
-      ],
+      data,
+      isGroup: true,
+      xField: 'name',
+      yField: 'value',
+      seriesField: 'name',
     };
-    myChart.setOption(option);
+    $('#' + id).empty();
+    new Column($('#' + id)[0], config).render();
   }
 
   folderChartsCustom() {
     $('.folderChartBoxModel .folderChartModel[data-model=custom]').map((i, item) => {
       const id = $(item).data('id');
       const type = $(item).data('type');
-      const source = _.find(folderChartSettings.data, 'controlId', id);
+      const source = _.find(folderChartSettings.data, ({ controlId }) => controlId === id);
 
       if (type === 9 || type === 10 || type === 11) {
         this.folderChartsPie('folderCharts_' + id, source);
@@ -1729,7 +1053,10 @@ class FolderChart extends Component {
   /**
    * 自定义日期
    */
-  updateCustomFun($el = $('.folderChartNavBox .folderChartTime li[data-type=custom]'), startDate = moment().subtract(6, 'd')) {
+  updateCustomFun(
+    $el = $('.folderChartNavBox .folderChartTime li[data-type=custom]'),
+    startDate = moment().subtract(6, 'd'),
+  ) {
     const that = this;
     const options = {
       parentEl: $('#folderChartMaxView').length ? '#folderChartMaxView .folderChartBox' : '.folderChartNavBox',
@@ -1747,15 +1074,11 @@ class FolderChart extends Component {
         cancelLabel: _l('关闭'),
         fromLabel: _l('开始时间'),
         toLabel: _l('结束时间'),
-        daysOfWeek: [0, 1, 2, 3, 4, 5, 6].map((item) => {
-          return moment()
-            .day(item)
-            .format('dd');
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6].map(item => {
+          return moment().day(item).format('dd');
         }),
-        monthNames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((item) => {
-          return moment()
-            .month(item)
-            .format('MMM');
+        monthNames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(item => {
+          return moment().month(item).format('MMM');
         }),
         firstDay: 1,
       },
@@ -1773,24 +1096,20 @@ class FolderChart extends Component {
       } else if (timeDiff === 30) {
         index = 2;
       }
-      $el
-        .siblings('li')
-        .removeClass()
-        .eq(index)
-        .addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
+      $el.siblings('li').removeClass().eq(index).addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
 
       // 刷新图表
       that.updateTimeRefreshChart(isDialog, start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
     };
     $el.daterangepicker(options, callback);
 
-    $el.on('show.daterangepicker', (evt) => {
+    $el.on('show.daterangepicker', evt => {
       if (!$(evt.target).siblings('.activeClass').length) {
         $(evt.target).addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
       }
     });
 
-    $el.on('hide.daterangepicker', (evt) => {
+    $el.on('hide.daterangepicker', evt => {
       if (!$(evt.target).hasClass('ThemeBGColor3')) {
         $(evt.target).removeClass();
       }
@@ -1936,14 +1255,20 @@ class FolderChart extends Component {
     const isDialog = $('#folderChartMaxView').length;
     let ids;
     if (isDialog) {
-      $('#folderChartMaxView .folderChartSelect').toggleClass('ThemeBorderColor3 ThemeBGColor3', folderChartSettings.isAutoMax);
+      $('#folderChartMaxView .folderChartSelect').toggleClass(
+        'ThemeBorderColor3 ThemeBGColor3',
+        folderChartSettings.isAutoMax,
+      );
       if (!folderChartSettings.isAutoMax) {
         for (ids of folderChartSettings.chargeAccountIDsMax) {
           $('#folderChartMaxView .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');
         }
       }
     } else {
-      $('.folderChartNavBox .folderChartSelect').toggleClass('ThemeBorderColor3 ThemeBGColor3', folderChartSettings.isAuto);
+      $('.folderChartNavBox .folderChartSelect').toggleClass(
+        'ThemeBorderColor3 ThemeBGColor3',
+        folderChartSettings.isAuto,
+      );
       if (!folderChartSettings.isAuto) {
         for (ids of folderChartSettings.chargeAccountIDs) {
           $('.folderChartNavBox .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');

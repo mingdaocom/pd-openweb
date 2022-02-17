@@ -95,7 +95,7 @@ class Panel extends Component {
     if (particularlyCity.includes(item.id) && newSelectCitys.length === 2) {
       this.props.callback([item]);
     } else {
-      this.props.callback(_.uniq(newSelectCitys).length !== newSelectCitys.length ? _.uniq(newSelectCitys) : newSelectCitys);
+      this.props.callback(_.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys);
     }
 
     if (newSelectCitys.length === level) {

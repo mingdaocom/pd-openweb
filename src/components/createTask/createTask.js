@@ -123,7 +123,7 @@ $.extend(CreateTask.prototype, {
       var lastProjectId = window.localStorage.getItem('lastProjectId');
       if (lastProjectId !== null) {
         settings.ProjectID = lastProjectId;
-      } else if (md.global.Account.projects.length) {
+      } else if ((md.global.Account.projects || []).length) {
         settings.ProjectID = md.global.Account.projects[0].projectId;
       } else {
         settings.ProjectID = '';

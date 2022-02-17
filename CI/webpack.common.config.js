@@ -127,7 +127,7 @@ module.exports = {
       },
       {
         loader: 'less-loader',
-        options: 'sourceMap',
+        options: { sourceMap: true },
       },
       {
         loader: 'sass-resources-loader',

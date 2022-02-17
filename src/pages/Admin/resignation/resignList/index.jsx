@@ -117,12 +117,9 @@ export default class ResignList extends React.Component {
   }
 
   exportList() {
-    const { selectedAccountIds } = this.state;
+    const { selectedAccountIds = {} } = this.state;
     const { projectId } = this.props;
-    const accountIds = _(selectedAccountIds)
-      .keys()
-      .filter(id => selectedAccountIds[id])
-      .value();
+    const accountIds = _.keys(selectedAccountIds).filter(id => selectedAccountIds[id]);
     if (!accountIds.length) {
       alert(_l('请选择用户导出'), 3);
       return;
@@ -238,11 +235,8 @@ export default class ResignList extends React.Component {
   }
 
   renderContent() {
-    const { allCount, isLoading, list, selectedAccountIds, showMenu } = this.state;
-    const accountIds = _(selectedAccountIds)
-      .keys()
-      .filter(id => selectedAccountIds[id])
-      .value();
+    const { allCount, isLoading, list, selectedAccountIds = {}, showMenu } = this.state;
+    const accountIds = _.keys(selectedAccountIds).filter(id => selectedAccountIds[id]);
 
     const isAllChecked = !!(
       _.isArray(list) &&

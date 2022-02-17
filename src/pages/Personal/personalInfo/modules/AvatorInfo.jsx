@@ -58,10 +58,15 @@ export default class AvatarEditor extends Component {
 
         xhr.onreadystatechange = () => {
           if (xhr.readyState == 4 && JSON.parse(xhr.responseText).key) {
-            editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
-              this.props.updateAvator();
+            if (this.props.editAvatar) {
+              this.props.editAvatar(res[0]);
               this.props.closeDialog();
-            });
+            } else {
+              editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
+                this.props.updateAvator();
+                this.props.closeDialog();
+              });
+            }
           }
         };
         xhr.open('POST', url, true);

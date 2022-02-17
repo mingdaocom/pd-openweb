@@ -34,7 +34,7 @@ class Root extends React.Component {
         <div className="adminStructureBox">
           <div className="adminStructure">
             <div className="structureHeader">
-              <span className="Gray Font17">{_l('人员与部门')}</span>
+              <span className="Gray Font17 Bold">{_l('人员与部门')}</span>
               <Tooltip text={<span>{_l('人员加入规则设置')}</span>} action={['hover']}>
                 <Icon
                   className="Font16 Gray_bd mLeft8 Hand"

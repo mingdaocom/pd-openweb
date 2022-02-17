@@ -97,11 +97,7 @@ export default class UpdateFields extends Component {
    */
   renderOperatorType(item, i) {
     const { type } = this.props;
-    const TYPES = [
-      { text: _l('设为'), value: 0 },
-      { text: _l('增加'), value: 1 },
-      { text: _l('减少'), value: 2 },
-    ];
+    const TYPES = [{ text: _l('设为'), value: 0 }, { text: _l('增加'), value: 1 }, { text: _l('减少'), value: 2 }];
 
     // 附件没有减少
     if (item.type === 14) {
@@ -124,7 +120,11 @@ export default class UpdateFields extends Component {
       );
     }
 
-    return <div className="mTop10 Gray_9e">{_l('设为')}</div>;
+    return (
+      <div className="mTop10 Gray_9e" style={{ lineHeight: '20px' }}>
+        {_l('设为')}
+      </div>
+    );
   }
 
   /**

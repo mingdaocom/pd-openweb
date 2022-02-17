@@ -7,6 +7,7 @@ import { STATUS_ERROR_MESSAGE } from './config';
 import './index.less';
 import Header from './Header';
 import StepItem from './StepItem';
+import { getWorkItem, getSwitchPermit } from 'src/api/worksheet';
 
 export default class ExecDialog extends Component {
   static propTypes = {
@@ -35,10 +36,16 @@ export default class ExecDialog extends Component {
     currentWorkItem: {},
     projectId: '',
     errorMsg: '',
+    sheetSwitchPermit: [],
+    worksheetId: '',
+    rowId: '',
+    viewId: '',
+    loading: true,
   };
 
   componentDidMount() {
     this.getData();
+    this.getPermit();
   }
 
   /**
@@ -69,6 +76,23 @@ export default class ExecDialog extends Component {
       }
     });
   };
+  getPermit = () => {
+    let { id, workId } = this.props;
+    getWorkItem({
+      instanceId: id,
+      workId: workId,
+    }).then(res => {
+      getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
+        this.setState({
+          sheetSwitchPermit,
+          viewId: res.viewId,
+          worksheetId: res.worksheetId,
+          rowId: res.rowId,
+          loading: false,
+        });
+      });
+    });
+  };
 
   /**
    * 处理报错问题
@@ -83,18 +107,39 @@ export default class ExecDialog extends Component {
 
   render() {
     const { id, workId, isLand, onClose } = this.props;
-    const { data, works, currentWork, currentWorkItem, projectId, errorMsg } = this.state;
+    const {
+      data,
+      works,
+      currentWork,
+      currentWorkItem,
+      projectId,
+      errorMsg,
+      sheetSwitchPermit = [],
+      worksheetId,
+      viewId,
+      rowId,
+      loading,
+    } = this.state;
+    if (loading) return null;
     const RecordInfoWrapperComp = isLand ? autoSize(RecordInfoWrapper) : RecordInfoWrapper;
     return (
       <RecordInfoWrapperComp
         notDialog={isLand}
         from={4}
+        sheetSwitchPermit={sheetSwitchPermit}
+        viewId={viewId}
+        recordId={rowId}
+        worksheetId={worksheetId}
         header={
           <Header
             projectId={projectId}
             data={data}
             currentWorkItem={currentWorkItem}
             errorMsg={errorMsg}
+            sheetSwitchPermit={sheetSwitchPermit}
+            viewId={viewId}
+            rowId={rowId}
+            worksheetId={worksheetId}
             {...this.props}
           />
         }

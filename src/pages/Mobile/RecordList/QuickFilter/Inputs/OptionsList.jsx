@@ -30,7 +30,7 @@ export default function OptionsList(props) {
                 if (_.includes(selected, o.key)) {
                   onChange(selected.filter(v => v !== o.key));
                 } else {
-                  onChange(multiple ? _.uniq(selected.concat(o.key)) : [o.key]);
+                  onChange(multiple ? _.uniqBy(selected.concat(o.key)) : [o.key]);
                 }
               }}
             >

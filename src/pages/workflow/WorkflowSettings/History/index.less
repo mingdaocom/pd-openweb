@@ -40,6 +40,7 @@
         border-radius: 3px;
         padding: 0 5px;
         width: 112px;
+        margin-left: 10px;
         margin-right: 10px;
         .arrow {
           margin-left: 15px;
@@ -140,12 +141,18 @@
       padding: 15px 0;
       cursor: pointer;
       position: relative;
+      &:hover {
+        .retry {
+          visibility: visible;
+        }
+      }
       .status,
       .triggerTime {
         min-width: 160px;
       }
       .retry {
         min-width: 55px;
+        visibility: hidden;
       }
     }
 
@@ -265,6 +272,7 @@
                 }
                 .personInfo {
                   white-space: normal;
+                  word-break: break-all;
                   span {
                     max-width: 200px;
                     overflow: hidden;
@@ -346,6 +354,9 @@
       align-items: center;
       height: 44px;
     }
+  }
+  .historyRefresh {
+    animation: rotate 1s linear infinite;
   }
 }
 

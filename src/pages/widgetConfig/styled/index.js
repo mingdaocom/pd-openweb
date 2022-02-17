@@ -92,6 +92,11 @@ export const SettingItem = styled.div`
   .subTitle {
     margin-bottom: 6px;
   }
+  .labelBetween {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 `;
 export const RelateInfo = styled.div`
   margin-top: 12px;

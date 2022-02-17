@@ -14,7 +14,10 @@ import './index.less';
 export default class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
-    if (props.path === '/worksheet/:worksheetId?' && location.href.indexOf('/row/') < 0) {
+    if (
+      (props.path === '/worksheet/:worksheetId?' || props.path === '/worksheet/:worksheetId/view/:viewId') &&
+      location.href.indexOf('/row/') < 0
+    ) {
       this.compatibleWorksheetRoute();
     }
     const { appId, groupId, worksheetId } = getIds(props);
@@ -32,10 +35,13 @@ export default class AppPkgHeader extends Component {
 
   // 兼容形如 /worksheet/:worksheetId?的旧工作表路由
   compatibleWorksheetRoute = () => {
-    const { worksheetId } = getIds(this.props);
+    const { worksheetId, viewId } = getIds(this.props);
     api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
       if (appId && appSectionId) {
-        navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+        navigateTo(
+          `/app/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
+          true,
+        );
       }
     });
   };

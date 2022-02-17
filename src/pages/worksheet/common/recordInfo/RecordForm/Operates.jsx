@@ -130,31 +130,29 @@ export default class Operates extends Component {
       handleAddSheetRow,
     } = this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
-    const { viewId, worksheetId, recordId } = recordbase;
-    const { projectId, receiveControls } = recordinfo;
-    const isMobile = browserIsMobile();
+    const { viewId, worksheetId, recordId, appId } = recordbase;
+    const { projectId } = recordinfo;
     return (
       <React.Fragment>
         <div className="flex" style={{ lineHeight: 1 }} ref={this.customButtonsCon}>
-          {!isMobile && (
-            <div className="customButtons">
-              <CustomButtons
-                iseditting={iseditting}
-                viewId={viewId}
-                worksheetId={worksheetId}
-                recordId={recordId}
-                projectId={projectId}
-                buttons={customBtns.slice(0, buttonShowNum)}
-                btnDisable={btnDisable}
-                reloadRecord={reloadRecord}
-                loadBtns={this.loadBtns}
-                onUpdate={onUpdate}
-                hideRecordInfo={hideRecordInfo}
-                onHideMoreBtn={() => {}}
-                onButtonClick={this.disableCustomButton}
-              />
-            </div>
-          )}
+          <div className="customButtons">
+            <CustomButtons
+              iseditting={iseditting}
+              viewId={viewId}
+              appId={appId}
+              worksheetId={worksheetId}
+              recordId={recordId}
+              projectId={projectId}
+              buttons={customBtns.slice(0, buttonShowNum)}
+              btnDisable={btnDisable}
+              reloadRecord={reloadRecord}
+              loadBtns={this.loadBtns}
+              onUpdate={onUpdate}
+              hideRecordInfo={hideRecordInfo}
+              onHideMoreBtn={() => {}}
+              onButtonClick={this.disableCustomButton}
+            />
+          </div>
         </div>
         <MoreMenu
           recordbase={recordbase}

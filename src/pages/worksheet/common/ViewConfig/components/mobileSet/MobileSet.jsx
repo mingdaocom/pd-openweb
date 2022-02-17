@@ -142,7 +142,7 @@ export default class MobileSet extends React.Component {
             }}
           ></div>
           {/* 显示检查框 */}
-          <div className="title Font13 mTop24">{_l('显示检查框')}</div>
+          <div className="title Font13 mTop24 bold">{_l('显示检查框')}</div>
           <div className="settingContent">
             <p className="mTop6 mBottom8 Gray_9e viewSetText">
               {_l('选择一个检查框字段在标题前显示，可快速在卡片标记状态')}

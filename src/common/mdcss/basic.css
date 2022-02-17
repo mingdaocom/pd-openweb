@@ -331,6 +331,9 @@ body .Hidden {
 .WhiteBG {
   background-color: #fff;
 }
+.BGF7F7F7 {
+  background-color: #f7f7f7;
+}
 .Alpha10 {
   opacity: 1;
   -moz-opacity: 1;

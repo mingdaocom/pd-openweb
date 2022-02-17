@@ -3,6 +3,7 @@ var net = require('net');
 var path = require('path');
 var open = require('open');
 const boxen = require('boxen');
+const handler = require('serve-handler');
 var _ = require('lodash');
 var fs = require('fs');
 var proxy = require('proxy-middleware');
@@ -69,7 +70,10 @@ async function getValuedPort(port) {
 
 const middlewareList = [
   function (req, res, next) {
-    const rewrites = utils.parseNginxRewriteConf(path.join(__dirname, '../docker/rewrite.setting'));
+    const rewrites = utils.parseNginxRewriteConf([
+      path.join(__dirname, '../docker/rewrite.setting'),
+      path.join(__dirname, '../docker/portal.rewrite.setting'),
+    ]);
     if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
       req.url = req.url.replace('/api/', '');
@@ -164,13 +168,9 @@ async function serve({ done = () => {}, needOpen = true } = {}) {
         }
         res.end(text);
       } else {
-        const rs = fs.createReadStream(path.join(__dirname, '../build', pathname));
-        rs.on('error', () => {
-          console.log('can not find ' + pathname, path.join(__dirname, '../build', pathname));
-          res.statusCode = 404;
-          res.end('404');
+        handler(req, res, {
+          public: path.join(__dirname, '../build'),
         });
-        rs.pipe(res);
       }
     });
   });

@@ -72,6 +72,7 @@ export default class Approval extends Component {
       accounts,
       countersignType,
       operationTypeList,
+      ignoreRequired,
       isCallBack,
       callBackType,
       formProperties,
@@ -111,6 +112,7 @@ export default class Approval extends Component {
         countersignType,
         condition,
         operationTypeList,
+        ignoreRequired,
         isCallBack,
         callBackType,
         formProperties,
@@ -306,7 +308,13 @@ export default class Approval extends Component {
             if (countersignType === 4) {
               condition = '100';
             }
-            this.updateSource({ countersignType, operationTypeList: [], isCallBack: false, condition });
+            this.updateSource({
+              countersignType,
+              operationTypeList: [],
+              ignoreRequired: false,
+              isCallBack: false,
+              condition,
+            });
           }}
         />
         {data.countersignType === 4 && (
@@ -364,6 +372,12 @@ export default class Approval extends Component {
             onClick={checked => this.switchApprovalSettings(!checked, 7)}
           />
         )}
+        <Checkbox
+          className="mTop15 flexRow"
+          text={_l('否决时，无需填写')}
+          checked={data.ignoreRequired}
+          onClick={checked => this.updateSource({ ignoreRequired: !checked })}
+        />
         {data.countersignType !== 2 && (
           <Fragment>
             <div className={cx('flexRow alignItemsCenter', data.isCallBack ? 'mTop10' : 'mTop15')}>

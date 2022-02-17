@@ -120,6 +120,10 @@ export default class Widgets extends Component {
       content = Math.round(parseFloat(value) * 100) + '%';
     }
 
+    if (advancedSetting && (advancedSetting.prefix || advancedSetting.suffix)) {
+      content = (advancedSetting.prefix || '') + content + (advancedSetting.suffix || '');
+    }
+
     return (
       <Box className="customFormControlBox customFormTextareaBox customFormReadonly customFormSubtotal">
         {content}

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import Skeleton from 'src/router/Application/Skeleton';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, replaceByIndex } from 'worksheet/util';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CustomFields from 'src/components/newCustomFields';
 import DragMask from 'worksheet/common/DragMask';
@@ -160,7 +160,7 @@ export default function RecortForm(props) {
       data: formdata,
     }).filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible),
     'row',
-  );
+  ).filter(c => !c.hidden);
   const customwidget = useRef();
   const recordForm = useRef();
   const nav = useRef();
@@ -192,18 +192,6 @@ export default function RecortForm(props) {
     setFormHeight(recordForm.current.clientHeight);
     setNavVisible();
   });
-  useEffect(() => {
-    if (!recordId) {
-      try {
-        if (customwidget.current && customwidget.current.dataFormat) {
-          onChange(customwidget.current.dataFormat.getDataSource(), { noSaveTemp: true });
-        }
-        onChange(customwidget.current.dataFormat.getDataSource(), { noSaveTemp: true });
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  }, [loading]);
   function setSplit(value) {
     if (value) {
       localStorage.setItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
@@ -306,7 +294,7 @@ export default function RecortForm(props) {
                   from={recordId ? 3 : isMobile ? 5 : 2}
                   flag={formFlag}
                   controlProps={controlProps}
-                  data={formdata.filter(control => !(view.controls || []).includes(control.controlId))}
+                  data={formdata}
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
@@ -319,6 +307,13 @@ export default function RecortForm(props) {
                   onChange={onChange}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
+                  appId={recordinfo.appId}
+                  onFormDataReady={dataFormat => {
+                    setNavVisible();
+                    if (!recordId) {
+                      onChange(dataFormat.getDataSource(), { noSaveTemp: true });
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -346,7 +341,7 @@ export default function RecortForm(props) {
                     updateRows(
                       [recordId],
                       {
-                        ...[{}, ...recordinfo.receiveControls, value].reduce((a, b) =>
+                        ...[{}, ...recordinfo.formData, value].reduce((a, b) =>
                           Object.assign({}, a, { [b.controlId]: b.value }),
                         ),
                         ...value,

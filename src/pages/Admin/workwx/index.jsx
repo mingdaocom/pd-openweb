@@ -529,8 +529,31 @@ export default class Workwx extends React.Component {
       }
     });
   };
-
+  // 免费版显示付费升级
+  renderUpgrade = () => {
+    return (
+      <div className="upgradePage flexColumn">
+        <div className="netStateWrap">
+          <div className="imgWrap" />
+          <div className="hint">{_l('当前版本无法使用此功能')}</div>
+          <div className="explain">{_l('请升级到标准版本或以上版本')}</div>
+        </div>
+        {/*<Button
+          type="primary"
+          className="payUpgradeBtn"
+          onClick={() => {
+            navigateTo(`/upgrade/choose?projectId=${Config.projectId}`);
+          }}
+        >
+          {_l('立即购买')}
+        </Button>*/}
+      </div>
+    );
+  };
   render() {
+    if (Config.project.licenseType === 0) {
+      return this.renderUpgrade();
+    }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }

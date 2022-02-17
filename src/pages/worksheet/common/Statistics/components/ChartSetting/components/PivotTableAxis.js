@@ -9,6 +9,8 @@ import {
   normTypes,
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
+  timeDataParticle,
+  timeGatherParticle,
   isNumberControl,
   isTimeControl,
   isAreaControl,
@@ -48,12 +50,7 @@ const renderOverlay = ({
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
-  const timeData = (isTime
-  ? axis.type === 16
-    ? timeParticleSizeDropdownData
-    : timeParticleSizeDropdownData.filter(item => ![6, 7].includes(item.value))
-  : []).filter(item => ![8, 9, 10, 11].includes(item.value));
-  const timeGather = timeParticleSizeDropdownData.filter(item => [8, 9, 10, 11].includes(item.value));
+  const timeData = (isTime ? axis.type === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
   const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(axis.controlId, disableParticleSizeTypes);
   return (
     <Menu className="chartControlMenu chartMenu">
@@ -111,7 +108,7 @@ const renderOverlay = ({
           </Menu.ItemGroup>
           <Menu.Divider />
           <Menu.ItemGroup title={_l('集合')}>
-            {timeGather.map(item => (
+            {timeGatherParticle.map(item => (
               <Menu.Item
                 className="valignWrapper"
                 disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
@@ -239,7 +236,7 @@ export default class PivotTableAxis extends Component {
     }
 
     return true;
-  };
+  }
   handleAddControl = data => {
     const { list, verifyNumber, disableParticleSizeTypes } = this.props;
 
@@ -247,40 +244,8 @@ export default class PivotTableAxis extends Component {
       return;
     }
 
-    if (verifyNumber) {
-      const axis = {
-        controlId: data.controlId,
-        controlName: data.controlName,
-        controlType: data.type,
-        normType: 1,
-        dot: data.dot,
-        magnitude: 1,
-        suffix: '',
-        ydot: '',
-      };
-      this.props.onUpdateList(list.concat(axis));
-    } else {
-      const isTime = isTimeControl(data.type);
-      const isArea = isAreaControl(data.type);
-      const axis = {
-        controlId: data.controlId,
-        controlName: data.controlName,
-        controlType: data.type,
-      };
-      if (isTime || isArea) {
-        const dropdownData = isTime ? timeParticleSizeDropdownData : areaParticleSizeDropdownData;
-        const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
-        const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
-        if (allowTypes.length) {
-          axis.particleSizeType = allowTypes[0];
-        } else {
-          alert(_l('不允许添加重复粒度'), 2);
-          return;
-        }
-      }
-      this.props.onUpdateList(list.concat(axis));
-    }
-  };
+    this.props.onAdd(data);
+  }
   handleSelectReNameId = (id, particleSizeType) => {
     const { verifyNumber } = this.props;
     const data = verifyNumber ? { controlId: id } : { controlId: id, particleSizeType };
@@ -288,7 +253,7 @@ export default class PivotTableAxis extends Component {
     this.setState({
       currentControl,
     });
-  };
+  }
   handleChangeRename = name => {
     const { list } = this.props;
     const { currentControl } = this.state;
@@ -299,18 +264,7 @@ export default class PivotTableAxis extends Component {
       return item;
     });
     this.props.onUpdateList(newList);
-  };
-  handleClear = ({ controlId, controlType, particleSizeType }) => {
-    const { list } = this.props;
-    const id = particleSizeType ? `${controlId}-${particleSizeType}` : controlId;
-    this.props.onUpdateList(list.filter(item => {
-      if (item.particleSizeType) {
-        return item.controlId == controlId ? item.particleSizeType !== particleSizeType : true;
-      } else {
-        return item.controlId !== controlId
-      }
-    }), id);
-  };
+  }
   handleNormType = (controlId, value) => {
     const { list } = this.props;
     const newList = list.map(item => {
@@ -320,7 +274,7 @@ export default class PivotTableAxis extends Component {
       return item;
     });
     this.props.onUpdateList(newList);
-  };
+  }
   handleUpdateParticleSizeType = (controlId, particleSizeType, value) => {
     const { list } = this.props;
     const id = particleSizeType ? `${controlId}-${particleSizeType}` : controlId;
@@ -331,7 +285,7 @@ export default class PivotTableAxis extends Component {
       return item;
     });
     this.props.onUpdateList(newList, id);
-  };
+  }
   handleUpdateXaxisEmpty = (controlId, value) => {
     const { list } = this.props;
     const newList = list.map(item => {
@@ -341,12 +295,12 @@ export default class PivotTableAxis extends Component {
       return item;
     });
     this.props.onUpdateList(newList);
-  };
+  }
   handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
     const newList = arrayMove(_.cloneDeep(this.props.list), oldIndex, newIndex);
     this.props.onUpdateList(newList);
-  };
+  }
   renderModal() {
     const { currentControl } = this.state;
     return (
@@ -374,7 +328,7 @@ export default class PivotTableAxis extends Component {
           axisControls={axisControls}
           verifyNumber={verifyNumber}
           disableParticleSizeTypes={disableParticleSizeTypes}
-          onClear={this.handleClear}
+          onClear={this.props.onRemove}
           onNormType={this.handleNormType}
           onUpdateParticleSizeType={this.handleUpdateParticleSizeType}
           onUpdateXaxisEmpty={this.handleUpdateXaxisEmpty}

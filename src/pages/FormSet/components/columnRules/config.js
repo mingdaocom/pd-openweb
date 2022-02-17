@@ -114,12 +114,20 @@ export function getTextById(tree, controls = []) {
 //过滤隐藏的子表字段
 export function getNewDropDownData(dropDownData = [], actionType) {
   // 公式 汇总 文本组合 自动编号 他表字段 分段 大写金额 备注 文本识别
-  let listControlType = [31, 38, 37, 32, 33, 30, 22, 25, 10010];
+  let filterControls = [];
+  if (_.includes([3, 4, 5], actionType)) {
+    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 10010);
+    if (actionType === 5) {
+      filterControls.push(43);
+    }
+  }
 
   let newDropDownData = _.cloneDeep(dropDownData);
   newDropDownData.forEach(item => {
     if (_.includes([29, 34], item.type) && item.relationControls) {
-      item.relationControls = item.relationControls.filter(re => _.includes(item.showControls || [], re.controlId));
+      item.relationControls = item.relationControls
+        .filter(re => _.includes(item.showControls || [], re.controlId))
+        .filter(i => !_.includes(filterControls, i.type));
       if (!item.relationControls.length) {
         delete item.relationControls;
       }
@@ -127,14 +135,23 @@ export function getNewDropDownData(dropDownData = [], actionType) {
       delete item.relationControls;
     }
   });
-  if (_.includes([3, 4, 5], actionType)) {
-    if (actionType === 5) {
-      listControlType.push(43);
-    }
-    newDropDownData = newDropDownData.filter(item => !_.includes(listControlType, item.type));
-  }
+  newDropDownData = newDropDownData.filter(item => !_.includes(filterControls, item.type));
   return newDropDownData;
 }
+
+// 过滤不符合条件的已选字段
+export const filterUnAvailable = (controlConfig = {}, worksheetControls = []) => {
+  const { controls = [] } = controlConfig;
+  const dropDownData = getNewDropDownData(worksheetControls, controlConfig.type);
+  controlConfig.controls = controls.filter(item => {
+    if (item.childControlIds && item.childControlIds.length > 0) {
+      const { relationControls = [] } = _.find(dropDownData, i => i.controlId === item.controlId) || {};
+      item.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
+    }
+    return _.find(dropDownData, da => da.controlId === item.controlId) && (item.childControlIds || []).length > 0;
+  });
+  return controlConfig;
+};
 
 //根据actionValue获取label
 export function getActionLabelByType(type) {

@@ -222,7 +222,7 @@ const OptionList = SortableContainer(({ options = [], ...rest }) => {
 });
 
 export default function SelectOptions(props) {
-  const { mode = 'add', onAdd, enableScore, onChange, options, isMulti, data = {} } = props;
+  const { mode = 'add', onAdd, enableScore, onChange, options, isMulti, data = {}, fromPortal } = props;
   const [focusIndex, setIndex] = useState(-1);
   const checkedValue = parseOptionValue(data.default);
 
@@ -298,14 +298,16 @@ export default function SelectOptions(props) {
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>
-        <div className="operate">
-          <div className="batchAdd hoverText" onClick={() => updateVisible('batchAdd')}>
-            {_l('批量添加')}
+        {!fromPortal && (
+          <div className="operate">
+            <div className="batchAdd hoverText" onClick={() => updateVisible('batchAdd')}>
+              {_l('批量添加')}
+            </div>
+            <div className="assignValue hoverText" onClick={() => updateVisible('assignValue')}>
+              {_l('赋分值')}
+            </div>
           </div>
-          <div className="assignValue hoverText" onClick={() => updateVisible('assignValue')}>
-            {_l('赋分值')}
-          </div>
-        </div>
+        )}
       </HandleOption>
       {assignValueVisible && (
         <AssignValue
@@ -322,7 +324,7 @@ export default function SelectOptions(props) {
         <BatchAdd
           options={mode === 'edit' ? options : []}
           onOk={value => {
-            const textArr = _.unique(
+            const textArr = _.uniqBy(
               value
                 .split(/\n/)
                 .filter(v => !!v)

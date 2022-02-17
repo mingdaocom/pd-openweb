@@ -81,6 +81,12 @@ export const MENU_LIST = [
         desc: _l('筛选器组合，每个筛选器的参数请参考'),
         linkid: 'Filter',
       },
+      {
+        name: 'notGetTotal',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否不统计总行数以提高性能'),
+      },
     ]),
   },
   {
@@ -94,6 +100,12 @@ export const MENU_LIST = [
         type: 'list',
         desc: _l('控件数据'),
       },
+      {
+        name: 'triggerWorkflow',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否触发工作流(默认: true)'),
+      },
     ]),
   },
   {
@@ -106,6 +118,12 @@ export const MENU_LIST = [
         required: _l('是'),
         type: '[list]',
         desc: _l('控件数据'),
+      },
+      {
+        name: 'triggerWorkflow',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
   },
@@ -152,6 +170,12 @@ export const MENU_LIST = [
         type: 'list',
         desc: _l('控件数据'),
       },
+      {
+        name: 'triggerWorkflow',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否触发工作流(默认: true)'),
+      },
     ]),
   },
   {
@@ -171,6 +195,12 @@ export const MENU_LIST = [
         type: 'object',
         desc: _l('控件数据'),
       },
+      {
+        name: 'triggerWorkflow',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否触发工作流(默认: true)'),
+      },
     ]),
   },
   {
@@ -183,6 +213,12 @@ export const MENU_LIST = [
         required: _l('是'),
         type: 'string',
         desc: _l('行记录ID'),
+      },
+      {
+        name: 'triggerWorkflow',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
   },
@@ -214,6 +250,32 @@ export const MENU_LIST = [
         required: _l('是'),
         type: 'number',
         desc: _l('页码'),
+      },
+    ]),
+  },
+  {
+    id: 'TotalNum',
+    title: _l('获取工作表总行数 POST'),
+    apiName: 'worksheet/getFilterRowsTotalNum',
+    data: sameParameters.concat([
+      {
+        name: 'viewId',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('视图ID'),
+      },
+      {
+        name: 'filters',
+        required: _l('否'),
+        type: 'list',
+        desc: _l('筛选器组合，每个筛选器的参数请参考'),
+        linkid: 'Filter',
+      },
+      {
+        name: 'keywords',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('关键词'),
       },
     ]),
   },
@@ -260,11 +322,40 @@ export const MENU_LIST_APPENDIX_HEADER = {
       width: 46,
     },
   ],
+  DataTypeEnum: [
+    {
+      title: _l('枚举值'),
+      key: 'name',
+      width: 25,
+    },
+    {
+      title: _l('控件类型'),
+      key: 'type',
+      width: 25,
+    },
+    {
+      title: _l('说明'),
+      key: 'desc',
+      width: 50,
+    },
+  ],
   FilterTypeEnum: sameHeader,
   DateRangeEnum: sameHeader,
   AccountID: [
     {
       title: 'ID',
+      key: 'name',
+      width: 50,
+    },
+    {
+      title: _l('说明'),
+      key: 'desc',
+      width: 50,
+    },
+  ],
+  ErrorCode: [
+    {
+      title: 'ErrorCode',
       key: 'name',
       width: 50,
     },
@@ -381,10 +472,14 @@ const appRoleSuccessData2 = {
   success: true,
 };
 
+/**
+ * 应用角色
+ */
 export const MENU_LIST_APPROLE = [
   {
     id: 'GetRole',
     title: _l('获取应用角色列表 GET'),
+    isGet: true,
     apiName: 'open/app/getRoles',
     data: appInfoParameters,
     successData: appRoleSuccessData,
@@ -465,6 +560,9 @@ export const MENU_LIST_APPROLE = [
   },
 ];
 
+/**
+ * 筛选
+ */
 export const MENU_LIST_APPENDIX = [
   {
     id: 'Filter',
@@ -480,7 +578,8 @@ export const MENU_LIST_APPENDIX = [
         name: 'dataType',
         required: _l('是'),
         type: 'number',
-        desc: _l('控件类型编号'),
+        desc: _l('控件类型编号，枚举值DataTypeEnum 请参考'),
+        linkid: 'DataTypeEnum',
       },
       {
         name: 'spliceType',
@@ -537,8 +636,199 @@ export const MENU_LIST_APPENDIX = [
       {
         name: 'isAsc',
         required: _l('否'),
-        type: 'bool',
+        type: 'boolean',
         desc: _l('是否升序（false：降序）'),
+      },
+    ],
+  },
+  {
+    id: 'DataTypeEnum',
+    title: 'DataTypeEnum',
+    data: [
+      {
+        name: 2,
+        type: _l('文本'),
+        desc: _l('单行、多行'),
+      },
+      {
+        name: 3,
+        type: _l('电话'),
+        desc: _l('手机'),
+      },
+      {
+        name: 4,
+        type: _l('电话'),
+        desc: _l('座机'),
+      },
+      {
+        name: 5,
+        type: _l('邮箱'),
+        desc: '',
+      },
+      {
+        name: 6,
+        type: _l('数值'),
+        desc: '',
+      },
+      {
+        name: 7,
+        type: _l('证件'),
+        desc: '',
+      },
+      {
+        name: 8,
+        type: _l('金额'),
+        desc: '',
+      },
+      {
+        name: 9,
+        type: _l('单选'),
+        desc: _l('平铺'),
+      },
+      {
+        name: 10,
+        type: _l('多选'),
+        desc: '',
+      },
+      {
+        name: 11,
+        type: _l('单选'),
+        desc: _l('下拉'),
+      },
+      {
+        name: 14,
+        type: _l('附件'),
+        desc: '',
+      },
+      {
+        name: 15,
+        type: _l('日期'),
+        desc: _l('日期: 年-月-日'),
+      },
+      {
+        name: 16,
+        type: _l('日期'),
+        desc: _l('日期: 年-月-日 时:分'),
+      },
+      {
+        name: 19,
+        type: _l('地区'),
+        desc: _l('地区: 省'),
+      },
+      {
+        name: 21,
+        type: _l('自由连接'),
+        desc: '',
+      },
+      {
+        name: 22,
+        type: _l('分段'),
+        desc: '',
+      },
+      {
+        name: 23,
+        type: _l('地区'),
+        desc: _l('地区: 省/市'),
+      },
+      {
+        name: 24,
+        type: _l('地区'),
+        desc: _l('地区: 省/市/县'),
+      },
+      {
+        name: 25,
+        type: _l('大写金额'),
+        desc: '',
+      },
+      {
+        name: 26,
+        type: _l('成员'),
+        desc: '',
+      },
+      {
+        name: 27,
+        type: _l('部门'),
+        desc: '',
+      },
+      {
+        name: 28,
+        type: _l('等级'),
+        desc: '',
+      },
+      {
+        name: 29,
+        type: _l('关联记录'),
+        desc: '',
+      },
+      {
+        name: 30,
+        type: _l('他表字段'),
+        desc: '',
+      },
+      {
+        name: 31,
+        type: _l('公式'),
+        desc: _l('计算结果为数字'),
+      },
+      {
+        name: 32,
+        type: _l('文本组合'),
+        desc: '',
+      },
+      {
+        name: 33,
+        type: _l('自动编号'),
+        desc: '',
+      },
+      {
+        name: 34,
+        type: _l('子表'),
+        desc: '',
+      },
+      {
+        name: 35,
+        type: _l('级联选择'),
+        desc: '',
+      },
+      {
+        name: 36,
+        type: _l('检查框'),
+        desc: '',
+      },
+      {
+        name: 37,
+        type: _l('汇总'),
+        desc: '',
+      },
+      {
+        name: 38,
+        type: _l('公式'),
+        desc: _l('计算结果为日期'),
+      },
+      {
+        name: 40,
+        type: _l('定位'),
+        desc: '',
+      },
+      {
+        name: 41,
+        type: _l('富文本'),
+        desc: '',
+      },
+      {
+        name: 42,
+        type: _l('签名'),
+        desc: '',
+      },
+      {
+        name: 45,
+        type: _l('嵌入'),
+        desc: '',
+      },
+      {
+        name: 10010,
+        type: _l('备注'),
+        desc: '',
       },
     ],
   },
@@ -838,12 +1128,195 @@ export const MENU_LIST_APPENDIX = [
       state: 1,
     },
   },
+  {
+    id: 'ErrorCode',
+    title: _l('错误码'),
+    data: [
+      {
+        name: 0,
+        desc: _l('失败'),
+      },
+      {
+        name: 1,
+        desc: _l('成功'),
+      },
+      {
+        name: 10001,
+        desc: _l('缺少参数'),
+      },
+      {
+        name: 10002,
+        desc: _l('参数值错误'),
+      },
+      {
+        name: 10005,
+        desc: _l('数据操作无权限'),
+      },
+      {
+        name: 10007,
+        desc: _l('数据不存在'),
+      },
+      {
+        name: 10101,
+        desc: _l('请求令牌不存在'),
+      },
+      {
+        name: 10102,
+        desc: _l('签名不合法'),
+      },
+      {
+        name: 99999,
+        desc: _l('数据操作异常'),
+      },
+    ],
+  },
+];
+
+/**
+ * 选项集
+ */
+export const OPTIONS_FUNCTION_LIST = [
+  {
+    id: 'add',
+    title: _l('新增选项集 POST'),
+    apiName: 'open/app/createOptionSet',
+    data: [],
+    requestData: {
+      appKey: 'appKey',
+      sign: 'sign',
+      name: '选项集1',
+      options: [
+        {
+          value: '选项值，不允许重复',
+          index: '选项排序值: 必须为整数，越小越靠前',
+          isDeleted: '该选项是否已被删除',
+          color:
+            '颜色值: colorful为true时生效，参考值 #C0E6FC , #C3F2F2 , #00C345 , #FAD714 , #FF9300 , #F52222 , #EB2F96 , #7500EA , #2D46C4 , #484848 , #C9E6FC , #C3F2F2',
+          score: '分值，enableScore为true时生效，允许小数和正负值',
+        },
+        {
+          value: 'value02',
+          index: 1,
+          isDeleted: false,
+          color: 'red',
+          score: 1.5,
+        },
+      ],
+      colorful: false,
+      enableScore: false,
+    },
+    successData: {
+      code: 0,
+      msg: 'string',
+      data: true,
+    },
+    errorData: {
+      error_msg: '具体错误信息',
+      error_code: 10001,
+      success: false,
+    },
+  },
+  {
+    id: 'get',
+    title: _l('获取选项集 POST'),
+    apiName: 'open/app/getOptionSets',
+    data: [],
+    requestData: {
+      appKey: 'appKey',
+      sign: 'sign',
+    },
+    successData: {
+      code: 0,
+      msg: 'string',
+      data: [
+        {
+          appId: 'appId',
+          projectId: 'projectId',
+          collectionId: '选项集ID',
+          name: '选项集名称',
+          accountId: 'accountId',
+          worksheetIds: ['worksheetId'],
+          options: [
+            {
+              key: '选项id',
+              value: '选项值，不允许重复',
+              index: '选项排序值: 必须为整数，越小越靠前',
+              isDeleted: '该选项是否已被删除',
+              color: '颜色值',
+              score: '选项分值',
+            },
+            {
+              key: 'key01',
+              value: 'value01',
+              index: 0,
+              isDeleted: true,
+              color: 'red',
+              score: 0,
+            },
+          ],
+          colorful: true,
+          enableScore: true,
+        },
+      ],
+    },
+    errorData: {
+      error_msg: '具体错误信息',
+      error_code: 10001,
+      success: false,
+    },
+  },
+  {
+    id: 'edit',
+    title: _l('编辑选项集 POST'),
+    apiName: 'open/app/editOptionSet/{id}',
+    data: [],
+    requestData: {
+      appKey: 'appKey',
+      sign: 'sign',
+      options: [
+        {
+          key: '需要编辑的选项id，如果为空则表示新增选项',
+          value: '选项值，不允许重复',
+          index: '选项排序值: 必须为整数，越小越靠前',
+          isDeleted: '该选项是否已被删除',
+          color:
+            '颜色值: colorful为true时生效，参考值 #C0E6FC , #C3F2F2 , #00C345 , #FAD714 , #FF9300 , #F52222 , #EB2F96 , #7500EA , #2D46C4 , #484848 , #C9E6FC , #C3F2F2',
+          score: '分值，enableScore为true时生效，允许小数和正负值',
+        },
+        {
+          key: 'key02',
+          value: 'value02',
+          index: 1,
+          isDeleted: false,
+          color: 'red',
+          score: 1.5,
+        },
+      ],
+      name: 'test选项集01',
+      colorful: true,
+      enableScore: false,
+    },
+    successData: {
+      code: 0,
+      msg: 'string',
+      data: true,
+    },
+    errorData: {
+      error_msg: '具体错误信息',
+      error_code: 10001,
+      success: false,
+    },
+  },
 ];
 
 export const SIDEBAR_LIST = [
   {
     key: 'summary',
     title: _l('概述'),
+  },
+  {
+    key: 'requestFormat',
+    title: _l('请求格式'),
   },
   {
     key: 'authorizationInstr',

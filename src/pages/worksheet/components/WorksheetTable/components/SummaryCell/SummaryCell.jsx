@@ -80,7 +80,7 @@ export default class extends React.Component {
   }
 
   render() {
-    const { style, control, summaryType, summaryValue } = this.props;
+    const { style, control, summaryType, summaryValue, rowHeadOnlyNum } = this.props;
     const { menuVisible } = this.state;
     if (!control) {
       return <div style={style} />;
@@ -91,8 +91,8 @@ export default class extends React.Component {
     }
     if (type === 'summaryhead') {
       return (
-        <div className="summaryCellHead" style={style}>
-          {_l('统计')}
+        <div className="summaryCellHead" style={{ ...style, padding: rowHeadOnlyNum ? '0 12px' : '0 24px 0 40px' }}>
+          =
         </div>
       );
     }

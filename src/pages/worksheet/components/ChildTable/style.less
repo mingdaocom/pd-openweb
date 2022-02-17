@@ -16,8 +16,23 @@
   .worksheetTable {
     .mdTable {
       position: relative;
-      border-top: 1px solid rgba(0, 0, 0, 0.12);
       background-color: transparent;
+      .cell.row-0 {
+        border-top: 1px solid rgba(0, 0, 0, 0.12) !important;
+      }
+      .cell:not(.columnHead) {
+        &.control-31, // FORMULA_NUMBER 公式
+        &.control-38, // FORMULA_DATE 公式
+        &.control-37, // SUBTOTAL 汇总
+        &.control-30, // SHEET_FIELD 他表字段
+        &.control-33, // AUTO_ID 自动编号
+        &.control-32, // CONCATENATE  文本组合
+        &.control-10010, // REMARK  备注
+        &.control-25 // MONEY_CN 大写金额
+        {
+          background-color: #f5f5f5 !important;
+        }
+      }
       .cell.readonly {
         background-color: #f5f5f5 !important;
       }
@@ -45,12 +60,8 @@
       color: #2196f3;
       cursor: pointer;
       padding: 0 16px;
-      background: #f8f8f8;
       line-height: 36px;
       display: inline-block;
-      &:not(.disabled):hover {
-        background: #f0f0f0;
-      }
       &.disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -62,8 +73,14 @@
         background-color: transparent;
       }
     }
+    .addRowByLine:not(.disabled):hover {
+      background: #f8f8f8;
+    }
     .addRowByDialog {
-      padding: 0 9px;
+      background: #f8f8f8;
+      &:not(.disabled):hover {
+        background: #f0f0f0;
+      }
     }
   }
 }

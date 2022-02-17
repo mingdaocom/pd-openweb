@@ -34,7 +34,9 @@ class SettingsModel extends React.Component {
    * 修改控件整行半行
    */
   halfChanged = value => {
-    this.props.changeWidgetHalf(this.props.widget.id, value);
+    if (_.isFunction(this.props.changeWidgetHalf)) {
+      this.props.changeWidgetHalf(this.props.widget.id, value);
+    }
   };
 
   render() {

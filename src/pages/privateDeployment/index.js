@@ -10,6 +10,7 @@ import InstallCaptainDialog from './InstallCaptainDialog';
 import MessageSettings from './MessageSettings';
 import CustomConfig from './CustomConfig';
 import SourceListSettings from './SourceListSettings';
+import Logs from './Logs';
 import privateGuide from 'src/api/privateGuide';
 import weixinCode from './images/weixin.png';
 import './index.less';
@@ -364,7 +365,7 @@ export default class privateDeployment extends Component {
     );
   }
   renderLicenseItem(item, index) {
-    const { serverId, licenseCode, startDate, expirationDate, licenseVersion, visible, state, technicalSupport, projectNum, projectUserNum, applicationNum, workflowNum, worktableNum, worktableRowNum } = item;
+    const { serverId, licenseCode, startDate, expirationDate, licenseVersion, visible, state, technicalSupport, projectNum, projectUserNum, externalUserNum, applicationNum, workflowNum, worktableNum, worktableRowNum } = item;
     const isEfficacyVlaue = isEfficacy(expirationDate);
     return (
       <Fragment key={index}>
@@ -378,7 +379,7 @@ export default class privateDeployment extends Component {
               }}
             />
             <Radio
-              className="mLeft10 mRight0"
+              className="mLeft5 mRight0"
               value={index.toString()}
               checked={state == 1}
               onClick={() => {
@@ -401,6 +402,7 @@ export default class privateDeployment extends Component {
           <div className="flex flexRow valignWrapper">{technicalSupport ? formatDate(technicalSupport) : '--'}</div>
           <div className="flex flexRow valignWrapper">{ projectNum == 2147483647 ? '不限' : projectNum }</div>
           <div className="flex flexRow valignWrapper">{ projectUserNum == 2147483647 ? '不限' : projectUserNum }</div>
+          <div className="flex flexRow valignWrapper">{ externalUserNum == 2147483647 ? '不限' : externalUserNum }</div>
           <div className="flex flexRow valignWrapper">{ applicationNum == 2147483647 ? '不限' : applicationNum }</div>
           <div className="flex flexRow valignWrapper">{ worktableNum == 2147483647 ? '不限' : worktableNum }</div>
           <div className="flex flexRow valignWrapper">{ worktableRowNum == 2147483647 ? '不限' : worktableRowNum }</div>
@@ -608,12 +610,13 @@ export default class privateDeployment extends Component {
             <div className="Bold">{_l('开始时间')}</div>
             <div className="Bold">{_l('到期时间')}</div>
             <div className="Bold">{_l('技术服务到期')}</div>
-            <div className="Bold">{_l('组织数')}</div>
-            <div className="Bold">{_l('用户数')}</div>
-            <div className="Bold">{_l('应用数')}</div>
-            <div className="Bold">{_l('工作表数')}</div>
-            <div className="Bold">{_l('行记录数/表')}</div>
-            <div className="Bold">{_l('工作流执行数/月')}</div>
+            <div className="Bold">{_l('组织')}</div>
+            <div className="Bold">{_l('用户')}</div>
+            <div className="Bold">{_l('外部用户')}</div>
+            <div className="Bold">{_l('应用')}</div>
+            <div className="Bold">{_l('工作表')}</div>
+            <div className="Bold">{_l('行记录/表')}</div>
+            <div className="Bold">{_l('工作流执行/月')}</div>
             <div className="Bold">{_l('关联组织')}</div>
           </div>
           {
@@ -638,6 +641,11 @@ export default class privateDeployment extends Component {
           }
         </div>
       </Fragment>
+    );
+  }
+  renderLogs() {
+    return (
+      <Logs />
     );
   }
   render() {
@@ -668,6 +676,14 @@ export default class privateDeployment extends Component {
               {_l('系统设置')}
             </div>
             <div
+              className={cx('tab pointer', { headerActive: tab == 'log' })}
+              onClick={() => {
+                this.handleSetTab('log');
+              }}
+            >
+              {_l('系统日志')}
+            </div>
+            <div
               className={cx('tab pointer', { headerActive: tab == 'privateKey' })}
               onClick={() => {
                 this.handleSetTab('privateKey');
@@ -686,7 +702,11 @@ export default class privateDeployment extends Component {
             <span>{_l('付费升级')}</span>
           </div>
         </div>
-        <div className="content flex flexColumn">{tab === 'sys' ? this.renderSystemSetting() : this.renderPrivateKey()}</div>
+        <div className="content flex flexColumn">
+          {tab === 'sys' && this.renderSystemSetting()}
+          {tab === 'privateKey' && this.renderPrivateKey()}
+          {tab === 'log' && this.renderLogs()}
+        </div>
         {privateKeyDialogVisible ? this.renderPrivateKeyDialog() : null}
         {detailedDialogVisible ? this.renderDetailedDialog() : null}
         {emailDialogVisible ? this.renderEmailDialog() : null}

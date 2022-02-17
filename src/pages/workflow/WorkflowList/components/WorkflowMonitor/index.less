@@ -1,0 +1,197 @@
+@color333: #333333;
+
+.monitorContainer {
+  border-radius: 4px;
+  background: #fff;
+  padding: 20px 16px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  .spaceBetween {
+    justify-content: space-between;
+    padding-top: 32px;
+  }
+  .subTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: @color333;
+  }
+  .chartBox {
+    height: 280px;
+    margin-bottom: -16px;
+  }
+  .justifyInfo {
+    margin-top: 16px;
+    .infoBox {
+      height: 124px;
+      margin-right: 25px;
+      background-color: #fafafa;
+      text-align: center;
+      padding-top: 28px;
+      .description {
+        font-size: 13px;
+        color: #757575;
+        font-weight: 600;
+      }
+      .countValue {
+        font-size: 32px;
+        color: @color333;
+        height: 32px;
+        margin-bottom: 12px;
+      }
+      .inTime {
+        font-size: 12px;
+        color: #9e9e9e;
+      }
+    }
+    .infoBox:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .selectDate {
+    width: 220px;
+    height: 32px;
+    border-radius: 4px;
+    .ant-select-selector {
+      border-radius: 4px;
+    }
+  }
+  .searchFlow {
+    width: 220px;
+    height: 32px;
+  }
+  .searchIcon {
+    color: #9d9d9d;
+  }
+  .listContent {
+    .columnWidth170 {
+      width: 170px;
+    }
+    .columnWidth80 {
+      width: 80px;
+    }
+    .detailListHeader {
+      height: 55px;
+      line-height: 55px;
+      border-bottom: 1px solid #e7e7e7;
+      .headerItem {
+        font-size: 13px;
+        color: #333333;
+        .manageListOrder {
+          cursor: pointer;
+          transform: scale(0.8);
+          color: #bfbfbf;
+          margin: 14px 0 0 6px;
+          .icon-arrow-down {
+            margin-top: -4px;
+          }
+        }
+      }
+      .flexDirection {
+        flex-direction: row-reverse;
+      }
+      .orderTitleHover:hover {
+        color: #1e88e5;
+      }
+    }
+    .detailListBody {
+      height: 170px;
+      .row {
+        height: 55px;
+        align-items: center;
+        border-bottom: 1px solid #e7e7e7;
+        .cloumnItem {
+          font-size: 14px;
+          font-weight: 400;
+          color: #333333;
+          .iconWrap {
+            &.unable {
+              background-color: #bdbdbd !important;
+            }
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            .icon {
+              font-size: 12px;
+              color: #fff;
+            }
+          }
+          .flowName {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: calc(~'100% - 32px');
+            color: #333;
+          }
+          .runWaitInfo {
+            color: #9e9e9e;
+            margin: 0 8px 0 35px;
+          }
+          .waitText {
+            width: 170px;
+            display: inline-block;
+            text-align: right;
+          }
+          &.textalignR {
+            text-align: right;
+          }
+        }
+      }
+      .row:hover {
+        background-color: #f8f8f8;
+        .flowName {
+          color: #2196f3;
+        }
+      }
+    }
+    .emptyBox {
+      margin-bottom: 15px;
+      height: 100%;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #9e9e9e;
+      padding-top: 48px;
+      .emptyIcon {
+        width: 90px;
+        height: 90px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        & > i {
+          color: #c4c4c4;
+        }
+      }
+    }
+  }
+}
+
+.runoOperateBox {
+  background: #fff;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.16);
+  width: 240px;
+  padding: 6px 0;
+  .runDateItem {
+    line-height: 32px;
+    color: #333;
+    padding: 0 32px;
+  }
+  .runDateItem:hover {
+    background-color: #2196f3;
+    color: #fff;
+  }
+}
+
+.timeIcon {
+  color: #9e9e9e;
+}
+.timeIcon:hover {
+  color: #2196f3;
+}

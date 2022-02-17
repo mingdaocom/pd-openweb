@@ -31,12 +31,14 @@ const SelectDataSourceWrap = styled.div`
 
 export default function SelectDataSource({ onClose, onOk, editType, appId, worksheetId, viewId, globalSheetInfo }) {
   const [dataSourceMode, setMode] = useState(editType);
+  const [loading, setLoading] = useState(false);
   const { appId: currentAppId, worksheetId: sourceId } = globalSheetInfo;
   const [ids, setIds] = useSetState(
     editType === 0 ? { appId: currentAppId, sheetId: '', viewId: '' } : { appId, sheetId: worksheetId, viewId },
   );
   const handleOk = () => {
     if (dataSourceMode === 0) {
+      setLoading(true);
       const currentTime = moment();
       addSheet({
         name: _l('数据源 %0', `${currentTime.format('M-D HH:mm')}`),
@@ -56,10 +58,11 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
     <Dialog
       style={{ width: '560px' }}
       visible
-      okDisabled={dataSourceMode !== 0 && !ids.viewId}
+      okDisabled={(dataSourceMode !== 0 && !ids.viewId) || (dataSourceMode === 0 && loading)}
       title={editType === 0 ? _l('选择数据源') : _l('修改数据源')}
       onCancel={onClose}
-      onOk={handleOk}>
+      onOk={handleOk}
+    >
       <SelectDataSourceWrap>
         <div className="intro Gray_9e">
           {_l(

@@ -23,12 +23,20 @@ export const WithoutData = (props) => {
   );
 }
 
+export const Overload = (props) => {
+  return (
+    <div className="flex flexColumn valignWrapper Gray_9e Font16 h100 centerAlign" style={style}>
+      {_l('数据量过大，无法绘制可查看的图表如需查看，请选择范围、添加筛选条件或联系应用管理员')}
+    </div>
+  );
+}
+
 export const Abnormal = (props) => {
   const { isEdit } = props;
   if (isEdit) {
     return (
       <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
-        {_l('拖拽中间字段到右侧维度、数值栏添加数据')}
+        {_l('选择或将字段拖拽到右侧维度、数值栏添加数据')}
       </div>
     );
   } else {

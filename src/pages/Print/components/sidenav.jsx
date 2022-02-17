@@ -3,7 +3,15 @@ import { Icon, Dropdown, Tooltip, ScrollView, Checkbox, Switch } from 'ming-ui';
 
 import Api from 'api/homeApp';
 import { sortByShowControls, getVisibleControls, isVisible, isRelation } from '../util';
-import { fromType, printType, typeForCon, DEFAULT_FONT_SIZE, MIDDLE_FONT_SIZE, MAX_FONT_SIZE } from '../config';
+import {
+  fromType,
+  printType,
+  typeForCon,
+  DEFAULT_FONT_SIZE,
+  MIDDLE_FONT_SIZE,
+  MAX_FONT_SIZE,
+  UNPRINTCONTROL,
+} from '../config';
 
 import './sidenav.less';
 
@@ -101,7 +109,7 @@ class Sidenav extends React.Component {
     return (
       <React.Fragment>
         {(list || [])
-          .filter(o => o.type !== 43)
+          .filter(o => !UNPRINTCONTROL.includes(o.type))
           .map(it => {
             let isRelationControls = isRelation(it);
             let isClearselected = isRelationControls && this.getRelationControlsShowPart(it);
@@ -177,7 +185,7 @@ class Sidenav extends React.Component {
     }
     //关联表富文本不不显示 分段 ,OCR 不显示
     controls = controls.filter(
-      it => ![41, 22, 43].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
+      it => ![...UNPRINTCONTROL, 41, 22].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let orderNumberList = orderNumber.find(it => it.receiveControlId === list.controlId) || [];
     return (

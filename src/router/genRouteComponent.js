@@ -2,11 +2,22 @@ import React from 'react';
 import WithTitleRoute from './withTitle';
 import { Route, Redirect } from 'react-router-dom';
 import Loadable from 'react-loadable';
+import ErrorPage from 'src/components/errorPage/errorPage';
+
+function Loading(props) {
+  const { error } = props;
+  if (error) {
+    console.error(error);
+    return <ErrorPage />;
+  } else {
+    return null;
+  }
+}
 
 const getComponent = component =>
   Loadable({
     loader: component,
-    loading: () => null,
+    loading: Loading,
   });
 
 export default () => {

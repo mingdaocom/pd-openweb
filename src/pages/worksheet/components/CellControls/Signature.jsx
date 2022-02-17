@@ -116,7 +116,12 @@ export default class Date extends React.Component {
           overflow: { adjustX: true, adjustY: true },
         }}
         visible={isediting}
-        popupContainer={tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? document.body : popupContainer()}
+        popupContainer={
+          tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
+          tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
+            ? document.body
+            : popupContainer()
+        }
         onClose={() => {
           updateEditingStatus(false);
         }}

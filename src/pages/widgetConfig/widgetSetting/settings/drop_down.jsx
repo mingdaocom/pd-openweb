@@ -15,7 +15,7 @@ const OPTIONS_DISPLAY = [
   },
 ];
 
-export default function Dropdown({ data, onChange, globalSheetInfo }) {
+export default function Dropdown({ data, onChange, globalSheetInfo, fromPortal }) {
   return (
     <Fragment>
       <SettingItem>
@@ -28,7 +28,12 @@ export default function Dropdown({ data, onChange, globalSheetInfo }) {
           }}
         />
       </SettingItem>
-      <OptionList.SelectOptions data={data} globalSheetInfo={globalSheetInfo} onChange={onChange} />
+      <OptionList.SelectOptions
+        data={data}
+        globalSheetInfo={globalSheetInfo}
+        onChange={onChange}
+        fromPortal={fromPortal}
+      />
     </Fragment>
   );
 }

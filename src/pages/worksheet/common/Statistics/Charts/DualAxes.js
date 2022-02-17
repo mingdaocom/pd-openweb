@@ -12,7 +12,8 @@ import {
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
-import { formatSummaryName } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { Dropdown, Menu } from 'antd';
 
 const getLineChartXAxis = (controlId, data) => {
   if (controlId) {
@@ -25,7 +26,7 @@ const getLineChartXAxis = (controlId, data) => {
     });
     return result.map(item => item.name);
   } else {
-    return _.uniq(data.map(item => item.name));
+    return _.uniqBy(data.map(item => item.name));
   }
 };
 
@@ -37,12 +38,20 @@ export default class extends Component {
       leftCount: 0,
       originalRightCount: 0,
       rightCount: 0,
+      dropdownVisible: false,
+      offset: {},
+      match: null
     }
     this.DualAxes = null;
   }
   componentDidMount() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
     const config = this.getComponentConfig(this.props);
     this.DualAxes = new DualAxes(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.DualAxes.on('element:click', this.handleClick);
+    }
     this.DualAxes.render();
   }
   componentWillUnmount() {
@@ -130,7 +139,7 @@ export default class extends Component {
       sortLineXAxis = getLineChartXAxis(splitId ? null : leftSorts[0].controlId, data);
     }
     if (isRightSort) {
-      names = _.uniq(lineData.map(item => item.name));
+      names = _.uniqBy(lineData.map(item => item.name));
       sortLineXAxis = getLineChartXAxis(rightY.splitId ? null : rightSorts[0].controlId, lineData);
     }
     if (!(isLeftSort || isRightSort)) {
@@ -209,10 +218,11 @@ export default class extends Component {
     });
 
     const rightMinValue = getMinValue(lineData, []);
+    const topPadding = position === 'bottom' ? 20 : 15;
 
     const baseConfig = {
       data: [data, lineData],
-      appendPadding: [15, 0, 5, 0],
+      appendPadding: [topPadding, 0, 5, 0],
       xField: 'name',
       yField: ['value', 'rightValue'],
       yAxis: {
@@ -279,22 +289,24 @@ export default class extends Component {
       },
       tooltip: {
         formatter: ({ value, rightValue, groupName }) => {
-          const { name } = formatControlInfo(groupName);
+          const { name, id } = formatControlInfo(groupName);
           if (_.isNumber(value)) {
+            const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: value ? value.toLocaleString() : value,
+              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
             };
           }
           if (_.isNumber(rightValue)) {
+            const { dot } = _.find(rightY.yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: rightValue ? rightValue.toLocaleString() : rightValue,
+              value: _.isNumber(rightValue) ? rightValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
             };
           }
           return {
             name,
-            value: _l('--'),
+            value: '--',
           };
         },
       },
@@ -334,6 +346,45 @@ export default class extends Component {
 
     return baseConfig;
   }
+  handleClick = (data) => {
+    const { xaxes, split, rightY } = this.props.reportData;
+    const rightYSplit = rightY.split;
+    const event = data.gEvent;
+    const currentData = data.data;
+    const isRight = 'rightValue' in currentData.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    }
+    if (split.controlId && !isRight) {
+      param[split.cid] = currentData.data.groupKey;
+    }
+    if (rightYSplit.controlId && isRight) {
+      param[rightYSplit.cid] = currentData.data.groupKey;
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: event.x + 20,
+        y: event.y
+      },
+      match: param
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    this.setState({ dropdownVisible: false });
+    const data = {
+      isPersonal: false,
+      match
+    }
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
+    }
+  }
   setCount(yaxisList, rightYaxisList) {
     const { summary, rightY } = this.props.reportData;
     const leftValue = summary.sum;
@@ -347,12 +398,34 @@ export default class extends Component {
       rightCount,
     });
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleRequestOriginalData}>
+          <div className="flexRow valignWrapper">
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { leftCount, originalLeftCount, rightCount, originalRightCount } = this.state;
+    const { leftCount, originalLeftCount, rightCount, originalRightCount, dropdownVisible, offset } = this.state;
     const { rightY, displaySetup, contrastMap, summary } = this.props.reportData;
     const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {dualAxesSwitchChecked && (
           <div className="flexRow spaceBetween pBottom10">
             {summary.showTotal ? (
@@ -373,7 +446,7 @@ export default class extends Component {
             )}
           </div>
         )}
-        <div className={dualAxesSwitchChecked ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={dualAxesSwitchChecked ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

@@ -171,7 +171,7 @@ class EditInfo extends React.Component {
                 defualtSelectedValue: this.state.workSiteId,
                 dataArr: list,
                 showType: 4,
-                defaultOptionText: _l('请选择工作地点'),
+                defaultOptionText: _l('请选择'),
                 onChange: value => {
                   this.setState({
                     workSiteId: value,
@@ -304,9 +304,20 @@ class EditInfo extends React.Component {
     });
   };
   $refs = {};
-  render() {
-    const { departmentInfos, jobInfos, jobs, jobNumber, contactPhone, isLoading, errors } = this.state;
+  onBlur = e => {
+    let { contactPhone } = this.state;
+    let tel = e && e.target && e.target.value;
+    console.log(tel, contactPhone, !RegExp.isTel(tel));
+    if (!tel) return;
+    if (!RegExp.isTel(tel) && !RegExp.isMobile(tel)) {
+      this.setState({ contactPhoneError: true });
+    } else {
+      this.setState({ contactPhoneError: false });
+    }
+  };
 
+  render() {
+    const { departmentInfos, jobInfos, jobs, jobNumber, contactPhone, isLoading, contactPhoneError } = this.state;
     return (
       <Dialog
         title={_l('编辑员工名片')}
@@ -320,6 +331,7 @@ class EditInfo extends React.Component {
           });
         }}
         onOk={() => {
+          if (this.state.contactPhoneError) return;
           this.saveFn(this.props.setValue);
         }}
         visible={this.props.showDialog}
@@ -536,7 +548,7 @@ class EditInfo extends React.Component {
               <div className="formControl">
                 <input
                   value={jobNumber}
-                  placeholder={_l('请输入工号')}
+                  placeholder={_l('')}
                   onChange={e => {
                     this.setState({
                       jobNumber: e.target.value,
@@ -550,7 +562,10 @@ class EditInfo extends React.Component {
               <div className="formControl">
                 <input
                   value={contactPhone}
-                  placeholder={_l('请输入工作电话')}
+                  maxLength="32"
+                  placeholder={_l('')}
+                  onBlur={this.onBlur}
+                  className={cx({ error: contactPhoneError })}
                   onChange={e => {
                     this.setState({
                       contactPhone: e.target.value,
@@ -558,6 +573,7 @@ class EditInfo extends React.Component {
                   }}
                 />
               </div>
+              {contactPhoneError && <span className="Block Red LineHeight25">{_l('工作电话格式不正确')}</span>}
             </div>
           </div>
         )}

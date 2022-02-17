@@ -127,7 +127,7 @@ export default function MobileLayout(props) {
         <div className="mobileWrap">
           <div className="mobileBox">
             <div className="mobileContent">
-              <WidgetContent layoutType="mobile" components={visibleComponents} />
+              <WidgetContent {...props} layoutType="mobile" components={visibleComponents} />
             </div>
           </div>
         </div>

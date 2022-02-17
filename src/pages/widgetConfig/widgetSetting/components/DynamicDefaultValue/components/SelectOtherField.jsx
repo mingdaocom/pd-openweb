@@ -55,7 +55,7 @@ export default class SelectOtherField extends Component {
     const { fieldId, relateSheetControlId, type } = para;
     const { data = {}, onDynamicValueChange, dynamicValue } = this.props;
     const { advancedSetting = {} } = data;
-    const isText = _.includes([1, 2], data.type);
+    const isText = _.includes([1, 2, 45], data.type);
     const isAsync = () => {
       // 部门选成员 需要异步获取数据 isAsync设为true
       if (data.type === 27 && type === 26) return true;
@@ -63,7 +63,7 @@ export default class SelectOtherField extends Component {
     };
 
     const newField = [{ cid: fieldId, rcid: relateSheetControlId, staticValue: '', isAsync: isAsync() }];
-    onDynamicValueChange(isText ? dynamicValue.concat(newField) : newField);
+    onDynamicValueChange(newField);
     //多选类型不关闭
     if (isText || (_.includes([26, 27], data.type) && advancedSetting.enumDefault === 1)) return;
     this.setState({ isDynamic: false, filedVisible: false });
@@ -95,7 +95,7 @@ export default class SelectOtherField extends Component {
           {
             rcid: '',
             cid: '',
-            staticValue: JSON.stringify({ departmentName: _l('当前用户所在部门'), departmentId: 'current' }),
+            staticValue: JSON.stringify({ departmentName: _l('当前用户所在部门'), departmentId: 'user-departments' }),
             isAsync: true,
           },
         ]);
@@ -135,21 +135,30 @@ export default class SelectOtherField extends Component {
 
   render() {
     const { isDynamic, filedVisible, fxVisible, searchVisible } = this.state;
-    const { data, dynamicValue, onDynamicValueChange, controls, allControls, onChange } = this.props;
+    const {
+      data,
+      dynamicValue,
+      onDynamicValueChange,
+      controls,
+      allControls,
+      onChange,
+      popupContainer,
+      propFiledVisible,
+    } = this.props;
     const filterTypes = this.getCurrentField(data);
     //子表特殊处理
     const isSubList = _.includes([34], data.type);
     return (
       <Fragment>
-        <div ref={this.$wrap}>
+        <div ref={this.$wrap} className="selectOtherFieldContainer">
           <Trigger
             action={['click']}
             popupStyle={{ width: '100%' }}
             popupVisible={isDynamic && !isSubList}
             onPopupVisibleChange={isDynamic => this.setState({ isDynamic })}
-            getPopupContainer={() => this.$wrap.current}
+            getPopupContainer={() => popupContainer || this.$wrap.current}
             popup={() => {
-              return filedVisible ? (
+              return propFiledVisible || filedVisible ? (
                 <SelectFields
                   onClickAway={() => this.setState({ isDynamic: false, filedVisible: false })}
                   data={data}
@@ -176,6 +185,7 @@ export default class SelectOtherField extends Component {
             popupAlign={{
               points: ['tr', 'br'],
               offset: [0, 5],
+              overflow: { adjustX: true, adjustY: true },
             }}
           >
             <Tooltip trigger={['hover']} placement={'bottom'} title={isSubList ? _l('查询工作表') : _l('使用动态值')}>
@@ -203,7 +213,7 @@ export default class SelectOtherField extends Component {
         {fxVisible && (
           <FunctionEditorDialog
             value={getAdvanceSetting(data, 'defaultfunc')}
-            control={data}
+            title={data.controlName}
             controls={allControls.filter(c => c.controlId !== data.controlId)}
             onClose={() => this.setState({ fxVisible: false })}
             onSave={value => {

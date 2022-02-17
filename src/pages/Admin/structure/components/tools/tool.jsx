@@ -4,7 +4,7 @@ import { emptyUserSet, fetchApproval, fetchInActive } from '../../actions/curren
 import dialogInviteUser from '../../modules/dialogInviteUser';
 import userBoard from '../../modules/dialogUserBoard';
 import * as Invite from 'src/components/common/inviteMember/inviteMember';
-import { Icon } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
 import MoreActionDia from './moreActionDia';
 import DialogLayer from 'mdDialog';
 import ReactDom from 'react-dom';
@@ -22,10 +22,10 @@ class ToolBar extends Component {
   }
 
   componentDidMount() {
-    if(this.props.autoImport) {
+    if (this.props.autoImport) {
       setTimeout(() => {
-        this.importUser()
-      }, 1000)
+        this.importUser();
+      }, 1000);
     }
   }
 
@@ -40,7 +40,8 @@ class ToolBar extends Component {
           <span
             className="ThemeColor3 Hand tip-bottom-left"
             data-tip={_l('已被邀请但未正式加入的用户')}
-            onClick={this.openApproval.bind(this)}>
+            onClick={this.openApproval.bind(this)}
+          >
             {_l('未激活用户(%0)', approveNumber)}
           </span>
         ) : null}
@@ -138,36 +139,46 @@ class ToolBar extends Component {
     return (
       <div className="toolRight">
         <span
-          className="addMenberBtn"
+          className="addMenberBtn verticalAlign"
           onClick={e => {
             this.inviteUser();
-          }}>
-          <Icon className="Font16 mRight8" icon="add" />
-          {_l('添加成员')}
+          }}
+        >
+          {/* <Icon className="Font16 mRight8" icon="add" />
+          {_l('添加成员')} */}
+          <span className="Icon icon icon-plus Font13 mRight5 White" />
+          <span className="White bold">{_l('添加成员')}</span>
         </span>
-        <span
-          className="moreAction mLeft8"
-          onClick={() => {
-            this.setState({
-              showMoreAction: !this.state.showMoreAction,
-            });
-          }}>
-          <Icon className="Font16 LineHeight32" icon="more_horiz" />
-          {/* 更多邀请/批量导入/导出通讯录 */}
-          {this.state.showMoreAction && (
-            <MoreActionDia
-              onClickAway={() =>
-                this.setState({
-                  showMoreAction: false,
-                })
-              }
-              showMoreAction={this.state.showMoreAction}
-              inviteMore={this.inviteMore}
-              importUser={this.importUser}
-              handleExportUser={this.handleExportUser}
-            />
-          )}
-        </span>
+        <Tooltip text={<span>{_l('导出通讯录')}</span>} popupPlacement="bottom">
+          <span className="exportAdressBook mLeft8 Hand verticalAlign" onClick={this.handleExportUser}>
+            <Icon icon="download" />
+          </span>
+        </Tooltip>
+        <Tooltip text={<span>{_l('更多操作')}</span>} popupPlacement="bottom">
+          <span
+            className="moreAction mLeft8 verticalAlign"
+            onClick={() => {
+              this.setState({
+                showMoreAction: !this.state.showMoreAction,
+              });
+            }}
+          >
+            <Icon className="Font16 LineHeight32" icon="more_horiz" />
+            {/* 更多邀请/批量导入/导出通讯录 */}
+            {this.state.showMoreAction && (
+              <MoreActionDia
+                onClickAway={() =>
+                  this.setState({
+                    showMoreAction: false,
+                  })
+                }
+                showMoreAction={this.state.showMoreAction}
+                inviteMore={this.inviteMore}
+                importUser={this.importUser}
+              />
+            )}
+          </span>
+        </Tooltip>
       </div>
     );
   }
@@ -175,7 +186,16 @@ class ToolBar extends Component {
 
 const mapStateToProps = state => {
   const {
-    current: { departmentId, projectId, selectedAccountIds, approveNumber, inActiveNumber, isSearch, typeNum, autoImport },
+    current: {
+      departmentId,
+      projectId,
+      selectedAccountIds,
+      approveNumber,
+      inActiveNumber,
+      isSearch,
+      typeNum,
+      autoImport,
+    },
     jobs: { jobId, jobList = [] },
     pagination,
     entities: { departments = [] },
@@ -194,7 +214,7 @@ const mapStateToProps = state => {
     jobInfos,
     departmentInfos,
     typeNum,
-    autoImport
+    autoImport,
   };
 };
 

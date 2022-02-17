@@ -74,6 +74,14 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
       cursor: pointer;
     }
   }
+  .selectOtherFieldContainer {
+    div:nth-child(2) {
+      top: ${props => (props.triggerStyle ? '100% !important' : '0px')};
+      .rc-trigger-popup {
+        ${props => (props.triggerStyle ? 'top: 0px !important' : '')}
+      }
+    }
+  }
 `;
 export const OtherFieldWrap = styled(FlexCenter)`
   margin-right: 6px;

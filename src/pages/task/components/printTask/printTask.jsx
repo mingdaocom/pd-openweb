@@ -21,7 +21,7 @@ export default class PrintTask extends Component {
         options: this.props.options,
         cids: this.props.cids,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           this.setState({ data: source.data });
         }
@@ -65,7 +65,7 @@ export default class PrintTask extends Component {
     // 单选框
     if (item.type === 9) {
       if (item.value && item.value !== '0') {
-        return _.find(item.options, 'key', item.value).value;
+        return _.find(item.options, ({ key }) => key === item.value).value;
       }
       return '';
     }
@@ -78,7 +78,7 @@ export default class PrintTask extends Component {
         }
       }
 
-      item.value = _.map(item.options, (option) => {
+      item.value = _.map(item.options, option => {
         return key.indexOf(option.key) >= 0 ? option.value : '';
       });
       _.remove(item.value, option => option === '');
@@ -87,7 +87,7 @@ export default class PrintTask extends Component {
     // 下拉框
     if (item.type === 11) {
       if (item.value !== '0') {
-        return _.find(item.options, 'key', item.value).value;
+        return _.find(item.options, ({ key }) => key === item.value).value;
       }
       return '';
     }
@@ -102,7 +102,7 @@ export default class PrintTask extends Component {
     // 关联
     if (item.type === 21) {
       const list = [];
-      JSON.parse(item.value).forEach((item) => {
+      JSON.parse(item.value).forEach(item => {
         if (item.name) {
           list.push(<div>{item.name}</div>);
         }
@@ -150,7 +150,10 @@ export default class PrintTask extends Component {
       controls = _.groupBy(data.controls, 'row');
     }
 
-    let url = md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + encodeURIComponent(`${md.global.Config.WebUrl}apps/task/task_${this.props.taskId}`);
+    let url =
+      md.global.Config.AjaxApiUrl +
+      'code/CreateQrCodeImage?url=' +
+      encodeURIComponent(`${md.global.Config.WebUrl}apps/task/task_${this.props.taskId}`);
 
     return (
       <div className="printTask">
@@ -169,14 +172,10 @@ export default class PrintTask extends Component {
           <div className="printTaskMain printTaskContent relative">
             {hasQRCode ? (
               <div className="printTaskQRCode">
-                <img
-                  src={url}
-                />
+                <img src={url} />
                 {_l('扫一扫查看')}
               </div>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             <div className={cx('printTaskName', { pRight100: hasQRCode })}>{data.taskName}</div>
 
@@ -222,9 +221,7 @@ export default class PrintTask extends Component {
                   <span>
                     {_.filter(data.checklist, 'status', true).length}/{data.checklist.length}
                   </span>
-                ) : (
-                  undefined
-                )}
+                ) : undefined}
               </div>
               <div className="flex">
                 <ul>
@@ -247,9 +244,7 @@ export default class PrintTask extends Component {
                   <span>
                     {_.filter(data.subTask, 'status', 1).length}/{data.subTask.length}
                   </span>
-                ) : (
-                  undefined
-                )}
+                ) : undefined}
               </div>
               <div className="flex">
                 <ul>
@@ -338,9 +333,7 @@ export default class PrintTask extends Component {
                   })}
                 </tbody>
               </table>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
           </div>
         ) : (
           <LoadDiv />

@@ -20,7 +20,7 @@ import { getDefaultLayout, getIndexById } from '../util';
 import maxBy from 'lodash/maxBy';
 
 const initialState = {
-  loading: false,
+  loading: true,
   modified: false,
   pageName: '',
   visible: false,
@@ -28,6 +28,8 @@ const initialState = {
   desc: '',
   adjustScreen: false,
   version: null,
+  pageName: '',
+  apk: {},
   components: [],
 };
 

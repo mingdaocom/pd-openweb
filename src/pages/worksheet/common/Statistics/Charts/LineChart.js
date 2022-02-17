@@ -11,7 +11,8 @@ import {
   getMinValue,
   getChartColors
 } from './common';
-import { formatSummaryName } from 'src/pages/worksheet/common/Statistics/common';
+import { Dropdown, Menu } from 'antd';
+import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
 
 const lastDateText = _l('上一期');
 
@@ -25,6 +26,7 @@ const mergeDataTime = (data, contrastData) => {
   const newcontrastData = contrastData.map((item, index) => {
     item.originalName = item.originalId;
     item.originalId = maxLengthData[index].originalId;
+    item.isContrast = true;
     return item;
   });
   return newData.concat(newcontrastData);
@@ -74,11 +76,11 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }) => {
         }
         return n.originalX === name;
       });
-      // if (current.length && current[0].v !== null) {
       if (current.length) {
         const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
+          groupKey: element.originalKey,
           value: current[0].v,
           name: item.x,
           originalId: item.originalX || item.x
@@ -95,13 +97,15 @@ export default class extends Component {
     this.state = {
       originalCount: 0,
       count: 0,
+      dropdownVisible: false,
+      offset: {},
+      contrastType: false,
+      match: null
     }
     this.LineChart = null;
   }
   componentDidMount() {
-    const { LineChartComponent, LineChartConfig } = this.getComponentConfig(this.props);
-    this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
-    this.LineChart.render();
+    this.renderLineChart(this.props);
   }
   componentWillUnmount() {
     this.LineChart && this.LineChart.destroy();
@@ -140,9 +144,53 @@ export default class extends Component {
       displaySetup.isPerPile !== oldDisplaySetup.isPerPile
     ) {
       this.LineChart.destroy();
-      const { LineChartComponent, LineChartConfig } = this.getComponentConfig(nextProps);
-      this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
-      this.LineChart.render();
+      this.renderLineChart(nextProps);
+    }
+  }
+  renderLineChart(props) {
+    const { reportData, isViewOriginalData } = props;
+    const { displaySetup } = reportData;
+    const { LineChartComponent, LineChartConfig } = this.getComponentConfig(props);
+    this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.LineChart.on('element:click', this.handleClick);
+    }
+    this.LineChart.render();
+  }
+  handleClick = ({ data, gEvent }) => {
+    const { xaxes, split, displaySetup } = this.props.reportData;
+    const { contrastType } = displaySetup;
+    const currentData = data.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: contrastType ? currentData.name : (isNumber ? Number(currentData.originalId) : currentData.originalId)
+    }
+    if (split.controlId) {
+      param[split.cid] = currentData.groupKey;
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: gEvent.x + 20,
+        y: gEvent.y
+      },
+      contrastType: currentData.isContrast ? contrastType : undefined,
+      match: param
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match, contrastType } = this.state;
+    this.setState({ dropdownVisible: false });
+    const data = {
+      isPersonal: false,
+      contrastType,
+      match
+    }
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
     }
   }
   getComponentConfig(props) {
@@ -237,16 +285,17 @@ export default class extends Component {
         shared: true,
         showCrosshairs: true,
         formatter: ({ value, groupName }) => {
-          const { name } = formatControlInfo(groupName);
+          const { name, id } = formatControlInfo(groupName);
           if (isPercentStackedArea) {
             return {
               name,
               value: `${(value * 100).toFixed(Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
+            const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? value.toLocaleString() : _l('空')
+              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
             }
           }
         }
@@ -322,8 +371,9 @@ export default class extends Component {
             shared: true,
             showCrosshairs: true,
             formatter: ({ value, groupName, originalId: xName }) => {
-              const { name } = formatControlInfo(groupName);
-              const newValue = _.isNumber(value) ? value.toLocaleString() : _l('空');
+              const { name, id } = formatControlInfo(groupName);
+              const { dot } = _.find(yaxisList, { controlId: id }) || {};
+              const newValue = _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--';
               if (name === lastDateText) {
                 const { originalName } = _.find(contrastData, { originalId: xName }) || {};
                 return {
@@ -352,18 +402,40 @@ export default class extends Component {
       count
     });
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleRequestOriginalData}>
+          <div className="flexRow valignWrapper">
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { count, originalCount } = this.state;
+    const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {displaySetup.showTotal ? (
           <div className="pBottom10">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

@@ -1,0 +1,31 @@
+.mui-dialog-dialog.userInfoDialog {
+  &.forMobilePortal {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    position: fixed;
+    z-index: 1;
+    max-height: 100% !important;
+    max-width: 100% !important;
+    .icon-close {
+      display: none !important;
+    }
+    .userInfoDialogTitle {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .mui-dialog-footer {
+      text-align: center;
+      border-top: 1px solid #f5f5f5;
+      padding: 6px 7px;
+      button {
+        width: 45%;
+        display: inline-block;
+        min-width: 45%;
+        border-radius: 18px;
+        border: 1px solid #ddd;
+      }
+    }
+  }
+}

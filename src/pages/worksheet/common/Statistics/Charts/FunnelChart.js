@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Funnel } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors } from './common';
-import { formatSummaryName } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { Dropdown, Menu } from 'antd';
 
 const mergeDataTime = (data, contrastData) => {
   const maxLengthData = data.length > contrastData.length ? data : contrastData;
@@ -28,6 +29,7 @@ const mergeDataTime = (data, contrastData) => {
     if (item) {
       item.groupName = groupName;
       item.originalName = item.name;
+      item.isContrast = true;
       item.name = maxLengthData[index].name;
       return item;
     } else {
@@ -64,7 +66,7 @@ const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
 const formatChartData = (data, { isAccumulate }, { xaxisEmpty }) => {
   const result = [];
   const cloneData = formatEmptyDataPosition(_.cloneDeep(data), isAccumulate, xaxisEmpty);
-  const { value } = cloneData[0];
+  const { value } = cloneData[0] || { value: [] };
   if (isAccumulate) {
     cloneData.map(item => {
       item.value.reverse().map((n, index) => {
@@ -76,12 +78,14 @@ const formatChartData = (data, { isAccumulate }, { xaxisEmpty }) => {
       return item;
     });
   }
+
   value.forEach(item => {
     const name = item.x;
     cloneData.forEach((element, index) => {
       const target = element.value.filter(n => n.x === name);
       if (target.length && target[0].v) {
         result.push({
+          id: target[0].originalX,
           groupName: element.key,
           value: target[0].v,
           name,
@@ -98,13 +102,21 @@ export default class extends Component {
     this.state = {
       originalCount: 0,
       count: 0,
+      dropdownVisible: false,
+      offset: {},
+      match: null
     }
     this.contrastData = null;
     this.FunnelChart = null;
   }
   componentDidMount() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
     const config = this.getComponentConfig(this.props);
     this.FunnelChart = new Funnel(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.FunnelChart.on('element:click', this.handleClick);
+    }
     this.FunnelChart.render();
   }
   componentWillUnmount() {
@@ -134,6 +146,39 @@ export default class extends Component {
       this.FunnelChart.render();
     }
   }
+  handleClick = ({ data, gEvent }) => {
+    const { xaxes, split, displaySetup } = this.props.reportData;
+    const { contrastType } = displaySetup;
+    const currentData = data.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: isNumber ? Number(currentData.id) : currentData.id
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: gEvent.x + 20,
+        y: gEvent.y
+      },
+      contrastType: currentData.isContrast ? contrastType : undefined,
+      match: param
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match, contrastType } = this.state;
+    this.setState({ dropdownVisible: false });
+    const data = {
+      isPersonal: false,
+      match,
+      contrastType
+    }
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
+    }
+  }
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, yaxisList, xaxes, style } = props.reportData;
     const data = formatChartData(map, displaySetup, xaxes);
@@ -153,10 +198,12 @@ export default class extends Component {
         },
       },
       tooltip: {
-        formatter: ({ name, value }) => {
+        formatter: (data) => {
+          const { name, value } = data;
+          const { dot } = yaxisList[0] || {};
           return {
             name,
-            value: value ? value.toLocaleString() : value,
+            value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
       },
@@ -208,18 +255,40 @@ export default class extends Component {
       count
     });
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleRequestOriginalData}>
+          <div className="flexRow valignWrapper">
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { count, originalCount } = this.state;
+    const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {displaySetup.showTotal ? (
           <div>
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

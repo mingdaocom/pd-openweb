@@ -137,14 +137,17 @@ export default function RecordOperate(props) {
     onRemoveRelation = () => {},
     onPopupVisibleChange = () => {},
   } = props;
-  const showShare = _.includes(shows, 'share') && isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId);
+  const showShare =
+    _.includes(shows, 'share') &&
+    isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
+    !md.global.Account.isPortal;
   const showCopy =
     _.includes(shows, 'copy') &&
     allowCopy &&
     isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
     isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId);
   const showPrint = _.includes(shows, 'print');
-  const showTask = _.includes(shows, 'task');
+  const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
   const showRemoveRelation = _.includes(shows, 'removeRelation');
   const showEditForm = _.includes(shows, 'editform') && isCharge;
   const showOpenInNew = _.includes(shows, 'openinnew');
@@ -152,13 +155,13 @@ export default function RecordOperate(props) {
   if (_.isFunction(defaultCustomButtons)) {
     defaultCustomButtons = defaultCustomButtons();
   }
+  const customButtonActive = useRef();
   const [customButtons, setCustomButtons] = useState([]);
   const [customButtonLoading, setCustomButtonLoading] = useState();
   const [popupVisible, setPopupVisible] = useState(false);
-  const [customButtonActive, setCustomButtonActive] = useState();
   const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
   function changePopupVisible(vallue) {
-    if (customButtonActive) {
+    if (customButtonActive.current) {
       return;
     }
     setPopupVisible(vallue);
@@ -267,7 +270,7 @@ export default function RecordOperate(props) {
               triggerCallback={() => changePopupVisible(false)}
               onUpdate={onUpdate}
               reloadRecord={reloadRecord}
-              setCustomButtonActive={setCustomButtonActive}
+              setCustomButtonActive={v => (customButtonActive.current = v)}
             />
           )}
           {showShare && (
@@ -344,6 +347,7 @@ export default function RecordOperate(props) {
               {...{ appId, viewId, worksheetId, projectId, workId, instanceId }}
               sheetSwitchPermit={sheetSwitchPermit}
               recordId={recordId}
+              onItemClick={() => setPopupVisible(false)}
             />
           )}
           {showTask && !md.global.SysSettings.forbidSuites.includes('2') && (

@@ -9,6 +9,7 @@ import './css/style.css';
 import RegExp from 'src/util/expression';
 import { get } from 'lodash';
 var userController = require('src/api/user');
+var externalPortalCotroller = require('src/api/externalPortal');
 var addressBookController = require('src/api/addressBook');
 var SelectUser = function (element, options) {
   this.$element = $(element);
@@ -57,7 +58,7 @@ SelectUser.DEFAULTS = {
   count: 15, // 默认`经常协作同事`数量
   selectCb: function (user) {
     // user { accountid: '', avatar: '', fullname: '', job: ''}
-    console.log(user);
+    // console.log(user);
   }, // 点击`callback`
   sourceId: '',
   projectId: '', // 空为`个人网络`,
@@ -67,11 +68,19 @@ SelectUser.DEFAULTS = {
   zIndex: 1001,
   container: $('body'),
   filterAccountIds: [],
+  routineTab: _l('常规'),
+  externalTab: _l('外部门户'),
+  tabType: 1, // 1: 常规 2: 外部门户 3: 常规和外部门户
+  tabIndex: 0, //0: 常规 1:外部用户
+  appId: '',
 
   // private
   selectItem: null,
   keywords: '',
+  pageIndex: 1,
   pageSize: 25,
+  externalUserList: [], // 外部用户成员列表
+  loadNextPage: false,
 
   // dialogSelectUer settings
   showMoreInvite: true, // 是否呈现更多邀请
@@ -200,9 +209,13 @@ $.extend(SelectUser.prototype, {
     var _this = this;
     var options = this.options;
     options.hasQRcode = options.sourceId && options.fromType && options.projectId !== undefined;
-
+    options.tabIndex = options.tabType === 1 || options.tabType === 3 ? 0 : 1;
     require(['./tpl/box.html'], function (tpl) {
       _this.$box = $(SelectUser.doT.template(tpl)(options));
+      let tabItems = _this.$box.find('.tabBox .tabItem');
+      if (tabItems.length > 1) {
+        tabItems[0].setAttribute('class', 'tabItem flex active');
+      }
       _this.append();
       _this.getCooperaters();
       _this.initEvent();
@@ -225,10 +238,12 @@ $.extend(SelectUser.prototype, {
     // store two list in $box
     _this.$coOperationList = _this.$box.find('.cooperationList');
     _this.$searchResultList = _this.$box.find('.searchResultList');
+    _this.$listWrapper = this.$box.find('.listWrapper');
     // store input
     _this.$input = _this.$box.find('.searchInput');
     _this.$invite = _this.$box.find('.inviteBox');
 
+    _this.$tabItem = _this.$box.find('.tabBox .tabItem');
     options.container.append(_this.$box);
     _this.setPosition();
   },
@@ -285,7 +300,12 @@ $.extend(SelectUser.prototype, {
   getCooperaters: function () {
     var _this = this;
     var options = this.options;
-
+    if (options.tabIndex === 0) {
+      _this.$box.find('.contact-icon').removeClass('hiddenContactIcon');
+    } else {
+      _this.$input && _this.$input[0].setAttribute('placeholder', _l('搜索姓名、手机'));
+      _this.$box.find('.contact-icon').addClass('hiddenContactIcon');
+    }
     if (options.isRangeData) {
       _this.toggleListContainer(!!options.keywords);
 
@@ -316,50 +336,55 @@ $.extend(SelectUser.prototype, {
           );
         });
     } else {
-      userController
-        .getOftenMetionedUser({
-          count: options.count,
-          filterAccountIds: options.filterAccountIds,
-          includeUndefinedAndMySelf: options.includeUndefinedAndMySelf,
-          includeSystemField: options.includeSystemField,
-          prefixAccountIds: options.prefixAccountIds,
-        })
-        .then(function (data) {
-          var renderData = {};
-          renderData.users = data || [];
-          renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
-          var filterMe = options.filterAccountIds.indexOf(md.global.Account.accountId) !== -1;
-          var filterUndefined = options.filterAccountIds.indexOf('user-undefined') !== -1;
-          var hasPrefix =
-            (options.includeUndefinedAndMySelf && !(filterMe && filterUndefined)) || options.prefixAccountIds.length;
-          var prefixAccountLength = options.prefixAccountIds.length;
+      if (_this.options.tabIndex === 0) {
+        userController
+          .getOftenMetionedUser({
+            count: options.count,
+            filterAccountIds: options.filterAccountIds,
+            includeUndefinedAndMySelf: options.includeUndefinedAndMySelf,
+            includeSystemField: options.includeSystemField,
+            prefixAccountIds: options.prefixAccountIds,
+          })
+          .then(function (data) {
+            var renderData = {};
+            renderData.users = data || [];
+            renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
+            var filterMe = options.filterAccountIds.indexOf(md.global.Account.accountId) !== -1;
+            var filterUndefined = options.filterAccountIds.indexOf('user-undefined') !== -1;
+            var hasPrefix =
+              (options.includeUndefinedAndMySelf && !(filterMe && filterUndefined)) || options.prefixAccountIds.length;
+            var prefixAccountLength = options.prefixAccountIds.length;
 
-          if (options.includeSystemField) {
-            renderData.prefixUsers = renderData.users.splice(0, 6);
-          } else {
-            if (hasPrefix) {
-              if (options.includeUndefinedAndMySelf) {
-                if (filterMe && filterUndefined) {
-                  renderData.prefixUsers = renderData.users.splice(0, prefixAccountLength);
-                } else if (filterMe || filterUndefined) {
-                  renderData.prefixUsers = renderData.users.splice(0, 1 + prefixAccountLength);
+            if (options.includeSystemField) {
+              renderData.prefixUsers = renderData.users.splice(0, 6);
+            } else {
+              if (hasPrefix) {
+                if (options.includeUndefinedAndMySelf) {
+                  if (filterMe && filterUndefined) {
+                    renderData.prefixUsers = renderData.users.splice(0, prefixAccountLength);
+                  } else if (filterMe || filterUndefined) {
+                    renderData.prefixUsers = renderData.users.splice(0, 1 + prefixAccountLength);
+                  } else {
+                    renderData.prefixUsers = renderData.users.splice(0, 2 + prefixAccountLength);
+                  }
                 } else {
-                  renderData.prefixUsers = renderData.users.splice(0, 2 + prefixAccountLength);
+                  renderData.prefixUsers = renderData.users.splice(0, prefixAccountLength);
                 }
-              } else {
-                renderData.prefixUsers = renderData.users.splice(0, prefixAccountLength);
               }
             }
-          }
 
-          if (options.prefixAccounts && options.prefixAccounts.length) {
-            renderData.prefixUsers = options.prefixAccounts.concat(renderData.prefixUsers || []);
-          }
-          renderData.isCooperation = true;
-          renderData.tip = options.tip;
-          // fill the list
-          SelectUser.Utils.bindListContent(_this.$coOperationList, renderData);
-        });
+            if (options.prefixAccounts && options.prefixAccounts.length) {
+              renderData.prefixUsers = options.prefixAccounts.concat(renderData.prefixUsers || []);
+            }
+            renderData.isCooperation = true;
+            renderData.tip = options.tip;
+            renderData.tabIndex = options.tabIndex;
+            // fill the list
+            SelectUser.Utils.bindListContent(_this.$coOperationList, renderData);
+          });
+      } else {
+        _this.getExternalList();
+      }
     }
   },
   initEvent: function () {
@@ -478,6 +503,26 @@ $.extend(SelectUser.prototype, {
         });
       }
     });
+
+    $(_this.$tabItem).on('click', function () {
+      let tabItems = _this.$box.find('.tabBox .tabItem');
+      if (tabItems.length < 2) {
+        return;
+      }
+      $(this).addClass('active').siblings().removeClass('active');
+      _this.options.tabIndex = this.tabIndex;
+      _this.options.keywords = '';
+      _this.$input.val('');
+      _this.toggleListContainer(!!_this.options.keywords);
+      _this.getCooperaters();
+    });
+
+    $(_this.$listWrapper).on('scroll', function (e) {
+      if (this.clientHeight + this.scrollTop >= this.scrollHeight && _this.options.loadNextPage) {
+        options.pageIndex = options.pageIndex + 1;
+        _this.getExternalList();
+      }
+    });
   },
   handleArrowEvent: function (e) {
     var options = this.options;
@@ -514,7 +559,7 @@ $.extend(SelectUser.prototype, {
       accountId: $item.data('accountid'),
       avatar: $item.find('.userHead').attr('src'),
       fullname: $.trim($item.find('.userName').text()),
-      job: $.trim($item.find('.userDepartment').text()),
+      job: $.trim($item.find('.userDepartment').text()) || [],
     };
 
     if ($.isFunction(options.selectCb)) {
@@ -539,30 +584,90 @@ $.extend(SelectUser.prototype, {
       $listWrapper.scrollTop(scrollTop);
     }
   },
-
+  getExternalList: function (params) {
+    let _this = this;
+    let options = _this.options;
+    externalPortalCotroller
+      .getUsersByApp({
+        projectId: options.SelectUserSettings.projectId,
+        appId: options.appId || '',
+        pageIndex: options.pageIndex,
+        pageSize: options.pageSize,
+        keywords: options.keywords ? options.keywords : undefined,
+        filterAccountIds: options.filterAccountIds,
+      })
+      .then(function (data) {
+        let tempData = data.map(item => ({
+          ...item,
+          fullname: item.name,
+          job: item.mobilePhone,
+        }));
+        options.loadNextPage = tempData.length === options.pageSize ? true : false;
+        options.externalUserList = options.pageIndex > 1 ? options.externalUserList.concat(tempData) : tempData;
+        var renderData = {};
+        const currentAccount = tempData.find(item => item.accountId === md.global.Account.accountId);
+        if (options.includeSystemField || options.includeUndefinedAndMySelf) {
+          renderData.prefixUsers = [
+            {
+              accountId: 'user-self',
+              avatar: 'https://p1.mingdaoyun.cn/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+              department: '',
+              departmentInfos: [],
+              departments: [],
+              fullname: '当前用户',
+              jobIds: [],
+              jobInfos: [],
+              jobs: [],
+            },
+          ];
+          _.remove(tempData, item => item.accountId === md.global.Account.accountId);
+        } else if (currentAccount) {
+          renderData.prefixUsers = [Object.assign({}, currentAccount, { fullname: _l('我自己') })];
+          _.remove(tempData, item => item.accountId === md.global.Account.accountId);
+        } else {
+          renderData.prefixUsers = [];
+        }
+        renderData.users = options.externalUserList || [];
+        renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
+        options.hasData = renderData.users.length > 0;
+        renderData.isCooperation = true;
+        renderData.tabIndex = options.tabIndex;
+        options.isSearching = false;
+        if (params && params.keywords) {
+          SelectUser.Utils.bindListContent(_this.$searchResultList, renderData);
+        } else {
+          SelectUser.Utils.bindListContent(_this.$coOperationList, renderData);
+        }
+      });
+  },
   searchRequest: function () {
     var _this = this;
     var options = this.options;
     if (options.keywords) {
       _this.toggleListContainer(true);
 
-      options.promise = addressBookController.getUserAddressbookByKeywords({
-        keywords: options.keywords,
-        filterAccountIds: options.filterAccountIds,
-      });
-      options.promise.then(function (data) {
-        if (data.list) {
-          var renderData = {};
-          renderData.users = data.list;
-          options.isSearching = false;
-          options.hasData = renderData.users.length > 0;
-          renderData.isCooperation = false;
-          renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
-          SelectUser.Utils.bindListContent(_this.$searchResultList, renderData);
-        } else {
-          _this.$searchResultList.empty();
-        }
-      });
+      if (options.tabIndex === 0) {
+        options.promise = addressBookController.getUserAddressbookByKeywords({
+          keywords: options.keywords,
+          filterAccountIds: options.filterAccountIds,
+        });
+        options.promise.then(function (data) {
+          if (data.list) {
+            var renderData = {};
+            renderData.users = data.list;
+            options.isSearching = false;
+            options.hasData = renderData.users.length > 0;
+            renderData.isCooperation = false;
+            renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
+            SelectUser.Utils.bindListContent(_this.$searchResultList, renderData);
+          } else {
+            _this.$searchResultList.empty();
+          }
+        });
+      } else {
+        _this.options.pageIndex = 1;
+        _this.getExternalList({ keywords: options.keywords });
+      }
     } else {
       _this.toggleListContainer(false);
     }

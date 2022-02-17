@@ -18,7 +18,7 @@ class ShowBtnFilterDialog extends React.Component {
   };
 
   render() {
-    const { setValue, isShowBtnFilterDialog, projectId, columns } = this.props;
+    const { setValue, isShowBtnFilterDialog, projectId, columns, appId } = this.props;
     return (
       <Dialog
         title={_l('筛选')}
@@ -49,6 +49,7 @@ class ShowBtnFilterDialog extends React.Component {
           feOnly
           filterColumnClassName="showBtnFilter"
           projectId={projectId}
+          appId={appId}
           columns={segmentation(columns)}
           conditions={this.state.filters}
           onConditionsChange={conditions => {

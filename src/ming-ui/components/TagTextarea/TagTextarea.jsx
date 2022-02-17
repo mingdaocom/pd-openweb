@@ -53,6 +53,7 @@ export default class TagTextarea extends React.Component {
     if (this.cmcon) {
       this.cmObj = CodeMirror(this.cmcon, {
         value: defaultValue,
+        mode: null,
         lineWrapping: true,
         cursorHeight: noCursor || readonly ? 0 : 1,
       });

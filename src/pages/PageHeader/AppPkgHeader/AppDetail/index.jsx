@@ -3,7 +3,7 @@ import { func, oneOf } from 'prop-types';
 import { Motion, spring } from 'react-motion';
 import color from 'color';
 import cx from 'classnames';
-import { Icon, Dialog, Menu, MenuItem } from 'ming-ui';
+import { Icon, Menu, MenuItem } from 'ming-ui';
 import { connect } from 'react-redux';
 import RcDialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
@@ -25,9 +25,10 @@ import { getIds, compareProps, getItem, setItem, isCanEdit } from '../../util';
 import EditAppIntro from './EditIntro';
 import AppGroup from '../AppGroup';
 import AllOptionList from './AllOptionList';
-import AppNavStyle from './AppNavStyle/index';
+import AppNavStyle from './AppNavStyle';
+import AppFixStatus from './AppFixStatus';
 import './index.less';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog, getAppFeaturesVisible } from 'src/util';
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -36,7 +37,10 @@ const mapDispatchToProps = dispatch => ({
 });
 
 let mousePosition = { x: 139, y: 23 };
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)
 export default class AppInfo extends Component {
   static propTypes = {
     appStatus: oneOf([0, 1, 2, 3, 4, 5]),
@@ -58,6 +62,7 @@ export default class AppInfo extends Component {
       appConfigVisible: false,
       modifyAppIconAndNameVisible: false,
       editAppIntroVisible: false,
+      editAppFixStatusVisible: false,
       exportAppVisible: false,
       isShowAppIntroFirst: !_.includes(openedApps, appId),
       delAppConfirmVisible: false,
@@ -96,11 +101,22 @@ export default class AppInfo extends Component {
     if (!appId) return;
     api.getAppDetail({ appId }, { silent: true }).then(data => {
       // 同步应用信息至工作表
-      syncAppDetail(_.pick(data, ['iconColor', 'projectId', 'name', 'id']));
+      syncAppDetail(
+        _.pick(data, [
+          'iconColor',
+          'iconUrl',
+          'projectId',
+          'name',
+          'id',
+          'fixed',
+          'fixRemark',
+          'fixAccount',
+          'permissionType',
+        ]),
+      );
       this.setState({ data });
       window.appInfo = data;
       this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
-
       this.buildFavicon(data);
     });
   };
@@ -179,9 +195,9 @@ export default class AppInfo extends Component {
       return;
     }
     const { base, views } = sheet;
-    const { data } = sheetList;
+    const { data, isCharge } = sheetList;
     const { worksheetId, viewId, appId, groupId } = base;
-    const { workSheetId: firstSheetId } = _.head(data) || {};
+    const { workSheetId: firstSheetId } = _.head(isCharge ? data : data.filter(item => item.status === 1)) || {};
 
     if (worksheetId !== firstSheetId) {
       navigateTo(`/app/${appId}/${groupId}/${firstSheetId}`);
@@ -201,7 +217,7 @@ export default class AppInfo extends Component {
       if (type === 'del' || type === 'worksheetapi') {
         return (
           <React.Fragment>
-            <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }}></div>
+            <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
             {this.renderMenuHtml({ type, icon, text, action, ...rest })}
           </React.Fragment>
         );
@@ -224,6 +240,9 @@ export default class AppInfo extends Component {
             <div>{this.renderMenuHtml({ type, icon, text, action, ...rest })}</div>
           </Trigger>
         );
+      }
+      if (type === 'editAppFixStatus') {
+        return this.renderMenuHtml({ type, icon, text: rest.getText(data.fixed), action, ...rest });
       }
       return this.renderMenuHtml({ type, icon, text, action, ...rest });
     }
@@ -264,19 +283,7 @@ export default class AppInfo extends Component {
             return;
           }
           if (type === 'export') {
-            const { version = {}, licenseType } =
-              _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
-            const isUpgradeVersion = version.versionId === 1 || licenseType === 0;
-            const isFree = licenseType === 0;
-            if (isUpgradeVersion || isFree) {
-              upgradeVersionDialog({
-                explainText: _l('应用导入导出是高级功能，请升级至付费版解锁开启'),
-                projectId: projectId,
-                isFree,
-              });
-            } else {
-              this.handleAppConfigClick(action);
-            }
+            this.handleAppConfigClick(action);
             return;
           }
           this.handleAppConfigClick(action);
@@ -301,6 +308,7 @@ export default class AppInfo extends Component {
       indexSideVisible,
       appConfigVisible,
       editAppIntroVisible,
+      editAppFixStatusVisible,
       optionListVisible,
       exportAppVisible,
       isShowAppIntroFirst,
@@ -319,6 +327,7 @@ export default class AppInfo extends Component {
       permissionType,
       isLock,
       projectId,
+      fixed,
     } = data;
     const isNormalApp = _.includes([1, 5], appStatus);
     const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
@@ -328,6 +337,9 @@ export default class AppInfo extends Component {
       _.remove(list, o => o.type === 'copy');
     }
 
+    // 获取url参数
+    const { s, tb } = getAppFeaturesVisible();
+
     return (
       <div
         className="appPkgHeaderWrap"
@@ -336,7 +348,7 @@ export default class AppInfo extends Component {
         }}
       >
         <div className="appInfoWrap">
-          {window.isPublicApp ? (
+          {window.isPublicApp || !s ? (
             <div className="mLeft16" />
           ) : (
             <div
@@ -348,23 +360,26 @@ export default class AppInfo extends Component {
               <HomepageIcon />
             </div>
           )}
-          <div
-            className={cx('appDetailWrap pointer')}
-            onDoubleClick={e => {
-              e.stopPropagation();
-              if (isCanEdit(permissionType, isLock) && isNormalApp) {
-                this.setState({ modifyAppIconAndNameVisible: true });
-              }
-            }}
-          >
-            <div className="appIconAndName pointer" onClick={this.handleAppNameClick}>
-              <div className="appIconWrap">
-                <SvgIcon url={iconUrl} fill="#fff" />
+          {tb && (
+            <div
+              className={cx('appDetailWrap pointer')}
+              onDoubleClick={e => {
+                e.stopPropagation();
+                if (isCanEdit(permissionType, isLock) && isNormalApp) {
+                  this.setState({ modifyAppIconAndNameVisible: true });
+                }
+              }}
+            >
+              <div className="appIconAndName pointer" onClick={this.handleAppNameClick}>
+                <div className="appIconWrap">
+                  <SvgIcon url={iconUrl} fill="#fff" />
+                </div>
+                <span className="appName overflow_ellipsis">{name}</span>
               </div>
-              <span className="appName overflow_ellipsis">{name}</span>
             </div>
-          </div>
-          {isNormalApp && isCanEdit(permissionType, isLock) && (
+          )}
+          {fixed && <div className="appFixed">{_l('维护中')}</div>}
+          {isNormalApp && isCanEdit(permissionType, isLock) && tb && (
             <div
               className="appConfigIcon pointer"
               onClick={() => {
@@ -409,7 +424,9 @@ export default class AppInfo extends Component {
             />
           )}
         </div>
-        <AppGroup appStatus={appStatus} {...props} {..._.pick(data, ['permissionType', 'isLock'])} />
+        {!(fixed && !isAuthorityApp) && (
+          <AppGroup appStatus={appStatus} {...props} {..._.pick(data, ['permissionType', 'isLock'])} />
+        )}
 
         {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
         <RcDialog
@@ -480,6 +497,23 @@ export default class AppInfo extends Component {
         <CommonUserHandle type="appPkg" {...props} />
         {exportAppVisible && (
           <ExportApp appIds={[appId]} closeDialog={() => this.setState({ exportAppVisible: false })} />
+        )}
+        {editAppFixStatusVisible && (
+          <AppFixStatus
+            appId={appId}
+            projectId={projectId}
+            fixed={data.fixed}
+            fixRemark={data.fixRemark}
+            onChangeStatus={obj => {
+              this.setState({
+                data: {
+                  ...data,
+                  ...obj,
+                },
+              });
+            }}
+            onCancel={() => this.setState({ editAppFixStatusVisible: false })}
+          />
         )}
       </div>
     );

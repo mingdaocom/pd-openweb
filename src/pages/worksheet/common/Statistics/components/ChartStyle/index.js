@@ -12,24 +12,51 @@ import unitPanelGenerator from './components/Unit';
 import Color from './components/Color/index';
 import FontSize from './components/FontSize';
 import { reportTypes, LegendTypeData } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import { isTimeControl } from 'src/pages/worksheet/common/Statistics/common';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actions from 'worksheet/common/Statistics/redux/actions';
 import './index.less';
 
+@connect(
+  state => ({
+    ..._.pick(state.statistics, ['currentReport', 'reportData', 'worksheetInfo'])
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)
 export default class ChartStyle extends Component {
   constructor(props) {
     super(props);
   }
+  handleChangeDisplaySetup = (data, isRequest = false) => {
+    this.props.changeCurrentReport({
+      displaySetup: data
+    }, isRequest);
+  }
   handleChangeDisplayValue = (key, value, isRequest) => {
     const { displaySetup } = this.props.currentReport;
-    this.props.onUpdateDisplaySetup(
+    this.handleChangeDisplaySetup(
       {
         ...displaySetup,
         [key]: value,
       },
       isRequest,
     );
-  };
+  }
+  handleChangeStyle = (data, isRequest = false) => {
+    const { style } = this.props.currentReport;
+    this.props.changeCurrentReport(
+      {
+        style: {
+          ...style,
+          ...data
+        }
+      },
+      isRequest
+    );
+  }
   renderCount() {
-    const { reportType, displaySetup, summary, yaxisList, rightY, pivotTable } = this.props.currentReport;
+    const { reportType, displaySetup, summary, yaxisList, rightY, pivotTable = {} } = this.props.currentReport;
     const isPivotTable = reportType === reportTypes.PivotTable;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
@@ -52,7 +79,7 @@ export default class ChartStyle extends Component {
             }}
             onChange={checked => {
               if (isPivotTable) {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     pivotTable: {
                       ...pivotTable,
@@ -63,7 +90,7 @@ export default class ChartStyle extends Component {
                   true,
                 );
               } else if (isDualAxes) {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     displaySetup: {
                       ...displaySetup,
@@ -100,7 +127,7 @@ export default class ChartStyle extends Component {
                   className="mLeft0 mBottom15"
                   checked={pivotTable.showLineTotal}
                   onChange={() => {
-                    this.props.onChangeCurrentReport(
+                    this.props.changeCurrentReport(
                       {
                         pivotTable: {
                           ...pivotTable,
@@ -117,7 +144,7 @@ export default class ChartStyle extends Component {
               summary={pivotTable.lineSummary}
               yaxisList={yaxisList}
               onChangeSummary={(data, isRequest = true) => {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     pivotTable: {
                       ...pivotTable,
@@ -139,7 +166,7 @@ export default class ChartStyle extends Component {
                   className="mLeft0 mBottom15"
                   checked={pivotTable.showColumnTotal}
                   onChange={() => {
-                    this.props.onChangeCurrentReport(
+                    this.props.changeCurrentReport(
                       {
                         pivotTable: {
                           ...pivotTable,
@@ -156,7 +183,7 @@ export default class ChartStyle extends Component {
               summary={pivotTable.columnSummary}
               yaxisList={yaxisList}
               onChangeSummary={(data, isRequest = true) => {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     pivotTable: {
                       ...pivotTable,
@@ -180,7 +207,7 @@ export default class ChartStyle extends Component {
                     className="mLeft0 mBottom15"
                     checked={summary.showTotal}
                     onChange={() => {
-                      this.props.onChangeCurrentReport(
+                      this.props.changeCurrentReport(
                         {
                           displaySetup: {
                             ...displaySetup,
@@ -202,7 +229,7 @@ export default class ChartStyle extends Component {
               summary={summary || {}}
               yaxisList={yaxisList}
               onChangeSummary={(data, isRequest = true) => {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     summary: {
                       ...summary,
@@ -221,7 +248,7 @@ export default class ChartStyle extends Component {
                       className="mLeft0 mBottom15"
                       checked={rightY.summary.showTotal}
                       onChange={() => {
-                        this.props.onChangeCurrentReport(
+                        this.props.changeCurrentReport(
                           {
                             displaySetup: {
                               ...displaySetup,
@@ -246,7 +273,7 @@ export default class ChartStyle extends Component {
                 summary={rightY.summary || {}}
                 yaxisList={rightY.yaxisList}
                 onChangeSummary={(data, isRequest = true) => {
-                  this.props.onChangeCurrentReport(
+                  this.props.changeCurrentReport(
                     {
                       rightY: {
                         ...rightY,
@@ -263,6 +290,80 @@ export default class ChartStyle extends Component {
             )}
           </Fragment>
         )}
+      </Collapse.Panel>
+    );
+  }
+  renderLineHeight() {
+    const { currentReport } = this.props;
+    const style = currentReport.style || {};
+    const unilineShow = style.pivotTableUnilineShow;
+    return (
+      <Collapse.Panel
+        key="lienHeight"
+        header={_l('单行显示行高')}
+        className={cx('hideArrowIcon', { collapsible: !unilineShow })}
+        extra={
+          <Switch
+            size="small"
+            checked={unilineShow}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeStyle({ pivotTableUnilineShow: checked });
+            }}
+          />
+        }
+      >
+      </Collapse.Panel>
+    );
+  }
+  renderTableHeaderFreeze() {
+    const { style = {} } = this.props.currentReport;
+    const { pivotTableLineFreeze, pivotTableColumnFreeze } = style;
+    const freezeChecked = pivotTableLineFreeze || pivotTableColumnFreeze;
+    return (
+      <Collapse.Panel
+        key="headerFreeze"
+        header={_l('表头冻结')}
+        className={cx({ collapsible: !freezeChecked })}
+        extra={
+          <Switch
+            size="small"
+            checked={freezeChecked}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeStyle({
+                pivotTableLineFreeze: checked,
+                pivotTableColumnFreeze: checked,
+              });
+            }}
+          />
+        }
+      >
+        <div className="flexColumn">
+          <div className="Gray_75 mBottom15">{_l('表头冻结配置只对桌面端有效')}</div>
+          <Checkbox
+            className="mLeft0 mBottom15"
+            checked={pivotTableLineFreeze}
+            onChange={() => {
+              this.handleChangeStyle({ pivotTableLineFreeze: !pivotTableLineFreeze });
+            }}
+          >
+            {_l('冻结维度(行)')}
+          </Checkbox>
+          <Checkbox
+            className="mLeft0 mBottom15"
+            checked={pivotTableColumnFreeze}
+            onChange={() => {
+              this.handleChangeStyle({ pivotTableColumnFreeze: !pivotTableColumnFreeze });
+            }}
+          >
+            {_l('冻结维度(列)')}
+          </Checkbox>
+        </div>
       </Collapse.Panel>
     );
   }
@@ -304,7 +405,7 @@ export default class ChartStyle extends Component {
     );
   }
   renderLabel() {
-    const { currentReport, onUpdateDisplaySetup } = this.props;
+    const { currentReport } = this.props;
     const { showNumber, showPileTotal, hideOverlapText } = currentReport.displaySetup;
     const switchChecked = showNumber || showPileTotal || hideOverlapText;
     return (
@@ -320,7 +421,7 @@ export default class ChartStyle extends Component {
               event.stopPropagation();
             }}
             onChange={checked => {
-              onUpdateDisplaySetup({
+              this.handleChangeDisplaySetup({
                 ...currentReport.displaySetup,
                 showNumber: checked,
                 showDimension: checked,
@@ -335,13 +436,13 @@ export default class ChartStyle extends Component {
         <Label
           currentReport={currentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}
-          onUpdateDisplaySetup={onUpdateDisplaySetup}
+          onUpdateDisplaySetup={this.handleChangeDisplaySetup}
         />
       </Collapse.Panel>
     );
   }
   renderXAxis() {
-    const { currentReport, onUpdateDisplaySetup } = this.props;
+    const { currentReport } = this.props;
     const { xdisplay, fontStyle, showChartType } = currentReport.displaySetup;
     const switchChecked = !!fontStyle || xdisplay.showDial || xdisplay.showTitle;
     const isBarChart = currentReport.reportType === reportTypes.BarChart;
@@ -359,7 +460,7 @@ export default class ChartStyle extends Component {
               event.stopPropagation();
             }}
             onChange={checked => {
-              onUpdateDisplaySetup({
+              this.handleChangeDisplaySetup({
                 ...currentReport.displaySetup,
                 fontStyle: checked ? 1 : 0,
                 xdisplay: {
@@ -379,15 +480,15 @@ export default class ChartStyle extends Component {
   renderYAxis() {
     return yAxisPanelGenerator(this.props);
   }
-  renderDataContrast() {
-    const { xAxisisTime, currentReport, reportData, onUpdateDisplaySetup } = this.props;
+  renderDataContrast(xAxisisTime) {
+    const { currentReport, reportData } = this.props;
     return (
       <Collapse.Panel header={_l('数据对比')} key="dataContrast">
         <DataContrast
           xAxisisTime={xAxisisTime}
           currentReport={currentReport}
           mapKeys={Object.keys(reportData.map || [])}
-          onUpdateDisplaySetup={onUpdateDisplaySetup}
+          onUpdateDisplaySetup={this.handleChangeDisplaySetup}
         />
       </Collapse.Panel>
     );
@@ -402,10 +503,10 @@ export default class ChartStyle extends Component {
             <DataFilter
               className="mBottom10"
               name={_l('行数据')}
-              showXAxisCount={currentReport.showLineCount}
+              showXAxisCount={pivotTable.showLineCount}
               reportType={reportType}
               onChange={count => {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     pivotTable: {
                       ...pivotTable,
@@ -418,10 +519,10 @@ export default class ChartStyle extends Component {
             />
             <DataFilter
               name={_l('列数据')}
-              showXAxisCount={currentReport.showColumnCount}
+              showXAxisCount={pivotTable.showColumnCount}
               reportType={reportType}
               onChange={count => {
-                this.props.onChangeCurrentReport(
+                this.props.changeCurrentReport(
                   {
                     pivotTable: {
                       ...pivotTable,
@@ -449,24 +550,24 @@ export default class ChartStyle extends Component {
     return unitPanelGenerator(this.props);
   }
   renderColor() {
-    const { currentReport, onChangeCurrentReport, worksheetInfo } = this.props;
+    const { currentReport, changeCurrentReport, worksheetInfo } = this.props;
     return (
       <Collapse.Panel header={_l('图形颜色')} key="color">
         <Color
           columns={worksheetInfo.columns}
           currentReport={currentReport}
-          onChangeCurrentReport={onChangeCurrentReport}
+          onChangeCurrentReport={changeCurrentReport}
         />
       </Collapse.Panel>
     );
   }
   renderFontSize() {
-    const { currentReport, onChangeCurrentReport } = this.props;
+    const { currentReport, changeCurrentReport } = this.props;
     return (
       <Collapse.Panel header={_l('字体大小')} key="fontSize">
         <FontSize
           currentReport={currentReport}
-          onChangeCurrentReport={onChangeCurrentReport}
+          onChangeCurrentReport={changeCurrentReport}
         />
       </Collapse.Panel>
     )
@@ -480,12 +581,15 @@ export default class ChartStyle extends Component {
     );
   }
   render() {
-    const { xAxisisTime, currentReport } = this.props;
-    const { reportType } = currentReport;
+    const { currentReport } = this.props;
+    const { reportType, xaxes } = currentReport;
+    const xAxisisTime = isTimeControl(xaxes.controlType);
     return (
       <div className="chartStyle">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
           {reportTypes.NumberChart !== reportType && this.renderCount()}
+          {[reportTypes.PivotTable].includes(reportType) && this.renderLineHeight()}
+          {[reportTypes.PivotTable].includes(reportType) && this.renderTableHeaderFreeze()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
             this.renderLegend()}
           {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) &&
@@ -496,7 +600,7 @@ export default class ChartStyle extends Component {
             this.renderLabel()}
           {((reportType === reportTypes.LineChart && xAxisisTime) ||
             [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType)) &&
-            this.renderDataContrast()}
+            this.renderDataContrast(xAxisisTime)}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes].includes(reportType) &&
             this.renderDataFilter()}
           {this.renderUnit()}

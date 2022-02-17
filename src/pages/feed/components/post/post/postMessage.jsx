@@ -2,7 +2,7 @@
 import ReactDom from 'react-dom';
 import mdFunction from 'src/components/common/function';
 import PropTypes from 'prop-types';
-import qs from 'querystring';
+import qs from 'query-string';
 
 /**
  * 动态内容
@@ -46,7 +46,7 @@ class PostMessage extends React.Component {
         })
         .end()
         .find('[data-action=createGroup]')
-        .on('click', (evt) => {
+        .on('click', evt => {
           evt.preventDefault();
           CreatGroup.createInit({
             callback(group) {
@@ -85,7 +85,7 @@ class PostMessage extends React.Component {
             .filter(s => s)
             .join('|') +
           ')',
-        'gi'
+        'gi',
       );
       const parent = document.createElement('div');
       parent.innerHTML = message;

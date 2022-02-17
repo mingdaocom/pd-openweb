@@ -35,7 +35,7 @@ export default class GalleryItem extends React.Component {
     return { top, left, width };
   };
   render() {
-    const { sheetSwitchPermit, data, worksheetInfo, base, views } = this.props;
+    const { sheetSwitchPermit, data, worksheetInfo, base, views, sheetButtons = [] } = this.props;
     const { viewId, appId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const { isEditTitle } = this.state;
@@ -45,7 +45,12 @@ export default class GalleryItem extends React.Component {
         <EditableCard
           ref={this.$ref}
           data={data}
-          currentView={{ ...view, projectId: projectId, appId }}
+          currentView={{
+            ...view,
+            projectId: projectId,
+            appId,
+            customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
+          }}
           allowCopy={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
           editTitle={() => this.setState({ isEditTitle: true })}

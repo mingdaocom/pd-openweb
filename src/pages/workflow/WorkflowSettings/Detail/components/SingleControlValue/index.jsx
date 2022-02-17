@@ -117,6 +117,9 @@ export default class SingleControlValue extends Component {
         selectNodeId={this.props.selectNodeId}
         sourceAppId={this.props.sourceAppId}
         sourceNodeId={this.props.sourceNodeId}
+        dataSource={
+          item.type === 29 ? (_.find(this.props.controls, obj => obj.controlId === item.fieldId) || {}).dataSource : ''
+        }
         handleFieldClick={obj => (customCallback ? customCallback(obj) : this.updateSingleControlValue(obj, i))}
         openLayer={() => this.setState({ moreFieldsIndex: i })}
         closeLayer={() => this.setState({ moreFieldsIndex: '' })}
@@ -275,7 +278,7 @@ export default class SingleControlValue extends Component {
       return <div className="mTop8 actionControlBox actionDisabled" />;
     }
 
-    if (item.isClear && item.type !== 29) {
+    if (item.isClear) {
       return (
         <div className="mTop8 flexRow relative">
           {this.renderClear(item, i)}
@@ -432,7 +435,7 @@ export default class SingleControlValue extends Component {
 
     // 单选项 || 下拉框 || 检查框
     if (item.type === 9 || item.type === 11 || item.type === 36) {
-      list = _.find(controls, obj => obj.controlId === item.fieldId).options.map(o => {
+      list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
         return {
           text: o.value,
           value: o.key,
@@ -475,7 +478,7 @@ export default class SingleControlValue extends Component {
     if (item.type === 10) {
       const label = [];
 
-      list = _.find(controls, obj => obj.controlId === item.fieldId).options.map(o => {
+      list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
         if (_.includes(item.fieldValue.split(','), o.key)) {
           label.push(o.value);
         }
@@ -651,7 +654,9 @@ export default class SingleControlValue extends Component {
                 {JSON.parse(item.fieldValue || '[]').map((list, index) => {
                   return (
                     <li key={index} className="tagItem flexRow">
-                      <span className="tag bold" title={list.fullName || list.departmentName}>{list.fullName || list.departmentName}</span>
+                      <span className="tag bold" title={list.fullName || list.departmentName}>
+                        {list.fullName || list.departmentName}
+                      </span>
                       <span
                         className="delTag"
                         onClick={e => {
@@ -727,49 +732,23 @@ export default class SingleControlValue extends Component {
         });
       }
 
-      relationControlsList.push([
-        {
-          text: (
-            <span>
-              <span className="icon-workflow_empty Font16 Gray_9e mRight5" />
-              {_l('清空')}
-            </span>
-          ),
-          value: 'isClear',
-        },
-      ]);
-
       return (
         <div className="mTop8 flexRow relative">
-          <Dropdown
-            className="flowDropdown flex"
-            data={relationControlsList}
-            value={item.nodeId || item.isClear || undefined}
-            border
-            isAppendToBody
-            placeholder={_l('选择流程中对应此工作表的节点对象')}
-            renderTitle={() =>
-              item.isClear ? (
-                <div className="flowDetailTagBox">
-                  <div
-                    className="flowDetailMemberNodeName ellipsis"
-                    style={{ paddingRight: 10, borderRadius: 26, borderRightWidth: 1 }}
-                  >
-                    <i className="Font14 mRight5 icon-workflow_empty Gray_9e" />
-                    {_l('清空')}
-                  </div>
-                </div>
-              ) : (
-                this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId))
-              )
-            }
-            onChange={nodeId =>
-              this.updateSingleControlValue(
-                nodeId === 'isClear' ? { nodeId: '', isClear: true } : { nodeId, isClear: false },
-                i,
-              )
-            }
-          />
+          {item.fieldValueId ? (
+            this.renderSelectFieldsValue(item, i)
+          ) : (
+            <Dropdown
+              className="flowDropdown flex clearBorderRadius"
+              data={relationControlsList}
+              value={item.nodeId || undefined}
+              border
+              isAppendToBody
+              placeholder={_l('选择流程中对应此工作表的节点对象')}
+              renderTitle={() => this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId))}
+              onChange={nodeId => this.updateSingleControlValue({ nodeId }, i)}
+            />
+          )}
+          {this.renderOtherFields(item, i)}
         </div>
       );
     }

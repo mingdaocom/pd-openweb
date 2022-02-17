@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Pie } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
-import { formatSummaryName, getIsAlienationColor } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, getIsAlienationColor, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { Dropdown, Menu } from 'antd';
 import { browserIsMobile } from 'src/util';
 
 const formatChartData = data => {
@@ -9,7 +10,7 @@ const formatChartData = data => {
     .map(item => {
       return {
         name: item.x,
-        originalName: item.originalX,
+        originalId: item.originalX,
         value: Math.abs(item.v),
         originalValue: item.v,
       };
@@ -24,11 +25,19 @@ export default class extends Component {
     this.state = {
       originalCount: 0,
       count: 0,
-    }
+      dropdownVisible: false,
+      offset: {},
+      match: null,
+    };
     this.PieChart = null;
   }
   componentDidMount() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
     this.PieChart = new Pie(this.chartEl, this.getPieConfig(this.props));
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.PieChart.on('element:click', this.handleClick);
+    }
     this.PieChart.render();
   }
   componentWillUnmount() {
@@ -55,6 +64,37 @@ export default class extends Component {
       this.PieChart.render();
     }
   }
+  handleClick = data => {
+    const { xaxes } = this.props.reportData;
+    const event = data.gEvent;
+    const currentData = data.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: event.x + 20,
+        y: event.y,
+      },
+      match: param,
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    const data = {
+      isPersonal: false,
+      match,
+    };
+    this.setState({ dropdownVisible: false });
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
+    }
+  }
   interactions(isAnnular) {
     if (browserIsMobile()) {
       return [
@@ -62,15 +102,19 @@ export default class extends Component {
         {
           type: 'pie-statistic-active',
           cfg: {
-            start: [{ trigger: 'element:click', action: 'pie-statistic:change' }, ],
-            end: [{
-              trigger: 'element:click', isEnable: (context) => {
-                const element = context.event.gEvent.target.get('element');
-                return !element || !element.getStates().includes('selected');
-              }, action: 'pie-statistic:reset'
-            }],
-          }
-        }
+            start: [{ trigger: 'element:click', action: 'pie-statistic:change' }],
+            end: [
+              {
+                trigger: 'element:click',
+                isEnable: context => {
+                  const element = context.event.gEvent.target.get('element');
+                  return !element || !element.getStates().includes('selected');
+                },
+                action: 'pie-statistic:reset',
+              },
+            ],
+          },
+        },
       ];
     } else {
       return [{ type: isAnnular ? 'pie-statistic-active' : 'element-active' }];
@@ -86,14 +130,14 @@ export default class extends Component {
     const colors = getChartColors(style);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
-    const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
+    const isOptionsColor = isNewChart ? isAlienationColor : style ? style.colorType === 0 && isAlienationColor : false;
 
     this.setCount(newYaxisList);
 
-    const findName = (value) => {
-      const item = _.find(data, { originalName: value });
+    const findName = value => {
+      const item = _.find(data, { originalId: value });
       return item ? item.name || _l('空') : value;
-    }
+    };
 
     const baseConfig = {
       data,
@@ -101,11 +145,11 @@ export default class extends Component {
       radius: 0.7,
       innerRadius: isAnnular ? 0.6 : 0,
       angleField: 'value',
-      colorField: 'originalName',
+      colorField: 'originalId',
       meta: {
-        originalName: {
+        originalId: {
           type: 'cat',
-          formatter: findName
+          formatter: findName,
         },
       },
       color: isOptionsColor ? getAlienationColor.bind(this, xaxes) : colors,
@@ -113,9 +157,24 @@ export default class extends Component {
         ? {
             position,
             flipPage: true,
-            itemHeight: 20
+            itemHeight: 20,
           }
         : false,
+      tooltip: isAnnular
+        ? null
+        : {
+            shared: true,
+            showCrosshairs: false,
+            showMarkers: true,
+            formatter: ({ value, originalName }) => {
+              const name = findName(originalName);
+              const { dot } = yaxisList[0] || {};
+              return {
+                name,
+                value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+              };
+            },
+          },
       statistic: displaySetup.showTotal
         ? {
             title: {
@@ -124,7 +183,7 @@ export default class extends Component {
                 fontSize: 14,
                 fontWeight: 300,
               },
-              formatter: datum => (datum ? (datum.name || datum.originalName) : formatSummaryName(summary)),
+              formatter: datum => (datum ? datum.name || datum.originalId : formatSummaryName(summary)),
             },
             content: {
               style: {
@@ -142,7 +201,7 @@ export default class extends Component {
         ? {
             type: 'outer',
             formatter: item => {
-              const dimensionText = displaySetup.showDimension ? `${findName(item.originalName)}` : '';
+              const dimensionText = displaySetup.showDimension ? `${findName(item.originalId)}` : '';
               const numberText = displaySetup.showNumber
                 ? `${displaySetup.showDimension ? ` ` : ''}${formatrChartValue(
                     item.originalValue,
@@ -179,23 +238,47 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleRequestOriginalData}>
+          <div className="flexRow valignWrapper">
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { count, originalCount } = this.state;
+    const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup } = this.props.reportData;
     const showTotal = displaySetup ? displaySetup.showTotal : false;
     const showChartType = displaySetup ? displaySetup.showChartType : 0;
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={dropdownVisible => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {showTotal && showChartType === 2 ? (
           <div className="pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
-        <div className={showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

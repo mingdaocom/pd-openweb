@@ -32,7 +32,7 @@ const updateSingleEntity = (user, action) => {
       return {
         ...user,
         isLoading: false,
-        subordinates: _.uniq((user.subordinates || []).concat(result)),
+        subordinates: _.uniqBy((user.subordinates || []).concat(result)),
       };
       break;
     case ACTIONS.OPEN_COLLAPSE:

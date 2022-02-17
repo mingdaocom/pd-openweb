@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, Checkbox, Dialog, Input } from 'ming-ui';
+import { Icon, Checkbox, Dialog, Input, Radio } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import DeclareDialog from './DeclareDialog';
 import privateSysSetting from 'src/api/privateSysSetting';
@@ -16,6 +16,7 @@ export default class CustomConfig extends Component {
       passwordDialogVisible: false,
       firstLoginResetPasswordDialogVisible: false,
       enableDeclareDialogVisible: false,
+      twoFactorAuthenticationPriorityTypeDialogVisible: false,
       declareData: {},
       downloadAppRedirectUrl: SysSettings.downloadAppRedirectUrl,
       hideDownloadApp: SysSettings.hideDownloadApp,
@@ -32,6 +33,7 @@ export default class CustomConfig extends Component {
       passwordOverdueDays: SysSettings.passwordOverdueDays,
       passwordOverdueDaysVisible: !!SysSettings.passwordOverdueDays,
       enableDeclareConfirm: SysSettings.enableDeclareConfirm,
+      twoFactorAuthenticationPriorityType: SysSettings.twoFactorAuthenticationPriorityType
     };
   }
 
@@ -60,7 +62,8 @@ export default class CustomConfig extends Component {
       passwordRegexTip,
       firstLoginResetPassword,
       passwordOverdueDays,
-      enableDeclareConfirm
+      enableDeclareConfirm,
+      twoFactorAuthenticationPriorityType
     } = this.state;
     privateSysSetting.editSysSettings({
       settings: {
@@ -77,7 +80,8 @@ export default class CustomConfig extends Component {
         passwordRegexTip,
         firstLoginResetPassword,
         passwordOverdueDays,
-        enableDeclareConfirm
+        enableDeclareConfirm,
+        twoFactorAuthenticationPriorityType
       }
     }).then(result => {
       if (result) {
@@ -96,12 +100,13 @@ export default class CustomConfig extends Component {
         md.global.SysSettings.firstLoginResetPassword = firstLoginResetPassword;
         md.global.SysSettings.passwordOverdueDays = passwordOverdueDays;
         md.global.SysSettings.enableDeclareConfirm = enableDeclareConfirm;
+        md.global.SysSettings.twoFactorAuthenticationPriorityType = twoFactorAuthenticationPriorityType;
       }
     });
   }
 
   handleChangeEnableTwoFactorAuthentication = () => {
-    const { enableTwoFactorAuthentication } = this.state;
+    const { enableTwoFactorAuthentication, twoFactorAuthenticationPriorityType } = this.state;
     if (!enableTwoFactorAuthentication) {
       Dialog.confirm({
         buttonType: 'danger',
@@ -115,7 +120,10 @@ export default class CustomConfig extends Component {
           </div>
         ),
         onOk: () => {
-          this.setState({ enableTwoFactorAuthentication: !enableTwoFactorAuthentication }, this.handleChangeCheckboxValue);
+          this.setState({
+            enableTwoFactorAuthentication: !enableTwoFactorAuthentication,
+            twoFactorAuthenticationPriorityType: twoFactorAuthenticationPriorityType || 1
+          }, this.handleChangeCheckboxValue);
         },
       });
     } else {
@@ -135,7 +143,8 @@ export default class CustomConfig extends Component {
     this.setState({
       appDialogVisible: false,
       passwordDialogVisible: false,
-      firstLoginResetPasswordDialogVisible: false
+      firstLoginResetPasswordDialogVisible: false,
+      twoFactorAuthenticationPriorityTypeDialogVisible: false
     });
     this.handleChangeCheckboxValue();
   }
@@ -153,7 +162,9 @@ export default class CustomConfig extends Component {
       passwordOverdueDaysVisible,
       enableDeclareDialogVisible,
       enableDeclareEdit,
-      declareData
+      declareData,
+      twoFactorAuthenticationPriorityTypeDialogVisible,
+      twoFactorAuthenticationPriorityType
     } = this.state;
     return (
       <Fragment>
@@ -190,6 +201,31 @@ export default class CustomConfig extends Component {
           <div>
             <div className="mBottom5">{_l('提示说明')}</div>
             <Input className="w100" value={passwordRegexTip} onChange={value => { this.setState({ passwordRegexTip: value }) }} placeholder={_l('请输入密码正则表达式说明文字')}/>
+          </div>
+        </Dialog>
+        <Dialog
+          visible={twoFactorAuthenticationPriorityTypeDialogVisible}
+          title={_l('设置验证优先级')}
+          okText={_l('保存')}
+          onOk={this.handleSave}
+          onCancel={() => this.setState({ twoFactorAuthenticationPriorityTypeDialogVisible: false })}
+        >
+          <div className="Gray_75">{_l('登录时会优先采用设置的方式进行验证')}</div>
+          <div className="valignWrapper mTop20">
+            <Radio
+              text={_l('手机号')}
+              checked={twoFactorAuthenticationPriorityType === 1}
+              onClick={() => {
+                this.setState({ twoFactorAuthenticationPriorityType: 1 });
+              }}
+            />
+            <Radio
+              text={_l('邮箱')}
+              checked={twoFactorAuthenticationPriorityType === 2}
+              onClick={() => {
+                this.setState({ twoFactorAuthenticationPriorityType: 2 });
+              }}
+            />
           </div>
         </Dialog>
         <Dialog
@@ -282,6 +318,7 @@ export default class CustomConfig extends Component {
       enableTwoFactorAuthentication,
       firstLoginResetPassword,
       enableDeclareConfirm,
+      twoFactorAuthenticationPriorityType
     } = this.state;
 
     return (
@@ -324,11 +361,21 @@ export default class CustomConfig extends Component {
           <div className="name Gray_75 Font13">{_l('安全')}</div>
           <div className="flex flexRow">
             <Checkbox
-              className="mRight60 Gray Font13"
+              className="mRight5 Gray Font13"
               checked={enableTwoFactorAuthentication}
               onClick={this.handleChangeEnableTwoFactorAuthentication}>
                 {_l('两步验证')}
             </Checkbox>
+            {twoFactorAuthenticationPriorityType && (
+              <div
+                className="pointer mRight40"
+                style={{ color: '#2196F3' }}
+                onClick={() => {
+                  this.setState({ twoFactorAuthenticationPriorityTypeDialogVisible: true });
+                }}>
+                  {_l('设置验证优先级')}
+              </div>
+            )}
             <div
               className="pointer mRight40"
               style={{ color: '#2196F3' }}

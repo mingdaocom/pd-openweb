@@ -361,7 +361,7 @@ class DepartmentTree extends React.Component {
             }
             icon={
               <React.Fragment>
-                <Icon icon="custom_folder_2" className="Font16 Gray_9e listName" />
+                <Icon icon="folder" className="Font16 Gray_9e listName" />
               </React.Fragment>
             }
             dataRef={item}

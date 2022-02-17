@@ -53,6 +53,18 @@ function generate() {
         releaseDate: moment().format('YYYY/MM/DD HH:mm:SS'),
         publicPath,
       });
+      html = html.replace(
+        '</head>',
+        `<script>
+          if (
+            navigator.userAgent.toLowerCase().match(/(msie\\s|trident.*rv:)([\\w.]+)/) ||
+            (navigator.userAgent.toLowerCase().match(/(chrome)\\/([\\w.]+)/) && parseInt(navigator.userAgent.toLowerCase().match(/(chrome)\\/([\\w.]+)/)[2]) < 50)
+          ) {
+            location.href = '/browserupgrade';
+          }
+        </script>
+        </head>`,
+      );
       const $ = cheerio.load(html);
       const $entryScript = $('script')
         .filter((i, node) => $(node).attr('src') === entry.origin)

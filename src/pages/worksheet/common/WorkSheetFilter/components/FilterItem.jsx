@@ -82,7 +82,7 @@ export default class FilterItem extends Component {
   }
   @autobind
   renderConditions() {
-    const { columns, filter, updateCondition, deleteCondition, updateFilter, projectId } = this.props;
+    const { columns, filter, updateCondition, deleteCondition, updateFilter, projectId, appId } = this.props;
     const { relationType, conditions } = filter;
     const canEdit = this.checkFilterEditable();
     return conditions
@@ -95,6 +95,7 @@ export default class FilterItem extends Component {
           <Condition
             canEdit={filter.type === FILTER_TYPE.TEMP ? true : canEdit}
             projectId={projectId}
+            appId={appId}
             key={condition.keyStr}
             index={index}
             condition={condition}

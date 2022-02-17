@@ -140,10 +140,11 @@ export default class Sort extends Component {
   handleChangeSorts = sorts => {
     const { reportType, currentReport } = this.props;
     const isPivotTable = reportType === reportTypes.PivotTable;
-    const { xaxes, yaxisList, rightY, pivotTable, split } = currentReport;
+    const { xaxes, yaxisList, rightY, split = {} } = currentReport;
 
     const yList = yaxisList.map(item => item.controlId);
     if (isPivotTable) {
+      const { pivotTable = { lines: [], columns: [] } } = currentReport;
       const lines = pivotTable.lines.map(item => isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId);
       const columns = pivotTable.columns.map(item => isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId);
       sorts = formatSorts(sorts, [...lines, ...columns, ...yList]);
@@ -165,7 +166,7 @@ export default class Sort extends Component {
   };
   handleSaveSortList = () => {
     const { reportType, currentReport } = this.props;
-    const { xaxes, split, sorts, yaxisList, rightY } = currentReport;
+    const { xaxes, split = {}, sorts, yaxisList, rightY } = currentReport;
     const { currentCustomSort, sortList, customSortValue } = this.state;
     const sortListKey = _.isNumber(customSortValue) ? customSortValue : sortList.map(item => item.originalName);
     const isPivotTable = reportType === reportTypes.PivotTable;
@@ -244,7 +245,7 @@ export default class Sort extends Component {
   };
   handleChangeXSort = (value, { controlId }) => {
     const { reportType, currentReport } = this.props;
-    const { xaxes, yaxisList, split, sorts, displaySetup } = currentReport;
+    const { xaxes, yaxisList, split = {}, sorts, displaySetup } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const isExclusion = _.isEmpty(split.controlId) || isDualAxes;
 
@@ -377,16 +378,17 @@ export default class Sort extends Component {
     this.setState({ sortList: newSortList, customSortValue: null });
   };
   renderItem(item, fn) {
-    const { controls, currentReport } = this.props;
+    const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || {};
-    const sortData = isCustomSort(control) ? [...getSortData(control), customSort] : getSortData(control);
+    const sortData = isCustomSort(item.controlType) ? [...getSortData(item.controlType), customSort] : getSortData(item.controlType);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (
       !_.isEmpty(sortData) && (
         <div className="sortItem" key={item.controlId}>
-          <div className="Gray Font14 ellipsis">{item.particleSizeType ? `${control.controlName}(${ _.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text })` : control.controlName}</div>
+          <div className="Gray Font14 ellipsis">
+            {item.particleSizeType ? `${item.controlName}(${ _.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text })` : item.controlName}
+          </div>
           <div className="sortSelect flexRow">
             {[defaultSort, ...sortData].map(data => (
               <div
@@ -433,16 +435,14 @@ export default class Sort extends Component {
   }
   renderContent() {
     const { rightYaxisList } = this.state;
-    const { reportType, currentReport, controls } = this.props;
+    const { reportType, currentReport } = this.props;
     const { xaxes, yaxisList, split, rightY, pivotTable } = currentReport;
-    const xItem = _.find(controls, { controlId: xaxes.controlId });
     return (
       <SortContent className="displaySetupPanel">
-        {xItem && reportType !== reportTypes.PivotTable && this.renderItem({
-          ...xItem,
-          originalControlId: xItem.controlId,
-          controlId: xaxes.particleSizeType ? `${xItem.controlId}-${xaxes.particleSizeType}` : xItem.controlId,
-          particleSizeType: xaxes.particleSizeType
+        {xaxes.controlId && reportType !== reportTypes.PivotTable && this.renderItem({
+          ...xaxes,
+          originalControlId: xaxes.controlId,
+          controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
         }, this.handleChangeXSort)}
         {reportType == reportTypes.PivotTable && pivotTable && (
           <Fragment>
@@ -496,11 +496,7 @@ export default class Sort extends Component {
             placement="bottomRight"
           >
             <Tooltip title={_l('排序')} placement="bottom">
-              <div className="displaySetup flexRow valignWrapper">
-                <div className="item h100 pAll5">
-                  <Icon icon="swap_vert" className="Font20" />
-                </div>
-              </div>
+              <Icon icon="swap_vert" className="Font20 pointer Gray_9e Bold mLeft16 hoverHighlight" />
             </Tooltip>
           </Dropdown>
         )}

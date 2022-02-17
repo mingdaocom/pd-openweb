@@ -1,24 +1,28 @@
 import React, { Component, Fragment } from 'react';
 import { func } from 'prop-types';
-import Icon from 'ming-ui/components/Icon';
+import { Icon } from 'ming-ui';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import Dropdown from '../../components/Dropdown';
 import Search from '../../components/Search';
 import { FLOW_STATUS } from './config';
 import moment from 'moment';
+import cx from 'classnames';
 
 export default class HistoryHeader extends Component {
   static propTypes = {
     onFilter: func,
+    onRefresh: func,
   };
   static defaultProps = {
     onFilter: () => {},
+    onRefresh: () => {},
   };
 
   state = {
     status: 'all',
     time: ['', ''],
     searchVal: '',
+    isRefresh: false,
   };
 
   formatData = data => {
@@ -58,7 +62,8 @@ export default class HistoryHeader extends Component {
   };
 
   render() {
-    const { status, time } = this.state;
+    const { onRefresh } = this.props;
+    const { status, time, isRefresh } = this.state;
     const data = this.formatData(FLOW_STATUS);
     data.unshift({ value: 'all', text: _l('所有状态') });
 
@@ -78,6 +83,9 @@ export default class HistoryHeader extends Component {
 
     return (
       <div className="historyHeader">
+        <div className="filterName">
+          <Search handleChange={searchVal => this.handleFilter({ searchVal })} />
+        </div>
         <div className="statusDropdown">
           <Dropdown
             className="historyHeaderStatusDropdown"
@@ -108,9 +116,26 @@ export default class HistoryHeader extends Component {
           </div>
         )}
         <div className="flex" />
-        <div className="filterName">
-          <Search handleChange={searchVal => this.handleFilter({ searchVal })} />
-        </div>
+        <span
+          data-tip={isRefresh ? _l('刷新中...') : _l('刷新')}
+          id="historyRefresh"
+          onClick={() => {
+            if (isRefresh) return;
+
+            this.setState({ isRefresh: true });
+            onRefresh(() => {
+              this.setState({ isRefresh: false });
+            });
+          }}
+        >
+          <Icon
+            className={cx(
+              'Font18 pointer ThemeHoverColor3 Block',
+              isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_9e',
+            )}
+            icon="refresh1"
+          />
+        </span>
       </div>
     );
   }

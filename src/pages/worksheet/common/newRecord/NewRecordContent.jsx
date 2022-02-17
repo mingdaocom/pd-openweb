@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ScrollView, EditingBar } from 'ming-ui';
+import { getWorksheetInfo } from 'src/api/worksheet';
+import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import {
   getSubListError,
   formatRecordToRelateRecord,
@@ -12,9 +14,7 @@ import {
   removeFromLocal,
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import ShareNewRecord from './ShareNewRecord';
-import { getControlsForNewRecord, addRecord } from './dal';
 import './NewRecord.less';
 
 const Con = styled.div`
@@ -69,27 +69,43 @@ function NewReccordForm(props) {
   const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
+  const [loading, setLoading] = useState(true);
   const [restoreVisible, setRestoreVisible] = useState(!!tempNewRecord);
-  const [formdata, setFormdata] = useState([]);
   const [relateRecordData, setRelateRecordData] = useState({});
-  const [worksheetInfo, setWorksheetInfo] = useState({});
+  const [worksheetInfo, setWorksheetInfo] = useState(_.cloneDeep(props.worksheetInfo || {}));
+  const [originFormdata, setOriginFormdata] = useState([]);
+  const [formdata, setFormdata] = useState([]);
   const { projectId, publicShareUrl, visibleType } = worksheetInfo;
   const [shareVisible, setShareVisible] = useState();
-  const [loading, setLoading] = useState(true);
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
   useEffect(() => {
-    getControlsForNewRecord(worksheetId, defaultRelatedSheet, defaultFormData, defaultFormDataEditable).then(res => {
-      if (!res.worksheetInfo || res.worksheetInfo.resultCode !== 1 || res.controls.length === 0) {
-        onError();
-        return;
+    async function load() {
+      let newWorksheetInfo = worksheetInfo;
+      if (_.isEmpty(worksheetInfo) || worksheetInfo.worksheetId !== worksheetId) {
+        newWorksheetInfo = await getWorksheetInfo({
+          handleDefault: true,
+          getTemplate: true,
+          getRules: true,
+          worksheetId,
+        });
       }
-      setWorksheetInfo({ ...res.worksheetInfo, controls: res.controls });
-      setFormdata(res.controls);
-      setLoading(false);
+      if (_.isEmpty(formdata)) {
+        const newFormdata = await getFormDataForNewRecord({
+          worksheetInfo: newWorksheetInfo,
+          defaultRelatedSheet,
+          defaultFormData,
+          defaultFormDataEditable,
+        });
+        setWorksheetInfo(newWorksheetInfo);
+        setFormdata(newFormdata);
+        setOriginFormdata(newFormdata);
+        setLoading(false);
+      }
       setTimeout(() => foucsInput(formcon.current), 300);
-    });
+    }
+    load();
   }, []);
   function newRecord(options = {}) {
     if (!customwidget.current) return;
@@ -162,7 +178,7 @@ function NewReccordForm(props) {
       }
       setRequesting(true);
       const { autoFill, continueAdd } = options;
-      addRecord({
+      submitNewRecord({
         appId,
         projectId,
         viewId,
@@ -185,7 +201,7 @@ function NewReccordForm(props) {
         resetForm: ({ newControls } = {}) => {
           isSubmitting.current = false;
           if (!autoFill) {
-            setFormdata(worksheetInfo.controls);
+            setFormdata(originFormdata);
             setRelateRecordData({});
           }
           if (newControls) {
@@ -281,7 +297,6 @@ function NewReccordForm(props) {
             registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
             mountRef={ref => (customwidget.current = ref.current)}
             formFlag={random}
-            // abnormal={abnormal}
             recordinfo={worksheetInfo}
             formdata={formdata}
             relateRecordData={relateRecordData}
@@ -331,6 +346,7 @@ NewReccordForm.propTypes = {
   appId: PropTypes.string,
   viewId: PropTypes.string,
   worksheetId: PropTypes.string,
+  worksheetInfo: PropTypes.shape({}),
   title: PropTypes.string,
   entityName: PropTypes.string,
   showTitle: PropTypes.bool,

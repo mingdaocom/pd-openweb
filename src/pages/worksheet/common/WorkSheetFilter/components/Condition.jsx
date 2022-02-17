@@ -16,6 +16,8 @@ const listType = [
   FILTER_CONDITION_TYPE.HASVALUE,
   FILTER_CONDITION_TYPE.BETWEEN,
   FILTER_CONDITION_TYPE.NBETWEEN,
+  FILTER_CONDITION_TYPE.NORMALUSER,
+  FILTER_CONDITION_TYPE.PORTALUSER,
   FILTER_CONDITION_TYPE.DATE_BETWEEN,
   FILTER_CONDITION_TYPE.DATE_NBETWEEN,
 ];
@@ -26,6 +28,7 @@ const listControlType = [
   API_ENUM_TO_TYPE.AREA_INPUT_24,
   API_ENUM_TO_TYPE.AREA_INPUT_19,
   API_ENUM_TO_TYPE.AREA_INPUT_23,
+  API_ENUM_TO_TYPE.LOCATION,
 ];
 export default class Condition extends Component {
   static propTypes = {
@@ -137,6 +140,7 @@ export default class Condition extends Component {
     const {
       isRules,
       projectId,
+      appId,
       canEdit,
       index,
       control,
@@ -211,7 +215,7 @@ export default class Condition extends Component {
                     disabled={!canEdit}
                     data={conditionFilterTypes}
                     isAppendToBody
-                    menuStyle={{ width: 120 }}
+                    menuStyle={{ width: 140 }}
                     onChange={this.changeConditionType}
                   />
                 </span>
@@ -276,6 +280,7 @@ export default class Condition extends Component {
                 currentColumns, // 当前表控件list
                 relateSheetList,
                 projectId,
+                appId,
                 sourceControlId,
                 from,
                 conditionType: condition.controlType,

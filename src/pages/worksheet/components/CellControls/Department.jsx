@@ -88,7 +88,7 @@ export default class Text extends React.Component {
       } else {
         let newData = [];
         try {
-          newData = _.uniq(value.concat(data), 'departmentId');
+          newData = _.uniqBy(value.concat(data), 'departmentId');
         } catch (err) {}
         this.setState(
           {

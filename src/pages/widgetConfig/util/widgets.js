@@ -42,7 +42,7 @@ export const isFullLineControl = data => {
   // if ([26, 27].includes(type) && enumDefault === 1) return true;
 
   // 关联多条 列表和卡片形式为整行
-  if (type === 29 && enumDefault === 2 && showtype !== '3') return true;
+  if (type === 29 && showtype === '2') return true;
   // 他表字段使用关联控件
   if (type === 30) {
     return isFullLineControl(sourceControl);

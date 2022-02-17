@@ -8,11 +8,33 @@ import Filter from './components/Filter';
 import AreaScope from './components/AreaScope';
 import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes } from '../../common';
 import { reportTypes } from '../../Charts/common';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actions from 'worksheet/common/Statistics/redux/actions';
 import './index.less';
 
+@connect(
+  state => ({
+    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'filterItem'])
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)
 export default class ChartSetting extends Component {
   constructor(props) {
     super(props);
+  }
+  handleChangeFilterItem = (filterItem, conditions) => {
+    const { currentReport } = this.props;
+    this.props.changeFilterItem(filterItem);
+    this.props.changeCurrentReport(
+      {
+        filter: {
+          ...currentReport.filter,
+          filterControls: conditions,
+        }
+      },
+      true,
+    );
   }
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
@@ -27,10 +49,12 @@ export default class ChartSetting extends Component {
                 className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
                 onClick={() => {
                   if (displaySetup.showChartType !== item.value) {
-                    this.props.onUpdateDisplaySetup({
-                      ...displaySetup,
-                      showChartType: item.value,
-                      isPerPile: [reportTypes.LineChart].includes(reportType) ? false : displaySetup.isPerPile,
+                    this.props.changeCurrentReport({
+                      displaySetup: {
+                        ...displaySetup,
+                        showChartType: item.value,
+                        isPerPile: [reportTypes.LineChart].includes(reportType) ? false : displaySetup.isPerPile,
+                      }
                     });
                   }
                 }}
@@ -44,8 +68,8 @@ export default class ChartSetting extends Component {
     );
   }
   renderPivotTableAxis(x, y) {
-    const { currentReport, axisControls, onChangeCurrentReport } = this.props;
-    const { lines, columns } = currentReport.pivotTable;
+    const { currentReport, axisControls, changeCurrentReport } = this.props;
+    const { lines = [], columns = [] } = currentReport.pivotTable || {};
     const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
       <Fragment>
@@ -55,7 +79,7 @@ export default class ChartSetting extends Component {
           list={lines}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(lines, id) => {
-            onChangeCurrentReport({
+            changeCurrentReport({
               pivotTable: {
                 ...currentReport.pivotTable,
                 lines,
@@ -63,6 +87,8 @@ export default class ChartSetting extends Component {
               sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
             }, true);
           }}
+          onAdd={this.props.addLines}
+          onRemove={this.props.removeLines}
         />
         <PivotTableAxis
           name={y}
@@ -70,7 +96,7 @@ export default class ChartSetting extends Component {
           list={columns}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(columns, id) => {
-            onChangeCurrentReport({
+            changeCurrentReport({
               pivotTable: {
                 ...currentReport.pivotTable,
                 columns,
@@ -78,6 +104,8 @@ export default class ChartSetting extends Component {
               sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
             }, true);
           }}
+          onAdd={this.props.addColumns}
+          onRemove={this.props.removeColumns}
         />
         <PivotTableAxis
           name={_l('数值')}
@@ -86,29 +114,35 @@ export default class ChartSetting extends Component {
           axisControls={axisControls.concat(currentReport.formulas)}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
-            onChangeCurrentReport({
+            changeCurrentReport({
               yaxisList,
               sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
             }, true);
+          }}
+          onAdd={this.props.addYaxisList}
+          onRemove={({ controlId }) => {
+            this.props.removeYaxisList(controlId);
           }}
         />
       </Fragment>
     );
   }
   renderChartAxis(x, y) {
-    const { currentReport, axisControls, onChangeCurrentReport } = this.props;
+    const { currentReport, axisControls, changeCurrentReport } = this.props;
     const { reportType, displaySetup, xaxes, split, rightY } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
       <Fragment>
         {
-          ![reportTypes.NumberChart].includes(reportType) && (
+          reportType && ![reportTypes.NumberChart].includes(reportType) && (
             <XAxis
               name={x}
               disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
               currentReport={currentReport}
-              onChangeCurrentReport={onChangeCurrentReport}
+              onChangeCurrentReport={changeCurrentReport}
+              addXaxes={this.props.addXaxes}
+              removeXaxes={this.props.removeXaxes}
             />
           )
         }
@@ -117,22 +151,9 @@ export default class ChartSetting extends Component {
           split={currentReport.split}
           yaxisList={currentReport.yaxisList}
           currentReport={currentReport}
-          onChangeCurrentReport={(data) => {
-            const { yaxisList } = data;
-            const title = yaxisList.length ? yaxisList[0].controlName : null;
-            onChangeCurrentReport({
-              ...data,
-              displaySetup: {
-                ...displaySetup,
-                ydisplay: {
-                  ...displaySetup.ydisplay,
-                  title
-                },
-                isPerPile: yaxisList.length <= 1 ? false : displaySetup.isPerPile,
-                isPile: yaxisList.length <= 1 ? false : displaySetup.isPile
-              }
-            }, true);
-          }}
+          onChangeCurrentReport={this.props.changeYaxisList}
+          onRemoveAxis={this.props.removeYaxisList}
+          onAddAxis={this.props.addYaxisList}
         />
         {
           isDualAxes && (
@@ -141,41 +162,21 @@ export default class ChartSetting extends Component {
               split={rightY.split}
               yaxisList={rightY.yaxisList}
               currentReport={currentReport}
-              onChangeCurrentReport={(data) => {
-                const { yaxisList } = data;
-                const title = yaxisList.length ? yaxisList[0].controlName : null;
-                onChangeCurrentReport({
-                  rightY: {
-                    ...rightY,
-                    ...data,
-                    display: {
-                      ...rightY.display,
-                      ydisplay: {
-                        ...rightY.display.ydisplay,
-                        title
-                      }
-                    }
-                  }
-                }, true);
-              }}
+              onChangeCurrentReport={this.props.changeRightYaxisList}
+              onRemoveAxis={this.props.removeRightYaxisList}
+              onAddAxis={this.props.addRightYaxisList}
             />
           )
         }
         {
-          [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) && (
+          [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (
             <GroupingAxis
               name={isDualAxes ? _l('分组(左Y轴)') : _l('分组')}
               split={currentReport.split}
               yaxisList={currentReport.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
-              onChangeCurrentReport={(data, deleteId) => {
-                onChangeCurrentReport({
-                  splitId: null,
-                  split: data,
-                  sorts: currentReport.sorts.filter(item => _.findKey(item) !== deleteId)
-                }, true);
-              }}
+              onChangeCurrentReport={this.props.changeSplit}
             />
           )
         }
@@ -187,16 +188,7 @@ export default class ChartSetting extends Component {
               yaxisList={currentReport.rightY.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
-              onChangeCurrentReport={(data, deleteId) => {
-                onChangeCurrentReport({
-                  rightY: {
-                    ...currentReport.rightY,
-                    splitId: null,
-                    split: data,
-                  },
-                  sorts: currentReport.sorts.filter(item => _.findKey(item) !== deleteId)
-                }, true);
-              }}
+              onChangeCurrentReport={this.props.changeRightSplit}
             />
           )
         }
@@ -205,8 +197,9 @@ export default class ChartSetting extends Component {
             <AreaScope
               xaxes={currentReport.xaxes}
               country={currentReport.country}
+              style={currentReport.style || {}}
               controls={axisControls}
-              onChangeCurrentReport={onChangeCurrentReport}
+              onChangeCurrentReport={changeCurrentReport}
             />
           )
         }
@@ -214,7 +207,7 @@ export default class ChartSetting extends Component {
     );
   }
   render() {
-    const { currentReport, axisControls, onChangeCurrentReport, onChangeFilterItem, projectId, worksheetInfo, filterItem } = this.props;
+    const { currentReport, axisControls, projectId, worksheetInfo, filterItem } = this.props;
     const { reportType, displaySetup } = currentReport;
     const { x, y } = getAxisText(reportType, displaySetup ? displaySetup.showChartType : null);
     const isPivotTable = reportType === reportTypes.PivotTable;
@@ -233,7 +226,7 @@ export default class ChartSetting extends Component {
           filterItem={filterItem}
           axisControls={axisControls}
           worksheetInfo={worksheetInfo}
-          onChangeFilterItem={onChangeFilterItem}
+          onChangeFilterItem={this.handleChangeFilterItem}
         />
       </div>
     );

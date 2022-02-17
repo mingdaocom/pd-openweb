@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
-import { times, padLeft } from 'lodash';
+import { times } from 'lodash';
 import Icon from 'ming-ui/components/Icon';
 import PanelSelect from './PanelSelect';
 import { generateOptions } from './utils';
@@ -12,7 +12,7 @@ function timetoString(val) {
 }
 
 // 将布尔值转化为数�
-const boolToNumber = (bool) => {
+const boolToNumber = bool => {
   if (bool) {
     return 1;
   }
@@ -77,7 +77,7 @@ class Panel extends Component {
     this.props.onChange(value);
   };
 
-  handleIptChange = (event) => {
+  handleIptChange = event => {
     this.setState({ inputValue: event.target.value });
   };
 
@@ -85,7 +85,7 @@ class Panel extends Component {
     this.props.onClear();
   };
 
-  refFunc = (panel) => {
+  refFunc = panel => {
     this._panel = panel;
     this.props.getRef(panel);
   };
@@ -94,7 +94,9 @@ class Panel extends Component {
     const { showHour, defaultOpenValue, disabledHours } = this.props;
     const value = this.props.value || defaultOpenValue;
     const hour = value.hour().toString();
-    const hourOptions = times(24).map(this.props.optionFormatter ? this.props.optionFormatter : n => padLeft(n, 2, 0));
+    const hourOptions = times(24).map(
+      this.props.optionFormatter ? this.props.optionFormatter : n => String(n).padStart(2, 0),
+    );
     const disabledSelect = disabledHours ? disabledHours() : [];
     if (showHour) {
       return (
@@ -114,7 +116,9 @@ class Panel extends Component {
     const { showMinute, defaultOpenValue, disabledMinutes } = this.props;
     const value = this.props.value || defaultOpenValue;
     const minute = value.minute().toString();
-    const minuteOptions = times(60).map(this.props.optionFormatter ? this.props.optionFormatter : n => padLeft(n, 2, 0));
+    const minuteOptions = times(60).map(
+      this.props.optionFormatter ? this.props.optionFormatter : n => String(n).padStart(2, 0),
+    );
     const disabledSelect = disabledMinutes ? disabledMinutes(value.hour()) : [];
 
     if (showMinute) {
@@ -135,7 +139,9 @@ class Panel extends Component {
     const { showSecond, defaultOpenValue, disabledSeconds } = this.props;
     const value = this.props.value || defaultOpenValue;
     const second = value.second().toString();
-    const secondOptions = times(60).map(this.props.optionFormatter ? this.props.optionFormatter : n => padLeft(n, 2, 0));
+    const secondOptions = times(60).map(
+      this.props.optionFormatter ? this.props.optionFormatter : n => String(n).padStart(2, 0),
+    );
     const disabledSelect = disabledSeconds ? disabledSeconds(value.minute()) : [];
 
     if (showSecond) {
@@ -163,13 +169,19 @@ class Panel extends Component {
         'TimePicker-panel--large': result === 3,
         'TimePicker-panel--small': result === 1,
       },
-      panelCls
+      panelCls,
     );
     return (
       <div ref={this.refFunc} className={classNames('ming TimePicker', cls)}>
         <div className="TimePicker-panel-container">
           <span className="TimePicker-panel-input-container">
-            <input readOnly="true" placeholder={placeholder} value={this.state.inputValue} onChange={this.handleIptChange} className="TimePicker-panel-input" />
+            <input
+              readOnly="true"
+              placeholder={placeholder}
+              value={this.state.inputValue}
+              onChange={this.handleIptChange}
+              className="TimePicker-panel-input"
+            />
             <Icon onClick={this.handleClear} className="TimePicker-input-clear" icon="close" />
           </span>
 

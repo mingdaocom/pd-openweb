@@ -10,7 +10,7 @@ import Conditions from './Conditions';
 
 const Con = styled.div`
   position: relative;
-  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
   padding: 8px 0 0;
   display: flex;
   flex-direction: row;
@@ -27,7 +27,7 @@ function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
 function QuickFilter(props) {
-  const { width, view, projectId, controls, filters = [], refreshSheet, updateQuickFilter, resetQuickFilter } = props;
+  const { width, view, projectId, controls, filters = [], refreshSheet, updateQuickFilter, resetQuickFilter, appId } = props;
   const filtersLength = useRef(filters.length);
   const needClickSearch = useRef(_.get(view, 'advancedSetting.clicksearch'));
   let colNum = 2;
@@ -86,6 +86,7 @@ function QuickFilter(props) {
     <Con>
       <Conditions
         projectId={projectId}
+        appId={appId}
         operateIsNewLine={operateIsNewLine}
         firstIsFullLine={firstIsFullLine}
         view={view}

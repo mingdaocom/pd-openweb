@@ -94,6 +94,8 @@ class Dropdown extends Component {
      */
     /** border样式 */
     border: PropTypes.bool,
+    // 是否不更新组件value
+    noChangeValue: PropTypes.bool,
     data: PropTypes.arrayOf(
       PropTypes.oneOfType([
         PropTypes.shape({
@@ -266,7 +268,7 @@ class Dropdown extends Component {
     if (item.disabled) {
       return;
     }
-    if (this.props.value == undefined) {
+    if (this.props.value == undefined && !this.props.noChangeValue) {
       // eslint-disable-line eqeqeq
       this.setState({
         value: item.value,
@@ -337,6 +339,7 @@ class Dropdown extends Component {
                 iconAtEnd={item.iconAtEnd}
                 iconHint={item.iconHint}
                 onClick={event => {
+                  event.stopPropagation();
                   this.handleChange(event, item);
                 }}
                 title={showItemTitle && item.text}
@@ -442,7 +445,8 @@ class Dropdown extends Component {
         ref={input => {
           this._input = input;
         }}
-        onClick={() => {
+        onClick={event => {
+          event.stopPropagation();
           this.handleClick();
         }}
       >

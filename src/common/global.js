@@ -4,17 +4,6 @@ import { lang } from 'src/util/enum';
 import { getPssId } from 'src/util/pssId';
 
 /**
- * 浏览器旧版本升级页跳转
- */
-const ua = navigator.userAgent.toLowerCase();
-if (
-  ua.match(/(msie\s|trident.*rv:)([\w.]+)/) ||
-  (ua.match(/(chrome)\/([\w.]+)/) && parseInt(ua.match(/(chrome)\/([\w.]+)/)[2]) < 50)
-) {
-  location.href = '/browserupgrade';
-}
-
-/**
  * 获取浏览器默认语言
  */
 window.getNavigatorLang = () => {
@@ -209,7 +198,7 @@ File.isValid = function (fileExt) {
   return true;
 };
 File.isPicture = function (fileExt) {
-  let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic', '.svg', '.tif'];
+  let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic', '.svg', '.tif', '.tiff'];
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;
@@ -281,8 +270,8 @@ window.createTimeSpan = dateStr => {
   let year = dateTime.getFullYear();
   let month = dateTime.getMonth();
   let day = dateTime.getDate();
-  let hour = _.padLeft(dateTime.getHours(), 2, '0');
-  let minute = _.padLeft(dateTime.getMinutes(), 2, '0');
+  let hour = dateTime.getHours().toString().padStart(2, '0');
+  let minute = dateTime.getMinutes().toString().padStart(2, '0');
 
   let now = new Date();
 
@@ -488,7 +477,6 @@ window.createTimeSpan = dateStr => {
     }
 
     if (ajaxOptions.url) {
-      delete headers.Authorization;
       delete headers.AccountId;
     }
     if (options.headersConfig) {
@@ -653,3 +641,14 @@ window.createTimeSpan = dateStr => {
     document.head.appendChild(script);
   }
 })();
+
+// 兼容钉钉内核63 问题
+if (!Object.fromEntries) {
+  Object.fromEntries = function(entries) {
+    let entriesObj = {};
+    (entries || []).forEach(element => {
+      entriesObj[element[0]] = element[1];
+    });
+    return entriesObj;
+  };
+}

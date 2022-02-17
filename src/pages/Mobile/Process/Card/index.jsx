@@ -229,7 +229,7 @@ export default class Card extends Component {
           <OtherAction
             visible={otherActionVisible}
             action={action}
-            selectedUser={_.object()}
+            selectedUser={{}}
             instance={instance}
             onAction={this.handleAction}
             onHide={() => {

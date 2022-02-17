@@ -54,13 +54,6 @@ export default class CustomPage extends Component {
 
   componentDidMount() {
     this.getPageData();
-    document.title = _l('编辑页面 - %0', _.get(this.props, ['pageName']));
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.pageName !== this.props.pageName) {
-      document.title = _l('编辑页面 - %0', _.get(nextProps, ['pageName']));
-    }
   }
 
   getPageData = () => {
@@ -68,8 +61,14 @@ export default class CustomPage extends Component {
     updateLoading(true);
     customApi
       .getPage({ appId: pageId })
-      .then(({ components, version }) => {
-        updatePageInfo({ components, pageId, version, visible: true });
+      .then(({ components, apk, version }) => {
+        updatePageInfo({
+          components,
+          pageId,
+          version,
+          apk: apk || {},
+          visible: true
+        });
         this.$originComponents = components;
       })
       .always(() => updateLoading(false));

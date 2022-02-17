@@ -7,6 +7,8 @@ import mingdaoImg from './img/mingdao.png';
 import SvgIcon from 'src/components/SvgIcon';
 import { SHARE_TYPE } from './config';
 import styled from 'styled-components';
+import { exportSheet } from 'worksheet/common/ExportSheet';
+import appManagement from 'src/api/appManagement';
 
 const PublicqueryHeader = styled.div`
   width: 100%;
@@ -29,6 +31,16 @@ const PublicqueryHeader = styled.div`
       background: #2365c0;
     }
   }
+  .download {
+    float: right;
+    width: 40px;
+    font-size: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+  }
 `;
 class WorksheetShareHeader extends React.Component {
   static propTypes = {
@@ -41,11 +53,87 @@ class WorksheetShareHeader extends React.Component {
     step: PropTypes.number,
     isSingleRow: PropTypes.bool,
     loading: PropTypes.bool,
+
+    pageSize: PropTypes.number,
+    pageIndex: PropTypes.number,
+    filterControls: PropTypes.array
   };
 
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  /**
+   * 导出文件
+   */
+  exportExcel = () => {
+    (async () => {
+      const {
+        publicqueryRes = {},
+  
+        appId,
+        viewId,
+        worksheetId,
+        projectId,
+        shareId,
+        rowIds,
+        controlsId,
+        pageIndex,
+        pageSize,
+        filterControls
+      } = this.props;
+
+      const token = await appManagement.getToken({ worksheetId, viewId });
+
+      const args = {
+        token,
+        accountId: md.global.Account.accountId,
+        worksheetId,
+        appId,
+        viewId,
+        projectId,
+        exportControlsId: (controlsId || []).concat(['rowid']),
+        filterControls: filterControls || [] ,
+        columnRpts: null,
+        keyWords: '',
+        searchType: 1,
+        rowIds: rowIds || [],
+        systemColumn: [],
+        isSort: true,
+        fastFilters: [],
+        navGroupFilters: [],
+        queryId: shareId,
+        pageIndex,
+        pageSize,
+      };
+      const res = await fetch(`${md.global.Config.WorksheetDownUrl}/ExportExcel/Query`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        responseType: 'blob',
+        body: JSON.stringify(args),
+      }).then(res => res.blob());
+
+      // 将响应转换成文件
+      const blob = new Blob([res], {
+        type: 'application/vnd.ms-excel',
+      });
+
+      // 设置文件名称
+      const now = new Date();
+      const date = moment(now).format('YYYYMMDDhhmmss');
+
+      // 新建a标签下载文件
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${publicqueryRes.title}_${date}.xlsx`;
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    })().catch(() => {});
   }
 
   render() {
@@ -63,6 +151,8 @@ class WorksheetShareHeader extends React.Component {
       isFormDetail,
       isPublicquery,
       publicqueryRes = {},
+
+      exported = false,
     } = this.props;
     if (loading || step === SHARE_TYPE.DETAIL || (isSingleRow && step === SHARE_TYPE.WORKSHEETDETAIL)) {
       return '';
@@ -87,6 +177,14 @@ class WorksheetShareHeader extends React.Component {
                 >
                   {_l('继续查询')}
                 </div>
+                {exported && (
+                  <div
+                    className="download"
+                    onClick={ () => this.exportExcel() }
+                  >
+                    <Icon style={{ float: 'right', lineHeight: '100%' }} icon="file_download"></Icon>
+                  </div>
+                )}
               </PublicqueryHeader>
             ) : (
               <React.Fragment>

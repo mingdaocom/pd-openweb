@@ -51,9 +51,10 @@ export const QUICK_ENTRY_CONFIG = [
 ];
 
 export const USER_COUNT = [
-  { key: 'effectiveUserCount', text: _l('当前用户') },
-  { key: 'notActiveUserCount', text: _l('未激活数量') },
-  { key: 'departmentCount', text: _l('部门数量') },
+  { key: 'effectiveUserCount', text: _l('成员'), link: 'structure' },
+  { key: 'notActiveUserCount', text: _l('未激活'), link: 'structure' },
+  { key: 'effectiveExternalUserCount', text: _l('外部用户'), link: 'portal' },
+  { key: 'departmentCount', text: _l('部门'), link: 'structure' },
 ];
 
 export const ITEM_COUNT = [
@@ -89,6 +90,6 @@ export const formatFileSize = size => {
   return roundFun(size / pow1024(4), 3) + ' TB';
 };
 
-export const formatValue = (num) => {
+export const formatValue = num => {
   return (num + '').replace(/(\d)(?=(\d{3})+$)/g, '$1,');
-}
+};

@@ -5055,7 +5055,7 @@ import moment from 'moment';
                     skeletonTop = sourceSeg.el.position().top;
                 }
                 else {
-                    skeletonTop = rowEl.find('.fc-content-skeleton tbody').position().top;
+                    skeletonTop = (rowEl.find('.fc-content-skeleton tbody').position() || {}).top;
                 }
 
                 skeletonEl.css('top', skeletonTop)

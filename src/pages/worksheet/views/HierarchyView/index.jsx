@@ -466,6 +466,7 @@ function Hierarchy(props) {
                       'appId',
                       'worksheetInfo',
                       'sheetSwitchPermit',
+                      'sheetButtons',
                     ])}
                     {...rest}
                     key={item.pathId.join('-')}
@@ -560,7 +561,7 @@ function Hierarchy(props) {
 }
 const ConnectedHierarchyView = connect(
   state => ({
-    ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit']),
+    ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),

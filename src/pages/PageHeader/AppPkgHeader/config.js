@@ -21,6 +21,13 @@ export const APP_GROUP_CONFIG = [
   },
 ];
 
+const appFixed = {
+  type: 'editAppFixStatus',
+  icon: 'setting',
+  getText: (status) => status ? _l('更新维护状态') : _l('设为维护状态'),
+  action: 'editAppFixStatusVisible',
+}
+
 export const APP_CONFIG = {
   0: [],
   //  {
@@ -64,6 +71,7 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
@@ -101,6 +109,7 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
@@ -144,6 +153,7 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },

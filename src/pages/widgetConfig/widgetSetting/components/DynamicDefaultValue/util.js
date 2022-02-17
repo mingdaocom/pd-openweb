@@ -12,6 +12,9 @@ import {
   CAN_AS_SCORE_DYNAMIC_FIELD,
   CAN_AS_SWITCH_DYNAMIC_FIELD,
   CAN_AS_NUMBER_DYNAMIC_FIELD,
+  CAN_AS_EMBED_DYNAMIC_FIELD,
+  FIELD_REG_EXP,
+  UUID_REGEXP,
 } from './config';
 
 export const getControlType = data => {
@@ -93,6 +96,7 @@ const FILTER = {
   24: item => _.includes(CAN_AS_AREA_DYNAMIC_FIELD, item.type),
 
   // 多选可以选择单选字段 单选不能选多选字段
+  // 必须是同类型用户
   // 用户
   26: (item, enumDefault) =>
     enumDefault === 0
@@ -104,6 +108,10 @@ const FILTER = {
     _.includes(CAN_AS_SCORE_DYNAMIC_FIELD, item.type) || isEnableScoreOption(item) || isFormulaResultAsSubtotal(item),
   // 检查框
   36: item => _.includes(CAN_AS_SWITCH_DYNAMIC_FIELD, item.type),
+  // 嵌入
+  45: item =>
+    (_.includes(CAN_AS_EMBED_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId)) ||
+    isSingleRelate(item),
 };
 
 // 关联多条----关联单条、多条（列表除外）
@@ -120,7 +128,7 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
   if (_.includes([2], type) && isCurrent) {
     controls = controls.filter(con => con.type !== 33);
   }
-  if (_.includes([2, 3, 4, 5, 6, 8, 19, 23, 24, 28, 36], type)) return _.filter(controls, filterFn);
+  if (_.includes([2, 3, 4, 5, 6, 8, 19, 23, 24, 28, 36, 45], type)) return _.filter(controls, filterFn);
   // 单选选项集
   if (_.includes([9, 11], type)) {
     return _.filter(
@@ -135,7 +143,7 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
     return _.filter(controls, filterFn);
   }
   if (_.includes([26], type)) {
-    return _.filter(controls, item => filterFn(item, enumDefault));
+    return _.filter(controls, item => filterFn(item, enumDefault) && (item.advancedSetting || {}).usertype !== '2');
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
@@ -146,4 +154,25 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
     return _.filter(newControls, item => item.dataSource === dataSource);
   }
   return controls;
+};
+
+export const transferValue = (value = '') => {
+  const savedControlFields = value.match(FIELD_REG_EXP) || [];
+  const unsavedControlFields = value.match(UUID_REGEXP) || [];
+  const controlFields = savedControlFields.concat(unsavedControlFields);
+  const defaultValue = _.filter(value.split('$'), v => !_.isEmpty(v));
+  const defsource = defaultValue.map(item => {
+    const defaultData = { cid: '', rcid: '', staticValue: '' };
+    if (_.includes(controlFields, `$${item}$`)) {
+      const [cid = '', rcid = ''] = item.split('~');
+      return { ...defaultData, cid, rcid };
+    } else {
+      return { ...defaultData, staticValue: item };
+    }
+  });
+  return defsource;
+};
+
+export const isIframeControl = item => {
+  return item && item.type === 45 && item.enumDefault === 1;
 };

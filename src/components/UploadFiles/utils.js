@@ -375,3 +375,67 @@ export const formatTime = (seconds = 0) => {
 
   return hour ? `${hour}:${minute}:${second}` : `${minute}:${second}`;
 };
+
+// 文件类型验证
+export const checkFileExt = (filetype = '', fileExt = '') => {
+  const { type = '', values = [] } = JSON.parse(filetype || '{}');
+  let verifyExt = true;
+
+  const FileExts = {
+    0: values,
+    1: ['JPG', 'JPEG', 'PNG', 'Gif', 'WebP', 'Tiff', 'bmp'],
+    3: ['WAV', 'FLAC', 'APE', 'ALAC', 'WavPack', 'MP3', 'AAC', 'Ogg Vorbis', 'Opus', 'Au', 'MMF', 'AIF'],
+    4: ['MP4', 'AVI', 'MOV', 'WMV', 'MKV', 'FLV', 'F4V', 'SWF', 'RMVB', 'MPG'],
+  };
+
+  if (_.includes(['0', '1', '3', '4'], type)) {
+    verifyExt = FileExts[type].some(i => fileExt.toLowerCase().indexOf(i.toLowerCase()) > -1);
+  } else if (_.includes(['2'], type)) {
+    const tempFileExts = Object.keys(FileExts).reduce((total, cur) => {
+      if (_.includes(['0', '2'], type)) {
+        return (total = total.concat(FileExts[cur]));
+      }
+    }, []);
+    verifyExt = tempFileExts.every(i => !(fileExt.toLowerCase().indexOf(i.toLowerCase()) > -1));
+  }
+
+  const errorText =
+    type === '2'
+      ? _l('上传失败，请选择除图片、音频、视频以外的文件')
+      : _l('上传失败，请选择%0文件', FileExts[type].join('、'));
+  return { verifyExt, errorText };
+};
+
+export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount = 0) => {
+  const { maxcount, max, filetype } = fileSettingInfo;
+  const count = tempCount + files.length;
+  let isAvailable = true;
+
+  // 附件数量
+  if (maxcount && count > Number(maxcount)) {
+    alert(_l('最多上传%0个文件', maxcount));
+    isAvailable = false;
+  }
+
+  if (isAvailable) {
+    isAvailable = files.every(itemField => {
+      // 有限制条件的校验
+      if (filetype && JSON.parse(filetype || '{}').type) {
+        const { verifyExt, errorText } = checkFileExt(
+          filetype,
+          itemField.name ? File.GetExt(itemField.name) : itemField.fileExt,
+        );
+        if (!verifyExt) {
+          alert(errorText);
+          return false;
+        }
+      }
+      if (max && (itemField.size || itemField.fileSize) > parseFloat(max) * 1024 * 1024) {
+        alert(_l('上传失败，无法上传大于%0MB的文件', max));
+        return false;
+      }
+      return true;
+    });
+  }
+  return isAvailable;
+};

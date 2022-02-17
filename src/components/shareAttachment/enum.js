@@ -22,22 +22,20 @@ export const SEND_TO_TYPE = {
   CHAT: 0, // 消息
   FEED: 1, // 动态
   TASK: 2, // 任务
-  WECHAT: 3, // 微信
   CALENDAR: 4, // 日程
   KC: 5, // 知识
-  QQ: 6,
   QR: 7, // 二维码
 };
 
 export const CHAT_CARD_TYPE = {
-    ALL: -1, // 全部
-    TASK: 1, // 任务
-    CALENDAR: 2, // 日程
-    POST: 3, // 动态
-    VOTE: 4, // 投票
-    KCFILE: 5, // 知识文件
-    KCFOLDER: 6, // 知识文件夹
-    WORKSHEET: 7, // 工作表
-    WORKSHEETROW: 8, // 工作表行
-    LINK: 100, // 链接
+  ALL: -1, // 全部
+  TASK: 1, // 任务
+  CALENDAR: 2, // 日程
+  POST: 3, // 动态
+  VOTE: 4, // 投票
+  KCFILE: 5, // 知识文件
+  KCFOLDER: 6, // 知识文件夹
+  WORKSHEET: 7, // 工作表
+  WORKSHEETROW: 8, // 工作表行
+  LINK: 100, // 链接
 };

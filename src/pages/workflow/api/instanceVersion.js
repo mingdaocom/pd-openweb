@@ -17,6 +17,19 @@ var instanceVersion = {
     return $.api(controllerName, 'v1instancebatch', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 中止执行
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.instanceId] *instanceId
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  endInstance: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/instance/endInstance';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'v1instanceendInstance', args, $.extend(base, options));
+  },
+  /**
    * 获取流程实例详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

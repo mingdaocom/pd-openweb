@@ -6,6 +6,8 @@ import RenameModal from './RenameModal';
 import {
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
+  timeDataParticle,
+  timeGatherParticle,
   isXAxisControl,
   isAreaControl,
   isTimeControl,
@@ -44,7 +46,7 @@ export default class XAxis extends Component {
       },
       true,
     );
-  };
+  }
   handleVerification = (data, isAlert = false) => {
     const { reportType } = this.props.currentReport;
     if ([reportTypes.CountryLayer].includes(reportType) && !isAreaControl(data.type)) {
@@ -61,36 +63,14 @@ export default class XAxis extends Component {
       isAlert && alert(_l('该字段不能作为x轴维度'), 2);
       return false;
     }
-  };
+  }
   handleAddControl = data => {
     const { reportType, xaxes, displaySetup } = this.props.currentReport;
 
     if (this.handleVerification(data, true)) {
-      const isTime = isTimeControl(data.type);
-      const isArea = isAreaControl(data.type);
-      this.props.onChangeCurrentReport(
-        {
-          xaxes: {
-            ...xaxes,
-            controlId: data.controlId,
-            controlName: data.controlName,
-            controlType: data.type,
-            particleSizeType: isTime || isArea ? 1 : 0,
-            emptyType: 0,
-            xaxisEmpty: false,
-          },
-          displaySetup: {
-            ...displaySetup,
-            xdisplay: {
-              ...displaySetup.xdisplay,
-              title: data.controlName,
-            },
-          },
-        },
-        true,
-      );
+      this.props.addXaxes(data);
     }
-  };
+  }
   handleChangeRename = rename => {
     const { xaxes } = this.props.currentReport;
     this.props.onChangeCurrentReport(
@@ -103,25 +83,7 @@ export default class XAxis extends Component {
       true,
     );
     this.setState({ dialogVisible: false });
-  };
-  handleClear = () => {
-    const { xaxes, sorts } = this.props.currentReport;
-    const id = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
-    this.props.onChangeCurrentReport(
-      {
-        xaxes: {
-          ...xaxes,
-          controlId: null,
-          controlName: null,
-          controlType: null,
-          emptyType: 0,
-          xaxisEmpty: false,
-        },
-        sorts: sorts.filter(item => _.findKey(item) !== id)
-      },
-      true,
-    );
-  };
+  }
   handleUpdateEmptyType = (emptyType) => {
     const { xaxes } = this.props.currentReport;
     this.props.onChangeCurrentReport(
@@ -133,7 +95,7 @@ export default class XAxis extends Component {
       },
       true,
     );
-  };
+  }
   handleUpdateXaxisEmpty = (xaxisEmpty) => {
     const { xaxes } = this.props.currentReport;
     this.props.onChangeCurrentReport(
@@ -168,12 +130,7 @@ export default class XAxis extends Component {
     const isOption = isOptionControl(xaxes.controlType);
     const isTime = isTimeControl(xaxes.controlType);
     const isArea = reportType !== reportTypes.CountryLayer && isAreaControl(xaxes.controlType);
-    const timeData = (isTime
-    ? xaxes.controlType === 16
-      ? timeParticleSizeDropdownData
-      : timeParticleSizeDropdownData.filter(item => ![6, 7].includes(item.value))
-    : []).filter(item => ![8, 9, 10, 11].includes(item.value));
-    const timeGather = timeParticleSizeDropdownData.filter(item => [8, 9, 10, 11].includes(item.value));
+    const timeData = (isTime ? xaxes.controlType === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
     return (
       <Menu className="chartControlMenu chartMenu">
         <Menu.Item
@@ -203,7 +160,7 @@ export default class XAxis extends Component {
             </Menu.ItemGroup>
             <Menu.Divider />
             <Menu.ItemGroup title={_l('集合')}>
-              {timeGather.map(item => (
+              {timeGatherParticle.map(item => (
                 <Menu.Item
                   className="valignWrapper"
                   disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
@@ -293,7 +250,7 @@ export default class XAxis extends Component {
         <Dropdown overlay={this.renderOverlay()} trigger={['click']}>
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
-        <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.handleClear} />
+        <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />
       </div>
     );
   }

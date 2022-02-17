@@ -162,6 +162,7 @@ class FillRecordControls extends React.Component {
             recordId={recordId}
             disableRules={!recordId}
             from={3}
+            appId={this.props.appId}
             projectId={projectId}
             worksheetId={worksheetId}
             showError={showError}
@@ -169,7 +170,7 @@ class FillRecordControls extends React.Component {
             onChange={(data, ids) => {
               this.setState({
                 formData: data,
-                updatedControlIds: _.unique(updatedControlIds.concat(ids)),
+                updatedControlIds: _.uniqBy(updatedControlIds.concat(ids)),
               });
             }}
           />

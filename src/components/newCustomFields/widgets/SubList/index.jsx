@@ -77,11 +77,11 @@ export default class SubList extends React.Component {
           updated = value.updated || [];
         } catch (err) {}
         if (lastAction.type === 'DELETE_ROW') {
-          deleted = _.uniq(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
+          deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
-          updated = _.uniq(updated.concat(lastAction.rowid));
+          updated = _.uniqBy(updated.concat(lastAction.rowid));
         } else if (lastAction.type === 'ADD_ROWS') {
-          updated = _.uniq(updated.concat(lastAction.rows.map(r => r.rowid)));
+          updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
         }
         onChange({
           deleted,
@@ -94,7 +94,7 @@ export default class SubList extends React.Component {
   }
 
   render() {
-    const { from, registerCell, worksheetId, recordId, formData, disabled } = this.props;
+    const { from, registerCell, worksheetId, recordId, formData, disabled, appId } = this.props;
     const { controls, projectId, info } = this.state;
     const control = { ...this.props };
     const { loading } = this.state;
@@ -108,6 +108,7 @@ export default class SubList extends React.Component {
             entityName={info.entityName}
             rules={info.rules}
             registerCell={registerCell}
+            appId={info.appId || appId}
             from={from}
             control={control}
             controls={controls}

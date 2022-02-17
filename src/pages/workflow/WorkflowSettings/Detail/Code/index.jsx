@@ -8,6 +8,7 @@ import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
+import { Base64 } from 'js-base64';
 
 export default class Code extends Component {
   constructor(props) {
@@ -89,7 +90,7 @@ export default class Code extends Component {
         actionId,
         name: name.trim(),
         inputDatas: inputDatas.filter(item => item.name),
-        code,
+        code: Base64.encode(code),
       })
       .then(result => {
         this.props.updateNodeData(result);

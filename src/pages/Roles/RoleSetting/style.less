@@ -1,4 +1,4 @@
-@containerWidth: 800px;
+@containerWidth: 880px;
 @transitionTime: 0.5s;
 
 .roleSetting {
@@ -42,17 +42,17 @@
         height: 40px;
         line-height: 40px;
         .tableHeaderItemMax {
-          width: 28%;
+          width: 300px;
           text-align: center;
           font-weight: bold;
         }
         .tableHeaderItem {
-          width: 18%;
+          width: 90px;
           font-weight: bold;
           display: flex;
           flex-flow: row nowrap;
           align-items: center;
-          justify-content: center;
+          justify-content: left;
         }
       }
       .emptyContent {
@@ -70,7 +70,7 @@
 
         .viewsGroup {
           border-right: 1px solid #eaeaea;
-          width: 82%;
+          width: 81%;
         }
 
         .viewSetting {
@@ -78,26 +78,75 @@
           flex-flow: row nowrap;
           align-items: center;
           line-height: normal;
+          line-height: 32px;
+          svg {
+            vertical-align: middle !important;
+          }
+          .arrowIconShow {
+
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            width: 32px;
+            height: 32px;
+            text-align: center;
+            i {
+              color: #bdbdbd;
+              line-height: 32px;
+            }
+            &.canShow:hover {
+              background-color: #f7f7f7;
+              opacity: 1;
+              i {
+                color: #2196f3;
+              }
+            }
+            &.show {
+              opacity: 1;
+              i {
+                color: #ff8a00 !important;
+              }
+            }
+          }
+          &:hover {
+            .arrowIconShow.canShow {
+              opacity: 1;
+            }
+          }
           .viewSettingItemMax {
-            width: 34.15%;
+            width: 300px;
+            padding-left: 50px;
           }
           .viewSettingItem {
-            width: 21.95%;
+            width: 90px;
             display: flex;
             flex-flow: row nowrap;
             align-items: center;
-            justify-content: center;
+            justify-content: left;
           }
         }
 
         .settingGroup {
-          width: 18%;
+          width: 14%;
+          &.showSet {
+            span {
+              padding: 5px 10px;
+              &:hover {
+                background-color: #f7f7f7;
+                border-radius: 5px;
+              }
+            }
+          }
         }
 
         .arrowIcon {
-          display: inline-block;
-          transform: rotate(0deg);
+          width: 20px;
+          line-height: 32px;
           transition: transform 0.2s ease;
+          transform: rotate(0deg);
+          transform-origin: 6px center;
           &.rotated {
             transform: rotate(90deg);
           }

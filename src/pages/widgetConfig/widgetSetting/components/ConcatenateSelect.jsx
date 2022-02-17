@@ -11,9 +11,7 @@ export default function Concatenate({ data, onChange, allControls }) {
   const $tagtextarea = useRef(null);
   const { controlId, dataSource } = data;
   const [visible, setVisible] = useState(false);
-  const [searchValue, setValue] = useState('');
   const availableControls = getConcatenateControls(allControls, data).concat(SYSTEM_CONTROL);
-  const filteredControls = availableControls.filter(item => includes(item.controlName, searchValue));
   useEffect(() => {
     $tagtextarea.current.setValue(dataSource || '');
   }, [controlId]);
@@ -47,9 +45,7 @@ export default function Concatenate({ data, onChange, allControls }) {
           {visible && (
             <SelectControl
               className={'isolate'}
-              searchValue={searchValue}
-              onSearchChange={setValue}
-              list={filteredControls}
+              list={availableControls}
               onClickAway={() => setVisible(false)}
               onClick={item => {
                 $tagtextarea.current.insertColumnTag(item.controlId);

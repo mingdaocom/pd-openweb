@@ -153,6 +153,14 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#2196f3',
               iconName: 'icon-notifications_11',
             },
+            {
+              type: 19,
+              name: _l('发送服务号消息'),
+              appType: 22,
+              actionId: '203',
+              iconColor: '#2196f3',
+              iconName: 'icon-wechat',
+            },
           ],
         },
         {
@@ -236,13 +244,14 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
-          name: _l('组织/协作'),
+          name: _l('人员/部门/协作'),
           items: [
             {
               type: 1000,
               name: _l('获取单条人员/部门信息'),
               iconColor: '#2196f3',
               iconName: 'icon-person_search',
+              typeText: _l('组织人员/部门'),
               secondList: [
                 {
                   type: 1000,
@@ -273,12 +282,30 @@ export default class CreateNodeDialog extends Component {
                   describe: _l('从当前组织的所有部门中获取一个指定部门的相关信息'),
                 },
               ],
+              typeText2: _l('外部用户'),
+              secondList2: [
+                {
+                  type: 1000,
+                  appType: 23,
+                  actionId: '20',
+                  name: _l('从外部用户字段获取'),
+                  describe: _l('从外部用户字段获取一名指定人员的相关信息'),
+                },
+                {
+                  type: 1000,
+                  appType: 23,
+                  actionId: '406',
+                  name: _l('从外部门户中获取'),
+                  describe: _l('从当前应用的所有外部用户中获取一名指定人员的相关信息'),
+                },
+              ],
             },
             {
               type: 1001,
               name: _l('获取多条人员/部门信息'),
               iconColor: '#2196f3',
               iconName: 'icon-group-members',
+              typeText: _l('组织人员/部门'),
               secondList: [
                 {
                   type: 1001,
@@ -307,6 +334,23 @@ export default class CreateNodeDialog extends Component {
                   actionId: '400',
                   name: _l('从组织部门中获取'),
                   describe: _l('从当前组织的所有部门中获取批量部门的相关信息'),
+                },
+              ],
+              typeText2: _l('外部用户'),
+              secondList2: [
+                {
+                  type: 1001,
+                  appType: 23,
+                  actionId: '401',
+                  name: _l('从外部用户字段获取'),
+                  describe: _l('从外部用户字段获取批量用户的相关信息'),
+                },
+                {
+                  type: 1001,
+                  appType: 23,
+                  actionId: '400',
+                  name: _l('从外部门户中获取'),
+                  describe: _l('从当前应用的所有外部用户中获取批量用户的相关信息'),
                 },
               ],
             },
@@ -362,6 +406,14 @@ export default class CreateNodeDialog extends Component {
         _.remove(o.items, item => item.type === 17 || (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')));
       });
     }
+
+    const { admin: { adminLeftMenu: { weixin } }} = window.private;
+
+    if (weixin) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === 19);
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -385,10 +437,7 @@ export default class CreateNodeDialog extends Component {
     const { list, selectItem, selectSecond, showDialog, isOrdinary, showBranchDialog, moveType } = this.state;
     const MOVE_TYPE = () => {
       if (isOrdinary) {
-        return [
-          { text: _l('左侧'), value: 1 },
-          { text: _l('不移动'), value: 0 },
-        ];
+        return [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
       }
 
       if (nodeType === NODE_TYPE.APPROVAL) {
@@ -428,16 +477,10 @@ export default class CreateNodeDialog extends Component {
               </a>
             </div>
           )}
-          <ul className="secondNodeList">
-            {selectItem.secondList.map((item, i) => {
-              return (
-                <li key={i} onClick={() => this.createNodeClick(item)}>
-                  <Radio className="Font15" text={item.name} disabled />
-                  <div className="Gray_75 Font13 mLeft30 mTop5">{item.describe}</div>
-                </li>
-              );
-            })}
-          </ul>
+          {this.renderSecondList(selectItem.secondList)}
+
+          {selectItem.typeText2 && <div className="bold pLeft10 mTop10">{selectItem.typeText2}</div>}
+          {this.renderSecondList(selectItem.secondList2)}
         </div>
       );
     }
@@ -523,6 +566,26 @@ export default class CreateNodeDialog extends Component {
           </div>
         </Dialog>
       </div>
+    );
+  }
+
+  /**
+   * 渲染二级列表
+   */
+  renderSecondList(data) {
+    if (!data || !data.length) return null;
+
+    return (
+      <ul className="secondNodeList">
+        {data.map((item, i) => {
+          return (
+            <li key={i} onClick={() => this.createNodeClick(item)}>
+              <Radio className="Font15" text={item.name} disabled />
+              <div className="Gray_75 Font13 mLeft30 mTop5">{item.describe}</div>
+            </li>
+          );
+        })}
+      </ul>
     );
   }
 

@@ -83,7 +83,7 @@ function start() {
       }
       // if (!dd.ios && !dd.android && !dd.pc) {
       //   _alert('请在钉钉客户端内打开');
-      //   location.href = '/';
+      //   location.href = 'https://www.mingdao.com';
       // }
 
       // 钉钉

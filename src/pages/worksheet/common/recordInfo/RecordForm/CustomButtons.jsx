@@ -8,7 +8,8 @@ import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { getRowByID, updateWorksheetRow, getWorksheetInfo } from 'src/api/worksheet';
+import { updateWorksheetRow, getWorksheetInfo } from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
 import { startProcess } from 'src/pages/workflow/api/process';
 
 const MenuItemWrap = styled(MenuItem)`
@@ -223,7 +224,7 @@ export default class CustomButtons extends React.Component {
     const { worksheetId, recordId } = this.props;
     let rowInfo;
     if (recordId) {
-      rowInfo = await getRowByID({
+      rowInfo = await getRowDetail({
         worksheetId,
         getType: 1,
         rowId: recordId,
@@ -234,13 +235,13 @@ export default class CustomButtons extends React.Component {
         getTemplate: true,
       });
       rowInfo = {
-        receiveControls: worksheetInfo.template.controls,
+        formData: worksheetInfo.template.controls,
       };
     }
     this.setStateFn({ rowInfo });
     const caseStr = btn.writeObject + '' + btn.writeType;
-    const relationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.relationControl);
-    const addRelationControl = _.find(rowInfo.receiveControls || [], c => c.controlId === btn.addRelationControl);
+    const relationControl = _.find(rowInfo.formData, c => c.controlId === btn.relationControl);
+    const addRelationControl = _.find(rowInfo.formData || [], c => c.controlId === btn.addRelationControl);
     this.activeBtn = btn;
     this.fillRecordProps = {};
     switch (caseStr) {
@@ -248,7 +249,7 @@ export default class CustomButtons extends React.Component {
         this.btnRelateWorksheetId = worksheetId;
         this.fillRecordId = recordId;
         this.fillRecordProps = {
-          formData: rowInfo.receiveControls,
+          formData: rowInfo.formData,
         };
         this.setStateFn({
           fillRecordControlsVisible: true,
@@ -340,14 +341,14 @@ export default class CustomButtons extends React.Component {
     } catch (err) {
       return;
     }
-    getRowByID({
+    getRowDetail({
       worksheetId: relationControl.dataSource,
       getType: 1,
       appId: relationControl.appId,
       rowId: controldata[0].sid,
     }).then(data => {
       const relationControlrelationControl = _.find(
-        data.receiveControls,
+        data.formData,
         c => c.controlId === relationControlrelationControlId,
       );
       if (!relationControlrelationControl) {
@@ -396,7 +397,7 @@ export default class CustomButtons extends React.Component {
   }
 
   renderDialogs() {
-    const { worksheetId, viewId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
+    const { worksheetId, viewId, appId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
     const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -409,6 +410,7 @@ export default class CustomButtons extends React.Component {
             title={activeBtn.name}
             loadWorksheetRecord={btnTypeStr === '21'}
             viewId={viewId}
+            appId={appId}
             recordId={fillRecordId}
             projectId={projectId}
             visible={fillRecordControlsVisible}
@@ -444,7 +446,7 @@ export default class CustomButtons extends React.Component {
               value: {
                 sid: this.masterRecord.rowId,
                 sourcevalue: JSON.stringify(
-                  [{ rowid: this.masterRecord.rowId }, ...(rowInfo ? rowInfo.receiveControls : [])].reduce((a, b) => ({
+                  [{ rowid: this.masterRecord.rowId }, ...(rowInfo ? rowInfo.formData : [])].reduce((a, b) => ({
                     ...a,
                     [b.controlId]: b.value,
                   })),

@@ -45,12 +45,27 @@ export default class extends Component {
     const { number, yaxisList, style } = this.props.reportData;
     const formatrValue = formatrChartValue(number, false, yaxisList, null, false);
     const unit = yaxisList.length ? yaxisList[0].suffix : null;
-    const level = style ? style.fontSize : 0;
+    const level = style ? style.fontSize || 0 : 0;
     const levels = [36, 48, 60];
     const fontSize = getPerfectFontSize(this.wrapper.current, formatrValue, level) / 1.2;
     this.setState({
       fontSize: fontSize > levels[level] ? levels[level] : fontSize
     });
+  }
+  handleOpenSheet = () => {
+    const { reportData, isViewOriginalData, isThumbnail } = this.props;
+    const { displaySetup } = reportData;
+    if (displaySetup.showRowList && isViewOriginalData) {
+      const data = {
+        isPersonal: false,
+        match: {}
+      }
+      if (isThumbnail) {
+        this.props.onOpenChartDialog(data);
+      } else {
+        this.props.requestOriginalData(data);
+      }
+    }
   }
   render() {
     const { contrastNumber, number, rangeType, rangeValue, displaySetup, yaxisList } = this.props.reportData;
@@ -66,7 +81,7 @@ export default class extends Component {
           <Tooltip title={number.toLocaleString() == formatrValue ? null : number.toLocaleString()}>
             <div ref={this.wrapper} className="content-wrapper tip-top">
               <div className="flexRow valignWrapper">
-                <div className="ellipsis count">{formatrValue}</div>
+                <div className="ellipsis count" onClick={this.handleOpenSheet}>{formatrValue}</div>
               </div>
             </div>
           </Tooltip>

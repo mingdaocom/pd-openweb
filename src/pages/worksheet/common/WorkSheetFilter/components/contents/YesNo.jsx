@@ -24,6 +24,12 @@ export default class YesNo extends Component {
         { text: _l('未选中'), value: 0 },
       ];
     }
+    if (control.type === 40) {
+      return [
+        { text: _l('为空'), value: 0 },
+        { text: _l('不为空'), value: 1 },
+      ];
+    }
     return [
       { text: _l('有'), value: 1 },
       { text: _l('无'), value: 0 },

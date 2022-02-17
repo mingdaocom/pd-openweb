@@ -3,7 +3,7 @@ import { upgradeVersionDialog, htmlEncodeReg } from 'src/util';
 var Emotion = require('emotion');
 
 var MDFunction = {
-  replaceMessageCustomTag: function (message, tagName, replaceHtmlFunc, filterCustom) {
+  replaceMessageCustomTag: function(message, tagName, replaceHtmlFunc, filterCustom) {
     var startTag, endTag, customReplaceStr;
     if (!message) return message;
     if (typeof tagName === 'string') {
@@ -26,7 +26,7 @@ var MDFunction = {
       if (filterCustom) {
         message = message.replace(customRegExp, '');
       } else {
-        message = message.replace(customRegExp, function ($0, $1, $2) {
+        message = message.replace(customRegExp, function($0, $1, $2) {
           var customStr = $2;
           var splitterIndex = customStr.indexOf('|');
           if (splitterIndex === -1) {
@@ -50,7 +50,7 @@ var MDFunction = {
    * @param  {boolean} args.filterFace     不显示表情
    * @return {string}                替换后的 html
    */
-  createLinksForMessage: function (args) {
+  createLinksForMessage: function(args) {
     var message = args.message.replace(/\n/g, '<br>');
     var rUserList = args.rUserList;
     var rGroupList = args.rGroupList;
@@ -108,8 +108,8 @@ var MDFunction = {
       }
     }
 
-    var getReplaceHtmlFunc = function (getLink, getPlain) {
-      return function (customId, customName) {
+    var getReplaceHtmlFunc = function(getLink, getPlain) {
+      return function(customId, customName) {
         if (noLink) {
           return getPlain ? getPlain(customId) : customName;
         }
@@ -119,7 +119,7 @@ var MDFunction = {
 
     // TODO: 了解此处各字符串是否已由后台encode
     // 话题
-    var findCategory = function (id) {
+    var findCategory = function(id) {
       if (categories) {
         for (var i = 0, l = categories.length; i < l; i++) {
           if (categories[i].catID === id) {
@@ -132,12 +132,12 @@ var MDFunction = {
       message,
       'cid',
       getReplaceHtmlFunc(
-        function (id, name) {
+        function(id, name) {
           var category = findCategory(id);
           name = category ? category.catName : '未知话题';
           return '<a target="_blank" href="/feed?catId=' + id + '">#' + htmlEncodeReg(name) + '#</a>';
         },
-        function (id, name) {
+        function(id, name) {
           var category = findCategory(id);
           name = category ? category.catName : '未知话题';
           return '#' + htmlEncodeReg(name) + '#';
@@ -148,7 +148,7 @@ var MDFunction = {
     message = MDFunction.replaceMessageCustomTag(
       message,
       'tid',
-      getReplaceHtmlFunc(function (id, name) {
+      getReplaceHtmlFunc(function(id, name) {
         return '<a target="_blank" href="/apps/task/task_' + id + '">' + htmlEncodeReg(name) + '</a>';
       }),
     );
@@ -156,7 +156,7 @@ var MDFunction = {
     message = MDFunction.replaceMessageCustomTag(
       message,
       'fid',
-      getReplaceHtmlFunc(function (id, name) {
+      getReplaceHtmlFunc(function(id, name) {
         return '<a target="_blank" href="/apps/task/folder_' + id + '">' + htmlEncodeReg(name) + '</a>';
       }),
     );
@@ -164,7 +164,7 @@ var MDFunction = {
     message = MDFunction.replaceMessageCustomTag(
       message,
       ['[CALENDAR]', '[CALENDAR]'],
-      getReplaceHtmlFunc(function (id, name) {
+      getReplaceHtmlFunc(function(id, name) {
         return '<a target="_blank" href="/apps/calendar/detail_' + id + '">' + htmlEncodeReg(name) + '</a>';
       }),
     );
@@ -172,7 +172,7 @@ var MDFunction = {
     message = MDFunction.replaceMessageCustomTag(
       message,
       ['[STARTANSWER]', '[ENDANSWER]'],
-      getReplaceHtmlFunc(function (id, name) {
+      getReplaceHtmlFunc(function(id, name) {
         return '<a target="_blank" href="/feeddetail?itemID=' + id + '">' + htmlEncodeReg(name) + '</a>';
       }),
     );
@@ -180,7 +180,7 @@ var MDFunction = {
     message = MDFunction.replaceMessageCustomTag(
       message,
       ['[docversion]', '[docversion]'],
-      getReplaceHtmlFunc(function (id, name) {
+      getReplaceHtmlFunc(function(id, name) {
         return (
           '<a href="/feeddetail?itemID=' +
           id +
@@ -201,18 +201,26 @@ var MDFunction = {
       message = message.replace(/\n/g, '<br>');
       var urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=])?[^ <>\[\]*(){},\u4E00-\u9FA5]+/gi;
 
-      message = message.replace(urlReg, function (m) {
+      message = message.replace(urlReg, function(m) {
         return '<a target="_blank" href="' + m + '">' + m + '</a>';
       });
+    }
+
+    // 外部用户
+    if ((args.accountId || '').indexOf('a#') > -1) {
+      message = message.replace(new RegExp(`\\[aid\\]${args.accountId}\\[\\/aid\\]`, 'g'), args.accountName);
     }
 
     return message;
   },
   // 发送提醒通知 未填写手机号码
-  sendNoticeInvite: function (id, object, projectId, type) {
+  sendNoticeInvite: function(id, object, projectId, type) {
     var userController = require('src/api/user');
     if (object) {
-      object.removeAttr('onclick').css('cursor', 'none').text(_l('已发送提醒'));
+      object
+        .removeAttr('onclick')
+        .css('cursor', 'none')
+        .text(_l('已发送提醒'));
     }
     if ($.isArray(id) ? id.length <= 0 : !id) {
       alert(_l('没有要提醒的人'));
@@ -227,12 +235,12 @@ var MDFunction = {
         projectId: projectId,
         type: type,
       })
-      .done(function (result) {
+      .done(function(result) {
         alert('已成功发送提醒', 1);
       });
   },
 
-  showFollowWeixinDialog: function () {
+  showFollowWeixinDialog: function() {
     var html = `
     <div class='pAll10 mLeft30 pBottom30'>
     <div class='followWeixinQrCode Left'>
@@ -245,7 +253,7 @@ var MDFunction = {
     </div>
     `;
 
-    require(['src/api/weixin', 'mdDialog'], function (weixin, mdDialog) {
+    require(['src/api/weixin', 'mdDialog'], function(weixin, mdDialog) {
       mdDialog.index({
         dialogBoxID: 'followWeixinDialog',
         container: {
@@ -256,7 +264,7 @@ var MDFunction = {
         },
         width: 398,
       });
-      weixin.getWeiXinServiceNumberQRCode().then(function (data) {
+      weixin.getWeiXinServiceNumberQRCode().then(function(data) {
         var content = '加载失败';
         if (data) {
           content = "<img src='" + data + "' width='98' height='98'/>";
@@ -267,14 +275,14 @@ var MDFunction = {
   },
 
   // 验证网络是否到期异步
-  expireDialogAsync: function (projectId, text) {
+  expireDialogAsync: function(projectId, text) {
     var def = $.Deferred();
     def.resolve();
     return def.promise();
   },
 
   // 提示邀请结果
-  existAccountHint: function (result, chooseInviteCallback, limitHint, failedHint) {
+  existAccountHint: function(result, chooseInviteCallback, limitHint, failedHint) {
     var SendMessageResult = {
       Failed: 0,
       Success: 1,
@@ -298,7 +306,7 @@ var MDFunction = {
     var forbidAccountInfos = []; // 账号来源类型受限
 
     // result type array
-    $.each(result.results, function (index, singleResult) {
+    $.each(result.results, function(index, singleResult) {
       // 成功
       if (singleResult.accountInfos) {
         accountInfos = accountInfos.concat(singleResult.accountInfos);
@@ -349,10 +357,10 @@ var MDFunction = {
       existAccountInfos: existAccountInfos,
     };
   },
-  inviteNoticeMessage: function (title, accounts) {
+  inviteNoticeMessage: function(title, accounts) {
     if (!accounts.length) return '';
     var noticeMessage = title + '：<br/>';
-    $.each(accounts, function (i, item) {
+    $.each(accounts, function(i, item) {
       var message = '';
       if (item.account) {
         // 不存在的用户
@@ -373,7 +381,7 @@ var MDFunction = {
     });
     return noticeMessage;
   },
-  getUserStatus: function (user) {
+  getUserStatus: function(user) {
     if (user) {
       switch (user.status) {
         case 2:

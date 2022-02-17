@@ -103,7 +103,7 @@ export default class Widgets extends Component {
         <input
           type="text"
           className="customFormControlBox Gray"
-          style={{ paddingRight: suffix ? 92 : 12, paddingTop: 1 }}
+          style={{ paddingRight: suffix ? 92 : 12, paddingTop: 2 }}
           ref={number => {
             this.number = number;
           }}

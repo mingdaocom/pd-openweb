@@ -15,6 +15,10 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     path: '/worksheet/:worksheetId/row/:rowId',
     component: () => import('src/pages/PageHeader/NetManageHeader'),
   },
+  worksheetWithView: {
+    path: '/worksheet/:worksheetId/view/:viewId',
+    component: () => import('src/pages/PageHeader/AppPkgHeader'),
+  },
   worksheet: {
     path: '/worksheet/:worksheetId?',
     component: () => import('src/pages/PageHeader/AppPkgHeader'),

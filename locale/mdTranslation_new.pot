@@ -1,30 +1,242 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-11-18 3:58:43 ├F10: PM┤+08:00\n"
+"POT-Creation-Date: 2022/2/8 下午4:43:06+08:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: i18n.POTGenerator\n"
 
 #: Disabled references:1
-msgid "8-20位，需包含字母和数字"
+msgid "添加讨论"
 msgstr ""
 
 #: Disabled references:1
-msgid "所有记录成员与参与讨论的人"
+msgid "您不在运营方的邀请范围内"
 msgstr ""
 
 #: Disabled references:1
-msgid "输入关键字搜索记录"
+msgid "您的账号已被停用"
 msgstr ""
 
 #: Disabled references:1
-msgid "应用中本年的附件上传量，上传即占用，删除不会恢复"
+msgid "链接访问存在异常"
 msgstr ""
 
 #: Disabled references:1
-msgid "因企业微信自建应用规则调整，新的对接方案正在开发，请联系顾问线下创建自建应用"
+msgid "运营方使用额度已满"
+msgstr ""
+
+#: Disabled references:1
+msgid "请联系运营方"
+msgstr ""
+
+#: Disabled references:1
+msgid "无法注册新用户"
+msgstr ""
+
+#: Disabled references:1
+msgid "请耐心等待运营方审核"
+msgstr ""
+
+#: Disabled references:1
+msgid "你是此应用的管理员，可以配置应用、角色和成员"
+msgstr ""
+
+#: Disabled references:1
+msgid "退出应用成员"
+msgstr ""
+
+#: Disabled references:1
+msgid "将应用发布给组织外用户使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于提供会员服务，如：作为资料库、内容集、讨论组等。"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于和你的业务客户建立关系，如：服务外部客户的下单，查单等场景。"
+msgstr ""
+
+#: Disabled references:1
+msgid "支持微信、手机验证码登录。"
+msgstr ""
+
+#: Disabled references:1
+msgid "启用外部门户"
+msgstr ""
+
+#: Disabled references:1
+msgid "手机未绑定，请使用邮箱验证！"
+msgstr ""
+
+#: Disabled references:1
+msgid "邮箱未绑定，请使用手机短信验证！"
+msgstr ""
+
+#: Disabled references:1
+msgid "是否不统计总行数以提高性能"
+msgstr ""
+
+#: Disabled references:1
+msgid "是否触发工作流(默认: true)"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取工作表总行数 POST"
+msgstr ""
+
+#: Disabled references:1
+msgid "关键词"
+msgstr ""
+
+#: Disabled references:1
+msgid "控件类型编号，枚举值DataTypeEnum 请参考"
+msgstr ""
+
+#: Disabled references:1
+msgid "单行、多行"
+msgstr ""
+
+#: Disabled references:1
+msgid "下拉"
+msgstr ""
+
+#: Disabled references:1
+msgid "日期: 年-月-日"
+msgstr ""
+
+#: Disabled references:1
+msgid "日期: 年-月-日 时:分"
+msgstr ""
+
+#: Disabled references:1
+msgid "地区: 省"
+msgstr ""
+
+#: Disabled references:1
+msgid "地区: 省/市"
+msgstr ""
+
+#: Disabled references:1
+msgid "地区: 省/市/县"
+msgstr ""
+
+#: Disabled references:1
+msgid "计算结果为数字"
+msgstr ""
+
+#: Disabled references:1
+msgid "计算结果为日期"
+msgstr ""
+
+#: Disabled references:1
+msgid "嵌入"
+msgstr ""
+
+#: Disabled references:1
+msgid "新增选项集 POST"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取选项集 POST"
+msgstr ""
+
+#: Disabled references:1
+msgid "编辑选项集 POST"
+msgstr ""
+
+#: Disabled references:1
+msgid "请求格式"
+msgstr ""
+
+#: Disabled references:1
+msgid "对于 GET 请求，所有参数通过拼接在 URL 之后传递。"
+msgstr ""
+
+#: Disabled references:1
+msgid "对于 POST 请求，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json。"
+msgstr ""
+
+#: Disabled references:1
+msgid "上传失败，请选择除图片、音频、视频以外的文件"
+msgstr ""
+
+#: Disabled references:1
+msgid "上传失败，请选择%0文件"
+msgstr ""
+
+#: Disabled references:1
+msgid "上传失败，无法上传大于%0MB的文件"
+msgstr ""
+
+#: Disabled references:1
+msgid "已将链接设为“任何人可预览”，可直接打开"
+msgstr ""
+
+#: Disabled references:1
+msgid "请升级至付费版后使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "请升级到标准版本或以上版本"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除失败，请稍后再试！"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除系统编号字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "检查"
+msgstr ""
+
+#: Disabled references:1
+msgid "如果你不确定是否已在工作流中使用，可以通过程序检查"
+msgstr ""
+
+#: Disabled references:1
+msgid "检查中，请耐心等待……"
+msgstr ""
+
+#: Disabled references:1
+msgid "检查完毕！你未使用过此字段，可放心删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "检查完毕！你在以下%0个流程中使用了此字段。请谨慎删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "表格视图可以单元格直接编辑，看板、层级、画廊视图可以在卡片上直接修改文本类标题和检查框"
+msgstr ""
+
+#: Disabled references:1
+msgid "系统编号为之前创建的工作表中用于生成序号的系统字段，每增加一条记录时自动+1，仅在工作流中可以使用此字段。现在已被自动编号字段代替，新创建的工作表不再包含此字段。如果你未使用过此字段，可以删除以提升在大数据量时的工作表性能"
+msgstr ""
+
+#: Disabled references:1
+msgid "分发所有应用项（简单）"
+msgstr ""
+
+#: Disabled references:1
+msgid "分发有选择的应用项（高级）"
+msgstr ""
+
+#: Disabled references:1
+msgid "在导航中隐藏"
+msgstr ""
+
+#: Disabled references:1
+msgid "该组织ID不允许被搜索，请联系该组织管理员"
+msgstr ""
+
+#: Disabled references:1
+msgid "点注册即代表同意"
 msgstr ""
 
 #: Disabled references:1
@@ -32,110 +244,350 @@ msgid "打开后，填写者在提交数据前需要输入\n验证码，用于�
 msgstr ""
 
 #: Disabled references:1
-msgid "请填写拒绝原因"
+msgid "在表单中嵌入URL，支持使用其他字段值传参"
 msgstr ""
 
 #: Disabled references:1
-msgid "请填写拒绝的原因"
+msgid "编辑状态下不支持查看"
 msgstr ""
 
 #: Disabled references:1
-msgid "扫码功能只对明道云App或钉钉移动端、Welink移动端、微信移动端有效"
+msgid "当前企业账号余额不足，无法通过短信通知用户，请先充值"
 msgstr ""
 
 #: Disabled references:1
-msgid "创建时间-最旧的在前"
+msgid "“%0"
 msgstr ""
 
 #: Disabled references:1
-msgid "失败，所有记录都不满足执行条件，或流程尚未启用"
+msgid "” 正在等待%0"
 msgstr ""
 
 #: Disabled references:1
-msgid "导出为图片"
+msgid " 执行成功!"
 msgstr ""
 
 #: Disabled references:1
-msgid "%0至%1"
+msgid "” 执行失败!"
 msgstr ""
 
 #: Disabled references:1
-msgid "选择当前子表字段"
+msgid "请填写正确的手机号或姓名"
 msgstr ""
 
 #: Disabled references:1
-msgid "选择查询表字段"
+msgid "短信0.05元/条，自动从企业账户扣费，请保持企业账户余额充足"
 msgstr ""
 
 #: Disabled references:1
-msgid "最多50条"
+msgid "发送短信通知"
 msgstr ""
 
 #: Disabled references:1
-msgid "将查询到的最多50条记录字段写入子表字段，每行记录添加为一行子表明细"
+msgid "上传的Excel表格必须是下载的模板，模板有对应的版本请务必上传当前下载的模板，"
 msgstr ""
 
 #: Disabled references:1
-msgid "触发者在通讯录中的"
+msgid "只支持中英文"
 msgstr ""
 
 #: Disabled references:1
-msgid "短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgid "最多只能16个字节"
 msgstr ""
 
 #: Disabled references:1
-msgid "千分比"
+msgid "无权操作"
 msgstr ""
 
 #: Disabled references:1
-msgid "参数不合法"
+msgid "移动"
 msgstr ""
 
 #: Disabled references:1
-msgid "除数不能为0"
+msgid "限制移动端输入"
 msgstr ""
 
 #: Disabled references:1
-msgid "计算人员、部门、多选、子表或关联表的数量"
+msgid "支持移动app和在钉钉，微信，welink中使用的web移动端应用；暂不支持企业微信，和其他方式使用的web移动端应用"
 msgstr ""
 
 #: Disabled references:1
-msgid "将文本等类型的值转为数值"
+msgid "支持上传JPG、JPEG、PNG、Gif、WebP、Tiff、bmp格式的文件（在附件中支持预览）"
 msgstr ""
 
 #: Disabled references:1
-msgid "将数值等类型的值转为文本"
+msgid "支持WAV、FLAC、APE、ALAC、WavPack、MP3、AAC、Ogg Vorbis、Opus、Au、MMF、AIF格式的文件"
 msgstr ""
 
 #: Disabled references:1
-msgid "当前视图使用的“%0”和“%1”的字段类型不同，视图将使用日期时间的字段类型绘制。建议使用两个同为日期类型或同为日期时间类型的字段。"
+msgid "支持MP4、AVI、MOV、WMV、MKV、FLV、F4V、SWF、RMVB、MPG格式的文件"
 msgstr ""
 
 #: Disabled references:1
-msgid "导出失败，请缩小视图类型再尝试~"
+msgid "请输入自定义的文件扩展名，多个请用英文逗号隔开，不区分大小写。如：xls,doc,pdf"
 msgstr ""
 
 #: Disabled references:1
-msgid "不允许添加记录数量和计算字段"
+msgid "拍摄视频"
 msgstr ""
 
 #: Disabled references:1
-msgid "颜色规则"
+msgid "为照片添加水印（仅APP支持）"
 msgstr ""
 
 #: Disabled references:1
-msgid "中间值"
+msgid "压缩照片"
 msgstr ""
 
 #: Disabled references:1
-msgid "格式模式"
+msgid "压缩照片只对明道云App有效，勾选后在App拍摄照片时不上传原图"
 msgstr ""
 
 #: Disabled references:1
-msgid "按色阶"
+msgid "URL"
 msgstr ""
 
 #: Disabled references:1
-msgid "按范围"
+msgid "高度"
+msgstr ""
+
+#: Disabled references:1
+msgid "px"
+msgstr ""
+
+#: Disabled references:1
+msgid "允许新页面打开链接"
+msgstr ""
+
+#: Disabled references:1
+msgid "在卡片中，最多可显示9个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。"
+msgstr ""
+
+#: Disabled references:1
+msgid "扫码添加关联  "
+msgstr ""
+
+#: Disabled references:1
+msgid "新增方式"
+msgstr ""
+
+#: Disabled references:1
+msgid "单行添加"
+msgstr ""
+
+#: Disabled references:1
+msgid "批量选择添加"
+msgstr ""
+
+#: Disabled references:1
+msgid "立即触发一条流程，执行时间即为系统的当前时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "手动选择一条数据源，立即触发一条流程"
+msgstr ""
+
+#: Disabled references:1
+msgid "后恢复"
+msgstr ""
+
+#: Disabled references:1
+msgid "在其他sheet导出关联表"
+msgstr ""
+
+#: Disabled references:1
+msgid "设置工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "%060天后将被自动删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "立即清空"
+msgstr ""
+
+#: Disabled references:1
+msgid "恢复成功，部分数据已被彻底删除无法恢复"
+msgstr ""
+
+#: Disabled references:1
+msgid "没有支持填写的字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "服务异常，请 %0 后重试"
+msgstr ""
+
+#: Disabled references:1
+msgid "设为部门负责人"
+msgstr ""
+
+#: Disabled references:1
+msgid "取消部门负责人"
+msgstr ""
+
+#: Disabled references:1
+msgid "加入时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示列 %0/%1"
+msgstr ""
+
+#: Disabled references:1
+msgid "成员会收到邀请链接，验证后可加入组织"
+msgstr ""
+
+#: Disabled references:1
+msgid "继续添加"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过2048MB，最多支持2位小数，例如"
+msgstr ""
+
+#: Disabled references:1
+msgid "请先开启工作流"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0天%1时%2分"
+msgstr ""
+
+#: Disabled references:1
+msgid "否决时，无需填写"
+msgstr ""
+
+#: Disabled references:1
+msgid "系统默认接受数据后返回{\"status\": 1, \"data\": { \"sourceId\": \"xx"
+msgstr ""
+
+#: Disabled references:1
+msgid "数据钻取"
+msgstr ""
+
+#: Disabled references:1
+msgid "编辑图表说明"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择图表类型"
+msgstr ""
+
+#: Disabled references:1
+msgid "封面"
+msgstr ""
+
+#: Disabled references:1
+msgid "URI 组件编码"
+msgstr ""
+
+#: Disabled references:1
+msgid "URI 组件解码"
+msgstr ""
+
+#: Disabled references:1
+msgid "查找单个文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "返回指定间隔符之间的文本内容（只返回从左到右查找到的第一个）"
+msgstr ""
+
+#: Disabled references:1
+msgid "查找多个文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "返回指定间隔符之间的文本内容，从左到右查找所有内容，并将结果打包成数组返回"
+msgstr ""
+
+#: Disabled references:1
+msgid "分割文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "按照指定的间隔符分割文本，将分割结果打包成数组返回"
+msgstr ""
+
+#: Disabled references:1
+msgid "按照指定的间隔符把数组元素拼接成文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "是否包含"
+msgstr ""
+
+#: Disabled references:1
+msgid "判断一个文本中是否包含指定的字符内容"
+msgstr ""
+
+#: Disabled references:1
+msgid "返回定位相关信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "从某个定位字段返回位置标题、详细地址或经纬度"
+msgstr ""
+
+#: Disabled references:1
+msgid "计字符数"
+msgstr ""
+
+#: Disabled references:1
+msgid "计算文本字段的字符数量"
+msgstr ""
+
+#: Disabled references:1
+msgid "添加图表描述"
+msgstr ""
+
+#: Disabled references:1
+msgid "单行显示行高"
+msgstr ""
+
+#: Disabled references:1
+msgid "表头冻结"
+msgstr ""
+
+#: Disabled references:1
+msgid "表头冻结配置只对桌面端有效"
+msgstr ""
+
+#: Disabled references:1
+msgid "冻结维度(行)"
+msgstr ""
+
+#: Disabled references:1
+msgid "冻结维度(列)"
+msgstr ""
+
+#: Disabled references:1
+msgid "本应用"
+msgstr ""
+
+#: Disabled references:1
+msgid "不能移动到当前页面"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0到自定义页面"
+msgstr ""
+
+#: Disabled references:1
+msgid "关联表中没有本表关联类型的层级视图，请先去添加一个"
+msgstr ""
+
+#: Disabled references:1
+msgid "的匹配字段未设置"
+msgstr ""
+
+#: Disabled references:1
+msgid "外部用户暂只支持通过姓名匹配"
+msgstr ""
+
+#: Disabled references:1
+msgid "允许选取地图"
 msgstr ""
 

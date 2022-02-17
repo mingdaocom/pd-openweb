@@ -14,6 +14,7 @@ import {
   printType,
   typeForCon,
   DEFAULT_FONT_SIZE,
+  UNPRINTCONTROL,
 } from '../config';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
@@ -74,7 +75,7 @@ export default class Con extends React.Component {
     const { type, from } = this.props.params;
     const { showData, printOption } = printData;
     const controlData = putControlByOrder(
-      replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => o.type !== 43)),
+      replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => !UNPRINTCONTROL.includes(o.type))),
     );
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     return (
@@ -185,7 +186,7 @@ export default class Con extends React.Component {
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
-        if (data.checked && it.type !== 43) {
+        if (data.checked && !UNPRINTCONTROL.includes(o.type)) {
           return it;
         }
       });

@@ -50,7 +50,7 @@ export default class WorkSheetFilter extends Component {
       showSaveWorksheetFilter: false,
       showAddColumnList: false,
       filters: [],
-      activeFilter: null,
+      activeFilter: props.chartId ? { name: _l('来自统计图的筛选'), isChartFilter: true } : null,
       editingFilter: null,
       saveAsFilter: null,
       filterExpandedId: null,
@@ -75,6 +75,9 @@ export default class WorkSheetFilter extends Component {
         filterExpandedId: null,
         filters: [],
       });
+    }
+    if (!nextProps.chartId && _.get(this.state, 'activeFilter.isChartFilter')) {
+      this.clearFilter();
     }
   }
   componentWillUnmount() {
@@ -110,7 +113,6 @@ export default class WorkSheetFilter extends Component {
             loaded: true,
             showSaveWorksheetFilter: false,
             showAddColumnList: false,
-            activeFilter: null,
             editingFilter: null,
             saveAsFilter: null,
             filterExpandedId: null,
@@ -490,20 +492,24 @@ export default class WorkSheetFilter extends Component {
   filterBySearchType(e) {
     e.stopPropagation();
     const { onChange } = this.props;
-    this.setState({
-      activeFilter: {
-        name: _l('我拥有的'),
+    this.setState(
+      {
+        activeFilter: {
+          name: _l('我拥有的'),
+        },
+        searchType: 2,
+        showFilter: false,
       },
-      searchType: 2,
-      showFilter: false,
-    });
-    onChange({
-      searchType: 2,
-      filterControls: [],
-    });
+      () => {
+        onChange({
+          searchType: 2,
+          filterControls: [],
+        });
+      },
+    );
   }
   renderFilterItem(filter, index) {
-    const { onlyUseEditing, projectId, isCharge } = this.props;
+    const { onlyUseEditing, projectId, isCharge, appId } = this.props;
     const { showCustomAddCondition } = this.state;
     let { columns } = this.props;
     let unsaved = false;
@@ -523,6 +529,7 @@ export default class WorkSheetFilter extends Component {
       <FilterItem
         disableSave={onlyUseEditing}
         projectId={projectId}
+        appId={appId}
         key={filter.id}
         isCharge={isCharge}
         expanded={filterExpandedId === filter.id}
@@ -576,12 +583,16 @@ export default class WorkSheetFilter extends Component {
   }
   @autobind
   renderFilterHead() {
+    const { chartId, clearChartId } = this.props;
     const { editingFilter } = this.state;
     let { activeFilter } = this.state;
     let text = '';
     if (activeFilter) {
       if (activeFilter.type === FILTER_TYPE.TEMP) {
-        const conditions = editingFilter.conditions.filter(condition => checkConditionAvailable(condition));
+        const conditions =
+          editingFilter && editingFilter.conditions
+            ? editingFilter.conditions.filter(condition => checkConditionAvailable(condition))
+            : [];
         text = _l('%0 项', conditions.length);
         if (!conditions.length) {
           activeFilter = undefined;
@@ -607,6 +618,9 @@ export default class WorkSheetFilter extends Component {
             onClick={e => {
               e.stopPropagation();
               this.clearFilter();
+              if (chartId) {
+                clearChartId();
+              }
             }}
           />
         )}

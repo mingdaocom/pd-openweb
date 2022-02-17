@@ -162,9 +162,12 @@ export default function SearchConfig(props) {
                     popupStyle={{ width: 280 }}
                     popup={
                       <SelectControl
-                        list={controls.filter(({ type, controlId }) => {
+                        list={controls.filter(({ type, sourceControlType, controlId }) => {
                           const ids = searchfilters.map(({ controlId }) => controlId);
-                          return _.includes(FASTFILTER_CONDITION_TYPE, type) && !ids.includes(controlId);
+                          return (
+                            _.includes(FASTFILTER_CONDITION_TYPE, type === 30 ? sourceControlType : type) &&
+                            !ids.includes(controlId)
+                          );
                         })}
                         onClick={item => {
                           setState({ searchfilters: searchfilters.concat(_.pick(item, ['controlId'])) });

@@ -37,6 +37,11 @@ export default class UploadFilesTrigger extends Component {
     };
     this.id = props.id || getRandomString(16);
   }
+  componentDidMount() {
+    if (this.props.popupVisible) {
+      this.setTriggerPanelVisible(true);
+    }
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.popupVisible) {
       this.setTriggerPanelVisible(true);
@@ -110,13 +115,16 @@ export default class UploadFilesTrigger extends Component {
     this.textarea && this.textarea.focus();
   }
   renderHeader() {
+    const { advancedSetting: { max, maxcount } = {} } = this.props;
     return (
       <div className="panelHeader flexRow valignWrapper Font15">
         <div className="flex">
           <span>{_l('添加附件')}</span>
-          <span className="mLeft5" data-tip={_l('0B/1G(至多本地,链接各20个)')}>
-            <Icon icon="knowledge-message" className="Gray_bd pointer Font16" />
-          </span>
+          {max || maxcount ? null : (
+            <span className="mLeft5" data-tip={_l('0B/1G(至多本地,知识,链接各20个)')}>
+              <Icon icon="knowledge-message" className="Gray_bd pointer Font16" />
+            </span>
+          )}
         </div>
         <Icon
           icon="close"

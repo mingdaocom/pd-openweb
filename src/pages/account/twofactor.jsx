@@ -28,7 +28,7 @@ class TwofactorContainer extends React.Component {
       hasSendTel: false, //是否发动过一次手机号验证
       verifyCode: '', // 两步验证验证码
       state: request.state,
-      type: 1, //1为手机号，2为邮箱,
+      type: _.get(md, ['global', 'SysSettings', 'twoFactorAuthenticationPriorityType']) || 1, //1为手机号，2为邮箱,
       isFail: false, //验证码是否发送失败
       tel: '',
       email: '',
@@ -84,23 +84,24 @@ class TwofactorContainer extends React.Component {
           isFail: true,
         });
         let msg = _l('验证码发送失败!');
-        if (actionResult === noTel) {
+        if (actionResult === sendFrequent) {
+          msg = _l('验证码发送过于频繁，请切换验证方式!');
+        }
+        if ([noEmail, noTel].includes(actionResult)) {
+          //未绑定手机号 除第一次外，提示未绑定
           if (hasSendTel) {
-            //未绑定手机号 除第一次外，提示未绑定
-            msg = _l('手机未绑定，请切换到邮箱验证！');
-          } else {
-            //未绑定手机号 第一次直接进入邮箱
+            msg = actionResult === noTel ? _l('手机未绑定，请使用邮箱验证！') : _l('邮箱未绑定，请使用手机短信验证！');
             this.setState({
-              type: 2,
+              type: type !== 1 ? 1 : 2,
+              account: '',
+            });
+          } else {
+            this.setState({
+              type: type !== 1 ? 1 : 2,
               hasSendTel: true,
             });
             return;
           }
-        }
-        if (actionResult === noEmail) {
-          msg = _l('邮箱未绑定，请切换到手机短信验证！');
-        } else if (actionResult === sendFrequent) {
-          msg = _l('验证码发送过于频繁，请切换验证方式!');
         }
         alert(msg, 3);
         return;

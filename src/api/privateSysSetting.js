@@ -1,9 +1,8 @@
-define(function (require, exports, module) {
-  module.exports = {
-    /**
-    * 修改系统配置
-    * @param {Object} args 请求参数
-    * @param {object} args.settings 配置项
+module.exports = {
+  /**
+  * 修改系统配置
+  * @param {Object} args 请求参数
+  * @param {object} args.settings 配置项
 OnlyAdminCreateApp:bool，是否只有管理员可以创建应用
 HideTemplateLibrary:bool，是否隐藏模板库
 ForbidSuites:string，隐藏的协作套件 【1:动态 2:任务 3:日程 4:文件，多个用|分隔】，人事模块强制不显示
@@ -27,13 +26,12 @@ TwoFactorAuthenticationPriorityType:int 双因素认证优先的账号类型（1
 FirstLoginResetPassword:bool 首次登录需要重置密码
 PasswordOverdueDays:int 密码过期时间，0代表不过期
 EnableDeclareConfirm:bool 是否开启申明确认
-    * @param {Object} options 配置参数
-    * @param {Boolean} options.silent 是否禁止错误弹层
-    * @returns {Promise<Boolean, ErrorModel>}
-    **/
-    editSysSettings: function (args, options) {
-      return $.api('PrivateSysSetting', 'EditSysSettings', args, options);
-    },
-
-  };
-});
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editSysSettings: function (args, options = {}) {
+     
+     return $.api('PrivateSysSetting', 'EditSysSettings', args, options);
+   },
+};

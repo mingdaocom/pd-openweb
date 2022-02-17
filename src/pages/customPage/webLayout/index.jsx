@@ -93,4 +93,7 @@ function webLayout(props) {
   );
 }
 
-export default connect(state => ({ components: state.customPage.components }))(memo(webLayout));
+export default connect(state => ({
+  components: state.customPage.components,
+  apk: state.customPage.apk,
+}))(memo(webLayout));

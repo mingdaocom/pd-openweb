@@ -26,11 +26,29 @@ class EditPrint extends React.Component {
   }
 
   componentDidMount() {
-    const { printData = [], templateId } = this.props;
+    this.setData();
+  }
+  componentWillReceiveProps(nextProps, nextState) {
+    if (nextProps.templateId !== this.props.templateId) {
+      this.uploaderDestroy();
+      this.setData(nextProps);
+    }
+  }
+  componentDidUpdate(prevProps) {
+    if (!this.state.bindCreateUpload) {
+      this.createUploader();
+    }
+  }
+  componentWillUnmount() {
+    this.uploaderDestroy();
+  }
+  setData = nextProps => {
+    const { printData = [], templateId } = nextProps || this.props;
     let templatedata = printData.find(it => it.id === templateId) || [];
     this.setState({
       templateName: templatedata.name,
       fileName: templatedata.formName,
+      hasChange: false,
     });
     this.createUploader();
     this.con.addEventListener('dragover', e => {
@@ -49,15 +67,7 @@ class EditPrint extends React.Component {
       },
       false,
     );
-  }
-  componentDidUpdate(prevProps) {
-    if (!this.state.bindCreateUpload) {
-      this.createUploader();
-    }
-  }
-  componentWillUnmount() {
-    this.uploaderDestroy();
-  }
+  };
 
   uploaderDestroy = () => {
     if (this.uploader) {

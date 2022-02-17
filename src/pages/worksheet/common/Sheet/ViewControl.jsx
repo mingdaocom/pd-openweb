@@ -36,6 +36,7 @@ const Con = styled.div`
   height: 37px;
   padding: 0 20px 0 20px;
   overflow: hidden;
+  border-bottom: 1px solid #e0e0e0;
 `;
 
 function ViewControl(props) {
@@ -124,7 +125,7 @@ function ViewControl(props) {
               appId,
               ext: '',
               name: view.name,
-              dialogTitle: _('分享视图'),
+              dialogTitle: _l('分享视图'),
               attachmentType: 3,
               node: {
                 canChangeSharable: isCharge,
@@ -159,6 +160,9 @@ function ViewControl(props) {
             worksheetSummaryTypes: rowsSummary.types,
             quickFilter,
             navGroupFilters,
+
+            // 支持列统计结果
+            hideStatistics: false,
           });
         }}
         onRemoveView={(newViewList, newViewId) => {

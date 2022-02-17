@@ -62,6 +62,7 @@ export const dealBoardViewData = props => {
             allowEdit,
             allowDelete,
             ...getRecordAttachments(parsedRow[coverCid]),
+            coverData: { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
             abstractValue: abstract
               ? renderCellText({
                   ...(controls.find(it => it.controlId === abstract) || {}),

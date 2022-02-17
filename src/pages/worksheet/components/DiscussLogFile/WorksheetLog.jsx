@@ -91,6 +91,8 @@ export default class Discuss extends Component {
         {discussList.map((item, index) => {
           const message = mdFunction.createLinksForMessage({
             message: item.message,
+            accountId: item.accountId,
+            accountName: item.accountName,
           });
           return (
             <div className="logItem" key={index}>

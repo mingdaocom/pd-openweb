@@ -193,7 +193,7 @@ const GroupFilter = props => {
     let rowId = item.value ? item.value : 'all';
     let path = (item.path && JSON.parse(item.path)) || [];
     let txt = item.txt instanceof Array ? path[path.length - 1] : item.txt;
-    let url = `/mobile/groupFilterDetail/${base.worksheetId}/${viewId}/${appId}/${rowId}/${encodeURIComponent(txt)}`;
+    let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}/${encodeURIComponent(txt)}`;
     window.mobileNavigateTo(url);
   };
   const renderContent = data => {

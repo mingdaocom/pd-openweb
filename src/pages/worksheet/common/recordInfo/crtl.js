@@ -1,20 +1,31 @@
 import {
-  getRowByID,
   updateWorksheetRow,
   deleteWorksheetRows,
   getWorksheetBtns,
   updateRowRelationRows,
-  getControlRules,
   getWorksheetInfo as getWorksheetInfoApi,
 } from 'src/api/worksheet';
+import { getControlRules } from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
+import { getAppFeaturesPath } from 'src/util';
 
 export function getWorksheetInfo(...args) {
   return getWorksheetInfoApi(...args);
 }
 
-export function loadRecord({ appId, viewId, worksheetId, recordId, getType = 1, instanceId, workId, getRules }) {
+export function loadRecord({
+  appId,
+  viewId,
+  worksheetId,
+  recordId,
+  getType = 1,
+  instanceId,
+  workId,
+  getRules,
+  controls,
+}) {
   return new Promise((resolve, reject) => {
     const apiargs = {
       worksheetId,
@@ -22,7 +33,6 @@ export function loadRecord({ appId, viewId, worksheetId, recordId, getType = 1, 
       getType,
       appId,
       viewId,
-      getTemplate: true,
       checkView: true,
     };
     if (instanceId && workId) {
@@ -32,29 +42,29 @@ export function loadRecord({ appId, viewId, worksheetId, recordId, getType = 1, 
     }
     let promise;
     if (!getRules) {
-      promise = $.when(getRowByID(apiargs));
+      promise = Promise.all([(promise = getRowDetail(apiargs, controls))]);
     } else {
-      promise = $.when(
-        getRowByID(apiargs),
+      promise = Promise.all([
+        getRowDetail(apiargs, controls),
         getControlRules({
           worksheetId,
           type: 1, // 1字段显隐
         }),
-      );
+      ]);
     }
     promise
-      .then((row, rules) => {
+      .then(([row, rules]) => {
         if (row.resultCode === 1) {
           if (instanceId && workId && !viewId) {
             // 工作流调用
-            row.receiveControls = row.receiveControls.map(c => Object.assign({}, c, { fieldPermission: '111' }));
+            row.formData = row.formData.map(c => Object.assign({}, c, { fieldPermission: '111' }));
           }
           resolve(rules ? { ...row, rules } : row);
         } else {
           reject(row);
         }
       })
-      .fail(reject);
+      .catch(reject);
   });
 }
 
@@ -264,13 +274,15 @@ export function updateRecordOwner({ worksheetId, recordId, accountId }) {
   });
 }
 
-export function handleChangeOwner({ recordId, ownerAccountId, projectId, target, changeOwner }) {
+export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, target, changeOwner }) {
   $(target).quickSelectUser({
     sourceId: recordId,
     projectId: projectId,
     showQuickInvite: false,
     showMoreInvite: false,
     isTask: false,
+    tabType: 3,
+    appId,
     includeUndefinedAndMySelf: true,
     filterAccountIds: [ownerAccountId],
     offset: {
@@ -300,9 +312,9 @@ export function handleChangeOwner({ recordId, ownerAccountId, projectId, target,
 
 export async function handleShare({ isCharge, appId, worksheetId, viewId, recordId }, callback) {
   try {
-    const row = await getRowByID({ appId, worksheetId, viewId, rowId: recordId });
-    let recordTitle = getTitleTextFromControls(row.receiveControls);
-    let allowChange = isCharge || isOwner(row.ownerAccount, row.receiveControls);
+    const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
+    let recordTitle = getTitleTextFromControls(row.formData);
+    let allowChange = isCharge || isOwner(row.ownerAccount, row.formData);
     let shareRange = row.shareRange;
     import('src/components/shareAttachment/shareAttachment').then(share => {
       const params = {
@@ -329,8 +341,8 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
 
 export async function handleCreateTask({ appId, worksheetId, viewId, recordId }) {
   try {
-    const row = await getRowByID({ appId, worksheetId, viewId, rowId: recordId });
-    let recordTitle = getTitleTextFromControls(row.receiveControls);
+    const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
+    let recordTitle = getTitleTextFromControls(row.formData);
     const source = appId + '|' + worksheetId + '|' + viewId + '|' + recordId;
     require(['createTask'], createTask => {
       createTask.index({
@@ -353,9 +365,11 @@ export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) 
     appId = res.appId;
   }
   if (viewId) {
-    window.open(`/app/${appId}/${worksheetId}/${viewId}/row/${recordId}`);
+    window.open(
+      `${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}?${getAppFeaturesPath()}`,
+    );
   } else {
-    window.open(`/app/${appId}/${worksheetId}/row/${recordId}`);
+    window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}?${getAppFeaturesPath()}`);
   }
 }
 

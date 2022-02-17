@@ -26,6 +26,7 @@ export default function Board(props) {
     view,
     addRecord,
     updateTitleData,
+    sheetButtons,
     ...rest
   } = props;
   const [{ pageIndex, loading, createRecordVisible, addRecordDefaultValue, isMore }, setState] = useSetState({
@@ -183,6 +184,7 @@ export default function Board(props) {
               data={getDragItemData()}
               worksheetInfo={worksheetInfo}
               viewControl={viewControl}
+              sheetButtons={sheetButtons}
             />
           )}
           {list.data.map((item, index) => (
@@ -199,6 +201,7 @@ export default function Board(props) {
               computeHeight={computeHeight}
               updateTitleData={data => updateTitleData({ key: list.key, index, data })}
               {..._.pick(list, ['fieldPermission'])}
+              sheetButtons={sheetButtons}
               {...rest}
             />
           ))}

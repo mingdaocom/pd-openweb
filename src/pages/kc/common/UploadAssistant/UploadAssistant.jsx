@@ -1,7 +1,7 @@
-import React, { Fragment } from 'react';
+﻿import React, { Fragment } from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
-import qs from 'querystring';
+import qs from 'query-string';
 import cx from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
@@ -258,7 +258,7 @@ class UploadAssistant extends React.Component {
           const item = comp.state.fileList.get(file.id);
           service
             .addFile({
-              name: item.relativePath ? _.trimLeft(item.relativePath, '/') : item.name,
+              name: item.relativePath ? _.trimStart(item.relativePath, '/') : item.name,
               size: fsize,
               filePath: getUrlByBucketName(bucket) + key,
               parentId: item.parentId,

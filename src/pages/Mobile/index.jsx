@@ -8,7 +8,7 @@ import preall from 'src/common/preall';
 import genRouteComponent from 'src/router/genRouteComponent';
 import store from 'src/redux/configureStore';
 import { socketInit } from 'src/socket/mobileSocketInit';
-import { ROUTE_CONFIG } from './config';
+import { ROUTE_CONFIG, PORTAL } from './config';
 import './index.less';
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
@@ -38,6 +38,8 @@ class App extends Component {
       sessionStorage.setItem('entryUrl', location.href);
     }
     window.mobileNavigateTo = (url, isReplace) => {
+      url = (window.subPath || '') + url;
+
       if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
         url = url + '#publicapp' + window.publicAppAuthorization;
       }
@@ -63,9 +65,11 @@ class App extends Component {
     }
   }
   render() {
+    const isPortal = md.global.Account.isPortal;
+    const ROUTER = isPortal ? _.pick(ROUTE_CONFIG, PORTAL) : ROUTE_CONFIG;
     return (
       <Switch>
-        {this.genRouteComponent(ROUTE_CONFIG)}
+        {this.genRouteComponent(ROUTER)}
         <Route
           path="*"
           render={({ location }) => {
@@ -74,7 +78,7 @@ class App extends Component {
             if (location.pathname.includes(page)) {
               const param = location.pathname.replace(page, '').split('/');
               return navigateTo(param.length === 1 ? `/mobile/app/${param[0]}` : home);
-            } else {
+            } else if (!isPortal) {
               return navigateTo(home);
             }
           }}

@@ -726,7 +726,7 @@
         border-color: #ddd !important;
       }
       .CodeMirror-lines {
-        padding: 7px 0;
+        padding: 7px 0 6px;
       }
     }
   }
@@ -879,17 +879,6 @@
     line-height: 40px;
     padding: 0 12px;
     box-sizing: border-box;
-    overflow: hidden;
-    overflow-x: auto;
-    white-space: nowrap;
-    &::-webkit-scrollbar-thumb {
-      background: #f4f4f4;
-    }
-
-    &::-webkit-scrollbar-thumb:active,
-    &::-webkit-scrollbar-thumb:hover {
-      background: #f4f4f4;
-    }
   }
   .webhookLinkCopy {
     height: 40px;
@@ -926,6 +915,9 @@
       line-height: 40px;
       padding: 0 16px;
     }
+    .w40 {
+      width: 40px;
+    }
     .w70 {
       width: 70px;
     }
@@ -945,6 +937,39 @@
           word-break: break-all;
         }
       }
+    }
+  }
+  .workflowDetailColorBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    margin-left: 12px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    .flexColumn {
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      padding-bottom: 3px;
+      pointer-events: none;
+    }
+    .workflowDetailColor {
+      width: 10px;
+      height: 2px;
+      margin-top: -3px;
+    }
+    input {
+      width: 34px;
+      height: 34px;
+      border: none;
+      position: absolute;
+      cursor: pointer;
     }
   }
 }

@@ -761,47 +761,48 @@ export default class FileComponent extends Component {
             )}
             {((!isMDLink && !hideDownload) ||
               !hideDownload ||
-              (isMDLink && fileResponse.accountId === md.global.Account.accountId)) && (
-              <div className="UploadFiles-panelBtn" onClick={this.onOpenMenu.bind(this)}>
-                <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
-                <div
-                  className="UploadFiles-panelBtnMask"
-                  data-tip={_l('更多')}
-                  onMouseEnter={() => {
-                    this.setState({ moreVisible: true });
-                  }}
-                  onMouseLeave={() => {
-                    this.setState({ moreVisible: false });
-                  }}
-                />
-                <Menu
-                  style={{ width: 120, left: menuOffset, top: 30, zIndex: 100 }}
-                  className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
-                  onClickAway={() => this.setState({ menuVisible: false })}
-                >
-                  {/* 是否不可下载 且 不可保存到知识和分享 */}
-                  {!isMDLink && !hideDownload && (
-                    <MenuItem onClick={this.onShare.bind(this, isDownload)}>
-                      <Icon icon="share" />
-                      <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
-                    </MenuItem>
-                  )}
-                  {/* 是否不可下载 且 不可保存到知识和分享 */}
-                  {!hideDownload && (
-                    <MenuItem onClick={this.onSaveToKc.bind(this, isDownload)}>
-                      <Icon icon="knowledge-cloud" />
-                      <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
-                    </MenuItem>
-                  )}
-                  {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
-                    <MenuItem onClick={this.onEditLink.bind(this)}>
-                      <Icon icon="hr_edit" />
-                      <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
-                    </MenuItem>
-                  )}
-                </Menu>
-              </div>
-            )}
+              (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
+              !md.global.Account.isPortal && (
+                <div className="UploadFiles-panelBtn" onClick={this.onOpenMenu.bind(this)}>
+                  <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
+                  <div
+                    className="UploadFiles-panelBtnMask"
+                    data-tip={_l('更多')}
+                    onMouseEnter={() => {
+                      this.setState({ moreVisible: true });
+                    }}
+                    onMouseLeave={() => {
+                      this.setState({ moreVisible: false });
+                    }}
+                  />
+                  <Menu
+                    style={{ width: 120, left: menuOffset, top: 30, zIndex: 100 }}
+                    className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
+                    onClickAway={() => this.setState({ menuVisible: false })}
+                  >
+                    {/* 是否不可下载 且 不可保存到知识和分享 */}
+                    {!isMDLink && !hideDownload && (
+                      <MenuItem onClick={this.onShare.bind(this, isDownload)}>
+                        <Icon icon="share" />
+                        <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
+                      </MenuItem>
+                    )}
+                    {/* 是否不可下载 且 不可保存到知识和分享 */}
+                    {!hideDownload && (
+                      <MenuItem onClick={this.onSaveToKc.bind(this, isDownload)}>
+                        <Icon icon="knowledge-cloud" />
+                        <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
+                      </MenuItem>
+                    )}
+                    {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
+                      <MenuItem onClick={this.onEditLink.bind(this)}>
+                        <Icon icon="hr_edit" />
+                        <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
+                      </MenuItem>
+                    )}
+                  </Menu>
+                </div>
+              )}
           </div>
         </div>
       </div>

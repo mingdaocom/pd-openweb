@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import './index.less';
 import 'dialogSelectUser';
@@ -62,40 +62,45 @@ export default class SelectUserDropDown extends Component {
    * 头部
    */
   header() {
-    const { specialType, disabledNodeRole } = this.props;
+    const { specialType, disabledNodeRole, onlyNodeRole } = this.props;
 
     return (
       <ul className="flowDetailUserList">
-        {(specialType === 3 || specialType === 5) && (
-          <div className="explainHeader flexRow">
-            <i className={cx('Gray_9e', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
-            <input
-              type="text"
-              className="w100"
-              autoFocus
-              placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
-              onClick={evt => evt.stopPropagation()}
-              onKeyDown={this.addTelAndEmail}
-            />
-          </div>
+        {onlyNodeRole ? null : (
+          <Fragment>
+            {(specialType === 3 || specialType === 5) && (
+              <div className="explainHeader flexRow">
+                <i className={cx('Gray_9e', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
+                <input
+                  type="text"
+                  className="w100"
+                  autoFocus
+                  placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
+                  onClick={evt => evt.stopPropagation()}
+                  onKeyDown={this.addTelAndEmail}
+                />
+              </div>
+            )}
+            <MenuItem icon={<i className="icon-workflow_contacts" />} onClick={this.addMembers}>
+              {_l('从通讯录中选择')}
+            </MenuItem>
+            <MenuItem icon={<i className="icon-invite_members" />} onClick={this.addDepartment}>
+              {_l('部门')}
+            </MenuItem>
+            <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
+              {_l('职位')}
+            </MenuItem>
+            <MenuItem
+              icon={<i className="icon-workflow_role" />}
+              onClick={() => this.setState({ showSelectAppUserDialog: true })}
+            >
+              {_l('使用应用下角色')}
+            </MenuItem>
+          </Fragment>
         )}
-        <MenuItem icon={<i className="icon-workflow_contacts" />} onClick={this.addMembers}>
-          {_l('从通讯录中选择')}
-        </MenuItem>
-        <MenuItem icon={<i className="icon-invite_members" />} onClick={this.addDepartment}>
-          {_l('部门')}
-        </MenuItem>
-        <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
-          {_l('职位')}
-        </MenuItem>
-        <MenuItem
-          icon={<i className="icon-workflow_role" />}
-          onClick={() => this.setState({ showSelectAppUserDialog: true })}
-        >
-          {_l('使用应用下角色')}
-        </MenuItem>
+
         {!disabledNodeRole && (
-          <div className="explainText">
+          <div className={cx('explainText', { explainTextClearStyle: onlyNodeRole })}>
             <i className="icon-workflow_new Gray_9e" />
             {_l('使用流程节点对象下的人员')}
           </div>

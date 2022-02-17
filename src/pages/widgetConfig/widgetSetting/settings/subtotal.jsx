@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment, useRef } from 'react';
 import { RadioGroup, Dropdown, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
-import { get, includes, isEmpty } from 'lodash';
+import _, { get, includes, isEmpty } from 'lodash';
 import { SettingItem } from '../../styled';
 import { filterControlsFromAll, getControlByControlId, getIconByType, resortControlByColRow } from '../../util';
 import {
@@ -15,7 +15,7 @@ import { FilterItemTexts, FilterDialog } from '../components/FilterData';
 import CommonComponents from '../../components';
 import components from '../components';
 import { SYSTEM_CONTROL } from '../../config/widget';
-const { NumberUnit, PointerConfig } = components;
+const { PointerConfig, PreSuffix } = components;
 
 const SubtotalSettingWrap = styled.div``;
 
@@ -109,6 +109,15 @@ export default function Subtotal(props) {
 
     if (nextControl.dot) {
       nextData = { ...nextData, dot: nextControl.dot || 2 };
+    }
+
+    // 数值或金额，单位同步
+    if (_.includes([6, 8], nextControl.type)) {
+      const { suffix, prefix } = nextControl.advancedSetting || {};
+      suffix && (nextData = { ...handleAdvancedSettingChange(nextData, { suffix: suffix, prefix: '' }) });
+      prefix && (nextData = { ...handleAdvancedSettingChange(nextData, { prefix: prefix, suffix: '' }) });
+    } else {
+      nextData = { ...handleAdvancedSettingChange(nextData, { suffix: '', prefix: '' }) };
     }
 
     if (nextControl.type === 38) {
@@ -283,7 +292,10 @@ export default function Subtotal(props) {
           )}
           {isShowUnitConfig() && (
             <Fragment>
-              <NumberUnit {...props} />
+              <SettingItem>
+                <div className="settingItemTitle">{_l('单位')}</div>
+                <PreSuffix {...props} />
+              </SettingItem>
               <PointerConfig {...props} />
             </Fragment>
           )}

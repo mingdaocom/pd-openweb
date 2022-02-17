@@ -99,7 +99,7 @@ const OptionListItem = styled.div`
 `;
 
 export default function SelectOptions(props) {
-  const { data, onChange, globalSheetInfo } = props;
+  const { data, onChange, globalSheetInfo = {}, fromPortal = false } = props;
   const { type, controlName, controlId, strDefault, enumDefault, enumDefault2, options, dataSource } = data;
   const { appId } = globalSheetInfo;
   const colorful = enumDefault2 === 1;
@@ -248,6 +248,7 @@ export default function SelectOptions(props) {
             colorful={colorful}
             enableScore={enumDefault === 1}
             isMulti={type === 10}
+            fromPortal={fromPortal}
             onChange={obj => {
               if (has(obj, 'enableScore')) {
                 const { enableScore, ...rest } = obj;

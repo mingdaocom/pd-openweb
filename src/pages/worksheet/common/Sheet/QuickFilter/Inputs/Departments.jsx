@@ -65,7 +65,7 @@ export default function Departments(props) {
               return;
             }
             setActive(false);
-            onChange({ values: isMultiple ? _.uniq([...values, ...data], 'departmentId') : data });
+            onChange({ values: isMultiple ? _.uniqBy([...values, ...data], 'departmentId') : data });
           },
         });
       }}

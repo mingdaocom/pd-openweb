@@ -1,6 +1,6 @@
 import './css/mobileShare.less';
 import doT from 'dot';
-var qs = require('querystring');
+var qs = require('query-string');
 import { addToken, formatFileSize, getClassNameByExt } from 'src/util';
 var mobileShareTpl = doT.template(require('./tpl/mobileShare.htm'));
 var { ATTACHMENT_TYPE } = require('src/components/shareAttachment/enum');
@@ -18,17 +18,10 @@ function urlAddParams(originurl, value) {
   if (originurl.indexOf('token=') > -1) return originurl;
   const origin = originurl.split('?')[0];
   const query = qs.parse(originurl.replace(origin, '').slice(1));
-  return (
-    origin +
-    '?' +
-    qs
-      .stringify(Object.assign(query, value))
-      .replace(/=&/g, '&')
-      .replace(/=$/g, '')
-  );
+  return origin + '?' + qs.stringify(Object.assign(query, value)).replace(/=&/g, '&').replace(/=$/g, '');
 }
 
-var MobileSharePreview = function(options) {
+var MobileSharePreview = function (options) {
   var MSP = this;
   this.options = Object.assign({}, options);
   this.$container = $(this.options.container || '#app');
@@ -73,7 +66,7 @@ var MobileSharePreview = function(options) {
 };
 
 MobileSharePreview.prototype = {
-  init: function() {
+  init: function () {
     var MSP = this;
     MSP.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     MSP.isWeiXin = /micromessenger/i.test(navigator.userAgent);
@@ -97,7 +90,7 @@ MobileSharePreview.prototype = {
     }
     MSP.render();
   },
-  checkValid: function() {
+  checkValid: function () {
     var MSP = this;
     if (MSP.attachmentType === ATTACHMENT_TYPE.KC) {
       return true;
@@ -107,7 +100,7 @@ MobileSharePreview.prototype = {
       return (new Date().getTime() - MSP.urlParams.genTime) / (3600 * 1000) < 48;
     }
   },
-  setAttachmentType: function() {
+  setAttachmentType: function () {
     var MSP = this;
     var sourceData = MSP.sourceData;
     var urlParams = MSP.urlParams;
@@ -119,7 +112,7 @@ MobileSharePreview.prototype = {
       MSP.attachmentType = ATTACHMENT_TYPE.QINIU;
     }
   },
-  formatToFile: function() {
+  formatToFile: function () {
     var MSP = this;
     var sourceData = MSP.sourceData;
     var file = {};
@@ -161,10 +154,10 @@ MobileSharePreview.prototype = {
     }
     return file;
   },
-  formatTime: function(date) {
+  formatTime: function (date) {
     return moment(date).format('YYYY-MM-DD HH:mm:ss');
   },
-  renderOverDue: function() {
+  renderOverDue: function () {
     var MSP = this;
     MSP.$html = $(
       mobileShareTpl({
@@ -174,7 +167,7 @@ MobileSharePreview.prototype = {
     );
     MSP.$container.html(MSP.$html);
   },
-  render: function() {
+  render: function () {
     var MSP = this;
     MSP.$html = $(
       mobileShareTpl({
@@ -204,12 +197,12 @@ MobileSharePreview.prototype = {
       MSP.renderImage();
     }
   },
-  bindEvent: function() {
+  bindEvent: function () {
     var MSP = this;
-    MSP.$saveToMingDao.on('click', function() {
+    MSP.$saveToMingDao.on('click', function () {
       if (!md.global.Account || !md.global.Account.accountId) {
         MSP.alert(_l('请先登录'));
-        setTimeout(function() {
+        setTimeout(function () {
           window.location =
             '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
         }, 1000);
@@ -219,7 +212,7 @@ MobileSharePreview.prototype = {
         MSP.saveToKnowledge();
       }
     });
-    MSP.$downloadBtn.on('click', function() {
+    MSP.$downloadBtn.on('click', function () {
       var attachmentType = MSP.attachmentType;
       var canDownload = MSP.file.canDownload || File.isPicture('.' + MSP.file.ext);
       if (MSP.isWeiXin) {
@@ -229,12 +222,16 @@ MobileSharePreview.prototype = {
       } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
         MSP.downloadFile(MSP.file.downloadUrl);
       } else {
-        let url = MSP.file.downloadUrl + (MSP.attachmentType === ATTACHMENT_TYPE.KC && MSP.options.shareFolderId ? '&shareFolderId=' + MSP.options.shareFolderId : '');
+        let url =
+          MSP.file.downloadUrl +
+          (MSP.attachmentType === ATTACHMENT_TYPE.KC && MSP.options.shareFolderId
+            ? '&shareFolderId=' + MSP.options.shareFolderId
+            : '');
         window.open(addToken(url, !window.isDingTalk));
       }
     });
     if (MSP.$filePreview[0] && RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext) > -1) {
-      MSP.$filePreview.on('click', function() {
+      MSP.$filePreview.on('click', function () {
         if (MSP.isIOS && MSP.isWeiXin) {
           MSP.openMask();
           return;
@@ -242,7 +239,7 @@ MobileSharePreview.prototype = {
         MSP.previewFile();
       });
     }
-    MSP.$openIniOS.on('click', function() {
+    MSP.$openIniOS.on('click', function () {
       var needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
       if (!needService && MSP.isIOS && MSP.isWeiXin) {
         MSP.openMask();
@@ -250,7 +247,7 @@ MobileSharePreview.prototype = {
       }
       MSP.previewFile();
     });
-    MSP.$openAPP.on('click', function() {
+    MSP.$openAPP.on('click', function () {
       if (MSP.isWeiXin) {
         MSP.openMask();
         return;
@@ -260,13 +257,13 @@ MobileSharePreview.prototype = {
       window.open('mingdao://kcshare/' + file.id);
     });
   },
-  downloadFile: function(url) {
+  downloadFile: function (url) {
     var a = document.createElement('a');
     a.setAttribute('download', true);
     a.href = url;
     a.click();
   },
-  previewFile: function() {
+  previewFile: function () {
     var promise = $.Deferred();
     var MSP = this;
     var needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
@@ -282,9 +279,7 @@ MobileSharePreview.prototype = {
         : file.viewUrl;
     } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
       const fetchPromise = getPreviewLink({
-        id: Math.random()
-          .toString(16)
-          .slice(2),
+        id: Math.random().toString(16).slice(2),
         path: file.qiniuPath,
       });
       promise = needService
@@ -293,7 +288,7 @@ MobileSharePreview.prototype = {
           : fetchPromise
         : { viewUrl: file.downloadUrl };
     }
-    $.when(promise).then(function(data) {
+    $.when(promise).then(function (data) {
       var viewUrl = attachmentType === ATTACHMENT_TYPE.QINIU ? data.viewUrl : data;
       if (!viewUrl) {
         MSP.alert(_l('获取预览链接失败'));
@@ -314,7 +309,7 @@ MobileSharePreview.prototype = {
       window.location = viewUrl;
     });
   },
-  saveToKnowledge: function() {
+  saveToKnowledge: function () {
     var MSP = this;
     require(['src/components/saveToKnowledge/saveToKnowledge'], saveToKnowledge => {
       var sourceData = {};
@@ -339,15 +334,15 @@ MobileSharePreview.prototype = {
         createShare: false,
       })
         .save(kcPath)
-        .then(function() {
+        .then(function () {
           MSP.alert(_l('已存入 知识“我的文件” 中'));
         })
-        .fail(function() {
+        .fail(function () {
           MSP.alert(_l('保存失败'));
         });
     });
   },
-  renderImage: function() {
+  renderImage: function () {
     var MSP = this;
     MSP.$imageLink = MSP.$html.find('.previewImage');
     MSP.$image = MSP.$html.find('.previewImage img');
@@ -358,7 +353,7 @@ MobileSharePreview.prototype = {
       MSP.$image.attr('src', MSP.getPreviewUrl(MSP.file.imageSrc));
     }
   },
-  getImageLink: function() {
+  getImageLink: function () {
     var MSP = this;
     var attachmentType = MSP.attachmentType;
     var result;
@@ -371,11 +366,11 @@ MobileSharePreview.prototype = {
     }
     return result;
   },
-  getPreviewUrl: function(url) {
+  getPreviewUrl: function (url) {
     var MSP = this;
     return `${url}|imageView2/2/w/${MSP.preview.width - 32}/h/${MSP.preview.height - 32}`;
   },
-  getCommonPreviewLink: function(file) {
+  getCommonPreviewLink: function (file) {
     var MSP = this;
     return attachmentAjax.getPreviewLink({
       fileID: file.fileID,
@@ -383,14 +378,14 @@ MobileSharePreview.prototype = {
       attachmentType: MSP.sourceData.attachmentType,
     });
   },
-  openMask: function() {
+  openMask: function () {
     var $mask = $('<div class="mobileSharemask ' + (this.isIOS ? 'ios' : 'android') + '"></div>');
     this.$container.append($mask);
-    $mask.on('click', function() {
+    $mask.on('click', function () {
       $mask.remove();
     });
   },
-  alert: function(str, time) {
+  alert: function (str, time) {
     var MSP = this;
     clearTimeout(MSP.timer);
     if (MSP.$alert) {
@@ -398,15 +393,15 @@ MobileSharePreview.prototype = {
     }
     MSP.$alert = $('<div class="mobileAlertDialog" ><div class="alertDialog">' + str + '</div></div>');
     $('body').append(MSP.$alert);
-    MSP.alertTimer = setTimeout(function() {
+    MSP.alertTimer = setTimeout(function () {
       MSP.$alert.remove();
     }, time || 3000);
   },
-  loadWeiXinShare: function() {
+  loadWeiXinShare: function () {
     var MSP = this;
     getWeiXinConfig({
       url: encodeURI(location.href),
-    }).then(function(data) {
+    }).then(function (data) {
       if (data.code === 1) {
         wx.config({
           debug: false,
@@ -426,13 +421,13 @@ MobileSharePreview.prototype = {
           link: location.href,
           desc: location.href,
           imgUrl: imgUrl,
-          success: function() {},
+          success: function () {},
         });
         wx.onMenuShareTimeline({
           title: MSP.file.name,
           link: location.href,
           imgUrl: imgUrl,
-          success: function() {},
+          success: function () {},
         });
       }
     });

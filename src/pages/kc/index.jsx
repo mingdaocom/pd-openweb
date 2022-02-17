@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import qs from 'querystring';
+import qs from 'query-string';
 import KcLeft from './common/KcLeft';
 import KcMain from './common/KcMain';
 import './Kc.less';
@@ -16,21 +16,14 @@ export default class KcEntrypoint extends Component {
   render() {
     const {
       match: {
-        params: {
-          path,
-        },
+        params: { path },
       },
     } = this.props;
-    return (<div className="kc flexRow">
-      <KcLeft
-        path={path}
-        query={qs.parse((location.search || '').slice(1))}
-      />
-      <KcMain
-        appBaseUrl="/apps/kc"
-        path={path}
-        query={qs.parse((location.search || '').slice(1))}
-      />
-    </div>);
+    return (
+      <div className="kc flexRow">
+        <KcLeft path={path} query={qs.parse((location.search || '').slice(1))} />
+        <KcMain appBaseUrl="/apps/kc" path={path} query={qs.parse((location.search || '').slice(1))} />
+      </div>
+    );
   }
 }

@@ -32,7 +32,7 @@ class NetState extends Component {
      * 40: 项目数
      * 80: 文字识别
      */
-    moduleType: oneOf([10, 20, 21, 22, 30, 31, 40, 80]),
+    moduleType: oneOf([10, 20, 21, 22, 30, 31, 40, 80, 90, 100]),
     maxCount: number,
     projectId: string,
   };
@@ -66,19 +66,17 @@ class NetState extends Component {
     // 按钮点击
     if (type === 'operationBtn') {
       // 体验版跳转
-      if (_.includes(['experience'], versionType)) {
+      if (_.includes(['experience', 'overdue'], versionType)) {
         navigateTo(`/upgrade/choose?projectId=${projectId}`);
-      } else if (_.includes(['app', 'workflow', 'storage'], serviceType)) {
+      } else if (_.includes(['app', 'workflow', 'storage', 'portaluser'], serviceType)) {
         navigateTo(`/admin/expansionservice/${projectId}/${serviceType}`);
-      } else if (_.includes(['ocr'], serviceType)) {
+      } else if (_.includes(['ocr', 'portalupgrade'], serviceType)) {
         navigateTo(`/admin/valueaddservice/${projectId}`);
       } else if (
         _.includes(['worksheet', 'sheetRecord'], serviceType) &&
         _.includes(['team', 'company'], versionType)
       ) {
         navigateTo(`/admin/upgradeservice/${projectId}`);
-      } else if (_.includes(['overdue'], versionType)) {
-        navigateTo(`/upgrade/choose?projectId=${projectId}`);
       }
     }
 

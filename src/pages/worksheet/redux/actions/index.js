@@ -21,7 +21,18 @@ export const updateBase = base => {
     dispatch(loadCustomButtons({ worksheetId: base.worksheetId }));
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
-      base,
+      base: Object.assign({}, base, {
+        chartId: base.chartId || undefined,
+      }),
+    });
+  };
+};
+
+export const clearChartId = base => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'WORKSHEET_UPDATE_BASE',
+      base: { chartId: undefined },
     });
   };
 };
@@ -30,21 +41,30 @@ export const updateWorksheetLoading = loading => ({ type: 'WORKSHEET_UPDATE_LOAD
 
 export function loadWorksheet(worksheetId) {
   return (dispatch, getState) => {
+    const { base = {} } = getState().sheet;
+    const { chartId } = base;
     dispatch({
       type: 'WORKSHEET_FETCH_START',
     });
-    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }).then(res => {
+    wrappedGetWorksheetInfo({
+      worksheetId,
+      reportId: chartId || undefined,
+      getViews: true,
+      getTemplate: true,
+      getRules: true,
+    }).then(res => {
       dispatch({
         type: 'WORKSHEET_INIT',
         value: res,
       });
     });
-    wrappedGetSwitchPermit({ worksheetId }).then(res => {
-      dispatch({
-        type: 'WORKSHEET_PERMISSION_INIT',
-        value: res,
+    worksheetId &&
+      wrappedGetSwitchPermit({ worksheetId }).then(res => {
+        dispatch({
+          type: 'WORKSHEET_PERMISSION_INIT',
+          value: res,
+        });
       });
-    });
   };
 }
 
@@ -372,7 +392,7 @@ export function copyCustomPage(para) {
           workSheetName: para.name,
           type: 1,
           status: 1,
-          icon: para.icon || 'hr_workbench',
+          icon: para.icon || '1_0_home',
           iconColor: para.iconColor || '#616161',
         };
         dispatch({

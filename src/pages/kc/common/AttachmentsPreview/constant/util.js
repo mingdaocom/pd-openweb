@@ -1,4 +1,4 @@
-﻿import qs from 'querystring';
+﻿import qs from 'query-string';
 import { NODE_VIEW_TYPE } from '../../../constant/enum';
 import { isOffice } from '../../../utils';
 import { PREVIEW_TYPE } from './enum';

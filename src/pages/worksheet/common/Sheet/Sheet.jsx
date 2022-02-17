@@ -110,6 +110,7 @@ function Sheet(props) {
       appId,
       viewId,
       worksheetId,
+      worksheetInfo,
       projectId: worksheetInfo.projectId,
       needCache: true,
       addType: 1,

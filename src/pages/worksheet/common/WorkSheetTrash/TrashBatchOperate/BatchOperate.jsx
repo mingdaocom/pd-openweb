@@ -5,7 +5,7 @@ import IconText from '../../../components/IconText';
 import './BatchOperate.less';
 
 export default function BatchOperate(props) {
-  const { selectedLength, onRestore, onHardDelete, onCancel, entityName } = props;
+  const { isCharge, selectedLength, onRestore, onHardDelete, onCancel, entityName } = props;
   return (
     <ReactCSSTransitionGroup
       transitionName="trashBatchOperateCon"
@@ -16,7 +16,7 @@ export default function BatchOperate(props) {
         <div className="trashBatchOperateCon">
           <span className="selectedStatus Font14">{_l('已选择 %0 条%1', selectedLength, entityName)}</span>
           <IconText className="restore" icon="reply" text={_l('恢复')} onClick={onRestore} />
-          <IconText className="delete" icon="delete2" text={_l('彻底删除')} onClick={onHardDelete} />
+          {isCharge && <IconText className="delete" icon="delete2" text={_l('彻底删除')} onClick={onHardDelete} />}
           <span className="Right cancelSelect ThemeColor3 Hand Font14" onClick={onCancel}>
             {_l('取消')}
           </span>

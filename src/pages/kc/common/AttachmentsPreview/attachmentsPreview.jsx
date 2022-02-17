@@ -23,7 +23,6 @@ import { formatFileSize, getClassNameByExt, addToken } from 'src/util';
 import './attachmentsPreview.less';
 import { getPssId } from 'src/util/pssId';
 
-
 class AttachmentsPreview extends React.Component {
   static propTypes = {
     attachments: PropTypes.array,
@@ -79,6 +78,12 @@ class AttachmentsPreview extends React.Component {
   }
 
   onWheel = evt => {
+    // 浏览PDF时，禁止滚动
+    const { index, attachments } = this.props;
+    const { ext } = attachments[index];
+    if (ext == 'pdf') return;
+
+    // 滚动切换文件预览
     evt = _.assign({}, evt);
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
@@ -156,7 +161,7 @@ class AttachmentsPreview extends React.Component {
     }
 
     if (ext === 'txt') {
-      previewType = PREVIEW_TYPE.MARKDOWN;
+      previewType = PREVIEW_TYPE.TXT;
     }
 
     const isFullScreen = this.props.fullscreen; // ***** TODO 全屏
@@ -250,6 +255,16 @@ class AttachmentsPreview extends React.Component {
                     );
                   }
                   case PREVIEW_TYPE.IFRAME:
+                    {/*if ((ext || '').toLocaleLowerCase() === 'pdf')
+                      return (
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          frameborder="0"
+                          src={`/preview/pdf/web/viewer.html?url=` + currentAttachment.sourceNode.privateDownloadUrl}
+                        ></iframe>
+                      );
+                      */}
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
@@ -261,13 +276,14 @@ class AttachmentsPreview extends React.Component {
                         sandbox="allow-forms allow-scripts allow-same-origin allow-modals"
                       />
                     );
+                  case PREVIEW_TYPE.TXT:
                   case PREVIEW_TYPE.CODE:
                   case PREVIEW_TYPE.MARKDOWN:
                     return (
                       <CodeViewer
-                        className={cx('fileViewer', { txtViewer: ext === 'txt' })}
+                        className="fileViewer"
                         src={viewUrl}
-                        type={previewType === PREVIEW_TYPE.CODE ? 'code' : 'markdown'}
+                        type={previewType}
                         onError={() => {
                           this.props.actions.error();
                         }}

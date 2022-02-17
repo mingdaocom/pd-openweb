@@ -1,12 +1,12 @@
 import * as sheetAjax from 'src/api/worksheet';
 import moment from 'moment';
-import qs from 'querystring';
+import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import { formatTemporaryData, formatKcAttachmentData } from 'src/components/UploadFiles/utils.js';
 import { WORKSHEET_ROLE_TYPE, SUB_PERMISSION_NAME, ROW_HEIGHT, VIEW_DISPLAY_TYPE } from './enum';
 
 // 进入配置控件页面参数处理
-export const getCustomWidgetUri = function({ sourceName, templateId, sourceId, projectId, appconfig = {} }) {
+export const getCustomWidgetUri = function ({ sourceName, templateId, sourceId, projectId, appconfig = {} }) {
   const fromURL = sId => {
     if (location.href.indexOf('application') > -1) {
       return encodeURIComponent(location.href);
@@ -33,7 +33,7 @@ export const getCustomWidgetUri = function({ sourceName, templateId, sourceId, p
 };
 
 // 控件处理后的value值转化为给接口的值
-export const getCellValue = function(cellItem, type) {
+export const getCellValue = function (cellItem, type) {
   switch (type) {
     // case 9:
     // case 11:
@@ -139,7 +139,7 @@ export const getCellValue = function(cellItem, type) {
 };
 
 // 接口的值转化为控件的value值
-export const getControlValue = function(controlItem) {
+export const getControlValue = function (controlItem) {
   switch (controlItem.type) {
     // case 9:
     // case 11:

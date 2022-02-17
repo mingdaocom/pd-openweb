@@ -58,6 +58,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   RICH_TEXT: 41,
   SIGNATURE: 42,
   OCR: 43,
+  EMBED: 45,
   REMARK: 10010,
 };
 
@@ -254,6 +255,11 @@ export const DEFAULT_CONFIG = {
     intro: _l('在表单中添加说明信息'),
     minSize: WHOLE_SIZE,
   },
+  EMBED: {
+    widgetName: _l('嵌入'),
+    icon: 'code',
+    intro: _l('在表单中嵌入URL，支持使用其他字段值传参'),
+  },
 };
 
 export const DEFAULT_DATA = {
@@ -420,6 +426,7 @@ export const DEFAULT_DATA = {
       allowadd: '1',
       allowcancel: '1',
       allowedit: '1',
+      allowsingle: '1',
     },
   },
   SWITCH: {
@@ -472,6 +479,15 @@ export const DEFAULT_DATA = {
     size: 6,
     controlName: _l('文本识别'),
   },
+  EMBED: {
+    size: 12,
+    controlName: _l('嵌入'),
+    hint: _l('编辑状态下不支持查看'),
+    enumDefault: 1,
+    advancedSetting: {
+      height: 400,
+    },
+  },
 };
 
 export const SYSTEM_DATE_CONTROL = [
@@ -508,6 +524,10 @@ export const SYSTEM_CONTROL = [
   },
   ...SYSTEM_DATE_CONTROL,
 ];
+
+// 表单内需要排除的系统字段
+export const FORM_HIDDEN_CONTROL_IDS = ['ownerid', 'caid', 'ctime', 'utime', 'daid', 'uaid'];
+
 // 系统字段
 export const SYS = SYSTEM_CONTROL.map(o => o.controlId);
 
@@ -542,7 +562,7 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, ['RELATE_SHEET', 'SUB_LIST', 'CASCADER', 'SHEET_FIELD', 'SUBTOTAL']);
 
-export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['SPLIT_LINE', 'REMARK', 'RELATION', 'MONEY_CN']);
+export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['SPLIT_LINE', 'REMARK', 'RELATION', 'MONEY_CN', 'EMBED']);
 
 export const WIDGET_GROUP_TYPE = {
   COMMON_USE: { widgets: COMMON_USE_WIDGETS, title: _l('常用控件') },

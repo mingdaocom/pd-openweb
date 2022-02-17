@@ -8,7 +8,7 @@ import Input from 'ming-ui/components/Input';
 import Button from 'ming-ui/components/Button';
 import store from 'redux/configureStore';
 import cx from 'classnames';
-import alreadyDelete from 'src/pages/worksheet/assets/alreadyDelete.png';
+import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import './WorksheetEmpty.less';
 
 class WorksheetEmpty extends Component {
@@ -37,7 +37,8 @@ class WorksheetEmpty extends Component {
           appId,
           appSectionId: groupId,
           name: name.slice(0, 25),
-          icon: '1_0_home',
+          icon: '1_worksheet',
+          type: 0,
           iconColor,
           projectId,
         },
@@ -59,7 +60,7 @@ class WorksheetEmpty extends Component {
       alert(_l('请填写名称'));
       return;
     }
-    onCreateItem({ type, name: name.slice(0, 25), icon: 'hr_workbench' });
+    onCreateItem({ type, name: name.slice(0, 25), icon: type === 0 ? '1_worksheet' : '1_0_home' });
     this.setState({ createType: '' });
   };
 
@@ -139,7 +140,7 @@ class WorksheetEmpty extends Component {
   renderUnauthorized() {
     return (
       <div className="contentBox">
-        <img className="Width110" src={alreadyDelete} />
+        <img className="Width110" src={abnormal} />
         <span className="Block TxtCenter Gray_75 Font17 mTop30">{_l('应用项无权限或者已删除')}</span>
       </div>
     );

@@ -182,7 +182,7 @@ class FillRecordControls extends React.Component {
               onChange={(data, ids) => {
                 this.setState({
                   formData: data,
-                  updatedControlIds: _.unique(updatedControlIds.concat(ids)),
+                updatedControlIds: _.uniqBy(updatedControlIds.concat(ids)),
                 });
               }}
             />

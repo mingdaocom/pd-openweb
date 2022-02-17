@@ -3,17 +3,20 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import preall from 'src/common/preall';
 import PageHeaderRoute from './PageHeader';
+import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
 import { createDiscussion } from 'src/pages/chat/utils/group';
 import genRouteComponent from './genRouteComponent';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
+import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import { navigateTo, setHistoryObject } from './navigateTo';
 import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import socketInit from '../socket';
 import './index.less';
 import { Dialog, Icon } from 'ming-ui';
+import { getAppFeaturesVisible } from 'src/util';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
 import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
@@ -95,9 +98,9 @@ export default class App extends Component {
     });
 
     // 绑定快捷操作
-    this.bindMSTC();
+    !md.global.Account.isPortal && this.bindMSTC();
 
-    if (md.global.Account.projects.filter(item => item.licenseType === 1).length === 0) {
+    if ((_.get(md, ['global', 'Account', 'projects']) || []).filter(item => item.licenseType === 1).length === 0) {
       if (!localStorage.getItem('supportTime')) {
         privateGuide.getSupportInfo().then(result => {
           if (!result.isSupport && result.supportTime) {
@@ -197,7 +200,7 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function (e) {
+    $(document).on('keypress', function(e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
@@ -233,9 +236,7 @@ export default class App extends Component {
 
     return (
       <Dialog
-        title={
-          <span className="Red Bold">{_l('升级受限提醒')}</span>
-        }
+        title={<span className="Red Bold">{_l('升级受限提醒')}</span>}
         width="630"
         closable={false}
         visible
@@ -292,6 +293,21 @@ export default class App extends Component {
   }
 
   render() {
+    const { rp } = getAppFeaturesVisible();
+
+    if (md.global.Account.isPortal) {
+      return (
+        <div id="wrapper" className="flexColumn">
+          <PortalPageHeaderRoute />
+          <section id="containerWrapper" className="flex flexRow">
+            <section id="container">
+              <Switch>{this.genRouteComponent(ROUTE_CONFIG_PORTAL)}</Switch>
+            </section>
+          </section>
+        </div>
+      );
+    }
+
     return (
       <div id="wrapper" className="flexColumn">
         <PageHeaderRoute />
@@ -320,13 +336,11 @@ export default class App extends Component {
           <section id="chat">
             <Switch>
               <Route path={withoutChatUrl} component={null} />
-              {!window.isPublicApp && <Route path="*" component={ChatList} />}
+              {!window.isPublicApp && rp && <Route path="*" component={ChatList} />}
             </Switch>
           </section>
         </section>
-        <section id="chatPanel">
-          <ChatPanel />
-        </section>
+        <section id="chatPanel">{rp && <ChatPanel />}</section>
         {this.checkUpgrade()}
       </div>
     );

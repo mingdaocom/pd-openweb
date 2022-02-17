@@ -1,5 +1,5 @@
 import React from 'react';
-var qs = require('querystring');
+var qs = require('query-string');
 import global from 'src/api/global';
 import project from 'src/api/project';
 import { LoadDiv } from 'ming-ui';
@@ -38,7 +38,19 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     if (!data['md.global'].Account) {
       const host = location.host;
       const url = `?ReturnUrl=${encodeURIComponent(location.href)}`;
-      location.href = `/network${url}`;
+      location.href = `${window.subPath || ''}/network${url}`;
+      return;
+    }
+
+    const ua = window.navigator.userAgent.toLowerCase();
+    if (
+      ua.match(/MicroMessenger/i) == 'micromessenger' &&
+      (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !data['md.global'].Account.isPortal) ||
+        (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
+    ) {
+      location.href = `${
+        data['md.global'].Account.isPortal ? '' : window.subPath
+      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
       return;
     }
 
@@ -49,7 +61,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     if (!SysSettings) {
       window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
     }
-    window.mdKF5 && window.mdKF5();
+    !md.global.Account.isPortal && window.mdKF5 && window.mdKF5();
 
     if (md.global.SysSettings && md.global.SysSettings.forbidSuites) {
       md.global.Config.ForbidSuites = md.global.SysSettings.forbidSuites.split('|').map(item => Number(item));
@@ -77,7 +89,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -96,12 +108,12 @@ const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoke
     render() {
       const { loading } = this.state;
 
+      if (navigator.userAgent.toLowerCase().indexOf('mobile') > -1 && navigator.userAgent.toLowerCase().indexOf('dingtalk') > -1) {
+        document.title = _l('应用');
+      }
+
       return loading ? (
-        !hideloading && (
-          <DocumentTitle title={location.pathname.match(/form.*/) ? '' : _l('加载中')}>
-            <LoadDiv size="big" className="pre" />
-          </DocumentTitle>
-        )
+        !hideloading && <LoadDiv size="big" className="pre" />
       ) : (
         <Comp {...this.props} />
       );
@@ -121,7 +133,7 @@ function getMomentLocale(lang) {
   }
 }
 
-export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
   } else {
@@ -129,15 +141,15 @@ export default function (Comp, { allownotlogin, preloadcb, hideloading, transfer
   }
 }
 
-(function (arr) {
-  arr.forEach(function (item) {
+(function(arr) {
+  arr.forEach(function(item) {
     item.prepend =
       item.prepend ||
-      function () {
+      function() {
         var argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
-        argArr.forEach(function (argItem) {
+        argArr.forEach(function(argItem) {
           var isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });
@@ -147,19 +159,7 @@ export default function (Comp, { allownotlogin, preloadcb, hideloading, transfer
   });
 })([Element.prototype, Document.prototype, DocumentFragment.prototype]);
 
-// 兼容钉钉内核63 问题
-if (!Object.fromEntries) {
-  Object.fromEntries = function (entries) {
-    let entriesObj = {};
-    (entries || []).forEach(element => {
-      entriesObj[element[0]] = element[1];
-    });
-    return entriesObj;
-  };
-}
-
 /** 存储分发类入口 状态 和 分享id */
-
 function parseShareId() {
   window.shareState = {};
   if (/\/worksheetshare/.test(location.pathname)) {

@@ -83,6 +83,7 @@ function EnablePanel(props) {
         <React.Fragment>
           <ShareUrl
             copyShowText
+            theme="light"
             className="mainShareUrl mTop15 mBottom20"
             url={shareUrl}
             customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(shareUrl) }]}

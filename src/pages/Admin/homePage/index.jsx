@@ -11,7 +11,7 @@ import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip } from 'ming-ui';
 
-const { admin: {homePage, adminLeftMenu: {billinfo} }} = window.private
+const { admin: {homePage, adminLeftMenu: { billinfo, portal } }} = window.private
 const {upgrade, computeMethod, recharge, extendWorkflow, renewBtn, userBuy, versionName, delayTrial, quickEntry} = homePage
 
 export default function HomePage({ match, location: routerLocation }) {
@@ -95,7 +95,7 @@ export default function HomePage({ match, location: routerLocation }) {
     }
   };
   const handleClick = type => {
-    if (_.includes(['user', 'workflow', 'storage'], type)) {
+    if (_.includes(['user', 'workflow', 'storage', 'portaluser', 'portalupgrade'], type)) {
       location.assign(`/admin/expansionservice/${projectId}/${type}`);
     }
     if (type === 'recharge') {
@@ -163,7 +163,7 @@ export default function HomePage({ match, location: routerLocation }) {
       );
     }
     return (
-      <div className={cx("upgrade pointer", {Hidden: upgrade})} onClick={() => handleClick('upgrade')}>
+      <div className={cx('upgrade pointer', { Hidden: upgrade || loading })} onClick={() => handleClick('upgrade')}>
         {_l('升级')}
       </div>
     );
@@ -182,32 +182,30 @@ export default function HomePage({ match, location: routerLocation }) {
     <HomePageWrap>
       <div className="infoWrap">
         <div className="infoBox">
-          <div className="userInfo">
+          <div className="userInfo userInfoWrap">
             <div className="title">{_l('人员与部门')}</div>
             <div className="content">
               <div className={cx("computeMethod Hover_49", { Hidden: computeMethod})}>
                 <Support type={3} href="https://help.mingdao.com/Prices4.html" text={_l('计算方法')} />
               </div>
               <ul>
-                {USER_COUNT.map(({ key, text }) => (
+                {USER_COUNT.filter(item => item.key !== 'effectiveExternalUserCount' || !portal).map(({ key, text, link }) => (
                   <li
                     className="pointer"
                     key={key}
-                    onClick={() => linkHref('structure', key === 'notActiveUserCount' ? 'uncursor' : null)}
+                    onClick={() => linkHref(link, key === 'notActiveUserCount' ? 'uncursor' : null)}
                   >
                     <div className="name">{text}</div>
                     <div className="count">{formatValue(getValue(data[key] || 0))}</div>
                     {!isTrial && key === 'effectiveUserCount' && (
                       <div className="limitUser">{_l('最大上限 %0 人', getValue(data.limitUserCount || 0))}</div>
                     )}
+                    {key === 'effectiveExternalUserCount' && (
+                      <div className="limitUser">{_l('最大上限 %0 人', getValue(data.limitExternalUserCount || 0))}</div>
+                    )}
                   </li>
                 ))}
               </ul>
-              {!isTrial &&!userBuy && !isFree ? (
-                <div className="purchaseUser" onClick={() => handleClick('user')}>
-                  {_l('购买用户包')}
-                </div>
-              ) : null}
             </div>
           </div>
         </div>

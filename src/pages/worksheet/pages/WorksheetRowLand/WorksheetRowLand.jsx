@@ -6,10 +6,12 @@ import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
+import FixedContent from 'src/router/Application/FixedContent';
+import { connect } from 'react-redux';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 import './WorksheetRowLand.less';
 
-@withRouter
-export default class WorksheetRowLand extends Component {
+class WorksheetRowLand extends Component {
   constructor(props) {
     super(props);
     const { match } = this.props;
@@ -70,12 +72,17 @@ export default class WorksheetRowLand extends Component {
   }
   render() {
     const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit } = this.state;
+    const { appPkg } = this.props;
+    const { fixed, permissionType } = appPkg;
+    const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
     return (
       <div className="worksheetRowLand">
         {loading || loadingSwitchPermit ? (
           <div className="workSheetRecordInfo">
             <LoadDiv className="mTop32" />
           </div>
+        ) : fixed && !isAuthorityApp ? (
+          <FixedContent showLeftSkeleton={false} appPkg={appPkg} />
         ) : (
           <RecordInfoWrapper
             isWorksheetRowLand
@@ -93,3 +100,11 @@ export default class WorksheetRowLand extends Component {
     );
   }
 }
+
+export default withRouter(
+  connect(state => {
+    return {
+      appPkg: state.appPkg,
+    };
+  })(WorksheetRowLand),
+);

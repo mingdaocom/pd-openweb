@@ -1,6 +1,6 @@
 import React, { useState, useRef, Fragment } from 'react';
 import { string } from 'prop-types';
-import { Tooltip, Icon } from 'ming-ui';
+import { Tooltip, Icon, LoadDiv } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -10,8 +10,12 @@ import { updatePage } from 'src/pages/worksheet/common/Statistics/api/custom';
 import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
 import PageDesc from './PageDesc';
+import ShareDialog from './ShareDialog';
 import { pick } from 'lodash';
 import filterXSS from 'xss';
+import { exportImage } from 'src/pages/customPage/util';
+import { saveAs } from 'file-saver';
+import SvgIcon from 'src/components/SvgIcon';
 
 export default function CustomPageHeader(props) {
   const {
@@ -25,7 +29,8 @@ export default function CustomPageHeader(props) {
     copyCustomPage,
     toggle,
     sheetListVisible,
-    projectId,
+    pageName,
+    apk,
     desc,
     ...rest
   } = props;
@@ -34,9 +39,22 @@ export default function CustomPageHeader(props) {
     return ua.indexOf('Safari') != -1 && ua.indexOf('Version') != -1;
   };
   const { appId, groupId } = ids;
-  const { workSheetId: pageId, workSheetName: name, icon, iconColor } = currentSheet;
+  const { projectId, appName } = apk;
+  const { workSheetId: pageId, icon, iconColor, workSheetName } = currentSheet;
   const [visible, updateVisible] = useState({ popupVisible: false, editNameVisible: false, editIntroVisible: false });
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
+  const name = pageName || workSheetName;
+
+  const [shareDialogVisible, setShareDialogVisible] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const saveImage = () => {
+    const imageName = `${ appName ? `${appName}-` : '' }${name}-${moment().format('YYYYMMDD-HHmmSS')}.png`;
+    setExportLoading(true);
+    exportImage().then(blob => {
+      setExportLoading(false);
+      saveAs(blob, imageName);
+    });
+  };
 
   const handleUpdatePage = obj => {
     updatePage({ appId: pageId, ...obj }).then(isSuccess => {
@@ -106,24 +124,49 @@ export default function CustomPageHeader(props) {
   const handleVisibleChange = (value, type) => {
     updateVisible(update(visible, { [type]: { $set: value } }));
   };
+  const isPublicShare = location.href.includes('public/page');
+  const isEmbedPage = location.href.includes('embed/page');
+  const isEmbed = location.href.includes('#embed');
 
   return (
     <Fragment>
-      <header>
-        <div className="nameWrap">
-          <Tooltip popupPlacement="bottom" text={<span>{sheetListVisible ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}>
-            <div className="iconWrap hideSide" onClick={() => updateSheetListIsUnfold(!sheetListVisible)}>
-              <i className={cx(sheetListVisible ? 'icon-back-02' : 'icon-next-02')}></i>
+      <header className={cx({ embedPageHeader: isEmbed || isEmbedPage })}>
+        <div className="nameWrap flex">
+          {!isPublicShare && !isEmbedPage && (
+            <Tooltip
+              popupPlacement="bottom"
+              text={<span>{sheetListVisible ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}
+            >
+              <div className="iconWrap hideSide" onClick={() => updateSheetListIsUnfold(!sheetListVisible)}>
+                <i className={cx(sheetListVisible ? 'icon-back-02' : 'icon-next-02')}></i>
+              </div>
+            </Tooltip>
+          )}
+          {isPublicShare ? (
+            <div className="valignWrapper mLeft10 w100">
+              <div className="svgWrap valignWrapper" style={{ backgroundColor: apk.iconColor }}>
+                <SvgIcon url={apk.iconUrl} fill="#fff" size={22} />
+              </div>
+              <span className="pageName Font17 ellipsis">
+                {appName}-{name}
+              </span>
             </div>
-          </Tooltip>
-          <span className="pageName Font17">{name}</span>
-          {desc && (
+          ) : (
+            <span className="pageName Font17">{name}</span>
+          )}
+          {desc && !isPublicShare && (
             <Tooltip
               disable={editIntroVisible}
-              onClick={() => handleVisibleChange(true, 'editIntroVisible')}
+              onClick={() => isCharge ? handleVisibleChange(true, 'editIntroVisible') : _.noop}
               tooltipClass="sheetDescTooltip"
               popupPlacement="bottom"
-              text={<span dangerouslySetInnerHTML={{ __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />') }} />}
+              text={
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />'),
+                  }}
+                />
+              }
             >
               <Icon icon="knowledge-message Font18 Gray_9" className="Hand customPageDesc" />
             </Tooltip>
@@ -140,10 +183,35 @@ export default function CustomPageHeader(props) {
             </Trigger>
           )}
         </div>
-        {!isSafari() && (
-          <div className="iconWrap fullScreenIcon" data-tip={_l('全屏展示')} onClick={() => toggle(true)}>
-            <i className="icon-full_screen Font20 pointer"></i>
+        {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && (
+          <Tooltip text={<span>{_l('分享')}</span>} popupPlacement="bottom">
+            <div
+              className="iconWrap valignWrapper mLeft20"
+              onClick={() => {
+                setShareDialogVisible(true);
+              }}
+            >
+              <i className="icon-share Font20 pointer"></i>
+            </div>
+          </Tooltip>
+        )}
+        {exportLoading ? (
+          <div className="iconWrap valignWrapper mLeft20">
+            <LoadDiv size="small" />
           </div>
+        ) : (
+          <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
+            <div className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
+              <i className="icon-file_download Font20 pointer"></i>
+            </div>
+          </Tooltip>
+        )}
+        {!isSafari() && !isPublicShare && (
+          <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
+            <div className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
+              <i className="icon-full_screen Font20 pointer"></i>
+            </div>
+          </Tooltip>
         )}
       </header>
       {editIntroVisible && (
@@ -171,6 +239,16 @@ export default function CustomPageHeader(props) {
           }}
         />
       )}
+      <ShareDialog
+        title={_l('分享页面: %0', name)}
+        appId={appId}
+        isCharge={isCharge}
+        sourceId={pageId}
+        visible={shareDialogVisible}
+        onCancel={() => {
+          setShareDialogVisible(false);
+        }}
+      />
     </Fragment>
   );
 }

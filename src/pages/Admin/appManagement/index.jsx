@@ -69,7 +69,6 @@ export default class AppManagement extends Component {
       moreVisible: false,
       rowVisible: null,
       drawerVisible: false,
-      isUpgradeVersion: false,
 
       //单个导出弹层ids
       exportIds: [],
@@ -99,7 +98,6 @@ export default class AppManagement extends Component {
         isMore: true,
         loading: false,
         uploadSvg: false,
-        isUpgradeVersion: false,
         isFree: false,
       });
 
@@ -114,20 +112,8 @@ export default class AppManagement extends Component {
    * 标准版不能导入导出
    */
   checkExportOrImportAuth(projectId) {
-    const { version = {}, licenseType } =
-      _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
-    this.setState({ isUpgradeVersion: version.versionId === 1 || licenseType === 0, isFree: licenseType === 0 });
-  }
-
-  /**
-   * 导入导出拦截层
-   */
-  exportOrImportDialog() {
-    upgradeVersionDialog({
-      explainText: _l('应用导入导出是高级功能，请升级至付费版解锁开启'),
-      projectId: this.props.match.params.projectId,
-      isFree: this.state.isFree,
-    });
+    const { licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+    this.setState({ isFree: licenseType === 0 });
   }
 
   /**
@@ -208,7 +194,6 @@ export default class AppManagement extends Component {
    * 渲染单个列表项
    */
   renderListItem(item) {
-    const { isUpgradeVersion } = this.state;
     return (
       <div className="flexRow manageList" key={item.appId}>
         <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
@@ -252,11 +237,7 @@ export default class AppManagement extends Component {
                   {item.isGoods ? null : (
                     <li
                       onClick={() => {
-                        if (isUpgradeVersion) {
-                          this.exportOrImportDialog();
-                        } else {
-                          this.handleExport([item]);
-                        }
+                        this.handleExport([item]);
                         this.handleChangeVisible('rowVisible', item.appId);
                       }}
                     >
@@ -300,10 +281,7 @@ export default class AppManagement extends Component {
 
   //关闭各类型dialog
   closeDialog(name) {
-    $(`.${name}`)
-      .parents('.mui-dialog-container')
-      .parents('div')
-      .remove();
+    $(`.${name}`).parents('.mui-dialog-container').parents('div').remove();
   }
 
   //dialog头部
@@ -328,25 +306,21 @@ export default class AppManagement extends Component {
    * 应用导入
    */
   handleImport() {
-    if (this.state.isUpgradeVersion) {
-      this.exportOrImportDialog();
-    } else {
-      const options = {
-        title: this.renderHeader('uploadVisible'),
-        visible: true,
-        footer: null,
-        className: 'importSingleAppDialog',
-        width: '640',
-        overlayClosable: false,
-        onCancel: () => this.closeDialog('importSingleAppDialog'),
-      };
-      ReactDom.render(
-        <Dialog {...options}>
-          <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')} />
-        </Dialog>,
-        document.createElement('div'),
-      );
-    }
+    const options = {
+      title: this.renderHeader('uploadVisible'),
+      visible: true,
+      footer: null,
+      className: 'importSingleAppDialog',
+      width: '640',
+      overlayClosable: false,
+      onCancel: () => this.closeDialog('importSingleAppDialog'),
+    };
+    ReactDom.render(
+      <Dialog {...options}>
+        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')} />
+      </Dialog>,
+      document.createElement('div'),
+    );
   }
 
   /**
@@ -362,31 +336,27 @@ export default class AppManagement extends Component {
    * 批量导出
    */
   handleExportAll() {
-    if (this.state.isUpgradeVersion) {
-      this.exportOrImportDialog();
-    } else {
-      const options = {
-        title: this.renderHeader('selectAppVisible'),
-        footer: null,
-        visible: true,
-        width: '720',
-        className: 'importTotalAppDialog',
-        overlayClosable: false,
-        onCancel: () => this.closeDialog('importTotalAppDialog'),
-      };
-      ReactDom.render(
-        <Dialog {...options}>
-          <SelectApp
-            handleNext={list => {
-              this.closeDialog('importTotalAppDialog');
-              this.handleExport(list);
-            }}
-            closeDialog={() => this.closeDialog('importTotalAppDialog')}
-          />
-        </Dialog>,
-        document.createElement('div'),
-      );
-    }
+    const options = {
+      title: this.renderHeader('selectAppVisible'),
+      footer: null,
+      visible: true,
+      width: '720',
+      className: 'importTotalAppDialog',
+      overlayClosable: false,
+      onCancel: () => this.closeDialog('importTotalAppDialog'),
+    };
+    ReactDom.render(
+      <Dialog {...options}>
+        <SelectApp
+          handleNext={list => {
+            this.closeDialog('importTotalAppDialog');
+            this.handleExport(list);
+          }}
+          closeDialog={() => this.closeDialog('importTotalAppDialog')}
+        />
+      </Dialog>,
+      document.createElement('div'),
+    );
   }
 
   /**
@@ -460,7 +430,7 @@ export default class AppManagement extends Component {
    */
   chargeReadyFn = (evt, appId, accountId) => {
     const that = this;
-    evt.on('click', '.updateAppCharge', function() {
+    evt.on('click', '.updateAppCharge', function () {
       $(this).dialogSelectUser({
         sourceId: that.props.match.params.projectId,
         title: _l('选择应用负责人'),
@@ -583,8 +553,8 @@ export default class AppManagement extends Component {
     const { projectId } = this.props.match.params;
     const { version = {} } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
 
-    if (version.versionId === 1 || this.state.isFree) {
-      upgradeVersionDialog({ projectId, isFree: this.state.isFree });
+    if (this.state.isFree) {
+      upgradeVersionDialog({ projectId, isFree: this.state.isFree,explainText: _l('请升级至付费版后使用')});
     } else {
       this.setState({ uploadSvg: true });
     }

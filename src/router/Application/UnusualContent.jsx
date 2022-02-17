@@ -5,6 +5,7 @@ import Skeleton from './Skeleton';
 import api from 'api/appManagement';
 import unauthorizedPic from './assets/unauthorized.png';
 import turnoffPic from './assets/turnoff.png';
+import './index.less';
 
 const STATUS_TO_TEXT = {
   2: { src: turnoffPic, text: _l('应用已关闭') },

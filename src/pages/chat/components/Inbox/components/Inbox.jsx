@@ -70,8 +70,8 @@ export default class Inbox extends React.Component {
       filter,
       title: TYPENAMES[inboxType],
       dropdownData: DROPDOWN_GROUPLIST[inboxType],
-      changeType: this.changeType.bind(this),
-      changeFaviorite: this.changeFaviorite.bind(this),
+      changeType: this.changeType,
+      changeFaviorite: this.changeFaviorite,
       changeInboxFilter: this.changeInboxFilter
     };
     return <InboxHeader {...props} />;

@@ -30,6 +30,7 @@ export default {
     userCardInfo: 3, // 填写网络名片
   },
   ActionResult: {
+    accountIsNoExist: -1, // 账号不存在
     failed: 0, // 动作执行失败
     success: 1, // 动作执行成功
     fieldRequired: 2, // 字段缺失
@@ -50,6 +51,7 @@ export default {
     firstLoginResetPassword: 18, // 首次登录需要重置密码
     passwordOverdue: 19, // 密码过期
     samePassword: 20, // 新旧密码一致
-    isLock: 21 // 代表频繁用户被锁定20分钟，提示看下登陆里面的锁定提示，保持跟登陆一致，锁定的分钟写死20分钟即可
+    isLock: 21 ,// 代表频繁用户被锁定20分钟，提示看下登陆里面的锁定提示，保持跟登陆一致，锁定的分钟写死20分钟即可
+    balanceIsInsufficient: 22 // 22代表网络余额不足
   },
 };

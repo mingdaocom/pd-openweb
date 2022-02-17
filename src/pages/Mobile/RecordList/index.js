@@ -150,7 +150,7 @@ class RecordList extends Component {
               ></Tabs>
             </div>
           )}
-          <View view={view} />
+          <View view={view} key={worksheetInfo.worksheetId} />
           {!batchOptVisible && (!md.global.Account.isPortal || (md.global.Account.isPortal && appNaviStyle !== 2)) && (
             <Back
               style={

@@ -8,6 +8,13 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import tweenState from 'react-tween-state';
 import './imageViewer.css';
 
+function getClientX(evt) {
+  return evt.clientX || _.get(evt, 'touches[0].clientX');
+}
+function getClientY(evt) {
+  return evt.clientY || _.get(evt, 'touches[0].clientY');
+}
+
 const ImageViewer = createReactClass({
   displayName: 'ImageViewer',
 
@@ -72,7 +79,9 @@ const ImageViewer = createReactClass({
     }
     this.setState({ isThumbnail: src !== this.props.src }, this.loadImage(src));
     document.addEventListener('mouseup', this.stopDrag);
+    document.addEventListener('touchend', this.stopDrag);
     document.addEventListener('mousemove', this.mouseMove);
+    document.addEventListener('touchmove', this.mouseMove);
     document.addEventListener('keydown', this.ctrlDown);
     document.addEventListener('keyup', this.ctrlUp);
   },
@@ -95,7 +104,9 @@ const ImageViewer = createReactClass({
 
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.stopDrag);
+    document.removeEventListener('touchend', this.stopDrag);
     document.removeEventListener('mousemove', this.mouseMove);
+    document.removeEventListener('touchmove', this.mouseMove);
     document.removeEventListener('keydown', this.ctrlDown);
     document.removeEventListener('keyup', this.ctrlUp);
     this._isMounted = false;
@@ -159,9 +170,9 @@ const ImageViewer = createReactClass({
     }
     const { dragStart } = this.state;
     if (dragStart) {
-      const deltaX = (evt.clientX - dragStart.x) / this.state.scale;
-      const deltaY = (evt.clientY - dragStart.y) / this.state.scale;
-      this.setState({ dragStart: { x: evt.clientX, y: evt.clientY } });
+      const deltaX = (getClientX(evt) - dragStart.x) / this.state.scale;
+      const deltaY = (getClientY(evt) - dragStart.y) / this.state.scale;
+      this.setState({ dragStart: { x: getClientX(evt), y: getClientY(evt) } });
       this.move(deltaX, deltaY);
       evt.preventDefault();
     }
@@ -234,12 +245,12 @@ const ImageViewer = createReactClass({
     }
     this.setState({
       dragStart: {
-        x: evt.clientX,
-        y: evt.clientY,
+        x: getClientX(evt),
+        y: getClientY(evt),
       },
       mouseDownPos: {
-        x: evt.clientX,
-        y: evt.clientY,
+        x: getClientX(evt),
+        y: getClientY(evt),
       },
     });
   },
@@ -247,8 +258,8 @@ const ImageViewer = createReactClass({
   stopDrag(evt) {
     if (
       this.state.mouseDownPos &&
-      evt.clientX === this.state.mouseDownPos.x &&
-      evt.clientY === this.state.mouseDownPos.y
+      getClientX(evt) === this.state.mouseDownPos.x &&
+      getClientY(evt) === this.state.mouseDownPos.y
     ) {
       this.props.toggleFullscreen();
     }
@@ -362,6 +373,7 @@ const ImageViewer = createReactClass({
             }}
             className={cx('dragAbleImg noSelect', this.state.dragStart ? 'grabbing' : 'grab')}
             onMouseDown={this.initDrag}
+            onTouchStart={this.initDrag}
           />
         )}
       </div>

@@ -9,7 +9,6 @@ import customApi from 'src/pages/worksheet/common/Statistics/api/custom';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
-import { getRequest } from 'src/util';
 import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
 import 'react-grid-layout/css/styles.css';
@@ -55,6 +54,7 @@ export default class CustomPage extends Component {
     this.state = {
       loading: false,
       pageComponents: [],
+      pagName: '',
     };
   }
   componentDidMount() {
@@ -69,17 +69,33 @@ export default class CustomPage extends Component {
   }
   getPage(props) {
     const { params } = props.match;
-    this.setState({ loading: true });
-    customApi
-      .getPage({
-        appId: params.worksheetId,
-      })
-      .then(result => {
-        this.setState({
-          pageComponents: result.components.filter(item => item.mobile.visible),
-          loading: false,
-        });
+    const { appNaviStyle } = props;
+    let currentNavWorksheetId = localStorage.getItem('currentNavWorksheetId');
+    let currentNavWorksheetInfo =
+      currentNavWorksheetId &&
+      localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
+      JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
+    if (appNaviStyle === 2 && currentNavWorksheetInfo) {
+      this.setState({
+        pageComponents: currentNavWorksheetInfo.components.filter(item => item.mobile.visible),
+        loading: false,
+        pagName: currentNavWorksheetInfo.name,
       });
+    } else {
+      this.setState({ loading: true });
+      customApi
+        .getPage({
+          appId: params.worksheetId,
+        })
+        .then(result => {
+          localStorage.setItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
+          this.setState({
+            pageComponents: result.components.filter(item => item.mobile.visible),
+            loading: false,
+            pagName: result.name,
+          });
+        });
+    }
     $(window).bind('orientationchange', () => {
       location.reload();
     });
@@ -141,11 +157,10 @@ export default class CustomPage extends Component {
   }
   render() {
     const { pageTitle } = this.props;
-    const { pageComponents, loading } = this.state;
-    const { title } = getRequest();
+    const { pageComponents, loading, pagName } = this.state;
     return (
       <ScrollView className="h100 w100 GrayBG">
-        <DocumentTitle title={pageTitle || title || _l('自定义页面')} />
+        <DocumentTitle title={pageTitle || pagName || _l('自定义页面')} />
         {loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()}
         {!location.href.includes('mobile/app') && (
           <Back

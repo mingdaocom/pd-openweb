@@ -56,6 +56,8 @@ export default function DraggableRecord(props) {
     worksheetInfo,
     appId,
     searchRecordId,
+    sheetButtons = [],
+    viewId,
   } = props;
   const { rowId, visible, path = [], pathId = [], children } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -169,7 +171,12 @@ export default function DraggableRecord(props) {
           data={{ ...recordData, rowId }}
           stateData={data}
           ref={$ref}
-          currentView={{ ...view, projectId: worksheetInfo.projectId, appId }}
+          currentView={{
+            ...view,
+            projectId: worksheetInfo.projectId,
+            appId,
+            customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
+          }}
           editTitle={() => setEditTitle(true)}
           onCopySuccess={data => {
             onCopySuccess({ path, pathId, item: data });

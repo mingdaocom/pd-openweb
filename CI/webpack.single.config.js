@@ -31,7 +31,17 @@ module.exports = Object.assign({}, webpackConfig, {
     ...singleEntryList,
   },
   optimization: {
-    minimizer: [new TerserJSPlugin({ extractComments: 'all' })],
+    minimizer: [
+      new TerserJSPlugin({
+        extractComments: 'all',
+        terserOptions: {
+          safari10: true,
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
   },
   plugins: [
     new WebpackBar(),
@@ -39,6 +49,7 @@ module.exports = Object.assign({}, webpackConfig, {
       filename: 'manifest.json',
       path: path.resolve(__dirname, '../build/dist/single'),
       prettyPrint: true,
+      removeFullPathAutoPrefix: true,
     }),
     new MiniCssExtractPlugin({
       filename: '[contenthash].css',

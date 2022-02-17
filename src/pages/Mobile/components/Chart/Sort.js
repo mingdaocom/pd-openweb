@@ -235,17 +235,16 @@ export default class ChartSort extends Component {
     }
   };
   renderItem(item, fn) {
-    const { controls, currentReport } = this.props;
+    const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const control = _.find(controls, { controlId: item.originalControlId || item.controlId }) || {};
-    const sortData = getSortData(control);
+    const sortData = getSortData(item.controlType);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (
       !_.isEmpty(sortData) && (
         <div key={item.controlId}>
           <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">
-            {item.particleSizeType ? `${control.controlName}(${ _.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text })` : control.controlName}
+            {item.particleSizeType ? `${item.controlName}(${ _.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text })` : item.controlName}
           </div>
           <div className="itemWrapper flexRow valignWrapper">
             {[defaultSort, ...sortData].map(data => (
@@ -272,18 +271,17 @@ export default class ChartSort extends Component {
   }
   render() {
     const { rightYaxisList } = this.state;
-    const { currentReport, controls } = this.props;
+    const { currentReport } = this.props;
     const { xaxes, yaxisList, split, rightY, reportType } = currentReport;
-    const xItem = _.find(controls, { controlId: xaxes.controlId });
     const splitId = _.get(split, ['controlId']);
     const rightYSplitId = _.get(rightY, ['split', 'controlId']);
     return (
       <div className="sortWrapper pAll15">
-        {xItem && reportType !== reportTypes.PivotTable && (
+        {xaxes && reportType !== reportTypes.PivotTable && (
           this.renderItem({
-            ...xItem,
-            originalControlId: xItem.controlId,
-            controlId: xaxes.particleSizeType ? `${xItem.controlId}-${xaxes.particleSizeType}` : xItem.controlId,
+            ...xaxes,
+            originalControlId: xaxes.controlId,
+            controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
             particleSizeType: xaxes.particleSizeType
           }, this.handleChangeXSort)
         )}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { parse } from 'querystring';
+import { parse } from 'query-string';
 import { init, options } from './components/search';
 
 export default class UserEntrypoint extends Component {
@@ -23,8 +23,6 @@ export default class UserEntrypoint extends Component {
     $('html').removeClass('AppSearch');
   }
   render() {
-    return (
-      <div className="keyWordsMain relativeContainer mTop20" />
-    );
+    return <div className="keyWordsMain relativeContainer mTop20" />;
   }
 }

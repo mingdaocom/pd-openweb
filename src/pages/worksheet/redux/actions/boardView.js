@@ -64,7 +64,7 @@ export function updateBoardViewRecord(data) {
 
 const getBoardViewPara = (sheet = {}, view) => {
   const { base, controls } = sheet;
-  const { viewId, appId } = base;
+  const { viewId, appId, chartId } = base;
   view = view || getCurrentView(sheet);
   const { worksheetId, viewControl, advancedSetting } = view;
   if (!viewControl) {
@@ -80,6 +80,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     appId,
     worksheetId,
     viewId,
+    reportId: chartId || undefined,
     kanbanSize: 20,
     kanbanIndex: 1,
     ...sheet.filters,

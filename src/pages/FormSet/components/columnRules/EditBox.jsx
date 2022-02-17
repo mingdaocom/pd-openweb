@@ -8,7 +8,7 @@ import * as columnRules from '../../redux/actions/columnRules';
 import SingleFilter from './singleFilter/SingleFilter';
 import ActionDropDown from './actionDropdown/ActionDropDown';
 import handleSetMsg from './errorMsgDialog/ErrorMsg';
-import { actionsListData, originActionItem, getActionLabelByType } from './config';
+import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable } from './config';
 import cx from 'classnames';
 
 class EditBox extends React.Component {
@@ -80,7 +80,7 @@ class EditBox extends React.Component {
     ) {
       listData = actionsListData;
     } else {
-      listData = actionsListData.filter(it => _.includes([1, 2, 3, 4, 6], it.value));
+      listData = actionsListData.filter(it => _.includes([1, 2, 3, 4, 5, 6], it.value));
     }
 
     return (
@@ -93,7 +93,7 @@ class EditBox extends React.Component {
               <Select
                 className={cx('ruleListSelect', { flexItem: _.includes([7, 8], actionItem.type) })}
                 dropdownClassName="ruleListSelectDropdown"
-                defaultValue={getActionLabelByType(actionItem.type)}
+                value={getActionLabelByType(actionItem.type)}
                 options={listData}
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 onChange={type => {
@@ -107,6 +107,10 @@ class EditBox extends React.Component {
                     currentActionData.controls = [];
                   } else {
                     currentActionData.message = '';
+                  }
+                  // 过滤不符合条件的已选字段
+                  if (_.includes([3, 4, 5], type)) {
+                    currentActionData = filterUnAvailable(currentActionData, worksheetControls);
                   }
                   ruleItems.splice(actionIndex, 1, currentActionData);
                   updateAction(ruleItems);

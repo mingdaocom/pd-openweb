@@ -355,7 +355,7 @@ BusinessCard.prototype.applyPlacement = function () {
     }
     pointY = pointY - height - arrowHeight;
     // 个人用户
-    if ((options.type == 1 && options.data.sameProjectIds.length) || options.opHtml) {
+    if ((options.type == 1 && (options.data.sameProjectIds || []).length) || options.opHtml) {
       $arrow.addClass('arrowBottomDarkgray');
     }
     $arrow.addClass('arrowBottom').removeClass('arrowTop');
@@ -373,7 +373,13 @@ BusinessCard.prototype.applyPlacement = function () {
 BusinessCard.prototype.formatData = function (result) {
   var type = this.options.type;
   var data = {};
-  if (type === TYPES.USER) {
+  if (this.options.accountId.indexOf('#') > -1) {
+    data.status = 3;
+    data.isPortal = true;
+    data.fullname = result.fullname;
+    data.mobilePhone = result.mobilePhone;
+    data.avatar = result.avatar;
+  } else if (type === TYPES.USER) {
     data.isContact = result.isContact;
     data.avatar = result.avatar;
     data.detail_closed = result.accountStatus == 2;
@@ -485,7 +491,9 @@ BusinessCard.prototype.setContent = function (content) {
 
 BusinessCard.prototype.getId = function () {
   var options = this.options;
-  return `${options.id}_${options.sourceId}${options.projectId ? `_${options.projectId}` : ''}`;
+  // 兼容外部门户id
+  var formatSourceId = (options.sourceId + '').replace('#', 'portal');
+  return `${options.id}_${formatSourceId}${options.projectId ? `_${options.projectId}` : ''}`;
 };
 
 /**

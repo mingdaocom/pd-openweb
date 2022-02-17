@@ -1,10 +1,10 @@
 var path = require('path');
 const WebpackBar = require('webpackbar');
 const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
 const config = require('./webpack.common.config');
 const isProduction = process.env.NODE_ENV === 'production';
@@ -38,7 +38,7 @@ const generateCssLoader = (isModule = false) => [
 const CSS_LOADERS = generateCssLoader();
 
 const SCRIPT_VENDORS = config.entry.vendors.map(p => path.resolve(__dirname, '../', p + '.js'));
-const SCRIPT_LOADER_BASE = [{ loader: 'script-loader', options: { sourceMap: true } }];
+const SCRIPT_LOADER_BASE = [{ loader: 'script-loader' }];
 const VENDORS_LOADERS = SCRIPT_LOADER_BASE;
 
 module.exports = {
@@ -50,8 +50,9 @@ module.exports = {
       filename: 'manifest.json',
       path: path.resolve(__dirname, '../build/dist/'),
       prettyPrint: true,
+      removeFullPathAutoPrefix: true,
     }),
-    new InjectPlugin(function () {
+    new InjectPlugin(function() {
       return `__webpack_public_path__ = window.__webpack_public_path__;`;
     }),
   ].concat(
@@ -66,8 +67,16 @@ module.exports = {
   ),
   optimization: {
     minimizer: [
-      new TerserJSPlugin({ terserOptions: { safari10: true }, extractComments: 'all' }),
-      new OptimizeCssAssetsPlugin({ cssProcessorOptions: { zindex: false, reduceIdents: false } }),
+      new TerserJSPlugin({
+        terserOptions: {
+          safari10: true,
+          compress: {
+            drop_console: true,
+          },
+        },
+        extractComments: 'all',
+      }),
+      new CssMinimizerPlugin(),
     ],
     splitChunks: {
       chunks: 'all',
@@ -107,7 +116,7 @@ module.exports = {
           },
           {
             test: /\.(woff2)(\?[^?]*)?$/,
-            loader: {
+            use: {
               loader: 'url-loader',
               options: {
                 name: 'static/[name].[hash].[ext]',
@@ -117,7 +126,7 @@ module.exports = {
           },
           {
             test: /\.(gif|jpg|png|svg)(\?[^?]*)?$/,
-            loader: {
+            use: {
               loader: 'url-loader',
               options: {
                 name: 'static/[name].[hash].[ext]',
@@ -127,7 +136,7 @@ module.exports = {
           },
           {
             test: /\.(woff|eot|ttf)(\?[^?]*)?$/,
-            loader: {
+            use: {
               loader: 'url-loader',
               options: {
                 name: 'static/[name].[hash].[ext]',
@@ -139,8 +148,7 @@ module.exports = {
       : [
           {
             test: /\.(gif|jpg|png|svg|woff|woff2|eot|ttf)(\?[^?]*)?$/,
-            // loader: 'url-loader?name=static/[name].[hash].[ext]&limit=1000000',
-            loader: {
+            use: {
               loader: 'url-loader',
               options: {
                 name: 'static/[name].[hash].[ext]',
@@ -156,7 +164,7 @@ module.exports = {
               },
               {
                 loader: 'css-loader',
-                options: 'sourceMap',
+                options: { sourceMap: true },
               },
               {
                 loader: 'postcss-loader',
@@ -211,6 +219,6 @@ module.exports = {
     filename: isProduction ? '[name].[chunkhash].entry.js' : '[name].dev.js',
     chunkFilename: isProduction ? '[name].[chunkhash].chunk.js' : '[name].dev.js',
     path: path.join(__dirname, '../build/dist/pack'),
-    sourceMapFilename: '[name].js.map',
+    sourceMapFilename: isProduction ? '[name].[contenthash].js.map' : '[name].js.map',
   },
 };

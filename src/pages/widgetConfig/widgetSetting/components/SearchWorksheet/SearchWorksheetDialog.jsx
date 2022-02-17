@@ -383,6 +383,8 @@ export default class SearchWorksheetDialog extends Component {
                     feOnly
                     id={sheetId}
                     projectId={globalSheetInfo.projectId}
+                    appId={globalSheetInfo.appId}
+                    showSystemControls
                     columns={controls}
                     conditions={items}
                     from={fromCondition}

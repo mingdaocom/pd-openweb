@@ -295,7 +295,7 @@ export default class Signature extends Component {
           <ClickAwayable onClickAway={this.clickEvent}>
             <SignaturePopup onClick={e => e.nativeEvent.stopImmediatePropagation()}>
               <div className="header">
-                <span>{_l('请在下方空白区域书写签名')}</span>
+                <span className="Gray">{_l('请在下方空白区域书写签名')}</span>
                 <i onClick={this.closePopup} className="Font18 icon-close"></i>
               </div>
               <canvas id="signatureCanvas" className="signatureCanvas"></canvas>

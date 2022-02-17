@@ -11,8 +11,8 @@ const Con = styled.div`
   cursor: default;
 `;
 const NoData = styled.div`
-  padding: 6px 15px;
-  line-height: 24px;
+  padding: 0 15px;
+  line-height: 28px;
 `;
 const PageNum = styled.span`
   padding: 6px 15px;
@@ -86,6 +86,7 @@ const pageSizeNums = [
 
 export default class Pagination extends React.Component {
   static propTypes = {
+    className: PropTypes.string,
     allowChangePageSize: PropTypes.bool,
     pageIndex: PropTypes.number,
     pageSize: PropTypes.number,
@@ -215,17 +216,17 @@ export default class Pagination extends React.Component {
   }
 
   render() {
-    const { pageIndex, allCount, onPrev, onNext } = this.props;
+    const { className = '', pageIndex, allCount, onPrev, onNext } = this.props;
     const { popupVisible } = this.state;
     if (!allCount) {
       return (
-        <Con>
+        <Con className={className}>
           <NoData>{_l('共0行')}</NoData>
         </Con>
       );
     }
     return (
-      <Con ref={this.conRef}>
+      <Con className={className} ref={this.conRef}>
         <Trigger
           action={['click']}
           popupVisible={popupVisible}

@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import uuid from 'uuid';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { emitter, sortControlByIds, getLRUWorksheetConfig } from 'worksheet/util';
-import { getRowByID } from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
 import { editRecord } from 'worksheet/common/editRecord';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -53,7 +53,7 @@ class TableView extends React.Component {
 
   componentDidMount() {
     const { view, fetchRows, setRowsEmpty } = this.props;
-    if (_.get(view, 'advancedSetting.clicksearch') !== '1') {
+    if (_.get(view, 'advancedSetting.clicksearch') !== '1' || this.readonly) {
       fetchRows({ isFirst: true });
     } else {
       setRowsEmpty();
@@ -142,19 +142,20 @@ class TableView extends React.Component {
 
   @autobind
   updateRecordEvent({ worksheetId, recordId }) {
-    const { viewId, updateRows, hideRows } = this.props;
+    const { viewId, controls, updateRows, hideRows } = this.props;
     if (worksheetId === this.props.worksheetId) {
-      getRowByID({
+      getRowDetail({
         checkView: true,
         getType: 1,
         rowId: recordId,
         viewId,
         worksheetId,
+        controls,
       }).then(row => {
         if (row.resultCode === 1 && row.isViewData) {
           updateRows(
             [recordId],
-            [{}, ...row.receiveControls].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value })),
+            [{}, ...row.formData].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value })),
           );
         } else {
           hideRows([recordId]);
@@ -184,8 +185,11 @@ class TableView extends React.Component {
   }
 
   get columns() {
-    const { view, controls } = this.props;
+    const { view, controls, showControlIds = [] } = this.props;
     const { sheetHiddenColumns } = this.props.sheetViewConfig;
+    if (showControlIds && showControlIds.length) {
+      return showControlIds.map(cid => _.find(controls, { controlId: cid })).filter(_.identity);
+    }
     let columns = [];
     let filteredControls = controls
       .map(c => ({ ...c }))
@@ -204,7 +208,7 @@ class TableView extends React.Component {
     }
 
     if (customdisplay === '1') {
-      columns = _.uniq(showControls)
+      columns = _.uniqBy(showControls)
         .map(id => _.find(filteredControls, c => c.controlId === id))
         .filter(_.identity);
     } else {
@@ -237,6 +241,23 @@ class TableView extends React.Component {
     return (pageIndex - 1) * pageSize;
   }
 
+  get readonly() {
+    return !!this.props.chartId;
+  }
+
+  get disabledFunctions() {
+    const { chartId } = this.props;
+    if (chartId) {
+      return ['filter'];
+    } else {
+      return [];
+    }
+  }
+
+  get rowHeadOnlyNum() {
+    return !!this.props.chartId;
+  }
+
   @autobind
   renderSummaryCell({ style, columnIndex, rowIndex }) {
     const { viewId, sheetViewData, changeWorksheetSheetViewSummaryType } = this.props;
@@ -244,6 +265,7 @@ class TableView extends React.Component {
     const control = [{ type: 'summaryhead' }].concat(this.columns)[columnIndex];
     return (
       <SummaryCell
+        rowHeadOnlyNum={this.rowHeadOnlyNum}
         style={style}
         viewId={viewId}
         summaryType={control && rowsSummary.types[control.controlId]}
@@ -281,6 +303,8 @@ class TableView extends React.Component {
         className={className}
         style={style}
         control={control}
+        disabledFunctions={this.disabledFunctions}
+        readonly={this.readonly}
         isLast={control.controlId === _.last(this.columns).controlId}
         columnIndex={columnIndex}
         fixedColumnCount={fixedColumnCount}
@@ -342,7 +366,9 @@ class TableView extends React.Component {
     }
     return (
       <RowHead
+        readonly={this.readonly}
         isCharge={isCharge}
+        rowHeadOnlyNum={this.rowHeadOnlyNum}
         tableId={this.tableId}
         layoutChangeVisible={
           isCharge &&
@@ -417,6 +443,7 @@ class TableView extends React.Component {
   render() {
     const {
       isCharge,
+      chartId,
       sheetViewData,
       sheetViewConfig,
       appId,
@@ -440,14 +467,18 @@ class TableView extends React.Component {
       openNewRecord,
       updateControlOfRow,
     } = this.props;
+    const { readonly } = this;
     const { loading, rows } = sheetViewData;
     const { sheetSelectedRows = [], sheetColumnWidths, fixedColumnCount, defaultScrollLeft } = sheetViewConfig;
     const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery } = worksheetInfo;
     const { recordId, recordInfoVisible, activeRelateTableContorlIdOfRecord } = this.state;
     const { lineNumberBegin, columns } = this;
-    const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+    const needClickToSearch = !readonly && _.get(view, 'advancedSetting.clicksearch') === '1';
     const numberWidth = String(lineNumberBegin + rows.length).length * 8;
     let rowHeadWidth = (numberWidth > 14 ? numberWidth : 14) + 40 + 24;
+    if (this.rowHeadOnlyNum) {
+      rowHeadWidth = (numberWidth > 14 ? numberWidth : 14) + 24;
+    }
     return (
       <React.Fragment>
         {recordInfoVisible && (
@@ -512,10 +543,12 @@ class TableView extends React.Component {
         )}
         {!loading && (
           <WorksheetTable
+            readonly={readonly}
             ref={this.table}
             watchHeight
             id={this.tableId}
             viewId={viewId}
+            appId={appId}
             rules={rules}
             worksheetId={worksheetId}
             lineeditable={isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId)}
@@ -532,12 +565,13 @@ class TableView extends React.Component {
             noFillRows
             selectedIds={sheetSelectedRows.map(r => r.rowid)}
             lineNumberBegin={lineNumberBegin}
+            rowHeadOnlyNum={this.rowHeadOnlyNum}
             rowHeadWidth={rowHeadWidth}
             controls={controls}
             columns={columns}
             projectId={projectId}
             keyWords={filters.keyWords}
-            showSummary
+            showSummary={!chartId}
             onCellClick={this.handleCellClick}
             onCellMouseDown={this.handleCellMouseDown}
             renderFooterCell={this.renderSummaryCell}

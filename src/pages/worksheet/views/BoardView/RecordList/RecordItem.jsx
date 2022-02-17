@@ -51,6 +51,7 @@ function SortableRecordItem(props) {
     updateBoardViewRecord,
     sheetSwitchPermit,
     updateMultiSelectBoard,
+    sheetButtons = [],
   } = props;
   const { rowId, rawRow, fields, ...rest } = data;
   const $ref = useRef(null);
@@ -181,7 +182,12 @@ function SortableRecordItem(props) {
         data={data}
         type="board"
         canDrag={canDrag(props)}
-        currentView={{ ...currentView, projectId: worksheetInfo.projectId, appId }}
+        currentView={{
+          ...currentView,
+          projectId: worksheetInfo.projectId,
+          appId,
+          customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
+        }}
         allowCopy={worksheetInfo.allowAdd}
         editTitle={() => setState({ isEditTitle: true })}
         onUpdate={(updated, item) => {

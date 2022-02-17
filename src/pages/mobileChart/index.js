@@ -4,10 +4,14 @@ import styled from 'styled-components';
 import { getRequest } from 'src/util';
 import preall from 'src/common/preall';
 import ChartContent from 'src/pages/Mobile/CustomPage/ChartContent';
+import { Provider } from 'react-redux';
+import { configureStore } from 'src/redux/configureStore';
 import 'src/common/mdcss/inStyle.css';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/Themes/theme.less';
 import 'src/common/mdcss/iconfont/mdfont.css';
+
+const store = configureStore();
 
 const LayoutContent = styled.div`
   width: 100%;
@@ -31,9 +35,11 @@ class MobileChart extends React.Component {
       height: document.documentElement.clientHeight - paddingVertical,
     };
     return (
-      <LayoutContent className="mobileAnalysis flexColumn">
-        <ChartContent reportId={reportId} accessToken={access_token} dimensions={dimensions} />
-      </LayoutContent>
+      <Provider store={store}>
+        <LayoutContent className="mobileAnalysis flexColumn">
+          <ChartContent reportId={reportId} accessToken={access_token} dimensions={dimensions} />
+        </LayoutContent>
+      </Provider>
     );
   }
 }

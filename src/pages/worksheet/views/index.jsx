@@ -18,7 +18,6 @@ const Con = styled.div`
   height: 100%;
   flex: 1;
   overflow: hidden;
-  border-top: 1px solid #e0e0e0;
   position: relative;
 `;
 
@@ -33,7 +32,8 @@ const TYPE_TO_COMP = {
   [gunter]: GunterView,
 };
 function View(props) {
-  const { loading, view, activeViewStatus } = props;
+  const { loading, view, showAsSheetView } = props;
+  let activeViewStatus = props.activeViewStatus;
   if (loading) {
     return (
       <Con>
@@ -71,12 +71,18 @@ function View(props) {
     'worksheetId',
     'view',
     'viewId',
+    'chartId',
+    'showControlIds',
     'openNewRecord',
     'setViewConfigVisible',
-    'groupFilterWidth'
+    'groupFilterWidth',
   ]);
 
-  const Component = TYPE_TO_COMP[String(view.viewType)];
+  if (_.isEmpty(view)) {
+    activeViewStatus = -10000;
+  }
+
+  const Component = TYPE_TO_COMP[String(showAsSheetView ? sheet : view.viewType)];
 
   return (
     <Con>

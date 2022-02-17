@@ -5,7 +5,7 @@ import { browserIsMobile } from 'src/util';
 /**
  * 修改当前视图配置
  */
-export const changeViewConfig = (value) => {
+export const changeViewConfig = (value = PERIOD_TYPE.day) => {
   const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value });
   const count = getPeriodCount(value, minDayWidth);
   return Object.assign(viewConfig, {
@@ -527,7 +527,7 @@ export const fillRecordsTimeBlockColor = (grouping, colorControl) => {
   return grouping;
 }
 
-export const fillRecordTimeBlockColor = (record, colorControl = _.object()) => {
+export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   const { controlId, options } = colorControl;
   const defaultColor = '#2196F3';
   if (record[controlId]) {

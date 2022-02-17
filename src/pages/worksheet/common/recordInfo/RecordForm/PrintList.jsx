@@ -20,6 +20,11 @@ const MenuItemWrap = styled(MenuItem)`
       color: #fff !important;
     }
   }
+  &.printItem.Item {
+    .Item-content {
+      padding-left: 32px;
+    }
+  }
 `;
 export default class PrintList extends Component {
   static propTypes = {
@@ -32,6 +37,7 @@ export default class PrintList extends Component {
     controls: PropTypes.arrayOf(PropTypes.shape({})),
     projectId: PropTypes.string,
     sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
+    onItemClick: PropTypes.func,
   };
   constructor(props) {
     super(props);
@@ -87,7 +93,9 @@ export default class PrintList extends Component {
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
-      window.open(`/printForm/${workId ? 'workflow' : 'worksheet'}/new/print/${printKey}`);
+      window.open(
+        `${window.subPath || ''}/printForm/${appId}/${workId ? 'workflow' : 'worksheet'}/new/print/${printKey}`,
+      );
     });
   }
 
@@ -107,7 +115,7 @@ export default class PrintList extends Component {
         isNo: false,
       });
     }
-    let projects = md.global.Account.projects.filter(it => it.projectId === projectId);
+    let projects = (_.get(md, ['global', 'Account', 'projects']) || []).filter(it => it.projectId === projectId);
     if (projects.length <= 0) {
       // 外部协作
       getProjectLicenseInfo({
@@ -138,7 +146,16 @@ export default class PrintList extends Component {
   };
 
   render() {
-    const { viewId, recordId, appId, worksheetId, controls, projectId, sheetSwitchPermit } = this.props;
+    const {
+      viewId,
+      recordId,
+      appId,
+      worksheetId,
+      controls,
+      projectId,
+      sheetSwitchPermit,
+      onItemClick = () => {},
+    } = this.props;
     const { tempList, showPrintGroup, isNo, isFree } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
     if (tempList.length <= 0) {
@@ -147,6 +164,7 @@ export default class PrintList extends Component {
           className={cx('printItem', { hover: showPrintGroup })}
           icon={<Icon icon="print" className="Font17 mLeft5" />}
           onClick={() => {
+            onItemClick();
             this.menuPrint();
           }}
         >
@@ -180,6 +198,7 @@ export default class PrintList extends Component {
                       <MenuItemWrap
                         className=""
                         onClick={() => {
+                          onItemClick();
                           if (window.isPublicApp) {
                             alert(_l('预览模式下，不能操作'), 3);
                             return;
@@ -211,7 +230,7 @@ export default class PrintList extends Component {
                             key: `${printKey}`,
                             value: JSON.stringify(printData),
                           });
-                          window.open(`/printForm/worksheet/preview/print/${printKey}`);
+                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
                         }}
                       >
                         <span title={it.name} className="Block overflow_ellipsis WordBreak">
@@ -227,6 +246,7 @@ export default class PrintList extends Component {
                 <MenuItemWrap
                   className={cx({ defaultPrint: tempList.length > 0 })}
                   onClick={() => {
+                    onItemClick();
                     this.menuPrint();
                   }}
                 >

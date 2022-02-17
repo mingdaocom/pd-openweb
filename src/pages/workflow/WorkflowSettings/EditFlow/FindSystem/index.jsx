@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { NODE_TYPE, TRIGGER_ID_TYPE } from '../../enum';
+import { NODE_TYPE, TRIGGER_ID_TYPE, APP_TYPE } from '../../enum';
 
 export default class FindSystem extends Component {
   constructor(props) {
@@ -17,7 +17,13 @@ export default class FindSystem extends Component {
     if (_.includes([TRIGGER_ID_TYPE.FROM_WORKSHEET, TRIGGER_ID_TYPE.WORKSHEET_FIND], item.actionId)) {
       return (
         <div className="pLeft8 pRight8">
-          {NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId ? _l('从当前组织获取') : _l('从当前组织获取多条信息')}
+          {item.appType === APP_TYPE.EXTERNAL_USER
+            ? NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId
+              ? _l('从当前应用获取')
+              : _l('从当前应用获取多条信息')
+            : NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId
+            ? _l('从当前组织获取')
+            : _l('从当前组织获取多条信息')}
         </div>
       );
     }
@@ -38,7 +44,13 @@ export default class FindSystem extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8 ellipsis">
-          {NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId ? _l('从字段获取') : _l('从字段获取多条信息')}
+          {item.appType === APP_TYPE.EXTERNAL_USER
+            ? NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId
+              ? _l('从外部用户字段获取')
+              : _l('从外部用户字段获取多条信息')
+            : NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId
+            ? _l('从字段获取')
+            : _l('从字段获取多条信息')}
           {NODE_TYPE.FIND_SINGLE_MESSAGE === item.typeId && (
             <span>{item.executeType === 0 ? _l('，无结果时中止或执行查找结果分支') : _l('，无结果时继续执行')}</span>
           )}
@@ -67,7 +79,13 @@ export default class FindSystem extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  item.typeId === NODE_TYPE.FIND_SINGLE_MESSAGE ? 'icon-person_search' : 'icon-group-members',
+                  item.appType === APP_TYPE.EXTERNAL_USER
+                    ? item.typeId === NODE_TYPE.FIND_SINGLE_MESSAGE
+                      ? 'icon-external_users'
+                      : 'icon-folder-public'
+                    : item.typeId === NODE_TYPE.FIND_SINGLE_MESSAGE
+                    ? 'icon-person_search'
+                    : 'icon-group-members',
                   item.selectNodeId || isSystem ? 'BGBlue' : 'BGGray',
                 )}
               />

@@ -10,6 +10,7 @@ import './worksheetListShare.less';
 import { SHARE_TYPE } from './config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { Tooltip } from 'ming-ui';
 class WorksheetListShare extends React.Component {
   componentDidMount() {
     const { relationRowsName, viewName, appName, worksheetName, step, loading, loadSheet, isPublicquery, pageSize } =
@@ -96,6 +97,7 @@ class WorksheetListShare extends React.Component {
       getRowRelationRowDetailData,
       printId,
       viewSet = {},
+      dataTitle = ''
     } = this.props;
     let Controls = this.getSortAndVisible(viewSet.showControls || [], cardControls);
     Controls = Controls.filter(item => !['uaid', 'daid'].includes(item.controlId) && ![43].includes(item.type));
@@ -146,7 +148,9 @@ class WorksheetListShare extends React.Component {
                               }}
                             >
                               {control.attribute === 1 ? (
-                                <i className="icon icon-ic_title"></i>
+                                <Tooltip popupPlacement="bottom" text={<span>{dataTitle}</span>}>
+                                  <i className="icon icon-ic_title"></i>
+                                </Tooltip>
                               ) : (
                                 <span className="ellipsis Bold Font12 Gray_75 controlNameValue">
                                   {control.controlName}

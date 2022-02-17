@@ -112,7 +112,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/FormSet'),
   },
   printForm: {
-    path: '/printForm/:printType/:type/:from/:key?',
+    path: '/printForm/:appId/:printType/:type/:from/:key?',
     component: () => import('src/pages/Print'),
   },
   uploadTemplateSheet: {
@@ -224,6 +224,11 @@ export const ROUTE_CONFIG = {
     component: () => import('./Application'),
     title: _l('应用'),
   },
+  view: {
+    path: '/demo',
+    component: () => import('src/pages/Demos'),
+    title: _l('应用'),
+  },
 
   default: {
     path: '/app',
@@ -232,6 +237,7 @@ export const ROUTE_CONFIG = {
 };
 
 const withoutHeaderPathList = [
+  'demo',
   'chat',
   'apps/kcupload',
   'apps/kcshare',
@@ -251,9 +257,10 @@ const withoutHeaderPathList = [
   'worksheet/formSet',
   'mobile',
   'worksheet/uploadTemplateSheet',
-  'gunterExport'
+  'gunterExport',
 ];
 const withoutChatPathList = [
+  'demo',
   'chat',
   'apps/kcupload',
   'apps/kcshare',
@@ -275,7 +282,7 @@ const withoutChatPathList = [
   'weixinAppCourse',
   'mobile',
   'worksheet/uploadTemplateSheet',
-  'gunterExport'
+  'gunterExport',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

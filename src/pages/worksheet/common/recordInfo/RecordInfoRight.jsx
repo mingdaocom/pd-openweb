@@ -19,7 +19,7 @@ export default function RecordInfoRight(props) {
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     hiddenTabs.push('logs');
   }
-  if ([...new Set(hiddenTabs)].length >= 3) {
+  if ([...new Set(hiddenTabs)].length >= 3 || md.global.Account.isPortal) {
     return '';
   }
 

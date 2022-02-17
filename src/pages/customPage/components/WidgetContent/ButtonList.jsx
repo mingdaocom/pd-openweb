@@ -21,11 +21,16 @@ function ButtonList({ button = {}, editable, layoutType, addRecord, info }) {
   const [createRecordInfo, setInfo] = useState({ visible: false, value: '', viewId: '', appId: '', name: '' });
   const { visible, value: worksheetId, viewId, appId, name } = createRecordInfo;
   const isMobile = browserIsMobile();
+  const isPublicShare = location.href.includes('public/page');
   const handleClick = item => {
     if (editable) return;
     const { param, action, value, viewId, openMode = 1, name } = item;
     const isOpenNewWindow = openMode === 2;
     if (!value) return;
+    if (isPublicShare && action !== 4) {
+      alert(_l('无权操作'), 3);
+      return;
+    }
     if (action === 4) {
       const url = genUrl(value, param, info);
       if (openMode === 1) {
@@ -50,7 +55,7 @@ function ButtonList({ button = {}, editable, layoutType, addRecord, info }) {
           if (isMobile) {
             urlName = viewId ? '/mobile/recordList' : '/mobile/customPage';
           }
-          let url = `${urlName}/${appId}/${appSectionId}/${value}`;
+          let url = `${window.subPath || ''}${urlName}/${appId}/${appSectionId}/${value}`;
           if (viewId) {
             url += `/${viewId}`;
           }

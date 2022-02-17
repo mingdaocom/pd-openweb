@@ -47,6 +47,7 @@ const RecordItemWrap = styled.div`
     color: #757575;
     text-overflow: ellipsis;
     word-break: break-all;
+    white-space: break-spaces;
     &.galleryViewAbstract {
       height: 72px;
     }
@@ -192,10 +193,11 @@ const BaseCard = props => {
   // 是否有更多操作
   const isHaveRecordOperate = () => {
     const { customButtons = [] } = currentView;
-    const recordPrintSwitch = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId);
-    const recordShareSwitch = isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId);
+    const recordPrintSwitch = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId); //记录打印
+    const recordShareSwitch = isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId); //记录分享
+    const recordCopySwitch = isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId); //记录复制
     if (allowDelete) return true;
-    if (recordPrintSwitch || recordShareSwitch) return true;
+    if (recordPrintSwitch || recordShareSwitch || recordCopySwitch) return true;
     if (customButtons.length > 0) return true;
     return false;
   };
@@ -228,20 +230,19 @@ const BaseCard = props => {
     );
 
     if (item.type === 36) {
-      const { visible, editable } = controlState(item);
+      const canEdit =
+        isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && allowEdit && controlState(item).editable;
       return (
-        visible && (
-          <div onClick={e => e.stopPropagation()}>
-            <Checkbox
-              disabled={!editable}
-              text={item.controlName}
-              checked={Number(item.value || 0)}
-              onClick={checked => {
-                props.onChange(item, checked ? '0' : '1');
-              }}
-            />
-          </div>
-        )
+        <div onClick={e => e.stopPropagation()}>
+          <Checkbox
+            disabled={!canEdit}
+            text={item.controlName}
+            checked={Number(item.value || 0)}
+            onClick={checked => {
+              props.onChange(item, checked ? '0' : '1');
+            }}
+          />
+        </div>
       );
     }
 

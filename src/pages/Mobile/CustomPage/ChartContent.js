@@ -4,20 +4,20 @@ import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import report from 'src/pages/worksheet/common/Statistics/api/report';
-import reportConfig from 'src/pages/worksheet/common/Statistics/api/reportConfig';
 import Chart from '../components/Chart';
 import ChartFilter from '../components/Chart/Filter';
 import ChartSort from '../components/Chart/Sort';
-import { fillValueMap } from 'src/pages/worksheet/common/Statistics/common';
+import { fillValueMap, version } from 'src/pages/worksheet/common/Statistics/common';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
 
 const ModalContent = styled.div`
   background-color: #fff;
   .itemWrapper {
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
     .item {
       width: 30%;
+      margin-right: 3%;
       margin-bottom: 10px;
       padding: 6px 0;
       text-align: center;
@@ -55,17 +55,16 @@ const HorizontalChartContent = styled.div`
 function ChartContent(props) {
   const { reportId, name, dimensions, accessToken } = props;
   const [loading, setLoading] = useState(true);
-  const [controlsLoading, setControlsLoading] = useState(true);
-  const [controls, setControls] = useState([]);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
   const [data, setData] = useState({ name });
+  const [defaultData, setDefaultData] = useState();
   const headersConfig = {
     access_token: accessToken,
   };
 
   const handleReportRequest = param => {
-    let requestParam = { reportId };
+    let requestParam = { reportId, version };
     if (param) {
       Object.assign(
         requestParam,
@@ -85,27 +84,15 @@ function ChartContent(props) {
       .then(data => {
         data.reportId = reportId;
         setData(fillValueMap(data));
+        if (_.isEmpty(defaultData)) {
+          setDefaultData(data);
+        }
       })
       .always(() => setLoading(false));
   };
 
-  const handleGetControls = () => {
-    setControlsLoading(true);
-    reportConfig
-      .getReportConfigDetail({
-        reportId,
-      })
-      .then(result => {
-        setControls(result.controls);
-      })
-      .always(() => setControlsLoading(false));
-  };
-
   const handleOpenFilterModal = () => {
     const newFilterVisible = !filterVisible;
-    if (newFilterVisible) {
-      handleGetControls();
-    }
     setFilterVisible(newFilterVisible);
   };
 
@@ -121,22 +108,14 @@ function ChartContent(props) {
           <Icon className="Font20" icon="closeelement-bg-circle" onClick={handleOpenFilterModal} />
         </div>
         <div className="flex scrollView">
-          {controlsLoading ? (
-            <div className="flexRow valignWrapper mTop20">
-              <LoadDiv />
-            </div>
-          ) : (
+          <ChartFilter
+            data={data}
+            defaultData={defaultData}
+            onChange={handleReportRequest}
+          />
+          {![reportTypes.CountryLayer, reportTypes.NumberChart].includes(data.reportType) && (
             <Fragment>
-              <ChartFilter
-                data={data}
-                controls={controls}
-                onChange={handleReportRequest}
-              />
-              {![reportTypes.CountryLayer, reportTypes.NumberChart].includes(data.reportType) && (
-                <Fragment>
-                  <ChartSort currentReport={data} controls={controls} onChangeCurrentReport={handleReportRequest} />
-                </Fragment>
-              )}
+              <ChartSort currentReport={data} onChangeCurrentReport={handleReportRequest} />
             </Fragment>
           )}
         </div>

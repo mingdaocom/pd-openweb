@@ -161,7 +161,7 @@ export default class MyAppItem extends Component {
           <div className="myAppItem" onClick={e => this.handleClick(id, e)} onDoubleClick={this.handleDbClick}>
             <div className="myAppItemDetail" style={{ backgroundColor: iconColor }}>
               <SvgIcon url={iconUrl} fill="#fff" size={48} />
-              <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew'])} />
+              <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />
             </div>
             {type === 'externalApps' ? (
               <div className="externalAppInfo">

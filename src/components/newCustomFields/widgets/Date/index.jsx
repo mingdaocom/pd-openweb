@@ -9,6 +9,7 @@ import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import { getDynamicValue } from '../../tools/DataFormat';
+import { compareWithTime } from '../../tools/utils';
 import { browserIsMobile } from 'src/util';
 import moment from 'moment';
 
@@ -162,11 +163,11 @@ export default class Widgets extends Component {
           return {
             disabledHours: () => {
               const start = parseInt(allowtime.split('-')[0]);
-              const end = parseInt(allowtime.split('-')[1]);
+              const end = allowtime.split('-')[1];
               const result = [];
 
               for (let i = 0; i < 24; i++) {
-                if (i < start || i >= end) {
+                if (i < start || compareWithTime(`${i}:00`, end, 'isAfter')) {
                   result.push(i);
                 }
               }
@@ -189,8 +190,19 @@ export default class Widgets extends Component {
 
               return result;
             },
-            disabledMinutes: () => {
+            disabledMinutes: selectHours => {
+              let start = allowtime.split('-')[0];
+              const end = allowtime.split('-')[1];
               const result = [];
+
+              for (let i = 0; i < 60; i++) {
+                if (
+                  compareWithTime(`${selectHours}:${i}`, start, 'isBefore') ||
+                  compareWithTime(`${selectHours}:${i}`, end, 'isAfter')
+                ) {
+                  result.push(i);
+                }
+              }
 
               if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
                 for (let i = 0; i < 60; i++) {

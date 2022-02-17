@@ -99,8 +99,8 @@ module.exports = mdTranslation;
     如：通过xxx
     英文： 通过 => 'Pass'
      
-    No : _('通过') + xxx  => Passxxx 
-    Yes: _('通过%0', xxx)  //可以把 '通过%0' 翻译成 => 'By %0' 
+    No : _l('通过') + xxx  => Passxxx 
+    Yes: _l('通过%0', xxx)  //可以把 '通过%0' 翻译成 => 'By %0' 
     ```
     > 空格丢失 
 

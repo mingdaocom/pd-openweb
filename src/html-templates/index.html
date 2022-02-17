@@ -40,6 +40,9 @@
         window.FE_RELEASE_TIME = '<%= releaseDate %>';
         var __api_server__ = '<%= apiServer %>';
         var __webpack_public_path__ = '<%= publicPath %>';
+        if (/\/portal\//.test(location.pathname)) {
+            window.subPath = '/portal';
+        }
     </script>
     <script src="webpack[index]?src/router/"></script>
 </body>

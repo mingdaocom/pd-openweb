@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { useDrag } from 'react-dnd-latest';
+import { Checkbox } from 'antd';
 import { Icon, Dialog } from 'ming-ui';
 
-const SourceBox = ({ item, isActive, onOpenEdit, onDelete }) => {
+const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) => {
   const [{ isDragging }, drag] = useDrag({
     item: { type: 'ChartDnd', data: item },
     collect: monitor => ({
@@ -30,6 +31,12 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete }) => {
         style={{ opacity: isDragging ? 0.4 : 1 }}
         className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 pRight5 Font13 Gray pointer"
       >
+        <Checkbox
+          className="mRight10"
+          checked={isActive}
+          onChange={onChangeCheckbox}
+        >
+        </Checkbox>
         <Icon
           className={cx('Gray_75 Font20 mRight10', {
             active: isActive

@@ -18,7 +18,7 @@ export default function MoreMenu(props) {
     handleAddSheetRow,
   } = props;
   const { from, isCharge, notDialog, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
-  const { allowDelete, receiveControls, projectId, allowAdd } = recordinfo;
+  const { allowDelete, formData, projectId, allowAdd } = recordinfo;
   return (
     <RecordOperate
       from={from}
@@ -34,7 +34,7 @@ export default function MoreMenu(props) {
       recordId={recordId}
       workId={workId}
       instanceId={instanceId}
-      formdata={receiveControls}
+      formdata={formData}
       disableLoadCustomButtons
       defaultCustomButtons={buttons}
       btnDisable={btnDisable}

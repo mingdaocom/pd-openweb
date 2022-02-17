@@ -10,6 +10,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 // enumDefault 单选 0 多选 1
 export default class User extends React.Component {
@@ -93,10 +94,19 @@ export default class User extends React.Component {
 
   @autobind
   pickUser(event) {
-    const { worksheetId, cell, projectId, updateEditingStatus } = this.props;
+    const { worksheetId, cell, projectId, updateEditingStatus, appId } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
+    const tabType = getTabTypeBySelectUser(cell);
     if (!target) {
+      return;
+    }
+    if (
+      tabType === 1 &&
+      md.global.Account.isPortal &&
+      !_.find(md.global.Account.projects, item => item.projectId === projectId)
+    ) {
+      alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
       return;
     }
     const filterAccountIds = value.map(item => item.accountId);
@@ -115,7 +125,7 @@ export default class User extends React.Component {
       } else {
         let newData = [];
         try {
-          newData = _.uniq(value.concat(data), 'accountId');
+          newData = _.uniqBy(value.concat(data), 'accountId');
         } catch (err) {}
         this.setState(
           {
@@ -131,6 +141,8 @@ export default class User extends React.Component {
       filterWorksheetControlId: cell.controlId,
       rect: target.getBoundingClientRect(),
       showQuickInvite: false,
+      tabType,
+      appId,
       showMoreInvite: false,
       isTask: false,
       prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)

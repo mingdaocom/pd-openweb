@@ -6,13 +6,14 @@ import { Icon, ScrollView, Switch, Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import './functionalSwitch.less';
 import Range from '../components/functional/Range';
+import DeleDialog from '../components/DeleAutoIdDialog';
 import cx from 'classnames';
 const confirm = Dialog.confirm;
 import { listConfigStr, listPermit } from '../config';
 
 const tipStr = {
   10: _l('在工作表右上方显示的创建记录按钮。关闭后，则无法直接在工作表中创建记录，只能通过关联记录等其他位置创建'),
-  22: _l('表格视图可以单元格直接编辑，看板、层级、画廊视图可以在卡片上直接修改文本类标题字段'),
+  22: _l('表格视图可以单元格直接编辑，看板、层级、画廊视图可以在卡片上直接修改文本类标题和检查框'),
   32: _l('仅控制系统默认提供的打印方式，不包含打印模版'),
   33: _l('可以控制附件的下载、分享、保存到知识（不包含用户自行上传的附件）'),
 };
@@ -23,7 +24,9 @@ const tipStr = {
 function FunctionalSwitch(props) {
   const { formSet } = props;
   const { worksheetId, worksheetInfo } = formSet;
-  const { views = [] } = worksheetInfo;
+  const { views = [], projectId, appId } = worksheetInfo;
+  const [show, setShow] = useState(false);
+  const [closeAutoID, setCloseAutoID] = useState(!!worksheetInfo.closeAutoID);
   const [info, setInfo] = useState({
     loading: true,
     worksheetId,
@@ -260,6 +263,52 @@ function FunctionalSwitch(props) {
                 data={info.showData}
               />
             )}
+            {!closeAutoID && (
+              <React.Fragment>
+                <h6 className="Font13 mTop24 Gray Bold">{_l('其他')}</h6>
+                <div className="">
+                  <ul className="mTop12">
+                    <li className="autoId pRight16">
+                      <div className="">
+                        {_l('系统编号')}
+                        <Tooltip
+                          popupPlacement="bottom"
+                          text={
+                            <span>
+                              {_l(
+                                '系统编号为之前创建的工作表中用于生成序号的系统字段，每增加一条记录时自动+1，仅在工作流中可以使用此字段。现在已被自动编号字段代替，新创建的工作表不再包含此字段。如果你未使用过此字段，可以删除以提升在大数据量时的工作表性能',
+                              )}
+                            </span>
+                          }
+                        >
+                          <Icon icon="help" className="Font14 Gray_9e mLeft4" />
+                        </Tooltip>
+                      </div>
+                      <span
+                        className="Hand text dele"
+                        onClick={() => {
+                          setShow(true);
+                        }}
+                      >
+                        {_l('删除')}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                {show && (
+                  <DeleDialog
+                    show={show}
+                    appId={appId}
+                    companyId={projectId}
+                    onClose={() => setShow(false)}
+                    worksheetId={worksheetId}
+                    deleCallback={() => {
+                      setCloseAutoID(true);
+                    }}
+                  />
+                )}
+              </React.Fragment>
+            )}
           </div>
         </ScrollView>
       )}
@@ -268,6 +317,7 @@ function FunctionalSwitch(props) {
 }
 const mapStateToProps = state => ({
   formSet: state.formSet,
+  sheet: state.sheet,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 

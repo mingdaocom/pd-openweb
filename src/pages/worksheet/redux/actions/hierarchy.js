@@ -375,6 +375,7 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
         return {
           controlId,
           relationWorksheetId,
+          pageSize: 1000,
         };
       }
     };

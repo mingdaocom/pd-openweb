@@ -111,7 +111,8 @@ class Search extends Component {
             onPopupVisibleChange={this.handleVisibleChange}
             popup={this.renderPopup()}
             popupAlign={{
-              points: ['tc', 'bc']
+              points: ['tc', 'bc'],
+              offset: [0, 12],
             }}
           >
             <div className="flexRow valignWrapper mobileQuickFilterTrigger">

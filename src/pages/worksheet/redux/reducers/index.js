@@ -12,8 +12,10 @@ function base(state = {}, action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_BASE':
       return { ...state, ...action.base };
+    case 'WORKSHEET_UPDATE_FILTERS':
+      return { ...state, chartId: undefined };
     case 'WORKSHEET_INIT':
-      if (state.viewId) {
+      if ((state.viewId && /^[0-9a-z]{24}$/.test(state.viewId)) || state.chartId) {
         return state;
       }
       // 自定义页面没有视图
@@ -43,6 +45,7 @@ function activeViewStatus(state = 1, action) {
     case 'CHANGE_CALENDARLIST':
     case 'CHANGE_GALLERY_VIEW_DATA':
       return action.resultCode || state;
+    case 'WORKSHEET_FETCH_START':
     case 'WORKSHEET_UPDATE_BASE':
       return 1;
     default:

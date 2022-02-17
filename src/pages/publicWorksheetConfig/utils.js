@@ -35,7 +35,7 @@ export function getDisabledControls(controls, systemRelatedIds = {}) {
       ].includes(control.controlId),
     )
     .map(control => control.controlId);
-  return _.unique(defaultHided.concat(systemRelated).concat(hidedWhenNew));
+  return _.uniqBy(defaultHided.concat(systemRelated).concat(hidedWhenNew));
 }
 
 export function overridePos(controls = [], newPosControls = []) {

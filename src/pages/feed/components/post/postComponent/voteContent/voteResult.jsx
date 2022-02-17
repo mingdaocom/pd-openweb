@@ -33,7 +33,7 @@ class VoteResult extends React.Component {
     return (
       <ul className="voteResult">
         {_(voteItem.Options)
-          .sortByOrder(['count', 'optionIndex'], [false, true])
+          .orderBy(['count', 'optionIndex'], [false, true])
           .map(o => (
             <li key={o.optionIndex}>
               <div>{o.name}</div>

@@ -57,6 +57,7 @@ export default class RecordInfo extends Component {
               newKey = data;
             }
             this.props.moveGroupingRow(record, newKey, row.groupId);
+            this.props.updateEditIndex(null);
           } else {
             this.props.updateGroupingRow(record, newItem.rowid);
           }

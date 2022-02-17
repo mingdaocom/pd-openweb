@@ -10,6 +10,8 @@ import AddApproveWay from './AddApproveWay';
 import 'dialogSelectUser';
 import instance from '../../api/instance';
 import { add } from 'src/api/webCache';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 
 export default class Header extends Component {
   static propTypes = {
@@ -52,7 +54,8 @@ export default class Header extends Component {
    * 头部更多操作的处理逻辑
    */
   handleMoreOperation = action => {
-    const { projectId, id, workId, onSubmit } = this.props;
+    const { projectId, id, workId, onSubmit, data } = this.props;
+    const { app } = data;
 
     this.setState({ action });
 
@@ -73,7 +76,7 @@ export default class Header extends Component {
         rowId: '',
         getType: 1,
         viewId: '',
-        appId: '',
+        appId: app.id,
         workId,
       };
       let printKey = Math.random()
@@ -83,7 +86,7 @@ export default class Header extends Component {
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
-      window.open(`/printForm/workflow/new/print/${printKey}`);
+      window.open(`${window.subPath || ''}/printForm/${app.id}/workflow/new/print/${printKey}`);
     }
 
     if (action === 'transferApprove' || action === 'transfer') {
@@ -132,7 +135,8 @@ export default class Header extends Component {
   };
 
   handleClick = id => {
-    const { onSubmit } = this.props;
+    const { onSubmit, data } = this.props;
+    const { ignoreRequired } = (data || {}).flowNode || {};
     /**
      * 填写节点的提交点击后直接提交,不需要出备注弹层
      */
@@ -149,12 +153,14 @@ export default class Header extends Component {
       return;
     }
 
-    if (onSubmit({ noSave: true })) {
+    if (ignoreRequired || onSubmit({ noSave: true })) {
       this.setState({ action: id, otherActionVisible: true });
     }
   };
 
   handleAction = ({ action, content, userId, backNodeId, signature }) => {
+    const { ignoreRequired } = (this.props.data || {}).flowNode || {};
+
     content = content.trim();
     /**
      * 加签
@@ -178,7 +184,11 @@ export default class Header extends Component {
      * 通过或拒绝审批
      */
     if (_.includes(['pass', 'overrule'], action)) {
-      this.request(ACTION_TO_METHOD[action], { opinion: content, backNodeId, signature });
+      this.request(
+        ACTION_TO_METHOD[action],
+        { opinion: content, backNodeId, signature },
+        action === 'overrule' && ignoreRequired,
+      );
     }
 
     /**
@@ -224,7 +234,17 @@ export default class Header extends Component {
   };
 
   render() {
-    const { projectId, currentWorkItem, data, errorMsg, id, workId, onSubmit } = this.props;
+    const {
+      projectId,
+      currentWorkItem,
+      data,
+      errorMsg,
+      id,
+      workId,
+      onSubmit,
+      sheetSwitchPermit = [],
+      viewId,
+    } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
     const {
       moreOperationVisible,
@@ -250,7 +270,6 @@ export default class Header extends Component {
     if (flowNode) {
       const { text, color } =
         currentWorkItem.type !== 0 ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType] : {};
-
       return (
         <Fragment>
           <header className="flexRow workflowStepHeader">
@@ -299,12 +318,19 @@ export default class Header extends Component {
 
               {moreOperationVisible && (
                 <Menu className="moreOperation" onClickAway={() => this.setState({ moreOperationVisible: false })}>
-                  {operationTypeList[1].map((item, index) => (
-                    <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
-                      <Icon icon={OPERATION_LIST[item].icon} />
-                      <span className="actionText">{OPERATION_LIST[item].text}</span>
-                    </MenuItem>
-                  ))}
+                  {operationTypeList[1].map(
+                    (item, index) =>
+                      //打印需要绑定权限
+                      !(
+                        OPERATION_LIST[item].id === 'print' &&
+                        !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)
+                      ) && (
+                        <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
+                          <Icon icon={OPERATION_LIST[item].icon} />
+                          <span className="actionText">{OPERATION_LIST[item].text}</span>
+                        </MenuItem>
+                      ),
+                  )}
 
                   <MenuItem onClick={() => window.open(`/app/${app.id}/workflow/record/${id}/${workId}`)}>
                     <Icon icon="launch" />

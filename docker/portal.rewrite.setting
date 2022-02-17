@@ -1,0 +1,44 @@
+# 静态文件
+rewrite ^/favicon.png /staticfiles/favicon.png break;
+rewrite ^/(favicon.*) /staticfiles/$1 break;
+rewrite ^/robots.txt /staticfiles/robots.txt break;
+rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
+rewrite ^/src/library/(.*) /staticfiles/library/$1 break;
+rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
+rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
+rewrite ^/images/(.*) /staticfiles/images/$1 break;
+rewrite ^/m/css/(.*) /staticfiles/m/css/$1 break;
+rewrite ^/m/images/(.*) /staticfiles/m/images/$1 break;
+rewrite ^/src/components/(.*) /staticfiles/components/$1 break;
+rewrite ^/src/pages/(.*) /staticfiles/components/$1 break;
+rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
+
+# 纯静态页面
+rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
+
+# 主站 独立入口
+rewrite (?i)^(/|/portal/)mobileChart /mobileChart.html break;
+rewrite (?i)^(/|/portal/)mobileGunter /mobileGunter.html break;
+rewrite (?i)^(/|/portal/)mobile /mobile.html break;
+rewrite (?i)^(/|/portal/)worksheetshare /worksheetshare.html break;
+rewrite (?i)^(/|/portal/)public/query /worksheetshare.html break;
+rewrite (?i)^(/|/portal/)printshare /worksheetshare.html break;
+rewrite (?i)^(/|/portal/)form/ /publicworksheet.html break;
+rewrite (?i)^(/|/portal/)recordshare /recordshare.html break;
+rewrite (?i)^(/|/portal/)excelfile /excelfile.html break;
+
+rewrite (?i)^(/|/portal/)login /portalLogin.html break;
+rewrite (?i)^(/|/portal/)network /portalLogin.html break;
+rewrite (?i)^(/|/portal/)logout /logout.html break;
+
+# auth
+rewrite (?i)^(/|/portal/)tpauth /portalLogin.html break;
+rewrite (?i)^(/|/portal/)portalTpauth /portalLogin.html break;
+rewrite (?i)^(/|/portal/)wxauth(.*) /portalLogin.html break;
+
+# 主站
+rewrite (?i)^(/|/portal/)app /index.html break;
+rewrite (?i)^(/|/portal/)print /index.html break;
+rewrite (?i)^(/|/portal/)workflow /index.html break;
+rewrite (?i)^(/|/portal/)gunterExport /index.html break;
+rewrite (?i)^(/|/portal/)printForm /index.html break;

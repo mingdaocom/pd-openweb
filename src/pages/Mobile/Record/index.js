@@ -225,11 +225,9 @@ class Record extends Component {
         style={appId ? { position: 'unset' } : {}}
         onClick={() => {
           const { sheetRow } = this.state;
-          if (history.length <= 1) {
-            window.mobileNavigateTo(`/mobile/recordList/${appId}/${sheetRow.groupId}/${params.worksheetId}/${viewId}`);
-          } else {
-            history.back();
-          }
+          window.mobileNavigateTo(
+            `/mobile/recordList/${appId}/${sheetRow.groupId}/${params.worksheetId}${viewId ? `/${viewId}` : ''}`,
+          );
         }}
       />
     );
@@ -400,6 +398,7 @@ class Record extends Component {
       <div className="flex customFieldsWrapper">
         <CustomFields
           projectId={sheetRow.projectId}
+          appId={params.appId || ''}
           ref={this.customwidget}
           from={6}
           flag={random.toString()}
@@ -572,12 +571,14 @@ class Record extends Component {
           {this.renderRecordAction()}
           <div className="extraAction">
             <div className="backContainer">{!isEdit && this.renderBack()}</div>
-            <div className="chatMessageContainer">
-              {!isEdit &&
-                appId &&
-                (!this.isSubList || isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) &&
-                this.renderChatMessage()}
-            </div>
+            {!md.global.Account.isPortal && (
+              <div className="chatMessageContainer">
+                {!isEdit &&
+                  appId &&
+                  (!this.isSubList || isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) &&
+                  this.renderChatMessage()}
+              </div>
+            )}
           </div>
         </div>
       </WaterMark>

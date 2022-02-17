@@ -3,6 +3,9 @@ export const CAN_AS_TEXT_DYNAMIC_FIELD = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33,
 ];
 
+/* 可以作为嵌入的控件 */
+export const CAN_AS_EMBED_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 15, 16, 28];
+
 // 可以作为邮箱默认值的控件
 export const CAN_AS_EMAIL_DYNAMIC_FIELD = [5];
 // 可以作为部门默认值的控件
@@ -136,7 +139,7 @@ export const CURRENT_TYPES = {
   15: DATE_TYPES,
   16: TIME_TYPES,
   26: [{ key: 'user', id: 'caid', text: _l('当前用户') }],
-  27: [{ key: 'dept', id: 'current', text: _l('当前用户所在部门') }],
+  27: [{ key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') }],
 };
 
 export const DEFAULT_TYPES = {

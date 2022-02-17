@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, number, string } from 'prop-types';
 import UserHead from 'src/pages/feed/components/userHead';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import 'dialogSelectUser';
 
 const Con = styled.div`
@@ -57,9 +58,10 @@ const Empty = styled.span`
   color: #bdbdbd;
 `;
 export default function Users(props) {
-  const { values = [], projectId, isMultiple, onChange = () => {} } = props;
+  const { values = [], projectId, isMultiple, onChange = () => {}, appId } = props;
   const [active, setActive] = useState();
   const conRef = useRef();
+  const tabType = getTabTypeBySelectUser(props.control);
   return (
     <Con
       isEmpty={!values.length}
@@ -70,6 +72,8 @@ export default function Users(props) {
           showQuickInvite: false,
           showMoreInvite: false,
           isTask: false,
+          tabType,
+          appId,
           includeUndefinedAndMySelf: true,
           includeSystemField: true,
           offset: {
@@ -81,12 +85,12 @@ export default function Users(props) {
           SelectUserSettings: {
             projectId,
             callback(users) {
-              onChange({ values: isMultiple ? _.uniq([...values, ...users], 'accountId') : users });
+              onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
               setActive(false);
             },
           },
           selectCb(users) {
-            onChange({ values: isMultiple ? _.uniq([...values, ...users], 'accountId') : users });
+            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
             setActive(false);
           },
           onClose: () => {

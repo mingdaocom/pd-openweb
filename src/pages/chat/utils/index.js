@@ -169,7 +169,7 @@ const sortTop = (list, value) => {
  * @return {Array}          排序之后的结果
  */
 export const sortSession = (sessions, value) => {
-  sessions = _.sortByOrder(sessions, ['sendMsg']);
+  sessions = _.orderBy(sessions, ['sendMsg']);
   const other = [];
   const top = [];
   sessions.forEach(item => {

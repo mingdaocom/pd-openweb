@@ -157,7 +157,11 @@ export default class BaseColumnHead extends React.Component {
             onClick={canSort ? this.handleChangeSort : () => {}}
           >
             {showRequired && control.required && <span className="requiredStatus">*</span>}
-            <span className="text ellipsis" style={{ maxWidth: `calc(100% - ${sustractWidth}px)` }}>
+            <span
+              className="text ellipsis"
+              title={control.controlName}
+              style={{ maxWidth: `calc(100% - ${sustractWidth}px)` }}
+            >
               {control.controlName}
             </span>
             {canSort && typeof isAsc !== 'undefined' && <span className="sortIcon">{this.getSortIcon()}</span>}

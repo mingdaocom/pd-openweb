@@ -67,7 +67,7 @@ export default class FindSystem extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { appType, name, actionId, selectNodeId, fields, conditions, executeType, random } = data;
+    const { appId, appType, name, actionId, selectNodeId, fields, conditions, executeType, random } = data;
 
     if (saveRequest) {
       return;
@@ -92,6 +92,7 @@ export default class FindSystem extends Component {
       .saveNode({
         processId: this.props.processId,
         nodeId: this.props.selectNodeId,
+        appId,
         flowNodeType: this.props.selectNodeType,
         actionId,
         appType,
@@ -154,6 +155,32 @@ export default class FindSystem extends Component {
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有部门的相关信息'),
         },
       },
+      [APP_TYPE.EXTERNAL_USER]: {
+        [TRIGGER_ID_TYPE.RELATION]: {
+          title: _l('从外部用户字段获取'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一名外部用户的相关信息',
+          ),
+        },
+        [TRIGGER_ID_TYPE.WORKSHEET_FIND]: {
+          title: _l('从外部门户中获取'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前应用的所有外部用户中获得第一名（最新注册）人员的相关信息',
+          ),
+        },
+        [TRIGGER_ID_TYPE.FROM_RECORD]: {
+          title: _l('从外部用户字段获取'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的外部用户的相关信息',
+          ),
+        },
+        [TRIGGER_ID_TYPE.FROM_WORKSHEET]: {
+          title: _l('从外部门户中获取'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前应用的所有外部用户的相关信息',
+          ),
+        },
+      },
     };
     const DESC_TEXT = {
       [NODE_TYPE.FIND_SINGLE_MESSAGE]: {
@@ -163,6 +190,9 @@ export default class FindSystem extends Component {
         [APP_TYPE.DEPARTMENT]: _l(
           '获取一个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门，供流程中的其他节点使用。',
         ),
+        [APP_TYPE.EXTERNAL_USER]: _l(
+          '获取一名外部用户的相关信息，包含用户名、手机号、角色、用户状态、openid和自定义字段，供流程中的其他节点使用。',
+        ),
       },
       [NODE_TYPE.FIND_MORE_MESSAGE]: {
         [APP_TYPE.USER]: _l(
@@ -170,6 +200,9 @@ export default class FindSystem extends Component {
         ),
         [APP_TYPE.DEPARTMENT]: _l(
           '获取多个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门，供流程中的其他节点使用。',
+        ),
+        [APP_TYPE.EXTERNAL_USER]: _l(
+          '获取多名外部用户的相关信息，包含用户名、手机号、角色、用户状态、openid和自定义字段，供流程中的其他节点使用。',
         ),
       },
     };

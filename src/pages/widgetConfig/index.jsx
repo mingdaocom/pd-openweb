@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useRef, useEffect } from 'react';
 import { useSetState, useTitle } from 'react-use';
 import { getWorksheetControls, saveWorksheetControls, getQueryBySheetId } from 'src/api/worksheet';
+import { getPortalEnableState } from 'src/api/externalPortal';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
@@ -38,8 +39,10 @@ export default function Container(props) {
   const [widgets, setWidgets] = useState([]);
   // 选中的控件
   const [activeWidget, setActiveWidget] = useState({});
-  //查询工作表配置
+  // 查询工作表配置
   const [queryConfigs, setQueryConfigs] = useState([]);
+  // 外部门户开启状态
+  const [enableState, setEnableState] = useState(false);
 
   const $switchArgs = useRef(null);
 
@@ -121,23 +124,24 @@ export default function Container(props) {
   };
 
   const getQueryConfigs = (hasSearchQuery = false) => {
-    if (hasSearchQuery || (globalInfo && globalInfo.isWorksheetQuery)) {
-      setLoading(true);
-      getQueryBySheetId({ worksheetId: sourceId })
-        .then(res => {
-          setQueryConfigs(res);
-        })
-        .always(() => {
-          setLoading(false);
-        });
+    if (hasSearchQuery) {
+      getQueryBySheetId({ worksheetId: sourceId }).then(res => {
+        setQueryConfigs(res);
+      });
     }
   };
 
   useEffect(() => {
-    getQueryConfigs();
+    getQueryConfigs(globalInfo && globalInfo.isWorksheetQuery);
+    if (globalInfo && globalInfo.appId) {
+      getPortalEnableState({ appId: globalInfo.appId }).then(res => {
+        setEnableState(res.isEnable);
+      });
+    }
   }, [globalInfo]);
 
   useEffect(() => {
+    window.subListSheetConfig = {};
     setLoading({ getLoading: true });
     getWorksheetControls({
       worksheetId: sourceId,
@@ -214,12 +218,14 @@ export default function Container(props) {
 
         setActiveWidget(nextActiveWidget);
         //初始isWorksheetQuery为false, 新控件保存时手动判断是否要拉取配置
-        const needGetQuery = (controls || []).filter(control => {
-          if (control.advancedSetting) {
-            return control.advancedSetting.defaulttype === '2';
+        const newQueryConfigs = (controls || []).reduce((total, cur) => {
+          if (cur.advancedSetting && cur.advancedSetting.dynamicsrc) {
+            total = total.concat([JSON.parse(cur.advancedSetting.dynamicsrc || '{}')]);
           }
-        });
-        getQueryConfigs(needGetQuery.length > 0);
+          return total;
+        }, []);
+        const needGetQuery = newQueryConfigs.length;
+        getQueryConfigs(needGetQuery);
       })
       .always(() => {
         setLoading({ saveLoading: false });
@@ -267,6 +273,7 @@ export default function Container(props) {
     queryConfigs,
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
+    enableState,
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId']),
   };

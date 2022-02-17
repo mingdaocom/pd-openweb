@@ -1,9 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, MenuItem, Icon } from 'ming-ui';
+import Trigger from 'rc-trigger';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { setSheetName, openWorkSheetTrash, openResetAutoNumber } from 'worksheet/common';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
+import { navigateTo } from 'src/router/navigateTo';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -32,6 +34,39 @@ export default function SheetMoreOperate(props) {
               >
                 <span className="text">{_l('编辑表单')}</span>
               </MenuItem>
+              <Trigger
+                getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
+                action={['hover']}
+                popupAlign={{ points: ['tl', 'tr'], offset: [0, -20] }}
+                popup={(
+                  <Menu className="subMenu">
+                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/display`) }}>
+                      <span className="text">{_l('业务规则')}</span>
+                    </MenuItem>
+                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/functionalSwitch`) }}>
+                      <span className="text">{_l('功能开关')}</span>
+                    </MenuItem>
+                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/customBtn`) }}>
+                      <span className="text">{_l('自定义动作')}</span>
+                    </MenuItem>
+                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/printTemplate`) }}>
+                      <span className="text">{_l('打印模板')}</span>
+                    </MenuItem>
+                    <hr className="splitLine" />
+                    <MenuItem onClick={() => { navigateTo(`/worksheet/form/edit/${worksheetId}`) }}>
+                      <span className="text">{_l('公开发布')}</span>
+                    </MenuItem>
+                  </Menu>
+                )}
+              >
+                <MenuItem
+                  className="settingSheet"
+                  icon={<Icon icon="table" className="Font18 pLeft3" />}
+                >
+                  <span className="text">{_l('设置工作表')}</span>
+                  <Icon className="Font15" icon="arrow-right-tip" />
+                </MenuItem>
+              </Trigger>
               <hr className="splitLine" />
               <MenuItem
                 icon={<Icon icon="edit" className="Font18" />}
@@ -105,25 +140,23 @@ export default function SheetMoreOperate(props) {
               <span className="text">{_l('从 Excel 导入数据')}</span>
             </MenuItem>
           )}
-          {isCharge && (
-            <MenuItem
-              icon={<Icon icon="recycle" />}
-              onClick={() => {
-                openWorkSheetTrash({
-                  appId,
-                  worksheetInfo,
-                  isCharge,
-                  isAdmin: isCharge,
-                  controls,
-                  worksheetId: worksheetId,
-                  reloadWorksheet,
-                });
-                setMenuVisible(false);
-              }}
-            >
-              <span className="text">{_l('回收站')}</span>
-            </MenuItem>
-          )}
+          <MenuItem
+            icon={<Icon icon="recycle" />}
+            onClick={() => {
+              openWorkSheetTrash({
+                appId,
+                worksheetInfo,
+                isCharge,
+                isAdmin: isCharge,
+                controls,
+                worksheetId: worksheetId,
+                reloadWorksheet,
+              });
+              setMenuVisible(false);
+            }}
+          >
+            <span className="text">{_l('回收站')}</span>
+          </MenuItem>
           {isCharge && (
             <MenuItem
               icon={<Icon icon="delete2" />}

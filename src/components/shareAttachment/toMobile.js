@@ -3,7 +3,7 @@ import './style.less';
 var doT = require('dot');
 var dialogTpl = doT.template(require('./tpl/mobileDialog.htm'));
 var DialogLayer = require('mdDialog').index;
-var qs = require('querystring');
+var qs = require('query-string');
 var { ATTACHMENT_TYPE } = require('./enum');
 var { getShareLocalAttachmentUrl, getShortUrl } = require('src/api/attachment');
 
@@ -132,7 +132,7 @@ ToMobileDialog.prototype = {
     return promise;
   },
   getQRCodeLink: function (url) {
-    return md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url='  + encodeURIComponent(url);
+    return md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + encodeURIComponent(url);
   },
   getImg: function (src, errorCallback) {
     var img = document.createElement('img');
@@ -144,7 +144,7 @@ ToMobileDialog.prototype = {
           errorCallback();
         }
       },
-      false
+      false,
     );
     return img;
   },

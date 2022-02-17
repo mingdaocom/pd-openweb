@@ -5,7 +5,13 @@ import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import { Dialog, EditingBar, WaterMark } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
-import { emitter, getSubListError, updateOptionsOfControls, isRelateRecordTableControl } from 'worksheet/util';
+import {
+  emitter,
+  getSubListError,
+  updateOptionsOfControls,
+  isRelateRecordTableControl,
+  replaceByIndex,
+} from 'worksheet/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import RecordInfoContext from './RecordInfoContext';
 import { loadRecord, updateRecord, deleteRecord, RecordApi } from './crtl';
@@ -155,6 +161,8 @@ export default class RecordInfo extends Component {
   async loadRecord({ recordId, props, closeWhenNotViewData, needUpdateControlIds }) {
     const {
       from,
+      view = {},
+      controls,
       allowAdd,
       appId,
       viewId,
@@ -178,7 +186,13 @@ export default class RecordInfo extends Component {
         recordId,
         getType: this.getRowGetType(from),
         getRules: !rules,
+        controls,
       });
+      // 设置隐藏字段的 hidden 属性
+      data.formData = data.formData.map(c => ({
+        ...c,
+        hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
+      }));
       if (isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) {
         data.allowEdit = false;
       }
@@ -199,17 +213,14 @@ export default class RecordInfo extends Component {
         tempFormdata: needUpdateControlIds
           ? tempFormdata
               .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
-              .concat(
-                needUpdateControlIds
-                  .map(id => _.find(data.receiveControls, c => c.controlId === id))
-                  .filter(_.identity),
-              )
-          : data.receiveControls,
+              .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
+          : data.formData,
         formFlag: Math.random().toString(),
         loading: false,
         refreshBtnNeedLoading: false,
       });
     } catch (err) {
+      console.error(err);
       this.setState({
         abnormal: true,
         loading: false,
@@ -325,7 +336,7 @@ export default class RecordInfo extends Component {
     this.setState({
       tempFormdata: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
       iseditting: slient ? this.state.iseditting : true,
-      updateControlIds: _.unique(updateControlIds.concat(ids)),
+      updateControlIds: _.uniqBy(updateControlIds.concat(ids)),
     });
   }
 
@@ -457,7 +468,7 @@ export default class RecordInfo extends Component {
       },
       (err, resdata) => {
         if (!err) {
-          let newFormData = recordinfo.receiveControls.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
+          let newFormData = recordinfo.formData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
           updateRows([recordId], _.omit(resdata, ['allowedit', 'allowdelete']), _.pick(resdata, updateControlIds));
           this.refreshSubList();
           if (viewId && !resdata.isviewdata) {
@@ -485,7 +496,7 @@ export default class RecordInfo extends Component {
           this.setState({
             formFlag: Math.random().toString(),
             tempFormdata: newFormData,
-            recordinfo: { ...recordinfo, receiveControls: newFormData },
+            recordinfo: { ...recordinfo, formData: newFormData },
             updateControlIds: [],
           });
           if (_.isFunction(this.refreshEvents.loadcustombtns)) {
@@ -518,7 +529,7 @@ export default class RecordInfo extends Component {
       }
     });
     this.setState({
-      tempFormdata: (recordinfo.receiveControls || []).map(c => {
+      tempFormdata: (recordinfo.formData || []).map(c => {
         if (c.type === 34 && _.includes(updateControlIds, c.controlId)) {
           return { ...c, value: { num: c.value, action: 'reset' } };
         } else {
@@ -571,6 +582,7 @@ export default class RecordInfo extends Component {
     const {
       allowEdit,
       header,
+      controls,
       workflow,
       appId,
       viewId,
@@ -588,6 +600,7 @@ export default class RecordInfo extends Component {
       sheetSwitchPermit,
       showPrevNext,
       handleAddSheetRow,
+      updateWorksheetControls,
     } = this.props;
     let { isCharge } = this.props;
     if (_.isUndefined(isCharge) && appId) {
@@ -634,7 +647,9 @@ export default class RecordInfo extends Component {
     let Con = useWaterMark ? WaterMark : React.Fragment;
     return (
       <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
-        <RecordInfoContext.Provider value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }) }}>
+        <RecordInfoContext.Provider
+          value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }), updateWorksheetControls }}
+        >
           {this.renderDialogs()}
           {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && (
             <EditingBar
@@ -684,7 +699,7 @@ export default class RecordInfo extends Component {
                 onCancel={this.handleCancel}
                 onUpdate={(changedValue, record) => {
                   updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
-                  const newFormData = recordinfo.receiveControls.map(c =>
+                  const newFormData = recordinfo.formData.map(c =>
                     _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
                   );
                   Object.keys(changedValue).forEach(key => {
@@ -695,7 +710,7 @@ export default class RecordInfo extends Component {
                   this.setState({
                     formFlag: Math.random().toString(),
                     tempFormdata: newFormData,
-                    recordinfo: { ...recordinfo, receiveControls: newFormData },
+                    recordinfo: { ...recordinfo, formData: newFormData },
                   });
                 }}
                 onDelete={this.handleDelete}
@@ -790,7 +805,7 @@ export default class RecordInfo extends Component {
                   workflow={workflow}
                   sheetSwitchPermit={sheetSwitchPermit}
                   projectId={this.props.projectId}
-                  controls={this.props.controls}
+                  controls={controls}
                   formFlag={formFlag}
                   formdata={tempFormdata}
                 />

@@ -910,8 +910,10 @@ class FolderDetail extends Component {
                 <RichText
                   key={folderId}
                   className="taskDetailEdit"
+                  dropdownPanelPosition={{ right: 'initial' }}
                   data={data.describe}
                   disabled={true}
+                  maxHeight={500}
                   minHeight={40}
                   placeholder={_l('说明这个项目希望达成的目标和计划…')}
                   onClickNull={e => {
@@ -925,6 +927,8 @@ class FolderDetail extends Component {
                 <Editor
                   toorIsBottom
                   className="taskDetailEdit appIntroDescriptionEditor"
+                  dropdownPanelPosition={{ right: 'initial' }}
+                  maxHeight={500}
                   summary={data.describe}
                   isEditing={data.isAdmin && isEditing}
                   permissionType={100} //可编辑的权限

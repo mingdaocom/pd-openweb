@@ -21,6 +21,7 @@ import {
   updateFilters,
   refreshSheet,
   refreshWorksheetControls,
+  clearChartId,
 } from 'worksheet/redux/actions';
 import { updateSheetList, deleteSheet, updateSheetListIsUnfold } from 'worksheet/redux/actions/sheetList';
 import SheetMoreOperate from './SheetMoreOperate';
@@ -50,6 +51,7 @@ function SheetHeader(props) {
   const { appId, groupId, view, viewId, isCharge } = props;
   // functions
   const {
+    chartId,
     updateSheetList,
     updateSheetListIsUnfold,
     updateFilters,
@@ -70,6 +72,7 @@ function SheetHeader(props) {
     refresh,
     clearSelect,
     refreshWorksheetControls,
+    clearChartId,
   } = props;
   const updateFiltersWithView = args => updateFilters(args, view);
   const { worksheetId, name, desc, projectId, allowAdd, entityName } = worksheetInfo;
@@ -77,7 +80,7 @@ function SheetHeader(props) {
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
   const [editNameVisible, setEditNameVisible] = useState();
-  const sheet = _.find(sheetList, s => s.workSheetId === worksheetId) || {};
+  const sheet = _.find(sheetList.filter(_.identity), s => s.workSheetId === worksheetId) || {};
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
   return (
@@ -132,7 +135,6 @@ function SheetHeader(props) {
             {name || ''}
           </span>
           <Trigger
-            popupClassName="DropdownPanelTrigger"
             action={['click']}
             popup={
               <SheetDesc
@@ -220,6 +222,18 @@ function SheetHeader(props) {
           {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
           String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
             <Fragment>
+              {/* {!!chartId && (
+                <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
+                  <i className="icon icon-worksheet_filter" />
+                  <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
+                  <i
+                    className="icon icon-close resetFilterBtn ThemeHoverColor2"
+                    onClick={() => {
+                      location.search = '';
+                    }}
+                  />
+                </span>
+              )} */}
               <SearchInput
                 viewId={viewId}
                 className="queryInput"
@@ -231,6 +245,7 @@ function SheetHeader(props) {
                 }}
               />
               <WorkSheetFilter
+                chartId={chartId}
                 isCharge={isCharge}
                 appId={appId}
                 viewId={viewId}
@@ -240,6 +255,7 @@ function SheetHeader(props) {
                 onChange={({ searchType, filterControls }) => {
                   updateFiltersWithView({ searchType, filterControls });
                 }}
+                clearChartId={clearChartId}
               />
             </Fragment>
           )}
@@ -256,6 +272,7 @@ function SheetHeader(props) {
           )}
           {/* 工作表讨论权限 && 工作表日志权限 */}
           {!window.isPublicApp &&
+            !md.global.Account.isPortal &&
             !(
               !isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) &&
               !isOpenPermit(permitList.logSwitch, sheetSwitchPermit)
@@ -302,7 +319,8 @@ function SheetHeader(props) {
       <CSSTransitionGroup transitionName="StatisticsPanel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
         {statisticsVisible && (
           <Statistics
-            activeSheetId={worksheetId}
+            worksheetId={worksheetId}
+            viewId={viewId}
             appId={appId}
             projectId={projectId}
             onClose={() => setStatisticsVisible(false)}
@@ -341,6 +359,7 @@ export default connect(
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
+    chartId: _.get(state, 'sheet.base.chartId'),
   }),
   dispatch =>
     bindActionCreators(
@@ -374,6 +393,7 @@ export default connect(
         refreshSheet,
         deleteSheet,
         refreshWorksheetControls,
+        clearChartId,
       },
       dispatch,
     ),

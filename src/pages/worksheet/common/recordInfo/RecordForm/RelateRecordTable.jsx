@@ -453,6 +453,7 @@ export default function RelateRecordTable(props) {
         }
         noRenderEmpty
         projectId={worksheetOfControl.projectId}
+        appId={worksheetOfControl.appId}
         worksheetId={worksheetOfControl.worksheetId}
         // rules={worksheetOfControl.rules}
         rowHeadWidth={rowHeadWidth}
@@ -545,7 +546,7 @@ export default function RelateRecordTable(props) {
               }}
               hideColumn={controlId => {
                 setLayoutChanged(true);
-                setSheetHiddenColumnIds(_.uniq(sheetHiddenColumnIds.concat(controlId)));
+                setSheetHiddenColumnIds(_.uniqBy(sheetHiddenColumnIds.concat(controlId)));
               }}
               clearHiddenColumn={() => {
                 setLayoutChanged(true);

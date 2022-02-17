@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import CodeMirror from 'codemirror';
 import useShowHint from '../lib/show-hint';
 import useMatchBrackets from '../lib/matchbrackets';
@@ -63,7 +65,7 @@ function groupMatch(text, matchText) {
   return result;
 }
 export default class Function {
-  constructor(dom, { value, getControlName = () => {} } = {}) {
+  constructor(dom, { value, options = {}, getControlName = () => {}, renderTag } = {}) {
     if (!dom) {
       console.log('target is not a dom element');
       return;
@@ -82,8 +84,10 @@ export default class Function {
           },
         })),
       ),
+      ...options,
     });
     this.getControlName = getControlName;
+    this.renderTag = renderTag;
     if (value) {
       this.init(value);
     }
@@ -257,18 +261,40 @@ export default class Function {
   //     },
   //   );
   // }
+  renderColumnTag(id, options = {}, cb = () => {}) {
+    let node;
+    if (_.isFunction(this.renderTag)) {
+      node = document.createElement('span');
+      const tag = this.renderTag(id, options);
+      if (React.isValidElement(tag)) {
+        ReactDOM.render(tag, node, () => {
+          cb(node);
+        });
+      } else {
+        node.appendChild(tag);
+        cb(node);
+      }
+      return;
+    } else {
+      node = createTagEle(this.getControlName(id) || '');
+    }
+    cb(node);
+    return;
+  }
   markControls() {
     const value = this.editor.getValue();
-    const matchs = groupMatch(value, /\$((\w{8}(-\w{4}){3}-\w{12})|[0-9a-z]{24})\$/g);
+    const matchs = groupMatch(value, /\$(.+?)\$/g);
     matchs.forEach(match => {
-      this.editor.markText(
-        { line: match.line, ch: match.start },
-        { line: match.line, ch: match.end },
-        {
-          replacedWith: createTagEle(this.getControlName(match.str[1]) || ''),
-          handleMouseEvents: true,
-        },
-      );
+      this.renderColumnTag(match.str[1], {}, node => {
+        this.editor.markText(
+          { line: match.line, ch: match.start },
+          { line: match.line, ch: match.end },
+          {
+            replacedWith: node,
+            handleMouseEvents: true,
+          },
+        );
+      });
     });
   }
   markFunction() {

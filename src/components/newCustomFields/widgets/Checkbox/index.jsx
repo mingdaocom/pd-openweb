@@ -138,7 +138,7 @@ export default class Widgets extends Component {
 
     // 搜索
     if (keywords.length) {
-      noDelOptions = noDelOptions.filter(item => item.value.indexOf(keywords) > -1);
+      noDelOptions = noDelOptions.filter(item => (item.value || '').toString().indexOf(keywords) > -1);
     }
 
     return (
@@ -202,7 +202,7 @@ export default class Widgets extends Component {
     const { isFocus } = this.state;
     const checkIds = JSON.parse(this.props.value || '[]');
     const currentItem = options.find(o => o.key === value) || { color: '#2196f3' };
-    const label = value.indexOf('add_') > -1 ? value.split('add_')[1] : currentItem.value;
+    const label = (value || '').toString().indexOf('add_') > -1 ? value.split('add_')[1] : currentItem.value;
 
     return (
       <span
@@ -236,10 +236,10 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { from, disabled, options, advancedSetting, value } = this.props;
+    const { disabled, options, advancedSetting, value } = this.props;
     const checkIds = JSON.parse(value || '[]');
     const { checktype, direction, allowadd } = advancedSetting || {};
-    const isMobile = _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (checktype === '1' && browserIsMobile());
+    const isMobile = checktype === '1' && browserIsMobile();
     const Comp = isMobile ? MobileCheckbox : props => props.children;
 
     // 多选下拉

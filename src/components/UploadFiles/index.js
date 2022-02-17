@@ -17,10 +17,21 @@ import {
   openMdDialog,
   findIsId,
   openNetStateDialog,
+  checkFileAvailable,
 } from './utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { formatFileSize, getToken } from 'src/util';
 import plupload from 'plupload';
+
+export const errorCode = {
+  40001: _l('鉴权失败'),
+  40002: _l('非法的文件类型'),
+  40003: _l('bucket 不存在'),
+  40004: _l('文件大小错误'),
+  50002: _l('系统错误 metadata error'),
+  50003: _l('系统错误 hash error'),
+  50004: _l('系统错误')
+}
 
 export default class UploadFiles extends Component {
   static propTypes = {
@@ -137,12 +148,13 @@ export default class UploadFiles extends Component {
   };
   constructor(props) {
     super(props);
-    const { attachmentData, temporaryData, kcAttachmentData } = this.props;
+    const { attachmentData, temporaryData, kcAttachmentData, originCount } = this.props;
     this.state = {
       attachmentData,
       temporaryData: formatTemporaryData(temporaryData),
       kcAttachmentData: formatKcAttachmentData(kcAttachmentData),
       maxTotalSize: md.global.SysSettings.fileUploadLimitSize,
+      originCount: originCount || 0,
     };
     // 当前上传的文件
     this.currentFile = null;
@@ -181,13 +193,18 @@ export default class UploadFiles extends Component {
         kcAttachmentData: formatKcAttachmentData(nextProps.kcAttachmentData),
       });
     }
+    if (nextProps.originCount !== this.props.originCount) {
+      this.setState({
+        originCount: nextProps.originCount,
+      });
+    }
   }
 
   initPlupload() {
     const _this = this;
     let { maxTotalSize } = this.state;
     const { nativeFile } = this;
-    let { noTotal, dropPasteElement, from, projectId } = this.props;
+    let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
     const isPublic = from === FROM.PUBLIC || from === FROM.WORKFLOW;
 
     $(nativeFile).plupload({
@@ -206,6 +223,14 @@ export default class UploadFiles extends Component {
 
           _this._uploading = true;
           _this.props.onUploadComplete(false);
+
+          // 附件配置控制（包含数量、单个文件大小、类型）
+          if (advancedSetting) {
+            const { temporaryData = [], originCount = 0, kcAttachmentData = [] } = _this.state;
+            const tempCount = originCount + temporaryData.length + kcAttachmentData.length;
+            const isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
+            !isAvailable && _this.onRemoveAll(uploader);
+          }
 
           // 判断已上传的总大小是否超出限制
           let filesSize = getFilesSize(files);
@@ -334,6 +359,18 @@ export default class UploadFiles extends Component {
           _this.props.onUploadComplete(true);
         },
         Error(uploader, error) {
+          if (error.response) {
+            try {
+              const res = JSON.parse(error.response);
+              if (res.code === 50001) {
+                alert(res.message, 2);
+                return;
+              } else if (errorCode[res.code]) {
+                alert(errorCode[res.code], 2);
+                return;
+              }
+            } catch (error) { }
+          }
           alert(_l('上传失败'), 2);
         },
       },
@@ -351,7 +388,8 @@ export default class UploadFiles extends Component {
       selectNode({
         isFolderNode: 2,
       }).then(result => {
-        let { kcAttachmentData } = this.state;
+        let { kcAttachmentData, temporaryData, originCount } = this.state;
+        let { advancedSetting } = this.props;
         let newKcAttachmentData = result.node.map(node => {
           // 在添加之前，找出重复的文件
           if (kcAttachmentData.filter(n => n.refId == node.id).length) {
@@ -374,6 +412,12 @@ export default class UploadFiles extends Component {
 
         // 可能会有重复的文件，用 false 表示的，这里需要过滤一下
         newKcAttachmentData = kcAttachmentData.concat(newKcAttachmentData.filter(n => n));
+        let isAvailable = true;
+        // 附件配置控制（包含数量、单个文件大小、类型）
+        if (advancedSetting) {
+          isAvailable = checkFileAvailable(advancedSetting, newKcAttachmentData, temporaryData.length + originCount);
+        }
+        if (!isAvailable) return;
 
         // 最多只能上传20个知识文件
         if (newKcAttachmentData.length > 20) {
@@ -699,10 +743,12 @@ export default class UploadFiles extends Component {
                 <i className="icon icon-knowledge-upload Gray_9e Font19" />
                 <span>{_l('本地')}</span>
               </div>
-              <div className={cx('flexRow valignWrapper', { hide: md.global.SysSettings.forbidSuites.includes('4') })} onClick={this.onOpenFolderSelectDialog.bind(this)}>
-                <i className="icon icon-folder Gray_9e Font18" />
-                <span>{_l('知识')}</span>
-              </div>
+              {!md.global.Account.isPortal && !md.global.SysSettings.forbidSuites.includes('4') && (
+                <div className="flexRow valignWrapper" onClick={this.onOpenFolderSelectDialog.bind(this)}>
+                  <i className="icon icon-folder Gray_9e Font18" />
+                  <span>{_l('知识')}</span>
+                </div>
+              )}
               {canAddLink && (
                 <div className="flexRow valignWrapper" onClick={this.openLinkDialog.bind(this)}>
                   <i className="icon icon-link2 Gray_9e Font19" />

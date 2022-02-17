@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 // import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { addExRole, editAppExRole } from 'src/api/externalPortal';
 
 import Ajax from 'src/api/appManagement';
 
@@ -77,7 +78,7 @@ export default class RoleSetting extends PureComponent {
           });
           this.defaultRoleName = roleDetail.name;
         },
-        () => {}
+        () => {},
       )
       .always(() => {
         this.setState({
@@ -96,19 +97,26 @@ export default class RoleSetting extends PureComponent {
   };
 
   onSave = () => {
-    const { appId, roleId, editCallback, closePanel } = this.props;
+    const { appId, roleId, editCallback, closePanel, isForPortal, projectId } = this.props;
 
     if (!roleId) {
       // 创建
       const {
         roleDetail: { roleId: useless, ...params },
       } = this.state;
-      return Ajax.addRole({
+      let param = {
         appId,
         ...params,
         name: params.name.trim() || this.defaultRoleName,
         sheets: params.permissionWay === PERMISSION_WAYS.CUSTOM ? params.sheets : undefined,
-      }).then(res => {
+      };
+      let promiseAjax = null;
+      if (isForPortal) {
+        promiseAjax = addExRole({ ...param, projectId });
+      } else {
+        promiseAjax = Ajax.addRole(param);
+      }
+      promiseAjax.then(res => {
         if (res) {
           editCallback();
           closePanel();
@@ -120,9 +128,11 @@ export default class RoleSetting extends PureComponent {
         }
       });
     } else {
-      // 编辑
+      // 编辑  内部和外部门户同一个接口
       const { roleDetail } = this.state;
-      return Ajax.editAppRole({
+
+      let promiseAjax = null;
+      let param = {
         projectId: roleDetail.projectId,
         appId,
         roleId,
@@ -131,7 +141,13 @@ export default class RoleSetting extends PureComponent {
           name: roleDetail.name.trim() || this.defaultRoleName,
           sheets: roleDetail.permissionWay === PERMISSION_WAYS.CUSTOM ? roleDetail.sheets : undefined,
         },
-      }).then(res => {
+      };
+      if (isForPortal) {
+        promiseAjax = editAppExRole(param);
+      } else {
+        promiseAjax = Ajax.editAppRole(param);
+      }
+      return promiseAjax.then(res => {
         if (res) {
           editCallback();
           closePanel();
@@ -146,10 +162,11 @@ export default class RoleSetting extends PureComponent {
   };
 
   render() {
-    const { roleId, show, closePanel } = this.props;
+    const { roleId, show, closePanel, isForPortal } = this.props;
     const { roleDetail, loading } = this.state;
 
     const formProps = {
+      isForPortal,
       roleDetail,
       loading: loading || roleDetail === undefined,
       closePanel,
@@ -169,7 +186,11 @@ export default class RoleSetting extends PureComponent {
           <div className={styles.roleSetting}>
             <div className={styles.header + ' Font17 clearfix'}>
               {roleId ? <span>{_l('设置角色')}</span> : <span>{_l('添加角色')}</span>}
-              <Icon icon="close" className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3" onClick={closePanel} />
+              <Icon
+                icon="close"
+                className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3"
+                onClick={closePanel}
+              />
             </div>
             <SettingForm {...formProps} />
           </div>

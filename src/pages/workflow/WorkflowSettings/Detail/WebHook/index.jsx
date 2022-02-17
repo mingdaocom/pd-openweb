@@ -276,7 +276,7 @@ export default class WebHook extends Component {
         {source.map((item, i) => {
           return (
             <Fragment key={this.props.selectNodeId + i}>
-              <div className={(cx('flexRow'), i === 0 ? 'mTop10' : 'mTop20')}>
+              <div className={i === 0 ? 'mTop10' : 'mTop20'}>
                 <input
                   type="text"
                   className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"

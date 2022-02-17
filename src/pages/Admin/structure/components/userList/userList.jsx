@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import UserTable from './userTable';
 import { Icon, LoadDiv, Checkbox } from 'ming-ui';
+import { Pagination } from 'antd';
 import {
   loadUsers,
   getFullTree,
@@ -13,7 +14,6 @@ import {
 } from '../../actions/entities';
 import { updateCursor, updateTypeCursor, removeCursor, emptyUserSet } from '../../actions/current';
 import userBoard from '../../modules/dialogUserBoard';
-import Pager from './page';
 import JopList from './jobList';
 import cx from 'classnames';
 
@@ -48,7 +48,7 @@ class UserList extends Component {
 
   renderUserCount() {
     const { allCount } = this.props;
-    return typeof allCount !== 'undefined' ? <span className="colorBD mLeft5 mRight15">({allCount})</span> : null;
+    return typeof allCount !== 'undefined' ? <span className="colorBD mLeft5 mRight15">{allCount}</span> : null;
   }
 
   renderUserTable() {
@@ -58,16 +58,8 @@ class UserList extends Component {
 
   handleAdjustDepartment = () => {
     //所有？
-    const {
-      selectCount,
-      selectedAccountIds,
-      projectId,
-      departmentId,
-      isSearch,
-      dispatch,
-      isSelectAll,
-      userList,
-    } = this.props;
+    const { selectCount, selectedAccountIds, projectId, departmentId, isSearch, dispatch, isSelectAll, userList } =
+      this.props;
     const _this = this;
     if (!selectCount) {
       return alert(_l('请选择用户调整'), 3);
@@ -121,7 +113,8 @@ class UserList extends Component {
             onClick={e => {
               this.handleAdjustDepartment();
             }}
-            className="selectedAccountAction Hand Hover_49">
+            className="selectedAccountAction Hand Hover_49"
+          >
             <Icon className="Font16 listName mRight12" icon="sp_filter_none_white" />
             {_l('调整部门')}
           </span>
@@ -129,7 +122,8 @@ class UserList extends Component {
             onClick={e => {
               this.handleExportUser();
             }}
-            className="selectedAccountAction Hand mLeft40 Hover_49">
+            className="selectedAccountAction Hand mLeft40 Hover_49"
+          >
             <Icon className="Font16 listName mRight12" icon="Export_user" />
             {_l('导出选中用户')}
           </span>
@@ -137,7 +131,33 @@ class UserList extends Component {
       </React.Fragment>
     );
   };
+  itemRender(current, type, originalElement) {
+    if (type === 'prev') {
+      return <a className="page">{_l('上一页')}</a>;
+    }
+    if (type === 'next') {
+      return <a className="page">{_l('下一页')}</a>;
+    }
+    return originalElement;
+  }
 
+  // 分页
+  changPage = page => {
+    this.loadData(page);
+  };
+  scroll = () => {
+    if (this.tableContainer.scrollLeft !== 0) {
+      $('.nameTh').addClass('tableColFixedLeft');
+    } else {
+      $('.nameTh').removeClass('tableColFixedLeft');
+    }
+
+    if (this.tableContainer.scrollWidth - this.tableContainer.scrollLeft === this.tableContainer.clientWidth) {
+      $('.actTh').removeClass('tableColFixedRight');
+    } else {
+      $('.actTh').addClass('tableColFixedRight');
+    }
+  };
   render() {
     const {
       allCount,
@@ -165,7 +185,9 @@ class UserList extends Component {
             )}
             {typeCursor === 2 || typeCursor === 3 || (!isSearch && selectedAccountIds.length <= 0 && !isSelectAll) ? (
               <div className="Font15 departmentTitle">
-                {!!departmentId && departmentName}
+                <span className="departmentNameValue" title={!!departmentId && departmentName}>
+                  {!!departmentId && departmentName}
+                </span>
                 {(typeCursor === 0 || typeCursor === 1) && !departmentId && _l('全组织')}
                 {/* {typeCursor === 1 && _l('未分配部门')} */}
                 {typeCursor === 2 && _l('未激活')}
@@ -174,7 +196,7 @@ class UserList extends Component {
                 {(typeCursor === 0 || typeCursor === 1) && !departmentId && (
                   <Checkbox
                     ref="example"
-                    className="InlineBlock Gray_9e Font12 departmentName TxtMiddle LineHeight24"
+                    className="InlineBlock Gray_9e Font12 departmentName TxtMiddle LineHeight24 bgColorHover noDepartment"
                     defaultChecked={typeCursor === 1}
                     // id="1"
                     onClick={(checked, id) => {
@@ -186,28 +208,30 @@ class UserList extends Component {
                         dispatch(updateTypeCursor(0));
                         dispatch(loadAllUsers(projectId, 1));
                       }
-                    }}>
+                    }}
+                  >
                     {_l('暂无部门')}
                   </Checkbox>
-                )}
-                {allCount > 0 ? (
-                  <Pager
-                    pageFn={index => {
-                      this.loadData(index);
-                    }}
-                    allCount={allCount}
-                    pageIndex={pageIndex}
-                    pageSize={pageSize}
-                  />
-                ) : (
-                  ''
                 )}
                 {/* {this.renderSettingBtn()} */}
               </div>
             ) : (
               ''
             )}
-            <div className="departmentContent">{this.renderUserTable()}</div>
+            <div className="departmentContent" onScroll={this.scroll} ref={node => (this.tableContainer = node)}>
+              {this.renderUserTable()}
+            </div>
+            {allCount > pageSize && (
+              <div className="pagination">
+                <Pagination
+                  total={allCount}
+                  itemRender={this.itemRender}
+                  onChange={this.changPage}
+                  current={pageIndex}
+                  pageSize={pageSize || 50}
+                />
+              </div>
+            )}
           </div>
         </div>
       );

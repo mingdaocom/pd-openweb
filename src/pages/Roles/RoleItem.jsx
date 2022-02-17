@@ -166,7 +166,7 @@ export default class RoleItem extends PureComponent {
       copyRole,
       onSelectRole,
       projectId,
-      role: { users, departmentsInfos, jobInfos, roleType },
+      role: { users, departmentsInfos, jobInfos = [], roleType },
     } = this.props;
     const isExist = !!_.find(users, ({ accountId }) => accountId === md.global.Account.accountId);
 
@@ -252,7 +252,7 @@ export default class RoleItem extends PureComponent {
 
   renderHeader(isInCurrentRole) {
     const {
-      role: { name, users, departmentsInfos, jobInfos },
+      role: { name, users, departmentsInfos, jobInfos = [] },
       collapse,
       onClickRole,
       disabled,
@@ -310,7 +310,7 @@ export default class RoleItem extends PureComponent {
       projectId,
       isUserAdmin,
       collapse,
-      role: { users, departmentsInfos, jobInfos },
+      role: { users, departmentsInfos, jobInfos = [] },
       addJobToRole,
       addDepartmentToRole,
       addUserToRole,

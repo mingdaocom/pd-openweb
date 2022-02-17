@@ -16,16 +16,25 @@ const Con = styled.div`
   .queryInput {
     margin: 5px 16px 0 0;
   }
-  .checkReportPagination {
-    margin-right: 10px;
+  .pagination {
+    line-height: 1em;
+    margin-right: 8px;
   }
   .worksheetFilterBtn {
+    line-height: 1em;
     margin-right: 12px;
   }
 `;
 
+const Tip = styled.div`
+  margin-top: 7px;
+  color: #9e9e9e;
+`;
+
 const Clear = styled.span`
   margin-left: 10px;
+  margin-top: 7px;
+  font-weight: 600;
   cursor: pointer;
   color: #2196f3;
 `;
@@ -58,6 +67,7 @@ const Close = styled.span`
 
 function Header(props, ref) {
   const {
+    entityName,
     title,
     isCharge,
     projectId,
@@ -87,18 +97,22 @@ function Header(props, ref) {
   return (
     <Con>
       <Title>{title}</Title>
-      <Clear
-        onClick={() => {
-          Dialog.confirm({
-            title: _l('是否清空回收站'),
-            anim: false,
-            // width: 368,
-            onOk: onClear,
-          });
-        }}
-      >
-        {_l('清空')}
-      </Clear>
+      <Tip> {_l('%060天后将被自动删除', entityName)} </Tip>
+      {isCharge && (
+        <Clear
+          onClick={() => {
+            Dialog.confirm({
+              title: <span style={{ color: '#f44336' }}>{_l('是否清空回收站')}</span>,
+              buttonType: 'danger',
+              anim: false,
+              description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
+              onOk: onClear,
+            });
+          }}
+        >
+          {_l('立即清空')}
+        </Clear>
+      )}
       <div className="flex"></div>
       <Operate>
         <SearchInput

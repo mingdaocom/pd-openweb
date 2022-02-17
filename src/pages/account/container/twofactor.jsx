@@ -91,9 +91,7 @@ export default function Twofactor(props) {
       return;
     }
     if (!verifyCode) {
-      $(code)
-        .closest('.mesDiv')
-        .addClass('errorDiv');
+      $(code).closest('.mesDiv').addClass('errorDiv');
       code.current.focus();
       return;
     }
@@ -174,10 +172,10 @@ export default function Twofactor(props) {
       <div className="titleHeader">
         <div className={cx('title mTop20')}>{_l('登录两步验证')}</div>
         <div className="mTop8">
-          {type === 2 && !account ? (
+          {!account ? (
             <span style={{ color: '#757575' }}>
               {_l('使用绑定的')}
-              <b style={{ color: '#333' }}> {_l('邮箱')} </b>
+              <b style={{ color: '#333' }}> {type === 2 ? _l('邮箱') : _l('手机号')} </b>
               {_l('接收验证码')}
             </span>
           ) : (

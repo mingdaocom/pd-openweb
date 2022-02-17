@@ -1,72 +1,33 @@
 .adminStructureBox {
-  .departmentContent {
-
-    th,
-    td {
-      padding-right: 24px;
-      box-sizing: border-box;
-    }
-
-    .nameTh {
-      min-width: 200px;
-      width: 18.47%;
-
-      a:hover {
-        text-decoration: none !important;
-      }
-    }
-
-    .jobTh,
-    .departmentTh {
-      width: 13.02%;
-    }
-
-    .workSiteTh,
-    .jobNumberTh {
-      width: 10%;
-      min-width: 80px;
-    }
-    .mobileTh {
-      width: 12.07%;
-    }
-
-    .emailTh {
-      width: 17.73%;
-    }
+  .chargeIcon {
+    color: #f9ce1d;
   }
+  .chargeIcon:hover {
+    color: #f29d14;
+  }
+}
 
-  .approvalUser {
-    .nameTh {
-      width: 28.28%;
+.dropDownOptBox {
+  .opList {
+    min-width: 126px;
+    padding: 6px 0;
 
-      a:hover {
-        text-decoration: none !important;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+
+    .opItem {
+      padding: 0 24px;
+      line-height: 36px;
+      cursor: pointer;
+      white-space: nowrap;
+      &.leaveText {
+        color: #f44439;
       }
-    }
-
-    .statusTh {
-      width: 8.42%;
-    }
-
-    .jobTh,
-    .departmentTh {
-      display: none !important;
-    }
-
-    .mobileTh {
-      width: 14.07%;
-    }
-
-    .emailTh {
-      width: 19.73%;
-    }
-
-    .dateTh {
-      width: 11.97%;
-    }
-
-    .actMenTh {
-      width: 11.97%;
+      &:hover {
+        background-color: #2196f3;
+        color: #fff;
+      }
     }
   }
 }

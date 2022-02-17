@@ -82,7 +82,7 @@ export function hidedControlIds(state = [], action) {
     case 'PUBLICWORKSHEET_LOAD_SUCCESS':
       return action.hidedControlIds;
     case 'WORKSHEET_HIDE_CONTROL':
-      return _.uniq(state.concat(action.controlId));
+      return _.uniqBy(state.concat(action.controlId));
     case 'WORKSHEET_SHOW_CONTROL':
       return state.filter(controlId => controlId !== action.controlId);
     case 'PUBLICWORKSHEET_CLEAR':

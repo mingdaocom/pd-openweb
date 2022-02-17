@@ -458,7 +458,7 @@ class BatchOperate extends React.Component {
                             key: `${printKey}`,
                             value: JSON.stringify(printData),
                           });
-                          window.open(`/printForm/worksheet/preview/print/${printKey}`);
+                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
                           this.setState({
                             printListExpanded: false,
                           });
@@ -607,6 +607,9 @@ class BatchOperate extends React.Component {
                       worksheetSummaryTypes: rowsSummary.types,
                       quickFilter,
                       navGroupFilters,
+
+                      // 不支持列统计结果
+                      hideStatistics: true,
                     });
                   }}
                 />

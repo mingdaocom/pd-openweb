@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import alreadyDelete from 'src/pages/worksheet/assets/alreadyDelete.png';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
 
@@ -29,6 +30,10 @@ const UnNormalWrap = styled.div`
 `;
 
 const CODE_TYPE = {
+  '-10000': {
+    src: abnormal,
+    text: _l('视图无权限或者已删除'),
+  },
   4: {
     src: alreadyDelete,
     text: _l('视图已删除'),
@@ -41,13 +46,13 @@ const CODE_TYPE = {
 
 const UnNormal = props => {
   const { resultCode } = props;
-  const { src, text } = CODE_TYPE[resultCode] || { src: alreadyDelete, text: _l('视图无权限或者已删除') };
+  const { src, text } = CODE_TYPE[resultCode] || { src: abnormal, text: _l('服务异常，请 %0 后重试', `<a onclick="location.reload()">${_l('刷新')}</a>`) };
 
   return (
     <UnNormalWrap>
       <div className="unNormalContent flexColumn">
         <img src={src} />
-        <p className="unNormalText">{text}</p>
+        <p className="unNormalText" dangerouslySetInnerHTML={{ __html: text }}></p>
       </div>
     </UnNormalWrap>
   );

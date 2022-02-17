@@ -2,13 +2,13 @@ import './selectAllGroup.less';
 import 'nanoScroller';
 import 'mdBusinessCard';
 import { upgradeVersionDialog, htmlEncodeReg } from 'src/util';
-var qs = require('querystring');
+var qs = require('query-string');
 var groupController = require('src/api/group');
 var doT = require('dot');
 var selectGroupTpl = require('./selectAllGroup.html');
 
 var tpl = doT.template(selectGroupTpl);
-(function($) {
+(function ($) {
   function SelectGroup(el, setting) {
     var DEFAULTS = {
       defaultValueAllowChange: true, // 是否允许更改默认选中项
@@ -31,9 +31,9 @@ var tpl = doT.template(selectGroupTpl);
       filterDisabledGroup: false, // 过滤掉到期网络或群组
       renderWhenBegin: false, // 渲染单独部门时 立即渲染 不需要点击后才渲染
       showCompanyName: false,
-      onLoad: function() {},
-      reSize: function() {}, // 大小变化回调
-      changeCallback: function() {}, // 选择回调
+      onLoad: function () {},
+      reSize: function () {}, // 大小变化回调
+      changeCallback: function () {}, // 选择回调
     };
     // console.info('selectAllGroup-settings', setting);
     this.projectItemPos = []; // 网络组据顶部的位置
@@ -88,11 +88,11 @@ var tpl = doT.template(selectGroupTpl);
     this.init(el);
   }
   SelectGroup.prototype = {
-    init: function(el) {
+    init: function (el) {
       var SG = this;
       var projects = _.get(md, ['global', 'Account', 'projects']) || [];
       if (SG.options.filterDisabledGroup) {
-        projects = projects.filter(function(project) {
+        projects = projects.filter(function (project) {
           return project.licenseType !== 0;
         });
       }
@@ -126,7 +126,7 @@ var tpl = doT.template(selectGroupTpl);
         SG.options.onLoad();
       }
     },
-    singleRender: function() {
+    singleRender: function () {
       var SG = this;
       var singleTpl = doT.template(require('./singleTpl.html'));
       SG.options.isRadio = false;
@@ -136,7 +136,7 @@ var tpl = doT.template(selectGroupTpl);
             projectId: SG.options.projectId,
             companyName:
               SG.options.showCompanyName && SG.options.projectId !== ''
-                ? md.global.Account.projects.filter(function(project) {
+                ? md.global.Account.projects.filter(function (project) {
                     return project.projectId === SG.options.projectId;
                   })[0].companyName
                 : '',
@@ -152,12 +152,12 @@ var tpl = doT.template(selectGroupTpl);
       SG.setSelectedNum();
       SG.bindEvent();
     },
-    bindEvent: function() {
+    bindEvent: function () {
       var SG = this;
       var $viewTo = this.$viewTo;
       $viewTo
         .find('.SelectAllGroup-selectGroup')
-        .on('click', function() {
+        .on('click', function () {
           var $groupList = $viewTo.find('.SelectAllGroup-groupListDiv');
           var leftHegiht =
             SG.options.position === 'top' ? $viewTo.offset().top : window.innerHeight - $viewTo.offset().top;
@@ -173,15 +173,15 @@ var tpl = doT.template(selectGroupTpl);
         })
         .end()
         .find('.SelectAllGroup-groupListDiv')
-        .on('click', '.addNewGroup,.noGroup .createGroup2', function() {
+        .on('click', '.addNewGroup,.noGroup .createGroup2', function () {
           if (SG.options.noCreateGroup) {
             return;
           }
-          require(['src/components/group/create/creatGroup'], function(createGroup) {
+          require(['src/components/group/create/creatGroup'], function (createGroup) {
             createGroup.createInit({
               projectId: SG.options.projectId,
               createGroupInProject: SG.options.createGroupInProject,
-              callback: function(data) {
+              callback: function (data) {
                 if (SG.options.reloadAfterCreateGroup) {
                   if (window.location.pathname.indexOf('/feed') > -1) {
                     window.location.href = `/feed?groupId=${data.groupId}`;
@@ -208,17 +208,17 @@ var tpl = doT.template(selectGroupTpl);
           });
         })
         .find('.groupListCon')
-        .on('scroll', function() {
+        .on('scroll', function () {
           SG.changeFixedProjectItem();
         })
-        .on('wheel', function(evt) {
+        .on('wheel', function (evt) {
           if ($(this).hasClass('nano')) {
             return;
           }
           SG.disableScrollParent(evt);
         })
         .find('.mostUsed')
-        .on('change', '.groupList .groupItem input', function(event) {
+        .on('change', '.groupList .groupItem input', function (event) {
           // 最常使用点击关联对应的
           var $groupItem = $(this).parents('.groupItem');
           var selectedGroup = $groupItem.data('groupid');
@@ -226,7 +226,7 @@ var tpl = doT.template(selectGroupTpl);
           if ($groupItem.hasClass('everybody')) {
             SG.$viewTo
               .find('.projectItem')
-              .filter(function(i, projectItem) {
+              .filter(function (i, projectItem) {
                 return $(projectItem).data('projectid') === selectedGroup;
               })
               .find('.everybody input')
@@ -235,7 +235,7 @@ var tpl = doT.template(selectGroupTpl);
           }
           SG.$viewTo
             .find('.projectItem:not(.mostUsed) .groupList .groupItem')
-            .filter(function(i, group) {
+            .filter(function (i, group) {
               return $(group).data('groupid') === selectedGroup;
             })
             .find('input')
@@ -243,13 +243,13 @@ var tpl = doT.template(selectGroupTpl);
         })
         .end()
         .find('.projectItem')
-        .on('click', '.projectTitle:not(.disabled)', function(e) {
+        .on('click', '.projectTitle:not(.disabled)', function (e) {
           var $this = $(this);
           var $projectItem = $this.closest('.projectItem');
           if ($projectItem.hasClass('mostUsed')) {
             return;
           }
-          $projectItem.find('.groupList').slideToggle(function() {
+          $projectItem.find('.groupList').slideToggle(function () {
             if ($projectItem.find('.groupList .groupItem').length === 0) {
               var projectId = $projectItem.data('projectid');
               if (!projectId) {
@@ -260,7 +260,7 @@ var tpl = doT.template(selectGroupTpl);
                   projectId = 'personItem';
                 }
               }
-              SG.fetchGroup(projectId).then(function() {
+              SG.fetchGroup(projectId).then(function () {
                 if ($projectItem.is(':visible')) {
                   SG.getProjectItemPos();
                   SG.changeFixedProjectItem();
@@ -270,14 +270,11 @@ var tpl = doT.template(selectGroupTpl);
           });
           $(this).toggleClass('open');
           if (!SG.$viewTo.find('.projectItem .projectTitle.open').length) {
-            SG.$viewTo
-              .find('.projectTitle')
-              .removeClass('fixed')
-              .css('top', '0px');
+            SG.$viewTo.find('.projectTitle').removeClass('fixed').css('top', '0px');
           }
           e.stopPropagation();
         })
-        .on('change', '.groupList .groupItem input', function(event) {
+        .on('change', '.groupList .groupItem input', function (event) {
           SG.clearData();
           var $this = $(this);
           var checked = event.currentTarget.checked;
@@ -296,10 +293,7 @@ var tpl = doT.template(selectGroupTpl);
           if ($groupItem.hasClass('radio') || $groupItem.hasClass('allproject')) {
             SG.$viewTo.find('.groupItem').removeClass('gray');
           } else {
-            $groupItem
-              .parent()
-              .children()
-              .removeClass('gray');
+            $groupItem.parent().children().removeClass('gray');
           }
           // 设置值
           SG.value.map[idStr] = checked;
@@ -364,10 +358,8 @@ var tpl = doT.template(selectGroupTpl);
           SG.setDataFromValue();
           SG.setSelectedNum();
         });
-      SG.$viewTo.on('click', '.projectItem:not(.mostUsed) .groupItem.disabled', function() {
-        var projectId = $(this)
-          .closest('.projectItem')
-          .data('projectid');
+      SG.$viewTo.on('click', '.projectItem:not(.mostUsed) .groupItem.disabled', function () {
+        var projectId = $(this).closest('.projectItem').data('projectid');
         upgradeVersionDialog({
           projectId,
           explainText: _l('请升级至付费版解锁开启'),
@@ -375,7 +367,7 @@ var tpl = doT.template(selectGroupTpl);
         });
       });
     },
-    setSGValue: function() {
+    setSGValue: function () {
       var SG = this;
       var allprojectRegExp = new RegExp(/^li_allproject_(\w{8}-(\w{4}-){3}\w{12})$/);
       var normalRegExp = new RegExp(/^li_normal_(\w{8}-(\w{4}-){3}\w{12})$/);
@@ -401,7 +393,7 @@ var tpl = doT.template(selectGroupTpl);
       this.value.shareProjectIds = shareProjectIds;
       this.value.radioProjectIds = radioProjectIds;
     },
-    fetchGroup: function(projectId) {
+    fetchGroup: function (projectId) {
       var SG = this;
       if (projectId === 'personItem') {
         return SG.fetchSingle('', SG.$viewTo.find('.projectItem.personItem'));
@@ -432,7 +424,7 @@ var tpl = doT.template(selectGroupTpl);
         id_str: 'li_' + SG.getGroupType(g) + (SG.getGroupType(g) === 'personal' ? '' : '_' + g.id),
       }));
     },
-    fetchSingle: function(id, $target) {
+    fetchSingle: function (id, $target) {
       var SG = this;
       var groupTpl = doT.template(require('./normalGroup.html'));
       var licenseType = $target.data('licensetype');
@@ -441,9 +433,9 @@ var tpl = doT.template(selectGroupTpl);
           projectId: id,
           withRadio: SG.options.isRadio,
         })
-        .then(function(data) {
+        .then(function (data) {
           if (id === '' && SG.options.filterDisabledGroup) {
-            data = data.filter(function(project) {
+            data = data.filter(function (project) {
               return !(project.extra && project.extra.licenseType === 0);
             });
           }
@@ -496,7 +488,7 @@ var tpl = doT.template(selectGroupTpl);
       SG.$viewTo.find('.SelectAllGroup-selectedGroup').html(html);
     },
     // 设置组件已选择数
-    setSelectedNum: function() {
+    setSelectedNum: function () {
       var SG = this;
       var selectedNum = SG.value.shareProjectIds.length + SG.value.groups.length;
       if (SG.value.radioProjectIds && SG.value.radioProjectIds.length > 0) {
@@ -521,7 +513,7 @@ var tpl = doT.template(selectGroupTpl);
         if (SG.value.shareProjectIds.length > 0) {
           SG.setSelectedNumHtml(_l('所有同事'));
         } else {
-          var $groupItem = SG.$viewTo.find('.groupItem').filter(function(i, group) {
+          var $groupItem = SG.$viewTo.find('.groupItem').filter(function (i, group) {
             return $(group).data('groupid') === SG.value.groups[0];
           });
           if ($groupItem.length) {
@@ -531,7 +523,7 @@ var tpl = doT.template(selectGroupTpl);
               .getGroupInfo({
                 groupId: SG.value.groups[0],
               })
-              .then(function(data) {
+              .then(function (data) {
                 if (data) {
                   SG.setSelectedNumHtml(htmlEncodeReg(data.name));
                 }
@@ -546,17 +538,17 @@ var tpl = doT.template(selectGroupTpl);
         }
       }
     },
-    getProjectItemPos: function() {
-      var projectItemHeights = this.$viewTo.find('.projectItem').map(function(i, ele) {
+    getProjectItemPos: function () {
+      var projectItemHeights = this.$viewTo.find('.projectItem').map(function (i, ele) {
         return $(ele).height();
       });
-      var toTops = projectItemHeights.toArray().map(function(ele, i) {
+      var toTops = projectItemHeights.toArray().map(function (ele, i) {
         return _.sum(projectItemHeights.slice(0, i));
       });
       this.projectItemPos = toTops;
       this.emitNanoScroll();
     },
-    changeFixedProjectItem: function() {
+    changeFixedProjectItem: function () {
       var scrollTop;
       var SG = this;
       var $projectTitles = SG.$viewTo.find('.SelectAllGroup-groupListDiv .projectTitle');
@@ -589,7 +581,7 @@ var tpl = doT.template(selectGroupTpl);
           .css('top', scrollTop + 'px');
       }
     },
-    emitNanoScroll: function() {
+    emitNanoScroll: function () {
       var SG = this;
       var $groupListCon = SG.$viewTo.find('.SelectAllGroup-groupListDiv .groupListCon');
       if (SG.$viewTo.find('.SelectAllGroup-groupListDiv .groupListCon').height() >= SG.options.maxHeight) {
@@ -601,7 +593,7 @@ var tpl = doT.template(selectGroupTpl);
             .wrap($('<div class="nano-content">'));
           $groupListCon
             .find('.nano-content')
-            .on('scroll', function() {
+            .on('scroll', function () {
               SG.changeFixedProjectItem();
             })
             .on('wheel', SG.disableScrollParent);
@@ -609,14 +601,11 @@ var tpl = doT.template(selectGroupTpl);
         SG.$viewTo.find('.nano').nanoScroller();
       } else {
         if ($groupListCon.hasClass('nano')) {
-          $groupListCon
-            .removeClass('nano')
-            .height('auto')
-            .nanoScroller({ destroy: true });
+          $groupListCon.removeClass('nano').height('auto').nanoScroller({ destroy: true });
         }
       }
     },
-    disableScrollParent: function(evt) {
+    disableScrollParent: function (evt) {
       var clientHeight = evt.currentTarget.clientHeight;
       var scrollTop = evt.currentTarget.scrollTop;
       var scrollHeight = evt.currentTarget.scrollHeight;
@@ -627,7 +616,7 @@ var tpl = doT.template(selectGroupTpl);
       }
     },
     // 默认展开收起逻辑
-    defaultSlide: function() {
+    defaultSlide: function () {
       var SG = this;
       var $mostUsed = SG.$viewTo.find('.projectItem.mostUsed');
       $.when(
@@ -638,7 +627,7 @@ var tpl = doT.template(selectGroupTpl);
           : true,
         groupController.selectGroupMostFrequent(),
       )
-        .done(function(personal, mostUsed) {
+        .done(function (personal, mostUsed) {
           var $groupList = SG.$viewTo.find('.SelectAllGroup-groupListDiv');
           if (_.isArray(personal) && !personal.length && !md.global.Account.projects.length) {
             $groupList.addClass('isNew');
@@ -649,7 +638,7 @@ var tpl = doT.template(selectGroupTpl);
             var groupTpl = doT.template(require('./normalGroup.html'));
             var groups = SG.formatGroups(
               mostUsed
-                .filter(function(project) {
+                .filter(function (project) {
                   return !(project.extra && project.extra.licenseType === 0);
                 })
                 .slice(0, 8),
@@ -681,27 +670,13 @@ var tpl = doT.template(selectGroupTpl);
           SG.changeFixedProjectItem();
           var $projectItems = SG.$viewTo.find('.projectItem');
           if ($projectItems.length === 2) {
-            $projectItems
-              .eq(1)
-              .find('.projectTitle')
-              .click();
+            $projectItems.eq(1).find('.projectTitle').click();
           }
           if ($projectItems.length === 3) {
-            if (
-              $projectItems
-                .eq(2)
-                .find('.projectTitle')
-                .hasClass('disabled')
-            ) {
-              $projectItems
-                .eq(1)
-                .find('.projectTitle')
-                .click();
+            if ($projectItems.eq(2).find('.projectTitle').hasClass('disabled')) {
+              $projectItems.eq(1).find('.projectTitle').click();
             } else {
-              $projectItems
-                .eq(2)
-                .find('.projectTitle')
-                .click();
+              $projectItems.eq(2).find('.projectTitle').click();
             }
           }
           if (SG.options.projectId === '') {
@@ -709,11 +684,11 @@ var tpl = doT.template(selectGroupTpl);
           }
           SG.loaded = true;
         })
-        .fail(function() {
+        .fail(function () {
           alert(_l('获取群组失败'), 3);
         });
     },
-    defaultSelectInit: function($target) {
+    defaultSelectInit: function ($target) {
       var SG = this;
       var checkedDisabled = !SG.options.defaultValueAllowChange;
       Object.keys(SG.value.map).forEach(key => {
@@ -731,11 +706,11 @@ var tpl = doT.template(selectGroupTpl);
       var project = md.global.Account.projects.filter(p => p.projectId === projectId)[0];
       return project && project.companyName;
     },
-    showAndBindClickaway: function($div) {
+    showAndBindClickaway: function ($div) {
       var SG = this;
       var speed = 'fast';
       if (!$div.is(':visible')) {
-        $div.slideDown(speed, function() {
+        $div.slideDown(speed, function () {
           if (SG.renderType !== 'single') {
             if (!SG.loaded) {
               SG.defaultSlide();
@@ -747,26 +722,26 @@ var tpl = doT.template(selectGroupTpl);
             SG.fetchSingleWhenRenderProject();
           }
         });
-        var hideDiv = function(evt) {
+        var hideDiv = function (evt) {
           if (!$(evt.target).closest($div).length) {
             $div.slideUp(speed);
             $(document).off('click.selectGroup');
           }
         };
-        setTimeout(function() {
+        setTimeout(function () {
           $(document).on('click.selectGroup', hideDiv);
         }, 100);
       }
     },
     fetchSingleWhenRenderProject() {
       var SG = this;
-      SG.fetchSingle(SG.options.projectId, SG.$viewTo.find('.projectItem')).then(function(data) {
-        var groupIds = data.map(function(group) {
+      SG.fetchSingle(SG.options.projectId, SG.$viewTo.find('.projectItem')).then(function (data) {
+        var groupIds = data.map(function (group) {
           return group.id;
         });
         SG.defaultSelectInit();
         if (SG.options.filterByProjects) {
-          SG.value.groups = SG.value.groups.filter(function(groupId) {
+          SG.value.groups = SG.value.groups.filter(function (groupId) {
             return _.includes(groupIds, groupId);
           });
         }
@@ -775,14 +750,14 @@ var tpl = doT.template(selectGroupTpl);
         SG.emitNanoScroll();
       });
     },
-    clearData: function() {
+    clearData: function () {
       var SG = this;
       SG.$el.data('shareProjectIds', '');
       SG.$el.data('radioProjectIds', '');
       SG.$el.data('selected', 0);
       SG.$el.val('');
     },
-    clearValue: function() {
+    clearValue: function () {
       var SG = this;
       SG.value = {
         shareProjectIds: [],
@@ -790,7 +765,7 @@ var tpl = doT.template(selectGroupTpl);
         radioProjectIds: [],
       };
     },
-    setDataFromValue: function() {
+    setDataFromValue: function () {
       var SG = this;
       var shareProjectIds = SG.value.shareProjectIds;
       var radioProjectIds = SG.value.radioProjectIds;
@@ -808,8 +783,8 @@ var tpl = doT.template(selectGroupTpl);
         SG.options.changeCallback(SG.value);
       }
     },
-    bindBusinessCard: function($target) {
-      require(['mdBusinessCard'], function() {
+    bindBusinessCard: function ($target) {
+      require(['mdBusinessCard'], function () {
         $target.find('.groupItem:not(.personal,.everybody) .groupInfo').mdBusinessCard({
           type: 'group',
           offset: {
@@ -823,13 +798,13 @@ var tpl = doT.template(selectGroupTpl);
   module.exports = SelectGroup;
 
   function $SelectGroup(setting) {
-    return $(this).each(function(i, ele) {
+    return $(this).each(function (i, ele) {
       var init = new SelectGroup(ele, setting);
     });
   }
 
   var methods = {
-    getScope: function() {
+    getScope: function () {
       var $this = $(this);
       if (!$this.next('.viewTo').length) {
         return null;
@@ -849,7 +824,7 @@ var tpl = doT.template(selectGroupTpl);
         radioProjectIds: radioProjectIds,
       };
     },
-    slideDown: function() {
+    slideDown: function () {
       var $this = $(this);
       var $con = $this.next('.viewTo').find('.SelectAllGroup-selectGroup');
       if ($con.length) {
@@ -859,7 +834,7 @@ var tpl = doT.template(selectGroupTpl);
       }
     },
   };
-  $.fn.SelectGroup = function() {
+  $.fn.SelectGroup = function () {
     var settings = arguments;
     var method = settings[0];
     if (methods[method]) {

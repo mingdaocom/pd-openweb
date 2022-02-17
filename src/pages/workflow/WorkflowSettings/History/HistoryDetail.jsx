@@ -14,7 +14,7 @@ import {
   ACTION_TYPE,
   COUNTER_TYPE,
 } from './config';
-import { resetInstance } from '../../api/instanceVersion';
+import { resetInstance, endInstance } from '../../api/instanceVersion';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -132,23 +132,36 @@ export default class HistoryDetail extends Component {
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
+    const showRetry = (data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4;
+    const showSuspend = data.status === 1;
 
-    if (((data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4) && !disabled) {
+    if ((showRetry || showSuspend) && !disabled) {
       return (
         <div
           className={cx(
             'historyDetailRetry',
             isRetry ? 'historyDetailRetryDisabled' : 'ThemeHoverColor2 ThemeHoverBorderColor2',
           )}
-          data-tip={_l('从失败或中止的节点处开始重试')}
+          data-tip={showRetry ? _l('从失败或中止的节点处开始重试') : _l('中止流程')}
           onClick={e => {
+            e.stopPropagation();
+
             this.retryPosition = retryPosition;
-            this.resetInstance(e);
+            this.operationInstance(showRetry ? resetInstance : endInstance);
           }}
         >
-          <Icon className="Font14 mRight3" icon="refresh1" />
-          {_l('重试')}
-          {!!logs.length && '#' + logs.length}
+          {showRetry ? (
+            <Fragment>
+              <Icon className="Font14 mRight3" icon="refresh1" />
+              {_l('重试')}
+              {!!logs.length && '#' + logs.length}
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Icon className="Font14 mRight3" icon="block" />
+              {_l('中止')}
+            </Fragment>
+          )}
         </div>
       );
     }
@@ -156,19 +169,21 @@ export default class HistoryDetail extends Component {
     return null;
   }
 
-  resetInstance = e => {
+  operationInstance = ajax => {
     const { isRetry } = this.state;
     const { id } = this.props;
-
-    e.stopPropagation();
 
     if (isRetry) return;
 
     this.setState({ isRetry: true });
 
-    resetInstance({ instanceId: id }).then(data => {
+    ajax({ instanceId: id }).then(data => {
       this.setState({ data, isRetry: false });
     });
+  };
+
+  renderTemplateInfo = item => {
+    return <div className="info">{item.workItems.map(o => o.opinion).join('、')}</div>;
   };
 
   render() {
@@ -242,7 +257,11 @@ export default class HistoryDetail extends Component {
                     </div>
 
                     <div className="operationPerson">
-                      {flowNode.type === 16 ? this.renderSubProcess(item) : this.renderOperationInfo(item)}
+                      {flowNode.type === 16
+                        ? this.renderSubProcess(item)
+                        : flowNode.type === 19
+                        ? this.renderTemplateInfo(item)
+                        : this.renderOperationInfo(item)}
                     </div>
 
                     <div className="operationTime Gray_75">

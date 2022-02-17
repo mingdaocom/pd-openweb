@@ -13,7 +13,7 @@ import WidgetsDesc from './components/WidgetsDesc';
 import { convertControl, controlState } from './tools/utils';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable } from './tools/filterFn';
-import DataFormat from './tools/DataFormat';
+import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 
 export default class CustomFields extends Component {
@@ -24,6 +24,7 @@ export default class CustomFields extends Component {
     projectId: PropTypes.string,
     worksheetId: PropTypes.string,
     recordId: PropTypes.string,
+    appId: PropTypes.string,
     data: PropTypes.array,
     recordCreateTime: PropTypes.string,
     disabled: PropTypes.bool,
@@ -37,6 +38,7 @@ export default class CustomFields extends Component {
     openRelateSheet: PropTypes.func,
     registerCell: PropTypes.func,
     checkCellUnique: PropTypes.func,
+    onFormDataReady: PropTypes.func,
   };
 
   static defaultProps = {
@@ -46,6 +48,7 @@ export default class CustomFields extends Component {
     openRelateRecord: () => {},
     openRelateSheet: () => {},
     registerCell: () => {},
+    onFormDataReady: () => {},
   };
 
   constructor(props) {
@@ -98,6 +101,9 @@ export default class CustomFields extends Component {
     if (this.props.isWorksheetQuery !== nextProps.isWorksheetQuery && nextProps.isWorksheetQuery) {
       this.getSearchConfig(nextProps);
     }
+    if (nextProps.showError !== this.props.showError && !nextProps.showError) {
+      this.updateErrorState(false);
+    }
   }
 
   con = React.createRef();
@@ -106,7 +112,8 @@ export default class CustomFields extends Component {
    * 初始化数据
    */
   initSource(data, disabled) {
-    const { projectId, initSource, recordId, recordCreateTime, from } = this.props;
+    const { projectId, initSource, recordId, recordCreateTime, from, worksheetId, isWorksheetQuery, onFormDataReady } =
+      this.props;
 
     this.dataFormat = new DataFormat({
       projectId,
@@ -125,12 +132,17 @@ export default class CustomFields extends Component {
       },
     });
 
-    this.setState({
-      renderData: this.getFilterDataByRule(true),
-      errorItems: this.dataFormat.getErrorControls(),
-      uniqueErrorItems: [],
-      rulesLoading: false,
-    });
+    this.setState(
+      {
+        renderData: this.getFilterDataByRule(true),
+        errorItems: this.dataFormat.getErrorControls(),
+        uniqueErrorItems: [],
+        rulesLoading: false,
+      },
+      () => {
+        onFormDataReady(this.dataFormat);
+      },
+    );
   }
 
   /**
@@ -213,7 +225,12 @@ export default class CustomFields extends Component {
     });
 
     data
-      .filter(item => controlState(item, from).visible && (!isRelateRecordTableControl(item) || FROM.H5_ADD === from)) // 过滤不可见的 && (过滤关联多条列表 || h5新增)
+      .filter(
+        item =>
+          !item.hidden &&
+          controlState(item, from).visible &&
+          (!isRelateRecordTableControl(item) || FROM.H5_ADD === from),
+      ) // 过滤不可见的 && (过滤关联多条列表 || h5新增)
       .filter(item =>
         recordId
           ? !(
@@ -246,7 +263,7 @@ export default class CustomFields extends Component {
               </div>
             )}
 
-            {item.type !== 10010 && this.getControlLabel(item)}
+            {!_.includes([10010, 45], item.type) && this.getControlLabel(item)}
             <div className="customFormItemControl">{this.getWidgets(Object.assign({}, item, controlProps))}</div>
 
             {item.type === 22 && !_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
@@ -263,17 +280,48 @@ export default class CustomFields extends Component {
   }
 
   /**
+   * 更新error显示状态
+   */
+  updateErrorState(isShow, controlId) {
+    if (controlId) {
+      this.setState({
+        errorItems: this.state.errorItems.map(item =>
+          item.controlId === controlId ? Object.assign({}, item, { showError: false }) : item,
+        ),
+      });
+    } else {
+      this.setState({
+        errorItems: this.state.errorItems.map(item => Object.assign({}, item, { showError: isShow })),
+      });
+    }
+  }
+
+  /**
+   * 更新errorItems,包含表单和业务规则必填错误
+   */
+  setErrorItemsByRule = (controlId, control) => {
+    const newErrorItems = this.dataFormat.getErrorControls();
+    this.setState({
+      errorItems: newErrorItems.map(item =>
+        item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.RULE_REQUIRED
+          ? Object.assign({}, item, { showError: !!checkRequired(control) })
+          : item,
+      ),
+    });
+  };
+
+  /**
    * 控件label
    */
   getControlLabel(item) {
-    const { showError, from } = this.props;
+    const { from } = this.props;
     const { errorItems, uniqueErrorItems } = this.state;
     const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
     const errorText = currentErrorItem.errorText || '';
     const isEditable = controlState(item, from).editable;
     let errorMessage = '';
 
-    if ((showError || currentErrorItem.showError) && isEditable) {
+    if (currentErrorItem.showError && isEditable) {
       if (currentErrorItem.errorType === FORM_ERROR_TYPE.UNIQUE) {
         errorMessage = currentErrorItem.errorMessage || FORM_ERROR_TYPE_TEXT.UNIQUE(item);
       } else {
@@ -299,7 +347,13 @@ export default class CustomFields extends Component {
 
           {errorMessage && (
             <div className="customFormErrorMessage">
-              <span>{errorMessage}</span>
+              <span>
+                {errorMessage}
+                <i
+                  className="icon-close mLeft6 Bold delIcon"
+                  onClick={() => this.updateErrorState(false, item.controlId)}
+                />
+              </span>
               <i className="customFormErrorArrow" />
             </div>
           )}
@@ -414,6 +468,7 @@ export default class CustomFields extends Component {
       worksheetId,
       recordId,
       viewId,
+      appId,
       from,
       openRelateSheet = () => {},
       registerCell,
@@ -474,6 +529,7 @@ export default class CustomFields extends Component {
           from={from}
           worksheetId={worksheetId}
           recordId={recordId}
+          appId={appId}
           viewIdForPermit={viewId}
           onChange={(value, cid = controlId) => {
             if (item.value !== value) {
@@ -485,7 +541,9 @@ export default class CustomFields extends Component {
                 },
                 searchByChange: true,
               });
-              this.setState({ renderData: this.getFilterDataByRule(), errorItems: this.dataFormat.getErrorControls() });
+              this.setState({ renderData: this.getFilterDataByRule() }, () =>
+                this.setErrorItemsByRule(cid, { ...item, value }),
+              );
 
               const ids = this.dataFormat.getUpdateControlIds();
               if (ids.length) {
@@ -636,6 +694,8 @@ export default class CustomFields extends Component {
     if (!hasError && errors.length && !silent) {
       this.errorDialog(errors);
     }
+    // 提交时所有错误showError更新为true
+    this.updateErrorState(hasError);
 
     return {
       data: list,

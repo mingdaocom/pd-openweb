@@ -27,6 +27,7 @@ export const FLOW_FAIL_REASON = {
   1115: _l('获取字段权限错误'),
   2000: _l('本行已有流程在执行'),
 
+  7777: _l('手动中止'),
   9999: _l('程序异常'),
 
   10000: _l('未设置有效节点'),
@@ -114,6 +115,7 @@ export const NODE_TYPE = {
   16: { type: 'subprocess', text: _l('子流程') },
   17: { type: 'push', text: _l('界面推送') },
   18: { type: 'file', text: _l('获取记录打印文件') },
+  19: { type: 'template', text: _l('服务号消息') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -153,8 +155,9 @@ export const NODE_ICON = {
       6: 'hr_time',
       7: 'workflow_webhook',
       8: 'custom_actions',
-      20: 'account_circle',
+      20: 'hr_structure',
       21: 'workflow',
+      23: 'folder-public',
     },
     text: {
       1: _l('工作表事件触发'),
@@ -164,6 +167,7 @@ export const NODE_ICON = {
       8: _l('按钮触发'),
       20: _l('人员事件触发'),
       21: _l('部门事件触发'),
+      23: _l('外部用户事件触发'),
     },
     bgColor: {
       1: '#ffa340',
@@ -173,6 +177,7 @@ export const NODE_ICON = {
       8: '#4C7D9E',
       20: '#01ca83',
       21: '#01ca83',
+      23: '#01ca83',
     },
   },
 
@@ -262,6 +267,11 @@ export const NODE_ICON = {
     icon: 'print',
     text: _l('获取记录打印文件'),
     bgColor: '#4c7d9e',
+  },
+  template: {
+    icon: 'wechat',
+    text: _l('发送服务号消息'),
+    bgColor: '#2196f3',
   },
   singleInfo: {
     icon: 'person_search',

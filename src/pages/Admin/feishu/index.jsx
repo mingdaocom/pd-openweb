@@ -86,7 +86,7 @@ export default class FeiShu extends React.Component {
         }
       }
     });
-  }
+  };
 
   formatStr = str => {
     if (!str) return;
@@ -103,7 +103,7 @@ export default class FeiShu extends React.Component {
       newStr = str;
     }
     return newStr;
-  }
+  };
 
   editFeishuProjectSettingStatus = (tag, callback) => {
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
@@ -117,7 +117,7 @@ export default class FeiShu extends React.Component {
         alert('失败');
       }
     });
-  }
+  };
 
   editDingStatus = num => {
     this.editFeishuProjectSettingStatus(num, () => {
@@ -125,7 +125,7 @@ export default class FeiShu extends React.Component {
         isCloseDing: !this.state.isCloseDing,
       });
     });
-  }
+  };
 
   inputRender = (strId, name) => {
     return (
@@ -183,7 +183,7 @@ export default class FeiShu extends React.Component {
         </div>
       </React.Fragment>
     );
-  }
+  };
 
   syncFn = isCheck => {
     if (isCheck) {
@@ -227,7 +227,7 @@ export default class FeiShu extends React.Component {
         });
       }
     });
-  }
+  };
 
   stepRender = () => {
     return (
@@ -247,9 +247,7 @@ export default class FeiShu extends React.Component {
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
-                {_l('从飞书开放平台获取对接信息，即可开始集成以及同步通讯录')}
-              </p>
+              <p className="mTop16 Font14 Gray_75">{_l('从飞书开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
               <Link to={`/feishuSyncCourse/${Config.projectId}`} target="_blank" className="mTop16 Font14 howApply">
                 {_l('如何获取对接信息？')}
               </Link>
@@ -349,7 +347,7 @@ export default class FeiShu extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
   renderSyncDiaLog = () => {
     return (
@@ -417,9 +415,34 @@ export default class FeiShu extends React.Component {
         </p>
       </Dialog>
     );
-  }
+  };
+
+  // 免费版显示付费升级
+  renderUpgrade = () => {
+    return (
+      <div className="upgradePage flexColumn">
+        <div className="netStateWrap">
+          <div className="imgWrap" />
+          <div className="hint">{_l('当前版本无法使用此功能')}</div>
+          <div className="explain">{_l('请升级到标准版本或以上版本')}</div>
+        </div>
+        {/*<Button
+          type="primary"
+          className="payUpgradeBtn"
+          onClick={() => {
+            navigateTo(`/upgrade/choose?projectId=${Config.projectId}`);
+          }}
+        >
+          {_l('立即购买')}
+        </Button>*/}
+      </div>
+    );
+  };
 
   render() {
+    if (Config.project.licenseType === 0) {
+      return this.renderUpgrade();
+    }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }

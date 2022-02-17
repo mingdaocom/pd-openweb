@@ -59,7 +59,7 @@ const Content = styled.div`
 `;
 
 export default function SelectFnControl(props) {
-  const { controls, insertTagToEditor, insertFn } = props;
+  const { controls, controlGroups, insertTagToEditor, insertFn } = props;
   const [keywords, setKeywords] = useState('');
   const [activeTab, setActiveTab] = useState('fn');
   return (
@@ -94,7 +94,12 @@ export default function SelectFnControl(props) {
       <Content>
         {activeTab === 'fn' && <FnList keywords={keywords} insertFn={insertFn} />}
         {activeTab === 'control' && (
-          <ControlList keywords={keywords} controls={controls} insertTagToEditor={insertTagToEditor} />
+          <ControlList
+            keywords={keywords}
+            controls={controls}
+            controlGroups={controlGroups}
+            insertTagToEditor={insertTagToEditor}
+          />
         )}
       </Content>
     </Con>
@@ -105,4 +110,5 @@ SelectFnControl.propTypes = {
   insertTagToEditor: func,
   insertFn: func,
   controls: arrayOf(shape({})),
+  controlGroups: arrayOf(shape({})),
 };

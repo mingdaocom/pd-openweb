@@ -7,7 +7,7 @@ import { TriggerCondition } from '../components';
 export default ({ data, updateSource, processId, selectNodeId, companyId, renderConditionBtn }) => {
   const TYPES = {
     20: {
-      icon: 'icon-account_circle',
+      icon: 'icon-hr_structure',
       title: _l('人员'),
       actions: [
         { text: _l('当新人入职时'), value: TRIGGER_ID_TYPE.ADD },
@@ -20,6 +20,15 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
       actions: [
         { text: _l('当创建部门时'), value: TRIGGER_ID_TYPE.ADD },
         { text: _l('当解散部门时'), value: TRIGGER_ID_TYPE.DELETE },
+      ],
+    },
+    23: {
+      icon: 'icon-folder-public',
+      title: _l('外部用户'),
+      actions: [
+        { text: _l('当新用户注册时'), value: TRIGGER_ID_TYPE.ADD },
+        { text: _l('当用户登录时'), value: TRIGGER_ID_TYPE.ONLY_EDIT },
+        { text: _l('当用户被删除时'), value: TRIGGER_ID_TYPE.DELETE },
       ],
     },
   };

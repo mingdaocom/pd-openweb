@@ -53,7 +53,12 @@ export default class WorkSheetComment extends React.Component {
     const { discussions = [] } = this.state;
     let data = [];
     formdata
-      .filter(o => o.type === 26)
+      .filter(
+        o =>
+          o.type === 26 && //成员字段
+          o.userPermission !== 0 && //排除仅用于记录人员数据
+          (o.advancedSetting || {}).usertype !== '2', //不能@外部用户
+      )
       .map(o => {
         let d;
         try {
@@ -80,7 +85,8 @@ export default class WorkSheetComment extends React.Component {
         d =>
           !(
             ['user-undefined', 'user-publicform', md.global.Account.accountId].includes(d.accountId) ||
-            d.accountId.indexOf('user-') >= 0
+            d.accountId.indexOf('user-') >= 0 ||
+            d.accountId.indexOf('a#') >= 0
           ),
       );
     let hash = {};

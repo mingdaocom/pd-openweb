@@ -7,7 +7,7 @@ let getRows;
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
     const { base, filters } = getState().sheet;
-    const { worksheetId, viewId, appId } = base;
+    const { worksheetId, viewId, appId, chartId } = base;
     if (getRows) {
       getRows.abort();
     }
@@ -18,6 +18,7 @@ export const fetch = searchArgs => {
       status: 1,
       pageIndex: 1,
       sortControls: searchArgs.sortControls,
+      reportId: chartId || undefined,
       pageSize: 10000000,
       ..._.pick(searchArgs, [
         'keyWords',

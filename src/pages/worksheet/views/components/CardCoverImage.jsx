@@ -7,6 +7,7 @@ import { filter, includes, head, get } from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getMultiRelateViewConfig } from '../util';
+import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 
 const CoverImageWrap = styled.div`
   position: relative;
@@ -138,7 +139,7 @@ const COVER_IMAGE_POSITION = {
 
 export default function CardCoverImage(props) {
   const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '' } = props;
-  const { allAttachments = [] } = data;
+  const { allAttachments = [], coverData = {} } = data;
   const { previewUrl, ext } = head(allAttachments) || {};
   const { viewType } = currentView;
   const isGalleryView = String(viewType) === '3';
@@ -150,7 +151,8 @@ export default function CardCoverImage(props) {
 
   if (!coverCid) return null;
   if (!isGalleryView && position !== 'left' && !coverImage) return null;
-
+  // 嵌入字段iframe展示
+  const isIframeCover = isIframeControl(coverData);
   const previewAttachment = e => {
     // 不允许预览
     if (opencover === '2') {
@@ -195,29 +197,49 @@ export default function CardCoverImage(props) {
     const isMobile = browserIsMobile();
     if (!coverImage) {
       return (
-        <div className={cx('coverWrap', 'emptyCoverWrap', {'mobileOverWrap': isMobile})}>
+        <div className={cx('coverWrap', 'emptyCoverWrap', { mobileOverWrap: isMobile })}>
           <img src={emptyCover}></img>
         </div>
       );
     }
     if (coverImage) {
       return (
-        <div className={cx('coverWrap', '', {'mobileOverWrap': isMobile})} onClick={previewAttachment} style={getStyle()}>
+        <div
+          className={cx('coverWrap', '', { mobileOverWrap: isMobile })}
+          onClick={previewAttachment}
+          style={getStyle()}
+        >
           {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
         </div>
       );
     }
     return (
-      <div className={cx('coverWrap', '', {'mobileOverWrap': isMobile})} onClick={previewAttachment}>
+      <div className={cx('coverWrap', '', { mobileOverWrap: isMobile })} onClick={previewAttachment}>
         <div className={cx('fileIcon', getClassNameByExt(ext))}></div>
         {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
       </div>
     );
   };
 
+  const getIframe = () => {
+    const isMobile = browserIsMobile();
+    const isLegalLink = /^https?:\/\/.+$/.test(coverData.value);
+    return (
+      <div className="coverWrap">
+        {isLegalLink ? (
+          <iframe className="overflowHidden Border0" width="100%" height="100%" src={coverData.value}></iframe>
+        ) : (
+          <div className={cx('coverWrap', 'emptyCoverWrap', { mobileOverWrap: isMobile })}>
+            <img src={emptyCover}></img>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <CoverImageWrap className={cx(`dir-${position} display-${COVER_TYPE_TO_BACKGROUND_SIZE[coverType]}`)}>
-      {getCover()}
+      {isIframeCover ? getIframe() : getCover()}
     </CoverImageWrap>
   );
 }

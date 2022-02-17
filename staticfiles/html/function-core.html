@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Core</title>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        textarea,
+        input {
+            outline: none;
+            box-shadow: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            resize: none;
+        }
+
+        button {
+            font-family: monospace;
+            border: none;
+            background-color: #2196f3;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0c88eb;
+        }
+
+
+        .con {
+            padding: 100px;
+            text-align: center;
+        }
+
+        .params {
+            width: 600px;
+            height: 400px;
+        }
+
+        .result {
+            height: 3em;
+            text-align: left;
+        }
+
+        .log {
+            text-align: left;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="con">
+        <textarea class="params"></textarea>
+        <div class="result">
+            result: <span class="val"></span>
+        </div>
+        <div>
+            <button class="run">RUN</button>
+        </div>
+        <div class="log"></div>
+    </div>
+    <script src="/dist/mdfunction.bundle.js"></script>
+    <script>
+        var $result = document.querySelector('.result .val');
+        var $log = document.querySelector('.log');
+        var $params_text = document.querySelector('textarea.params');
+        var $run_btn = document.querySelector('button.run');
+        $params_text.value = '{"control":{"controlId":"6189ddbe1c2854dd35392437","type":2,"advancedSetting":{"defsource":"","defaulttype":"1","dynamicsrc":"","defaultfunc":"{\\"expression\\":\\"SUM($6189ddd91c2854dd35392445$,$6189ddd91c2854dd35392446$)\\",\\"status\\":1}","min":"","max":""}},"formData":[{"controlId":"6189ddd91c2854dd35392445","type":6,"value":"3"},{"controlId":"6189ddd91c2854dd35392446","type":6,"value":"3"}]}'
+        $run_btn.onclick = () => {
+            $log.innerHTML = '';
+            var value = $params_text.value.replace(/(\r\n|\n)/g, '');
+            try {
+                $result.innerText = executeMdFunction(Base64.encode(value));
+            } catch (err) {
+                $result.innerText = err;
+            }
+        }
+        console.log = (value) => {
+            $log.innerHTML = $log.innerHTML += (value + '\n');
+        }
+    </script>
+</body>
+
+</html>

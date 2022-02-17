@@ -201,6 +201,7 @@ export default class Action extends Component {
     if (data.actionId === TRIGGER_ID_TYPE.RELATION) {
       return (
         <RelationFields
+          key={cacheKey}
           {...this.props}
           data={data}
           SelectNodeObjectChange={this.SelectNodeObjectChange}

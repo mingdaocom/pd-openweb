@@ -105,7 +105,7 @@ export default function Cascader(props) {
       .fail(() => {
         setInfo({ hasError: true });
       });
-  }, [dataSource]);
+  }, [dataSource, controlId]);
 
   const renderDataSourceInfo = () => {
     if (!dataSource) {

@@ -25,7 +25,7 @@ class RelationList extends Component {
         workId,
         rowId,
         worksheetId,
-        controlId
+        controlId,
       };
     } else {
       newParams = {
@@ -46,17 +46,18 @@ class RelationList extends Component {
     const control = _.find(rowInfo.receiveControls, { controlId });
     if (isEdit) {
       updateActionParams({
-        selectedRecordIds: selected ? _.unique(selectedRecordIds.concat(record.rowid)) : selectedRecordIds.filter(id => id !== record.rowid)
+        selectedRecordIds: selected
+          ? _.uniqBy(selectedRecordIds.concat(record.rowid))
+          : selectedRecordIds.filter(id => id !== record.rowid),
       });
     } else {
       const { isSubList, controlPermission } = permissionInfo;
       this.props.history.push(
-        `/mobile/record/${worksheet.appId || null}/${worksheet.worksheetId}/${control.viewId || null}/${record.rowid}?isSubList=${
-          isSubList
-        }&editable=${controlPermission.editable}`,
+        `${window.subPath || ''}/mobile/record/${worksheet.appId || null}/${worksheet.worksheetId}/${control.viewId ||
+          null}/${record.rowid}?isSubList=${isSubList}&editable=${controlPermission.editable}`,
       );
     }
-  }
+  };
   renderRow = item => {
     const { relationRow, actionParams } = this.props;
     const { showControls, selectedRecordIds } = actionParams;
@@ -74,7 +75,7 @@ class RelationList extends Component {
         />
       </WingBlank>
     );
-  }
+  };
   render() {
     const { relationRow, relationRows, loadParams, actionParams } = this.props;
     const { loading, pageIndex, isMore } = loadParams;
@@ -93,12 +94,8 @@ class RelationList extends Component {
         {relationRows.length ? (
           <Fragment>
             <WhiteSpace />
-            {
-              relationRows.map(item => (
-                this.renderRow(item)
-              ))
-            }
-            { isMore && <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex> }
+            {relationRows.map(item => this.renderRow(item))}
+            {isMore && <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>}
             <WhiteSpace />
           </Fragment>
         ) : (
@@ -111,14 +108,9 @@ class RelationList extends Component {
   }
 }
 
-
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['rowInfo', 'relationRow', 'relationRows', 'loadParams', 'actionParams', 'permissionInfo'])
+    ..._.pick(state.mobile, ['rowInfo', 'relationRow', 'relationRows', 'loadParams', 'actionParams', 'permissionInfo']),
   }),
-  dispatch =>
-    bindActionCreators(
-      _.pick(actions, ['updateBase', 'loadRow', 'updateActionParams', 'reset']),
-      dispatch,
-  ),
+  dispatch => bindActionCreators(_.pick(actions, ['updateBase', 'loadRow', 'updateActionParams', 'reset']), dispatch),
 )(RelationList);

@@ -77,6 +77,7 @@ export const dealHierarchyData = (
     allowEdit,
     allowDelete,
     ...getRecordAttachments(item[coverCid]),
+    coverData: { ...(worksheetControls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
     abstractValue: abstract
       ? renderCellText({
           ...(worksheetControls.find(it => it.controlId === abstract) || {}),

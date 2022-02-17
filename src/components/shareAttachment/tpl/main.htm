@@ -52,7 +52,8 @@
                         {{=_l('复制链接')}}
                     </span>
                     <div class="copyLinkContent">
-                        <input type="text" id="linkContent" readonly="readonly" class="ming Input" onclick="this.select();">
+                        <input type="text" id="linkContent" readonly="readonly" class="ming Input"
+                            onclick="this.select();">
                         <span class="copyLinkBtn ThemeBGColor3" id="copyLinkBtn">
                             {{=_l('复制链接')}}
                         </span>
@@ -92,10 +93,6 @@
                                     <p>{{=_l('发任务')}}</p>
                                 </div>
                             {{?}}
-                            <div class="targetBtn wechat" data-type="{{! it.SEND_TO_TYPE.WECHAT}}">
-                                <span class="icon icon-to-wechat-circle"></span>
-                                <p>{{=_l('微信')}}</p>
-                            </div>
                             {{? !md.global.SysSettings.forbidSuites.includes('3')}}
                                 <div class="targetBtn calendar" data-type="{{! it.SEND_TO_TYPE.CALENDAR}}">
                                     <span class="icon icon-calendar"></span>
@@ -108,10 +105,6 @@
                                     <p>{{=_l('存入知识')}}</p>
                                 </div>
                             {{?}}
-                            <div class="targetBtn qq" data-type="{{! it.SEND_TO_TYPE.QQ}}">
-                                <span class="icon icon-to-qq-circle"></span>
-                                <p>QQ</p>
-                            </div>
                             <div class="targetBtn qr" data-type="{{! it.SEND_TO_TYPE.QR}}">
                                 <span class="icon icon-invite-qrcode"></span>
                                 <p>{{=_l('二维码')}}</p>
@@ -146,7 +139,8 @@
                     {{=_l('添加说明')}}
                 </div>
                 <div class="itemContent">
-                    <textarea name="" id="shareDesc" class="ming Input" cols="30" rows="10" placeholder="{{=_l('添加文件说明')}}"></textarea>
+                    <textarea name="" id="shareDesc" class="ming Input" cols="30" rows="10"
+                        placeholder="{{=_l('添加文件说明')}}"></textarea>
                 </div>
             </div>
         </div>

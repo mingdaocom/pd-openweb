@@ -1,7 +1,7 @@
 ﻿import './feeddetail.css';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import qs from 'querystring';
+import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';

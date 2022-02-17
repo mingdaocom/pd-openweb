@@ -76,12 +76,8 @@ AdminCommon.getProjectPermissionsByUser = function () {
 
     //免费网路白名单（钉钉、welink、微信）
     if (Config.project.licenseType === 0) {
-      const freeList = [
-        AUTHORITY_DICT.HAS_DING,
-        AUTHORITY_DICT.HAS_WORKWX,
-        AUTHORITY_DICT.HAS_WELINK,
-        AUTHORITY_DICT.HAS_FEISHU,
-      ];
+      res.push(AUTHORITY_DICT.HAS_DING, AUTHORITY_DICT.HAS_WORKWX, AUTHORITY_DICT.HAS_FEISHU);
+      const freeList = [AUTHORITY_DICT.HAS_WELINK];
       res = _.difference(res, freeList);
     }
     return res;

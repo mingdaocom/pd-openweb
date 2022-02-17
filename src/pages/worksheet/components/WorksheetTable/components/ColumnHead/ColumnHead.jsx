@@ -19,6 +19,8 @@ import './ColumnHead.less';
 class ColumnHead extends Component {
   static propTypes = {
     rowIsSelected: PropTypes.bool,
+    readonly: PropTypes.bool,
+    disabledFunctions: PropTypes.arrayOf(PropTypes.string),
     sortControls: PropTypes.arrayOf(PropTypes.shape({})),
     sheetHiddenColumns: PropTypes.arrayOf(PropTypes.string),
     control: PropTypes.shape({}),
@@ -58,11 +60,12 @@ class ColumnHead extends Component {
   }
 
   handleColumnWidthLRUSave(controlId, value) {
-    const { viewId } = this.props;
+    const { readonly, viewId } = this.props;
     let columnWidth = {};
     try {
       columnWidth = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId));
     } catch (err) {}
+    if (readonly) return;
     saveLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId, new Date().getTime());
     saveLRUWorksheetConfig(
       'WORKSHEET_VIEW_COLUMN_WIDTH',
@@ -80,8 +83,9 @@ class ColumnHead extends Component {
   }
 
   frozen(index) {
-    const { viewId, frozenColumn } = this.props;
+    const { readonly, viewId, frozenColumn } = this.props;
     frozenColumn(index);
+    if (readonly) return;
     saveLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId, new Date().getTime());
     saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_FROZON', viewId, index);
   }
@@ -98,6 +102,7 @@ class ColumnHead extends Component {
       className,
       style,
       isLast,
+      disabledFunctions = [],
       rowIsSelected,
       columnIndex,
       fixedColumnCount,
@@ -118,7 +123,7 @@ class ColumnHead extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
-    const canFilter = _.includes(filterWhiteKeys, itemType);
+    const canFilter = _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter');
     control = redefineComplexControl(control);
     return (
       <BaseColumnHead

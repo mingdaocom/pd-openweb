@@ -824,7 +824,7 @@ var structureController = require('src/api/structure');
       var options = _this.options;
 
       options.loadedUserArr = options.loadedUserArr.concat(dataArr);
-      options.loadedUserArr = _.uniq(options.loadedUserArr, function (item) {
+      options.loadedUserArr = _.uniqBy(options.loadedUserArr, function (item) {
         return item.accountId;
       });
     },

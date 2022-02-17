@@ -11,6 +11,7 @@ import { formatFileSize } from 'src/util';
 const ERRORMSG = {
   3: _l('密码错误，验证失败'),
   4: _l('失败次数过多，请于15分钟后尝试'),
+  6: _l('导入失败，导入将导致目标网络的工作表总数超过上限'),
 };
 
 const ALERTMSG = {

@@ -226,6 +226,7 @@ class WorksheetRowEdit extends Component {
           worksheetId={data.worksheetId}
           recordId={data.rowId}
           showError={showError}
+          isWorksheetQuery
           registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           openRelateRecord={this.getRowRelationRowsData}
         />

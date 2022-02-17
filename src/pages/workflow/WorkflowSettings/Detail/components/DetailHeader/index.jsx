@@ -3,11 +3,11 @@ import { string, func, shape, number } from 'prop-types';
 import cx from 'classnames';
 import { Support } from 'ming-ui';
 import NodeNameInput from '../NodeNameInput';
-import { NODE_SUPPORT_HREF } from '../../../enum';
+import { SUPPORT_HREF } from '../../../enum';
 
 // 获取当前打开节点的详细类型
 const getNodeTypeForSupportHref = ({ actionId, appType, selectNodeType }) => {
-  if (selectNodeType === 6) {
+  if (_.includes([6, 7], selectNodeType)) {
     if (actionId === '1' || appType === 102) {
       return `${String(selectNodeType)}-${actionId}-${String(appType)}`;
     }
@@ -22,7 +22,7 @@ const getNodeTypeForSupportHref = ({ actionId, appType, selectNodeType }) => {
 export default function DetailHeader({ data, icon, bg, updateSource, closeDetail }) {
   const { name } = data;
   const type = getNodeTypeForSupportHref(data);
-  const href = NODE_SUPPORT_HREF[type];
+  const href = SUPPORT_HREF[type];
 
   return (
     <div className={cx('workflowDetailHeader flexRow', bg)}>

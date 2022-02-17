@@ -13,6 +13,7 @@ import { getAdvanceSetting } from 'src/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import store from 'redux/configureStore';
 import { NoSearch, NoRecords, MDCell } from './components';
+import _ from 'lodash';
 
 const NUMBER_HEAD_WIDTH = 70;
 
@@ -125,7 +126,8 @@ export default class WorksheetTable extends PureComponent {
     const formData = updateRulesData({ rules, data: controls.map(c => ({ ...c, value: row[c.controlId] })) });
     const rowControlStates = {};
     formData.forEach((item, index) => {
-      if (item.fieldPermission && item.fieldPermission !== '111') {
+      const control = _.find(controls, { controlId: item.controlId });
+      if (control && item.fieldPermission && item.fieldPermission !== control.fieldPermission) {
         rowControlStates[index] = item.fieldPermission;
       }
     });
@@ -175,7 +177,8 @@ export default class WorksheetTable extends PureComponent {
         data: controls.map(c => ({ ...c, value: row[c.controlId] })),
       });
       formData.forEach((item, index) => {
-        if (item.fieldPermission && item.fieldPermission !== '111') {
+        const control = _.find(controls, { controlId: item.controlId });
+        if (control && item.fieldPermission && item.fieldPermission !== control.fieldPermission) {
           rowControlStates[index] = item.fieldPermission;
         }
       });
@@ -268,14 +271,14 @@ export default class WorksheetTable extends PureComponent {
 
   getColumns(props) {
     const { columns, rowHeadWidth, renderRowHead } = props || this.props;
-    let newColumns = [...columns];
+    let newColumns = [...columns].filter(c => !_.includes([WIDGETS_TO_API_TYPE_ENUM.EMBED], c.type));
     if (renderRowHead) {
       newColumns = [
         {
           controlId: 'number',
           width: rowHeadWidth || NUMBER_HEAD_WIDTH,
         },
-      ].concat(columns);
+      ].concat(newColumns);
     }
     this.horizontalScroll =
       _.sum(newColumns.map((c, i) => this.getCellWidth(i, { calcScroll: true, columns: newColumns }))) >= props.width;
@@ -375,6 +378,7 @@ export default class WorksheetTable extends PureComponent {
   @autobind
   renderCell({ key, style, columnIndex, rowIndex, scrollTo, tableScrollTop, gridHeight }) {
     const {
+      readonly,
       id,
       worksheetId,
       controls,
@@ -397,6 +401,7 @@ export default class WorksheetTable extends PureComponent {
       onCellFocus = () => {},
       getRowsCache,
       viewId,
+      appId,
     } = this.props;
     const { rulesLoading, editingControls } = this.state;
     const data = this.data;
@@ -480,19 +485,6 @@ export default class WorksheetTable extends PureComponent {
     const error = cellErrors[`${row.rowid}-${control.controlId}`];
     return (
       <MDCell
-        worksheetId={worksheetId}
-        viewId={viewId}
-        isediting={isediting}
-        error={error}
-        className={className}
-        style={_.assign({}, cellstyle, style)}
-        lineeditable={lineeditable}
-        formdata={() =>
-          (controls || this.columns)
-            .map(c => ({ ...c, value: row[c.controlId] }))
-            .concat(masterFormData().filter(c => c.controlId.length === 24))
-        }
-        masterData={() => masterData()}
         {...this.props}
         {...{
           key,
@@ -510,6 +502,19 @@ export default class WorksheetTable extends PureComponent {
           cellUniqueValidate,
           checkRulesErrorOfControl: this.checkRulesErrorOfControl,
         }}
+        worksheetId={worksheetId}
+        viewId={viewId}
+        isediting={isediting}
+        error={error}
+        className={className}
+        style={_.assign({}, cellstyle, style)}
+        formdata={() =>
+          (controls || this.columns)
+            .map(c => ({ ...c, value: row[c.controlId] }))
+            .concat(masterFormData().filter(c => c.controlId.length === 24))
+        }
+        masterData={() => masterData()}
+        lineeditable={!readonly && lineeditable}
         updateEditingControls={status => this.updateEditingControls(`${row.rowid}-${control.controlId}`, status)}
         clearCellError={clearCellError}
         updateCell={(args, options) => {
@@ -532,6 +537,7 @@ export default class WorksheetTable extends PureComponent {
         onCellFocus={onCellFocus}
         fixedColumnCount={this.fixedColumnCount}
         projectId={projectId}
+        appId={appId}
         data={data}
       />
     );

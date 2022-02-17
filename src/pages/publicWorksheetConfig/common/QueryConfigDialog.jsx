@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, Dialog, Input, Icon } from 'ming-ui';
+import { Dropdown, Dialog, Input, Icon, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { editPublicQuery } from 'src/api/publicWorksheet';
@@ -72,15 +72,13 @@ const AVAILABLE_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
   WIDGETS_TO_API_TYPE_ENUM.TELEPHONE,
   WIDGETS_TO_API_TYPE_ENUM.EMAIL,
-  WIDGETS_TO_API_TYPE_ENUM.AUTO_ID,
-  WIDGETS_TO_API_TYPE_ENUM.CONCATENATE,
   WIDGETS_TO_API_TYPE_ENUM.CRED,
 ];
 
 export default function QueryConfigDialog(props) {
   const [tempQueryInfo, setTempQueryInfo] = useState({});
   const { queryInfo = {}, onClose, onSuccess } = props;
-  const { title, queryControlIds = [], viewId, worksheet } = { ...queryInfo, ...tempQueryInfo };
+  const { title, queryControlIds = [], viewId, worksheet, exported } = { ...queryInfo, ...tempQueryInfo };
   return (
     <Dialog
       title={_l('设置查询链接')}
@@ -91,7 +89,7 @@ export default function QueryConfigDialog(props) {
       onOk={() => {
         const params = {
           worksheetId: worksheet.worksheetId,
-          ...{ ..._.pick(queryInfo, ['viewId', 'queryControlIds', 'title']), ...tempQueryInfo },
+          ...{ ..._.pick(queryInfo, ['viewId', 'queryControlIds', 'title', 'exported']), ...tempQueryInfo },
         };
         if (!params.title) {
           params.title = _l('查询%0', queryInfo.worksheetName);
@@ -149,7 +147,7 @@ export default function QueryConfigDialog(props) {
           onChange={value => {
             setTempQueryInfo({
               ...tempQueryInfo,
-              queryControlIds: _.uniq(queryControlIds.concat(value)),
+              queryControlIds: _.uniqBy(queryControlIds.concat(value)),
             });
           }}
           renderTitle={() =>
@@ -187,6 +185,15 @@ export default function QueryConfigDialog(props) {
           className="w100"
           value={title}
           onChange={value => setTempQueryInfo({ ...tempQueryInfo, title: value })}
+        />
+      </Item>
+      <Item>
+        <Title>{_l('设置')}</Title>
+        <Desp></Desp>
+        <Checkbox
+          text={_l('允许导出数据')}
+          checked={exported}
+          onClick={() => setTempQueryInfo({ ...tempQueryInfo, exported: !exported })}
         />
       </Item>
     </Dialog>

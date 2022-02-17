@@ -55,8 +55,9 @@ export default class PrintOptDialog extends Component {
     const controlOption = this.state.controlOption;
     const index = controlOption.indexOf(controlId);
     let formDetailEvaluateLength = 0;
-    if (this.state.reqInfo.formControls) {
-      this.state.reqInfo.formControls.forEach((formControlItem) => {
+    const { reqInfo = {} } = this.state;
+    if (reqInfo.formControls) {
+      reqInfo.formControls.forEach(formControlItem => {
         if (formControlItem.tempControls.filter(item => item.needEvaluate).length > 0) {
           formDetailEvaluateLength++;
         }
@@ -67,7 +68,10 @@ export default class PrintOptDialog extends Component {
     } else {
       controlOption.push(controlId);
     }
-    if (controlOption.length === this.state.reqInfo.controls.filter(item => !item.printHide).length + formDetailEvaluateLength) {
+    if (
+      controlOption.length ===
+      (reqInfo.controls || []).filter(item => !item.printHide).length + formDetailEvaluateLength
+    ) {
       this.setState({ controlOption, printCheckAll: true });
     } else {
       this.setState({ controlOption, printCheckAll: false });

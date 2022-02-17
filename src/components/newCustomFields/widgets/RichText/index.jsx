@@ -43,6 +43,7 @@ export default class Widgets extends Component {
         className={cx('customFormItemControl', { remarkControl: type === 10010, richTextForM: browserIsMobile() })}
         disabled={disabled}
         onActualSave={this.onChange}
+        maxHeight={browserIsMobile() ? 500 : undefined}
       />
     );
   }

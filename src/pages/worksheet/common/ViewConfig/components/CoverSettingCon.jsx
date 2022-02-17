@@ -5,6 +5,7 @@ import { COVER_DISPLAY_MODE, COVER_DISPLAY_POSITION } from '../util';
 import styled from 'styled-components';
 import { isGalleryOrBoard } from 'src/pages/worksheet/constants/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
 const SettingCon = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
@@ -52,7 +53,7 @@ const COVER_IMAGE_PREVIEW = {
 export default class CoverSetting extends React.Component {
   render() {
     const {
-      worksheetControls = [],
+      coverColumns = [],
       currentSheetInfo,
       updateCurrentView,
       view,
@@ -63,15 +64,18 @@ export default class CoverSetting extends React.Component {
       handleChangeOpencover,
       fromRelative,
     } = this.props;
-    if (worksheetControls.length <= 0) {
+    if (coverColumns.length <= 0) {
       return '';
     }
     let data = !fromRelative ? view : this.props;
     const { coverCid, viewType, coverType, advancedSetting = {} } = data;
     const { coverposition, opencover = '1' } = advancedSetting;
     const coverControls = filterAndFormatterControls({
-      controls: worksheetControls,
-      filter: item => item.type === 14 || item.sourceControlType === 14,
+      controls: coverColumns,
+      filter:
+        VIEW_DISPLAY_TYPE.gallery === String(viewType) //目前只有画廊视图支持嵌入字段作为封面
+          ? item => item.type === 14 || item.sourceControlType === 14 || item.type === 45
+          : item => item.type === 14 || item.sourceControlType === 14,
     });
     let coverValue =
       _.get(
@@ -79,20 +83,28 @@ export default class CoverSetting extends React.Component {
         'value',
       ) || 'notDisplay';
     let isDelete = false;
-    if (coverCid && !worksheetControls.find(o => o.controlId === coverCid)) {
+    if (coverCid && !coverColumns.find(o => o.controlId === coverCid)) {
       isDelete = true;
       coverValue = '';
     }
+    // 画廊视图且封面为嵌入iframe(只支持上、填满)
+    const isGalleryIframe =
+      VIEW_DISPLAY_TYPE.gallery === String(viewType) &&
+      isIframeControl(_.find(coverColumns, item => item.controlId === coverCid));
     // 看板视图、表视图、层级视图封面设置项  默认右'0'
     // 画廊视图封面设置项 默认上'2'
     const coverPositiondata = coverposition || (VIEW_DISPLAY_TYPE.gallery === String(viewType) ? '0' : '2');
     // 显示位置为：左/右时，支持显示为圆形/正方形
     const coverTypeData =
-      coverPositiondata !== '2' ? COVER_DISPLAY_MODE : COVER_DISPLAY_MODE.filter(item => item.value < 2);
+      coverPositiondata !== '2'
+        ? COVER_DISPLAY_MODE
+        : isGalleryIframe
+        ? COVER_DISPLAY_MODE.filter(item => item.value === 0)
+        : COVER_DISPLAY_MODE.filter(item => item.value < 2);
     return (
       <div className="mTop32">
         <div className="title Font13 bold">
-          {_l('封面图片')}
+          {_l('封面')}
           <div className="configSwitch Right">
             <SwitchStyle>
               <div className="switchText InlineBlock Normal Gray_9e">{_l('允许点击查看')}</div>
@@ -116,6 +128,10 @@ export default class CoverSetting extends React.Component {
               border
               style={{ width: '100%' }}
               onChange={value => {
+                if (isIframeControl(_.find(coverColumns, item => item.controlId === value))) {
+                  handleChangePosition('2'); //上
+                  handleChangeType(0); //填满
+                }
                 if (coverValue !== value || isDelete) {
                   handleChangeIsCover(value);
                 }
@@ -132,7 +148,9 @@ export default class CoverSetting extends React.Component {
                   data={
                     // 仅看板视图、画廊视图封面 支持上
                     isGalleryOrBoard(viewType)
-                      ? COVER_DISPLAY_POSITION
+                      ? isGalleryIframe
+                        ? COVER_DISPLAY_POSITION.filter(it => Number(it.value) === 2)
+                        : COVER_DISPLAY_POSITION
                       : COVER_DISPLAY_POSITION.filter(it => Number(it.value) < 2)
                   }
                   value={coverPositiondata}

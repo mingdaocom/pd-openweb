@@ -44,7 +44,7 @@ export default class Widgets extends Component {
 
   onSave = data => {
     const { enumDefault, onChange, value } = this.props;
-    const newData = enumDefault === 0 ? data : _.uniq(JSON.parse(value || '[]').concat(data), 'departmentId');
+    const newData = enumDefault === 0 ? data : _.uniqBy(JSON.parse(value || '[]').concat(data), 'departmentId');
 
     onChange(JSON.stringify(newData));
   };
@@ -60,7 +60,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault } = this.props;
+    const { projectId, disabled, enumDefault, appId } = this.props;
     const value = JSON.parse(this.props.value || '[]');
     const { showSelectDepartment } = this.state;
 
@@ -113,6 +113,7 @@ export default class Widgets extends Component {
             onlyOne={enumDefault === 0}
             onClose={() => this.setState({ showSelectDepartment: false })}
             onSave={this.onSave}
+            appId={appId}
           />
         )}
       </div>

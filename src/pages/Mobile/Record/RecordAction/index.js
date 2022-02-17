@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { getRequest } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { InputItem, Modal, Progress, WingBlank } from 'antd-mobile';
+import { message } from 'antd';
 import { Icon } from 'ming-ui';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
@@ -10,12 +11,27 @@ import CustomRecordCard from 'src/pages/Mobile/RecordList/RecordCard';
 import process, { startProcess } from 'src/pages/workflow/api/process';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import homeAppAjax from 'src/api/homeApp';
 import './index.less';
 
+let timeout = null;
 const CUSTOM_BUTTOM_CLICK_TYPE = {
   IMMEDIATELY: 1,
   CONFIRM: 2,
   FILL_RECORD: 3,
+};
+const PUSH_TYPE = {
+  ALERT: 1,
+  CREATE: 2,
+  DETAIL: 3,
+  VIEW: 4,
+  PAGE: 5,
+  LINK: 6,
+};
+
+const TYPES = {
+  3: _l('填写'),
+  4: _l('审批'),
 };
 
 class RecordAction extends Component {
@@ -34,8 +50,10 @@ class RecordAction extends Component {
     this.isSubList = isSubList == 'true';
     this.editable = editable == 'true';
   }
+
   componentDidMount() {
     IM.socket.on('workflow', this.receiveWorkflow);
+    IM.socket.on('workflow_push', this.receiveWorkflowPush);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.recordActionVisible && !this.props.recordActionVisible && !this.state.shareUrl) {
@@ -44,10 +62,15 @@ class RecordAction extends Component {
         this.getWorksheetShareUrl();
       }
     }
+    if (nextProps.runInfoVisible !== this.props.runInfoVisible) {
+      this.setState({ runInfoVisible: nextProps.runInfoVisible });
+    }
   }
   recef = React.createRef();
   componentWillUnmount() {
     IM.socket.off('workflow', this.receiveWorkflow);
+    IM.socket.off('workflow', this.receiveWorkflowPush);
+    clearTimeout(timeout);
   }
   getWorksheetShareUrl() {
     const { appId, worksheetId, rowId, viewId } = this.props;
@@ -65,48 +88,115 @@ class RecordAction extends Component {
         });
       });
   }
+  // 自定义按钮
   receiveWorkflow = data => {
-    const { status, storeId, total, finished, title } = data;
+    const { status, total, finished, title, type } = data;
     const { isMobileOperate } = this.props;
-    if (!isMobileOperate && !storeId && status === 2) {
-      this.props.loadRow();
-      this.setState({ btnDisable: {} });
-    }
-    if (storeId) {
+    let { custBtnName } = this.state;
+    if (isMobileOperate) {
       let percent = total === 0 ? 100 : (finished / total) * 100;
-      this.setState({ percent, total: total === 0 ? 1 : total, num: total === 0 ? 1 : finished });
-      if (total === finished) {
-        this.props.showRunInfo(false);
-        process.getStore({ storeId }).then(res => {
-          const filtered = _.filter(res, item => !!item.checked);
-          const success = _.filter(filtered, item => [1, 2].includes(item.status));
-          const failure = _.filter(filtered, item => !item.status);
-          this.setState({ failure });
-          if (!_.isEmpty(failure)) {
-            Modal.alert(
-              _l('%0执行完毕', title),
-              <div>{(_l(`%0条成功`, success.length), _l(`%0条失败`, failure.length))}</div>,
-              [
-                {
-                  text: _l('查看详情'),
-                  onPress: () => {
-                    this.setState({ showFailureInfoModal: true });
-                  },
-                },
-                { text: _l('忽略') },
-              ],
-            );
+      this.setState(
+        { runInfoVisible: true, percent, total: total === 0 ? 1 : total, num: total === 0 ? 1 : finished },
+        () => {
+          if (this.state.percent === 100) {
+            this.setState({ runInfoVisible: false });
           }
-        });
+        },
+      );
+    } else if (status == 1) {
+      if (_.includes([3, 4], type)) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          Modal.alert(
+            <div className="feedbackInfo">
+              <span className="custBtnName">{_l('“%0', custBtnName)}</span>
+              {_l('” 正在等待%0', TYPES[type])}
+            </div>,
+            '',
+            [{ text: _l('关闭') }],
+          );
+        }, 1000);
       }
+    } else if (status === 2) {
+      this.setState({
+        percent: 100,
+        total: 1,
+        num: 1,
+        btnDisable: {},
+      });
+      this.props.loadRow();
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        Modal.alert(
+          <div className="feedbackInfo">
+            <span className="custBtnName">{_l('“%0"', custBtnName)}</span>
+            <span className="verticalAlignM">{_l(' 执行成功!')}</span>
+          </div>,
+          '',
+          [{ text: _l('关闭') }],
+        );
+      }, 1000);
     } else {
-      this.setState({ total: 1, percent: 100 });
-      this.props.showRunInfo && this.props.showRunInfo(false);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        Modal.alert(
+          <div className="feedbackInfo">
+            <span className="custBtnName">{_l('“%0', custBtnName)}</span>
+            <span className="verticalAlignM">{_l('” 执行失败!')}</span>
+          </div>,
+          '',
+          [{ text: _l('关闭') }],
+        );
+      }, 1000);
     }
   };
+  getAppSimpleInfo = workSheetId => {
+    return new Promise((resolve, reject) => {
+      homeAppAjax.getAppSimpleInfo({ workSheetId }, { silent: true }).then(result => {
+        resolve(result);
+      });
+    });
+  };
+  // 流程推送
+  receiveWorkflowPush = data => {
+    const pushType = parseInt(Object.keys(data)[0]);
+    const { pushUniqueId, content, appId: worksheetId, rowId, viewId } = data[pushType];
+    if (pushUniqueId !== md.global.Config.pushUniqueId) {
+      return;
+    }
+    if (pushType === PUSH_TYPE.ALERT) {
+      alert(content);
+    }
+    if (pushType === PUSH_TYPE.CREATE) {
+      this.getAppSimpleInfo(worksheetId).then(({ appId }) => {
+        location.href = `/mobile/addRecord/${appId}/${worksheetId}/${viewId}`;
+      });
+    }
+    if (pushType === PUSH_TYPE.DETAIL) {
+      this.getAppSimpleInfo(worksheetId).then(({ appId }) => {
+        if (viewId) {
+          location.href = `/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}`;
+        }
+      });
+    }
+    if (pushType === PUSH_TYPE.VIEW) {
+      this.getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
+        location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+      });
+    }
+    if (pushType === PUSH_TYPE.PAGE) {
+      this.getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
+        location.href = `/mobile/customPage/${appId}/${appSectionId}/${worksheetId}`;
+      });
+    }
+    if (pushType === PUSH_TYPE.LINK) {
+      location.href = content;
+    }
+    message.destroy()
+  };
   renderRunInfo = () => {
-    const { batchOptCheckedData, runInfoVisible } = this.props;
-    let { custBtnName = '', total } = this.state;
+    const { batchOptCheckedData } = this.props;
+    let { custBtnName = '', total = 1, runInfoVisible } = this.state;
     let totalNum = total || batchOptCheckedData.length;
     return (
       <Modal animationType="slide-up" visible={runInfoVisible} className="runInfoModal">
@@ -133,7 +223,7 @@ class RecordAction extends Component {
         return;
       }
       // 立即执行
-      this.triggerImmediately(btn.btnId);
+      this.triggerImmediately(btn);
     } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM) {
       if (handleBatchOperateCustomBtn) {
         handleBatchOperateCustomBtn(btn);
@@ -142,7 +232,7 @@ class RecordAction extends Component {
       // 二次确认
       Modal.alert(_l('你确认对记录执行此操作吗？'), '', [
         { text: _l('取消'), onPress: () => {}, style: 'default' },
-        { text: _l('确定'), onPress: () => this.triggerImmediately(btn.btnId) },
+        { text: _l('确定'), onPress: () => this.triggerImmediately(btn) },
       ]);
     } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
       // 填写字段
@@ -152,16 +242,45 @@ class RecordAction extends Component {
     }
     this.props.hideRecordActionVisible();
   };
-  triggerImmediately = btnId => {
+  triggerImmediately = btn => {
+    const { batchOptCheckedData = [], isMobileOperate } = this.props;
+    if (isMobileOperate) {
+      this.setState({ runInfoVisible: true });
+    } else {
+      message.info({
+        className: 'flowToastInfo',
+        content: (
+          <div className="feedbackInfo">
+            <span className="custBtnName">{_l('“%0"', btn.name)}</span>
+            <span className="verticalAlignM">{_l('正在执行...')}</span>
+          </div>
+        ),
+        duration: 1,
+      });
+    }
     const { worksheetId, rowId } = this.props;
     startProcess({
       appId: worksheetId,
       sources: [rowId],
-      triggerId: btnId,
+      triggerId: btn.btnId,
     }).then(data => {
-      alert(_l('操作已执行'), 3);
+      if (!data) {
+        this.setState({ percent: 100, total: 1, num: 1, runInfoVisible: false });
+        clearTimeout(timeout);
+        let durationValue = batchOptCheckedData.length ? 0 : 1000;
+        timeout = setTimeout(() => {
+          Modal.alert(
+            <div className="feedbackInfo">
+              <span className="custBtnName">{_l('“%0', btn.name)}</span>
+              {_l('” 执行失败!')}
+            </div>,
+            '',
+            [{ text: _l('关闭') }],
+          );
+        }, durationValue);
+      }
       this.props.loadCustomBtns();
-      this.disableCustomButton(btnId);
+      this.disableCustomButton(btn.btnId);
     });
   };
   disableCustomButton = id => {
@@ -368,7 +487,8 @@ class RecordAction extends Component {
       });
   };
   fillRecordControls = (newControls, targetOptions) => {
-    const { worksheetId, rowId, handleUpdateWorksheetRow } = this.props;
+    const { worksheetId, rowId, handleUpdateWorksheetRow, isMobileOperate } = this.props;
+    let { custBtnName } = this.state;
     const args = {
       appId: targetOptions.appId,
       viewId: targetOptions.viewId,
@@ -379,6 +499,7 @@ class RecordAction extends Component {
       btnId: this.activeBtn.btnId,
       btnWorksheetId: worksheetId,
       btnRowId: rowId,
+      workflowType: this.activeBtn.workflowType,
     };
     if (_.isFunction(handleUpdateWorksheetRow)) {
       handleUpdateWorksheetRow(args);
@@ -387,10 +508,21 @@ class RecordAction extends Component {
     }
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
-        alert(_l('操作已执行'));
         if (this.activeBtn.workflowType === 2) {
+          alert(_l('修改成功'));
           this.props.loadRow();
           this.props.loadCustomBtns();
+        } else {
+          message.info({
+            className: 'flowToastInfo',
+            content: (
+              <div className="feedbackInfo">
+                <span className="custBtnName">{_l('“%0"', custBtnName)}</span>
+                <span className="verticalAlignM">{_l('正在执行...')}</span>
+              </div>
+            ),
+            duration: 1,
+          });
         }
         this.setState({
           fillRecordVisible: false,
@@ -409,7 +541,7 @@ class RecordAction extends Component {
   handleAddRecordCallback = () => {
     const { isMobileOperate } = this.props;
     if (this.activeBtn.workflowType === 2) {
-      alert(_l('操作已执行'), 3);
+      alert(_l('创建成功'), 3);
     }
     !isMobileOperate && this.props.loadRow();
     this.props.loadCustomBtns();
@@ -594,19 +726,19 @@ class RecordAction extends Component {
         }
       >
         {failureList.map(item => {
-            return (
-              <WingBlank size="md" key={item.rowid}>
-                <CustomRecordCard
-                  isFailureData={true}
-                  key={item.rowid}
-                  data={item}
-                  view={view}
-                  controls={worksheetControls}
-                  allowAdd={worksheetInfo.allowAdd}
-                />
-              </WingBlank>
-            );
-          })}
+          return (
+            <WingBlank size="md" key={item.rowid}>
+              <CustomRecordCard
+                isFailureData={true}
+                key={item.rowid}
+                data={item}
+                view={view}
+                controls={worksheetControls}
+                allowAdd={worksheetInfo.allowAdd}
+              />
+            </WingBlank>
+          );
+        })}
       </Modal>
     );
   };
@@ -616,7 +748,7 @@ class RecordAction extends Component {
         {this.renderRecordAction()}
         {this.renderFillRecord()}
         {this.renderNewRecord()}
-        {this.props.isMobileOperate && this.renderRunInfo()}
+        {this.renderRunInfo()}
         {this.props.isMobileOperate && this.renderFailureRecord()}
       </div>
     );

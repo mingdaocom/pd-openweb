@@ -81,7 +81,7 @@ export default class ViewItems extends Component {
       'controlId',
     );
     const defaultDisplayControls = worksheetControls
-      .filter(item => item.controlId !== titleControl && !_.includes([22, 10010], item.type))
+      .filter(item => item.controlId !== titleControl && !_.includes([22, 10010, 45], item.type))
       .map(item => item.controlId);
     const coverCid = _.get(
       _.find(worksheetControls, item => item.type === 14),

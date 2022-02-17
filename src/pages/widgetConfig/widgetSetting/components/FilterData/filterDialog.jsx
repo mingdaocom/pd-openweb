@@ -94,6 +94,7 @@ export default function FilterDialog(props) {
           filterDept={true}
           filterColumnClassName="showBtnFilter"
           projectId={globalSheetInfo.projectId}
+          appId={globalSheetInfo.appId}
           columns={relationControls}
           currentColumns={allControls}
           conditions={filters}

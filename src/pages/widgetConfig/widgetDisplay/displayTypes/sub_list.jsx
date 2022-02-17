@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
 import { getAdvanceSetting, getShowControls } from '../../util/setting';
+import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { isEmpty } from 'lodash';
 
 export default function SubList({ data }) {
@@ -37,7 +38,7 @@ export default function SubList({ data }) {
                       return (
                         <th key={controlId} className="overflow_ellipsis" style={{ width: `${widths[index]}px` }}>
                           {required && <span>{_l('*')}</span>}
-                          {controlName}
+                          {controlName || SYSTEM_FIELD_TO_TEXT[controlId]}
                         </th>
                       );
                     })}
@@ -54,6 +55,7 @@ export default function SubList({ data }) {
                       return (
                         <td key={controlId} style={{ width: `${widths[index]}px` }}>
                           {(type === 34 ||
+                            type === 45 ||
                             (type === 29 && String(enumDefault) === '2' && advancedSetting.showtype === '2')) && (
                             <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
                           )}

@@ -63,6 +63,8 @@ export default class Member extends Component {
    * render字段
    */
   renderControl(item, index) {
+    const { removeOrganization } = this.props;
+
     const list = [
       [
         { text: USER_ORGANIZE[11], value: 11 },
@@ -97,7 +99,8 @@ export default class Member extends Component {
           item.controlType === 10000001 ||
           item.controlType === 10000002) &&
           !!item.entityName &&
-          !!item.roleName && (
+          !!item.roleName &&
+          !removeOrganization && (
             <Dropdown
               className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
               data={list}

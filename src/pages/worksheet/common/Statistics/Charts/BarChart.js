@@ -12,18 +12,21 @@ import {
   getChartColors,
   getAlienationColor
 } from './common';
-import { formatSummaryName, getIsAlienationColor } from 'src/pages/worksheet/common/Statistics/common';
+import { Icon } from 'ming-ui';
+import { Dropdown, Menu } from 'antd';
+import { formatSummaryName, getIsAlienationColor, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
-  const result = _.toArray(_.groupBy(data, 'originalName'));
+  const result = _.toArray(_.groupBy(data, 'originalId'));
   return result.map(item => {
-    const { originalName, name } = item[0];
+    const { originalId, name } = item[0];
     const count = item.reduce((count, item) => count + item.value, 0);
     const value = formatrChartValue(count, false, newYaxisList);
     const data = {
       type: 'text',
       position: {
-        originalName,
+        originalId,
         name,
         value: count,
       },
@@ -53,9 +56,10 @@ export const formatChartData = (data, yaxisList) => {
         const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
         result.push({
           groupName: `${rename || element.key}-md-${reportTypes.BarChart}-chart-${element.c_id || index}`,
+          groupKey: element.originalKey,
           value: target[0].v,
           name,
-          originalName: item.originalX || name
+          originalId: item.originalX || name
         });
       }
     });
@@ -69,13 +73,14 @@ export default class extends Component {
     this.state = {
       originalCount: 0,
       count: 0,
+      dropdownVisible: false,
+      offset: {},
+      match: null
     }
     this.BarChart = null;
   }
   componentDidMount() {
-    const { BarChartComponent, BarChartConfig } = this.getComponentConfig(this.props);
-    this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
-    this.BarChart.render();
+    this.renderBarChart(this.props);
   }
   componentWillUnmount() {
     this.BarChart && this.BarChart.destroy();
@@ -112,13 +117,55 @@ export default class extends Component {
       displaySetup.isPerPile !== oldDisplaySetup.isPerPile
     ) {
       this.BarChart.destroy();
-      const { BarChartComponent, BarChartConfig } = this.getComponentConfig(nextProps);
-      this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
-      this.BarChart.render();
+      this.renderBarChart(nextProps);
     }
   }
-  getCustomColor(data, colors, { originalName }) {
-    const inedx = _.findIndex(data, { originalName });
+  renderBarChart(props) {
+    const { reportData, isViewOriginalData } = props;
+    const { displaySetup } = reportData;
+    const { BarChartComponent, BarChartConfig } = this.getComponentConfig(props);
+    this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.BarChart.on('element:click', this.handleClick);
+    }
+    this.BarChart.render();
+  }
+  handleClick = (data) => {
+    const { xaxes, split } = this.props.reportData;
+    const event = data.gEvent;
+    const currentData = data.data;
+    const isNumber = isNumberControl(xaxes.controlType);
+    const param = {
+      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    }
+    if (split.controlId) {
+      param[split.cid] = currentData.data.groupKey;
+    }
+    this.setState({
+      dropdownVisible: true,
+      offset: {
+        x: event.x + 20,
+        y: event.y
+      },
+      match: param
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    const data = {
+      isPersonal: false,
+      match
+    }
+    this.setState({ dropdownVisible: false });
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
+    }
+  }
+  getCustomColor(data, colors, { originalId }) {
+    const inedx = _.findIndex(data, { originalId });
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
@@ -152,12 +199,12 @@ export default class extends Component {
     const baseConfig = {
       data,
       appendPadding: isVertical ? [20, 0, 5, 0] : [10, 50, 0, 0],
-      seriesField: (isOptionsColor || isCustomColor) ? 'originalName' : 'groupName',
+      seriesField: (isOptionsColor || isCustomColor) ? 'originalId' : 'groupName',
       meta: {
-        originalName: {
+        originalId: {
           type: 'cat',
           formatter: value => {
-            const item = _.find(data, { originalName: value });
+            const item = _.find(data, { originalId: value });
             return item ? item.name : value;
           }
         },
@@ -165,8 +212,8 @@ export default class extends Component {
           formatter: value => formatControlInfo(value).name,
         },
       },
-      xField: isVertical ? 'originalName' : 'value',
-      yField: isVertical ? 'value' : 'originalName',
+      xField: isVertical ? 'originalId' : 'value',
+      yField: isVertical ? 'value' : 'originalId',
       xAxis: isVertical
         ? this.getxAxis(displaySetup, xaxes.particleSizeType)
         : this.getyAxis(displaySetup, newYaxisList),
@@ -199,16 +246,17 @@ export default class extends Component {
             }
           }
           const { value, groupName } = item;
-          const { name } = formatControlInfo(groupName);
+          const { name, id } = formatControlInfo(groupName);
           if (isPerPile) {
             return {
               name,
               value: `${(value * 100).toFixed(Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
+            const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? value.toLocaleString() : _l('--')
+              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
             }
           }
         }
@@ -307,18 +355,40 @@ export default class extends Component {
       count
     });
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleRequestOriginalData}>
+          <div className="flexRow valignWrapper">
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { count, originalCount } = this.state;
-    const { summary, displaySetup } = this.props.reportData;
+    const { count, originalCount, dropdownVisible, offset } = this.state;
+    const { summary, displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
         {displaySetup.showTotal ? (
           <div className="pBottom10">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'flex'} ref={el => (this.chartEl = el)}></div>
+        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

@@ -46,6 +46,7 @@ export default function ConfirmPanel(props) {
     visible,
     className,
     content,
+    showAngle = true,
     angleLeft,
     okText,
     cancelText,
@@ -61,12 +62,15 @@ export default function ConfirmPanel(props) {
       popupStyle={style}
       action={['click']}
       popupVisible={visible}
+      destroyPopupOnHide
       onPopupVisibleChange={onPopupVisibleChange}
       popup={
         <Popup className={className}>
-          <Angle left={angleLeft || 0}>
-            <span />
-          </Angle>
+          {showAngle && (
+            <Angle left={angleLeft || 0}>
+              <span />
+            </Angle>
+          )}
           <Title>{content}</Title>
           <Footer>
             <Button

@@ -71,8 +71,8 @@ export default class SortColumns extends React.Component {
               controlsSorts={controlsSorts}
               onChange={({ selected, newControlSorts }) => {
                 onChange({
-                  newShowControls: _.uniq(ghostControlIds.concat(selected)),
-                  newControlSorts: _.uniq(ghostControlIds.concat(newControlSorts)),
+                  newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
+                  newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
                 });
               }}
             />
@@ -102,8 +102,8 @@ export default class SortColumns extends React.Component {
             controlsSorts={controlsSorts}
             onChange={({ selected, newControlSorts }) => {
               onChange({
-                newShowControls: _.uniq(ghostControlIds.concat(selected)),
-                newControlSorts: _.uniq(ghostControlIds.concat(newControlSorts)),
+                newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
+                newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
               });
             }}
             maxHeight={maxHeight}

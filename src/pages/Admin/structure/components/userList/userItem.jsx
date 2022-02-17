@@ -13,9 +13,11 @@ import TransferDialog from '../../modules/dialogHandover';
 import Approval from '../../modules/dialogApproval';
 import RefuseUserJoinDia from '../../modules/refuseUserJoinDia';
 import EditInfo from '../../modules/dialogEditInfo/edit';
+import departmentController from 'src/api/department';
 import moment from 'moment';
 import userBoard from '../../modules/dialogUserBoard';
 import { Checkbox, Tooltip, Dialog, Input } from 'ming-ui';
+import { Dropdown } from 'antd';
 import './userItem.less';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
@@ -57,6 +59,7 @@ class OpList extends Component {
       accountId,
       departmentId,
       handleRefuseClick,
+      isChargeUser,
     } = this.props;
     // if (typeCursor === 1) return null;
     if (isOpen) {
@@ -136,6 +139,34 @@ class OpList extends Component {
                 <li className="opItem" onClick={handleResetPasswordClick}>
                   {_l('重置密码')}
                 </li>
+                {departmentId && !isChargeUser && (
+                  <li
+                    className="opItem"
+                    onClick={() => {
+                      this.props.setAndCancelCharge({
+                        projectId: projectId,
+                        departmentId: departmentId,
+                        chargeAccountId: user.accountId,
+                      });
+                    }}
+                  >
+                    {_l('设为部门负责人')}
+                  </li>
+                )}
+                {departmentId && isChargeUser && (
+                  <li
+                    className="opItem"
+                    onClick={() => {
+                      this.props.setAndCancelCharge({
+                        projectId: projectId,
+                        departmentId: departmentId,
+                        chargeAccountId: user.accountId,
+                      });
+                    }}
+                  >
+                    {_l('取消部门负责人')}
+                  </li>
+                )}
                 {/* <li className="opItem" onClick={() => {
                 userBoard({
                   type: 'adjust',
@@ -148,8 +179,8 @@ class OpList extends Component {
                 });
               }}>{_l('调整部门')}</li> */}
                 {user.accountId === md.global.Account.accountId ? null : (
-                  <li className="opItem" onClick={handleRemoveUserClick}>
-                    {_l('办理离职')}
+                  <li className="opItem leaveText" onClick={handleRemoveUserClick}>
+                    {_l('离职')}
                   </li>
                 )}
               </React.Fragment>
@@ -208,13 +239,13 @@ class UserItem extends Component {
     if (mobilePhone) {
       mobileTpl = (
         <div className="ellipsis w100">
-          <span className="Remind w100 overflow_ellipsis WordBreak">{mobilePhone}</span>
+          <span className="w100 overflow_ellipsis WordBreak">{mobilePhone}</span>
         </div>
       );
     } else {
       if (isPrivateMobile) {
         mobileTpl = (
-          <span title={_l('保密')} className="overLimi_130 overflow_ellipsis Remind">
+          <span title={_l('保密')} className="overLimi_130 overflow_ellipsis">
             *********
           </span>
         );
@@ -244,8 +275,7 @@ class UserItem extends Component {
         </span>
       );
     }
-
-    return <div className="email">{emailTpl}</div>;
+    return emailTpl;
   }
 
   sendNotice(type) {
@@ -454,8 +484,37 @@ class UserItem extends Component {
     }
   };
 
+  setAndCancelCharge = ({ projectId, departmentId, chargeAccountId }) => {
+    let { typeCursor, dispatch } = this.props;
+    departmentController
+      .editDepartmentSingleChargeUser({
+        projectId,
+        departmentId,
+        chargeAccountId,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('设置成功', 1));
+          refreshData(departmentId, typeCursor, projectId, 1, dispatch);
+        } else {
+          alert(_l('设置失败', 2));
+        }
+      });
+  };
+
   render() {
-    const { user, isChargeUser, isChecked, isSearch, typeCursor, projectId, selectCount } = this.props;
+    const {
+      user,
+      isChargeUser,
+      isChecked,
+      isSearch,
+      typeCursor,
+      projectId,
+      selectCount,
+      isHideCurrentColumn,
+      departmentId,
+      columnsInfo = [],
+    } = this.props;
     const { isMinSc } = this.state;
     let { jobs = [], departments = [], department = '', job = '' } = user;
     let departmentData = departments;
@@ -466,6 +525,13 @@ class UserItem extends Component {
     if (typeCursor === 2) {
       jobData = job;
     }
+    let totalColWidth = 0;
+    columnsInfo.forEach(item => {
+      if (isHideCurrentColumn(item.value)) {
+        totalColWidth += item.width;
+      }
+    });
+    let setWidth = $('.departmentContent') && totalColWidth > $('.departmentContent').width();
     return (
       <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
         {
@@ -473,7 +539,7 @@ class UserItem extends Component {
             className={classNames('checkBox', {
               showCheckBox: isChecked,
               hasSelectCount: selectCount > 0,
-              opacity0: typeCursor === 2 || typeCursor === 3,
+              // opacity0: typeCursor === 2 || typeCursor === 3,
             })}
           >
             <Checkbox
@@ -488,31 +554,32 @@ class UserItem extends Component {
             />
           </td>
         }
-        <td className="nameTh">
-          <table className="fixedTable">
-            <tbody>
-              <tr>
-                <td width="32px">
-                  <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
-                </td>
-                <td className="TxtMiddle pRight0">
-                  <div className="name mLeft10" style={{ display: 'flex' }}>
-                    <a href={'/user_' + user.accountId} className="Gray overflow_ellipsis" title={user.fullname}>
-                      {user.fullname}
-                    </a>
-                    {isChargeUser ? (
-                      <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
-                        <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
-                      </Tooltip>
-                    ) : null}
-                  </div>
-                  {/* <div className=" job" title={user.job}>{user.job}</div> */}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </td>
-        {typeCursor === 3 && (
+        {isHideCurrentColumn('name') && (
+          <td className="nameTh" style={{ width: setWidth ? 200 : 'unset' }}>
+            <table className="fixedTable">
+              <tbody>
+                <tr>
+                  <td width="32px">
+                    <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
+                  </td>
+                  <td className="TxtMiddle pRight0">
+                    <div className="name mLeft10" style={{ display: 'flex' }}>
+                      <a href={'/user_' + user.accountId} className="Gray overflow_ellipsis" title={user.fullname}>
+                        {user.fullname}
+                      </a>
+                      {isChargeUser ? (
+                        <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
+                          <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
+                        </Tooltip>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        )}
+        {typeCursor === 3 && isHideCurrentColumn('status') && (
           <td className="statusTh">
             <span className={cx({ ThemeColor3: user.status == 3, Red: user.status == 2 })}>
               {user.status == 3 && _l('待审核')}
@@ -520,95 +587,125 @@ class UserItem extends Component {
             </span>
           </td>
         )}
-        <td className="jobTh">
-          {
-            <div
-              className="job WordBreak overflow_ellipsis"
-              title={
-                typeCursor === 2
+        {isHideCurrentColumn('position') && (
+          <td className="jobTh">
+            {
+              <div
+                className="job WordBreak overflow_ellipsis"
+                title={
+                  typeCursor === 2
+                    ? jobData
+                    : jobData.map((it, i) => {
+                        if (jobData.length - 1 > i) {
+                          return `${it.name || it.jobName};`;
+                        }
+                        return `${it.name || it.jobName}`;
+                      })
+                }
+              >
+                {typeCursor === 2
                   ? jobData
                   : jobData.map((it, i) => {
                       if (jobData.length - 1 > i) {
-                        return `${it.name || it.jobName};`;
+                        return `${it.name || it.jobName} ; `;
                       }
                       return `${it.name || it.jobName}`;
-                    })
-              }
-            >
-              {typeCursor === 2
-                ? jobData
-                : jobData.map((it, i) => {
-                    if (jobData.length - 1 > i) {
-                      return `${it.name || it.jobName} ; `;
-                    }
-                    return `${it.name || it.jobName}`;
-                  })}
-            </div>
-          }
-        </td>
+                    })}
+              </div>
+            }
+          </td>
+        )}
         {/* {isSearch ? <td title={user.department}>{user.department}</td> : null} */}
-        <td className="departmentTh">
-          {
-            <div
-              className="WordBreak overflow_ellipsis"
-              title={
-                typeCursor === 2
+        {isHideCurrentColumn('department') && (
+          <td className="departmentTh">
+            {
+              <div
+                className="WordBreak overflow_ellipsis"
+                title={
+                  typeCursor === 2
+                    ? departmentData
+                    : departmentData.map((it, i) => {
+                        if (departmentData.length - 1 > i) {
+                          return `${it.name || it.departmentName};`;
+                        }
+                        return `${it.name || it.departmentName}`;
+                      })
+                }
+              >
+                {typeCursor === 2
                   ? departmentData
                   : departmentData.map((it, i) => {
                       if (departmentData.length - 1 > i) {
-                        return `${it.name || it.departmentName};`;
+                        return `${it.name || it.departmentName} ; `;
                       }
                       return `${it.name || it.departmentName}`;
-                    })
-              }
-            >
-              {typeCursor === 2
-                ? departmentData
-                : departmentData.map((it, i) => {
-                    if (departmentData.length - 1 > i) {
-                      return `${it.name || it.departmentName} ; `;
-                    }
-                    return `${it.name || it.departmentName}`;
-                  })}
-            </div>
-          }
-        </td>
-        <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
-        <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>
-        <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
-        {!isMinSc && <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>}
+                    })}
+              </div>
+            }
+          </td>
+        )}
+        {isHideCurrentColumn('adress') && (
+          <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
+        )}
+        {isHideCurrentColumn('jobNum') && <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>}
+        {isHideCurrentColumn('phone') && (
+          <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
+        )}
+        {!isMinSc && isHideCurrentColumn('email') && (
+          <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>
+        )}
         {!isMinSc && typeCursor === 3 ? (
           <React.Fragment>
-            <td className="dateTh overflow_ellipsis WordBreak">
-              {/* {user.createTime ? _l('%0天', moment().endOf('day').diff(moment(user.createTime).startOf('day'), 'days') + 1) : null} */}
-              {moment(user.updateTime).format('YYYY-MM-DD')}
-            </td>
-            <td className="actMenTh overflow_ellipsis WordBreak">
-              {!user.lastModifyUser || !user.lastModifyUser.fullname ? '' : user.lastModifyUser.fullname}
-            </td>
+            {isHideCurrentColumn('applyDate') && (
+              <td className="dateTh overflow_ellipsis WordBreak">
+                {/* {user.createTime ? _l('%0天', moment().endOf('day').diff(moment(user.createTime).startOf('day'), 'days') + 1) : null} */}
+                {moment(user.updateTime).format('YYYY-MM-DD')}
+              </td>
+            )}
+            {isHideCurrentColumn('operator') && (
+              <td className="actMenTh overflow_ellipsis WordBreak">
+                {!user.lastModifyUser || !user.lastModifyUser.fullname ? '' : user.lastModifyUser.fullname}
+              </td>
+            )}
           </React.Fragment>
         ) : (
           ''
         )}
-        <td className="pRight15 TxtCenter Relative actTh">
-          <span className="tip-top Hand" onClick={this.handleOpBtnClick}>
-            <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
-          </span>
-          <OpList
-            {...this.props}
-            onClickAway={clearActiveDialog(this.props)}
-            handleRemoveUserClick={this.handleRemoveUserClick}
-            handleEditUserClick={this.handleEditUserClick}
+        {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
+          <td className="joinDateTh">
+            {moment(user.addProjectTime).format('YYYY-MM-DD') || moment(user.createTime).format('YYYY-MM-DD')}
+          </td>
+        )}
+        <td className="actTh">
+          <Dropdown
+            overlayClassName="dropDownOptBox"
+            overlay={
+              <OpList
+                {...this.props}
+                onClickAway={clearActiveDialog(this.props)}
+                handleRemoveUserClick={this.handleRemoveUserClick}
+                handleEditUserClick={this.handleEditUserClick}
             handleResetPasswordClick={this.handleResetPasswordClick}
-            handleApprovalClick={this.handleApprovalClick}
-            handleRefuseClick={this.handleRefuseClick}
-            setValue={() => {
-              this.setState({
-                showDialog: false,
-                showDialogApproval: false,
-              });
-            }}
-          />
+                handleApprovalClick={this.handleApprovalClick}
+                handleRefuseClick={this.handleRefuseClick}
+                setAndCancelCharge={this.setAndCancelCharge}
+                setValue={() => {
+                  this.setState({
+                    showDialog: false,
+                    showDialogApproval: false,
+                  });
+                }}
+                placement="bottomRight"
+              />
+            }
+          >
+            <Tooltip text={<span>{_l('更多操作')}</span>} popupPlacement="top">
+              <span className="tip-top Hand" onClick={this.handleOpBtnClick}>
+                <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
+              </span>
+            </Tooltip>
+          </Dropdown>
+
           {this.renderEditInfo()}
           {this.renderResetPasswordInfo()}
           {this.renderApprovalInfo()}

@@ -2,16 +2,21 @@ export const permissionObj = {
   // 组织管理('首页'， ‘人员与部门’， ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
   PROJECT_ADMIN: [
     'home',
-    'structure', 'approve',
+    'structure',
+    'approve',
     'reportrelation',
     'groups',
+    'portal',
     'contactsHidden',
-    'transfer', 'resignlist',
+    'transfer',
+    'resignlist',
     'sysinfo',
-    'rolelist', 'rolelog',
+    'rolelist',
+    'rolelog',
     'announcement',
     'thirdapp',
-    'ldap'
+    'ldap',
+    'weixin',
   ],
   // 应用管理('应用‘，’工作流‘)
   APK_ADMIN: ['app', 'workflows'],
@@ -22,8 +27,8 @@ export const permissionObj = {
   // welink集成
   HAS_WELINK: ['welink'],
   // 飞书集成
-  HAS_FEISHU: ['feishu']
-}
+  HAS_FEISHU: ['feishu'],
+};
 
 export const menuList = [
   // 首页
@@ -59,7 +64,7 @@ export const menuList = [
           {
             path: '/admin/approve/(.*)',
             component: () => import('./structure'),
-          }
+          },
         ],
       },
       {
@@ -81,7 +86,20 @@ export const menuList = [
           {
             path: '/admin/groups/(.*)',
             component: () => import('./groupDept'),
-          }
+          },
+        ],
+      },
+      {
+        icon: 'icon-public',
+        name: _l('外部门户'),
+        key: 'portal',
+        menuPath: '/admin/portal/:projectId',
+        routes: [
+          {
+            path: '/admin/portal/:projectId',
+            exact: true,
+            component: () => import('./portal'),
+          },
         ],
       },
       {
@@ -144,9 +162,9 @@ export const menuList = [
           {
             path: '/admin/announcement/(.*)',
             component: () => import('./tools'),
-          }
+          },
         ],
-      }
+      },
     ],
   },
   // 应用
@@ -226,6 +244,18 @@ export const menuList = [
           {
             path: '/admin/feishu/:projectId',
             component: () => import('./feishu/index'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-wechat',
+        name: _l('微信公众号'),
+        key: 'weixin',
+        menuPath: '/admin/weixin/:projectId(.*)',
+        routes: [
+          {
+            path: '/admin/weixin/:projectId',
+            component: () => import('./weixin/index'),
           },
         ],
       },

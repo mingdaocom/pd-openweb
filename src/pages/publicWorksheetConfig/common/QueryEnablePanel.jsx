@@ -65,6 +65,7 @@ export default function EnablePanel(props) {
       {enabled && (
         <React.Fragment>
           <ShareUrl
+            theme="light"
             copyShowText
             className="mainShareUrl mTop15 mBottom20"
             url={queryInfo.url}

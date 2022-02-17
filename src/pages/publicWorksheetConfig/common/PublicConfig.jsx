@@ -93,7 +93,7 @@ class PublicConfig extends React.Component {
   getChangedIds() {
     const { worksheetSettings } = this.props;
     const { ipControlId, browserControlId, deviceControlId, systemControlId, extendSourceId } = this.state;
-    const oldIds = _.uniq(
+    const oldIds = _.uniqBy(
       [
         worksheetSettings.ipControlId,
         worksheetSettings.browserControlId,
@@ -286,6 +286,7 @@ class PublicConfig extends React.Component {
           <React.Fragment>
             <H3>{_l('公开表单链接')}</H3>
             <ShareUrl
+              theme="light"
               className="mainShareUrl"
               url={shareUrl}
               customBtns={[{ tip: _l('重新生成链接'), icon: 'refresh', onClick: this.handleRefreshShareUrl }]}
@@ -319,6 +320,8 @@ class PublicConfig extends React.Component {
             </div>
             <H3>{_l('表单填写成功回执')}</H3>
             <RichText
+              maxWidth={580}
+              maxHeight={600}
               className="publicRichText"
               data={receipt || ''}
               onSave={value => {

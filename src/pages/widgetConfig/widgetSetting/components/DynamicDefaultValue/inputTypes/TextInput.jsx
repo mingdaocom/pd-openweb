@@ -18,26 +18,28 @@ export default class TextInput extends Component {
   };
 
   componentDidMount() {
-    const { dynamicValue, data, clearOldDefault } = this.props;
+    const { dynamicValue, data, clearOldDefault, onDynamicValueChange } = this.props;
     const { default: defaultValue } = data;
     if (defaultValue) {
-      this.setDynamicValue(dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue }));
+      onDynamicValueChange(dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue }));
       clearOldDefault();
     } else {
-      this.setDynamicValue(dynamicValue, false);
+      this.setDynamicValue(dynamicValue);
     }
   }
+
   componentDidUpdate(prevProps) {
     if (JSON.stringify(this.props.dynamicValue) !== JSON.stringify(prevProps.dynamicValue)) {
       if (this.$tagtextarea) {
         const cursor = this.$tagtextarea.cmObj.getCursor();
-        this.setDynamicValue(this.props.dynamicValue, false);
+        this.setDynamicValue(this.props.dynamicValue);
         this.$tagtextarea.cmObj.setCursor(cursor);
       }
     }
   }
+
   // 设置为标签格式
-  setDynamicValue = (dynamicValue = [], needEmitChange = true) => {
+  setDynamicValue = (dynamicValue = []) => {
     let fields = '';
 
     dynamicValue.forEach(item => {
@@ -48,11 +50,9 @@ export default class TextInput extends Component {
         fields += staticValue;
       }
     });
+
     if (this.$tagtextarea) {
       this.$tagtextarea.setValue(fields);
-    }
-    if (needEmitChange) {
-      this.props.onDynamicValueChange(dynamicValue);
     }
   };
   // 输入普通字符串时数据转换
@@ -78,10 +78,20 @@ export default class TextInput extends Component {
     defaultType && this.$wrap.triggerClick();
   };
 
+  handleDynamicValue = (newField = []) => {
+    if (this.$tagtextarea) {
+      const { cid = '', rcid = '' } = newField[0];
+      const id = rcid ? `${cid}~${rcid}` : `${cid}`;
+      this.$tagtextarea.insertColumnTag(id);
+      const newValue = this.$tagtextarea.cmObj.getValue();
+      this.transferValue(newValue);
+    }
+  };
+
   render() {
     const { defaultType } = this.props;
     return (
-      <DynamicValueInputWrap>
+      <DynamicValueInputWrap ref={con => (this.$textinput = con)} triggerStyle={true}>
         {defaultType ? (
           <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
         ) : (
@@ -97,7 +107,12 @@ export default class TextInput extends Component {
             }}
           />
         )}
-        <SelectOtherField {...this.props} onDynamicValueChange={this.setDynamicValue} ref={con => (this.$wrap = con)} />
+        <SelectOtherField
+          {...this.props}
+          onDynamicValueChange={this.handleDynamicValue}
+          ref={con => (this.$wrap = con)}
+          popupContainer={this.$textinput}
+        />
       </DynamicValueInputWrap>
     );
   }

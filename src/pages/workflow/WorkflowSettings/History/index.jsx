@@ -8,6 +8,7 @@ import HistoryDetail from './HistoryDetail';
 import './index.less';
 import api from '../../api/instance';
 import process from '../../api/process';
+import processVersion from '../../api/processVersion';
 import UserHead from 'src/pages/feed/components/userHead';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -38,6 +39,7 @@ class History extends Component {
       historyList: [],
       showFilter: false,
       filters: {},
+      accumulation: {},
     };
   }
 
@@ -49,12 +51,11 @@ class History extends Component {
     const { instanceId } = this.state;
 
     this.getData();
-    if (instanceId) {
-      this.getInstance();
-    }
+    this.getProcessAccumulation();
+    instanceId && this.getInstance();
   }
 
-  getData = () => {
+  getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
     const { pageIndex, workId, instanceId, filters } = this.state;
     const { pageSize, filterPara } = this;
@@ -75,6 +76,7 @@ class History extends Component {
             pageIndex: pageIndex + 1,
             hasMoreData: res.length >= this.pageSize,
           });
+          callback();
         })
         .always(() => {
           this.requestPending = false;
@@ -247,9 +249,33 @@ class History extends Component {
     return `${startTime} ~ ${endTime}`;
   };
 
+  /**
+   * 获取流程堆积量
+   */
+  getProcessAccumulation() {
+    const { flowInfo } = this.props;
+
+    if (flowInfo.enabled) {
+      processVersion.getDifferenceByProcessId({ processId: flowInfo.id }).then(accumulation => {
+        this.setState({ accumulation });
+      });
+    }
+  }
+
+  /**
+   * 立即恢复
+   */
+  onRecovery = (waiting, hours) => {
+    const { flowInfo } = this.props;
+
+    processVersion.updateWaiting({ processId: flowInfo.id, waiting, hours }).then(() => {
+      this.getProcessAccumulation();
+    });
+  };
+
   render() {
     const { flowInfo } = this.props;
-    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters } = this.state;
+    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters, accumulation } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
 
@@ -367,9 +393,17 @@ class History extends Component {
             }
             hideStatusAndDate={isMoreHistory}
             onFilter={this.handleFilter}
+            onRefresh={callback => {
+              this.setState({ pageIndex: 1 }, () => {
+                this.getData(callback);
+                this.requestPending = true;
+              });
+              this.getProcessAccumulation();
+            }}
           />
           <HistoryList
             data={data}
+            accumulation={accumulation}
             disabled={isMoreHistory}
             updateSource={(item, index) => {
               const newData = [].concat(data);
@@ -379,6 +413,7 @@ class History extends Component {
             getMore={this.getMore}
             hasMoreData={hasMoreData}
             onClick={selectActionId => this.setState({ selectActionId })}
+            onRecovery={this.onRecovery}
           />
         </div>
 

@@ -60,7 +60,7 @@ export default class extends PureComponent {
   };
 
   renderAuth() {
-    const { roleDetail: { permissionWay } = {} } = this.props;
+    const { roleDetail: { permissionWay } = {}, isForPortal } = this.props;
 
     const list = [
       PERMISSION_WAYS.ManageAllRecord,
@@ -81,13 +81,13 @@ export default class extends PureComponent {
         <div className="Font14 mTop25 bold">{_l('分发哪些应用项？')}</div>
         <div className="mTop15 Font14">
           <Radio
-            text={_l('分发所有应用项')}
+            text={_l('分发所有应用项（简单）')}
             checked={!isCustom}
             value={PERMISSION_WAYS.ViewAllAndManageSelfRecord}
             onClick={this.changePermissionWay}
           />
           <Radio
-            text={_l('分发有选择的应用项')}
+            text={_l('分发有选择的应用项（高级）')}
             className="mLeft40"
             checked={isCustom}
             value={PERMISSION_WAYS.CUSTOM}
@@ -110,7 +110,7 @@ export default class extends PureComponent {
                 onChange={this.changePermissionWay}
               />
             </div>
-            {showCheckbox ? (
+            {showCheckbox && !isForPortal ? (
               <div className="mTop15">
                 <Checkbox
                   className={styles.subCheckbox}
@@ -141,44 +141,42 @@ export default class extends PureComponent {
   renderAuthTable() {
     const { roleDetail: { sheets = [], pages = [] } = {} } = this.props;
     const AUTH = [
-      { text: _l('查看记录'), operatorKey: 'READ', key: 'canRead' },
-      { text: _l('编辑记录'), operatorKey: 'EDIT', key: 'canEdit' },
-      { text: _l('删除记录'), operatorKey: 'REMOVE', key: 'canRemove' },
+      { text: _l('查看'), operatorKey: 'READ', key: 'canRead' },
+      { text: _l('编辑'), operatorKey: 'EDIT', key: 'canEdit' },
+      { text: _l('删除'), operatorKey: 'REMOVE', key: 'canRemove' },
+      { text: _l('新增'), operatorKey: 'ADD', key: 'canAdd' },
     ];
-
+    //将工作表和自定义页面 混合排序
+    const lists = sheets.concat(pages).sort((a, b) => {
+      return a.sortIndex - b.sortIndex;
+    });
     return (
       <Fragment>
-        {!!pages.length && (
-          <Fragment>
-            <div className="Font14 mTop25 Gray_75">{_l('可以访问的页面')}</div>
-
-            <ul className={styles.list}>
-              {pages.map((item, i) => {
-                return (
-                  <li>
-                    <span className="InlineBlock">
-                      <Checkbox
-                        key={i}
-                        checked={item.checked}
-                        text={item.name}
-                        onClick={checked => this.updateLookPages(i, !checked)}
-                      />
-                    </span>
-                  </li>
-                );
-              })}
-              <div className="clear" />
-            </ul>
-          </Fragment>
-        )}
-
-        <div className="Font14 mTop10 Gray_75">{_l('可以访问的视图和数据操作权限')}</div>
-        <div className={cx(styles.authTable, 'mTop20')}>
+        <div className="Font14 mTop32 Gray_75">{_l('可以访问的视图和数据操作权限')}</div>
+        <div className={cx(styles.authTable, 'mTop12')}>
           <div className={styles.tableHeader}>
-            <div className={'TxtLeft pLeft24 boxSizing ' + styles.tableHeaderItemMax}>{_l('工作表')}</div>
+            <div className={'TxtLeft pLeft24 boxSizing ' + styles.tableHeaderItemMax}>{_l('应用项')}</div>
             {AUTH.map((item, index) => {
-              const checked = !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length;
-              const clearselected = !checked && !!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length;
+              let clearselected;
+              let checked;
+              if (item.operatorKey === 'READ') {
+                checked =
+                  !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length &&
+                  !pages.filter(o => !o.checked).length;
+                clearselected =
+                  !checked &&
+                  (!!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length ||
+                    !!pages.filter(o => o.checked).length);
+              } else if (item.operatorKey === 'ADD') {
+                checked = sheets.filter(obj => obj.canAdd).length === sheets.length;
+                clearselected =
+                  !checked &&
+                  sheets.filter(obj => obj.canAdd).length !== sheets.length &&
+                  sheets.filter(obj => obj.canAdd).length > 0;
+              } else {
+                checked = !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length;
+                clearselected = !checked && !!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length;
+              }
               return (
                 <div key={index} className={styles.tableHeaderItem}>
                   <Checkbox
@@ -191,15 +189,18 @@ export default class extends PureComponent {
                 </div>
               );
             })}
-            <div className={styles.tableHeaderItem}>{_l('数据操作权限')}</div>
+            <div className={styles.tableHeaderItem + ' mLeft20'}>{_l('数据操作权限')}</div>
           </div>
           {sheets.length ? (
-            _.map(sheets, sheet => {
+            _.map(lists, list => {
               return (
                 <SheetTable
-                  sheet={sheet}
-                  key={sheet.sheetId}
+                  isForPortal={this.props.isForPortal}
+                  sheet={list}
+                  key={list.sheetId || list.pageId}
                   onChange={this.updateSheetAuth}
+                  updateLookPages={this.updateLookPages}
+                  updateNavigateHide={this.updateNavigateHide}
                   getContainer={() => {
                     return this.container || document.body;
                   }}
@@ -217,20 +218,59 @@ export default class extends PureComponent {
   toggleAllViewAuth(key, checked) {
     const { roleDetail, onChange } = this.props;
     const sheets = (roleDetail.sheets || []).map(item => changeSheetModel(item, key, checked));
-
-    onChange({
-      ...roleDetail,
-      sheets,
-    });
+    if (key === 'READ') {
+      let pages = _.cloneDeep(roleDetail.pages).map(o => {
+        return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
+      });
+      onChange({
+        ...roleDetail,
+        sheets,
+        pages,
+      });
+    } else {
+      onChange({
+        ...roleDetail,
+        sheets,
+      });
+    }
   }
 
-  updateLookPages(i, checked) {
+  updateNavigateHide = (isSheet, id, navigateHide) => {
     const { roleDetail, onChange } = this.props;
-    let pages = _.cloneDeep(roleDetail.pages);
+    if (isSheet) {
+      onChange({
+        sheets: _.cloneDeep(roleDetail.sheets).map(o => {
+          if (id === o.sheetId) {
+            return { ...o, navigateHide };
+          } else {
+            return o;
+          }
+        }),
+      });
+    } else {
+      onChange({
+        pages: _.cloneDeep(roleDetail.pages).map(o => {
+          if (id === o.pageId) {
+            return { ...o, navigateHide };
+          } else {
+            return o;
+          }
+        }),
+      });
+    }
+  };
 
-    pages[i].checked = checked;
+  updateLookPages = (id, checked) => {
+    const { roleDetail, onChange } = this.props;
+    let pages = _.cloneDeep(roleDetail.pages).map(o => {
+      if (id === o.pageId) {
+        return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
+      } else {
+        return o;
+      }
+    });
     onChange({ pages });
-  }
+  };
 
   render() {
     const { roleDetail: { name, description } = {}, loading, closePanel, onChange, onSave } = this.props;

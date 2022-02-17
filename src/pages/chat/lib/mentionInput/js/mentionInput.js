@@ -766,12 +766,6 @@ const _ = require('lodash');
       elmAutocompleteList.show();
       elmAutocompleteList.nanoScroller({ scroll: 'top' });
 
-      // Filter items that has already been mentioned
-      //      var mentionValues = _.pluck(mentionsCollection, 'value');
-      //      results = _.reject(results, function (item) {
-      //        return _.include(mentionValues, item.name);
-      //      });
-
       if (!results.UserItems.length && !results.GroupItems.length) {
         hideAutoComplete();
         return;

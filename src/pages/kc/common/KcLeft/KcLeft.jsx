@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import qs from 'querystring';
+import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
 import List from 'ming-ui/components/List';
@@ -36,10 +36,7 @@ class KcLeft extends Component {
     currentFolder: PropTypes.shape({}),
     getUsage: PropTypes.func,
     initkcLeftEditRootFn: PropTypes.func,
-    currentRoot: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.shape({}),
-    ]),
+    currentRoot: PropTypes.oneOfType([PropTypes.number, PropTypes.shape({})]),
   };
 
   constructor(props) {
@@ -48,7 +45,9 @@ class KcLeft extends Component {
       .map(p => p.projectId)
       .unshift('');
     let foldedProjects;
-    const storedFoldedProjectsStr = window.localStorage.getItem('foldedProjects_' + md.global.Account.accountId + '_kc');
+    const storedFoldedProjectsStr = window.localStorage.getItem(
+      'foldedProjects_' + md.global.Account.accountId + '_kc',
+    );
     if (storedFoldedProjectsStr) {
       foldedProjects = Immutable.Set(storedFoldedProjectsStr.split(','));
     } else if (storedFoldedProjectsStr === '') {
@@ -93,7 +92,7 @@ class KcLeft extends Component {
         accountId: md.global.Account.accountId,
         excludeProjectIds: this.state.foldedProjects.toArray(),
       })
-      .then((roots) => {
+      .then(roots => {
         this.setState({
           roots: Immutable.List(roots),
           loadingProjects: Immutable.Set(),
@@ -124,7 +123,10 @@ class KcLeft extends Component {
     );
   }
   componentDidUpdate(prevProps, prevState) {
-    window.localStorage.setItem('foldedProjects_' + md.global.Account.accountId + '_kc', this.state.foldedProjects.join(','));
+    window.localStorage.setItem(
+      'foldedProjects_' + md.global.Account.accountId + '_kc',
+      this.state.foldedProjects.join(','),
+    );
     this.updateSearchName();
   }
   componentWillUnmount() {
@@ -168,17 +170,23 @@ class KcLeft extends Component {
         .reject(ex => ex === projectId)
         .value();
     }
-    return service.getRoots(query).then((roots) => {
+    return service.getRoots(query).then(roots => {
       let newRoots = this.state.roots;
       if (projectId) {
-        newRoots = newRoots.filter(root => !root.project || (root.project.projectId !== projectId)).concat(roots);
+        newRoots = newRoots.filter(root => !root.project || root.project.projectId !== projectId).concat(roots);
       } else {
-        newRoots = newRoots.filter(root => root.project).filter(existRoot => !_.some(roots, root => root.id === existRoot.id)).concat(roots);
+        newRoots = newRoots
+          .filter(root => root.project)
+          .filter(existRoot => !_.some(roots, root => root.id === existRoot.id))
+          .concat(roots);
       }
-      this.setState({
-        roots: newRoots,
-        loadingProjects: this.state.loadingProjects.delete(projectId),
-      }, this.updateSearchName);
+      this.setState(
+        {
+          roots: newRoots,
+          loadingProjects: this.state.loadingProjects.delete(projectId),
+        },
+        this.updateSearchName,
+      );
     });
   }
 
@@ -194,7 +202,9 @@ class KcLeft extends Component {
     }
     this.setState({ loading: true }, () => {
       if (filterType === ROOT_FILTER_TYPE.ALL) {
-        service.getRoots({ accountId: md.global.Account.accountId }).then(roots => this.setState({ filterType, roots: Immutable.Set(roots), loading: false }));
+        service
+          .getRoots({ accountId: md.global.Account.accountId })
+          .then(roots => this.setState({ filterType, roots: Immutable.Set(roots), loading: false }));
       } else {
         this.setState({ filterType, loading: false });
       }
@@ -233,13 +243,13 @@ class KcLeft extends Component {
     }
     this.setState({
       searchName: directoryName
-      ? _l('在“%0”中搜索', directoryName.length < 10 ? directoryName : directoryName.substr(0, 9) + '..')
-      : '在知识中心中搜索',
+        ? _l('在“%0”中搜索', directoryName.length < 10 ? directoryName : directoryName.substr(0, 9) + '..')
+        : '在知识中心中搜索',
     });
   }
   @autobind
   handleAddNewRoot() {
-    addNewRoot((root) => {
+    addNewRoot(root => {
       if (this._isMounted) {
         this.setState({
           roots: this.state.roots.unshift(root),
@@ -254,40 +264,44 @@ class KcLeft extends Component {
   @autobind
   handleEditRoot(rootId) {
     this.setState({ settingsOption: null, folderSetting: null });
-    editRoot(rootId, (root) => {
-      if (!root) {
-        const roots = this.state.roots;
-        if (this._isMounted) {
-          this.setState(
-            {
-              roots: roots.remove(roots.findIndex(r => r.id === rootId)),
-            },
-            this.returnAllFolder
-          );
+    editRoot(
+      rootId,
+      root => {
+        if (!root) {
+          const roots = this.state.roots;
+          if (this._isMounted) {
+            this.setState(
+              {
+                roots: roots.remove(roots.findIndex(r => r.id === rootId)),
+              },
+              this.returnAllFolder,
+            );
+          }
+          navigateTo('/apps/kc/my');
+          alert(_l('退出成功'));
+        } else {
+          alert(_l('编辑成功'));
+          this.performUpdateItem(root);
         }
-        navigateTo('/apps/kc/my');
-        alert(_l('退出成功'));
-      } else {
-        alert(_l('编辑成功'));
-        this.performUpdateItem(root);
-      }
-    }, (root) => {
-      if (root) {
-        this.performUpdateItem(root);
-      }
-    });
+      },
+      root => {
+        if (root) {
+          this.performUpdateItem(root);
+        }
+      },
+    );
   }
 
   @autobind
   handleRemoveRoot(item, isCreator, isPermanent) {
     this.setState({ settingsOption: null });
-    removeRoot(item, isCreator, isPermanent, (rootId) => {
+    removeRoot(item, isCreator, isPermanent, rootId => {
       const roots = this.state.roots;
       this.setState(
         {
           roots: roots.remove(roots.findIndex(root => root.id === rootId)),
         },
-        this.returnAllFolder
+        this.returnAllFolder,
       );
       navigateTo('/apps/kc/my');
     });
@@ -296,7 +310,7 @@ class KcLeft extends Component {
   @autobind
   handleStarRoot(rootItem) {
     this.setState({ settingsOption: null });
-    service.updateRootStar(rootItem.id, !rootItem.isStared).then((result) => {
+    service.updateRootStar(rootItem.id, !rootItem.isStared).then(result => {
       if (result) {
         this.setState({
           isStared: !rootItem.isStared,
@@ -338,7 +352,7 @@ class KcLeft extends Component {
           const newOffset = offset.set('top', $target.offset().top - 20 - $target.find('.settingsLayer').height());
           this.setState({ offset: newOffset });
         }
-      }
+      },
     );
     event.stopPropagation();
   }
@@ -347,19 +361,20 @@ class KcLeft extends Component {
   @autobind
   performUpdateItem(root) {
     const roots = this.state.roots;
-    this.setState(
-      {
-        roots: roots.update(roots.findIndex(i => i.id === root.id), () => _.clone(root)),
-      },
-    );
+    this.setState({
+      roots: roots.update(
+        roots.findIndex(i => i.id === root.id),
+        () => _.clone(root),
+      ),
+    });
   }
 
   /* 流量详情*/
   @autobind
   usageDialog(usage) {
-    require(['mdDialog'], (mdDialog) => {
+    require(['mdDialog'], mdDialog => {
       let usageContent = '';
-      const percent = usage.used / usage.total * 100;
+      const percent = (usage.used / usage.total) * 100;
 
       usageContent +=
         '<div class="usageList Relative">' +
@@ -408,7 +423,9 @@ class KcLeft extends Component {
       projectRoots = filterRoots.filter(root => ((root.project && root.project.projectId) || '') === projectId);
     } else {
       const projectIds = _.map(md.global.Account.projects, p => p.projectId);
-      projectRoots = filterRoots.filter(root => projectIds.indexOf((root.project && root.project.projectId) || '') === -1);
+      projectRoots = filterRoots.filter(
+        root => projectIds.indexOf((root.project && root.project.projectId) || '') === -1,
+      );
     }
     projectRoots = projectRoots
       .toArray()
@@ -433,107 +450,121 @@ class KcLeft extends Component {
         {isLoading ? (
           <span className="clipLoader ThemeColor8" />
         ) : (
-          <span className="slide ThemeColor8">{(isFolded ? _l('展开') : isLoading) || (projectRoots.length ? _l('隐藏') : _l('无'))}</span>
+          <span className="slide ThemeColor8">
+            {(isFolded ? _l('展开') : isLoading) || (projectRoots.length ? _l('隐藏') : _l('无'))}
+          </span>
         )}
       </div>
     );
     const rootListComp =
       !isFolded &&
-      (this.state.loadingProjects.includes(projectId) ? (
-        undefined
-      ) : (
+      (this.state.loadingProjects.includes(projectId) ? undefined : (
         <List
           className={cx('folderListOfProject', {
             noneProjects: this.state.noneProjects,
             expire: project && project.licenseType === 0,
           })}
         >
-          {!projectRoots.length ? (
-            this.state.noneProjects && <li className="nullData ThemeColor9">
-              <span>
-                {_l('点击 " + " 号，创建共享文件夹')}
-                <i className="icon-restart arrow ThemeColor8" />
-              </span>
-            </li>
-          ) : (
-            _.map(projectRoots, root => (
-              <Item
-                key={root.id}
-                className={cx('folderItem ani500 fadeIn ThemeHoverBGColor7', {
-                  ThemeBGColor8: this.checkRootIsActive(root.id),
-                  folded: isFolded,
-                })}
-                onClick={() => { navigateTo(`/apps/kc/${root.id}`); }}
-                data-rootid={root.id}
-                onMouseEnter={() => {
-                  this.setState({ folderSetting: root.id }); /* this.props.setHoveredItem(root, PICK_TYPE.ROOT);*/
-                }}
-                onMouseLeave={() => {
-                  this.setState({ folderSetting: '' }); /* this.props.setHoveredItem(null, null);*/
-                }}
-              >
-                <span className={cx('ThemeColor8 folderListIcon', this.checkRootIsActive(root.id) ? 'icon-folder-open' : 'icon-task-folder-solid')} />
-                <span>
-                  <span className="folderListName ellipsis ThemeColor10">{root.name}</span>
-                  {(this.state.folderSetting === root.id || this.state.settingsOption === root.id) && (
-                    <span className="folderSetting icon-settings ThemeColor8 ThemeHoverColor9" onClick={event => this.handleRootSettings(root, event)}>
-                      {this.state.settingsOption === root.id ? (
-                        <Menu
-                          className={cx('settingsLayer')}
-                          onClickAway={() => {
-                            this.setState({ settingsOption: '' });
-                          }}
-                          onClick={evt => evt.stopPropagation()}
-                          style={{ left: this.state.offset.get('left') - 16, top: this.state.offset.get('top') + 24 }}
-                        >
-                          <MenuItem icon={<Icon icon="task-star" />} className="settingItem ThemeHoverColor3" onClick={() => this.handleStarRoot(root)}>
-                            {root.isStared ? _l('取消标星') : _l('标星')}
-                          </MenuItem>
-                          <MenuItem icon={<Icon icon="group" />} className="settingItem ThemeHoverColor3" onClick={() => this.handleEditRoot(root.id)}>
-                            {_l('共享设置')}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<Icon icon="knowledge-log" />}
-                            className="settingItem ThemeHoverColor3"
-                            onClick={() => {
-                              getRootLog(root.name, root.id);
-                              this.setState({ settingsOption: '', isClick: false });
-                            }}
-                          >
-                            {_l('文件夹日志')}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<Icon icon="knowledge-recycle" />}
-                            className="settingItem ThemeHoverColor3"
-                            onClick={() => {
-                              navigateTo('/apps/kc/recycled/' + root.id);
+          {!projectRoots.length
+            ? this.state.noneProjects && (
+                <li className="nullData ThemeColor9">
+                  <span>
+                    {_l('点击 " + " 号，创建共享文件夹')}
+                    <i className="icon-restart arrow ThemeColor8" />
+                  </span>
+                </li>
+              )
+            : _.map(projectRoots, root => (
+                <Item
+                  key={root.id}
+                  className={cx('folderItem ani500 fadeIn ThemeHoverBGColor7', {
+                    ThemeBGColor8: this.checkRootIsActive(root.id),
+                    folded: isFolded,
+                  })}
+                  onClick={() => {
+                    navigateTo(`/apps/kc/${root.id}`);
+                  }}
+                  data-rootid={root.id}
+                  onMouseEnter={() => {
+                    this.setState({ folderSetting: root.id }); /* this.props.setHoveredItem(root, PICK_TYPE.ROOT);*/
+                  }}
+                  onMouseLeave={() => {
+                    this.setState({ folderSetting: '' }); /* this.props.setHoveredItem(null, null);*/
+                  }}
+                >
+                  <span
+                    className={cx(
+                      'ThemeColor8 folderListIcon',
+                      this.checkRootIsActive(root.id) ? 'icon-folder-open' : 'icon-task-folder-solid',
+                    )}
+                  />
+                  <span>
+                    <span className="folderListName ellipsis ThemeColor10">{root.name}</span>
+                    {(this.state.folderSetting === root.id || this.state.settingsOption === root.id) && (
+                      <span
+                        className="folderSetting icon-settings ThemeColor8 ThemeHoverColor9"
+                        onClick={event => this.handleRootSettings(root, event)}
+                      >
+                        {this.state.settingsOption === root.id ? (
+                          <Menu
+                            className={cx('settingsLayer')}
+                            onClickAway={() => {
                               this.setState({ settingsOption: '' });
                             }}
+                            onClick={evt => evt.stopPropagation()}
+                            style={{ left: this.state.offset.get('left') - 16, top: this.state.offset.get('top') + 24 }}
                           >
-                            {_l('回收站')}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<Icon icon={cx(this.state.isCreator ? 'task-new-delete' : 'task-new-exit')} />}
-                            className="settingItem ThemeHoverColor3"
-                            onClick={() => this.handleRemoveRoot(root, this.state.isCreator, false)}
-                          >
-                            {this.state.isCreator ? _l('删除文件夹') : _l('退出文件夹')}
-                          </MenuItem>
-                        </Menu>
-                      ) : (
-                        undefined
-                      )}
-                    </span>
-                  )}
-                  {root.isStared && this.state.settingsOption !== root.id && this.state.folderSetting !== root.id ? (
-                    <span className="isStared icon-task-star" />
-                  ) : (
-                    undefined
-                  )}
-                </span>
-              </Item>
-            ))
-          )}
+                            <MenuItem
+                              icon={<Icon icon="task-star" />}
+                              className="settingItem ThemeHoverColor3"
+                              onClick={() => this.handleStarRoot(root)}
+                            >
+                              {root.isStared ? _l('取消标星') : _l('标星')}
+                            </MenuItem>
+                            <MenuItem
+                              icon={<Icon icon="group" />}
+                              className="settingItem ThemeHoverColor3"
+                              onClick={() => this.handleEditRoot(root.id)}
+                            >
+                              {_l('共享设置')}
+                            </MenuItem>
+                            <MenuItem
+                              icon={<Icon icon="knowledge-log" />}
+                              className="settingItem ThemeHoverColor3"
+                              onClick={() => {
+                                getRootLog(root.name, root.id);
+                                this.setState({ settingsOption: '', isClick: false });
+                              }}
+                            >
+                              {_l('文件夹日志')}
+                            </MenuItem>
+                            <MenuItem
+                              icon={<Icon icon="knowledge-recycle" />}
+                              className="settingItem ThemeHoverColor3"
+                              onClick={() => {
+                                navigateTo('/apps/kc/recycled/' + root.id);
+                                this.setState({ settingsOption: '' });
+                              }}
+                            >
+                              {_l('回收站')}
+                            </MenuItem>
+                            <MenuItem
+                              icon={<Icon icon={cx(this.state.isCreator ? 'task-new-delete' : 'task-new-exit')} />}
+                              className="settingItem ThemeHoverColor3"
+                              onClick={() => this.handleRemoveRoot(root, this.state.isCreator, false)}
+                            >
+                              {this.state.isCreator ? _l('删除文件夹') : _l('退出文件夹')}
+                            </MenuItem>
+                          </Menu>
+                        ) : undefined}
+                      </span>
+                    )}
+                    {root.isStared && this.state.settingsOption !== root.id && this.state.folderSetting !== root.id ? (
+                      <span className="isStared icon-task-star" />
+                    ) : undefined}
+                  </span>
+                </Item>
+              ))}
         </List>
       ));
     return (
@@ -547,11 +578,14 @@ class KcLeft extends Component {
   render() {
     const { usage } = this.props;
     const { searchName, keywords } = this.state;
-    const percent = usage ? usage.used / usage.total * 100 : '';
+    const percent = usage ? (usage.used / usage.total) * 100 : '';
 
     const selectOptions = this.state.selectOptions && (
       <Menu className="optionsLayer" onClickAway={() => this.setState({ selectOptions: false })}>
-        <MenuItem className="allFolder ellipsis ThemeHoverColor3" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.ALL)}>
+        <MenuItem
+          className="allFolder ellipsis ThemeHoverColor3"
+          onClick={() => this.filterRoots(ROOT_FILTER_TYPE.ALL)}
+        >
           {_l('全部共享文件夹')}
         </MenuItem>
         <MenuItem className="myCreateRoot ThemeHoverColor3" onClick={() => this.filterRoots(ROOT_FILTER_TYPE.OWN)}>
@@ -588,7 +622,12 @@ class KcLeft extends Component {
         <MDLeftNav className="yunFileNav ThemeBGColor9 snowFixedContainer">
           <div className="flexColumn">
             <div className="fileMenuTop">
-              <div className={cx('fileSearch Relative boderRadAll_5', this.state.focusSearch ? 'ThemeBorderColor3' : 'ThemeBorderColor8')}>
+              <div
+                className={cx(
+                  'fileSearch Relative boderRadAll_5',
+                  this.state.focusSearch ? 'ThemeBorderColor3' : 'ThemeBorderColor8',
+                )}
+              >
                 <span className="icon-search btnFileSearch ThemeColor9" title={_l('搜索')} />
                 <input
                   type="text"
@@ -614,13 +653,17 @@ class KcLeft extends Component {
                   {this.state.isHover || this.state.isClick ? (
                     <span
                       className="myFolderSetting icon-settings ThemeColor8 ThemeHoverColor9"
-                      onClick={(evt) => {
+                      onClick={evt => {
                         this.setState({ isClick: true });
                         evt.stopPropagation();
                       }}
                     >
                       {this.state.isClick ? (
-                        <Menu className="settingsLayer" onClickAway={() => this.setState({ isClick: false })} onClick={evt => evt.stopPropagation()}>
+                        <Menu
+                          className="settingsLayer"
+                          onClickAway={() => this.setState({ isClick: false })}
+                          onClick={evt => evt.stopPropagation()}
+                        >
                           <MenuItem
                             icon={<Icon icon="knowledge-log" />}
                             className="settingItem ThemeHoverColor3"
@@ -669,9 +712,7 @@ class KcLeft extends Component {
             <Splitter className="fileHr ThemeBorderColor7" />
             <div className="folderHeader">
               <span className="folderCheckedType left" onClick={this.handleSelectFile}>
-                <span className="selectOptions ThemeColor8">
-                  {selectName}
-                </span>
+                <span className="selectOptions ThemeColor8">{selectName}</span>
                 <i className="icon-arrow-down font10 iconArrowDown ThemeColor9" />
                 {selectOptions}
               </span>
@@ -713,15 +754,18 @@ class KcLeft extends Component {
                     <div className="upgradeCentent">
                       <span className="hint">{_l('立即开通付费版')}</span>
                       <span className="hint">{_l('获得无限空间和更大上传流量')}</span>
-                      <a className="upgradeBtn ThemeBGColor3" href="/personal?type=enterprise" target="_blank" rel="noopener noreferrer">
+                      <a
+                        className="upgradeBtn ThemeBGColor3"
+                        href="/personal?type=enterprise"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {_l('开通付费版')}
                       </a>
                     </div>
                     <div className="upgradeTip" />
                   </div>
-                ) : (
-                  undefined
-                )}
+                ) : undefined}
                 <div
                   className="storageInfo ThemeColor9 pointer"
                   title={_l('本月剩余 %0 上传流量', humanFileSize(usage.total - usage.used))}

@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var qs = require('querystring');
+var qs = require('query-string');
 var doT = require('dot');
 var previewAttachments = require('previewAttachments');
 var FROM_TYPE = require('attachmentsPreview.enum').FROM_TYPE;

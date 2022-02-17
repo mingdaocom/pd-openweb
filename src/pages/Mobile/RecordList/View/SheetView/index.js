@@ -52,6 +52,7 @@ const BatchOptBtn = styled.div`
     color: rgba(244, 67, 54, 0.5);
   }
   .extraOpt {
+    text-align: right;
     i {
       color: #9e9e9e;
       vertical-align: middle;
@@ -95,8 +96,8 @@ class SheetView extends Component {
       this.loadCustomBtns(nextProps.match.params);
     }
   }
-  componentWillUnmount(){
-    this.props.changeBatchOptVisible(false)
+  componentWillUnmount() {
+    this.props.changeBatchOptVisible(false);
   }
   renderWithoutRows() {
     const { match, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view } = this.props;
@@ -334,7 +335,6 @@ class SheetView extends Component {
       ...args,
     }).then(data => {
       if (!data) {
-        alert(_l('失败，所有记录都不满足执行条件，或流程尚未启用'), 2);
         this.setState({ runInfoVisible: false });
       } else {
         this.showRunInfo(true);
@@ -408,7 +408,7 @@ class SheetView extends Component {
     worksheetAjax.updateWorksheetRows(updateArgs).then(data => {
       changeBatchOptData([]);
       this.props.changeBatchOptVisible(false);
-      if (data.successCount === batchOptCheckedData.length) {
+      if (data.successCount === batchOptCheckedData.length && args.workflowType === 2) {
         alert(_l('修改成功'));
       }
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
@@ -479,18 +479,21 @@ class SheetView extends Component {
         {this.renderContent()}
         {batchOptVisible && (
           <BatchOptBtn>
+            {mobileViewPermission && mobileViewPermission.canRemove && (
+              <div
+                className={cx('deleteOpt flex', {
+                  disabledDel: _.isEmpty(batchOptCheckedData),
+                })}
+                onClick={_.isEmpty(batchOptCheckedData) ? () => {} : this.batchDelete}
+              >
+                <Icon icon="delete_12" className="mRight16" />
+                {_l('删除')}
+              </div>
+            )}
             <div
-              className={cx('deleteOpt', {
-                disabledDel:
-                  (mobileViewPermission && !mobileViewPermission.canRemove) || _.isEmpty(batchOptCheckedData),
+              className={cx('extraOpt flex', {
+                disabledExtra: _.isEmpty(customBtns) || _.isEmpty(batchOptCheckedData),
               })}
-              onClick={_.isEmpty(batchOptCheckedData) ? () => {} : this.batchDelete}
-            >
-              <Icon icon="delete_12" className="mRight16" />
-              {_l('删除')}
-            </div>
-            <div
-              className={cx('extraOpt', { disabledExtra: _.isEmpty(customBtns) || _.isEmpty(batchOptCheckedData) })}
               onClick={_.isEmpty(customBtns) || _.isEmpty(batchOptCheckedData) ? () => {} : this.showCustomButtoms}
             >
               <Icon icon="custom_actions" className="mRight10 Font20 extraIcon" />

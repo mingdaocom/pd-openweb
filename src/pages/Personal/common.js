@@ -1,10 +1,10 @@
 var Common = {};
-var qs = require('querystring');
+var qs = require('query-string');
 const {
   personal: { muneLeft },
 } = window.private;
 
-Common.url = function(params) {
+Common.url = function (params) {
   return location.pathname + '?' + qs.stringify(params);
 };
 

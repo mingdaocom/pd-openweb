@@ -9,7 +9,7 @@ export const formatData = data =>
       if (_.includes(['validProject'], type)) return items.map(item => ({ type, ...item }));
       if (_.includes(['aloneApps'], type)) return { type, projectApps: items };
       return items.length ? { type, projectApps: items } : null;
-    })
+    }),
   ).filter(item => !!item);
 
 const isPlainObject = obj => {
@@ -44,8 +44,9 @@ export const getItem = key => JSON.parse(localStorage.getItem(key));
 export const setItem = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 
 // 应用的状态
-export const getAppStatusText = ({ isGoodsStatus, isNew }) => {
+export const getAppStatusText = ({ isGoodsStatus, isNew, fixed }) => {
   if (!isGoodsStatus) return _l('过期');
+  if (fixed) return _l('维护中');
   if (isNew) return _l('新 !');
   return null;
 };

@@ -15,7 +15,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 export default class Item extends Component {
   static defaultProps = {
     item: {},
-  }
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -35,6 +35,18 @@ export default class Item extends Component {
     if (String(viewType) === '2' && String(childType) === '2' && !_.isEmpty(viewControls)) return false;
     if (_.includes(['1', '2'], String(viewType)) && viewControl) return false;
     return true;
+  };
+  canShare = () => {
+    const { item, currentView, sheetSwitchPermit } = this.props;
+    return (
+      isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) &&
+      !md.global.Account.isPortal &&
+      +_.get(currentView, 'viewType') === 0
+    );
+  };
+  canExport = () => {
+    const { item, sheetSwitchPermit } = this.props;
+    return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
   renderSettingMenu = () => {
     const { item, isCharge, changeViewDisplayType, currentView, sheetSwitchPermit } = this.props;
@@ -102,26 +114,25 @@ export default class Item extends Component {
         )}
         {isCharge && <hr className="splitLine" />}
         {/* 分享视图权限 目前只有表视图才能分享*/}
-        {isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) &&
-          +_.get(currentView, 'viewType') === 0 && (
-            <MenuItem
-              icon={<Icon icon="share" />}
-              onClick={() => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
-                this.props.onShare(item);
-                this.setState({
-                  visible: false,
-                });
-              }}
-            >
-              <span className="text">{_l('分享')}</span>
-            </MenuItem>
-          )}
+        {this.canShare() && (
+          <MenuItem
+            icon={<Icon icon="share" />}
+            onClick={() => {
+              if (window.isPublicApp) {
+                alert(_l('预览模式下，不能操作'), 3);
+                return;
+              }
+              this.props.onShare(item);
+              this.setState({
+                visible: false,
+              });
+            }}
+          >
+            <span className="text">{_l('分享')}</span>
+          </MenuItem>
+        )}
         {/* 导出视图下记录权限 */}
-        {isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId) && (
+        {this.canExport() && (
           <MenuItem
             icon={<Icon icon="download" />}
             onClick={() => {
@@ -193,7 +204,7 @@ export default class Item extends Component {
       >
         <div
           className={cx('name valignWrapper overflowHidden h100', {
-            pRight20: !(isCharge || isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId)),
+            pRight20: !(isCharge || this.canExport()),
           })}
           onClick={() => this.handleClick(item)}
           onDoubleClick={isCharge ? () => this.handleDbClick(item) : _.noop}
@@ -214,10 +225,7 @@ export default class Item extends Component {
             <span className="ellipsis bold">{item.name}</span>
           )}
         </div>
-        {isCharge ||
-        isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId) ||
-        (isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) &&
-          +_.get(currentView, 'viewType') === 0) ? (
+        {isCharge || this.canExport() || this.canShare() ? (
           <Trigger
             popupVisible={this.state.visible}
             onPopupVisibleChange={visible => {

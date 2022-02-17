@@ -20,6 +20,9 @@ const AppStatus = styled.div`
   &.isOverdue {
     background: #bdbdbd;
   }
+  &.fixed {
+    background: #fd7558;
+  }
 `;
 
 export default memo(
@@ -36,6 +39,7 @@ export default memo(
     iconColor,
     isGoodsStatus,
     isNew,
+    fixed
   }) => (
     <li
       key={id}
@@ -56,9 +60,9 @@ export default memo(
       <div className="appInfo">
         <div className="flexRow">
           <span className="Font14 overflow_ellipsis">{name}</span>
-          {getAppStatusText({ isGoodsStatus, isNew }) && (
-            <AppStatus className={cx({ isOverdue: !isGoodsStatus })}>
-              {getAppStatusText({ isGoodsStatus, isNew })}
+          {getAppStatusText({ isGoodsStatus, isNew, fixed }) && (
+            <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed })}>
+              {getAppStatusText({ isGoodsStatus, isNew, fixed })}
             </AppStatus>
           )}
         </div>

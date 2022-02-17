@@ -185,7 +185,7 @@ export const hideControl = controlId => (dispatch, getState) => {
   const {
     publicWorksheet: { hidedControlIds },
   } = getState();
-  updateBaseConfig(dispatch, getState, { hidedControlIds: _.uniq(hidedControlIds.concat(controlId)) });
+  updateBaseConfig(dispatch, getState, { hidedControlIds: _.uniqBy(hidedControlIds.concat(controlId)) });
   dispatch({ type: 'WORKSHEET_HIDE_CONTROL', controlId });
 };
 

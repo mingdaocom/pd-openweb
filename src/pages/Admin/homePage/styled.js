@@ -19,12 +19,24 @@ export const HomePageWrap = styled.div`
   .Hidden {
     display: none !important;
   }
+  .hoverColor {
+    &:hover {
+      color: #1764c0 !important;
+    }
+  }
+  .userInfoWrap {
+    .content {
+      ul li {
+        padding-top: 10px !important;
+      }
+    }
+  }
   .infoWrapCopy {
     display: flex;
     .content {
       padding: 32px 24px !important;
       ul li {
-        padding-top: 25px !important;
+        padding-top: 32px !important;
       }
     }
     @media (max-width: 1919px) {
@@ -43,7 +55,7 @@ export const HomePageWrap = styled.div`
     flex-shrink: 0;
     .content {
       background-color: #fff;
-      height: 200px;
+      height: 210px;
       box-sizing: border-box;
       padding: 24px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);

@@ -17,8 +17,20 @@ export const updateBase = base => (dispatch, getState) => {
 };
 
 export const loadWorksheet = () => (dispatch, getState) => {
-  const { base } = getState().mobile;
-  dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
+  const { base, appDetail } = getState().mobile;
+  const { appNaviStyle } = appDetail.detail || {};
+  let currentNavWorksheetId = localStorage.getItem('currentNavWorksheetId');
+  let currentNavWorksheetInfo =
+    currentNavWorksheetId &&
+    localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
+    JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
+  if (appNaviStyle === 2 && currentNavWorksheetInfo) {
+    dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
+    dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
+    dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
+  } else {
+    dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
+  }
   sheetAjax
     .getWorksheetInfo({
       appId: base.appId,
@@ -27,6 +39,7 @@ export const loadWorksheet = () => (dispatch, getState) => {
       getViews: true,
     })
     .then(workSheetInfo => {
+      localStorage.setItem(`currentNavWorksheetInfo-${workSheetInfo.worksheetId}`, JSON.stringify(workSheetInfo));
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
@@ -260,7 +273,7 @@ export const changeBatchOptData = data => (dispatch, getState) => {
 };
 
 export const updateMobileViewPermission = params => (dispatch, getState) => {
-  let {viewId, appId, worksheetId} = params
+  let { viewId, appId, worksheetId } = params;
   sheetAjax.getViewPermission({ viewId, appId, worksheetId }).then(data => {
     dispatch({ type: 'UPDATE_MOBILEVIEW_PERMISSION', data: data.view });
   });

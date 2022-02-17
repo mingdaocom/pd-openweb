@@ -29,7 +29,7 @@ class Chat extends Component {
         actions.updateSessionList({
           id,
           sendMsg: value,
-        })
+        }),
       );
     });
   }
@@ -41,6 +41,7 @@ class Chat extends Component {
   }
   render() {
     const { visible, location, history } = this.props;
+
     return (
       <div className={cx('ChatList-wrapper', { open: visible })}>
         <div className="ThemeBG ChatList-blur" />
@@ -51,7 +52,7 @@ class Chat extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { visible } = state.chat;
   return {
     visible,

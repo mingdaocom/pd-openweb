@@ -32,9 +32,11 @@ export const getIcons = (type, appType, actionId) => {
       } else if (appType === APP_TYPE.CUSTOM_ACTION) {
         icon = 'icon-custom_actions';
       } else if (appType === APP_TYPE.USER) {
-        icon = 'icon-account_circle';
+        icon = 'icon-hr_structure';
       } else if (appType === APP_TYPE.DEPARTMENT) {
         icon = 'icon-workflow';
+      } else if (appType === APP_TYPE.EXTERNAL_USER) {
+        icon = 'icon-folder-public';
       } else {
         icon = 'icon-worksheet';
       }
@@ -95,6 +97,9 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.FILE:
       icon = 'icon-print';
       break;
+    case NODE_TYPE.TEMPLATE:
+      icon = 'icon-wechat';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -103,10 +108,18 @@ export const getIcons = (type, appType, actionId) => {
       }
       break;
     case NODE_TYPE.FIND_SINGLE_MESSAGE:
-      icon = 'icon-person_search';
+      if (appType === APP_TYPE.EXTERNAL_USER) {
+        icon = 'icon-external_users';
+      } else {
+        icon = 'icon-person_search';
+      }
       break;
     case NODE_TYPE.FIND_MORE_MESSAGE:
-      icon = 'icon-group-members';
+      if (appType === APP_TYPE.EXTERNAL_USER) {
+        icon = 'icon-folder-public';
+      } else {
+        icon = 'icon-group-members';
+      }
       break;
     default:
       icon = 'icon-workflow_info';
@@ -128,6 +141,7 @@ export const getColor = appType => {
       return 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
+    case APP_TYPE.EXTERNAL_USER:
       return 'BGGreen';
     default:
       return 'BGBlue';
@@ -230,6 +244,7 @@ export const getConditionList = (type, enumDefault) => {
       break;
     case 14:
     case 21:
+    case 40:
     case 42:
       list = { ids: ['31', '32'], defaultConditionId: '31' };
       break;
@@ -261,11 +276,7 @@ export const getConditionList = (type, enumDefault) => {
       }
       break;
     case 29:
-      if (enumDefault === 1) {
-        list = { ids: ['33', '34', '3', '4', '31', '32'], defaultConditionId: '33' };
-      } else {
-        list = { ids: ['33', '34', '31', '32'], defaultConditionId: '33' };
-      }
+      list = { ids: ['33', '34', '3', '4', '31', '32'], defaultConditionId: '33' };
       break;
     case 36:
       list = { ids: ['29', '30'], defaultConditionId: '29' };
@@ -309,7 +320,6 @@ export const getConditionNumber = id => {
     case '36':
     case '39':
     case '41':
-    case '42':
       count = 1;
       break;
     case '7':

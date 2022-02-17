@@ -145,9 +145,9 @@ export default class RelateRecordCards extends Component {
     }
     try {
       const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
+      const { previewUrl = '' } = coverFile;
       return (
-        coverFile.previewUrl.slice(0, coverFile.previewUrl.indexOf('?')) +
-        '?imageMogr2/auto-orient|imageView2/1/w/110/h/110/q/90'
+        previewUrl.indexOf('imageView2') > -1 ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140') : `${previewUrl}&imageView2/1/w/200/h/140`
       );
     } catch (err) {}
     return;
@@ -179,7 +179,7 @@ export default class RelateRecordCards extends Component {
   @autobind
   handleAdd(newAdded) {
     const { multiple, records, onChange } = this.props;
-    const newRecords = multiple ? _.uniq(records.concat(newAdded), r => r.rowid) : newAdded;
+    const newRecords = multiple ? _.uniqBy(records.concat(newAdded), r => r.rowid) : newAdded;
     onChange(newRecords);
   }
 

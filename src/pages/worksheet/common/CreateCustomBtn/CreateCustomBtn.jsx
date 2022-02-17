@@ -672,6 +672,7 @@ class CreateCustomBtnCon extends React.Component {
         {this.state.isShowBtnFilterDialog && (
           <ShowBtnFilterDialog
             projectId={projectId}
+            appId={appId}
             columns={columns}
             filters={this.state.filters}
             isShowBtnFilterDialog={this.state.isShowBtnFilterDialog}

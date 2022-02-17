@@ -45,7 +45,7 @@ const MobileTableContent = styled.div`
 `;
 
 export default function MobileTable(props) {
-  const { onOpen, controls, rows, isEdit, allowcancel, onDelete } = props;
+  const { onOpen, controls, rows, isEdit, allowcancel, allowadd, disabled, onDelete } = props;
   const defaultMaxLength = 10;
   const [ maxShowLength, setMaxShowLength ] = useState(defaultMaxLength);
   const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
@@ -61,7 +61,7 @@ export default function MobileTable(props) {
         showRows.map((row, i) => (
           <div className="flexRow valignWrapper" key={i}>
             <div className="mobileTableItem tableIndex">
-              {isEdit && (row.updatedControlIds || allowcancel) ? (
+              {isEdit && !(disabled || (!/^temp/.test(row.rowid) && (!allowadd || !allowcancel))) ? (
                 <i
                   className="icon icon-task-new-delete Font16 Gray_9e"
                   onClick={() => {

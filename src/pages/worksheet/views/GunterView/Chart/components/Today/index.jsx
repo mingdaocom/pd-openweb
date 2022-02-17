@@ -69,10 +69,10 @@ export default class Today extends Component {
       const today = moment().format('YYYY-MM-DD');
       const start = periodList[0];
       const end = periodList[periodList.length - 1];
-      if (moment(today).isBefore(end.time)) {
+      if (end && moment(today).isBefore(end.time)) {
         this.setState({ direction: 'left' });
       }
-      if (moment(today).isAfter(start.time)) {
+      if (start && moment(today).isAfter(start.time)) {
         this.setState({ direction: 'right' });
       }
       this.setState({ todayVisible: true });

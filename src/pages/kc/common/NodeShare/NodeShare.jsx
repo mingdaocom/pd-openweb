@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import qs from 'querystring';
+import qs from 'query-string';
 import preall from 'src/common/preall';
 import service from '../../api/service';
 import shareajax from 'src/api/share';
@@ -19,14 +19,14 @@ class NodeShare extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
-    require.ensure([], (require) => {
+    require.ensure([], require => {
       AttachmentsPreview = require('../AttachmentsPreview');
       let promise, shareId;
       try {
         shareId = location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1];
       } catch (err) {}
       if (shareId) {
-        promise = shareajax.getShareNode({ shareId }).then((data) => {
+        promise = shareajax.getShareNode({ shareId }).then(data => {
           this.actionResult = data.actionResult;
           return data.node;
         });
@@ -37,7 +37,7 @@ class NodeShare extends React.Component {
         }
       }
 
-      $.when(promise).then((node) => {
+      $.when(promise).then(node => {
         if (!node) {
           this.setState({ loading: false });
           return;
@@ -61,7 +61,10 @@ class NodeShare extends React.Component {
     } else if (!this.state.node) {
       if (this.actionResult === 2) {
         window._alert(_l('请先登录'));
-        location.href = (md.global.Config.WebUrl + 'login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login','')));
+        location.href =
+          md.global.Config.WebUrl +
+          'login?ReturnUrl=' +
+          encodeURIComponent(window.location.href.replace('checked=login', ''));
       } else {
         window._alert(_l('当前文件不存在或您没有权限查看此文件'));
       }

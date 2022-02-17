@@ -1,9 +1,19 @@
-import { formatControlValue, checkCellIsEmpty } from 'src/pages/worksheet/util';
+import _ from 'lodash';
+import dayjs from 'dayjs';
+import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
 
-export default function (expression, formData, control = {}) {
+export default function (control, formData) {
   const run = functions;
+  let expressionData = {};
+  try {
+    expressionData = JSON.parse(control.advancedSetting.defaultfunc);
+  } catch (err) {}
+  let expression = _.get(expressionData, 'expression');
+  if (!expression) {
+    throw new Error('expression is undefined');
+  }
   let existDeletedControl, controlIsUndefined, existUndefinedFunction;
   expression = expression.replace(/([A-Z]+)(?=\()/g, name => {
     if (run[name]) {
@@ -20,21 +30,16 @@ export default function (expression, formData, control = {}) {
       expression,
     };
   }
-  expression = expression.replace(/\$((\w{8}(-\w{4}){3}-\w{12})|[0-9a-z]{24})\$/g, matched => {
+  expression = expression.replace(/\$(.+?)\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
     const control = _.find(formData, obj => obj.controlId === controlId);
     if (!control) {
       existDeletedControl = true;
       return;
     }
-
-    if (typeof control.value === 'undefined' && /\.(IF|OR|AND|NOT)\(/.test(expression)) {
-      controlIsUndefined = true;
-      return;
-    }
     let value = formatControlValue(control);
     if (typeof value === 'string') {
-      value = `'${value.replace(/'/g, "\\'")}'`;
+      value = `'${value.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'`;
     } else if (typeof value === 'object') {
       value = JSON.stringify(value);
     }
@@ -64,7 +69,7 @@ export default function (expression, formData, control = {}) {
           break;
         case WIDGETS_TO_API_TYPE_ENUM.DATE:
         case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-          result = result && moment(result).isValid() ? moment(result).format() : undefined;
+          result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD HH:mm:ss') : undefined;
           break;
       }
       if (_.isNaN(result)) {

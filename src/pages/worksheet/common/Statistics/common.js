@@ -92,7 +92,7 @@ export function initConfigDetail(id, data, currentReport) {
   }
 
   if (_.isEmpty(result.split)) {
-    result.split = _.object();
+    result.split = {};
   }
 
   if (id) {
@@ -158,7 +158,6 @@ export function initConfigDetail(id, data, currentReport) {
   if (!_.isEmpty(currentReport)) {
     result.name = currentReport.name;
     result.filter = currentReport.filter;
-    result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     result.formulas = currentReport.formulas;
     const defaultXaxes = {
       controlName: _l('拥有者'),
@@ -168,17 +167,37 @@ export function initConfigDetail(id, data, currentReport) {
       particleSizeType: 1,
       rename: '',
       sortType: 0,
-    };
-    if (reportType === reportTypes.DualAxes) {
-      rightY.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+    }
+
+    result.xaxes = currentReport.xaxes;
+
+    if ([reportTypes.NumberChart, reportTypes.FunnelChart, reportTypes.PieChart, reportTypes.CountryLayer].includes(reportType)) {
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+    }
+    if (reportTypes.NumberChart === reportType) {
+      result.xaxes = {};
+    }
+    if (reportTypes.DualAxes === reportType) {
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+      rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
+    }
+    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType)) {
+      result.yaxisList = currentReport.yaxisList;
+      if (_.get(currentReport, ['split', 'controlId'])) {
+        result.split = currentReport.split;
+      }
     }
     if ([reportTypes.RadarChart, reportTypes.FunnelChart].includes(reportType)) {
-      if (currentReport.xaxes && isTimeControl(currentReport.xaxes.controlType)) {
-        result.xaxes = defaultXaxes;
-      } else {
-        result.xaxes = currentReport.xaxes;
+      if (isTimeControl(currentReport.xaxes.controlType)) {
+        result.xaxes = {};
       }
-    } else if (reportTypes.CountryLayer === reportType) {
+    }
+    if (reportTypes.PivotTable === reportType) {
+      result.yaxisList = currentReport.yaxisList;
+      result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
+      result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
+    }
+    if (reportTypes.CountryLayer === reportType) {
       const areaAxisControls = axisControls.filter(item => isAreaControl(item.type));
       if (areaAxisControls.length) {
         const xaxis = areaAxisControls[0];
@@ -186,27 +205,67 @@ export function initConfigDetail(id, data, currentReport) {
           ...defaultXaxes,
           controlName: xaxis.controlName,
           controlId: xaxis.controlId,
-        };
+        }
       } else {
         result.xaxes = {};
       }
-    } else if (reportTypes.PivotTable === reportType) {
-      result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
-    } else if (reportTypes.NumberChart === reportType) {
-      result.xaxes = {};
-    } else {
-      result.xaxes = currentReport.xaxes;
     }
+
     if (result.displaySetup) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
     }
   }
 
+  if (_.isNull(result.style)) {
+    result.style = {};
+  }
+
   return {
     currentReport: result,
     axisControls,
   };
+}
+
+export const version = '6.5';
+
+export const getNewReport = ({ currentReport, worksheetInfo, base }) => {
+  const { isPublic, sourceType, report } = base;
+  const newCurrentReport = _.cloneDeep(currentReport);
+  const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
+
+  if (pivotTable) {
+    const { columnSummary = {}, lineSummary = {} } = pivotTable;
+    if (_.isEmpty(columnSummary.name)) {
+      columnSummary.name = _.find(normTypes, { value: columnSummary.type }).text;
+    }
+    if (_.isEmpty(lineSummary.name)) {
+      lineSummary.name = _.find(normTypes, { value: lineSummary.type }).text;
+    }
+  }
+
+  if (newCurrentReport.summary && _.isEmpty(newCurrentReport.summary.name)) {
+    newCurrentReport.summary.name = _.find(normTypes, { value: newCurrentReport.summary.type }).text;
+  }
+
+  if (rightY) {
+    if (rightY.summary && _.isEmpty(rightY.summary.name)) {
+      rightY.summary.name = _.find(normTypes, { value: rightY.summary.type }).text;
+    }
+  }
+
+  // 来自自定义页面
+  if (sourceType) {
+    newCurrentReport.sourceType = sourceType;
+  }
+
+  return Object.assign(newCurrentReport, {
+    isPublic,
+    appId: worksheetInfo.worksheetId,
+    name: newCurrentReport.name || _l('未命名图表'),
+    id: report.id || '',
+    version
+  });
 }
 
 /**
@@ -253,8 +312,7 @@ export function isXAxisControl(type) {
 /**
  * 获取字段排序图表数据
  */
-export function getSortData(control) {
-  const { type, enumDefault } = control;
+export function getSortData(type) {
   const descendingValue = 1;
   const ascendingValue = 2;
   if (
@@ -263,7 +321,6 @@ export function getSortData(control) {
     type === WIDGETS_TO_API_TYPE_ENUM.AUTO_ID ||
     type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST ||
     type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER ||
-    (type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && enumDefault === 2) ||
     type === 10000000
   ) {
     return [
@@ -293,7 +350,7 @@ export function getSortData(control) {
     type === WIDGETS_TO_API_TYPE_ENUM.AUTO_ID ||
     type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||
     type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER ||
-    (type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && enumDefault === 1)
+    type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET
   ) {
     return [
       {
@@ -376,7 +433,7 @@ export const formatSorts = (sorts, ids, ySameList = []) => {
 /**
  * 判断是否自定义排序（只有文本和选项字段能自定义）
  */
-export const isCustomSort = ({ type, enumDefault }) => {
+export const isCustomSort = (type) => {
   if (
     type === WIDGETS_TO_API_TYPE_ENUM.TEXT ||
     type === WIDGETS_TO_API_TYPE_ENUM.CONCATENATE ||
@@ -386,7 +443,7 @@ export const isCustomSort = ({ type, enumDefault }) => {
     type === WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT ||
     type === WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN ||
     type === WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU ||
-    (type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && enumDefault === 1)
+    type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET
   ) {
     return true;
   } else {
@@ -397,7 +454,7 @@ export const isCustomSort = ({ type, enumDefault }) => {
 /**
  * 导出透视表
  */
-export const exportPivotTable = (reportId, pageId) => {
+export const exportExcel = (reportId, pageId) => {
   report
     .export({
       reportId,
@@ -504,50 +561,86 @@ export const dropdownScopeData = [
   {
     text: _l('本周'),
     value: 4,
+    getScope: () => {
+      return [moment().startOf('w'), moment().endOf('w')];
+    }
   },
   {
     text: _l('上周'),
     value: 5,
+    getScope: () => {
+      return [moment().startOf('w').add(-1, 'w'), moment().endOf('w').add(-1, 'w')];
+    }
   },
   {
     text: _l('下周'),
     value: 6,
+    getScope: () => {
+      return [moment().startOf('w').add(1, 'w'), moment().endOf('w').add(1, 'w')];
+    }
   },
   {
     text: _l('本月'),
     value: 8,
+    getScope: () => {
+      return [moment().startOf('M'), moment().endOf('M')];
+    }
   },
   {
     text: _l('上月'),
     value: 9,
+    getScope: () => {
+      return [moment().startOf('M').add(-1, 'M'), moment().endOf('M').add(-1, 'M')];
+    }
   },
   {
     text: _l('下月'),
     value: 10,
+    getScope: () => {
+      return [moment().startOf('M').add(1, 'M'), moment().endOf('M').add(1, 'M')];
+    }
   },
   {
     text: _l('本季度'),
     value: 11,
+    getScope: () => {
+      return [moment().startOf('Q'), moment().endOf('Q')];
+    }
   },
   {
     text: _l('上季度'),
     value: 12,
+    getScope: () => {
+      return [moment().startOf('Q').add(-1, 'Q'), moment().endOf('Q').add(-1, 'Q')];
+    }
   },
   {
     text: _l('下季度'),
     value: 13,
+    getScope: () => {
+      return [moment().startOf('Q').add(1, 'Q'), moment().endOf('Q').add(1, 'Q')];
+    }
   },
   {
     text: _l('本年'),
     value: 15,
+    getScope: () => {
+      return [moment().startOf('Y'), moment().endOf('Y')];
+    }
   },
   {
     text: _l('上一年'),
     value: 16,
+    getScope: () => {
+      return [moment().startOf('Y').add(-1, 'Y'), moment().endOf('Y').add(-1, 'Y')];
+    }
   },
   {
     text: _l('下一年'),
     value: 17,
+    getScope: () => {
+      return [moment().startOf('Y').add(1, 'Y'), moment().endOf('Y').add(1, 'Y')];
+    }
   },
   {
     text: _l('过去...天'),
@@ -568,8 +661,8 @@ export const dropdownScopeData = [
  * 是否是 过去...天 & 未来...天
  */
 export const isPastAndFuture = value => {
-  return value === 18 || value === 19;
-};
+  return [18, 19].includes(value);
+}
 
 /**
  * 是否是时间控件
@@ -636,6 +729,7 @@ export const isOptionControl = type => {
 export const getAxisText = (reportType, showChartType) => {
   const isBarChart = reportType === reportTypes.BarChart && showChartType === 2;
   if (
+    !reportType ||
     [
       reportTypes.RadarChart,
       reportTypes.FunnelChart,
@@ -759,6 +853,10 @@ export const fillValueMap = result => {
     return result;
   }
 
+  if (_.isNull(result.style)) {
+    result.style = {};
+  }
+
   if ([reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType)) {
     result.map = [];
     return result;
@@ -824,9 +922,8 @@ export const fillValueMap = result => {
  * 合并拿一些后端计算后的值
  */
 export const mergeReportData = (currentReport, result, id) => {
-  const param = {
-    displaySetup: result.displaySetup,
-  }
+  const alreadySelectControlId = getAlreadySelectControlId(currentReport);
+  const param = {}
   if (result.status) {
     if (result.reportType === reportTypes.PivotTable) {
       param.pivotTable = {
@@ -854,10 +951,28 @@ export const mergeReportData = (currentReport, result, id) => {
         }
       }
     }
-    return param;
-  } else {
-    return param;
   }
+  // if (!alreadySelectControlId.length) {
+  //   param.reportType = null;
+  // }
+  return param;
+}
+
+/**
+ * 根据配置信息获取已经选择的控件id
+ */
+export const getAlreadySelectControlId = (currentReport) => {
+  const { xaxes = {}, yaxisList = [], split = {}, pivotTable, rightY, formulas } = currentReport;
+  const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
+  const rightSplitId = rightY ? rightY.split.controlId : null;
+  const alreadySelectControlId = pivotTable
+    ? [
+        ...pivotTable.lines.map(item => item.controlId),
+        ...pivotTable.columns.map(item => item.controlId),
+        ...yaxisList.map(item => item.controlId),
+      ]
+    : [xaxes.controlId, split.controlId, ...yaxisList.map(item => item.controlId), ...rightYaxisList, rightSplitId];
+  return alreadySelectControlId.filter(_ => _);
 }
 
 /**
@@ -924,20 +1039,34 @@ export const dropdownDayData = [
 ];
 
 /**
- * 时间控件的粒度
+ * 时间粒度
  */
-export const timeParticleSizeDropdownData = [
+export const timeDataParticle = [
   { text: _l('年'), value: 5, getTime: () => moment().year() },
   { text: _l('季'), value: 4, getTime: () => moment().format('YYYY[Q]Q') },
   { text: _l('月'), value: 3, getTime: () => moment().format('YYYY/MM') },
   { text: _l('周'), value: 2, getTime: () => moment().format('YYYY[W]WW') },
   { text: _l('日'), value: 1, getTime: () => moment().format('YYYY/MM/DD') },
   { text: _l('时'), value: 6, getTime: () => moment().format('YYYY/MM/DD HH') + _l('时')  },
-  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') },
+  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') }
+];
+
+/**
+ * 集合粒度
+ */
+export const timeGatherParticle = [
   { text: _l('季'), value: 8, getTime: () => moment().format('[Q]Q') },
   { text: _l('月'), value: 9, getTime: () => moment().format('MM') },
   { text: _l('日'), value: 10, getTime: () => moment().format('DD') },
   { text: _l('时'), value: 11, getTime: () => moment().format('HH') }
+];
+
+/**
+ * 时间控件的粒度
+ */
+export const timeParticleSizeDropdownData = [
+  ...timeDataParticle,
+  ...timeGatherParticle
 ];
 
 

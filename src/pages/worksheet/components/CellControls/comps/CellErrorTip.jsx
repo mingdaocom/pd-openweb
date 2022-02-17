@@ -1,5 +1,5 @@
-import React from 'react';
-import { oneOf, string } from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { func, oneOf, string } from 'prop-types';
 import styled from 'styled-components';
 
 const Con = styled.div`
@@ -14,6 +14,14 @@ const Con = styled.div`
   font-size: 12px;
   color: #fff;
   background-color: #f44336;
+  .delIcon {
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.24);
+    margin-left: 8px;
+    &:hover {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
 `;
 
 const Angle = styled.div`
@@ -27,10 +35,19 @@ const Angle = styled.div`
 
 export default function CellErrorTip(props) {
   const { pos = 'top', error } = props;
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    setShow(!!error);
+  }, [error]);
+
+  if (!show) return null;
+
   return (
     <Con pos={pos}>
       <Angle pos={pos} />
       {error}
+      <i className="icon-close mLeft8 delIcon" onClick={() => setShow(false)} />
     </Con>
   );
 }
@@ -38,4 +55,5 @@ export default function CellErrorTip(props) {
 CellErrorTip.propTypes = {
   pos: oneOf('top', 'bottom'),
   error: string,
+  updateErrorState: func,
 };

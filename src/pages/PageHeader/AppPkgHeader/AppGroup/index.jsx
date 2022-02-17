@@ -15,6 +15,7 @@ import { getIds, compareProps } from '../../util';
 import { DEFAULT_CREATE, ADVANCE_AUTHORITY } from '../config';
 import { updateAppGroup } from '../../redux/action';
 import './index.less';
+import { getAppFeaturesVisible } from 'src/util';
 
 const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch => ({
@@ -331,9 +332,12 @@ export default class extends Component {
     const throttledEnsurePointerStatus = this.throttleFunc(this.ensurePointerStatus);
     const isOnlyDefaultGroup = data.length === 1 && !data[0].name;
     const renderedData = data.filter(({ name }) => !!name);
+
+    // 获取url参数
+    const { tb, tr } = getAppFeaturesVisible();
     return (
       <Fragment>
-        {isOnlyDefaultGroup ? (
+        {isOnlyDefaultGroup && tb ? (
           <div className="emptyAppItemWrap">
             {permissionType >= ADVANCE_AUTHORITY && (
               <Fragment>
@@ -354,7 +358,7 @@ export default class extends Component {
               </Fragment>
             )}
           </div>
-        ) : (
+        ) : tb ? (
           <div className="appItemsOuterWrap">
             {_.includes([1, 5], appStatus) && (
               <div className="appItemsInnerWrap" onScroll={throttledEnsurePointerStatus}>
@@ -380,23 +384,29 @@ export default class extends Component {
               </div>
             )}
           </div>
+        ) : (
+          <div className="appItemsOuterWrap"></div>
         )}
-        <div
-          className={cx('appItemPointerWrap pointer', { visible: isAppItemOverflow })}
-          onClick={this.handlePointerClick}
-        >
-          <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
-          <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
-        </div>
-        {_.includes([1, 5], appStatus) && (
-          <AppExtension appId={appId} permissionType={permissionType} isLock={isLock} />
-        )}
-        {delAppItemVisible && (
-          <DelAppGroup
-            data={this.formatDataToDropdownItems(data)}
-            onOk={id => this.handleDelAppSection(id)}
-            onCancel={() => this.switchVisible({ delAppItemVisible: false })}
-          />
+        {tr && (
+          <Fragment>
+            <div
+              className={cx('appItemPointerWrap pointer', { visible: isAppItemOverflow })}
+              onClick={this.handlePointerClick}
+            >
+              <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
+              <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
+            </div>
+            {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
+              <AppExtension appId={appId} permissionType={permissionType} isLock={isLock} />
+            )}
+            {delAppItemVisible && (
+              <DelAppGroup
+                data={this.formatDataToDropdownItems(data)}
+                onOk={id => this.handleDelAppSection(id)}
+                onCancel={() => this.switchVisible({ delAppItemVisible: false })}
+              />
+            )}
+          </Fragment>
         )}
       </Fragment>
     );

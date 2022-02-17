@@ -147,7 +147,7 @@ class PermissionList extends React.Component {
         <div className="clearfix mBottom15 mTop25">
           <span className="Font15">{_l('分配权限')}</span>
           <div className="Right Gray_9">
-            <span data-tip={_('开启后该角色成员能在企业账户角色权限配置菜单添加他人拥有相同权限')} className="tip-top TxtMiddle Gray_9e mRight5">
+            <span data-tip={_l('开启后该角色成员能在企业账户角色权限配置菜单添加他人拥有相同权限')} className="tip-top TxtMiddle Gray_9e mRight5">
               <span className="icon-task-setting_promet Font16" />
             </span>
             <span className="TxtMiddle">{_l('允许角色成员授予他人拥有相同权限')}</span>

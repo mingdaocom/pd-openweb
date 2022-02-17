@@ -152,7 +152,7 @@ export default class CalendarDetail extends Component {
   componentWillUnmount() {
     if (Config.isDetailPage) {
       $(window).off('resize.' + this.EVENT_KEY);
-      this.throttled.cancel();
+      this.throttled && this.throttled.cancel();
     }
   }
 
@@ -192,7 +192,7 @@ export default class CalendarDetail extends Component {
           const startDay = moment(state.start).get('day');
           const arr = state.weekDay ? state.weekDay.split(',') : [];
           arr.push('' + startDay);
-          diff.weekDay = _.uniq(arr)
+          diff.weekDay = _.uniqBy(arr)
             .sort((a, b) => a - b)
             .join(',');
         }

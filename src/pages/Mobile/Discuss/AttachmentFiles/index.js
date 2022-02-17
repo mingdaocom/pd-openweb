@@ -4,6 +4,7 @@ import { Flex, Toast } from 'antd-mobile';
 import { Icon, Progress } from 'ming-ui';
 import './index.less';
 import { getRandomString, getClassNameByExt, getToken } from 'src/util';
+import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 
 const formatResponseData = (file, response) => {
   const item = {};
@@ -47,6 +48,7 @@ export class UploadFileWrapper extends Component {
   }
   uploadFile() {
     const self = this;
+    const { advancedSetting } = self.props;
     const method = {
       FilesAdded(uploader, files) {
         if (parseFloat(files.reduce((total, file) => total + (file.size || 0), 0) / 1024 / 1024) > md.global.SysSettings.fileUploadLimitSize) {
@@ -57,6 +59,15 @@ export class UploadFileWrapper extends Component {
         }
 
         self.uploading = true;
+        let isAvailable;
+        if (advancedSetting) {
+          let tempCount = self.props.originCount || 0;
+          isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
+        }
+        if (!isAvailable) {
+          self.onRemoveAll(uploader);
+          return;
+        }
         const tokenFiles = [];
         files
           .filter(item => item.name || item.type)
@@ -148,15 +159,16 @@ export class UploadFileWrapper extends Component {
       },
       Init() {
         const ele = self.uploadContainer && self.uploadContainer.querySelector('input');
-        const { inputType, disabledGallery } = self.props;
-        const accept = { 1: 'image/*', 2: 'video/*', 3: 'image/*,video/*' };
+        const { inputType, disabledGallery, advancedSetting = {} } = self.props;
+        const { filetype } = advancedSetting;
+        let type = filetype && JSON.parse(filetype).type;
+        const accept = { 1: 'image/*', 2: 'video/*' };
+        const fileTypeObj = { 1: 'image/*', 2: 'image/*,video/*', 3: 'video/*', 4: 'video/*' };
         if (ele && inputType) {
           ele.setAttribute('accept', accept[inputType]);
-          if (disabledGallery) {
-            ele.setAttribute('capture', 'camera');
-          }
-        } else {
-          ele && ele.setAttribute('accept', 'image/*');
+          ele.setAttribute('capture', 'camera');
+        } else if (type) {
+          ele.setAttribute('accept', fileTypeObj[type]);
         }
       },
     };
@@ -166,6 +178,13 @@ export class UploadFileWrapper extends Component {
       multi_selection: true,
       method,
       autoUpload: false,
+    });
+  }
+  onRemoveAll(uploader) {
+    uploader.files.forEach(item => {
+      setTimeout(() => {
+        uploader.removeFile({ id: item.id });
+      }, 0);
     });
   }
   render() {

@@ -27,7 +27,7 @@ const PreviewWrap = styled.div`
 const hrefReg = /^https?:\/\/.+$/;
 
 const videoReg = /^https?:\/\/.*?(?:swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)$/i;
-const imgReg = /^https?:\/\/.*?(?:gif|png|jpg|jpeg|webp|svg|psd|bmp|tif)$/i;
+const imgReg = /^https?:\/\/.*?(?:gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)$/i;
 
 const iframeReg = /<iframe.*>\s*<\/iframe>/;
 

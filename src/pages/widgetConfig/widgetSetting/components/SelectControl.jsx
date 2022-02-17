@@ -5,17 +5,11 @@ import { isEmpty } from 'lodash';
 import { SelectFieldsWrap } from '../../styled';
 import { getIconByType } from '../../util';
 
-export default function SelectControl({
-  className,
-  list,
-  searchable = true,
-  searchValue,
-  onSearchChange,
-  onClick,
-  onClickAway = _.noop,
-}) {
+export default function SelectControl({ className, list, searchable = true, onClick, onClickAway = _.noop }) {
   const ref = useRef(null);
   const inputEl = useRef(null);
+  const [keyword, setKeyWord] = useState('');
+  const controls = keyword ? list.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) : list;
   useClickAway(ref, onClickAway);
   useEffect(() => {
     inputEl && inputEl.current && inputEl.current.focus();
@@ -28,8 +22,8 @@ export default function SelectControl({
           <input
             autoFocus
             ref={inputEl}
-            value={searchValue}
-            onChange={e => onSearchChange && onSearchChange(e.target.value)}
+            value={keyword}
+            onChange={e => setKeyWord(e.target.value)}
             placeholder={_l('搜索字段')}
           ></input>
         </div>
@@ -38,18 +32,22 @@ export default function SelectControl({
         <div className="emptyText">{_l('没有可选控件')}</div>
       ) : (
         <div className="fieldsWrap">
-          <ul className="fieldList">
-            {list.map(item => (
-              <li
-                onClick={() => {
-                  onClick(item);
-                }}
-              >
-                <i className={`icon-${getIconByType(item.type)}`}></i>
-                {item.controlName}
-              </li>
-            ))}
-          </ul>
+          {controls.length ? (
+            <ul className="fieldList">
+              {controls.map(item => (
+                <li
+                  onClick={() => {
+                    onClick(item);
+                  }}
+                >
+                  <i className={`icon-${getIconByType(item.type)}`}></i>
+                  {item.controlName}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="Gray_9e Font13 pTop20 pLeft20">{_l('没有更多字段')}</span>
+          )}
         </div>
       )}
     </SelectFieldsWrap>

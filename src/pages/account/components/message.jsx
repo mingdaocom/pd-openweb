@@ -12,6 +12,11 @@ import RegExp from 'src/util/expression';
 
 let sendVerifyCodeTimer = null;
 let hasClick = false;
+// keys =>
+// 'emailOrTel','tel', //手机号 或 邮箱
+// 'fullName' //验证用户名
+// 'code'  //验证码
+// 'password' //密码
 class Message extends React.Component {
   constructor(props) {
     super(props);
@@ -33,24 +38,25 @@ class Message extends React.Component {
     };
   }
   componentDidMount() {
-    const { openLDAP, isNetwork } = this.props;
-    if (!(openLDAP && isNetwork)) {
+    const { keys = [] } = this.props;
+    if (keys.includes('emailOrTel') || keys.includes('tel')) {
       this.itiFn();
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { type } = nextProps;
-    if (!hasClick && type === 'login' && location.href.indexOf('linkInvite') < 0 && nextProps.dataList.emailOrTel) {
+    const { keys = [] } = nextProps;
+    if (!hasClick && (keys.includes('emailOrTel') || keys.includes('tel')) && nextProps.dataList.emailOrTel) {
       $(this.mobile).focus();
-      setTimeout(() => {
-        $(this.password).focus();
-      }, 200);
+      keys.includes('password') &&
+        setTimeout(() => {
+          $(this.password).focus();
+        }, 200);
       hasClick = true;
     } else {
       hasClick = true;
     }
-    if (nextProps.openLDAP && nextProps.isNetwork) {
+    if (keys.includes('fullName')) {
       this.itiHideFn();
     } else {
       if (!this.iti) {
@@ -74,16 +80,15 @@ class Message extends React.Component {
     }
     const { emailOrTel = '' } = dataList;
     let { isMobile } = this.state;
-    let str =
-      this.iti && isMobile ? emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '') : emailOrTel;
+    let str = this.iti && isMobile ? this.getEmailOrTel(emailOrTel) : emailOrTel;
     if (this.mobile && str !== this.mobile.value) {
       this.mobile.value = str || '';
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { openLDAP, isNetwork } = this.props;
-    if (!(openLDAP && isNetwork) && prevProps.openLDAP !== this.props.openLDAP) {
+    const { keys = [], openLDAP } = prevProps;
+    if ((keys.includes('emailOrTel') || keys.includes('tel')) && openLDAP !== this.props.openLDAP) {
       this.itiFn();
     }
   }
@@ -133,11 +138,22 @@ class Message extends React.Component {
     }
   };
 
+  getDialCode = () => {
+    return this.iti ? (this.state.isMobile ? `+${this.iti.getSelectedCountryData().dialCode}` : '') : '';
+  };
+
+  getEmailOrTel = (str = '', withDialCode) => {
+    let emailOrTel = str.indexOf(' ') >= 0 ? str.replace(/\s*/g, '') : str; //去除空格
+    if (!this.iti) {
+      return emailOrTel;
+    }
+    return withDialCode ? emailOrTel : emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '');
+  };
+
   getEmailOrTelLen = props => {
     const { dataList = {} } = props;
     const { emailOrTel = '' } = dataList;
-    let str = this.iti ? emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '') : emailOrTel;
-    return str.length >= 4;
+    return this.getEmailOrTel(emailOrTel).length >= 4;
   };
 
   setValue = props => {
@@ -155,14 +171,14 @@ class Message extends React.Component {
       ) {
         setDataFn({
           ...dataList,
-          emailOrTel: emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, ''),
+          emailOrTel: this.getEmailOrTel(emailOrTel),
           dialCode: `+${this.iti.getSelectedCountryData().dialCode}`,
         });
         this.itiShowFn();
       } else {
         setDataFn({
           ...dataList,
-          emailOrTel: emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, ''),
+          emailOrTel: this.getEmailOrTel(emailOrTel),
           dialCode: '',
         });
         this.itiHideFn();
@@ -194,12 +210,12 @@ class Message extends React.Component {
   };
 
   eventItiFn = props => {
-    const { type = 'register', dataList = {} } = props;
+    const { type = 'register', dataList = {}, keys = [] } = props;
     const { emailOrTel = '' } = dataList;
     if (emailOrTel.indexOf('+') >= 0 && this.iti) {
       this.iti.setNumber(emailOrTel || '');
     }
-    if (type === 'register') {
+    if (keys.includes('tel')) {
       // 注册时只要手机号
       if (!!emailOrTel && !isNaN(emailOrTel.replace(/\s*/g, '')) && this.getEmailOrTelLen(props)) {
         this.itiShowFn();
@@ -225,22 +241,23 @@ class Message extends React.Component {
   };
 
   // 验证input内容 手机 验证码 密码
-  isValid = isForCode => {
-    const { type = 'register', dataList = {}, setDataFn, openLDAP, isNetwork } = this.props;
+  isValid = isForSendCode => {
+    const { type = 'register', dataList = {}, setDataFn, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', onlyRead } = dataList;
     let isRight = true;
     let warnningData = [];
-    if (!(openLDAP && isNetwork)) {
-      if (emailOrTel) {
-        if (type === 'register') {
+    if (keys.includes('emailOrTel') || keys.includes('tel')) {
+      if (!!emailOrTel.replace(/\s*/g, '')) {
+        //手机号或者邮箱 不为空
+        if (keys.includes('tel')) {
           // 注册只有手机号
-          if (!this.iti.isValidNumber() || isNaN(emailOrTel)) {
+          if (!this.iti.isValidNumber()) {
             warnningData.push({ tipDom: this.mobile, warnningText: _l('手机号格式错误') });
             isRight = false;
           }
         } else {
           if (this.state.isMobile) {
-            if (!this.iti.isValidNumber() || isNaN(emailOrTel)) {
+            if (!this.iti.isValidNumber()) {
               warnningData.push({ tipDom: this.mobile, warnningText: _l('手机号格式错误') });
               isRight = false;
             }
@@ -255,7 +272,8 @@ class Message extends React.Component {
           }
         }
       } else {
-        if (type === 'register') {
+        //手机号或者邮箱 为空
+        if (keys.includes('tel')) {
           warnningData.push({ tipDom: this.mobile, warnningText: _l('手机号不能为空') });
           isRight = false;
         } else {
@@ -263,28 +281,41 @@ class Message extends React.Component {
           isRight = false;
         }
       }
-    } else {
+    }
+    if (keys.includes('fullName')) {
+      // openLDAP  isNetwork  验证用户名
       if (!fullName) {
         warnningData.push({ tipDom: this.fullName, warnningText: _l('用户名不能为空') });
         isRight = false;
       }
     }
-    if (!isForCode) {
-      if (type !== 'login' && location.href.indexOf('join') < 0 && !verifyCode) {
-        warnningData.push({ tipDom: '.txtLoginCode', warnningText: _l('请输入验证码'), isError: true });
+    if (!isForSendCode) {
+      //获取验证码时，不需要校验验证码 以及 密码
+      if (
+        keys.includes('code') &&
+        (!verifyCode || verifyCode.length < 4 || verifyCode.length > 8) //登录地方验证码必须4-8位才合法
+      ) {
+        warnningData.push({
+          tipDom: '.txtLoginCode',
+          warnningText: !verifyCode ? _l('请输入验证码') : _l('验证码不合法'),
+          isError: true,
+        });
         isRight = false;
       }
-      if (!password) {
-        warnningData.push({ tipDom: this.password, warnningText: _l('密码不能为空') });
-        isRight = false;
-      } else {
-        if (type !== 'login') {
-          if (!this.isPasswordRule(password)) {
-            warnningData.push({
-              tipDom: this.password,
-              warnningText: this.state.passwordRegexTip || _l('8-20位，需包含字母和数字'),
-            });
-            isRight = false;
+      if (keys.includes('password')) {
+        if (!password) {
+          warnningData.push({ tipDom: this.password, warnningText: _l('密码不能为空') });
+          isRight = false;
+        } else {
+          if (type !== 'login') {
+            //登录时，不需要验证密码的合法性
+            if (!this.isPasswordRule(password)) {
+              warnningData.push({
+                tipDom: this.password,
+                warnningText: this.state.passwordRegexTip || _l('8-20位，需包含字母和数字'),
+              });
+              isRight = false;
+            }
           }
         }
       }
@@ -300,7 +331,7 @@ class Message extends React.Component {
   handleSendVerifyCode = codeType => {
     const { setDataFn } = this.props;
     if (this.isValid(true)) {
-      const { dataList = {}, type } = this.props;
+      const { dataList = {}, type, sendVerifyCode, appId } = this.props;
       const { emailOrTel = '', dialCode } = dataList;
       const { firstSendVerifyCode } = this.state;
       let callback = res => {
@@ -364,6 +395,9 @@ class Message extends React.Component {
               ...dataList,
               warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码发送失败'), isError: true }],
             });
+            if (data.actionResult == ActionResult.balanceIsInsufficient) {
+              alert(_l('当前企业账号余额不足，无法发送短信'), 2);
+            }
             // 非第一次
             if (codeType == Config.CodeTypeEnum.message) {
               this.setState({
@@ -385,7 +419,11 @@ class Message extends React.Component {
             }
           }
         };
-        if (type !== 'findPassword') {
+        if (type === 'portalLogin') {
+          sendVerifyCode({ ...param, appId }).then(data => {
+            thenFn({ ...data, ...param });
+          });
+        } else if (type !== 'findPassword') {
           param.isFirstTime = firstSendVerifyCode;
           RegisterController.sendRegisterVerifyCode(param).then(data => {
             thenFn(data);
@@ -409,6 +447,7 @@ class Message extends React.Component {
     const { setDataFn } = this.props;
     let seconds = 30;
     let hasWarn = false;
+    $(this.code).focus();
     sendVerifyCodeTimer = setInterval(() => {
       if (seconds <= 0) {
         this.setState({
@@ -455,11 +494,10 @@ class Message extends React.Component {
   };
 
   render() {
-    const { type = 'register', dataList = {}, setDataFn, openLDAP, isNetwork, nextHtml } = this.props;
+    const { type = 'register', dataList = {}, setDataFn, nextHtml, maxLength, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', warnningData = [], onlyRead } = dataList;
     let { isMobile, verifyCodeText, verifyCodeLoading, focusDiv } = this.state;
-    let str =
-      this.iti && isMobile ? emailOrTel.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '') : emailOrTel;
+    let str = this.iti && isMobile ? this.getEmailOrTel(emailOrTel) : emailOrTel;
 
     let warnningDiv = _.find(warnningData, it => it.tipDom === '.warnningDiv');
     let autoCompleteData = {
@@ -485,7 +523,7 @@ class Message extends React.Component {
               ></div>
             )
           ) : null}
-          {!(openLDAP && isNetwork) ? (
+          {(keys.includes('emailOrTel') || keys.includes('tel')) && (
             <div
               className={cx('mesDiv', {
                 ...setCNFn(warnningData, [this.mobile, '#txtMobilePhone'], focusDiv, emailOrTel),
@@ -505,14 +543,8 @@ class Message extends React.Component {
                   setDataFn(
                     {
                       ...dataList,
-                      emailOrTel: this.iti
-                        ? e.target.value.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '')
-                        : e.target.value,
-                      dialCode: this.iti
-                        ? this.state.isMobile
-                          ? `+${this.iti.getSelectedCountryData().dialCode}`
-                          : ''
-                        : '',
+                      emailOrTel: this.getEmailOrTel(e.target.value),
+                      dialCode: this.getDialCode(),
                     },
                     () => {
                       this.eventItiFn(this.props);
@@ -526,14 +558,8 @@ class Message extends React.Component {
                     {
                       ...dataList,
                       warnningData: data,
-                      emailOrTel: this.iti
-                        ? e.target.value.replace(`+${this.iti.getSelectedCountryData().dialCode}`, '').trim()
-                        : e.target.value.trim(),
-                      dialCode: this.iti
-                        ? this.state.isMobile
-                          ? `+${this.iti.getSelectedCountryData().dialCode}`
-                          : ''
-                        : '',
+                      emailOrTel: this.getEmailOrTel(e.target.value),
+                      dialCode: this.getDialCode(),
                     },
                     () => {
                       this.eventItiFn(this.props);
@@ -549,11 +575,12 @@ class Message extends React.Component {
                   $(this.mobile).focus();
                 }}
               >
-                {type === 'register' ? _l('手机号') : _l('手机号或邮箱')}
+                {['register', 'portalLogin'].includes(type) ? _l('手机号') : _l('手机号或邮箱')}
               </div>
               {warnningTipFn(warnningData, [this.mobile, '#txtMobilePhone'], focusDiv)}
             </div>
-          ) : (
+          )}
+          {keys.includes('fullName') && (
             <div
               className={cx('mesDiv', {
                 ...setCNFn(warnningData, [this.fullName, '#fullName'], focusDiv, fullName),
@@ -588,7 +615,7 @@ class Message extends React.Component {
               {warnningTipFn(warnningData, [this.fullName, '#fullName'], focusDiv)}
             </div>
           )}
-          {type !== 'login' && location.href.indexOf('join') < 0 && (
+          {keys.includes('code') && (
             <div
               className={cx('mesDiv', {
                 ...setCNFn(warnningData, ['.txtLoginCode'], focusDiv, verifyCode),
@@ -596,7 +623,7 @@ class Message extends React.Component {
             >
               <input
                 type="text"
-                maxLength="6"
+                maxLength={maxLength || '4'}
                 className="loginInput Left txtLoginCode"
                 value={verifyCode}
                 ref={code => (this.code = code)}
@@ -636,39 +663,41 @@ class Message extends React.Component {
               {warnningTipFn(warnningData, ['.txtLoginCode'], focusDiv)}
             </div>
           )}
-          <div
-            className={cx('mesDiv', {
-              ...setCNFn(warnningData, ['.passwordIcon', this.password], focusDiv, password),
-            })}
-          >
-            <input
-              type="password"
-              className="passwordIcon"
-              placeholder={password}
-              ref={password => (this.password = password)}
-              onBlur={this.inputOnBlur}
-              onFocus={this.inputOnFocus}
-              onChange={e => {
-                let data = _.filter(dataList.warnningData, it => it.tipDom !== this.password);
-                setDataFn({
-                  ...dataList,
-                  warnningData: data,
-                  password: e.target.value,
-                });
-              }}
-              value={password}
-              {...autoCompleteData}
-            />
+          {keys.includes('password') && (
             <div
-              className="title"
-              onClick={e => {
-                $(this.password).focus();
-              }}
+              className={cx('mesDiv', {
+                ...setCNFn(warnningData, ['.passwordIcon', this.password], focusDiv, password),
+              })}
             >
-              {type !== 'login' ? this.state.passwordRegexTip || _l('8-20位，需包含字母和数字') : _l('密码')}
+              <input
+                type="password"
+                className="passwordIcon"
+                placeholder={password}
+                ref={password => (this.password = password)}
+                onBlur={this.inputOnBlur}
+                onFocus={this.inputOnFocus}
+                onChange={e => {
+                  let data = _.filter(dataList.warnningData, it => it.tipDom !== this.password);
+                  setDataFn({
+                    ...dataList,
+                    warnningData: data,
+                    password: e.target.value,
+                  });
+                }}
+                value={password}
+                {...autoCompleteData}
+              />
+              <div
+                className="title"
+                onClick={e => {
+                  $(this.password).focus();
+                }}
+              >
+                {type !== 'login' ? this.state.passwordRegexTip || _l('8-20位，需包含字母和数字') : _l('密码')}
+              </div>
+              {warnningTipFn(warnningData, ['.passwordIcon', this.password], focusDiv)}
             </div>
-            {warnningTipFn(warnningData, ['.passwordIcon', this.password], focusDiv)}
-          </div>
+          )}
         </div>
         {nextHtml(this.isValid)}
       </React.Fragment>

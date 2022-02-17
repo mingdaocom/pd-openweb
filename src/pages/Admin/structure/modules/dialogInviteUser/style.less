@@ -4,6 +4,9 @@
       width: 100%;
       position: relative;
       display: table;
+      .iti--separate-dial-code {
+        width: 100%;
+      }
 
       .icon-task_add-02:hover {
         color: #2196f3 !important;
@@ -32,6 +35,18 @@
           border-color: #bfbfbf !important;
         }
       }
+      input.formControl::-webkit-input-placeholder {
+        color: #bdbdbd;
+      }
+      input.formControl::-moz-placeholder {
+        color: #bdbdbd;
+      }
+      input.formControl:-moz-placeholder {
+        color: #bdbdbd;
+      }
+      input.formControl:-ms-input-placeholder {
+        color: #bdbdbd;
+      }
 
       span.formControl {
         width: auto !important;
@@ -48,11 +63,11 @@
         padding: 0 16px;
         line-height: 32px;
         border-radius: 18px;
-        background: #FFFFFF 0% 0% no-repeat padding-box;
-        border: 1px solid #DDDDDD;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #dddddd;
 
         .isTopIcon {
-          background: #bdbdbd;
+          background: #2196f3;
           color: #fff;
           font-size: 13px;
           line-height: 13px;
@@ -70,8 +85,8 @@
             position: absolute;
             top: 100%;
             right: 0;
-            background: #FFFFFF 0% 0% no-repeat padding-box;
-            box-shadow: 0px 8px 16px #0000003D;
+            background: #ffffff 0% 0% no-repeat padding-box;
+            box-shadow: 0px 8px 16px #0000003d;
             border-radius: 3px;
             width: 180px;
             display: block;
@@ -85,7 +100,7 @@
               box-sizing: border-box;
 
               &:hover {
-                background: #DDDDDD;
+                background: #dddddd;
                 cursor: pointer;
               }
             }
@@ -126,8 +141,8 @@
         position: absolute;
         top: 26px;
         right: 0;
-        background: #FFFFFF 0% 0% no-repeat padding-box;
-        box-shadow: 0px 8px 16px #0000003D;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        box-shadow: 0px 8px 16px #0000003d;
         border-radius: 3px;
         width: 180px;
         display: block;
@@ -141,7 +156,7 @@
           box-sizing: border-box;
 
           &:hover {
-            background: #DDDDDD;
+            background: #dddddd;
             cursor: pointer;
           }
         }
@@ -158,7 +173,7 @@
     .workSiteBox {
       padding: 1px 0;
       border-radius: 3px;
-      color: #757575;
+      color: #333;
       .customSelect {
         width: 100%;
         .csList {

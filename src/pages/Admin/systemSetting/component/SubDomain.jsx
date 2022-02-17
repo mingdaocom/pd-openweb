@@ -28,12 +28,10 @@ export default class SubDomain extends Component {
     this.setState({ isLoading: true });
     $.when(this.getSubDomainInfo(), this.getSysColor()).then((res, { homeImage }) => {
       const attUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/`;
-      this.images = _(new Array(5))
-        .fill(1)
-        .map(function(item, index) {
-          return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
-        })
-        .value();
+      this.images = new Array(5).fill(1).map(function (item, index) {
+        return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
+      });
+      console.log(this.images);
       const splitHome = homeImage.split('/') || [];
       this.setState(
         {
@@ -57,7 +55,7 @@ export default class SubDomain extends Component {
     if (_this.state.isUploading) {
       return;
     }
-    require(['uploadAttachment'], function() {
+    require(['uploadAttachment'], function () {
       $(_this.upload).uploadAttachment({
         filterExtensions: 'gif,png,jpg,jpeg,bmp',
         pluploadID: '#upload_file',
@@ -70,10 +68,10 @@ export default class SubDomain extends Component {
         styleType: '0',
         tokenType: 4, //网络logo
         checkProjectLimitFileSizeUrl: '',
-        filesAdded: function() {
+        filesAdded: function () {
           _this.setState({ isUploading: true });
         },
-        callback: function(attachments) {
+        callback: function (attachments) {
           if (attachments.length > 0) {
             var attachment = attachments[0];
             var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;

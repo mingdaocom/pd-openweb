@@ -3,6 +3,8 @@ import { MAX_REPORT_COUNT, COLUMN_HEIGHT } from './config';
 import maxBy from 'lodash/maxBy';
 import { widgets } from './enum';
 import { get } from 'lodash';
+import domtoimage from 'dom-to-image';
+import { reportTypes } from 'worksheet/common/Statistics/Charts/common';
 
 export const FlexCenter = styled.div`
   display: flex;
@@ -114,3 +116,70 @@ export const genUrl = (url, para, info) => {
   if (!paraStr) return url;
   return url.includes('?') ? `${url}&${paraStr}` : `${url}?${paraStr}`;
 };
+
+
+const blobToImg = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const img = new Image();
+      img.src = reader.result;
+      img.addEventListener('load', () => resolve(img));
+    })
+    reader.readAsDataURL(blob);
+  });
+}
+
+const imgToCanvas = img => {
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  return canvas;
+}
+
+const watermark = (canvas, layouts) => {
+  return new Promise((resolve, reject) => {
+    const text = _l('不支持打印');
+    const ctx = canvas.getContext('2d');
+    ctx.font = '40px';
+    ctx.fillStyle = '#757575';
+    ctx.textAlign = 'center';
+    layouts.forEach(({ left, top }) => {
+      ctx.fillText(text, left, top);
+    });
+    canvas.toBlob(blob => resolve(blob));
+  })
+}
+
+export const exportImage = () => {
+  return new Promise((resolve, reject) => {
+    const wrap = document.querySelector('.componentsWrap .react-grid-layout');
+    const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
+    const embedUrls = wrap.querySelectorAll('.widgetContent.embedUrl');
+    const countryLayers = [...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`)].map(item => item.parentNode.parentNode);
+    const { offsetWidth, offsetHeight } = wrap;
+    document.querySelectorAll('.mapboxgl-ctrl').forEach((item) => {
+      item.remove();
+    });
+    domtoimage.toBlob(wrap, {
+      bgcolor: '#f5f5f5',
+      width: offsetWidth,
+      height: offsetHeight,
+    }).then(async (blob) => {
+      const newImage = await blobToImg(blob);
+      const canvas = imgToCanvas(newImage);
+      const layouts = [...embedUrls, ...countryLayers].map(el => {
+        const { left, width, top, height } = el.getBoundingClientRect(); 
+        return {
+          left: left - wrapLeft + (width / 2),
+          top: top - wrapTop + (height / 2),
+        }
+      });
+      const newBlob = await watermark(canvas, layouts);
+      resolve(newBlob);
+    });
+  });
+}
+

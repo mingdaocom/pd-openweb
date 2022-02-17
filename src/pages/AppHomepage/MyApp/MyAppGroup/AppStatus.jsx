@@ -3,6 +3,7 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
+import { browserIsMobile } from 'src/util';
 
 const AppStatus = styled.div`
   position: absolute;
@@ -20,15 +21,26 @@ const AppStatus = styled.div`
   &.isOverdue {
     background: #bdbdbd;
   }
+  &.fixed {
+    background: #fd7558;
+  }
+  &.mobilePadding {
+    padding: 0 8px;
+  }
 `;
 export default class AppStatusComp extends Component {
   static propTypes = {};
   static defaultProps = {};
   state = {};
   render() {
-    const { isGoodsStatus, isNew } = this.props;
-    const text = getAppStatusText({ isGoodsStatus, isNew });
+    const { isGoodsStatus, isNew, fixed } = this.props;
+    const isMobile = browserIsMobile();
+    const text = getAppStatusText({ isGoodsStatus, isNew, fixed });
     if (!text) return null;
-    return <AppStatus className={cx({ isOverdue: !isGoodsStatus })}>{text} </AppStatus>;
+    return (
+      <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile })}>
+        {text}{' '}
+      </AppStatus>
+    );
   }
 }

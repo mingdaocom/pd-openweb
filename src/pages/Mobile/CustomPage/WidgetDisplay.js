@@ -27,7 +27,7 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { type, value, name, button, ids, param } = props;
+  const { type, value, name, button, ids, param = [] } = props;
   const componentType = getEnumType(type);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const ref = useRef(null);

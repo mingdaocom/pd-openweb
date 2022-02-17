@@ -13,6 +13,9 @@
   .colorBD {
     color: #bdbdbd;
   }
+  .vlMiddle {
+    vertical-align: middle;
+  }
 
   ol,
   ul,
@@ -55,7 +58,9 @@
 
       .toolRight {
         float: right;
-
+        height: 100%;
+        display: flex;
+        align-items: center;
         .addMenberBtn {
           width: 102px;
           height: 32px;
@@ -67,14 +72,31 @@
           display: inline-block;
           cursor: pointer;
           padding-right: 2px;
-          vertical-align: middle;
+          font-weight: 500;
+          // vertical-align: middle;
 
           &:hover {
-            background: #1185e2;
+            background: #2196f3;
           }
           i {
             vertical-align: middle;
           }
+        }
+        .addMenberBtn:hover {
+          background-color: #1764c0;
+        }
+        .exportAdressBook {
+          width: 32px;
+          height: 32px;
+          text-align: center;
+          line-height: 32px;
+          cursor: pointer;
+          display: inline-block;
+          background-color: #f5f5f5;
+          border-radius: 50%;
+        }
+        .exportAdressBook:hover {
+          color: #2196f3;
         }
 
         .moreAction {
@@ -90,7 +112,7 @@
           position: relative;
 
           &:hover {
-            background: #eaeaea;
+            color: #2196f3;
           }
 
           .moreActionDia {
@@ -114,6 +136,9 @@
                 background: #eaeaea;
               }
             }
+          }
+          .verticalAlign {
+            vertical-align: middle;
           }
         }
       }
@@ -177,6 +202,14 @@
         align-items: center;
         &:hover {
           color: #1280d8 !important;
+        }
+        .creatDepartmentTxt {
+          padding: 2px 8px;
+          // background: #f2f2f2;
+          border-radius: 6px;
+        }
+        .creatDepartmentTxt:hover {
+          background-color: #f5f5f5;
         }
       }
 
@@ -245,7 +278,7 @@
         cursor: pointer;
 
         &:hover {
-          background: #eee;
+          background: #e4e4e4;
         }
       }
 
@@ -307,6 +340,9 @@
         }
       }
     }
+  }
+  .searchContainer:hover {
+    background-color: #ebebeb;
   }
 
   /* tool bar */
@@ -394,9 +430,17 @@
       display: flex;
       flex-direction: column;
       flex: 1 1 auto;
-      padding: 24px 0;
+      padding: 24px 0 0 0;
       border-radius: 2px;
       background-color: rgba(255, 255, 255, 1);
+      .departmentNameValue {
+        display: inline-block;
+        max-width: 500px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        vertical-align: middle;
+      }
 
       .departmentTitle {
         height: 38px;
@@ -405,11 +449,20 @@
         padding-bottom: 14px;
         padding-left: 28px;
         font-weight: 500;
+        .departmentName {
+          padding: 2px 8px 2px 8px;
+          border-radius: 6px;
+          // background-color: #f2f2f2;
+        }
 
         .departmentName .Checkbox-box {
           transform: scale(0.7);
           vertical-align: top;
           margin-top: 2px;
+          margin-right: 4px;
+        }
+        .departmentName.bgColorHover:hover {
+          background-color: #f5f5f5;
         }
 
         .actionBox {
@@ -440,8 +493,378 @@
         display: flex;
         flex-direction: column;
         flex: 1 1 auto;
-        overflow-y: auto;
-        overflow-x: auto;
+        overflow: hidden;
+        .tableContent {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          .theadContainer {
+            width: 100%;
+            overflow: auto;
+            margin-right: 10px;
+            .usersTable {
+              width: 100%;
+              min-width: 100%;
+              border-collapse: separate;
+              table-layout: fixed;
+              thead {
+                th {
+                  position: sticky;
+                  top: 0; /* 第一列最上 */
+                  font-weight: normal;
+                  padding: 10px 0 12px;
+                  text-align: left;
+                  background-color: #fff;
+                  border-bottom: 1px solid #eaeaea;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  font-size: 13px;
+                  color: #757575;
+                  box-sizing: border-box;
+                  &.checkBox {
+                    width: 32px;
+                    min-width: 32px;
+                    position: sticky;
+                    background: #fff;
+                    left: 0;
+                    z-index: 2;
+                    padding-right: 0;
+                    padding-left: 8px;
+                  }
+                  &.nameTh {
+                    position: sticky;
+                    width: 200px;
+                    min-width: 200px;
+                    background: #fff;
+                    left: 32px;
+                    z-index: 2;
+                  }
+                  &.jobTh,
+                  &.departmentTh,
+                  &.dateTh,
+                  &.actMenTh,
+                  &.mobileTh {
+                    width: 160px;
+                    min-width: 160px;
+                    max-width: 160px;
+                  }
+                  &.statusTh,
+                  &.workSiteTh,
+                  &.jobNumberTh,
+                  &.joinDateTh {
+                    width: 120px;
+                    min-width: 120px;
+                    max-width: 120px;
+                  }
+                  &.emailTh {
+                    width: 180px;
+                    min-width: 180px;
+                    max-width: 180px;
+                  }
+                  &.actTh {
+                    width: 80px;
+                    min-width: 80px;
+                    position: sticky;
+                    right: 0px;
+                    z-index: 2;
+                    background-color: #fff;
+                    padding: 0 30px;
+                  }
+                }
+                .fixedLeft {
+                  border-right: 1px solid #eaeaea;
+                }
+                .fixedRight {
+                  border-left: 1px solid #eaeaea;
+                }
+                .checkBox {
+                  border-bottom: none;
+                  // opacity: 0;
+                  .Checkbox-box {
+                    border: 1px solid #fff;
+                    margin-right: 0;
+                    margin-top: -2px;
+                  }
+                  .multi-dropdown {
+                    display: inline-block;
+                    width: 0px;
+                    margin-left: 0 !important;
+
+                    .dropdown-btn {
+                      vertical-align: top;
+                      padding-left: 1px;
+
+                      i.icon {
+                        color: #757575;
+                      }
+                    }
+                    .multi-dropdown-menu {
+                      top: 100%;
+                      bottom: auto;
+                    }
+                  }
+                }
+                &:hover {
+                  .checkBox {
+                    opacity: 1;
+                    .Checkbox-box {
+                      border: 1px solid #ddd;
+                    }
+                  }
+                }
+
+                .checkBoxHalf.checkBox {
+                  .Checkbox-box {
+                    background-color: #1e88e5 !important;
+                    &::before {
+                      content: '';
+                      height: 2px;
+                      background: #fff;
+                      position: absolute;
+                      top: 7px;
+                      width: 8px;
+                      left: 4px;
+                    }
+                  }
+                  // opacity: 1;
+                }
+                .showCheckBox.checkBox,
+                .hasSelectCount.checkBox {
+                  opacity: 1;
+                }
+                .visibiliityIcon {
+                  color: #9e9e9e;
+                  &:hover {
+                    color: #2196f3;
+                  }
+                }
+              }
+            }
+          }
+          .theadContainer::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0 !important;
+          }
+          .theadContainer {
+            -ms-overflow-style: none;
+          }
+          .theadContainer {
+            overflow: -moz-scrollbars-none;
+          }
+          .tbodyContainer {
+            width: 100%;
+            height: calc(~'100% - 52px');
+            overflow-y: auto;
+            overflow-x: auto;
+            .usersTable {
+              width: 100%;
+              table-layout: fixed;
+              border-collapse: separate;
+              tbody {
+                tr {
+                  height: 48px;
+                  td {
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    padding-right: 24px;
+                    box-sizing: border-box;
+                    &.checkBox {
+                      width: 32px;
+                      min-width: 32px;
+                      position: sticky;
+                      background: #fff;
+                      left: 0;
+                      z-index: 1;
+                      padding-right: 0;
+                      padding-left: 8px;
+                    }
+                    &.nameTh {
+                      position: sticky;
+                      width: 200px;
+                      min-width: 200px;
+                      background: #fff;
+                      left: 32px;
+                      z-index: 1;
+                      a:hover {
+                        text-decoration: none !important;
+                      }
+                      .avatar {
+                        border-radius: 50%;
+                        height: 32px;
+                        vertical-align: middle;
+                        width: 32px;
+                      }
+                    }
+                    &.jobTh,
+                    &.departmentTh,
+                    &.dateTh,
+                    &.actMenTh,
+                    &.mobileTh {
+                      width: 160px;
+                      min-width: 160px;
+                      max-width: 160px;
+                    }
+                    &.statusTh,
+                    &.workSiteTh,
+                    &.jobNumberTh,
+                    &.joinDateTh {
+                      width: 120px;
+                      min-width: 120px;
+                      max-width: 120px;
+                    }
+                    &.emailTh {
+                      width: 180px;
+                      min-width: 180px;
+                      max-width: 180px;
+                    }
+                    &.actTh {
+                      width: 80px;
+                      min-width: 80px;
+                      position: sticky;
+                      right: 0;
+                      z-index: 1;
+                      background-color: #fff;
+                      padding: 0 30px;
+                    }
+                  }
+                  .fixedLeft {
+                    border-right: 1px solid #eaeaea;
+                  }
+                  .fixedRight {
+                    border-left: 1px solid #eaeaea;
+                  }
+                  .checkBox {
+                    border-bottom: none;
+                    // opacity: 0;
+                    .Checkbox-box {
+                      border: 1px solid #fff;
+                      margin-right: 0;
+                      margin-top: -2px;
+                    }
+
+                    .multi-dropdown {
+                      display: inline-block;
+                      width: 0px;
+                      margin-left: 0 !important;
+
+                      .dropdown-btn {
+                        vertical-align: top;
+                        padding-left: 1px;
+
+                        i.icon {
+                          color: #757575;
+                        }
+                      }
+
+                      .multi-dropdown-menu {
+                        top: 100%;
+                        bottom: auto;
+                      }
+                    }
+                  }
+                  .showCheckBox.checkBox,
+                  .hasSelectCount.checkBox {
+                    opacity: 1;
+                  }
+                  &:hover {
+                    .checkBox {
+                      opacity: 1;
+                      .Checkbox-box {
+                        border: 1px solid #ddd;
+                      }
+                    }
+                    .showCheckBox.checkBox,
+                    .hasSelectCount.checkBox {
+                      .Checkbox-box {
+                        border: 1px solid #1e88e5;
+                      }
+                    }
+                    .nameTh {
+                      .name {
+                        a {
+                          color: #1e88e5 !important;
+                        }
+                      }
+                    }
+                    .mobileTh {
+                      .Remind {
+                        color: #1e88e5 !important;
+                        cursor: pointer;
+                      }
+                    }
+                  }
+                }
+                tr:hover {
+                  td {
+                    background-color: #f7f7f7;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        padding: 12px 0 0;
+        .ant-pagination {
+          .ant-pagination-prev,
+          .ant-pagination-next {
+            height: unset;
+            line-height: unset;
+            a {
+              display: inline-block;
+              padding: 3px 8px;
+              border: 1px solid #ccc;
+              color: #666;
+              font-size: 12px;
+            }
+          }
+          .ant-pagination-disabled a {
+            color: #ccc;
+            border: 1px solid #fff;
+            font-size: 12px;
+          }
+          .ant-pagination-item {
+            height: unset;
+            line-height: unset;
+            margin-right: 10px;
+            min-width: 0;
+            border: 1px solid #fff;
+            a {
+              color: #666;
+              display: inline-block;
+              padding: 3px 8px;
+              text-align: center;
+              vertical-align: middle;
+              border: 1px solid #fff;
+              font-size: 12px;
+            }
+            a:hover {
+              border: 1px solid #ccc;
+              color: #666;
+            }
+          }
+          .ant-pagination-item-active {
+            // border: none;
+            border: 1px solid #fff;
+            color: #333;
+            a {
+              // border: none;
+              border: 1px solid #fff;
+              text-decoration: underline;
+              color: #333;
+            }
+          }
+          .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
+          .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
+            color: #666;
+          }
+          .ant-pagination-options {
+            display: none;
+          }
+        }
       }
 
       .listPhContent {
@@ -463,261 +886,16 @@
         .nullState {
           width: 100px;
           height: 100px;
-          background: #efefef;
-          color: #e0e0e0;
+          background: #f5f5f5;
+          color: #c2c3c3;
           font-size: 44px;
-          line-height: 93px;
+          line-height: 100px;
           text-align: center;
           border-radius: 50%;
         }
 
         p {
           line-height: 1.618;
-        }
-      }
-
-      .usersTable {
-        &.overflowTable {
-          min-width: 100%;
-          table-layout: fixed;
-        }
-        th {
-          font-weight: normal;
-          padding: 10px 0 12px;
-          text-align: left;
-          border-bottom: 1px solid #eaeaea;
-          // overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          font-size: 13px;
-          color: #757575;
-
-          &.nameTh {
-            // padding-left: 15px;
-            box-sizing: border-box;
-          }
-
-          &:first-child {
-            padding: 10px 0 12px;
-          }
-
-          // &:nth-child(2) {
-          //   padding: 0 24px 0 0;
-          // }
-
-          &:last-child {
-            text-align: center;
-          }
-        }
-
-        .chargeIcon {
-          color: #f9ce1d;
-        }
-
-        .checkBox {
-          width: 24px;
-          min-width: 24px;
-        }
-
-        thead {
-          &:hover {
-            .checkBox {
-              opacity: 1;
-            }
-          }
-
-          .showCheckBox.checkBox,
-          .hasSelectCount.checkBox {
-            opacity: 1;
-          }
-
-          .Checkbox-box {
-            transform: scale(0.8);
-            margin-right: 0px;
-
-            &:hover {
-              border-color: #2196f3;
-            }
-          }
-
-          .checkBox {
-            border-bottom: none;
-            opacity: 0;
-
-            .multi-dropdown {
-              display: inline-block;
-              width: 0px;
-              margin-left: 0 !important;
-
-              .dropdown-btn {
-                vertical-align: top;
-                padding-left: 1px;
-
-                i.icon {
-                  color: #757575;
-                }
-              }
-
-              .multi-dropdown-menu {
-                top: 100%;
-                bottom: auto;
-              }
-            }
-          }
-        }
-
-        .Remind {
-          font-size: 12px;
-          line-height: 20px;
-
-          display: inline-block;
-
-          height: 20px;
-          margin-top: 2px;
-          padding: 0 5px;
-
-          cursor: pointer;
-
-          border-radius: 2px;
-        }
-
-        .forRemind {
-          &:hover {
-            color: #2196f3 !important;
-          }
-        }
-
-        .userItem {
-          &:hover,
-          &.isChecked {
-            > td {
-              background: #f7f7f7;
-
-              &.nameTh {
-                .name a {
-                  color: #2196f3 !important;
-                }
-              }
-            }
-
-            .checkBox {
-              background: #fff !important;
-            }
-          }
-
-          > td {
-            height: 48px;
-            vertical-align: middle;
-            // padding: 0 24px;
-            // overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            max-width: 150px;
-
-            &:first-child {
-              padding: 0 0;
-            }
-
-            // &:nth-child(2) {
-            //   padding: 0 24px 0 0;
-            // }
-          }
-
-          &:hover {
-            .checkBox {
-              opacity: 1;
-            }
-          }
-
-          .showCheckBox.checkBox,
-          .hasSelectCount.checkBox {
-            opacity: 1;
-          }
-
-          .Checkbox-box {
-            transform: scale(0.8);
-            margin-right: 0px;
-
-            &:hover {
-              border-color: #2196f3;
-            }
-          }
-
-          .checkBox {
-            opacity: 0;
-          }
-
-          .avatar {
-            width: 32px;
-            height: 32px;
-
-            vertical-align: middle;
-
-            border-radius: 50%;
-          }
-
-          .name,
-          .job,
-          .workSite,
-          .email {
-            display: block;
-            overflow: hidden;
-
-            max-width: 100%;
-
-            white-space: nowrap;
-            text-overflow: ellipsis;
-          }
-
-          .job {
-            // color: #bdbdbd;
-          }
-
-          // .nameTh {
-          //   flex: 24
-          // }
-
-          // .jobTh,
-          // .departmentTh {
-          //   flex: 18
-          // }
-
-          // .mobileTh {
-          //   flex: 14
-          // }
-
-          // .emailTh {
-          //   flex: 19
-          // }
-
-          // .act {
-          //   flex: 5;
-          // }
-        }
-
-        .opList {
-          position: absolute;
-          z-index: 1;
-          top: 46px;
-          right: 15px;
-          min-width: 126px;
-          padding: 6px 0;
-
-          border-radius: 3px;
-          background: #fff;
-          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
-
-          .opItem {
-            padding: 0 24px;
-            line-height: 36px;
-            cursor: pointer;
-            white-space: nowrap;
-
-            &:hover {
-              background-color: #2196f3;
-              color: #fff;
-            }
-          }
         }
       }
     }
@@ -766,7 +944,7 @@
       display: flex;
       flex-direction: column;
       flex: 1 1 auto;
-      padding: 24px 0;
+      padding: 24px 0 0;
       border-radius: 2px;
       background-color: #ffffff;
 
@@ -826,7 +1004,7 @@
         display: flex;
         flex-direction: column;
         flex: 1 1 auto;
-        overflow-y: auto;
+        // overflow-y: auto;
         overflow-x: hidden;
 
         .usersTable thead {
@@ -853,6 +1031,7 @@
           .Checkbox-box {
             transform: scale(0.8);
             margin-right: 0px;
+            margin-top: -2px;
 
             &:hover {
               border-color: #2196f3;
@@ -1002,6 +1181,13 @@
             color: #bdbdbd;
           }
         }
+        .usersTable td {
+          &.nameTh {
+            // padding-left: 15px;
+            box-sizing: border-box;
+            width: 35%;
+          }
+        }
 
         .opList {
           position: absolute;
@@ -1027,7 +1213,127 @@
             }
           }
         }
+        .jobListContainer {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          height: 100%;
+          .jobListBody {
+            overflow-y: auto;
+          }
+        }
+        .pagination {
+          display: flex;
+          justify-content: center;
+          padding: 12px;
+          .ant-pagination {
+            .ant-pagination-prev,
+            .ant-pagination-next {
+              height: unset;
+              line-height: unset;
+              a {
+                display: inline-block;
+                padding: 3px 8px;
+                border: 1px solid #ccc;
+                color: #666;
+                font-size: 12px;
+              }
+            }
+            .ant-pagination-disabled a {
+              color: #ccc;
+              border: 1px solid #fff;
+              font-size: 12px;
+            }
+            .ant-pagination-item {
+              height: unset;
+              line-height: unset;
+              margin-right: 10px;
+              min-width: 0;
+              border: 1px solid #fff;
+              a {
+                color: #666;
+                display: inline-block;
+                padding: 3px 8px;
+                text-align: center;
+                vertical-align: middle;
+                border: 1px solid #fff;
+                font-size: 12px;
+              }
+              a:hover {
+                border: 1px solid #ccc;
+                color: #666;
+              }
+            }
+            .ant-pagination-item-active {
+              // border: none;
+              border: 1px solid #fff;
+              color: #333;
+              a {
+                // border: none;
+                border: 1px solid #fff;
+                text-decoration: underline;
+                color: #333;
+              }
+            }
+            .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
+            .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
+              color: #666;
+            }
+            .ant-pagination-options {
+              display: none;
+            }
+          }
+        }
       }
     }
+  }
+}
+
+.showColumnsBox {
+  width: 300px;
+  z-index: 1;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+  padding: 24px 24px 12px;
+  border-radius: 3px;
+  .statistics {
+    margin-bottom: 24px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 26px;
+    .ming.Checkbox.checked .Checkbox-box {
+      border: 1px solid #1e88e5;
+    }
+  }
+  ul {
+    li {
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 20px;
+      .ming.Checkbox.Checkbox--disabled.checked {
+        .Checkbox-box {
+          background-color: #1e88e5;
+          border-color: #1e88e5;
+        }
+      }
+    }
+  }
+  .checkBoxHalf {
+    .Checkbox-box {
+      background-color: #1e88e5 !important;
+      border: 1px solid #1e88e5 !important;
+      &::before {
+        content: '';
+        height: 2px;
+        background: #fff;
+        position: absolute;
+        top: 7px;
+        width: 8px;
+        left: 5px;
+      }
+    }
+  }
+  .verticalAlign {
+    vertical-align: middle;
   }
 }

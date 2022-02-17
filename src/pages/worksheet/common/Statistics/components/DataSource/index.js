@@ -7,9 +7,19 @@ import CalculateControlItem from './components/CalculateControlItem';
 import SheetModal from './components/SheetModal';
 import TimeModal from './components/TimeModal';
 import CalculateControlModal from './components/CalculateControlModal';
-import { formatrChartTimeText, isTimeControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatrChartTimeText, isTimeControl, getAlreadySelectControlId } from 'src/pages/worksheet/common/Statistics/common';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actions from 'worksheet/common/Statistics/redux/actions';
 import './index.less';
 
+@connect(
+  state => ({
+    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo'])
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)
 export default class DataSource extends Component {
   constructor(props) {
     super(props);
@@ -18,21 +28,45 @@ export default class DataSource extends Component {
       timeModalVisible: false,
       sheetModalVisible: false,
       calculateControlModalVisible: false,
-      currentAxisControls: props.axisControls,
+      currentAxisControls: this.formatAxisControls(props.axisControls),
       editCalculateControl: null,
     }
   }
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.axisControls, this.props.axisControls)) {
+    const newViewId = _.get(nextProps, ['currentReport', 'filter', 'viewId']);
+    const newFormulasLength = _.get(nextProps, ['currentReport', 'formulas', 'length']);
+    if (
+      !_.isEqual(nextProps.axisControls, this.props.axisControls) ||
+      newViewId !== _.get(this.props, ['currentReport', 'filter', 'viewId'])
+    ) {
       this.setState({
-        currentAxisControls: nextProps.axisControls,
+        currentAxisControls: this.formatAxisControls(nextProps.axisControls, newViewId),
       });
     }
-    if (nextProps.currentReport.formulas.length > this.props.currentReport.formulas.length) {
+    if (newFormulasLength > _.get(this.props, ['currentReport', 'formulas', 'length'])) {
       var el = document.querySelector('.chartDataSource .scrollWrapper');
       setTimeout(() => {
         el.nanoscroller.scrollTop(el.nanoscroller.maxScrollTop);
       }, 0);
+    }
+  }
+  formatAxisControls = (axisControls, newViewId) => {
+    const { worksheetInfo, ownerId, currentReport } = this.props;
+    if (!ownerId) {
+      return axisControls;
+    } else {
+      const { filter = {} } = currentReport;
+      const view = _.find(worksheetInfo.views, { viewId: newViewId || filter.viewId });
+      return axisControls.filter(item => {
+        if (view && view.controls.includes(item.controlId)) {
+          return false;
+        }
+        const control = _.find(worksheetInfo.columns, { controlId: item.controlId });
+        if (control) {
+          return controlState(control, 3).visible;
+        }
+        return true;
+      });
     }
   }
   handleSearch = () => {
@@ -41,14 +75,17 @@ export default class DataSource extends Component {
     if (searchValue) {
       const result = axisControls.filter(item => item.controlName.includes(searchValue));
       this.setState({
-        currentAxisControls: result,
+        currentAxisControls: this.formatAxisControls(result),
       });
     } else {
       const { axisControls } = this.props;
       this.setState({
-        currentAxisControls: axisControls,
+        currentAxisControls: this.formatAxisControls(axisControls),
       });
     }
+  }
+  handleChangeCheckbox = (event, item) => {
+    this.props.changeControlCheckbox(event, item);
   }
   renderHeader() {
     const { dataIsUnfold, onChangeDataIsUnfold } = this.props;
@@ -69,8 +106,8 @@ export default class DataSource extends Component {
     }
   }
   renderSheet() {
-    const { worksheetInfo, currentReport, sourceType, axisControls, appId, projectId } = this.props;
-    const { filter } = currentReport;
+    const { worksheetInfo, currentReport, sourceType, axisControls, appId, projectId, ownerId } = this.props;
+    const { filter = {} } = currentReport;
     const view = _.find(worksheetInfo.views, { viewId: filter.viewId });
     const { sheetModalVisible } = this.state;
     return (
@@ -91,15 +128,16 @@ export default class DataSource extends Component {
         <SheetModal
           sourceType={sourceType}
           dialogVisible={sheetModalVisible}
+          ownerId={ownerId}
           appId={appId}
           projectId={projectId}
-          filter={filter}
+          viewId={filter.viewId}
           worksheetInfo={worksheetInfo}
-          onChangeFilter={(worksheetId, viewId) => {
+          onChange={(worksheetId, viewId) => {
             if (worksheetId) {
               this.props.onChangeSheetId(worksheetId);
             } else {
-              this.props.onChangeCurrentReport(
+              this.props.changeCurrentReport(
                 {
                   filter: {
                     ...filter,
@@ -109,6 +147,7 @@ export default class DataSource extends Component {
                 true,
               );
             }
+            this.setState({ sheetModalVisible: false });
           }}
           onChangeDialogVisible={visible => {
             this.setState({ sheetModalVisible: visible });
@@ -119,7 +158,7 @@ export default class DataSource extends Component {
   }
   renderTime() {
     const { worksheetInfo, currentReport, axisControls } = this.props;
-    const { filter, displaySetup } = currentReport;
+    const { filter = {}, displaySetup } = currentReport;
     const { timeModalVisible } = this.state;
     return (
       <Fragment>
@@ -136,7 +175,7 @@ export default class DataSource extends Component {
                 filter={filter}
                 controls={axisControls.filter(item => isTimeControl(item.type))}
                 onChangeFilter={data => {
-                  this.props.onChangeCurrentReport(
+                  this.props.changeCurrentReport(
                     {
                       displaySetup: {
                         ...displaySetup,
@@ -202,9 +241,9 @@ export default class DataSource extends Component {
     );
   }
   renderCalculateControl(alreadySelectControlId) {
-    const { axisControls, currentReport, onChangeCurrentReport } = this.props;
+    const { axisControls, currentReport, changeCurrentReport } = this.props;
     const { calculateControlModalVisible, editCalculateControl } = this.state;
-    const { formulas } = currentReport;
+    const { formulas = [] } = currentReport;
     return (
       <Collapse.Panel
         className={cx({hide: _.isEmpty(formulas)})}
@@ -224,6 +263,9 @@ export default class DataSource extends Component {
                   key={item.controlId}
                   item={item}
                   isActive={alreadySelectControlId.includes(item.controlId)}
+                  onChangeCheckbox={(event) => {
+                    this.handleChangeCheckbox(event, item);
+                  }}
                   onOpenEdit={() => {
                     this.setState({
                       calculateControlModalVisible: true,
@@ -231,7 +273,7 @@ export default class DataSource extends Component {
                     });
                   }}
                   onDelete={(id) => {
-                    onChangeCurrentReport({
+                    changeCurrentReport({
                       formulas: formulas.filter(item => item.controlId !== id)
                     });
                   }}
@@ -243,7 +285,7 @@ export default class DataSource extends Component {
             editCalculateControl={editCalculateControl}
             axisControls={axisControls}
             currentReport={currentReport}
-            onChangeCurrentReport={onChangeCurrentReport}
+            onChangeCurrentReport={changeCurrentReport}
             dialogVisible={calculateControlModalVisible}
             onChangeDialogVisible={visible => {
               this.setState({
@@ -266,16 +308,7 @@ export default class DataSource extends Component {
   }
   renderControls() {
     const { currentReport } = this.props;
-    const { xaxes, yaxisList, split, pivotTable, rightY, formulas } = currentReport;
-    const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
-    const rightSplitId = rightY ? rightY.split.controlId : null;
-    const alreadySelectControlId = pivotTable
-      ? [
-          ...pivotTable.lines.map(item => item.controlId),
-          ...pivotTable.columns.map(item => item.controlId),
-          ...yaxisList.map(item => item.controlId),
-        ]
-      : [xaxes.controlId, split.controlId, ...yaxisList.map(item => item.controlId), ...rightYaxisList, rightSplitId];
+    const alreadySelectControlId = getAlreadySelectControlId(currentReport);
     const { currentAxisControls } = this.state;
     return (
       <Fragment>
@@ -292,6 +325,9 @@ export default class DataSource extends Component {
                   key={item.controlId}
                   item={item}
                   isActive={alreadySelectControlId.includes(item.controlId)}
+                  onChangeCheckbox={(event) => {
+                    this.handleChangeCheckbox(event, item);
+                  }}
                 />
               ))}
               {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
@@ -299,20 +335,6 @@ export default class DataSource extends Component {
           </Collapse.Panel>
           {this.renderCalculateControl(alreadySelectControlId)}
         </Collapse>
-        {/*
-        <Collapse className="chartCollapse" defaultActiveKey={['sheet']} expandIcon={this.renderExpandIcon} ghost>
-          <Collapse.Panel
-            key="sheet"
-            header={(
-              <Fragment>
-                <Icon className="Gray_75 mRight10 Font16" icon="view" />
-                <span className="Bold">{_l('订单')}</span>
-              </Fragment>
-            )}
-          >
-          </Collapse.Panel>
-        </Collapse>
-        */}
       </Fragment>
     );
   }

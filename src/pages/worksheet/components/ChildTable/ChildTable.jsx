@@ -6,8 +6,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
 import { editWorksheetControls } from 'src/api/worksheet';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import Skeleton from 'src/router/Application/Skeleton';
 import { selectRecord } from 'src/components/recordCardListDialog';
+import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -32,6 +34,7 @@ import _ from 'lodash';
 
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
 class ChildTable extends React.Component {
+  static contextType = RecordInfoContext;
   static propTypes = {
     entityName: PropTypes.string,
     maxCount: PropTypes.number,
@@ -72,9 +75,21 @@ class ChildTable extends React.Component {
   }
 
   componentDidMount() {
-    const { control, recordId, clearAndSetRows } = this.props;
+    const { rows, control, recordId, clearAndSetRows } = this.props;
     if (recordId) {
-      this.loadRows();
+      if (
+        !rows.length &&
+        _.isObject(control.value) &&
+        control.value.action === 'clearAndSet' &&
+        _.get(control, 'value.rows.length')
+      ) {
+        clearAndSetRows(
+          control.value.rows.map(r => this.newRow(r, { isDefaultValue: true, isQueryWorksheetFill: true })),
+        );
+        this.setState({ loading: false });
+      } else {
+        this.loadRows();
+      }
     } else if (control.value) {
       try {
         const defaultRows =
@@ -111,7 +126,9 @@ class ChildTable extends React.Component {
         } catch (err) {}
       });
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'clearAndSet') {
-      clearAndSetRows(nextControl.value.rows.map(row => this.newRow(row, { isCreate: true })));
+      clearAndSetRows(
+        nextControl.value.rows.map(row => this.newRow(row, { isCreate: true, isQueryWorksheetFill: true })),
+      );
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'append') {
       addRows(nextControl.value.rows.map(this.newRow));
     }
@@ -143,12 +160,12 @@ class ChildTable extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if (!_.isEqual(this.state, nextState)) {
+      return true;
+    }
     if (nextProps.lastAction.type === 'UPDATE_ROW' && !browserIsMobile()) {
       nextProps.lastAction.type = undefined;
       return false;
-    }
-    if (!_.isEqual(this.state, nextState)) {
-      return true;
     }
     return (
       !_.isEqual(this.props.rows, nextProps.rows) ||
@@ -199,7 +216,15 @@ class ChildTable extends React.Component {
         return control;
       },
     );
-    result = result.filter(c => c && c.controlId !== 'ownerid');
+    result = result.filter(
+      c =>
+        c &&
+        c.controlId !== 'ownerid' &&
+        !(
+          window.isPublicWorksheet &&
+          _.includes([WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT], c.type)
+        ),
+    );
     return result;
   }
 
@@ -255,7 +280,9 @@ class ChildTable extends React.Component {
       callback: res => {
         const state = { loading: false };
         if (needResetControls) {
-          const newControls = _.get(res, 'template.controls').concat(systemControls);
+          const newControls = (_.get(res, 'worksheet.template.controls') || _.get(res, 'template.controls')).concat(
+            systemControls,
+          );
           if (newControls && newControls.length) {
             state.controls = this.getControls(nextProps, { newControls });
           }
@@ -304,9 +331,9 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  newRow(defaultRow, { isDefaultValue, isCreate } = {}) {
+  newRow(defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill } = {}) {
     const tempRowId = !isDefaultValue ? `temp-${uuid.v4()}` : `default-${uuid.v4()}`;
-    const row = this.rowUpdate({ row: defaultRow, rowId: tempRowId }, { isCreate });
+    const row = this.rowUpdate({ row: defaultRow, rowId: tempRowId }, { isCreate, isQueryWorksheetFill });
     return { ...row, rowid: tempRowId, allowedit: true, addTime: new Date().getTime() };
   }
 
@@ -323,7 +350,7 @@ class ChildTable extends React.Component {
     );
   }
 
-  rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false } = {}) {
+  rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
     const { masterData, projectId } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
       this.handleUpdateCell(
@@ -343,7 +370,7 @@ class ChildTable extends React.Component {
       );
     };
     const formdata = new DataFormat({
-      data: this.state.controls.map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
+      data: this.state.controls.map(c => ({ ...c, isQueryWorksheetFill, value: (row || {})[c.controlId] || c.value })),
       isCreate: isCreate || !row,
       from: FROM.NEWRECORD,
       projectId,
@@ -365,7 +392,7 @@ class ChildTable extends React.Component {
       {
         ...(row || {}),
         rowid: row ? row.rowid : rowId,
-        updatedControlIds: _.uniq(((row && row.updatedControlIds) || []).concat(formdata.getUpdateControlIds())),
+        updatedControlIds: _.uniqBy(((row && row.updatedControlIds) || []).concat(formdata.getUpdateControlIds())),
       },
       ...formdata.getDataSource(),
     ].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
@@ -408,12 +435,14 @@ class ChildTable extends React.Component {
     const { addRows, entityName } = this.props;
     const { controls } = this.state;
     const control = batchAddControls[0];
+    const isMobile = browserIsMobile();
     if (!control) {
       return;
     }
     this.updateDefsourceOfControl();
     const tempRow = this.newRow();
-    selectRecord({
+    const relateRecord = isMobile ? mobileSelectRecord : selectRecord;
+    relateRecord({
       entityName,
       canSelectAll: true,
       multiple: true,
@@ -489,7 +518,7 @@ class ChildTable extends React.Component {
     const { previewRowIndex, controls } = this.state;
     row.updatedControlIds = _.isEmpty(row.updatedControlIds)
       ? updatedControlIds
-      : _.uniq(row.updatedControlIds.concat(updatedControlIds));
+      : _.uniqBy(row.updatedControlIds.concat(updatedControlIds));
     row.updatedControlIds = row.updatedControlIds.concat(
       controls
         .filter(c => _.find(updatedControlIds, cid => ((c.advancedSetting || {}).defsource || '').includes(cid)))
@@ -591,9 +620,21 @@ class ChildTable extends React.Component {
   }
 
   render() {
-    const { maxCount, from, recordId, projectId, control, rows, deleteRow, sortRows, mobileIsEdit, entityName, rules } =
-      this.props;
-    const { allowadd, allowcancel, allowedit, batchcids } = parseAdvancedSetting(control.advancedSetting);
+    const {
+      maxCount,
+      from,
+      recordId,
+      projectId,
+      control,
+      rows,
+      deleteRow,
+      sortRows,
+      mobileIsEdit,
+      entityName,
+      rules,
+      appId,
+    } = this.props;
+    const { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
     const {
       loading,
       tempSheetColumnWidths,
@@ -607,6 +648,8 @@ class ChildTable extends React.Component {
     } = this.state;
     const batchAddControls = batchcids.map(id => _.find(controls, { controlId: id })).filter(_.identity);
     const addRowFromRelateRecords = !!batchAddControls.length;
+    const allowAddByLine =
+      (_.isUndefined(_.get(control, 'advancedSetting.allowsingle')) && !addRowFromRelateRecords) || allowsingle;
     const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const controlPermission = controlState(control, from);
     const disabled = !controlPermission.editable || control.disabled;
@@ -619,6 +662,9 @@ class ChildTable extends React.Component {
     let tableHeight = ((fullShowTable ? tableRows.length : 15) + 1) * 34;
     if (tableRows.length === 1) {
       tableHeight += 26;
+    }
+    if (!columns.length) {
+      return <div className="Gray_9e">{_l('没有支持填写的字段')}</div>;
     }
     return (
       <div className="childTableCon" ref={con => (this.childTableCon = con)}>
@@ -646,6 +692,7 @@ class ChildTable extends React.Component {
               rowHeight={34}
               worksheetId={control.dataSource}
               projectId={projectId}
+              appId={appId}
               columns={columns}
               controls={controls}
               data={tableRows.length === 1 ? tableRows.concat({ isSubListFooter: true }) : tableRows}
@@ -695,6 +742,9 @@ class ChildTable extends React.Component {
                           tempSheetColumnWidths: {},
                           sheetColumnWidths: this.getSheetColumnWidths(newControl),
                         });
+                        if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
+                          _.get(this, 'context.updateWorksheetControls')(res.data.controls);
+                        }
                       }
                     });
                   }}
@@ -738,6 +788,8 @@ class ChildTable extends React.Component {
         {isMobile && !loading && (
           <MobileTable
             allowcancel={allowcancel}
+            allowadd={allowadd}
+            disabled={disabled}
             rows={tableRows}
             controls={columns}
             onOpen={this.openDetail}
@@ -756,31 +808,46 @@ class ChildTable extends React.Component {
             />
           </div>
         )}
-        <div className="operate">
-          {!isMobile && !disabledNew && !addRowFromRelateRecords && (
-            <span className="addRowByLine" onClick={this.handleAddRowByLine}>
-              <i className="icon icon-plus mRight5 Font16"></i>
-              {_l('添加一行')}
-            </span>
-          )}
-          {!isMobile && !disabledNew && addRowFromRelateRecords && (
-            <span className="addRowByLine" onClick={() => this.handleAddRowsFromRelateRecord(batchAddControls)}>
-              <i className="icon icon-plus mRight5 Font16"></i>
-              {_l('选择%0', batchAddControls[0] && batchAddControls[0].controlName)}
-            </span>
-          )}
-          {isMobile && mobileIsEdit && !disabledNew && (
-            <span
-              className="addRowByLine h5"
-              onClick={() => {
-                this.setState({ previewRowIndex: -1, recordVisible: true });
-              }}
-            >
-              <i className="icon icon-plus mRight5 Font16"></i>
-              {_l('添加')}
-            </span>
-          )}
-        </div>
+        {isMobile ? (
+          <div className="operate valignWrapper">
+            {isMobile && !disabledNew && addRowFromRelateRecords && (
+              <span
+                className="addRowByDialog h5 flex ellipsis"
+                onClick={() => this.handleAddRowsFromRelateRecord(batchAddControls)}
+              >
+                <i className="icon icon-done_all mRight5 Font16"></i>
+                {_l('选择%0', batchAddControls[0] && batchAddControls[0].controlName)}
+              </span>
+            )}
+            {isMobile && mobileIsEdit && !disabledNew && allowAddByLine && (
+              <span
+                className="addRowByLine h5 flex"
+                onClick={() => {
+                  this.updateDefsourceOfControl();
+                  this.setState({ previewRowIndex: -1, recordVisible: true });
+                }}
+              >
+                <i className="icon icon-plus mRight5 Font16"></i>
+                {_l('添加')}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="operate">
+            {!isMobile && !disabledNew && addRowFromRelateRecords && (
+              <span className="addRowByDialog" onClick={() => this.handleAddRowsFromRelateRecord(batchAddControls)}>
+                <i className="icon icon-done_all mRight5 Font16"></i>
+                {_l('选择%0', batchAddControls[0] && batchAddControls[0].controlName)}
+              </span>
+            )}
+            {!isMobile && !disabledNew && allowAddByLine && (
+              <span className="addRowByLine" onClick={this.handleAddRowByLine}>
+                <i className="icon icon-plus mRight5 Font16"></i>
+                {_l('添加一行')}
+              </span>
+            )}
+          </div>
+        )}
         {recordVisible && (
           <RowDetailComponent
             visible
@@ -788,6 +855,7 @@ class ChildTable extends React.Component {
             from={from}
             worksheetId={control.dataSource}
             projectId={projectId}
+            appId={appId}
             controlName={control.controlName}
             title={
               previewRowIndex > -1 ? `${control.controlName}#${previewRowIndex + 1}` : _l('创建%0', control.controlName)

@@ -15,6 +15,8 @@ import RecordList from 'src/pages/Mobile/RecordList';
 import CustomPage from 'src/pages/Mobile/CustomPage';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
+import FixedPage from './FixedPage';
+import PortalAppHeader from 'src/pages/PageHeader/PortalAppHeader/index.jsx';
 
 const Item = List.Item;
 let modal = null;
@@ -62,6 +64,8 @@ class App extends Component {
   }
 
   navigateTo(url) {
+    url = (window.subPath || '') + url;
+
     if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
       url = url + '#publicapp' + window.publicAppAuthorization;
     }
@@ -80,21 +84,23 @@ class App extends Component {
   handleOpenSheet = (data, item) => {
     const { params } = this.props.match;
     if (item.type === 0) {
-      const storage =localStorage.getItem(`mobileViewSheet-${item.workSheetId}`)
-      let viewId = storage || ''
-      this.navigateTo(`/mobile/recordList/${params.appId}/${data.appSectionId}/${item.workSheetId}${viewId ? `/${viewId}` : ''}`);
+      const storage = localStorage.getItem(`mobileViewSheet-${item.workSheetId}`);
+      let viewId = storage || '';
+      localStorage.removeItem('currentNavWorksheetId');
+      this.navigateTo(
+        `/mobile/recordList/${params.appId}/${data.appSectionId}/${item.workSheetId}${viewId ? `/${viewId}` : ''}`,
+      );
     }
     if (item.type === 1) {
-      this.navigateTo(
-        `/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}?title=${item.workSheetName}`,
-      );
+      this.navigateTo(`/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
     }
   };
 
-  handleSwitchSheet = item => {
+  handleSwitchSheet = (item, data) => {
     const { params } = this.props.match;
     const { appSectionId } = item;
     this.navigateTo(`/mobile/app/${params.appId}/${appSectionId}/${item.workSheetId}`);
+    localStorage.setItem('currentNavWorksheetId', item.workSheetId);
   };
 
   renderList(data) {
@@ -165,24 +171,34 @@ class App extends Component {
     const { appDetail, match } = this.props;
     const { appName, detail, processCount } = appDetail;
     const { params } = match;
-
-    if (detail.appNaviStyle === 2) {
+    const { fixed, permissionType } = detail;
+    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
+    if (md.global.Account.isPortal) {
+      return (
+        <PortalAppHeader
+          appId={params.appId}
+          isMobile={true}
+          name={appName}
+          iconUrl={detail.iconUrl}
+          iconColor={detail.iconColor}
+        />
+      );
+    }
+    if (detail.appNaviStyle === 2 && !(fixed && !isAuthorityApp)) {
       return (
         <div className="flexRow valignWrapper appNaviStyle2Header">
-          {isHideTabBar && (
-            <div
-              className="flex flexRow valignWrapper Gray_75 process Relative"
-              onClick={() => {
-                this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
-              }}
-            >
-              <Icon className="Font17" icon="knowledge_file" />
-              <div className="mLeft5 Font14">{_l('流程事项')}</div>
-              {!!processCount && (
-                <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
-              )}
-            </div>
-          )}
+          <div
+            className="flex flexRow valignWrapper Gray_75 process Relative"
+            onClick={() => {
+              this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+            }}
+          >
+            <Icon className="Font17" icon="knowledge_file" />
+            <div className="mLeft5 Font14">{_l('流程事项')}</div>
+            {!!processCount && (
+              <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+            )}
+          </div>
           <div
             className={cx('flex flexRow valignWrapper Gray_75 star', { hide: window.isPublicApp })}
             onClick={() => {
@@ -204,27 +220,24 @@ class App extends Component {
         </div>
       );
     }
-
     return (
       <div className="appName flexColumn pLeft20 pRight20">
         <div className="content flex White flexRow valignWrapper">
           <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
             <span className="Gray">{appName}</span>
           </div>
-          {isHideTabBar && (
-            <div className="Relative flexRow valignWrapper">
-              <Icon
-                icon="knowledge_file"
-                className="Font26 Gray_bd"
-                onClick={() => {
-                  this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
-                }}
-              />
-              {!!processCount && (
-                <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
-              )}
-            </div>
-          )}
+          <div className="Relative flexRow valignWrapper">
+            <Icon
+              icon="knowledge_file"
+              className="Font26 Gray_bd"
+              onClick={() => {
+                this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+              }}
+            />
+            {!!processCount && (
+              <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+            )}
+          </div>
           <Icon
             icon="star_3"
             className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked, hide: window.isPublicApp })}
@@ -280,7 +293,7 @@ class App extends Component {
     const { params } = this.props.match;
     return (
       <div className="guideWrapper">
-        <div className="guide"></div>
+        <div className="guide" />
         <img className="guideImg Absolute" src={guideImg} />
         <img className="textImg Absolute" src={textImg} />
         <img
@@ -303,6 +316,8 @@ class App extends Component {
       item => item.status === 2,
     ).length;
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
+    const { fixed, fixAccount, fixRemark, permissionType } = detail;
+    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
@@ -312,52 +327,64 @@ class App extends Component {
         <Fragment>
           {appName && <DocumentTitle title={appName} />}
           {params.isNewApp && this.renderGuide()}
-          <div className="flexColumn h100">
+          <div
+            className="flexColumn h100"
+            style={fixed && permissionType !== ROLE_TYPES.ADMIN ? { background: '#fff' } : {}}
+          >
             {this.renderAppHeader()}
-            <div className="appSectionCon flex">
-              {status === 5 ||
-              (detail.permissionType === ROLE_TYPES.MEMBER &&
-                appSection.length <= 1 &&
-                (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
-                // 应用无权限||成员身份 且 无任何数据
-                <AppPermissionsInfo appStatus={5} appId={params.appId} />
-              ) : appSection.length <= 1 &&
-                (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
-                [ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) ? (
-                // 管理员身份 且 无任何数据
-                <AppPermissionsInfo appStatus={1} appId={params.appId} />
-              ) : (
-                <Fragment>
-                  <Accordion
-                    className={cx({ emptyAppSection: isEmptyAppSection })}
-                    defaultActiveKey={appSection.map(item => item.appSectionId)}
-                  >
-                    {appSection.filter(item => item.workSheetInfo.length).map(item => this.renderSection(item))}
-                  </Accordion>
-                  {[ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) && !!editHideSheetVisible && (
-                    <div className="pAll20 pLeft16 flexRow valignWrapper">
-                      <Switch
-                        checked={hideSheetVisible}
-                        color="#2196F3"
-                        onChange={checked => {
-                          this.setState({
-                            hideSheetVisible: checked,
-                          });
-                          if (checked) {
-                            localStorage.removeItem(`hideSheetVisible-${params.appId}`);
-                          } else {
-                            localStorage.setItem(`hideSheetVisible-${params.appId}`, true);
-                          }
-                        }}
-                      />
-                      <span className="Font15 Gray_9e">{_l('查看隐藏项')}</span>
-                    </div>
-                  )}
-                </Fragment>
-              )}
-            </div>
+            {fixed && !isAuthorityApp ? (
+              <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} />
+            ) : (
+              <div className="appSectionCon flex">
+                {status === 5 ||
+                (detail.permissionType === ROLE_TYPES.MEMBER &&
+                  appSection.length <= 1 &&
+                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
+                  // 应用无权限||成员身份 且 无任何数据
+                  <AppPermissionsInfo appStatus={5} appId={params.appId} />
+                ) : appSection.length <= 1 &&
+                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
+                  [ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) ? (
+                  // 管理员身份 且 无任何数据
+                  <AppPermissionsInfo appStatus={1} appId={params.appId} />
+                ) : (
+                  <Fragment>
+                    <Accordion
+                      className={cx({ emptyAppSection: isEmptyAppSection })}
+                      defaultActiveKey={appSection.map(item => item.appSectionId)}
+                    >
+                      {appSection.filter(item => item.workSheetInfo.length).map(item => this.renderSection(item))}
+                    </Accordion>
+                    {[ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) && !!editHideSheetVisible && (
+                      <div className="pAll20 pLeft16 flexRow valignWrapper">
+                        <Switch
+                          checked={hideSheetVisible}
+                          color="#2196F3"
+                          onChange={checked => {
+                            this.setState({
+                              hideSheetVisible: checked,
+                            });
+                            if (checked) {
+                              localStorage.removeItem(`hideSheetVisible-${params.appId}`);
+                            } else {
+                              localStorage.setItem(`hideSheetVisible-${params.appId}`, true);
+                            }
+                          }}
+                        />
+                        <span className="Font15 Gray_9e">{_l('查看隐藏项')}</span>
+                      </div>
+                    )}
+                  </Fragment>
+                )}
+              </div>
+            )}
           </div>
-          {!isHideTabBar && !window.isPublicApp && detail.appNaviStyle !== 2 && (
+          {((!isHideTabBar &&
+            !window.isPublicApp &&
+            !md.global.Account.isPortal &&
+            detail.appNaviStyle !== 2 &&
+            !fixed) ||
+            (fixed && isAuthorityApp)) && (
             <Back
               className="low"
               onClick={() => {
@@ -373,19 +400,23 @@ class App extends Component {
 
   renderRecordList(data) {
     const { type } = data;
+    const { detail = {} } = this.props.appDetail;
+    const { appNaviStyle } = detail;
     if (type === 0) {
       return <RecordList now={Date.now()} />;
     }
     if (type === 1) {
-      return <CustomPage pageTitle={data.workSheetName} now={Date.now()} />;
+      return <CustomPage pageTitle={data.workSheetName} now={Date.now()} appNaviStyle={appNaviStyle} />;
     }
   }
 
   renderBody() {
     const { appSection, detail } = this.props.appDetail;
+    const { fixed, permissionType } = detail;
+    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     const { batchOptVisible } = this.props;
 
-    if ([0, 1].includes(detail.appNaviStyle)) {
+    if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp)) {
       return this.renderContent();
     }
 
@@ -422,9 +453,9 @@ class App extends Component {
                 selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}
                 selected={selectedTab === item.workSheetId}
                 onPress={() => {
-                  this.handleSwitchSheet(item);
+                  this.handleSwitchSheet(item, data);
                 }}
-              ></TabBar.Item>
+              />
             ))}
             <TabBar.Item
               title={_l('更多')}
@@ -436,7 +467,7 @@ class App extends Component {
                 const { params } = this.props.match;
                 this.navigateTo(`/mobile/app/${params.appId}`);
               }}
-            ></TabBar.Item>
+            />
           </TabBar>
         )}
       </div>
@@ -445,7 +476,7 @@ class App extends Component {
 
   render() {
     const { isAppLoading, appDetail } = this.props;
-    
+
     if (isAppLoading) {
       return (
         <Flex justify="center" align="center" className="h100">
@@ -456,9 +487,7 @@ class App extends Component {
 
     const { detail } = appDetail;
 
-    return (
-      <WaterMark projectId={detail.projectId}>{this.renderBody()}</WaterMark>
-    )
+    return <WaterMark projectId={detail.projectId}>{this.renderBody()}</WaterMark>;
   }
 }
 

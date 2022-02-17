@@ -1,4 +1,4 @@
-import { get, keys, flatten, sortBy, omit, isEmpty, capitalize, findIndex, isArray, isObject } from 'lodash';
+import { get, keys, flatten, sortBy, omit, isEmpty, upperFirst, findIndex, isArray, isObject } from 'lodash';
 import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
@@ -40,7 +40,7 @@ export const exportAll = r => {
   r.keys().forEach(item => {
     const key = item.match(/\/(\w*)\./)[1];
     const component = r(item);
-    const capitalKey = capitalize(key);
+    const capitalKey = upperFirst(key);
     componentConfig[capitalKey] = component.default || component[key];
   });
   return componentConfig;

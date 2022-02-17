@@ -57,6 +57,7 @@ class AppointDialog extends React.Component {
         33, // 33: _l('自动编号'),
         37, // 37: _l('汇总'),
         10010, // 备注
+        45, // 嵌入
       ].indexOf(type) >= 0
     );
   };

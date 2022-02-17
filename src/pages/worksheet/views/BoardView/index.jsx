@@ -257,7 +257,8 @@ function BoardView(props) {
 }
 
 const ConnectedBoardView = connect(
-  state => _.pick(state.sheet, ['boardView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit']),
+  state =>
+    _.pick(state.sheet, ['boardView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
   dispatch => bindActionCreators({ ...boardActions, ...baseAction }, dispatch),
 )(BoardView);
 

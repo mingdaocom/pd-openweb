@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -6,11 +6,13 @@ import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { useToggle } from 'react-use';
 import { getEnumType } from '../../util';
+import PageMove from 'worksheet/common/Statistics/components/PageMove';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },
   { type: 'insertTitle', icon: 'task_custom_text-box', tip: _l('插入标题行') },
   { type: 'copy', icon: 'copy_custom', tip: _l('复制') },
+  { type: 'move', icon: 'swap_horiz', tip: _l('移动') },
   { type: 'del', icon: 'custom_-page_delete', tip: _l('删除') },
 ];
 
@@ -32,6 +34,7 @@ const TOOLS_BY_LAYOUT_TYPE = {
 
 const ToolsWrap = styled.ul`
   position: fixed;
+  z-index: 1;
   top: ${props => (props.titleVisible ? '40px' : '0')};
   left: 50%;
   transform: translateX(-50%);
@@ -108,10 +111,12 @@ const DelVerify = styled.div`
 
 const getTools = ({ widgetType, layoutType }) => {
   if (layoutType === 'mobile' && widgetType === 'button') return MOBILE_BUTTON_TOOLS;
+  if (widgetType !== 'analysis') return WEB_CONTENT_TOOLS.filter(item => item.type !== 'move');
   return TOOLS_BY_LAYOUT_TYPE[layoutType];
 };
-export default function Tools({ widget, layoutType, handleToolClick, titleVisible }) {
+export default function Tools({ appId, pageId, widget, layoutType, handleToolClick, titleVisible, updatePageInfo }) {
   const [visible, toggle] = useToggle(false);
+  const [moveVisible, setMoveVisible] = useState(false);
   const widgetType = getEnumType(widget.type);
   const ref = useRef(null);
   const isHighlight = type => {
@@ -133,7 +138,7 @@ export default function Tools({ widget, layoutType, handleToolClick, titleVisibl
     return icon;
   };
   return (
-    <ToolsWrap ref={ref} titleVisible={titleVisible} className="widgetContentTools">
+    <ToolsWrap ref={ref} titleVisible={titleVisible} className="widgetContentTools disableDrag">
       {TOOLS.map(({ icon, type, tip }) =>
         type === 'del' ? (
           <Trigger
@@ -148,7 +153,7 @@ export default function Tools({ widget, layoutType, handleToolClick, titleVisibl
               overflow: { adjustX: true, adjustY: true },
             }}
             popup={
-              <DelVerify>
+              <DelVerify className="disableDrag">
                 <p>{_l('确定要删除此组件')}</p>
                 <div className="btnGroup">
                   <span className="cancel" onClick={() => toggle(false)}>
@@ -178,12 +183,31 @@ export default function Tools({ widget, layoutType, handleToolClick, titleVisibl
             key={type}
             data-tip={getTip(type, tip)}
             onClick={e => {
-              handleToolClick(type);
+              if (type === 'move') {
+                setMoveVisible(true);
+              } else {
+                handleToolClick(type);
+              }
             }}
           >
             <i className={`icon-${getIcon(type, icon)} Font18`}></i>
           </li>
         )
+      )}
+      {moveVisible && (
+        <PageMove
+          dialogClasses="disableDrag"
+          appId={appId}
+          pageId={pageId}
+          reportId={widget.value}
+          onSucceed={(version) => {
+            updatePageInfo({ version });
+            handleToolClick('move');
+          }}
+          onCancel={() => {
+            setMoveVisible(false);
+          }}
+        />
       )}
     </ToolsWrap>
   );

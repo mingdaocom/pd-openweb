@@ -6,7 +6,7 @@ const wrappedGetFilterRows = wrapAjax(getFilterRows);
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId } = base;
+    const { appId, viewId, worksheetId, chartId } = base;
     let { galleryIndex, gallery } = galleryview;
     if (index <= 1) {
       dispatch({ type: 'CHANGE_GALLERY_VIEW_LOADING', loading: true });
@@ -20,6 +20,7 @@ export const fetch = index => {
       status: 1,
       appId,
       viewId,
+      reportId: chartId || undefined,
       ...filters,
       fastFilters: quickFilter.map(f =>
         _.pick(f, [

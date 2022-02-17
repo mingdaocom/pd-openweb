@@ -7,6 +7,9 @@ var $ = require('gulp-load-plugins')();
 var webpack = require('webpack');
 var minimist = require('minimist');
 const { cloneDeep } = require('lodash');
+const dayjs = require('dayjs');
+const axios = require('axios');
+const readline = require('readline');
 var argv = minimist(process.argv.slice(2));
 var verbose = !!argv.verbose;
 
@@ -113,8 +116,8 @@ var webpackCompile = function webpackCompile(err, stats) {
 };
 var webpackTaskFactory = function webpackTaskFactory(webpackConfigArg, isWatch) {
   webpackConfigArg = cloneDeep(webpackConfigArg);
-  var webpackCompiler = webpack(webpackConfigArg);
   return function webpackTask(callback) {
+    var webpackCompiler = webpack(webpackConfigArg);
     var compile = function webpackTaskFactoryCompile(err, stats) {
       webpackCompile(err, stats);
       return callback();
@@ -127,8 +130,15 @@ var webpackTaskFactory = function webpackTaskFactory(webpackConfigArg, isWatch) 
   };
 };
 
-function parseNginxRewriteConf(confpath, data = {}) {
-  const content = fs.readFileSync(confpath).toString();
+function parseNginxRewriteConf(confPathList, data = {}) {
+  const content =
+    confPathList
+      .map(confPath => {
+        return fs.readFileSync(confPath).toString();
+      })
+      .join('\n') +
+    'rewrite (?i)^/portallogin /portalLogin.html break;rewrite (?i)^/portalTpauth /portalLogin.html break;';
+
   const rules = content
     .split(/\r?\n/)
     .filter(rule => rule && /^rewrite(.*)break;/.test(rule))
@@ -173,6 +183,55 @@ function findEntryMap(type) {
   return entrySet;
 }
 
+function uploadFunctionFileToWorksheet(filePath, cb = () => {}) {
+  try {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question('输入发布说明：', answer => {
+      axios({
+        method: 'POST',
+        url: 'https://api2.mingdao.com/v2/open/worksheet/addRow',
+        data: {
+          appKey: 'D5BDE3DE4E37C407',
+          sign: 'MjE5YTg5NGRmYmM2OTM2ZWEzMjY5MDRkMGU4MTRhYzBmNDViNjQyMDFkYmEzNjczMTJiOGVhNzEyNTU2NTNiZg==',
+          worksheetId: '619f353fd55ea8ece7050b16',
+          controls: [
+            // 构建时间
+            {
+              controlId: '619f3567721e5744e3d4ed35',
+              value: '构建时间 ' + dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            },
+            // 说明
+            {
+              controlId: '619f353fd55ea8ece7050b18',
+              value: answer,
+            },
+            // 类库文件
+            {
+              controlId: '619f353fd55ea8ece7050b19',
+              valueType: 2,
+              controlFiles: [
+                {
+                  baseFile: fs.readFileSync(filePath).toString('base64'),
+                  fileName: 'mdfunction.bundle.js',
+                },
+              ],
+            },
+          ],
+        },
+      })
+        .then(res => {
+          cb(null, res);
+        })
+        .catch(cb);
+      rl.close();
+    });
+  } catch (err) {}
+}
+
 module.exports = {
   // enum
   htmlTemplatesPath,
@@ -183,4 +242,5 @@ module.exports = {
   getEntryName,
   getEntryFromHtml,
   findEntryMap,
+  uploadFunctionFileToWorksheet,
 };

@@ -1,16 +1,18 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
 import sheetAjax from 'src/api/worksheet';
-import { Icon, Support } from 'ming-ui';
+import { Icon, Support, Dialog } from 'ming-ui';
 import Clipboard from 'clipboard';
 import './index.less';
-let controlNo = [22, 10010, 43]; //分段、备注 OCR/
+let controlNo = [22, 10010, 43, 45]; //分段、备注、OCR、嵌入字段/
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       worksheetName: '',
       downLoadUrl: '',
+
+      // 系统字段列表
       systemControl: [
         {
           controlId: 'caid',
@@ -39,96 +41,136 @@ export default class UploadTemplateSheet extends React.Component {
         },
       ],
       cardControls: [],
+
+      // 页面是否支持滑动
+      scroll: true,
     };
   }
 
-  componentWillMount() {
-    const {
-      match: {
-        params: { worksheetId },
-      },
-    } = this.props;
-  }
+  componentWillMount() {}
 
   componentDidMount() {
-    $('html').addClass('uploadTemplateSheet');
-    const { match } = this.props;
-    const { worksheetId } = match.params;
-    const { systemControl } = this.state;
-    sheetAjax
-      .getWorksheetInfo({
+    (async () => {
+      // 显示模板打印弹框
+      $('html').addClass('uploadTemplateSheet');
+      const { match } = this.props;
+      const { worksheetId } = match.params;
+      const { systemControl } = this.state;
+
+      // 通过API获取项目详情信息
+      const res = await sheetAjax.getWorksheetInfo({
         getTemplate: true,
         worksheetId: worksheetId,
-      })
-      .then(res => {
-        let { template = [] } = res;
-        let { controls = [] } = template;
-        let cardControls = controls.filter(
-          control =>
-            (control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2') ||
-            control.type === 34,
-        ); // 关联表，子表
-        controls = controls.filter(
-          control =>
-            !(
-              (control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2') ||
-              control.type === 34
-            ),
-        ); // 除去关联表列表 子表
-        if (cardControls.length > 0) {
-          //更新关联表的controls
-          sheetAjax
-            .getWorksheetsControls({
-              appId: res.appId,
-              worksheetIds: _.map(cardControls, 'dataSource'),
-            })
-            .then(result => {
-              this.setState({
-                appId: res.appId,
-                worksheetName: res.name,
-                controls,
-                cardControls: cardControls.map(it => {
-                  const { showControls = [], dataSource } = it;
-                  let controlList = (result.data.find(o => dataSource === o.worksheetId) || {}).controls || [];
-                  return {
-                    ...it,
-                    relationControls: showControls
-                      .map(showControl =>
-                        _.find(
-                          controlList.concat(systemControl),
-                          control => control.controlId === showControl && !controlNo.includes(control.type),
-                        ),
-                      )
-                      .filter(c => c),
-                  };
-                }), // 关联表，子表
-                downLoadUrl: res.downLoadUrl,
-              });
-            });
-        } else {
-          this.setState({
-            appId: res.appId,
-            worksheetName: res.name,
-            controls,
-            cardControls, // 关联表，子表
-            downLoadUrl: res.downLoadUrl,
-          });
-        }
       });
-    this.copy();
-    $('.urlForTel').on('click', () => {
-      this.downTem();
-    });
+
+      const { template = [] } = res;
+      const { controls = [] } = template;
+
+      // 获取子表
+      for (let i = 0; i < controls.length; i++) {
+        if (controls[i].type != 34) continue;
+        const { type } = await sheetAjax.getWorksheetInfo({
+          getTemplate: true,
+          worksheetId: controls[i].dataSource,
+        });
+
+        // 判断是否为空白创建的子表
+        controls[i].isEmptyControl = type == 2;
+      }
+
+      // 通过API获取关联表的属性
+      const { data } = await sheetAjax.getWorksheetsControls({
+        appId: res.appId,
+        worksheetIds: _.map(
+          controls.filter(i => [29, 34].includes(i.type)),
+          'dataSource',
+        ),
+      });
+
+      const commonControls = [];
+      const cardControls = [];
+      for (let i = 0; i < controls.length; i++) {
+        const { type, advancedSetting, showControls = [], dataSource } = controls[i];
+
+        // 获取关联字段
+        const controlList = (data.find(o => dataSource === o.worksheetId) || {}).controls || [];
+        controls[i].controlList = controlList;
+        controls[i].relationControls = showControls
+          .map(showControl =>
+            _.find(
+              controlList.concat(systemControl),
+              control => control.controlId === showControl && !controlNo.includes(control.type),
+            ),
+          )
+          .filter(c => c);
+
+        // 是否展开
+        controls[i].expandControls = false;
+        controls[i].showDialog = false;
+
+        // 是否为关联记录（列表）、子表
+        const isRalate = (type == 29 && advancedSetting && advancedSetting.showtype === '2') || type == 34;
+        if (isRalate) cardControls.push(controls[i]);
+        else commonControls.push(controls[i]);
+      }
+
+      this.setState({
+        appId: res.appId,
+        worksheetName: res.name,
+
+        // 普通字段
+        controls: commonControls.sort((a, b) => {
+          if (a.row === b.row) {
+            return a.col - b.col;
+          }
+          return a.row - b.row;
+        }),
+
+        // 关联表、子表字段
+        cardControls,
+        downLoadUrl: res.downLoadUrl,
+      });
+
+      // 剪切板功能
+      this.copy();
+
+      // 下载功能
+      $('.urlForTel').on('click', () => {
+        this.downTem();
+      });
+    })().catch(console.error);
   }
 
   componentWillUnmount() {
     $('html').removeClass('uploadTemplateSheet');
   }
 
+  /**
+   * 打开弹层显示所有字段
+   */
+  openDialog = it => {
+    it.showDialog = true;
+    $('.uploadTemplateSheet').css('overflow-y', 'hidden');
+    this.setState({
+      scroll: false,
+    });
+  };
+
+  /**
+   * 关闭弹层显示的字段
+   */
+  closeDialog = it => {
+    it.showDialog = false;
+    $('.uploadTemplateSheet').css('overflow-y', 'auto');
+    this.setState({
+      scroll: true,
+    });
+  };
+
   copy = () => {
     const clipboard = new Clipboard('i.copy', {
       text(data) {
-        return data.closest('.copySpan').innerText;
+        return data.closest('.copySpan') && data.closest('.copySpan').innerText;
       },
     });
     clipboard.on('success', () => {
@@ -145,67 +187,163 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   renderItem = it => {
-    let n = 0;
+    const that = this;
+
+    // 显示的子字段列表
+    const showControls = (it.showControls || []).filter(o => {
+      const data = it.relationControls.find(a => o === a.controlId);
+      return data && data.attribute !== 1 && !controlNo.includes(data.type);
+    });
+
     return (
       <React.Fragment>
-        <div className="list">
-          <span className="">{it.controlName}</span>
+        <div
+          className="list"
+          style={{ position: 'relative', left: it.type === 29 && it.showControls.length ? '-1em' : '0' }}
+        >
+          {/** 左侧展开子字段按钮 */}
+          {it.type === 29 && it.showControls.length ? (
+            <Icon
+              icon={!it.expandControls ? 'arrow-right-tip' : 'arrow-down'}
+              onClick={() => {
+                const { controls } = that.state;
+                it.expandControls = !it.expandControls;
+                that.setState({ controls });
+              }}
+              className="copy Font13 pointer"
+            />
+          ) : (
+            ''
+          )}
+
+          {/** 字段名称 */}
+          <span
+            className="pointer"
+            onClick={() => {
+              const { controls } = that.state;
+              it.expandControls = !it.expandControls;
+              that.setState({ controls });
+            }}
+          >
+            {it.controlName}
+          </span>
+
+          {/** 点击复制图标 */}
           <span className="copySpan">
             {`#{${it.controlName}${it.type === 29 ? '[S]' : ''}${this.strForFile(it)}}`}
             {this.renderIcon()}
           </span>
+
+          {/** 点击复制二维码图标 */}
           <span className="copySpan">
             {`#{${it.alias || it.controlId}${it.type === 29 ? '[S]' : ''}${this.strForFile(it)}}`}
             {it.controlId !== 'qrCode' && this.renderIcon()}
           </span>
         </div>
+
+        {/** 是否为关联表字段 */}
         {it.type === 29 &&
-          it.advancedSetting &&
-          it.advancedSetting.showtype === '1' && //关联表卡片
-          it.showControls.map(o => {
-            let data = (it.relationControls || []).find(item => o === item.controlId);
-            if (data) {
-              if (
-                data.attribute === 1 ||
-                controlNo.includes(data.type) || ///分段、备注/
-                n > 2
-              ) {
-                return '';
-              }
-              n = n + 1;
-              return this.renderRelaItem(it, data);
-            }
-          })}
+        it.expandControls &&
+        it.showControls.length &&
+        // 是否以卡片形式展现关联表
+        it.advancedSetting &&
+        it.advancedSetting.showtype !== '2' ? (
+          <React.Fragment>
+            {/** 字段列表 */}
+            {showControls.map(o => {
+              const control = (it.relationControls || []).find(a => o === a.controlId);
+              // 过滤掉关联字段列表类型
+              const isRealtionList =
+                control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2';
+              // 是否为子表。分段。备注
+              const isNotSupport = [21, 34].concat(controlNo).includes(control.type);
+              return isRealtionList || isNotSupport ? '' : this.renderRelaItem(it, control, true);
+            })}
+
+            {/** 点击查看所有字段 */}
+            <div className="list" onClick={() => this.openDialog(it)}>
+              <span className="showDialog">{_l('查看所有字段')}</span>
+            </div>
+          </React.Fragment>
+        ) : (
+          ''
+        )}
+
+        {/** 弹层显示关联表格的所有字段 */}
+        {it.showDialog && (
+          <Dialog
+            showFooter={false}
+            type="scroll"
+            width={880}
+            title={<span className="Bold">{it.controlName + _l('所有字段')}</span>}
+            visible={it.showDialog}
+            onCancel={() => this.closeDialog(it)}
+            onOk={() => this.closeDialog(it)}
+          >
+            <div className="modallistCon">
+              {/** 表头 */}
+              <div className="list Bold">
+                <span className="textIndent">{_l('字段名称')}</span>
+                <span className="copySpan">{_l('字段代码')}</span>
+                <span className="copySpan">{_l('字段ID/别名')}</span>
+              </div>
+
+              {/** 分割线 */}
+              <p className="line" />
+
+              {/** 弹层中的字段列表 */}
+              {(it.controlList || []).map(o => {
+                const { type, advancedSetting } = o;
+
+                // 过滤掉关联字段列表类型
+                const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype === '2';
+
+                // 是否为子表、分段、备注
+                const isNotSupport = [21, 34].concat(controlNo).includes(type);
+                return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, true) : '';
+              })}
+            </div>
+          </Dialog>
+        )}
       </React.Fragment>
     );
   };
 
+  /**
+   * 兼容他表字段
+   */
   strForFile = data => {
-    //兼容他表字段
     let o = data.type === 30 ? { ...data, type: !data.sourceControlType ? data.type : data.sourceControlType } : data;
     return o.type === 42 || o.type === 14 || o.controlId === 'qrCode'
       ? `$[${o.type === 42 ? '48*20' : o.type === 14 ? '90*auto' : '20*20'}]$`
       : '';
   };
 
+  /**
+   * 关联表字段
+   */
   renderRelaItem = (it, o, isRela) => {
     return (
       <div className="list">
-        <span className="">{isRela ? `${o.controlName}` : `${it.controlName}.${o.controlName}`}</span>
+        <span className="textIndent">{`${o.controlName}`}</span>
         <span className="copySpan">
-          {`#{${it.controlName}.${o.controlName}${isRela ? '' : '[S]'}${this.strForFile(o)}}`}
+          {`#{${it.controlName}.${o.controlName}${isRela ? '[S]' : ''}${this.strForFile(o)}}`}
           {this.renderIcon()}
         </span>
         <span className="copySpan">
-          {`#{${it.alias || it.controlId}.${o.alias || o.controlId}${isRela ? '' : '[S]'}${this.strForFile(o)}}`}
+          {`#{${it.alias || it.controlId}.${o.alias || o.controlId}${isRela ? '[S]' : ''}${this.strForFile(o)}}`}
           {this.renderIcon()}
         </span>
       </div>
     );
   };
 
+  /**
+   * 字段列表
+   */
   renderList = () => {
     const { systemControl = [], cardControls = [], controls = [] } = this.state;
+    const that = this;
     return (
       <div className="listCon">
         <div className="topHeader">
@@ -213,11 +351,13 @@ export default class UploadTemplateSheet extends React.Component {
           <span className="Bold">{_l('字段代码')}</span>
           <span className="Bold">{_l('字段ID/字段别名')}</span>
         </div>
+
+        {/** 系统字段列表 */}
         <div className="title">{_l('系统字段')}</div>
-        {systemControl.map(it => {
-          return this.renderItem(it);
-        })}
-        <p className="line"></p>
+        {systemControl.map(it => this.renderItem(it))}
+
+        {/** 表单字段列表 */}
+        <p className="line" />
         <div className="title">{_l('表单字段')}</div>
         <p className="mTop12 Gray_75">
           {_l(
@@ -225,15 +365,15 @@ export default class UploadTemplateSheet extends React.Component {
           )}
         </p>
         {controls.map(it => {
-          if (controlNo.includes(it.type) || systemControl.map(o => o.controlId).includes(it.controlId)) {
-            //分段、备注/ //系统字段/
-            return '';
-          }
-          return this.renderItem(it);
+          if (!controlNo.includes(it.type) && !systemControl.some(o => o.controlId == it.controlId))
+            return this.renderItem(it);
+          else return '';
         })}
+
+        {/** 关联记录、子表 */}
         {cardControls.length > 0 && (
           <React.Fragment>
-            <p className="line"></p>
+            <p className="line" />
             <div className="title">{_l('关联记录（列表）、子表')}</div>
             <p className="mTop12 Gray_75">
               <span>
@@ -243,6 +383,8 @@ export default class UploadTemplateSheet extends React.Component {
               </span>
               <Support type={3} href="https://help.mingdao.com/operation18.html" text={_l('帮助')} />
             </p>
+
+            {/** 字段列表 */}
             <div className="bgCon mTop18">
               <ul>
                 <li>
@@ -254,18 +396,79 @@ export default class UploadTemplateSheet extends React.Component {
                 </li>
               </ul>
             </div>
-            {/* 关联记录（列表）、子表 */}
-            {cardControls.map((it, i) => {
-              return (
-                <React.Fragment>
-                  {i + 1 <= cardControls.length && i > 0 && <p className="line"></p>}
-                  <p className="mTop20 Bold Font13">{it.controlName}</p>
-                  {it.relationControls.map(o => {
-                    return this.renderRelaItem(it, o, true);
-                  })}
-                </React.Fragment>
-              );
-            })}
+
+            {/* 关联记录（列表）、子表中的字段列表 */}
+            {cardControls.map((it, i) => (
+              <React.Fragment>
+                {/** 分割线 */}
+                {i + 1 <= cardControls.length && i > 0 && <p className="line" />}
+
+                {/** 字段列表 */}
+                <p
+                  className="mTop20 Bold Font13 pointer"
+                  style={{ left: '-1em', position: 'relative' }}
+                  onClick={() => {
+                    it.expandControls = !it.expandControls;
+                    that.setState({ cardControls });
+                  }}
+                >
+                  {/** 左侧展开子字段按钮 */}
+                  <Icon icon={!it.expandControls ? 'arrow-right-tip' : 'arrow-down'} className="copy Font13" />
+                  <span>{it.controlName}</span>
+                </p>
+
+                {/** 展开的字段列表 */}
+                {it.expandControls && (
+                  <React.Fragment>
+                    {it.relationControls.map(o => this.renderRelaItem(it, o, false))}
+
+                    {/** 点击查看所有字段 */}
+                    {!it.isEmptyControl && (
+                      <div className="list" onClick={() => this.openDialog(it)}>
+                        <span className="showDialog">{_l('查看所有字段')}</span>
+                      </div>
+                    )}
+                  </React.Fragment>
+                )}
+
+                {/** 弹层显示字段 */}
+                {it.showDialog && (
+                  <Dialog
+                    showFooter={false}
+                    type="scroll"
+                    width={880}
+                    title={<span className="Bold">{it.controlName + _l('所有字段')}</span>}
+                    visible={it.showDialog}
+                    onCancel={() => this.closeDialog(it)}
+                    onOk={() => this.closeDialog(it)}
+                  >
+                    <div className="modallistCon">
+                      {/** 表头 */}
+                      <div className="list Bold">
+                        <span className="textIndent">{_l('字段名称')}</span>
+                        <span className="copySpan">{_l('字段代码')}</span>
+                        <span className="copySpan">{_l('字段ID/别名')}</span>
+                      </div>
+
+                      {/** 分割线 */}
+                      <p className="line" />
+
+                      {/** 弹层中的字段列表 */}
+                      {(it.controlList || []).map(o => {
+                        const { type, advancedSetting } = o;
+
+                        // 过滤掉关联字段列表类型
+                        const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype === '2';
+
+                        // 是否为子表。分段。备注
+                        const isNotSupport = controlNo.includes(type) || type == 34;
+                        return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, false) : '';
+                      })}
+                    </div>
+                  </Dialog>
+                )}
+              </React.Fragment>
+            ))}
           </React.Fragment>
         )}
       </div>
@@ -287,7 +490,7 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   render() {
-    const { worksheetName } = this.state;
+    const { worksheetName, scroll } = this.state;
     return (
       <React.Fragment>
         <DocumentTitle title={_l('制作模板 - %0', worksheetName || '')} />

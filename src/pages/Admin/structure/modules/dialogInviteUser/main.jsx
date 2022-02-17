@@ -16,6 +16,7 @@ var importUserController = require('src/api/importUser');
 import { Icon, Radio } from 'ming-ui';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
+import { Tooltip } from 'antd';
 
 const checkUser = ([input, iti]) => {
   if (!input.value) {
@@ -77,7 +78,7 @@ const checkFuncs = {
   },
   contactPhone: tel => {
     if (!tel) return;
-    if (!RegExp.isTel(tel)) {
+    if (!RegExp.isTel(tel) && !RegExp.isMobile(tel)) {
       return {
         msg: _l('工作电话格式不正确'),
       };
@@ -114,7 +115,7 @@ const inviteCallback = (data, isClear, callback, isAutonomously) => {
 };
 
 const TextInput = props => {
-  const { label, editable, isRequired, value, placeholder, onChange, onBlur, onFocus, error, type } = props;
+  const { label, editable, isRequired, value, placeholder, onChange, onBlur, onFocus, error, type, maxLength } = props;
   const inputProps = {
     value,
     placeholder,
@@ -129,7 +130,14 @@ const TextInput = props => {
         {label}
         {isRequired ? <span className="TxtMiddle Red">*</span> : null}
       </span>
-      {editable ? <input type="text" className={classNames('formControl', { error })} {...inputProps} /> : null}
+      {editable ? (
+        <input
+          type="text"
+          className={classNames('formControl', { error })}
+          {...inputProps}
+          maxLength={maxLength || Infinity}
+        />
+      ) : null}
       {props.children}
       <span
         className={classNames('Block Red LineHeight25', {
@@ -291,7 +299,7 @@ class Main extends Component {
       $(this.workSiteInput).MDSelect({
         dataArr: data,
         showType: 4,
-        defaultOptionText: _l('请选择工作地点'),
+        defaultOptionText: _l('请选择'),
         onChange(value) {
           _this.setState({
             workSiteId: value,
@@ -618,13 +626,13 @@ class Main extends Component {
         <div className="formGroup mBottom25">
           <span className="formLabel">{_l('工作地点')}</span>
           <div className="workSiteBox">
-            <input type="hidden" ref={input => (this.workSiteInput = input)} />
+            <input type="hidden" placeholder={_l('')} ref={input => (this.workSiteInput = input)} />
           </div>
         </div>
         <TextInput
           label={_l('工号')}
           value={jobNumber}
-          placeholder={_l('请输入工号')}
+          placeholder={_l('')}
           onChange={this.handleFieldInput('jobNumber')}
         />
         <TextInput
@@ -632,9 +640,9 @@ class Main extends Component {
           value={contactPhone}
           onChange={this.handleFieldInput('contactPhone')}
           placeholder={_l('请输入工作电话')}
-          // onBlur={this.handleFieldBlur('contactPhone')}
           error={errors.contactPhone}
           onFocus={this.clearError('contactPhone')}
+          maxLength="32"
         />
       </div>
     );
@@ -666,7 +674,7 @@ class Main extends Component {
             value={userName}
             editable={editable}
             isRequired={true}
-            placeholder={_l('请输入姓名')}
+            placeholder={_l('')}
             onChange={this.handleFieldInput('userName')}
             onBlur={this.handleFieldBlur('userName')}
             error={editable ? errors.userName : errors.user}
@@ -679,10 +687,12 @@ class Main extends Component {
                 <span className="mLeft5 icon-closeelement-bg-circle Font14 Gray_c" onClick={this.clearSelectUser()} />
               </span>
             ) : null}
-            <span
-              className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
-              onClick={this.dialogSelectUserHandler}
-            />
+            <Tooltip title={_l('从通讯录添加')}>
+              <span
+                className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
+                onClick={this.dialogSelectUserHandler}
+              />
+            </Tooltip>
           </TextInput>
         </div>
         {this.renderInvite()}
@@ -835,16 +845,39 @@ class Main extends Component {
           <span className="Hand ThemeHoverColor3" onClick={this.closeDialog}>
             {_l('取消')}
           </span>
-          <ClipboardButton component="span" data-clipboard-text={copyText} onSuccess={this.handleSubmit()}>
-            <a className="btnBootstrap btnBootstrap-primary btnBootstrap-small mLeft25 saveBtn" disabled={isUploading}>
-              {_l('保存')}
-            </a>
-          </ClipboardButton>
-          <ClipboardButton component="span" data-clipboard-text={copyText} onSuccess={this.handleSubmit(true)}>
-            <a className="btnBootstrap btnBootstrap-primary btnBootstrap-small mLeft25 saveBtn" disabled={isUploading}>
-              {_l('保存并继续')}
-            </a>
-          </ClipboardButton>
+          <a
+            className="btnBootstrap btnBootstrap-small mLeft25"
+            href="javascript:void(0);"
+            style={{
+              lineHeight: '36px',
+              height: '36px',
+              padding: '0 24px',
+              borderRadius: '32px',
+              border: '1px solid #2196F3',
+              background: '#fff',
+              color: '#2196F3',
+            }}
+            disabled={isUploading}
+            onClick={this.handleSubmit()}
+          >
+            {_l('继续添加')}
+          </a>
+          <a
+            className="btnBootstrap btnBootstrap-small mLeft25"
+            href="javascript:void(0);"
+            disabled={isUploading}
+            style={{
+              lineHeight: '36px',
+              height: '36px',
+              padding: '0 24px',
+              borderRadius: '32px',
+              background: '#2196F3',
+              color: '#fff',
+            }}
+            onClick={this.handleSubmit(true)}
+          >
+            {_l('添加')}
+          </a>
         </div>
       </div>
     );

@@ -288,6 +288,50 @@ export default class Email extends Component {
                     className="mTop8"
                     showTool
                     minHeight={200}
+                    dropdownPanelPosition={{ left: '0px', right: 'initial' }}
+                    toolbarList={[
+                      'undo',
+                      'redo',
+                      'removeFormat',
+                      '|',
+                      'paragraph',
+                      'heading1',
+                      'heading2',
+                      'heading3',
+                      '|',
+                      'fontFamily',
+                      'fontSize',
+                      'fontColor',
+                      'highlight',
+                      '|',
+                      'bold',
+                      'italic',
+                      'underline',
+                      'strikethrough',
+                      'subscript',
+                      'superscript',
+                      '|',
+                      'bulletedList',
+                      'numberedList',
+                      'todoList',
+                      '|',
+                      'alignment',
+                      'indent',
+                      'outdent',
+                      '|',
+                      'horizontalLine',
+                      'blockQuote',
+                      'link',
+                      'code',
+                      'imageUpload',
+                      'mediaEmbed',
+                      '-',
+                      'insertTable',
+                      'codeBlock',
+                      '|',
+                      'sourceEditing',
+                      'findAndReplace',
+                    ]}
                     data={item.fieldValue || ''}
                     onActualSave={value => {
                       let newFields = [].concat(data.fields);

@@ -26,6 +26,7 @@ import Location from './Location';
 import Cascader from './Cascader';
 import OCR from './OCR';
 import Subtotal from './Subtotal';
+import Embed from './Embed';
 
 export default {
   RADIO: Radio,
@@ -56,4 +57,5 @@ export default {
   Cascader: Cascader,
   OCR: OCR,
   SUBTOTAL: Subtotal,
+  Embed: Embed,
 };

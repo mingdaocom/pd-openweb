@@ -123,7 +123,10 @@ export function navGroupCounts(state = [], action) {
 export function controls(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_INIT':
-      return action.value.template.controls;
+      const { value = {} } = action;
+      const { template = {} } = value;
+      const { controls = [] } = template;
+      return controls;
     case 'WORKSHEET_UPDATE_CONTROLS':
       return action.controls;
     case 'WORKSHEET_UPDATE_SOME_CONTROLS':

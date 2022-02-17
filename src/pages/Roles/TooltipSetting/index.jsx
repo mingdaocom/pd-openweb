@@ -32,12 +32,6 @@ export default class extends PureComponent {
     showFieldSettingDialog: false,
   };
 
-  clickHandler = () => {
-    const { canAdd, onChange } = this.props;
-    onChange({
-      canAdd: !canAdd,
-    });
-  };
 
   renderDialog() {
     const { fields, onChange, showEdit, canAdd } = this.props;
@@ -61,31 +55,43 @@ export default class extends PureComponent {
   }
 
   renderContent() {
-    const { showRead, showEdit, showRemove, canAdd, readLevel, editLevel, removeLevel, onChange } = this.props;
-    const data = (key, type = 'operation') => [
-      {
-        text: _l('全部'),
-        value: 100,
-        checked: key === 100,
-      },
-      {
-        text: type === 'look' ? _l('加入的') : _l('拥有的'),
-        value: 20,
-        checked: key === 20,
-      },
-      {
-        text: type === 'look' ? _l('本人和下属加入的') : _l('本人和下属拥有的'),
-        value: 30,
-        checked: key === 30,
-      },
-    ];
+    const { showRead, showEdit, showRemove, canAdd, readLevel, editLevel, removeLevel, onChange, isForPortal } =
+      this.props;
+    const data = (key, type = 'operation') =>
+      isForPortal
+        ? [
+            {
+              text: _l('全部'),
+              value: 100,
+              checked: key === 100,
+            },
+            {
+              text: type === 'look' ? _l('加入的') : _l('拥有的'),
+              value: 20,
+              checked: key === 20,
+            },
+          ]
+        : [
+            {
+              text: _l('全部'),
+              value: 100,
+              checked: key === 100,
+            },
+            {
+              text: type === 'look' ? _l('加入的') : _l('拥有的'),
+              value: 20,
+              checked: key === 20,
+            },
+            {
+              text: type === 'look' ? _l('本人和下属加入的') : _l('本人和下属拥有的'),
+              value: 30,
+              checked: key === 30,
+            },
+          ];
     return (
       <React.Fragment>
         <div className={cx(styles.tipHeader, 'pLeft20 pRight20')}>{_l('数据操作权限')}</div>
         <div className="pLeft20 pRight20 Font13">
-          <div className="mTop15">
-            <Checkbox size="small" text={_l('新增记录')} onClick={this.clickHandler} checked={!!canAdd} />
-          </div>
           <div className="Gray_75 mTop20">{_l('查看')}</div>
           <RadioGroup
             className="mTop10"

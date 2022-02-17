@@ -27,6 +27,7 @@ export default function MDCell(props) {
     fromModule,
     sheetSwitchPermit,
     viewId,
+    appId,
     onCellFocus,
     checkRulesErrorOfControl,
   } = props;
@@ -37,6 +38,7 @@ export default function MDCell(props) {
   return (
     <CellControl
       viewId={viewId}
+      appId={appId}
       worksheetId={worksheetId}
       sheetSwitchPermit={sheetSwitchPermit}
       tableFromModule={fromModule}

@@ -12,6 +12,7 @@ import {
   MENU_LIST_APPENDIX,
   MENU_LIST_APPENDIX_HEADER,
   MENU_LIST_APPROLE,
+  OPTIONS_FUNCTION_LIST,
   appInfoParameters,
   sameParameters,
   SIDEBAR_LIST,
@@ -44,6 +45,12 @@ class WorksheetApi extends Component {
       showAliasDialog: false,
       numberTypeList: [],
       appInfo: {},
+
+      // 新增 / 编辑选项集参数列表
+      addOptionsParams: [],
+
+      // 获取选项集参数列表
+      getOptionsParams: [],
     };
     this.canScroll = true;
   }
@@ -56,6 +63,7 @@ class WorksheetApi extends Component {
     this.setState({
       loading: true,
     });
+
     Promise.all([
       // 获取应用详细信息
       homeApp
@@ -77,8 +85,29 @@ class WorksheetApi extends Component {
         .then(),
       appManagementAjax.getAuthorizes({ appId: this.getId() }).then(),
       homeApp.getApiInfo({ appId: this.getId() }).then(),
+
+      // 获取选项集参数接口
+      ajaxRequest.addOrUpdateOptionSetApiInfo(),
+      ajaxRequest.optionSetListApiInfo(),
     ]).then(res => {
-      const [dataApp = [], worksheetList = [], authorizes = [], appInfo = {}] = res;
+      const [
+        dataApp = {},
+        worksheetList = [],
+        authorizes = [],
+        appInfo = {},
+        addOptionsParams = [],
+        getOptionsParams = [],
+      ] = res;
+      for (const item of addOptionsParams.requestParams || []) {
+        item.required = item.isRequired ? _l('是') : _l('否');
+        item.type = item.dataType;
+        item.desc = item.description;
+      }
+      for (const item of getOptionsParams.requestParams || []) {
+        item.required = item.isRequired ? _l('是') : _l('否');
+        item.type = item.dataType;
+        item.desc = item.description;
+      }
       if (worksheetList.length <= 0) {
         this.setState({ isError: true });
       } else {
@@ -88,6 +117,8 @@ class WorksheetApi extends Component {
             worksheetList,
             authorizes,
             appInfo,
+            addOptionsParams,
+            getOptionsParams,
           },
           () => {
             document.title = dataApp.name + _l(' API说明');
@@ -122,12 +153,15 @@ class WorksheetApi extends Component {
   // 获取工作表信息
   getWorksheetApiInfo = worksheetId => {
     Promise.all([
+      // 获取工作表信息
       ajaxRequest
         .getWorksheetApiInfo({
           worksheetId,
           appId: this.getId(),
         })
         .then(),
+
+      // 获取工作表信息
       ajaxRequest
         .getWorksheetInfo({
           worksheetId,
@@ -254,8 +288,24 @@ class WorksheetApi extends Component {
    * 渲染应用角色、筛选侧栏(应用角色为1、筛选为2)
    */
   renderOtherSide(type) {
-    const { selectId } = this.state;
-    const currentList = type === 1 ? MENU_LIST_APPROLE : MENU_LIST_APPENDIX;
+    const { selectId, addOptionsParams, getOptionsParams } = this.state;
+    OPTIONS_FUNCTION_LIST[0].data = addOptionsParams.requestParams;
+    OPTIONS_FUNCTION_LIST[1].data = getOptionsParams.requestParams;
+    OPTIONS_FUNCTION_LIST[2].data = addOptionsParams.requestParams;
+    const { title, currentList } = [
+      {
+        title: _l('应用角色'),
+        currentList: MENU_LIST_APPROLE,
+      },
+      {
+        title: _l('筛选'),
+        currentList: MENU_LIST_APPENDIX,
+      },
+      {
+        title: _l('选项集'),
+        currentList: OPTIONS_FUNCTION_LIST,
+      },
+    ][type];
     const isOpen = _.findIndex(currentList, i => selectId === i.id) > -1;
 
     return (
@@ -268,7 +318,7 @@ class WorksheetApi extends Component {
           }}
         >
           <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
-          {type === 1 ? _l('应用角色') : _l('筛选')}
+          {title}
         </div>
         {isOpen
           ? currentList.map(o => {
@@ -308,11 +358,12 @@ class WorksheetApi extends Component {
   renderAppInfo() {
     const { appInfo = {} } = this.state;
     const { apiRequest = {}, apiUrl = '' } = appInfo;
+    const url = apiUrl + 'open/app/get';
     return (
       <Fragment>
         <div className="flex worksheetApiContent1">
           <div className="Font22 bold">{_l('获取应用信息 GET')}</div>
-          <div className="mTop24 worksheetApiBorder">{_l('请求URL：') + apiUrl + 'open/app/get'}</div>
+          <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
             <div className="w32">{_l('参数')}</div>
             <div className="mLeft30 w18">{_l('必选')}</div>
@@ -331,10 +382,10 @@ class WorksheetApi extends Component {
           })}
         </div>
         {this.renderRightContent(
-          {
+          this.getUrl(url, {
             appKey: apiRequest.appKey,
             sign: apiRequest.sign,
-          },
+          }),
           appSuccessData,
           appRoleErrorData,
         )}
@@ -351,9 +402,10 @@ class WorksheetApi extends Component {
       <Fragment>
         <div className="flex worksheetApiContent1">
           <div className="Font22 bold">{_l('获取工作表结构信息 POST')}</div>
-          <div className="mTop24 worksheetApiBorder">
-            {_l('请求URL：') + data[0].apiUrl + 'worksheet/getWorksheetInfo'}
-          </div>
+          <input
+            className="mTop24 worksheetApiInput"
+            value={_l('请求URL：') + data[0].apiUrl + 'worksheet/getWorksheetInfo'}
+          />
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
             <div className="w32">{_l('参数')}</div>
             <div className="mLeft30 w18">{_l('必选')}</div>
@@ -387,10 +439,11 @@ class WorksheetApi extends Component {
     const { appInfo = {} } = this.state;
     return (
       <Fragment>
-        {MENU_LIST_APPROLE.map(({ id, title, data = [], apiName, successData, errorData }, i) => {
+        {MENU_LIST_APPROLE.map(({ id, isGet, title, data = [], apiName, successData, errorData }, i) => {
+          const url = appInfo.apiUrl + apiName;
           let dataObj = {};
           data.map(({ name, desc }) => {
-            dataObj[name] = _.includes(['appkey, sign'], name) ? (this.state.data[0] || {})[name] : desc;
+            dataObj[name] = _.includes(['appKey', 'sign'], name) ? (this.state.data[0] || {})[name] : desc;
           });
 
           return (
@@ -398,7 +451,7 @@ class WorksheetApi extends Component {
               <div className="flex worksheetApiContent1">
                 {i === 0 && <div className="Font22 bold mBottom40">{_l('应用角色')}</div>}
                 <div className="Font17 bold">{title}</div>
-                <div className="mTop24 worksheetApiBorder">{_l('请求URL：') + appInfo.apiUrl + apiName}</div>
+                <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
                 <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
                   <div className="w32">{_l('参数')}</div>
                   <div className="mLeft30 w18">{_l('必选')}</div>
@@ -416,12 +469,24 @@ class WorksheetApi extends Component {
                   );
                 })}
               </div>
-              {this.renderRightContent(dataObj, successData, errorData)}
+              {this.renderRightContent(isGet ? this.getUrl(url, dataObj) : dataObj, successData, errorData)}
             </div>
           );
         })}
       </Fragment>
     );
+  }
+
+  /**
+   * 拼接url
+   */
+  getUrl(url = '', data = {}) {
+    let curUrl = url + '?';
+    for (let key in data) {
+      curUrl += key + '=' + data[key] + '&';
+    }
+    curUrl = curUrl.substring(0, curUrl.length - 1);
+    return { URL: curUrl };
   }
 
   /**
@@ -721,9 +786,9 @@ class WorksheetApi extends Component {
 
     return (
       <div className="flex worksheetApiContent1">
-        <div></div>
+        <div />
         <div className="Font17 bold">{MENU_LIST[i].title}</div>
-        <div className="mTop24 worksheetApiBorder">{_l('请求URL：') + data[0].apiUrl + MENU_LIST[i].apiName}</div>
+        <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + data[0].apiUrl + MENU_LIST[i].apiName} />
         <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
           <div className="w32">{_l('参数')}</div>
           <div className="mLeft30 w18">{_l('必选')}</div>
@@ -762,13 +827,15 @@ class WorksheetApi extends Component {
         {successData ? (
           <Fragment>
             <div className="mTop16 mBottom16 Font14 Gray_bd">{_l('返回数据示例')}</div>
-            <JsonView
-              src={successData}
-              theme="brewer"
-              displayDataTypes={false}
-              displayObjectSize={false}
-              name={_l('成功')}
-            />
+            {successData && (
+              <JsonView
+                src={successData}
+                theme="brewer"
+                displayDataTypes={false}
+                displayObjectSize={false}
+                name={_l('成功')}
+              />
+            )}
             <JsonView
               src={errorData}
               theme="brewer"
@@ -848,6 +915,7 @@ class WorksheetApi extends Component {
   renderAddRow(item, i) {
     return this.renderPostContent(item, i, {
       controls: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o)),
+      triggerWorkflow: true,
     });
   }
 
@@ -857,6 +925,7 @@ class WorksheetApi extends Component {
   renderAddRows(item, i) {
     return this.renderPostContent(item, i, {
       rows: [item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o))],
+      triggerWorkflow: true,
     });
   }
 
@@ -881,6 +950,7 @@ class WorksheetApi extends Component {
     return this.renderPostContent(item, i, {
       rowId: _l('行记录ID'),
       controls: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o)),
+      triggerWorkflow: true,
     });
   }
 
@@ -889,8 +959,9 @@ class WorksheetApi extends Component {
    */
   renderUpdateDetails(item, i) {
     return this.renderPostContent(item, i, {
-      rowIds: 'list[string]',
+      rowIds: [_l('行记录ID'), _l('行记录ID')],
       control: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o))[0],
+      triggerWorkflow: true,
     });
   }
 
@@ -898,7 +969,10 @@ class WorksheetApi extends Component {
    * 删除行记录
    */
   renderDel(item, i) {
-    return this.renderPostContent(item, i, { rowId: _l('行记录ID，多个用逗号(,)隔开') });
+    return this.renderPostContent(item, i, {
+      rowId: _l('行记录ID，多个用逗号(,)隔开'),
+      triggerWorkflow: true,
+    });
   }
 
   /**
@@ -911,6 +985,45 @@ class WorksheetApi extends Component {
         otherOptions[obj.name] = obj.desc;
       }
     });
+    return this.renderPostContent(item, i, otherOptions);
+  }
+
+  /**
+   * 获取工作表行记录总数
+   */
+  renderTotalNum(item, i) {
+    let otherOptions = {
+      viewId: _l('视图ID'),
+      keywords: _l('关键词'),
+      filters: [
+        {
+          controlId: 'string',
+          dataType: 1,
+          spliceType: 0,
+          filterType: 0,
+          dateRange: 0,
+          dateRangeType: 0,
+          value: 'string',
+          values: ['string'],
+          minValue: 'string',
+          maxValue: 'string',
+          isAsc: true,
+          dynamicSource: [
+            {
+              rcid: 'string',
+              cid: 'string',
+              staticValue: 'string',
+              isAsync: true,
+            },
+          ],
+          advancedSetting: {
+            additionalProp1: 'string',
+            additionalProp2: 'string',
+            additionalProp3: 'string',
+          },
+        },
+      ],
+    };
     return this.renderPostContent(item, i, otherOptions);
   }
 
@@ -967,6 +1080,46 @@ class WorksheetApi extends Component {
       }
     });
   }, 300);
+
+  /**
+   * 渲染选项集
+   */
+  renderOptions() {
+    const { appInfo = {} } = this.state;
+    return (
+      <Fragment>
+        {OPTIONS_FUNCTION_LIST.map(({ id, title, data = [], apiName, requestData, successData, errorData }, i) => {
+          const url = appInfo.apiUrl + apiName;
+          return (
+            <div className="flexRow worksheetApiLi" id={id + '-content'}>
+              <div className="flex worksheetApiContent1">
+                {i === 0 && <div className="Font22 bold mBottom40">{_l('选项集')}</div>}
+                <div className="Font17 bold">{title}</div>
+                <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
+                <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
+                  <div className="w32">{_l('参数')}</div>
+                  <div className="mLeft30 w18">{_l('必选')}</div>
+                  <div className="mLeft30 w14">{_l('类型')}</div>
+                  <div className="mLeft30 w36">{_l('说明')}</div>
+                </div>
+                {data.map(o => {
+                  return (
+                    <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
+                      <div className="w32">{o.name}</div>
+                      <div className="mLeft30 w18">{o.required}</div>
+                      <div className="mLeft30 w14">{o.type}</div>
+                      <div className="mLeft30 w36">{o.desc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              {this.renderRightContent(requestData, successData, errorData)}
+            </div>
+          );
+        })}
+      </Fragment>
+    );
+  }
 
   render() {
     const { data = [], loading, selectId, dataApp, isError } = this.state;
@@ -1035,7 +1188,14 @@ class WorksheetApi extends Component {
                   );
                 })}
                 {this.renderWorksheetSide()}
+
+                {/** 应用角色 */}
+                {this.renderOtherSide(0)}
+
+                {/** 筛选 */}
                 {this.renderOtherSide(1)}
+
+                {/** 选项集 */}
                 {this.renderOtherSide(2)}
               </ScrollView>
             )}
@@ -1060,6 +1220,18 @@ class WorksheetApi extends Component {
                   </div>
                   <div className="flex worksheetApiContent2" />
                 </div>
+                <div className="flexRow worksheetApiLi" id="requestFormat-content">
+                  <div className="flex worksheetApiContent1">
+                    <div className="Font22 bold">{_l('请求格式')}</div>
+                    <div className="Font14 mTop15">{_l('对于 GET 请求，所有参数通过拼接在 URL 之后传递。')}</div>
+                    <div className="Font14 mTop10">
+                      {_l(
+                        '对于 POST 请求，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json。',
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex worksheetApiContent2" />
+                </div>
                 <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
                   {this.renderAuthorizationManagement()}
                 </div>
@@ -1070,8 +1242,15 @@ class WorksheetApi extends Component {
                   {this.renderWorksheetInfo()}
                 </div>
                 <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
+
+                {/** 应用角色 */}
                 {this.renderAppRoleContent()}
+
+                {/** 筛选(附录) */}
                 {this.renderAppendixContent()}
+
+                {/** 选项集 */}
+                {this.renderOptions()}
               </ScrollView>
             )}
           </div>

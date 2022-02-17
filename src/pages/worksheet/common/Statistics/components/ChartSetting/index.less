@@ -1,6 +1,9 @@
 
 .chartSetting {
   padding-top: 16px;
+  .ant-checkbox-input, .ant-radio-input {
+    position: absolute;
+  }
   .fieldWrapper {
     font-size: 13px;
     .fidldItem {
@@ -79,18 +82,16 @@
   .ant-dropdown-menu-submenu-title {
     display: flex;
   }
+  .menuHighlight {
+    color: #fff !important;
+    background-color: #2196F3FF;
+    .icon, .ant-dropdown-menu-submenu-arrow-icon, .emptyTypeName {
+      color: #fff !important;
+    }
+  }
   .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
     position: relative;
     padding: 7px 20px 7px 15px;
-    /*
-    &:hover {
-      color: #fff !important;
-      background-color: #2196F3FF;
-      .icon, .ant-dropdown-menu-submenu-arrow-icon, .emptyTypeName {
-        color: #fff !important;
-      }
-    }
-    */
   }
   &.ant-dropdown-menu-submenu-popup ul {
     margin: 0;

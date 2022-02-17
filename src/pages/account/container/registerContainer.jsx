@@ -361,6 +361,13 @@ export default class Container extends React.Component {
         </div>
         <Message
           type={isLink ? (loginForAdd ? 'login' : 'invite') : 'register'}
+          keys={
+            isLink
+              ? loginForAdd
+                ? ['emailOrTel', 'password']
+                : ['emailOrTel', 'code', 'password']
+              : ['tel', 'code', 'password']
+          }
           dataList={_.cloneDeep(registerData)}
           setDataFn={setDataFn}
           nextHtml={isValid => {

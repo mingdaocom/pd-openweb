@@ -26,7 +26,7 @@ export const socketInit = () => {
 
 export default () => {
   notification.config({
-    maxCount: 3
+    maxCount: 3,
   });
   // socket 初始化
   socketInit();
@@ -37,7 +37,7 @@ export default () => {
   // 工作流推送
   workflowSocketInit();
   // 导出应用
-  appSocketInit();
+  !md.global.Account.isPortal && appSocketInit();
   // 透视表导出
   exportPivotTableSocket();
   // 自定义通知

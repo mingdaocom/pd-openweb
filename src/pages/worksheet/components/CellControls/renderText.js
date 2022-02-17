@@ -33,7 +33,6 @@ export default function renderText(cell, options = {}) {
       case 5: // EMAIL_INPUT 邮件地址
       case 7: // CRED_INPUT 身份证
       case 25: // MONEY_CN 大写金额
-      case 32: // CONCATENATE 文本组合
       case 33: // AUTOID 自动编号
       case 37: // SUBTOTAL 汇总 TODO
         return cell.enumDefault === 0 || cell.enumDefault === 2 ? (value || '').replace(/\r\n|\n/g, ' ') : value;
@@ -200,6 +199,8 @@ export default function renderText(cell, options = {}) {
         }
       // case 42: // SIGNATURE 签名
       // case 43: // CASCADER 多级下拉
+      case 32: // CONCATENATE 文本组合
+        return cell.value;
       default:
         return '';
     }

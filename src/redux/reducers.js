@@ -12,6 +12,8 @@ import mobile from 'pages/Mobile/redux/reducers';
 import publicWorksheet from 'pages/publicWorksheetConfig/redux/reducers';
 import formSet from 'pages/FormSet/redux/reducer/reducers';
 import customPage from 'src/pages/customPage/redux/reducers';
+import statistics from 'src/pages/worksheet/common/Statistics/redux/reducers';
+import portal from 'src/pages/Roles/Portal/redux/reduces';
 
 export function makeRootReducer() {
   return (state = {}, action) => {
@@ -34,6 +36,8 @@ export function makeRootReducer() {
       formSet,
       customPage,
       sheetList,
+      statistics,
+      portal,
     })(state, action);
   };
 }

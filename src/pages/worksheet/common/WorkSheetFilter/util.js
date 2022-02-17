@@ -35,8 +35,18 @@ export function formatValues(controlType, filterType, values = []) {
     }
   }
   try {
-    // 为空，不为空,
-    if (filterType === FILTER_CONDITION_TYPE.ISNULL || filterType === FILTER_CONDITION_TYPE.HASVALUE) {
+    // 为空，不为空, 常规用户, 外部门户用户
+    if (
+      _.includes(
+        [
+          FILTER_CONDITION_TYPE.ISNULL,
+          FILTER_CONDITION_TYPE.HASVALUE,
+          FILTER_CONDITION_TYPE.NORMALUSER,
+          FILTER_CONDITION_TYPE.PORTALUSER,
+        ],
+        filterType,
+      )
+    ) {
       return values;
     }
     if (_.includes([26, 27, 19, 23, 24, 29, 35], controlType)) {
@@ -114,7 +124,17 @@ export function checkConditionAvailable(condition) {
   if (dynamicSource.length > 0 && isDynamicsource) {
     return true;
   }
-  if (type === FILTER_CONDITION_TYPE.ISNULL || type === FILTER_CONDITION_TYPE.HASVALUE) {
+  if (
+    _.includes(
+      [
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+        FILTER_CONDITION_TYPE.NORMALUSER,
+        FILTER_CONDITION_TYPE.PORTALUSER,
+      ],
+      type,
+    )
+  ) {
     return true;
   }
   switch (conditionGroupType) {
@@ -261,6 +281,19 @@ export function getFilterTypes(type, control = {}, conditionType, from) {
       text: getFilterTypeLabel(typeKey, filterType, control),
     }));
     return types;
+  }
+  if (type === 26 && _.includes(['caid', 'ownerid'], control.controlId)) {
+    return [
+      FILTER_CONDITION_TYPE.EQ,
+      FILTER_CONDITION_TYPE.NE,
+      FILTER_CONDITION_TYPE.ISNULL,
+      FILTER_CONDITION_TYPE.HASVALUE,
+      FILTER_CONDITION_TYPE.NORMALUSER,
+      FILTER_CONDITION_TYPE.PORTALUSER,
+    ].map(filterType => ({
+      value: filterType,
+      text: getFilterTypeLabel(typeKey, filterType, control),
+    }));
   }
   if (typeKey) {
     types = CONTROL_FILTER_WHITELIST[typeKey].types.map(filterType => ({
@@ -730,3 +763,12 @@ export function formatDateValue({ type, value }) {
     return value;
   }
 }
+
+export const getTabTypeBySelectUser = (control = {}) => {
+  const { advancedSetting = {}, sourceControl = {}, controlId } = control;
+  return _.includes(['caid', 'ownerid'], controlId)
+    ? 3
+    : (advancedSetting.usertype || _.get(sourceControl.advancedSetting || {}, 'usertype')) === '2'
+    ? 2
+    : 1;
+};

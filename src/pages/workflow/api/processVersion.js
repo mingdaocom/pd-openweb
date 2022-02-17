@@ -28,6 +28,7 @@ var processVersion = {
    * @param {string} [args.keyWords] 搜索框
    * @param {string} [args.pageIndex] 页数
    * @param {string} [args.pageSize] 条数
+   * @param {string} [args.processListType] 列表类型
    * @param {string} [args.sortId] 排序字段id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -77,6 +78,71 @@ var processVersion = {
     base.ajaxOptions.url = base.server() + '/v1/process/list';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processlist', args, $.extend(base, options));
+  },
+  /**
+   * 按网络获取流程堆积量
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.companyId] 网络id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getDifferenceByCompanyId: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceByCompanyId';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'v1processgetDifferenceByCompanyId', args, $.extend(base, options));
+  },
+  /**
+   * 获取流程堆积量
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.processId] 编辑版流程id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getDifferenceByProcessId: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceByProcessId';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'v1processgetDifferenceByProcessId', args, $.extend(base, options));
+  },
+  /**
+   * 按网络获取堆积流程列表
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestProcessDifference} {companyId:网络id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),sorter:排序 正序{'difference':'ascend'} 倒序{'difference':'descend'}(object),}*difference
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getDifferenceProcessList: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceProcessList';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processgetDifferenceProcessList', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 按网络获取流程堆积量历史
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestInstanceIncrementManage} {companyId:网络id(string),endDate:结束时间 yyyy-MM-dd HH:mm:ss(string),startDate:开始时间 yyyy-MM-dd HH:mm:ss(string),}*manage
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getHistoryDifferenceByCompanyId: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/process/getHistoryDifferenceByCompanyId';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processgetHistoryDifferenceByCompanyId', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 设置暂停流程
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {流程暂停开启关闭} {hours:暂停多少小时(integer),processId:流程id(string),waiting:开启还是关闭 默认true开启暂停(boolean),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  updateWaiting: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/v1/process/updateWaiting';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
   },
 };
 module.exports = processVersion;
