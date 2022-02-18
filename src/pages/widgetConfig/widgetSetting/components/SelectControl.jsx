@@ -28,26 +28,22 @@ export default function SelectControl({ className, list, searchable = true, onCl
           ></input>
         </div>
       )}
-      {isEmpty(list) ? (
-        <div className="emptyText">{_l('没有可选控件')}</div>
+      {isEmpty(controls) ? (
+        <div className="emptyText">{keyword ? _l('没有搜索结果') : _l('没有可选控件')}</div>
       ) : (
         <div className="fieldsWrap">
-          {controls.length ? (
-            <ul className="fieldList">
-              {controls.map(item => (
-                <li
-                  onClick={() => {
-                    onClick(item);
-                  }}
-                >
-                  <i className={`icon-${getIconByType(item.type)}`}></i>
-                  {item.controlName}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <span className="Gray_9e Font13 pTop20 pLeft20">{_l('没有更多字段')}</span>
-          )}
+          <ul className="fieldList">
+            {controls.map(item => (
+              <li
+                onClick={() => {
+                  onClick(item);
+                }}
+              >
+                <i className={`icon-${getIconByType(item.type)}`}></i>
+                {item.controlName}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </SelectFieldsWrap>

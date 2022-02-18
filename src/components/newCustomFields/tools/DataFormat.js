@@ -100,6 +100,12 @@ export const getDynamicValue = (data, currentItem, masterData) => {
               ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm')
               : '';
           }
+
+          //文本类控件(默认值为选项、成员、部门等异化)
+          if (_.includes([2], currentItem.type)) {
+            return getCurrentValue(targetControl, targetControl.value, currentItem);
+          }
+
           return getControlValue(masterData.formData, currentItem, item.cid);
         }
         const parentControl = _.find(data, c => c.controlId === item.rcid);

@@ -81,7 +81,7 @@ export default class AddCondition extends Component {
                       className={cx({ segmentationLine: 'segmentation' in c })}
                       onClick={() => {
                         onAdd(c);
-                        from !== 'fastFilter' && this.setState({ columnListVisible: false });
+                        from !== 'fastFilter' && this.setState({ columnListVisible: false, keyword: '' });
                       }}
                       key={i}
                     >
@@ -90,7 +90,7 @@ export default class AddCondition extends Component {
                     </MenuItem>
                   ))
                 ) : (
-                  <div className="tip">{_l('没有更多字段')}</div>
+                  <div className="tip">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
                 )}
               </Menu>
             </div>

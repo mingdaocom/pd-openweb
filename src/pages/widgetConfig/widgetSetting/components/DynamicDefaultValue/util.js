@@ -14,7 +14,6 @@ import {
   CAN_AS_NUMBER_DYNAMIC_FIELD,
   CAN_AS_EMBED_DYNAMIC_FIELD,
   FIELD_REG_EXP,
-  UUID_REGEXP,
 } from './config';
 
 export const getControlType = data => {
@@ -157,9 +156,7 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
 };
 
 export const transferValue = (value = '') => {
-  const savedControlFields = value.match(FIELD_REG_EXP) || [];
-  const unsavedControlFields = value.match(UUID_REGEXP) || [];
-  const controlFields = savedControlFields.concat(unsavedControlFields);
+  const controlFields = value.match(FIELD_REG_EXP) || [];
   const defaultValue = _.filter(value.split('$'), v => !_.isEmpty(v));
   const defsource = defaultValue.map(item => {
     const defaultData = { cid: '', rcid: '', staticValue: '' };

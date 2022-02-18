@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { string, arrayOf, shape, func } from 'prop-types';
 import { TagTextarea } from 'ming-ui';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
-import { FIELD_REG_EXP, UUID_REGEXP } from '../config';
 import { DynamicValueInputWrap } from '../styled';
+import { transferValue } from '../util';
 
 export default class TextInput extends Component {
   static propTypes = {
@@ -57,19 +57,7 @@ export default class TextInput extends Component {
   };
   // 输入普通字符串时数据转换
   transferValue = value => {
-    const savedControlFields = value.match(FIELD_REG_EXP) || [];
-    const unsavedControlFields = value.match(UUID_REGEXP) || [];
-    const controlFields = savedControlFields.concat(unsavedControlFields);
-    const defaultValue = _.filter(value.split('$'), v => !_.isEmpty(v));
-    const defsource = defaultValue.map(item => {
-      const defaultData = { cid: '', rcid: '', staticValue: '' };
-      if (_.includes(controlFields, `$${item}$`)) {
-        const [cid = '', rcid = ''] = item.split('~');
-        return { ...defaultData, cid, rcid };
-      } else {
-        return { ...defaultData, staticValue: item };
-      }
-    });
+    const defsource = transferValue(value);
     this.props.onDynamicValueChange(defsource);
   };
 

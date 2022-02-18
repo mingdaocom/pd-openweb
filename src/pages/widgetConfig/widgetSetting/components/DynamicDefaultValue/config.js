@@ -60,11 +60,9 @@ export const SYSTEM_FIELD_TO_TEXT = {
   ownerid: _l('拥有者'),
 };
 
-// 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
-export const FIELD_REG_EXP = /\$((\w{24}|caid|ownerid|utime|ctime)(~\w{24}|caid|ownerid|utime|ctime)?)\$/g;
-
-// 未保存的控件正则 匹配uuid
-export const UUID_REGEXP = /\$\w{8}(-\w{4}){3}-\w{12}\$/g;
+// 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
+export const FIELD_REG_EXP =
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime)?))?\$/g;
 
 export const TIME_TYPES = [
   {

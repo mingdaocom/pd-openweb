@@ -122,7 +122,7 @@ export default class SearchWorksheetDialog extends Component {
     const { id = '', sheetId, sheetName, items = [], configs = [], controls = [], appName } = this.state;
     const sourceType = globalSheetInfo.worksheetId === sheetId ? 1 : 2;
     let params = {
-      id: id.indexOf('new') > -1 ? '' : id,
+      id: id && id.indexOf('new') > -1 ? '' : id,
       worksheetId: globalSheetInfo.worksheetId,
       controlId: data.controlId,
       sourceId: sheetId,

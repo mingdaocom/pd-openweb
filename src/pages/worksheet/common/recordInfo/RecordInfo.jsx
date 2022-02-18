@@ -645,6 +645,9 @@ export default class RecordInfo extends Component {
     };
     const useWaterMark = !this.hadWaterMark && recordinfo.projectId;
     let Con = useWaterMark ? WaterMark : React.Fragment;
+    if (!this.hadWaterMark && loading) {
+      return <span />;
+    }
     return (
       <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
         <RecordInfoContext.Provider

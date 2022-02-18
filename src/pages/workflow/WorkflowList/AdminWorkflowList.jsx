@@ -18,10 +18,13 @@ import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 
-const tablist = [
-  { tab: 'workflowList', tabName: _l('工作流') },
-  { tab: 'monitorTab', tabName: _l('监控') },
-];
+const {
+  admin: {
+    homePage: { extendWorkflow, renewBtn },
+  },
+} = window.private;
+
+const tablist = [{ tab: 'workflowList', tabName: _l('工作流') }, { tab: 'monitorTab', tabName: _l('监控') }];
 
 const typeList = [
   { label: _l('全部类型'), value: '' },

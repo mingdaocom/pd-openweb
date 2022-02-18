@@ -161,6 +161,7 @@ export default function RecortForm(props) {
     }).filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible),
     'row',
   ).filter(c => !c.hidden);
+  const scrollRef = useRef();
   const customwidget = useRef();
   const recordForm = useRef();
   const nav = useRef();
@@ -206,6 +207,9 @@ export default function RecortForm(props) {
   function setNavVisible() {
     if (!relateRecordTableControls.length || type !== 'edit' || !recordForm.current || !nav.current) {
       return;
+    }
+    if (_.get(scrollRef, 'current.triggerNanoScroller')) {
+      scrollRef.current.triggerNanoScroller();
     }
     const scrollConElement = recordForm.current.querySelector('.recordInfoFormScroll');
     const formElement = recordForm.current.querySelector('.recordInfoFormContent .customFieldsContainer');
@@ -255,6 +259,7 @@ export default function RecortForm(props) {
             {...(type === 'edit'
               ? {
                   className: 'recordInfoFormScroll Relative flex',
+                  ref: scrollRef,
                   scrollEvent: () => {
                     setNavVisible();
                     setStickyBarVisible();

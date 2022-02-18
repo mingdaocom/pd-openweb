@@ -956,6 +956,46 @@ export const MENU_LIST_APPENDIX = [
         type: 'ArrNe',
         desc: _l('数组不等于'),
       },
+      {
+        name: 31,
+        type: 'DateBetween',
+        desc: _l('在范围内'),
+      },
+      {
+        name: 32,
+        type: 'DateNBetween',
+        desc: _l('不在范围内'),
+      },
+      {
+        name: 33,
+        type: 'DateGt',
+        desc: _l('>'),
+      },
+      {
+        name: 34,
+        type: 'DateGte',
+        desc: _l('>='),
+      },
+      {
+        name: 35,
+        type: 'DateLt',
+        desc: _l('<'),
+      },
+      {
+        name: 36,
+        type: 'DateLte',
+        desc: _l('<='),
+      },
+      {
+        name: 41,
+        type: 'NormalUser',
+        desc: _l('常规用户'),
+      },
+      {
+        name: 42,
+        type: 'PortalUser',
+        desc: _l('外部门户用户'),
+      },
     ],
   },
   {
@@ -1056,6 +1096,36 @@ export const MENU_LIST_APPENDIX = [
         name: 18,
         type: 'Customize',
         desc: _l('自定义'),
+      },
+      {
+        name: 21,
+        type: 'Last7Day',
+        desc: _l('过去7天'),
+      },
+      {
+        name: 22,
+        type: 'Last14Day',
+        desc: _l('过去14天'),
+      },
+      {
+        name: 23,
+        type: 'Last30Day',
+        desc: _l('过去30天'),
+      },
+      {
+        name: 31,
+        type: 'Next7Day',
+        desc: _l('未来7天'),
+      },
+      {
+        name: 32,
+        type: 'Next14Day',
+        desc: _l('未来14天'),
+      },
+      {
+        name: 33,
+        type: 'Next33Day',
+        desc: _l('未来33天'),
       },
     ],
   },

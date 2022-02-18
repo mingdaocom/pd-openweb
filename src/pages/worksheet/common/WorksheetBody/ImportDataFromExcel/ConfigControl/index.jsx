@@ -536,10 +536,13 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const { workSheetProjectId, repeatRecord, tigger, repeatConfig } = this.state;
+    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls } = this.state;
 
     let cellConfigs = controlMapping.map(item => {
-      if (item.accountMatchId == 'name') item.accountMatchId = '';
+      if (_.find(userControls, i => i.value === item.accountMatchId)) {
+        item.accountMatchId = item.accountMatchId === 'name' ? '' : item.accountMatchId;
+        item.sourceConfig.controlId = '';
+      }
       return { ...item, ColumnNum: item.ColumnNum - 1 };
     });
 

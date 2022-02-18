@@ -317,7 +317,8 @@ class EditInfo extends React.Component {
   };
 
   render() {
-    const { departmentInfos, jobInfos, jobs, jobNumber, contactPhone, isLoading, contactPhoneError } = this.state;
+    const { departmentInfos, jobInfos, jobs, jobNumber, contactPhone, isLoading, contactPhoneError, errors } =
+      this.state;
     return (
       <Dialog
         title={_l('编辑员工名片')}
