@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Linkify from 'react-linkify';
+import { Linkify } from 'ming-ui';
 
 class WidgetsDesc extends React.Component {
   constructor(props) {

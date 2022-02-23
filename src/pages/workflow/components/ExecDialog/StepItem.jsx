@@ -2,9 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { object, number } from 'prop-types';
 import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
-import { Tooltip, Icon } from 'ming-ui';
+import { Tooltip, Icon, Linkify } from 'ming-ui';
 import moment from 'moment';
-import Linkify from 'react-linkify';
 import { renderToString } from 'react-dom/server';
 
 const UNNECESSARY_OPERATION_CODE = 22;
@@ -262,7 +261,8 @@ export default class StepItem extends Component {
 
   render() {
     const { data, currentWork, currentType } = this.props;
-    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } = data || {};
+    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } =
+      data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork = workId === currentWork.workId;
 

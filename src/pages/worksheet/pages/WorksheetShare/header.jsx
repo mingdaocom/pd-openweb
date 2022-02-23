@@ -7,8 +7,6 @@ import mingdaoImg from './img/mingdao.png';
 import SvgIcon from 'src/components/SvgIcon';
 import { SHARE_TYPE } from './config';
 import styled from 'styled-components';
-import { exportSheet } from 'worksheet/common/ExportSheet';
-import appManagement from 'src/api/appManagement';
 
 const PublicqueryHeader = styled.div`
   width: 100%;
@@ -71,7 +69,7 @@ class WorksheetShareHeader extends React.Component {
     (async () => {
       const {
         publicqueryRes = {},
-  
+
         appId,
         viewId,
         worksheetId,
@@ -84,10 +82,7 @@ class WorksheetShareHeader extends React.Component {
         filterControls
       } = this.props;
 
-      const token = await appManagement.getToken({ worksheetId, viewId });
-
       const args = {
-        token,
         accountId: md.global.Account.accountId,
         worksheetId,
         appId,

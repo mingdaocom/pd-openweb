@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Textarea } from 'ming-ui';
-import Linkify from 'react-linkify';
+import { Textarea, Linkify } from 'ming-ui';
 import cx from 'classnames';
 import TextScanQRCode from '../../components/TextScanQRCode';
 
@@ -66,7 +65,8 @@ export default class Widgets extends Component {
     const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    const startTextScanCode = !disabled && ((isWx && !isWxWork) || isWeLink || isDing) && strDefault.split('')[1] === '1';
+    const startTextScanCode =
+      !disabled && ((isWx && !isWxWork) || isWeLink || isDing) && strDefault.split('')[1] === '1';
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {

@@ -9,16 +9,15 @@ import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import autobind from 'core-decorators/lib/autobind';
 
-const RecordCardCellRelareRecord = styled.div`
+const RecordCardCellRelateRecord = styled.div`
   display: inline-block;
   line-height: 21px;
   font-size: 13px;
   background-color: #e8e8e8;
-  border-radius: 3px;
   padding: 0 10px;
   margin-right: 6px;
 `;
-export default class RelateRecprd extends React.Component {
+export default class RelateRecord extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.shape({}),
@@ -93,9 +92,9 @@ export default class RelateRecprd extends React.Component {
       return null;
     }
     return records.map((record, index) => (
-      <RecordCardCellRelareRecord key={index}>
+      <RecordCardCellRelateRecord key={index}>
         {renderCellText({ ...titleControl, value: record.name })}
-      </RecordCardCellRelareRecord>
+      </RecordCardCellRelateRecord>
     ));
   }
 
@@ -190,7 +189,7 @@ export default class RelateRecprd extends React.Component {
             multiple={cell.enumDefault === 2}
             onVisibleChange={this.handleVisibleChange}
             selectedClassName={cx('sheetview', { canedit: editable, cellControlEdittingStatus: isediting, singleLine })}
-            selectedStyle={{ width: style.width, minHeight: style.height }}
+            selectedStyle={{ width: style.width, minHeight: style.height, borderRadius: 0 }}
             renderToTop={this.renderToTop}
             onChange={newRecords => {
               this.records = newRecords;

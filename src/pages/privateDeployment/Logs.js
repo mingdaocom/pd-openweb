@@ -53,6 +53,7 @@ const Content = styled.div`
   }
   .logContent {
     width: 75%;
+    word-break: break-word;
   }
   .justifyContentCenter {
     justify-content: center

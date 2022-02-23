@@ -144,7 +144,6 @@ export default function RecordOperate(props) {
   const showCopy =
     _.includes(shows, 'copy') &&
     allowCopy &&
-    isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
     isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId);
   const showPrint = _.includes(shows, 'print');
   const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;

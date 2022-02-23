@@ -276,7 +276,11 @@ export const getConditionList = (type, enumDefault) => {
       }
       break;
     case 29:
-      list = { ids: ['33', '34', '3', '4', '31', '32'], defaultConditionId: '33' };
+      if (enumDefault === 1) {
+        list = { ids: ['33', '34', '3', '4', '31', '32'], defaultConditionId: '33' };
+      } else {
+        list = { ids: ['33', '34', '31', '32'], defaultConditionId: '33' };
+      }
       break;
     case 36:
       list = { ids: ['29', '30'], defaultConditionId: '29' };

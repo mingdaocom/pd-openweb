@@ -224,7 +224,7 @@ export default class Code extends Component {
         processId,
         nodeId: selectNodeId,
         actionId,
-        code,
+        code: Base64.encode(code),
         inputDatas: inputDatas.filter(item => item.name),
       })
       .then(result => {

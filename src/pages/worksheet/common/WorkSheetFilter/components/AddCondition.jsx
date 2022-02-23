@@ -90,7 +90,7 @@ export default class AddCondition extends Component {
                     </MenuItem>
                   ))
                 ) : (
-                  <div className="tip">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
+                  <div className="tip TxtCenter">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
                 )}
               </Menu>
             </div>

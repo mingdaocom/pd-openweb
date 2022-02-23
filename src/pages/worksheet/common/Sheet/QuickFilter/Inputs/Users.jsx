@@ -84,6 +84,7 @@ export default function Users(props) {
           filterAccountIds: [md.global.Account.accountId],
           SelectUserSettings: {
             projectId,
+            unique: !isMultiple,
             callback(users) {
               onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
               setActive(false);

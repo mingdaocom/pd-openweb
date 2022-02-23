@@ -56,6 +56,7 @@ export default function Departments(props) {
       onClick={() => {
         setActive(true);
         return new DialogSelectGroups({
+          unique: !isMultiple,
           projectId,
           isIncludeRoot: false,
           showCurrentUserDept: true,

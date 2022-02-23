@@ -894,6 +894,14 @@
   resolved "https://registry.nlark.com/@mdfe/react-dnd-mouse-backend/download/@mdfe/react-dnd-mouse-backend-2.0.0.tgz"
   integrity sha1-HyBirIctym24EwUFBlFQBQDbjHU=
 
+"@mdfe/react-linkify@^1.0.0-alpha":
+  version "1.0.0-alpha"
+  resolved "https://registry.yarnpkg.com/@mdfe/react-linkify/-/react-linkify-1.0.0-alpha.tgz#5d26549279d19be1b3f58ef66f4f7d85a5227172"
+  integrity sha512-1yMoRIDKwNe5nnea8j7t1r6QpRhV/OK/qapcS7ZZ9sLfroKYrGcBXh0S9YAg0y2O7qyLxwb9UgU5G9XlFQ/YWw==
+  dependencies:
+    linkify-it "^3.0.3"
+    tlds "^1.199.0"
+
 "@mdfe/selectize@^0.12.6":
   version "0.12.7"
   resolved "https://registry.nlark.com/@mdfe/selectize/download/@mdfe/selectize-0.12.7.tgz"
@@ -8563,10 +8571,10 @@ lineclip@^1.1.5:
   resolved "https://registry.npm.taobao.org/lineclip/download/lineclip-1.1.5.tgz"
   integrity sha1-K/JgZ9lDVP6r+R5CdoI221YW/RM=
 
-linkify-it@^2.0.3:
-  version "2.2.0"
-  resolved "https://registry.npm.taobao.org/linkify-it/download/linkify-it-2.2.0.tgz"
-  integrity sha1-47VGl+eL+RXHCjis14/QngBYsc8=
+linkify-it@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-3.0.3.tgz#a98baf44ce45a550efb4d49c769d07524cc2fa2e"
+  integrity sha512-ynTsyrFSdE5oZ/O9GEf00kPngmOfVwazR5GKDq6EYfhlpFug3J2zybX56a2PRRpc9P+FuSoGNAwjlbDs9jJBPQ==
   dependencies:
     uc.micro "^1.0.1"
 
@@ -11963,15 +11971,6 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.npm.taobao.org/react-lifecycles-compat/download/react-lifecycles-compat-3.0.4.tgz?cache=0&sync_timestamp=1617964193670&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-lifecycles-compat%2Fdownload%2Freact-lifecycles-compat-3.0.4.tgz"
   integrity sha1-TxonOv38jzSIqMUWv9p4+HI1I2I=
 
-react-linkify@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.nlark.com/react-linkify/download/react-linkify-0.2.2.tgz"
-  integrity sha1-VbmbHMckREag+b3rvhOyww94nmU=
-  dependencies:
-    linkify-it "^2.0.3"
-    prop-types "^15.5.8"
-    tlds "^1.57.0"
-
 react-loadable@^5.5.0:
   version "5.5.0"
   resolved "https://registry.nlark.com/react-loadable/download/react-loadable-5.5.0.tgz"
@@ -14059,10 +14058,10 @@ tinyqueue@^2.0.3:
   resolved "https://registry.npm.taobao.org/tinyqueue/download/tinyqueue-2.0.3.tgz"
   integrity sha1-ZNhJLr8554Ade9NAYuKbRbIDXwg=
 
-tlds@^1.57.0:
-  version "1.221.1"
-  resolved "https://registry.nlark.com/tlds/download/tlds-1.221.1.tgz?cache=0&sync_timestamp=1619537320649&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ftlds%2Fdownload%2Ftlds-1.221.1.tgz"
-  integrity sha1-bPa/9erzDFYYxYAcP0JabcYcoK0=
+tlds@^1.199.0:
+  version "1.229.0"
+  resolved "https://registry.yarnpkg.com/tlds/-/tlds-1.229.0.tgz#fd02585a234669d47a7f1752c87f100a34feba60"
+  integrity sha512-yZCodKInN+BPGUyYgKHsodJ2FVWRjW/fYx6rKCAT/e24BBJd8FcxWgKD0aBgk+7uQ/88h/fmRTd4Nvzxf3313A==
 
 tmp@^0.0.33:
   version "0.0.33"
@@ -14268,8 +14267,8 @@ ua-parser-js@^0.7.18:
 
 uc.micro@^1.0.1:
   version "1.0.6"
-  resolved "https://registry.npm.taobao.org/uc.micro/download/uc.micro-1.0.6.tgz"
-  integrity sha1-nEEagCpAmpH8bPdAgbq6NLJEmaw=
+  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.6.tgz#9c411a802a409a91fc6cf74081baba34b24499ac"
+  integrity sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==
 
 uglify-js@2.6.4, uglify-js@^2.6.2:
   version "2.6.4"

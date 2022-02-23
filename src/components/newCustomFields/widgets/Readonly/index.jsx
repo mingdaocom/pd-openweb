@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Linkify from 'react-linkify';
+import { Linkify } from 'ming-ui';
 
 export default class Widgets extends Component {
   static propTypes = {

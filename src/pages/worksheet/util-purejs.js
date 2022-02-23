@@ -17,7 +17,7 @@ export function calcDate(date, expression) {
       const number = Number(match[2]);
       const unit = match[4];
       if (/^[+-]$/.test(operator) && number && typeof number === 'number' && /^[YQMwdhms]$/.test(unit)) {
-        result = result[operator === '+' ? 'add' : 'subtract'](Math.round(number), unit);
+        result = result[operator === '+' ? 'add' : 'subtract'](Math.round(number), unit.replace(/Y/, 'y'));
       }
       match = regexp.exec(expression);
     }

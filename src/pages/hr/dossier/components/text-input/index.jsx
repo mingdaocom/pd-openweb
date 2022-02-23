@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Linkify from 'react-linkify';
+import { Linkify } from 'ming-ui';
 import Textarea from 'ming-ui/components/Textarea';
 import { FormError, Validator } from '../lib';
 import { checkControlUnique } from '../../util';
@@ -57,7 +57,7 @@ class TextInput extends Component {
   }
 
   // value changed[inside value]
-  onChange = (event) => {
+  onChange = event => {
     let value = event.target.value;
 
     if (this.props.valueType === 'number') {
@@ -103,9 +103,7 @@ class TextInput extends Component {
         if (value === '-') {
           value = '';
         } else if (value) {
-          value = parseFloat(value)
-            .toFixed(this.props.dot)
-            .toString();
+          value = parseFloat(value).toFixed(this.props.dot).toString();
         }
 
         if (value !== this.state.value) {
@@ -121,10 +119,10 @@ class TextInput extends Component {
         this.state.changed &&
         value &&
         (control.type === 2 || // 文本框
-        control.type === 5 || // 邮件地址
+          control.type === 5 || // 邮件地址
           control.type === 7) // 证件
       ) {
-        checkControlUnique(worksheetId, control.controlId, control.type, value).then((res) => {
+        checkControlUnique(worksheetId, control.controlId, control.type, value).then(res => {
           if (!res.isSuccess && res.data && res.data.rowId !== recordId) {
             if (this.props.onError) {
               this.props.onError({
@@ -163,25 +161,67 @@ class TextInput extends Component {
     } else if (this.props.maxLength && value.length > this.props.maxLength) {
       // maxLength
       error.type = FormError.types.MAXLENGTH;
-    } else if (this.props.validate && this.props.valueType === 'mobile-phone' && value && value.length && !Validator.isMobilePhoneNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'mobile-phone' &&
+      value &&
+      value.length &&
+      !Validator.isMobilePhoneNumber(value)
+    ) {
       // valueType = 'mobile-phone'
       error.type = FormError.types.MOBILEPHONE;
-    } else if (this.props.validate && this.props.valueType === 'telephone' && value && value.length && !Validator.isTelehoneNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'telephone' &&
+      value &&
+      value.length &&
+      !Validator.isTelehoneNumber(value)
+    ) {
       // valueType = 'telephone'
       error.type = FormError.types.TELEPHONE;
-    } else if (this.props.validate && this.props.valueType === 'email' && value && value.length && !Validator.isEmailAddress(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'email' &&
+      value &&
+      value.length &&
+      !Validator.isEmailAddress(value)
+    ) {
       // valueType = 'email'
       error.type = FormError.types.EMAIL;
-    } else if (this.props.validate && this.props.valueType === 'id-card' && value && value.length && !Validator.isIdCardNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'id-card' &&
+      value &&
+      value.length &&
+      !Validator.isIdCardNumber(value)
+    ) {
       // valueType = 'id-card'
       error.type = FormError.types.IDCARD;
-    } else if (this.props.validate && this.props.valueType === 'passport' && value && value.length && !Validator.isPassportNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'passport' &&
+      value &&
+      value.length &&
+      !Validator.isPassportNumber(value)
+    ) {
       // valueType = 'passport'
       error.type = FormError.types.PASSPORT;
-    } else if (this.props.validate && this.props.valueType === 'hk-passport' && value && value.length && !Validator.isHkPassportNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'hk-passport' &&
+      value &&
+      value.length &&
+      !Validator.isHkPassportNumber(value)
+    ) {
       // valueType = 'hk-passport'
       error.type = FormError.types.HKPASSPORT;
-    } else if (this.props.validate && this.props.valueType === 'tw-passport' && value && value.length && !Validator.isTwPassportNumber(value)) {
+    } else if (
+      this.props.validate &&
+      this.props.valueType === 'tw-passport' &&
+      value &&
+      value.length &&
+      !Validator.isTwPassportNumber(value)
+    ) {
       // valueType = 'tw-passport'
       error.type = FormError.types.TWPASSPORT;
     }
@@ -207,7 +247,7 @@ class TextInput extends Component {
   /**
    * 多行文本进入编辑
    */
-  joinTextareaEdit = (evt) => {
+  joinTextareaEdit = evt => {
     const { disabled } = this.props;
     const href = evt.target.getAttribute('href');
 
@@ -243,7 +283,10 @@ class TextInput extends Component {
 
           return (
             <div
-              className={cx('mui-textinput-unit-box Font14 number', { placeholder: !value, pointer: !this.props.disabled })}
+              className={cx('mui-textinput-unit-box Font14 number', {
+                placeholder: !value,
+                pointer: !this.props.disabled,
+              })}
               onClick={() => !this.props.disabled && this.setState({ isEditing: true })}
             >
               {(value || this.props.hint) + (this.state.value !== '' ? this.props.unit : '')}
@@ -254,7 +297,7 @@ class TextInput extends Component {
           <div className="mui-textinput-unit-box">
             <input
               type={this.props.valueType === 'password' ? 'password' : 'text'}
-              ref={(number) => {
+              ref={number => {
                 this.number = number;
               }}
               className={cx(classNames, this.props.className)}
@@ -262,10 +305,10 @@ class TextInput extends Component {
               disabled={this.props.disabled}
               value={this.state.value}
               maxLength={16}
-              onBlur={(event) => {
+              onBlur={event => {
                 this.onBlur(event);
               }}
-              onChange={(event) => {
+              onChange={event => {
                 this.onChange(event);
               }}
             />
@@ -279,10 +322,10 @@ class TextInput extends Component {
             placeholder={this.props.hint}
             disabled={this.props.disabled}
             value={this.state.value}
-            onBlur={(event) => {
+            onBlur={event => {
               this.onBlur(event);
             }}
-            onChange={(event) => {
+            onChange={event => {
               this.onChange(event);
             }}
           />
@@ -299,7 +342,9 @@ class TextInput extends Component {
             <Linkify properties={{ target: '_blank' }} className={cx(!this.state.value && 'placeholder')}>
               {this.state.value || this.props.hint}
             </Linkify>
-            {!this.props.disabled && <input type="text" className="smallInput" onFocus={() => this.setState({ isEditing: true })} />}
+            {!this.props.disabled && (
+              <input type="text" className="smallInput" onFocus={() => this.setState({ isEditing: true })} />
+            )}
           </div>
         );
       }
@@ -430,7 +475,7 @@ TextInput.defaultProps = {
   onChange: (event, value, data) => {
     //
   },
-  onError: (error) => {
+  onError: error => {
     //
   },
   onValid: () => {
