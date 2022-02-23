@@ -435,17 +435,19 @@ class ProcessRecord extends Component {
             </Fragment>
           ) : (
             <Fragment>
-              <WingBlank className="flex mLeft6 mRight6" size="sm">
-                <Button
-                  className="Font13 edit letterSpacing"
-                  onClick={() => {
-                    this.setState({ isEdit: true, random: Date.now() });
-                  }}
-                >
-                  <Icon icon="workflow_write" className="Font15 mRight7" />
-                  <span>{_l('编辑')}</span>
-                </Button>
-              </WingBlank>
+              {sheetRow.allowEdit && (
+                <WingBlank className="flex mLeft6 mRight6" size="sm">
+                  <Button
+                    className="Font13 edit letterSpacing"
+                    onClick={() => {
+                      this.setState({ isEdit: true, random: Date.now() });
+                    }}
+                  >
+                    <Icon icon="workflow_write" className="Font15 mRight7" />
+                    <span>{_l('编辑')}</span>
+                  </Button>
+                </WingBlank>
+              )}
               {showBtnsOut.map(item => {
                 let disabled =
                   (this.recordRef.current && this.recordRef.current.state.btnDisable[item.btnId]) || item.disabled;
@@ -453,7 +455,15 @@ class ProcessRecord extends Component {
                   <WingBlank className="flex flexShink mLeft6 mRight6" size="sm" key={item.btnId}>
                     <Button
                       className={cx('Font13 optBtn', 'bold', { disabled })}
-                      style={disabled ? {} : { backgroundColor: item.color, color: '#fff' }}
+                      style={
+                        disabled
+                          ? {}
+                          : {
+                              backgroundColor: item.color,
+                              color: '#fff',
+                              maxWidth: sheetRow.allowEdit && showBtnsOut.length === 2 ? '98px' : 'unset',
+                            }
+                      }
                       onClick={() => {
                         if (disabled) {
                           return;
@@ -715,7 +725,7 @@ class ProcessRecord extends Component {
           <div className="fixedTabs processRecordViewTabs Fixed w100 hide">{this.renderTabs(tabs, false)}</div>
         )}
         {_.isEmpty(operationTypeList[0])
-          ? viewId && sheetRow.allowEdit && this.renderRecordHandle()
+          ? viewId && this.renderRecordHandle()
           : _.isEmpty(currentTab.id) && this.renderProcessHandle()}
         <Back
           onClick={() => {

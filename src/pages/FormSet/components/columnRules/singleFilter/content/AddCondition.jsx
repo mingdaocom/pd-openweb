@@ -30,7 +30,9 @@ export default class AddCondition extends Component {
   handleSearch = _.throttle(() => {
     this.setState({
       columnsFilter: this.state.keyword
-        ? this.props.columns.filter(item => item.controlName.toLowerCase().indexOf(_.trim(this.state.keyword.toLowerCase())) > -1)
+        ? this.props.columns.filter(
+            item => item.controlName.toLowerCase().indexOf(_.trim(this.state.keyword.toLowerCase())) > -1,
+          )
         : this.props.columns,
     });
   }, 100);
@@ -94,6 +96,7 @@ export default class AddCondition extends Component {
                         this.setState({ showAddColumnList: false });
                       }}
                       key={i}
+                      title={c.controlName}
                     >
                       <i className={cx('Font16 icon', `icon-${getIconByType(c.type)}`)}></i>
                       <span>{c.controlName}</span>

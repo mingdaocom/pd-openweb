@@ -67,6 +67,13 @@ export default function Subtotal(props) {
     ({ type, enumDefault }) => (type === 29 && enumDefault === 2) || type === 34,
   );
 
+  useEffect(() => {
+    // 初始化用老数据unit覆盖suffix
+    if (data.unit) {
+      onChange(handleAdvancedSettingChange({ ...data, unit: '' }, { suffix: data.unit }));
+    }
+  }, [data.controlId]);
+
   // 获取汇总关联表控件的表id
   const { dataSource: worksheetId, relationControls } = getControlByControlId(allControls, parsedDataSource);
   const { loading, data: sheetData } = useSheetInfo({ worksheetId });
@@ -103,10 +110,6 @@ export default function Subtotal(props) {
     const nextControl = getControlByControlId(availableControls, value);
     nextData = { ...nextData, enumDefault: _.get(_.head(getTotalType(nextControl)), 'value') };
 
-    if (nextControl.unit) {
-      nextData = { ...nextData, unit: nextControl.unit || '' };
-    }
-
     if (nextControl.dot) {
       nextData = { ...nextData, dot: nextControl.dot || 2 };
     }
@@ -114,8 +117,11 @@ export default function Subtotal(props) {
     // 数值或金额，单位同步
     if (_.includes([6, 8], nextControl.type)) {
       const { suffix, prefix } = nextControl.advancedSetting || {};
-      suffix && (nextData = { ...handleAdvancedSettingChange(nextData, { suffix: suffix, prefix: '' }) });
-      prefix && (nextData = { ...handleAdvancedSettingChange(nextData, { prefix: prefix, suffix: '' }) });
+      suffix &&
+        (nextData = {
+          ...handleAdvancedSettingChange(nextData, { suffix: suffix || nextControl.unit || '', prefix: '' }),
+        });
+      prefix && (nextData = { ...handleAdvancedSettingChange(nextData, { prefix: prefix || '', suffix: '' }) });
     } else {
       nextData = { ...handleAdvancedSettingChange(nextData, { suffix: '', prefix: '' }) };
     }

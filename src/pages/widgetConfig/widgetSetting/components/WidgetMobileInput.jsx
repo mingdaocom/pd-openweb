@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import SheetDealDataType from './SheetDealDataType';
@@ -21,6 +21,16 @@ export default ({ data, onChange }) => {
   strDefault = strDefault || '00';
   const { scantype, dismanual = 0 } = advancedSetting;
   const [disableAlbum] = strDefault.split('');
+
+  useEffect(() => {
+    if (!_.includes(['0', '1', '2'], scantype)) {
+      onChange({
+        ...handleAdvancedSettingChange(data, { dismanual: '0', getinput: '0', getsave: '0' }),
+        strDefault: updateConfig({ config: strDefault, value: 0, index: 0 }),
+      });
+    }
+  }, [data.controlId]);
+
   return (
     <Fragment>
       <SettingItem className="withSplitLine">
