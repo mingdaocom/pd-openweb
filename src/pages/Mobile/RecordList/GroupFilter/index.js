@@ -11,7 +11,7 @@ const GroupFilter = props => {
   const { views = [], base = {}, controls = [], navGroupCounts } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
-  const navGroup = view.navGroup.length > 0 ? view.navGroup[0] : {};
+  const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
   const [navGroupData, setGroupFilterData] = useState([]);
   let [keywords, setKeywords] = useState();
   const [renderData, setRenderData] = useState([]);

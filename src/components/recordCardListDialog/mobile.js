@@ -293,7 +293,7 @@ export default class RecordCardListDialog extends Component {
   }
   renderSearchWrapper() {
     const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal;
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal && !md.global.Config.IsLocal;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const { relateSheetId, onOk, onClose, control, formData } = this.props;

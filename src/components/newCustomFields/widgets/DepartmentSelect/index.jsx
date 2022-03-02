@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import SelectUser from 'src/pages/Mobile/components/SelectUser';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
@@ -60,7 +61,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, appId } = this.props;
+    const { projectId, disabled, enumDefault, appId, advancedSetting = {}, worksheetId, controlId } = this.props;
     const value = JSON.parse(this.props.value || '[]');
     const { showSelectDepartment } = this.state;
 
@@ -114,6 +115,10 @@ export default class Widgets extends Component {
             onClose={() => this.setState({ showSelectDepartment: false })}
             onSave={this.onSave}
             appId={appId}
+            userType={getTabTypeBySelectUser(this.props)}
+            isRangeData={!!advancedSetting.userrange}
+            filterWorksheetId={worksheetId}
+            filterWorksheetControlId={controlId}
           />
         )}
       </div>

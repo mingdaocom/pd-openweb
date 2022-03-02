@@ -120,7 +120,7 @@ function WidgetContent(props) {
     insertTitle = _.noop,
     addRecord = _.noop,
     updatePageInfo = _.noop,
-    setWidget,
+    setWidget = _.noop,
     isFullscreen = false,
     scrollTop = 0,
     adjustScreen,
@@ -211,7 +211,7 @@ function WidgetContent(props) {
     const $wrap = document.getElementById('componentsWrap');
     if (layoutType !== 'web' || !adjustScreen || !$wrap) return config;
     const maxH = max(components.map(item => get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
-    return { ...config, rowHeight: ($wrap.offsetHeight - 64) / maxH - 10 };
+    return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - (isFullscreen ? 10 : 64)) / maxH - 10 };
   };
 
   return (

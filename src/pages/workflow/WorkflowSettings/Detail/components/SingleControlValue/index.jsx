@@ -629,7 +629,7 @@ export default class SingleControlValue extends Component {
 
     // 人员 || 部门
     if (item.type === 26 || item.type === 27) {
-      const unique = _.find(controls, obj => obj.controlId === item.fieldId).enumDefault === 0;
+      const unique = (_.find(controls, obj => obj.controlId === item.fieldId) || {}).enumDefault === 0;
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (

@@ -67,6 +67,10 @@ class View extends Component {
       return <State resultCode={viewResultCode} type="view" />;
     }
 
+    if (_.isEmpty(view)) {
+      return null;
+    }
+
     const Component = TYPE_TO_COMP[String(view.viewType)];
     const viewProps = {
       ...base,

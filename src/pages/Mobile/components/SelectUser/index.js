@@ -598,7 +598,7 @@ export default class SelectUser extends Component {
   }
   renderContent() {
     const { departmentVisible } = this.state;
-    const { userType } = this.state;
+    const { userType = 1 } = this.props;
     return (
       <div className="flex flexColumn">
         {this.renderSearch()}

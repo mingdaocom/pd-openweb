@@ -69,7 +69,7 @@ export default class CustomPage extends Component {
   }
   getPage(props) {
     const { params } = props.match;
-    const { appNaviStyle } = props;
+    const { appNaviStyle, appSection = [] } = props;
     let currentNavWorksheetId = localStorage.getItem('currentNavWorksheetId');
     let currentNavWorksheetInfo =
       currentNavWorksheetId &&
@@ -88,7 +88,23 @@ export default class CustomPage extends Component {
           appId: params.worksheetId,
         })
         .then(result => {
-          localStorage.setItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
+          if (appNaviStyle === 2) {
+            let navSheetList = _.flatten(
+              appSection.map(item => {
+                item.workSheetInfo.forEach(sheet => {
+                  sheet.appSectionId = item.appSectionId;
+                });
+                return item.workSheetInfo;
+              }),
+            )
+              .filter(item => item.status === 1 && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
+              .slice(0, 4);
+            navSheetList.forEach(item => {
+              if (item.workSheetId === params.worksheetId) {
+                localStorage.setItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
+              }
+            });
+          }
           this.setState({
             pageComponents: result.components.filter(item => item.mobile.visible),
             loading: false,

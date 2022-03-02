@@ -15,6 +15,8 @@ export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs'
 
 export const emitter = new EventEmitter();
 
+window.onresize = () => emitter.emit('WINDOW_RESIZE');
+
 export function getWorkSheetData(data) {
   return data.map(record => {
     const result = {};

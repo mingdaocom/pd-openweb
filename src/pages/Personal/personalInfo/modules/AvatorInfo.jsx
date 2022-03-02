@@ -89,6 +89,7 @@ export default class AvatarEditor extends Component {
         <div className="flexRow">
           <Avatar
             label={_l('上传图片')}
+            labelStyle={{ display: 'block', cursor: 'pointer', fontWeight: 700, fontSize: '16px' }}
             width={200}
             height={200}
             imageWidth={200}

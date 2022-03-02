@@ -165,7 +165,7 @@ export default class MemberList extends Component {
 
   handleDelete(id, name) {
     const reqData = {
-      accountIds: id,
+      accountId: id,
       groupId: this.props.groupId,
     };
     const _this = this;

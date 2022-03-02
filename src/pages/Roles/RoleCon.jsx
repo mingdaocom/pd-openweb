@@ -149,7 +149,6 @@ export default class RoleCon extends PureComponent {
     activeRoleId: null,
     // 是否对非管理员隐藏角色详情
     rolesVisibleConfig: null,
-    quitAppConfirmVisible: false,
     isOpenPortal: false, //是否开启外部门户
     editType: 0, //0:用户角色编辑 1:外部门户编辑
     showPortalSetting: false,
@@ -602,26 +601,6 @@ export default class RoleCon extends PureComponent {
     });
   };
 
-  handleQuitApp = () => {
-    AppAjax.quitRole(_.pick(this.ids, ['appId', 'projectId'])).then(res => {
-      if (res.isRoleForUser) {
-        if (res.isRoleDepartment) {
-          navigateTo('/app/my');
-        } else {
-          Dialog.confirm({
-            title: <span style={{ color: '#f44336' }}>{_l('无法退出通过部门加入的应用')}</span>,
-            description: _l('您所在的部门被加入了此应用，只能由应用管理员进行操作'),
-            closable: false,
-            removeCancelBtn: true,
-            okText: _l('关闭'),
-          });
-        }
-      } else {
-        alert(_l('退出失败'), 2);
-      }
-    });
-  };
-
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { appDetail: { id: appId } = {} } = this.props;
     const roles = this.state.roles.slice();
@@ -638,7 +617,7 @@ export default class RoleCon extends PureComponent {
 
   render() {
     const { appDetail = {} } = this.props;
-    const { show, roleId, roles, rolesVisibleConfig, quitAppConfirmVisible, loading, editType } = this.state;
+    const { show, roleId, roles, rolesVisibleConfig, loading, editType } = this.state;
     const { projectId = '' } = appDetail;
     const {
       match: {
@@ -680,18 +659,6 @@ export default class RoleCon extends PureComponent {
                       </div>
                     </Tooltip>
                   )}
-                  {!window.isPublicApp &&
-                    appDetail.permissionType !== undefined &&
-                    !_.isEqual(appDetail.permissionType, ROLE_TYPES.OWNER) && (
-                      <div className={cx(styles.quitApp)}>
-                        <span
-                          className="ThemeHoverColor3 Hand"
-                          onClick={() => this.setState({ quitAppConfirmVisible: true })}
-                        >
-                          {_l('退出应用成员')}
-                        </span>
-                      </div>
-                    )}
                 </div>
                 <RoleList
                   onSortEnd={this.onSortEnd}
@@ -712,17 +679,6 @@ export default class RoleCon extends PureComponent {
             )}
           </div>
           {this.renderApplyDialog()}
-          {quitAppConfirmVisible && (
-            <Dialog
-              visible
-              title={<span style={{ color: '#f44336' }}>{_l('您确认退出此应用吗?')}</span>}
-              buttonType="danger"
-              onOk={() => this.setState({ quitAppConfirmVisible: false }, this.handleQuitApp)}
-              onCancel={() => this.setState({ quitAppConfirmVisible: false })}
-            >
-              <div className="Gray_75">{_l('退出此应用后，您将无法访问此应用')}</div>
-            </Dialog>
-          )}
         </ScrollView>
         {appDetail && roles && (
           <RoleSetting

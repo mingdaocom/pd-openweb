@@ -33,7 +33,7 @@ const bindWeiXin = () => {
 }
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger');
+const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal && !md.global.Config.IsLocal;;
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 

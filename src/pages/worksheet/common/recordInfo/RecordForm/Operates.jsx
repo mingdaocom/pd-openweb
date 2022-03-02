@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import RecordInfoContext from '../RecordInfoContext';
 import CustomButtons from './CustomButtons';
 import MoreMenu from './MoreMenu';
-import { browserIsMobile } from 'src/util';
+import { emitter } from 'worksheet/util';
 
 // TODO 更新记录
 
@@ -54,6 +54,7 @@ export default class Operates extends Component {
       }, 500);
       this.loadBtns();
     });
+    emitter.addListener('WINDOW_RESIZE', this.setButtonShowNum);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,6 +68,10 @@ export default class Operates extends Component {
     if (prevProps.sideVisible !== this.props.sideVisible) {
       this.setButtonShowNum();
     }
+  }
+
+  componentWillUnmount() {
+    emitter.removeListener('WINDOW_RESIZE', this.setButtonShowNum);
   }
 
   customButtonsCon = React.createRef();
@@ -83,6 +88,7 @@ export default class Operates extends Component {
     );
   }
 
+  @autobind
   setButtonShowNum() {
     if (!this.customButtonsCon.current) {
       return;

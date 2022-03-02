@@ -18,6 +18,7 @@ export const updateBase = base => (dispatch, getState) => {
 
 export const loadWorksheet = () => (dispatch, getState) => {
   const { base, appDetail } = getState().mobile;
+  const { appSection } = appDetail;
   const { appNaviStyle } = appDetail.detail || {};
   let currentNavWorksheetId = localStorage.getItem('currentNavWorksheetId');
   let currentNavWorksheetInfo =
@@ -39,7 +40,25 @@ export const loadWorksheet = () => (dispatch, getState) => {
       getViews: true,
     })
     .then(workSheetInfo => {
-      localStorage.setItem(`currentNavWorksheetInfo-${workSheetInfo.worksheetId}`, JSON.stringify(workSheetInfo));
+      if (appNaviStyle === 2) {
+        let navSheetList = _.flatten(
+          appSection.map(item => {
+            item.workSheetInfo.forEach(sheet => {
+              sheet.appSectionId = item.appSectionId;
+            });
+            return item.workSheetInfo;
+          }),
+        )
+          .filter(item => item.status === 1 && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
+          .slice(0, 4);
+        navSheetList.forEach(item => {
+          if (item.workSheetId === workSheetInfo.worksheetId) {
+            localStorage.setItem(`currentNavWorksheetInfo-${item.workSheetId}`, JSON.stringify(workSheetInfo));
+          }
+        });
+        let currentAppNavSheetIdList = navSheetList.map(item => item.workSheetId);
+        localStorage.setItem('currentAppNavSheetIdList', JSON.stringify(currentAppNavSheetIdList));
+      }
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
@@ -275,6 +294,8 @@ export const changeBatchOptData = data => (dispatch, getState) => {
 export const updateMobileViewPermission = params => (dispatch, getState) => {
   let { viewId, appId, worksheetId } = params;
   sheetAjax.getViewPermission({ viewId, appId, worksheetId }).then(data => {
-    dispatch({ type: 'UPDATE_MOBILEVIEW_PERMISSION', data: data.view });
+    if (data.view) {
+      dispatch({ type: 'UPDATE_MOBILEVIEW_PERMISSION', data: data.view });
+    }
   });
 };

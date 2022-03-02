@@ -43,7 +43,7 @@ export default function CustomPageHeader(props) {
   const { workSheetId: pageId, icon, iconColor, workSheetName } = currentSheet;
   const [visible, updateVisible] = useState({ popupVisible: false, editNameVisible: false, editIntroVisible: false });
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
-  const name = pageName || workSheetName;
+  const name = pageName !== workSheetName ? (workSheetName || pageName) : (pageName || workSheetName);
 
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);

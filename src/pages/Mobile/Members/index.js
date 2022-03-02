@@ -31,52 +31,32 @@ class Members extends Component {
   }
   handleExitApp = () => {
     const { detail } = this.props.memberData;
-    const isOwer = detail.permissionType === ROLE_TYPES.OWNER;
-    if (isOwer) {
-      this.modal = Modal.prompt((
-        <span className="Font17 bold">{_l('确认删除应用吗？')}</span>
-      ), (
-        <span className="Font13 Gray mBottom5">{_l('应用下所有配置和数据将被永久删除，不可恢复，请确认是否执行此操作！')}</span>
-      ), [
-        { text: _l('取消'), onPress: () => { }, style: { color: '#2196f3' } },
-        {
-          text: _l('确定'),
-          onPress: (value) => {
-            if (detail.name === value) {
-              this.props.dispatch(actions.deleteApp({
-                projectId: '',
-                appId: this.props.match.params.appId,
-              }, ({ data }) => {
-                if (data) {
-                  this.props.history.push('/mobile/appHome');
-                }
-              }));
-            } else {
-              alert(_l('应用名称错误'), 2);
-            }
-          },
-          style: { color: 'red' },
-        },
-      ], 'default', null, [_l('输入应用名称以确定删除')]);
-    } else {
-      this.modal = Modal.alert(_l('确定退出应用成员吗？'), '', [
-        { text: _l('取消'), onPress: () => { }, style: { color: '#2196f3' } },
-        {
-          text: _l('退出'),
-          onPress: () => {
-            this.props.dispatch(actions.quitApp({
-              projectId: detail.projectId,
+
+    this.modal = Modal.prompt((
+      <span className="Font17 bold">{_l('确认删除应用吗？')}</span>
+    ), (
+      <span className="Font13 Gray mBottom5">{_l('应用下所有配置和数据将被永久删除，不可恢复，请确认是否执行此操作！')}</span>
+    ), [
+      { text: _l('取消'), onPress: () => { }, style: { color: '#2196f3' } },
+      {
+        text: _l('确定'),
+        onPress: (value) => {
+          if (detail.name === value) {
+            this.props.dispatch(actions.deleteApp({
+              projectId: '',
               appId: this.props.match.params.appId,
-            }, ({ isRoleForUser, isRoleDepartment }) => {
-              if (isRoleForUser) {
+            }, ({ data }) => {
+              if (data) {
                 this.props.history.push('/mobile/appHome');
               }
             }));
-          },
-          style: { color: 'red' },
+          } else {
+            alert(_l('应用名称错误'), 2);
+          }
         },
-      ]);
-    }
+        style: { color: 'red' },
+      },
+    ], 'default', null, [_l('输入应用名称以确定删除')]);
   }
   renderCard(data, isAdmin) {
     const { params } = this.props.match;

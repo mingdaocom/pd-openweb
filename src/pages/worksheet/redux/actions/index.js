@@ -275,7 +275,7 @@ export function updateFilters(filters, view) {
       type: 'WORKSHEET_UPDATE_FILTERS',
       filters,
     });
-    dispatch(refreshSheet(view));
+    dispatch(refreshSheet(view, { changeFilters: true }));
   };
 }
 

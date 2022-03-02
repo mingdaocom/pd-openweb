@@ -83,10 +83,10 @@ class App extends Component {
 
   handleOpenSheet = (data, item) => {
     const { params } = this.props.match;
+    localStorage.removeItem('currentNavWorksheetId');
     if (item.type === 0) {
       const storage = localStorage.getItem(`mobileViewSheet-${item.workSheetId}`);
       let viewId = storage || '';
-      localStorage.removeItem('currentNavWorksheetId');
       this.navigateTo(
         `/mobile/recordList/${params.appId}/${data.appSectionId}/${item.workSheetId}${viewId ? `/${viewId}` : ''}`,
       );
@@ -400,13 +400,20 @@ class App extends Component {
 
   renderRecordList(data) {
     const { type } = data;
-    const { detail = {} } = this.props.appDetail;
+    const { detail = {}, appSection } = this.props.appDetail;
     const { appNaviStyle } = detail;
     if (type === 0) {
       return <RecordList now={Date.now()} />;
     }
     if (type === 1) {
-      return <CustomPage pageTitle={data.workSheetName} now={Date.now()} appNaviStyle={appNaviStyle} />;
+      return (
+        <CustomPage
+          pageTitle={data.workSheetName}
+          now={Date.now()}
+          appNaviStyle={appNaviStyle}
+          appSection={appSection}
+        />
+      );
     }
   }
 

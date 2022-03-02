@@ -211,7 +211,7 @@ export function updateRows(rowIds, value) {
   };
 }
 
-export function refresh({ resetPageIndex, noLoading } = {}) {
+export function refresh({ resetPageIndex, changeFilters, noLoading } = {}) {
   return (dispatch, getState) => {
     const {
       filters,
@@ -221,7 +221,7 @@ export function refresh({ resetPageIndex, noLoading } = {}) {
     } = getState().sheet;
     const view = _.find(views, { viewId });
     const needClickToSearch = !chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
-    if (filters.keyWords || resetPageIndex) {
+    if (filters.keyWords || resetPageIndex || changeFilters) {
       dispatch(changePageIndex(1));
     }
     if (needClickToSearch && _.isEmpty(quickFilter)) {

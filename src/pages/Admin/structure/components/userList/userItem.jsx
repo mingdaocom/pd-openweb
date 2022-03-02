@@ -673,7 +673,9 @@ class UserItem extends Component {
         )}
         {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
           <td className="joinDateTh">
-            {moment(user.addProjectTime).format('YYYY-MM-DD') || moment(user.createTime).format('YYYY-MM-DD')}
+            {user.addProjectTime
+              ? moment(user.addProjectTime).format('YYYY-MM-DD')
+              : moment(user.createTime).format('YYYY-MM-DD')}
           </td>
         )}
         <td className="actTh">

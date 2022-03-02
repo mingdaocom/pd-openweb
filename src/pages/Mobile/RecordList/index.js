@@ -166,6 +166,7 @@ class RecordList extends Component {
               onClick={() => {
                 if (!isHideTabBar && location.href.includes('mobile/app')) {
                   window.mobileNavigateTo('/mobile/appHome');
+                  localStorage.removeItem('currentNavWorksheetId');
                 } else {
                   window.mobileNavigateTo(`/mobile/app/${params.appId}`);
                 }

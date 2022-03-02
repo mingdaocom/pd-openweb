@@ -112,7 +112,6 @@ export function initBoardViewData(view) {
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch }) {
-  const isRelateHide = para.relationWorksheetId && para.kanbanSize === 50;
   getFilterRows(para).then(({ data, resultCode }) => {
     if (resultCode !== 1) {
       dispatch({
@@ -134,7 +133,7 @@ function getBoardViewDataFillPage({ para, dispatch }) {
     });
     dispatch({
       type: 'CHANGE_BOARD_VIEW_STATE',
-      payload: { kanbanIndex: para.kanbanIndex, hasMoreData: isRelateHide ? false : !(data.length < 20) },
+      payload: { kanbanIndex: para.kanbanIndex, hasMoreData: !(data.length < 20) },
     });
   });
 }
@@ -146,7 +145,9 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
     const { boardViewState, boardViewRecordCount, boardData } = boardView;
     const { hasMoreData, kanbanIndex } = boardViewState;
     const para = getBoardViewPara(sheet);
-    if (!hasMoreData || !para) {
+    // 关联看板隐藏无数据看板，开启不允许拉取数据，关闭时允许
+    const isRelateHide = para.relationWorksheetId && para.kanbanSize === 50;
+    if (isRelateHide || !hasMoreData || !para) {
       alwaysCallback();
       return;
     }

@@ -62,7 +62,7 @@ export default class Widgets extends Component {
     const disabledInput = advancedSetting.dismanual === '1';
     const isSingleLine = enumDefault === 2;
     const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal;
+    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal && !md.global.Config.IsLocal;
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const startTextScanCode =

@@ -58,10 +58,23 @@ class AppHome extends React.Component {
     if (isWxWork && isAdmin && isMaturity) {
       this.getWebCache();
     }
+    window.addEventListener('popstate', this.closePage);
+    let currentAppNavSheetIdList =
+      (localStorage.getItem('currentAppNavSheetIdList') &&
+        JSON.parse(localStorage.getItem('currentAppNavSheetIdList'))) ||
+      [];
+    currentAppNavSheetIdList.forEach(item => {
+      localStorage.removeItem(`currentNavWorksheetInfo-${item}`);
+    });
+    localStorage.removeItem('currentAppNavSheetIdList');
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
     ActionSheet.close();
+    // 异步延迟执行，确保 popstate 优先执行
+    setTimeout(() => {
+      window.removeEventListener('popstate', this.closePage);
+    }, 0);
   }
   componentWillReceiveProps(nextProps) {
     if (_.isEmpty(nextProps.countData)) return;
@@ -70,6 +83,9 @@ class AppHome extends React.Component {
         countData: nextProps.countData,
       });
     }
+  }
+  closePage = () => {
+    window.close();
   }
   getWebCache = () => {
     webCache
