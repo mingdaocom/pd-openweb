@@ -13,7 +13,7 @@ function base(state = {}, action) {
     case 'WORKSHEET_UPDATE_BASE':
       return { ...state, ...action.base };
     case 'WORKSHEET_UPDATE_FILTERS':
-      return { ...state, chartId: undefined };
+      return { ...state, ...(location.search.indexOf('chartId=') > -1 ? { chartId: undefined } : {}) };
     case 'WORKSHEET_INIT':
       if ((state.viewId && /^[0-9a-z]{24}$/.test(state.viewId)) || state.chartId) {
         return state;

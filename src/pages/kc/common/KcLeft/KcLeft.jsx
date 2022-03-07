@@ -737,49 +737,6 @@ class KcLeft extends Component {
                   .value()}
               </ScrollView>
             </div>
-            <Splitter className="fileHr bottomHr ThemeBorderColor8" />
-            {usage ? (
-              <div
-                className="folderBottom ThemeColor9"
-                onMouseEnter={evt =>
-                  this.setState({
-                    upgradeHint: !md.global.Account.projects.some(project => project.licenseType === 1),
-                    upgradeOffset: $(evt.target).offset(),
-                  })
-                }
-                onMouseLeave={() => this.setState({ upgradeHint: false })}
-              >
-                {this.state.upgradeHint ? (
-                  <div className="upgradeHint" style={{ top: this.state.upgradeOffset.top - 112 }}>
-                    <div className="upgradeCentent">
-                      <span className="hint">{_l('立即开通付费版')}</span>
-                      <span className="hint">{_l('获得无限空间和更大上传流量')}</span>
-                      <a
-                        className="upgradeBtn ThemeBGColor3"
-                        href="/personal?type=enterprise"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {_l('开通付费版')}
-                      </a>
-                    </div>
-                    <div className="upgradeTip" />
-                  </div>
-                ) : undefined}
-                <div
-                  className="storageInfo ThemeColor9 pointer"
-                  title={_l('本月剩余 %0 上传流量', humanFileSize(usage.total - usage.used))}
-                  onClick={() => this.usageDialog(usage)}
-                >
-                  {_l('已使用')}
-                  <span className="usageAmount ThemeColor9">
-                    {' '}
-                    {humanFileSize(usage.used)} / {humanFileSize(usage.total)}{' '}
-                  </span>
-                  ( <span className="percent ThemeColor9">{(percent > 100 ? 100 : percent).toFixed(2)}</span>% )
-                </div>
-              </div>
-            ) : null}
           </div>
         </MDLeftNav>
       </div>

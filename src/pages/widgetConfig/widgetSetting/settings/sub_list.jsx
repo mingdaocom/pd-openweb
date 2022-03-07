@@ -65,6 +65,9 @@ export default function SubListSetting(props) {
 
   useEffect(() => {
     setVisible(batchcids.length > 0);
+    if (dataSource && window.subListSheetConfig[dataSource]) {
+      setInfo((window.subListSheetConfig[dataSource] || {}).sheetInfo);
+    }
   }, [controlId]);
 
   useEffect(() => {
@@ -96,6 +99,7 @@ export default function SubListSetting(props) {
               status: true,
               mode: res.type === 2 ? 'new' : 'relate',
               saveIndex,
+              sheetInfo: res,
             },
           };
         })
@@ -126,6 +130,7 @@ export default function SubListSetting(props) {
           status: true,
           mode: res.type === 2 ? 'new' : 'relate',
           saveIndex: status.saveIndex,
+          sheetInfo: res,
         };
         setMode(res.type === 2 ? 'new' : 'relate');
         let nextData = {

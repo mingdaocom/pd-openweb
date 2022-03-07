@@ -8,6 +8,7 @@ var shareajax = require('src/api/share');
 var { getPreviewLink } = require('src/api/chat');
 var { getWeiXinConfig } = require('src/api/weixin');
 var attachmentAjax = require('src/api/attachment');
+var { getDetailUrl } = require('src/api/kc');
 
 var RENDER_BY_SERVICE_TYPE = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'pdf'];
 

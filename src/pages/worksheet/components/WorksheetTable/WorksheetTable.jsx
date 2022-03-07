@@ -220,7 +220,7 @@ export default class WorksheetTable extends PureComponent {
       if (this.state.rules && this.state.rules.length && nextData.length > data.length) {
         this.updateNewRowsFieldPermission({
           props: nextProps,
-          rows: nextData.slice(data.length),
+          rows: _.difference(nextData, data, 'rowid'),
         });
       }
     }

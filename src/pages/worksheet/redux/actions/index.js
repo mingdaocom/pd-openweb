@@ -55,7 +55,7 @@ export function loadWorksheet(worksheetId) {
     }).then(res => {
       dispatch({
         type: 'WORKSHEET_INIT',
-        value: res,
+        value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
       });
     });
     worksheetId &&

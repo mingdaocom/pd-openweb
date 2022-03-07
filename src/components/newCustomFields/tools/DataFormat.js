@@ -83,6 +83,7 @@ const parseStaticValue = (item, staticValue) => {
 
 // 获取动态默认值
 export const getDynamicValue = (data, currentItem, masterData) => {
+  if (currentItem.type === 30) return '';
   let value = JSON.parse(currentItem.advancedSetting.defsource).map(item => {
     if (item.isAsync) return '';
 

@@ -343,13 +343,14 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isCascader = typeKey === 'CASCADER' && control;
   const isOptionsMultiple = controlType === API_ENUM_TO_TYPE.OPTIONS_10;
   const isDepartmentMultiple = control && control.type === 27;
+  const isUser = control && control.type === 26;
   const isArea = control && _.includes([19, 23, 24], control.type);
   switch (type) {
     case FILTER_CONDITION_TYPE.LIKE:
       if (isRelateRecord) return _l('标题包含');
       return _l('包含');
     case FILTER_CONDITION_TYPE.EQ:
-      if (isOptionsMultiple) return _l('包含');
+      if (isOptionsMultiple || isDepartmentMultiple || isUser) return _l('包含');
       if (isNumber) return '=';
       return _l('是');
     case FILTER_CONDITION_TYPE.START:
@@ -360,7 +361,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       if (isRelateRecord) return _l('标题不包含');
       return _l('不包含');
     case FILTER_CONDITION_TYPE.NE:
-      if (isOptionsMultiple) return _l('不包含');
+      if (isOptionsMultiple || isDepartmentMultiple || isUser) return _l('不包含');
       if (isNumber) return '≠';
       return _l('不是');
     case FILTER_CONDITION_TYPE.ISNULL:
