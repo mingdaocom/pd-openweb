@@ -156,7 +156,11 @@ export default class WeiXin extends Component {
                   {item.type == 'text' ? (
                     <Input onChange={e => this.changeFormData(e, item)} />
                   ) : (
-                    <Input.Password onChange={e => this.changeFormData(e, item)} visibilityToggle={false} />
+                    <Input.Password
+                      autoComplete="new-password"
+                      onChange={e => this.changeFormData(e, item)}
+                      visibilityToggle={false}
+                    />
                   )}
                 </Form.Item>
                 {item.description && <div className="description">{item.description}</div>}

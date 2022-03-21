@@ -187,7 +187,7 @@ export default class SourceListSettings extends Component {
         ...base,
       }).then(result => {
         if (result) {
-          this.setState({ dialogVisible: false, creatreItem: {}() });
+          this.setState({ dialogVisible: false, creatreItem: {} });
           this.getSources();
         }
       });
@@ -214,7 +214,7 @@ export default class SourceListSettings extends Component {
             className="w100"
             value={creatreItem.name}
             onChange={value => {
-              this.setState({ creatreItem: Object.assign({}(), creatreItem, { name: value }) });
+              this.setState({ creatreItem: Object.assign({}, creatreItem, { name: value }) });
             }}
           />
         </div>
@@ -224,7 +224,7 @@ export default class SourceListSettings extends Component {
             className="w100"
             value={creatreItem.url}
             onChange={value => {
-              this.setState({ creatreItem: Object.assign({}(), creatreItem, { url: value }) });
+              this.setState({ creatreItem: Object.assign({}, creatreItem, { url: value }) });
             }}
           />
         </div>
@@ -237,7 +237,7 @@ export default class SourceListSettings extends Component {
                 style={{ backgroundColor: item }}
                 className={cx('sourcesColor flexRow valignWrapper', { active: item == creatreItem.color })}
                 onClick={() => {
-                  this.setState({ creatreItem: Object.assign({}(), creatreItem, { color: item }) });
+                  this.setState({ creatreItem: Object.assign({}, creatreItem, { color: item }) });
                 }}
               >
                 {item == creatreItem.color && <Icon className="Font17 White" icon="done" />}
@@ -253,7 +253,7 @@ export default class SourceListSettings extends Component {
                 style={{ backgroundColor: creatreItem.icon == item.fileName ? creatreItem.color : null }}
                 className={cx('sourcesIcon flexRow valignWrapper pointer')}
                 onClick={() => {
-                  this.setState({ creatreItem: Object.assign({}(), creatreItem, { icon: item.fileName }) });
+                  this.setState({ creatreItem: Object.assign({}, creatreItem, { icon: item.fileName }) });
                 }}
               >
                 <SvgIcon url={item.iconUrl} fill={creatreItem.icon == item.fileName ? '#fff' : '#9e9e9e'} />
