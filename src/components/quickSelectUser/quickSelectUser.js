@@ -404,8 +404,7 @@ $.extend(SelectUser.prototype, {
         .end()
         .toggleClass('hover', e.type === 'mouseenter');
     });
-
-    _this.$input.focus().on('keyup', function (event) {
+    _this.$input.focus().on('keyup input', function (event) {
       var $this = $(this);
       var canInvite = !options.isSearching && !options.hasData && options.showQuickInvite;
       if (event.keyCode === KEYMAPS.ENTER) {
@@ -428,7 +427,7 @@ $.extend(SelectUser.prototype, {
           } else {
             _this.searchRequest();
           }
-        }, 50);
+        }, 200);
       }
     });
 
@@ -645,7 +644,9 @@ $.extend(SelectUser.prototype, {
     var options = this.options;
     if (options.keywords) {
       _this.toggleListContainer(true);
-
+      if (options.promise) {
+        options.promise.abort();
+      }
       if (options.tabIndex === 0) {
         options.promise = addressBookController.getUserAddressbookByKeywords({
           keywords: options.keywords,
