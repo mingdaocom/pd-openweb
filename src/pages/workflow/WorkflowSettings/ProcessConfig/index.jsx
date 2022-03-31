@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Icon, Checkbox, LoadDiv, Dropdown, Radio, Support, ScrollView } from 'ming-ui';
+import { Icon, Checkbox, LoadDiv, Dropdown, Radio, Support, ScrollView, Switch } from 'ming-ui';
 import './index.less';
 import process from '../../api/process';
 import SelectWorkflow from '../../components/SelectWorkflow';
@@ -10,6 +10,8 @@ import Member from '../Detail/components/Member';
 import SelectUserDropDown from '../Detail/components/SelectUserDropDown';
 import ProcessVariables from './components/ProcessVariables';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import SetControlName from './components/SetControlName';
 
 const TRIGGER_TYPE = {
   ALLOW: 0,
@@ -23,7 +25,7 @@ class ProcessConfig extends Component {
     showWorkflow: false,
     showSelectUserDialog: false,
     tab: 1,
-    errorItems: [],
+    errorItems: {},
   };
 
   componentDidMount() {
@@ -37,8 +39,8 @@ class ProcessConfig extends Component {
   /**
    * 更新data数据
    */
-  updateSource = obj => {
-    this.setState({ data: Object.assign({}, this.state.data, obj) });
+  updateSource = (obj, callback = () => {}) => {
+    this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
   };
 
   /**
@@ -60,9 +62,11 @@ class ProcessConfig extends Component {
       userTaskNullPass,
       sendTaskPass,
       processVariables,
+      allowUrge,
+      pbcConfig,
     } = data;
 
-    if (errorItems.filter(item => item).length) {
+    if (_.find(errorItems, o => o)) {
       alert(_l('有参数配置错误'), 2);
       return;
     }
@@ -91,6 +95,8 @@ class ProcessConfig extends Component {
         userTaskNullPass,
         sendTaskPass,
         processVariables,
+        allowUrge,
+        pbcConfig,
       })
       .then(result => {
         if (result) {
@@ -100,6 +106,7 @@ class ProcessConfig extends Component {
             this.props.dispatch(updatePublishState({ publishStatus: 1, pending: true }));
           }
         }
+        this.updateSource({ processVariables: result });
         this.setState({ saveRequest: false });
       });
 
@@ -169,12 +176,14 @@ class ProcessConfig extends Component {
               <Radio
                 className="bold"
                 text={item.text}
-                disabled={!data.sequence}
+                disabled={!data.sequence && item.value !== 1}
                 checked={data.executeType === item.value}
                 onClick={() => this.updateSource({ executeType: item.value })}
               />
             </div>
-            <div className={cx('Font12 mTop5 mLeft30', !data.sequence ? 'Gray_9e' : 'Gray_75')}>{item.desc}</div>
+            <div className={cx('Font12 mTop5 mLeft30', !data.sequence && item.value !== 1 ? 'Gray_9e' : 'Gray_75')}>
+              {item.desc}
+            </div>
           </Fragment>
         ))}
 
@@ -324,7 +333,7 @@ class ProcessConfig extends Component {
         <div className="bold Font16 mTop20">{_l('工作流撤回')}</div>
         <div className="mTop15">
           <Checkbox
-            className="InlineFlex"
+            className="InlineFlex TxtTop"
             text={_l('允许触发者撤回')}
             checked={data.allowRevoke}
             disabled={!isSheetOrButton}
@@ -346,6 +355,15 @@ class ProcessConfig extends Component {
             </div>
           )}
         </div>
+        <div className="mTop15">
+          <Checkbox
+            className="InlineFlex TxtTop"
+            text={_l('允许触发者催办')}
+            checked={data.allowUrge}
+            disabled={!isSheetOrButton}
+            onClick={checked => this.updateSource({ allowUrge: !checked })}
+          />
+        </div>
 
         <div className="bold Font16 mTop20">{_l('人工节点设置')}</div>
         {nodeSettings.map((item, i) => {
@@ -354,10 +372,10 @@ class ProcessConfig extends Component {
               <div className="Font14 mTop10 Gray_75 bold">{item.text}</div>
               {item.list.map(o => {
                 return (
-                  <div className="mTop10" key={o.key}>
+                  <div className="mTop15" key={o.key}>
                     <Checkbox
                       {...o}
-                      className="InlineFlex"
+                      className="InlineFlex TxtTop"
                       onClick={checked => this.updateSource({ [o.key]: !checked })}
                     />
                   </div>
@@ -392,7 +410,123 @@ class ProcessConfig extends Component {
     );
   }
 
+  renderPBCContent() {
+    const { flowInfo } = this.props;
+    const { data, errorItems } = this.state;
+    const options = [
+      {
+        text: _l('通过回调地址接受返回参数'),
+        value: 1,
+        desc: _l('此时对方请求时必须附带参数callbackURL，我方流程运行结束后会向此URL传递输出参数'),
+      },
+      {
+        text: _l('直接返回参数给请求地址（仅私有部署开放）'),
+        value: 2,
+      },
+    ];
+
+    return (
+      <Fragment>
+        <div className="Gray_9e mTop20">
+          {_l('启用后，我们会自动为您的业务流程生成相关的API开发文档，供您向其他第三方外部系统提供平台开放能力')}
+          {data.pbcConfig.enable && (
+            <a
+              href={`/worksheetapi/${flowInfo.relationId}`}
+              target="_blank"
+              className="mLeft2 ThemeColor3 ThemeHoverColor2"
+            >
+              {_l('查看文档')}
+            </a>
+          )}
+        </div>
+
+        <div className="mTop10">
+          <Switch
+            checked={data.pbcConfig.enable}
+            text={data.pbcConfig.enable ? _l('开启') : _l('关闭')}
+            onClick={() =>
+              this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { enable: !data.pbcConfig.enable }) })
+            }
+          />
+        </div>
+
+        {data.pbcConfig.enable && (
+          <Fragment>
+            <SetControlName
+              data={data.processVariables}
+              errorItems={errorItems}
+              setErrorItems={errorItems => this.setState({ errorItems })}
+              updateSource={this.updateSource}
+            />
+            <div className="bold Font16 mTop20">{_l('请求地址')}</div>
+            <div className="mTop5 Gray_9e">{_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}</div>
+            <div className="mTop10 flexRow">
+              <input
+                type="text"
+                className="webhookLink flex"
+                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                value={data.pbcConfig.url}
+                disabled
+              />
+              <input
+                type="text"
+                className="webhookLinkCustom"
+                value={data.pbcConfig.urlExtension}
+                onChange={e =>
+                  this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { urlExtension: e.target.value }) })
+                }
+                onBlur={e =>
+                  this.updateSource({
+                    pbcConfig: Object.assign({}, data.pbcConfig, { urlExtension: e.target.value.trim() }),
+                  })
+                }
+              />
+              <div
+                className="mLeft10 webhookLinkCopy"
+                onClick={() => {
+                  copy(`${data.pbcConfig.url}/${data.pbcConfig.urlExtension}`.replace(/\/$/, ''));
+                  alert(_l('已复制到剪切板'));
+                }}
+              >
+                {_l('复制')}
+              </div>
+            </div>
+
+            <div className="bold Font16 mTop20">{_l('返回参数')}</div>
+            {options.map((item, i) => (
+              <Fragment key={i}>
+                <div className="mTop15">
+                  <Radio
+                    className="bold"
+                    text={item.text}
+                    disabled={!md.global.Config.IsLocal && item.value !== 1}
+                    checked={data.pbcConfig.outType === item.value}
+                    onClick={() =>
+                      this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { outType: item.value }) })
+                    }
+                  />
+                </div>
+                {!!item.desc && (
+                  <div
+                    className={cx(
+                      'Font12 mTop5 mLeft30',
+                      !md.global.Config.IsLocal && item.value !== 1 ? 'Gray_9e' : 'Gray_75',
+                    )}
+                  >
+                    {item.desc}
+                  </div>
+                )}
+              </Fragment>
+            ))}
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
+
   render() {
+    const { flowInfo } = this.props;
+    const isPBC = _.includes([17], flowInfo.startAppType);
     const { data, tab } = this.state;
 
     if (_.isEmpty(data)) {
@@ -403,7 +537,16 @@ class ProcessConfig extends Component {
       { text: _l('基础'), value: 1, icon: 'department' },
       { text: _l('人工节点设置'), value: 2, icon: 'user_Review' },
       { text: _l('流程参数'), value: 3, icon: 'parameter' },
+      { text: _l('平台API能力'), value: 4, icon: 'pbc' },
     ];
+    const licenseType = _.get(
+      _.find(md.global.Account.projects, item => item.projectId === flowInfo.companyId) || {},
+      'licenseType',
+    );
+
+    if (!isPBC || licenseType === 0) {
+      _.remove(settings, item => item.value === 4);
+    }
 
     return (
       <ScrollView className="workflowHistoryWrap flex">
@@ -436,6 +579,7 @@ class ProcessConfig extends Component {
             {tab === 1 && this.renderProcessContent()}
             {tab === 2 && this.renderArtificialContent()}
             {tab === 3 && this.renderParameterContent()}
+            {tab === 4 && this.renderPBCContent()}
             <div className="mTop50 TxtCenter">
               <span className="processConfigSave ThemeBGColor3 ThemeHoverBGColor2 pointer" onClick={this.onSave}>
                 {_l('保存')}

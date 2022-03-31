@@ -11,7 +11,38 @@ import { setPssId } from 'src/util/pssId';
 import RegExp from 'src/util/expression';
 import { browserIsMobile } from 'src/util';
 import { getDataByFilterXSS } from '../util';
-
+import styled from 'styled-components';
+const WrapCon = styled.div`
+  position: absolute;
+  top: 100%;
+  background: #fff;
+  z-index: 10;
+  width: 100%;
+  padding: 6px 0;
+  box-shadow: 0px 8px 16px rgb(0 0 0 / 24%);
+  border-radius: 2px;
+  overflow: auto;
+  max-height: 400px;
+  .cover {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  & > div.liBox {
+    padding: 6px 8px;
+    &:hover,
+    &.isCur {
+      background: #2196f3;
+      color: #fff;
+      .ThemeColor3 {
+        color: #fff !important;
+      }
+    }
+  }
+`;
 export default class Create extends React.Component {
   constructor(props) {
     super(props);
@@ -47,7 +78,19 @@ export default class Create extends React.Component {
       // tipDom: "",
       warnningData: [],
       focusDiv: '',
+      companyList: [],
+      show: false,
+      tpCompanyId: -1,
     };
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      if (this.companyName) {
+        $(this.companyName).focus();
+        $(this.companyName).bind('keydown', this.onInputBoxKeyDown);
+      }
+    }, 300);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -69,6 +112,7 @@ export default class Create extends React.Component {
       const { company = {}, TPParams } = registerData;
       const {
         companyName,
+        tpCompanyId,
         job, // 加入网络使用
         email, //邮箱
         scaleId, //预计人数
@@ -76,6 +120,7 @@ export default class Create extends React.Component {
       } = company;
       RegisterController.createCompany({
         companyName: filterXSS(companyName),
+        tpCompanyId: tpCompanyId,
         job,
         code: code,
         email: email,
@@ -161,12 +206,12 @@ export default class Create extends React.Component {
     let isRight = true;
     let warnningData = [];
     if (!companyName) {
-      warnningData.push({ tipDom: this.companyName, warnningText: _l('组织名称不能为空') });
+      warnningData.push({ tipDom: this.companyName, warnningText: _l('请填写组织名称') });
       isRight = false;
     }
     // 职位
     if (!job) {
-      warnningData.push({ tipDom: this.job, warnningText: _l('职位不能为空') });
+      warnningData.push({ tipDom: this.job, warnningText: _l('请填写职位') });
       isRight = false;
     }
     // 邮箱
@@ -192,10 +237,89 @@ export default class Create extends React.Component {
     return isRight;
   };
 
+  getByKeywords = searchKeyword => {
+    if (this.ajax) {
+      this.ajax.abort();
+    }
+    this.ajax = RegisterController.getCompanyInfo({
+      companynameKeyword: searchKeyword,
+    });
+    this.ajax.then(res => {
+      const ids = _.keys(res);
+      this.setState({
+        companyList: ids.map(o => {
+          return { name: res[o], id: o };
+        }),
+      });
+    });
+  };
+
+  onInputBoxKeyDown = e => {
+    let { companyList = [], tpCompanyI } = this.state;
+    if (companyList.length <= 0) {
+      this.setState({
+        tpCompanyI: -1,
+      });
+      return;
+    }
+    switch (e.keyCode) {
+      case 38: //up
+        if (tpCompanyI - 1 < 0) {
+          return this.setCompany(companyList.length - 1);
+        } else {
+          return this.setCompany(tpCompanyI - 1);
+        }
+
+      case 40: //KEY.DOWN:
+        if (tpCompanyI + 1 > companyList.length - 1) {
+          return this.setCompany(0);
+        } else {
+          return this.setCompany(tpCompanyI + 1);
+        }
+    }
+  };
+
+  setCompany = tpCompanyI => {
+    const { registerData, setDataFn } = this.props;
+    const { company = {} } = registerData;
+    let { companyList = [] } = this.state;
+    let o = companyList[tpCompanyI];
+    setDataFn({
+      ...registerData,
+      company: {
+        ...company,
+        companyName: o.name,
+        tpCompanyId: o.id,
+      },
+    });
+    this.setState({
+      tpCompanyI,
+    });
+  };
+
+  requestDebounce = _.debounce(searchKeyword => {
+    this.getByKeywords(searchKeyword);
+  }, 500);
+
+  renderTxt = o => {
+    const { registerData } = this.props;
+    const { company = {} } = registerData;
+    const { companyName } = company;
+    let start = o.name.toLowerCase().indexOf(companyName.toLowerCase());
+    let l = companyName.length;
+    let str = o.name.split('');
+    let stmp = o.name;
+    if (start >= 0) {
+      let s = stmp.slice(start, start + l);
+      str.splice(start, l, <span class="ThemeColor3">{s}</span>);
+    }
+    return str;
+  };
+
   renderCon = () => {
     const { changeStep, step, registerData, setDataFn } = this.props;
     const { company = {} } = registerData;
-    const { warnningText, tipDom, warnningData, focusDiv } = this.state;
+    const { warnningText, tipDom, warnningData, focusDiv, companyList, show, tpCompanyI } = this.state;
     const {
       companyName,
       job, // 加入网络使用
@@ -213,15 +337,24 @@ export default class Create extends React.Component {
           >
             <input
               type="text"
+              maxLength={'60'}
               className="companyName"
               autoComplete="off"
               ref={companyName => (this.companyName = companyName)}
               onBlur={this.inputOnBlur}
-              onFocus={this.inputOnFocus}
+              onFocus={e => {
+                this.setState({
+                  show: true,
+                });
+                this.inputOnFocus(e);
+              }}
               onChange={e => {
                 this.setState({
                   warnningData: _.filter(warnningData, it => it.tipDom !== this.companyName),
                 });
+                if (e.target.value.length >= 2) {
+                  this.requestDebounce(e.target.value);
+                }
                 setDataFn({
                   ...registerData,
                   company: {
@@ -232,6 +365,40 @@ export default class Create extends React.Component {
               }}
               value={companyName}
             />
+            {companyName && companyList.length > 0 && show && (
+              <WrapCon className="companyList">
+                <div
+                  className="cover"
+                  onClick={() => {
+                    this.setState({
+                      show: false,
+                    });
+                  }}
+                ></div>
+                {companyList.map((o, i) => {
+                  return (
+                    <div
+                      className={cx('liBox Hand', { isCur: tpCompanyI === i })}
+                      onClick={() => {
+                        setDataFn({
+                          ...registerData,
+                          company: {
+                            ...company,
+                            companyName: o.name,
+                            tpCompanyId: o.id,
+                          },
+                        });
+                        this.setState({
+                          companyList: [],
+                        });
+                      }}
+                    >
+                      {this.renderTxt(o)}
+                    </div>
+                  );
+                })}
+              </WrapCon>
+            )}
             <div
               className="title"
               onClick={e => {
@@ -263,6 +430,7 @@ export default class Create extends React.Component {
             <input
               type="text"
               className="job"
+              maxLength={'60'}
               autoComplete="off"
               ref={job => (this.job = job)}
               onBlur={this.inputOnBlur}
@@ -309,6 +477,7 @@ export default class Create extends React.Component {
             <input
               type="text"
               className="email"
+              maxLength={'60'}
               autoComplete="off"
               ref={email => (this.email = email)}
               onBlur={this.inputOnBlur}

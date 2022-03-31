@@ -6,7 +6,9 @@ import { getRandomString } from 'src/util';
 export default (callback = () => {}, onCancel = () => {}) => {
   const randstr = getRandomString(16);
   const getImgLink = () => {
-    return `${__api_server__}code/CreateVerifyCodeImage?width=320&height=130&fontSize=30&randstr=${randstr}&${Math.random()}`;
+    return `${
+      __api_server__.main
+    }code/CreateVerifyCodeImage?width=320&height=130&fontSize=30&randstr=${randstr}&${Math.random()}`;
   };
 
   Dialog.confirm({
@@ -25,17 +27,16 @@ export default (callback = () => {}, onCancel = () => {}) => {
             className="ThemeColor3 ThemeHoverColor2 pointer"
             onClick={() => {
               $('.captchaImg img').attr('src', getImgLink());
-            }}>
+            }}
+          >
             {_l('看不清，换一张')}
           </span>
         </div>
       </Fragment>
     ),
     onOk: () => {
-      return new Promise(function(reslove, reject) {
-        const value = $('.captchaInput')
-          .val()
-          .trim();
+      return new Promise(function (reslove, reject) {
+        const value = $('.captchaInput').val().trim();
 
         if (!value) {
           alert(_l('请输入验证码'), 3);

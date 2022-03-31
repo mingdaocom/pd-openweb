@@ -73,6 +73,19 @@ var process = {
     return $.api(controllerName, 'processgetHistory', args, $.extend(base, options));
   },
   /**
+   * PBC流程api
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.processId] 发布版流程ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getProcessApiInfo: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/process/getProcessApiInfo';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'processgetProcessApiInfo', args, $.extend(base, options));
+  },
+  /**
    * 根据工作表控件获取流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -126,6 +139,19 @@ var process = {
     base.ajaxOptions.url = base.server() + '/process/getProcessConfig';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessConfig', args, $.extend(base, options));
+  },
+  /**
+   * 发布版开启过api的PBC流程列表
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.relationId] 应用id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getProcessListApi: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/process/getProcessListApi';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'processgetProcessListApi', args, $.extend(base, options));
   },
   /**
    * 获取版本发布的信息
@@ -197,7 +223,7 @@ var process = {
    * 保存流程全局配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {保存流程配置} {allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：逐条执行(integer),isSaveVariables:是否只保存流程参数(boolean),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),}*saveProcessConfigRequest
+   * @param {保存流程配置} {allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：逐条执行(integer),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),}*saveProcessConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -231,6 +257,19 @@ var process = {
     base.ajaxOptions.url = base.server() + '/process/startProcessById';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processstartProcessById', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 根据流程id手动触发PBC流程
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestStartProcessByPBC} {appId:绑定的页面id(string),controls:PBC参数(array),processId:pbc流程id(string),pushUniqueId:push唯一id 客户端使用(string),title:页面按钮名称(string),triggerId:页面按钮id(string),}*startProcess
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  startProcessByPBC: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/process/startProcessByPBC';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'processstartProcessByPBC', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 修改流程基本信息

@@ -77,7 +77,7 @@ export default class ExecDialog extends Component {
     });
   };
   getPermit = () => {
-    let { id, workId } = this.props;
+    let { id, workId, onError, onClose } = this.props;
     getWorkItem({
       instanceId: id,
       workId: workId,
@@ -91,6 +91,9 @@ export default class ExecDialog extends Component {
           loading: false,
         });
       });
+    }).fail((res) => {
+      onError();
+      onClose();
     });
   };
 
@@ -134,6 +137,7 @@ export default class ExecDialog extends Component {
           <Header
             projectId={projectId}
             data={data}
+            works={works}
             currentWorkItem={currentWorkItem}
             errorMsg={errorMsg}
             sheetSwitchPermit={sheetSwitchPermit}
@@ -144,7 +148,7 @@ export default class ExecDialog extends Component {
           />
         }
         workflow={
-          <ul className="workflowStepListWrap">
+          <ul className="pAll20">
             {works.map((item, index) => {
               return (
                 <StepItem

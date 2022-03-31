@@ -23,7 +23,7 @@ export default class WorkflowInfo extends Component {
     super(props);
     this.state = {
       flowName: props.flowName,
-      explain: props.explain,
+      explain: props.explain || '',
     };
   }
 

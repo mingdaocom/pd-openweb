@@ -15,6 +15,8 @@ import {
   SelectNodeObject,
 } from '../components';
 import { TRIGGER_ID_TYPE } from '../../enum';
+import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
+import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 
 export default class Formula extends Component {
   constructor(props) {
@@ -26,6 +28,9 @@ export default class Formula extends Component {
       fnmatchPos: null,
       fnmatch: '',
       isFocus: false,
+      showFormulaDialog: false,
+      fieldsData: [],
+      functionError: false,
     };
   }
 
@@ -72,7 +77,7 @@ export default class Formula extends Component {
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest } = this.state;
+    const { data, saveRequest, functionError } = this.state;
     const {
       name,
       actionId,
@@ -109,6 +114,16 @@ export default class Formula extends Component {
     if (actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && !selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
       return;
+    }
+
+    if (actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION) {
+      if (functionError) {
+        alert(_l('函数有误'), 2);
+        return;
+      } else if (!formulaValue) {
+        alert(_l('函数不能为空'), 2);
+        return;
+      }
     }
 
     if (saveRequest) {
@@ -481,6 +496,115 @@ export default class Formula extends Component {
     );
   }
 
+  /**
+   * 渲染函数计算
+   */
+  renderFunctionExecContent() {
+    const { data, showFormulaDialog, fieldsData, functionError } = this.state;
+
+    return (
+      <Fragment>
+        <div className="Font14 Gray_75 workflowDetailDesc">{_l('通过函数对 文本/数值 等流程节点对象的值进行处理')}</div>
+        <div className="mTop20 bold">{_l('计算')}</div>
+
+        <div
+          className="mTop10 boderRadAll_4 BorderGrayD pointer formulaEditorBox minH100"
+          style={{ borderColor: functionError ? '#f44336' : '#ddd' }}
+        >
+          <CodeEdit
+            value={data.formulaValue}
+            mode="read"
+            placeholder={_l('点击编辑函数')}
+            renderTag={this.renderTag}
+            onClick={this.editFormulaDialog}
+          />
+        </div>
+
+        {showFormulaDialog && (
+          <FunctionEditorDialog
+            className="workflowDialogBox"
+            value={{ expression: data.formulaValue }}
+            title={_l('结果')}
+            controlGroups={fieldsData}
+            renderTag={this.renderTag}
+            onClose={() => this.setState({ showFormulaDialog: false })}
+            onSave={({ expression, status }) => {
+              this.updateSource({ formulaValue: expression });
+              this.setState({ showFormulaDialog: false, functionError: status !== 1 });
+            }}
+          />
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染单个标签
+   */
+  renderTag = tag => {
+    const { data } = this.state;
+    const ids = tag.split('-');
+    const nodeObj = data.formulaMap[ids[0]] || {};
+    const controlObj = data.formulaMap[ids[1]] || {};
+
+    return (
+      <Tag
+        className="pointer"
+        flowNodeType={nodeObj.type}
+        appType={nodeObj.appType}
+        actionId={nodeObj.actionId}
+        nodeName={nodeObj.name}
+        controlName={controlObj.name}
+      />
+    );
+  };
+
+  /**
+   * 编辑函数弹层
+   */
+  editFormulaDialog = () => {
+    const { processId, selectNodeId } = this.props;
+
+    if (!this.state.fieldsData.length) {
+      flowNode
+        .getFlowNodeAppDtos({
+          processId,
+          nodeId: selectNodeId,
+          type: 2,
+        })
+        .then(result => {
+          let formulaMap = {};
+          const fieldsData = result.map(obj => {
+            return {
+              name: obj.nodeName,
+              id: obj.nodeId,
+              controls: obj.controls,
+            };
+          });
+
+          result.forEach(obj => {
+            formulaMap[obj.nodeId] = {
+              type: obj.nodeTypeId,
+              appType: obj.appType,
+              actionId: obj.actionId,
+              name: obj.nodeName,
+            };
+
+            obj.controls.forEach(o => {
+              if (!formulaMap[o.controlId]) {
+                formulaMap[o.controlId] = { type: o.type, name: o.controlName };
+              }
+            });
+          });
+
+          this.setState({ fieldsData, showFormulaDialog: true });
+          this.updateSource({ formulaMap });
+        });
+    } else {
+      this.setState({ showFormulaDialog: true });
+    }
+  };
+
   render() {
     const { data } = this.state;
 
@@ -504,6 +628,7 @@ export default class Formula extends Component {
               {data.actionId === TRIGGER_ID_TYPE.DATE_FORMULA && this.renderDateContent()}
               {data.actionId === TRIGGER_ID_TYPE.DATE_DIFF_FORMULA && this.renderDateDiffContent()}
               {data.actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && this.renderTotalStatisticsContent()}
+              {data.actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION && this.renderFunctionExecContent()}
             </div>
           </ScrollView>
         </div>
@@ -515,7 +640,8 @@ export default class Formula extends Component {
             (data.actionId === TRIGGER_ID_TYPE.DATE_DIFF_FORMULA &&
               (data.startTime.fieldValue || data.startTime.fieldControlId) &&
               (data.endTime.fieldValue || data.endTime.fieldControlId)) ||
-            (data.actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && data.selectNodeId)
+            (data.actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && data.selectNodeId) ||
+            (data.actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION && data.formulaValue)
           }
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}

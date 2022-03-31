@@ -28,6 +28,7 @@ export default class extends Component {
     onChange: func,
     onModify: func,
     onClose: func,
+    onClearIcon: func,
   };
 
   static defaultProps = {
@@ -173,7 +174,7 @@ export default class extends Component {
     );
   };
   render() {
-    const { className, colorList, index, iconColor = colorList[index % colorList.length], name } = this.props;
+    const { className, colorList, index, iconColor = colorList[index % colorList.length], name, onClearIcon } = this.props;
     return (
       <div className={cx('selectIconWrap', className)}>
         <div className="inputWrap">
@@ -199,7 +200,19 @@ export default class extends Component {
             ))}
           </ul>
         )}
-        <ScrollView className="iconsScrollViewWrap">{this.renderIcons()}</ScrollView>
+        <ScrollView className="iconsScrollViewWrap">
+          {this.renderIcons()}
+          {onClearIcon && (
+            <div
+              className="clearBtn pointer Gray_75"
+              onClick={() => {
+                onClearIcon();
+              }}
+            >
+              {_l('清除')}
+            </div>
+          )}
+        </ScrollView>
       </div>
     );
   }

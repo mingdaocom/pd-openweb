@@ -63,6 +63,7 @@ export default class Widgets extends Component {
           { White: enumDefault2 === 1 && !isLightColor(item.color) },
           { 'pLeft12 pRight12': enumDefault2 === 1 },
         )}
+        title={item.value}
         style={{ background: enumDefault2 === 1 ? item.color : '' }}
       >
         {item.value}

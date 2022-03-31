@@ -47,7 +47,7 @@ export default class RecordCard extends Component {
     const showControls = [...view.displayControls, view.advancedSetting.abstract];
     const allControls = [
       { controlId: 'ownerid', controlName: _l('拥有者'), type: 26 },
-      { controlId: 'caid', controlName: _l('创建人'), type: 26 },
+      { controlId: 'caid', controlName: _l('创建者'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
     ].concat(controls);
@@ -191,7 +191,7 @@ export default class RecordCard extends Component {
         )}
         <div className={cx(`cardContent${appshowtype}`)}>
           {(appshowtype === '0' ? displayControls.slice(0, 3) : displayControls).map(id =>
-            this.renderControl(id, showControlName),
+            this.renderControl(id, ['0', '2'].includes(appshowtype) ? true : showControlName),
           )}
         </div>
       </div>

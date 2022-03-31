@@ -4,6 +4,14 @@
   min-height: 100%;
   background: #fff;
   color: #333;
+  .fc-daygrid-event {
+    .titleTxt {
+      max-width: 60%;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
   a:hover {
     text-decoration: none;
   }
@@ -17,6 +25,9 @@
   .fc-timegrid-event .fc-event-time,
   .fc-v-event .fc-event-title-container {
     display: inline;
+  }
+  .fc-timegrid-event .fc-event-time {
+    vertical-align: middle;
   }
   .fc-v-event .fc-event-title {
     padding-left: 3px;

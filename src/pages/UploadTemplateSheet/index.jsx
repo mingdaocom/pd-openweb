@@ -2,7 +2,7 @@ import React from 'react';
 import DocumentTitle from 'react-document-title';
 import sheetAjax from 'src/api/worksheet';
 import { Icon, Support, Dialog } from 'ming-ui';
-import Clipboard from 'clipboard';
+import copy from 'copy-to-clipboard';
 import './index.less';
 let controlNo = [22, 10010, 43, 45]; //分段、备注、OCR、嵌入字段/
 export default class UploadTemplateSheet extends React.Component {
@@ -16,7 +16,7 @@ export default class UploadTemplateSheet extends React.Component {
       systemControl: [
         {
           controlId: 'caid',
-          controlName: _l('创建人'),
+          controlName: _l('创建者'),
           type: 26,
         },
         {
@@ -168,13 +168,11 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   copy = () => {
-    const clipboard = new Clipboard('i.copy', {
-      text(data) {
-        return data.closest('.copySpan') && data.closest('.copySpan').innerText;
-      },
-    });
-    clipboard.on('success', () => {
-      alert(_l('复制成功'));
+    $('body').on('click', 'i.copy', function () {
+      if ($(this).closest('.copySpan').length) {
+        copy($(this).closest('.copySpan').text());
+        alert(_l('复制成功'));
+      }
     });
   };
 

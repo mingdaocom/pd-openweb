@@ -6,6 +6,7 @@ var departmentController = require('src/api/department');
 
 var chargerTpl = require('./tpl/chargeUserTpl.html');
 var mainTpl = require('./tpl/main.html').replace('#include.chargeUserTpl', chargerTpl);
+import { updateTreeData } from 'src/pages/Admin/structure/modules/util';
 
 var RESULTS = {
   FAILED: 0,
@@ -79,6 +80,7 @@ CreateEditDeptDialog.prototype.renderMain = function () {
     options.data = data;
     var renderData = Object.assign({}, data, {
       type: options.type,
+      isLevel0: options.isLevel0,
     });
     _this.dialog.content(tplFunc(renderData));
     // FIXME: https://discuss.reactjs.org/t/understanding-the-new-setstate-callback-behavior-post-v16/8920
@@ -95,8 +97,8 @@ CreateEditDeptDialog.prototype.renderMain = function () {
 CreateEditDeptDialog.prototype.appendDeleteDeptBtn = function () {
   this.$deleteBtn = $(
     '<span style="" class="LineHeight20 Left mTop5 Hand deleteBtn"><i class="icon-task-new-delete Font16 mRight10"></i><span>' +
-    _l('删除') +
-    '</span></span>'
+      _l('删除') +
+      '</span></span>',
   );
   $('#' + this.options.dialogBoxID)
     .find('.footer')
@@ -119,6 +121,9 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
   var options = this.options;
   // var parentDepartment = options.type === 'create' ? options.data : options.data.parentDepartment;
   this.$changeParent.on('click', function () {
+    if (options.type === 'create') {
+      return;
+    }
     var parentDepartment = {
       departmentId: _this.$parent.data('departmentid'),
       departmentName: _this.$parent.text(),
@@ -139,7 +144,7 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
     });
   });
 
-  this.$content.on('click', '.chargeUserDel', function(evt) {
+  this.$content.on('click', '.chargeUserDel', function (evt) {
     if ($(evt.target).closest('.chargerUserItem').length) {
       $(evt.target).closest('.chargerUserItem').remove();
     }
@@ -153,9 +158,12 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
     this.$charger.on('click', function () {
       var chargeAccountIds = [];
 
-      _this.$charger.siblings('.chargerUserBox').find('.chargeUserName').map((index, item) => {
-        chargeAccountIds.push($(item).data('accountid'));
-      });
+      _this.$charger
+        .siblings('.chargerUserBox')
+        .find('.chargeUserName')
+        .map((index, item) => {
+          chargeAccountIds.push($(item).data('accountid'));
+        });
 
       require(['../dialogSelectDeptUser'], function (dialog) {
         dialog({
@@ -193,9 +201,7 @@ CreateEditDeptDialog.prototype.createDept = function () {
     })
     .then(function (data) {
       if (data.resultStatus !== RESULTS.SUCCESS) {
-        return $.Deferred()
-          .reject(data)
-          .promise();
+        return $.Deferred().reject(data).promise();
       } else {
         options.callback.call(null, {
           type: 'CREATE',
@@ -232,9 +238,12 @@ CreateEditDeptDialog.prototype.editDept = function () {
   var parentId = this.$parent.data('departmentid');
   var chargeAccountIds = [];
 
-  this.$charger.siblings('.chargerUserBox').find('.chargeUserName').map((index, item) => {
-    chargeAccountIds.push($(item).data('accountid'));
-  });
+  this.$charger
+    .siblings('.chargerUserBox')
+    .find('.chargeUserName')
+    .map((index, item) => {
+      chargeAccountIds.push($(item).data('accountid'));
+    });
 
   if (parentId && parentId === options.departmentId) {
     return alert(_l('不能设设置自己为上级部门'), 3);
@@ -252,29 +261,35 @@ CreateEditDeptDialog.prototype.editDept = function () {
     })
     .then(function (data) {
       if (!data || data.resultStatus !== RESULTS.SUCCESS) {
-        return $.Deferred()
-          .reject(data)
-          .promise();
+        return $.Deferred().reject(data).promise();
       } else {
         return $.Deferred().resolve(data.departmentInfo);
       }
     })
     .then(
       function (departmentInfo) {
+        let { newDepartments = [], expandedKeys } = updateTreeData(
+          options.newDepartments,
+          options.departmentId,
+          departmentInfo.departmentName,
+          parentId,
+        );
         options.callback.call(null, {
           type: 'EDIT',
           departmentId: options.departmentId,
+          expandedKeys,
           response: {
             ...departmentInfo,
             parentDepartment: parentId,
             chargeUsers: chargeAccountIds,
+            newDepartments,
           },
         });
         _this.dialog.closeDialog();
       },
       function (error) {
         _this.editErrorHandler(error.resultStatus);
-      }
+      },
     );
 };
 
@@ -300,9 +315,7 @@ CreateEditDeptDialog.prototype.editErrorHandler = function (errMessage) {
 CreateEditDeptDialog.prototype.deleteDepartment = function () {
   var options = this.options;
   var _this = this;
-  const {
-    departmentId
-  } = options.data.parentDepartment;
+  const { departmentId } = options.data.parentDepartment;
   options.promise = departmentController
     .deleteDepartments({
       projectId: options.projectId,
@@ -310,16 +323,14 @@ CreateEditDeptDialog.prototype.deleteDepartment = function () {
     })
     .then(function (data) {
       if (data !== DELETE_RESULTS.SUCCESS) {
-        return $.Deferred()
-          .reject(data)
-          .promise();
+        return $.Deferred().reject(data).promise();
       } else {
         alert(_l('删除成功'));
         options.callback.call(null, {
           type: 'DELETE',
           response: {
             departmentId: options.departmentId,
-            parentDepartmentId: departmentId
+            parentDepartmentId: departmentId,
           },
         });
         _this.dialog.closeDialog();

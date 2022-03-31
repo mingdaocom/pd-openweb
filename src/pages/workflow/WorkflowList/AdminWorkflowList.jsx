@@ -34,6 +34,7 @@ const typeList = [
   { label: _l('Webhook'), value: 6 },
   { label: _l('子流程'), value: 8 },
   { label: _l('自定义动作'), value: 7 },
+  { label: _l('封装业务流程'), value: 10 },
 ];
 
 @errorBoundary

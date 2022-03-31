@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { CKEditor } from '@mdfe/ckeditor5-react';
 import MDEditor from '@mdfe/ckeditor5-custom-build';
 import styled from 'styled-components';
 import { getToken } from 'src/util';
@@ -337,7 +337,6 @@ export default ({
                   'link',
                   'code',
                   'imageUpload',
-                  'mediaEmbed',
                   'insertTable',
                   'codeBlock',
                   '|',

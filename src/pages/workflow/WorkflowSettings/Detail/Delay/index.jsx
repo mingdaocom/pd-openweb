@@ -115,13 +115,15 @@ export default class Delay extends Component {
           {_l('在上一个节点完成后，延时到指定的日期和时间后再继续执行流程')}
         </div>
         <div className="mTop24 bold">{_l('日期')}</div>
-        <SpecificFieldsValue
-          processId={this.props.processId}
-          selectNodeId={this.props.selectNodeId}
-          updateSource={this.updateSource}
-          type="date"
-          data={data}
-        />
+        <div className="mTop10">
+          <SpecificFieldsValue
+            processId={this.props.processId}
+            selectNodeId={this.props.selectNodeId}
+            updateSource={this.updateSource}
+            type="date"
+            data={data}
+          />
+        </div>
         <div className="mTop30 bold">{_l('时间')}</div>
         <TimeSelect data={data} dateNoTime={data.fieldControlType !== 16} updateSource={this.updateSource} />
       </Fragment>
@@ -145,13 +147,15 @@ export default class Delay extends Component {
           return (
             <Fragment key={key}>
               <div className="mTop15">{text}</div>
-              <SpecificFieldsValue
-                processId={this.props.processId}
-                selectNodeId={this.props.selectNodeId}
-                updateSource={obj => this.updateSource({ [key]: obj })}
-                type={key}
-                data={data[key]}
-              />
+              <div className="mTop10">
+                <SpecificFieldsValue
+                  processId={this.props.processId}
+                  selectNodeId={this.props.selectNodeId}
+                  updateSource={obj => this.updateSource({ [key]: obj })}
+                  type={key}
+                  data={data[key]}
+                />
+              </div>
             </Fragment>
           );
         })}

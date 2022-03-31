@@ -10,6 +10,7 @@ import { isEmpty } from 'lodash';
 
 const Con = styled.div`
   display: inline-block;
+  user-select: none;
   padding: ${({ rowHeadOnlyNum }) => (rowHeadOnlyNum ? '0 12px !important' : '0 24px 0 40px !important')};
   font-size: 13px;
   line-height: 34px;
@@ -84,6 +85,7 @@ export default function RowHead(props) {
     onSelect,
     onSelectAllWorksheet,
     handleAddSheetRow = () => {},
+    onReverseSelect = () => {},
     saveSheetLayout,
     resetSehetLayout,
     setHighLight = () => {},
@@ -159,9 +161,12 @@ export default function RowHead(props) {
                 size="small"
                 onClick={() => {
                   if (selectedIds.indexOf(row.rowid) > -1) {
-                    onSelect(selectedIds.filter(s => s !== row.rowid));
+                    onSelect(
+                      selectedIds.filter(s => s !== row.rowid),
+                      row.rowid,
+                    );
                   } else {
-                    onSelect(_.uniqBy(selectedIds.concat(row.rowid)));
+                    onSelect(_.uniqBy(selectedIds.concat(row.rowid)), row.rowid);
                   }
                 }}
               />
@@ -212,12 +217,23 @@ export default function RowHead(props) {
                     <MenuItem
                       onClick={e => {
                         e.stopPropagation();
-                        onSelectAllWorksheet(true);
                         setSelectAllPanelVisible(false);
+                        onSelectAllWorksheet(true);
                       }}
                     >
                       {_l('选择所有记录')}
                     </MenuItem>
+                    {(selectedIds.length || allWorksheetIsSelected) && (
+                      <MenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          setSelectAllPanelVisible(false);
+                          onReverseSelect();
+                        }}
+                      >
+                        {_l('反选')}
+                      </MenuItem>
+                    )}
                   </Menu>
                 }
               >

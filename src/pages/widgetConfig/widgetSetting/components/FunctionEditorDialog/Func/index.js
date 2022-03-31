@@ -8,6 +8,7 @@ import CodeEdit from './common/CodeEdit';
 import Tip from './common/Tip';
 import Footer from './common/Footer';
 import './style.less';
+import cx from 'classnames';
 
 window.emitter = new EventEmitter();
 
@@ -52,7 +53,7 @@ const TipCon = styled.div`
 `;
 
 export default function Func(props) {
-  const { value: { expression } = {}, title, renderTag, onClose, controlGroups, onSave } = props;
+  const { value: { expression } = {}, title, renderTag, onClose, controlGroups, onSave, className } = props;
   let { controls = [] } = props;
   if (_.isArray(controlGroups)) {
     controls = _.flatten(controlGroups.map(group => group.controls));
@@ -72,7 +73,7 @@ export default function Func(props) {
       const expression = codeEditor.current.getValue();
       let available = validateFnExpression(expression);
       const controlIds = (expression.match(/\$(.+?)\$/g) || []).map(id => id.slice(1, -1));
-      if (controlIds.filter(id => !_.find(controls, { controlId: id })).length) {
+      if (controlIds.filter(id => !_.find(controls, { controlId: id.replace(/[a-zA-Z0-9]+-/, '') })).length) {
         // 存在已删除字段
         available = false;
       }
@@ -85,7 +86,7 @@ export default function Func(props) {
     }
   }
   return (
-    <Con className="functionEditor">
+    <Con className={cx('functionEditor', className)}>
       <Header>{_l('编辑函数')}</Header>
       <Main>
         <SelectFnControlCon>

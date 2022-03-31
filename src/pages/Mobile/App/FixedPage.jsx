@@ -42,8 +42,18 @@ const FixedContent = styled.div`
 
 export default class FixedPage extends Component {
   render() {
-    const { fixAccount, fixRemark } = this.props;
+    const { fixAccount = {}, fixRemark, isNoPublish } = this.props;
     const { fullName } = fixAccount;
+    if (isNoPublish) {
+      return (
+        <FixedContent>
+          <div className="iconInfo mBottom18" style={{ 'marginTop': document.body.clientHeight / 4 }}>
+            <Icon className="Font56 Gray_75" icon="send" />
+          </div>
+          <div className="Font18 mBottom20 fixeding">{_l('应用暂未发布')}</div>
+        </FixedContent>
+      );
+    }
     return (
       <FixedContent>
         <div className="iconInfo mBottom25">

@@ -6,29 +6,34 @@ import cx from 'classnames';
 import 'rc-trigger/assets/index.css';
 
 const SelectCountWrap = styled.div`
-  border: 1px solid #d5d5d5;
   display: flex;
   cursor: pointer;
   margin-right: 10px;
+  position: relative;
   .countWrap {
     box-sizing: border-box;
-    text-align: center;
     line-height: 30px;
-    width: 32px;
-    border-right: 1px solid #d5d5d5;
+    width: 60px;
+    padding: 0 10px;
     background: #fff;
+    border-radius: 3px;
   }
   .operateWrap {
-    .divider {
-      width: 100%;
-      height: 1px;
-      background-color: #eee;
-    }
+    position: absolute;
+    top: 0;
+    right: 0;
     .item {
       display: flex;
       width: 26px;
+      height: 15px;
       justify-content: center;
       align-items: center;
+    }
+    .add {
+      padding-top: 1px;
+    }
+    .sub {
+      padding-bottom: 3px;
     }
   }
 `;
@@ -90,11 +95,10 @@ export default function SelectCount({ count = 5, maxCount = 10, minCount = 0, on
         <div className="countWrap">{count}</div>
       </Trigger>
       <div className="operateWrap">
-        <div className={cx('add item', { disabled: count === maxCount })} onClick={() => onChange(Math.min(maxCount, count + 1))}>
+        <div className={cx('add item Gray_75', { disabled: count === maxCount })} onClick={() => onChange(Math.min(maxCount, count + 1))}>
           <i className="icon-arrow-up-border"></i>
         </div>
-        <div className="divider"></div>
-        <div className={cx('sub item', { disabled: count === minCount })} onClick={() => onChange(Math.max(minCount, count - 1))}>
+        <div className={cx('sub item Gray_75', { disabled: count === minCount })} onClick={() => onChange(Math.max(minCount, count - 1))}>
           <i className="icon-arrow-down-border"></i>
         </div>
       </div>

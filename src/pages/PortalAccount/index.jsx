@@ -44,7 +44,9 @@ function ContainerCon(props) {
   const [state, setState] = useState(''); //微信跳转回到登录需要带的信息
   const [account, setAccount] = useState('');
   const [accountId, setAccountId] = useState('');
+  const [paramForPcWx, setParamForPcWx] = useState();//pc端微信扫码后的返回值
   const [appId, setAppId] = useState('');
+  const [isWXOfficialExist, setIsWXOfficialExist] = useState(false);
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
   const isWeiXin = () => {
@@ -67,8 +69,16 @@ function ContainerCon(props) {
     }
   }, []);
 
+  useEffect(() => {
+    //手机验证码登录流程
+    !!paramForPcWx && getUrlData();
+  }, [paramForPcWx]);
+
   const getUrlData = () => {
-    const request = getRequest();
+    let request = getRequest();
+    if (!!paramForPcWx) {
+      request = paramForPcWx;
+    }
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
     request.status && setStatus(Number(request.status));
     wxState && setState(wxState);
@@ -120,7 +130,10 @@ function ContainerCon(props) {
     let domainName = '';
     let ajaxPromise = '';
     let href = decodeURIComponent(location.href);
-    const request = getRequest();
+    let request = getRequest();
+    if (!!paramForPcWx) {
+      request = paramForPcWx;
+    }
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
     if (href.indexOf('/portal/') >= 0 && !mdAppId) {
       //从returnUrl里提取appid
@@ -152,7 +165,7 @@ function ContainerCon(props) {
     }
     ajaxPromise &&
       ajaxPromise.then(res => {
-        const { portalSetResult = {}, authorizerInfo = {}, isExist, status } = res;
+        const { portalSetResult = {}, authorizerInfo = {}, isExist, status, isWXOfficialExist } = res;
         const { isEnable, appId } = portalSetResult;
         setAppId(appId);
         if (portalSetResult.pageTitle) {
@@ -170,6 +183,7 @@ function ContainerCon(props) {
         }
         setAuthorizerInfo(authorizerInfo);
         setBaseSetInfo(portalSetResult);
+        setIsWXOfficialExist(isWXOfficialExist);
         if (statusList.includes(status)) {
           //直接进入相应状态页面
           setStatus(status);
@@ -230,6 +244,10 @@ function ContainerCon(props) {
           account={account}
           setAccount={setAccount}
           isErrUrl={isErrUrl}
+          isWXOfficialExist={isWXOfficialExist}
+          authorizerInfo={authorizerInfo}
+          setParamForPcWx={setParamForPcWx}
+          paramForPcWx={paramForPcWx}
         />
       )}
     </Wrap>

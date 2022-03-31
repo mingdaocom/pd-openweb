@@ -37,6 +37,7 @@ class CreateBtn extends Component {
       type: 'create',
       projectId,
       departmentId: '',
+      isLevel0: true,
       callback(payload) {
         const {
           response: { departmentId },
@@ -58,12 +59,13 @@ class CreateBtn extends Component {
 
   render() {
     return (
-      <span className="Hand mLeft24 ThemeColor3 creatDepartment pTop16 pBottom16"
+      <span
+        className="Hand mLeft24 ThemeColor3 creatDepartment pTop16 pBottom16"
         style={{
           borderTop: '1px solid #EAEAEA',
           width: '192px',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <span className="creatDepartmentTxt" onClick={this.handleClick}>

@@ -38,6 +38,7 @@ export default class ContactList extends React.Component {
             key={item.accountId}
             itemClickHandler={this.props.itemClickHandler}
             isSelected={item.accountId === this.props.selectedAccountId}
+            searchDepartmentUsers={this.props.searchDepartmentUsers}
           />
         ))}
       </React.Fragment>
@@ -71,13 +72,16 @@ export default class ContactList extends React.Component {
       if (!keys.length && isLoading) return <LoadDiv className="mTop10" />;
       return (
         <React.Fragment>
-          {_.map(keys.sort((a, b) => a.localeCompare(b)), (key) => {
-            const props = {
-              list: list[key],
-              title: key,
-            };
-            return this.renderSingleList(props);
-          })}
+          {_.map(
+            keys.sort((a, b) => a.localeCompare(b)),
+            key => {
+              const props = {
+                list: list[key],
+                title: key,
+              };
+              return this.renderSingleList(props);
+            },
+          )}
           {isLoading ? <LoadDiv /> : null}
           {!isLoading && keys && keys.length === 0 ? <ListNull isSearch={isSearch} type={'contacts'} /> : null}
         </React.Fragment>
@@ -86,6 +90,11 @@ export default class ContactList extends React.Component {
   }
 
   render() {
-    return <ScrollView updateEvent={this.debouncedScroll}>{this.renderListContent()}</ScrollView>;
+    const { searchDepartmentUsers } = this.props;
+    return (
+      <ScrollView updateEvent={searchDepartmentUsers ? () => {} : this.debouncedScroll}>
+        {this.renderListContent()}
+      </ScrollView>
+    );
   }
 }

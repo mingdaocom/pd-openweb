@@ -123,7 +123,7 @@ export default class CommonUserHandle extends Component {
               this.avatar = avatar;
             }}
           >
-            <Avatar src={md.global.Account.avatar} size={24} />
+            <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
           </div>
         </Tooltip>
         {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}

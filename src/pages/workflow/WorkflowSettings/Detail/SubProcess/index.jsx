@@ -14,7 +14,7 @@ export default class SubProcess extends Component {
       saveRequest: false,
       subProcessDialog: false,
       processVariables: [],
-      errorItems: [],
+      errorItems: {},
     };
   }
 
@@ -52,7 +52,7 @@ export default class SubProcess extends Component {
         appId: obj.subProcessId,
       })
       .then(result => {
-        this.setState({ data: result });
+        this.setState({ data: result, errorItems: {} });
       });
   }
 
@@ -253,7 +253,7 @@ export default class SubProcess extends Component {
   saveSubPorcessOptions = () => {
     const { data, processVariables, errorItems } = this.state;
 
-    if (errorItems.filter(item => item).length) {
+    if (_.find(errorItems, o => o)) {
       alert(_l('有参数配置错误'), 2);
       return;
     }

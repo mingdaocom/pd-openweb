@@ -217,12 +217,14 @@ class EditFlow extends Component {
    * render节点
    */
   renderNode = (data, firstId) => {
-    const { startEventId, flowNodeMap, child } = this.props.workflowDetail;
+    const { flowInfo, workflowDetail } = this.props;
+    const { startEventId, flowNodeMap, child } = workflowDetail;
     const firstNode = flowNodeMap[startEventId];
     const disabled =
       ((firstNode.appType === APP_TYPE.SHEET || firstNode.appType === APP_TYPE.DATE) && !firstNode.appName) ||
       (firstNode.appType === APP_TYPE.LOOP && !firstNode.executeTime) ||
-      (firstNode.appType === APP_TYPE.WEBHOOK && !firstNode.count);
+      (firstNode.appType === APP_TYPE.WEBHOOK && !firstNode.count) ||
+      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId);
 
     return getSameLevelIds(data, firstId).map((id, i) => {
       const props = {
@@ -235,6 +237,7 @@ class EditFlow extends Component {
         isCopy: this.state.isCopy,
         selectCopyIds: this.state.selectCopyIds,
         child,
+        relationId: flowInfo.relationId,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
         selectCopyNode: this.selectCopyNode,
@@ -328,7 +331,10 @@ class EditFlow extends Component {
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
     };
-    const startNodeError = (flowNodeMap[startEventId] || {}).appId && !(flowNodeMap[startEventId] || {}).appName;
+    const startNodeError =
+      (flowNodeMap[startEventId] || {}).appId &&
+      !(flowNodeMap[startEventId] || {}).appName &&
+      flowNodeMap[startEventId].appType !== APP_TYPE.PBC;
 
     return (
       <Fragment>
@@ -345,6 +351,7 @@ class EditFlow extends Component {
         <Detail {...detailProps} />
         <CreateNodeDialog
           companyId={flowInfo.companyId}
+          flowNodeMap={flowNodeMap}
           isLast={nodeId ? (flowNodeMap[nodeId] || {}).nextId === '99' : false}
           nodeId={isCopy ? '' : nodeId}
           nodeType={nodeType}

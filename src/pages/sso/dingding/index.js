@@ -1,5 +1,3 @@
-
-
 import { ajax, login, browserIsMobile, getRequest, getCurrentTime, checkLogin, replenishRet } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
@@ -19,14 +17,14 @@ if (checkLogin()) {
   }
 } else {
   ajax.post({
-    url: __api_server__ + 'Login/DingDingAppLogin',
+    url: __api_server__.main + 'Login/DingDingAppLogin',
     data: {
       code,
       state,
       apkId: i,
     },
     async: true,
-    succees: (result) => {
+    succees: result => {
       const { accountResult, sessionId } = result.data;
       if (accountResult === 1) {
         // const date = new Date();
@@ -48,7 +46,6 @@ if (checkLogin()) {
         login();
       }
     },
-    error: login
+    error: login,
   });
 }
-

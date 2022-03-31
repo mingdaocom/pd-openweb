@@ -8,7 +8,6 @@ import webCache from 'src/api/webCache';
 import TabBar from '../components/TabBar';
 import AppStatus from 'src/pages/AppHomepage/MyApp/MyAppGroup/AppStatus';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
-import noAppListImg from './img/noApp.png';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
 import okImg from './img/ok.png';
@@ -18,6 +17,7 @@ import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import { getRandomString } from 'src/util';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 const {
   app: { addAppItem },
 } = window.private;
@@ -32,14 +32,19 @@ function loadLinkStyle(url) {
   head.appendChild(link);
 }
 
-const STATUS_TO_TEXT = {
-  1: { src: noAppListImg, text: _l('暂无任何应用，请选择从应用库添加应用开始使用') },
-};
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
 class AppHome extends React.Component {
   constructor(props) {
     super(props);
+
+    // 处理底部导航缓存内容过多localStorage溢出问题
+    Object.keys(localStorage).forEach(key => {
+      if (key.indexOf('currentNavWorksheetInfo') > -1) {
+        localStorage.removeItem(key);
+      }
+    });
+
     this.state = {
       width: document.documentElement.clientWidth,
       countData: {},
@@ -59,14 +64,6 @@ class AppHome extends React.Component {
       this.getWebCache();
     }
     window.addEventListener('popstate', this.closePage);
-    let currentAppNavSheetIdList =
-      (localStorage.getItem('currentAppNavSheetIdList') &&
-        JSON.parse(localStorage.getItem('currentAppNavSheetIdList'))) ||
-      [];
-    currentAppNavSheetIdList.forEach(item => {
-      localStorage.removeItem(`currentNavWorksheetInfo-${item}`);
-    });
-    localStorage.removeItem('currentAppNavSheetIdList');
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
@@ -86,7 +83,7 @@ class AppHome extends React.Component {
   }
   closePage = () => {
     window.close();
-  }
+  };
   getWebCache = () => {
     webCache
       .get({
@@ -189,7 +186,7 @@ class AppHome extends React.Component {
         >
           <div className="Relative">
             <Icon icon="notifications_11" className="Font20 mRight5" />
-            {waitingExamine ? <span className="waitingExamineSign"></span> : null}
+            {waitingExamine ? <span className="waitingExamineSign" /> : null}
           </div>
           <span className="bold">{_l('流程通知')}</span>
         </div>
@@ -202,7 +199,7 @@ class AppHome extends React.Component {
         <div
           className="myAppItem mTop24"
           onClick={e => {
-            localStorage.removeItem('currentNavWorksheetId'); 
+            localStorage.removeItem('currentNavWorksheetId');
             data.onClick ? data.onClick() : this.props.history.push(`/mobile/app/${data.id}`);
           }}
         >
@@ -212,7 +209,9 @@ class AppHome extends React.Component {
             ) : (
               <Icon icon={data.icon} className="Font30" />
             )}
-            {data.id === 'add' || !data.fixed ? null : <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} fixed={data.fixed} />}
+            {data.id === 'add' || !data.fixed ? null : (
+              <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} fixed={data.fixed} />
+            )}
           </div>
           <span className="breakAll LineHeight16 Font13 mTop10 contentText" style={{ WebkitBoxOrient: 'vertical' }}>
             {data.name}
@@ -254,7 +253,11 @@ class AppHome extends React.Component {
     if (data.length <= 0) {
       return;
     } else {
-      const list = type === 'validProject' || type === 'expireProject' ? data.projectApps : data;
+      let list = type === 'validProject' || type === 'expireProject' ? data.projectApps : data;
+      list = list.filter(o => !o.webMobileDisplay); //排除webMobileDisplay h5未发布
+      if (list.length <= 0) {
+        return '';
+      }
       const distance = ((this.state.width - 12) / 4 - 56) / 2;
       return (
         <Fragment key={`${type}-${getRandomString()}`}>
@@ -280,11 +283,19 @@ class AppHome extends React.Component {
       );
     }
   }
-  renderErr(status) {
+  renderErr() {
+    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+    const isApp = isWxWork || isWeLink || isDing;
+    const cannotCreateApp = isApp ? _.get(md.global.Account.projects[0], ['cannotCreateApp']) : true;
+
     return (
       <div className="flexColumn flex valignWrapper justifyContentCenter">
-        <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">{STATUS_TO_TEXT[status].text}</p>
-        {!addAppItem.addAppIcon && (
+        <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">
+          {cannotCreateApp ? _l('暂无任何应用') : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
+        </p>
+        {cannotCreateApp && (
           <Button className="addApp bold Font17" onClick={this.showActionSheet}>
             {_l('添加应用')}
           </Button>
@@ -297,7 +308,7 @@ class AppHome extends React.Component {
     if (guideStep == 1) {
       return (
         <div className="guideWrapper">
-          <div className="guide guide1"></div>
+          <div className="guide guide1" />
           <img className="guideImg Absolute" src={arrowLeftImg} />
           <img className="textImg Absolute" src={text1Img} />
           <img
@@ -313,7 +324,7 @@ class AppHome extends React.Component {
     } else {
       return (
         <div className="guideWrapper">
-          <div className="guide guide2"></div>
+          <div className="guide guide2" />
           <img className="guide2Img Absolute" src={arrowRightImg} />
           <img className="text2Img Absolute" src={text2Img} />
           <img
@@ -341,7 +352,7 @@ class AppHome extends React.Component {
       HomeData[0].externalApps.length <= 0 &&
       HomeData[0].expireProject <= 0
     ) {
-      return this.renderErr(1);
+      return this.renderErr();
     } else if (
       HomeData[0].markedApps.length <= 0 &&
       HomeData[0].aloneApps.length <= 0 &&
@@ -349,7 +360,7 @@ class AppHome extends React.Component {
       HomeData[0].validProject.filter(item => item.projectApps.length > 0).length <= 0 &&
       HomeData[0].expireProject.filter(item => item.projectApps.length > 0).length <= 0
     ) {
-      return this.renderErr(1);
+      return this.renderErr();
     } else {
       return (
         <div className="content">

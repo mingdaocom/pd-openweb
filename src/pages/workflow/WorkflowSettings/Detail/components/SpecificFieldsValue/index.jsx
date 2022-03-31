@@ -12,6 +12,11 @@ export default class SpecificFieldsValue extends Component {
     };
   }
 
+  static defaultProps = {
+    hasOtherField: true,
+    min: 0,
+  };
+
   renderSelectFieldsValue = () => {
     const { data, updateSource } = this.props;
 
@@ -83,18 +88,18 @@ export default class SpecificFieldsValue extends Component {
   };
 
   renderDate() {
-    const { data, updateSource } = this.props;
+    const { data, updateSource, timePicker } = this.props;
 
     return (
       <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
         <DateTime
           selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
-          timePicker={false}
-          onOk={e => updateSource({ fieldValue: e.format('YYYY-MM-DD') })}
+          timePicker={!!timePicker}
+          onOk={e => updateSource({ fieldValue: e.format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD') })}
           onClear={() => updateSource({ fieldValue: '' })}
         >
           {data.fieldValue ? (
-            moment(data.fieldValue).format('YYYY-MM-DD')
+            moment(data.fieldValue).format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')
           ) : (
             <span className="Gray_bd">{_l('请选择日期')}</span>
           )}
@@ -104,7 +109,7 @@ export default class SpecificFieldsValue extends Component {
   }
 
   renderNumber() {
-    const { type, data, updateSource } = this.props;
+    const { type, data, updateSource, hasOtherField, min, noScope } = this.props;
     const PLACEHOLDER = {
       numberFieldValue: _l('填写天数'),
       hourFieldValue: _l('填写小时数'),
@@ -115,10 +120,18 @@ export default class SpecificFieldsValue extends Component {
     return (
       <input
         type="text"
-        className="flex ThemeBorderColor3 actionControlBox clearBorderRadius pTop0 pBottom0 pLeft10 pRight10"
+        className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+          clearBorderRadius: hasOtherField,
+        })}
         placeholder={PLACEHOLDER[type]}
         value={data.fieldValue}
-        onChange={e => updateSource({ fieldValue: this.formatVal(e.target.value) })}
+        onChange={e => updateSource({ fieldValue: noScope ? e.target.value : this.formatVal(e.target.value) })}
+        onBlur={e => {
+          if (min && min > parseInt(e.target.value || 0, 10)) {
+            e.target.value = min;
+            updateSource({ fieldValue: min.toString() });
+          }
+        }}
       />
     );
   }
@@ -127,7 +140,7 @@ export default class SpecificFieldsValue extends Component {
     const { type, allowedEmpty } = this.props;
     value = parseInt(value, 10);
 
-    if (allowedEmpty && !value) return '';
+    if (allowedEmpty && !value && value !== 0) return '';
     if (typeof value !== 'number' || isNaN(value)) return 0;
 
     switch (type) {
@@ -143,12 +156,12 @@ export default class SpecificFieldsValue extends Component {
   }
 
   render() {
-    const { data, type } = this.props;
+    const { data, type, hasOtherField } = this.props;
 
     return (
-      <div className="mTop10 flexRow relative">
+      <div className="flexRow relative">
         {data.fieldNodeId ? this.renderSelectFieldsValue() : type === 'date' ? this.renderDate() : this.renderNumber()}
-        {this.renderOtherFields()}
+        {hasOtherField && this.renderOtherFields()}
       </div>
     );
   }

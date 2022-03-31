@@ -134,13 +134,11 @@ export function submitNewRecord(props) {
     addWorksheetRow,
     onAdd,
     updateWorksheetControls,
-    onSubmitBegin = () => {},
     onSubmitEnd = () => {},
     onCancel = () => {},
     customwidget,
     setRequesting,
   } = props;
-  onSubmitBegin();
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
     .map(formatControlToServer)

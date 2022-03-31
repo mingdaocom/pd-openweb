@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
 import Card from 'src/pages/worksheet/common/Statistics/Card';
 import styled from 'styled-components';
-import { getEnumType } from '../../util';
+import { getEnumType, parseLink } from '../../util';
 import ButtonList from './ButtonList';
-import PreviewContent from '../previewContent';
+// import PreviewContent from '../previewContent';
+import PreviewWraper from '../previewContent';
 import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
@@ -24,11 +25,36 @@ const WidgetContent = styled.div`
 `;
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
-  const { layoutType, type, value, button, needUpdate, isFullscreen, scrollTop, editable, ids, projectId, name, ...rest } = props;
+  const {
+    layoutType,
+    type,
+    value,
+    button,
+    needUpdate,
+    isFullscreen,
+    scrollTop,
+    editable,
+    ids,
+    projectId,
+    name,
+    param = [],
+    config = {},
+    ...rest
+  } = props;
+  const { newTab = false, reload = false } = config;
   const componentType = getEnumType(type);
   const ref = useRef(null);
   const renderContent = () => {
-    if (componentType === 'embedUrl') return <PreviewContent {..._.pick(props, ['value', 'param'])} />;
+    if (componentType === 'embedUrl') {
+      return (
+        <PreviewWraper
+          reload={reload}
+          newTab={newTab}
+          value={value}
+          param={param}
+        />
+      );
+    }
     if (componentType === 'richText')
       return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
     if (componentType === 'button') {

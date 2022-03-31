@@ -17,9 +17,7 @@ class MobileCalendarView extends Component {
       scheduleVisible: false,
     };
   }
-  componentDidMount() {
-    this.props.getCalendarData();
-  }
+  componentDidMount() {}
   showschedule = () => {
     window.localStorage.setItem('CalendarShowExternalTypeEvent', 'eventAll');
     this.setState({ scheduleVisible: !this.state.scheduleVisible });
@@ -51,10 +49,21 @@ class MobileCalendarView extends Component {
     let { scheduleVisible } = this.state;
     const { view, currentSheetRows, calendarview = {}, base = {} } = this.props;
     const { calendarData = {} } = calendarview;
-    const { begindate = '', calendarType = '0' } = getAdvanceSetting(view);
-    const { startData } = calendarData;
-    const isDelete = begindate && (!startData || !startData.controlId);
-    let isHaveSelectControl = !begindate || isDelete; // 是否选中了开始时间 //开始时间字段已删除
+    const { calendarInfo = [] } = calendarData;
+    let { begindate = '', enddate = '', calendarType = '0', calendarcids = '[]' } = getAdvanceSetting(view);
+    try {
+      calendarcids = JSON.parse(calendarcids);
+    } catch (error) {
+      calendarcids = [];
+    }
+    if (calendarcids.length <= 0) {
+      calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
+    }
+    const isDelete =
+      calendarcids[0].begin &&
+      calendarInfo.length > 0 &&
+      (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
+    let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
     const mobileCalendarSetting = {
       // views: {},
       // headerToolbar:{

@@ -81,7 +81,7 @@ class CalculateControl extends Component {
       }
       this.props.onChangeCurrentReport(param, true);
     } else {
-      const data = { controlId: uuidv4(), controlName: controlName, type: 10000001, dataSource: formulaStr, dot: 2 };
+      const data = { controlId: uuidv4(), controlName: controlName, type: 10000001, dataSource: formulaStr, dot: 8 };
       this.props.onChangeCurrentReport({
         formulas: formulas.concat(data),
       });

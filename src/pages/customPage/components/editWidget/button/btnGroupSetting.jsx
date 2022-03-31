@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { string } from 'prop-types';
 import { Button } from 'ming-ui';
 import cx from 'classnames';
@@ -6,6 +6,16 @@ import styled from 'styled-components';
 import SelectCount from './SelectCount';
 import BtnListSort from './BtnListSort';
 
+const BTN_TYPE = [
+  {
+    value: 1,
+    text: _l('按钮')
+  },
+  {
+    value: 2,
+    text: _l('图形')
+  }
+];
 const BTN_STYLE = [
   {
     icon: 'Rectangle',
@@ -23,6 +33,23 @@ const BTN_STYLE = [
     tip: _l('虚线'),
   },
 ];
+const BTN_STYLE2 = [
+  {
+    icon: 'rounded_square',
+    value: 1,
+    tip: _l('圆角矩形'),
+  },
+  {
+    icon: 'circle',
+    value: 2,
+    tip: _l('实心圆形'),
+  },
+  {
+    icon: 'dotted_line',
+    value: 3,
+    tip: _l('虚线'),
+  },
+];
 const BTN_WIDTH = [
   {
     icon: 'Adaptive',
@@ -33,6 +60,18 @@ const BTN_WIDTH = [
     icon: 'padding',
     value: 1,
     tip: _l('等分'),
+  },
+];
+const BTN_DIRECTION = [
+  {
+    icon: 'up_down',
+    value: 1,
+    tip: _l('上下'),
+  },
+  {
+    icon: 'left_right',
+    value: 2,
+    tip: _l('左右'),
   },
 ];
 const SettingWrap = styled.div`
@@ -49,7 +88,6 @@ const SettingWrap = styled.div`
     background-color: #fff;
     font-weight: bold;
     color: #2196f3;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
     &:hover {
       background-color: rgba(255, 255, 255, 0.8);
       color: #1079cc;
@@ -66,15 +104,16 @@ const SettingWrap = styled.div`
     .btnWidth {
       display: flex;
       border-radius: 3px;
-      border: 1px solid #ddd;
+      padding: 3px;
+      background-color: #e7e7e7;
       li {
         display: flex;
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
-        width: 40px;
+        width: 45px;
         height: 30px;
-        border-right: 1px solid #ddd;
+        line-height: 30px;
         color: #9e9e9e;
         font-size: 20px;
         cursor: pointer;
@@ -82,25 +121,36 @@ const SettingWrap = styled.div`
           border: none;
         }
         &.active {
-          background-color: #fff;
           color: #2196f3;
+          border-radius: 3px;
+          background-color: #fff;
         }
       }
     }
   }
 `;
 export default function BtnGroupSetting(props) {
-  const { style = 2, width, setSetting, addBtn, count } = props;
+  const { style = 2, width, setSetting, addBtn, count, config } = props;
+  const { btnType = 1, direction = 1 } = config || {};
   return (
     <SettingWrap>
-      <Button icon="add" className="addBtn overflow_ellipsis" onClick={addBtn}>
-        {_l('添加按钮')}
-      </Button>
       <div className="btnGroupSettingWrap">
-        <BtnListSort {...props} onSortEnd={list => setSetting({ buttonList: list })} />
-        <div className="itemTitle overflow_ellipsis">{_l('风格')}</div>
+        <div className="itemTitle overflow_ellipsis mLeft0">{_l('样式')}</div>
+        <ul className="btnStyle mRight20">
+          {BTN_TYPE.map(({ value, text }) => (
+            <li
+              className={cx({ active: value === btnType })}
+              key={value}
+              onClick={() => {
+                setSetting({ config: { ...config, btnType: value } });
+              }}
+            >
+              <div className="Font14 bold">{text}</div>
+            </li>
+          ))}
+        </ul>
         <ul className="btnStyle">
-          {BTN_STYLE.map(({ icon, value, tip }) => (
+          {(btnType === 1 ? BTN_STYLE : BTN_STYLE2).map(({ icon, value, tip }) => (
             <li
               className={cx({ active: value === style })}
               key={value}
@@ -110,22 +160,48 @@ export default function BtnGroupSetting(props) {
             </li>
           ))}
         </ul>
-        <div className="itemTitle overflow_ellipsis">{_l('宽度')}</div>
-        <ul className="btnWidth">
-          {BTN_WIDTH.map(({ icon, value, tip }) => (
-            <li
-              className={cx({ active: value === width })}
-              key={value}
-              data-tip={tip}
-              onClick={() => setSetting({ width: value })}>
-              <i className={`icon-${icon}`}></i>
-            </li>
-          ))}
-        </ul>
-        <div className="itemTitle overflow_ellipsis">{_l('每行最多')}</div>
+        {btnType === 1 ? (
+          <Fragment>
+            <div className="itemTitle overflow_ellipsis">{_l('宽度')}</div>
+            <ul className="btnWidth">
+              {BTN_WIDTH.map(({ icon, value, tip }) => (
+                <li
+                  className={cx({ active: value === width })}
+                  key={value}
+                  data-tip={tip}
+                  onClick={() => setSetting({ width: value })}>
+                  <i className={`icon-${icon}`}></i>
+                </li>
+              ))}
+            </ul>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="itemTitle overflow_ellipsis">{_l('方向')}</div>
+            <ul className="btnWidth">
+              {BTN_DIRECTION.map(({ icon, value, tip }) => (
+                <li
+                  className={cx({ active: value === direction })}
+                  key={value}
+                  data-tip={tip}
+                  onClick={() => {
+                    setSetting({ config: { ...config, direction: value } });
+                  }}
+                >
+                  <i className={`icon-${icon}`}></i>
+                </li>
+              ))}
+            </ul>
+          </Fragment>
+        )}
+        <div className="itemTitle overflow_ellipsis">{_l('每行')}</div>
         <SelectCount maxCount={8} minCount={1} count={count} onChange={value => setSetting({ count: value })} />
         <div>{_l('个')}</div>
+        <BtnListSort {...props} onSortEnd={list => setSetting({ buttonList: list })} />
       </div>
+      <Button icon="add" className="addBtn overflow_ellipsis" onClick={addBtn}>
+        {_l('添加按钮')}
+      </Button>
     </SettingWrap>
   );
 }

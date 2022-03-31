@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import FunctionEditor from './FunctionEditor';
 
 const Con = styled.div`
-  padding: ${({ readOnly }) => (readOnly ? '10px 14px' : '20px 0 0;')}
+  padding: ${({ readOnly }) => (readOnly ? '4px 6px;' : '20px 0 0;')}
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 const Title = styled.div`
@@ -26,9 +27,9 @@ const Title = styled.div`
 const PlaceHolder = styled.div`
   z-index: 2;
   position: absolute;
-  left: 14px;
-  top: 14px;
-  color: #9e9e9e;
+  left: 10px;
+  top: 9px;
+  color: #bdbdbd;
   font-size: 14px;
 `;
 
@@ -63,6 +64,11 @@ function CodeEdit(props, ref) {
       editorRef.current = window.functionEditor = functionEditor;
     }
   }, []);
+  useEffect(() => {
+    if (readOnly && editorRef.current) {
+      editorRef.current.editor.setValue(value);
+    }
+  }, [value]);
   useImperativeHandle(ref, () => ({
     insertTag: (tag, position, type) => {
       editorRef.current.insertTag(tag, position, type);

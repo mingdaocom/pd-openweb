@@ -238,7 +238,7 @@ export default class EditInfo extends React.Component {
         break;
       case 2:
         alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function () {
-          location.href = '/app';
+          location.href = '/personal?type=enterprise';
         });
         break;
       case 3:
@@ -275,23 +275,23 @@ export default class EditInfo extends React.Component {
     let isRight = true;
     let warnningData = [];
     if (isMustCompanyName && !companyName) {
-      warnningData.push({ tipDom: this.companyName, warnningText: _l('组织不能为空') });
+      warnningData.push({ tipDom: this.companyName, warnningText: _l('请填写组织') });
       isRight = false;
     }
     if (isMustDepartment && !departmentId) {
-      warnningData.push({ tipDom: this.departmentId, warnningText: _l('部门不能为空') });
+      warnningData.push({ tipDom: this.departmentId, warnningText: _l('请填写部门') });
       isRight = false;
     }
     if (isMustJob && !jobId) {
-      warnningData.push({ tipDom: this.jobId, warnningText: _l('职位不能为空') });
+      warnningData.push({ tipDom: this.jobId, warnningText: _l('请填写职位') });
       isRight = false;
     }
     if (isMustWorkSite && !workSiteId) {
-      warnningData.push({ tipDom: this.workSiteId, warnningText: _l('工作地点不能为空') });
+      warnningData.push({ tipDom: this.workSiteId, warnningText: _l('请填写工作地点') });
       isRight = false;
     }
     if (isMustJobNumber && !jobNumber) {
-      warnningData.push({ tipDom: this.jobNumber, warnningText: _l('工号不能为空') });
+      warnningData.push({ tipDom: this.jobNumber, warnningText: _l('请填写工号') });
       isRight = false;
     }
     setDataFn({
@@ -325,6 +325,7 @@ export default class EditInfo extends React.Component {
               <input
                 type="text"
                 className="companyName"
+                maxLength={'60'}
                 autoComplete="off"
                 ref={companyName => (this.companyName = companyName)}
                 onBlur={this.inputOnBlur}
@@ -495,6 +496,7 @@ export default class EditInfo extends React.Component {
               <input
                 type="text"
                 className="jobNumber"
+                maxLength={'60'}
                 autoComplete="off"
                 ref={jobNumber => (this.jobNumber = jobNumber)}
                 onBlur={this.inputOnBlur}

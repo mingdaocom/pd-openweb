@@ -366,6 +366,7 @@ function CustomBtnFormSet(props) {
               isClickAway={true}
               from="formset"
               onClickAwayExceptions={[
+                '.ant-modal-root',
                 '.ChooseWidgetDialogWrap',
                 '.showBtnFilterDialog',
                 '.doubleConfirmDialog',

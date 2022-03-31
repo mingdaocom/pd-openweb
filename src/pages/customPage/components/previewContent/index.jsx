@@ -1,8 +1,11 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { string } from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { genUrl } from '../../util';
+import { genUrl, parseLink } from '../../util';
+import { browserIsMobile } from 'src/util';
+import { Icon, Tooltip } from 'ming-ui';
+import cx from 'classnames';
 
 const PreviewWrap = styled.div`
   height: 100%;
@@ -24,10 +27,37 @@ const PreviewWrap = styled.div`
   }
 `;
 
+const PreviewContentWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .iconWrap {
+    text-align: right;
+    padding: 8px;
+    background-color: #fff;
+    .icon-task-later {
+      transform: rotate(0deg);
+      transform-origin: center;
+      &.turn {
+        transition: transform 1s;
+        transform: rotate(360deg);
+      }
+    }
+    .actionIcon:hover {
+      color: #2196f3 !important;
+    }
+  }
+  .displayNone {
+    display: none;
+  }
+`;
+
 const hrefReg = /^https?:\/\/.+$/;
 
-const videoReg = /^https?:\/\/.*?(?:swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)$/i;
-const imgReg = /^https?:\/\/.*?(?:gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)$/i;
+const videoReg = /^https?:\/\/.*?\.(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)$/i;
+
+const imgReg = /^https?:\/\/.*?\.(gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)$/i;
 
 const iframeReg = /<iframe.*>\s*<\/iframe>/;
 
@@ -74,7 +104,65 @@ function PreviewContent(props) {
     if (hrefReg.test(value)) return <iframe ref={ref} src={parseLink(value)}></iframe>;
   };
 
-  return <PreviewWrap>{useMemo(renderContent, [value])}</PreviewWrap>;
+  return <PreviewWrap>{useMemo(renderContent, [parseLink(value)])}</PreviewWrap>;
+}
+
+function PreviewWraper(props) {
+  const { value, reload, newTab, param = [] } = props;
+  const [now, setNow] = useState(0);
+
+  const data = { key: 'now', value: { type: 'static', data: now } };
+
+  const handleReLoad = () => {
+    setNow(Date.now());
+    setTimeout(() => {
+      setNow(0);
+    }, 1000);
+  };
+
+  const handleOpen = () => {
+    window.open(parseLink(value, param));
+  };
+
+  return (
+    <PreviewContentWrapper>
+      <div className={cx('iconWrap', { displayNone: !reload && !newTab })}>
+        {reload ? (
+          browserIsMobile() ? (
+            <Icon
+              icon="task-later"
+              className={cx('Gray_bd InlineBlock Font20 Hand actionIcon', { turn: now })}
+              onClick={handleReLoad}
+            />
+          ) : (
+            <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
+              <Icon
+                icon="task-later"
+                className={cx('Gray_bd InlineBlock Font20 Hand actionIcon', { turn: now })}
+                onClick={handleReLoad}
+              />
+            </Tooltip>
+          )
+        ) : (
+          ''
+        )}
+        {newTab ? (
+          browserIsMobile() ? (
+            <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
+          ) : (
+            <Tooltip text={<span>{_l('打开')}</span>} popupPlacement="bottom">
+              <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
+            </Tooltip>
+          )
+        ) : (
+          ''
+        )}
+      </div>
+      <div className="flex">
+        <PreviewContent {..._.pick(props, ['value', 'info'])} param={param.concat(data)} />
+      </div>
+    </PreviewContentWrapper>
+  );
 }
 export default connect(({ sheet, appPkg, customPage }) => ({
   info: {
@@ -82,4 +170,4 @@ export default connect(({ sheet, appPkg, customPage }) => ({
     projectId: appPkg.projectId,
     itemId: customPage.pageId,
   },
-}))(PreviewContent);
+}))(PreviewWraper);

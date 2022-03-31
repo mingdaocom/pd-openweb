@@ -4,7 +4,7 @@
   overflow: hidden;
   .am-modal-content {
     height: 100%;
-    .am-modal-header{
+    .am-modal-header {
       height: 44px;
       padding: 0;
       .am-modal-title {
@@ -15,24 +15,24 @@
           font-size: 24px;
           right: 16px;
           top: 10px;
-          color: #2196F3;
+          color: #2196f3;
         }
       }
     }
     .am-modal-body {
-      background-color: #F2F2F2;
+      background-color: #f2f2f2;
       padding: 0 8px;
-      height: calc(~"100% - 44px");
+      height: calc(~'100% - 44px');
       .tab {
         display: flex;
         height: 32px;
         line-height: 32px;
         margin: 6px 7px 0;
-        background-color: rgba(118,118,128,0.12);
+        background-color: rgba(118, 118, 128, 0.12);
         border-radius: 9px;
         padding: 1px 0;
         box-sizing: border-box;
-        & >li {
+        & > li {
           width: 33.33%;
         }
         .current {
@@ -40,8 +40,8 @@
           line-height: 28px;
           background-color: #fff;
           border-radius: 7px;
-          border: 1px solid rgba(0,0,0,0.04);
-          box-shadow: 0 3px 8px 0px  rgba(0,0,0,0.16);
+          border: 1px solid rgba(0, 0, 0, 0.04);
+          box-shadow: 0 3px 8px 0px rgba(0, 0, 0, 0.16);
         }
       }
       .searchWrapper {
@@ -73,18 +73,25 @@
         }
       }
       .recordListBox {
-        max-height: calc(~"100% - 99px");
+        max-height: calc(~'100% - 99px');
         .listContainer {
+          .seachData {
+            .text {
+              text-align: left;
+            }
+          }
           .listItem {
             background-color: #fff;
             border-radius: 3px;
             margin-bottom: 12px;
-            border: 1px solid #EAEAEA;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.12);
+            border: 1px solid #eaeaea;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.12);
             text-align: left;
             padding: 12px 14px 14px 14px;
             position: relative;
-            .colorLeft{
+            border-radius: 3px;
+            overflow: hidden;
+            .colorLeft {
               background-color: #fff;
               content: '';
               position: absolute;
@@ -107,7 +114,7 @@
           }
         }
       }
-      .noData{
+      .noData {
         padding-top: 20px;
       }
     }

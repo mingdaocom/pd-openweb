@@ -1,7 +1,7 @@
 /* eslint-disable no-redeclare */
 /* eslint-disable no-case-declarations */
 import update from 'immutability-helper';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import {
   ADD_WIDGET,
   DEL_WIDGET,
@@ -108,7 +108,7 @@ function copyWidget(state, payload) {
       $push: [
         {
           ...rest,
-          uuid: uuid(),
+          uuid: uuidv4(),
           web: update(web, {
             layout: {
               $apply: item => copyWebLayout(state.components, item),
@@ -144,7 +144,7 @@ export default function customPage(state = initialState, action) {
           $push: [
             {
               ...payload,
-              uuid: uuid(),
+              uuid: uuidv4(),
               web: {
                 title: _l(''),
                 titleVisible: false,

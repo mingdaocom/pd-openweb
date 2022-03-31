@@ -8,6 +8,7 @@
   box-sizing: border-box;
   margin-bottom: 30px;
   transition: box-shadow 0.2s;
+  position: relative;
 
   .header {
     color: #333;
@@ -16,7 +17,7 @@
     align-items: center;
     height: 32px;
     .operateIconWrap {
-      visibility: hidden;
+      display: none;
       .iconItem {
         margin-right: 12px;
         font-size: 18px;
@@ -102,7 +103,7 @@
   &.active,
   &.edit {
     .header .operateIconWrap {
-      visibility: visible;
+      display: flex;
     }
   }
 
@@ -118,7 +119,7 @@
 .sortableCard {
   z-index: 9999;
   .operateIconWrap {
-    visibility: visible !important;
+    display: flex !important;
   }
   .statisticsCard {
     .statisticsCard;

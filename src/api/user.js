@@ -405,6 +405,19 @@ module.exports = {
      return $.api('User', 'ResetPassword', args, options);
    },
   /**
+  * 重置员工密码
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.accountIds
+  * @param {string} args.password 密码
+  * @param {Object} options 配置参数
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchResetPassword: function (args, options = {}) {
+     
+     return $.api('User', 'BatchResetPassword', args, options);
+   },
+  /**
   * 根据ProjectId检测当前用户是不是网络管理员
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id

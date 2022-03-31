@@ -11,7 +11,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import CellErrorTips from './comps/CellErrorTip';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, accMul } from 'src/util';
 
 const InputCon = styled.div`
   box-sizing: border-box;
@@ -107,6 +107,14 @@ export default class Text extends React.Component {
     const { cell, error, updateCell, updateEditingStatus } = this.props;
     const { oldValue } = this.state;
     let { value = '' } = this.state;
+    if (_.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
+      value = parseFloat(value) / 100;
+    }
+    if ((cell.type === 6 || cell.type === 8) && value === '-') {
+      value = '';
+      this.setState({ value });
+    }
+
     if (oldValue === value) {
       updateEditingStatus(false);
       return;
@@ -192,7 +200,7 @@ export default class Text extends React.Component {
     }
     const editProps = {
       ref: this.input,
-      value,
+      value: value,
       style: {
         width: style.width,
         height: style.height,

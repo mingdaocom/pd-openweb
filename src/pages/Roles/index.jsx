@@ -14,7 +14,7 @@ import DocumentTitle from 'react-document-title';
 import Portal from './Portal/index';
 import Trigger from 'rc-trigger';
 import openImg from './img/open.gif';
-import { onOffPortal, getPortalEnableState } from 'src/api/externalPortal';
+import { editExPortalEnable, getPortalEnableState } from 'src/api/externalPortal';
 import RoleCon from './RoleCon';
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const Wrap = styled.div`
@@ -287,7 +287,7 @@ class AppRole extends PureComponent {
                         this.setState({
                           openLoading: true,
                         });
-                        onOffPortal({ appId, isEnable: !this.state.isEnable }).then(res => {
+                        editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
                           if (res) {
                             this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
                               navigateTo(`/app/${appId}/role/external`);
@@ -318,7 +318,7 @@ class AppRole extends PureComponent {
               }}
             >
               <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
-                <Icon className="Font20 Hand mLeft10 mRight6 set " icon="home1" />
+                <Icon className="Font20 Hand mLeft10 mRight6 set " icon="language" />
                 {openLoading ? _l('开启中...') : _l('启用外部门户')}
               </WrapOpenPortalBtn>
             </Trigger>
@@ -334,7 +334,7 @@ class AppRole extends PureComponent {
             portalName={appDetail.name}
             appId={appId}
             closePortal={() => {
-              onOffPortal({ appId, isEnable: false }).then(res => {
+              editExPortalEnable({ appId, isEnable: false }).then(res => {
                 if (res) {
                   navigateTo(`/app/${appId}/role`);
                   this.setState({ isOpenPortal: false, editType: 0 });

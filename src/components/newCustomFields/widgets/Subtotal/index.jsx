@@ -73,7 +73,7 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { value, dot, unit, advancedSetting, recordId, enumDefault2 } = this.props;
+    const { value, dot, unit, advancedSetting = {}, recordId, enumDefault2 } = this.props;
     const { loading } = this.state;
     let content = value;
 
@@ -108,19 +108,25 @@ export default class Widgets extends Component {
     }
 
     if (!_.isUndefined(value) && enumDefault2 === 6) {
-      content = _.isUndefined(dot) ? value : _.round(value, dot).toFixed(dot);
-      content = content.replace(
-        content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
-        '$1,',
-      );
+      if (advancedSetting.numshow === '1') {
+        content = parseFloat(value) * 100;
+      }
+      content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
+
+      if (advancedSetting.thousandth !== '1') {
+        content = content.replace(
+          content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
+          '$1,',
+        );
+      }
       content = content + (unit ? ` ${unit}` : '');
     }
 
-    if (!_.isUndefined(value) && advancedSetting && advancedSetting.summaryresult === '1') {
+    if (!_.isUndefined(value) && advancedSetting.summaryresult === '1') {
       content = Math.round(parseFloat(value) * 100) + '%';
     }
 
-    if (advancedSetting && (advancedSetting.prefix || advancedSetting.suffix)) {
+    if (advancedSetting.prefix || advancedSetting.suffix) {
       content = (advancedSetting.prefix || '') + content + (advancedSetting.suffix || '');
     }
 

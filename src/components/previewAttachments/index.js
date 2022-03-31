@@ -13,13 +13,17 @@ function callPreview(options = {}, extra = {}) {
 }
 
 export function previewQiniuUrl(file, options) {
+  let hideFunctions = ['editFileName'];
+  if (options.disableDownload) {
+    hideFunctions = hideFunctions.concat(['download', 'share', 'saveToKnowlege']);
+  }
   options = Object.assign(
     {},
     {
       index: 0,
       attachments: [],
       showThumbnail: true,
-      hideFunctions: ['editFileName'],
+      hideFunctions,
     },
     options,
   );

@@ -52,9 +52,10 @@ export default function Btn(props) {
   const { button } = widget;
 
   const [btnSetting, setSetting] = useSetState(button);
-  const { buttonList, explain } = btnSetting;
+  const { buttonList, explain, config } = btnSetting;
 
   const [activeIndex, setIndex] = useState(0);
+  const [errorBtns, setErrorBtns] = useState([]);
 
   const [visible, setVisible] = useState(_.isEmpty(button));
 
@@ -63,7 +64,17 @@ export default function Btn(props) {
   };
 
   const addBtn = () => {
-    setSetting(update(btnSetting, { buttonList: { $push: [{ name: _l('我是按钮'), color: '#2196f3' }] } }));
+    const { btnType } = btnSetting.config || {};
+    const data = { name: _l('我是按钮'), color: '#2196f3' };
+    if (btnType === 2) {
+      const icon = 'custom_actions';
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
+      data.config = {
+        icon,
+        iconUrl
+      }
+    }
+    setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
   };
 
   const handleDel = () => {
@@ -73,6 +84,24 @@ export default function Btn(props) {
     }
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex, 1]] } }));
     setIndex(Math.max(activeIndex - 1, 0));
+  };
+  const handleSave = () => {
+    // 验证业务流程是否有必填项
+    const { buttonList } = btnSetting;
+    const emptyParamBtns = [];
+    buttonList.forEach((btn, index) => {
+      const { inputs } = btn.config || {};
+      const requiredInput = _.find(inputs, { required: true });
+      if (requiredInput && _.isEmpty(requiredInput.value)) {
+        emptyParamBtns.push(index);
+      }
+    });
+    if (emptyParamBtns.length) {
+      setErrorBtns(emptyParamBtns);
+      alert(_l('业务流程有必填参数，请完善'), 3);
+    } else {
+      onEdit({ button: btnSetting });
+    }
   };
   const onSortEnd = btnList => {
     setSetting(update(btnSetting, { buttonList: { $set: btnList } }));
@@ -94,19 +123,15 @@ export default function Btn(props) {
     </SideWrap>
   ) : (
     <Dialog
+      maskStyle={{ zIndex: 999 }}
+      wrapClassName="customPageButtonWrap"
       className="editWidgetDialogWrap"
       visible
       onClose={onClose}
       closeIcon={<Icon icon="close ThemeHoverColor3" />}>
       <Header>
         <div className="typeName">{_l('按钮')}</div>
-        <Button
-          className="saveBtn"
-          onClick={() => {
-            onEdit({ button: btnSetting });
-          }}>
-          {_l('保存')}
-        </Button>
+        <Button className="saveBtn" onClick={handleSave}>{_l('保存')}</Button>
       </Header>
       <EditWidgetContent>
         <BtnWrap>
@@ -115,6 +140,7 @@ export default function Btn(props) {
             <BtnList
               {...props}
               {...btnSetting}
+              errorBtns={errorBtns}
               onSortEnd={onSortEnd}
               activeIndex={activeIndex}
               onClick={({ index }) => setIndex(index)}
@@ -124,6 +150,7 @@ export default function Btn(props) {
             {...props}
             explain={explain}
             btnSetting={buttonList[activeIndex]}
+            btnConfig={config}
             setBtnSetting={setBtnSetting}
             setSetting={setSetting}
             onDel={handleDel}

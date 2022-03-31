@@ -84,8 +84,8 @@
     }
   }
   .contacts-list {
-    min-width: 230px;
-    max-width: 230px;
+    min-width: 280px;
+    max-width: 280px;
     box-sizing: border-box;
     display: flex;
     flex-flow: column nowrap;
@@ -121,6 +121,7 @@
         padding: 10px 14px 4px;
         &-name {
           max-width: 150px;
+          display: inline-block;
         }
         &.fixed {
           position: absolute;
@@ -141,13 +142,14 @@
         align-items: center;
         line-height: 44px;
         height: 44px;
-        padding: 0 14px;
+        padding: 0 16px;
         &-avatar {
           width: 32px;
           height: 32px;
           border-radius: 50%;
         }
-        &-name {
+        &-name,
+        &-department {
           flex: 1 0 0%;
           padding-left: 10px;
           text-overflow: ellipsis;
@@ -175,7 +177,7 @@
       border-bottom: 1px solid #f5f5f5;
     }
     &-wrapper {
-      padding: 24px;
+      padding: 16px 24px;
     }
     .detail-header {
       display: flex;
@@ -263,6 +265,11 @@
         margin-bottom: 4px;
       }
     }
+    .Dropdown--input {
+      .value {
+        max-width: calc(~'100% - 22px');
+      }
+    }
   }
   .contacts-add-friend {
     height: 100%;
@@ -345,11 +352,11 @@
       height: 120px;
       border-radius: 50%;
       &.newfriends {
-        background: no-repeat url("./images/no_newfriends.png") center center;
+        background: no-repeat url('./images/no_newfriends.png') center center;
         background-size: 120px;
       }
       &.search {
-        background: no-repeat url("./images/no_search_result.png") center center;
+        background: no-repeat url('./images/no_search_result.png') center center;
         width: 60px;
         height: 60px;
         border-radius: 0;

@@ -120,6 +120,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从代码块数组获取数据'),
                   describe: _l('获取代码块节点中的JSON数组对象'),
                 },
+                {
+                  type: 13,
+                  appType: 1,
+                  actionId: '408',
+                  name: _l('从业务流程数组获取数据'),
+                  describe: _l('获取封装业务流程输入节点的JSON数组对象'),
+                },
               ],
             },
             {
@@ -219,6 +226,12 @@ export default class CreateNodeDialog extends Component {
                   actionId: '105',
                   describe: _l('对获取到的多条数据对象进行数据条数的总计'),
                 },
+                {
+                  type: 9,
+                  name: _l('函数计算'),
+                  actionId: '106',
+                  describe: _l('通过函数对 文本/数值 等流程节点对象的值进行处理'),
+                },
               ],
             },
             {
@@ -229,17 +242,25 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-link2',
             },
             {
+              type: 18,
+              name: _l('获取记录打印文件'),
+              appType: 14,
+              iconColor: '#4C7D9E',
+              iconName: 'icon-print',
+            },
+            {
               type: 16,
               name: _l('子流程'),
               iconColor: '#4C7D9E',
               iconName: 'icon-subprocess',
             },
             {
-              type: 18,
-              name: _l('获取记录打印文件'),
-              appType: 14,
+              type: 20,
+              name: _l('调用业务流程'),
+              appType: 17,
+              actionId: '500',
               iconColor: '#4C7D9E',
-              iconName: 'icon-print',
+              iconName: 'icon-pbc',
             },
           ],
         },
@@ -433,7 +454,7 @@ export default class CreateNodeDialog extends Component {
    * 内容
    */
   renderContent() {
-    const { isLast, nodeType, actionId } = this.props;
+    const { isLast, nodeType, actionId, flowNodeMap, nodeId } = this.props;
     const { list, selectItem, selectSecond, showDialog, isOrdinary, showBranchDialog, moveType } = this.state;
     const MOVE_TYPE = () => {
       if (isOrdinary) {
@@ -516,7 +537,11 @@ export default class CreateNodeDialog extends Component {
               : _l('在查找指定数据节点下添加分支有两种选择：')
           }
           onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
-          onOk={() => (isLast ? this.onOk() : this.setState({ showDialog: false, showBranchDialog: true }))}
+          onOk={() =>
+            isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === TRIGGER_ID_TYPE.PBC_OUT
+              ? this.onOk({ noMove: true })
+              : this.setState({ showDialog: false, showBranchDialog: true })
+          }
         >
           <Radio
             className="Font15"
@@ -605,7 +630,7 @@ export default class CreateNodeDialog extends Component {
    * 创建节点点击
    */
   createNodeClick(item) {
-    const { nodeId, isLast, companyId } = this.props;
+    const { nodeId, isLast, companyId, flowNodeMap } = this.props;
 
     // 二级创建
     if (item.secondList) {
@@ -616,7 +641,11 @@ export default class CreateNodeDialog extends Component {
     // 分支 并且 上一个节点是审批
     if (item.type === NODE_TYPE.BRANCH && this.isConditionalBranch()) {
       this.setState({ selectItem: item, showDialog: true });
-    } else if (item.type === NODE_TYPE.BRANCH && !isLast) {
+    } else if (
+      item.type === NODE_TYPE.BRANCH &&
+      !isLast &&
+      (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== TRIGGER_ID_TYPE.PBC_OUT
+    ) {
       this.setState({ selectItem: item, showBranchDialog: true });
     } else {
       const currentProject = _.find(md.global.Account.projects || [], o => o.projectId === companyId) || {};
@@ -649,7 +678,7 @@ export default class CreateNodeDialog extends Component {
   /**
    * branch dialog确定
    */
-  onOk = () => {
+  onOk = ({ noMove }) => {
     const { nodeId } = this.props;
     const { selectItem, isOrdinary, moveType } = this.state;
 
@@ -659,7 +688,7 @@ export default class CreateNodeDialog extends Component {
         prveId: nodeId,
         resultFlow: !isOrdinary,
         typeId: NODE_TYPE.BRANCH,
-        moveType,
+        moveType: noMove ? 0 : moveType,
       });
     } else {
       this.addFlowNode({
@@ -668,7 +697,7 @@ export default class CreateNodeDialog extends Component {
         name: selectItem.name,
         prveId: nodeId,
         typeId: selectItem.type,
-        moveType,
+        moveType: noMove ? 0 : moveType,
       });
     }
   };

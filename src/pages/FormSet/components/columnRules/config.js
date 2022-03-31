@@ -378,6 +378,7 @@ export const filterDataRelationText = (dynamicSource = [], columns, sourceContro
       let contrls = list.find(it => id === it.controlId);
       data.data.push({
         name: contrls ? contrls.controlName : '',
+        id: item.cid,
         rName: item.rcid === 'parent' ? _l('主记录') : rName,
         type,
       });

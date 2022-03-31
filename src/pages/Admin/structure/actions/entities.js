@@ -120,10 +120,23 @@ export const DELETE_DEPARTMENT = 'DELETE_DEPARTMENT';
  * @param departmentId
  * @param parentId
  */
-export const deleteDepartment = ({ departmentId, parentId }) => ({
+export const deleteDepartment = ({ departmentId, parentId, expandedKeys }) => ({
   type: DELETE_DEPARTMENT,
   departmentId,
   parentId,
+  expandedKeys,
+});
+
+export const EDIT_DEPARTMENT = 'EDIT_DEPARTMENT';
+/**
+ * eidt department
+ * @param departmentId
+ * @param departmentName
+ */
+export const editDepartment = ({ newDepartments, expandedKeys }) => ({
+  type: EDIT_DEPARTMENT,
+  newDepartments,
+  expandedKeys,
 });
 
 export const FULL_TREE_REQUEST = 'FULL_TREE_REQUEST';

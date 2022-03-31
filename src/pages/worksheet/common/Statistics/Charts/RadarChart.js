@@ -142,7 +142,7 @@ export default class extends Component {
         },
         label: {
           offset: 23,
-          autoHide: true,
+          autoHide: false,
           autoEllipsis: true,
         },
         verticalLimitLength: 100

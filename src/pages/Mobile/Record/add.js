@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import { WaterMark } from 'ming-ui';
+import { WaterMark, LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
@@ -46,13 +46,18 @@ class AddRecord extends Component {
   customwidget = React.createRef();
 
   handleSave() {
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  }
+  onSave = (error, { data, updateControlIds }) => {
+    if (error) {
+      this.setState({ submitLoading: false });
+      return;
+    }
     const { saveLoading } = this.state;
     const { params } = this.props.match;
     if (!this.customwidget.current) return;
-    const customwidgetData = this.customwidget.current.getSubmitData();
-    const controls = customwidgetData.data;
-    const isVerify = customwidgetData.hasError;
-    const receiveControls = controls
+    const receiveControls = data
       .filter(item => item.type !== 'SHEETFIELD' && item.originType !== 31 && item.originType !== 32)
       .map(formatControlToServer);
 
@@ -60,14 +65,7 @@ class AddRecord extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
-
-    if (isVerify) {
-      this.setState({ showError: true });
-      alert(_l('请正确填写记录'), 3);
-      return;
-    }
-
-    if (customwidgetData.hasRuleError || saveLoading) {
+    if (saveLoading) {
       return;
     }
 
@@ -79,6 +77,7 @@ class AddRecord extends Component {
         receiveControls,
       })
       .then(result => {
+        this.setState({ submitLoading: false });
         if (result && result.data) {
           alert(_l('添加成功'));
           this.props.dispatch(actions.emptySheetRows());
@@ -99,12 +98,17 @@ class AddRecord extends Component {
       .always(() => {
         this.setState({ saveLoading: false });
       });
-  }
+  };
   renderContent() {
-    const { sheetRow, controls, showError } = this.state;
+    const { submitLoading, sheetRow, controls, showError } = this.state;
     const { params } = this.props.match;
     return (
       <Fragment>
+        {submitLoading && (
+          <div className="loadingMask">
+            <LoadDiv />
+          </div>
+        )}
         <DocumentTitle title={`${_l('添加')}${sheetRow.entityName}`} />
         <div className="flex pTop5" style={{ overflowX: 'hidden', overflowY: 'auto' }}>
           <CustomFields
@@ -121,6 +125,7 @@ class AddRecord extends Component {
                 controls: result,
               });
             }}
+            onSave={this.onSave}
           />
         </div>
         <Flex className="saveWrapper" justify="start">

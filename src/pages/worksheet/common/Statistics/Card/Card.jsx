@@ -6,6 +6,8 @@ import ChartDialog from '../ChartDialog';
 import login from 'src/api/login';
 import report from '../api/report';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { Provider } from 'react-redux';
+import store from 'src/redux/configureStore';
 import { fillValueMap } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
@@ -16,7 +18,6 @@ import { browserIsMobile, getAppFeaturesPath } from 'src/util';
 import './Card.less';
 
 const isMobile = browserIsMobile();
-const isPublicShare = location.href.includes('public/page');
 
 let isCheckLogin = true;
 
@@ -36,6 +37,7 @@ export default class Card extends Component {
       sheetVisible: false,
       activeData: undefined
     }
+    this.isPublicShare = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
   }
   componentDidMount() {
     const { id } = this.props.report;
@@ -72,16 +74,23 @@ export default class Card extends Component {
     }
   }
   getData = (reportId, reload = false) => {
+    const { filters } = this.props;
+    const shareAuthor = window.sessionStorage.getItem('shareAuthor');
+    const headersConfig = {
+      shareAuthor,
+    };
     this.setState({ loading: true });
     this.abortRequest();
     this.request = report.getData(
       {
         reportId,
         version: '6.5',
-        reload
+        reload,
+        filters: filters ? [filters] : undefined
       },
       {
         fireImmediately: true,
+        headersConfig: shareAuthor ? headersConfig : undefined
       }
     );
     this.request.then(result => {
@@ -133,7 +142,7 @@ export default class Card extends Component {
       <Chart
         loading={loading}
         isThumbnail={true}
-        isViewOriginalData={!isMobile && !isPublicShare}
+        isViewOriginalData={!isMobile && !this.isPublicShare}
         onOpenChartDialog={this.handleOpenChartDialog}
         reportData={{
           ...reportData,
@@ -181,13 +190,13 @@ export default class Card extends Component {
       );
     }
   }
-  render() {
+  renderWrap() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
-    const { report, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId } = this.props;
+    const { report, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, className } = this.props;
     const permissions = ownerId || _.includes([1, 2], roleType);
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
-      <div className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, { card: !sourceType, padding: !sourceType })}>
+      <div className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className)}>
         <div className="header">
           <div className="flex valignWrapper ellipsis">
             <div className="pointer ellipsis bold">{reportData.name}</div>
@@ -201,7 +210,7 @@ export default class Card extends Component {
             )}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
-            {needEnlarge && !isPublicShare && isSheetView && (
+            {needEnlarge && isSheetView && (
               <span
                 className="iconItem"
                 data-tip={_l('以表格显示')}
@@ -237,13 +246,17 @@ export default class Card extends Component {
                 <Icon icon="task-new-fullscreen" />
               </span>
             )}
-            {needEnlarge && !isPublicShare && (
+            {needEnlarge && !this.isPublicShare && (
               <MoreOverlay
                 className="iconItem Font20"
                 permissions={sourceType ? null : permissions}
                 reportType={reportData.reportType}
+                exportData={{
+                  filters
+                }}
                 report={{
-                  ...report,
+                  id: report.id,
+                  name: reportData.name,
                   desc: reportData.desc
                 }}
                 getPopupContainer={() => document.querySelector(`.statisticsCard-${report.id} .header .ant-dropdown-open`)}
@@ -302,6 +315,13 @@ export default class Card extends Component {
           />
         )}
       </div>
+    );
+  }
+  render() {
+    return (
+      <Provider store={store}>
+        {this.renderWrap()}
+      </Provider>
     );
   }
 }

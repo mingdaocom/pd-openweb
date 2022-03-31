@@ -9,30 +9,22 @@ import cx from 'classnames';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
-import Clipboard from 'clipboard';
+import copy from 'copy-to-clipboard';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ChecklistOperator extends Component {
   componentDidMount() {
-    this.clipboard = new Clipboard('.checklistOperator .clipboard', {
-      text: () => {
-        const clipboardText = this.props.data.name;
-        const items = _.map(this.props.data.items, (item) => {
-          return `\n${item.name}`;
-        });
-
-        return clipboardText + items.join('');
-      },
+    const { isShowOperator } = this.props;
+    const clipboardText = this.props.data.name;
+    const items = _.map(this.props.data.items, (item) => {
+      return `\n${item.name}`;
     });
 
-    this.clipboard.on('success', () => {
+    $('.checklistOperator .clipboard').off().on('click', function () {
+      copy(clipboardText + items.join(''));
       alert(_l('已复制到剪切板'));
-      this.props.isShowOperator();
+      isShowOperator();
     });
-  }
-
-  componentWillUnmount() {
-    this.clipboard.destroy();
   }
 
   render() {

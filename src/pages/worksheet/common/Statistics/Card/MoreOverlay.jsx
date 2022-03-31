@@ -8,12 +8,13 @@ import PageMove from '../components/PageMove';
 import reportConfig from '../api/reportConfig';
 import { Dropdown, Menu, Divider } from 'antd';
 import { connect } from 'react-redux';
+import reportApi from 'src/pages/worksheet/common/Statistics/api/report';
 
 const confirm = Dialog.confirm;
 
 @connect(
   state => ({
-    ..._.pick(state.sheet, ['isCharge'])
+    ..._.pick(state.sheet, ['isCharge']),
   })
 )
 export default class MoreOverlay extends Component {
@@ -23,6 +24,21 @@ export default class MoreOverlay extends Component {
       shareVisible: false,
       showPageMove: false
     }
+  }
+  handleExportExcel = () => {
+    const { report, worksheetId, exportData } = this.props;
+    const { filters = [] } = exportData;
+    reportApi.export({
+      reportId: report.id,
+      pageId: worksheetId,
+      filters: filters.length ? [filters] : undefined
+    }).then(result => {
+      if (!result) {
+        alert(_l('导出错误'), 2);
+      }
+    }).fail(error => {
+      alert(error, 2);
+    });
   }
   handleDelete = () => {
     const { id, name } = this.props.report;
@@ -54,7 +70,6 @@ export default class MoreOverlay extends Component {
       reportType,
       report,
       ownerId,
-      worksheetId,
       isMove,
       isCharge,
       permissions,
@@ -97,9 +112,7 @@ export default class MoreOverlay extends Component {
         {reportTypes.NumberChart !== reportType && (
           <Menu.Item
             className="pLeft10"
-            onClick={() => {
-              exportExcel(report.id, worksheetId);
-            }}
+            onClick={this.handleExportExcel}
           >
             <div className="flexRow valignWrapper">
               <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="file_download" />
@@ -181,3 +194,4 @@ export default class MoreOverlay extends Component {
     );
   }
 }
+

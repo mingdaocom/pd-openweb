@@ -324,7 +324,7 @@ export default class RecordCardListDialog extends Component {
     const titleControl = _.find(controls, c => c.attribute === 1);
     const allControls = [
       { controlId: 'ownerid', controlName: _l('拥有者'), type: 26 },
-      { controlId: 'caid', controlName: _l('创建人'), type: 26 },
+      { controlId: 'caid', controlName: _l('创建者'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
     ].concat(controls);
@@ -358,6 +358,7 @@ export default class RecordCardListDialog extends Component {
       onClose,
       singleConfirm,
       onText,
+      masterRecordRowId,
     } = this.props;
     const {
       loading,
@@ -505,6 +506,7 @@ export default class RecordCardListDialog extends Component {
                   viewId={viewId}
                   worksheetId={relateSheetId}
                   projectId={worksheet.projectId}
+                  masterRecordRowId={masterRecordRowId}
                   addType={2}
                   entityName={worksheet.entityName}
                   filterRelateSheetIds={[relateSheetId]}

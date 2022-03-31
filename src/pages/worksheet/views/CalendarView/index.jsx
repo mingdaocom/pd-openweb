@@ -18,13 +18,14 @@ import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
 import { updateWorksheetRow } from 'src/api/worksheet';
 import External from './External';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { saveView } from 'src/pages/worksheet/redux/actions';
-import { getHoverColor, isTimeStyle } from './util';
+import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
+import { getHoverColor, isTimeStyle, isEmojiCharacter } from './util';
 import { isLightColor } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
 import { navigateTo } from 'src/router/navigateTo';
 import CurrentDateInfo from 'src/pages/Mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
+import Trigger from 'rc-trigger';
 
 import styled from 'styled-components';
 const Wrap = styled.div`
@@ -33,7 +34,53 @@ const Wrap = styled.div`
   background: #f5f5f5;
   overflow: hidden;
 `;
+const WrapChoose = styled.div`
+  width: 200px;
+  background: #ffffff;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+  opacity: 1;
+  border-radius: 2px;
+  padding: 6px 0;
+  .setLi {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 16px;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+`;
+const WrapNum = styled.div`
+   {
+    position: relative;
+    width: 20px;
+    text-align: center;
+    line-height: 20px;
+    .txt {
+      display: block;
+    }
+    .add {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+    }
+    &:hover {
+      .add {
+        line-height: 20px;
+        opacity: 1;
+      }
+      .txt {
+        opacity: 0;
+      }
+    }
+  }
+`;
+
 import { getTimeControls } from './util';
+import _ from 'lodash';
+
 let tabList = [
   { key: 'eventAll', txt: _l('全部') },
   { key: 'eventScheduled', txt: _l('已排期') },
@@ -50,7 +97,7 @@ let clickData = null;
     worksheetInfo: state.sheet.worksheetInfo,
     mobileMoreClickVisible: state.sheet.calendarview.mobileMoreClickVisible,
   }),
-  dispatch => bindActionCreators({ ...Actions, saveView }, dispatch),
+  dispatch => bindActionCreators({ ...Actions, saveView, updateWorksheetControls }, dispatch),
 )
 class RecordCalendar extends Component {
   constructor(props) {
@@ -69,6 +116,11 @@ class RecordCalendar extends Component {
         : document.documentElement.clientHeight - 126,
       canNew: isOpenPermit(permitList.createButtonSwitch, props.sheetSwitchPermit) && allowAdd,
       calendarFormatData: [],
+      showChoose: false,
+      selectTimeInfo: {},
+      changeData: null,
+      popupVisible: '',
+      addDataList: [],
     };
   }
   componentDidMount() {
@@ -104,7 +156,8 @@ class RecordCalendar extends Component {
     if (
       viewId !== this.props.base.viewId ||
       getAdvanceSetting(currentView).begindate !== getAdvanceSetting(preView).begindate ||
-      getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid
+      getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid ||
+      getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids
     ) {
       // 切换视图，或更改开始时间字段 重新更新排期数据
       nextProps.refreshEventList();
@@ -125,6 +178,11 @@ class RecordCalendar extends Component {
     ) {
       setTimeout(() => {
         $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
+        this.setState({
+          height: browserIsMobile()
+            ? document.documentElement.clientHeight - 43
+            : document.documentElement.clientHeight - 126,
+        });
       }, 500);
     }
   }
@@ -163,8 +221,8 @@ class RecordCalendar extends Component {
   };
 
   dbClickDay = () => {
-    if (clickData && clickData.startT && clickData.endT) {
-      this.selectFn(clickData.startT, clickData.endT);
+    if (clickData) {
+      this.selectFn(clickData);
     }
   };
 
@@ -233,6 +291,10 @@ class RecordCalendar extends Component {
         if (cb) {
           cb(data);
         }
+        clickData = null;
+        this.setState({
+          changeData: null,
+        });
       }
     });
   };
@@ -249,6 +311,10 @@ class RecordCalendar extends Component {
         $('.fc-highlight').remove();
         this.getEventsFn();
         this.props.updateCalendarEventIsAdd(true);
+        clickData = null;
+        this.setState({
+          changeData: null,
+        });
       },
     });
   };
@@ -273,39 +339,37 @@ class RecordCalendar extends Component {
   };
 
   changeEventFn = info => {
-    const { calendarview = {} } = this.props;
-    const { calendarData = {} } = calendarview;
-    const { startFormat, endFormat, startData, endData } = calendarData;
-    const { begindate = '', enddate = '' } = getAdvanceSetting(this.getCurrentView(this.props));
+    let endData = _.get(info, ['data', 'endData']);
+    let startData = _.get(info, ['data', 'startData']) || {};
     let dateStr = info.dateStr;
     let startTime;
-    const { rowId, data } = info;
+    const { rowId, calendar = {} } = info;
     if (info.allDay) {
       // YYYY-MM-DD
-      let str = data.start
-        ? `${dateStr} ${moment(data.start).format('YYYY-MM-DD HH:mm').substring(11)}`
+      let str = calendar.start
+        ? `${dateStr} ${moment(calendar.start).format('YYYY-MM-DD HH:mm').substring(11)}`
         : `${dateStr} 08:00`;
       startTime = isTimeStyle(startData) ? str : dateStr;
     } else {
       // 'YYYY-MM-DD HH:mm'
-      startTime = moment(dateStr).format(startFormat);
+      startTime = moment(dateStr).format(_.get(info, ['data', 'startFormat']));
     }
     let control = [
       {
-        controlId: begindate,
+        controlId: startData.controlId,
         controlName: startData.controlName,
         type: startData.type,
         value: startTime,
       },
     ];
-    if (data.end) {
+    if (endData && calendar.end) {
       // 开始时间与拖拽时间的时间差
-      let l = moment(startTime).valueOf() - moment(data.start).valueOf();
+      let l = moment(startTime).valueOf() - moment(calendar.start).valueOf();
       control.push({
-        controlId: enddate,
+        controlId: endData.controlId,
         controlName: endData.controlName,
         type: endData.type,
-        value: moment(moment(data.end).valueOf() + l).format(endFormat),
+        value: moment(moment(calendar.end).valueOf() + l).format(_.get(info, ['data', 'endFormat'])),
       });
     }
     this.updateData(control, rowId, data => {
@@ -340,13 +404,17 @@ class RecordCalendar extends Component {
     }
   };
 
-  selectFn = (startT, endT) => {
-    const { begindate = '', enddate = '' } = getAdvanceSetting(this.getCurrentView(this.props));
-    this.addRecordInfo({
-      [begindate]: startT,
-      [enddate]: endT,
+  selectFn = info => {
+    this.setState({
+      selectTimeInfo: info,
     });
-    clickData = null;
+    let endDivStr = info.endStr;
+    if (!info.allDay) {
+      endDivStr = moment(info.endStr).format('YYYY-MM-DD');
+    } else {
+      endDivStr = moment(endDivStr).subtract(1, 'day').format('YYYY-MM-DD');
+    }
+    this.showChooseTrigger(endDivStr, info.view.type);
   };
 
   isSafari = () => {
@@ -412,6 +480,107 @@ class RecordCalendar extends Component {
     this.props.changeMobileCurrentData(tempData);
   };
 
+  useViewInfoUpdate = (o, item) => {
+    const { selectTimeInfo = {}, changeData } = this.state;
+
+    if (changeData && changeData.rowid) {
+      this.changeEventFn({
+        ...item,
+        ...selectTimeInfo,
+        ...changeData,
+        rowId: changeData.rowid,
+        data: o,
+        calendar: {
+          start: changeData[o.begin],
+          end: changeData[o.end],
+        },
+      });
+    } else {
+      let startT = moment(selectTimeInfo.startStr ? selectTimeInfo.startStr : item.date).format(o.startFormat);
+      let endT = selectTimeInfo.endStr
+        ? !selectTimeInfo.allDay
+          ? moment(selectTimeInfo.endStr).format(o.endFormat)
+          : `${moment(selectTimeInfo.endStr).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`
+        : '';
+      let data = selectTimeInfo.startStr
+        ? {
+            [o.begin]: startT,
+            [o.end]: endT,
+          }
+        : {
+            [o.begin]: startT,
+          };
+      this.addRecordInfo(data);
+    }
+  };
+
+  renderPopup = item => {
+    const { calendarview = {} } = this.props;
+    const { calendarData = {} } = calendarview;
+    const { calendarInfo = [] } = calendarData;
+    return (
+      <WrapChoose>
+        {calendarInfo.map(o => {
+          return (
+            <div
+              className="setLi Hand WordBreak overflow_ellipsis"
+              onClick={() => {
+                this.setState({
+                  popupVisible: '',
+                });
+                this.useViewInfoUpdate(o, item);
+              }}
+            >
+              {_l('使用%0', o.mark || o.startData.controlName)}
+            </div>
+          );
+        })}
+      </WrapChoose>
+    );
+  };
+
+  renderCalendarIds = (item, calendarInfo, isHide) => {
+    const { popupVisible } = this.state;
+    let date = moment(item.date).format('YYYY-MM-DD');
+    return (
+      <Trigger
+        popupVisible={popupVisible === `${date}`}
+        action={['click']}
+        popup={this.renderPopup(item)}
+        getPopupContainer={() => document.body}
+        onPopupVisibleChange={visible => {
+          if (visible) {
+            if (calendarInfo.length <= 1) {
+              this.useViewInfoUpdate(calendarInfo[0], item);
+            } else {
+              this.setState({
+                popupVisible: `${date}`,
+              });
+            }
+          } else {
+            this.setState({
+              popupVisible: '',
+            });
+          }
+        }}
+        popupAlign={{
+          points: ['tc', 'bc'],
+          offset: [0, 12],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+      >
+        <span className={cx('add', { isTop: item.view.type !== 'dayGridMonth', Alpha0: isHide })} data-date={`${date}`}>
+          +
+        </span>
+      </Trigger>
+    );
+  };
+
+  showChooseTrigger = (data, type) => {
+    let date = moment(data).format('YYYY-MM-DD');
+    $(`span[data-date=${date}]`)[0].click();
+  };
+
   render() {
     const {
       toCustomWidget,
@@ -423,33 +592,47 @@ class RecordCalendar extends Component {
       calendarview = {},
       mobileCalendarSetting = {},
     } = this.props;
-    const { calendarData = {}, editable } = calendarview;
+    const { calendarData = {}, editable, calenderEventList = {} } = calendarview;
+    const { eventScheduled = [] } = calenderEventList;
     const { appId, worksheetId, viewId } = base;
     const currentView = this.getCurrentView(this.props);
-    const {
+    let {
       begindate = '',
       enddate = '',
       colorid = '',
       hour24 = '0',
       calendarType = '0',
+      calendarcids = '[]',
+      weekbegin,
+      showall = '0',
     } = getAdvanceSetting(currentView);
+    try {
+      calendarcids = JSON.parse(calendarcids);
+    } catch (error) {
+      calendarcids = [];
+    }
+    if (calendarcids.length <= 0) {
+      calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
+    }
     const { recordInfoVisible, recordId, isLoading, rows = [], showPrevNext = false } = this.state;
-    const { calenderEventList } = calendarview;
     const typeEvent = this.props.getInitType();
     const eventData = calenderEventList[`${typeEvent}Dt`] || [];
-    const { startFormat, endFormat, startData, endData, unweekday = '', btnList, initialView } = calendarData;
+    const { startFormat, endFormat, calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
     const { height, calendarFormatData } = this.state;
-    const isDelete = begindate && (!startData || !startData.controlId);
-    let isHaveSelectControl = !begindate || isDelete; // 是否选中了开始时间 //开始时间字段已删除
+    const isDelete =
+      calendarcids[0].begin &&
+      calendarInfo.length > 0 &&
+      (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
+    let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
     let mobileInitialView =
       calendarType === '0'
         ? 'dayGridMonth'
         : calendarType === '1'
-        ? isTimeStyle(startData)
+        ? !_.isEmpty(calendarInfo) && isTimeStyle(calendarInfo[0].startData)
           ? 'timeGridWeek'
           : 'dayGridWeek'
         : calendarType === '2'
-        ? isTimeStyle(startData)
+        ? !_.isEmpty(calendarInfo) && isTimeStyle(calendarInfo[0].startData)
           ? 'timeGridDay'
           : 'dayGridDay'
         : '';
@@ -461,19 +644,15 @@ class RecordCalendar extends Component {
             context={
               <SelectFieldForStartOrEnd
                 {...this.props}
+                isCalendarcids
                 saveView={(data, viewNew) => {
                   let viewData = {};
                   const { moreSort } = currentView;
                   // 第一次创建Calendar时，配置排序数据
                   if (!moreSort) {
-                    const { begindate = '' } = getAdvanceSetting(viewNew);
                     viewData = {
-                      sortCid: begindate,
-                      editAttrs: ['moreSort', 'sortCid', 'sortType', 'advancedSetting'],
-                      moreSort: [
-                        { controlId: begindate, isAsc: true },
-                        { controlId: 'ctime', isAsc: false },
-                      ],
+                      editAttrs: ['moreSort', 'sortType', 'advancedSetting'],
+                      moreSort: [{ controlId: 'ctime', isAsc: true }],
                       sortType: 2,
                     };
                   }
@@ -583,7 +762,11 @@ class RecordCalendar extends Component {
                 return (
                   <React.Fragment>
                     {item.view.type === 'dayGridMonth' && this.getLunar(item)}
-                    <div className="num">{item.dayNumberText.replace('日', '')}</div>
+                    <WrapNum className={cx('num Hand')}>
+                      <span className="txt">{item.dayNumberText.replace('日', '')}</span>
+                      {!['timeGridDay', 'timeGridWeek'].includes(item.view.type) &&
+                        this.renderCalendarIds(item, calendarInfo)}
+                    </WrapNum>
                   </React.Fragment>
                 );
               }}
@@ -617,7 +800,11 @@ class RecordCalendar extends Component {
                 return (
                   <React.Fragment>
                     {item.view.type !== 'dayGridMonth' && !browserIsMobile() && this.getLunar(item)}
-                    <div className="num">{st}</div>
+                    <div className="num">
+                      {st}
+                      {['timeGridDay', 'timeGridWeek'].includes(item.view.type) &&
+                        this.renderCalendarIds(item, calendarInfo, true)}
+                    </div>
                   </React.Fragment>
                 );
               }}
@@ -646,9 +833,10 @@ class RecordCalendar extends Component {
                       })
               } // 隐藏周几
               editable={
-                ['ctime', 'utime'].includes(begindate) || ['ctime', 'utime'].includes(enddate) ? false : editable
+                true
+                // ['ctime', 'utime'].includes(begindate) || ['ctime', 'utime'].includes(enddate) ? false : editable
               }
-              firstDay={1} // 周一至周六为1～6，周日为0，喜欢周几开始就填几
+              firstDay={weekbegin ? Number(weekbegin) % 7 : 1} // 周一至周六为1～6，周日为0
               slotLabelFormat={{
                 hour: '2-digit',
                 minute: '2-digit',
@@ -686,7 +874,7 @@ class RecordCalendar extends Component {
               }}
               eventDidMount={info => {
                 $(info.el.offsetParent).attr('title', info.event._def.title);
-                let time = info.event._def.extendedProps[begindate] || '';
+                let time = info.event._def.extendedProps[info.event._def.extendedProps.begin] || '';
                 let d = $(info.el.offsetParent).find('.fc-event-time');
                 if (!info.event.allDay && info.view.type !== 'dayGridMonth') {
                   if (!browserIsMobile()) {
@@ -714,6 +902,16 @@ class RecordCalendar extends Component {
                     }
                   }
                 }
+                let mark = _.get(info, ['event', 'extendedProps', 'mark']);
+                let title = _.get(info, ['event', 'title']);
+                mark &&
+                  $(info.el)
+                    .find('.fc-event-title')
+                    .html(
+                      `<span class="titleTxt">${title}</span><span class="mLeft10 Normal markTxt ${
+                        isEmojiCharacter(mark) ? '' : 'Alpha4'
+                      }">${mark}</span>`,
+                    );
                 if (info.event.allDay) {
                   $(info.el).find('.fc-event-title').css({
                     'font-weight': 'bold',
@@ -721,13 +919,15 @@ class RecordCalendar extends Component {
                 }
               }}
               eventDrop={info => {
+                let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
+                let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
                 // 日历上 记录的拖拽
                 let control = [
                   {
-                    controlId: begindate,
+                    controlId: startData.controlId,
                     controlName: startData.controlName,
                     type: startData.type,
-                    value: moment(info.event.start).format(startFormat),
+                    value: moment(info.event.start).format(startData.startFormat),
                   },
                 ];
                 //周/天 非全天 视图 全天拖拽到非全天时间
@@ -743,7 +943,7 @@ class RecordCalendar extends Component {
                       : moment(info.event.start).format('YYYY-MM-DD') + ' 23:59:59'
                     : this.changeEndStr(info.event.end, info.event.allDay);
                   control.push({
-                    controlId: enddate,
+                    controlId: endData.controlId,
                     controlName: endData.controlName,
                     type: endData.type,
                     value: end,
@@ -754,7 +954,8 @@ class RecordCalendar extends Component {
                 });
               }}
               eventResize={info => {
-                if (!enddate || !endData.controlId) {
+                let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
+                if (!endData.controlId) {
                   alert(_l('请配置结束控件'));
                   this.getEventsFn();
                   return;
@@ -762,7 +963,7 @@ class RecordCalendar extends Component {
                 this.updateData(
                   [
                     {
-                      controlId: enddate,
+                      controlId: endData.controlId,
                       controlName: endData.controlName,
                       type: endData.type,
                       value: this.changeEndStr(info.event.end, info.event.allDay),
@@ -771,7 +972,7 @@ class RecordCalendar extends Component {
                   info.event.extendedProps.rowid,
                 );
               }}
-              dayMaxEventRows={true}
+              dayMaxEventRows={showall === '0'}
               moreLinkContent={info => {
                 return `+${info.num}`;
               }}
@@ -807,30 +1008,23 @@ class RecordCalendar extends Component {
                 if (!this.state.canNew) {
                   return;
                 }
-                let startT = moment(info.start).format(startFormat);
-                let endT = !info.allDay
-                  ? moment(info.end).format(endFormat)
-                  : `${moment(info.end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`;
                 // isSafari 且 双击
                 if (this.isSafari() && this.dbClickFn()) {
-                  this.selectFn(startT, endT);
+                  this.selectFn({ ...info });
                   return;
                 }
-                clickData = {
-                  startT,
-                  endT,
-                };
+                clickData = info;
                 // 全天事件
                 if (info.allDay) {
                   // 且 多天 即非一格
                   if (moment(info.end).diff(moment(info.start), 'day') > 1) {
                     // 全天事件 框选多天
-                    this.selectFn(startT, endT);
+                    this.selectFn(info);
                   }
                 } else {
                   // 30分钟以上 即非一格
                   if (moment(info.end).diff(moment(info.start), 'minute') > 30) {
-                    this.selectFn(startT, endT);
+                    this.selectFn(info);
                   }
                 }
               }}
@@ -841,8 +1035,29 @@ class RecordCalendar extends Component {
                 if (!rowId) {
                   return;
                 }
-                let data = eventData.find(o => o.rowid === rowId) || {};
-                this.changeEventFn({ ...info, data, rowId });
+                let keyId = $(info.draggedEl).attr('keyId');
+                let data = eventScheduled.filter(o => o.keyIds === keyId);
+                if (data.length && data.length === 1) {
+                  this.changeEventFn({
+                    ...info,
+                    calendar: {
+                      start: data[0].start,
+                      end: !data[0].allDay
+                        ? data[0].end
+                        : `${moment(data[0].end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`,
+                    },
+                    data: {
+                      ...data[0],
+                    },
+                    rowId,
+                  });
+                } else {
+                  this.setState({
+                    selectTimeInfo: info,
+                    changeData: eventData.find(o => o.rowid === rowId) || {},
+                  });
+                  this.showChooseTrigger(info.dateStr, info.view.type);
+                }
               }}
               eventMouseEnter={item => {
                 this.showTip(null, false);
@@ -861,6 +1076,11 @@ class RecordCalendar extends Component {
                     .css({
                       color: !isLightColor(colorHover) ? '#fff' : '#333',
                     });
+                  // $(item.el)
+                  //   .find('.markTxt')
+                  //   .css({
+                  //     color: !isLightColor(colorHover) ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+                  //   });
                 }
               }}
               eventMouseLeave={item => {
@@ -878,6 +1098,11 @@ class RecordCalendar extends Component {
                     .css({
                       color: !isLightColor(item.event.backgroundColor) ? '#fff' : '#333',
                     });
+                  // $(item.el)
+                  //   .find('.markTxt')
+                  //   .css({
+                  //     color: !isLightColor(item.event.backgroundColor) ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+                  //   });
                 }
               }}
               // eventMaxStack={1}  //日 时间视图事件 最大显示数
@@ -920,7 +1145,6 @@ class RecordCalendar extends Component {
                 this.props.refreshEventList();
                 this.props.fetchExternal();
               }
-              this.setState({ recordInfoVisible: false });
             }}
             onDeleteSuccess={() => {
               // 删除行数据后重新加载页面

@@ -15,6 +15,7 @@ import { FilterItemTexts, FilterDialog } from '../components/FilterData';
 import CommonComponents from '../../components';
 import components from '../components';
 import { SYSTEM_CONTROL } from '../../config/widget';
+import NumberConfig from '../components/ControlSetting/NumberConfig';
 const { PointerConfig, PreSuffix } = components;
 
 const SubtotalSettingWrap = styled.div``;
@@ -58,7 +59,7 @@ const RecordCount = styled.div`
 export default function Subtotal(props) {
   const { data, onChange, allControls } = props;
   const { sourceControlId, dataSource, enumDefault, enumDefault2 } = data;
-  const { summaryresult = '0' } = getAdvanceSetting(data);
+  const { summaryresult = '0', numshow } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const parsedDataSource = parseDataSource(dataSource);
 
@@ -298,11 +299,14 @@ export default function Subtotal(props) {
           )}
           {isShowUnitConfig() && (
             <Fragment>
-              <SettingItem>
-                <div className="settingItemTitle">{_l('单位')}</div>
-                <PreSuffix {...props} />
-              </SettingItem>
               <PointerConfig {...props} />
+              <NumberConfig {...props} />
+              {numshow !== '1' && (
+                <SettingItem>
+                  <div className="settingItemTitle">{_l('单位')}</div>
+                  <PreSuffix {...props} />
+                </SettingItem>
+              )}
             </Fragment>
           )}
         </Fragment>

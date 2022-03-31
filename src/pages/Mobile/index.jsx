@@ -26,6 +26,14 @@ const isIphonex = () => {
 class App extends Component {
   constructor(props) {
     super(props);
+
+    // 处理底部导航缓存内容过多localStorage溢出问题
+    Object.keys(localStorage).forEach(key => {
+      if (key.indexOf('currentNavWorksheetInfo') > -1) {
+        localStorage.removeItem(key);
+      }
+    });
+
     this.genRouteComponent = genRouteComponent();
     if (isWxWork && isIphonex()) {
       document.body.classList.add('wxworkBody');

@@ -71,8 +71,19 @@ export default class extends Component {
     const { appId } = this.ids;
     if (!appId) return;
     api.getAppInfo({ appId }).then(({ appRoleType, isLock, appSectionDetail: data = [] }) => {
+      const isCharge = isHaveCharge(appRoleType, isLock);
+      data = isCharge
+        ? data
+        : data
+            .map(item => {
+              return {
+                ...item,
+                workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+              };
+            })
+            .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
       this.props.updateAppGroup(data);
-      window[`app_${appId}_is_charge`] = isHaveCharge(appRoleType, isLock);
+      window[`app_${appId}_is_charge`] = isCharge;
       this.setState({ appRoleType, data }, () => {
         setTimeout(() => {
           this.ensurePointerVisible();

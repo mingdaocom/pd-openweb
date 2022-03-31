@@ -84,8 +84,8 @@ export default class ChartDialog extends Component {
     }
   }
   getReportConfigDetail(reportType) {
-    const { report, permissions, sheetVisible, ownerId, sourceType } = this.props;
-    const { reportId, worksheetId, viewId, settingVisible } = this.state;
+    const { report, permissions, ownerId, sourceType, filters } = this.props;
+    const { reportId, worksheetId, viewId, settingVisible, sheetVisible } = this.state;
     this.props.changeBase({
       permissions,
       report,
@@ -94,7 +94,8 @@ export default class ChartDialog extends Component {
       sheetId: worksheetId,
       viewId,
       settingVisible,
-      sheetVisible
+      sheetVisible,
+      filters
     });
     this.props.getReportConfigDetail({
       reportId,
@@ -201,7 +202,7 @@ export default class ChartDialog extends Component {
     const { report, permissions, sourceType, currentReport, worksheetInfo, base, onRemove, ownerId } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page');
+    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />
@@ -222,6 +223,7 @@ export default class ChartDialog extends Component {
                   this.setState({
                     settingVisible: !settingVisible,
                     scopeVisible: false,
+                    sheetVisible: false
                   }, () => {
                     this.props.changeBase({
                       settingVisible: !settingVisible,
@@ -244,6 +246,9 @@ export default class ChartDialog extends Component {
               permissions={sourceType ? null : permissions}
               isMove={sourceType ? false : true}
               report={report}
+              exportData={{
+                filters: base.filters,
+              }}
               sheetVisible={base.sheetVisible}
               appId={worksheetInfo.appId}
               worksheetId={sourceType ? worksheetInfo.worksheetId : null}

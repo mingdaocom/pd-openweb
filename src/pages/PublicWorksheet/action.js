@@ -68,6 +68,7 @@ export function getPublicWorksheet(shareId, cb = (err, data) => {}) {
         });
         return;
       }
+      data.shareAuthor && window.sessionStorage.setItem('shareAuthor', data.shareAuthor);
       const controls = getVisibleControls(data);
       getControlRules({
         worksheetId: data.worksheetId,

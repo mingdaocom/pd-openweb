@@ -16,7 +16,7 @@ function start() {
       }
     } else {
       ajax.post({
-        url: __api_server__ + 'Login/WorkWeiXinMiniProgramLogin',
+        url: __api_server__.main + 'Login/WorkWeiXinMiniProgramLogin',
         data: {
           code,
         },
@@ -48,7 +48,7 @@ function start() {
     } else {
       // 企业微信
       ajax.post({
-        url: __api_server__ + 'Login/GetWorkWeiXinCorpInfo',
+        url: __api_server__.main + 'Login/GetWorkWeiXinCorpInfo',
         data: {
           apkId: i,
         },
@@ -88,7 +88,7 @@ function start() {
 
       // 钉钉
       ajax.post({
-        url: __api_server__ + 'Login/GetDingDingCorpInfo',
+        url: __api_server__.main + 'Login/GetDingDingCorpInfo',
         data: {
           projectId,
         },

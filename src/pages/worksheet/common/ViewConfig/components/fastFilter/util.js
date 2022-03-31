@@ -204,16 +204,25 @@ export const FASTFILTER_CONDITION_TYPE = [
 
 export const ADVANCEDSETTING_KEYS = ['allowscan', 'daterange', 'allowitem', 'direction'];
 
-export const getSetDefault = (control = {}) => {
-  let { controlId = '', type } = control;
-  let fastFilterSet = {
-    controlId,
-    dataType: type,
-  };
+export const getControlFormatType = (control = {}) => {
+  let { type } = control;
   if ([30, 37].includes(type)) {
     const { sourceControl = {} } = control;
     type = sourceControl.type;
+    if (control.type === 37) {
+      if ([0, 6, 8].includes(control.enumDefault2)) type = control.enumDefault2;
+      if ([15, 16].includes(control.enumDefault2)) type = control.enumDefault2;
+    }
   }
+  return type;
+};
+
+export const getSetDefault = (control = {}) => {
+  let type = getControlFormatType(control);
+  let fastFilterSet = {
+    controlId: control.controlId,
+    dataType: type,
+  };
   FAST_FILTERS_WHITELIST.map(o => {
     if (o.keys.includes(type)) {
       const { advancedSetting = {} } = fastFilterSet;

@@ -8,8 +8,12 @@ export const defaultMatcher = (id, node) => {
 };
 
 export const findNode = (node, filter, matcher) => {
-  return matcher(filter, node) ||
-    (node[childCollectionName] && node[childCollectionName].length && !!_.find(node[childCollectionName], child => findNode(child, filter, matcher)));
+  return (
+    matcher(filter, node) ||
+    (node[childCollectionName] &&
+      node[childCollectionName].length &&
+      !!_.find(node[childCollectionName], child => findNode(child, filter, matcher)))
+  );
 };
 
 export const filterTree = (node, filter, matcher = defaultMatcher) => {
@@ -18,7 +22,7 @@ export const filterTree = (node, filter, matcher = defaultMatcher) => {
     .filter(child => findNode(child, filter, matcher))
     .map(child => filterTree(child, filter, matcher));
   return Object.assign({}, node, {
-    [childCollectionName]: filtered
+    [childCollectionName]: filtered,
   });
 };
 
@@ -26,17 +30,16 @@ export const getDepartmentById = (node, filter, matcher = defaultMatcher) => {
   const runner = (result, node) => {
     if (result || !node) return result;
     if (matcher(filter, node)) {
-      return result = node;
+      return (result = node);
     }
-    return runner(null, node[childCollectionName]) ||
-      _.reduce(node, runner, result);
+    return runner(null, node[childCollectionName]) || _.reduce(node, runner, result);
   };
   return runner(null, node);
 };
 
-export const getProjectInfo = (projectId) => {
+export const getProjectInfo = projectId => {
   var result;
-  _.each(md.global.Account.projects, (project) => {
+  _.each(md.global.Account.projects, project => {
     if (project.projectId === projectId) {
       result = project;
       return false;
@@ -50,17 +53,25 @@ export const getRenderInfo = (projectId, departmentId) => {
   var dfd = $.Deferred();
   if (departmentId) {
     //获取部门详细信息
-    departmentController.getDepartmentInfo({
-      projectId: projectId,
-      departmentId: departmentId,
-    }).then(function (data) {
-      dfd.resolve(_.merge({}, {
-        parentDepartment: {
-          departmentId: '',
-          departmentName: project.companyName,
-        },
-      }, data));
-    });
+    departmentController
+      .getDepartmentInfo({
+        projectId: projectId,
+        departmentId: departmentId,
+      })
+      .then(function (data) {
+        dfd.resolve(
+          _.merge(
+            {},
+            {
+              parentDepartment: {
+                departmentId: '',
+                departmentName: project.companyName,
+              },
+            },
+            data,
+          ),
+        );
+      });
   } else {
     dfd.resolve({
       departmentId: '',
@@ -71,9 +82,9 @@ export const getRenderInfo = (projectId, departmentId) => {
   return dfd.promise();
 };
 
-export const convertDepartmentToDict = (tree) => {
+export const convertDepartmentToDict = tree => {
   let data = {};
-  const runner = (node) => {
+  const runner = node => {
     if (!node) return;
     if (_.isArray(node)) {
       _.each(node, runner);
@@ -94,7 +105,7 @@ export const convertDepartmentToDict = (tree) => {
 export const getParentDepartments = (node, filter, matcher = defaultMatcher) => {
   const arr = [];
   const tree = filterTree(node, filter, matcher);
-  const runner = (node) => {
+  const runner = node => {
     let lastNode = arr[arr.length - 1] || {};
     if (!node || lastNode[keyName] === filter) return;
     if (_.isArray(node)) {
@@ -110,7 +121,7 @@ export const getParentDepartments = (node, filter, matcher = defaultMatcher) => 
 export const formatSearchDeptData = (data, keywords) => {
   const departments = [].concat(data);
   const result = [];
-  departments.forEach((dept) => {
+  departments.forEach(dept => {
     const children = dept.subs || [];
     const parent = dept.parent || {};
     const parentName = htmlEncodeReg(parent.name);
@@ -125,14 +136,18 @@ export const formatSearchDeptData = (data, keywords) => {
       curName = curName.replace(regExp, '<span class="ThemeColor3">' + keywords + '</span>');
     }
     nameArr.push('<span title="' + _curName + '">' + curName + '</span>');
-    result.push(Object.assign({}, dept, {
-      departmentName: nameArr.join(''),
-    }));
-    children.forEach((child) => {
+    result.push(
+      Object.assign({}, dept, {
+        departmentName: nameArr.join(''),
+      }),
+    );
+    children.forEach(child => {
       const childName = htmlEncodeReg(child.name);
-      result.push(Object.assign({}, child, {
-        departmentName: _.union(nameArr, ['<span title="' + childName + '">' + childName + '</span>']).join(''),
-      }));
+      result.push(
+        Object.assign({}, child, {
+          departmentName: _.union(nameArr, ['<span title="' + childName + '">' + childName + '</span>']).join(''),
+        }),
+      );
     });
   });
   return result;
@@ -151,4 +166,105 @@ export const getParentsId = (data, id) => {
       }
     }
   }
-}
+};
+
+// 删除某个节点
+export const filterDeleteTreeData = (tree, delId) => {
+  var newArr = [];
+  for (var i = 0; i < tree.length; i++) {
+    var item = tree[i];
+    if (item.departmentId === delId) {
+      tree.splice(i--, 1);
+    } else {
+      if (item.subDepartments) {
+        item.subDepartments = filterDeleteTreeData(item.subDepartments, delId);
+      }
+      newArr.push(item);
+    }
+  }
+  return newArr;
+};
+// 获取当前节点路径
+const getCurrentPath = path => {
+  return (path || '')
+    .split('-')
+    .map((item, index) => {
+      if (index == 0) {
+        return `[${item}]`;
+      } else {
+        return `.subDepartments[${item}]`;
+      }
+    })
+    .join('');
+};
+// 更新某个节点
+export const updateTreeData = (newDepartments = [], departmentId, departmentName, parentDepartment) => {
+  let path = {};
+  let arr = [...newDepartments];
+  let expandedKeys = [];
+  // 获取所有节点id对应路径
+  const getpath = (arr, index = '') => {
+    (arr || []).forEach((item, i) => {
+      const his = index !== '' ? `${index}-${i}` : i.toString();
+      path[item.departmentId] = his;
+      if (item.subDepartments && item.subDepartments.length) {
+        getpath(item.subDepartments, his);
+      }
+    });
+  };
+  getpath(arr);
+  // 获取当前编辑的节点path
+  let currentEditPath = getCurrentPath(path[departmentId]);
+  // 获取当前修改节点
+  let currentEditNode = { ..._.get(arr, currentEditPath), departmentName };
+  // 获取父节点path
+  let parentPath = currentEditPath.replace(/.subDepartments\[\d\]$/g, '');
+  // 获取父节点
+  let parentNode = _.get(arr, parentPath);
+
+  _.unset(arr, currentEditPath);
+
+  if (currentEditPath.replace(/.subDepartments\[\d\]$/g, '') === currentEditPath) {
+    arr = [..._.filter(arr, item => item)];
+  } else {
+    _.update(arr, currentEditPath.replace(/.subDepartments\[\d\]$/g, ''), data => {
+      let temp = _.filter(data.subDepartments, item => item);
+      if (temp.length) {
+        return { ...data, subDepartments: temp };
+      } else {
+        delete data.subDepartments;
+        data.haveSubDepartment = false;
+        return data;
+      }
+    });
+  }
+
+  if (parentNode.departmentId === parentDepartment) {
+    _.update(arr, currentEditPath, data => {
+      return { ...data, ...currentEditNode };
+    });
+
+    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
+  }
+  if (!parentDepartment) {
+    arr = arr.concat([currentEditNode]);
+    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
+  }
+
+  if (path[parentDepartment]) {
+    _.update(arr, getCurrentPath(path[parentDepartment]), data => {
+      if (data.subDepartments && data.subDepartments.length) {
+        data.subDepartments = data.subDepartments.concat([currentEditNode]);
+      } else {
+        data.haveSubDepartment = true;
+      }
+      return data;
+    });
+  }
+
+  expandedKeys = getParentsId(arr, currentEditNode.departmentId)
+    ? getParentsId(arr, parentDepartment)
+    : getParentsId(arr, currentEditNode.departmentId);
+
+  return { newDepartments: arr, expandedKeys };
+};

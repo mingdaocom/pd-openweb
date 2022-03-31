@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import './shareFolderOrTask.less';
-import Clipboard from 'clipboard';
+import copy from 'copy-to-clipboard';
 import DialogLayer from 'mdDialog';
 
 export default class ShareFolderOrTask extends Component {
@@ -23,12 +23,8 @@ export default class ShareFolderOrTask extends Component {
       },
       width: 520,
       readyFn: () => {
-        const clipboard = new Clipboard('.createShareCopy span', {
-          text() {
-            return $('.createShareCopy span').attr('data-clipboard-text');
-          },
-        });
-        clipboard.on('success', () => {
+        $('.createShareCopy span').off().on('click', function () {
+          copy($('.createShareCopy span').attr('data-clipboard-text'));
           alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
         });
       },

@@ -1,8 +1,9 @@
 import React, { Component, createRef } from 'react';
-import { Select, Table, Tooltip, ConfigProvider, Pagination } from 'antd';
+import { Select, Table, Tooltip, Pagination, Button } from 'antd';
 import { Icon, LoadDiv, DatePicker } from 'ming-ui';
 import Config from '../../config';
 import { getActionLogs } from 'src/api/actionLog';
+import { exportLoginLog } from 'src/api/download';
 import 'dialogSelectUser';
 import moment from 'moment';
 import './index.less';
@@ -120,24 +121,21 @@ export default class LoginLog extends Component {
       },
     );
   };
-  // // 导出
-  // exportListData = () => {
-  //   // TODO: 导出
-  //   appManagement.getToken().then(res => {
-  //     this.dealExport(res);
-  //   });
-  // };
-  // dealExport = token => {
-  //   let args = { token },
-  //     downLoadUrl = '';
-  //   fetch(`${downLoadUrl}/ExportExcel/Export`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'content-type': 'application/json',
-  //     },
-  //     body: JSON.stringify(args),
-  //   });
-  // };
+  // 导出
+  exportListData = () => {
+    let { startDate, endDate, loginerInfo } = this.state;
+    let params = {
+      projectId: Config.projectId,
+      startDate: startDate ? startDate : moment().subtract(30, 'days').format('YYYY-MM-DD'),
+      endDate: endDate ? endDate : moment().format('YYYY-MM-DD'),
+      logType: 1, // ogin=1 logout=2
+    };
+    let accountId = loginerInfo.map(item => item.accountId).join(' ');
+    if (accountId) {
+      params.accountId = accountId;
+    }
+    exportLoginLog(params);
+  };
   // 筛选登录人
   handleLoginUser = () => {
     $({}).dialogSelectUser({
@@ -311,15 +309,18 @@ export default class LoginLog extends Component {
             </div>
           </div>
           <div className="optInfo">
-            {/* <span className="tipInfo">
+            <span className="tipInfo">
               {_l('保留最近6个月的登录日志')}
-              <Tooltip title={_l('可查看2021年12月功能发布后的日志')} placement="bottom">
+              <Tooltip
+                title={_l('可查看2021年12月功能发布后的日志；导出上限10万条，超出限制可以先筛选，再分次导出。')}
+                placement="bottom"
+              >
                 <Icon icon="info" className="Font14 mLeft5 infoIcon" />
               </Tooltip>
             </span>
             <Button type="primary" className="export" onClick={this.exportListData}>
               {_l('导出')}
-            </Button> */}
+            </Button>
           </div>
         </div>
         <div className="logList">

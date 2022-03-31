@@ -205,7 +205,7 @@ export default class UploadFiles extends Component {
     let { maxTotalSize } = this.state;
     const { nativeFile } = this;
     let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
-    const isPublic = from === FROM.PUBLIC || from === FROM.WORKFLOW;
+    const isPublic = from === FROM.PUBLIC || from === FROM.WORKFLOW || window.isPublicWorksheet;
 
     $(nativeFile).plupload({
       drop_element: dropPasteElement,

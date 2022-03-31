@@ -3,7 +3,7 @@
 ```javascript
 // 编译时会被替换成真实路径 这块代码加到模块引用前
 <script>
-    var __api_server__ = '<%= apiServer %>'; // 定义 后端服务地址
+    var __api_server__ = <%- apiServer %>; // 定义 后端服务地址
     var __webpack_public_path__ = '<%= publicPath %>'; // 定义异步加载脚本的前缀
 </script>
 ```

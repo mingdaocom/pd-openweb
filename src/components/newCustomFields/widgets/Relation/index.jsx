@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Icon } from 'ming-ui';
 import DialogRelationControl from 'src/components/relationControl/relationControl';
+import { getRelationText } from 'src/pages/widgetConfig/util/index';
 import List from './List';
 import cx from 'classnames';
 
@@ -46,6 +47,8 @@ export default class Widgets extends Component {
     const { from, disabled, value, enumDefault } = this.props;
     const { dialogVisible } = this.state;
 
+    const text = getRelationText(enumDefault);
+
     return (
       <div className={cx('customFormControlBox', { controlDisabled: disabled })} style={{ height: 'auto' }}>
         <List data={JSON.parse(value || '[]')} from={from} disabled={disabled} onDelete={this.itemOnDelete} />
@@ -62,7 +65,7 @@ export default class Widgets extends Component {
             }}
           >
             <Icon icon="plus" className="mRight5" />
-            <span>{_l('自由连接...')}</span>
+            <span>{_l('%0...', text)}</span>
           </button>
         )}
 

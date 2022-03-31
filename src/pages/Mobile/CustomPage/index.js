@@ -77,7 +77,7 @@ export default class CustomPage extends Component {
       JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
     if (appNaviStyle === 2 && currentNavWorksheetInfo) {
       this.setState({
-        pageComponents: currentNavWorksheetInfo.components.filter(item => item.mobile.visible),
+        pageComponents: ((currentNavWorksheetInfo || {}).components || []).filter(item => item.mobile.visible),
         loading: false,
         pagName: currentNavWorksheetInfo.name,
       });
@@ -157,7 +157,7 @@ export default class CustomPage extends Component {
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
               <div className={cx('widgetContent', { haveTitle: titleVisible })}>
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'value', 'needUpdate', 'button', 'name', 'param'])}
+                  {..._.pick(widget, ['type', 'value', 'needUpdate', 'button', 'name', 'param', 'config'])}
                   ids={{
                     appId: params.appId,
                     groupId: params.groupId,

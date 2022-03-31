@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SelectStartOrEndGroups from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEndGroups';
 import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEnd';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getAdvanceSetting } from 'src/util';
@@ -29,61 +30,118 @@ const BtnForSure = styled.div`
 export default function SelectFieldForStartOrEnd(props) {
   const {
     base,
-    controls,
     saveView,
     mustEnd,
     begindateOrFirst, //begindate为空时可以以第一个控件为begindate
     mustSameType, //必须同类型
+    isCalendarcids, //日历视图多组时间设置
   } = props;
   const { appId, worksheetId, viewId } = base;
   const [view, setView] = useState(props.view || {});
   const [isUnAb, setIsUnAb] = useState();
-  let { begindate = '', enddate = '' } = getAdvanceSetting(view);
-  let timeControls = props.timeControls || getTimeControls(controls);
+  let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
+  let timeControls = props.timeControls || getTimeControls(props.controls);
   begindate = begindate ? begindate : begindateOrFirst ? (timeControls[0] || {}).controlId : '';
   useEffect(() => {
     setView(props.view);
   }, [props.view]);
   useEffect(() => {
-    setView(
-      {
-        ...view,
-        advancedSetting: updateViewAdvancedSetting(view, { begindate }),
-      },
-      begindate,
-    );
-    let start = begindate
-      ? timeControls.find(it => it.controlId === begindate) || {}
-      : begindateOrFirst
-      ? timeControls[0] || {}
-      : {};
-    let end = enddate ? timeControls.find((it, i) => it.controlId === enddate) || {} : {};
+    let ids;
+    try {
+      ids = JSON.parse(calendarcids);
+    } catch (error) {
+      ids = calendarcids;
+    }
+    let obj = isCalendarcids
+      ? {
+          calendarcids: ids.length <= 0 ? JSON.stringify([{ begin: begindate }]) : calendarcids,
+        }
+      : { begindate };
+    setView({
+      ...view,
+      advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
+    });
+    let end;
+    let start;
+    if (!isCalendarcids) {
+      start = begindate
+        ? props.controls.find(it => it.controlId === begindate) || {}
+        : begindateOrFirst
+        ? timeControls[0] || {}
+        : {};
+      end = enddate ? props.controls.find((it, i) => it.controlId === enddate) || {} : {};
+    } else {
+      start =
+        ids.length > 0 && ids[0].begin
+          ? props.controls.find(it => it.controlId === ids[0].begin) || {}
+          : begindateOrFirst
+          ? timeControls[0] || {}
+          : {};
+      end = ids.length > 0 && ids[0].end ? props.controls.find((it, i) => it.controlId === ids[0].endnd) || {} : {};
+    }
     let isErr =
       !start.controlId || //是否已选择开始时间
       (mustEnd && !end.controlId) || //是否必须有开始和结束时间
       (mustSameType && isTimeStyle(start) !== isTimeStyle(end)); //是否必须同类型
     setIsUnAb(isErr);
-  }, [begindate, enddate]);
+  }, [begindate, enddate, calendarcids]);
   const handleChangeFn = obj => {
-    const { begindate = begindateOrFirst ? (timeControls[0] || {}).controlId : '', enddate } = obj.advancedSetting;
+    let {
+      begindate = begindateOrFirst ? (timeControls[0] || {}).controlId : '',
+      enddate,
+      calendarcids = '[]',
+    } = obj.advancedSetting;
+    try {
+      calendarcids = JSON.parse(calendarcids);
+    } catch (error) {
+      calendarcids = calendarcids;
+    }
+    let objs = isCalendarcids
+      ? {
+          calendarcids:
+            calendarcids.length <= 0 ? JSON.stringify([{ begin: begindate }]) : getAdvanceSetting(obj).calendarcids,
+        }
+      : { begindate, enddate };
     saveView(viewId, {
-      advancedSetting: updateViewAdvancedSetting(view, { begindate, enddate }),
+      advancedSetting: updateViewAdvancedSetting(view, { ...objs }),
       editAttrs: ['advancedSetting'],
     });
   };
   return (
     <React.Fragment>
-      <SelectStartOrEnd
-        {...props}
-        worksheetControls={controls}
-        view={view}
-        handleChange={obj => {
-          setView({
-            ...view,
-            advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
-          });
-        }}
-      />
+      {isCalendarcids ? (
+        <SelectStartOrEndGroups
+          {...props}
+          controls={props.controls}
+          begindate={begindate}
+          enddate={enddate}
+          view={view}
+          handleChange={obj => {
+            setView({
+              ...view,
+              advancedSetting: updateViewAdvancedSetting(view, {
+                ..._.omit(obj, ['begindate', 'enddate']),
+              }),
+            });
+          }}
+        />
+      ) : (
+        <SelectStartOrEnd
+          {...props}
+          view={view}
+          controls={props.controls}
+          begindate={begindate}
+          enddate={enddate}
+          beginIsDel={begindate && !props.controls.find(a => a.controlId === begindate)}
+          endIsDel={enddate && !props.controls.find(a => a.controlId === enddate)}
+          handleChange={obj => {
+            setView({
+              ...view,
+              advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
+            });
+          }}
+        />
+      )}
       <BtnForSure
         className={cx({
           isUnAb: isUnAb,

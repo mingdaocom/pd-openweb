@@ -44,6 +44,10 @@ export default class Start extends Component {
       );
     }
 
+    if (item.appType === APP_TYPE.PBC && !item.appId) {
+      return <div className="workflowStartNull">{_l('设置输入参数')}</div>;
+    }
+
     if (
       ((item.appType === APP_TYPE.SHEET || item.appType === APP_TYPE.DATE) && !item.appName) ||
       (item.appType === APP_TYPE.LOOP && !item.executeTime) ||
@@ -219,7 +223,32 @@ export default class Start extends Component {
         </Fragment>
       );
     }
+
+    // PBC
+    if (item.appType === APP_TYPE.PBC) {
+      return (
+        <Fragment>
+          <div className="workflowContentInfo ellipsis">{_l('%0个输入参数', item.count)}</div>
+          {item.isCallBack && (
+            <div className="workflowContentInfo ellipsis">
+              {_l('已启用平台API能力')}
+              <span className="ThemeColor3 ThemeHoverColor2 mLeft5" onMouseDown={this.openDocument}>
+                {_l('查看文档')}
+                <i className="mLeft5 icon-task-new-detail Font12" />
+              </span>
+            </div>
+          )}
+        </Fragment>
+      );
+    }
   }
+
+  openDocument = evt => {
+    const { relationId } = this.props;
+
+    evt.stopPropagation();
+    window.open(`/worksheetapi/${relationId}`);
+  };
 
   render() {
     const { item, selectNodeId, openDetail, isCopy, child } = this.props;
@@ -231,7 +260,7 @@ export default class Start extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: isCopy },
-              { errorShadow: item.appId && !item.appName },
+              { errorShadow: item.appId && !item.appName && item.appType !== APP_TYPE.PBC },
               { active: selectNodeId === item.id },
             )}
             onMouseDown={() => openDetail(item.id, item.typeId)}

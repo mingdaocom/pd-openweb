@@ -33,7 +33,7 @@ const bindWeiXin = () => {
 }
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Account.isPortal && !md.global.Config.IsLocal;;
+const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Config.IsLocal;
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 
@@ -90,7 +90,7 @@ export default class Widgets extends Component {
       }
     }
 
-    if (isWeLink) {
+    if (isWeLink && HWH5) {
       HWH5.scanCode({ needResult: 1 }).then(data => {
         const { content } = data;
         this.props.onScanQRCodeResult(content);

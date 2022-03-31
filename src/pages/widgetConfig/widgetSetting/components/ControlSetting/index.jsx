@@ -36,25 +36,14 @@ export default function WidgetConfig(props) {
   const { allowadd, showxy, showtype, checktype } = getAdvanceSetting(data);
 
   const getConfig = () => {
-    if (type === 6) {
-      return (
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={enumDefault !== 1}
-            onClick={checked => onChange({ enumDefault: checked ? 1 : 0 })}
-            text={_l('显示千分位')}
-          />
-        </div>
-      );
-    }
     if (type === 11 || (type === 10 && checktype === '1')) {
       return (
         <div className="labelWrap">
           <Checkbox
             size="small"
             checked={allowadd === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowadd: checked ? '0' : '1' }))}>
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowadd: checked ? '0' : '1' }))}
+          >
             <span>{_l('允许用户增加选项')}</span>
             <Tooltip placement={'bottom'} title={_l('勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表')}>
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
@@ -93,7 +82,8 @@ export default function WidgetConfig(props) {
           <Checkbox
             size="small"
             checked={String(advancedSetting[key]) === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { [key]: +!checked }))}>
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { [key]: +!checked }))}
+          >
             <span>{text}</span>
             {tip && (
               <Tooltip placement="topLeft" title={tip} arrowPointAtCenter>

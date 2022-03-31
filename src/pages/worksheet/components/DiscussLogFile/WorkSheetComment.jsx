@@ -39,7 +39,7 @@ export default class WorkSheetComment extends React.Component {
     this.getAtData();
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.formFlag !== this.props.formFlag) {
+    if (nextProps.formFlag !== this.props.formFlag || !_.isEqual(this.props.formdata, nextProps.formdata)) {
       this.getAtData(nextProps);
     }
   }
@@ -56,7 +56,7 @@ export default class WorkSheetComment extends React.Component {
       .filter(
         o =>
           o.type === 26 && //成员字段
-          o.userPermission !== 0 && //排除仅用于记录人员数据
+          (o.userPermission !== 0 || o.controlId === 'ownerid') && //排除仅用于记录人员数据(除了拥有者字段外)
           (o.advancedSetting || {}).usertype !== '2', //不能@外部用户
       )
       .map(o => {

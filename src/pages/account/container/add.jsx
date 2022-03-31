@@ -62,7 +62,7 @@ export default class Add extends React.Component {
           if (data.joinProjectResult === 2) {
             str = _l('请等待管理员审批');
           } else if (data.joinProjectResult === 3) {
-            str = _l('该用户已存在组织中');
+            str = _l('您的申请已提交，请等待管理员审批');
           } else if (data.joinProjectResult === 4) {
             str = _l('该组织ID不存在');
           } else if (data.joinProjectResult === 5) {
@@ -70,9 +70,15 @@ export default class Add extends React.Component {
           } else if (data.joinProjectResult === 6) {
             str = _l('验证码错误');
           } else if (data.joinProjectResult === 7) {
-            str = _l('该组织ID不允许被搜索，请联系该组织管理员');
+            str = _l('该组织未开启搜索加入，请联系组织管理员');
           }
-          alert(str, 3);
+          if (data.joinProjectResult === 3) {
+            alert(str, 1, 2000, function () {
+              location.href = '/personal?type=enterprise';
+            });
+          } else {
+            alert(str, 3);
+          }
         }
       },
       () => {},
@@ -121,7 +127,7 @@ export default class Add extends React.Component {
                 $(this.regcode).focus();
               }}
             >
-              {_l('请填写组织ID')}
+              {_l('示例：MD1314')}
             </div>
             {!!warnningText && <div className={cx('warnningTip Hidden')}>{warnningText}</div>}
           </div>
@@ -147,7 +153,7 @@ export default class Add extends React.Component {
             {_l('返回')}
           </span>
         )}
-        <div className="title mTop24 Font20">{_l('请输入组织ID')}</div>
+        <div className="title mTop24 Font20">{_l('请填写组织ID')}</div>
         <p className="mTop10 Gray_9e Font15">{_l('组织ID可以通过管理员获取')}</p>
         {this.renderCon()}
         <span
@@ -157,7 +163,7 @@ export default class Add extends React.Component {
               return;
             }
             if (!regcode) {
-              this.setWarnningText(_l('请输入组织ID'));
+              this.setWarnningText(_l('请填写组织ID'));
               return;
             }
             let callback = (res = {}) => {

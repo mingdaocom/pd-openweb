@@ -41,6 +41,7 @@ export default class CellControl extends React.Component {
     cell: PropTypes.shape({}),
     row: PropTypes.shape({}),
     canedit: PropTypes.bool,
+    disableDownload: PropTypes.bool,
     from: PropTypes.number,
     rowHeight: PropTypes.number,
     popupContainer: PropTypes.any,
@@ -250,7 +251,9 @@ export default class CellControl extends React.Component {
     onMouseDown();
     const haveEdittingStatus = this.haveEdittingStatus(cell);
     if (!haveEdittingStatus) {
-      onClick(...args);
+      if (!window.getSelection().toString()) {
+        onClick(...args);
+      }
       return;
     }
     if (this.clicktimer || clickEnterEditing) {
@@ -291,6 +294,7 @@ export default class CellControl extends React.Component {
       sheetSwitchPermit,
       viewId,
       appId,
+      disableDownload,
     } = this.props;
     const { isediting } = this.state;
     const error = this.error;
@@ -333,7 +337,7 @@ export default class CellControl extends React.Component {
       if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         return <div className={className} onClick={this.props.onClick} style={style} />;
       } else {
-        className += 'readonly';
+        className += ' readonly';
         this.editable = false;
       }
     }
@@ -370,6 +374,7 @@ export default class CellControl extends React.Component {
       updateEditingStatus: this.handleUpdateEditing,
       clearError: () => this.setState({ error: null }),
       onValidate: this.onValidate,
+      disableDownload,
     };
     if (isTextControl) {
       if (cell.type === 41 || cell.type === 32 || cell.type === 10010) {

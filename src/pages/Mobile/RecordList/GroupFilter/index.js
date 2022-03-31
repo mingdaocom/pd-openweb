@@ -3,6 +3,7 @@ import sheetAjax from 'src/api/worksheet';
 import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
 import { Breadcrumb } from 'antd';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import cx from 'classnames';
 import './index.less';
 
@@ -18,6 +19,7 @@ const GroupFilter = props => {
   const [currentNodeId, setCurrentNodeId] = useState();
   const [breadNavHeight, setBreadMavHeight] = useState();
   const [loading, setLoading] = useState(true);
+  const [searchRecordList, setSearchRecordList] = useState([]);
   let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
   let isOption = [9, 10, 11].includes(soucre.type); //是否选项
   const breadNavBar = useRef();
@@ -194,6 +196,7 @@ const GroupFilter = props => {
     let path = (item.path && JSON.parse(item.path)) || [];
     let txt = item.txt instanceof Array ? path[path.length - 1] : item.txt;
     let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}/${encodeURIComponent(txt)}`;
+    localStorage.setItem('groupFilterDetailUrl', url);
     window.mobileNavigateTo(url);
   };
   const renderContent = data => {
@@ -285,7 +288,7 @@ const GroupFilter = props => {
     if (loading) {
       return <LoadDiv />;
     }
-    if (_.isEmpty(navGroupData) && keywords) {
+    if (_.isEmpty(navGroupData) && _.isEmpty(searchRecordList) && keywords) {
       return (
         <div className="mobileSearchNoData noData mTop35 TxtCenter Gray_9e">
           <div className="iconBox">
@@ -302,9 +305,54 @@ const GroupFilter = props => {
       : [{ txt: '全部', value: '', isLeaf: true }].concat(renderData);
     return (
       <ScrollView style={{ maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` }}>
+        {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
         <div className="listBox">{renderContent(tempData)}</div>
+        {keywords && <div className="mTop16 pLeft16 mBottom6 Font13 Bold Gray_75">{_l('记录')}</div>}
+        {keywords && (
+          <div className="searchRecordResult">
+            {(searchRecordList || []).map(item => {
+              let txt = getTitleTextFromControls(controls, item);
+              return (
+                <div
+                  className="recordItem"
+                  onClick={() => {
+                    let url = `/mobile/record/${appId}/${base.worksheetId}/${viewId}/${item.rowid}`;
+                    window.mobileNavigateTo(url);
+                  }}
+                >
+                  {txt}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </ScrollView>
     );
+  };
+  const getSearchRecordResult = keywords => {
+    let param =
+      soucre.type === 35 || keywords
+        ? {
+            getType: 10,
+          }
+        : {
+            appId,
+            searchType: 1,
+          };
+    sheetAjax
+      .getFilterRows({
+        worksheetId: base.worksheetId,
+        viewId: view.viewId,
+        keywords,
+        pageIndex: 1,
+        pageSize: 10000,
+        isGetWorksheet: true,
+        ...param,
+      })
+      .then(res => {
+        const { data = [] } = res;
+        setSearchRecordList(data);
+      });
   };
   return (
     <div className="groupFilterContainer">
@@ -317,6 +365,7 @@ const GroupFilter = props => {
           onChange={value => {
             let keyWords = value.trim();
             setKeywords(keyWords);
+            getSearchRecordResult(value);
           }}
         />
       </div>

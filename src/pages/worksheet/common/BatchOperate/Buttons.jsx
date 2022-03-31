@@ -56,9 +56,11 @@ function getButtonWidth({ icon, name }) {
 
 function Buttons(props) {
   const {
+    count,
     width,
     appId,
     viewId,
+    recordId,
     projectId,
     worksheetId,
     selectedRows,
@@ -86,8 +88,10 @@ function Buttons(props) {
   }
   const buttonsProps = {
     isFromBatchEdit: true,
+    count,
     appId,
     viewId,
+    recordId,
     projectId,
     worksheetId,
     selectedRows,
@@ -98,7 +102,13 @@ function Buttons(props) {
   };
   return (
     <Con>
-      <CustomButtons isBatchOperate type="iconText" {...buttonsProps} buttons={buttons.slice(0, buttonShowNum)} />
+      <CustomButtons
+        hideDisabled
+        isBatchOperate
+        type="iconText"
+        {...buttonsProps}
+        buttons={buttons.slice(0, buttonShowNum)}
+      />
       {buttonShowNum < buttons.length && (
         <Trigger
           zIndex={1000}
@@ -112,7 +122,14 @@ function Buttons(props) {
           destroyPopupOnHide
           popup={
             <Menu style={{ position: 'relative' }}>
-              <CustomButtons isBatchOperate type="menu" icon {...buttonsProps} buttons={buttons.slice(buttonShowNum)} />
+              <CustomButtons
+                hideDisabled
+                isBatchOperate
+                type="menu"
+                icon
+                {...buttonsProps}
+                buttons={buttons.slice(buttonShowNum)}
+              />
             </Menu>
           }
         >
@@ -128,10 +145,12 @@ function Buttons(props) {
 
 Buttons.propTypes = {
   width: number,
+  count: number,
   appId: string,
   viewId: string,
   projectId: string,
   worksheetId: string,
+  recordId: string,
   selectedRows: arrayOf(shape({})),
   isAll: bool,
   buttons: arrayOf(shape({})),

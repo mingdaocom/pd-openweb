@@ -12,21 +12,56 @@ export const eventStr = {
 export const getHoverColor = color => {
   return OPTION_COLORS_LIST_HOVER[OPTION_COLORS_LIST.indexOf(color.toUpperCase())];
 };
+export const isEmojiCharacter = substring => {
+  for (var i = 0; i < substring.length; i++) {
+    var hs = substring.charCodeAt(i);
+    if (0xd800 <= hs && hs <= 0xdbff) {
+      if (substring.length > 1) {
+        var ls = substring.charCodeAt(i + 1);
+        var uc = (hs - 0xd800) * 0x400 + (ls - 0xdc00) + 0x10000;
+        if (0x1d000 <= uc && uc <= 0x1f77f) {
+          return true;
+        }
+      }
+    } else if (substring.length > 1) {
+      var ls = substring.charCodeAt(i + 1);
+      if (ls == 0x20e3) {
+        return true;
+      }
+    } else {
+      if (0x2100 <= hs && hs <= 0x27ff) {
+        return true;
+      } else if (0x2b05 <= hs && hs <= 0x2b07) {
+        return true;
+      } else if (0x2934 <= hs && hs <= 0x2935) {
+        return true;
+      } else if (0x3297 <= hs && hs <= 0x3299) {
+        return true;
+      } else if (
+        hs == 0xa9 ||
+        hs == 0xae ||
+        hs == 0x303d ||
+        hs == 0x3030 ||
+        hs == 0x2b55 ||
+        hs == 0x2b1c ||
+        hs == 0x2b1b ||
+        hs == 0x2b50
+      ) {
+        return true;
+      }
+    }
+  }
+};
+
 // type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
-//格式events数据
-export const setDataFormat = props => {
-  const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = props;
-  const {
-    startFormat = '',
-    endFormat = '',
-    startData = [],
-    endData = [],
-    hiddenDays = [],
-    colorOptions = [],
-    btnList,
-    initialView,
-  } = calendarData;
-  const { colorid = '', begindate = '', enddate = '' } = getAdvanceSetting(currentView);
+//格式events数据//根据多组时间拆分出多条数据
+export const setDataFormat = pram => {
+  const { worksheetControls = [], currentView = {}, calendarData = {}, byRowId, ...data } = pram;
+  if (byRowId) {
+    return setDataFormatByRowId(pram);
+  }
+  const { hiddenDays = [], colorOptions = [], btnList, initialView, calendarInfo = [] } = calendarData;
+  const { colorid = '' } = getAdvanceSetting(currentView);
   let titleControls = worksheetControls.find(item => item.attribute === 1) || [];
   let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
   if (!coloridData && colorid) {
@@ -37,52 +72,112 @@ export const setDataFormat = props => {
   }
   //无选项且无默认值，才用默认颜色
   let stringColor = (colorOptions.find(it => coloridData === it.key) || []).color || '#2196f3';
-  let start = !data[begindate] ? '' : moment(data[begindate]).format(startFormat);
-
-  let isOverOneDay =
-    moment(data[enddate]).format('YYYYMMDD') - moment(data[begindate]).format('YYYYMMDD') >= 1 ||
-    moment(data[enddate]).diff(moment(data[begindate]), 'minutes') >= 1439;
-
-  let allDay = data[begindate] && data[enddate] && isOverOneDay && moment(data[begindate]).isBefore(data[enddate]);
-  allDay = allDay || startData.type === 15; //开始时间为日期字段，均处理成全天事件
-  // let endend = '';
-  //开始时间为日期时间，结束时间为时间字段
-  // if (startData.type === 16 && endData.type === 15) {
-  //   //日历视图显示时间刻度 日程视为全天日程
-  //   if (['timeGridWeek', 'timeGridDay'].includes(initialView)) {
-  //     allDay = true;
-  //   } else {
-  //     endend = moment(data[begindate]).add(3, 'hours');
-  //   }
-  // }
-
-  let end =
-    !data[enddate] || moment(data[begindate]).isAfter(data[enddate])
-      ? ''
-      : moment(
-          //全天事件 都要加一天
-          !allDay ? moment(data[enddate]) : moment(data[enddate]).add(1, 'day'),
-        ).format(endFormat);
-  return {
-    extendedProps: {
-      ...data,
-      editable: controlState(worksheetControls.find(item => item.controlId === begindate) || []).editable,
-      stringColor,
-    },
-    title:
-      renderCellText({
-        ...titleControls,
-        value: data[titleControls.controlId],
-      }) || _l('未命名'),
-    start,
-    end,
-    backgroundColor: stringColor,
-    borderColor: stringColor,
-    textColor: stringColor && isLightColor(stringColor) ? '#333' : '#fff',
-    allDay: !!allDay,
-  };
+  let list = [];
+  calendarInfo.map(o => {
+    if (!!data[o.begin]) {
+      let start = !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
+      let isOverOneDay =
+        moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
+        moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439;
+      let allDay = data[o.begin] && data[o.end] && isOverOneDay && moment(data[o.begin]).isBefore(data[o.end]);
+      allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
+      let end =
+        !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
+          ? ''
+          : moment(
+              //全天事件 都要加一天
+              !allDay ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+            ).format(o.endFormat);
+      list.push({
+        ...o,
+        info: o,
+        keyIds: `${data.rowid}-${o.begin}`,
+        extendedProps: {
+          ...data,
+          editable: controlState(worksheetControls.find(item => item.controlId === data[o.begin]) || []).editable,
+          stringColor,
+        },
+        title:
+          renderCellText({
+            ...titleControls,
+            value: data[titleControls.controlId],
+          }) || _l('未命名'),
+        start,
+        end,
+        allDay: !!allDay,
+        timeList: [
+          {
+            info: o,
+            start,
+            end,
+            allDay: !!allDay,
+          },
+        ],
+        backgroundColor: stringColor,
+        borderColor: stringColor,
+        textColor: stringColor && isLightColor(stringColor) ? '#333' : '#fff',
+      });
+    }
+  });
+  return list;
 };
+//格式events数据//未排期 以及全部 一条数据卡片显示多个时间信息
+export const setDataFormatByRowId = pram => {
+  const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
+  const { colorOptions = [], calendarInfo = [] } = calendarData;
+  const { colorid = '' } = getAdvanceSetting(currentView);
+  let titleControls = worksheetControls.find(item => item.attribute === 1) || [];
+  let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
+  if (!coloridData && colorid) {
+    let colorControls = worksheetControls.find(item => item.controlId === colorid) || {};
+    let defaultS = colorControls.default || '[]';
+    //无选项，取默认值
+    coloridData = JSON.parse(defaultS)[0];
+  }
+  //无选项且无默认值，才用默认颜色
+  let stringColor = (colorOptions.find(it => coloridData === it.key) || []).color || '#2196f3';
+  let timeList = [];
+  calendarInfo.map(o => {
+    let start = !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
+    let isOverOneDay =
+      moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
+      moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439;
+    let allDay = data[o.begin] && data[o.end] && isOverOneDay && moment(data[o.begin]).isBefore(data[o.end]);
+    allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
+    let end =
+      !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
+        ? ''
+        : moment(
+            //全天事件 都要加一天
+            !allDay ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+          ).format(o.endFormat);
+    timeList.push({
+      info: o,
+      start,
+      end,
+      allDay: !!allDay,
+    });
+  });
+  return [
+    {
+      extendedProps: {
+        ...data,
+        editable: controlState(worksheetControls.find(item => item.controlId === data[o.begin]) || []).editable,
+        stringColor,
+      },
+      title:
+        renderCellText({
+          ...titleControls,
+          value: data[titleControls.controlId],
+        }) || _l('未命名'),
 
+      timeList,
+      backgroundColor: stringColor,
+      borderColor: stringColor,
+      textColor: stringColor && isLightColor(stringColor) ? '#333' : '#fff',
+    },
+  ];
+};
 export const getCalendarViewType = (strType, data) => {
   const str = !['1', '2'].includes(strType)
     ? 'dayGridMonth'

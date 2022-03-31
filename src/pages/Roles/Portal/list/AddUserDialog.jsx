@@ -147,7 +147,7 @@ function AddUserDialog(props) {
         <p className="Gray_9e pAll0 mBottom10">
           {_l('上传的Excel表格必须是下载的模板，模板有对应的版本请务必上传当前下载的模板，')}
           <br />
-          {_l('Excel上传成功后可以选择发送短信邀请用户注册外部门户')}
+          {_l('Excel上传成功后可以选择发送短信（仅支持大陆手机号）邀请用户注册外部门户')}
           <span
             className="Hand down"
             onClick={() => {

@@ -2,10 +2,11 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { formatrChartValue } from './common';
-import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl, isNumberControl, relevanceImageSize } from 'src/pages/worksheet/common/Statistics/common';
 import { Table } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getClassNameByExt } from 'src/util';
+import previewAttachments from 'previewAttachments';
 
 const isMobile = browserIsMobile();
 
@@ -31,6 +32,11 @@ const PivotTableContent = styled.div`
     .ant-table-container {
       width: fit-content;
       min-width: 100%;
+    }
+  }
+  &.hideHeaderLastTr {
+    thead tr:last-child {
+      display: none;
     }
   }
   &.contentScroll {
@@ -59,9 +65,6 @@ const PivotTableContent = styled.div`
   .ant-table-container, table, tr>th, tr>td {
     border-color: #E0E0E0 !important;
   }
-  // .ant-table-tbody > tr.ant-table-row:hover > td {
-  //   background-color: transparent;
-  // }
   .ant-table-tbody > tr.ant-table-row:nth-child(even) {
     background-color: #fafcfd;
   }
@@ -69,9 +72,13 @@ const PivotTableContent = styled.div`
     color: #2196f3 !important;
     background-color: #E3F2FD !important;
   }
+  thead {
+    th, td {
+      text-align: left !important;
+    }
+  }
   th, td {
     min-width: 100px;
-    text-align: left !important;
   }
   .ant-table-cell-scrollbar {
     display: none;
@@ -79,6 +86,27 @@ const PivotTableContent = styled.div`
   .ant-table-body {
     overflow-y: overlay !important;
     overflow-x: overlay !important;
+  }
+  .relevanceContent {
+    width: 130px;
+    display: flex;
+    align-items: center;
+    padding-right: 10px;
+  }
+  .otherContent {
+    width: 130px;
+  }
+  .fileContent {
+    min-width: 130px;
+    flex-wrap: wrap;
+    flex: none;
+    overflow: hidden;
+  }
+  .imageWrapper {
+    margin: 0 5px 5px 0;
+    .fileIcon {
+      display: flex;
+    }
   }
 `;
 
@@ -173,11 +201,9 @@ const mergeColumnsCell = (data, yaxisList) => {
 }
 
 const mergeLinesCell = (data, lines, valueMap) => {
-  const result = data.map(item => {
+  const result = mergeTableCell(data.map(item => {
     const key = Object.keys(item)[0];
-    const res = item[key].map(item => {
-      return valueMap[key] ? (valueMap[key][item] || item) : item;
-    });
+    const res = item[key];
     const target = _.find(lines, { cid: key }) || {};
     const isTime = isTimeControl(target.controlType);
     const isArea = isAreaControl(target.controlType);
@@ -201,8 +227,50 @@ const mergeLinesCell = (data, lines, valueMap) => {
       name,
       data: res,
     }
+  }));
+
+  const parse = (value) => {
+    let result = value;
+    try {
+      let res = JSON.parse(value);
+      if (_.isArray(res)) {
+        res = res.map(item => {
+          return parse(item);
+        });
+      }
+      result = res;
+    } catch (err) {}
+    return result;
+  }
+
+  result.forEach((item) => {
+    const control = _.find(lines, { cid: item.key }) || {};
+    item.data = item.data.map(n => {
+      if (_.isNull(n)) return n;
+      if (_.isObject(n)) {
+        return {
+          ...n,
+          value: valueMap[item.key] ? (valueMap[item.key][n.value] || ' ') : n.value
+        }
+      } else {
+        return valueMap[item.key] ? (valueMap[item.key][n] || ' ') : n;
+      }
+    });
+    if (control.controlType === 29) {
+      item.data = item.data.map(item => {
+        if (_.isObject(item)) {
+          return {
+            ...item,
+            value: parse(item.value)
+          }
+        } else {
+          return parse(item);
+        }
+      });
+    }
   });
-  return mergeTableCell(result);
+
+  return result;
 }
 
 const getColumnTotal = (result, yaxisList, columns, showColumnTotal) => {
@@ -239,6 +307,15 @@ export default class extends Component {
       }
     }
   }
+  handleFilePreview = (res, file) => {
+    const index = _.findIndex(res, { fileID: file.fileID });
+    previewAttachments({
+      attachments: res,
+      index,
+      callFrom: 'player',
+      hideFunctions: ['editFileName']
+    });
+  }
   getColumnName(column) {
     const { rename, controlName, controlType, particleSizeType } = column;
     const name = rename || controlName;
@@ -253,10 +330,14 @@ export default class extends Component {
     return name;
   }
   getColumnsHeader(linesData) {
-    let { columns, style } = this.props.reportData;
+    let { lines, columns, style, yaxisList } = this.props.reportData;
     const { pivotTableUnilineShow, pivotTableLineFreeze } = style ? style : {};
     
     columns = _.cloneDeep(columns);
+
+    if (columns.length && yaxisList.length === 1) {
+      columns.pop();
+    }
 
     const get = (column) => {
       return {
@@ -266,45 +347,41 @@ export default class extends Component {
       }
     }
 
-    const render = (data, row, index) => {
-      if (data === null) {
-        return {
-          children: null,
-          props: {
-            rowSpan: 0
-          }
-        }
-      }
-      if (_.isObject(data)) {
-        const props = {};
-        if (data.sum) {
-          props.colSpan = data.length;
-        } else {
-          props.rowSpan = data.length;
-        }
-        return {
-          children: data.value,
-          props
-        }
-      }
-
-      if (pivotTableUnilineShow) {
-        return data;
-      }
-
-      return (
-        <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>
-      );
-    }
-
     const linesChildren = linesData.map(item => {
+      const control = _.find(lines, { controlId: item.key }) || {};
+      const { controlType, fields = [] } = control;
+      const showControl = controlType === 29 && !_.isEmpty(fields);
+      const data = item.data;
       return {
-        title: item.name,
+        title: () => {
+          if (showControl) {
+            return (
+              <div className="flexRow valignWrapper">
+              {
+                fields.map((item, index) => (
+                  <div
+                    key={item.controlId}
+                    className={cx(item.controlType === 14 ? 'fileContent' : 'otherContent')}
+                    style={{
+                      width: item.controlType === 14 ? this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: item.size }).px : null
+                    }}
+                  >
+                    {item.controlName}
+                  </div>
+                ))
+              }
+              </div>
+            );
+          }
+          return item.name;
+        },
         dataIndex: item.key,
         ellipsis: pivotTableUnilineShow,
         fixed: !isMobile && pivotTableLineFreeze ? 'left' : null,
-        width: this.columnWidth,
-        render
+        width: showControl ? this.getAllMaxFilesWidth(data, fields) : this.columnWidth,
+        render: (...args) => {
+          return this.renderLineTd(...args, control);
+        }
       }
     });
 
@@ -314,7 +391,7 @@ export default class extends Component {
       if (next) {
         column.children = [get(next)];
       } else {
-        column.children = linesChildren.length ? linesChildren : [{ title: null }];
+        column.children = linesChildren.length ? linesChildren : [{ title: null, width: this.columnWidth }];
       }
     }
 
@@ -326,8 +403,13 @@ export default class extends Component {
     const { columnSummary = {} } = pivotTable || reportData;
     const dataList = [];
 
-    const getTitle = (id, value) => {
-      return valueMap[id] ? valueMap[id][value] : value;
+    const getTitle = (id, data) => {
+      if (_.isNull(data)) return;
+      if (_.isObject(data)) {
+        return valueMap[id] ? valueMap[id][data.value] || ' ' : data.value;
+      } else {
+        return valueMap[id] ? valueMap[id][data] || ' ' : data;
+      }
     }
 
     const getYaxisList = (index) => {
@@ -338,7 +420,7 @@ export default class extends Component {
           title: name,
           dataIndex: `${item.controlId}-${index + i}`,
           colSpan: 1,
-          className: displaySetup.showRowList && isViewOriginalData ? 'contentValue' : undefined,
+          className: cx('TxtRight', displaySetup.showRowList && isViewOriginalData ? 'contentValue' : undefined),
           width: this.columnWidth,
           onCell: (record) => {
             return {
@@ -376,7 +458,7 @@ export default class extends Component {
         const colSpan = isObject ? data.length : 1;
         const id = columns[columnIndex].cid;
         return {
-          title: getTitle(id, isObject ? data.value : data),
+          title: getTitle(id, data),
           key: id,
           colSpan,
           children: nextIndex < columns.length ? getChildren(nextIndex, index, colSpan) : getYaxisList(index)
@@ -393,7 +475,7 @@ export default class extends Component {
           const colSpan = isObject ? firstItem.length : 1;
           const id = columns[0].cid;
           const obj = {
-            title: getTitle(id, isObject ? firstItem.value : firstItem),
+            title: getTitle(id, firstItem),
             key: id,
             colSpan,
             children: item.y.length > 1 ? getChildren(1, index, colSpan) : getYaxisList(index)
@@ -429,7 +511,7 @@ export default class extends Component {
     const childrenYaxisList = [];
 
     const data = {
-      title: `${_l('列汇总')} ${columnSummary.name ? `(${columnSummary.name})` : null}`,
+      title: _l('列汇总'),
       children: [],
       rowSpan: columns.length,
       colSpan: yaxisList.length
@@ -450,13 +532,15 @@ export default class extends Component {
 
     result.forEach((item, index) => {
       if (item.summary_col) {
-        const { rename, controlName } =  _.find(yaxisList, { controlId: item.t_id });
+        const { rename, controlName } =  _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
+        const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
         childrenYaxisList.push({
-          title: name,
+          title: sumData.name ? `${name} (${sumData.name})` : name,
           dataIndex: `${item.t_id}-${index}`,
           colSpan: 1,
-          width: this.columnWidth
+          width: this.columnWidth,
+          className: 'TxtRight'
         });
       }
     });
@@ -468,16 +552,17 @@ export default class extends Component {
   getDataSource(result, linesData) {
     const { reportData } = this.props;
     const { yaxisList, pivotTable } = reportData;
-    const { lineSummary, showLineTotal } = pivotTable || reportData;
+    const { lineSummary, columnSummary, showLineTotal } = pivotTable || reportData;
     const tableLentghData = Array.from({ length: linesData[0] ? linesData[0].data.length : 1 });
     
-    const dataSource = tableLentghData.map((_, index) => {
+    const dataSource = tableLentghData.map((__, index) => {
       const obj = { key: index };
       linesData.forEach(item => {
         obj[item.key] = item.data[index];
       });
       result.forEach((item, i) => {
-        obj[`${item.t_id}-${i}`] = item.data[index] || '--';
+        const value = item.data[index];
+        obj[`${item.t_id}-${i}`] = value || '--';
       });
       return obj;
     });
@@ -486,7 +571,7 @@ export default class extends Component {
       key: 'sum'
     };
     const sum = {
-      value: `${_l('行汇总')} ${lineSummary.name ? `(${lineSummary.name})` : null}`,
+      value: _l('行汇总'),
       length: linesData.length,
       sum: true
     };
@@ -500,8 +585,9 @@ export default class extends Component {
     });
 
     result.forEach((item, i) => {
-      const value = _.isNumber(item.sum) ? formatrChartValue(item.sum, false, yaxisList, item.t_id, false) : '--'
-      summary[`${item.t_id}-${i}`] = value;
+      const value = _.isNumber(item.sum) ? formatrChartValue(item.sum, false, yaxisList, item.t_id, false) : '';
+      const sumData = _.find(lineSummary.controlList, { controlId: item.t_id }) || {};
+      summary[`${item.t_id}-${i}`] = value ? (sumData.name ? `${sumData.name} ${value}` : value) : '';
     });
 
     if (showLineTotal && lineSummary.location == 1) {
@@ -537,10 +623,147 @@ export default class extends Component {
     }
     return config;
   }
+  getMaxFileLength(data, index) {
+    const maxValue = 10;
+    data = data.map(item => {
+      if (item && item.value && _.isArray(item.value[index])) {
+        return item.value[index].length;
+      }
+      if (_.isArray(item)) {
+        return item[index].length;
+      }
+      return null;
+    });
+    const value = _.max(data);
+    return value > maxValue ? maxValue : value;
+  }
+  getAllMaxFilesWidth(data, fields) {
+    let width = 0;
+    fields.forEach((field, index) => {
+      if (field.controlType === 14) {
+        width += this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: field.size }).px;
+      } else {
+        width += 130;
+      }
+    });
+    return width;
+  }
+  renderFile(file, px, fileIconSize, handleFilePreview) {
+    const src = `${file.filepath}${file.filename}?imageView2/2/h/${px}`;
+    const isPicture = File.isPicture(file.ext);
+    const fileClassName = getClassNameByExt(file.ext);
+
+    if (file.fileID) {
+      return (
+        <div key={file.fileID} className="imageWrapper" onClick={() => { handleFilePreview(file) }}>
+          {isPicture ? (
+            <img src={src} />
+          ) : (
+            <div className={cx('fileIcon', fileClassName)} style={fileIconSize}></div>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ width: px }}>{'--'}</div>
+      );
+    }
+  }
+  renderRelevanceContent(relevanceData, parentControl, index) {
+    const { fields } = parentControl;
+    const control = fields[index];
+
+    if (control.controlType === 14) {
+      const { px, fileIconSize } = _.find(relevanceImageSize, { value: control.size || 2 });
+      const { data } = _.find(this.linesData, { key: parentControl.controlId });
+      const max = this.getMaxFileLength(data, index);
+      const handleFilePreview = this.handleFilePreview.bind(this, relevanceData);
+      return (
+        <div className="relevanceContent fileContent" style={{ width: max * px }} key={control.controlId}>
+          {relevanceData.length ? (
+            relevanceData.map(file => (
+              this.renderFile(file, px, fileIconSize, handleFilePreview)
+            ))
+          ) : (
+            <div style={{ width: px }}>{'--'}</div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className="relevanceContent" key={control.controlId}>
+        {_.isArray(relevanceData) ? relevanceData.join('、') : relevanceData || '--'}
+      </div>
+    );
+  }
+  renderLineTd(data, row, index, control) {
+    const { style } = this.props.reportData;
+    const { pivotTableUnilineShow, pivotTableLineFreeze } = style ? style : {};
+    const { controlType, fields } = control;
+
+    if (data === null) {
+      return {
+        children: null,
+        props: {
+          rowSpan: 0
+        }
+      }
+    }
+
+    if (_.isObject(data) && data.value) {
+      const props = {};
+      if (data.sum) {
+        props.colSpan = data.length;
+      } else {
+        props.rowSpan = data.length;
+      }
+      if (controlType === 29 && !_.isEmpty(fields) && !data.sum && _.isArray(data.value)) {
+        const res = data.value;
+        return {
+          children: (
+            <div className="flexRow w100">
+              {
+                res.map((item, index) => (
+                  this.renderRelevanceContent(item, control, index)
+                ))
+              }
+            </div>
+          ),
+          props
+        }
+      } else {
+        return {
+          children: data.value,
+          props
+        }
+      }
+    }
+
+    if (controlType === 29 && !_.isEmpty(fields) && _.isArray(data)) {
+      const res = data;
+      return (
+        <div className="flexRow w100">
+          {
+            res.map((item, index) => (
+              this.renderRelevanceContent(item, control, index)
+            ))
+          }
+        </div>
+      );
+    }
+
+    if (pivotTableUnilineShow) {
+      return data;
+    }
+
+    return (
+      <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>
+    );
+  }
   render() {
     const { data, yaxisList, columns, lines, valueMap } = this.props.reportData;
     const { result, linesData } = this;
-
     const controlName = this.getColumnsHeader(linesData);
     const controlContent = this.getColumnsContent(result);
     const dataSource = this.getDataSource(result, linesData);
@@ -557,7 +780,8 @@ export default class extends Component {
           contentXAuto: _.isUndefined(scrollConfig.x),
           contentYAuto: _.isUndefined(scrollConfig.y),
           contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
-          contentScroll: scrollConfig.y
+          contentScroll: scrollConfig.y,
+          hideHeaderLastTr: columns.length && yaxisList.length === 1
         })}
       >
         <Table

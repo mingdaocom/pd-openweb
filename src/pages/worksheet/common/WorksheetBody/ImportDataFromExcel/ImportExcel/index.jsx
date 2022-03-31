@@ -31,7 +31,7 @@ export default class ImportExcel extends React.Component {
       bucket: 3,
       chunk_size: '10mb',
       filters: {
-        mime_types: [{ title: 'Excel files', extensions: 'xlsx,xls,xlsm' }],
+        mime_types: [{ title: 'Excel files', extensions: 'xlsx,xls,xlsm,csv' }],
         max_file_size: '10mb',
         prevent_duplicates: true,
       },
@@ -176,7 +176,7 @@ export default class ImportExcel extends React.Component {
         description={
           <div>
             {_l(
-              '支持10MB以内的xls、xlsx文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
+              '支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
               worksheetExcelImportDataLimitCount
             )}
             <Support type={3} href="https://help.mingdao.com/operation3.html" text={_l('使用帮助')} />

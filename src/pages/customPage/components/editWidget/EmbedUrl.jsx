@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Button, Icon, Tooltip } from 'ming-ui';
 import Dialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
 import { Dropdown, Input } from 'antd';
-import { FlexCenter, genUrl } from '../../util';
-import PreviewEmbedContent from '../previewContent';
+import { FlexCenter, genUrl, parseLink } from '../../util';
+import PreviewWraper from '../previewContent';
 import { connect } from 'react-redux';
 import LinkPara from './LinkPara';
 import { Header } from '../../styled';
@@ -48,7 +48,12 @@ const ContentWrap = styled(FlexCenter)`
   }
   .previewBtn {
     box-sizing: border-box;
+    width: 76px !important ;
+    min-width: unset;
+    min-height: unset;
     height: 32px;
+    padding: 0;
+    text-align: center;
     line-height: 32px;
     border-radius: 18px;
     background-color: #fff;
@@ -65,13 +70,16 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
   const [preview, setPreview] = useState(!!widget.value);
 
   const [paras, setParas] = useState(widget.param || []);
-  const urlWithPara = genUrl(url, paras, info);
+  const [config, setConfig] = useState(widget.config || {});
+  const { reload = false, newTab = false } = config;
+  let urlWithPara = genUrl(url, paras, info);
   return (
     <Dialog
       className="editWidgetDialogWrap"
       visible
       onClose={onClose}
-      closeIcon={<Icon icon="close Font26 Gray_75 ThemeHoverColor3" />}>
+      closeIcon={<Icon icon="close Font26 Gray_75 ThemeHoverColor3" />}
+    >
       <Header>
         <div className="typeName">{_l('嵌入url')}</div>
         <Button
@@ -81,15 +89,21 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
               alert(_l('url不能为空'));
               return;
             }
-            onEdit({ value: url, param: paras });
-          }}>
+            onEdit({ value: url, param: paras, config });
+          }}
+        >
           {_l('保存')}
         </Button>
       </Header>
       <ContentWrap>
         <div className="previewWrap">
           {preview ? (
-            <PreviewEmbedContent value={urlWithPara} />
+            <PreviewWraper
+              reload={reload}
+              newTab={newTab}
+              value={urlWithPara}
+              param={widget.param}
+            />
           ) : (
             _l('嵌入网页、视频、图片链接, 你也可以嵌入一个视图、记录的分享链接')
           )}
@@ -113,10 +127,11 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
               onClick={() => {
                 if (!url) return;
                 setPreview(true);
-              }}>
+              }}
+            >
               {_l('预览')}
             </Button>
-            <LinkPara paras={paras} setParas={setParas} />
+            <LinkPara showActionBar paras={paras} setParas={setParas} config={config} setConfig={setConfig} />
             <div className="parasConfigWrap"></div>
           </div>
         </div>

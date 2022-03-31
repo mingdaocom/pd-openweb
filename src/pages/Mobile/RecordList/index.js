@@ -16,7 +16,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
-
+import FixedPage from 'src/pages/Mobile/App/FixedPage.jsx';
 @withRouter
 @AppPermissions
 class RecordList extends Component {
@@ -24,7 +24,13 @@ class RecordList extends Component {
     super(props);
   }
   componentDidMount() {
+    this.props.changeMobileGroupFilters([]);
     this.getApp(this.props);
+    if (_.get(this.props, ['filters', 'visible'])) {
+      this.props.updateFilters({
+        visible: false,
+      });
+    }
   }
   getApp(props) {
     const { params } = props.match;
@@ -85,7 +91,17 @@ class RecordList extends Component {
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
       }))
       .filter(c => c.control);
-    return <QuickFilter view={view} filters={filters} controls={sheetControls} onHideSidebar={this.handleOpenDrawer} />;
+    return (
+      <QuickFilter
+        projectId={worksheetInfo.projectId}
+        appId={worksheetInfo.appId}
+        worksheetId={worksheetInfo.worksheetId}
+        view={view}
+        filters={filters}
+        controls={sheetControls}
+        onHideSidebar={this.handleOpenDrawer}
+      />
+    );
   }
   renderContent() {
     const {
@@ -106,21 +122,34 @@ class RecordList extends Component {
     const { viewId } = base;
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
+
     const { views, name } = worksheetInfo;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { params } = match;
     const viewIndex = viewId ? _.findIndex(views, { viewId }) : 0;
 
     const { calendarData = {} } = calendarview;
-    const { begindate = '' } = getAdvanceSetting(view);
-    const { startData } = calendarData;
-    const isDelete = begindate && (!startData || !startData.controlId);
+    let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
+    const { calendarInfo = [] } = calendarData;
     const { viewControl, viewControls } = view;
+
+    try {
+      calendarcids = JSON.parse(calendarcids);
+    } catch (error) {
+      calendarcids = [];
+    }
+    if (calendarcids.length <= 0) {
+      calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
+    }
+    const isDelete =
+      calendarcids[0].begin &&
+      calendarInfo.length > 0 &&
+      (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
     const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
       ? viewControl === 'create' ||
         (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
         !_.isEmpty(viewControls) ||
-        !(!begindate || isDelete)
+        !(!calendarcids[0].begin || isDelete)
       : true;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
@@ -135,7 +164,7 @@ class RecordList extends Component {
         <div className="flexColumn h100">
           <DocumentTitle title={name} />
           {!batchOptVisible && (
-            <div className="viewTabs z-depth-1">
+            <div className={cx('viewTabs z-depth-1', { isPortal: md.global.Account.isPortal })}>
               <Tabs
                 tabBarInactiveTextColor="#9e9e9e"
                 tabs={views}
@@ -205,9 +234,21 @@ class RecordList extends Component {
     );
   }
   render() {
-    const { base, worksheetInfo, workSheetLoading } = this.props;
+    const { base, worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { viewId } = base;
+    const { detail = {}, appName } = appDetail;
+    const { webMobileDisplay } = detail;
 
+    if (webMobileDisplay) {
+      return (
+        <div style={{ background: '#fff', height: '100%' }}>
+          <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
+            <span className="Gray Font24 LineHeight80 InlineBlock Bold">{appName}</span>
+          </div>
+          <FixedPage isNoPublish={webMobileDisplay} />
+        </div>
+      );
+    }
     if (workSheetLoading) {
       return (
         <Flex justify="center" align="center" className="h100">

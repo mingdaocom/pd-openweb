@@ -8,6 +8,8 @@ import Ajax from 'src/api/workWeiXin';
 import Config from '../config';
 import Dialog from 'ming-ui/components/Dialog';
 import { navigateTo } from 'src/router/navigateTo';
+import BuildAppNewRules from './BuildAppNewRules';
+import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import './style.less';
 
 export default class Workwx extends React.Component {
@@ -42,6 +44,8 @@ export default class Workwx extends React.Component {
       customMappingFieldEnabled: false,
       jobnumberMappingField: null,
       fieldRadio: null,
+      isSetPassword: false,
+      passwordError: false,
     };
   }
 
@@ -56,7 +60,7 @@ export default class Workwx extends React.Component {
           corpId: '',
           agentId: '',
           secret: '',
-          status: 1,
+          status: md.global.Config.IsLocal ? 1 : '',
         };
       }
       if (res) {
@@ -80,6 +84,8 @@ export default class Workwx extends React.Component {
           customMappingFieldEnabled: res.customMappingFieldEnabled,
           jobnumberMappingField: res.jobnumberMappingField,
           fieldRadio: res.jobnumberMappingField !== 'workxeixinapp-userid' ? 'customField' : res.jobnumberMappingField,
+          status: res.status,
+          intergrationType: res.intergrationType, // 1代表老的模式，2代表待开发模式
         });
       }
     });
@@ -123,16 +129,12 @@ export default class Workwx extends React.Component {
     });
   };
 
-  handleChangeCustomMappingFieldEnabled = checked => {
-    Ajax.editWXProjectMappingFieldEnabled({
+  // 获取初始密码值
+  getInitialPassword = () => {
+    Ajax.getIntergrationAccountInitializeInfo({
       projectId: Config.projectId,
-      status: checked ? 0 : 1,
     }).then(res => {
-      if (res) {
-        this.setState({
-          customMappingFieldEnabled: !checked,
-        });
-      }
+      this.setState({ password: res, isSetPassword: !!res });
     });
   };
 
@@ -309,115 +311,106 @@ export default class Workwx extends React.Component {
   };
 
   stepRender = () => {
+    let { intergrationType } = this.state;
     return (
       <div className="pBottom100">
-        {!this.state.CorpId && !md.global.Config.IsLocal && (
-          <div
-            className="infoTips"
-            onClick={event => {
-              const { target } = event;
-              if (target.tagName === 'SPAN') {
-                target.classList.contains('contactCustomer') &&
-                  window.KF5SupportBoxAPI &&
-                  window.KF5SupportBoxAPI.open();
-              }
-            }}
-            dangerouslySetInnerHTML={{
-              __html: _l(
-                '因企业微信规则调整，新的对接方案正在开发，支持线下完成对接。您可以%0或者电话咨询客服，联系电话：010-53153053',
-                `<span class="contactCustomer pointer ThemeColor3">${_l('在线咨询客服')}</span>`,
-              ),
-            }}
-          />
-        )}
-        <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
-          {!this.state.show1 ? (
-            <div
-              className="showDiv flexRow valignWrapper"
-              onClick={() => {
-                this.setState({
-                  show1: true,
-                });
-              }}
-            >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
-            </div>
-          ) : (
-            <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/wxappSyncCourse/${Config.projectId}`} target="_blank" className="mTop16 Font14 howApply">
-                {_l('如何获取对接信息？')}
-              </Link>
-            </React.Fragment>
-          )}
-        </div>
-        <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('2.对接信息录入')}</h3>
-          {!this.state.show2 && (
-            <div
-              className="showDiv flexRow valignWrapper"
-              onClick={() => {
-                this.setState({
-                  show2: true,
-                });
-              }}
-            >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
-            </div>
-          )}
-          {this.state.isHasInfo && this.state.show2 && (
-            <span className="Font13 Gray_75 Right closeDing">
-              <span
-                className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
+        {intergrationType !== 2 && (
+          <div className="stepItem Relative">
+            <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
+            {!this.state.show1 ? (
+              <div
+                className="showDiv flexRow valignWrapper"
+                onClick={() => {
+                  this.setState({
+                    show1: true,
+                  });
+                }}
               >
-                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
+                <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              </div>
+            ) : (
+              <React.Fragment>
+                <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
+                <Link to={`/wxappSyncCourse/${Config.projectId}`} target="_blank" className="mTop16 Font14 howApply">
+                  {_l('如何获取对接信息？')}
+                </Link>
+              </React.Fragment>
+            )}
+          </div>
+        )}
+        {intergrationType !== 2 && (
+          <div className="stepItem Relative">
+            <h3 className="stepTitle Font16 Gray">{_l('2.对接信息录入')}</h3>
+            {!this.state.show2 && (
+              <div
+                className="showDiv flexRow valignWrapper"
+                onClick={() => {
+                  this.setState({
+                    show2: true,
+                  });
+                }}
+              >
+                <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              </div>
+            )}
+            {this.state.isHasInfo && this.state.show2 && (
+              <span className="Font13 Gray_75 Right closeDing">
+                <span
+                  className="mLeft10 switchBtn tip-bottom-left"
+                  data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
+                >
+                  <Switch
+                    checked={!this.state.isCloseDing}
+                    onClick={checked => {
+                      this.editDingStatus(checked ? 2 : 1);
+                    }}
+                  />
+                </span>
               </span>
-            </span>
-          )}
-          {!this.state.isCloseDing && this.state.show2 && (
-            <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
-                {_l('完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录')}
-              </p>
-              <div className="mTop25 infoList">
-                <ul>
-                  <li>{this.inputRender('CorpId', 600, 1)}</li>
-                  <li className="mTop16">{this.inputRender('AgentId', 600, 2)}</li>
-                  <li className="mTop16">{this.inputRender('Secret', 600, 3, 4)}</li>
-                </ul>
-              </div>
-              <div className="TxtRight mTop30">
-                {!this.state.canEditInfo ? (
-                  <Button
-                    type="primary"
-                    className="editInfo"
-                    onClick={e => {
-                      this.setState({
-                        canEditInfo: true,
-                      });
-                    }}
-                  >
-                    {_l('编辑')}
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    className="saveInfo"
-                    onClick={e => {
-                      this.editInfo();
-                    }}
-                  >
-                    {_l('保存')}
-                  </Button>
-                )}
-              </div>
-            </React.Fragment>
-          )}
-        </div>
+            )}
+            {!this.state.isCloseDing && this.state.show2 && (
+              <React.Fragment>
+                <p className="mTop16 Font14 Gray_75">
+                  {_l('完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录')}
+                </p>
+                <div className="mTop25 infoList">
+                  <ul>
+                    <li>{this.inputRender('CorpId', 600, 1)}</li>
+                    <li className="mTop16">{this.inputRender('AgentId', 600, 2)}</li>
+                    <li className="mTop16">{this.inputRender('Secret', 600, 3, 4)}</li>
+                  </ul>
+                </div>
+                <div className="TxtRight mTop30">
+                  {!this.state.canEditInfo ? (
+                    <Button
+                      type="primary"
+                      className="editInfo"
+                      onClick={e => {
+                        this.setState({
+                          canEditInfo: true,
+                        });
+                      }}
+                    >
+                      {_l('编辑')}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="primary"
+                      className="saveInfo"
+                      onClick={e => {
+                        this.editInfo();
+                      }}
+                    >
+                      {_l('保存')}
+                    </Button>
+                  )}
+                </div>
+              </React.Fragment>
+            )}
+          </div>
+        )}
         <div className="stepItem">
-          <h3 className="stepTitle Font16 Gray">{_l('3.数据同步')}</h3>
+          <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', intergrationType !== 2 ? '3.' : '')}</h3>
           <div className="mTop16 syncBox">
             <span className="Font14 syncTxt Gray_75">{_l('从企业微信通讯录同步到该系统')}</span>
             <Button
@@ -550,7 +543,25 @@ export default class Workwx extends React.Component {
       </div>
     );
   };
+  changeTab = key => {
+    if (key === 'other') {
+      this.getInitialPassword();
+    }
+  };
+  handleChangeCustomMappingFieldEnabled = checked => {
+    Ajax.editWXProjectMappingFieldEnabled({
+      projectId: Config.projectId,
+      status: checked ? 0 : 1,
+    }).then(res => {
+      if (res) {
+        this.setState({
+          customMappingFieldEnabled: !checked,
+        });
+      }
+    });
+  };
   render() {
+    let { isPassApply, intergrationType } = this.state;
     if (Config.project.licenseType === 0) {
       return this.renderUpgrade();
     }
@@ -559,7 +570,7 @@ export default class Workwx extends React.Component {
     }
     return (
       <div className="workwxMainContent">
-        {!this.state.isPassApply ? (
+        {!this.state.isPassApply && !(!this.state.CorpId && !md.global.Config.IsLocal) && intergrationType !== 2 ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (
@@ -626,96 +637,125 @@ export default class Workwx extends React.Component {
             )}
           </div>
         ) : (
-          <Tabs defaultActiveKey="base">
-            <Tabs.TabPane tab={_l('基础')} key="base">
-              {this.stepRender()}
+          <Tabs
+            defaultActiveKey="base"
+            className={cx({ tabStyle: !this.state.status === 1 })}
+            onChange={this.changeTab}
+          >
+            <Tabs.TabPane tab={_l('企业微信集成')} key="base" className="tabStyles">
+              {!this.state.CorpId && !md.global.Config.IsLocal && (this.state.status === 0 || !this.state.status) ? (
+                <BuildAppNewRules
+                  syncFn={this.syncFn}
+                  editWXProjectSettingStatus={this.editWXProjectSettingStatus}
+                  isPassApply={isPassApply}
+                  stepRender={this.stepRender}
+                  status={this.state.status}
+                />
+              ) : (
+                this.stepRender()
+              )}
             </Tabs.TabPane>
-            <Tabs.TabPane tab={_l('其他')} key="other">
-              <div className="stepItem flexRow valignWrapper">
-                <div className="flex">
-                  <h3 className="stepTitle Font16 Gray mBottom24">{_l('企业微信扫码登陆')}</h3>
-                  <Switch
-                    disabled={
-                      (this.state.canEditInfo && !this.state.isHasInfo) ||
-                      this.state.isCloseDing ||
-                      this.state.showSyncDiaLog
-                    }
-                    checked={this.state.intergrationScanEnabled}
-                    onClick={this.handleChangeScanEnabled}
-                  />
-                  <div className="mTop16 syncBox">
-                    <span className="Font14 Gray_75">{_l('开启后，可使用企业微信扫一扫，直接登录')}</span>
-                  </div>
-                  <Link
-                    to={`/wxappSyncCourse/${Config.projectId}#scanWorkwx`}
-                    target="_blank"
-                    className="mTop16 Font14 howApply"
-                  >
-                    {_l('如何实现企业微信扫码登陆？')}
-                  </Link>
-                </div>
-              </div>
-              <div className="stepItem flexRow valignWrapper">
-                <div className="flexColumn flex">
-                  <h3 className="stepTitle Font16 Gray mBottom24">{_l('自定义同步字段')}</h3>
-                  <Switch
-                    disabled={
-                      (this.state.canEditInfo && !this.state.isHasInfo) ||
-                      this.state.isCloseDing ||
-                      this.state.showSyncDiaLog
-                    }
-                    checked={this.state.customMappingFieldEnabled}
-                    onClick={this.handleChangeCustomMappingFieldEnabled}
-                  />
-                  <div className="mTop16 syncBox">
-                    <span className="Font14 Gray_75">
-                      {_l(
-                        '完成通讯录同步的基础配置后，可将企业微信用户账号或者企业微信自定义信息字段同步到系统的工号字段',
-                      )}
-                    </span>
-                  </div>
-                  <Link
-                    to={`/wxappSyncCourse/${Config.projectId}#syncField`}
-                    target="_blank"
-                    className="mTop16 Font14 howApply"
-                  >
-                    {_l('如何查看企业微信自定义信息字段？')}
-                  </Link>
-                  {this.state.customMappingFieldEnabled && (
-                    <React.Fragment>
-                      <Radio.Group
-                        className="radioGroupWrapper"
-                        onChange={this.handleChangeJobnumberMappingField}
-                        value={this.state.fieldRadio}
+            {this.state.status === 1 && (
+              <Tabs.TabPane tab={_l('其他')} key="other">
+                {intergrationType !== 2 && (
+                  <div className="stepItem flexRow valignWrapper">
+                    <div className="flex">
+                      <h3 className="stepTitle Font16 Gray mBottom24">{_l('企业微信扫码登陆')}</h3>
+                      <Switch
+                        disabled={
+                          (this.state.canEditInfo && !this.state.isHasInfo) ||
+                          this.state.isCloseDing ||
+                          this.state.showSyncDiaLog
+                        }
+                        checked={this.state.intergrationScanEnabled}
+                        onClick={this.handleChangeScanEnabled}
+                      />
+                      <div className="mTop16 syncBox">
+                        <span className="Font14 Gray_75">{_l('开启后，可使用企业微信扫一扫，直接登录')}</span>
+                      </div>
+                      <Link
+                        to={`/wxappSyncCourse/${Config.projectId}#scanWorkwx`}
+                        target="_blank"
+                        className="mTop16 Font14 howApply"
                       >
-                        <Radio className="Block" value="workxeixinapp-userid">
-                          {_l('企业微信用户账号')}
-                        </Radio>
-                        <Radio className="Block" value="customField">
-                          {_l('企业微信自定义信息字段')}
-                        </Radio>
-                      </Radio.Group>
-                      {this.state.fieldRadio == 'customField' && (
-                        <div className="flexRow customFieldWrapper mTop12 mLeft25">
-                          <Input
-                            className="mRight12"
-                            value={this.state.jobnumberMappingField}
-                            onChange={event => {
-                              this.setState({
-                                jobnumberMappingField: event.target.value,
-                              });
-                            }}
-                          />
-                          <Button type="primary" onClick={this.handleSaveJobnumberMappingField}>
-                            {_l('保存')}
-                          </Button>
-                        </div>
-                      )}
-                    </React.Fragment>
-                  )}
+                        {_l('如何实现企业微信扫码登陆？')}
+                      </Link>
+                    </div>
+                  </div>
+                )}
+                {md.global.Config.IsLocal && (
+                  <IntegrationSetPssword
+                    password={this.state.password}
+                    isSetPassword={this.state.isSetPassword}
+                    disabled={
+                      (this.state.canEditInfo && !this.state.isHasInfo) ||
+                      this.state.isCloseDing ||
+                      this.state.showSyncDiaLog
+                    }
+                  />
+                )}
+                <div className="stepItem flexRow valignWrapper">
+                  <div className="flexColumn flex">
+                    <h3 className="stepTitle Font16 Gray mBottom24">{_l('自定义同步字段')}</h3>
+                    <Switch
+                      disabled={
+                        (this.state.canEditInfo && !this.state.isHasInfo) ||
+                        this.state.isCloseDing ||
+                        this.state.showSyncDiaLog
+                      }
+                      checked={this.state.customMappingFieldEnabled}
+                      onClick={this.handleChangeCustomMappingFieldEnabled}
+                    />
+                    <div className="mTop16 syncBox">
+                      <span className="Font14 Gray_75">
+                        {_l(
+                          '完成通讯录同步的基础配置后，可将企业微信用户账号或者企业微信自定义信息字段同步到系统的工号字段',
+                        )}
+                      </span>
+                    </div>
+                    <Link
+                      to={`/wxappSyncCourse/${Config.projectId}#syncField`}
+                      target="_blank"
+                      className="mTop16 Font14 howApply"
+                    >
+                      {_l('如何查看企业微信自定义信息字段？')}
+                    </Link>
+                    {this.state.customMappingFieldEnabled && (
+                      <React.Fragment>
+                        <Radio.Group
+                          className="radioGroupWrapper"
+                          onChange={this.handleChangeJobnumberMappingField}
+                          value={this.state.fieldRadio}
+                        >
+                          <Radio className="Block" value="workxeixinapp-userid">
+                            {_l('企业微信用户账号')}
+                          </Radio>
+                          <Radio className="Block" value="customField">
+                            {_l('企业微信自定义信息字段')}
+                          </Radio>
+                        </Radio.Group>
+                        {this.state.fieldRadio == 'customField' && (
+                          <div className="flexRow customFieldWrapper mTop12 mLeft25">
+                            <Input
+                              className="mRight12"
+                              value={this.state.jobnumberMappingField}
+                              onChange={event => {
+                                this.setState({
+                                  jobnumberMappingField: event.target.value,
+                                });
+                              }}
+                            />
+                            <Button type="primary" onClick={this.handleSaveJobnumberMappingField}>
+                              {_l('保存')}
+                            </Button>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Tabs.TabPane>
+              </Tabs.TabPane>
+            )}
           </Tabs>
         )}
         {this.state.showSyncDiaLog && this.renderSyncDiaLog()}

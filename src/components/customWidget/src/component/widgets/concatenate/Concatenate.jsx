@@ -75,7 +75,7 @@ export default class Concatenate extends React.Component {
         data: {
           type: 'caid',
           controlId: 'caid',
-          controlName: _l('创建人'),
+          controlName: _l('创建者'),
         },
       },
       {

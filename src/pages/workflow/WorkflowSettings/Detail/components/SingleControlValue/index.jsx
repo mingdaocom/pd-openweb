@@ -513,8 +513,8 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 附件 || 签名
-    if (item.type === 14 || item.type === 42) {
+    // 附件 || 签名 || 特殊数组
+    if (item.type === 14 || item.type === 42 || item.type === 10000003) {
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (

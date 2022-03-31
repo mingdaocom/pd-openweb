@@ -1,6 +1,5 @@
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { reportTypes } from './Charts/common';
-import report from 'src/pages/worksheet/common/Statistics/api/report';
 
 /**
  * 图表类型数据
@@ -234,15 +233,15 @@ export const getNewReport = ({ currentReport, worksheetInfo, base }) => {
   const newCurrentReport = _.cloneDeep(currentReport);
   const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
 
-  if (pivotTable) {
-    const { columnSummary = {}, lineSummary = {} } = pivotTable;
-    if (_.isEmpty(columnSummary.name)) {
-      columnSummary.name = _.find(normTypes, { value: columnSummary.type }).text;
-    }
-    if (_.isEmpty(lineSummary.name)) {
-      lineSummary.name = _.find(normTypes, { value: lineSummary.type }).text;
-    }
-  }
+  // if (pivotTable) {
+  //   const { columnSummary = {}, lineSummary = {} } = pivotTable;
+  //   if (_.isEmpty(columnSummary.name)) {
+  //     columnSummary.name = _.find(normTypes, { value: columnSummary.type }).text;
+  //   }
+  //   if (_.isEmpty(lineSummary.name)) {
+  //     lineSummary.name = _.find(normTypes, { value: lineSummary.type }).text;
+  //   }
+  // }
 
   if (newCurrentReport.summary && _.isEmpty(newCurrentReport.summary.name)) {
     newCurrentReport.summary.name = _.find(normTypes, { value: newCurrentReport.summary.type }).text;
@@ -449,25 +448,6 @@ export const isCustomSort = (type) => {
   } else {
     return false;
   }
-};
-
-/**
- * 导出透视表
- */
-export const exportExcel = (reportId, pageId) => {
-  report
-    .export({
-      reportId,
-      pageId,
-    })
-    .then(result => {
-      if (!result) {
-        alert(_l('导出错误'), 2);
-      }
-    })
-    .fail(error => {
-      alert(error, 2);
-    });
 };
 
 export const defaultDropdownScopeData = 8;
@@ -986,7 +966,7 @@ export const systemControls = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建人'),
+    controlName: _l('创建者'),
     type: 26,
   },
   {
@@ -1110,6 +1090,16 @@ export const normTypes = [
     text: _l('平均值'),
     value: 4,
   },
+];
+
+/**
+ * 关联附件图片的尺寸
+ */
+export const relevanceImageSize = [
+  { text: _l('小'), value: 1, px: 30, fileIconSize: { width: 26, height: 30 } },
+  { text: _l('中'), value: 2, px: 60, fileIconSize: { width: 53, height: 60 } },
+  { text: _l('大'), value: 3, px: 90, fileIconSize: { width: 79, height: 90 } },
+  { text: _l('超大'), value: 4, px: 120, fileIconSize: { width: 120, height: 105 } },
 ];
 
 /**

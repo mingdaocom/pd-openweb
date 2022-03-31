@@ -150,7 +150,7 @@ export default function initWorksheetSocket() {
   socket.on('workflow', data => {
     const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType } = data;
     if (status === 2 || (type === 4 && status === 1)) {
-      emitter.emit('RELOAD_RECORDINFO', {
+      emitter.emit('RELOAD_RECORD_INFO', {
         worksheetId,
         recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
         closeWhenNotViewData: true,

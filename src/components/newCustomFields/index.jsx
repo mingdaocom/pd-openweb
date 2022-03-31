@@ -30,7 +30,6 @@ export default class CustomFields extends Component {
     disabled: PropTypes.bool,
     forceFull: PropTypes.bool,
     onChange: PropTypes.func,
-    showError: PropTypes.bool,
     disableRules: PropTypes.bool,
     rules: PropTypes.arrayOf(PropTypes.shape({})),
     getMasterFormData: PropTypes.func,
@@ -62,6 +61,7 @@ export default class CustomFields extends Component {
       rules: props.rules || [],
       rulesLoading: !props.disableRules && !props.rules,
       searchConfig: [],
+      loadingItems: {},
     };
   }
 
@@ -94,15 +94,13 @@ export default class CustomFields extends Component {
   componentWillReceiveProps(nextProps, nextState) {
     if (this.props.flag !== nextProps.flag || this.props.data.length !== nextProps.data.length) {
       this.initSource(nextProps.data, nextProps.disabled);
+      this.updateErrorState(false);
     }
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
     }
     if (this.props.isWorksheetQuery !== nextProps.isWorksheetQuery && nextProps.isWorksheetQuery) {
       this.getSearchConfig(nextProps);
-    }
-    if (nextProps.showError !== this.props.showError && !nextProps.showError) {
-      this.updateErrorState(false);
     }
   }
 
@@ -112,8 +110,7 @@ export default class CustomFields extends Component {
    * 初始化数据
    */
   initSource(data, disabled) {
-    const { projectId, initSource, recordId, recordCreateTime, from, worksheetId, isWorksheetQuery, onFormDataReady } =
-      this.props;
+    const { projectId, initSource, recordId, recordCreateTime, from, onFormDataReady, masterRecordRowId } = this.props;
 
     this.dataFormat = new DataFormat({
       projectId,
@@ -121,14 +118,25 @@ export default class CustomFields extends Component {
       isCreate: initSource || !recordId,
       disabled,
       recordCreateTime,
+      masterRecordRowId,
       from,
       searchConfig: this.state.searchConfig,
+      updateLoadingItems: loadingItems => {
+        this.setState({ loadingItems });
+      },
       onAsyncChange: ({ controlId, value }) => {
         this.props.onChange(this.dataFormat.getDataSource(), [controlId]);
-        this.setState({
-          renderData: this.getFilterDataByRule(true),
-          errorItems: this.dataFormat.getErrorControls(),
-        });
+        this.setState(
+          {
+            renderData: this.getFilterDataByRule(true),
+            errorItems: this.dataFormat.getErrorControls(),
+          },
+          () => {
+            if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
+              this.submitFormData();
+            }
+          },
+        );
       },
     });
 
@@ -168,9 +176,10 @@ export default class CustomFields extends Component {
    * 获取字段显示规则
    */
   getRules = (nextProps, cb = () => {}) => {
-    const { worksheetId, data, disabled } = nextProps || this.props;
+    const { worksheetId, data, disabled, onRulesLoad = () => {} } = nextProps || this.props;
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
+      onRulesLoad(rules);
       this.setState({ rules }, () => {
         this.initSource(data, disabled);
         cb();
@@ -314,8 +323,8 @@ export default class CustomFields extends Component {
    * 控件label
    */
   getControlLabel(item) {
-    const { from } = this.props;
-    const { errorItems, uniqueErrorItems } = this.state;
+    const { from, recordId } = this.props;
+    const { errorItems, uniqueErrorItems, loadingItems } = this.state;
     const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
     const errorText = currentErrorItem.errorText || '';
     const isEditable = controlState(item, from).editable;
@@ -363,7 +372,11 @@ export default class CustomFields extends Component {
             {this.renderCount(item)}
           </div>
           {_.includes([FROM.RECORDINFO, FROM.H5_EDIT, FROM.WORKFLOW], from) && this.renderDesc(item)}
+          <div className={cx('mLeft6', { Hidden: !loadingItems[item.controlId] })}>
+            <i className="icon-loading_button customFormItemLoading Gray_9e" />
+          </div>
         </div>
+        {item.type === 34 && !recordId && this.renderDesc(item)}
       </React.Fragment>
     );
   }
@@ -552,10 +565,11 @@ export default class CustomFields extends Component {
             }
           }}
           onBlur={() => {
-            if (item.unique && item.value && item.value.trim()) {
-              this.checkControlUnique(controlId, type, item.value.trim());
+            const newValue = item.value && item.value.toString().trim();
+            if (item.unique && newValue) {
+              this.checkControlUnique(controlId, type, newValue);
             }
-            if (item.value && item.value.trim()) {
+            if (newValue) {
               this.dataFormat.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
           }}
@@ -675,7 +689,7 @@ export default class CustomFields extends Component {
   /**
    * 获取提交数据
    */
-  getSubmitData({ silent } = {}) {
+  getSubmitData({ silent, ignoreAlert } = {}) {
     const { from, recordId, ignoreHideControl } = this.props;
     const { errorItems, uniqueErrorItems, rules = [] } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
@@ -685,24 +699,62 @@ export default class CustomFields extends Component {
       checkAllUpdate: true,
       ignoreHideControl,
     });
-    const errors = updateControlIds.length || !recordId ? checkAllValueAvailable(rules, list, from) : [];
+    // 保存时必走，防止无字段变更判断错误
+    const errors =
+      updateControlIds.length || !recordId || this.submitBegin ? checkAllValueAvailable(rules, list, from) : [];
     const ids = list
       .filter(item => controlState(item, from).visible && controlState(item, from).editable)
       .map(it => it.controlId);
     const hasError = !!errorItems.concat(uniqueErrorItems).filter(it => _.includes(ids, it.controlId)).length;
+    const hasRuleError = errors.length;
 
-    if (!hasError && errors.length && !silent) {
-      this.errorDialog(errors);
-    }
     // 提交时所有错误showError更新为true
     this.updateErrorState(hasError);
+
+    let error;
+
+    if (hasError) {
+      if (!ignoreAlert && !silent) alert(_l('请正确填写记录'), 3);
+      error = true;
+    } else if ($(this.con.current, '.workSheetRecordInfo').find('.Progress--circle').length > 0) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      error = true;
+    } else if (hasRuleError) {
+      error = true;
+    }
+
+    if (!hasError && hasRuleError && !silent) {
+      this.errorDialog(errors);
+    }
 
     return {
       data: list,
       updateControlIds,
       hasError,
-      hasRuleError: errors.length,
+      hasRuleError,
+      error,
     };
+  }
+
+  /**
+   * 表单提交数据
+   */
+  submitFormData() {
+    this.submitBegin = true;
+    const { loadingItems } = this.state;
+    const { onSave } = this.props;
+    const { data, updateControlIds, error } = this.getSubmitData();
+
+    if (!error && _.some(Object.values(loadingItems), i => i)) {
+      return;
+    }
+
+    onSave(error, {
+      data,
+      updateControlIds,
+    });
+
+    this.submitBegin = false;
   }
 
   render() {

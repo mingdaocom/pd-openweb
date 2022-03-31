@@ -82,7 +82,13 @@ class View extends Component {
       !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType)); // 是否存在分组列表
     let routerInfo = window.location.pathname.includes('groupFilterDetail');
     if (hasGroupFilter && !routerInfo) {
-      return <GroupFilter {...this.props} changeMobielSheetLoading={this.props.changeMobielSheetLoading} />;
+      return (
+        <GroupFilter
+          {...this.props}
+          changeMobielSheetLoading={this.props.changeMobielSheetLoading}
+          groupId={this.props.base.groupId}
+        />
+      );
     }
     return (
       <div className="overflowHidden flex mobileView flexColumn Relative">

@@ -69,7 +69,7 @@ export default class Date extends React.Component {
   }
 
   renderCommon() {
-    const { rowHeight } = this.props;
+    const { rowHeight = 34 } = this.props;
     let { value } = this.state;
     if (value[0] === '{') {
       try {

@@ -10,7 +10,7 @@ import 'dialogSelectUser';
 import Act from './act';
 import DialogSelectDept from 'dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 var workSiteController = require('src/api/workSite');
 var importUserController = require('src/api/importUser');
 import { Icon, Radio } from 'ming-ui';
@@ -86,13 +86,13 @@ const checkFuncs = {
   },
 };
 
-const inviteCallback = (data, isClear, callback, isAutonomously) => {
+const inviteCallback = (data, callback, copyText) => {
   const RESULTS = {
     FAILED: 0,
     SUCCESS: 1,
     OVERINVITELIMITCOUNT: 4,
   };
-  const text = isAutonomously ? _l('创建') : _l('邀请');
+  const text = copyText ? _l('创建') : _l('邀请');
   if (!data || data.actionResult == RESULTS.FAILED) {
     alert(_l('%0失败', text), 2);
   } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
@@ -102,10 +102,9 @@ const inviteCallback = (data, isClear, callback, isAutonomously) => {
     if (failUsers) {
       alert(_l('%0失败', text), 2);
     } else if (successUsers) {
-      isAutonomously ? alert(_l('创建成功, 账号密码已复制'), 1) : alert(_l('邀请成功'), 1);
-      if (!isClear) {
-        callback();
-      }
+      copyText && copy(copyText);
+      copyText ? alert(_l('创建成功, 账号密码已复制'), 1) : alert(_l('邀请成功'), 1);
+      callback();
     } else if (existsUsers) {
       alert(_l('手机号/邮箱已存在'), 2);
     } else if (forbidUsers) {
@@ -382,12 +381,16 @@ class Main extends Component {
       }
       if (isInvite || isAutonomously) {
         if (e.target.value.length > 3 && !isNaN(Number(e.target.value))) {
-          $(currentEl).parent().removeClass('phoneWrapper');
+          $(currentEl)
+            .parent()
+            .removeClass('phoneWrapper');
           $('.iti__flag-container').show();
           $(currentEl).css({ 'padding-left': '80px' });
         } else {
           $('.iti__flag-container').hide();
-          $(currentEl).parent().addClass('phoneWrapper');
+          $(currentEl)
+            .parent()
+            .addClass('phoneWrapper');
         }
       }
     };
@@ -426,7 +429,7 @@ class Main extends Component {
 
   submitInfo(isClear) {
     const state = this.state;
-    const { isUploading } = state;
+    const { isUploading, autonomously, autonomouslyPasswrod } = state;
     if (isUploading) return false;
     if (state.editable) {
       this.handleFieldBlur('userName')();
@@ -441,7 +444,12 @@ class Main extends Component {
       return false;
     } else {
       const { projectId } = this.props;
+
       const { editable, inviteType, departmentInfos = [], jobInfos = [], jobNumber, workSiteId, contactPhone } = state;
+      const copyText =
+        inviteType === 'autonomously'
+          ? `${_l('登录账号')}: ${autonomously} ${_l('密码')}: ${autonomouslyPasswrod}`
+          : '';
       const params = {
         projectId,
         accountId: '',
@@ -464,14 +472,28 @@ class Main extends Component {
       }
       this.setState({
         isUploading: true,
+        departmentInfos: [],
+        jobInfos: [],
       });
       importUserController
         .inviteUser(params)
         .then(data => {
-          inviteCallback(data, isClear, this.props.closeDialog, state.inviteType === 'autonomously');
+          inviteCallback(
+            data,
+            isClear
+              ? () => {
+                  this.autonomously.value = '';
+                  this.setState({ autonomouslyPasswrod: '' });
+                }
+              : this.props.closeDialog,
+            copyText,
+          );
         })
         .always(() => {
           this.setState(_.merge({}, this.state, initialState, { inviteType: state.inviteType }));
+          if (this.mobile) {
+            this.mobile.value = '';
+          }
         });
     }
   }
@@ -663,8 +685,7 @@ class Main extends Component {
       jobs = [],
       autonomously,
     } = this.state;
-    const copyText =
-      inviteType === 'autonomously' ? `${_l('登录账号')}: ${autonomously} ${_l('密码')}: ${autonomouslyPasswrod}` : ' ';
+
     return (
       <div className="dialogContent_invite">
         <div className="formTable">
@@ -858,7 +879,7 @@ class Main extends Component {
               color: '#2196F3',
             }}
             disabled={isUploading}
-            onClick={this.handleSubmit()}
+            onClick={this.handleSubmit(true)}
           >
             {_l('继续添加')}
           </a>
@@ -874,7 +895,7 @@ class Main extends Component {
               background: '#2196F3',
               color: '#fff',
             }}
-            onClick={this.handleSubmit(true)}
+            onClick={this.handleSubmit()}
           >
             {_l('添加')}
           </a>
@@ -884,6 +905,6 @@ class Main extends Component {
   }
 }
 
-module.exports = function (container, props) {
+module.exports = function(container, props) {
   ReactDom.render(<Main {...props} />, container);
 };

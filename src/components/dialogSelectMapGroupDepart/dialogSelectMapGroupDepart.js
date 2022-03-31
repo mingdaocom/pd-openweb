@@ -14,9 +14,11 @@ module.exports = (function ($) {
       defaultSelectId: '',
       defaultSelectName: '',
       projectId: '',
+      loadNextPage: false,
+      departmentsData: [],
       postData: {
         pageIndex: 1,
-        pageSize: 10000,
+        pageSize: 20,
         keywords: '',
         sortType: 0,
         sortField: 0,
@@ -85,10 +87,12 @@ module.exports = (function ($) {
       departmentController
         .getProjectDepartmentByPage(options.postData)
         .then(function (result) {
-          var departments = result.list;
-
+          var currentPageData = result.list;
+          options.departmentsData =
+            options.postData.pageIndex > 1 ? options.departmentsData.concat(currentPageData) : currentPageData;
+          var departments = options.departmentsData;
+          options.loadNextPage = currentPageData && currentPageData.length === options.postData.pageSize ? true : false;
           var $dialogSelectMapGroupDepart = $('#dialogSelectMapGroupDepart');
-
           if (departments && departments.length > 0) {
             var html = '';
             for (var i = 0; i < departments.length; i++) {
@@ -169,9 +173,13 @@ module.exports = (function ($) {
       // 搜索关键词
       var $txtSearch = $dialogSelectMapGroupDepart.find('.txtSearch');
 
+      // 下拉分页区域
+      var $contentBox = $dialogSelectMapGroupDepart.find('.contentBox');
+
       // 关键词搜索部门
       $dialogSelectMapGroupDepart.find('.searchImage').on('click', function () {
         options.postData.keywords = $txtSearch.val().trim();
+        options.postData.pageIndex = 1;
         _this.loadData();
       });
       $txtSearch.on('keydown', function (event) {
@@ -229,6 +237,7 @@ module.exports = (function ($) {
               options.postData.keywords = '';
               options.defaultSelectName = department;
               options.defaultSelectId = '';
+              options.postData.pageIndex = 1;
               // 重新加载数据
               _this.loadData();
             } else if (result.resultStatus == 2) {
@@ -255,6 +264,14 @@ module.exports = (function ($) {
           options.callback(data);
         } else {
           alert(_l('请选择要关联的部门'), 3);
+        }
+      });
+
+      //下拉分页
+      $contentBox.on('scroll', function () {
+        if (this.clientHeight + this.scrollTop >= this.scrollHeight && options.loadNextPage) {
+          options.postData.pageIndex = options.postData.pageIndex + 1;
+          _this.loadData();
         }
       });
     };

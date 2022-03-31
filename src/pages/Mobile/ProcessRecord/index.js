@@ -11,7 +11,6 @@ import CustomFields from 'src/components/newCustomFields';
 import RelationList from 'src/pages/Mobile/RelationRow/RelationList';
 import RelationAction from 'src/pages/Mobile/RelationRow/RelationAction';
 import * as actions from 'src/pages/Mobile/RelationRow/redux/actions';
-import * as dicussionActions from 'src/pages/Mobile/Discuss/redux/actions';
 import Sidebar from './Sidebar';
 import OtherAction from './OtherAction';
 import Operation from './Operation';
@@ -19,6 +18,7 @@ import { formatControlToServer, controlState } from 'src/components/newCustomFie
 import { isRelateRecordTableControl } from 'worksheet/util';
 import Back from '../components/Back';
 import RecordAction from 'src/pages/Mobile/Record/RecordAction';
+import ChatCount from '../components/ChatCount';
 import { renderCellText } from 'worksheet/components/CellControls';
 import {
   ACTION_TYPES,
@@ -29,6 +29,7 @@ import {
 } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
 
+const { operation } = instance;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 
@@ -55,9 +56,9 @@ class ProcessRecord extends Component {
       isError: false,
       recordActionVisible: false,
       originalData: null,
-      showError: false,
       customBtns: [],
       currentTab: {},
+      isHasten: false,
     };
   }
   customwidget = React.createRef();
@@ -75,7 +76,6 @@ class ProcessRecord extends Component {
           this.setState({ isError: true, loading: false });
           return;
         }
-        this.props.getMobileDiscussionCount({ worksheetId, rowId });
         this.setState(
           {
             viewId,
@@ -151,13 +151,14 @@ class ProcessRecord extends Component {
     const { ignoreRequired } = flowNode;
     const { params } = this.props.match;
     const { projectId, receiveControls } = sheetRow;
-    const { data, updateControlIds, hasError, hasRuleError } = this.customwidget.current.getSubmitData();
+    const { data, updateControlIds, hasError, hasRuleError } = this.customwidget.current.getSubmitData({
+      ignoreAlert: true,
+    });
     const cells = data
       .filter(item => updateControlIds.indexOf(item.controlId) > -1 && item.type !== 30)
       .map(formatControlToServer);
 
     if (hasError && !ignoreRequired) {
-      this.setState({ showError: true });
       alert(_l('请正确填写记录'), 3);
       return;
     }
@@ -171,8 +172,6 @@ class ProcessRecord extends Component {
       fn && fn();
       return;
     }
-
-    this.setState({ showError: false });
 
     worksheetAjax
       .updateWorksheetRow({
@@ -203,11 +202,11 @@ class ProcessRecord extends Component {
       });
   }
   handleFooterBtnClick = id => {
-    const { hasError, hasRuleError } = this.customwidget.current.getSubmitData();
+    const { hasError, hasRuleError } = this.customwidget.current.getSubmitData({ ignoreAlert: true });
     let { instance } = this.state;
     const { flowNode } = instance;
     const { ignoreRequired } = flowNode;
-    if (hasError && !ignoreRequired) {
+    if (hasError && (!ignoreRequired || (ignoreRequired && id !== 'overrule'))) {
       alert(_l('请正确填写记录'), 3);
       return;
     }
@@ -285,10 +284,10 @@ class ProcessRecord extends Component {
   handleScroll = event => {
     const { loadParams, updatePageIndex } = this.props;
     const { isEdit, currentTab } = this.state;
-    const { clientHeight, scrollHeight, scrollTop } = event.target;
+    const { clientHeight, scrollHeight, scrollTop, className } = event.target;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
-    if (isEdit) {
+    if (isEdit || !className.includes('processRecordScroll')) {
       return;
     }
     if (targetVlaue <= scrollTop && currentTab.value && !loading && isMore) {
@@ -324,13 +323,14 @@ class ProcessRecord extends Component {
     );
   }
   renderProcessHandle() {
-    const { instance, submitLoading, submitAction } = this.state;
-    const { operationTypeList, btnMap = {} } = instance;
+    const { instance, submitLoading, submitAction, isHasten } = this.state;
+    const { operationTypeList, btnMap = {}, works } = instance;
     const actionList = operationTypeList[0];
     const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
     const buttons = newOperationTypeList.map(item => {
       return OPERATION_LIST[item];
     });
+    const allowUrgeWork = _.find(works, { allowUrge: true }) || {};
     return (
       <div className="footerHandle flexRow">
         {buttons.map((item, index) => (
@@ -349,28 +349,43 @@ class ProcessRecord extends Component {
             <div className="Font12">{item.text}</div>
           </div>
         ))}
-        {actionList.map((item, index) => {
-          let { id, text } = ACTION_LIST[item];
-          return (
+        <div className="flexRow flex">
+          {allowUrgeWork.allowUrge && (
             <div
-              key={id}
-              className={cx('headerBtn pointer flex bold', id, { disable: submitLoading && submitAction === id })}
+              className="headerBtn pointer flex bold hasten"
               onClick={() => {
-                this.handleFooterBtnClick(id);
+                if (!isHasten) {
+                  this.setState({ isHasten: true });
+                  operation({ id: allowUrgeWork.instanceId, operationType: 18 });
+                }
               }}
             >
-              {submitLoading && submitAction === id ? (
-                _l('提交中...')
-              ) : (
-                <Fragment>
-                  {/* {id === 'pass' || id === 'submit' || id === 'revoke' ? <Icon icon="plus-interest" /> : null}
-                  {id === 'overrule' ? <Icon icon="closeelement-bg-circle" /> : null} */}
-                  <span>{btnMap[item] || text}</span>
-                </Fragment>
-              )}
+              {isHasten ? _l('已催办') : _l('催办')}
             </div>
-          );
-        })}
+          )}
+          {actionList.map((item, index) => {
+            let { id, text } = ACTION_LIST[item];
+            return (
+              <div
+                key={id}
+                className={cx('headerBtn pointer flex bold', id, { disable: submitLoading && submitAction === id })}
+                onClick={() => {
+                  this.handleFooterBtnClick(id);
+                }}
+              >
+                {submitLoading && submitAction === id ? (
+                  _l('提交中...')
+                ) : (
+                  <Fragment>
+                    {/* {id === 'pass' || id === 'submit' || id === 'revoke' ? <Icon icon="plus-interest" /> : null}
+                    {id === 'overrule' ? <Icon icon="closeelement-bg-circle" /> : null} */}
+                    <span>{btnMap[item] || text}</span>
+                  </Fragment>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -529,8 +544,7 @@ class ProcessRecord extends Component {
     );
   }
   renderCustomFields() {
-    const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible, showError } =
-      this.state;
+    const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible } = this.state;
     const { operationTypeList, flowNode, app } = instance;
     const { type } = flowNode;
     return (
@@ -545,7 +559,6 @@ class ProcessRecord extends Component {
             disabled={sheetRow.allowEdit ? !_.isEmpty(viewId) && !isEdit : false}
             recordCreateTime={sheetRow.createTime}
             recordId={rowId}
-            showError={showError}
             worksheetId={worksheetId}
             data={sheetRow.receiveControls}
             onChange={() => {
@@ -627,25 +640,10 @@ class ProcessRecord extends Component {
       </Tabs>
     );
   }
-  renderChatMessage = () => {
-    const { discussionCount, base = {} } = this.props;
-    const { appId } = base;
-    let { worksheetId, rowId } = this.state;
-    return (
-      <div
-        className="chatMessage Font13"
-        onClick={() => {
-          this.props.history.push(`/mobile/discuss/${appId}/${worksheetId}/null/${rowId}?processRecord`);
-        }}
-      >
-        <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
-        <span>{discussionCount}</span>
-      </div>
-    );
-  };
   renderContent() {
     const { viewId, sheetRow, instance, rowId, worksheetId, currentTab, isEdit } = this.state;
-    const { relationRow } = this.props;
+    const { relationRow, base = {} } = this.props;
+    const { appId } = base;
     const { operationTypeList, flowNode, backFlowNodes, app } = instance;
     const { name, type, appType } = flowNode;
     const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
@@ -733,7 +731,16 @@ class ProcessRecord extends Component {
           }}
           style={{ bottom: '105px' }}
         />
-        {(!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink)) && this.renderChatMessage()}
+        {(!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink)) && (
+          <ChatCount
+            worksheetId={worksheetId}
+            rowId={rowId}
+            appId={(this.props.base && this.props.base.appId) || ''}
+            onClick={() => {
+              this.props.history.push(`/mobile/discuss/${appId}/${worksheetId}/null/${rowId}?processRecord`);
+            }}
+          />
+        )}
         {this.renderActionSheet()}
       </Drawer>
     );
@@ -758,11 +765,7 @@ class ProcessRecord extends Component {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['loadParams', 'relationRow', 'discussionCount', 'base']),
+    ..._.pick(state.mobile, ['loadParams', 'relationRow', 'base']),
   }),
-  dispatch =>
-    bindActionCreators(
-      { ..._.pick(actions, ['updatePageIndex', 'reset']), ..._.pick(dicussionActions, ['getMobileDiscussionCount']) },
-      dispatch,
-    ),
+  dispatch => bindActionCreators({ ..._.pick(actions, ['updatePageIndex', 'reset']) }, dispatch),
 )(ProcessRecord);

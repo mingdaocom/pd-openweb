@@ -149,9 +149,9 @@ export default function Info(props) {
               if (sending) {
                 return;
               }
-              let { data, hasError, hasRuleError } = customwidget.current.getSubmitData();
+              let { data, hasError } = customwidget.current.getSubmitData();
               if (hasError) {
-                return alert(_l('请正确填写信息'), 2);
+                return;
               }
               infoLogin({
                 state,

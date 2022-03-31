@@ -17,11 +17,11 @@ export default class WorkSheetCommentList extends Component {
     if (listRef) {
       listRef(this);
     }
-    emitter.addListener('RELOAD_RECORDINFO_DISCUSS', this.reload);
+    emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', this.reload);
   }
 
   componentWillUnMount() {
-    emitter.removeListener('RELOAD_RECORDINFO_DISCUSS', this.reload);
+    emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', this.reload);
   }
 
   reload() {

@@ -70,7 +70,9 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8">
-          <span className="Gray_75">{_l('运算：')}</span>
+          <span className="Gray_75">
+            {actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}
+          </span>
           {fieldValue + fieldControlName + formulaValue}
         </div>
       </Fragment>

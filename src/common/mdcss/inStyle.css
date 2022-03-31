@@ -985,6 +985,10 @@ input[type="checkbox"]:disabled:checked:after {
   -ms-flex: 1;
 }
 
+.alignItemsCenter {
+  align-items: center;
+}
+
 .rc-trigger-popup-mask {
   background-color: rgba(0, 0, 0, 0) !important;
 }

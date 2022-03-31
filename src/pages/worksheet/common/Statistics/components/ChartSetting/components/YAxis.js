@@ -7,6 +7,7 @@ import RenameModal from './RenameModal';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import { isNumberControl, normTypes } from 'src/pages/worksheet/common/Statistics/common';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -109,7 +110,7 @@ export default class YAxis extends Component {
       isAlert && alert(_l('不允许添加重复字段'), 2);
       return false;
     }
-    if (isNumberControl(data.type)) {
+    if (isNumberControl(data.type) || data.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
       return true;
     } else {
       isAlert && alert(_l('只允许添加数值和公式字段'), 2);

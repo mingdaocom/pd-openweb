@@ -79,9 +79,6 @@ const Con = styled.div`
 class Publicquery extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      showError: false,
-    };
     this.customwidget = React.createRef();
   }
   componentDidMount() {
@@ -101,7 +98,6 @@ class Publicquery extends React.Component {
     const { projectId = '', template = {} } = worksheet;
     const controls = (template.controls || []).filter(o => queryControlIds.includes(o.controlId));
     let isErr = queryControlIds.length <= 0 || !viewId || controls.length <= 0 || visibleType === 1;
-    const { showError } = this.state;
     return (
       <Con style={{ minHeight: document.documentElement.clientHeight }}>
         <div className="queryBox">
@@ -116,21 +112,13 @@ class Publicquery extends React.Component {
               data={controls.map(c => ({ ...c, size: 12, required: true, unique: false }))}
               projectId={projectId}
               worksheetId={worksheetId}
-              showError={showError} //showError: false, // 是否显示错误信息
             />
           )}
           <div
             className={cx('btn', { disable: isErr })}
             onClick={() => {
               const submitData = this.customwidget.current.getSubmitData();
-              const hasError = submitData.hasError;
-              if (hasError) {
-                this.setState({
-                  showError: true,
-                });
-                return;
-              }
-              if (submitData.hasRuleError) {
+              if (submitData.error) {
                 return;
               }
               let callback = res => {

@@ -190,7 +190,7 @@ export default class ChartSheet extends Component {
     const { currentReport, tableData, worksheetInfo, base, reportSingleCacheLoading, settingVisible } = this.props;
     const Chart = charts[reportTypes.PivotTable];
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page');
+    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');;
 
     if (
       (_.isEmpty(tableData) && this.isRequestTableData) ||

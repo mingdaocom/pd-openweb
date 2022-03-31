@@ -20,11 +20,11 @@ export default class SelectUserDropDown extends Component {
   }
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (
-      nextProps.visible &&
-      (nextProps.nodeId !== this.props.nodeId || !this.state.fieldsData.length) &&
-      !this.props.disabledNodeRole
-    ) {
+    if (nextProps.nodeId !== this.props.nodeId) {
+      this.setState({ fieldsData: [] });
+    }
+
+    if (nextProps.visible && !this.state.fieldsData.length && !this.props.disabledNodeRole) {
       this.getUserAppDtos(nextProps);
     }
   }
@@ -33,8 +33,8 @@ export default class SelectUserDropDown extends Component {
    * 获取节点人员数据
    */
   getUserAppDtos(props) {
-    const { processId, nodeId, specialType } = props;
-    flowNode.getUserAppDtos({ processId, nodeId, type: specialType }).then(result => {
+    const { processId, nodeId, specialType, schedule } = props;
+    flowNode.getUserAppDtos({ processId, nodeId, type: specialType, schedule }).then(result => {
       const fieldsData = result.map(obj => {
         return {
           ...obj,

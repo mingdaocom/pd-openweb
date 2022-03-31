@@ -105,7 +105,7 @@ export default function DateTime(props) {
                 }
                 onChange({
                   dateRange: 18,
-                  filterType: 11,
+                  filterType: 31,
                   minValue: moments[0].format(dateFormat),
                   maxValue: moments[1].format(dateFormat),
                 });

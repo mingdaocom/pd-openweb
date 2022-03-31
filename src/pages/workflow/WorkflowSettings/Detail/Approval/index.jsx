@@ -11,6 +11,7 @@ import {
   DetailFooter,
   WriteFields,
   ButtonName,
+  Schedule,
 } from '../components';
 
 export default class Approval extends Component {
@@ -83,6 +84,7 @@ export default class Approval extends Component {
       multipleLevelType,
       multipleLevel,
       batch,
+      schedule,
     } = data;
 
     if (!selectNodeId) {
@@ -120,6 +122,7 @@ export default class Approval extends Component {
         overruleBtnName: overruleBtnName.trim() || _l('否决'),
         auth,
         batch,
+        schedule,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -148,7 +151,10 @@ export default class Approval extends Component {
    */
   renderApprovalUser() {
     const { data } = this.state;
-    const list = [{ text: _l('自定义'), value: 0 }, { text: _l('按部门层级逐级审批'), value: 1 }];
+    const list = [
+      { text: _l('自定义'), value: 0 },
+      { text: _l('按部门层级逐级审批'), value: 1 },
+    ];
 
     return (
       <Fragment>
@@ -159,7 +165,14 @@ export default class Approval extends Component {
               <Radio
                 text={item.text}
                 checked={data.multipleLevelType === item.value || (item.value === 1 && data.multipleLevelType === 2)}
-                onClick={() => this.updateSource({ multipleLevelType: item.value, accounts: [], multipleLevel: -1 })}
+                onClick={() =>
+                  this.updateSource({
+                    multipleLevelType: item.value,
+                    accounts: [],
+                    multipleLevel: -1,
+                    schedule: Object.assign({}, data.schedule, { enable: false }),
+                  })
+                }
               />
             </div>
           ))}
@@ -400,7 +413,10 @@ export default class Approval extends Component {
                   <Dropdown
                     menuStyle={{ left: 'inherit', right: 0 }}
                     style={{ marginTop: -1 }}
-                    data={[{ text: _l('重新执行流程'), value: 0 }, { text: _l('直接返回审批节点'), value: 1 }]}
+                    data={[
+                      { text: _l('重新执行流程'), value: 0 },
+                      { text: _l('直接返回审批节点'), value: 1 },
+                    ]}
                     value={data.callBackType}
                     onChange={callBackType => {
                       this.updateSource({ callBackType });
@@ -420,28 +436,6 @@ export default class Approval extends Component {
             )}
           </Fragment>
         )}
-        <Checkbox
-          className="mTop15 flexRow"
-          text={
-            <span>
-              {_l('允许批量审批')}
-              <Tooltip
-                popupPlacement="bottom"
-                text={
-                  <span>
-                    {_l(
-                      '允许审批人批量处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见）字段。',
-                    )}
-                  </span>
-                }
-              >
-                <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
-              </Tooltip>
-            </span>
-          }
-          checked={data.batch}
-          onClick={checked => this.updateSource({ batch: !checked })}
-        />
       </Fragment>
     );
   }
@@ -523,14 +517,56 @@ export default class Approval extends Component {
     this.updateSource({ auth: { passTypeList, overruleTypeList } });
   };
 
+  /**
+   * 高级功能设置
+   */
+  renderSeniorSettings() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <Checkbox
+          className="mTop15 flexRow"
+          text={
+            <span>
+              {_l('允许批量审批')}
+              <Tooltip
+                popupPlacement="bottom"
+                text={
+                  <span>
+                    {_l(
+                      '允许审批人批量处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见）字段。',
+                    )}
+                  </span>
+                }
+              >
+                <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+              </Tooltip>
+            </span>
+          }
+          checked={data.batch}
+          onClick={checked => this.updateSource({ batch: !checked })}
+        />
+
+        {data.multipleLevelType === 0 && (
+          <Fragment>
+            <Checkbox
+              className="mTop15 flexRow"
+              text={<span>{_l('开启限时处理')}</span>}
+              checked={(data.schedule || {}).enable}
+              onClick={checked =>
+                this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
+              }
+            />
+            <Schedule schedule={data.schedule} updateSource={this.updateSource} {...this.props} />
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
+
   render() {
     const { data } = this.state;
-    const personsPassing = [
-      { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
-      { text: _l('会签（需所有审批人通过）'), value: 1 },
-      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
-      { text: _l('会签（按比例投票通过）'), value: 4 },
-    ];
     const authTypeListText = {
       1: _l('签名'),
       2: _l('四级：实名'),
@@ -538,6 +574,7 @@ export default class Approval extends Component {
       4: _l('二级：实名+实人+网证（开发中...）'),
       5: _l('一级：实名+实人+网证+实证（开发中...）'),
     };
+
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
     }
@@ -619,6 +656,9 @@ export default class Approval extends Component {
                   />
                 </Fragment>
               )}
+
+              <div className="Font13 bold mTop25">{_l('高级功能')}</div>
+              {this.renderSeniorSettings()}
 
               {data.selectNodeId && (
                 <Fragment>

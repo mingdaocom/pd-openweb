@@ -12,6 +12,8 @@ import SubProcess from './SubProcess';
 import UserAndDepartment from './UserAndDepartment';
 import WorksheetContent from './WorksheetContent';
 import DateContent from './DateContent';
+import PBCContent from './PBCContent';
+import _ from 'lodash';
 
 const START_NODE_EXECUTE_DATE_TYPE = 16;
 
@@ -21,6 +23,7 @@ export default class Start extends Component {
     this.state = {
       data: {},
       saveRequest: false,
+      errorItems: [],
     };
   }
 
@@ -52,6 +55,10 @@ export default class Start extends Component {
           result.executeTime = moment().format('YYYY-MM-DD 08:00');
         }
 
+        if (result.appType === APP_TYPE.PBC && !result.controls.length) {
+          result.controls = [{ type: 2, controlName: '', required: false, desc: '' }];
+        }
+
         this.setState({ data: result });
       });
   };
@@ -69,13 +76,11 @@ export default class Start extends Component {
    */
   onSave = ({ close = true, isUpdate = undefined } = {}) => {
     const { child } = this.props;
-    const { data, saveRequest } = this.state;
+    const { data, saveRequest, errorItems } = this.state;
     // 处理按时间触发时间日期
     const isDateField =
-      _.get(
-        _.find(data.controls, ({ controlId }) => controlId === _.get(data, 'assignFieldId')),
-        'type',
-      ) === START_NODE_EXECUTE_DATE_TYPE;
+      _.get(_.find(data.controls, ({ controlId }) => controlId === _.get(data, 'assignFieldId')), 'type') ===
+      START_NODE_EXECUTE_DATE_TYPE;
     const {
       appId,
       appType,
@@ -127,6 +132,30 @@ export default class Start extends Component {
       if (returnJson && !checkJSON(returnJson)) {
         alert(_l('自定义数据返回JSON格式错误，请修改'), 2);
         return;
+      }
+
+      if (appType === APP_TYPE.PBC) {
+        if (errorItems.filter(item => item).length) {
+          alert(_l('有参数配置错误'), 2);
+          return;
+        }
+
+        if (controls.filter(item => !item.controlName).length) {
+          alert(_l('名称不能为空'), 2);
+          return;
+        }
+
+        const arr = controls.filter(item => item.type === 10000003);
+        let arrError = 0;
+
+        arr.forEach(item => {
+          if (_.isEmpty(safeParse(item.value)) || !_.isArray(safeParse(item.value))) arrError++;
+        });
+
+        if (arrError) {
+          alert(_l('数组范例数据有错误'), 2);
+          return;
+        }
       }
     }
 
@@ -259,7 +288,7 @@ export default class Start extends Component {
 
   render() {
     const { processId, selectNodeId, child } = this.props;
-    const { data } = this.state;
+    const { data, errorItems } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -326,6 +355,14 @@ export default class Start extends Component {
                     renderConditionBtn={this.renderConditionBtn}
                   />
                 )}
+                {data.appType === APP_TYPE.PBC && (
+                  <PBCContent
+                    data={data}
+                    updateSource={this.updateSource}
+                    errorItems={errorItems}
+                    setErrorItems={setErrorItems => this.setState({ setErrorItems })}
+                  />
+                )}
               </Fragment>
             )}
           </ScrollView>
@@ -339,7 +376,8 @@ export default class Start extends Component {
             _.includes(
               [APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.CUSTOM_ACTION, APP_TYPE.EXTERNAL_USER],
               data.appType,
-            )
+            ) ||
+            data.appType === APP_TYPE.PBC
           }
           onSave={() => {
             if (data.appType === APP_TYPE.WEBHOOK) {

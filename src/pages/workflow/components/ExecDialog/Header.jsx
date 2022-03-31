@@ -152,9 +152,17 @@ export default class Header extends Component {
       this.request('revoke');
       return;
     }
-
-    if (ignoreRequired || onSubmit({ noSave: true })) {
+    if (ignoreRequired) {
       this.setState({ action: id, otherActionVisible: true });
+    } else {
+      onSubmit({
+        noSave: true,
+        callback: err => {
+          if (!err) {
+            this.setState({ action: id, otherActionVisible: true });
+          }
+        },
+      });
     }
   };
 
@@ -244,6 +252,7 @@ export default class Header extends Component {
       onSubmit,
       sheetSwitchPermit = [],
       viewId,
+      works,
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
     const {
@@ -269,7 +278,15 @@ export default class Header extends Component {
 
     if (flowNode) {
       const { text, color } =
-        currentWorkItem.type !== 0 ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType] : {};
+        currentWorkItem && currentWorkItem.type && currentWorkItem.type !== 0
+          ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType]
+          : {};
+      const urgeTime = (
+        (works || [])
+          .filter(o => o.allowUrge && o.urgeTime)
+          .sort((a, b) => (moment(a.urgeTime) < moment(b.urgeTime) ? 1 : -1))[0] || {}
+      ).urgeTime;
+
       return (
         <Fragment>
           <header className="flexRow workflowStepHeader">
@@ -280,10 +297,18 @@ export default class Header extends Component {
               {`${app.name} · ${processName}`}
             </div>
 
-            {currentWorkItem.operationTime && !operationTypeList[0].length ? (
+            {currentWorkItem && currentWorkItem.operationTime && !!operationTypeList[0].length && urgeTime && (
               <div className="operationTime flexRow Gray_9e Font14">
-                {createTimeSpan(currentWorkItem.operationTime)}
-                {text && (
+                {createTimeSpan(urgeTime)}
+                <span className="mLeft5 Gray_9e">{_l('已催办')}</span>
+              </div>
+            )}
+
+            {currentWorkItem && currentWorkItem.operationTime && !operationTypeList[0].length ? (
+              <div className="operationTime flexRow Gray_9e Font14">
+                {createTimeSpan(urgeTime || currentWorkItem.operationTime)}
+                {!!urgeTime && <span className="mLeft5 Gray_9e">{_l('已催办')}</span>}
+                {text && !urgeTime && (
                   <span className="mLeft5" style={{ color }}>
                     {text}
                   </span>

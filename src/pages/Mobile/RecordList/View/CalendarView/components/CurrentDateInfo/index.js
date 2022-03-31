@@ -81,62 +81,76 @@ class CurrentDateInfo extends Component {
                     });
                   }
                 }}
-                value={searchValue} 
+                value={searchValue}
               />
             </div>
           ) : null}
-          {(listData.length && (<ScrollView className="flex">
-            {listData.map(item => {
-              let controlItem = {},
-                keyFields = '',
-                value = '',
-                flag = false;
-              controls.forEach(it => {
-                if (item.extendedProps.hasOwnProperty(it.controlId) && it.type === 11) {
-                  controlItem = it;
-                  keyFields = item.extendedProps[it.controlId];
-                  flag = true;
-                }
-              });
-              let options = controlItem.options || [];
-              options.forEach(it => {
-                if (keyFields && it.key === JSON.parse(keyFields).join(' ')) {
-                  value = it.value;
-                }
-              });
-              let radioStyle = {
-                display: 'inline-block',
-                minWidth: ' 55px',
-                textAlign: 'center',
-                height: '22px',
-                lineHeight: '22px',
-                padding: '0 8px',
-                margin: '10px 0 8px',
-                borderRadius: '11px',
-                backgroundColor: item.backgroundColor,
-                borderColor: item.borderColor,
-                color: item.textColor,
-              };
-              return (
-                <div
-                  className="listItem"
-                  key={item.extendedProps.rowid}
-                  onClick={() => this.navigateToDetail(item.extendedProps.rowid)}
-                >
-                  <div className="title Font14 Bold ellipsis" title={item.title} style={{ WebkitBoxOrient: 'vertical' }}>
-                    {item.title}
+          {(listData.length && (
+            <ScrollView className="flex">
+              {listData.map(item => {
+                let controlItem = {},
+                  keyFields = '',
+                  value = '',
+                  flag = false;
+                controls.forEach(it => {
+                  if (item.extendedProps.hasOwnProperty(it.controlId) && it.type === 11) {
+                    controlItem = it;
+                    keyFields = item.extendedProps[it.controlId];
+                    flag = true;
+                  }
+                });
+                let options = controlItem.options || [];
+                options.forEach(it => {
+                  if (keyFields && it.key === JSON.parse(keyFields).join(' ')) {
+                    value = it.value;
+                  }
+                });
+                let radioStyle = {
+                  display: 'inline-block',
+                  minWidth: ' 55px',
+                  textAlign: 'center',
+                  height: '22px',
+                  lineHeight: '22px',
+                  padding: '0 8px',
+                  margin: '10px 0 8px',
+                  borderRadius: '11px',
+                  backgroundColor: item.backgroundColor,
+                  borderColor: item.borderColor,
+                  color: item.textColor,
+                };
+                return (
+                  <div
+                    className="listItem"
+                    key={item.extendedProps.rowid}
+                    onClick={() => this.navigateToDetail(item.extendedProps.rowid)}
+                  >
+                    <div
+                      className="title Font14 Bold ellipsis"
+                      title={item.title}
+                      style={{ WebkitBoxOrient: 'vertical' }}
+                    >
+                      {item.title}
+                    </div>
+                    {(flag && <div style={radioStyle}>{value}</div>) || null}
+                    {item.start && (
+                      <div className="Gray_9e Font13 mTop2 flexRow">
+                        {dateFormat(item.start, item.end)}
+                        {item.mark && <span className="mLeft10">{item.mark}</span>}
+                      </div>
+                    )}
                   </div>
-                  {(flag && <div style={radioStyle}>{value}</div>) || null}
-                  {item.start && <div className="Gray_9e Font13 mTop2">{dateFormat(item.start, item.end)}</div>}
-                </div>
-              );
-            })}
-          </ScrollView>)) || null}
+                );
+              })}
+            </ScrollView>
+          )) ||
+            null}
 
-          {!listData.length ? (<div className="emptyContainer flexColumn flex">
-            <img className="img" src={withoutRows} style={{width: '72px'}} />
-            <div>{_l('你这一天没有日程')}</div>
-          </div>) : null}
+          {!listData.length ? (
+            <div className="emptyContainer flexColumn flex">
+              <img className="img" src={withoutRows} style={{ width: '72px' }} />
+              <div>{_l('你这一天没有日程')}</div>
+            </div>
+          ) : null}
         </div>
       </Modal>
     );

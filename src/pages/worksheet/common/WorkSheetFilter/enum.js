@@ -333,6 +333,7 @@ export const API_ENUM_TO_TYPE = {
   REMARK: 10010, // 备注
   CASCADER: 35, //级联选择
   SUBLIST: 34, //子表
+  EMBED: 45, // 嵌入
 };
 
 export function getFilterTypeLabel(typeKey, type, control, controlType) {
@@ -342,7 +343,8 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isRelateRecordMutiple = typeKey === 'RELATE_RECORD' && control && control.enumDefault === 2;
   const isCascader = typeKey === 'CASCADER' && control;
   const isOptionsMultiple = controlType === API_ENUM_TO_TYPE.OPTIONS_10;
-  const isDepartmentMultiple = control && control.type === 27;
+  const isDepartment = control && control.type === 27;
+  const isDepartmentMultiple = control && control.type === 27 && control.enumDefault === 1;
   const isUser = control && control.type === 26;
   const isArea = control && _.includes([19, 23, 24], control.type);
   switch (type) {
@@ -369,10 +371,10 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     case FILTER_CONDITION_TYPE.HASVALUE:
       return _l('不为空');
     case FILTER_CONDITION_TYPE.BETWEEN:
-      if (isCascader || isDepartmentMultiple || isArea) return _l('属于');
+      if (isCascader || isDepartment || isArea) return _l('属于');
       return _l('在范围内');
     case FILTER_CONDITION_TYPE.NBETWEEN:
-      if (isCascader || isDepartmentMultiple || isArea) return _l('不属于');
+      if (isCascader || isDepartment || isArea) return _l('不属于');
       return _l('不在范围内');
     case FILTER_CONDITION_TYPE.GT:
       if (isDate) return _l('晚于');

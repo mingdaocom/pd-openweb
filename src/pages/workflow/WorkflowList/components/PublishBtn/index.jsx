@@ -64,18 +64,24 @@ export default class PublishBtn extends Component {
     process.publish({ isPublish: !item.enabled, processId: item.id }).then(publishData => {
       const { isPublish } = publishData;
       if (isPublish) {
-        list.map(o => {
-          o.processList = o.processList.map(obj => {
-            if (obj.id === item.id) {
-              obj.enabled = !item.enabled;
-              obj.publishStatus = !item.enabled ? 2 : item.publishStatus;
-              obj.lastModifiedDate = !item.enabled ? moment().format('YYYY-MM-DD HH:mm:ss') : item.lastModifiedDate;
-            }
+        list.map(list => {
+          if (list.processList && _.isArray(list.processList)) {
+            list.processList = list.processList.map(obj => {
+              if (obj.id === item.id) {
+                obj.enabled = !item.enabled;
+                obj.publishStatus = !item.enabled ? 2 : item.publishStatus;
+                obj.lastModifiedDate = !item.enabled ? moment().format('YYYY-MM-DD HH:mm:ss') : item.lastModifiedDate;
+              }
 
-            return obj;
-          });
+              return obj;
+            });
+          } else if (list.id === item.id) {
+            list.enabled = !item.enabled;
+            list.publishStatus = !item.enabled ? 2 : item.publishStatus;
+            list.lastModifiedDate = !item.enabled ? moment().format('YYYY-MM-DD HH:mm:ss') : item.lastModifiedDate;
+          }
 
-          return o;
+          return list;
         });
         this.props.updateSource(list);
       } else {
@@ -97,12 +103,17 @@ export default class PublishBtn extends Component {
       <div className="flexRow">
         <Switch checked={item.enabled} text={item.enabled ? _l('开启') : _l('关闭')} onClick={this.switchEnabled} />
         {!!showTime && (
-          <span className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}>{`${this.formatDate(item.lastModifiedDate)} ${
-            publishStatus2Text[item.publishStatus]
-          }`}</span>
+          <span
+            className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}
+          >{`${this.formatDate(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
         )}
         {dialogVisible && (
-          <PublishErrorDialog visible={dialogVisible} onCancel={() => this.setState({ dialogVisible: false })} onOk={this.editFlow} info={publishData} />
+          <PublishErrorDialog
+            visible={dialogVisible}
+            onCancel={() => this.setState({ dialogVisible: false })}
+            onOk={this.editFlow}
+            info={publishData}
+          />
         )}
       </div>
     );

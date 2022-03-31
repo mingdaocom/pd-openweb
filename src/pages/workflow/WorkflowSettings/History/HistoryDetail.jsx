@@ -48,7 +48,7 @@ export default class HistoryDetail extends Component {
 
   renderOperationInfo = item => {
     const { cause, causeMsg } = this.state.data.instanceLog;
-    const { flowNode, workItems, countersign, countersignType, status, log = {}, sourceId } = item;
+    const { flowNode, workItems, countersign, countersignType, status, log = {}, sourceId, scheduleActions } = item;
 
     if (!sourceId && log.executeType === 2) {
       return <div className="Gray_75">{_l('跳过')}</div>;
@@ -80,6 +80,21 @@ export default class HistoryDetail extends Component {
                         {index < names.length - 1 && '、'}
                       </span>
                     ),
+                )}
+
+                {scheduleActions && !!scheduleActions.length && (
+                  <div>
+                    <span>{_l('提醒人：')}</span>
+                    {scheduleActions.map((item, i) =>
+                      item.accounts.map((obj, j) => (
+                        <Fragment key={`${i}-${j}`}>
+                          <span>{obj.fullName}</span>
+                          <span className="Gray_9e">({moment(item.executeTime).format('MM-DD HH:mm')})</span>
+                          {(i !== scheduleActions.length - 1 || j !== item.accounts.length - 1) && <span>、</span>}
+                        </Fragment>
+                      )),
+                    )}
+                  </div>
                 )}
               </div>
               {_.includes([4, 5], status) && !countersign && (
@@ -207,7 +222,9 @@ export default class HistoryDetail extends Component {
             {isRetry && this.retryPosition === 'header' && <div className="workflowRetryLoading" />}
             <HistoryStatus statusCode={data.status} size={44} color={color} textSize={18} />
             <div className="title flex mRight15">
-              <div className="overflow_ellipsis Font18">{_l('数据：') + title}</div>
+              <div className="overflow_ellipsis Font18">
+                {_l('数据：') + (works.length && works[0].flowNode.appType === 17 ? _l('输入参数') : title)}
+              </div>
               <div style={{ color }}>
                 {cause
                   ? cause === 40007
@@ -257,7 +274,7 @@ export default class HistoryDetail extends Component {
                     </div>
 
                     <div className="operationPerson">
-                      {flowNode.type === 16
+                      {_.includes([16, 20], flowNode.type)
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
                         ? this.renderTemplateInfo(item)

@@ -1,6 +1,7 @@
 // code from MDRN: exExec.ts
 
 // code from MDRN: exExec.ts
+import { accSub, accAdd, accDiv, accMul } from 'src/util';
 
 const operates = {
   divide: (arg1, arg2) => {
@@ -75,7 +76,7 @@ const cFunctions = {
       args.reduce((pre, cur) => {
         return accAdd(pre, cur);
       }, 0),
-      args.length
+      args.length,
     );
   },
   cPRODUCT: (...args) => {
@@ -128,99 +129,6 @@ function exExec(tree) {
   } else if (tree.type === TreeType.SymbolNode) {
     return null;
   }
-}
-
-/* 说明：javascript的加法结果会有误差，在两个浮点数相加的时候会比较明显。
-* 这个函数返回较为精确的加法结果。
-* 调用：accAdd(arg1,arg2)
-* 返回值：arg1加上arg2的精确结果
-*/
-function accAdd(arg1, arg2) {
-  let r1 = 0;
-  let r2 = 0;
-
-  try {
-    r1 = arg1.toString().split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  try {
-    r2 = arg2.toString().split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  const m = Math.pow(10, Math.max(r1, r2));
-
-  return (arg1 * m + arg2 * m) / m;
-}
-
-/* 说明：javascript的减法结果会有误差，在两个浮点数相减的时候会比较明显。
-* 这个函数返回较为精确的减法结果。
-* 调用：accSub(arg1,arg2)
-* 返回值：arg1减上arg2的精确结果
-*/
-function accSub(arg1, arg2) {
-  return accAdd(arg1, -arg2);
-}
-
-/* 说明：javascript的乘法结果会有误差，在两个浮点数相乘的时候会比较明显。
-* 这个函数返回较为精确的乘法结果。
-* 调用：accMul(arg1,arg2)
-* 返回值：arg1乘以arg2的精确结果
-*/
-function accMul(arg1, arg2) {
-  let m = 0;
-  const s1 = arg1.toString();
-  const s2 = arg2.toString();
-
-  try {
-    m += s1.split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  try {
-    m += s2.split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m);
-}
-
-/* 说明：javascript的除法结果会有误差，在两个浮点数相除的时候会比较明显。
-* 这个函数返回较为精确的除法结果。
-* 调用：accMul(arg1,arg2)
-* 返回值：arg1除以arg2的精确结果
-*/
-function accDiv(arg1, arg2) {
-  let t1 = 0;
-  let t2 = 0;
-
-  try {
-    t1 = arg1.toString().split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  try {
-    t2 = arg2.toString().split('.')[1].length;
-  } catch (e) {
-    //
-  }
-
-  const r1 = Number(arg1.toString().replace('.', ''));
-  const r2 = Number(arg2.toString().replace('.', ''));
-
-  const res = r1 / r2 * Math.pow(10, t2 - t1);
-
-  if (res.toString().replace(/\d+\./, '').length > 9) {
-    return parseFloat(res.toFixed(9));
-  }
-
-  return res;
 }
 
 export default {

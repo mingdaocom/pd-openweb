@@ -36,7 +36,9 @@ export const getIcons = (type, appType, actionId) => {
       } else if (appType === APP_TYPE.DEPARTMENT) {
         icon = 'icon-workflow';
       } else if (appType === APP_TYPE.EXTERNAL_USER) {
-        icon = 'icon-folder-public';
+        icon = 'icon-language';
+      } else if (appType === APP_TYPE.PBC) {
+        icon = 'icon-pbc';
       } else {
         icon = 'icon-worksheet';
       }
@@ -100,6 +102,9 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.TEMPLATE:
       icon = 'icon-wechat';
       break;
+    case NODE_TYPE.PBC:
+      icon = 'icon-pbc';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -138,6 +143,7 @@ export const getColor = appType => {
       return 'BGYellow';
     case APP_TYPE.WEBHOOK:
     case APP_TYPE.CUSTOM_ACTION:
+    case APP_TYPE.PBC:
       return 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
@@ -205,7 +211,7 @@ export const replaceField = (text, fieldMap, connector = '>') => {
  */
 export const checkJSON = value => {
   try {
-    JSON.parse(value);
+    JSON.parse((value || '').replace(/\$.*?\$/g, 1));
     return true;
   } catch (e) {
     return false;

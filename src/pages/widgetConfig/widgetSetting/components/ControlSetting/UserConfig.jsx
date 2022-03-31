@@ -105,6 +105,7 @@ export default function UserConfig({ globalSheetInfo, data, onChange }) {
             filterOtherProject: true,
             projectId: globalSheetInfo.projectId,
             callback: handleUserChange,
+            showTabs: ['conactUser', 'department', 'subordinateUser'],
           },
         });
       });
@@ -154,7 +155,8 @@ export default function UserConfig({ globalSheetInfo, data, onChange }) {
                 onClick={e => {
                   e.stopPropagation();
                   handleRemove(item);
-                }}></i>
+                }}
+              ></i>
             </li>
           );
         })}
@@ -198,11 +200,13 @@ export default function UserConfig({ globalSheetInfo, data, onChange }) {
                 </div>
               ))}
             </DropdownContent>
-          }>
+          }
+        >
           <DropdownPlaceholder
             style={{ padding: '4px 6px 4px 12px', marginBottom: '6px' }}
             className={cx({ active: overlayVisible })}
-            color="#333">
+            color="#333"
+          >
             {getUserDisplay()}
             <i className="icon-arrow-down-border Gray_9e"></i>
           </DropdownPlaceholder>

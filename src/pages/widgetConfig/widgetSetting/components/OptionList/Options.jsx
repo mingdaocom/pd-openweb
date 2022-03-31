@@ -184,7 +184,8 @@ const OptionItem = SortableElement(
                       addOption();
                     }
                   }}
-                  onChange={e => updateOption(index, { value: e.target.value.trim() })}
+                  onChange={e => updateOption(index, { value: e.target.value })}
+                  onBlur={e => updateOption(index, { value: e.target.value.trim() })}
                 />
               </div>
               {mode !== 'list' && (
@@ -298,16 +299,16 @@ export default function SelectOptions(props) {
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>
-        {!fromPortal && (
-          <div className="operate">
-            <div className="batchAdd hoverText" onClick={() => updateVisible('batchAdd')}>
-              {_l('批量添加')}
-            </div>
+        <div className={cx('operate', { 'TxtRight': fromPortal })}>
+          <div className={cx('batchAdd hoverText', { 'flex': fromPortal })} onClick={() => updateVisible('batchAdd')}>
+            {_l('批量添加')}
+          </div>
+          {!fromPortal && (
             <div className="assignValue hoverText" onClick={() => updateVisible('assignValue')}>
               {_l('赋分值')}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </HandleOption>
       {assignValueVisible && (
         <AssignValue

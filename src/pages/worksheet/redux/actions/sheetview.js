@@ -252,11 +252,10 @@ export const clearSelect = () => ({
 });
 
 export function selectRows({ rows = [], selectAll }) {
-  if (typeof selectAll !== 'undefined') {
+  if (selectAll) {
     return {
       type: 'WORKSHEET_SHEETVIEW_SELECT_ALL',
-      value: selectAll,
-      rows,
+      value: true,
     };
   } else {
     return {

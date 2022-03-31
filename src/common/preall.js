@@ -5,6 +5,10 @@ import project from 'src/api/project';
 import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import { getPssId, setPssId } from 'src/util/pssId';
+if (/theportal\.cn$/.test(location.host) && window.__api_server__ && window.__api_server__.main) {
+  window.__api_server__.main = '/api/';
+}
+
 function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
@@ -89,7 +93,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   });
 }
 
-const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -112,11 +116,7 @@ const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken
         document.title = _l('应用');
       }
 
-      return loading ? (
-        !hideloading && <LoadDiv size="big" className="pre" />
-      ) : (
-        <Comp {...this.props} />
-      );
+      return loading ? !hideloading && <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
     }
   }
 
@@ -133,7 +133,7 @@ function getMomentLocale(lang) {
   }
 }
 
-export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
   } else {
@@ -141,15 +141,15 @@ export default function(Comp, { allownotlogin, preloadcb, hideloading, transfert
   }
 }
 
-(function(arr) {
-  arr.forEach(function(item) {
+(function (arr) {
+  arr.forEach(function (item) {
     item.prepend =
       item.prepend ||
-      function() {
+      function () {
         var argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
-        argArr.forEach(function(argItem) {
+        argArr.forEach(function (argItem) {
           var isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });

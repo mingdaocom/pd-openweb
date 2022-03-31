@@ -75,6 +75,7 @@ export default class ChartSetting extends Component {
       <Fragment>
         <PivotTableAxis
           name={x}
+          type="lines"
           axisControls={axisControls}
           list={lines}
           disableParticleSizeTypes={disableParticleSizeTypes}
@@ -92,6 +93,7 @@ export default class ChartSetting extends Component {
         />
         <PivotTableAxis
           name={y}
+          type="columns"
           axisControls={axisControls}
           list={columns}
           disableParticleSizeTypes={disableParticleSizeTypes}

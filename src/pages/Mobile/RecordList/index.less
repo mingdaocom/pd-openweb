@@ -1,8 +1,7 @@
-
 @import url('../Discuss/index.less');
 
 .mobileView {
-  background-color: #F2F2F3;
+  background-color: #f2f2f3;
 }
 
 .am-tabs-default-bar-underline {
@@ -25,6 +24,9 @@
 }
 
 .viewTabs {
+  &.isPortal {
+    margin-top: -10px;
+  }
   .am-tabs-default-bar-tab {
     width: auto !important;
     border-bottom: none !important;
@@ -69,7 +71,6 @@
   box-shadow: 0 1px 4px #00000029;
 }
 
-
 .moibleFilterPopup {
   left: 0 !important;
 }
@@ -77,10 +78,10 @@
 .mobileSearchRecordDropdown {
   width: 100%;
   top: 44px !important;
-  .searchRecordAutoComplete{
+  .searchRecordAutoComplete {
     box-shadow: unset;
   }
-  .Dropdown--input{
+  .Dropdown--input {
     padding: 0 0 0 11px;
   }
 }

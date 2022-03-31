@@ -61,10 +61,15 @@ function NewReccordForm(props) {
     defaultFormDataEditable,
     defaultFormData,
     registeFunc,
+    masterRecord,
+    masterRecordRowId,
+    onSubmitBegin = () => {},
+    onSubmitEnd = () => {},
     onAdd = () => {},
     onError = () => {},
   } = props;
   const tempNewRecord = needCache && viewId && localStorage.getItem('tempNewRecord_' + viewId);
+  const cache = useRef({});
   const cellObjs = useRef({});
   const isSubmitting = useRef(false);
   const customwidget = useRef();
@@ -109,7 +114,16 @@ function NewReccordForm(props) {
   }, []);
   function newRecord(options = {}) {
     if (!customwidget.current) return;
-    let { data, hasError, hasRuleError } = customwidget.current.getSubmitData();
+    onSubmitBegin();
+    cache.current.newRecordOptions = options;
+    customwidget.current.submitFormData();
+  }
+  function onSave(error, { data } = {}) {
+    if (error) {
+      onSubmitEnd();
+      return;
+    }
+    let hasError;
     isSubmitting.current = true;
     const subListControls = data.filter(item => item.type === 34);
     if (subListControls.length) {
@@ -163,11 +177,7 @@ function NewReccordForm(props) {
     if (hasError) {
       setErrorVisible(true);
       alert(_l('请正确填写%0', entityName || worksheetInfo.entityName || ''), 3);
-      return false;
-    } else if ($('.workSheetNewRecord .Progress--circle').length > 0) {
-      alert(_l('附件正在上传，请稍后', 3));
-      return false;
-    } else if (hasRuleError) {
+      onSubmitEnd();
       return false;
     } else {
       if (requesting) {
@@ -177,7 +187,7 @@ function NewReccordForm(props) {
         removeFromLocal('tempNewRecord_' + viewId);
       }
       setRequesting(true);
-      const { autoFill, continueAdd } = options;
+      const { autoFill, continueAdd } = cache.current.newRecordOptions || {};
       submitNewRecord({
         appId,
         projectId,
@@ -219,7 +229,6 @@ function NewReccordForm(props) {
           'masterRecord',
           'addType',
           'onCancel',
-          'onSubmitBegin',
           'onSubmitEnd',
           'updateWorksheetControls',
         ]),
@@ -294,6 +303,7 @@ function NewReccordForm(props) {
               isCharge,
               allowEdit: true,
             }}
+            masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
             registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
             mountRef={ref => (customwidget.current = ref.current)}
             formFlag={random}
@@ -311,6 +321,7 @@ function NewReccordForm(props) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));
               }
             }}
+            onSave={onSave}
             onRelateRecordsChange={(control, records) => {
               if (!customwidget.current) {
                 return;

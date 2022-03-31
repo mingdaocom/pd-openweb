@@ -24,28 +24,40 @@ module.exports = {
      return $.api('ExternalPortal', 'GetPortalSetByAppId', args, options);
    },
   /**
-  * 根据AppId获取基础配置
+  * 获取 用户协议
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getBaseSetByAppId: function (args, options = {}) {
+   getUserAgreement: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetBaseSetByAppId', args, options);
+     return $.api('ExternalPortal', 'GetUserAgreement', args, options);
    },
   /**
-  * 根据AppId获取登录页配置
+  * 获取 隐私条款
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getLoginPageSetByAppId: function (args, options = {}) {
+   getPrivacyTerms: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetLoginPageSetByAppId', args, options);
+     return $.api('ExternalPortal', 'GetPrivacyTerms', args, options);
+   },
+  /**
+  * 根据AppId获取外部门户配置(含用户自定义字段)
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPortalSet: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetPortalSet', args, options);
    },
   /**
   * 根据AppId获取门户启用状态
@@ -73,19 +85,7 @@ module.exports = {
      return $.api('ExternalPortal', 'ValidateDomianName', args, options);
    },
   /**
-  * 获取短信签名
-  * @param {Object} args 请求参数
-  * @param {string} args.appId AppId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSmsSignatrue: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'GetSmsSignatrue', args, options);
-   },
-  /**
-  * 启用/关闭外部门户
+  * 编辑 外部门户的启用状态
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
   * @param {boolean} args.isEnable 是否启用
@@ -93,59 +93,9 @@ module.exports = {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   onOffPortal: function (args, options = {}) {
+   editExPortalEnable: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'OnOffPortal', args, options);
-   },
-  /**
-  * 保存门户基础配置
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.domainName 自定义域名
-  * @param {} args.loginMode 登录/注册方式 Phone:手机 WeChat:微信
-  * @param {} args.allowUserType 允许注册访问的用户类型 任何人=3 审核的用户=6 定向邀请的用户=9
-  * @param {} args.noticeScope 通知作用域   Admin:管理员
-  * @param {string} args.wxAppId 微信AppId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editBaseSet: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'EditBaseSet', args, options);
-   },
-  /**
-  * 保存门户登录页配置
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.pageTitle 登录页名称
-  * @param {} args.logoImageBucket LogoImage BucketType 私信=1  BUG反馈层=2  文档=3  图片=4（0:属于无效类型）
-  * @param {string} args.logoImagePath 登录页 LogoImage 相对路径
-  * @param {} args.pageMode 登录页面结构 居中=3 左右=6
-  * @param {} args.backGroundType 背景类型  纯色=3 背景图=6
-  * @param {string} args.backColor 背景色
-  * @param {} args.backImageBucket BackImage BucketType 私信=1  BUG反馈层=2  文档=3  图片=4（0:属于无效类型）
-  * @param {string} args.backImagePath 背景图片相对路径
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editLoginPageSet: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'EditLoginPageSet', args, options);
-   },
-  /**
-  * 保存消息设置
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {string} args.smsSignature 短信签名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveMessageSet: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'SaveMessageSet', args, options);
+     return $.api('ExternalPortal', 'EditExPortalEnable', args, options);
    },
   /**
   * 修改是否发送短信
@@ -159,6 +109,51 @@ module.exports = {
    editIsSendMsgs: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'EditIsSendMsgs', args, options);
+   },
+  /**
+  * 保存外部门户配置(含外部用户自定义字段)
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {} args.portalSet 外部门户配置
+  * @param {} args.worksheetControls 自定义控件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPortalSet: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'EditPortalSet', args, options);
+   },
+  /**
+  * 发送 验证码（登录后）
+  * @param {Object} args 请求参数
+  * @param {string} args.account 手机号
+  * @param {string} args.appId 应用ID
+  * @param {} args.portalSmsType 短信类型(不能为0) 1：注销  2：申请修改手机号 3：绑定新手机号
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   sendAccountVerifyCode: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'SendAccountVerifyCode', args, options);
+   },
+  /**
+  * 检查 验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.verifyCode 验证码
+  * @param {} args.handleType 检查类型 1: 注销  2：绑定手机号
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkExAccountVerifyCode: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'CheckExAccountVerifyCode', args, options);
    },
   /**
   * 获取外部人员列表基础配置信息
@@ -218,7 +213,7 @@ module.exports = {
      return $.api('ExternalPortal', 'GetUserActionLogs', args, options);
    },
   /**
-  * 获取查看量
+  * 
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {integer} args.type 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
@@ -383,6 +378,32 @@ module.exports = {
      return $.api('ExternalPortal', 'RefusePassExAccount', args, options);
    },
   /**
+  * 外部用户 注销
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editExAccountCancel: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'EditExAccountCancel', args, options);
+   },
+  /**
+  * 外部用户 绑定新手机号
+  * @param {Object} args 请求参数
+  * @param {string} args.verifyCode 验证码
+  * @param {string} args.account 新手机号
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editExAccountBindNewPhone: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'EditExAccountBindNewPhone', args, options);
+   },
+  /**
   * 批量删除用户
   * @param {Object} args 请求参数
   * @param {string} args.appId
@@ -395,35 +416,6 @@ module.exports = {
    removeUsers: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'RemoveUsers', args, options);
-   },
-  /**
-  * 获取用户字段配置
-  * @param {Object} args 请求参数
-  * @param {string} args.appId AppId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserControls: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'GetUserControls', args, options);
-   },
-  /**
-  * 
-  * @param {Object} args 请求参数
-  * @param {string} args.sourceId 兼容老数据
-  * @param {string} args.worksheetId WorksheetId
-  * @param {integer} args.version 版本号
-  * @param {array} args.controls 控件集合
-  * @param {string} args.appId 应用ID
-  * @param {string} args.controlId 控件ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveUserControls: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'SaveUserControls', args, options);
    },
   /**
   * 获取显示列
@@ -580,9 +572,9 @@ module.exports = {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getByProject: function (args, options = {}) {
+   getAppInfoByProject: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetByProject', args, options);
+     return $.api('ExternalPortal', 'GetAppInfoByProject', args, options);
    },
   /**
   * 获取外部门户的角色列表
@@ -733,5 +725,34 @@ module.exports = {
    tpLogin: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'TpLogin', args, options);
+   },
+  /**
+  * 返回外部门户微信登录扫码地址
+  * @param {Object} args 请求参数
+  * @param {string} args.wxAppId 微信公众号应用ID
+  * @param {string} args.appId 应用ID
+  * @param {string} args.projectId 网络ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTpLoginScanUrl: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetTpLoginScanUrl', args, options);
+   },
+  /**
+  * 获取外部门户微信扫码登录结果
+轮询
+  * @param {Object} args 请求参数
+  * @param {string} args.state 二维码所需的临时状态码
+用于反向存储账户相关信息，具备有效期
+  * @param {string} args.appId 应用ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   scanTpLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'ScanTpLogin', args, options);
    },
 };

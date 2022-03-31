@@ -2,7 +2,9 @@ const path = require('path');
 const config = require('./webpack.common.config');
 
 module.exports = {
-  resolve: config.resolve,
+  resolve: Object.assign({}, config.resolve, {
+    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/common/uuid' }),
+  }),
   entry: path.join(
     __dirname,
     '../src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/releaseEntry.js',

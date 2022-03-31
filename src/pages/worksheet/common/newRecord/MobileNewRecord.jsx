@@ -1,20 +1,34 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Modal, WingBlank, Button } from 'antd-mobile';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, LoadDiv } from 'ming-ui';
 import NewRecordContent from './NewRecordContent';
 
 export default function NewRecord(props) {
   const { visible, className, showFillNext, hideNewRecord, ...rest } = props;
   const newRecordContent = useRef(null);
+  const [loading, setLoading] = useState();
   const header = (
     <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
-      <div className="title Font18 Gray flex bold leftAlign ellipsis">{props.title || (props.entityName && _l('创建%0', props.entityName))}</div>
+      <div className="title Font18 Gray flex bold leftAlign ellipsis">
+        {props.title || (props.entityName && _l('创建%0', props.entityName))}
+      </div>
       <i className="icon icon-close Gray_9e Font20" onClick={hideNewRecord}></i>
     </div>
   );
-  const content = <NewRecordContent registeFunc={funcs => (newRecordContent.current = funcs)} {...rest} continueCheck={false} showTitle={false} onCancel={hideNewRecord} from={5}/>;
+  const content = (
+    <NewRecordContent
+      registeFunc={funcs => (newRecordContent.current = funcs)}
+      {...rest}
+      continueCheck={false}
+      showTitle={false}
+      onCancel={hideNewRecord}
+      from={5}
+      onSubmitBegin={() => setLoading(true)}
+      onSubmitEnd={() => setLoading(false)}
+    />
+  );
   const footer = (
     <div className="footerBox btnsWrapper valignWrapper flexRow">
       <WingBlank className="flex" size="sm">
@@ -32,6 +46,11 @@ export default function NewRecord(props) {
       onCancel={hideNewRecord}
       visible={visible}
     >
+      {loading && (
+        <div className="loadingMask">
+          <LoadDiv size="small" />
+        </div>
+      )}
       <div className="flexColumn leftAlign h100">
         {header}
         <ScrollView className="flex">
@@ -40,7 +59,7 @@ export default function NewRecord(props) {
         {footer}
       </div>
     </Modal>
-  )
+  );
 }
 
 NewRecord.propTypes = {

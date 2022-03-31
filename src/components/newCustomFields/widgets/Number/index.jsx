@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { accMul } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -20,6 +21,7 @@ export default class Widgets extends Component {
   };
 
   onChange = event => {
+    let { advancedSetting = {} } = this.props;
     let value = event.target.value
       .replace(/[^-\d.]/g, '')
       .replace(/^\./g, '')
@@ -36,17 +38,22 @@ export default class Widgets extends Component {
     }
 
     this.number.value = value;
+
+    if (advancedSetting.numshow === '1' && typeof value === 'number') {
+      value = parseFloat(value) / 100;
+    }
+
     this.props.onChange(value);
   };
 
   onBlur = () => {
-    let { value, dot, onChange, onBlur } = this.props;
+    let { value, dot, onChange, onBlur, advancedSetting = {} } = this.props;
     this.setState({ isEditing: false });
 
     if (value === '-') {
       value = '';
     } else if (value) {
-      value = parseFloat(value).toFixed(dot);
+      value = parseFloat(value).toFixed(advancedSetting.numshow === '1' ? dot + 2 : dot);
     }
 
     onChange(value);
@@ -60,17 +67,19 @@ export default class Widgets extends Component {
 
   render() {
     let { value } = this.props;
-    const { type, disabled, hint, dot, unit, enumDefault, advancedSetting } = this.props;
+    const { type, disabled, hint, dot, unit, enumDefault, advancedSetting = {} } = this.props;
     const { isEditing } = this.state;
-    const prefix = advancedSetting.prefix;
-    const suffix = advancedSetting.suffix || unit;
+    const { prefix, suffix = unit, thousandth, numshow } = advancedSetting;
+    if (numshow === '1' && value) {
+      value = accMul(value, 100);
+    }
 
     if (!isEditing) {
-      const number = value ? parseFloat(value).toFixed(dot) : '';
-
-      if (type !== 6 || enumDefault !== 1) {
-        const reg = number.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-        value = number.replace(reg, '$1,');
+      value = value || value === 0 ? parseFloat(value).toFixed(dot) : '';
+      // 数值兼容老的千分位配置enumDefault
+      if (type !== 6 || _.isUndefined(thousandth) ? enumDefault !== 1 : thousandth !== '1') {
+        const reg = value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
+        value = value.replace(reg, '$1,');
       }
 
       return (

@@ -18,11 +18,12 @@ const AssignValueContent = styled.div`
   }
   .content {
     display: flex;
-    max-height: 500px;
+    max-height: 445px;
     padding: 0 20px;
     overflow: auto;
+    box-sizing: border-box;
     ul {
-      flex-basis: 50%;
+      width: 50%;
       transition: background-color 0.25s;
       &.valueList {
         li {
@@ -94,7 +95,8 @@ export default function AssignValue(props) {
         });
       }}
       visible
-      title={<span className="Bold">{_l('赋分值')}</span>}>
+      title={<span className="Bold">{_l('赋分值')}</span>}
+    >
       <AssignValueContent>
         <div className="hint Gray_9e">
           {_l(
@@ -114,7 +116,7 @@ export default function AssignValue(props) {
                 !isDeleted && (
                   <li>
                     <div style={{ background: color }} className="colorWrap"></div>
-                    <div>{value}</div>
+                    <div className="flex overflow_ellipsis">{value}</div>
                   </li>
                 ),
             )}

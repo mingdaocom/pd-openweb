@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
+import styled from 'styled-components';
 import { LoadDiv, Button, Icon, ScrollView } from 'ming-ui';
 import { getSubListError } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
@@ -10,6 +11,16 @@ import CustomFields from 'src/components/newCustomFields';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import RecordCard from 'src/components/recordCard';
 
+const LoadMask = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+`;
 class WorksheetRowEdit extends Component {
   state = {
     isComplete: false,
@@ -100,17 +111,21 @@ class WorksheetRowEdit extends Component {
     return <div className="Font22 bold mBottom10">{title}</div>;
   }
 
+  onSubmit = () => {
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  };
+
   /**
    * 提交
    */
-  submitForm = () => {
-    if (this.submitted) {
+  onSave = (error, { data, updateControlIds }) => {
+    if (this.submitted || error) {
+      this.setState({ submitLoading: false });
       return;
     }
-
+    let hasError;
     const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
-    let { data, updateControlIds, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
-
     const subListControls = data.filter(item => item.type === 34);
     if (subListControls.length) {
       const errors = subListControls
@@ -159,13 +174,7 @@ class WorksheetRowEdit extends Component {
     }
 
     if (hasError) {
-      this.setState({ showError: true });
       alert(_l('请正确填写'), 3);
-      return false;
-    } else if (document.querySelectorAll('.formMain .Progress--circle').length > 0) {
-      alert(_l('附件正在上传，请稍后', 3));
-      return false;
-    } else if (hasRuleError) {
       return false;
     } else {
       this.submitted = true;
@@ -183,6 +192,7 @@ class WorksheetRowEdit extends Component {
         }
 
         this.submitted = false;
+        this.setState({ submitLoading: false });
       });
     }
   };
@@ -212,10 +222,11 @@ class WorksheetRowEdit extends Component {
   }
 
   renderContent() {
-    const { showError, data, pageIndex } = this.state;
+    const { showError, data, submitLoading } = this.state;
 
     return (
       <div className="worksheetRowEditBox">
+        {submitLoading && <LoadMask />}
         {this.renderTitle()}
 
         <CustomFields
@@ -229,11 +240,12 @@ class WorksheetRowEdit extends Component {
           isWorksheetQuery
           registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           openRelateRecord={this.getRowRelationRowsData}
+          onSave={this.onSave}
         />
 
         {data.type === 2 && (
           <div className="mTop50 TxtCenter">
-            <Button style={{ height: '36px', lineHeight: '36px' }} onClick={this.submitForm}>
+            <Button style={{ height: '36px', lineHeight: '36px' }} loading={submitLoading} onClick={this.onSubmit}>
               <span className="InlineBlock">{_l('提交')}</span>
             </Button>
           </div>

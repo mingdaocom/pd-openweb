@@ -4,8 +4,19 @@ import cx from 'classnames';
 import { LazyloadImg } from 'src/pages/feed/components/common/img';
 
 export default function ContactItem(props) {
-  const { avatar, fullname, accountId, isSelected, isFriend, isContact, itemClickHandler } = props;
+  const {
+    avatar,
+    fullname,
+    accountId,
+    isSelected,
+    isFriend,
+    isContact,
+    itemClickHandler,
+    searchDepartmentUsers,
+    departments = [],
+  } = props;
   const cls = cx('list-item Hand Font13', { ThemeBGColor6: isSelected });
+  let departmentName = (!_.isEmpty(departments) && departments[departments.length - 1]) || '';
   return (
     <div
       className={cls}
@@ -21,6 +32,7 @@ export default function ContactItem(props) {
       <span className="list-item-name" title={fullname}>
         {fullname}
       </span>
+      {searchDepartmentUsers && <span className="list-item-department">{departmentName}</span>}
     </div>
   );
 }

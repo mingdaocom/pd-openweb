@@ -408,6 +408,34 @@ export const removeRecord = (id) => {
   }
 }
 
+export const updateRecord = (row, updateControls, newItem) => {
+  return (dispatch, getState) => {
+    const { gunterView, controls } = getState().sheet;
+    const { viewConfig } = gunterView;
+
+    const viewControl = updateControls[viewConfig.viewControl];
+    const colorControl = _.find(controls, { controlId: viewConfig.colorId });
+    const record = fillRecordTimeBlockColor({ ...row, ...formatRecordTime(newItem, viewConfig) }, colorControl);
+
+    if (_.isString(viewControl)) {
+      const groupControl = _.find(controls, { controlId: viewConfig.viewControl });
+      let newKey = '';
+      if ([29].includes(groupControl.type)) {
+        const data = JSON.parse(viewControl)[0];
+        newKey = data ? data.sid : '-1';
+      }
+      if ([9, 11].includes(groupControl.type)) {
+        const data = viewControl ? JSON.parse(viewControl)[0] : '-1';
+        newKey = data;
+      }
+      dispatch(moveGroupingRow(record, newKey, row.groupId));
+      dispatch(updateEditIndex(null));
+    } else {
+      dispatch(updateGroupingRow(record, newItem.rowid));
+    }
+  }
+}
+
 export const updateRecordTime = (row, start, end) => {
   return (dispatch, getState) => {
     const { base, gunterView, controls } = getState().sheet;

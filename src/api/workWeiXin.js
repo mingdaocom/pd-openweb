@@ -446,6 +446,44 @@ module.exports = {
      return $.api('WorkWeiXin', 'GetWorkWXSsoUrlInfo', args, options);
    },
   /**
+  * 获取企业微信代开发模式授权二维码链接
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWXAlternativeAppScanCodeUrl: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWorkWXAlternativeAppScanCodeUrl', args, options);
+   },
+  /**
+  * 提交已经申请开通企业微信代开发模式
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editWorkWXAlternativeAppStatus: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'EditWorkWXAlternativeAppStatus', args, options);
+   },
+  /**
+  * 提交应用申请开通企业微信代开发模式
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.appName 应用名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   applyWorkWXAlternativeApp: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'ApplyWorkWXAlternativeApp', args, options);
+   },
+  /**
   * 获取网络的Welink设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -574,5 +612,43 @@ module.exports = {
    getFeishuSsoUrlInfo: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'GetFeishuSsoUrlInfo', args, options);
+   },
+  /**
+  * 获取集成账号自定义初始密码值
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getIntergrationAccountInitializeInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetIntergrationAccountInitializeInfo', args, options);
+   },
+  /**
+  * 设置集成账号自定义初始密码值
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.password 自定义初始密码值
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editIntergrationAccountInitializeInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'EditIntergrationAccountInitializeInfo', args, options);
+   },
+  /**
+  * 根据应用信息获取集成相关信息
+返回集成类型与网络信息
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getIntergrationInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetIntergrationInfo', args, options);
    },
 };

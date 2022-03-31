@@ -17,6 +17,7 @@ import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
+import { completeControls } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
 
 const MAX_COUNT = 50;
@@ -102,7 +103,7 @@ export default class RelateRecordCards extends Component {
     const hasRelateControl = this.hasRelateControl(relationControls, showControls);
     this.state = {
       sheetTemplateLoading: hasRelateControl,
-      controls: hasRelateControl ? [] : relationControls,
+      controls: hasRelateControl ? [] : completeControls(relationControls),
       previewRecord: null,
       showAddRecord: false,
       showNewRecord: false,
@@ -146,9 +147,9 @@ export default class RelateRecordCards extends Component {
     try {
       const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
       const { previewUrl = '' } = coverFile;
-      return (
-        previewUrl.indexOf('imageView2') > -1 ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140') : `${previewUrl}&imageView2/1/w/200/h/140`
-      );
+      return previewUrl.indexOf('imageView2') > -1
+        ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+        : `${previewUrl}&imageView2/1/w/200/h/140`;
     } catch (err) {}
     return;
   }
@@ -440,7 +441,6 @@ export default class RelateRecordCards extends Component {
           {this.renderRecordsCon()}
           {from !== FROM.PUBLIC && !!previewRecord && (
             <RecordInfoWrapper
-              sheetSwitchPermit={sheetSwitchPermit}
               visible
               appId={appId}
               viewId={viewId}
@@ -469,6 +469,7 @@ export default class RelateRecordCards extends Component {
               showControls={showControls}
               appId={appId}
               viewId={viewId}
+              masterRecordRowId={recordId}
               relateSheetId={dataSource}
               parentWorksheetId={worksheetId}
               filterRelatesheetControlIds={[controlId]}
@@ -493,6 +494,7 @@ export default class RelateRecordCards extends Component {
               filterRelateSheetIds={[dataSource]}
               filterRelatesheetControlIds={[controlId]}
               visible={showNewRecord}
+              masterRecordRowId={recordId}
               hideNewRecord={() => {
                 this.setState({ showNewRecord: false });
               }}

@@ -11,6 +11,7 @@ import { getWorksheetsByAppId } from 'src/api/homeApp';
 import { getWorksheetInfo, saveQuery } from 'src/api/worksheet';
 import SelectControl from '../SelectControl';
 import { getControls } from '../DynamicDefaultValue/util';
+import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import '../DynamicDefaultValue/inputTypes/SubSheet/style.less';
 import cx from 'classnames';
@@ -170,9 +171,8 @@ export default class SearchWorksheetDialog extends Component {
           const filterControls = relationControls.filter(re => !_.includes(filterIds || [], re.controlId));
           //选择字段
           const selectControl = getCurrent(item.subCid);
-          // 映射字段匹配动态默认值规则
-          const subControls =
-            getControls({ data: selectControl, controls: filterControls, isCurrent: true, fromSearch: 1 }) || [];
+          // 映射字段匹配筛选规则
+          const subControls = relateDy(selectControl.type, filterControls, selectControl) || [];
           const isDelete = item.cid && !_.find(subControls, subControl => subControl.controlId === item.cid);
           return (
             <div className="mappingItem">

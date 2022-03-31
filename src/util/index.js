@@ -325,8 +325,15 @@ export const browserIsMobile = () => {
   const bIsAndroid = sUserAgent.match(/android/i) == 'android';
   const bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
   const bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
+  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM;
 
-  return bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM;
+  if (sUserAgent.includes('dingtalk')) {
+    // 钉钉设备针对侧边栏打开判断为 mobile 环境
+    const { pc_slide = '' } = getRequest();
+    return pc_slide.includes('true') ? true : value;
+  } else {
+    return value;
+  }
 };
 
 /**
@@ -475,7 +482,7 @@ export const htmlEncodeReg = str => {
   const encodeHTMLRules = { '&': '&#38;', '<': '&lt;', '>': '&gt;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
   const matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
   return str
-    ? str.toString().replace(matchHTML, function(m) {
+    ? str.toString().replace(matchHTML, function (m) {
         return encodeHTMLRules[m] || m;
       })
     : '';
@@ -501,7 +508,7 @@ export const htmlDecodeReg = str => {
   };
   const matchHTML = /&#(38|60|62|34|39|47);|&(amp|lt|gt|quot);/g;
   return str
-    ? str.toString().replace(matchHTML, function(m) {
+    ? str.toString().replace(matchHTML, function (m) {
         return decodeHTMLRules[m] || m;
       })
     : '';
@@ -619,3 +626,76 @@ export const getAppFeaturesPath = () => {
     .filter(o => o)
     .join('&');
 };
+
+/**
+ * 说明：javascript的乘法结果会有误差，在两个浮点数相乘的时候会比较明显。这个函数返回较为精确的乘法结果。
+ * 调用：accMul(arg1,arg2)
+ * 返回值：arg1乘以arg2的精确结果
+ */
+export function accMul(arg1, arg2) {
+  let m = 0,
+    s1 = arg1.toString(),
+    s2 = arg2.toString();
+  try {
+    m += s1.split('.')[1].length;
+  } catch (e) {}
+  try {
+    m += s2.split('.')[1].length;
+  } catch (e) {}
+  return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / Math.pow(10, m);
+}
+
+/**
+ * 说明：javascript的除法结果会有误差，在两个浮点数相除的时候会比较明显。这个函数返回较为精确的除法结果。
+ * 调用：accDiv(arg1,arg2)
+ * 返回值：arg1除以arg2的精确结果
+ */
+export function accDiv(arg1, arg2) {
+  let t1 = 0,
+    t2 = 0,
+    r1,
+    r2;
+  try {
+    t1 = arg1.toString().split('.')[1].length;
+  } catch (e) {}
+  try {
+    t2 = arg2.toString().split('.')[1].length;
+  } catch (e) {}
+  r1 = Number(arg1.toString().replace('.', ''));
+  r2 = Number(arg2.toString().replace('.', ''));
+  const res = (r1 / r2) * Math.pow(10, t2 - t1);
+  if (res.toString().replace(/\d+\./, '').length > 9) {
+    return parseFloat(res.toFixed(9));
+  }
+  return res;
+}
+
+/**
+ * 说明：javascript的加法结果会有误差，在两个浮点数相加的时候会比较明显。这个函数返回较为精确的加法结果。
+ * 调用：accAdd(arg1,arg2)
+ * 返回值：arg1加上arg2的精确结果
+ */
+export function accAdd(arg1, arg2) {
+  let r1, r2, m;
+  try {
+    r1 = arg1.toString().split('.')[1].length;
+  } catch (e) {
+    r1 = 0;
+  }
+  try {
+    r2 = arg2.toString().split('.')[1].length;
+  } catch (e) {
+    r2 = 0;
+  }
+  m = Math.pow(10, Math.max(r1, r2));
+  return (arg1 * m + arg2 * m) / m;
+}
+
+/**
+ * 说明：javascript的减法结果会有误差，在两个浮点数相加的时候会比较明显。这个函数返回较为精确的减法结果。
+ * 调用：accSub(arg1,arg2)
+ * 返回值：arg1减上arg2的精确结果
+ */
+export function accSub(arg1, arg2) {
+  return accAdd(arg1, -arg2);
+}

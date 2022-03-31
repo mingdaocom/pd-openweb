@@ -1,37 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Clipboard from 'clipboard';
+import copy from 'copy-to-clipboard';
 import * as actions from 'src/pages/chat/redux/actions';
 
 @connect(_ => ({}))
 class InfoTop extends React.PureComponent {
-  componentDidMount() {
-    this.bindClipboard();
-  }
-
-  componentDidUpdate() {
-    this.bindClipboard();
-  }
-
-  componentWillUnmount() {
-    if (this.clipboard && this.clipboard.destroy) {
-      this.clipboard.destroy();
-    }
-  }
-
-  bindClipboard() {
-    if (this.btn && !this.clipboard) {
-      this.clipboard = new Clipboard(this.btn, {
-        text: () => {
-          return $(this.btn).attr('data-clipboard-text');
-        },
-      });
-      this.clipboard.on('success', function () {
-        alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-      });
-    }
-  }
-
   render() {
     const { userInfo, isMe, dispatch } = this.props;
 
@@ -89,10 +62,10 @@ class InfoTop extends React.PureComponent {
                 <span id="span_emailContact" className="InlineBlock" title={userInfo.email}>
                   {userInfo.email}
                   <span
-                    data-clipboard-text={userInfo.email}
                     className="ThemeColor3 Hand pLeft30"
-                    ref={el => {
-                      this.btn = el;
+                    onClick={() => {
+                      copy(userInfo.email);
+                      alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
                     }}
                   >
                     {_l('复制')}

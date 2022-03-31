@@ -31,7 +31,7 @@ export default function InfoHeader(props) {
     recordinfo,
     iseditting,
     showPrevNext,
-    registeRefreshEvents,
+    addRefreshEvents,
     refreshRotating,
     currentSheetRows,
     currentIndex,
@@ -40,7 +40,7 @@ export default function InfoHeader(props) {
     reloadRecord,
     onCancel,
     onUpdate,
-    onSave,
+    onSubmit,
     onRefresh,
     onDelete,
     onSideIconClick,
@@ -51,8 +51,10 @@ export default function InfoHeader(props) {
   const { isSmall, worksheetId, recordId } = recordbase;
   const rowId = useRef(recordId);
   const [discussCount, setDiscussCount] = useState();
+  const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
+  const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
   function loadDiscussionsCount() {
-    if (sideVisible) {
+    if (sideVisible || !discussVisible || md.global.Account.isPortal) {
       return;
     }
     getDiscussionsCount({
@@ -64,17 +66,14 @@ export default function InfoHeader(props) {
       setDiscussCount(data.data);
     });
   }
-  useEffect(
-    () => {
-      rowId.current = recordId;
-      loadDiscussionsCount();
-    },
-    [recordId],
-  );
   useEffect(() => {
-    emitter.addListener('RELOAD_RECORDINFO_DISCUSS', loadDiscussionsCount);
+    rowId.current = recordId;
+    loadDiscussionsCount();
+  }, [recordId]);
+  useEffect(() => {
+    emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     return () => {
-      emitter.removeListener('RELOAD_RECORDINFO_DISCUSS', loadDiscussionsCount);
+      emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
   }, []);
   if (viewId) {
@@ -86,7 +85,7 @@ export default function InfoHeader(props) {
       style={header ? { paddingRight: '56px' } : { zIndex: 10 }}
     >
       {!!header && !loading && (
-        <div className="customHeader flex">{React.cloneElement(header, { onSubmit: onSave, isSmall })}</div>
+        <div className="customHeader flex">{React.cloneElement(header, { onSubmit: onSubmit, isSmall })}</div>
       )}
       {!header && (
         <div className="flex flexRow w100">
@@ -106,7 +105,7 @@ export default function InfoHeader(props) {
           </span>
           {!iseditting ? (
             <Operates
-              registeRefreshEvents={registeRefreshEvents}
+              addRefreshEvents={addRefreshEvents}
               iseditting={iseditting}
               sideVisible={sideVisible}
               recordbase={recordbase}
@@ -122,21 +121,19 @@ export default function InfoHeader(props) {
             <div className="flex" />
           )}
           {/* 查看日志权限 查看讨论和文件权限 默认true */}
-          {(isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId) ||
-            isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) &&
-            !md.global.Account.isPortal && (
-              <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-                <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
-                  <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
+          {(discussVisible || logVisible) && !md.global.Account.isPortal && (
+            <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
+              <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
+                <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
+              </span>
+              {!sideVisible && !!discussCount && (
+                <span className="discussCount">
+                  {discussCount > 99 ? '99+' : discussCount}
+                  <span className="text">{_l('条讨论')}</span>
                 </span>
-                {!sideVisible && !!discussCount && (
-                  <span className="discussCount">
-                    {discussCount > 99 ? '99+' : discussCount}
-                    <span className="text">{_l('条讨论')}</span>
-                  </span>
-                )}
-              </SodeBarIcon>
-            )}
+              )}
+            </SodeBarIcon>
+          )}
           <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
             <i className="icon icon-close" />
           </IconBtn>
@@ -158,13 +155,13 @@ InfoHeader.propTypes = {
   showPrevNext: PropTypes.bool,
   currentSheetRows: PropTypes.arrayOf(PropTypes.shape({})),
   currentIndex: PropTypes.number,
-  registeRefreshEvents: PropTypes.func,
+  addRefreshEvents: PropTypes.func,
   hideRecordInfo: PropTypes.func,
   switchRecord: PropTypes.func,
   reloadRecord: PropTypes.func,
   onCancel: PropTypes.func,
   onUpdate: PropTypes.func,
-  onSave: PropTypes.func,
+  onSubmit: PropTypes.func,
   onDelete: PropTypes.func,
   onRefresh: PropTypes.func,
   onSideIconClick: PropTypes.func,

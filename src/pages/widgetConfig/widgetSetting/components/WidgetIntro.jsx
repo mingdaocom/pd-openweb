@@ -115,14 +115,13 @@ export default function WidgetIntro(props) {
       <div className="title relative">
         <i className={cx('icon Font20', `icon-${icon}`)} />
         <span>{widgetName}</span>
-        <Tooltip placement={'bottom'} title={intro} className="Gray_9e">
-          <span
-            className="iconWrap pointer"
-            onClick={() => {
-              window.open(moreIntroLink || DEFAULT_INTRO_LINK);
-            }}
-          >
-            <i className="icon-help Font16"></i>
+        <Tooltip placement={'bottom'} title={intro}>
+          <span style={{ marginLeft: '3px' }}>
+            <Support
+              type={3}
+              href={moreIntroLink || DEFAULT_INTRO_LINK}
+              text={<i className="icon-help Font16 Gray_9e"></i>}
+            />
           </span>
         </Tooltip>
         {isAllowSwitch() && !_.isEmpty(switchControl) && (

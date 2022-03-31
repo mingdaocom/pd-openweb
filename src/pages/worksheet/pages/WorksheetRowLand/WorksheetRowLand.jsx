@@ -73,7 +73,7 @@ class WorksheetRowLand extends Component {
   render() {
     const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit } = this.state;
     const { appPkg } = this.props;
-    const { fixed, permissionType } = appPkg;
+    const { fixed, permissionType, appDisplay, webMobileDisplay, pcDisplay } = appPkg;
     const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
     return (
       <div className="worksheetRowLand">
@@ -81,8 +81,8 @@ class WorksheetRowLand extends Component {
           <div className="workSheetRecordInfo">
             <LoadDiv className="mTop32" />
           </div>
-        ) : fixed && !isAuthorityApp ? (
-          <FixedContent showLeftSkeleton={false} appPkg={appPkg} />
+        ) : (fixed || pcDisplay) && !isAuthorityApp ? (
+          <FixedContent showLeftSkeleton={false} appPkg={appPkg} isNoPublish={pcDisplay} />
         ) : (
           <RecordInfoWrapper
             isWorksheetRowLand

@@ -63,27 +63,22 @@ export default class ConfigControl extends Component {
         {
           text: _l('姓名'),
           value: 'name',
-          attribute: 0,
         },
         {
           text: _l('手机号'),
           value: 'phone',
-          attribute: 0,
         },
         {
           text: _l('邮箱'),
           value: 'email',
-          attribute: 0,
         },
         {
           text: _l('工号'),
           value: 'jobId',
-          attribute: 0,
         },
         {
           text: _l('人员ID'),
           value: 'userId',
-          attribute: 0,
         },
       ],
     };
@@ -133,11 +128,7 @@ export default class ConfigControl extends Component {
       const title = controls.find(item => item.attribute == 1);
 
       // 支持把记录ID作为映射
-      controls.unshift({
-        text: _l('记录ID'),
-        value: 'rowid',
-        attribute: 0,
-      });
+      controls.unshift(recordObj);
 
       // 把标题作为关联字段默认映射
       for (const control of worksheetControls.filter(item => item.dataSource == worksheetId)) {
@@ -148,14 +139,14 @@ export default class ConfigControl extends Component {
         const arr = (mapping.ColumnName || '').split('-');
         const suffix = arr[arr.length - 1].toLowerCase();
         const item = controls.find(item => item.text.toLowerCase() == suffix);
-        if (!control.sourceConfig) {
-          // 默认匹配映射字段
-          if (item) control.sourceConfig = item.value;
+        if (item) {
+          control.sourceConfig = item.value;
+          mapping.sourceConfig.controlId = item.value;
+        } else if (title) {
           // 如果没有，默认选择标题字段作为映射
-          else if (title) control.sourceConfig = title.value;
+          control.sourceConfig = title.value;
+          mapping.sourceConfig.controlId = title.value;
         }
-
-        mapping.sourceConfig.controlId = control.sourceConfig;
       }
 
       this.cacheSource[worksheetId] = { name, controls };
@@ -232,9 +223,6 @@ export default class ConfigControl extends Component {
         // 关联字段默认匹配
         else if (value.indexOf(`${controlName}-`) == 0 && type == 29 && !relations.length) {
           relations.push(cell);
-          for (const control of data.template.controls) {
-            if (control.controlId == controlId) control.sourceConfig = '';
-          }
         }
 
         // 模糊匹配
@@ -245,9 +233,6 @@ export default class ConfigControl extends Component {
 
       // 成员默认匹配字段
       controlItem.accountMatchId = accountMatchId;
-
-      // 关联表默认匹配字段
-      controlItem.sourceConfig = '';
 
       // 设置表格默认值
       controlItem.columnNum = sameColumn.length > 0 ? sameColumn[0].columnNumber + 1 : '';
@@ -292,9 +277,6 @@ export default class ConfigControl extends Component {
 
     // 导入的表格中是否包含记录id列
     this.hasRecordId = _.find(selectRow.cells, rowItem => rowItem.value === recordObj.text) || {};
-    if (this.hasRecordId.value) {
-      // fieldsList.push(recordObj);
-    }
     fieldsList.push(recordObj);
 
     // 获取先前保存的导入配置
@@ -320,11 +302,8 @@ export default class ConfigControl extends Component {
         edited,
         showStar: repeatConfig.controlId || null,
       };
-      // 过滤掉删除的依据字段和关联匹配字段
-      const configsFilter =
-        configs.filter(item => _.findIndex(data.template.controls, con => con.controlId === item.controlId) > -1) || [];
       controlMapping.forEach(item => {
-        const editItem = _.find(configsFilter, configItem => configItem.controlId === item.ControlId) || {};
+        const editItem = _.find(configs, configItem => configItem.controlId === item.ControlId) || {};
         if (editItem.controlId) {
           // 关联表字段
           item.sourceConfig = editItem.sourceConfig;
@@ -345,16 +324,11 @@ export default class ConfigControl extends Component {
         }
       });
 
-      if (
-        _.findIndex(data.template.controls, con => con.controlId === repeatConfig.controlId) > -1 ||
-        repeatConfig.controlId == 'rowid'
-      ) {
-        configObjState.repeatConfig = {
-          controlId: repeatConfig.controlId,
-          controlName: _.get(currentRepeatItem, 'controlName'),
-          handleEnum: repeatConfig.handleEnum,
-        };
-      }
+      configObjState.repeatConfig = {
+        controlId: repeatConfig.controlId,
+        controlName: _.get(currentRepeatItem, 'controlName'),
+        handleEnum: repeatConfig.handleEnum,
+      };
     }
 
     // 字段根据表中的顺序进行排序
@@ -430,59 +404,56 @@ export default class ConfigControl extends Component {
    */
   beginImport = controlMappingFilter => {
     (async () => {
-      const { tigger, repeatConfig, repeatRecord, worksheetControls, edited, controlMapping, relateSource } =
-        this.state;
+      const { isCharge } = this.props;
+      const {
+        tigger,
+        repeatConfig,
+        repeatRecord,
+        worksheetControls,
+        edited,
+        controlMapping,
+        relateSource,
+      } = this.state;
 
-      // 判断是否有匹配字段未选择
+      // 判断是否有匹配字段未选择 或 已删除
       for (const relateMapping of controlMappingFilter) {
         // 判断需要匹配的字段
         const { type, sourceConfig, accountMatchId, ControlId } = relateMapping;
         const { controlName } = worksheetControls.find(item => item.controlId == ControlId) || {};
+        // 获取关联表中的字段
+        const relationControls = (relateSource[sourceConfig.worksheetId] || {}).controls || [];
 
         // 未选择匹配字段时的提示信息
         const message = controlName ? `“${controlName}”${_l('的匹配字段未设置')}` : _l('未选择匹配字段');
-        if (type == 29 && (!sourceConfig || !sourceConfig.controlId)) throw message;
+        if (
+          type == 29 &&
+          (!sourceConfig ||
+            !sourceConfig.controlId ||
+            (_.findIndex(relationControls, rel => rel.value === sourceConfig.controlId) === -1 &&
+              sourceConfig.controlId !== recordObj.value))
+        )
+          throw !isCharge && edited ? _l('导入配置存在错误，匹配字段被删除，请联系管理员处理') : message;
         if (type == 26 && !accountMatchId) throw message;
       }
 
       // 处理重复记录
       if (repeatRecord) {
         if (!repeatConfig.controlId) throw _l('请选择重复记录的依据字段');
+        // 依据字段是否删除
+        if (
+          repeatConfig.controlId !== recordObj.value &&
+          _.findIndex(worksheetControls, item => item.controlId === repeatConfig.controlId) === -1
+        ) {
+          throw !isCharge && edited
+            ? _l('导入配置存在错误，依据字段被删除，请联系管理员处理')
+            : _l('请设置重复记录的依据字段');
+        }
+
         if (
           repeatConfig.controlId !== recordObj.value &&
           !_.get(_.find(controlMapping, item => item.ControlId === repeatConfig.controlId) || {}, 'ColumnNum')
         ) {
           throw _l('请设置“%0”字段的映射关系', repeatConfig.controlName);
-        }
-      }
-
-      // 是否保存匹配设置
-      if (!this.props.isCharge && edited) {
-        // 依据字段是否删除
-        if (
-          repeatRecord &&
-          _.findIndex(worksheetControls, item => item.controlId === repeatConfig.controlId) === -1 &&
-          repeatConfig.controlId != 'rowid'
-        ) {
-          throw _l('导入配置存在错误，请联系管理员处理');
-        }
-
-        // 关联记录匹配字段是否删除
-        for (const { controlId } of worksheetControls.filter(item => item.type === 29)) {
-          // 对关联记录字段进行校验
-          const { sourceConfig } = controlMapping.find(item => item.ControlId == controlId) || {};
-          if (!sourceConfig || !sourceConfig.worksheetId) continue;
-
-          // 获取关联表中的字段
-          const relationControls = (relateSource[sourceConfig.worksheetId] || {}).controls || [];
-
-          // 判断关联表中所选择匹配的关联字段是否已被删除
-          if (
-            _.findIndex(relationControls, rel => rel.value === sourceConfig.controlId) === -1 &&
-            sourceConfig.controlId != 'rowid'
-          ) {
-            throw _l('导入配置存在错误，请联系管理员处理');
-          }
         }
       }
 
@@ -498,7 +469,7 @@ export default class ConfigControl extends Component {
                   `<span class="Gray Bold">${tigger ? _l('触发工作流') : _l('不会触发工作流')}</span>`,
                 ),
               }}
-            ></div>
+            />
             {repeatRecord ? (
               <div
                 dangerouslySetInnerHTML={{
@@ -523,7 +494,7 @@ export default class ConfigControl extends Component {
                     }</span>`,
                   ),
                 }}
-              ></div>
+              />
             ) : (
               <div className="Gray_75">{_l('2.不识别重复数据，将Excel中所有数据都作为新记录导入工作表')}</div>
             )}
@@ -562,9 +533,10 @@ export default class ConfigControl extends Component {
 
     onSave(fileKey);
 
-    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/EntranceWorksheet', {
+    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/Import', {
       type: 'POST',
-      data: {
+      contentType: 'application/json',
+      data: JSON.stringify({
         filePath,
         fileId,
         workSheetId: worksheetId,
@@ -577,7 +549,7 @@ export default class ConfigControl extends Component {
         randomKey: fileKey,
         repeatConfig: repeatRecord ? repeatConfig : null,
         tigger,
-      },
+      }),
       beforeSend: xhr => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       },
@@ -609,8 +581,15 @@ export default class ConfigControl extends Component {
         </div>
       ),
       onOk: () => {
-        const { edited, workSheetProjectId, worksheetControls, controlMapping, repeatConfig, tigger, repeatRecord } =
-          this.state;
+        const {
+          edited,
+          workSheetProjectId,
+          worksheetControls,
+          controlMapping,
+          repeatConfig,
+          tigger,
+          repeatRecord,
+        } = this.state;
         const configsFilter = [];
         for (const controlItem of worksheetControls || []) {
           //新增选项、关联记录匹配字段
@@ -671,18 +650,22 @@ export default class ConfigControl extends Component {
     ];
     return (
       <div className="mTop16">
-        {edited && !isCharge ? null : (
-          <div className="flexRow LineHeight36">
+        <div className="flexRow LineHeight36">
+          {!tigger && !isCharge && edited ? null : (
             <Checkbox
+              className="mRight25"
               text={_l('导入触发工作流')}
+              disabled={!isCharge && edited}
               checked={tigger}
               onClick={checked => this.setState({ tigger: !checked })}
             />
+          )}
 
+          {!repeatRecord && !isCharge && edited ? null : (
             <Checkbox
-              className="mLeft25"
               text={_l('识别重复记录')}
               checked={repeatRecord}
+              disabled={!isCharge && edited}
               onClick={checked => {
                 if (fieldsList.length) {
                   this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlId : null });
@@ -691,49 +674,59 @@ export default class ConfigControl extends Component {
                 }
               }}
             />
-            {repeatRecord && (
-              <Fragment>
-                <Dropdown
-                  className="mLeft8 repeatConfigDropdown"
-                  data={list}
-                  value={repeatConfig.handleEnum}
-                  border
-                  onChange={handleEnum =>
-                    this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
-                  }
-                />
-                <div className="mLeft8 Gray">{_l('依据字段')}</div>
-                <Dropdown
-                  className="mLeft8 repeatConfigDropdown"
-                  data={fieldsList}
-                  placeholder={_l('请选择')}
-                  value={repeatConfig.controlId ? repeatConfig.controlId : undefined}
-                  border
-                  onChange={controlId => {
-                    this.setState({
-                      repeatConfig: Object.assign({}, repeatConfig, {
-                        controlId,
-                        controlName: fieldsList.find(item => item.value === controlId).text,
-                      }),
-                      showStar: controlId,
-                    });
-                  }}
-                />
-                <Tooltip
-                  text={
-                    <span>
-                      {_l(
-                        '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID',
-                      )}
-                    </span>
-                  }
-                >
-                  <i className="icon-workflow_help Gray_9e Font16 mLeft8 LineHeight36" />
-                </Tooltip>
-              </Fragment>
-            )}
-          </div>
-        )}
+          )}
+
+          {repeatRecord && (
+            <Fragment>
+              <Dropdown
+                className="mLeft8 repeatConfigDropdown"
+                data={list}
+                value={repeatConfig.handleEnum}
+                disabled={!isCharge && edited}
+                border
+                onChange={handleEnum =>
+                  this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
+                }
+              />
+              <div className="mLeft8 Gray">{_l('依据字段')}</div>
+              <Dropdown
+                className="mLeft8 repeatConfigDropdown"
+                data={fieldsList}
+                disabled={!isCharge && edited}
+                placeholder={_l('请选择')}
+                value={repeatConfig.controlId}
+                renderTitle={
+                  !repeatConfig.controlId
+                    ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                    : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
+                    ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                    : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
+                }
+                border
+                onChange={controlId => {
+                  this.setState({
+                    repeatConfig: Object.assign({}, repeatConfig, {
+                      controlId,
+                      controlName: fieldsList.find(item => item.value === controlId).text,
+                    }),
+                    showStar: controlId,
+                  });
+                }}
+              />
+              <Tooltip
+                text={
+                  <span>
+                    {_l(
+                      '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID',
+                    )}
+                  </span>
+                }
+              >
+                <i className="icon-workflow_help Gray_9e Font16 mLeft8 LineHeight36" />
+              </Tooltip>
+            </Fragment>
+          )}
+        </div>
 
         <div className="flexRow mTop12" style={{ alignItems: 'center' }}>
           {isCharge && (
@@ -806,6 +799,9 @@ export default class ConfigControl extends Component {
 
       let currentItem = selectItem.sourceConfig.controlId;
       const defaultItem = controls.find(item => item.attribute) || {};
+      const currentSourceConfig =
+        (_.find(controlMapping, o => o.ControlId === controlItem.controlId) || {}).sourceConfig || {};
+
       if (!currentItem && defaultItem.value) currentItem = defaultItem.value;
       else if (currentItem !== '') currentItem = null;
       return (
@@ -833,14 +829,20 @@ export default class ConfigControl extends Component {
             disabled={isHiddenConfig}
             menuStyle={{ width: 180 }}
             data={controls}
-            value={controlItem.sourceConfig || null}
+            value={currentSourceConfig.controlId}
+            renderTitle={
+              !currentSourceConfig.controlId
+                ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                : currentSourceConfig.controlId && !_.find(controls, o => o.value === currentSourceConfig.controlId)
+                ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
+            }
             isAppendToBody
             onChange={controlId => {
               // 修改映射字段
               const newControlMapping = [...controlMapping];
               const item = newControlMapping.find(item => item.ControlId === controlItem.controlId);
               if (item) item.sourceConfig.controlId = controlId;
-              controlItem.sourceConfig = controlId;
               this.setState({ controlMapping: newControlMapping });
             }}
           />
@@ -851,8 +853,16 @@ export default class ConfigControl extends Component {
 
   render() {
     const { onCancel, isCharge } = this.props;
-    const { dropDownData, controlMapping, worksheetControls, loading, edited, showStar, userControls, relateSource } =
-      this.state;
+    const {
+      dropDownData,
+      controlMapping,
+      worksheetControls,
+      loading,
+      edited,
+      showStar,
+      userControls,
+      relateSource,
+    } = this.state;
     const isHiddenConfig = edited && !isCharge;
     return (
       <Dialog
@@ -933,7 +943,12 @@ export default class ConfigControl extends Component {
                                 }
 
                                 // 匹配关联表字段
-                                if (type == 29 && control.sourceConfig && control.sourceConfig.worksheetId) {
+                                if (
+                                  type == 29 &&
+                                  control.sourceConfig &&
+                                  control.sourceConfig.worksheetId &&
+                                  !isHiddenConfig
+                                ) {
                                   const relationControls =
                                     (relateSource[control.sourceConfig.worksheetId] || {}).controls || [];
                                   const relationControl = relationControls.find(
@@ -942,15 +957,16 @@ export default class ConfigControl extends Component {
 
                                   // 关联表中的标题字段
                                   const title = relationControls.find(item => item.attribute == 1);
+                                  let sourceControlId = '';
 
                                   // 模糊匹配字段
-                                  if (relationControl) controlItem.sourceConfig = relationControl.value;
+                                  if (relationControl) sourceControlId = relationControl.value;
                                   // 默认匹配关联表标题字段
-                                  else if (title) controlItem.sourceConfig = title.value;
+                                  else if (title) sourceControlId = title.value;
                                   // 若标题字段无法匹配，则默认匹配字段为未选择
-                                  else controlItem.sourceConfig = '';
+                                  else sourceControlId = '';
 
-                                  control.sourceConfig.controlId = controlItem.sourceConfig;
+                                  control.sourceConfig.controlId = sourceControlId;
                                 }
                                 this.setState({ controlMapping: newControlMapping });
                               }}
@@ -1032,7 +1048,7 @@ export default class ConfigControl extends Component {
               )}
             </ScrollView>
           </div>
-          {this.renderFooter()}
+          {!loading && this.renderFooter()}
         </div>
       </Dialog>
     );

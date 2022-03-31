@@ -72,6 +72,7 @@ export default function CardCellControls(props) {
                     cell={Object.assign({}, control, { value: data[control.controlId] })}
                     from={4}
                     viewId={viewId}
+                    disableDownload
                   />
                 ) : (
                   <Empty />

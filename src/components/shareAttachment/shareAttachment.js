@@ -1,7 +1,7 @@
 ﻿import './style.less';
 import 'md.select';
 import { formatFileSize } from 'src/util';
-var Clipboard = require('clipboard');
+import copy from 'copy-to-clipboard';
 var doT = require('dot');
 var mainTpl = doT.template(require('./tpl/main.htm'));
 var listTpl = doT.template(require('./tpl/searchList.htm'));
@@ -668,16 +668,10 @@ ShareAttachment.prototype = {
     var SA = this;
     SA.$dialog.find('#linkContent').val(SA.options.node.shareUrl);
     SA.$dialog.find('.copyLinkCon').removeClass('hide').addClass('inited');
-    var clicboardObject = new Clipboard(SA.$dialog.find('#copyLinkBtn')[0], {
-      text: function (trigger) {
-        return SA.options.node.shareUrl;
-      },
-    });
-    clicboardObject.on('success', function () {
+
+    SA.$dialog.find('#copyLinkBtn').off().on('click', function () {
+      copy(SA.options.node.shareUrl);
       alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方'));
-    });
-    clicboardObject.on('error', function () {
-      alert(_l('复制失败，请手动复制'), 3);
     });
   },
   initSelectSendTo: function (type, callback) {

@@ -197,18 +197,14 @@ export default function CardCoverImage(props) {
     const isMobile = browserIsMobile();
     if (!coverImage) {
       return (
-        <div className={cx('coverWrap', 'emptyCoverWrap', { mobileOverWrap: isMobile })}>
+        <div className={cx('coverWrap', 'emptyCoverWrap')}>
           <img src={emptyCover}></img>
         </div>
       );
     }
     if (coverImage) {
       return (
-        <div
-          className={cx('coverWrap', '', { mobileOverWrap: isMobile })}
-          onClick={previewAttachment}
-          style={getStyle()}
-        >
+        <div className={cx('coverWrap', '')} onClick={previewAttachment} style={getStyle()}>
           {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
         </div>
       );

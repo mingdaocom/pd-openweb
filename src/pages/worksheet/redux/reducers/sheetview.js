@@ -29,7 +29,7 @@ export function sheetViewConfig(state = initialSheetViewConfig, action) {
     case 'WORKSHEET_SHEETVIEW_SELECT_ALL':
       return { ...state, allWorksheetIsSelected: action.value, sheetSelectedRows: [] };
     case 'WORKSHEET_SHEETVIEW_SELECT_ROWS':
-      return { ...state, sheetSelectedRows: [...action.rows] };
+      return { ...state, allWorksheetIsSelected: false, sheetSelectedRows: [...action.rows] };
     case 'WORKSHEET_SHEETVIEW_CLEAR_SELECT':
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
       return { ...state, allWorksheetIsSelected: false, sheetSelectedRows: [] };

@@ -80,6 +80,8 @@ class DepartmentTree extends React.Component {
         expandedKeys: nexrProps.expandedKeys || [],
         selectedKeys: !nexrProps.departmentId ? [] : [nexrProps.departmentId],
       });
+    } else {
+      this.setState({ newDepartments: _.cloneDeep(nexrProps.newDepartments) });
     }
   }
 

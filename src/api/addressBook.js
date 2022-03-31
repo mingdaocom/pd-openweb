@@ -56,6 +56,24 @@ module.exports = {
      return $.api('AddressBook', 'GetAllAddressbook', args, options);
    },
   /**
+  * 查询通讯录联系人以及部门
+通讯录（所有联系人/好友/其它协作对象）
+  * @param {Object} args 请求参数
+  * @param {string} args.keywords 关键词
+  * @param {string} args.projectId 网络Id
+  * @param {} args.range 范围
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 每页多少个
+  * @param {boolean} args.isFilterOther 通讯录使用，全部联系人中是否过滤其它协作关系，true：过滤其它协作关系 即好友+同事，false：不过滤， 好友+同事+其它协作
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   searchAddressbookAndDepartment: function (args, options = {}) {
+     
+     return $.api('AddressBook', 'SearchAddressbookAndDepartment', args, options);
+   },
+  /**
   * 搜索聊天联系人以及群组，需要过滤自己
 聊天右侧/右上角Smart快速搜索
   * @param {Object} args 请求参数

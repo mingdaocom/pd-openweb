@@ -15,7 +15,7 @@ Toolbar.Calendar = require('../calendar/calendar');
 import 'jqueryUI';
 import 'mdBusinessCard';
 import _ from 'lodash';
-var Clipboard = require('clipboard');
+import copy from 'copy-to-clipboard';
 var moment = require('moment');
 var formatRecur = require('../calendarDetail/common').formatRecur;
 
@@ -492,14 +492,10 @@ Toolbar.Method = {
               var $iCalAbout = $('#iCalAbout').find('.synchronousSelect');
 
               // 点击复制地址
-              var clipboard = new Clipboard('#clipinner', {
-                text: function () {
-                  return $('#clipinner').attr('data-clipboard-text');
-                },
-              });
-              clipboard.on('success', function () {
+              $('#clipinner').off().on('click', function () {
+                copy($('#clipinner').attr('data-clipboard-text'));
                 alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-              });
+              })
 
               // 点击切换
               $iCalAbout.click(function () {

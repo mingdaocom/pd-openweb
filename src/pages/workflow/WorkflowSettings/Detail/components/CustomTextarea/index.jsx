@@ -68,7 +68,7 @@ export default class CustomTextarea extends Component {
         <TagTextarea
           className={`flex ${className}`}
           height={height}
-          defaultValue={content}
+          defaultValue={content || ''}
           operatorsSetMargin={operatorsSetMargin}
           getRef={tagtextarea => {
             this.tagtextarea = tagtextarea;

@@ -14,6 +14,7 @@ import {
   APPSCAN,
   FASTFILTER_CONDITION_TYPE,
   getSetDefault,
+  getControlFormatType,
 } from './util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Radio } from 'antd';
@@ -201,7 +202,7 @@ function Edit(params) {
         ...o,
         isErr: !o,
         controlName: c.controlName,
-        type: c.type,
+        type: getControlFormatType(c),
         sourceControl: c.sourceControl,
       };
     });
@@ -213,14 +214,14 @@ function Edit(params) {
         ...getSetDefault(dd),
         isErr: !dd.controlName,
         controlName: dd.controlName,
-        type: dd.type,
+        type: getControlFormatType(dd),
         sourceControl: dd.sourceControl,
       };
     }
     setControl(controlNew);
     let advancedSetting = controlNew.advancedSetting || {};
     setAdvancedSetting(advancedSetting);
-    setDataType([30, 37].includes(controlNew.type) ? (controlNew.sourceControl || {}).type : controlNew.type);
+    setDataType(controlNew.type);
   }, [activeFastFilterId, view.fastFilters]);
   if (!control) {
     return '';
@@ -408,7 +409,7 @@ function Edit(params) {
           columns={worksheetControls.filter(
             o =>
               (FASTFILTER_CONDITION_TYPE.includes(o.type) ||
-                (o.type === 30 && FASTFILTER_CONDITION_TYPE.includes((o.sourceControl || {}).type))) &&
+                (o.type === 30 && FASTFILTER_CONDITION_TYPE.includes(getControlFormatType(o)))) &&
               !fastFilters.map(o => o.controlId).includes(o.controlId),
           )}
           onAdd={data => {

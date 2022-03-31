@@ -11,10 +11,7 @@ import { connect } from 'react-redux';
 import { setAppStatus } from '../../pages/PageHeader/redux/action';
 import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 
-@connect(
-  state => ({ appPkg: state.appPkg }),
-  dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) })
-)
+@connect(state => ({ appPkg: state.appPkg }), dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) }))
 export default class Application extends Component {
   constructor(props) {
     super(props);
@@ -81,16 +78,16 @@ export default class Application extends Component {
     let { status } = this.state;
     const {
       location: { pathname },
-      appPkg
+      appPkg,
     } = this.props;
     const { appId } = getIds(this.props);
-    const { permissionType, fixed } = appPkg;
+    const { permissionType, fixed, pcDisplay } = appPkg;
     const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
     if (status === 0) {
       return <LoadDiv />;
     }
-    if (fixed && !isAuthorityApp) {
-      return <FixedContent appPkg={appPkg} />
+    if ((pcDisplay || fixed) && !isAuthorityApp) {
+      return <FixedContent appPkg={appPkg} isNoPublish={pcDisplay} />;
     }
     if (_.includes([1], status) || (status === 5 && _.includes(pathname, 'role'))) {
       return <Switch>{this.genRouteComponent(ROUTE_CONFIG)}</Switch>;

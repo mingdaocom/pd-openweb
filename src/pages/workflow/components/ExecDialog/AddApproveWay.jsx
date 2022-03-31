@@ -77,11 +77,16 @@ export default class AddApproveWay extends Component {
             <div
               className="action flexRow"
               onClick={() => {
-                if (onSubmit({ noSave: true })) {
-                  this.selectUserTransfer('after');
-                } else {
-                  onCancel();
-                }
+                onSubmit({
+                  noSave: true,
+                  callback: err => {
+                    if (!err) {
+                      this.selectUserTransfer('after');
+                    } else {
+                      onCancel();
+                    }
+                  },
+                });
               }}
             >
               <div className="text flex">{_l('通过申请后增加一位审批人')}</div>

@@ -69,9 +69,19 @@ export default class GetMoreRecord extends Component {
       return;
     }
 
-    if (actionId === TRIGGER_ID_TYPE.FROM_RECORD || actionId === TRIGGER_ID_TYPE.FROM_ARRAY) {
+    if (
+      _.includes(
+        [
+          TRIGGER_ID_TYPE.FROM_RECORD,
+          TRIGGER_ID_TYPE.FROM_ARRAY,
+          TRIGGER_ID_TYPE.FROM_CODE,
+          TRIGGER_ID_TYPE.FROM_PBC_ARRAY,
+        ],
+        actionId,
+      )
+    ) {
       if (!selectNodeId) {
-        alert(actionId === TRIGGER_ID_TYPE.FROM_RECORD ? _l('必须选择对象') : _l('必须选择Webhook节点'), 2);
+        alert(actionId === TRIGGER_ID_TYPE.FROM_RECORD ? _l('必须选择对象') : _l('必须选择节点'), 2);
         return;
       } else if (!fields.length) {
         alert(actionId === TRIGGER_ID_TYPE.FROM_RECORD ? _l('必须选择他表字段') : _l('必须选择数组'), 2);
@@ -209,6 +219,7 @@ export default class GetMoreRecord extends Component {
       403: _l('从Webhook数组获取数据'),
       404: _l('从代码块数组获取数据'),
       405: _l('从人工节点获取操作明细'),
+      408: _l('从业务流程数组获取数据'),
     };
     const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount } = md.global.SysSettings;
     return (
@@ -226,19 +237,24 @@ export default class GetMoreRecord extends Component {
         {data.actionId === TRIGGER_ID_TYPE.FROM_WORKSHEET && this.renderWorksheet()}
         {data.actionId === TRIGGER_ID_TYPE.FROM_RECORD && this.renderRecord()}
         {data.actionId === TRIGGER_ID_TYPE.FROM_ADD && this.renderAdd()}
-        {_.includes([TRIGGER_ID_TYPE.FROM_ARRAY, TRIGGER_ID_TYPE.FROM_CODE], data.actionId) && this.renderArray()}
+        {_.includes(
+          [TRIGGER_ID_TYPE.FROM_ARRAY, TRIGGER_ID_TYPE.FROM_CODE, TRIGGER_ID_TYPE.FROM_PBC_ARRAY],
+          data.actionId,
+        ) && this.renderArray()}
         {data.actionId === TRIGGER_ID_TYPE.FROM_ARTIFICIAL && this.renderArtificial()}
 
         <div className="mTop20 bold">{_l('限制数量')}</div>
         <div className="Font13 Gray_9e mTop5">{_l('最多获取条数')}</div>
-        <SpecificFieldsValue
-          processId={this.props.processId}
-          selectNodeId={this.props.selectNodeId}
-          updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
-          type="number"
-          allowedEmpty
-          data={data.numberFieldValue}
-        />
+        <div className="mTop10">
+          <SpecificFieldsValue
+            processId={this.props.processId}
+            selectNodeId={this.props.selectNodeId}
+            updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
+            type="number"
+            allowedEmpty
+            data={data.numberFieldValue}
+          />
+        </div>
       </div>
     );
   }
@@ -432,7 +448,11 @@ export default class GetMoreRecord extends Component {
     return (
       <Fragment>
         <div className="mTop20 bold">
-          {data.actionId === TRIGGER_ID_TYPE.FROM_ARRAY ? _l('选择Webhook节点') : _l('选择代码块节点')}
+          {data.actionId === TRIGGER_ID_TYPE.FROM_ARRAY
+            ? _l('选择Webhook节点')
+            : data.actionId === TRIGGER_ID_TYPE.FROM_CODE
+            ? _l('选择代码块节点')
+            : _l('数据源：输入节点')}
         </div>
         <SelectNodeObject
           smallBorder={true}
@@ -546,7 +566,12 @@ export default class GetMoreRecord extends Component {
           isCorrect={
             (data.actionId === TRIGGER_ID_TYPE.FROM_WORKSHEET && data.appId) ||
             (_.includes(
-              [TRIGGER_ID_TYPE.FROM_RECORD, TRIGGER_ID_TYPE.FROM_ARRAY, TRIGGER_ID_TYPE.FROM_CODE],
+              [
+                TRIGGER_ID_TYPE.FROM_RECORD,
+                TRIGGER_ID_TYPE.FROM_ARRAY,
+                TRIGGER_ID_TYPE.FROM_CODE,
+                TRIGGER_ID_TYPE.FROM_PBC_ARRAY,
+              ],
               data.actionId,
             ) &&
               data.selectNodeId &&

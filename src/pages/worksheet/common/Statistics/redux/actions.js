@@ -37,7 +37,7 @@ export const getReportConfigDetail = (data, callBack) => {
     const { reportId, reportType, appId } = data;
     const { currentReport: oldReport, base } = getState().statistics;
     const { viewId, permissions } = base;
-    const isPublicShare = location.href.includes('public/chart') || location.href.includes('public/page');
+    const isPublicShare = location.href.includes('public/chart') || location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
 
     if (reportType) {
       dispatch({
@@ -62,7 +62,7 @@ export const getReportConfigDetail = (data, callBack) => {
 
     reportConfigAjax.getReportConfigDetail(data).then(result => {
       const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport);
-      if (viewId) {
+      if (viewId && !_.get(currentReport, ['filter', 'viewId'])) {
         currentReport.filter.viewId = viewId;
       }
       dispatch({
@@ -92,7 +92,7 @@ let reportRequest = null;
 export const getReportData = () => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
-    const { permissions, report, settingVisible, sheetVisible } = base;
+    const { permissions, report, settingVisible, sheetVisible, filters } = base;
     const data = getNewReport(getState().statistics);
     const success = (result) => {
       const data = fillValueMap(result);
@@ -165,6 +165,14 @@ export const getReportData = () => {
       const params = {
         reportId: report.id,
         version,
+        reload: true,
+        filters: []
+      }
+      if (!_.isEmpty(filters)) {
+        params.filters.push(filters);
+      }
+      if (!_.isEmpty(filter.filterControls)) {
+        params.filters.push(filter.filterControls);
       }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
@@ -172,7 +180,6 @@ export const getReportData = () => {
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
-          filterControls: filter.filterControls,
           sorts,
         })
       }
@@ -194,7 +201,7 @@ export const getReportData = () => {
 export const getTableData = () => {
   return (dispatch, getState) => {
     const { base, reportData } = getState().statistics;
-    const { report, match, settingVisible, activeData } = base;
+    const { report, match, settingVisible, activeData, filters } = base;
     const data = getNewReport(getState().statistics);
 
     dispatch({
@@ -228,6 +235,13 @@ export const getTableData = () => {
       const params = {
         reportId: report.id,
         version: data.version,
+        filters: []
+      }
+      if (!_.isEmpty(filters)) {
+        params.filters.push(filters);
+      }
+      if (!_.isEmpty(filter.filterControls)) {
+        params.filters.push(filter.filterControls);
       }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
@@ -235,9 +249,8 @@ export const getTableData = () => {
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
-          filterControls: filter.filterControls,
           sorts,
-        })
+        });
       }
       if (!_.isEmpty(country)) {
         Object.assign(params, {
@@ -668,20 +681,49 @@ export const addXaxes = (control, isRequest = true) => {
 export const addYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList } = currentReport;
+    const { yaxisList, reportType, pivotTable } = currentReport;
+    const { advancedSetting = {} } = data;
+    const isPercent = advancedSetting.numshow === '1';
+
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: 0,
-      suffix: '',
-      ydot: 2,
+      magnitude: isPercent ? 7 : 0,
+      suffix: isPercent ? '%' : '',
+      ydot: isPercent ? 0 : 2,
       normType: 1,
       dot: data.dot,
       rename: '',
     }
     const newYaxisList = yaxisList.concat(axis);
-    dispatch(changeYaxisList({ yaxisList: newYaxisList }, isRequest));
+    if (reportType === reportTypes.PivotTable) {
+      const { lineSummary, columnSummary } = pivotTable;
+      const sumData = {
+        controlId: data.controlId,
+        name: '',
+        sum: 0,
+        type: 1
+      }
+      const columnControlList = columnSummary.controlList || [];
+      const lineControlList = lineSummary.controlList || [];
+      dispatch(changeYaxisList({
+        pivotTable: {
+          ...pivotTable,
+          columnSummary: {
+            ...columnSummary,
+            controlList: columnControlList.concat(sumData)
+          },
+          lineSummary: {
+            ...lineSummary,
+            controlList: lineControlList.concat(sumData)
+          }
+        },
+        yaxisList: newYaxisList
+      }, isRequest));
+    } else {
+      dispatch(changeYaxisList({ yaxisList: newYaxisList }, isRequest));
+    }
   }
 }
 
@@ -709,16 +751,33 @@ export const changeYaxisList = (data, isRequest = true) => {
 export const removeYaxisList = (id) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList, split, sorts } = currentReport;
+    const { yaxisList, split, sorts, reportType, pivotTable } = currentReport;
     const newYaxisList = yaxisList.filter(item => item.controlId !== id);
-    dispatch(changeYaxisList({
+    const data = {
       yaxisList: newYaxisList,
       split: {
         ...split,
         controlId: newYaxisList.length ? split.controlId : ''
       },
       sorts: sorts.filter(item => _.findKey(item) !== id)
-    }));
+    }
+    if (reportType === reportTypes.PivotTable) {
+      const { lineSummary, columnSummary } = pivotTable;
+      const columnControlList = columnSummary.controlList || [];
+      const lineControlList = lineSummary.controlList || [];
+      data.pivotTable = {
+        ...pivotTable,
+        columnSummary: {
+          ...columnSummary,
+          controlList: columnControlList.filter(item => item.controlId !== id)
+        },
+        lineSummary: {
+          ...lineSummary,
+          controlList: lineControlList.filter(item => item.controlId !== id)
+        }
+      }
+    }
+    dispatch(changeYaxisList(data));
   }
 }
 

@@ -90,6 +90,7 @@ function Sheet(props) {
     isCharge,
     addNewRecord,
     updateGroupFilter,
+    navGroupFilters = [],
   } = props;
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
   let [dragMaskVisible, setDragMaskVisible] = useState(false);
@@ -104,8 +105,33 @@ function Sheet(props) {
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   let hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
+  const getDefaultValueInCreate = () => {
+    let data = navGroupFilters[0];
+    if ([9, 10, 11].includes(data.dataType)) {
+      return { [data.controlId]: JSON.stringify([data.values[0]]) };
+    } else if ([29, 35]) {
+      return {
+        [data.controlId]: JSON.stringify([
+          {
+            sid: data.values[0],
+            name: data.navNames[0] || '',
+          },
+        ]),
+      };
+    }
+  };
   function openNewRecord() {
+    let defaultFormData = {};
+    let param = {};
+    if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
+      defaultFormData = getDefaultValueInCreate();
+      param = {
+        defaultFormData,
+        defaultFormDataEditable: true,
+      };
+    }
     addRecord({
+      ...param,
       showFillNext: true,
       appId,
       viewId,
@@ -256,6 +282,7 @@ export default connect(
     loading: state.sheet.loading,
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
+    navGroupFilters: state.sheet.navGroupFilters,
   }),
   dispatch =>
     bindActionCreators(

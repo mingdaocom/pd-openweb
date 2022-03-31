@@ -1,5 +1,33 @@
 module.exports = {
   /**
+  * 获取功能系统开关配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSwitch: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetSwitch', args, options);
+   },
+  /**
+  * 更新系统配置开关（单个）
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {boolean} args.state 开关
+  * @param {} args.type 业务类型
+  * @param {} args.roleType 角色类型
+  * @param {array} args.viewIds
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editSwitch: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditSwitch', args, options);
+   },
+  /**
   * 获取功能系统开关（包含管理员判断）
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用管理员
@@ -222,7 +250,7 @@ module.exports = {
   /**
   * 保存工作表查询
   * @param {Object} args 请求参数
-  * @param {string} args.id id
+  * @param {string} args.id id 新建为空，修改传原值
   * @param {string} args.worksheetId 本表id
   * @param {string} args.controlId 默认值控件id
   * @param {string} args.sourceId 来源id （这里值得工作表id）
@@ -1119,6 +1147,7 @@ module.exports = {
   * 获取可见筛选器
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
+  * @param {string} args.controlId 控件ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1141,6 +1170,19 @@ module.exports = {
    getWorksheetFilterById: function (args, options = {}) {
      
      return $.api('Worksheet', 'GetWorksheetFilterById', args, options);
+   },
+  /**
+  * 获取嵌入统计图的筛选条件
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.controlId 控件ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFiltersByControlId: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetFiltersByControlId', args, options);
    },
   /**
   * 删除筛选器
@@ -1482,6 +1524,20 @@ module.exports = {
      return $.api('Worksheet', 'EditControlsAlias', args, options);
    },
   /**
+  * 生成控件默认别名
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.worksheetId 工作表id
+  * @param {integer} args.version 版本号
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editGenerateControlsDefaultAlias: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditGenerateControlsDefaultAlias', args, options);
+   },
+  /**
   * 保存表控件
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 兼容老数据
@@ -1721,33 +1777,5 @@ module.exports = {
    editRowByLink: function (args, options = {}) {
      
      return $.api('Worksheet', 'EditRowByLink', args, options);
-   },
-  /**
-  * 获取功能系统开关配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSwitch: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'GetSwitch', args, options);
-   },
-  /**
-  * 更新系统配置开关（单个）
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {boolean} args.state 开关
-  * @param {} args.type 业务类型
-  * @param {} args.roleType 角色类型
-  * @param {array} args.viewIds
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editSwitch: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditSwitch', args, options);
    },
 };

@@ -7,7 +7,7 @@ import { handleChangeOwner, updateRecordOwner } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 export default function FormHeader(props) {
-  const { recordbase, recordinfo, view = {}, updateRecordDailogOwner, sheetSwitchPermit = {}, viewId } = props;
+  const { recordbase, recordinfo, view = {}, updateRecordDialogOwner, sheetSwitchPermit = {}, viewId } = props;
   const { isCharge, worksheetId, recordId, recordTitle, isSmall } = recordbase;
   const {
     allowEdit,
@@ -72,7 +72,7 @@ export default function FormHeader(props) {
                             accountId:
                               accountId === 'user-self' ? _.get(md, ['global', 'Account', 'accountId']) : accountId,
                           });
-                          updateRecordDailogOwner(account, record);
+                          updateRecordDialogOwner(account, record);
                           alert(_l('修改成功'));
                         } catch (err) {
                           alert(_l('修改失败'));
@@ -112,5 +112,5 @@ FormHeader.propTypes = {
   recordbase: PropTypes.shape({}),
   recordinfo: PropTypes.shape({}),
   view: PropTypes.shape({}),
-  updateRecordDailogOwner: PropTypes.func,
+  updateRecordDialogOwner: PropTypes.func,
 };

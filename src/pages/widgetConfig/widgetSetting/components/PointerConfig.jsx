@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Input } from 'antd';
 import { SettingItem } from '../../styled';
@@ -30,12 +30,21 @@ const PointerConfigWrap = styled(SettingItem)`
 
 export default function PointConfig({ data = {}, onChange }) {
   const { dot = 2 } = data;
+  const numshow = (data.advancedSetting || {}).numshow;
+  const maxDot = _.includes([6, 31, 37], data.type) && numshow === '1' ? 12 : 14;
+
+  // 百分比配置小数点最大12
+  useEffect(() => {
+    if (dot > maxDot) {
+      onChange({ dot: 12 });
+    }
+  }, [data.controlId, numshow]);
 
   const dealValue = value => {
     const parsedValue = parseFloat(value);
     if (isNaN(value)) return 0;
     const fixedValue = Number(parsedValue).toFixed(0);
-    return Math.max(0, Math.min(14, fixedValue));
+    return Math.max(0, Math.min(maxDot, fixedValue));
   };
 
   const handleChange = event => {
@@ -48,7 +57,7 @@ export default function PointConfig({ data = {}, onChange }) {
   };
 
   const addNumber = () => {
-    onChange({ dot: Math.min(14, dot + 1) });
+    onChange({ dot: Math.min(maxDot, dot + 1) });
   };
 
   const reduceNumber = () => {

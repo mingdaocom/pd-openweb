@@ -38,7 +38,7 @@ export default function RelateRecordBlock(props) {
     sheetSwitchPermit,
     controls,
     activeId,
-    registeRefreshEvents,
+    addRefreshEvents,
     scrollToBottom,
     relateNumOfControl,
     navScrollLeft,
@@ -120,7 +120,7 @@ export default function RelateRecordBlock(props) {
         control={activeControl}
         loading={loading}
         controls={activeControl.relationControls}
-        registeRefreshEvents={registeRefreshEvents}
+        addRefreshEvents={addRefreshEvents}
         setRelateNumOfControl={num => {
           setRelateNumOfControl(
             {
@@ -155,6 +155,6 @@ RelateRecordBlock.propTypes = {
   relateRecordData: PropTypes.shape({}),
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   onRelateRecordsChange: PropTypes.func,
-  registeRefreshEvents: PropTypes.func,
+  addRefreshEvents: PropTypes.func,
   scrollToBottom: PropTypes.func,
 };

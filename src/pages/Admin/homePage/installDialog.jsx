@@ -2,6 +2,7 @@ import React, { useRef, Fragment } from 'react';
 import { Button } from 'ming-ui';
 import styled from 'styled-components';
 import { pushInstallClientMsg } from 'src/api/project';
+import copy from 'copy-to-clipboard';
 
 const TYPE_CONFIG = {
   desktop: {
@@ -114,18 +115,7 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
       });
     });
   };
-  const copyLink = () => {
-    import('clipboard').then(({ default: Chipboard }) => {
-      var chipboard = new Chipboard($copy.current.button, {
-        text: function() {
-          return `${WebUrl}mobile.htm`;
-        },
-      });
-      chipboard.on('success', function() {
-        alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-      });
-    });
-  };
+
   return (
     <InstallDialog
       ref={$ref}
@@ -135,27 +125,36 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
         if (e.target.isEqualNode($ref.current)) {
           onClose();
         }
-      }}>
+      }}
+    >
       <div className="title">{title}</div>
       <div className="explain">{explain}</div>
       <div className="shareContent">
         {isDesktop ? (
           <Fragment>
             <div className="iconWrap">
-              <i className="icon-link"></i>
+              <i className="icon-link" />
             </div>
-            <div className="line"></div>
+            <div className="line" />
             <div className="iconWrap">
-              <i className="icon-group"></i>
+              <i className="icon-group" />
             </div>
           </Fragment>
         ) : (
-          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${WebUrl}mobile.html`}></img>
+          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${WebUrl}mobile.html`} />
         )}
       </div>
       <div className="text">{text}</div>
       {isDesktop && (
-        <Button ref={$copy} className="copyBtn" style={{ width: '260px' }} onClick={copyLink}>
+        <Button
+          ref={$copy}
+          className="copyBtn"
+          style={{ width: '260px' }}
+          onClick={() => {
+            copy(`${WebUrl}mobile.htm`);
+            alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+          }}
+        >
           {_l('复制邀请链接')}
         </Button>
       )}

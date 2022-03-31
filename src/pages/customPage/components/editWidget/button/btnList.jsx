@@ -1,27 +1,17 @@
 import React from 'react';
 import { string } from 'prop-types';
-import { Button } from 'ming-ui';
+import { Button, Icon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import color from 'color';
-
-const ButtonListWrap = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-
-  .chunkListWrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-`;
+import SvgIcon from 'src/components/SvgIcon';
+import { ButtonListWrap, GraphWrap } from './styled';
 
 const ButtonDisplayWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 200px;
   padding: 24px 0;
   text-align: center;
   background-color: #fff;
@@ -40,7 +30,17 @@ const BtnWrap = styled.div`
   &.isFullWidth {
     flex-grow: 1;
   }
-
+  .Button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    div {
+      display: flex;
+    }
+    .injected-svg {
+      margin-right: 5px;
+    }
+  }
   .btnBox {
     box-sizing: border-box;
     transition: border 0.25s;
@@ -50,11 +50,10 @@ const BtnWrap = styled.div`
       border: 1px dashed #ddd;
     }
     &.active {
-      border: 1px solid
-        ${props =>
-          color(props.color)
-            .darken(0.2)
-            .string()};
+      border: 1px solid #2196f3;
+    }
+    &.error {
+      border: 1px solid red;
     }
   }
 
@@ -81,6 +80,10 @@ const BtnWrap = styled.div`
         background-color: #f8f8f8;
       }
     }
+    .iconWrap {
+      color: ${props => props.color};
+      background-color: #f8f8f8;
+    }
   }
 `;
 const SortableButtonListWrap = styled.div`
@@ -100,18 +103,21 @@ const SortableButtonListWrap = styled.div`
 
 export default function BtnList({
   buttonList,
+  errorBtns,
   onSortEnd,
   count,
   style,
+  config,
   width,
   explain,
   activeIndex,
   onClick,
   ...rest
 }) {
-  const isFullWidth = width === 1;
-  const getWidth = list => {
-    if (width === 1) return { width: `${100 / list.length}%` };
+  const { btnType, direction = 1 } = config || {};
+  const isFullWidth = btnType === 2 ? true : width === 1;
+  const getWidth = () => {
+    if (isFullWidth) return { width: `${100 / count}%` };
     return {};
   };
   const newList = _.chunk(buttonList, count);
@@ -123,24 +129,47 @@ export default function BtnList({
         <ButtonListWrap>
           {newList.map((list, i) => {
             return (
-              <div key={i} className="chunkListWrap">
+              <div key={i} className={cx('chunkListWrap', { center: !isFullWidth })}>
                 {list.map((item, index) => {
-                  const { color, name, icon } = item;
+                  const { color, name, icon, config } = item;
+                  const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
+                  const { iconUrl } = config || defaultConfig;
                   const actualIndex = i * count + index;
                   return (
                     <BtnWrap
-                      style={{ ...getWidth(list) }}
+                      key={index}
+                      style={{ ...getWidth() }}
                       color={color}
                       onClick={() => onClick({ index: actualIndex })}>
                       <div
                         className={cx('btnBox', {
                           isFullWidth,
                           active: activeIndex === actualIndex,
+                          error: errorBtns.includes(index),
                           adjustText: style === 3,
-                        })}>
-                        <Button fullWidth={isFullWidth} className="overflow_ellipsis" radius={style === 2} icon={icon}>
-                          {name}
-                        </Button>
+                        })}
+                      >
+                        {btnType === 2 ? (
+                          <GraphWrap
+                            className={cx('valignWrapper', direction === 1 ? 'column' : 'row')}
+                            color={color}
+                            radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
+                          >
+                            {iconUrl && (
+                              <div className="iconWrap flexRow valignWrapper">
+                                <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={direction === 1 ? 36 : 28} />
+                              </div>
+                            )}
+                            <div className="nameWrap valignWrapper">
+                              <div className="name">{name}</div>
+                            </div>
+                          </GraphWrap>
+                        ) : (
+                          <Button fullWidth={isFullWidth} radius={style === 2} icon={iconUrl ? null : icon}>
+                            {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
+                            <span className="overflow_ellipsis">{name}</span>
+                          </Button>
+                        )}
                       </div>
                     </BtnWrap>
                   );

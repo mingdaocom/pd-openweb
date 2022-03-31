@@ -175,7 +175,7 @@ export default function RelateRecordTable(props) {
     recordinfo,
     relateRecordData = {},
     control,
-    registeRefreshEvents = () => {},
+    addRefreshEvents = () => {},
     setRelateNumOfControl = () => {},
     setLoading = () => {},
     onRelateRecordsChange = () => {},
@@ -372,7 +372,7 @@ export default function RelateRecordTable(props) {
     }
   }, [searchVisible]);
   useEffect(() => {
-    registeRefreshEvents('reloadRelateRecordsTable', () => {
+    addRefreshEvents('reloadRelateRecordsTable', () => {
       setLoading(true);
       setRefreshFlag(Math.random());
       setLayoutChanged(false);
@@ -763,7 +763,6 @@ export default function RelateRecordTable(props) {
         {!!activeRecord && (
           <RecordInfoWrapper
             showPrevNext
-            sheetSwitchPermit={sheetSwitchPermit}
             currentSheetRows={records.filter(r => r.rowid)}
             from={2}
             visible
@@ -800,5 +799,5 @@ RelateRecordTable.propTypes = {
   relateRecordData: PropTypes.shape({}),
   setLoading: PropTypes.func,
   onRelateRecordsChange: PropTypes.func,
-  registeRefreshEvents: PropTypes.func,
+  addRefreshEvents: PropTypes.func,
 };

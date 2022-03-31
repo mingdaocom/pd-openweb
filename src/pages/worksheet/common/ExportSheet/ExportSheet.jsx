@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { Dialog, Checkbox, Radio } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
 import './ExportSheet.less';
-import cx from 'classnames';
 import { isRelateRecordTableControl } from 'worksheet/util';
-import SearchInput from 'worksheet/components/SearchInput';
+import RadioGroup from 'ming-ui/components/RadioGroup2';
 
 export default class ExportSheet extends Component {
   static propTypes = {
@@ -55,6 +54,7 @@ export default class ExportSheet extends Component {
       exportShowColumns &&
       (props.exportView.advancedSetting.customdisplay === '1' || (props.exportView.showControls || []).length);
     this.state = {
+      type: 0,
       showTabs,
 
       // 是否导出表格所有字段
@@ -113,7 +113,7 @@ export default class ExportSheet extends Component {
     else {
       columns
         .filter(item => this.checkControlVisible(item))
-        .filter(item => !(isRelateRecordTableControl(item) || item.type === 34))
+        .filter(item => !(isRelateRecordTableControl(item) || item.type === 34 || item.type === 43))
         .forEach(column => {
           selected[column.controlId] = true;
         });
@@ -209,7 +209,7 @@ export default class ExportSheet extends Component {
         quickFilter = [],
         navGroupFilters,
       } = this.props;
-      const { columnsSelected, isStatistics, showTabs, exportShowColumns, exportExtIds } = this.state;
+      const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type } = this.state;
 
       // 获取Token
       const token = await appManagement.getToken({ worksheetId, viewId });
@@ -235,6 +235,7 @@ export default class ExportSheet extends Component {
         appId,
         viewId,
         projectId,
+        type,
         exportControlsId,
         filterControls,
         // columnRpts: isStatistics ? this.getColumnRpts(exportControlsId, systemColumn) : null,
@@ -325,6 +326,7 @@ export default class ExportSheet extends Component {
     let columns = [].concat(this.props.columns);
     const { advancedSetting, showControls } = exportView;
     const {
+      type,
       isStatistics,
       exportShowColumns,
       showTabs,
@@ -350,7 +352,7 @@ export default class ExportSheet extends Component {
     }
 
     // 过滤掉不支持导出的字段、无权限字段
-    const notSupportableTtpe = [22, 34, 10010, 45];
+    const notSupportableTtpe = [22, 34, 43, 45, 10010];
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&
@@ -392,18 +394,18 @@ export default class ExportSheet extends Component {
               text={_l('导出当前表格显示列的字段')}
               checked={exportShowColumns}
               onClick={() => this.switchColumnType(true)}
-            ></Radio>
+            />
             <Radio
               size="small"
               text={_l('导出所有字段')}
               checked={!exportShowColumns}
               onClick={() => this.switchColumnType(false)}
-            ></Radio>
+            />
           </Fragment>
         )}
 
         {/** 表格的字段列表 */}
-        <div className="title"></div>
+        <div className="title" />
         {(!exportShowColumns || !showTabs) && (
           <Fragment>
             {/** 字段搜索框 */}
@@ -459,7 +461,8 @@ export default class ExportSheet extends Component {
                     <Checkbox
                       style={{ left: '40px' }}
                       size="small"
-                      checked={exportExtIds[column.controlId].relaRowId}
+                      checked={exportExtIds[column.controlId].relaRowId && type !== 1}
+                      disabled={type === 1}
                       text={_l('记录ID')}
                       onClick={() => {
                         exportExtIds[column.controlId].relaRowId = !exportExtIds[column.controlId].relaRowId;
@@ -484,7 +487,8 @@ export default class ExportSheet extends Component {
                       <Checkbox
                         style={{ left: '40px' }}
                         size="small"
-                        checked={exportExtIds[column.controlId].jobId}
+                        checked={exportExtIds[column.controlId].jobId && type !== 1}
+                        disabled={type === 1}
                         text={_l('工号')}
                         onClick={() => {
                           exportExtIds[column.controlId].jobId = !exportExtIds[column.controlId].jobId;
@@ -496,7 +500,8 @@ export default class ExportSheet extends Component {
                       <Checkbox
                         style={{ left: '40px' }}
                         size="small"
-                        checked={exportExtIds[column.controlId].userId}
+                        checked={exportExtIds[column.controlId].userId && type !== 1}
+                        disabled={type === 1}
                         text={_l('人员ID')}
                         onClick={() => {
                           exportExtIds[column.controlId].userId = !exportExtIds[column.controlId].userId;
@@ -525,7 +530,8 @@ export default class ExportSheet extends Component {
         {/** 在其他sheet导出关联表 */}
         <Checkbox
           text={_l('在其他sheet导出关联表')}
-          checked={exportRelationalSheet}
+          checked={exportRelationalSheet && type !== 1}
+          disabled={type === 1}
           size="small"
           onClick={() => {
             // 默认全选导出所有关联表
@@ -542,11 +548,21 @@ export default class ExportSheet extends Component {
               style={{ left: '20px' }}
               key={column.controlId}
               size="small"
+              disabled={type === 1}
               text={column.controlName || ''}
-              checked={!!columnsSelected[column.controlId]}
+              checked={!!columnsSelected[column.controlId] && type !== 1}
               onClick={() => this.chooseColumnId(column)}
             />
           ))}
+
+        <div className="title">{_l('导出格式')}</div>
+        <RadioGroup
+          data={[
+            { text: _l('Excel 文件（.xlsx）'), value: 0, checked: type === 0 },
+            { text: _l('CSV 文件（.csv）'), value: 1, checked: type === 1 },
+          ]}
+          onChange={type => this.setState({ type })}
+        />
       </Dialog>
     );
   }

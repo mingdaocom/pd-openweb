@@ -3,7 +3,16 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import Icon from './Icon';
 
-export const BUTTON_TYPE_LIST = ['primary', 'secondary', 'success', 'danger', 'ghost', 'link', 'ghostgray'];
+export const BUTTON_TYPE_LIST = [
+  'primary',
+  'secondary',
+  'success',
+  'danger',
+  'ghost',
+  'link',
+  'ghostgray',
+  'danger-gray',
+];
 export const BUTTON_SIZE_LIST = ['tiny', 'small', 'medium', 'large', 'mdnormal', 'mdbig']; // 'mini', 'huge', 'massive'
 import './less/Button.less';
 

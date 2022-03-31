@@ -127,7 +127,7 @@ class WorkSheet extends Component {
   }
   getValidedWorksheetId(props) {
     const { match, sheetList, isCharge } = props || this.props;
-    const possessSheetList = isCharge ? sheetList : sheetList.filter(item => item.status === 1);
+    const possessSheetList = isCharge ? sheetList : sheetList.filter(item => item.status === 1 && !item.navigateHide);
     let id;
     if (match.params.worksheetId) {
       id = match.params.worksheetId;
@@ -199,7 +199,7 @@ class WorkSheet extends Component {
     );
   };
   render() {
-    const { visible, sheetList, pageId, match, projectId } = this.props;
+    let { visible, sheetList = [], pageId, match, projectId, isCharge } = this.props;
     const { appId, groupId } = match.params;
     const id = this.getValidedWorksheetId();
     const currentSheet = _.find(sheetList, { workSheetId: id }) || {};

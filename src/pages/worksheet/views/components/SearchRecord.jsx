@@ -200,8 +200,9 @@ const SearchRecord = props => {
         setVisible(visible);
         if (visible) {
           setTimeout(() => {
-            document.querySelector('.searchRecordAutoComplete input').focus();
-          }, 100);
+            const input = document.querySelector('.searchRecordAutoComplete input');
+            input && input.focus();
+          }, 200);
         }
       }}
     >

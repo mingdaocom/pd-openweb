@@ -137,7 +137,7 @@ export const mobileCurrentCalendatData = (state = [], action) => {
 export const mobileCurrentDate = (state = '', action) => {
   switch (action.type) {
     case 'CHANGE_MOBILE_CURRENTDATE':
-      return action.date; 
+      return action.date;
     default:
       return state;
   }

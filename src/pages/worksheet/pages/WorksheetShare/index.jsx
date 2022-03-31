@@ -132,7 +132,8 @@ class WorksheetSahre extends React.Component {
     }
     this.promiseShareInfo.then((res = {}) => {
       const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res;
-      const { viewId = '', rowId = '', exported = false } = res;
+      const { viewId = '', rowId = '', exported = false, shareAuthor } = res;
+      shareAuthor && window.sessionStorage.setItem('shareAuthor', shareAuthor);
       this.setState(
         {
           appId,
@@ -144,7 +145,7 @@ class WorksheetSahre extends React.Component {
         },
         () => {
           if (!viewId && !appId) {
-            //视图已删除或链接已失效
+            //分享链接关闭或数据不存在
             this.setState({
               loading: false,
               error: true,
@@ -631,7 +632,7 @@ class WorksheetSahre extends React.Component {
             >
               <div className="unnormalIcon"></div>
               <div className="msg">
-                {errorMsg ? errorMsg : printId ? _l('该链接已失效') : _l('视图已删除或链接已失效')}
+                {errorMsg ? errorMsg : printId ? _l('该链接已失效') : _l('分享链接关闭或数据不存在')}
               </div>
             </div>
           </div>

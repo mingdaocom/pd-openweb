@@ -48,7 +48,7 @@ export default function CustomPageHeader(props) {
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const saveImage = () => {
-    const imageName = `${ appName ? `${appName}-` : '' }${name}-${moment().format('YYYYMMDD-HHmmSS')}.png`;
+    const imageName = `${ appName ? `${appName}_` : '' }${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
     exportImage().then(blob => {
       setExportLoading(false);

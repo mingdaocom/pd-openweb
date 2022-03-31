@@ -56,8 +56,6 @@ export const loadWorksheet = () => (dispatch, getState) => {
             localStorage.setItem(`currentNavWorksheetInfo-${item.workSheetId}`, JSON.stringify(workSheetInfo));
           }
         });
-        let currentAppNavSheetIdList = navSheetList.map(item => item.workSheetId);
-        localStorage.setItem('currentAppNavSheetIdList', JSON.stringify(currentAppNavSheetIdList));
       }
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
@@ -79,6 +77,17 @@ export const loadWorksheet = () => (dispatch, getState) => {
       appId: base.appId,
     })
     .then(data => {
+      dispatch({
+        type: 'UPDATE_APP_DETAIL',
+        data: {
+          ...appDetail,
+          appName: data.name,
+          detail: {
+            ...appDetail.detail,
+            webMobileDisplay: data.webMobileDisplay,
+          },
+        },
+      });
       const isCharge = isHaveCharge(data.permissionType, data.isLock);
       dispatch({
         type: 'MOBILE_UPDATE_IS_CHARGE',
@@ -299,3 +308,7 @@ export const updateMobileViewPermission = params => (dispatch, getState) => {
     }
   });
 };
+
+export const updateClickChart = (flag) => (dispatch, getState) => {
+  dispatch({type: 'UPDATE_CLICK_CHART', flag});
+}

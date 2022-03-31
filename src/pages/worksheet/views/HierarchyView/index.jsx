@@ -16,7 +16,7 @@ import { hierarchyViewCanSelectFields, getItem, setItem } from './util';
 import TreeNode from './components/TreeNode';
 import LeftBoundary from './components/LeftBoundary';
 import LayerTitle from './components/LayerTitle';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import './index.less';
 import { ITEM_TYPE, SCROLL_CONFIG } from './config';
 import DragLayer from './components/DragLayer';
@@ -226,7 +226,7 @@ function Hierarchy(props) {
   };
 
   const createTextTitleTempRecord = ({ pathId, visible, pid, ...rest }) => {
-    const rowId = uuid();
+    const rowId = uuidv4();
     // 记录不是顶级且子级没有展开则先展开子级
     if (pathId.length > 0 && !visible) {
       toggleChildren({

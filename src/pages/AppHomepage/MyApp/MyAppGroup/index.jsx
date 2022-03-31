@@ -8,6 +8,7 @@ import appManagementApi from 'api/appManagement';
 import MyAppGroupItem from './MyAppGroupItem';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import { every, get, head, isEmpty } from 'lodash';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 const { app: {addAppItem} } = window.private
 
 export default class MyAppGroup extends Component {
@@ -27,7 +28,9 @@ export default class MyAppGroup extends Component {
     return update(data, {
       markedApps: {
         $apply: apps => {
-          return apps.map(app => ({ ...app, isExternalApp: isExternalApp(app.id) }));
+          return apps
+            .filter(o => !(o.pcDisplay && o.permissionType < ADVANCE_AUTHORITY))
+            .map(app => ({ ...app, isExternalApp: isExternalApp(app.id) }));
         },
       },
     });
@@ -307,7 +310,8 @@ export default class MyAppGroup extends Component {
               <button
                 type="button"
                 className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2"
-                onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}>
+                onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}
+              >
                 {_l('加入组织')}
               </button>
             </div>
@@ -385,7 +389,8 @@ export default class MyAppGroup extends Component {
                     }
 
                     location.href = href;
-                  }}>
+                  }}
+                >
                   <div className="iconWrap">
                     <i className={`icon-${icon}`} style={{ color: iconColor }}></i>
                   </div>

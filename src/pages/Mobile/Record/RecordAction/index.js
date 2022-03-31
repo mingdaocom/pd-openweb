@@ -230,9 +230,9 @@ class RecordAction extends Component {
         return;
       }
       // 二次确认
-      Modal.alert(_l('你确认对记录执行此操作吗？'), '', [
-        { text: _l('取消'), onPress: () => {}, style: 'default' },
-        { text: _l('确定'), onPress: () => this.triggerImmediately(btn) },
+      Modal.alert(btn.confirmMsg || _l('你确认对记录执行此操作吗？'), '', [
+        { text: btn.cancelName || _l('取消'), onPress: () => {}, style: 'default' },
+        { text: btn.sureName || _l('确定'), onPress: () => this.triggerImmediately(btn) },
       ]);
     } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
       // 填写字段

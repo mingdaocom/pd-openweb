@@ -17,7 +17,9 @@ export default class Tel extends Component {
       utilsScript: utils,
       separateDialCode: true,
       initialCountry: 'cn',
-      preferredCountries: ['cn'],
+      // preferredCountries: ['cn'],
+      onlyCountries: ['cn'], //只支持大陆号码
+      allowDropdown: false,//不下拉
     });
 
     this.setValue(value);

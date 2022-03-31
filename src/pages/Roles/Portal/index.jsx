@@ -8,7 +8,7 @@ import * as actions from './redux/actions';
 import PortalTable from './list';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { getBaseSetByAppId } from 'src/api/externalPortal';
+import { getPortalSet } from 'src/api/externalPortal';
 import RoleSetting from 'src/pages/Roles/RoleSetting';
 import PortalSetting from 'src/pages/Roles/Portal/setting';
 const WrapCon = styled.div`
@@ -128,11 +128,13 @@ function Portal(props) {
   const { portal = {}, changePageIndex, portalName = '', appDetail, appId, closePortal, getCount } = props;
   const [showPortalSetting, setShowPortalSetting] = useState(false);
   const [show, setShow] = useState(false);
-  const [portalBaseSet, setPortalBaseSet] = useState({});
+  const [portalSet, setPortalSet] = useState({});
   const { roleList = [], list = [], commonCount = 0, unApproveCount = 0 } = portal;
   const [roleId, setRoleId] = useState('');
   const [baseSetResult, setBaseSetResult] = useState({});
   const [tableType, setTableType] = useState(0); //0:用户 1:待审核 2:角色权限 3:统计
+  const [version, setControlVersion] = useState();
+
   useEffect(() => {
     fetchPorBaseInfo();
     //获取外部门户的角色信息
@@ -147,20 +149,22 @@ function Portal(props) {
   }, [_.get(props, ['match', 'params', 'listType'])]);
   const fetchPorBaseInfo = () => {
     const { setBaseInfo, portal } = props;
-    getBaseSetByAppId({
+    getPortalSet({
       appId,
-    }).then(portalBaseSet => {
+    }).then(portalSet => {
       const { baseInfo = {} } = portal;
-      const { baseSetResult = {} } = portalBaseSet;
+      const { portalSetModel = {}, controlTemplate = {} } = portalSet;
       const { isEnable = false, isSendMsgs } = baseSetResult;
       setBaseInfo({ ...baseInfo, appId, isSendMsgs });
-      setPortalBaseSet(portalBaseSet);
-      setBaseSetResult(baseSetResult);
+      setPortalSet(portalSet);
+      setBaseSetResult(portalSetModel);
+      setControlVersion(controlTemplate.version);
     });
   };
   const reloadPortalRoleList = () => {
     props.getPortalRoleList(appId);
   };
+
   return (
     <WrapCon>
       <Wrap>
@@ -172,7 +176,7 @@ function Portal(props) {
                 className="mainShareUrl"
                 copyShowText
                 theme="light"
-                url={portalBaseSet.portalUrl}
+                url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
                 customBtns={[]}
                 copyTip={_l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')}
               />
@@ -217,6 +221,8 @@ function Portal(props) {
             </div>
             <PortalTable
               {...props}
+              version={version}
+              projectId={appDetail.projectId}
               baseSetResult={baseSetResult}
               openPortalRoleSet={roleId => {
                 setRoleId(roleId);
@@ -225,18 +231,27 @@ function Portal(props) {
               type={tableType}
               roleList={roleList}
               onOk={() => {}}
+              onChangePortalVersion={version => {
+                setPortalSet({ ...portalSet, controlTemplate: { ...portalSet.controlTemplate, version } });
+                setControlVersion(version);
+              }}
             />
           </div>
         </WrapTop>
         {showPortalSetting && (
           <PortalSetting
-            {...portalBaseSet}
+            portalSet={portalSet}
             projectId={appDetail.projectId}
             show={showPortalSetting}
             appId={appId}
             closeSet={() => setShowPortalSetting(false)}
             callback={() => {
               fetchPorBaseInfo();
+            }}
+            onChangePortal={data => {
+              setPortalSet(data);
+              setBaseSetResult(data.portalSetModel);
+              setControlVersion(data.controlTemplate.version);
             }}
           />
         )}

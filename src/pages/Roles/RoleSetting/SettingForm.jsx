@@ -191,7 +191,7 @@ export default class extends PureComponent {
             })}
             <div className={styles.tableHeaderItem + ' mLeft20'}>{_l('数据操作权限')}</div>
           </div>
-          {sheets.length ? (
+          {lists.length ? (
             _.map(lists, list => {
               return (
                 <SheetTable
@@ -208,7 +208,7 @@ export default class extends PureComponent {
               );
             })
           ) : (
-            <div className={styles.emptyContent}>{_l('还没有创建工作表')}</div>
+            <div className={styles.emptyContent}>{_l('还没有创建工作表或自定义页面')}</div>
           )}
         </div>
       </Fragment>

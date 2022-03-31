@@ -278,7 +278,9 @@ export default class Record extends Component {
         defaultCustomButtons={buttons}
         viewId={viewId}
         recordId={row.rowid}
-        onUpdate={() => {}}
+        onUpdate={(updateControls, newItem) => {
+          this.props.updateRecord(row, updateControls, newItem);
+        }}
         onDelete={() => {
           this.props.removeRecord(row.rowid);
         }}

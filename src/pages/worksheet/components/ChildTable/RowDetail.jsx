@@ -59,21 +59,12 @@ export default class RowDetail extends React.Component {
     if (!this.customwidget.current) {
       return;
     }
-    const { controlName, data, onSave, onClose } = this.props;
+    const { data, onSave, onClose } = this.props;
     const submitData = this.customwidget.current.getSubmitData();
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.data;
 
-    if (submitData.hasError) {
-      this.setState({
-        showError: true,
-      });
-      alert(_l('请正确填写%0', controlName), 3);
-      return false;
-    } else if ($('.workSheetNewRecord .Progress--circle').length > 0) {
-      alert(_l('附件正在上传，请稍后', 3));
-      return false;
-    } else if (submitData.hasRuleError) {
+    if (submitData.error) {
       return false;
     } else {
       const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
@@ -106,9 +97,18 @@ export default class RowDetail extends React.Component {
   }
 
   render() {
-    const { disabled, worksheetId, projectId, controls, data, getMasterFormData, handleUniqueValidate, appId } =
-      this.props;
-    const { flag, showError } = this.state;
+    const {
+      disabled,
+      worksheetId,
+      projectId,
+      controls,
+      data,
+      getMasterFormData,
+      handleUniqueValidate,
+      appId,
+      onRulesLoad,
+    } = this.props;
+    const { flag } = this.state;
     const formdata = _.isEmpty(data)
       ? controls
       : controls
@@ -135,9 +135,9 @@ export default class RowDetail extends React.Component {
           flag={flag}
           projectId={projectId}
           appId={appId}
-          showError={showError}
           checkCellUnique={handleUniqueValidate}
           onChange={this.handleChange}
+          onRulesLoad={onRulesLoad}
         />
       </div>
     );

@@ -5,7 +5,7 @@ const moment = require('moment');
 const cheerio = require('cheerio');
 const minify = require('html-minifier').minify;
 const { htmlTemplatesPath, getEntryName, getEntryFromHtml } = require('./utils');
-const { apiServer, webpackPublicPath } = require('./publishConfig');
+const { apiServer, workflowApiServer, reportApiServer, webpackPublicPath } = require('./publishConfig');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -42,14 +42,21 @@ function generate() {
   fs.readdirSync(htmlTemplatesPath).forEach(filename => {
     let html = fs.readFileSync(path.join(htmlTemplatesPath, filename)).toString();
     const entry = getEntryFromHtml(filename);
-    let publicPath = getPublicPath();
+    const apiMap = {
+      main: isProduction ? apiServer : '/api/',
+    };
     if (entry) {
       const moduleName = getEntryName(entry.src, filename);
+      let publicPath = getPublicPath();
       if (isProduction && entry.type === 'single') {
         publicPath = publicPath.replace('/dist/pack/', '/dist/single/pack/');
       }
+      if (!isProduction) {
+        apiMap.workflow = '/workflow_api';
+        apiMap.report = '/report_api';
+      }
       html = ejs.compile(html)({
-        apiServer: isProduction ? apiServer : '/api/',
+        apiServer: JSON.stringify(apiMap),
         releaseDate: moment().format('YYYY/MM/DD HH:mm:SS'),
         publicPath,
       });
@@ -105,7 +112,7 @@ function generate() {
       destHtml(filename, $.html());
     } else {
       html = ejs.compile(html)({
-        apiServer: isProduction ? apiServer : '/api/',
+        apiServer: JSON.stringify(apiMap),
       });
       destHtml(filename, html);
     }

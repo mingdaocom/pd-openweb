@@ -26,6 +26,8 @@ rewrite (?i)^(/|/portal/)printshare /worksheetshare.html break;
 rewrite (?i)^(/|/portal/)form/ /publicworksheet.html break;
 rewrite (?i)^(/|/portal/)recordshare /recordshare.html break;
 rewrite (?i)^(/|/portal/)excelfile /excelfile.html break;
+rewrite (?i)^(/|/portal/)privacy /privacyOrAgreen.html break;
+rewrite (?i)^(/|/portal/)agreen /privacyOrAgreen.html break;
 
 rewrite (?i)^(/|/portal/)login /portalLogin.html break;
 rewrite (?i)^(/|/portal/)network /portalLogin.html break;

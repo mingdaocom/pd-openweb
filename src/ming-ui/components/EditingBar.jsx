@@ -23,7 +23,16 @@ const Con = styled.div`
   box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: row;
+  align-items: center;
   min-width: 400px;
+`;
+
+const Loading = styled.i`
+  height: 1em;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  margin-right: 10px;
+  animation: rotate 2s linear infinite;
 `;
 
 const Button = styled.div`
@@ -52,6 +61,7 @@ const CancelButton = styled(Button)`
 export default function EditingBar(props) {
   const {
     style = {},
+    loading,
     visible,
     defaultTop,
     visibleTop,
@@ -85,12 +95,13 @@ export default function EditingBar(props) {
         >
           <Con>
             <span className="flex bold">{title}</span>
-            <CancelButton className="mLeft30 mTop10 mRight10" onClick={onCancel}>
-              {cancelText}
-            </CancelButton>
-            <OkButton className="mTop10" onClick={onUpdate}>
-              {updateText}
-            </OkButton>
+            {loading && <Loading className="icon icon-loading_button" />}
+            {!loading && (
+              <CancelButton className="mLeft30  mRight10" onClick={onCancel}>
+                {cancelText}
+              </CancelButton>
+            )}
+            {!loading && <OkButton onClick={onUpdate}>{updateText}</OkButton>}
           </Con>
         </ConBox>
       )}
@@ -101,6 +112,7 @@ export default function EditingBar(props) {
 EditingBar.propTypes = {
   style: PropTypes.shape({}),
   visible: PropTypes.bool,
+  loading: PropTypes.bool,
   title: PropTypes.string,
   defaultTop: PropTypes.number,
   visibleTop: PropTypes.number,

@@ -9,6 +9,7 @@ import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getWorksheetInfo } from 'src/api/worksheet';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { head } from 'lodash';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
@@ -506,9 +507,6 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
     });
     const uniqueControls = controls.filter(c => _.find(showControls, id => id === c.controlId) && c.unique);
     uniqueControls.forEach(c => {
-      if (!controlState(c).editable) {
-        return;
-      }
       const hadValueRows = rows.filter(row => typeof row[c.controlId] !== 'undefined' && row[c.controlId] !== '');
       const uniqueValueRows = _.uniqBy(hadValueRows, c.controlId);
       if (hadValueRows.length !== uniqueValueRows.length) {
@@ -619,7 +617,6 @@ export function copySublistControlValue(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET: // 关联记录
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH: // 检查框
     case WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT: // 富文本
-    case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE: // 签名
     case WIDGETS_TO_API_TYPE_ENUM.CASCADER: // 级联选择
     case WIDGETS_TO_API_TYPE_ENUM.LOCATION: // 定位
     case WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT: // 附件
@@ -628,6 +625,8 @@ export function copySublistControlValue(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY: // 地区
     case WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD: // 他表字段
       return value;
+    case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE: // 签名
+      return;
     default:
       return;
   }
@@ -734,8 +733,16 @@ export function saveToLocal(key, id, value, max = 5) {
     localStorage.removeItem(`${key}_${savedIds[0]}`, value);
     savedIds = savedIds.slice(1);
   }
-  localStorage.setItem(key, JSON.stringify(savedIds));
-  localStorage.setItem(`${key}_${id}`, value);
+  try {
+    localStorage.setItem(key, JSON.stringify(savedIds));
+    localStorage.setItem(`${key}_${id}`, value);
+  } catch (err) {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(key))
+      .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem(key, JSON.stringify(savedIds));
+    localStorage.setItem(`${key}_${id}`, value);
+  }
 }
 
 export function removeFromLocal(key, id) {
@@ -876,4 +883,17 @@ export function parseAdvancedSetting(setting) {
     allowsingle: setting.allowsingle === '1', // 子表允许单条添加
     batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
   };
+}
+
+/**
+ * 对 controls 缺失做补齐
+ */
+
+export function completeControls(controls) {
+  // 不存在系统字段的话 补充系统字段
+  const sysIds = SYSTEM_CONTROLS.map(c => c.controlId);
+  if (!_.some(controls.map(c => _.includes(sysIds, c.controlId)))) {
+    controls = controls.concat(SYSTEM_CONTROLS);
+  }
+  return controls;
 }

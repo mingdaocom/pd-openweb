@@ -8,6 +8,7 @@ export const FLOW_TYPE = {
   CUSTOM_ACTION: '7',
   SUB_PROCESS: '8',
   USER: '9',
+  PBC: '10',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -47,6 +48,10 @@ export const FLOW_TYPE_NULL = {
     icon: 'user',
     text: _l('人员或部门事件触发时运行流程'),
   },
+  10: {
+    icon: 'pbc',
+    text: _l('封装业务能力运行流程'),
+  },
 };
 
 export const START_APP_TYPE = {
@@ -80,6 +85,11 @@ export const START_APP_TYPE = {
     iconColor: '#4C7D9E',
     text: _l('子流程'),
   },
+  17: {
+    iconName: 'pbc',
+    iconColor: '#4C7D9E',
+    text: _l('封装业务流程'),
+  },
   20: {
     iconName: 'hr_structure',
     iconColor: '#01ca83',
@@ -91,7 +101,7 @@ export const START_APP_TYPE = {
     text: _l('人员事件'),
   },
   23: {
-    iconName: 'folder-public',
+    iconName: 'language',
     iconColor: '#01ca83',
     text: _l('人员事件'),
   },

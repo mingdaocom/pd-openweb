@@ -10,6 +10,7 @@ import fixeddataController from 'src/api/fixedData';
 import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
 import AdminCommon from 'src/pages/Admin/common/common';
+import DialogSettingInviteRules from 'src/pages/Admin/structure/modules/dialogSettingInviteRules/inde.jsx';
 import 'uploadAttachment';
 
 const { admin: {commonInfo: {subDomainTotal,workPlace, closeNet}} } = window.private
@@ -31,40 +32,33 @@ export default class CommonInfo extends Component {
       geographyName: '',
       geographyId: '', //所在地
       visibleType: 0,
-      isLogOff: false,
       isUploading: false,
       isLoading: false,
       uploadLoading: false,
+      showDialogSettingInviteRules: false,
     };
   }
 
   componentDidMount() {
     this.getAllData();
+    this.getPrivacy();
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.level !== this.props.level) {
       this.getAllData();
+      this.getPrivacy();
     }
   }
 
   getAllData() {
     this.setState({ isLoading: true });
-    $.when(
-      this.getCompanyCode(),
-      this.getSysColor(),
-      this.getSubDomainInfo(),
-      this.getCommonInfo(),
-      this.getIndustryList(),
-      this.getLicenseType(),
-    ).then(
+    $.when(this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo(), this.getIndustryList()).then(
       (
-        code,
         { homeImage, logo },
         res,
         { companyDisplayName, companyName, companyNameEnglish, geographyId, industryId },
         { industries = [] },
-        { logoffs },
       ) => {
         this.industries = industries;
         const current_industry = _.find(industries, item => item.id === industryId.toString()) || {};
@@ -77,11 +71,8 @@ export default class CommonInfo extends Component {
             });
           });
         }
-        // logoff
-        const firstList = logoffs[0] || {};
         this.setState(
           {
-            code,
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
             logo,
             subDomain: (res && res.subDomain) || '',
@@ -91,7 +82,6 @@ export default class CommonInfo extends Component {
             geographyId,
             industryId,
             industryName,
-            isLogOff: firstList.type === 1,
             isLoading: false,
           },
           () => {
@@ -108,13 +98,6 @@ export default class CommonInfo extends Component {
   //获取当前注销状态
   getLicenseType() {
     return projectController.getProjectLogOff({
-      projectId: Config.projectId,
-    });
-  }
-
-  //获取企业号
-  getCompanyCode() {
-    return Config.AdminController.corporateIdentity({
       projectId: Config.projectId,
     });
   }
@@ -143,6 +126,17 @@ export default class CommonInfo extends Component {
   //获取行业列表
   getIndustryList() {
     return fixeddataController.loadIndustry({});
+  }
+
+  // 获取加入人员规则
+  getPrivacy() {
+    projectSettingController
+      .getPrivacy({
+        projectId: Config.projectId,
+      })
+      .then(({ allowProjectCodeJoin, regCode }) => {
+        this.setState({ allowProjectCodeJoin, code: regCode });
+      });
   }
 
   //切换二级组件
@@ -218,6 +212,14 @@ export default class CommonInfo extends Component {
     alert(_l('复制成功'));
   }
 
+  // 打开人员加入规则设置modal设置，修改是否允许搜索组织ID
+  openAllowProjectCodeJoin = ({ showDialogSettingInviteRules }) => {
+    this.setState({ showDialogSettingInviteRules });
+    if (!showDialogSettingInviteRules) {
+      this.getPrivacy();
+    }
+  };
+
   render() {
     const {
       logo,
@@ -232,8 +234,9 @@ export default class CommonInfo extends Component {
       subDomain,
       homeImage,
       code,
-      isLogOff,
       isLoading,
+      allowProjectCodeJoin,
+      showDialogSettingInviteRules,
     } = this.state;
     const showInfo = [1, 2, 3].indexOf(visibleType) > -1;
     return (
@@ -310,7 +313,19 @@ export default class CommonInfo extends Component {
                     <span>{code}</span>
                     <span className="icon-content-copy Font12 mLeft5"></span>
                   </ClipboardButton>
-                  <div className="set-describe mTop4">{_l('成员可输入组织ID加入组织')}</div>
+                  {allowProjectCodeJoin ? (
+                    <div className="set-describe mTop4">{_l('成员可输入组织ID加入组织')}</div>
+                  ) : (
+                    <div className="set-describe mTop4">
+                      {_l('您已关闭搜索组织ID加入')}{' '}
+                      <span
+                        className="mLeft8 open-setting-rules-Txt"
+                        onClick={() => this.openAllowProjectCodeJoin({ showDialogSettingInviteRules: true })}
+                      >
+                        {_l('去开启')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="common-info-row mTop24">
@@ -394,26 +409,20 @@ export default class CommonInfo extends Component {
 
               <div className={cx("common-info-row", {Hidden: closeNet})}>
                 <div className="common-info-row-label">{_l('注销组织')}</div>
-                {isLogOff ? (
-                  <div>
-                    {_l('已申请注销')}
-                    <button
-                      type="button"
-                      className="ming Button Button--link ThemeColor3 mLeft16"
-                      onClick={() => this.props.setLevel(4)}
-                    >
-                      {_l('查看详情')}
-                    </button>
-                  </div>
-                ) : (
-                  <span className="Hand adminHoverDeleteColor" onClick={() => this.props.setLevel(4)}>
-                    {_l('注销')}
-                  </span>
-                )}
+                <span className="Hand adminHoverDeleteColor" onClick={() => this.props.setLevel(4)}>
+                  {_l('注销')}
+                </span>
               </div>
             </div>
           )}
         </div>
+        {showDialogSettingInviteRules && (
+          <DialogSettingInviteRules
+            showDialogSettingInviteRules={showDialogSettingInviteRules}
+            setValue={this.openAllowProjectCodeJoin}
+            projectId={Config.projectId}
+          />
+        )}
       </div>
     );
   }

@@ -76,11 +76,14 @@ export function formatControlValue(cell) {
         if (!_.isArray(parsedData)) {
           parsedData = [parsedData];
         }
-        return parsedData.filter(user => !!user).map(user => user.fullname);
+        return parsedData.filter(user => !!user).map(user => (typeof user === 'string' ? user : user.fullname));
       case 27: // GROUP_PICKER 部门
-        return JSON.parse(cell.value).map((department, index) =>
-          department.departmentName ? department.departmentName : _l('该部门已删除'),
-        );
+        return JSON.parse(cell.value).map((department, index) => {
+          if (typeof department === 'string') {
+            return department;
+          }
+          return department.departmentName ? department.departmentName : _l('该部门已删除');
+        });
       case 36: // SWITCH 检查框
         return value === '1' || value === 1;
       case 14: // ATTACHMENT 附件

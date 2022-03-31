@@ -148,6 +148,13 @@ function formatRowToServer(row, controls = []) {
       if (!c) {
         return undefined;
       } else {
+        if (c.type === 14 && (row[key] || '')[0] === '[') {
+          try {
+            row[key] = JSON.stringify(JSON.parse(row[key]).map(c => c.fileId));
+          } catch (err) {
+            console.log(err);
+          }
+        }
         return _.pick(
           c.type === 14
             ? { ...c, editType: 1, value: row[key] }
@@ -372,11 +379,16 @@ const FILTER_TYPE = {
   29: 'sid',
 };
 
-export const formatFiltersValue = (filters = [], data = []) => {
+export const formatFiltersValue = (filters = [], data = [], recordId) => {
   let conditions = formatValuesOfOriginConditions(filters) || [];
+  let hasCurrent = false;
   conditions.forEach(item => {
     if (item.dynamicSource && item.dynamicSource.length > 0) {
       const cid = _.get(item.dynamicSource[0] || {}, 'cid');
+      if (cid === 'current-rowid' && item.dataType === 29) {
+        item.values = [recordId];
+        hasCurrent = !recordId;
+      }
       const currentControl = _.find(data, da => da.controlId === cid);
       //排除为空、不为空、在范围，不在范围类型
       if (currentControl && currentControl.value && !_.includes([7, 8, 11, 12, 31, 32], item.filterType)) {
@@ -418,7 +430,7 @@ export const formatFiltersValue = (filters = [], data = []) => {
       }
     }
   });
-  return conditions;
+  return hasCurrent ? [] : conditions;
 };
 
 // 工作表查询部门、地区、用户赋值特殊处理
@@ -427,6 +439,9 @@ export const getCurrentValue = (item, data, control) => {
   switch (control.type) {
     //当前控件文本
     case 2:
+      if (_.includes([6, 31, 37], item.type) && item.advancedSetting && item.advancedSetting.numshow === '1' && data) {
+        data = parseFloat(data) * 100;
+      }
       switch (item.type) {
         //用户
         case 26:

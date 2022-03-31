@@ -3,6 +3,7 @@ import { string } from 'prop-types';
 import SideAppItem from './SideAppItem';
 import cx from 'classnames';
 import { getItem, setItem, compareProps } from '../../util';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 
 const TYPE_TO_TITLE = {
   markedApps: _l('星标应用'),
@@ -61,9 +62,13 @@ export default class SideAppGroup extends Component {
     });
   };
   render() {
-    const { type, projectName, items = [], ...props } = this.props;
+    let { type, projectName, items = [], ...props } = this.props;
     let { isShow } = this.state;
     isShow = isShow === null ? true : isShow;
+    items = items.filter(o => !o.pcDisplay || o.permissionType >= ADVANCE_AUTHORITY); //排除pc端未发布的
+    if (items.length <= 0) {
+      return '';
+    }
     return (
       <div className="sideAppGroupWrap">
         <div className="sideAppGroupTitleWrap">

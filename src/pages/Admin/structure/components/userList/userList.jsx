@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import UserTable from './userTable';
-import { Icon, LoadDiv, Checkbox } from 'ming-ui';
+import { Icon, LoadDiv, Checkbox, Dialog, Input } from 'ming-ui';
 import { Pagination } from 'antd';
 import {
   loadUsers,
@@ -16,12 +16,23 @@ import { updateCursor, updateTypeCursor, removeCursor, emptyUserSet } from '../.
 import userBoard from '../../modules/dialogUserBoard';
 import JopList from './jobList';
 import cx from 'classnames';
+import { batchResetPassword } from 'src/api/user';
+import RoleController from 'src/api/role';
+import { encrypt } from 'src/util';
 
 class UserList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      batchResetPasswordVisible: false,
+      isSuperAdmin: false,
+    };
 
     this.loadData(1);
+  }
+
+  componentDidMount() {
+    this.getPermission();
   }
 
   loadData = pageIndex => {
@@ -44,6 +55,15 @@ class UserList extends Component {
           break;
       }
     }
+  };
+
+  getPermission = () => {
+    const { projectId } = this.props;
+    RoleController.getProjectPermissionsByUser({
+      projectId: projectId,
+    }).then(data => {
+      this.setState({ isSuperAdmin: data.isSuperAdmin });
+    });
   };
 
   renderUserCount() {
@@ -101,6 +121,38 @@ class UserList extends Component {
     });
   };
 
+  batchChangePassword = () => {
+    this.setState({ batchResetPasswordVisible: true });
+  };
+  resetPassword = () => {
+    const { selectedAccountIds = [], projectId, dispatch } = this.props;
+    let { password } = this.state;
+    const { md = {} } = window;
+    const { global = {} } = md;
+    const { SysSettings = {} } = global;
+    const { passwordRegexTip, passwordRegex } = SysSettings;
+    if (_.isEmpty(password)) {
+      alert(_l('请输入新密码'), 3);
+      return;
+    } else if (!RegExp.isPasswordRule(password, passwordRegex)) {
+      alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
+      return;
+    }
+    batchResetPassword({
+      projectId,
+      accountIds: selectedAccountIds,
+      password: encrypt(password),
+    }).then(result => {
+      if (result) {
+        alert(_l('修改成功'), 1);
+        this.setState({ batchResetPasswordVisible: false, password: '' });
+      } else {
+        alert(_l('修改失败'), 2);
+      }
+      dispatch(emptyUserSet());
+    });
+  };
+
   renderUserTableWithNum = () => {
     const { selectedAccountIds = [], isSelectAll, typeCursor } = this.props;
     return (
@@ -127,6 +179,12 @@ class UserList extends Component {
             <Icon className="Font16 listName mRight12" icon="Export_user" />
             {_l('导出选中用户')}
           </span>
+          {this.state.isSuperAdmin && (
+            <span onClick={this.batchChangePassword} className="selectedAccountAction Hand mLeft40 Hover_49">
+              <Icon className="Font16 listName mRight12" icon="replay" />
+              {_l('批量重置密码')}
+            </span>
+          )}
         </div>
       </React.Fragment>
     );
@@ -173,6 +231,9 @@ class UserList extends Component {
       pageSize,
       isSelectAll,
     } = this.props;
+    const { batchResetPasswordVisible, password } = this.state;
+    const { SysSettings = {} } = global;
+    const { passwordRegexTip, passwordRegex } = SysSettings;
     if (typeNum === 0) {
       //部门成员
       return (
@@ -233,6 +294,29 @@ class UserList extends Component {
               </div>
             )}
           </div>
+          <Dialog
+            title={_l('批量重置密码（已选 %0 个用户）', selectedAccountIds.length)}
+            okText={_l('保存')}
+            cancelText={_l('取消')}
+            visible={batchResetPasswordVisible}
+            onCancel={() => {
+              this.setState({ batchResetPasswordVisible: false });
+              dispatch(emptyUserSet());
+            }}
+            onOk={this.resetPassword}
+          >
+            <div className="Font15 Gray mTop20 mBottom10">{_l('请输入新密码')}</div>
+            <Input
+              className="w100"
+              type="password"
+              value={password}
+              autoComplete="new-password"
+              placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
+              onChange={value => {
+                this.setState({ password: value });
+              }}
+            />
+          </Dialog>
         </div>
       );
     } else {

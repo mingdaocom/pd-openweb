@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
+import { Dialog, LoadDiv } from 'ming-ui';
+import styled from 'styled-components';
 import update from 'immutability-helper';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { getSubListError } from 'worksheet/util';
@@ -9,6 +10,18 @@ import CustomFields from 'src/components/newCustomFields';
 import useWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
 
+const LoadMask = styled.div`
+  margin: -58px -24px;
+  border-radius: 4px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+`;
 @useWorksheetRowProvider
 class FillRecordControls extends React.Component {
   static propTypes = {
@@ -49,20 +62,16 @@ class FillRecordControls extends React.Component {
               };
             }
 
-            // 备注控件只能是只读的  所以不需要转换
-            if (c.type !== 10010) {
-              c.controlPermissions =
-                c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
-              c.fieldPermission = '111';
-              c.required = writeControl.type === 3;
-            }
+            c.controlPermissions =
+              c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
+            c.required = writeControl.type === 3;
+            c.fieldPermission = '111';
 
             return c;
           })
           .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type))),
     });
     this.state = {
-      updatedControlIds: [],
       formData: controls,
       showError: false,
     };
@@ -72,10 +81,90 @@ class FillRecordControls extends React.Component {
   customwidget = React.createRef();
   formcon = React.createRef();
 
+  handleSave() {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  }
+  onSave(error, { data, updateControlIds }) {
+    if (error) {
+      this.setState({ submitLoading: false });
+      return;
+    }
+    const { writeControls, onSubmit } = this.props;
+    let hasError;
+    const newData = data.filter(item =>
+      _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
+    );
+    const subListControls = data.filter(item => item.type === 34);
+    if (subListControls.length) {
+      const errors = subListControls
+        .map(control => ({
+          id: control.controlId,
+          value:
+            control.value &&
+            control.value.rows &&
+            control.value.rows.length &&
+            getSubListError(
+              {
+                ...control.value,
+                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+              },
+              control.relationControls,
+              control.showControls,
+              3,
+            ),
+        }))
+        .filter(c => !_.isEmpty(c.value));
+      if (errors.length) {
+        hasError = true;
+        errors.forEach(error => {
+          const errorSublist = (this.cellObjs || {})[error.id];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: !_.isEmpty(error.value),
+              cellErrors: error.value,
+            });
+          }
+        });
+      } else {
+        subListControls.forEach(control => {
+          const errorSublist = (this.cellObjs || {})[control.controlId];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: false,
+              cellErrors: {},
+            });
+          }
+        });
+      }
+      if (this.formcon.current.querySelector('.cellControlErrorTip')) {
+        hasError = true;
+      }
+    }
+    if (hasError) {
+      alert(_l('请正确填写记录'), 3);
+      this.setState({
+        submitLoading: false,
+      });
+      return;
+    }
+    this.setState({ isSubmitting: true, submitLoading: false });
+    onSubmit(
+      newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
+      {
+        ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
+      },
+      this.customwidget.current,
+    );
+  }
+
   render() {
-    const { recordId, writeControls, visible, className, title, worksheetId, projectId, hideDialog, onSubmit } =
-      this.props;
-    const { formData, updatedControlIds, showError, isSubmitting } = this.state;
+    const { recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
+    const { submitLoading, formData, showError, isSubmitting } = this.state;
     return (
       <Dialog
         className={cx('fillRecordControls', className)}
@@ -85,74 +174,16 @@ class FillRecordControls extends React.Component {
         onCancel={() => {
           hideDialog();
         }}
-        okDisabled={isSubmitting}
-        onOk={() => {
-          let { data, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
-          data = data.filter(item => _.find(writeControls, writeControl => writeControl.controlId === item.controlId));
-          const subListControls = formData.filter(item => item.type === 34);
-          if (subListControls.length) {
-            const errors = subListControls
-              .map(control => ({
-                id: control.controlId,
-                value:
-                  control.value &&
-                  control.value.rows &&
-                  control.value.rows.length &&
-                  getSubListError(control.value, control.relationControls, control.showControls, 3),
-              }))
-              .filter(c => !_.isEmpty(c.value));
-            if (errors.length) {
-              hasError = true;
-              errors.forEach(error => {
-                const errorSublist = (this.cellObjs || {})[error.id];
-                if (errorSublist) {
-                  errorSublist.cell.setState({
-                    error: !_.isEmpty(error.value),
-                    cellErrors: error.value,
-                  });
-                }
-              });
-            } else {
-              subListControls.forEach(control => {
-                const errorSublist = (this.cellObjs || {})[control.controlId];
-                if (errorSublist) {
-                  errorSublist.cell.setState({
-                    error: false,
-                    cellErrors: {},
-                  });
-                }
-              });
-            }
-            if (this.formcon.current.querySelector('.cellControlErrorTip')) {
-              hasError = true;
-            }
-          }
-          if (hasError && !showError) {
-            this.setState({
-              showError: true,
-            });
-          } else {
-            if (hasError) {
-              alert(_l('请正确填写记录'), 3);
-              return;
-            } else if (hasRuleError) {
-              return;
-            }
-            this.setState({ isSubmitting: true });
-            onSubmit(
-              data
-                .filter(c => _.find(updatedControlIds, controlId => controlId === c.controlId))
-                .map(formatControlToServer),
-              {
-                ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
-              },
-              this.customwidget.current,
-            );
-          }
-        }}
+        okDisabled={submitLoading || isSubmitting}
+        onOk={this.handleSave.bind(this)}
         visible={visible}
       >
         <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
+        {submitLoading && (
+          <LoadMask>
+            <LoadDiv />
+          </LoadMask>
+        )}
         <div ref={this.formcon}>
           <CustomFields
             isWorksheetQuery
@@ -167,12 +198,12 @@ class FillRecordControls extends React.Component {
             worksheetId={worksheetId}
             showError={showError}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
-            onChange={(data, ids) => {
+            onChange={data => {
               this.setState({
                 formData: data,
-                updatedControlIds: _.uniqBy(updatedControlIds.concat(ids)),
               });
             }}
+            onSave={this.onSave.bind(this)}
           />
         </div>
       </Dialog>

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Checkbox, Modal, LoadDiv } from 'ming-ui';
+import { Checkbox, Modal, LoadDiv, ScrollView } from 'ming-ui';
 import { removeFromLocal } from 'worksheet/util';
 import NewRecordContent from './NewRecordContent';
 import { browserIsMobile } from 'src/util';
@@ -95,7 +95,7 @@ export default function NewRecord(props) {
   };
   return notDialog ? (
     <div className={cx('workSheetNewRecord', className, modalClassName)}>
-      {content}
+      <ScrollView>{content}</ScrollView>
       {footer}
     </div>
   ) : (

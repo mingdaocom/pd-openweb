@@ -14,7 +14,11 @@ export default class AppFixStatus extends Component {
     super(props);
     this.state = {
       fixRemark: props.fixRemark || '',
-    }
+    };
+  }
+  componentDidMount() {
+    let appFixTextarea = document.getElementById('appFixTextarea');
+    appFixTextarea.focus();
   }
   handleCloseFix = () => {
     const { appId, projectId, onCancel, onChangeStatus } = this.props;
@@ -85,6 +89,7 @@ export default class AppFixStatus extends Component {
         </div>
         <div className="Font13 mBottom5">{_l('维护公告')}</div>
         <TextareaWrapper
+          id="appFixTextarea"
           value={fixRemark}
           className="Font13"
           placeholder={_l('简短说明维护原因，预计恢复时间...')}

@@ -3,7 +3,7 @@
     name: 'appKey',
     required: _l('是'),
     type: 'string',
-    desc: _l('AppKey'),
+    desc: 'AppKey',
   },
   {
     name: 'sign',
@@ -24,7 +24,7 @@ export const appInfoParameters = [
     name: 'appKey',
     required: _l('是'),
     type: 'string',
-    desc: _l('AppKey'),
+    desc: 'AppKey',
   },
   {
     name: 'sign',
@@ -1254,15 +1254,16 @@ export const OPTIONS_FUNCTION_LIST = [
     requestData: {
       appKey: 'appKey',
       sign: 'sign',
-      name: '选项集1',
+      name: _l('选项集1'),
       options: [
         {
-          value: '选项值，不允许重复',
-          index: '选项排序值: 必须为整数，越小越靠前',
-          isDeleted: '该选项是否已被删除',
-          color:
+          value: _l('选项值，不允许重复'),
+          index: _l('选项排序值: 必须为整数，越小越靠前'),
+          isDeleted: _l('该选项是否已被删除'),
+          color: _l(
             '颜色值: colorful为true时生效，参考值 #C0E6FC , #C3F2F2 , #00C345 , #FAD714 , #FF9300 , #F52222 , #EB2F96 , #7500EA , #2D46C4 , #484848 , #C9E6FC , #C3F2F2',
-          score: '分值，enableScore为true时生效，允许小数和正负值',
+          ),
+          score: _l('分值，enableScore为true时生效，允许小数和正负值'),
         },
         {
           value: 'value02',
@@ -1281,7 +1282,7 @@ export const OPTIONS_FUNCTION_LIST = [
       data: true,
     },
     errorData: {
-      error_msg: '具体错误信息',
+      error_msg: _l('具体错误信息'),
       error_code: 10001,
       success: false,
     },
@@ -1302,18 +1303,18 @@ export const OPTIONS_FUNCTION_LIST = [
         {
           appId: 'appId',
           projectId: 'projectId',
-          collectionId: '选项集ID',
-          name: '选项集名称',
+          collectionId: _l('选项集ID'),
+          name: _l('选项集名称'),
           accountId: 'accountId',
           worksheetIds: ['worksheetId'],
           options: [
             {
               key: '选项id',
-              value: '选项值，不允许重复',
-              index: '选项排序值: 必须为整数，越小越靠前',
-              isDeleted: '该选项是否已被删除',
-              color: '颜色值',
-              score: '选项分值',
+              value: _l('选项值，不允许重复'),
+              index: _l('选项排序值: 必须为整数，越小越靠前'),
+              isDeleted: _l('该选项是否已被删除'),
+              color: _l('颜色值'),
+              score: _l('选项分值'),
             },
             {
               key: 'key01',
@@ -1330,7 +1331,7 @@ export const OPTIONS_FUNCTION_LIST = [
       ],
     },
     errorData: {
-      error_msg: '具体错误信息',
+      error_msg: _l('具体错误信息'),
       error_code: 10001,
       success: false,
     },
@@ -1345,13 +1346,14 @@ export const OPTIONS_FUNCTION_LIST = [
       sign: 'sign',
       options: [
         {
-          key: '需要编辑的选项id，如果为空则表示新增选项',
-          value: '选项值，不允许重复',
-          index: '选项排序值: 必须为整数，越小越靠前',
-          isDeleted: '该选项是否已被删除',
-          color:
+          key: _l('需要编辑的选项id，如果为空则表示新增选项'),
+          value: _l('选项值，不允许重复'),
+          index: _l('选项排序值: 必须为整数，越小越靠前'),
+          isDeleted: _l('该选项是否已被删除'),
+          color: _l(
             '颜色值: colorful为true时生效，参考值 #C0E6FC , #C3F2F2 , #00C345 , #FAD714 , #FF9300 , #F52222 , #EB2F96 , #7500EA , #2D46C4 , #484848 , #C9E6FC , #C3F2F2',
-          score: '分值，enableScore为true时生效，允许小数和正负值',
+          ),
+          score: _l('分值，enableScore为true时生效，允许小数和正负值'),
         },
         {
           key: 'key02',
@@ -1362,7 +1364,7 @@ export const OPTIONS_FUNCTION_LIST = [
           score: 1.5,
         },
       ],
-      name: 'test选项集01',
+      name: _l('test选项集01'),
       colorful: true,
       enableScore: false,
     },
@@ -1372,7 +1374,7 @@ export const OPTIONS_FUNCTION_LIST = [
       data: true,
     },
     errorData: {
-      error_msg: '具体错误信息',
+      error_msg: _l('具体错误信息'),
       error_code: 10001,
       success: false,
     },

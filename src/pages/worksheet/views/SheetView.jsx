@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { emitter, sortControlByIds, getLRUWorksheetConfig } from 'worksheet/util';
 import { getRowDetail } from 'worksheet/api';
@@ -48,7 +48,8 @@ class TableView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.tableId = uuid.v4();
+    this.tableId = uuidv4();
+    this.shiftActiveRowIndex = 0;
   }
 
   componentDidMount() {
@@ -59,8 +60,9 @@ class TableView extends React.Component {
       setRowsEmpty();
     }
     document.body.addEventListener('click', this.outerClickEvent);
-    emitter.addListener('RELOAD_RECORDINFO', this.updateRecordEvent);
+    emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     this.handleSetAutoRefresh();
+    this.bindShift();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -76,7 +78,10 @@ class TableView extends React.Component {
       ) ||
       changeView
     ) {
-      if (_.get(view, 'advancedSetting.clicksearch') !== '1') {
+      if (
+        _.get(view, 'advancedSetting.clicksearch') !== '1' ||
+        _.get(this.props, 'sheetFetchParams.pageIndex') !== _.get(nextProps, 'sheetFetchParams.pageIndex')
+      ) {
         fetchRows({ changeView });
       } else {
         setRowsEmpty();
@@ -112,9 +117,35 @@ class TableView extends React.Component {
 
   componentWillUnmount() {
     document.body.removeEventListener('click', this.outerClickEvent);
-    emitter.removeListener('RELOAD_RECORDINFO', this.updateRecordEvent);
+    emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
+    this.unbindShift();
     if (this.refreshTimer) {
       clearInterval(this.refreshTimer);
+    }
+  }
+
+  bindShift() {
+    window.addEventListener('keydown', this.activeShift);
+    window.addEventListener('keyup', this.deActiveShift);
+  }
+
+  unbindShift() {
+    window.removeEventListener('keydown', this.activeShift);
+    window.removeEventListener('keyup', this.deActiveShift);
+  }
+
+  @autobind
+  activeShift(e) {
+    if (e.keyCode === 16) {
+      this.shiftActive = true;
+    }
+  }
+
+  @autobind
+  deActiveShift(e) {
+    if (e.keyCode === 16) {
+      this.shiftActive = false;
+      console.log({ shiftActive: this.shiftActive });
     }
   }
 
@@ -294,11 +325,13 @@ class TableView extends React.Component {
       updateRows,
       getWorksheetSheetViewSummary,
       sheetSwitchPermit,
+      sheetViewData,
     } = this.props;
     const { projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
     return (
       <ColumnHead
+        count={sheetViewData.count}
         viewId={viewId}
         className={className}
         style={style}
@@ -366,6 +399,7 @@ class TableView extends React.Component {
     }
     return (
       <RowHead
+        count={sheetViewData.count}
         readonly={this.readonly}
         isCharge={isCharge}
         rowHeadOnlyNum={this.rowHeadOnlyNum}
@@ -394,8 +428,48 @@ class TableView extends React.Component {
             rows: [],
           });
         }}
-        onSelect={newSelected => {
-          selectRows({ rows: newSelected.map(rowid => _.find(data, row => row.rowid === rowid)).filter(_.identity) });
+        onSelect={(newSelected, selectRowId) => {
+          if (allWorksheetIsSelected) {
+            selectRows({
+              selectAll: false,
+              rows: data
+                .filter(function (row) {
+                  return !_.find(newSelected, function (rowid) {
+                    return row.rowid === rowid;
+                  });
+                })
+                .filter(_.identity),
+            });
+          } else {
+            const selectIndex = _.findIndex(data, r => r.rowid === selectRowId);
+            if (this.shiftActive) {
+              let startIndex = Math.min(...[selectIndex, this.shiftActiveRowIndex]);
+              let endIndex = Math.max(...[selectIndex, this.shiftActiveRowIndex]);
+              if (endIndex > data.length - 1) {
+                endIndex = data.length - 1;
+              }
+              selectRows({
+                rows: _.unionBy(data.slice(startIndex, endIndex + 1).concat(sheetSelectedRows), 'rowid'),
+              });
+            } else {
+              this.shiftActiveRowIndex = selectIndex;
+              selectRows({
+                rows: newSelected.map(rowid => _.find(data, row => row.rowid === rowid)).filter(_.identity),
+              });
+            }
+          }
+        }}
+        onReverseSelect={() => {
+          if (allWorksheetIsSelected) {
+            selectRows({
+              selectAll: false,
+              rows: [],
+            });
+          } else {
+            selectRows({
+              rows: data.filter(r => !_.find(sheetSelectedRows, row => row.rowid === r.rowid)).filter(_.identity),
+            });
+          }
         }}
         updateRows={updateRows}
         hideRows={hideRows}

@@ -41,7 +41,7 @@ export default () => {
       loading: state === 1,
       btnText: state === 2 ? _l('立即下载') : '',
       onBtnClick: () => {
-        window.open(`${__api_server__}Download/AppFile?sourceId=${id}`);
+        window.open(`${__api_server__.main}Download/AppFile?sourceId=${id}`);
         antNotification.close(id);
       },
     });

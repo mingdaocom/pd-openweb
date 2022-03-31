@@ -113,7 +113,7 @@ export default class Approve extends Component {
   }
 
   onOk = () => {
-    const { action, workId, onOk, selectedUser, selectedUsers } = this.props;
+    const { action, workId, onOk, onCancel, selectedUser, selectedUsers } = this.props;
     const { auth } = (this.props.data || {}).flowNode || {};
     const id = selectedUsers.length ? selectedUsers.map(item => item.accountId).join(',') : selectedUser.accountId;
     const { content, backNodeId } = this.state;
@@ -159,9 +159,11 @@ export default class Approve extends Component {
       if (this.signature) {
         this.signature.saveSignature(signature => {
           onOk({ action, content, userId: id, backNodeId, signature });
+        onCancel();
         });
       } else {
         onOk({ action, content, userId: id, backNodeId, signature: undefined });
+      onCancel();
       }
     }
   };

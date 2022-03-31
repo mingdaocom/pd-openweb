@@ -115,17 +115,16 @@ export default class SelectUser extends Component {
           pageSize,
         });
       }
-    }
-
-    this.request.then(result => {
-      const { list } = result.users;
-      this.setState({
-        users: users.concat(list),
-        loading: false,
-        pageIndex: pageIndex + 1,
-        isMore: list.length === pageSize,
+      this.request.then(result => {
+        const { list } = result.users;
+        this.setState({
+          users: users.concat(list),
+          loading: false,
+          pageIndex: pageIndex + 1,
+          isMore: list.length === pageSize,
+        });
       });
-    });
+    }
   };
   requestContactProjectDepartments = () => {
     const { loading } = this.state;
@@ -604,7 +603,7 @@ export default class SelectUser extends Component {
         {this.renderSearch()}
         {this.renderSelected()}
         {departmentVisible && userType === 1 ? this.renderDepartment() : null}
-        {departmentVisible && userType === 1 ? null : this.renderUsers()}
+        {!departmentVisible && userType === 1 ? this.renderUsers(): null}
         {userType === 2 && this.renderUsers()}
       </div>
     );

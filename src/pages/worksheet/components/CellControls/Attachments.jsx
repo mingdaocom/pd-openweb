@@ -135,6 +135,11 @@ const ImageCover = styled.img`
   max-width: 100%;
   max-height: 160px;
   object-fit: contain;
+  &.loading {
+    width: 240px;
+    height: 160px;
+    filter: blur(2px);
+  }
 `;
 
 const Add = styled.div`
@@ -185,11 +190,11 @@ function parseValue(valueStr, errCb) {
   return value;
 }
 
-function previewAttachment(attachments, index, sheetSwitchPermit = [], viewId = '') {
+function previewAttachment(attachments, index, sheetSwitchPermit = [], viewId = '', disableDownload) {
   require(['previewAttachments'], previewAttachments => {
     const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
     let hideFunctions = ['editFileName'];
-    if (!recordAttachmentSwitch) {
+    if (!recordAttachmentSwitch || disableDownload) {
       /* 是否不可下载 且 不可保存到知识和分享 */
       hideFunctions.push('download', 'share', 'saveToKnowlege');
     }
@@ -217,10 +222,28 @@ function previewAttachment(attachments, index, sheetSwitchPermit = [], viewId = 
 }
 
 function HoverPreviewPanel(props, cb = () => {}) {
-  const { isSubList, editable, cell = {}, attachment = {}, cellInfo = {}, onUpdate, deleteLocalAttachment } = props;
+  const {
+    isSubList,
+    editable,
+    cell = {},
+    attachment = {},
+    cellInfo = {},
+    smallThumbnailUrl,
+    onUpdate,
+    deleteLocalAttachment,
+  } = props;
   const { originalFilename, ext = '', filesize } = attachment;
   const { controlId } = cell;
   const { appId, viewId, worksheetId, recordId } = cellInfo;
+  const [loading, setLoading] = useState(true);
+  const imageUrl = attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
+  useEffect(() => {
+    const image = new Image();
+    image.onload = () => {
+      setLoading(false);
+    };
+    image.src = imageUrl;
+  }, []);
   function handleDelete() {
     if (isSubList && /^o_/.test(attachment.fileID)) {
       deleteLocalAttachment(attachment.fileID);
@@ -253,7 +276,9 @@ function HoverPreviewPanel(props, cb = () => {}) {
       {File.isPicture(attachment.ext) && (
         <ImageCoverCon>
           <ImageCover
-            src={attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160')}
+            src={loading ? smallThumbnailUrl : imageUrl}
+            className={loading ? 'loading' : ''}
+            // src={attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160')}
           />
         </ImageCoverCon>
       )}
@@ -289,6 +314,10 @@ function Attachment(props) {
     deleteLocalAttachment,
   } = props;
   const { attachment } = props;
+  const smallThumbnailUrl = attachment.previewUrl.replace(
+    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+    'imageView2/2/h/' + fileHeight,
+  );
   return (
     <Trigger
       action={['hover']}
@@ -297,6 +326,7 @@ function Attachment(props) {
           isSubList={isSubList}
           editable={editable}
           attachment={attachment}
+          smallThumbnailUrl={smallThumbnailUrl}
           cell={cell}
           cellInfo={cellInfo}
           onUpdate={onUpdate}
@@ -319,7 +349,7 @@ function Attachment(props) {
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
         onClick={e => {
-          previewAttachment(attachments, index, sheetSwitchPermit, viewId);
+          previewAttachment(attachments, index, sheetSwitchPermit, viewId, cellInfo.disableDownload);
           e.stopPropagation();
         }}
       >
@@ -329,10 +359,7 @@ function Attachment(props) {
           <AttachmentImage
             crossOrigin="anonymous"
             role="presentation"
-            src={attachment.previewUrl.replace(
-              /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-              'imageView2/2/h/' + fileHeight,
-            )}
+            src={smallThumbnailUrl}
             style={{ width: 'auto', height: fileHeight }}
           />
         ) : (

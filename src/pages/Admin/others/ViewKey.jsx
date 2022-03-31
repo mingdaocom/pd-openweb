@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog } from 'ming-ui';
 import AuthorizationController from 'src/api/authorization';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
+import cx from 'classnames';
 
 export default class ViewKey extends Component {
   constructor(props) {
@@ -10,6 +11,7 @@ export default class ViewKey extends Component {
       visible: false,
       appKey: '',
       secretKey: '',
+      sign: '',
       type: null,
     };
   }
@@ -26,6 +28,7 @@ export default class ViewKey extends Component {
       this.setState({
         appKey: res.appKey,
         secretKey: res.secretKey,
+        sign: res.sign,
         type: res.type,
       });
     });
@@ -47,6 +50,7 @@ export default class ViewKey extends Component {
         this.setState({
           appKey: res.appKey,
           secretKey: res.secretKey,
+          sign: res.sign,
           type: res.type,
           visible: false,
         });
@@ -56,12 +60,9 @@ export default class ViewKey extends Component {
     });
   }
 
-  handleCopyTextSuccess() {
-    alert(_l('复制成功'));
-  }
-
   render() {
-    const { visible, appKey, secretKey } = this.state;
+    const { visible } = this.state;
+
     return (
       <Fragment>
         {visible ? (
@@ -91,22 +92,30 @@ export default class ViewKey extends Component {
             }}
           >
             <div className="keyBox">
-              <div className="keyLabel">AppKey</div>
-              <div className="subLabel">{appKey}</div>
-              <div className="keyLabel mTop24">SecretKey</div>
-              <div className="subLabel">
-                {secretKey}
-                <ClipboardButton
-                  className="mLeft22"
-                  component="span"
-                  data-clipboard-text={secretKey}
-                  onSuccess={this.handleCopyTextSuccess.bind(this)}
-                >
-                  <button type="button" className="ming Button Button--link ThemeColor3 adminHoverColor">
-                    {_l('复制')}
-                  </button>
-                </ClipboardButton>
-              </div>
+              {[
+                { text: 'AppKey', key: 'appKey' },
+                { text: 'SecretKey', key: 'secretKey' },
+                { text: _l('Sign（注：只针对应用下的接口生效，其余还走企业授权模式）'), key: 'sign' },
+              ].map((item, index) => {
+                return (
+                  <Fragment key={index}>
+                    <div className={cx('keyLabel', { mTop24: index !== 0 })}>{item.text}</div>
+                    <div className="subLabel flexRow mTop5">
+                      <div className="Gray_75 breakAll">{this.state[item.key]}</div>
+                      <span
+                        className="ThemeColor3 ThemeHoverColor2 mLeft15 pointer"
+                        style={{ whiteSpace: 'nowrap' }}
+                        onClick={() => {
+                          copy(this.state[item.key]);
+                          alert(_l('已复制到剪切板'));
+                        }}
+                      >
+                        {_l('复制')}
+                      </span>
+                    </div>
+                  </Fragment>
+                );
+              })}
               <div>
                 <button
                   type="button"

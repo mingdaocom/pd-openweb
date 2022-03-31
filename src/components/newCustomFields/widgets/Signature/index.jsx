@@ -264,7 +264,7 @@ export default class Signature extends Component {
           className="addSignature"
           onClick={e => {
             this.setState({ popupVisible: true });
-            setTimeout(this.initCanvas, 100);
+            setTimeout(this.initCanvas, 500);
             e.nativeEvent.stopImmediatePropagation();
           }}
         >

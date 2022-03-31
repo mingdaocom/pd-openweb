@@ -314,7 +314,7 @@ class PublicConfig extends React.Component {
                 }}
               />
               {_l('表单提交前填写验证码')}
-              <HelpTip data-tip={_l('打开后，填写者在提交数据前需要输入\n验证码，用于防止恶意或重复数据提交。')}>
+              <HelpTip data-tip={_l('打开后，填写者在提交数据前需要输入验证码，用于防止恶意或重复数据提交。')}>
                 <i className="icon icon-help"></i>
               </HelpTip>
             </div>

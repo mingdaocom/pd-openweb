@@ -1,4 +1,3 @@
-
 import { ajax, login, browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
@@ -14,12 +13,12 @@ if (source === 'wxwork') {
     }
   } else {
     ajax.post({
-      url: __api_server__ + 'Login/WorkWeiXinH5Login',
+      url: __api_server__.main + 'Login/WorkWeiXinH5Login',
       data: {
         code,
       },
       async: true,
-      succees: (result) => {
+      succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           setPssId(sessionId);
@@ -30,7 +29,7 @@ if (source === 'wxwork') {
           }
         }
       },
-      error: login
+      error: login,
     });
   }
 } else {
@@ -42,7 +41,7 @@ if (source === 'wxwork') {
     }
   } else {
     ajax.post({
-      url: __api_server__ + 'Login/WorkWeiXinAppLogin',
+      url: __api_server__.main + 'Login/WorkWeiXinAppLogin',
       data: {
         code,
         state,
@@ -50,7 +49,7 @@ if (source === 'wxwork') {
         secretId: s,
       },
       async: true,
-      succees: (result) => {
+      succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           setPssId(sessionId);
@@ -64,8 +63,7 @@ if (source === 'wxwork') {
           login();
         }
       },
-      error: login
+      error: login,
     });
   }
 }
-

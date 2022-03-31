@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import Clipboard from 'clipboard';
+import copy from 'copy-to-clipboard';
 import './style.less';
 import Ajax from 'src/api/workWeiXin';
 import projectAjax from 'src/api/project';
@@ -153,18 +153,9 @@ export default class DingSyncCourse extends React.Component {
     $('html').removeClass('dingSyncBox');
   }
 
-  bindClipboard = (btn, str) => {
-    if (this.clipboard && this.clipboard.destroy) {
-      this.clipboard.destroy();
-    }
-    this.clipboard = new Clipboard(btn, {
-      text: () => {
-        return str;
-      },
-    });
-    this.clipboard.on('success', function () {
-      alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-    });
+  bindClipboard = (str) => {
+    copy(str);
+    alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
   };
 
   /**
@@ -201,10 +192,14 @@ export default class DingSyncCourse extends React.Component {
         height: height,
         canvas: canvas,
       }).then(canvas => {
-        $('.download').attr('href', canvas.toDataURL())[0].click();
+        $('.download')
+          .attr('href', canvas.toDataURL())[0]
+          .click();
       });
     } else {
-      $('.download').attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0].click();
+      $('.download')
+        .attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0]
+        .click();
     }
   };
 
@@ -247,15 +242,7 @@ export default class DingSyncCourse extends React.Component {
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('可信域名：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.domainName} />
-          <span
-            className="copyBtn"
-            onClick={() => {
-              this.bindClipboard(this.domainName, this.state.domainName);
-            }}
-            ref={el => {
-              this.domainName = el;
-            }}
-          >
+          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.domainName)}>
             {_l('复制')}
           </span>
         </div>
@@ -274,15 +261,7 @@ export default class DingSyncCourse extends React.Component {
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用主页：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.homeUrlN} />
-          <span
-            className="copyBtn"
-            onClick={() => {
-              this.bindClipboard(this.homeUrlN, this.state.homeUrlN);
-            }}
-            ref={el => {
-              this.homeUrlN = el;
-            }}
-          >
+          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.homeUrlN)}>
             {_l('复制')}
           </span>
         </div>
@@ -339,45 +318,21 @@ export default class DingSyncCourse extends React.Component {
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用首页地址：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.homeUrl} />
-          <span
-            className="copyBtn"
-            onClick={() => {
-              this.bindClipboard(this.homeUrl, this.state.homeUrl);
-            }}
-            ref={el => {
-              this.homeUrl = el;
-            }}
-          >
+          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.homeUrl)}>
             {_l('复制')}
           </span>
         </div>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('服务器出口IP：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.serverIp} />
-          <span
-            className="copyBtn"
-            onClick={() => {
-              this.bindClipboard(this.serverIp, this.state.serverIp);
-            }}
-            ref={el => {
-              this.serverIp = el;
-            }}
-          >
+          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.serverIp)}>
             {_l('复制')}
           </span>
         </div>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('PC端首页地址：')}</span>
           <input type="text" className="inputBox" readOnly value={this.state.pcHomeUrl} />
-          <span
-            className="copyBtn"
-            onClick={() => {
-              this.bindClipboard(this.pcHomeUrl, this.state.pcHomeUrl);
-            }}
-            ref={el => {
-              this.pcHomeUrl = el;
-            }}
-          >
+          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.pcHomeUrl)}>
             {_l('复制')}
           </span>
         </div>

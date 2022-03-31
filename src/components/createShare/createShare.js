@@ -2,7 +2,7 @@
 import moment from 'moment';
 import { htmlEncodeReg } from 'src/util';
 
-var Clipboard = require('clipboard');
+import copy from 'copy-to-clipboard';
 var animatePopup = require('animatePopup');
 var CreateShare = function (opts) {
   var defaults = {
@@ -185,12 +185,8 @@ $.extend(CreateShare.prototype, {
     return content;
   },
   createClip: function () {
-    var clipboard = new Clipboard('.createShareCopy span', {
-      text: function () {
-        return $('.createShareCopy span').attr('data-clipboard-text');
-      },
-    });
-    clipboard.on('success', function () {
+    $('.createShareCopy span').off().on('click', function () {
+      copy($('.createShareCopy span').attr('data-clipboard-text'));
       alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
     });
   },

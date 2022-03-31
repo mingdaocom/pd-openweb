@@ -9,21 +9,20 @@ import AddControlDiaLog from './AddControlDiaLog';
 import { SYS } from '../../../../../widgetConfig/config/widget';
 export default function SelectStartOrEnd(props) {
   const {
-    view = {},
     handleChange,
     timeControls = [],
     canAddTimeControl, //能否添加新的时间控件
     mustSameType, //必须同类型
     begindateOrFirst, //begindate为空时可以以第一个控件为begindate
-    controls,
+    controls = [],
     worksheetId,
     updateWorksheetControls,
+    allowClear,
+    i,
   } = props;
-  const { advancedSetting = {} } = view;
-  const setDataFn = () => {
-    let begindate =
-      _.get(view, ['advancedSetting', 'begindate']) || (begindateOrFirst ? (timeControls[0] || {}).controlId : '');
-    let enddate = _.get(view, ['advancedSetting', 'enddate']);
+  const getData = () => {
+    let begindate = props.begindate;
+    let enddate = props.enddate;
     let startData = begindate ? timeControls.find((it, i) => it.controlId === begindate) || {} : [];
     let endData = enddate ? timeControls.find(it => it.controlId === enddate) || {} : {};
     return {
@@ -45,21 +44,15 @@ export default function SelectStartOrEnd(props) {
       ),
     };
   };
-  const [{ begindate, startControls, enddate, endControls, startData = {}, endData = {} }, setSetting] =
-    useState(setDataFn);
-  const [isError, setIsError] = useState(props.isDelete);
+  const [{ begindate, startControls, enddate, endControls, startData = {}, endData = {} }, setSetting] = useState(
+    getData(),
+  );
   const [visible, setVisible] = useState(false);
   const [addName, setAddName] = useState('');
   const [addKey, setAddKey] = useState('');
   useEffect(() => {
-    setSetting(setDataFn);
-  }, [controls, timeControls]);
-  useEffect(() => {
-    setSetting(setDataFn);
-  }, [advancedSetting.begindate, advancedSetting.enddate]);
-  useEffect(() => {
-    setIsError(props.isDelete);
-  }, [props.isDelete]);
+    setSetting(getData());
+  }, [timeControls, props.begindate, props.enddate]);
 
   return (
     <React.Fragment>
@@ -69,11 +62,13 @@ export default function SelectStartOrEnd(props) {
             <span className="tag"></span>
             <span className="txt">{_l('开始')}</span>
             <Select
-              className={cx('dropCon', { isDelete: isError })}
+              className={cx('dropCon', { isDelete: props.beginIsDel })}
+              allowClear={allowClear && i !== 0}
+              allowClear={false}
               value={
-                isError ? (
+                props.beginIsDel ? (
                   <span className="Red">
-                    <Icon icon="error_outline" className={cx('Font14 Red mRight8')} />
+                    <Icon icon="error1" className={cx('Font14 Red mRight8')} />
                     {_l('该字段已删除')}
                   </span>
                 ) : (
@@ -94,8 +89,7 @@ export default function SelectStartOrEnd(props) {
                   setVisible(true);
                   return;
                 }
-                handleChange({ begindate: value });
-                setIsError(false);
+                handleChange({ begindate: value, enddate: enddate });
               }}
             >
               {startControls.map((item, i) => {
@@ -113,18 +107,18 @@ export default function SelectStartOrEnd(props) {
                 </Select.Option>
               )}
             </Select>
-            {isError && <span className="Red errorTxtOption">{_l('点击下拉框显示下拉菜单')}</span>}
           </div>
           <div className="startCom end mTop16">
             <span className={cx('tag', { has: enddate })}></span>
             <span className="txt">{_l('结束')}</span>
             <Select
-              className={cx('dropCon', { isDelete: enddate && !endData.controlId })}
+              className={cx('dropCon', { isDelete: props.endIsDel })}
+              allowClear={allowClear}
               value={
                 enddate ? (
                   enddate && !endData.controlId ? (
                     <span className="Red">
-                      <Icon icon="error_outline" className={cx('Font14 Red mRight8')} />
+                      <Icon icon="error1" className={cx('Font14 Red mRight8')} />
                       {_l('该字段已删除')}
                     </span>
                   ) : (
@@ -170,7 +164,8 @@ export default function SelectStartOrEnd(props) {
             </Select>
           </div>
         </div>
-        {begindate &&
+        {mustSameType &&
+          begindate &&
           enddate &&
           startData &&
           isTimeStyle(startData) !== isTimeStyle(endData) &&
@@ -197,11 +192,17 @@ export default function SelectStartOrEnd(props) {
           addName={addName}
           controls={controls}
           onAdd={data => {
-            let sys = controls.filter(o => SYS.includes(o.controlId));
-            updateWorksheetControls(data.concat(sys));
+            let constrolInfo = data;
+            if (data.filter(o => SYS.includes(o.controlId)).length <= 0) {
+              let sys = controls.filter(o => SYS.includes(o.controlId));
+              constrolInfo = constrolInfo.concat(sys);
+            }
+            updateWorksheetControls(constrolInfo);
           }}
           onChange={value => {
             handleChange({
+              begindate: begindate,
+              enddate: enddate,
               [addKey]: value,
             });
           }}

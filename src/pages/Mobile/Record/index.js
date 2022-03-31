@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getRequest } from 'src/util';
-import { Icon, WaterMark } from 'ming-ui';
+import { Icon, WaterMark, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
 import { Flex, ActivityIndicator, WingBlank, Button, Tabs, Modal } from 'antd-mobile';
@@ -10,7 +10,7 @@ import worksheetAjax from 'src/api/worksheet';
 import RelationList from 'src/pages/Mobile/RelationRow/RelationList';
 import RelationAction from 'src/pages/Mobile/RelationRow/RelationAction';
 import * as actions from 'src/pages/Mobile/RelationRow/redux/actions';
-import * as dicussionActions from 'src/pages/Mobile/Discuss/redux/actions';
+import * as reacordActions from '../RecordList/redux/actions';
 import RecordAction from './RecordAction';
 import CustomFields from 'src/components/newCustomFields';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
@@ -21,7 +21,9 @@ import { isRelateRecordTableControl } from 'worksheet/util';
 import { renderCellText } from 'worksheet/components/CellControls';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import ChatCount from '../components/ChatCount';
 import './index.less';
+import { isClickChart } from '../RecordList/redux/reducers';
 
 const formatParams = params => {
   const { appId, viewId } = params;
@@ -56,10 +58,8 @@ class Record extends Component {
   }
   componentDidMount() {
     const { params } = this.props.match;
-    const { worksheetId, rowId } = formatParams(params);
     this.loadRow();
     this.loadCustomBtns();
-    this.props.getMobileDiscussionCount({ worksheetId, rowId });
     this.getSwitchPermit();
   }
   componentWillReceiveProps(nextProps) {
@@ -81,6 +81,7 @@ class Record extends Component {
       .getRowByID({
         ...formatParams(params),
         getType: 1,
+        checkView: true,
         appId: null,
       })
       .then(result => {
@@ -123,35 +124,32 @@ class Record extends Component {
       });
   };
   handleSave = () => {
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  };
+  onSave = (error, { data, updateControlIds }) => {
+    if (error) {
+      this.setState({ submitLoading: false });
+      return;
+    }
     const { sheetRow } = this.state;
     const { params } = this.props.match;
-    const { data, updateControlIds, hasError, hasRuleError } = this.customwidget.current.getSubmitData();
     const cells = data
       .filter(item => updateControlIds.indexOf(item.controlId) > -1 && item.type !== 30)
       .map(formatControlToServer);
 
-    if (hasError) {
-      this.setState({ showError: true });
-      alert(_l('请正确填写记录'), 3);
-      return;
-    }
-
     if (_.isEmpty(cells)) {
-      this.setState({ isEdit: false });
+      this.setState({ isEdit: false, submitLoading: false });
       return;
     }
 
-    if (hasRuleError) {
-      return;
-    }
-
-    this.setState({ showError: false });
     worksheetAjax
       .updateWorksheetRow({
         ...formatParams(params),
         newOldControl: cells,
       })
       .then(result => {
+        this.setState({ submitLoading: false });
         if (result && result.data) {
           alert(_l('保存成功'));
           this.formData = this.formData.map(c => _.assign({}, c, { value: result.data[c.controlId] }));
@@ -180,10 +178,10 @@ class Record extends Component {
   handleScroll = event => {
     const { loadParams, updatePageIndex } = this.props;
     const { isEdit, currentTab } = this.state;
-    const { clientHeight, scrollHeight, scrollTop } = event.target;
+    const { clientHeight, scrollHeight, scrollTop, className } = event.target;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
-    if (isEdit) {
+    if (isEdit || !className.includes('recordScroll')) {
       return;
     }
     if (targetVlaue <= scrollTop && currentTab.value && !loading && isMore) {
@@ -220,34 +218,34 @@ class Record extends Component {
   renderBack() {
     const { params } = this.props.match;
     const { appId, viewId } = formatParams(params);
+    const { views = [], isClickChart } = this.props;
+    const view =
+      !_.isEmpty(_.filter(views, item => item.viewId === viewId)) && _.filter(views, item => item.viewId === viewId)[0];
+    const isNavGroup = view.navGroup && view.navGroup.length;
     return (
       <Back
         style={appId ? { position: 'unset' } : {}}
         onClick={() => {
           const { sheetRow } = this.state;
-          window.mobileNavigateTo(
-            `/mobile/recordList/${appId}/${sheetRow.groupId}/${params.worksheetId}${viewId ? `/${viewId}` : ''}`,
-          );
+          if (history.length <= 1) {
+            window.mobileNavigateTo(`/mobile/recordList/${appId}/${sheetRow.groupId}/${params.worksheetId}/${viewId}`);
+          } else if (isClickChart) {
+            if (isNavGroup) {
+              let groupFilterDetailUrl = localStorage.getItem('groupFilterDetailUrl');
+              window.mobileNavigateTo(groupFilterDetailUrl);
+            } else {
+              this.props.updateClickChart(false);
+              window.mobileNavigateTo(
+                `/mobile/recordList/${appId}/${sheetRow.groupId}/${params.worksheetId}/${viewId}`,
+              );
+            }
+          } else {
+            history.back();
+          }
         }}
       />
     );
   }
-  renderChatMessage = () => {
-    const { discussionCount } = this.props;
-    return (
-      <div
-        className="chatMessage Font13"
-        onClick={() => {
-          if (this.recordRef.current) {
-            this.recordRef.current.handleOpenDiscuss();
-          }
-        }}
-      >
-        <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
-        <span>{discussionCount}</span>
-      </div>
-    );
-  };
   renderWithoutJurisdiction() {
     const { resultCode, entityName } = this.state.sheetRow;
     return (
@@ -418,6 +416,7 @@ class Record extends Component {
             if (isEdit) return;
             window.mobileNavigateTo(`/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`);
           }}
+          onSave={this.onSave}
         />
       </div>
     );
@@ -513,7 +512,7 @@ class Record extends Component {
       <Fragment>
         <DocumentTitle title={isEdit ? `${_l('编辑')}${sheetRow.entityName}` : `${sheetRow.entityName}${_l('详情')}`} />
         <div
-          className="flexColumn flex"
+          className="flexColumn flex recordScroll"
           style={{ overflowX: 'hidden', overflowY: 'auto' }}
           onScroll={this.handleScroll}
         >
@@ -551,8 +550,8 @@ class Record extends Component {
   }
   render() {
     const { params } = this.props.match;
-    const { loading, abnormal, isEdit, switchPermit, sheetRow } = this.state;
-    const { viewId, appId } = formatParams(params);
+    const { submitLoading, loading, abnormal, isEdit, switchPermit, sheetRow } = this.state;
+    const { viewId, appId, worksheetId, rowId } = formatParams(params);
 
     if (loading) {
       return (
@@ -567,6 +566,11 @@ class Record extends Component {
     return (
       <WaterMark projectId={sheetRow.projectId}>
         <div className="mobileSheetRowRecord flexColumn h100">
+          {submitLoading && (
+            <div className="loadingMask">
+              <LoadDiv />
+            </div>
+          )}
           {abnormal ? this.renderWithoutJurisdiction() : this.renderContent()}
           {this.renderRecordAction()}
           <div className="extraAction">
@@ -575,8 +579,19 @@ class Record extends Component {
               <div className="chatMessageContainer">
                 {!isEdit &&
                   appId &&
-                  (!this.isSubList || isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) &&
-                  this.renderChatMessage()}
+                  (!this.isSubList || isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) && (
+                    <ChatCount
+                      worksheetId={worksheetId}
+                      rowId={rowId}
+                      appId={appId || ''}
+                      onClick={() => {
+                        this.props.updateClickChart(true);
+                        if (this.recordRef.current) {
+                          this.recordRef.current.handleOpenDiscuss();
+                        }
+                      }}
+                    />
+                  )}
               </div>
             )}
           </div>
@@ -588,11 +603,12 @@ class Record extends Component {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['loadParams', 'relationRow', 'sheetDiscussions', 'discussionCount']),
+    ..._.pick(state.mobile, ['loadParams', 'relationRow', 'sheetDiscussions', 'isClickChart']),
+    views: state.sheet.views,
   }),
   dispatch =>
     bindActionCreators(
-      { ..._.pick(actions, ['updatePageIndex', 'reset']), ..._.pick(dicussionActions, ['getMobileDiscussionCount']) },
+      { ..._.pick(actions, ['updatePageIndex', 'reset']), ..._.pick(reacordActions, ['updateClickChart']) },
       dispatch,
     ),
 )(Record);

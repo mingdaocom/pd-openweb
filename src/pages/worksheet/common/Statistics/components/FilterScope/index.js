@@ -16,7 +16,7 @@ const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20];
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'filterItem', 'worksheetInfo'])
+    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -264,7 +264,7 @@ export default class extends Component {
   }
   render() {
     const { dropdownScopeValue, dropdownDayValue, currentRangeType } = this.state;
-    const { filterItem, projectId, worksheetInfo, currentReport } = this.props;
+    const { projectId, worksheetInfo, currentReport } = this.props;
     const { filter, xaxes = {} } = currentReport;
     const xAxisisTime = isTimeControl(xaxes.controlType);
     return (
@@ -292,7 +292,7 @@ export default class extends Component {
                 projectId={projectId}
                 appId={worksheetInfo.appId}
                 columns={worksheetInfo.columns}
-                conditions={filterItem}
+                conditions={[]}
                 onConditionsChange={(conditions, localConditions) => {
                   conditions = conditions.map(item => {
                     const isTime = isTimeControl(item.dataType);

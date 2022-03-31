@@ -2,8 +2,9 @@ import React from 'react';
 import { Switch } from 'antd';
 import { LoadDiv, Tooltip } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
-import cx from 'classnames'
+import cx from 'classnames';
 import './index.less';
+import langConfig from 'src/common/langConfig';
 const { personal: {accountChart} } = window.private
 
 const configs = [
@@ -19,20 +20,7 @@ const configs = [
   },
 ].filter(item => !accountChart[item.id]);
 
-const languagueList = [
-  {
-    key: _l('简体中文'),
-    value: 'zh-Hans',
-  },
-  {
-    key: _l('繁体中文'),
-    value: 'zh-Hant',
-  },
-  {
-    key: 'English',
-    value: 'en',
-  },
-];
+const languagueList = [{ key: 'zh-Hans', value: '简体中文' }].concat(langConfig);
 
 const settingOptions = {
   openWeixinLogin: 3,
@@ -54,7 +42,7 @@ export default class AccountChart extends React.Component {
       // 邮箱是否仅自己可见
       isPrivateEmail: false,
       loading: false,
-      isHasWeixin: false
+      isHasWeixin: false,
     };
   }
 
@@ -175,13 +163,15 @@ export default class AccountChart extends React.Component {
         {languagueList.map(item => {
           return (
             <div
-              className={cx('languagueItem', { active: (getCookie('i18n_langtag') || getNavigatorLang()) === item.value })}
+              className={cx('languagueItem', {
+                active: (getCookie('i18n_langtag') || getNavigatorLang()) === item.key,
+              })}
               onClick={() => {
-                setCookie('i18n_langtag', item.value);
+                setCookie('i18n_langtag', item.key);
                 window.location.reload();
               }}
             >
-              {item.key}
+              {item.value}
             </div>
           );
         })}
@@ -201,11 +191,11 @@ export default class AccountChart extends React.Component {
             <div className="systemSettingItem" key={index}>
               <div className="systemSettingsLabel Gray_75">
                 {item.label}
-                {item.component === 'weixinSwitch'&&
-                <Tooltip popupPlacement="top" text={<span>{_l('开启后，登录会收到微信通知')}</span>}>
-                  <span className="icon-novice-circle Font15 Gray_bd mLeft5 Hand"></span>
-                </Tooltip>
-                }
+                {item.component === 'weixinSwitch' && (
+                  <Tooltip popupPlacement="top" text={<span>{_l('开启后，登录会收到微信通知')}</span>}>
+                    <span className="icon-novice-circle Font15 Gray_bd mLeft5 Hand" />
+                  </Tooltip>
+                )}
               </div>
               <div className="systemSettingsRight">{this[item.component]()}</div>
             </div>

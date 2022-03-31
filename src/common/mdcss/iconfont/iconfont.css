@@ -1,11 +1,11 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.eot?t=1642664012407'); /* IE9 */
-  src: url('iconfont.eot?t=1642664012407#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('iconfont.woff2?t=1642664012407') format('woff2'),
-       url('iconfont.woff?t=1642664012407') format('woff'),
-       url('iconfont.ttf?t=1642664012407') format('truetype'),
-       url('iconfont.svg?t=1642664012407#MD_Icon') format('svg');
+  src: url('iconfont.eot?t=1646704217276'); /* IE9 */
+  src: url('iconfont.eot?t=1646704217276#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('iconfont.woff2?t=1646704217276') format('woff2'),
+       url('iconfont.woff?t=1646704217276') format('woff'),
+       url('iconfont.ttf?t=1646704217276') format('truetype'),
+       url('iconfont.svg?t=1646704217276#MD_Icon') format('svg');
 }
 
 .MD_Icon {
@@ -16,12 +16,76 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-home_dashboard:before {
-  content: "\ea1f";
+.icon-output:before {
+  content: "\ecb0";
+}
+
+.icon-snow:before {
+  content: "\e62e";
+}
+
+.icon-wb_sunny:before {
+  content: "\e62d";
+}
+
+.icon-shield:before {
+  content: "\e62c";
+}
+
+.icon-rocket_launch:before {
+  content: "\e62b";
+}
+
+.icon-rectangle:before {
+  content: "\e62a";
+}
+
+.icon-dotted_line:before {
+  content: "\ecaf";
+}
+
+.icon-rounded_square:before {
+  content: "\ecae";
+}
+
+.icon-left_right:before {
+  content: "\ecaa";
+}
+
+.icon-up_down:before {
+  content: "\ecad";
 }
 
 .icon-pbc:before {
-  content: "\ecaa";
+  content: "\ecac";
+}
+
+.icon-person_off:before {
+  content: "\e629";
+}
+
+.icon-hourglass:before {
+  content: "\ecab";
+}
+
+.icon-flower:before {
+  content: "\e628";
+}
+
+.icon-lightbulb1:before {
+  content: "\e627";
+}
+
+.icon-emergency:before {
+  content: "\e626";
+}
+
+.icon-fire:before {
+  content: "\e624";
+}
+
+.icon-home_dashboard:before {
+  content: "\ea1f";
 }
 
 .icon-access_time_filled:before {

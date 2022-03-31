@@ -23,9 +23,6 @@ const recurShowFileConfirm = (up, files, i, length, cb) => {
   }
   const file = files[i];
 
-  if (file && file.getNative().isFromClipBoard) {
-    file.name = '剪切板贴图.png';
-  }
   fileConfirm(file, {
     yesFn() {
       if (i < length) {

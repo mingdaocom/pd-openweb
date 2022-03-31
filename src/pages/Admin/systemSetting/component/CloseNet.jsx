@@ -107,7 +107,7 @@ export default class CloseNet extends Component {
                     //试用
                     this.removeProjectTrialLicense(data => {
                       if (data) {
-                        alert(_l('退出付费版试用成功'), 1, 2000, function() {
+                        alert(_l('退出付费版试用成功'), 1, 2000, function () {
                           window.location.href = '/personal?type=enterprise';
                         });
                       } else {
@@ -143,7 +143,7 @@ export default class CloseNet extends Component {
       .removeProjectTrialLicense({
         projectId: Config.projectId,
       })
-      .then(function(data) {
+      .then(function (data) {
         callback(data);
       });
   };
@@ -362,18 +362,19 @@ export default class CloseNet extends Component {
                   <div className="closeNetTableContent">
                     <table className="w100 LineHeight40">
                       <tbody>
-                        {logoffs.length &&
-                          logoffs.map((list, index) => {
-                            return (
-                              <tr key={index}>
-                                <td className="pLeft20 tableUser">{list.createUser && list.createUser.fullname}</td>
-                                <td className={`tableOption ${list.type == 1 ? '' : 'Gray_c'}`}>
-                                  {list.type === 1 ? _l('申请注销') : _l('取消注销')}
-                                </td>
-                                <td className="tableTime">{list.createTime}</td>
-                              </tr>
-                            );
-                          })}
+                        {logoffs.length
+                          ? logoffs.map((list, index) => {
+                              return (
+                                <tr key={index}>
+                                  <td className="pLeft20 tableUser">{list.createUser && list.createUser.fullname}</td>
+                                  <td className={`tableOption ${list.type == 1 ? '' : 'Gray_c'}`}>
+                                    {list.type === 1 ? _l('申请注销') : _l('取消注销')}
+                                  </td>
+                                  <td className="tableTime">{list.createTime}</td>
+                                </tr>
+                              );
+                            })
+                          : ''}
                       </tbody>
                     </table>
                   </div>

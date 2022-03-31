@@ -8,13 +8,31 @@
         <meta name="force-rendering" content="webkit" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <title>下载</title>
-        <style>::-webkit-scrollbar{width:10px;height:10px;}::-webkit-scrollbar-thumb{width:6px;height:6px;border-radius:6px;background:rgba(187,187,187,0.8);background-clip:padding-box;border:2px solid transparent;}::-webkit-scrollbar-thumb:active,::-webkit-scrollbar-thumb:hover{background:rgba(125,125,125,0.8);background-clip:padding-box;}</style>
+        <style>
+            ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+            ::-webkit-scrollbar-thumb {
+                width: 6px;
+                height: 6px;
+                border-radius: 6px;
+                background: rgba(187, 187, 187, 0.8);
+                background-clip: padding-box;
+                border: 2px solid transparent;
+            }
+            ::-webkit-scrollbar-thumb:active,
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(125, 125, 125, 0.8);
+                background-clip: padding-box;
+            }
+        </style>
     </head>
     <body>
         <script>
-            var __api_server__ = '<%= apiServer %>';
+            var __api_server__ = <%- apiServer %>;
             var id = location.href.substring(location.href.indexOf('excelfile') + 10);
-            location.href = __api_server__ + 'File/ExcelFile/' + id;
+            location.href = __api_server__.main + 'File/ExcelFile/' + id;
         </script>
     </body>
 </html>

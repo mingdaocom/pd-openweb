@@ -116,6 +116,7 @@ export const NODE_TYPE = {
   17: { type: 'push', text: _l('界面推送') },
   18: { type: 'file', text: _l('获取记录打印文件') },
   19: { type: 'template', text: _l('服务号消息') },
+  20: { type: 'pbc', text: _l('封装业务流程(PBP)') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -155,9 +156,10 @@ export const NODE_ICON = {
       6: 'hr_time',
       7: 'workflow_webhook',
       8: 'custom_actions',
+      17: 'pbc',
       20: 'hr_structure',
       21: 'workflow',
-      23: 'folder-public',
+      23: 'language',
     },
     text: {
       1: _l('工作表事件触发'),
@@ -165,6 +167,7 @@ export const NODE_ICON = {
       6: _l('按日期字段触发'),
       7: _l('Webhook触发'),
       8: _l('按钮触发'),
+      17: _l('封装业务流程'),
       20: _l('人员事件触发'),
       21: _l('部门事件触发'),
       23: _l('外部用户事件触发'),
@@ -175,6 +178,7 @@ export const NODE_ICON = {
       6: '#2196f3',
       7: '#4C7D9E',
       8: '#4C7D9E',
+      17: '#4C7D9E',
       20: '#01ca83',
       21: '#01ca83',
       23: '#01ca83',
@@ -272,6 +276,11 @@ export const NODE_ICON = {
     icon: 'wechat',
     text: _l('发送服务号消息'),
     bgColor: '#2196f3',
+  },
+  pbc: {
+    icon: 'pbc',
+    text: _l('封装业务流程(PBP)'),
+    bgColor: '#4c7d9e',
   },
   singleInfo: {
     icon: 'person_search',

@@ -213,7 +213,7 @@ export default function SelectOptions(props) {
             <OptionListItem>
               <div className="title Bold">
                 <div className="name">
-                  {optionList.name}
+                  {(optionList || {}).name}
                   {` ( ${(getOptions(optionList) || []).length} )`}
                 </div>
                 <div className="operate flexCenter">
@@ -264,7 +264,7 @@ export default function SelectOptions(props) {
         <SelectOptionList
           {...props}
           onOk={({ listId, listItem }) => {
-            onChange({ dataSource: listId, default: '' });
+            onChange({ dataSource: listId, default: '', options: listItem.options });
             setOptionList(listItem);
             setVisible({ selectVisible: false });
           }}

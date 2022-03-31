@@ -21,13 +21,6 @@ export const APP_GROUP_CONFIG = [
   },
 ];
 
-const appFixed = {
-  type: 'editAppFixStatus',
-  icon: 'setting',
-  getText: (status) => status ? _l('更新维护状态') : _l('设为维护状态'),
-  action: 'editAppFixStatusVisible',
-}
-
 export const APP_CONFIG = {
   0: [],
   //  {
@@ -40,7 +33,7 @@ export const APP_CONFIG = {
   50: [
     {
       type: 'ding',
-      icon: 'dingding',
+      icon: 'feishu',
       text: _l('添加到钉钉'),
       action: 'goDingCourse',
     },
@@ -71,28 +64,21 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {
+      type: 'publishSettings',
+      icon: 'send',
+      text: _l('发布设置'),
+      action: 'publishSettings',
+    },
+    {
       type: 'worksheetapi',
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
-    },
-    {
-      type: 'ding',
-      icon: 'dingding',
-      text: _l('添加到钉钉'),
-      action: 'goDingCourse',
-    },
-    {
-      type: 'weixin',
-      icon: 'enterprise_wechat',
-      text: _l('添加到企业微信'),
-      action: 'goWeixinCourse',
     },
   ].filter(item => !appInfo[item.type]),
   // OWNER
@@ -109,28 +95,21 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {
+      type: 'publishSettings',
+      icon: 'send',
+      text: _l('发布设置'),
+      action: 'publishSettings',
+    },
+    {
       type: 'worksheetapi',
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
-    },
-    {
-      type: 'ding',
-      icon: 'dingding',
-      text: _l('添加到钉钉'),
-      action: 'goDingCourse',
-    },
-    {
-      type: 'weixin',
-      icon: 'enterprise_wechat',
-      text: _l('添加到企业微信'),
-      action: 'goWeixinCourse',
     },
     {
       type: 'del',
@@ -153,28 +132,21 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    appFixed,
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {
+      type: 'publishSettings',
+      icon: 'send',
+      text: _l('发布设置'),
+      action: 'publishSettings',
+    },
+    {
       type: 'worksheetapi',
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
-    },
-    {
-      type: 'ding',
-      icon: 'dingding',
-      text: _l('添加到钉钉'),
-      action: 'goDingCourse',
-    },
-    {
-      type: 'weixin',
-      icon: 'enterprise_wechat',
-      text: _l('添加到企业微信'),
-      action: 'goWeixinCourse',
     },
   ].filter(item => !appInfo[item.type]),
 };

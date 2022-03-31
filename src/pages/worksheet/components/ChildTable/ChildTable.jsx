@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
@@ -101,8 +101,8 @@ class ChildTable extends React.Component {
         console.log(err);
       }
     }
-    if (_.isFunction(control.registeRefreshEvents)) {
-      control.registeRefreshEvents(control.controlId, this.refresh);
+    if (_.isFunction(control.addRefreshEvents)) {
+      control.addRefreshEvents(control.controlId, this.refresh);
     }
     this.rowsCache = {};
     $(this.childTableCon).on('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
@@ -180,8 +180,8 @@ class ChildTable extends React.Component {
 
   componentWillUnmount() {
     const { control } = this.props;
-    if (_.isFunction(control.registeRefreshEvents)) {
-      control.registeRefreshEvents(control.controlId, undefined);
+    if (_.isFunction(control.addRefreshEvents)) {
+      control.addRefreshEvents(control.controlId, undefined);
     }
     $(this.childTableCon).off('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
     $(this.childTableCon).off('mouseleave', '.cell .ghostAngle', this.handleMouseLeave);
@@ -332,7 +332,7 @@ class ChildTable extends React.Component {
 
   @autobind
   newRow(defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill } = {}) {
-    const tempRowId = !isDefaultValue ? `temp-${uuid.v4()}` : `default-${uuid.v4()}`;
+    const tempRowId = !isDefaultValue ? `temp-${uuidv4()}` : `default-${uuidv4()}`;
     const row = this.rowUpdate({ row: defaultRow, rowId: tempRowId }, { isCreate, isQueryWorksheetFill });
     return { ...row, rowid: tempRowId, allowedit: true, addTime: new Date().getTime() };
   }
@@ -341,7 +341,7 @@ class ChildTable extends React.Component {
     const { addRow } = this.props;
     addRow(
       Object.assign({}, _.omit(copySublistRow(this.state.controls, row), ['updatedControlIds']), {
-        rowid: `temp-${uuid.v4()}`,
+        rowid: `temp-${uuidv4()}`,
         allowedit: true,
         isCopy: true,
         addTime: new Date().getTime(),
@@ -351,7 +351,7 @@ class ChildTable extends React.Component {
   }
 
   rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
-    const { masterData, projectId } = this.props;
+    const { masterData, projectId, recordId } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
       this.handleUpdateCell(
         {
@@ -375,6 +375,7 @@ class ChildTable extends React.Component {
       from: FROM.NEWRECORD,
       projectId,
       masterData,
+      masterRecordRowId: recordId,
       onAsyncChange: changes => {
         if (!_.isEmpty(changes.controlIds)) {
           changes.controlIds.forEach(cid => {
@@ -743,7 +744,10 @@ class ChildTable extends React.Component {
                           sheetColumnWidths: this.getSheetColumnWidths(newControl),
                         });
                         if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
-                          _.get(this, 'context.updateWorksheetControls')(res.data.controls);
+                          _.get(
+                            this,
+                            'context.updateWorksheetControls',
+                          )(res.data.controls.filter(c => c.controlId === control.controlId));
                         }
                       }
                     });
@@ -871,6 +875,9 @@ class ChildTable extends React.Component {
             onSave={this.handleRowDetailSave}
             onDelete={deleteRow}
             onClose={() => this.setState({ recordVisible: false })}
+            onRulesLoad={rules => {
+              this.rules = rules;
+            }}
           />
         )}
       </div>

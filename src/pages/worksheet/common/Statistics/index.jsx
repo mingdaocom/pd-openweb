@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM, { render } from 'react-dom';
 import cx from 'classnames';
-import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -38,10 +36,9 @@ const exceptions = [
   '.ant-dropdown',
   '.ant-dropdown-menu',
   '.ant-picker-dropdown',
-  '.rc-trigger-popup'
+  '.rc-trigger-popup',
+  '#attachemntsPreviewContainer',
 ];
-
-const store = configureStore();
 
 const SortableItem = SortableElement(({ item, ...other }) => {
   return (
@@ -78,10 +75,9 @@ export default class Statistics extends Component {
       loading: true,
       reports: [],
       newReport: { name: _l('未命名') },
-      roleType: 1,
       chartWidth: 0,
       pageIndex: 1,
-      pageLoading: false
+      pageLoading: false,
     };
   }
   componentDidMount() {
@@ -118,7 +114,7 @@ export default class Statistics extends Component {
     this.request = report.list(
       {
         appId: worksheetId,
-        isOwner: !!ownerId,
+        isOwner: !md.global.Account.isPortal ? !!ownerId : true,
         pageIndex,
         pageSize: 10,
       },
@@ -127,7 +123,6 @@ export default class Statistics extends Component {
     this.request.then(result => {
       this.setState({
         pageIndex: result.reports.length >= 10 ? pageIndex + 1 : 0,
-        roleType: result.roleType,
         reports: reports.concat(result.reports),
         [loadingKey]: false,
         chartWidth: window.innerWidth - 230 - 120,
@@ -175,12 +170,8 @@ export default class Statistics extends Component {
       worksheetId,
       isFullScreen: true,
       onClose: _.noop,
-    }
-    return (
-      <Provider store={store}>
-        <Statistics {...props} />
-      </Provider>
-    );
+    };
+    return <Statistics {...props} />;
   }
   handleSortEnd({ oldIndex, newIndex }) {
     if (oldIndex === newIndex) return;
@@ -193,7 +184,7 @@ export default class Statistics extends Component {
     reportSort
       .updateReportSort({
         appId: worksheetId,
-        isOwner: !!ownerId,
+        isOwner: !md.global.Account.isPortal ? !!ownerId : true,
         reportIds: newReports.map(item => item.id),
       })
       .then(
@@ -218,20 +209,27 @@ export default class Statistics extends Component {
     return !target.classList.contains('icon-drag');
   }
   renderHeader() {
-    const { ownerId, roleType } = this.state;
-    const { isFullScreen } = this.props;
+    const { ownerId } = this.state;
+    const { isFullScreen, roleType } = this.props;
+    const isPortal = md.global.Account.isPortal;
     return (
       <div className="StatisticsPanel-header">
         <div className="title">{_l('统计')}</div>
         <div className="flexRow Relative">
+          {/* 外部门户只有 个人 */}
+          {!isPortal && (
+            <div
+              className={cx('commonality', { ThemeColor3: !ownerId, active: !ownerId })}
+              onClick={this.handleSwitchView.bind(this, '')}
+            >
+              {_l('公共')}
+            </div>
+          )}
           <div
-            className={cx('commonality', { ThemeColor3: !ownerId, active: !ownerId })}
-            onClick={this.handleSwitchView.bind(this, '')}
-          >
-            {_l('公共')}
-          </div>
-          <div
-            className={cx('personal', { ThemeColor3: ownerId, active: ownerId })}
+            className={cx('personal', {
+              ThemeColor3: ownerId || isPortal,
+              active: ownerId || isPortal,
+            })}
             onClick={this.handleSwitchView.bind(this, md.global.Account.accountId)}
           >
             {_l('个人')}
@@ -262,19 +260,18 @@ export default class Statistics extends Component {
   }
   renderContent() {
     const { isFullScreen, ...other } = this.props;
-    const { reports, chartWidth, ownerId, roleType, pageLoading } = this.state;
+    const { reports, chartWidth, ownerId, pageLoading } = this.state;
     const sortableListProps = {
       ...other,
       axis: 'xy',
-      roleType,
       ownerId,
       list: reports,
       helperClass: 'sortableCard',
       shouldCancelStart: this.shouldCancelStart,
       onSortEnd: this.handleSortEnd.bind(this),
       width: isFullScreen ? chartWidth : '',
-      onRemove: this.handleDelete.bind(this)
-    }
+      onRemove: this.handleDelete.bind(this),
+    };
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd.bind(this)}>
         <div className="StatisticsPanel-content">
@@ -285,7 +282,8 @@ export default class Statistics extends Component {
     );
   }
   renderCommonalityNoData() {
-    const { roleType, ownerId } = this.state;
+    const { roleType } = this.props;
+    const { ownerId } = this.state;
     return (
       <div className="StatisticsPanel-nodata">
         <Icon icon="worksheet_public" />

@@ -33,7 +33,7 @@ export default class Operates extends Component {
     recordinfo: PropTypes.shape({}),
     sideVisible: PropTypes.bool,
     sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
-    registeRefreshEvents: PropTypes.func,
+    addRefreshEvents: PropTypes.func,
     reloadRecord: PropTypes.func,
     hideRecordInfo: PropTypes.func,
     onUpdate: PropTypes.func,
@@ -48,7 +48,7 @@ export default class Operates extends Component {
 
   componentDidMount() {
     this.loadBtns();
-    this.props.registeRefreshEvents('loadcustombtns', () => {
+    this.props.addRefreshEvents('loadcustombtns', () => {
       setTimeout(() => {
         this.setState({ btnDisable: {} });
       }, 500);

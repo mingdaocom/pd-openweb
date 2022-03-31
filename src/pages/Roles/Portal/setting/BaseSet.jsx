@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Icon, Radio, Checkbox, Tooltip } from 'ming-ui';
 import cx from 'classnames';
-import { validateDomianName } from 'src/api/externalPortal';
+// import { validateDomianName } from 'src/api/externalPortal';
 import { getWeiXinBindingInfo } from 'src/api/project';
 
 const Wrap = styled.div`
@@ -13,6 +13,20 @@ const Wrap = styled.div`
     padding: 24px;
     height: calc(100% - 68px);
     overflow: auto;
+  }
+  .pageTitle {
+    width: 592px;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 0 14px;
+    &:hover {
+      border: 1px solid #bdbdbd;
+    }
+    &:focus {
+      border: 1px solid #2196f3;
+    }
   }
   .urlH,
   .urlEnd {
@@ -59,7 +73,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const SwitchStyle = styled.div`
+export const SwitchStyle = styled.div`
   display: inline-block;
   .switchText {
     line-height: 24px;
@@ -77,16 +91,38 @@ const SwitchStyle = styled.div`
 const LOGIN_WAY = [_l('手机号'), _l('微信')];
 const ALLOW_TYPE = [_l('任何人'), _l('通过审核的用户'), _l('仅定向邀请的用户')]; //3,6,9
 export default function BaseSet(props) {
-  let { baseSetResult = {}, urlConfigure = {}, isFrontDomain, portalUrl, appId, projectId } = props; //isFrontDomain是否为前置域名
-  const { protocol = '', officialDomain = '' } = urlConfigure;
-  const { loginMode = {}, noticeScope = {} } = baseSetResult;
-  const [isWXExist, setIsWXExist] = useState(props.isWXExist);
-  const [domainName, setUrl] = useState(baseSetResult.domainName || '');
+  let { portalSet = {}, onChangePortalSet, projectId } = props;
+  const [portalSetModel, setPortalSetModel] = useState({});
+  // let { urlConfigure = {}, appId } = props;
+  // let { portalSetModel = {} } = portalSet;
+  const { loginMode = {}, noticeScope = {}, isFrontDomain } = portalSetModel; //isFrontDomain是否为前置域名
+  // const { protocol = '', officialDomain = '' } = urlConfigure;
+  const [isWXExist, setIsWXExist] = useState(portalSet.isWXExist);
+  // const [domainName, setUrl] = useState(portalSetModel.domainName || '');
   const [weChat, setLoginWay] = useState(loginMode.weChat); //微信是否开启
-  const [allowUserType, setAllowType] = useState(baseSetResult.allowUserType || 3); //允许的用户
+  const [allowUserType, setAllowType] = useState(portalSetModel.allowUserType || 3); //允许的用户
   const [admin, setNotify] = useState(noticeScope.admin || false); //允许的用户
+  const [exAccountSmsNotice, setExAccountSmsNotice] = useState(noticeScope.exAccountSmsNotice || false); //审核结果短信通知外部用户
   const [loading, setLoading] = useState(true);
-  const [authorizerInfo, setAuthorizerInfo] = useState(props.authorizerInfo || {});
+  const [authorizerInfo, setAuthorizerInfo] = useState(portalSet.authorizerInfo || {});
+  const [customizeName, setcustomizeName] = useState(portalSetModel.customizeName);
+  useEffect(() => {
+    let { portalSet = {} } = props;
+    let { portalSetModel = {} } = portalSet;
+    setPortalSetModel(portalSetModel);
+  }, [props]);
+
+  useEffect(() => {
+    let { portalSetModel = {} } = portalSet;
+    const { loginMode = {}, noticeScope = {} } = portalSetModel;
+    // setIsWXExist(portalSet.isWXExist);
+    // setUrl(portalSetModel.domainName || '');
+    setLoginWay(loginMode.weChat);
+    setAllowType(portalSetModel.allowUserType || 3);
+    setNotify(noticeScope.admin || false);
+    setExAccountSmsNotice(noticeScope.exAccountSmsNotice || false);
+    setcustomizeName(portalSetModel.customizeName)
+  }, [portalSet.portalSetModel]);
 
   useEffect(() => {
     if (weChat && !isWXExist && !authorizerInfo.appId) {
@@ -94,6 +130,15 @@ export default function BaseSet(props) {
         setIsWXExist(res && res.length > 0);
         setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
         setLoading(false);
+        onChangePortalSet(
+          {
+            authorizerInfo: {
+              ...authorizerInfo,
+              ...(res && res.length > 0 ? res[0] : {}),
+            },
+          },
+          false,
+        );
       });
     } else {
       setLoading(false);
@@ -102,7 +147,7 @@ export default function BaseSet(props) {
   return (
     <Wrap>
       <div className="content">
-        {isFrontDomain && (
+        {/* {isFrontDomain && (
           <React.Fragment>
             <h6 className="Font16 Gray Bold mBottom0">
               {_l('自定义域名')}
@@ -132,22 +177,47 @@ export default function BaseSet(props) {
                       appId,
                     }).then(res => {
                       if (!res.success) {
-                        setUrl('');
+                        onChangePortalSet({
+                          portalSetModel: { ...portalSetModel, domainName: '' },
+                        });
                         alert(message, 2);
                       }
                     });
                   }}
                   onChange={e => {
-                    props.hasChange();
-                    setUrl(e.target.value.trim());
+                    onChangePortalSet({
+                      portalSetModel: { ...portalSetModel, domainName: e.target.value.trim() },
+                    });
                   }}
                 />
                 <span className="urlEnd InlineBlock Gray_9e">{officialDomain}</span>
               </React.Fragment>
             </div>
           </React.Fragment>
-        )}
-        <h6 className={cx('Font16 Gray Bold mBottom0', { mTop24: isFrontDomain })}>{_l('登录/注册方式')}</h6>
+        )} */}
+        <h6 className="Font16 Gray Bold mBottom0">{_l('门户名称')}</h6>
+        <input
+          type="text"
+          className="pageTitle mTop6"
+          placeholder={_l('请输入')}
+          value={customizeName}
+          onFocus={() => {}}
+          onBlur={e => {
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                customizeName: e.target.value, //允许输入空格
+              },
+            });
+            if (!e.target.value) {
+              return alert(_l('请输入门户名称'), 3);
+            }
+          }}
+          onChange={e => {
+            setcustomizeName(e.target.value);
+          }}
+        />
+        <h6 className={cx('Font16 Gray Bold mBottom0 mTop16', { mTop24: isFrontDomain })}>{_l('登录/注册方式')}</h6>
         <div className="">
           {LOGIN_WAY.map((o, i) => {
             return (
@@ -160,8 +230,15 @@ export default function BaseSet(props) {
                   if (i === 0) {
                     return;
                   }
-                  props.hasChange();
-                  setLoginWay(!weChat);
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      loginMode: {
+                        ...loginMode,
+                        weChat: !weChat,
+                      },
+                    },
+                  });
                 }}
               />
             );
@@ -195,8 +272,12 @@ export default function BaseSet(props) {
                 text={o}
                 checked={allowUserType === (i + 1) * 3}
                 onClick={() => {
-                  props.hasChange();
-                  setAllowType((i + 1) * 3);
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      allowUserType: (i + 1) * 3,
+                    },
+                  });
                 }}
               />
             );
@@ -209,28 +290,35 @@ export default function BaseSet(props) {
               icon={!!admin ? 'ic_toggle_on' : 'ic_toggle_off'}
               className="Font24 Hand"
               onClick={() => {
-                props.hasChange();
-                setNotify(!admin);
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    noticeScope: { ...noticeScope, admin: !admin },
+                  },
+                });
               }}
             />
             <div className="switchText InlineBlock Normal Gray mLeft12">{_l('新用户注册、激活时通知管理员')}</div>
           </SwitchStyle>
         </div>
+        <div className="mTop16">
+          <SwitchStyle>
+            <Icon
+              icon={!!exAccountSmsNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font24 Hand"
+              onClick={() => {
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    noticeScope: { ...noticeScope, exAccountSmsNotice: !exAccountSmsNotice },
+                  },
+                });
+              }}
+            />
+            <div className="switchText InlineBlock Normal Gray mLeft12">{_l('审核结果短信通知外部用户')}</div>
+          </SwitchStyle>
+        </div>
       </div>
-      {props.footor &&
-        props.footor({
-          appId,
-          domainName,
-          loginMode: {
-            phone: true,
-            weChat,
-          },
-          noticeScope: {
-            admin,
-          },
-          allowUserType,
-          wxAppId: weChat ? authorizerInfo.appId || '' : '',
-        })}
     </Wrap>
   );
 }

@@ -157,6 +157,7 @@ export default class Condition extends Component {
       relateSheetList,
       sourceControlId = '',
       filterDept,
+      conditionItemForDynamicStyle
     } = this.props;
     let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
     if (isRules && control) {
@@ -199,7 +200,7 @@ export default class Condition extends Component {
       !_.includes(listControlType, condition.controlType) &&
       !isCustomOptions(control);
     return (
-      <div className={cx('conditionItem', { readonly: !canEdit, conditionItemForDynamicStyle: isDynamicStyle })}>
+      <div className={cx('conditionItem', { readonly: !canEdit, conditionItemForDynamicStyle: isDynamicStyle, })}>
         <div
           className={cx('conditionItemHeader', { isbool: conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value })}
         >

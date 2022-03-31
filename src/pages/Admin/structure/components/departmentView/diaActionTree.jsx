@@ -1,7 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { loadUsers, getFullTree, deleteDepartment, loadDepartments, loadAllUsers } from '../../actions/entities';
+import {
+  loadUsers,
+  getFullTree,
+  deleteDepartment,
+  loadDepartments,
+  loadAllUsers,
+  editDepartment,
+} from '../../actions/entities';
 import { removeCursor, updateCursor, updateTypeCursor } from '../../actions/current';
 import './index.less';
 
@@ -10,10 +17,11 @@ const CreateDialog = require('../../modules/dialogCreateEditDept');
 
 const handleDialogCallback = (dispatch, payload) => {
   const { response = {}, pageIndex, type, expandedKeys, projectId } = payload;
-  const { departmentId = '', parentDepartmentId = '' } = response;
+  const { departmentId = '', parentDepartmentId = '', newDepartments = [] } = response;
   switch (type) {
     case 'EDIT': {
-      dispatch(getFullTree({ departmentId, expandedKeys }));
+      // dispatch(getFullTree({ departmentId, expandedKeys }));
+      dispatch(editDepartment({ newDepartments, expandedKeys }));
       dispatch(loadUsers(departmentId, pageIndex));
       break;
     }
@@ -26,9 +34,9 @@ const handleDialogCallback = (dispatch, payload) => {
         dispatch(updateTypeCursor(0));
         dispatch(loadAllUsers(projectId, 1));
       } else {
-        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId }));
+        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId, expandedKeys }));
         dispatch(updateCursor(parentDepartmentId));
-        dispatch(getFullTree({ departmentId: parentDepartmentId, expandedKeys }));
+        // dispatch(getFullTree({ departmentId: parentDepartmentId, expandedKeys }));
         dispatch(loadUsers(parentDepartmentId, 1));
       }
       break;
@@ -58,6 +66,7 @@ class DiaActionTree extends React.Component {
       type: 'create',
       projectId,
       departmentId: departmentId,
+      isLevel0: false,
       callback(payload) {
         const {
           response: { departmentId },
@@ -79,11 +88,12 @@ class DiaActionTree extends React.Component {
   };
 
   openSettingDialog = () => {
-    const { departmentId, projectId, pageIndex, expandedKeys, dispatch } = this.props;
+    const { departmentId, projectId, pageIndex, expandedKeys, dispatch, newDepartments } = this.props;
     EditDialog({
       type: 'edit',
       projectId,
       departmentId,
+      newDepartments,
       callback(payload) {
         handleDialogCallback(dispatch, {
           ...payload,
@@ -132,6 +142,7 @@ const mapStateToProps = state => {
   const {
     current,
     pagination: { userList },
+    entities,
   } = state;
   const { departmentId, root, projectId } = current;
   const isRoot = departmentId === root;
@@ -146,6 +157,7 @@ const mapStateToProps = state => {
     allCount: userList && userList.allCount,
     pageIndex: userList && userList.pageIndex,
     departmentName: department ? department.departmentName : '',
+    newDepartments: entities.newDepartments,
   };
 };
 

@@ -78,7 +78,7 @@ const StickyBar = styled.div`
     transform: translateY(0px);
   }
 `;
-export default function RecortForm(props) {
+export default function RecordForm(props) {
   const {
     formWidth,
     ignoreHeader,
@@ -96,8 +96,8 @@ export default function RecortForm(props) {
     iseditting,
     sheetSwitchPermit,
     mountRef,
-    registeRefreshEvents,
-    updateRecordDailogOwner,
+    addRefreshEvents,
+    updateRecordDialogOwner,
     updateRows,
     updateRelateRecordNum = () => {},
     onRelateRecordsChange = () => {},
@@ -105,7 +105,7 @@ export default function RecortForm(props) {
     onChange,
     onCancel,
     onSave,
-    reloadControls,
+    masterRecordRowId,
   } = props;
   let { formdata = [] } = props;
   formdata.forEach(item => {
@@ -287,7 +287,7 @@ export default function RecortForm(props) {
                   view={view}
                   recordbase={recordbase}
                   recordinfo={recordinfo}
-                  updateRecordDailogOwner={updateRecordDailogOwner}
+                  updateRecordDialogOwner={updateRecordDialogOwner}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
                 />
@@ -305,11 +305,13 @@ export default function RecortForm(props) {
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
                   disabled={!allowEdit}
                   projectId={recordinfo.projectId}
+                  masterRecordRowId={masterRecordRowId}
                   worksheetId={worksheetId}
                   recordId={recordId}
                   registerCell={registerCell}
                   showError={showError}
                   onChange={onChange}
+                  onSave={onSave}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
                   appId={recordinfo.appId}
@@ -339,9 +341,8 @@ export default function RecortForm(props) {
                   controls={relateRecordTableControls}
                   relateRecordData={relateRecordData}
                   sheetSwitchPermit={sheetSwitchPermit}
-                  registeRefreshEvents={registeRefreshEvents}
+                  addRefreshEvents={addRefreshEvents}
                   setRelateNumOfControl={(value, controlId) => {
-                    reloadControls(formdata.filter(c => c.dataSource.slice(1, -1) === controlId).map(c => c.controlId));
                     setRelateNumOfControl({ ...relateNumOfControl, ...value });
                     updateRows(
                       [recordId],
@@ -406,7 +407,7 @@ export default function RecortForm(props) {
   );
 }
 
-RecortForm.propTypes = {
+RecordForm.propTypes = {
   type: PropTypes.string,
   loading: PropTypes.bool,
   showError: PropTypes.bool,
@@ -421,13 +422,13 @@ RecortForm.propTypes = {
   formdata: PropTypes.arrayOf(PropTypes.shape({})),
   relateRecordData: PropTypes.shape({}),
   mountRef: PropTypes.func,
-  updateRecordDailogOwner: PropTypes.func,
+  updateRecordDialogOwner: PropTypes.func,
   updateRows: PropTypes.func,
   onChange: PropTypes.func,
   onRelateRecordsChange: PropTypes.func,
   onSave: PropTypes.func,
   onCancel: PropTypes.func,
-  registeRefreshEvents: PropTypes.func,
+  addRefreshEvents: PropTypes.func,
   reloadRecord: PropTypes.func,
   registerCell: PropTypes.func,
 };

@@ -1,13 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Icon, Dialog, Dropdown } from 'ming-ui';
+import { Icon, Dialog, Dropdown, Radio } from 'ming-ui';
 import 'uploadAttachment';
 import cx from 'classnames';
 import noVerifyAjax from 'src/api/noVerify';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getUserCollect } from 'src/api/externalPortal';
-
+import { SwitchStyle } from 'src/pages/Roles/Portal/index.jsx';
+import ReviewFreeByWorksheetWrap from '../components/ReviewFreeByWorksheetWrap';
+import ReviewFreeMap from '../components/ReviewFreeMap';
+import _ from 'lodash';
 const Wrap = styled.div`
+  .switchTextP {
+    line-height: 40px !important;
+  }
+  .conditionItemHeader {
+    display: flex;
+    align-items: center;
+    padding-right: 0 !important;
+    .relation {
+      display: inline-block;
+      &:hover {
+        background-color: #fff !important;
+      }
+    }
+  }
+  .worksheetFilterDateCondition {
+    & > div {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      .dateValue,
+      .dateType,
+      .customDate {
+        flex: 1;
+      }
+      .dateValue,
+      .customDate {
+        margin-left: 10px;
+        margin-top: 0 !important;
+      }
+      .dateValue {
+        display: flex;
+        align-items: center;
+      }
+      .dateInputCon .ming.Dropdown {
+        height: 34px;
+        background: none;
+      }
+    }
+  }
+  .conditionValue {
+    flex: 1;
+    min-width: 0;
+  }
   .up {
     color: #2196f3;
     &:hover {
@@ -73,12 +118,16 @@ const Wrap = styled.div`
     }
   }
 `;
+const list = ['导入Excel数据', '从工作表获取数据'];
 export default function ReviewFree(props) {
-  const { appId, onCancel, show } = props;
-  const [controls, setControls] = useState([]);
+  const { appId, projectId, onCancel, show, data, onChangePortalVersion } = props;
   const [cellConfigs, setCellConfigs] = useState([]); //免审名单
+  const [controls, setControls] = useState([]);
   const [cells, setCells] = useState([]); //免审文件内容信息
   const [fileUrl, setFileUrl] = useState('');
+  const [query, setQuery] = useState();
+  const [type, setType] = useState(0); //免审类型 0 = excel ,1= 工作表查询
+  const [status, setStatus] = useState(false); //是否开启免审
   const [fileName, setFileName] = useState(''); //免审文件名
   const [uploadLoading, setUploadLoading] = useState(false); //
   const [canDown, setCanDown] = useState(false); //
@@ -121,12 +170,14 @@ export default function ReviewFree(props) {
   };
   //当前免审名单相关信息
   const getInfo = () => {
-    noVerifyAjax.get({ appId }).then(res => {
-      setFileName(res.fileName);
-      setCellConfigs(res.cellConfigs || []);
-      setFileUrl(res.fileUrl || '');
-      setCanDown(!!res.fileUrl);
-    });
+    let res = data;
+    setFileName(res.fileName);
+    setCellConfigs(res.cellConfigs || []);
+    setFileUrl(res.fileUrl || '');
+    setCanDown(!!res.fileUrl);
+    setType(res.type);
+    setStatus(res.status);
+    setQuery(res.query);
   };
   //上传的文件的列信息
   const getPreviewCell = () => {
@@ -140,23 +191,55 @@ export default function ReviewFree(props) {
     postUploader();
     getInfo();
     getPreviewCell();
+    getControls();
   }, []);
+
   useEffect(() => {
     getPreviewCell();
-    fileUrl && getControls();
   }, [fileUrl]);
+
   const update = () => {
-    noVerifyAjax
-      .update({
-        appId,
-        fileUrl,
-        fileName,
-        cellConfigs,
-      })
-      .then(res => {
+    if (cellConfigs.length <= 0 && status === 0 && type === 0) {
+      return alert(_l('还未设置免审'));
+    }
+    if (status === 0 && type === 1 && (_.get(query, ['configs']) || []).length <= 0) {
+      return alert(_l('还未设置免审'));
+    }
+    let param =
+      status === 1
+        ? {
+            appId,
+
+            status,
+          }
+        : {
+            appId,
+            fileUrl,
+            fileName,
+            cellConfigs,
+            type,
+            status,
+            query: { ..._.pick(query, ['id', 'sourceId', 'items', 'configs', 'templates', 'sourceType']) },
+          };
+    noVerifyAjax.update(param).then(res => {
+      if (res.success) {
+        props.setData({
+          ...data,
+          query,
+          fileUrl,
+          fileName,
+          cellConfigs,
+          type,
+          status,
+        });
+        onChangePortalVersion(res.version);
         setCanDown(!!res.fileUrl);
         onCancel();
-      });
+        props.getInfo();
+      } else {
+        alert(_l('配置失败，请稍后再试', 3));
+      }
+    });
   };
   return (
     <Dialog
@@ -166,151 +249,146 @@ export default function ReviewFree(props) {
       title={<span className="Font17 Bold">{_l('配置免审名单')}</span>}
       onCancel={onCancel}
       onOk={() => {
-        if (cellConfigs.length <= 0) {
-          return alert(_l('请配置映射字段'), 3);
-        }
         update();
       }}
     >
       <Wrap>
-        <p className="Gray_9e pAll0 mBottom2">{_l('上传Excel配置免审，只要信息匹配成功，访问应用时即可免予审核')}</p>
-        <p className="Gray_9e pAll0 mBottom10">
-          {_l('Excel表格第一行必须是字段名称，只需上传需要匹配的字段及内容，字段只能是用户列表展示字段。')}
+        <p className="Gray_9e pAll0 mBottom2 mTop2 Font14 Gray_75">
+          {_l('用户注册时填写的内容如和免审中指定字段内容一致，则无需审核直接访问应用。')}
         </p>
+        <SwitchStyle
+          className="Hand InlineBlock"
+          onClick={() => {
+            setStatus(status === 0 ? 1 : 0);
+          }}
+        >
+          <Icon icon={status === 0 ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font40" />
+          <div className="switchText switchTextP mLeft8 InlineBlock Gray Hand">
+            {status === 0 ? _l('开启') : _l('关闭')}
+          </div>
+        </SwitchStyle>
         <input id="hideUpload" type="file" className="Hidden" />
         <div className="Hidden" id="upload" />
-        {!fileUrl ? (
+        {status === 0 && (
           <React.Fragment>
-            <div
-              className="up Hand InlineBlock"
-              onClick={() => {
-                $('#upload').click();
-              }}
-            >
-              <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
-              <span>{_l('上传免审配置')}</span>
-            </div>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <div className="listCon">
-              <span className="txt flex flexRow">
-                <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
-                <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {fileName}</span>
-              </span>
-              {canDown && (
-                <span
-                  className="act ThemeColor3 Hand"
-                  onClick={() => {
-                    let ajaxUrl = md.global.Config.AjaxApiUrl + 'Download/Verify/' + appId;
-                    let str = `<form action=${ajaxUrl} method="noVerifyAjax.get" id="forms">
-                                  <input type="submit" value="提交"/>
-                              </form>`;
-                    $('body').append(str);
-                    $('#forms').submit().remove();
-                  }}
-                >
-                  <Icon className="Font18 TxtMiddle" type="cloud_download" /> {_l('下载')}
-                </span>
-              )}
-              <span
-                className="act ThemeColor3 Hand"
-                onClick={() => {
-                  $('#upload').click();
-                }}
-              >
-                <Icon className="Font18 TxtMiddle" type="refresh" /> {_l('更新')}
-              </span>
-              <span
-                className="act Red"
-                onClick={() => {
-                  noVerifyAjax
-                    .delete({
-                      appId,
-                    })
-                    .then(res => {
-                      setCellConfigs([]);
-                      setCells([]);
-                      setFileUrl('');
-                      setFileName(''); //免审文件名
-                      setCanDown(false);
-                    });
-                }}
-              >
-                <Icon className="Font18 TxtMiddle Hand" type="trash" /> {_l('删除')}
-              </span>
-            </div>
-            <div className="List mTop32">
-              <h6 className="">{_l('配置免审映射字段')}</h6>
-              <p className="Gray_9e pAll0 mBottom10">
-                {_l(
-                  '外部用户注册/登录时收集到的信息会与此名单的字段内容做匹配，完全匹配成功后不需要管理员可直接访问应用',
-                )}
-              </p>
-              <div className="listLiHeader"></div>
-              {controls.map((o, i) => {
-                const cell = cells.map(item => {
-                  return {
-                    ...item,
-                    value: item.columnNum,
-                    text: item.columnName,
-                    disabled: cellConfigs.map(o => o.columnNum).includes(item.columnNum),
-                  };
-                });
+            <p className="pAll0 mTop20 Bold">{_l('数据源')}</p>
+            <div className="mBottom18">
+              {list.map((o, i) => {
                 return (
-                  <div className="listLi mBottom6" key={i}>
-                    <span className="columnTxt InlineBlock LineHeight36">
-                      <Icon className="Font18 TxtMiddle Gray_9e mLeft15 mRight8" icon={getIconByType(o.type, false)} />
-                      {o.controlName}
-                    </span>
-                    <span className="iconBox InlineBlock TxtBottom LineHeight36">
-                      <Icon className="Font18 ThemeColor3" type="arrow_forward" />
-                    </span>
-                    <Dropdown
-                      key={o.controlId + '_Dropdown'}
-                      isAppendToBody
-                      data={cell}
-                      placeholder={_l('请选择')}
-                      value={(cellConfigs.find(item => item.controlId === o.controlId) || {}).columnNum}
-                      className={cx('flex InlineBlock')}
-                      onChange={newValue => {
-                        if (cellConfigs.map(o => o.columnNum).includes(newValue)) {
-                          alert(_l('该列已匹配过'), 3);
-                          setCellConfigs(cellConfigs);
-                          return;
-                        }
-                        const cellConfigsIds = cellConfigs.map(item => item.controlId);
-                        let itemCell = cells
-                          .filter(item => !cellConfigs.map(a => a.columnNum).includes(item.columnNum))
-                          .find(item => item.columnNum === newValue);
-                        let newdata = {
-                          controlId: o.controlId,
-                          columnName: itemCell.columnName,
-                          columnNum: newValue,
-                          controlName: o.controlName,
-                        };
-                        if (cellConfigsIds.includes(o.controlId)) {
-                          setCellConfigs(
-                            cellConfigs.map(item => {
-                              if (item.controlId === o.controlId) {
-                                return newdata;
-                              } else {
-                                return item;
-                              }
-                            }),
-                          );
-                        } else {
-                          setCellConfigs([...cellConfigs, newdata]);
-                        }
-                      }}
-                    />
-                  </div>
+                  <Radio
+                    className="mRight60 pRight10"
+                    text={o}
+                    checked={i === type}
+                    onClick={() => {
+                      setType(i);
+                    }}
+                  />
                 );
               })}
             </div>
+
+            {type === 1 ? (
+              <ReviewFreeByWorksheetWrap
+                query={query}
+                appId={appId}
+                projectId={projectId}
+                onChange={query => {
+                  setQuery(query);
+                }}
+              />
+            ) : !fileUrl ? (
+              <div className="listCon">
+                <div
+                  className="up Hand InlineBlock"
+                  onClick={() => {
+                    $('#upload').click();
+                  }}
+                >
+                  <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
+                  <span>{_l('上传免审配置')}</span>
+                </div>
+              </div>
+            ) : (
+              <React.Fragment>
+                <div className="listCon">
+                  <span className="txt flex flexRow">
+                    <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
+                    <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {fileName}</span>
+                  </span>
+                  {canDown && (
+                    <span
+                      className="act ThemeColor3 Hand"
+                      onClick={() => {
+                        let ajaxUrl = md.global.Config.AjaxApiUrl + 'Download/Verify/' + appId;
+                        let str = `<form action=${ajaxUrl} method="noVerifyAjax.get" id="forms">
+                                  <input type="submit" value="提交"/>
+                              </form>`;
+                        $('body').append(str);
+                        $('#forms').submit().remove();
+                      }}
+                    >
+                      <Icon className="Font18 TxtMiddle" type="cloud_download" /> {_l('下载')}
+                    </span>
+                  )}
+                  <span
+                    className="act ThemeColor3 Hand"
+                    onClick={() => {
+                      $('#upload').click();
+                    }}
+                  >
+                    <Icon className="Font18 TxtMiddle" type="refresh" /> {_l('更新')}
+                  </span>
+                  <span
+                    className="act Red"
+                    onClick={() => {
+                      if (!data.fileUrl) {
+                        setCellConfigs([]);
+                        setCells([]);
+                        setFileUrl('');
+                        setFileName(''); //免审文件名
+                        setCanDown(false);
+                      } else {
+                        noVerifyAjax
+                          .delete({
+                            appId,
+                          })
+                          .then(res => {
+                            setCellConfigs([]);
+                            setCells([]);
+                            setFileUrl('');
+                            setFileName(''); //免审文件名
+                            setCanDown(false);
+                          });
+                      }
+                    }}
+                  >
+                    <Icon className="Font18 TxtMiddle Hand" type="trash" /> {_l('删除')}
+                  </span>
+                </div>
+              </React.Fragment>
+            )}
+            <ReviewFreeMap
+              type={type}
+              query={query}
+              controls={controls || []}
+              cell={{
+                cells,
+                cellConfigs,
+              }}
+              onChange={obj => {
+                if (type === 1) {
+                  setQuery({
+                    ...query,
+                    ...obj,
+                  });
+                } else {
+                  setCellConfigs(obj);
+                }
+              }}
+            />
           </React.Fragment>
         )}
-      </Wrap>{' '}
+      </Wrap>
     </Dialog>
   );
 }

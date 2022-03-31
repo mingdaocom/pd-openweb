@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import { hideColumn, clearHiddenColumn, frozenColumn, sortByControl } from 'worksheet/redux/actions/sheetview';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { Menu, MenuItem, Dialog } from 'ming-ui';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
@@ -100,6 +99,7 @@ class ColumnHead extends Component {
   render() {
     const {
       className,
+      count,
       style,
       isLast,
       disabledFunctions = [],
@@ -163,7 +163,18 @@ class ColumnHead extends Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
-                  onBatchEdit(control);
+                  if (count > 1000) {
+                    Dialog.confirm({
+                      title: (
+                        <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
+                          {_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？')}
+                        </span>
+                      ),
+                      onOk: () => onBatchEdit(control),
+                    });
+                  } else {
+                    onBatchEdit(control);
+                  }
                   closeMenu();
                 }}
               >

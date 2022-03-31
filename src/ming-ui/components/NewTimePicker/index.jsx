@@ -35,7 +35,7 @@ class Time extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('click', this.clickListener, false);
+    window.addEventListener('mousedown', this.clickListener, false);
 
     window.addEventListener('keydown', this.keyDownListener, false);
   }
@@ -57,7 +57,7 @@ class Time extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('click', this.clickListener, false);
+    window.removeEventListener('mousedown', this.clickListener, false);
 
     window.removeEventListener('keydown', this.keyDownListener, false);
   }

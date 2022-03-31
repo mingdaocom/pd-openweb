@@ -60,6 +60,7 @@ function SheetHeader(props) {
     openNewRecord,
     deleteSheet,
     sheetViewData = {},
+    sheetFetchParams = {},
     sheetViewConfig = {},
     filters,
     quickFilter,
@@ -70,12 +71,13 @@ function SheetHeader(props) {
     getWorksheetSheetViewSummary,
     changePageIndex,
     refresh,
-    clearSelect,
     refreshWorksheetControls,
     clearChartId,
+    clearSelect,
   } = props;
+  const { pageSize } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
-  const { worksheetId, name, desc, projectId, allowAdd, entityName } = worksheetInfo;
+  const { worksheetId, name, desc, projectId, allowAdd, entityName, roleType } = worksheetInfo;
   const [sheetDescVisible, setSheetDescVisible] = useState();
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
@@ -87,6 +89,7 @@ function SheetHeader(props) {
     <Fragment>
       <Con className="sheetHeader">
         <BatchOperate
+          isCharge={isCharge}
           appId={appId}
           worksheetId={worksheetId}
           viewId={viewId}
@@ -95,6 +98,7 @@ function SheetHeader(props) {
           controls={controls}
           filters={filters}
           quickFilter={quickFilter}
+          pageSize={pageSize}
           navGroupFilters={navGroupFilters}
           worksheetInfo={worksheetInfo}
           permission={(permission || {})[viewId]}
@@ -323,6 +327,7 @@ function SheetHeader(props) {
             viewId={viewId}
             appId={appId}
             projectId={projectId}
+            roleType={roleType}
             onClose={() => setStatisticsVisible(false)}
           />
         )}
@@ -357,6 +362,7 @@ export default connect(
     navGroupFilters: state.sheet.navGroupFilters,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
+    sheetFetchParams: state.sheet.sheetview.sheetFetchParams,
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
     chartId: _.get(state, 'sheet.base.chartId'),
@@ -381,9 +387,9 @@ export default connect(
           'changePageIndex',
           'updateControlOfRow',
           'refresh',
-          'clearSelect',
           'saveSheetLayout',
           'resetSehetLayout',
+          'clearSelect',
         ]),
         updateSheetList,
         updateWorksheetInfo,

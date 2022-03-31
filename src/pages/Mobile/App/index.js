@@ -17,7 +17,8 @@ import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
 import PortalAppHeader from 'src/pages/PageHeader/PortalAppHeader/index.jsx';
-
+import WorksheetUnNormal from 'src/pages/Mobile/RecordList/State';
+import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 const Item = List.Item;
 let modal = null;
 
@@ -72,11 +73,14 @@ class App extends Component {
     this.props.history.push(url);
   }
 
-  detectionUrl = ({ appNaviStyle, appSectionDetail }) => {
+  detectionUrl = ({ appRoleType, isLock, appNaviStyle, appSectionDetail }) => {
     const { params } = this.props.match;
     if (appNaviStyle === 2 && !params.worksheetId) {
+      const isCharge = isHaveCharge(appRoleType, isLock);
       const { appSectionId, workSheetInfo } = appSectionDetail[0];
-      const { workSheetId } = workSheetInfo[0];
+      const { workSheetId } = isCharge
+        ? workSheetInfo[0]
+        : workSheetInfo.filter(o => o.status === 1 && !o.navigateHide)[0];
       window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}/${workSheetId}`);
     }
   };
@@ -171,7 +175,7 @@ class App extends Component {
     const { appDetail, match } = this.props;
     const { appName, detail, processCount } = appDetail;
     const { params } = match;
-    const { fixed, permissionType } = detail;
+    const { fixed, permissionType, webMobileDisplay } = detail;
     const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     if (md.global.Account.isPortal) {
       return (
@@ -184,7 +188,7 @@ class App extends Component {
         />
       );
     }
-    if (detail.appNaviStyle === 2 && !(fixed && !isAuthorityApp)) {
+    if (detail.appNaviStyle === 2 && !((fixed && !isAuthorityApp) || webMobileDisplay)) {
       return (
         <div className="flexRow valignWrapper appNaviStyle2Header">
           <div
@@ -226,32 +230,36 @@ class App extends Component {
           <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
             <span className="Gray">{appName}</span>
           </div>
-          <div className="Relative flexRow valignWrapper">
-            <Icon
-              icon="knowledge_file"
-              className="Font26 Gray_bd"
-              onClick={() => {
-                this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
-              }}
-            />
-            {!!processCount && (
-              <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
-            )}
-          </div>
-          <Icon
-            icon="star_3"
-            className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked, hide: window.isPublicApp })}
-            onClick={() => {
-              this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
-            }}
-          />
-          <Icon
-            icon="group"
-            className="mLeft15 Font26 Gray_bd"
-            onClick={() => {
-              this.navigateTo(`/mobile/members/${params.appId}`);
-            }}
-          />
+          {!webMobileDisplay && (
+            <React.Fragment>
+              <div className="Relative flexRow valignWrapper">
+                <Icon
+                  icon="knowledge_file"
+                  className="Font26 Gray_bd"
+                  onClick={() => {
+                    this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+                  }}
+                />
+                {!!processCount && (
+                  <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+                )}
+              </div>
+              <Icon
+                icon="star_3"
+                className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked, hide: window.isPublicApp })}
+                onClick={() => {
+                  this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
+                }}
+              />
+              <Icon
+                icon="group"
+                className="mLeft15 Font26 Gray_bd"
+                onClick={() => {
+                  this.navigateTo(`/mobile/members/${params.appId}`);
+                }}
+              />
+            </React.Fragment>
+          )}
         </div>
       </div>
     );
@@ -309,15 +317,25 @@ class App extends Component {
 
   renderContent() {
     const { appDetail, match } = this.props;
-    const { appName, detail, appSection, status } = appDetail;
+    let { appName, detail, appSection, status } = appDetail;
+    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType } = detail;
+    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
+    appSection = isAuthorityApp
+      ? appSection
+      : appSection
+          .map(item => {
+            return {
+              ...item,
+              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+            };
+          })
+          .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
     const { isHideTabBar, hideSheetVisible } = this.state;
     const { params } = match;
     const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(
       item => item.status === 2,
     ).length;
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
-    const { fixed, fixAccount, fixRemark, permissionType } = detail;
-    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
@@ -329,11 +347,11 @@ class App extends Component {
           {params.isNewApp && this.renderGuide()}
           <div
             className="flexColumn h100"
-            style={fixed && permissionType !== ROLE_TYPES.ADMIN ? { background: '#fff' } : {}}
+            style={(fixed && permissionType !== ROLE_TYPES.ADMIN) || webMobileDisplay ? { background: '#fff' } : {}}
           >
             {this.renderAppHeader()}
-            {fixed && !isAuthorityApp ? (
-              <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} />
+            {(fixed && !isAuthorityApp) || webMobileDisplay ? (
+              <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
             ) : (
               <div className="appSectionCon flex">
                 {status === 5 ||
@@ -399,6 +417,9 @@ class App extends Component {
   }
 
   renderRecordList(data) {
+    if (!data) {
+      return <WorksheetUnNormal type="sheet" />; //应用项无权限或者已删除
+    }
     const { type } = data;
     const { detail = {}, appSection } = this.props.appDetail;
     const { appNaviStyle } = detail;
@@ -419,11 +440,11 @@ class App extends Component {
 
   renderBody() {
     const { appSection, detail } = this.props.appDetail;
-    const { fixed, permissionType } = detail;
+    const { fixed, permissionType, webMobileDisplay } = detail;
     const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     const { batchOptVisible } = this.props;
 
-    if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp)) {
+    if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp) || webMobileDisplay) {
       return this.renderContent();
     }
 
@@ -435,16 +456,19 @@ class App extends Component {
         });
         return item.workSheetInfo;
       }),
-    ).slice(0, 4);
-    const data = _.find(sheetList, { workSheetId: selectedTab }) || {};
-    const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1;
-
+    )
+      .filter(item => (isAuthorityApp ? true : item.status === 1 && !item.navigateHide)) //左侧列表状态为1 且 角色权限没有设置隐藏
+      .slice(0, 4);
+    const data = _.find(sheetList, { workSheetId: selectedTab });
+    const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1 && !!data;
     return (
       <div className="flexColumn h100">
         <div className={cx('flex overflowHidden', { recordListWrapper: !isHideNav })}>
+          {/* 外部门户显示头部导航 */}
+          {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}
           {selectedTab === 'more' ? this.renderContent() : this.renderRecordList(data)}
         </div>
-        {!batchOptVisible && (
+        {sheetList.length > 0 && !batchOptVisible && (
           <TabBar
             unselectedTintColor="#949494"
             tintColor={detail.iconColor}

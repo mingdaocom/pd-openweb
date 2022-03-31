@@ -19,6 +19,7 @@ html body {
   padding: 0px;
   background-attachment: fixed;
   -webkit-text-size-adjust: none;
+  line-height: 1.5;
 }
 img {
   border: 0px;

@@ -73,8 +73,8 @@ export default class CoverSetting extends React.Component {
     const coverControls = filterAndFormatterControls({
       controls: coverColumns,
       filter:
-        VIEW_DISPLAY_TYPE.gallery === String(viewType) //目前只有画廊视图支持嵌入字段作为封面
-          ? item => item.type === 14 || item.sourceControlType === 14 || item.type === 45
+        VIEW_DISPLAY_TYPE.gallery === String(viewType) //目前只有画廊视图支持嵌入字段(统计图不支持)作为封面
+          ? item => item.type === 14 || item.sourceControlType === 14 || (item.type === 45 && item.enumDefault === 1)
           : item => item.type === 14 || item.sourceControlType === 14,
     });
     let coverValue =

@@ -11,8 +11,9 @@ import BaseSet from './BaseSet';
 import InfoSet from './InfoSet';
 import LoginSet from './LoginSet';
 import TextMessage from './TextMessage';
-import { editBaseSet, editLoginPageSet, saveUserControls, saveMessageSet } from 'src/api/externalPortal';
+import { editPortalSet } from 'src/api/externalPortal';
 import { getStringBytes } from 'src/util';
+import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
 
 const Wrap = styled.div`
   position: fixed;
@@ -20,7 +21,7 @@ const Wrap = styled.div`
   bottom: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0px 12px 36px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
   width: 640px;
@@ -31,7 +32,7 @@ const Wrap = styled.div`
     top: 0;
     bottom: 0;
     right: 640px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.7);
     z-index: -1;
   }
   .header {
@@ -82,6 +83,7 @@ const WrapCon = styled.div`
   width: 100%;
   left: 0;
   right: 0;
+  z-index: 2;
   .saveBtn {
     display: inline-block;
     height: 36px;
@@ -124,8 +126,24 @@ class PortalSetting extends React.Component {
       type: 0,
       saveLoading: false,
       hasChange: false,
+      portalSet: {},
     };
     this.saveRef = null;
+  }
+
+  componentDidMount() {
+    const { portalSet = {} } = this.props;
+    this.setState({
+      portalSet,
+    });
+  }
+
+  componentWillReceiveProps(nextProps, nextState) {
+    if (!_.isEqual(this.props.portalSet, nextProps.portalSet)) {
+      this.setState({
+        portalSet: nextProps.portalSet,
+      });
+    }
   }
 
   closeSetFn = callback => {
@@ -133,18 +151,10 @@ class PortalSetting extends React.Component {
       return Dialog.confirm({
         title: _l('您是否保存当前页的更改'),
         okText: _l('保存'),
+        width: 440,
         description: _l('当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。'),
         onOk: () => {
           this.saveRef && $(this.saveRef).click();
-          this.setState(
-            {
-              hasChange: false,
-            },
-            () => {
-              this.state.type === 0 && this.props.callback();
-              callback && callback();
-            },
-          );
         },
         onCancel: () => {
           this.setState(
@@ -161,9 +171,101 @@ class PortalSetting extends React.Component {
       callback && callback();
     }
   };
+
+  editPortal = () => {
+    const { portalSet = {} } = this.state;
+    const { projectId, closeSet } = this.props;
+    const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {} } = portalSet;
+    let mdSign = getStrBytesLength(
+      ((_.get(md, ['global', 'Account', 'projects']) || []).find(o => o.projectId === projectId) || {}).companyName,
+    );
+    const {
+      pageTitle = '',
+      smsSignature = mdSign,
+      loginMode = {},
+      allowUserType,
+      noticeScope = {},
+      pageMode,
+      backGroundType,
+      backColor,
+      // domainName,
+      logoImagePath,
+      backImagePath,
+      appId,
+      customizeName,
+    } = portalSetModel;
+    if (!customizeName) {
+      return alert(_l('请输入外部门户名称'), 3);
+    }
+    if (!pageTitle) {
+      return alert(_l('请输入登录页名称'), 3);
+    }
+    if (!smsSignature) {
+      return alert(_l('请输入短信签名'), 3);
+    }
+    if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature)) {
+      return alert(_l('短信签名只支持中英文'));
+    }
+    if (getStringBytes(smsSignature) > 16) {
+      return alert(_l('短信签名最多只能16个字节'));
+    }
+    this.setState({
+      saveLoading: true,
+    });
+    editPortalSet({
+      appId,
+      portalSet: {
+        ..._.pick(portalSetModel, [
+          'inviteSms',
+          'refusedSms',
+          'approvedSms',
+          'termsAndAgreementEnable',
+          'userAgreement',
+          'privacyTerms',
+          'customizeName',
+        ]),
+        appId,
+        // domainName,
+        loginMode,
+        allowUserType,
+        noticeScope,
+        wxAppId: authorizerInfo.appId,
+        pageTitle,
+        logoImageBucket: 4,
+        logoImagePath,
+        pageMode,
+        backGroundType,
+        backColor,
+        backImageBucket: 4,
+        backImagePath,
+        smsSignature,
+      },
+      worksheetControls: {
+        ...controlTemplate,
+        controls: controlTemplate.controls.filter(o => !!o.type),
+        appId,
+      },
+    }).then(
+      res => {
+        if (res.success) {
+          this.props.onChangePortal(res.portalSetModelDTO);
+          this.setState({ hasChange: false, saveLoading: false });
+          alert(_l('保存成功'));
+          closeSet();
+        } else {
+          alert(_l('保存失败，请稍后再试'), 3);
+        }
+      },
+      () => {
+        this.setState({
+          saveLoading: false,
+        });
+      },
+    );
+  };
   render() {
     const { show, closeSet, getControls, appId } = this.props;
-    const { type } = this.state;
+    const { type, portalSet = {} } = this.state;
     const Component = TYPE_TO_COMP[type];
 
     return (
@@ -194,7 +296,7 @@ class PortalSetting extends React.Component {
                   <li
                     className={cx('Hand', { current: i === type })}
                     onClick={() => {
-                      this.closeSetFn(() => this.setState({ type: i }));
+                      this.setState({ type: i });
                     }}
                   >
                     {o}
@@ -203,88 +305,48 @@ class PortalSetting extends React.Component {
               })}
             </ul>
             <Component
-              hasChange={() => {
+              {...this.props}
+              portalSet={portalSet}
+              onChangePortalSet={(data, isChange = true) => {
                 this.setState({
-                  hasChange: true,
+                  hasChange: isChange,
+                  portalSet: { ...portalSet, ...data },
                 });
               }}
-              {...this.props}
-              footor={(data, cb) => {
-                return (
-                  <WrapCon className="Con">
-                    <span
-                      ref={textarea => {
-                        this.saveRef = textarea;
-                      }}
-                      className={cx('saveBtn Hand', { disable: this.state.name === '' || this.state.saveLoading })}
-                      onClick={() => {
-                        let fn = null;
-                        if (type === 0) {
-                          fn = editBaseSet;
-                        } else if (type === 2) {
-                          if (!data.pageTitle) {
-                            return alert(_l('请输入登录页名称'), 3);
-                          }
-                          fn = editLoginPageSet;
-                        } else if (type === 1) {
-                          fn = saveUserControls;
-                        } else if (type === 3) {
-                          fn = saveMessageSet;
-                          if (!data.smsSignature) {
-                            return alert(_l('请输入短信签名'), 3);
-                          }
-                          if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(data.smsSignature)) {
-                            return alert(_l('只支持中英文'));
-                          }
-                          if (getStringBytes(data.smsSignature) > 16) {
-                            return alert(_l('最多只能16个字节'));
-                          }
-                        }
-                        this.setState({
-                          saveLoading: true,
-                        });
-                        fn({ ...data }).then(
-                          res => {
-                            this.setState({ hasChange: false });
-                            if (type === 1 && res.code === 1) {
-                              cb && cb();
-                            }
-                            alert(_l('保存成功'));
-                            this.setState(
-                              {
-                                saveLoading: false,
-                              },
-                              () => {
-                                type === 0 && this.props.callback();
-                                type === 1 && getControls(appId);
-                              },
-                            );
-                          },
-                          () => {
-                            this.setState({
-                              saveLoading: false,
-                            });
-                          },
-                        );
-                      }}
-                    >
-                      {
-                        //this.state.saveLoading ? _l('保存设置...') :
-                        _l('保存设置')
-                      }
-                    </span>
-                    <span
-                      className="cancelBtn Hand"
-                      onClick={() => {
-                        this.closeSetFn(() => closeSet());
-                      }}
-                    >
-                      {_l('取消')}
-                    </span>
-                  </WrapCon>
-                );
+              onChangeImg={data => {
+                this.setState({
+                  hasChange: true,
+                  portalSet: {
+                    ...this.state.portalSet,
+                    portalSetModel: {
+                      ...this.state.portalSet.portalSetModel,
+                      ...data,
+                    },
+                  },
+                });
               }}
             />
+            <WrapCon className="Con">
+              <span
+                ref={textarea => {
+                  this.saveRef = textarea;
+                }}
+                className={cx('saveBtn Hand', { disable: this.state.name === '' || this.state.saveLoading })}
+                onClick={() => {
+                  this.editPortal();
+                }}
+              >
+                {_l('保存设置')}
+              </span>
+              <span
+                className="cancelBtn Hand"
+                onClick={() => {
+                  this.closeSetFn(() => closeSet());
+                }}
+              >
+                {_l('取消')}
+              </span>
+            </WrapCon>
             <div className="cover"></div>
           </Wrap>
         ) : null}

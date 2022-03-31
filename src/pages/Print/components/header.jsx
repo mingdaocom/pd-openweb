@@ -30,7 +30,7 @@ class Header extends React.Component {
     // document.querySelectorAll('img').forEach(e => {
     //   e.setAttribute('crossOrigin', 'anonymous');
     //   let src = e.getAttribute('src');
-    //   e.setAttribute('src', `${__api_server__}File/ImageConvert?path=` + encodeURIComponent(src));
+    //   e.setAttribute('src', `${__api_server__.main}File/ImageConvert?path=` + encodeURIComponent(src));
     // });
   }
 

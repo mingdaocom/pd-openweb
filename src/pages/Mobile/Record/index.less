@@ -7,7 +7,7 @@
     text-decoration: none;
   }
   .edit {
-    color: #2196F3;
+    color: #2196f3;
   }
   .delete {
     color: #f44336;
@@ -21,7 +21,7 @@
     color: #2196f3;
     background-color: rgba(33, 150, 243, 0.08);
     border-radius: 11px;
-    &>i{
+    & > i {
       line-height: 34px;
     }
   }
@@ -33,15 +33,17 @@
   .am-button-primary:hover {
     color: #fff;
   }
-  .am-button, .am-button::before, .am-button-active::before{
+  .am-button,
+  .am-button::before,
+  .am-button-active::before {
     border-radius: 50px;
   }
   .flexShink {
     flex-shrink: 0;
     font-weight: 500;
   }
-  .opcIcon{
-    color: rgba(255, 255, 255, .8);
+  .opcIcon {
+    color: rgba(255, 255, 255, 0.8);
   }
   .disabled {
     background-color: rgba(0, 0, 0, 0.05);
@@ -55,12 +57,23 @@
 .mobileSheetRowRecord {
   background-color: #fff;
   box-sizing: border-box;
+  .loadingMask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+  }
   .header {
     padding: 20px 20px 0;
   }
   .sheetName {
-    color: #9E9E9E;
-    background-color: #F5F5F5;
+    color: #9e9e9e;
+    background-color: #f5f5f5;
     display: inline-block;
     border-radius: 20px;
     padding: 5px 10px;
@@ -81,7 +94,7 @@
     justify-content: center;
   }
   .moreHoriz {
-    color: #2196F3;
+    color: #2196f3;
   }
   .customFieldsWrapper {
     overflow-x: hidden;
@@ -115,7 +128,7 @@
     z-index: 2;
     .am-tabs-tab-bar-wrap {
       z-index: 0;
-      border-bottom: 1px solid #F5F5F5;
+      border-bottom: 1px solid #f5f5f5;
     }
     &.edit .am-tabs-tab-bar-wrap {
       display: none;
@@ -157,22 +170,28 @@
     bottom: 56px;
     right: 20px;
     z-index: 100;
-    .backContainer, .chatMessageContainer{
+    .backContainer,
+    .chatMessageContainer {
       display: flex;
       flex-direction: row-reverse;
       margin: 0 0px 16px 0;
     }
-  }
-  .chatMessage {
-    width: 60px;
-    height: 32px;
-    color: #757575;
-    text-align: center;
-    line-height: 32px;
-    border-radius: 16px;
-    background-color: #fff;
-    box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
-    z-index: 99;
+    .chatMessageContainer{
+      &>div{
+        width: 60px;
+        height: 32px;
+        color: #757575;
+        text-align: center;
+        line-height: 32px;
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
+        z-index: 99;
+        top: unset;
+        bottom: unset;
+        position: unset;
+      }
+    }
   }
   .iosChatMessage {
     bottom: 85px;

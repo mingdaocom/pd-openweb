@@ -2,11 +2,19 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
+import { formatFiltersValue } from 'src/components/newCustomFields/tools/utils';
+import ChartCard from 'src/pages/worksheet/common/Statistics/Card';
+import MobileChartCard from 'src/pages/Mobile/CustomPage/ChartContent';
+import { browserIsMobile } from 'src/util';
 
 const EmbedWrap = styled.div`
   .embedContainer {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
     border-radius: 4px;
+    height: ${props => props.height}px;
+    &.chartPadding {
+      padding: 8px 16px 16px;
+    }
   }
   .embedTitle {
     display: flex;
@@ -25,15 +33,25 @@ const EmbedWrap = styled.div`
 export default class Widgets extends Component {
   static propTypes = {
     value: PropTypes.string,
+    enumDefault: PropTypes.number,
   };
 
   state = {
     value: '',
+    needUpdate: '',
   };
 
   componentDidMount() {
-    this.setValue();
-    this.embedWatch = setInterval(this.setValue, 3000);
+    if (this.props.enumDefault === 1) {
+      this.setValue();
+      this.embedWatch = setInterval(this.setValue, 3000);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.flag !== this.state.needUpdate) {
+      this.setState({ needUpdate: nextProps.flag });
+    }
   }
 
   setValue = () => {
@@ -47,35 +65,61 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { advancedSetting = {}, controlName } = this.props;
-    const { value } = this.state;
+    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId } = this.props;
+    const { value, needUpdate } = this.state;
 
-    const isLegalLink = /^https?:\/\/.+$/.test(value);
+    const getContent = () => {
+      const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(value) : dataSource;
+
+      if (!isLegal) {
+        return (
+          <div className="embedContainer">
+            <div className="w100 h100 Gray_9e BGF7F7F7 Font15 crossCenter">{_l('嵌入内容无法解析')}</div>
+          </div>
+        );
+      }
+
+      if (enumDefault === 1) {
+        return (
+          <div className="embedContainer">
+            <iframe className="overflowHidden Border0 TxtTop" width="100%" height="100%" src={value}></iframe>
+          </div>
+        );
+      } else {
+        const formatFilters = formatFiltersValue(JSON.parse(advancedSetting.filters || '[]'), formData, recordId);
+        const { reportid } = dataSource ? JSON.parse(dataSource) : {};
+        const isMobile = browserIsMobile();
+        return (
+          <Fragment>
+            {isMobile ? (
+              <div className="embedContainer chartPadding flexColumn">
+                <MobileChartCard reportId={reportid} filters={formatFilters} needUpdate={needUpdate} />
+              </div>
+            ) : (
+              <ChartCard
+                className="embedContainer chartPadding"
+                report={{ id: reportid }}
+                sourceType={1}
+                filters={formatFilters}
+                needUpdate={needUpdate}
+              />
+            )}
+          </Fragment>
+        );
+      }
+    };
 
     return (
-      <EmbedWrap>
+      <EmbedWrap height={advancedSetting.height || 400}>
         <div className="embedTitle">
           <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
-          {advancedSetting.allowlink === '1' && (
+          {advancedSetting.allowlink === '1' && enumDefault === 1 && (
             <Tooltip text={<span>{_l('新页面打开')}</span>}>
               <Icon className="Hand Font18" icon="launch" onClick={() => window.open(value)} />
             </Tooltip>
           )}
         </div>
-        <div className="embedContainer">
-          {isLegalLink ? (
-            <iframe
-              className="overflowHidden Border0 TxtTop"
-              width="100%"
-              height={advancedSetting.height || 400}
-              src={value}
-            ></iframe>
-          ) : (
-            <div className="Gray_9e BGF7F7F7 Font15 crossCenter" style={{ height: `${advancedSetting.height || 400}px` }}>
-              {_l('嵌入链接无法解析')}
-            </div>
-          )}
-        </div>
+        {getContent()}
       </EmbedWrap>
     );
   }

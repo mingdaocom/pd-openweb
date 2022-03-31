@@ -59,7 +59,7 @@ export default class UserDetail extends React.Component {
       isLoading: true,
     });
     API.fetchUserDetail(accountId).then(
-      (data) => {
+      data => {
         if (data) {
           const { userCards } = data;
           const hasProjects = userCards && userCards.length;
@@ -84,7 +84,7 @@ export default class UserDetail extends React.Component {
           // assign default state
           data: undefined,
         });
-      }
+      },
     );
   }
 
@@ -112,7 +112,7 @@ export default class UserDetail extends React.Component {
             },
           });
         });
-      }
+      },
     );
   }
 
@@ -265,10 +265,10 @@ export default class UserDetail extends React.Component {
     } = this.state;
     const projects = userCards.slice(0);
     const { activeProjectId, dropDownValue } = this.state;
-    const renderTab = (projects) => {
+    const renderTab = projects => {
       return (
         <React.Fragment>
-          {_.map(projects, (project) => {
+          {_.map(projects, project => {
             const isActive = activeProjectId === project.projectId;
             return (
               <div
@@ -307,7 +307,7 @@ export default class UserDetail extends React.Component {
           left: 'auto',
           right: '0px',
         },
-        onChange: (projectId) => {
+        onChange: projectId => {
           this.setState({
             activeProjectId: projectId,
             dropDownValue: projectId,
@@ -402,8 +402,7 @@ export default class UserDetail extends React.Component {
 
   render() {
     const { isLoading, data } = this.state;
-    const { accountId } = this.props;
-    if (data === null) return null;
+    const { accountId, projectId, hideBackBtn } = this.props;
     if (isLoading) {
       return (
         <div className="pTop20">
@@ -411,12 +410,18 @@ export default class UserDetail extends React.Component {
         </div>
       );
     }
+    if (data === null) return null;
     if (!isLoading && data === undefined) {
       return <AddFriend accountId={accountId} />;
     }
     return (
       <ScrollView>
         <div className="contacts-detail-wrapper">
+          {projectId && !hideBackBtn && (
+            <div className="back Hand mBottom24" onClick={this.props.back}>
+              <Icon icon="arrow-left-border" /> {_l('返回')}
+            </div>
+          )}
           {this.renderHeader()}
           {this.renderDetail()}
           {this.renderProjectCards()}

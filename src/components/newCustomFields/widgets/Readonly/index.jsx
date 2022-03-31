@@ -20,11 +20,18 @@ export default class Widgets extends Component {
       const prefix = advancedSetting.prefix;
       const suffix = advancedSetting.suffix || unit;
 
-      content = _.isUndefined(dot) ? value : _.round(value, dot).toFixed(dot);
-      content = content.replace(
-        content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
-        '$1,',
-      );
+      if (advancedSetting.numshow === '1' && content) {
+        content = parseFloat(content) * 100;
+      }
+
+      content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
+
+      if (advancedSetting.thousandth !== '1') {
+        content = content.replace(
+          content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
+          '$1,',
+        );
+      }
 
       content = (prefix ? `${prefix} ` : '') + content + (suffix ? ` ${suffix}` : '');
     }

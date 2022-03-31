@@ -35,12 +35,6 @@ export default class IndexSide extends Component {
           </div>
         </div>
         <Content {...this.props} />
-
-        {md.global.Config.Version && (
-          <div className="TxtCenter Font12 Gray_9e">
-            {_l('当前版本：v%0', md.global.Config.Version)}
-          </div>
-        )}
       </div>
     );
   }

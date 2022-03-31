@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Hammer from 'hammerjs';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { autobind } from 'core-decorators';
 import { emitter } from 'worksheet/util';
 import DragMask from 'worksheet/common/DragMask';
@@ -78,7 +78,7 @@ export default class MDTable extends React.Component {
       scrollTop: 100,
       columnWidthChangeMaskVisible: false,
     };
-    this.mdtabldId = props.id || uuid.v4();
+    this.mdtabldId = props.id || uuidv4();
     this.scrollbarWidth = props.scrollbarWidth;
     this.scrollLeft = 0;
     this.scrollTop = 0;

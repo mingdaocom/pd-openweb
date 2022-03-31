@@ -8,11 +8,8 @@ import CustomFields from 'src/components/newCustomFields';
 import { Hr } from 'src/pages/publicWorksheetConfig/components/Basics';
 import { addWorksheetRow } from './action';
 import { getSubListError } from 'worksheet/util';
-import filterXSS from 'xss';
-import { whiteList } from 'xss/lib/default';
 import './index.less';
 
-const newWhiteList = Object.assign({}, whiteList, { span: ['style'] });
 const ImgCon = styled.div`
   position: relative;
   display: inline-block;
@@ -31,6 +28,18 @@ const ImgCon = styled.div`
     color: #bdbdbd;
   }
 `;
+
+const LoadMask = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+`;
+
 export default class FillWorkseet extends React.Component {
   static propTypes = {
     loading: PropTypes.bool,
@@ -65,15 +74,24 @@ export default class FillWorkseet extends React.Component {
   cellObjs = {};
 
   @autobind
-  submitForm() {
+  handleSubmit() {
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  }
+
+  @autobind
+  onSave(error, { data, updateControlIds }) {
     if (this.issubmitting) {
+      return;
+    }
+    if (error) {
+      this.setState({ submitLoading: false });
       return;
     }
     if (!this.customwidget.current) return;
     const { isPreview, publicWorksheetInfo = {}, onSubmit } = this.props;
     const { shareId, worksheetId, needCaptcha } = publicWorksheetInfo;
-    let { data, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
-
+    let hasError;
     const subListControls = data.filter(item => item.type === 34);
     if (subListControls.length) {
       const errors = subListControls
@@ -86,7 +104,9 @@ export default class FillWorkseet extends React.Component {
             getSubListError(
               {
                 rows: control.value.rows,
-                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+                rules:
+                  _.get(this.cellObjs || {}, `${control.controlId}.cell.rules`) ||
+                  _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
               },
               control.relationControls,
               control.showControls,
@@ -163,20 +183,18 @@ export default class FillWorkseet extends React.Component {
           // 添加成功
           localStorage.setItem('publicWorksheetLastSubmit_' + publicWorksheetInfo.shareId, new Date().toISOString());
           window.onbeforeunload = null;
+          this.setState({
+            submitLoading: false,
+          });
           onSubmit();
         },
       );
     };
     if (hasError) {
-      this.setState({
-        showError: true,
-      });
       alert(_l('请正确填写'), 3);
-      return false;
-    } else if (document.querySelectorAll('.formMain .Progress--circle').length > 0) {
-      alert(_l('附件正在上传，请稍后', 3));
-      return false;
-    } else if (hasRuleError) {
+      this.setState({
+        submitLoading: false,
+      });
       return false;
     } else {
       if (needCaptcha) {
@@ -193,10 +211,11 @@ export default class FillWorkseet extends React.Component {
 
   render() {
     const { loading, publicWorksheetInfo = {}, rules } = this.props;
-    const { formData, showError } = this.state;
+    const { submitLoading, formData, showError } = this.state;
     const { name, desc, worksheetId, logoUrl, submitBtnName, isWorksheetQuery } = publicWorksheetInfo;
     return (
       <React.Fragment>
+        {submitLoading && <LoadMask />}
         <div className="infoCon" style={{ padding: '0 30px' }}>
           {logoUrl ? (
             <ImgCon>
@@ -229,11 +248,12 @@ export default class FillWorkseet extends React.Component {
                   formData: data,
                 });
               }}
+              onSave={this.onSave}
             />
           )}
         </div>
         <div className="submitCon">
-          <Button style={{ height: '40px', lineHeight: '40px' }} onClick={this.submitForm}>
+          <Button loading={submitLoading} style={{ height: '40px', lineHeight: '40px' }} onClick={this.handleSubmit}>
             <span className="InlineBlock ellipsis" style={{ maxWidth: 140 }}>
               {submitBtnName}
             </span>

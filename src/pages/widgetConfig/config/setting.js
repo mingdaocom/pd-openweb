@@ -52,3 +52,26 @@ export const DEFAULT_SETTING_OPTIONS = [
   { text: _l('可编辑已有明细'), id: 'allowedit' },
   { text: _l('可删除已有明细'), id: 'allowcancel' },
 ];
+
+export const RELATION_OPTIONS = [
+  {
+    value: 0,
+    text: _l('全部'),
+  },
+  {
+    value: 1,
+    text: _l('任务'),
+  },
+  {
+    value: 2,
+    text: _l('项目'),
+  },
+  {
+    value: 3,
+    text: _l('日程'),
+  },
+  {
+    value: 5,
+    text: _l('申请单'),
+  },
+];

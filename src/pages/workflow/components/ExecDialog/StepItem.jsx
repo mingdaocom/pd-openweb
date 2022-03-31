@@ -5,6 +5,9 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import { Tooltip, Icon, Linkify } from 'ming-ui';
 import moment from 'moment';
 import { renderToString } from 'react-dom/server';
+import { operation } from '../../api/instance';
+import _ from 'lodash';
+import './StepItem.less';
 
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
@@ -68,10 +71,18 @@ export default class StepItem extends Component {
     currentWork: {},
   };
 
+  state = {
+    operated: false,
+  };
+
   /**
    * 节点步骤一经渲染便不会改变,故阻止更新以优化性能
    */
-  shouldComponentUpdate() {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.operated !== this.state.operated) {
+      return true;
+    }
+
     return false;
   }
 
@@ -85,7 +96,7 @@ export default class StepItem extends Component {
     /** 是否是当前用户 */
     let isCurrentUser = md.global.Account.accountId === workItemAccount.accountId;
     /** 是否是当前流程节点 */
-    let isCurrentWork = workId === currentWork.workId;
+    let isCurrentWork = workId === (currentWork || {}).workId;
     if (!operationTime) {
       if (workItemLog && workItemLog.action === UNNECESSARY_OPERATION_CODE) {
         return (
@@ -114,8 +125,7 @@ export default class StepItem extends Component {
         <Fragment>
           <div className="userName">{workItemAccount.fullName}</div>
           <div className="timeAction flexRow">
-            <span className="Gray_9e">{_l('于 %0', formatTime(operationTime))}</span>
-            <div className="action">{_l('发起流程')}</div>
+            <div className="Gray_75">{_l('发起流程')}</div>
           </div>
           <div className="info">
             {START_TYPE_TEXT[triggerId]}
@@ -163,7 +173,7 @@ export default class StepItem extends Component {
                     }
                   >
                     <span className="modifiedFieldInfo">
-                      <Icon icon="workflow_info Font16 Gray_9e" />
+                      <Icon icon="workflow_info" className="Font16 Gray_9e" />
                     </span>
                   </Tooltip>
                 )}
@@ -259,45 +269,169 @@ export default class StepItem extends Component {
     return value;
   }
 
-  render() {
-    const { data, currentWork, currentType } = this.props;
-    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } =
-      data || {};
-    /** 是否是当前流程节点 */
-    let isCurrentWork = workId === currentWork.workId;
+  /**
+   * 渲染耗时
+   */
+  renderTimeConsuming() {
+    const { data } = this.props;
+    const workItems = ((data || {}).workItems || []).filter(item => _.includes([3, 4], item.type));
+    const timeConsuming = [];
+    const endTimeConsuming = [];
+
+    if (!workItems.length || workItems.filter(item => !item.operationTime).length) return null;
+
+    workItems.forEach(item => {
+      // 截止时间
+      if (item.dueTime) {
+        endTimeConsuming.push(moment(item.operationTime) - moment(item.dueTime));
+      }
+
+      timeConsuming.push(moment(item.operationTime) - moment(item.receiveTime));
+    });
+
+    const maxTimeConsuming = _.max(timeConsuming) || 0;
+    let maxEndTimeConsuming = _.max(endTimeConsuming) || 0;
+    let autoPass = false;
+
+    // 特殊文案处理自动逻辑
+    if (
+      (workItems[0].opinion || '').indexOf('限时自动通过') > -1 ||
+      (workItems[0].opinion || '').indexOf('限时自动填写') > -1
+    ) {
+      maxEndTimeConsuming = 1;
+      autoPass = true;
+    }
+
+    if (!maxEndTimeConsuming) {
+      return <span className="Gray_9e">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</span>;
+    }
 
     return (
-      <li className="step flexRow">
-        <div className="flowPointer flexColumn">
-          <div
-            className={cx(
-              'pointerItem',
-              { edit: isCurrentWork && currentType === 3 },
-              { approve: isCurrentWork && currentType === 4 },
-              { notice: isCurrentWork && currentType === 5 },
-            )}
-          />
+      <span
+        className="tip-top-left"
+        data-tip={
+          autoPass
+            ? ''
+            : maxEndTimeConsuming > 0
+            ? _l('超时 %0 完成', this.covertTime(maxEndTimeConsuming))
+            : _l('提前 %0 完成', this.covertTime(maxEndTimeConsuming))
+        }
+      >
+        <span
+          className="stepTimeConsuming flexRow"
+          style={{
+            color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
+            backgroundColor: maxEndTimeConsuming > 0 ? '#FCE4E3' : '#eef7ee',
+          }}
+        >
+          <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
+          {_l('耗时：%0', this.covertTime(maxTimeConsuming))}
+        </span>
+      </span>
+    );
+  }
+
+  /**
+   * 转换输出时间
+   */
+  covertTime(time) {
+    if (time < 0) time = time * -1;
+
+    const day = Math.floor(time / 24 / 60 / 60 / 1000);
+    const hour = Math.floor((time - day * 24 * 60 * 60 * 1000) / 60 / 60 / 1000);
+    const min = (time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000;
+
+    return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
+      min ? _l('%0分钟', Math.floor(min) || 1) : ''
+    }`;
+  }
+
+  /**
+   * 渲染剩余时间
+   */
+  renderSurplusTime() {
+    const { data } = this.props;
+    let currentAccountNotified = false;
+    const workItems = ((data || {}).workItems || []).filter(item => {
+      if (item.executeTime && item.workItemAccount.accountId === md.global.Account.accountId) {
+        currentAccountNotified = true;
+      }
+      return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
+    });
+
+    if (!workItems.length) return null;
+
+    const time = moment() - moment(workItems[0].dueTime) || 0;
+
+    return (
+      <span
+        className="stepTimeConsuming flexRow"
+        style={{
+          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#2196f3',
+        }}
+      >
+        <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
+        {time > 0 ? _l('已超时%0', this.covertTime(time)) : _l('剩余%0', this.covertTime(time))}
+      </span>
+    );
+  }
+
+  render() {
+    const { data, currentWork, currentType } = this.props;
+    const { operated } = this.state;
+    const {
+      instanceId,
+      workId,
+      flowNode,
+      workItems,
+      countersign,
+      countersignType,
+      condition,
+      multipleLevelType,
+      sort,
+      allowUrge,
+    } = data || {};
+    /** 是否是当前流程节点 */
+    let isCurrentWork = workId === (currentWork || {}).workId && _.includes([3, 4, 5], currentType);
+
+    return (
+      <li className="workflowStep flexRow">
+        <div className={cx('flowPointer flexColumn', { active: isCurrentWork })}>
+          <div className={cx('pointerItem', { active: isCurrentWork })} />
           <div className="pointerLine" />
         </div>
         <div className="stepItem flex flexColumn">
-          <div
-            className={cx(
-              'stepName bold Font15 Gray_75',
-              { edit: isCurrentWork && currentType === 3 },
-              { approve: isCurrentWork && currentType === 4 },
-              { notice: isCurrentWork && currentType === 5 },
+          <div className="flexRow alignItemsCenter">
+            <div className={cx('stepItemTime Font15 flex ellipsis', isCurrentWork ? 'ThemeColor3 bold' : 'Gray_75')}>
+              {workItems[0] && moment(workItems[0].receiveTime).format('MM-DD HH:mm')}
+            </div>
+            {this.renderTimeConsuming()}
+            {this.renderSurplusTime()}
+            {allowUrge && !operated && (
+              <span
+                className="Gray_9e ThemeHoverColor3 mLeft10 pointer"
+                style={{ borderBottom: `2px dotted #ddd` }}
+                onClick={() => {
+                  this.setState({ operated: true });
+                  operation({ id: instanceId, workId, operationType: 18 });
+                }}
+              >
+                {_l('催办')}
+              </span>
             )}
-          >
-            {flowNode.name}
-            {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+            {operated && <span className="Gray_9e mLeft10">{_l('已催办')}</span>}
           </div>
           <div className="stepContentWrap mTop10">
+            <div className={'stepName bold Font15 flex ellipsis'}>
+              {flowNode.name}
+              {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+            </div>
             {countersign && (
               <div className="signTypeWrap flexRow">
                 {countersignType === 3 ? (
                   <Fragment>
                     <span className="nowrap">{currentType === 3 ? _l('填写') : _l('或签')}：</span>
-                    <div className="signType">{MULTIPLE_OPERATION[currentType]}</div>
+                    <div className="signType">{MULTIPLE_OPERATION[currentType || '4']}</div>
                   </Fragment>
                 ) : (
                   <Fragment>
@@ -322,7 +456,7 @@ export default class StepItem extends Component {
                       stripIgnoreTag: true,
                     }),
                   }}
-                ></div>
+                />
               </Fragment>
             )}
 

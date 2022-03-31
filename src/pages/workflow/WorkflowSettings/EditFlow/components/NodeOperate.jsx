@@ -264,7 +264,7 @@ export default class NodeOperate extends Component {
    * 渲染操作列表
    */
   renderOperateList = () => {
-    const { item, copyBranchNode } = this.props;
+    const { item, copyBranchNode, noDelete } = this.props;
     const list = [
       { text: _l('修改名称'), icon: 'edit', events: () => this.setState({ isEdit: true }) },
       { text: _l('编辑节点别名和说明'), icon: 'knowledge-message', events: () => this.addNodeDescribe() },
@@ -277,8 +277,8 @@ export default class NodeOperate extends Component {
       },
     ];
 
-    // 触发节点没有删除
-    if (item.typeId === NODE_TYPE.FIRST) {
+    // 触发节点没有删除 || 禁用删除
+    if (item.typeId === NODE_TYPE.FIRST || noDelete) {
       _.remove(list, (o, index) => index === 3);
     }
 
@@ -307,7 +307,7 @@ export default class NodeOperate extends Component {
   };
 
   render() {
-    const { item, nodeClassName } = this.props;
+    const { item, nodeClassName, noCopy } = this.props;
 
     return (
       <Fragment>
@@ -320,7 +320,7 @@ export default class NodeOperate extends Component {
           <div className={cx('workflowName TxtCenter', nodeClassName)}>{this.renderNodeName()}</div>
         )}
 
-        {!_.includes([NODE_TYPE.FIRST, NODE_TYPE.BRANCH_ITEM], item.typeId) && <CopyNode {...this.props} />}
+        {!_.includes([NODE_TYPE.FIRST, NODE_TYPE.BRANCH_ITEM], item.typeId) && !noCopy && <CopyNode {...this.props} />}
 
         {(item.alias || item.desc) && this.renderNodeDescribe()}
 

@@ -59,14 +59,15 @@ export class UploadFileWrapper extends Component {
         }
 
         self.uploading = true;
-        let isAvailable;
+
         if (advancedSetting) {
+          let isAvailable;
           let tempCount = self.props.originCount || 0;
           isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
-        }
-        if (!isAvailable) {
-          self.onRemoveAll(uploader);
-          return;
+          if (!isAvailable) {
+            self.onRemoveAll(uploader);
+            return;
+          }
         }
         const tokenFiles = [];
         files

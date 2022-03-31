@@ -83,7 +83,7 @@ export default function ControlList(props) {
                   key={i}
                   onClick={() => {
                     insertTagToEditor({
-                      value: c.controlId + '-' + group.id,
+                      value: group.id + '-' + c.controlId,
                       text: c.controlName,
                     });
                   }}
@@ -112,7 +112,9 @@ export default function ControlList(props) {
               }}
             >
               <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
-              {c.controlName}
+              <span className="ellipsis" title={c.controlName}>
+                {c.controlName}
+              </span>
             </ControlItem>
           ),
         )}

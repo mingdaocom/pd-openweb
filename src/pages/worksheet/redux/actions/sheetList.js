@@ -249,6 +249,8 @@ export function addWorkSheet(args, cb) {
             data: {
               workSheetName: args.name,
               workSheetId: pageId,
+              navigateHide: false,
+              status: 1,
               ...pick(args, ['icon', 'iconColor', 'iconUrl', 'type']),
             },
           });

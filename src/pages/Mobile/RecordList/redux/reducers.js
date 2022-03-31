@@ -160,3 +160,12 @@ export const mobileViewPermission = (state = {}, action) => {
       return state;
   }
 };
+
+export const isClickChart = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_CLICK_CHART':
+      return action.flag;
+    default:
+      return state;
+  }
+};

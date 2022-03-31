@@ -242,6 +242,7 @@
         }
         .Dropdown--border {
           padding: 5px 10px;
+          border-color: #ddd;
         }
         .ming.Menu {
           width: 100%;
@@ -972,6 +973,16 @@
       cursor: pointer;
     }
   }
+  .formulaEditorBox {
+    &.minH100 {
+      .CodeMirror {
+        min-height: 100px;
+      }
+    }
+    .CodeMirror-lines {
+      cursor: pointer;
+    }
+  }
 }
 
 .workflowDialogBox {
@@ -1037,6 +1048,32 @@
     .dropdown-btn {
       border-top-right-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
+    }
+  }
+  .mui-datetime-base,
+  .mui-datetimerange-base {
+    height: 34px;
+    line-height: 34px;
+    .mui-datetime-picker {
+      display: block;
+      height: 100%;
+      padding: 0 10px;
+    }
+  }
+  .mui-forminput {
+    width: 100px;
+  }
+  .workflowDetailAddBtn {
+    align-items: center;
+    font-size: 13px;
+    cursor: pointer;
+    position: relative;
+    > i {
+      width: 28px;
+      display: inline-block;
+    }
+    &:not(:hover) {
+      color: #bdbdbd !important;
     }
   }
 }

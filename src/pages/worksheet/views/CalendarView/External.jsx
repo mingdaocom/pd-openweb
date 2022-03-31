@@ -33,7 +33,13 @@ class External extends Component {
 
   componentWillReceiveProps(nextProps, nextState) {
     const { calendarview = {}, getInitType, fetchExternal, refreshEventList, updateCalendarEventIsAdd } = nextProps;
-    const { calendarEventIsAdd } = calendarview;
+    const { calendarEventIsAdd, calendarData = {} } = calendarview;
+    const { calendarInfo } = calendarData;
+    if (!_.isEqual(calendarInfo, _.get(this.props, ['calendarview', 'calendarData', 'calendarInfo']))) {
+      this.setState({
+        isSearch: false,
+      });
+    }
     const typeEvent = getInitType();
     if (calendarEventIsAdd) {
       refreshEventList();
@@ -129,23 +135,33 @@ class External extends Component {
     return (
       <React.Fragment>
         {eventData.map(it => {
-          const { extendedProps = {} } = it;
+          const { extendedProps = {}, timeList = [] } = it;
           const { editable, rowid, stringColor = '' } = extendedProps;
+          let begin = timeList.length === 1 ? timeList[0].start : '';
           return (
             <div
               className={cx('clearfix fcEventCon', { fcEvent: editable })}
               rowid={rowid}
-              key={rowid}
+              key={`${rowid}-${it.begin}`}
+              keyId={`${rowid}-${it.begin}`}
               enddate={it.enddate}
               onClick={() => {
                 this.props.showRecordInfo(rowid, it, eventData);
               }}
             >
-              {it.start && <div className="colorLeft" style={{ backgroundColor: stringColor }}></div>}
+              {<div className="colorLeft" style={{ backgroundColor: stringColor }}></div>}
               <div className="title Font14 Bold" title={it.title} style={{ WebkitBoxOrient: 'vertical' }}>
                 {it.title}
               </div>
-              {it.start && <div className="Gray_9e Font13 mTop2">{it.start}</div>}
+              {it.timeList.map(o => {
+                if (o.start)
+                  return (
+                    <div className="Gray_9e Font13 mTop2">
+                      {o.start}
+                      <span className="mLeft10">{o.info.mark}</span>
+                    </div>
+                  );
+              })}
             </div>
           );
         })}
@@ -202,7 +218,7 @@ class External extends Component {
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
-      <div id="externalEvents" className="externalEvents" >
+      <div id="externalEvents" className="externalEvents">
         {this.props.showExternal ? (
           <div className="listBox">
             <div className="searchWrapper">

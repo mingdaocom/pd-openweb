@@ -266,6 +266,9 @@ module.exports = {
   * 获取部门列表（平铺）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {string} args.kewword
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -323,6 +326,7 @@ module.exports = {
   * 获取 部门所有下级（树结构，可取全网络）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.parentId
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize
   * @param {Object} options 配置参数

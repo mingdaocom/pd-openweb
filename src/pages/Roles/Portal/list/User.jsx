@@ -28,6 +28,7 @@ import { pageSize, renderText } from './util';
 const Wrap = styled.div`
   padding: 16px 32px 0;
   .topAct {
+    min-height: 54px;
     padding-bottom: 16px;
     display: flex;
     .act {
@@ -54,18 +55,34 @@ const Wrap = styled.div`
     }
     .addUser {
       height: 32px;
-      background: #2196f3;
-      border-radius: 3px;
+      overflow: hidden;
       vertical-align: top;
       line-height: 32px;
+      border-radius: 3px;
       color: #fff;
-      padding: 0 6px 0 12px;
+      background: #2196f3;
       i::before {
         line-height: 32px;
         color: #fff;
       }
-      &:hover {
-        background: #1e88e5;
+      .lAdd {
+        padding-left: 12px;
+        padding-right: 10px;
+        border-radius: 3px 0 0 3px;
+      }
+      .rAdd {
+        border-radius: 0 3px 3px 0;
+        padding-right: 6px;
+      }
+      .rAdd,
+      .lAdd {
+        cursor: pointer;
+        height: 32px;
+        display: inline-block;
+        background: #2196f3;
+        &:hover {
+          background: #1e88e5;
+        }
       }
     }
     .changeRole,
@@ -185,7 +202,7 @@ function User(props) {
 
   useEffect(() => {
     getShowControls();
-  }, [controls]);
+  }, [props.version]);
   //筛选
   useEffect(() => {
     changePageIndex(1);
@@ -198,6 +215,7 @@ function User(props) {
     }).then(res => {
       const { controls, showControlIds = [] } = res;
       setHideIds(showControlIds);
+      setControls(controls);
     });
   };
   const getUserList = () => {
@@ -205,7 +223,7 @@ function User(props) {
       return;
     }
     setLoading(true);
-    getCount(appId);//重新获取总计数
+    getCount(appId); //重新获取总计数
     getList(0, () => {
       setLoading(false);
     });
@@ -335,7 +353,7 @@ function User(props) {
               );
             },
           });
-        } else if (!['portal_avatar', 'partal_regtime', 'portal_openid'].includes(o.controlId)) {
+        } else if (!['portal_avatar', 'partal_regtime', 'portal_openid', 'partal_id'].includes(o.controlId)) {
           columns.push({
             ...o,
             id: o.controlId,
@@ -393,7 +411,7 @@ function User(props) {
       rowIds: selectedIds,
     }).then(res => {
       setSelectedIds([]); //清除选择
-      getCount(appId);//重新获取总计数
+      getCount(appId); //重新获取总计数
       getList(); //重新获取当前页面数据
     });
   };
@@ -484,60 +502,63 @@ function User(props) {
             </span>
           </div>
         )}
-        <PortalBar
-          keys={['search', 'refresh', 'columns', 'filter', 'down']}
-          onChange={data => {}}
-          down={down}
-          appId={appId}
-          comp={() => {
-            return (
-              <div className="addUser InlineBlock Hand Bold">
-                <span
-                  className="mRight10"
-                  onClick={() => {
-                    setAddUserByTelDialog(true);
-                  }}
-                >
-                  {_l('邀请用户')}
-                </span>
-                |
-                <Trigger
-                  popupVisible={popupVisible}
-                  action={['click']}
-                  onPopupVisibleChange={popupVisible => {
-                    setPopupVisible(popupVisible);
-                  }}
-                  popup={
-                    <WrapPop className="Hand InlineBlock mTop6 uploadUser">
-                      <MenuItem
-                        className=""
-                        onClick={evt => {
-                          setAddUserDialog(true);
-                          setPopupVisible(false);
-                        }}
-                      >
-                        <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
-                        <span className=""> {_l('从Excel导入数据')}</span>
-                      </MenuItem>
-                    </WrapPop>
-                  }
-                  popupAlign={{ points: ['tr', 'br'], offset: [8, 7] }}
-                >
-                  <Icon
-                    className="TxtMiddle mLeft6"
+        {selectedIds.length <= 0 && (
+          <PortalBar
+            keys={['search', 'refresh', 'columns', 'filter', 'down']}
+            onChange={data => {}}
+            down={down}
+            appId={appId}
+            comp={() => {
+              return (
+                <div className="addUser InlineBlock Hand Bold">
+                  <span
+                    className="lAdd"
                     onClick={() => {
-                      setPopupVisible(!popupVisible);
+                      setAddUserByTelDialog(true);
                     }}
-                    type="arrow-down"
-                  />
-                </Trigger>
-              </div>
-            );
-          }}
-          refresh={() => {
-            getUserList();
-          }}
-        />
+                  >
+                    {_l('邀请用户')}
+                  </span>
+                  |
+                  <Trigger
+                    popupVisible={popupVisible}
+                    action={['click']}
+                    onPopupVisibleChange={popupVisible => {
+                      setPopupVisible(popupVisible);
+                    }}
+                    popup={
+                      <WrapPop className="Hand InlineBlock mTop6 uploadUser">
+                        <MenuItem
+                          className=""
+                          onClick={evt => {
+                            setAddUserDialog(true);
+                            setPopupVisible(false);
+                          }}
+                        >
+                          <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
+                          <span className=""> {_l('从Excel导入数据')}</span>
+                        </MenuItem>
+                      </WrapPop>
+                    }
+                    popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
+                  >
+                    <span
+                      className="rAdd hand"
+                      onClick={() => {
+                        setPopupVisible(!popupVisible);
+                      }}
+                    >
+                      <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
+                    </span>
+                  </Trigger>
+                </div>
+              );
+            }}
+            refresh={() => {
+              getUserList();
+            }}
+          />
+        )}
       </div>
       <AutoSizePorTalTable
         pageSize={pageSize}

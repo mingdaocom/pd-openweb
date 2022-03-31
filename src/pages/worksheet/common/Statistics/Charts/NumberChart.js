@@ -68,13 +68,14 @@ export default class extends Component {
     }
   }
   render() {
-    const { contrastNumber, number, rangeType, rangeValue, displaySetup, yaxisList } = this.props.reportData;
+    const { contrastNumber, number, rangeType, rangeValue, displaySetup, yaxisList, style } = this.props.reportData;
     const newContrastNumber = typeof contrastNumber === 'number' ? contrastNumber : 0;
     const percentage = ((number - newContrastNumber) / newContrastNumber) * 100;
     const positiveNumber = percentage >= 0;
     const { text: tipsText } = formatContrastTypes({ rangeType, rangeValue }).filter(item => item.value === displaySetup.contrastType)[0] || {};
     const isEquality = number && contrastNumber ? number === contrastNumber : false;
     const formatrValue = formatrChartValue(number, false, yaxisList, null, false);
+    const { contrastColor } = style;
     const { fontSize } = this.state;
     return (
         <NumberChartContent className="h100" fontSize={fontSize}>
@@ -87,7 +88,7 @@ export default class extends Component {
           </Tooltip>
           {number && newContrastNumber && percentage ? (
             <Tooltip title={tipsText}>
-              <div className={`tip-top ${positiveNumber ? 'DepGreen' : 'Red'}`}>
+              <div className={`tip-top ${positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : (contrastColor ? 'DepGreen' : 'Red')}`}>
                 <div className="valignWrapper range">
                   {isEquality ? null : <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />}
                   <span className={cx({ Gray_75: isEquality })}>{`${Math.abs(percentage.toFixed(2))}%`}</span>

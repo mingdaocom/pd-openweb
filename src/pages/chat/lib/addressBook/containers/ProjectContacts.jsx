@@ -1,23 +1,71 @@
 import React from 'react';
-
 import Checkbox from 'ming-ui/components/Checkbox';
-
 import ListSearchBar from '../components/ListSearchBar';
 import ProjectContactsList from '../components/ProjectContactsList';
 import ContactList from '../components/ContactList';
-
-import UserDetail from '../components/UserDetail';
-// unSelectState
-
+import DepartmentUsers from '../components/DepartmentUsers';
 import API from '../api';
+import departmentController from 'src/api/department';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
 
-const formatDepartmentData = (list) => {
+const SearchContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  .searchUsers {
+    padding-top: 24px;
+    height: 50%;
+    .userTxt {
+      font-size: 14px;
+      color: #757575;
+      margin-bottom: 8px;
+      padding-left: 24px;
+    }
+    .searchResult {
+      width: 100%;
+      flex: 1;
+    }
+  }
+  .searchDepartment {
+    height: 50%;
+    padding-top: 10px;
+    .departmentTxt {
+      font-size: 14px;
+      color: #757575;
+      padding-left: 24px;
+    }
+    .searchResult {
+      width: 100%;
+      flex: 1;
+      .departmentItem {
+        color: #333;
+        font-size: 13px;
+        padding-left: 24px;
+        line-height: 32px;
+        .icon {
+          line-height: 32px;
+          color: #bdbdbd;
+        }
+        .departmentName {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+      .departmentItem:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+`;
+
+const formatDepartmentData = list => {
   const departments = {};
   const concatedList = (list || []).concat({
     departmentName: _l('未分配部门的联系人'),
     departmentId: '',
   });
-  _.forEach(concatedList, (item) => {
+  _.forEach(concatedList, item => {
     const { departmentId, departmentName } = item;
     departments[departmentId] = {
       departmentName,
@@ -31,22 +79,25 @@ const formatDepartmentData = (list) => {
   return departments;
 };
 
-const defaultState = {
-  // store
-  listData: null,
-  departments: null,
-  // list state
-  selectedAccountId: null,
-  isLoading: false,
-  keywords: '',
-  hasMore: true,
-};
-
 export default class ProjectContacts extends React.Component {
   constructor() {
     super();
 
-    this.state = defaultState;
+    this.state = {
+      // store
+      listData: [],
+      departments: null,
+      // list state
+      selectedAccountId: null,
+      isLoading: false,
+      keywords: '',
+      hasMore: true,
+      pageIndex: 1,
+      pageSize: 20,
+      groupList: [],
+      usersPageIndex: 1,
+      usersLoading: true,
+    };
 
     this.promise = null;
 
@@ -55,14 +106,18 @@ export default class ProjectContacts extends React.Component {
     this.fetchDepartmentUser = this.fetchDepartmentUser.bind(this);
     this.updateDeptModel = this.updateDeptModel.bind(this);
     this.itemClickHandler = this.itemClickHandler.bind(this);
+    this.fetchDepartments = this.fetchDepartments.bind(this);
   }
 
   componentDidMount() {
     this.fetchDepartments();
   }
 
-  componentWillReceiveProps() {
-    this.setState(defaultState, this.fetchDepartments.bind(this));
+  componentWillReceiveProps(nextProps) {
+    this.setState({}, this.fetchDepartments);
+    if (!_.isEqual(this.props.projectId, nextProps.projectId)) {
+      this.setState({ pageIndex: 1, groupId: '', groupList: [], keywords: '' });
+    }
   }
 
   componentWillUnmount() {
@@ -83,9 +138,10 @@ export default class ProjectContacts extends React.Component {
         pageIndex: 1,
         keywords,
         hasMore: true,
-        listData: null,
+        listData: [],
+        hideBackBtn: keywords ? true : false,
       },
-      this.fetch
+      this.fetch,
     );
   }
 
@@ -95,11 +151,11 @@ export default class ProjectContacts extends React.Component {
     this.setState({
       isLoading: true,
     });
-    this.fetchContacts().then((hasMore) => {
+    this.fetchContacts().then(hasMore => {
       this.setState({
         isLoading: false,
-        pageIndex: pageIndex + 1,
-        hasMore,
+        pageIndex: 1,
+        // hasMore,
       });
     });
   }
@@ -107,27 +163,57 @@ export default class ProjectContacts extends React.Component {
   fetchContacts() {
     const { pageIndex, keywords } = this.state;
     const { projectId } = this.props;
-    this.promise = API.fetchProjectContacts({ pageIndex, keywords, projectId });
-    return this.promise.then((data) => {
+    this.promise = API.searchAddressbookAndDepartment({
+      pageIndex,
+      keywords,
+      projectId,
+      pageSize: 100,
+      range: 0,
+      isFilterOther: false,
+    });
+    return this.promise.then(data => {
       const { listData } = this.state;
       this.setState({
-        listData: (listData || []).concat(data.list),
+        listData: (listData || []).concat(data.userResult),
       });
-      // has more data to load
-      return data.list && data.list.length;
+      return data.userResult && data.userResult.length;
     });
   }
 
   fetchDepartments() {
     const { projectId } = this.props;
-    this.promise = API.fetchDepartments({ projectId });
-    return this.promise.then((data) => {
-      const { departments } = this.state;
+    let { pageIndex, pageSize } = this.state;
+    this.setState({ isMore: false });
+    this.promise = departmentController.pagedDepartmentTrees({
+      dataRange: 2,
+      filterAccountIds: [md.global.Account.accountId],
+      filterFriend: false,
+      keywords: '',
+      parentId: '',
+      prefixAccountIds: [],
+      firstLetter: '',
+      projectId,
+      pageIndex,
+      pageSize,
+    });
+    return this.promise.then(data => {
+      const { pageIndex, departmentsList = [] } = this.state;
+
+      let currentPageData = (data || []).map(item => ({ ...item, subs: [] }));
+      let result = pageIndex > 1 ? departmentsList.concat(currentPageData) : currentPageData;
       this.setState({
-        departments: formatDepartmentData(data.list),
+        departments: formatDepartmentData(result),
+        isMore: _.isArray(data) && data.length === pageSize,
+        departmentsList: result,
       });
     });
   }
+
+  loadNextPage = () => {
+    this.setState({ pageIndex: this.state.pageIndex + 1 }, () => {
+      this.fetchDepartments();
+    });
+  };
 
   fetchDepartmentUser(departmentId) {
     const { projectId } = this.props;
@@ -142,7 +228,7 @@ export default class ProjectContacts extends React.Component {
       .then(({ list }) => {
         return list || [];
       })
-      .then((list) => {
+      .then(list => {
         const {
           departments: { [departmentId]: department },
         } = this.state;
@@ -170,22 +256,118 @@ export default class ProjectContacts extends React.Component {
     this.setState({
       selectedAccountId: accountId,
       isFriend,
+      hideBackBtn: true,
     });
   }
 
+  handleSelectGroup = id => {
+    const { usersPageIndex } = this.state;
+    const { projectId } = this.props;
+    this.setState({ isMoreUsers: false });
+    departmentController
+      .getDepartmentUsers({
+        filterAccountIds: [],
+        departmentId: id ? id : this.state.groupId,
+        projectId,
+        pageIndex: usersPageIndex,
+        pageSize: 20,
+      })
+      .then(data => {
+        const groupList = usersPageIndex > 1 ? this.state.groupList.concat(data.list) : data.list;
+        this.setState({
+          isMoreUsers: groupList.length !== data.allCount,
+          usersLoading: false,
+          usersPageIndex: usersPageIndex + 1,
+          groupList,
+          allCount: data.allCount,
+        });
+      });
+  };
+
+  handleLoadAll = () => {
+    const { usersPageIndex } = this.state;
+    const { projectId } = this.props;
+    this.setState({ isMoreUsers: false });
+    departmentController
+      .getNotInDepartmentUsers({
+        projectId,
+        pageIndex: usersPageIndex,
+        pageSize: 20,
+      })
+      .then(({ listUser }) => {
+        const groupList = usersPageIndex > 1 ? this.state.groupList.concat(listUser.list) : listUser.list;
+        this.setState({
+          isMoreUsers: groupList.length !== listUser.allCount,
+          usersLoading: false,
+          usersPageIndex: usersPageIndex + 1,
+          groupList,
+          allCount: listUser.allCount,
+        });
+      });
+  };
+
+  selectCurrentDepartment = (id, name) => {
+    this.setState({ groupId: id, groupList: [], usersPageIndex: 1, groupName: name, usersLoading: true }, () => {
+      if (this.props.projectId === id) {
+        this.handleLoadAll(id);
+      } else {
+        this.handleSelectGroup(id);
+      }
+    });
+  };
+
   renderList() {
-    const { departments, listData, selectedAccountId, isLoading, keywords } = this.state;
+    const {
+      departments,
+      listData,
+      selectedAccountId,
+      isLoading,
+      keywords,
+      isMore,
+      departmentsList,
+      departmentResult = [],
+    } = this.state;
     const isSearch = !!keywords;
     if (isSearch) {
       return (
-        <ContactList
-          isSearch={isSearch}
-          selectedAccountId={selectedAccountId}
-          list={listData}
-          isLoading={isLoading}
-          fetch={this.fetch}
-          itemClickHandler={this.itemClickHandler}
-        />
+        <SearchContainer>
+          <ContactList
+            isSearch={isSearch}
+            selectedAccountId={selectedAccountId}
+            list={listData}
+            isLoading={isLoading}
+            fetch={() => {}}
+            itemClickHandler={this.itemClickHandler}
+            searchDepartmentUsers={true}
+          />
+          {/* <div className="searchUsers flexColumn">
+            <div className="userTxt">{_l('成员')}</div>
+            <div className="Relative searchResult">
+             
+            </div>
+          </div>
+          <div className="searchDepartment flexColumn">
+            <div className="departmentTxt">{_l('部门')}</div>
+            <div className="Relative searchResult">
+              <ScrollView>
+                {departmentResult.map(item => {
+                  return (
+                    <div
+                      className="departmentItem flexRow"
+                      key={item.id}
+                      onClick={() => {
+                        this.selectCurrentDepartment(item.id, item.name);
+                      }}
+                    >
+                      <Icon icon="folder" className="mRight8" />
+                      <span className="flex departmentName">{item.name}</span>
+                    </div>
+                  );
+                })}
+              </ScrollView>
+            </div>
+          </div> */}
+        </SearchContainer>
       );
     } else {
       return (
@@ -193,24 +375,48 @@ export default class ProjectContacts extends React.Component {
           selectedAccountId={selectedAccountId}
           list={departments}
           isLoading={isLoading}
-          fetch={this.fetchDepartmentUser}
-          update={this.updateDeptModel}
-          itemClickHandler={this.itemClickHandler}
+          loadNextPage={this.loadNextPage}
+          departmentLoading={this.state.departmentLoading}
+          isMore={isMore}
+          departmentsList={departmentsList}
+          projectId={this.props.projectId}
+          groupId={this.state.groupId}
+          selectCurrentDepartment={this.selectCurrentDepartment}
         />
       );
     }
   }
 
   render() {
-    const { selectedAccountId, keywords } = this.state;
+    const { selectedAccountId, keywords, usersLoading, groupList = [], groupId } = this.state;
     return (
       <React.Fragment>
         <div className="contacts-list">
-          <ListSearchBar keywords={keywords} type="projectContacts" search={this.search} projectId={this.props.projectId} />
+          <ListSearchBar
+            keywords={keywords}
+            type="projectContacts"
+            search={this.search}
+            projectId={this.props.projectId}
+          />
           <div className="contacts-list-content">{this.renderList()}</div>
         </div>
         <div className="contacts-detail">
-          <UserDetail accountId={selectedAccountId} />
+          {(groupId || selectedAccountId) && (
+            <DepartmentUsers
+              usersLoading={usersLoading}
+              groupList={groupList}
+              groupId={groupId}
+              projectId={this.props.projectId}
+              isMoreUsers={this.state.isMoreUsers}
+              handleSelectGroup={this.handleSelectGroup}
+              handleLoadAll={this.handleLoadAll}
+              allCount={this.state.allCount || 0}
+              groupId={this.state.groupId}
+              selectedAccountId={selectedAccountId}
+              groupName={this.state.groupName}
+              hideBackBtn={this.state.hideBackBtn}
+            />
+          )}
         </div>
       </React.Fragment>
     );

@@ -67,11 +67,7 @@ export default class MyHome extends Component {
               </Fragment>
             )}
           </List>
-          {isWxWork || isDingTalk ? null : (
-            <a className="logOutBtn" onClick={this.logout} rel="external">
-              {_l('退出登录')}
-            </a>
-          )}
+          <a className='logOutBtn' onClick={this.logout} rel="external">{_l('退出登录')}</a>
         </div>
         <TabBar action="myHome" />
       </div>

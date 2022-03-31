@@ -38,11 +38,12 @@ const VIEW_TYPE_INFO = {
 
 const SelectFieldWrap = styled.div`
   width: 640px;
-  margin: 0 auto;
-  margin-top: 10px;
+  margin: 10px auto;
   background-color: #fff;
   border-radius: 5px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
+  overflow: auto;
+  max-height: 100%;
   .hintText {
     height: 100px;
     display: flex;

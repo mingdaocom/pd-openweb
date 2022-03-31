@@ -83,7 +83,7 @@ export default class Portal extends Component {
    */
   getApps() {
     ajaxRequest
-      .getByProject({
+      .getAppInfoByProject({
         projectId: this.state.projectId,
         pageIndex: 0,
         pageSize: 0,

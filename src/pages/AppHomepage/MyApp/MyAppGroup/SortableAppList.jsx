@@ -5,6 +5,7 @@ import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
 import { SORT_TYPE } from '../config';
 import { find, get, includes, isEmpty } from 'lodash';
+import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 
 const SortableItem = SortableElement(props => <MyAppItem {...props} />);
 
@@ -23,9 +24,11 @@ const SortableList = SortableContainer(({ items, type, projectId, createAppFromE
   };
   return (
     <div className="sortableAppItemList myAppGroupDetail">
-      {items.map((value, index) => (
-        <SortableItem key={index} index={index} type={type} {...value} {...props} />
-      ))}
+      {items
+        .filter(o => !o.pcDisplay || o.permissionType >= ADVANCE_AUTHORITY)//排除pc端未发布的
+        .map((value, index) => (
+          <SortableItem key={index} index={index} type={type} {...value} {...props} />
+        ))}
       {renderContent()}
     </div>
   );

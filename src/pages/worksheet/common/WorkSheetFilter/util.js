@@ -431,6 +431,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.RELATESHEET,
         API_ENUM_TO_TYPE.SUBTOTAL,
         API_ENUM_TO_TYPE.SUBLIST,
+        API_ENUM_TO_TYPE.EMBED,
       ];
       return _.filter(contorls, items => !_.includes(typeList, items.type));
     // 电话、证件、邮件
@@ -614,7 +615,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     },
     {
       controlId: 'caid',
-      controlName: _l('创建人'),
+      controlName: _l('创建者'),
       type: 26,
     },
     {

@@ -8,6 +8,8 @@ import Back from '../../components/Back';
 import QuickFilter from 'src/pages/Mobile/RecordList/QuickFilter';
 import RecordAction from 'src/pages/Mobile/Record/RecordAction';
 import worksheetAjax from 'src/api/worksheet';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import { Icon, Button } from 'ming-ui';
 import './index.less';
 
@@ -312,6 +314,8 @@ class GroupFilterDetail extends Component {
       batchOptCheckedData,
       appColor,
       mobileViewPermission,
+      base,
+      sheetSwitchPermit,
     } = this.props;
     const view = _.find(views, { viewId }) || (viewId === 'all' && views[0]) || {};
     if (workSheetLoading) {
@@ -333,22 +337,24 @@ class GroupFilterDetail extends Component {
           {!batchOptVisible && <div className="title Font18">{txt}</div>}
           {view && Object.keys(view).length ? <View view={view} /> : null}
 
-          {!batchOptVisible && (
-            <div className="addRecordItemWrapper">
-              <Button
-                className="addRecordBtn flex valignWrapper"
-                style={{ backgroundColor: appColor }}
-                onClick={() => {
-                  window.mobileNavigateTo(
-                    `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
-                  );
-                }}
-              >
-                <Icon icon="add" className="Font22" />
-                {worksheetInfo.entityName}
-              </Button>
-            </div>
-          )}
+          {!batchOptVisible &&
+            isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+            worksheetInfo.allowAdd && (
+              <div className="addRecordItemWrapper">
+                <Button
+                  className="addRecordBtn flex valignWrapper"
+                  style={{ backgroundColor: appColor }}
+                  onClick={() => {
+                    window.mobileNavigateTo(
+                      `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
+                    );
+                  }}
+                >
+                  <Icon icon="add" className="Font22" />
+                  {worksheetInfo.entityName}
+                </Button>
+              </div>
+            )}
 
           {!batchOptVisible && (
             <Back
@@ -357,7 +363,10 @@ class GroupFilterDetail extends Component {
               }}
               onClick={() => {
                 this.props.changeMobielSheetLoading(true);
-                this.props.history.goBack();
+                // this.props.history.goBack();
+                window.mobileNavigateTo(
+                  `/mobile/recordList/${params.appId}/${base.groupId}/${worksheetInfo.worksheetId}/${(view, viewId)}`,
+                );
               }}
             />
           )}
@@ -403,23 +412,23 @@ class GroupFilterDetail extends Component {
 
 export default connect(
   state => ({
-    base: state.mobile.base,
-    views: state.sheet.views,
-    controls: state.sheet.controls,
-    worksheetInfo: state.mobile.worksheetInfo,
-    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
-    workSheetLoading: state.mobile.workSheetLoading,
-    filters: state.mobile.filters,
-    batchOptCheckedData: state.mobile.batchOptCheckedData,
-    quickFilter: state.mobile.quickFilter,
-    currentSheetRows: state.mobile.currentSheetRows,
-    sheetView: state.mobile.sheetView,
-    batchOptVisible: state.mobile.batchOptVisible,
-    worksheetControls: state.mobile.worksheetControls,
+    ..._.pick(state.mobile, [
+      'base',
+      'worksheetInfo',
+      'sheetSwitchPermit',
+      'workSheetLoading',
+      'filters',
+      'batchOptCheckedData',
+      'quickFilter',
+      'currentSheetRows',
+      'sheetView',
+      'batchOptVisible',
+      'worksheetControls',
+      'mobileViewPermission',
+      'appColor',
+    ]),
+    ..._.pick(state.sheet, ['views', 'controls', 'navGroupFilters']),
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
-    navGroupFilters: state.sheet.navGroupFilters,
-    appColor: state.mobile.appColor,
-    mobileViewPermission: state.mobile.mobileViewPermission,
   }),
   dispatch =>
     bindActionCreators(

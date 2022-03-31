@@ -145,8 +145,9 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
     const { boardViewState, boardViewRecordCount, boardData } = boardView;
     const { hasMoreData, kanbanIndex } = boardViewState;
     const para = getBoardViewPara(sheet);
+    const { relationWorksheetId, kanbanSize } = para || {};
     // 关联看板隐藏无数据看板，开启不允许拉取数据，关闭时允许
-    const isRelateHide = para.relationWorksheetId && para.kanbanSize === 50;
+    const isRelateHide = relationWorksheetId && kanbanSize === 50;
     if (isRelateHide || !hasMoreData || !para) {
       alwaysCallback();
       return;

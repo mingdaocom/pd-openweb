@@ -1,5 +1,6 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
+import { accMul } from 'src/util';
 
 export default function renderText(cell, options = {}) {
   try {
@@ -7,7 +8,7 @@ export default function renderText(cell, options = {}) {
       return '';
     }
     let { type, value = '', unit, advancedSetting = {} } = cell;
-    let { suffix = '', prefix = '' } = advancedSetting;
+    let { suffix = '', prefix = '', thousandth } = advancedSetting;
     let selectedOptions = [];
     let parsedData;
     if (options.noUnit) {
@@ -25,6 +26,9 @@ export default function renderText(cell, options = {}) {
       } else {
         type = cell.enumDefault2 || 6;
       }
+    }
+    if (_.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
+      value = accMul(value, 100);
     }
     switch (type) {
       // 纯文本
@@ -53,9 +57,15 @@ export default function renderText(cell, options = {}) {
       case 6: // NUMBER_INPUT 数值
       case 8: // MONEY_AMOUNT 金额
       case 31: // NEW_FORMULA 公式
-        value = _.isUndefined(cell.dot) ? cell.value : _.round(cell.value, cell.dot).toFixed(cell.dot);
+        value = _.isUndefined(cell.dot) ? value : _.round(value, cell.dot).toFixed(cell.dot);
         if (!options.noSplit) {
-          if (!(cell.type === 6 && cell.enumDefault === 1)) {
+          if (
+            cell.type !== 6
+              ? thousandth !== '1'
+              : _.isUndefined(thousandth)
+              ? cell.enumDefault !== 1
+              : thousandth !== '1'
+          ) {
             value = (value || '').replace(
               value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
               '$1,',

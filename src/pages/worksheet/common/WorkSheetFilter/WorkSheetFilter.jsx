@@ -108,6 +108,10 @@ export default class WorkSheetFilter extends Component {
     sheetAjax
       .getWorksheetFilters({ worksheetId })
       .then(data => {
+        let filters = data.map(item => formatOriginFilterValue(item));
+        if (md.global.Account.isPortal) {
+          filters = filters.filter(o => o.type !== 2); //外部门户 排除公共筛选
+        }
         this.setState(
           {
             loaded: true,
@@ -116,7 +120,7 @@ export default class WorkSheetFilter extends Component {
             editingFilter: null,
             saveAsFilter: null,
             filterExpandedId: null,
-            filters: data.map(item => formatOriginFilterValue(item)),
+            filters,
           },
           cb,
         );

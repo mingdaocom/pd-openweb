@@ -1,10 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import RenameModal from './RenameModal';
+import ShowControlModal from './ShowControlModal';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import WithoutFidldItem from './WithoutFidldItem';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
   normTypes,
   timeParticleSizeDropdownData,
@@ -16,6 +18,7 @@ import {
   isAreaControl,
   filterDisableParticleSizeTypes
 } from 'src/pages/worksheet/common/Statistics/common';
+import { connect } from 'react-redux';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -37,6 +40,7 @@ const SortableItemContent = styled.div`
 
 const renderOverlay = ({
   axis,
+  type,
   normType,
   particleSizeType,
   disableParticleSizeTypes,
@@ -45,11 +49,13 @@ const renderOverlay = ({
   onUpdateParticleSizeType,
   onUpdateXaxisEmpty,
   onSelectReNameId,
+  onShowControl,
   verifyNumber
 }) => {
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
+  const isRelate = axis.type === 29;
   const timeData = (isTime ? axis.type === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
   const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(axis.controlId, disableParticleSizeTypes);
   return (
@@ -144,18 +150,28 @@ const renderOverlay = ({
           ))}
         </Menu.SubMenu>
       )}
+      {isRelate && type === 'lines' && (
+        <Menu.Item
+          onClick={() => {
+            onShowControl(axis.controlId);
+          }}
+        >
+          {_l('显示字段')}
+        </Menu.Item>
+      )}
     </Menu>
   );
 };
 
 const SortableItem = SortableElement(props => {
-  const { item, axisControls, onClear, onNormType, verifyNumber, disableParticleSizeTypes, onUpdateParticleSizeType, onUpdateXaxisEmpty, onSelectReNameId } = props;
+  const { type, item, axisControls, onClear, onNormType, verifyNumber, disableParticleSizeTypes, onUpdateParticleSizeType, onUpdateXaxisEmpty, onShowControl, onSelectReNameId } = props;
   const axis = _.find(axisControls, { controlId: item.controlId }) || {};
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
   const overlayProps = {
     axis,
+    type,
     normType: item.normType,
     particleSizeType: item.particleSizeType,
     xaxisEmpty: item.xaxisEmpty,
@@ -163,6 +179,7 @@ const SortableItem = SortableElement(props => {
     disableParticleSizeTypes,
     onUpdateParticleSizeType,
     onUpdateXaxisEmpty,
+    onShowControl,
     onSelectReNameId,
     verifyNumber
   };
@@ -204,10 +221,17 @@ const SortableList = SortableContainer(({ list, ...otherProps }) => {
   );
 });
 
+@connect(
+  state => ({
+    ..._.pick(state.statistics, ['worksheetInfo'])
+  })
+)
 export default class PivotTableAxis extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      resetNameVisible: false,
+      showControlVisible: false,
       currentControl: {},
     };
   }
@@ -220,7 +244,7 @@ export default class PivotTableAxis extends Component {
     }
 
     if (verifyNumber) {
-      if (isNumberControl(data.type)) {
+      if (isNumberControl(data.type) || data.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
         return true;
       } else {
         isAlert && alert(_l('只允许添加数值和公式字段'), 2);
@@ -251,7 +275,21 @@ export default class PivotTableAxis extends Component {
     const data = verifyNumber ? { controlId: id } : { controlId: id, particleSizeType };
     const currentControl = _.find(this.props.list, data) || {};
     this.setState({
+      resetNameVisible: true,
       currentControl,
+    });
+  }
+  handleShowControl = (id) => {
+    const { worksheetInfo, list } = this.props;
+    const { columns } = worksheetInfo;
+    const column = _.find(columns, { controlId: id }) || {};
+    const currentControl = _.find(list, { controlId: id }) || {};
+    this.setState({
+      showControlVisible: true,
+      currentControl: {
+        ...currentControl,
+        relationControls: column.relationControls
+      }
     });
   }
   handleChangeRename = name => {
@@ -296,34 +334,61 @@ export default class PivotTableAxis extends Component {
     });
     this.props.onUpdateList(newList);
   }
+  handleUpdateXaxisFields = (controlId, value) => {
+    const { list } = this.props;
+    const newList = list.map(item => {
+      if (item.controlId === controlId) {
+        item.fields = value;
+      }
+      return item;
+    });
+    this.props.onUpdateList(newList);
+  }
   handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
     const newList = arrayMove(_.cloneDeep(this.props.list), oldIndex, newIndex);
     this.props.onUpdateList(newList);
   }
   renderModal() {
-    const { currentControl } = this.state;
+    const { resetNameVisible, showControlVisible, currentControl } = this.state;
     return (
-      <RenameModal
-        dialogVisible={!_.isEmpty(currentControl)}
-        rename={currentControl.rename || currentControl.controlName}
-        onChangeRename={this.handleChangeRename}
-        onHideDialogVisible={() => {
-          this.setState({
-            currentControl: {},
-          });
-        }}
-      />
+      <Fragment>
+        <RenameModal
+          dialogVisible={resetNameVisible}
+          rename={currentControl.rename || currentControl.controlName}
+          onChangeRename={this.handleChangeRename}
+          onHideDialogVisible={() => {
+            this.setState({
+              resetNameVisible: false,
+              currentControl: {},
+            });
+          }}
+        />
+        <ShowControlModal
+          dialogVisible={showControlVisible}
+          relationControls={currentControl.relationControls || []}
+          fields={currentControl.fields || []}
+          onUpdateXaxisFields={(fields) => {
+            this.handleUpdateXaxisFields(currentControl.controlId, fields);
+          }}
+          onHideDialogVisible={() => {
+            this.setState({
+              showControlVisible: false
+            });
+          }}
+        />
+      </Fragment>
     );
   }
   render() {
-    const { name, list, axisControls, disableParticleSizeTypes, verifyNumber } = this.props;
+    const { type, name, list, axisControls, disableParticleSizeTypes, verifyNumber } = this.props;
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
         <SortableList
           axis="xy"
           helperClass="sortableNumberField"
+          type={type}
           list={list}
           axisControls={axisControls}
           verifyNumber={verifyNumber}
@@ -333,6 +398,7 @@ export default class PivotTableAxis extends Component {
           onUpdateParticleSizeType={this.handleUpdateParticleSizeType}
           onUpdateXaxisEmpty={this.handleUpdateXaxisEmpty}
           onSelectReNameId={this.handleSelectReNameId}
+          onShowControl={this.handleShowControl}
           shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
           onSortEnd={this.handleSortEnd}
         />

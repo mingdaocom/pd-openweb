@@ -23,7 +23,7 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
       ],
     },
     23: {
-      icon: 'icon-folder-public',
+      icon: 'icon-language',
       title: _l('外部用户'),
       actions: [
         { text: _l('当新用户注册时'), value: TRIGGER_ID_TYPE.ADD },

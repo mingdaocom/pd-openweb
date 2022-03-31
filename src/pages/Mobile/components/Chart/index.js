@@ -5,7 +5,15 @@ import { Flex, ActivityIndicator } from 'antd-mobile';
 import charts from 'src/pages/worksheet/common/Statistics/Charts';
 import { WithoutData, Abnormal } from 'src/pages/worksheet/common/Statistics/components/ChartStatus';
 import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import styled from 'styled-components';
 import './index.less';
+
+const Content = styled.div`
+  flex: 1;
+  .showTotalHeight {
+    height: 100%;
+  }
+`;
 
 function Chart({ data }) {
   if (!data.status) {
@@ -65,13 +73,15 @@ function ChartWrapper({ data, loading, onOpenFilterModal, onOpenZoomModal, isHor
           isVertical && <Icon className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })} icon="task-new-fullscreen" onClick={onOpenZoomModal} />
         )}
       </div>
-      {loading ? (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
-      ) : (
-        <Chart data={data} />
-      )}
+      <Content className="flexColumn overflowHidden">
+        {loading ? (
+          <Flex justify="center" align="center" className="h100">
+            <ActivityIndicator size="large" />
+          </Flex>
+        ) : (
+          <Chart data={data} />
+        )}
+      </Content>
     </Fragment>
   );
 }

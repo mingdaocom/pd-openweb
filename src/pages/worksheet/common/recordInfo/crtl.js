@@ -347,7 +347,9 @@ export async function handleCreateTask({ appId, worksheetId, viewId, recordId })
     require(['createTask'], createTask => {
       createTask.index({
         TaskName: recordTitle || _l('未命名'),
-        MemberArray: _.isEmpty(row.ownerAccount) ? [] : [row.ownerAccount],
+        MemberArray: _.isEmpty(row.ownerAccount)
+          ? []
+          : [row.ownerAccount].filter(item => item.accountId.indexOf('a#') === -1),
         worksheetAndRowId: source,
         isFromPost: true,
         ProjectID: row.projectId,

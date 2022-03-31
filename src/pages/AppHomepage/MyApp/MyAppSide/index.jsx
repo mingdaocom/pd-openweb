@@ -12,7 +12,7 @@ const SingleItem = ({ icon, iconUrl, text, color, onClick }) => {
   return (
     <li onClick={onClick}>
       {icon && <Icon icon={icon} style={{ color, fontSize: '18px' }} />}
-      {iconUrl && <SvgIcon size="18" fill={color} url={iconUrl}/>}
+      {iconUrl && <SvgIcon size="18" fill={color} url={iconUrl} />}
       <span className="Gray_75">{text}</span>
     </li>
   );
@@ -34,7 +34,7 @@ export default class MyAppSide extends Component {
           text: item.name,
           id: item.eventParams ? 'thirdApp' : item.id,
           href: item.linkParams ? item.linkParams.url : null,
-        }
+        };
       });
       MY_APP_SIDE_DATA.forEach(item => {
         if (item.id === 'sourcemodule') {
@@ -103,6 +103,16 @@ export default class MyAppSide extends Component {
             </Fragment>
           );
         })}
+
+        {md.global.Config.Version && (
+          <div
+            className="TxtCenter Font12 Gray_9e pBottom10"
+            style={{ position: 'fixed', bottom: 0, width: 240, background: '#fafafa' }}
+          >
+            {_l('当前版本：v%0', md.global.Config.Version)}
+          </div>
+        )}
+
         {thirdPartyAppVisible && <ThirdApp onCancel={() => this.setState({ thirdPartyAppVisible: false })} />}
         {myProcessVisible && (
           <MyProcess

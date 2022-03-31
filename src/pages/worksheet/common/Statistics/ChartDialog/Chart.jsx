@@ -88,7 +88,7 @@ export default class Chart extends Component {
     const { reportType } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page');
+    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
 
     const props = {
       isViewOriginalData: !settingVisible && !isMobile && !isPublicShareChart && !isPublicSharePage,

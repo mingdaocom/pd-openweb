@@ -30,7 +30,8 @@ import account from 'src/api/account';
 import 'src/pages/PageHeader/AppPkgHeader/index.less';
 import { updateAppGroup, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import AppGroup from 'src/pages/PageHeader/AppPkgHeader/AppGroup';
-
+import TelDialog from './TelDialog';
+import DelDialog from './DelDialog';
 const WrapHeader = styled.div`
   .cover {
     position: fixed;
@@ -53,9 +54,9 @@ const WrapHeader = styled.div`
     display: flex;
     position: relative;
     &.isMobile {
-      height: 80px;
+      height: 70px;
       .avatarM {
-        line-height: 80px;
+        line-height: 70px;
       }
     }
     .appName {
@@ -73,7 +74,7 @@ const WrapHeader = styled.div`
         font-weight: bold;
         font-size: 24px !important;
         padding-left: 16px;
-        line-height: 80px;
+        line-height: 70px;
       }
     }
     .appItemsOuterWrap {
@@ -185,15 +186,34 @@ const Wrap = styled.div`
   .rInfo {
     width: calc(100% - 56px);
   }
+  .logoutBox {
+    display: flex;
+  }
+  .del {
+    flex: 4;
+    height: 36px;
+    background: rgba(243, 33, 33, 0.1);
+    color: #f44336;
+    border-radius: 36px;
+    line-height: 36px;
+    text-align: center;
+    margin: 16px 16px 16px 8px;
+    .icon:before {
+      vertical-align: middle;
+    }
+    &:hover {
+      // background: #ebf6fe;
+    }
+  }
   .logout {
-    width: calc(100% - 50px);
+    flex: 6;
     height: 36px;
     background: rgba(33, 150, 243, 0.1);
     color: #2196f3;
     border-radius: 36px;
     line-height: 36px;
     text-align: center;
-    margin: 16px auto;
+    margin: 16px 8px 16px 16px;
     .icon:before {
       vertical-align: middle;
     }
@@ -259,6 +279,8 @@ export default class PortalAppHeader extends Component {
       appSectionId: '',
       isAppItemOverflow: false,
       disabledPointer: 'left',
+      showTelDialog: false,
+      showDelDialog: false,
     };
     if (!browserIsMobile()) {
       const { groupId, worksheetId } = getIds(props) || {};
@@ -318,7 +340,19 @@ export default class PortalAppHeader extends Component {
           data,
         });
         syncAppDetail(
-          _.pick(data, ['iconColor', 'projectId', 'name', 'id', 'fixed', 'fixRemark', 'fixAccount', 'permissionType']),
+          _.pick(data, [
+            'iconColor',
+            'projectId',
+            'name',
+            'id',
+            'fixed',
+            'appDisplay',
+            'webMobileDisplay',
+            'pcDisplay',
+            'fixRemark',
+            'fixAccount',
+            'permissionType',
+          ]),
         );
         window.appInfo = data;
         this.buildFavicon(data);
@@ -405,8 +439,17 @@ export default class PortalAppHeader extends Component {
   }
 
   render() {
-    console.log(this.props);
-    const { iconUrl, name, iconColor = '#2196f3', showUserInfo, showUserInfoDialog, currentData, data } = this.state;
+    const {
+      iconUrl,
+      name,
+      iconColor = '#2196f3',
+      showUserInfo,
+      showUserInfoDialog,
+      currentData,
+      data,
+      showTelDialog,
+      showDelDialog,
+    } = this.state;
     const { isMobile, match = {}, appStatus, noAvatar } = this.props;
     const info = currentData.filter(
       o => !['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status', 'openid'].includes(o.alias),
@@ -414,7 +457,7 @@ export default class PortalAppHeader extends Component {
     const { params = {} } = match;
     const color = this.props.iconColor || iconColor;
     const icon = this.props.iconUrl || iconUrl;
-    const { fixed } = data || {};
+    const { fixed, pcDisplay } = data || {};
     return (
       <WrapHeader>
         <div
@@ -453,8 +496,8 @@ export default class PortalAppHeader extends Component {
               >
                 {this.props.name || name}
               </div>
-              {fixed && <div className="appFixed">{_l('维护中')}</div>}
-              {!isMobile && !fixed && (
+              {fixed && !pcDisplay && <div className="appFixed">{_l('维护中')}</div>}
+              {!isMobile && !fixed && !pcDisplay && (
                 <AppGroup appStatus={appStatus} {...this.props} {..._.pick(data, ['permissionType', 'isLock'])} />
               )}
             </div>
@@ -526,6 +569,16 @@ export default class PortalAppHeader extends Component {
                       <span className="title InlineBlock Gray_9e">{_l('手机号')}</span>
                       <span className="telNumber flex">
                         {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
+                        <span
+                          className="edit ThemeColor3 Hand mLeft10 InlineBlock"
+                          onClick={() => {
+                            this.setState({
+                              showTelDialog: true,
+                            });
+                          }}
+                        >
+                          {_l('修改')}
+                        </span>
                       </span>
                     </div>
                     <h6 className="mTop32 Font16">{_l('我的信息')}</h6>
@@ -554,14 +607,27 @@ export default class PortalAppHeader extends Component {
                       </span>
                     </div>
                   </div>
-                  <div
-                    className="logout Hand Font14 Bold"
-                    onClick={() => {
-                      this.logout();
-                    }}
-                  >
-                    <Icon icon="exit_to_app" className="mRight5 Font18" />
-                    {_l('安全退出')}
+                  <div className="logoutBox">
+                    <div
+                      className="logout Hand Font14 Bold"
+                      onClick={() => {
+                        this.logout();
+                      }}
+                    >
+                      <Icon icon="exit_to_app" className="mRight5 Font18" />
+                      {_l('安全退出')}
+                    </div>
+
+                    <div
+                      className="del Hand Font14 Bold"
+                      onClick={() => {
+                        this.setState({
+                          showDelDialog: true,
+                        });
+                      }}
+                    >
+                      {_l('注销账户')}
+                    </div>
                   </div>
                 </Wrap>
               }
@@ -594,6 +660,32 @@ export default class PortalAppHeader extends Component {
                 this.setState({ showUserInfoDialog: false, currentData: data });
               });
             }}
+          />
+        )}
+        {showTelDialog && (
+          //更换手机号
+          <TelDialog
+            appId={this.props.appId || this.props.match.params.appId}
+            classNames={browserIsMobile() ? 'forMobilePortal' : ''}
+            show={showTelDialog}
+            data={currentData.find(o => ['portal_mobile'].includes(o.controlId)).value}
+            exAccountId={md.global.Account.accountId}
+            setShow={() => this.setState({ showTelDialog: false })}
+            onOk={() => {
+              this.logout();
+            }}
+          />
+        )}
+        {showDelDialog && (
+          //更换手机号
+          <DelDialog
+            appId={this.props.appId || this.props.match.params.appId}
+            classNames={browserIsMobile() ? 'forMobilePortal' : ''}
+            show={showDelDialog}
+            data={currentData.find(o => ['portal_mobile'].includes(o.controlId)).value}
+            exAccountId={md.global.Account.accountId}
+            setShow={() => this.setState({ showDelDialog: false })}
+            onOk={(data, ids) => {}}
           />
         )}
       </WrapHeader>

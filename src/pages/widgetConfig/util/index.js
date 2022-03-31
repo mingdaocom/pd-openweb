@@ -3,6 +3,7 @@ import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
 import { NOT_AS_TITLE_CONTROL } from '../config';
+import { RELATION_OPTIONS } from '../config/setting';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
@@ -296,4 +297,13 @@ export const getAdvanceSetting = (data, key) => {
   } catch (error) {
     return '';
   }
+};
+
+export const getRelationText = enumDefault => {
+  return (
+    _.get(
+      _.find(RELATION_OPTIONS, i => i.value === enumDefault && enumDefault),
+      'text',
+    ) || _l('自由连接')
+  );
 };

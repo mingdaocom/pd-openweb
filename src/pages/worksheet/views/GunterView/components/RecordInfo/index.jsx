@@ -42,26 +42,7 @@ export default class RecordInfo extends Component {
         hideRecordInfo={onClose}
         hideRows={onClose}
         updateRows={(ids, newItem, updateControls) => {
-          const viewControl = updateControls[viewConfig.viewControl];
-          const colorControl = _.find(controls, { controlId: viewConfig.colorId });
-          const record = fillRecordTimeBlockColor({ ...row, ...formatRecordTime(newItem, viewConfig) }, colorControl);
-          if (_.isString(viewControl)) {
-            const groupControl = _.find(controls, { controlId: viewConfig.viewControl });
-            let newKey = '';
-            if ([29].includes(groupControl.type)) {
-              const data = JSON.parse(viewControl)[0];
-              newKey = data ? data.sid : '-1';
-            }
-            if ([9, 11].includes(groupControl.type)) {
-              const data = viewControl ? JSON.parse(viewControl)[0] : '-1';
-              newKey = data;
-            }
-            this.props.moveGroupingRow(record, newKey, row.groupId);
-            this.props.updateEditIndex(null);
-          } else {
-            this.props.updateGroupingRow(record, newItem.rowid);
-          }
-          onClose();
+          this.props.updateRecord(row, updateControls, newItem);
         }}
         isCharge={isCharge}
         appId={worksheetInfo.appId}

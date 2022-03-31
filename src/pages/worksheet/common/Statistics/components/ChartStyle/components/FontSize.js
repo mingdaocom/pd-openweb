@@ -17,19 +17,9 @@ export default class FontSize extends Component {
     super(props);
     this.state = {}
   }
-  handleChangeFontSize = value => {
-    const { currentReport, onChangeCurrentReport } = this.props;
-    onChangeCurrentReport({
-      style: {
-        ...currentReport.style,
-        fontSize: value
-      }
-    }, true);
-  }
   render() {
-    const { currentReport } = this.props;
+    const { currentReport, onChangeStyle } = this.props;
     const { style } = currentReport;
-    const { fontSize } = style || {};
     return (
       <div className="mBottom16">
         <div className="chartTypeSelect flexRow valignWrapper">
@@ -37,9 +27,11 @@ export default class FontSize extends Component {
             sizeList.map(item => (
               <div
                 key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: (fontSize || 0) === item.value })}
+                className={cx('flex centerAlign pointer Gray_75', { active: (style.fontSize || 0) === item.value })}
                 onClick={() => {
-                  this.handleChangeFontSize(item.value);
+                  onChangeStyle({
+                    fontSize: item.value
+                  }, true);
                 }}
               >
                 {item.name}

@@ -7,7 +7,6 @@ import { DEFAULT_DATA, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widg
 import { v4 as uuidv4 } from 'uuid';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import { getUserControls } from 'src/api/externalPortal';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
 
 const filterAlias = ['mobilephone', 'avatar', 'roleid', 'status', 'firstLoginTime', 'openid'];
@@ -70,9 +69,9 @@ const WIDGETS_TO_API_TYPE = [
   'EMAIL',
   'NUMBER',
   'CRED',
-  'FLAT_MENU',
+  // 'FLAT_MENU',
   'MULTI_SELECT',
-  // 'DROP_DOWN',
+  'DROP_DOWN',
   // 'ATTACHMENT',
   'DATE',
   // 'DATE_TIME',
@@ -131,6 +130,7 @@ const Item = SortableElement(props => {
       ) : (
         <Dropdown
           data={[]}
+          isAppendToBody
           data={WIDGETS_TO_API_TYPE.map(o => {
             return { text: DEFAULT_CONFIG[o].widgetName, value: o };
           })}
@@ -216,6 +216,8 @@ const SortableList = SortableContainer(({ items, showEditDialog, deleteBtn, onCh
 
 export default function InfoSet(props) {
   const { portal = {}, appId } = props;
+  let { portalSet = {}, onChangePortalSet } = props;
+  let { controlTemplate = {} } = portalSet;
   const { groupId, name, projectId, worksheetId } = portal.baseInfo || {};
   const [show, setShow] = useState(false);
   const [baseInfo, setBaseInfo] = useState({});
@@ -223,25 +225,25 @@ export default function InfoSet(props) {
   const [controlsFilter, setControlsFilter] = useState([]);
   const [currentControl, setCurrenControl] = useState({});
   const [allControl, setAllControl] = useState([]);
+  const [hs, setHs] = useState(false);
   useEffect(() => {
-    getUserControls({
-      appId,
-    }).then(res => {
-      setControls(
-        (res.controls.length > 0 ? res.controls.filter(o => !filterAlias.includes(o.alias)) : []).sort((a, b) => {
-          return a.row - b.row;
-        }),
-      );
-      setControlsFilter(res.controls.length > 0 ? res.controls.filter(o => filterAlias.includes(o.alias)) : []);
-      setAllControl(res.controls || []);
-      const { sourceId, worksheetId, projectId, version } = res;
-      setBaseInfo({
-        ...portal.baseInfo,
-        sourceId,
-        worksheetId,
-        projectId,
-        version,
-      });
+    let { controlTemplate = {} } = portalSet;
+    let { controls = [] } = controlTemplate;
+    setHs(false);
+    setControls(
+      (controls.length > 0 ? controls.filter(o => !filterAlias.includes(o.alias)) : []).sort((a, b) => {
+        return a.row - b.row;
+      }),
+    );
+    setControlsFilter(controls.length > 0 ? controls.filter(o => filterAlias.includes(o.alias)) : []);
+    setAllControl(controls || []);
+    const { sourceId, worksheetId, version } = controlTemplate;
+    setBaseInfo({
+      ...portal.baseInfo,
+      sourceId,
+      worksheetId,
+      projectId,
+      version,
     });
   }, []);
   useEffect(() => {
@@ -252,8 +254,19 @@ export default function InfoSet(props) {
     let val = tmp.shift();
     let data = [val].concat(...controlsFilter).concat(...tmp);
     setAllControl(data);
+    onChangePortalSet(
+      {
+        controlTemplate: {
+          ...controlTemplate,
+          controls: data,
+        },
+      },
+      hs,
+    );
   }, [controls]);
+
   const handleMoveApp = list => {
+    setHs(true);
     setControls(
       list.map((o, i) => {
         if (o.alias) {
@@ -266,7 +279,6 @@ export default function InfoSet(props) {
   };
   const handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
-    props.hasChange();
     const list = controls.slice();
     const currentItem = list.splice(oldIndex, 1)[0];
     list.splice(newIndex, 0, currentItem);
@@ -292,7 +304,7 @@ export default function InfoSet(props) {
               )
             }
             onClick={() => {
-              props.hasChange();
+              setHs(true);
               setControls(
                 controls.map((o, i) => {
                   return {
@@ -316,7 +328,7 @@ export default function InfoSet(props) {
               )
             }
             onClick={() => {
-              props.hasChange();
+              setHs(true);
               setControls(
                 controls.map((o, i) => {
                   if (i === 0) {
@@ -345,7 +357,7 @@ export default function InfoSet(props) {
             text={''}
             checked={controls[0].fieldPermission === '110'}
             onClick={() => {
-              props.hasChange();
+              setHs(true);
               setControls(
                 controls.map((o, i) => {
                   if (i === 0) {
@@ -371,7 +383,7 @@ export default function InfoSet(props) {
           onSortEnd={handleSortEnd}
           helperClass={'portalList'}
           onChange={control => {
-            props.hasChange();
+            setHs(true);
             setControls(
               controls.map(o => {
                 if (o.controlId === control.controlId) {
@@ -386,7 +398,7 @@ export default function InfoSet(props) {
             setShow(true);
           }}
           deleteBtn={controlId => {
-            props.hasChange();
+            setHs(true);
             setControls(controls.filter(o => o.controlId !== controlId));
           }}
         />
@@ -406,7 +418,7 @@ export default function InfoSet(props) {
         <div
           className="addControl InlineBlock Hand"
           onClick={() => {
-            props.hasChange();
+            setHs(true);
             setControls(
               controls.concat({
                 controlId: uuidv4(),
@@ -421,22 +433,6 @@ export default function InfoSet(props) {
           <span className="Bold TxtMiddle InlineBlock">{_l('添加字段')}</span>
         </div>
       </div>
-      {props.footor &&
-        props.footor(
-          {
-            worksheetId: baseInfo.worksheetId,
-            version: baseInfo.version || 1,
-            controls: allControl.filter(o => !!o.type),
-            appId,
-            sourceId: baseInfo.sourceId,
-          },
-          () => {
-            setBaseInfo({
-              ...baseInfo,
-              version: (baseInfo.version || 1) + 1,
-            });
-          },
-        )}
       {show && (
         <PortalSettingDialog
           onClose={() => {
@@ -445,6 +441,7 @@ export default function InfoSet(props) {
           }}
           onOk={control => {
             setShow(false);
+            setHs(true);
             setControls(
               controls.map(o => {
                 if (o.controlId !== control.controlId) {

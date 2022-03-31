@@ -53,7 +53,7 @@ const HorizontalChartContent = styled.div`
 `;
 
 function ChartContent(props) {
-  const { reportId, name, dimensions, accessToken } = props;
+  const { reportId, name, accessToken, filters } = props;
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
@@ -64,7 +64,7 @@ function ChartContent(props) {
   };
 
   const handleReportRequest = param => {
-    let requestParam = { reportId, version };
+    let requestParam = { reportId, version, filters: (filters && filters.length) ? [filters] : undefined };
     if (param) {
       Object.assign(
         requestParam,

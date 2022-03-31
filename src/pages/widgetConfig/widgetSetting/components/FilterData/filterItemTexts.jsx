@@ -105,7 +105,7 @@ export default class FilterItemTexts extends React.Component {
                     return (
                       <span className="dynamicsourceSpan">
                         {it.name}
-                        <i>{!it.rName ? _l('当前记录') : it.rName}</i>
+                        {it.id !== 'current-rowid' && <i>{!it.rName ? _l('当前记录') : it.rName}</i>}
                       </span>
                     );
                   })

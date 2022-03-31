@@ -124,7 +124,7 @@ function WidgetContent(props) {
     isFullscreen = false,
     scrollTop = 0,
     adjustScreen,
-    apk
+    apk,
   } = props;
   const [loading, setLoading] = useState(false);
   const [isEdit, setEdit] = useState(false);
@@ -270,7 +270,7 @@ function WidgetContent(props) {
                 })}
               >
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button', 'name'])}
+                  {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button', 'name', 'config', 'param'])}
                   ids={ids}
                   projectId={apk.projectId}
                   ref={el => {
@@ -306,7 +306,7 @@ export default errorBoundary(
   connect(
     state => ({
       chatVisible: state.chat.visible,
-      sheetListVisible: state.sheetList.isUnfold
+      sheetListVisible: state.sheetList.isUnfold,
     }),
     dispatch => bindActionCreators(actions, dispatch),
   )(WidgetContent),

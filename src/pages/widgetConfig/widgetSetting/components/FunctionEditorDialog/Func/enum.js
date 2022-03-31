@@ -99,7 +99,7 @@ export const functions = {
   // 为日期加减时间
   DATEADD: function (date, expression, format = 1) {
     const { result } = calcDate(date, expression);
-    return result.format(format === 1 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+    return result && result.format(format === 1 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
   },
   // 两个日期间的时长
   DATEIF: function (begin, end, type = 1, unit = 'd') {
@@ -261,10 +261,11 @@ export const functions = {
   },
   // 乘积
   PRODUCT: function (...args) {
-    return args
-      .map(d => Number(d))
-      .filter(d => _.isNumber(d) && !_.isNaN(d))
-      .reduce((a, b) => a * b);
+    args = args.map(d => Number(d));
+    if (_.some(args, d => !_.isNumber(d) || _.isNaN(d))) {
+      return;
+    }
+    return args.reduce((a, b) => a * b);
   },
   // 最大值
   MAX: function (...args) {
@@ -1154,6 +1155,6 @@ export function checkTypeSupportForFunction(control) {
     return true;
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
     // 关联记录 29
-    return String(control.advancedSetting.showtype) !== '2';
+    return String(_.get(control, 'advancedSetting.showtype')) !== '2';
   }
 }

@@ -64,41 +64,56 @@ export default class CustomButtons extends React.Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
-    const { iseditting, triggerCallback, handleTriggerCustomBtn } = this.props;
+    const { count, iseditting, triggerCallback, handleTriggerCustomBtn } = this.props;
+    const _this = this;
     if (iseditting) {
       alert(_l('正在编辑记录，无法触发自定义按钮'), 3);
       return;
     }
-    if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
-      // 立即执行
-      if (handleTriggerCustomBtn) {
-        handleTriggerCustomBtn(btn);
-        return;
+    function handleTrigger() {
+      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
+        // 立即执行
+        if (handleTriggerCustomBtn) {
+          handleTriggerCustomBtn(btn);
+          return;
+        }
+        _this.triggerImmediately(btn.btnId);
+        triggerCallback();
+      } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM) {
+        // 立即执行
+        if (handleTriggerCustomBtn) {
+          handleTriggerCustomBtn(btn);
+          return;
+        }
+        // 二次确认
+        Dialog.confirm({
+          className: 'customButtonConfirm',
+          title: btn.confirmMsg,
+          okText: btn.sureName,
+          cancelText: btn.cancelName,
+          onOk: () => {
+            _this.triggerImmediately(btn.btnId);
+            triggerCallback();
+          },
+        });
+      } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
+        // 填写字段
+        _this.fillRecord(btn);
+      } else {
+        // 无 clickType 有误
       }
-      this.triggerImmediately(btn.btnId);
-      triggerCallback();
-    } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM) {
-      // 立即执行
-      if (handleTriggerCustomBtn) {
-        handleTriggerCustomBtn(btn);
-        return;
-      }
-      // 二次确认
+    }
+    if (count > 1000) {
       Dialog.confirm({
-        className: 'customButtonConfirm',
-        title: btn.confirmMsg,
-        okText: btn.sureName,
-        cancelText: btn.cancelName,
-        onOk: () => {
-          this.triggerImmediately(btn.btnId);
-          triggerCallback();
-        },
+        title: (
+          <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
+            {_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？')}
+          </span>
+        ),
+        onOk: handleTrigger,
       });
-    } else if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
-      // 填写字段
-      this.fillRecord(btn);
     } else {
-      // 无 clickType 有误
+      handleTrigger();
     }
   }
 
@@ -465,7 +480,11 @@ export default class CustomButtons extends React.Component {
   }
 
   render() {
-    const { type = 'button', buttons, btnDisable = {}, onHideMoreBtn } = this.props;
+    const { type = 'button', btnDisable = {}, hideDisabled, onHideMoreBtn } = this.props;
+    let { buttons } = this.props;
+    if (hideDisabled) {
+      buttons = buttons.filter(button => !(btnDisable[button.btnId] || button.disabled));
+    }
     let buttonComponents = [];
     if (type === 'button') {
       buttonComponents = buttons.map((button, i) => {
@@ -484,6 +503,9 @@ export default class CustomButtons extends React.Component {
                 minWidth: 'inherit',
               }}
               onClick={evt => {
+                if (btnDisable[button.btnId] || button.disabled) {
+                  return;
+                }
                 onHideMoreBtn(evt);
                 this.triggerCustomBtn(button);
               }}
@@ -511,6 +533,9 @@ export default class CustomButtons extends React.Component {
           iconColor={button.color}
           text={button.name}
           onClick={evt => {
+            if (btnDisable[button.btnId] || button.disabled) {
+              return;
+            }
             onHideMoreBtn(evt);
             this.triggerCustomBtn(button);
           }}

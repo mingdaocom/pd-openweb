@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { Radio, Textarea } from 'ming-ui';
-import Clipboard from 'clipboard';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
 import { ParameterList, CustomTextarea } from '../components';
+import copy from 'copy-to-clipboard';
 
 const STATUS = {
   NULL: 0,
@@ -25,21 +25,8 @@ export default class WebhookContent extends Component {
     };
   }
 
-  componentDidMount() {
-    const { data } = this.props;
-
-    this.clipboard = new Clipboard('.webhookLinkCopy', {
-      text: () => data.hookUrl,
-    });
-
-    this.clipboard.on('success', () => {
-      alert(_l('已复制到剪切板'));
-    });
-  }
-
   componentWillUnmount() {
     clearInterval(this.setInterval);
-    this.clipboard.destroy();
   }
 
   /**
@@ -206,10 +193,7 @@ export default class WebhookContent extends Component {
     const { data, updateSource, onSave } = this.props;
     const { type, count, maxCount, contentType } = this.state;
     const overtime = !data.controls.length && count >= maxCount;
-    const contentTypes = [
-      { text: 'key-value pairs', value: 1 },
-      { text: 'JSON', value: 2 },
-    ];
+    const contentTypes = [{ text: 'key-value pairs', value: 1 }, { text: 'JSON', value: 2 }];
 
     return (
       <Fragment>
@@ -224,7 +208,15 @@ export default class WebhookContent extends Component {
           <div className="Gray_75 mTop5">{_l('我们为您生成了一个用来接收请求的URL')}</div>
           <div className="mTop10 flexRow">
             <input type="text" className="webhookLink flex" value={data.hookUrl} disabled />
-            <div className="mLeft10 webhookLinkCopy">{_l('复制链接')}</div>
+            <div
+              className="mLeft10 webhookLinkCopy"
+              onClick={() => {
+                copy(data.hookUrl);
+                alert(_l('已复制到剪切板'));
+              }}
+            >
+              {_l('复制链接')}
+            </div>
           </div>
 
           {type === STATUS.NULL && (
@@ -358,9 +350,8 @@ export default class WebhookContent extends Component {
 
               <div className="mTop20 bold">{_l('自定义返回数据')}</div>
               <div className="Gray_75 mTop5">
-                {_l(
-                  '系统默认接受数据后返回{"status": 1, "data": { "sourceId": "xx", "instanceId": "xx" }, "msg": "成功"}',
-                )}
+                {_l('系统默认接受数据后返回')}
+                {'{"status": 1, "data": {"sourceId": "xx", "instanceId": "xx"}, "msg": "成功"}'}
               </div>
               <div className="flexRow mTop15">
                 {contentTypes.map((item, i) => {

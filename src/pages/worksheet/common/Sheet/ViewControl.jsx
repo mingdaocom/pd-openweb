@@ -259,6 +259,7 @@ function ViewControl(props) {
             '.boxEditFastFilterCover',
             '.ant-picker-dropdown',
             '.quickAddControlDialog',
+            '.ant-modal-root',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -312,6 +313,7 @@ function ViewControl(props) {
             '.ant-cascader-menus',
             '.ant-tree-select-dropdown',
             '.ant-picker-dropdown',
+            '.ant-modal-root',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}

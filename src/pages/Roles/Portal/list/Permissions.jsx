@@ -16,6 +16,7 @@ const Wrap = styled.div`
   .topAct {
     padding-bottom: 16px;
     display: flex;
+    min-height: 54px;
     .pass,
     .reject {
       width: 61px;
@@ -53,9 +54,8 @@ const Wrap = styled.div`
   }
 `;
 function Permissions(props) {
-  const { portal = {}, openPortalRoleSet, baseSetResult, type, setPortalRoleList } = props;
-  const { appId = '', projectId = '' } = baseSetResult;
-  const { roleList = [], defaultRole } = portal;
+  const { portal = {}, openPortalRoleSet, type, setPortalRoleList } = props;
+  const { roleList = [] } = portal;
   const [selectedIds, setSelectedIds] = useState([]);
   //controls 信息收集的配置项
   const [columns, setColumns] = useState([]);
@@ -95,7 +95,7 @@ function Permissions(props) {
               checked={data.isDefault}
               text={''}
               onClick={() => {
-                editDefaultExRole({ appId, defaultRoleId: data.roleId }).then(res => {
+                editDefaultExRole({ appId: props.appId, defaultRoleId: data.roleId }).then(res => {
                   setPortalRoleList(
                     roleList.map(o => {
                       if (o.roleId === data.roleId) {
@@ -152,7 +152,7 @@ function Permissions(props) {
       description: '',
       onOk: () => {
         removeExRole({
-          appId,
+          appId: props.appId,
           roleId: data.roleId,
         }).then(res => {
           if (res) {

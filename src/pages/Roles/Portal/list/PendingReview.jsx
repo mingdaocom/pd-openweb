@@ -13,10 +13,12 @@ import ChangeRoleDialog from './ChangeRoleDialog';
 import { auditPassExAccountToNewRole, refusePassExAccount } from 'src/api/externalPortal';
 import ReviewFree from './ReviewFree';
 import { pageSize, renderText } from './util';
+import noVerifyAjax from 'src/api/noVerify';
 
 const Wrap = styled.div`
   padding: 16px 32px 0;
   .topAct {
+    min-height: 54px;
     padding-bottom: 16px;
     display: flex;
     .pass,
@@ -49,14 +51,18 @@ const Wrap = styled.div`
     }
     .setList {
       height: 32px;
-      background: #2196f3;
-      border-radius: 3px;
+      color: #2196f3;
       vertical-align: middle;
       line-height: 32px;
-      color: #fff;
       padding: 0 12px;
+      background: #f5f5f5;
+      border-radius: 3px;
       &:hover {
-        background: #1e88e5;
+        color: #1e88e5;
+      }
+      &.isOpen {
+        background: #ffffff;
+        border: 1px solid #2196f3;
       }
     }
   }
@@ -65,35 +71,32 @@ function PendingReview(props) {
   const {
     portal = {},
     getList,
-    setControls,
-    setControlsSetting,
-    setCount,
     appId,
     getCount,
     changePageIndex,
     setFilter,
     setKeyWords,
-    setBaseInfo,
+    projectId,
+    onChangePortalVersion,
   } = props;
-  const {
-    roleList = [],
-    controls = [],
-    list,
-    unApproveCount,
-    pageIndex,
-    keyWords,
-    filters = [],
-    controlsSYS = [],
-    baseInfo = {},
-  } = portal;
-  // const showPortalControlIds = []; //当前要显示的配置列
+  const { roleList = [], controls = [], list, unApproveCount, pageIndex, keyWords, filters = [] } = portal;
   const [show, setShow] = useState(false);
   const [showPassDrop, setShowPassDrop] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState({});
   //controls 信息收集的配置项
   const [columns, setColumns] = useState([]);
+  //当前免审名单相关信息
+  const getInfo = () => {
+    noVerifyAjax.get({ appId }).then(res => {
+      setIsOpen(res.status === 0);
+      setData(res);
+    });
+  };
   useEffect(() => {
+    getInfo();
     setFilter([]);
     setKeyWords('');
   }, []);
@@ -124,6 +127,7 @@ function PendingReview(props) {
             'portal_role',
             'portal_status',
             'portal_openid',
+            'partal_id',
           ].includes(o.controlId),
       )
       .map(o => {
@@ -200,12 +204,15 @@ function PendingReview(props) {
       appId,
       rowIds: rowIds,
     }).then(res => {
-      getCount(appId);//重新获取总计数
+      getCount(appId); //重新获取总计数
       fetch();
     });
   };
 
   const rejectDialog = rowIds => {
+    if (selectedIds.length <= 0 && (rowIds || []).length <= 0) {
+      return;
+    }
     return Dialog.confirm({
       title: <span className="Red">{_l('你确认拒绝吗？')}</span>,
       buttonType: 'danger',
@@ -237,30 +244,32 @@ function PendingReview(props) {
         >
           {_l('拒绝')}
         </span>
-        <PortalBar
-          keys={['search', 'refresh', 'filter']}
-          columns={columns}
-          onChange={data => {}}
-          appId={appId}
-          comp={() => {
-            return (
-              <div
-                className="setList InlineBlock TxtTop Hand"
-                onClick={() => {
-                  setShow(true);
-                }}
-              >
-                {_l('配置免审名单')}
-              </div>
-            );
-          }}
-          refresh={() => {
-            getList(3, () => {
-              setLoading(false);
-            });
-            getCount(appId);//重新获取总计数
-          }}
-        />
+        {selectedIds.length <= 0 && (
+          <PortalBar
+            keys={['search', 'refresh', 'filter']}
+            columns={columns}
+            onChange={data => {}}
+            appId={appId}
+            comp={() => {
+              return (
+                <div
+                  className={cx('setList InlineBlock TxtTop Hand', { isOpen })}
+                  onClick={() => {
+                    setShow(true);
+                  }}
+                >
+                  {isOpen ? _l('已设置免审') : _l('免审设置')}
+                </div>
+              );
+            }}
+            refresh={() => {
+              getList(3, () => {
+                setLoading(false);
+              });
+              getCount(appId); //重新获取总计数
+            }}
+          />
+        )}
       </div>
       <AutoSizePorTalTable
         pageSize={pageSize}
@@ -292,7 +301,7 @@ function PendingReview(props) {
               rowIds: selectedIds,
             }).then(res => {
               if (res.success) {
-                getCount(appId);//重新获取总计数
+                getCount(appId); //重新获取总计数
                 fetch();
               }
             });
@@ -301,7 +310,14 @@ function PendingReview(props) {
       )}
       {show && (
         <ReviewFree
+          onChangePortalVersion={onChangePortalVersion}
+          data={data}
           show={show}
+          setData={setData}
+          getInfo={() => {
+            getInfo();
+          }}
+          projectId={projectId}
           appId={appId}
           controls={controls}
           onCancel={() => {

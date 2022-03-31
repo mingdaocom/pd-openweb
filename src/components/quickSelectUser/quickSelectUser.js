@@ -404,6 +404,7 @@ $.extend(SelectUser.prototype, {
         .end()
         .toggleClass('hover', e.type === 'mouseenter');
     });
+
     _this.$input.focus().on('keyup input', function (event) {
       var $this = $(this);
       var canInvite = !options.isSearching && !options.hasData && options.showQuickInvite;

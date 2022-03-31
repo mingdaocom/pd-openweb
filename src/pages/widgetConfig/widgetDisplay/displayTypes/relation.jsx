@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import { CommonDisplay } from '../../styled';
+import { getRelationText } from '../../util/index';
 
-export default function Relation(props) {
+export default function Relation({ data }) {
+  const text = getRelationText(data.enumDefault);
   return (
     <CommonDisplay>
       <div className="intro">
         <i className="icon-add"></i>
-        <span>{_l('自由连接')}</span>
+        <span>{text}</span>
       </div>
     </CommonDisplay>
   );

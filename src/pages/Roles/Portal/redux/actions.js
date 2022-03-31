@@ -2,7 +2,6 @@ import sheetAjax from 'src/api/worksheet';
 import {
   getExRoles,
   getUserTemple,
-  getUserControls,
   getFilterRows,
   editExAccountsRole,
   editExAccountState,

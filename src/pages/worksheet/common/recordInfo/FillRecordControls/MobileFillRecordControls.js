@@ -3,6 +3,7 @@ import { WingBlank, Button } from 'antd-mobile';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
+import { LoadDiv } from 'ming-ui';
 import { getSubListError } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
@@ -45,6 +46,16 @@ const Con = styled.div`
   }
 `;
 
+const LoadMask = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+`;
 @useWorksheetRowProvider
 class FillRecordControls extends React.Component {
   constructor(props) {
@@ -84,7 +95,6 @@ class FillRecordControls extends React.Component {
           .filter(c => !!c),
     });
     this.state = {
-      updatedControlIds: [],
       formData: controls,
       showError: false,
     };
@@ -93,11 +103,24 @@ class FillRecordControls extends React.Component {
   customwidget = React.createRef();
   formcon = React.createRef();
   handleSave = () => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    this.setState({ submitLoading: true });
+    this.customwidget.current.submitFormData();
+  };
+  onSave = (error, { data, updateControlIds }) => {
+    if (error) {
+      this.setState({ submitLoading: false });
+      return;
+    }
     const { onSubmit, writeControls } = this.props;
-    const { formData, updatedControlIds, showError } = this.state;
-    let { data, hasRuleError, hasError } = this.customwidget.current.getSubmitData();
-    data = data.filter(item => _.find(writeControls, writeControl => writeControl.controlId === item.controlId));
-    const subListControls = formData.filter(item => item.type === 34);
+    let hasError;
+    const newData = data.filter(item =>
+      _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
+    );
+    const subListControls = data.filter(item => item.type === 34);
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({
@@ -136,34 +159,30 @@ class FillRecordControls extends React.Component {
       }
     }
 
-    if (hasError && !showError) {
-      this.setState({
-        showError: true,
-      });
-    } else {
-      if (hasError) {
-        alert(_l('请正确填写记录'), 3);
-        return;
-      } else if (hasRuleError) {
-        return;
-      }
-      onSubmit(
-        formData
-          .filter(c => _.find(updatedControlIds, controlId => controlId === c.controlId))
-          .map(formatControlToServer),
-        {
-          ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
-        },
-        this.customwidget.current,
-      );
+    if (hasError) {
+      alert(_l('请正确填写记录'), 3);
+      return;
     }
+    this.setState({ submitLoading: false });
+    onSubmit(
+      newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
+      {
+        ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
+      },
+      this.customwidget.current,
+    );
   };
   render() {
     const { recordId, worksheetId, projectId, hideDialog, title } = this.props;
-    const { formData, updatedControlIds, showError } = this.state;
+    const { submitLoading, formData, showError } = this.state;
     return (
       <Con>
         <div className="flex customFieldsWrapper">
+          {submitLoading && (
+            <LoadMask>
+              <LoadDiv />
+            </LoadMask>
+          )}
           <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
             <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
             <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
@@ -179,12 +198,12 @@ class FillRecordControls extends React.Component {
               worksheetId={worksheetId}
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
-              onChange={(data, ids) => {
+              onChange={data => {
                 this.setState({
                   formData: data,
-                updatedControlIds: _.uniqBy(updatedControlIds.concat(ids)),
                 });
               }}
+              onSave={this.onSave}
             />
           </div>
         </div>

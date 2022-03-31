@@ -102,6 +102,7 @@ export default class RegisterName extends React.Component {
           <div className={cx('mesDiv', { current: !!fullName })}>
             <input
               type="text"
+              maxLength={'60'}
               autoComplete="off"
               className={cx('fullName', { onlyRead: !!onlyReadName })}
               disabled={onlyReadName ? 'disabled' : ''}

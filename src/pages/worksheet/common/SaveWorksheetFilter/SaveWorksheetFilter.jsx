@@ -28,49 +28,58 @@ export default class SaveWorksheetFilter extends Component {
   render() {
     const { title, visible, isCharge, onHide, onSave } = this.props;
     const { filterName, filterType } = this.state;
-    return (<Dialog
-      className="saveWorksheetFilter workSheetForm"
-      visible={visible}
-      anim={false}
-      title={title || _l('保存筛选器')}
-      width={480}
-      onCancel={onHide}
-      onText={_l('保存')}
-      onOk={() => {
-        if (!_.trim(filterName)) {
-          alert(_l('请输入筛选器名称'), 3);
-          return;
-        }
-        onSave({ filterName, filterType });
-        onHide();
-      }}
-    >
-      <div className="formItem flexRow" ref={form => (this.form = form)}>
-        <div className="label">{ _l('名称') }</div>
-        <div className="content">
-          <div className="flex content">
-            <Input
-              className="sheetName w100"
-              value={filterName}
-              onChange={(value) => { this.setState({ filterName: value }); }}
-            />
+    return (
+      <Dialog
+        className="saveWorksheetFilter workSheetForm"
+        visible={visible}
+        anim={false}
+        title={title || _l('保存筛选器')}
+        width={480}
+        onCancel={onHide}
+        onText={_l('保存')}
+        onOk={() => {
+          if (!_.trim(filterName)) {
+            alert(_l('请输入筛选器名称'), 3);
+            return;
+          }
+          onSave({ filterName, filterType });
+          onHide();
+        }}
+      >
+        <div className="formItem flexRow" ref={form => (this.form = form)}>
+          <div className="label">{_l('名称')}</div>
+          <div className="content">
+            <div className="flex content">
+              <Input
+                className="sheetName w100"
+                value={filterName}
+                onChange={value => {
+                  this.setState({ filterName: value });
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className="formItem flexRow">
-        <div className="label">{ _l('使用范围') }</div>
-        <div className="content">
-          <RadioGroup
-            data={[
-              { text: _l('个人'), value: 1 },
-              { text: _l('公共'), value: 2, disabled: !isCharge },
-            ]}
-            checkedValue={filterType}
-            onChange={(value) => { this.setState({ filterType: value }); }}
-            size="small"
-          />
-        </div>
-      </div>
-    </Dialog>);
+        {/* 外部门户没有公共筛选 */}
+        {!md.global.Account.isPortal && (
+          <div className="formItem flexRow">
+            <div className="label">{_l('使用范围')}</div>
+            <div className="content">
+              <RadioGroup
+                data={[
+                  { text: _l('个人'), value: 1 },
+                  { text: _l('公共'), value: 2, disabled: !isCharge },
+                ]}
+                checkedValue={filterType}
+                onChange={value => {
+                  this.setState({ filterType: value });
+                }}
+                size="small"
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
+    );
   }
 }

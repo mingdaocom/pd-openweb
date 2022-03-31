@@ -87,7 +87,7 @@ const ShowChoose = styled.div`
 `;
 export default function GunterSet(props) {
   const { appId, view, updateCurrentView, worksheetControls = [] } = props;
-  const { advancedSetting = {}, viewControl = [] } = view;
+  const { advancedSetting = {}, viewControl = '' } = view;
   const { calendartype = '0', unweekday = '', milepost, colorid } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
   let [timeControls, setTimeControls] = useState(
@@ -97,9 +97,9 @@ export default function GunterSet(props) {
         (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
     ),
   );
-  const { begindate = '' } = getAdvanceSetting(view);
-  const startData = worksheetControls.filter(item => item.controlId === begindate);
-  const isDelete = begindate && (!startData || startData.length <= 0);
+  const { begindate = '', enddate = '' } = getAdvanceSetting(view);
+  const beginIsDel = begindate && !worksheetControls.find(item => item.controlId === begindate);
+  const endIsDel = enddate && !worksheetControls.find(item => item.controlId === enddate);
   useEffect(() => {
     setCheckedWorkDate(unweekday !== '');
   }, [unweekday]);
@@ -125,6 +125,8 @@ export default function GunterSet(props) {
       <SelectStartOrEnd
         {...props}
         canAddTimeControl={true}
+        begindate={_.get(props, ['view', 'advancedSetting', 'begindate'])}
+        enddate={_.get(props, ['view', 'advancedSetting', 'enddate'])}
         handleChange={obj => {
           const { begindate } = obj;
           const { moreSort } = view;
@@ -151,7 +153,8 @@ export default function GunterSet(props) {
             handleChange(obj);
           }
         }}
-        isDelete={isDelete}
+        beginIsDel={beginIsDel}
+        endIsDel={endIsDel}
         timeControls={timeControls}
         mustSameType={true}
         controls={worksheetControls}

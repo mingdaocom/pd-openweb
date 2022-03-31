@@ -69,11 +69,10 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
   const [visible, setVisible] = useState(false);
   return (
     <Fragment>
-      <SortableBtnIconWrap onClick={() => setVisible(true)}>
+      <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
         <Tooltip title={_l('按钮排序')}>
           <Fragment>
-            <Icon className="Font18" type="link" icon={'import_export'} />
-            <span className="Font12">{_l('排序')}</span>
+            <Icon className="Font24" type="link" icon="import_export" />
           </Fragment>
         </Tooltip>
       </SortableBtnIconWrap>

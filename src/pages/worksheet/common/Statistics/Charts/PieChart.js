@@ -41,7 +41,7 @@ export default class extends Component {
     this.PieChart.render();
   }
   componentWillUnmount() {
-    this.PieChart.destroy();
+    this.PieChart && this.PieChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;

@@ -17,13 +17,13 @@ import './style.css';
 import 'poshytip';
 var ProjectController = require('src/api/project');
 var InvitationController = require('src/api/invitation');
-var Clipboard = require('clipboard');
 var mdDialog = require('mdDialog');
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import RegExp from 'src/util/expression';
 import { htmlEncodeReg } from 'src/util';
+import copy from 'copy-to-clipboard';
 
 (function ($) {
   /**
@@ -358,12 +358,8 @@ import { htmlEncodeReg } from 'src/util';
         options.linkUrl = data.linkUrl;
         options.linkUrlToken = data.token;
 
-        var clipboard = new Clipboard('.linkBtn', {
-          text: function () {
-            return options.linkUrl;
-          },
-        });
-        clipboard.on('success', function () {
+        $('.linkBtn').off().on('click', function () {
+          copy(options.linkUrl);
           alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
         });
       });

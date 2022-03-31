@@ -3,6 +3,7 @@ import { func, oneOf } from 'prop-types';
 import { Motion, spring } from 'react-motion';
 import color from 'color';
 import cx from 'classnames';
+import DocumentTitle from 'react-document-title';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import { connect } from 'react-redux';
 import RcDialog from 'rc-dialog';
@@ -15,7 +16,7 @@ import Trigger from 'rc-trigger';
 import SvgIcon from 'src/components/SvgIcon';
 import { changeAppColor, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import api from 'api/homeApp';
-import { Drawer } from 'antd';
+import { Drawer, Modal } from 'antd';
 import HomepageIcon from '../../components/HomepageIcon';
 import IndexSide from '../../components/IndexSide';
 import CommonUserHandle from '../../components/CommonUserHandle';
@@ -29,7 +30,7 @@ import AppNavStyle from './AppNavStyle';
 import AppFixStatus from './AppFixStatus';
 import './index.less';
 import { upgradeVersionDialog, getAppFeaturesVisible } from 'src/util';
-
+import EditPublishSetDialog from './EditpublishSet';
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
   syncAppDetail: detail => dispatch(syncAppDetail(detail)),
@@ -37,10 +38,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 let mousePosition = { x: 139, y: 23 };
-@connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class AppInfo extends Component {
   static propTypes = {
     appStatus: oneOf([0, 1, 2, 3, 4, 5]),
@@ -70,6 +68,7 @@ export default class AppInfo extends Component {
       copyAppVisible: false,
       data: {},
       hasChange: false,
+      showEditPublishSetDialog: false,
     };
   }
 
@@ -112,6 +111,9 @@ export default class AppInfo extends Component {
           'fixRemark',
           'fixAccount',
           'permissionType',
+          'appDisplay',
+          'webMobileDisplay',
+          'pcDisplay',
         ]),
       );
       this.setState({ data });
@@ -214,7 +216,7 @@ export default class AppInfo extends Component {
     if (!this.state.data.projectId && (type === 'ding' || type === 'weixin' || type === 'worksheetapi')) {
       return '';
     } else {
-      if (type === 'del' || type === 'worksheetapi') {
+      if (['del', 'publishSettings'].includes(type)) {
         return (
           <React.Fragment>
             <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
@@ -248,6 +250,26 @@ export default class AppInfo extends Component {
     }
   };
 
+  toSetEnterpirse = () => {
+    const { projectId } = this.state.data;
+    navigateTo(`/admin/workwxapp/${projectId}`);
+    this.setState({ noIntegratedWechat: false });
+  };
+  submitApply = () => {
+    const { projectId, appId } = this.state.data;
+    editWorkWXAlternativeAppStatus({
+      projectId,
+      appId,
+    }).then(res => {
+      if (res) {
+        alert(_l('提交申请成功'));
+      } else {
+        alert(_l('提交申请失败'), 2);
+      }
+    });
+    this.setState({ integratedWechat: false });
+  };
+
   renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
     const { appId } = this.ids;
     const { projectId } = this.state.data;
@@ -258,12 +280,8 @@ export default class AppInfo extends Component {
         icon={<Icon className="appConfigItemIcon Font18" icon={icon} />}
         onClick={e => {
           e.stopPropagation();
-          if (type === 'ding') {
-            window.open(`/dingAppCourse/${projectId}/${appId}`);
-            return;
-          }
-          if (type === 'weixin') {
-            window.open(`/weixinAppCourse/${projectId}/${appId}`);
+          if (type === 'publishSettings') {
+            this.setState({ showEditPublishSetDialog: true, appConfigVisible: false });
             return;
           }
           if (type === 'worksheetapi') {
@@ -316,6 +334,8 @@ export default class AppInfo extends Component {
       modifyAppIconAndNameVisible,
       copyAppVisible,
       data,
+      showEditPublishSetDialog,
+      isAutofucus,
     } = this.state;
     const {
       id: appId,
@@ -328,6 +348,7 @@ export default class AppInfo extends Component {
       isLock,
       projectId,
       fixed,
+      pcDisplay,
     } = data;
     const isNormalApp = _.includes([1, 5], appStatus);
     const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
@@ -347,6 +368,7 @@ export default class AppInfo extends Component {
           backgroundColor: color(iconColor).darken(0.07),
         }}
       >
+        <DocumentTitle title={name} />
         <div className="appInfoWrap">
           {window.isPublicApp || !s ? (
             <div className="mLeft16" />
@@ -378,7 +400,7 @@ export default class AppInfo extends Component {
               </div>
             </div>
           )}
-          {fixed && <div className="appFixed">{_l('维护中')}</div>}
+          {!(pcDisplay && !isAuthorityApp) && fixed && <div className="appFixed">{_l('维护中')}</div>}
           {isNormalApp && isCanEdit(permissionType, isLock) && tb && (
             <div
               className="appConfigIcon pointer"
@@ -424,7 +446,7 @@ export default class AppInfo extends Component {
             />
           )}
         </div>
-        {!(fixed && !isAuthorityApp) && (
+        {!(fixed && !isAuthorityApp) && !(pcDisplay && !isAuthorityApp) && (
           <AppGroup appStatus={appStatus} {...props} {..._.pick(data, ['permissionType', 'isLock'])} />
         )}
 
@@ -500,6 +522,7 @@ export default class AppInfo extends Component {
         )}
         {editAppFixStatusVisible && (
           <AppFixStatus
+            isAutofucus={isAutofucus}
             appId={appId}
             projectId={projectId}
             fixed={data.fixed}
@@ -513,6 +536,29 @@ export default class AppInfo extends Component {
               });
             }}
             onCancel={() => this.setState({ editAppFixStatusVisible: false })}
+          />
+        )}
+        {showEditPublishSetDialog && (
+          <EditPublishSetDialog
+            showEditPublishSetDialog={showEditPublishSetDialog}
+            projectId={projectId}
+            appId={appId}
+            data={data}
+            appName={name}
+            onChangeFixStatus={() => this.setState({ editAppFixStatusVisible: true, isAutofucus: true })}
+            onChangePublish={obj =>
+              this.setState({
+                data: {
+                  ...data,
+                  ...obj,
+                },
+              })
+            }
+            onClose={() => {
+              this.setState({
+                showEditPublishSetDialog: false,
+              });
+            }}
           />
         )}
       </div>

@@ -128,7 +128,7 @@ export default class CustomIcon extends Component {
     const { projectId } = this.props;
     const { selected } = this.state;
 
-    fetch(`${__api_server__}Download/CustomIcon`, {
+    fetch(`${__api_server__.main}Download/CustomIcon`, {
       method: 'POST',
       body: JSON.stringify({ projectId, fileNames: selected }),
       headers: new Headers({

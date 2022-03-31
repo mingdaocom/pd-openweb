@@ -10,7 +10,7 @@ const webpackConfig = require('./CI/webpack.config');
 const webpackConfigForMdFunction = require('./CI/webpack.mdfunction.config');
 const webpackSingleConfig = require('./CI/webpack.single.config');
 const { webpackTaskFactory, findEntryMap, uploadFunctionFileToWorksheet } = require('./CI/utils');
-require('./localeTool/gulplang');
+require('./locale/gulplang');
 const isProduction = process.env.NODE_ENV === 'production';
 
 /** 生成 html 入口模板 */
@@ -69,8 +69,7 @@ async function copy(done) {
       gulp.src(['src/components/images/**/*']).pipe(gulp.dest('./build/files/staticfiles/components/images')),
       gulp.src(['staticfiles/**/*']).pipe(gulp.dest('./build/files/staticfiles')),
       gulp.src(['staticfiles/html/**/*']).pipe(gulp.dest('./build/files')),
-      gulp.src(['locale/en/*.js']).pipe(gulp.dest('./build/files/staticfiles/lang/en')),
-      gulp.src(['locale/zh-Hant/*.js']).pipe(gulp.dest('./build/files/staticfiles/lang/zh-Hant')),
+      gulp.src(['locale/**/*.js']).pipe(gulp.dest('./build/files/staticfiles/lang/')),
     ],
     done,
   );

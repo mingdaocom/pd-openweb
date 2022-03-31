@@ -115,7 +115,7 @@ export default class EditRecord extends Component {
       quickFilter,
       navGroupFilters,
       allWorksheetIsSelected,
-      clearSelect,
+      clearSelect = () => {},
       hideEditRecord,
       reloadWorksheet,
       updateRows,
@@ -130,7 +130,7 @@ export default class EditRecord extends Component {
     let data;
     if (updateType === 2 && selectedControlId !== 'owner') {
       try {
-        const submitData = this.customwidget.current.getSubmitData();
+        const submitData = this.customwidget.current.getSubmitData({ ignoreAlert: true });
         data = submitData.data;
         hasError = submitData.hasError;
       } catch (err) {
@@ -385,7 +385,6 @@ export default class EditRecord extends Component {
                 projectId={projectId}
                 appId={appId}
                 worksheetId={worksheetId}
-                showError={showError}
                 onChange={data => {
                   const newState = {
                     formData: data,

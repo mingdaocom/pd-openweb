@@ -27,7 +27,7 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { type, value, name, button, ids, param = [] } = props;
+  const { type, value, name, button, ids, param = [], config = {} } = props;
   const componentType = getEnumType(type);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const ref = useRef(null);
@@ -41,7 +41,7 @@ function WidgetDisplay(props) {
     setDimensions({ width: width - paddingHorizontal, height: height - paddingVertical });
   }, []);
   const renderContent = () => {
-    if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} />;
+    if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
     if (componentType === 'richText')
       return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
     if (componentType === 'button')

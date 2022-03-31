@@ -1,0 +1,33 @@
+.datepicker-modal {
+  .datepicker {
+    background-color: #fff;
+    border-radius: 5px;
+    .datepicker-header {
+      height: 42px;
+      line-height: 42px;
+      color: #000;
+      font-size: 17px;
+    }
+    .datepicker-content {
+      .datepicker-viewport {
+        .datepicker-wheel {
+          border-top: 1px solid #ddd;
+          border-bottom: 1px solid #ddd;
+          .datepicker-scroll > li {
+            font-size: 17px;
+          }
+        }
+        &::after {
+          background: linear-gradient(#fff, rgba(245, 245, 245, 0) 52%, rgba(245, 245, 245, 0) 48%, #fff);
+        }
+      }
+    }
+    .datepicker-navbar {
+      border-bottom: 1px solid #ddd;
+      .datepicker-navbar-btn {
+        color: #108ee9;
+        font-size: 17px;
+      }
+    }
+  }
+}

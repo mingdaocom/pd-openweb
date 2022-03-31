@@ -10,6 +10,7 @@ import {
   DetailFooter,
   WriteFields,
   ButtonName,
+  Schedule,
 } from '../components';
 
 export default class Write extends Component {
@@ -75,7 +76,7 @@ export default class Write extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { selectNodeId, name, accounts, allowTransfer, formProperties, submitBtnName } = data;
+    const { selectNodeId, name, accounts, allowTransfer, formProperties, submitBtnName, schedule } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -97,6 +98,7 @@ export default class Write extends Component {
         allowTransfer,
         formProperties,
         submitBtnName: submitBtnName.trim() || _l('提交'),
+        schedule,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -135,16 +137,7 @@ export default class Write extends Component {
                 onChange={this.onChange}
               />
 
-              <div className="Font13 mTop20 flexRow">
-                <div className="flex bold">{_l('指定填写对象')}</div>
-                <Checkbox
-                  className="mLeft20 Gray_9e flexRow"
-                  text={_l('允许转交他人填写')}
-                  checked={data.allowTransfer}
-                  onClick={checked => this.updateSource({ allowTransfer: !checked })}
-                />
-              </div>
-
+              <div className="Font13 mTop25 bold">{_l('指定填写对象')}</div>
               {(data.accounts || []).length ? (
                 <Member type={NODE_TYPE.WRITE} accounts={data.accounts} updateSource={this.updateSource} />
               ) : (
@@ -168,18 +161,33 @@ export default class Write extends Component {
                 </div>
               )}
 
+              <div className="Font13 mTop25 bold">{_l('填写设置')}</div>
+              <Checkbox
+                className="mTop15 flexRow"
+                text={_l('允许转交他人填写')}
+                checked={data.allowTransfer}
+                onClick={checked => this.updateSource({ allowTransfer: !checked })}
+              />
+              <Checkbox
+                className="mTop15 flexRow"
+                text={<span>{_l('开启限时处理')}</span>}
+                checked={(data.schedule || {}).enable}
+                onClick={checked =>
+                  this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
+                }
+              />
+              <Schedule schedule={data.schedule} updateSource={this.updateSource} {...this.props} />
+
+              <div className="Font13 bold mTop25">{_l('指定填写字段')}</div>
               {data.selectNodeId && (
-                <Fragment>
-                  <div className="Font13 bold mTop25">{_l('指定填写字段')}</div>
-                  <WriteFields
-                    processId={this.props.processId}
-                    nodeId={this.props.selectNodeId}
-                    selectNodeId={data.selectNodeId}
-                    data={data.formProperties}
-                    updateSource={this.updateSource}
-                    showCard={true}
-                  />
-                </Fragment>
+                <WriteFields
+                  processId={this.props.processId}
+                  nodeId={this.props.selectNodeId}
+                  selectNodeId={data.selectNodeId}
+                  data={data.formProperties}
+                  updateSource={this.updateSource}
+                  showCard={true}
+                />
               )}
 
               {(!data.selectNodeId ||

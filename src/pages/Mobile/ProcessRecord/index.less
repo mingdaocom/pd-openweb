@@ -2,6 +2,7 @@
 @refuseColor: #f44336;
 @passColor: #4caf50;
 @submitColor: #1e88e5;
+@hastenColor: #FF9800;
 
 .sheetProcessRowRecord {
   height: 100%;
@@ -65,12 +66,13 @@
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     align-items: center;
     background-color: #fff;
+    padding: 0 10px;
     z-index: 1;
 
     .optionBtn {
       text-align: center;
       color: #9e9e9e;
-      margin-left: 24px;
+      padding: 0 10px;
     }
     .headerBtn {
       display: flex;
@@ -80,13 +82,18 @@
       border: 1px solid #ccc;
       margin: 0 3px;
       height: 36px;
+      padding: 0 20px;
       .icon {
         font-size: 18px;
         margin-right: 5px;
       }
+      &.hasten {
+        color: #fff;
+        background-color: @hastenColor;
+        border: 1px solid @hastenColor;
+      }
       &.overrule {
         color: #fff;
-        margin-right: 24px;
         background-color: @refuseColor;
         border: 1px solid @refuseColor;
       }
@@ -94,7 +101,6 @@
       &.revoke,
       &.pass {
         color: #fff;
-        margin-left: 24px;
         background-color: @passColor;
         border: 1px solid @passColor;
       }

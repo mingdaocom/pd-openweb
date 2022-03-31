@@ -154,13 +154,17 @@ function GroupFilter(props) {
   let [keywords, setKeywords] = useState();
   const [navGroupData, setGroupFilterData] = useState([]);
   const [rowIdForFilter, setRowIdForFilter] = useState('');
+  const [navName, setNavName] = useState('');
   const [openKeys, setOpenKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setRowIdForFilter('');
+    setNavName('');
     setKeywords('');
+  }, [navGroup, navGroup.controlId, navGroup.viewId, navGroup.isAsc]);
+  useEffect(() => {
     isOpenGroup && fetch();
-  }, [navGroup, navGroup.controlId, navGroup.viewId, navGroup.isAsc, isOpenGroup]);
+  }, [navGroup.controlId, navGroup.viewId, navGroup.isAsc, isOpenGroup]);
   useEffect(() => {
     isOpenGroup && getNavGroupCount();
   }, [filters, quickFilter, isOpenGroup]);
@@ -178,6 +182,7 @@ function GroupFilter(props) {
           {
             ...obj,
             values: [rowIdForFilter],
+            navNames: [navName],
             dataType: soucre.type,
             filterType: soucre.type === 29 || soucre.type === 35 ? 24 : 2,
           },
@@ -236,9 +241,10 @@ function GroupFilter(props) {
       setLoading(false);
     }
   };
-  const renderTxt = (item, control) => {
+  const renderTxt = (item, control, viewId) => {
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId))) {
+    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!viewId))) {
+      //视图是否删除 !!viewId
       const path = JSON.parse(item.path);
       return path.map((text, i) => {
         const isLast = i === path.length - 1;
@@ -301,7 +307,7 @@ function GroupFilter(props) {
           data: data.map(item => {
             return {
               value: item.rowid,
-              txt: renderTxt(item, control),
+              txt: renderTxt(item, control, viewId),
               isLeaf: !item.childrenids,
             };
           }),
@@ -347,6 +353,7 @@ function GroupFilter(props) {
             style={{ paddingLeft: (!level ? 0 : 18 * level) + 6 }}
             onClick={() => {
               updateFilter(d.value);
+              setNavName(d.txt);
             }}
           >
             <div className={cx('gListDiv', { hasCount: count > 0 })}>
@@ -444,6 +451,7 @@ function GroupFilter(props) {
                     })}
                     onClick={() => {
                       updateFilter(o.value);
+                      setNavName(o.txt);
                     }}
                   >
                     <div className={cx('gListDiv')}>

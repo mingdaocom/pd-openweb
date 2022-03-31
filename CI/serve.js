@@ -9,8 +9,10 @@ var fs = require('fs');
 var proxy = require('proxy-middleware');
 const gutil = require('gulp-util');
 const utils = require('./utils');
-const { apiServer, publicPath } = require('./publishConfig');
+const { apiServer, workflowApiServer, reportApiServer } = require('./publishConfig');
 var apiProxyMiddleware = proxy(apiServer);
+var workflowApiProxyMiddleware = proxy(workflowApiServer || '');
+var reportApiProxyMiddleware = proxy(reportApiServer || '');
 
 const statusData = {};
 
@@ -70,14 +72,30 @@ async function getValuedPort(port) {
 
 const middlewareList = [
   function (req, res, next) {
-    const rewrites = utils.parseNginxRewriteConf([
+    let rewrites = utils.parseNginxRewriteConf([
       path.join(__dirname, '../docker/rewrite.setting'),
       path.join(__dirname, '../docker/portal.rewrite.setting'),
     ]);
-    if (req.url && req.url.startsWith('/api/')) {
+    rewrites = rewrites.concat({
+      match: '^/demo',
+      redirect: '/index.html',
+      ignoreCase: true,
+    });
+    if (req.url === '/') {
+      res.writeHead(301, { Location: '/app/my' });
+      res.end();
+    } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
       req.url = req.url.replace('/api/', '');
       apiProxyMiddleware(req, res, next);
+    } else if (req.url && req.url.startsWith('/workflow_api/')) {
+      // 代理接口请求到 工作流 api 服务器
+      req.url = req.url.replace('/workflow_api/', '');
+      workflowApiProxyMiddleware(req, res, next);
+    } else if (req.url && req.url.startsWith('/report_api/')) {
+      // 代理接口请求到 图表 api 服务器
+      req.url = req.url.replace('/report_api/', '');
+      reportApiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件
       next();

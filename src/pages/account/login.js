@@ -5,6 +5,7 @@ import Container from './container/loginContainer';
 import './login.less';
 import projectController from 'src/api/project';
 import loginController from 'src/api/login';
+import workWeiXinController from 'src/api/workWeiXin';
 import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { LoadDiv } from 'ming-ui';
@@ -115,6 +116,7 @@ class LoginContainer extends React.Component {
 
     this.setState({ isNetwork: true });
     this.getProjectBaseInfo();
+    this.ssoLogin(request.ReturnUrl);
   }
 
   componentWillUnmount() {
@@ -204,6 +206,41 @@ class LoginContainer extends React.Component {
         }
       });
   };
+
+  // 在集成环境移动端如果 ReturnUrl 包含 appId，去 sso 页面登录
+  ssoLogin = (returnUrl = '') => {
+    const isMobile = browserIsMobile();
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isApp = userAgent.includes('dingtalk') || userAgent.includes('wxwork') || userAgent.includes('huawei-anyoffice') || userAgent.includes('feishu');
+    if (isMobile && returnUrl.includes('mobile') && isApp) {
+      const { pathname } = new URL(returnUrl);
+      const [mobile, page, appId] = pathname.split('/').filter(_ => _);
+      if (appId) {
+        workWeiXinController.getIntergrationInfo({
+          appId,
+        }).then(data => {
+          const { item1, item2 } = data;
+          const url = encodeURIComponent(pathname.replace(/^\//, ''));
+          // 钉钉
+          if (item1 === 1) {
+            location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
+          }
+          // 企业微信
+          if (item1 === 3) {
+            location.href = `/auth/workwx?p=${item2}&url=${url}`;
+          }
+          // welink
+          if (item1 === 4) {
+            location.href = `/auth/welink?p=${item2}&url=${url}`;
+          }
+          // 飞书
+          if (item1 === 6) {
+            location.href = `/auth/feishu?p=${item2}&url=${url}`;
+          }
+        });
+      }
+    }
+  }
 
   getWorkWeiXinCorpInfoByApp = projectId => {
     loginController

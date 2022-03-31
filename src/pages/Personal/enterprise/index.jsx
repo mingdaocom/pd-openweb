@@ -10,6 +10,8 @@ import bindAccount from '../bindAccount/bindAccount';
 import './index.less';
 import ReportRelation from './reportRelation';
 import { getRequest } from 'src/util';
+import { checkCreateCompany } from 'src/api/register';
+import { upgradeVersionDialog } from 'src/util';
 
 export default class AccountChart extends React.Component {
   constructor(props) {
@@ -187,18 +189,19 @@ export default class AccountChart extends React.Component {
                     {authCount > 99 ? '99+' : authCount}
                   </span>
                 </span>
-                <span className="mRight30 mLeft30 Hand MyInvitation" onClick={() => this.handleCreate()}>{_l('创建组织')}</span>
-                <span className="addBtn Hand" onClick={() => this.handleAdd()}>{_l('加入组织')}</span>
+                <span className="mRight30 mLeft30 Hand MyInvitation" onClick={() => this.handleCreate()}>
+                  {_l('创建组织')}
+                </span>
+                <span className="addBtn Hand" onClick={() => this.handleAdd()}>
+                  {_l('加入组织')}
+                </span>
               </span>
             </div>
             <div className="withoutEnterpriseTopBox TxtCenter clearfix">
               <span className="icon-business1 mBottom40 Font56"></span>
               <span>
                 {_l('您还没有加入任何组织，请')}
-                <span
-                  className="Hand mLeft5 mRight5 highLight InlineBlock"
-                  onClick={() => this.handleCreate()}
-                >
+                <span className="Hand mLeft5 mRight5 highLight InlineBlock" onClick={() => this.handleCreate()}>
                   {_l('创建')}
                 </span>
                 {_l('或')}

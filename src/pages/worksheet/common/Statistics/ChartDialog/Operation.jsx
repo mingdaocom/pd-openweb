@@ -26,7 +26,7 @@ const Operation = ({
 }) => {
   const { report } = base;
   const isChartPublicShare = location.href.includes('public/chart');
-  const isPagePublicShare = location.href.includes('public/page');
+  const isPagePublicShare = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
   const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
   return (
     <div className="flexRow valignWrapper">

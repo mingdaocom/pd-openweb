@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import 'uploadAttachment';
 import color from 'color';
 import { COLORS, BGTYPE } from '../list/util';
-import { getLoginPageSetByAppId } from 'src/api/externalPortal';
 import cbg from './img/center.png';
 import cCbg from './img/centerC.png';
 import rbg from './img/right.png';
 import rCbg from './img/rightC.png';
 import SvgIcon from 'src/components/SvgIcon';
-
+import { SwitchStyle } from './BaseSet';
+import EditAgreementOrPrivacy from 'src/pages/Roles/Portal/components/EditAgreementOrPrivacy';
 const Wrap = styled.div`
   position: relative;
   height: calc(100% - 100px);
@@ -292,45 +292,27 @@ const WrapCon = styled.div`
   }
 `;
 export default function LoginSet(props) {
-  const { appId, appPkg } = props;
+  const { appId, appPkg, onChangePortalSet } = props;
+  const [portalSetModel, setPortalSetModel] = useState({});
   const { iconColor = '#00bcd4', iconUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg' } = appPkg;
-  const [pageTitle, setName] = useState('');
-  const [bg, setBg] = useState('');
-  const [logo, setLogo] = useState('');
-  const [pageMode, setStructure] = useState(3); //
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadBgLoading, setUploadBgLoading] = useState(false);
-  const [backGroundType, setBgType] = useState(3); //
-  const [backColor, setBgColor] = useState(COLORS[0]); //
-  const [logoImagePath, setLogoImagePath] = useState('');
-  const [backImagePath, setBgImagePath] = useState('');
+  const [type, setType] = useState();
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
-    getLoginPageSetByAppId({ appId }).then(res => {
-      const {
-        pageTitle = '',
-        logoImagePath = '',
-        logoImageUrl = '',
-        backImagePath = '',
-        backImageUrl = '',
-        backColor = '',
-        pageMode = 3,
-        backGroundType = 3,
-      } = res;
-      setName(pageTitle);
-      setLogo(logoImageUrl);
-      setStructure(pageMode);
-      setBgType(backGroundType);
-      setBgColor(backColor);
-      setBg(backImageUrl);
-      setLogoImagePath(logoImagePath);
-      setBgImagePath(backImagePath);
-    });
-    postUploader();
-  }, []);
+    let { portalSet = {} } = props;
+    let { portalSetModel = {} } = portalSet;
+    setPortalSetModel(portalSetModel);
+  }, [props.portalSet]);
 
   useEffect(() => {
     postUploader();
-  }, [pageMode, backGroundType]);
+  }, [portalSetModel]);
+
+  const updataUrl = data => {
+    props.onChangeImg(data);
+  };
 
   const postUploader = () => {
     if (uploadLoading) {
@@ -351,12 +333,14 @@ export default function LoginSet(props) {
         setUploadLoading(true);
       },
       callback: function (attachments) {
-        props.hasChange();
         if (attachments.length > 0) {
           const attachment = attachments[0];
-          setLogo(attachment.url);
-          setLogoImagePath(attachment.key);
           setUploadLoading(false);
+
+          updataUrl({
+            logoImageUrl: attachment.url,
+            logoImagePath: attachment.key,
+          });
         }
       },
     });
@@ -375,12 +359,13 @@ export default function LoginSet(props) {
         setUploadBgLoading(true);
       },
       callback: function (attachments) {
-        props.hasChange();
         setUploadBgLoading(false);
         if (attachments.length > 0) {
           const attachment = attachments[0];
-          setBg(attachment.url);
-          setBgImagePath(attachment.key);
+          updataUrl({
+            backImageUrl: attachment.url,
+            backImagePath: attachment.key,
+          });
         }
       },
     });
@@ -398,7 +383,7 @@ export default function LoginSet(props) {
           {uploadBgLoading ? (
             <LoadDiv className="mBottom10 mLeft60 mTop10 InlineBlock" size="small" />
           ) : (
-            bg && <Icon className="Font18 TxtMiddle mLeft60" type={'done'} />
+            portalSetModel.backImageUrl && <Icon className="Font18 TxtMiddle mLeft60" type={'done'} />
           )}
         </span>
         <div className="hideUploadBgTxt mTop8">
@@ -414,36 +399,49 @@ export default function LoginSet(props) {
     <Wrap>
       <input id="hideUploadBg" type="file" className="Hidden" />
       <input id="upload_imageBg" className="Hidden" />
+      <input id="hideUploadImage" type="file" className="Hidden" />
       <div className="content">
         <h6 className="Font16 Gray Bold mBottom0">{_l('登录页名称')}</h6>
         <input
           type="text"
           className="pageTitle mTop6"
           placeholder={_l('请输入')}
-          value={pageTitle}
+          value={portalSetModel.pageTitle}
           onFocus={() => {}}
-          onBlur={e => {}}
+          onBlur={e => {
+            if (!e.target.value) {
+              return alert(_l('请输入登录页名称'), 3);
+            }
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                pageTitle: e.target.value, //允许输入空格
+              },
+            });
+          }}
           onChange={e => {
-            props.hasChange();
-            setName(e.target.value);//允许输入空格
+            setPortalSetModel({ ...portalSetModel, pageTitle: e.target.value });
           }}
         />
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录页Logo')}</h6>
-        <input id="hideUploadImage" type="file" className="Hidden" />
         <div className="uploadLogo TxtCenter TxtMiddle mTop16">
-          {logo && (
+          {portalSetModel.logoImageUrl && (
             <Icon
               className="delete Font18 Hand"
               type="delete_out"
               onClick={() => {
-                props.hasChange();
-                setLogo('');
-                setLogoImagePath('');
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    logoImageUrl: '',
+                    logoImagePath: '',
+                  },
+                });
               }}
             />
           )}
-          {logo ? (
-            <img src={logo} />
+          {portalSetModel.logoImageUrl ? (
+            <img src={portalSetModel.logoImageUrl} />
           ) : (
             <span className="Hand upload_logo InlineBlock" id="upload_image">
               <Icon className="Font18" type="add1" />
@@ -458,38 +456,57 @@ export default function LoginSet(props) {
               <li
                 className={cx('InlineBlock center', {
                   rightIconBox: o === 1,
-                  current: pageMode / 3 - 1 === o,
+                  current: portalSetModel.pageMode / 3 - 1 === o,
                   mRight60: o === 0,
                 })}
               >
                 <span
                   className={cx('iconBox Block Hand')}
                   onClick={() => {
-                    props.hasChange();
-                    setStructure((o + 1) * 3);
                     if (o !== 0) {
-                      setBgType(6);
+                      onChangePortalSet({
+                        portalSetModel: {
+                          ...portalSetModel,
+                          pageMode: (o + 1) * 3,
+                          backGroundType: 6,
+                        },
+                      });
+                    } else {
+                      onChangePortalSet({
+                        portalSetModel: {
+                          ...portalSetModel,
+                          pageMode: (o + 1) * 3,
+                        },
+                      });
                     }
                   }}
                 >
-                  {pageMode / 3 - 1 === o && <Icon className="Font18 Hand ThemeColor3" type="plus-interest" />}
+                  {portalSetModel.pageMode / 3 - 1 === o && (
+                    <Icon className="Font18 Hand ThemeColor3" type="plus-interest" />
+                  )}
                 </span>
                 <span className="txt Block TxtCenter mTop13">{o === 0 ? _l('居中') : _l('左右')}</span>
               </li>
             );
           })}
         </ul>
-        {pageMode === 3 ? (
+        {portalSetModel.pageMode !== 6 ? (
           <React.Fragment>
             <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('背景设置')}</h6>
             <ul className="bgTypeUl mTop16">
               {BGTYPE.map((o, i) => {
                 return (
                   <li
-                    className={cx('InlineBlock bgTypeUlLi Hand', { current: backGroundType / 3 - 1 === i })}
+                    className={cx('InlineBlock bgTypeUlLi Hand', {
+                      current: portalSetModel.backGroundType / 3 - 1 === i,
+                    })}
                     onClick={() => {
-                      props.hasChange();
-                      setBgType((i + 1) * 3);
+                      onChangePortalSet({
+                        portalSetModel: {
+                          ...portalSetModel,
+                          backGroundType: (i + 1) * 3,
+                        },
+                      });
                     }}
                   >
                     {o}
@@ -497,20 +514,24 @@ export default function LoginSet(props) {
                 );
               })}
             </ul>
-            {backGroundType / 3 - 1 === 0 ? (
+            {portalSetModel.backGroundType / 3 - 1 === 0 ? (
               <React.Fragment>
                 <ul className="mTop6" style={{ 'max-width': 400 }}>
                   {COLORS.map((item, i) => {
                     return (
                       <li
-                        className={cx('colorLi InlineBlock Hand', { current: backColor === item })}
+                        className={cx('colorLi InlineBlock Hand', { current: portalSetModel.backColor === item })}
                         style={{ backgroundColor: color(item) }}
                         onClick={() => {
-                          props.hasChange();
-                          setBgColor(item);
+                          onChangePortalSet({
+                            portalSetModel: {
+                              ...portalSetModel,
+                              backColor: item,
+                            },
+                          });
                         }}
                       >
-                        {backColor === item && (
+                        {portalSetModel.backColor === item && (
                           <Icon icon="ok" className={cx('check', { Gray_75: i < COLORS.length / 2 })} />
                         )}
                       </li>
@@ -525,22 +546,90 @@ export default function LoginSet(props) {
         ) : (
           renderBgBtn()
         )}
+        <div className="mTop32">
+          <SwitchStyle>
+            <div className="switchText InlineBlock Bold Gray Font16 LineHeight24">{_l('协议条款')}</div>
+            <Icon
+              icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font24 Hand mLeft12 TxtBottom"
+              onClick={() => {
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
+                  },
+                });
+              }}
+            />
+          </SwitchStyle>
+          <p className="Gray_9e mTop6 LineHeight24 mBottom8">
+            {_l(
+              '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
+            )}
+          </p>
+          {!!portalSetModel.termsAndAgreementEnable && (
+            <div className="bold">
+              {_l('设置')}
+              <span
+                className="ThemeColor3 Hand mRight10 mLeft10"
+                onClick={() => {
+                  setShow(true);
+                  setType(0);
+                }}
+              >
+                {_l('用户协议')}
+              </span>
+              {_l('和')}
+              <span
+                className="ThemeColor3 Hand mLeft10"
+                onClick={() => {
+                  setShow(true);
+                  setType(1);
+                }}
+              >
+                {_l('隐私政策')}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+      {show && (
+        <EditAgreementOrPrivacy
+          show={show}
+          type={type}
+          data={type === 1 ? portalSetModel.privacyTerms : portalSetModel.userAgreement}
+          setShow={() => {
+            setShow(false);
+            setType(null);
+          }}
+          onChange={data => {
+            let da = type === 1 ? { privacyTerms: data } : { userAgreement: data };
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                ...da,
+              },
+            });
+          }}
+        />
+      )}
       <div className="loginDemo">
         <WrapDemo
           style={
-            backGroundType === 3
-              ? { 'background-color': backColor }
-              : pageMode === 3
-              ? { 'background-image': `url(${bg})` }
+            portalSetModel.backGroundType === 3
+              ? { 'background-color': portalSetModel.backColor }
+              : portalSetModel.pageMode === 3
+              ? { 'background-image': `url(${portalSetModel.backImageUrl})` }
               : {}
           }
-          className={cx('Relative', { isCenter: pageMode === 3 })}
+          className={cx('Relative', { isCenter: portalSetModel.pageMode === 3 })}
         >
-          {pageMode !== 3 && <div className="backImageUrl" style={{ 'background-image': `url(${bg})` }}></div>}
-          <WrapCon className={cx({ isCenterCon: pageMode === 3, isR: pageMode !== 3 })}>
-            {logo ? (
-              <img src={logo} height={32} />
+          {portalSetModel.pageMode !== 3 && (
+            <div className="backImageUrl" style={{ 'background-image': `url(${portalSetModel.backImageUrl})` }}></div>
+          )}
+          <WrapCon className={cx({ isCenterCon: portalSetModel.pageMode === 3, isR: portalSetModel.pageMode !== 3 })}>
+            {portalSetModel.logoImageUrl ? (
+              <img src={portalSetModel.logoImageUrl} height={32} />
             ) : iconUrl && iconColor ? (
               <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: iconColor }}>
                 <SvgIcon url={iconUrl} fill={'#fff'} size={28} />
@@ -548,7 +637,9 @@ export default function LoginSet(props) {
             ) : (
               ''
             )}
-            {pageTitle && <p className="Font24 Gray mAll0 mTop20 Bold pageTitleDeme ellipsis">{pageTitle}</p>}
+            {portalSetModel.pageTitle && (
+              <p className="Font24 Gray mAll0 mTop20 Bold pageTitleDeme ellipsis">{portalSetModel.pageTitle}</p>
+            )}
             <div className="btnCon">
               <div className="txtMobilePhone mTop28"></div>
               <div className="txtMobilePhone mTop8"></div>
@@ -557,18 +648,6 @@ export default function LoginSet(props) {
           </WrapCon>
         </WrapDemo>
       </div>
-      {props.footor &&
-        props.footor({
-          appId,
-          pageTitle,
-          logoImagePath,
-          logoImageBucket: 4, //图片
-          pageMode,
-          backGroundType,
-          backColor,
-          backImagePath,
-          backImageBucket: 4, //图片
-        })}
     </Wrap>
   );
 }

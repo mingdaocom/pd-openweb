@@ -42,6 +42,9 @@ const LinkParaWrap = styled.div`
   .valueWrap {
     flex: 1;
     margin: 0 6px;
+    .icon-workflow_other {
+      color: #9e9e9e !important;
+    }
   }
   .paraItem {
     margin-top: 12px;
@@ -94,7 +97,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
   return (
     <div className="paraItem flexCenter">
       <Input
-        style={{ width: '75px' }}
+        style={{ width: '100px' }}
         value={key}
         placeholder={_l('参数名')}
         onChange={e => {
@@ -131,7 +134,8 @@ function ParaItem({ deleteItem, item, updateItem }) {
                         onClick={() => {
                           updateItem({ value: { type, data: value } });
                           setVisible(false);
-                        }}>
+                        }}
+                      >
                         {text}
                       </div>
                     ))}
@@ -139,9 +143,10 @@ function ParaItem({ deleteItem, item, updateItem }) {
                 );
               })}
             </DropdownContent>
-          }>
+          }
+        >
           <div data-tip={_l('使用动态参数')} className={cx('selectField pointer', { active: visible })}>
-            <i className="icon-workflow_other Font22 "></i>
+            <i className="icon-workflow_other Font18 "></i>
           </div>
         </Dropdown>
       </div>
@@ -152,7 +157,9 @@ function ParaItem({ deleteItem, item, updateItem }) {
   );
 }
 export default function LinkPara(props) {
-  const { paras, setParas } = props;
+  const { paras, setParas, config = {}, setConfig = () => {}, showActionBar } = props;
+  let { reload = false, newTab = false } = config;
+
   return (
     <LinkParaWrap>
       <Checkbox
@@ -182,6 +189,39 @@ export default function LinkPara(props) {
             <i className="icon-add"></i>
             {_l('添加')}
           </div>
+        </div>
+      )}
+      {showActionBar && (
+        <div className="pTop16 pBottom16">
+          <Checkbox
+            size="small"
+            checked={reload && newTab}
+            text={_l('显示操作栏')}
+            onClick={checked => {
+              setConfig({ reload: !checked, newTab: !checked });
+            }}
+          />
+          {(reload || newTab) && (
+            <div className="pTop8 pLeft24">
+              <Checkbox
+                size="small"
+                className="mBottom8"
+                checked={reload}
+                text={_l('刷新')}
+                onClick={checked => {
+                  setConfig({ newTab, reload: !checked });
+                }}
+              />
+              <Checkbox
+                size="small"
+                checked={newTab}
+                text={_l('新页面打开')}
+                onClick={checked => {
+                  setConfig({ reload, newTab: !checked });
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </LinkParaWrap>

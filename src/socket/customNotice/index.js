@@ -13,7 +13,7 @@ export default function customNotice() {
         const href = ($(evt.target).closest('a').attr('href') || '').toLocaleLowerCase();
 
         if (href.indexOf('worksheetexcel') > -1) {
-          const downloadUrl = `${__api_server__ + href}`;
+          const downloadUrl = `${__api_server__.main + href}`;
           window.open(addToken(downloadUrl, !window.isDingTalk));
           return;
         }

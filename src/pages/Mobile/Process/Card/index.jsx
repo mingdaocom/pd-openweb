@@ -58,6 +58,107 @@ export default class Card extends Component {
       });
     }
   }
+  covertTime(time) {
+    if (time < 0) time = time * -1;
+
+    const day = Math.floor(time / 24 / 60 / 60 / 1000);
+    const hour = Math.floor((time - day * 24 * 60 * 60 * 1000) / 60 / 60 / 1000);
+    const min = Math.ceil((time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000);
+
+    return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${min ? _l('%0分钟', min) : ''}`;
+  }
+  renderTimeConsuming() {
+    const { workItem = {} } = this.props.item;
+
+    const workItems = (workItem.workId ? [workItem] : []).filter(
+      item => _.includes([3, 4], item.type) && item.operationTime,
+    );
+    const timeConsuming = [];
+    const endTimeConsuming = [];
+
+    if (!workItems.length) return null;
+
+    workItems.forEach(item => {
+      // 截止时间
+      if (item.dueTime) {
+        endTimeConsuming.push(moment(item.operationTime) - moment(item.dueTime));
+      }
+
+      timeConsuming.push(moment(item.operationTime) - moment(item.receiveTime));
+    });
+
+    const maxTimeConsuming = _.max(timeConsuming) || 0;
+    let maxEndTimeConsuming = _.max(endTimeConsuming) || 0;
+
+    if (
+      (workItems[0].opinion || '').indexOf('限时自动通过') > -1 ||
+      (workItems[0].opinion || '').indexOf('限时自动填写') > -1
+    ) {
+      maxEndTimeConsuming = 1;
+    }
+
+    if (!maxEndTimeConsuming) {
+      return <span className="overflow_ellipsis Gray_9e mLeft10">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</span>;
+    }
+
+    return (
+      <span
+        className="stepTimeConsuming flexRow"
+        style={{
+          color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50'
+        }}
+      >
+        <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
+        <div className="overflow_ellipsis">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</div>
+      </span>
+    );
+  }
+  renderSurplusTime() {
+    const { workItem = {} } = this.props.item;
+    let currentAccountNotified = false;
+    const workItems = (workItem.workId ? [workItem] : []).filter(item => {
+      if (item.executeTime) {
+        currentAccountNotified = true;
+      }
+      return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
+    });
+
+    if (!workItems.length) return null;
+
+    const time = moment() - moment(workItems[0].dueTime) || 0;
+
+    return (
+      <span
+        className="stepTimeConsuming flexRow"
+        style={{
+          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#2196f3',
+        }}
+      >
+        <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
+        <div className="overflow_ellipsis">
+          {time > 0 ? _l('已超时%0', this.covertTime(time)) : _l('剩余%0', this.covertTime(time))}
+        </div>
+      </span>
+    );
+  }
+  renderTime() {
+    const { workItem = {} } = this.props.item;
+    const consumingWorkItems = (workItem.workId ? [workItem] : []).filter(
+      item => _.includes([3, 4], item.type) && item.operationTime,
+    );
+    const surplusTimeWorkItems = (workItem.workId ? [workItem] : []).filter(item => {
+      return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
+    });
+
+    if (consumingWorkItems.length) {
+      return this.renderTimeConsuming();
+    }
+    if (surplusTimeWorkItems.length) {
+      return this.renderSurplusTime();
+    }
+
+    return <div className="Gray_9e ellipsis time">{this.props.time}</div>
+  }
   renderHeader() {
     const { currentTab, item, time } = this.props;
     const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;
@@ -77,11 +178,11 @@ export default class Card extends Component {
     }
 
     return (
-      <div className="mobileProcessCardHeader valignWrapper">
+      <div className="mobileProcessCardHeader valignWrapper overflow_ellipsis">
         <div className="stateWrapper valignWrapper flex">
           {RenderState}
         </div>
-        <div className="Gray_9e ellipsis time">{time}</div>
+        {this.renderTime()}
       </div>
     );
   }

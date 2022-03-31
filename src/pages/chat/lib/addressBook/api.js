@@ -16,7 +16,7 @@ const fetchContacts = function ({
   projectId = '',
   range = RANGES.ALL,
   pageIndex = 1,
-  pageSize = 20,
+  pageSize = 100,
   firstCode = '',
   isFilterOther = false,
   keywords = '',
@@ -110,11 +110,13 @@ export default {
     return fetchContacts(params);
   },
 
-  fetchDepartments: ({ projectId }) => {
+  fetchDepartments: ({ projectId, pageIndex, pageSize }) => {
     const params = {
       projectId,
+      pageIndex,
+      pageSize,
     };
-    return DepartmentController.getProjectDepartments(params);
+    return DepartmentController.getProjectDepartmentByPage(params);
   },
 
   fetchDepartmentUsers: ({ projectId, departmentId }) => {
@@ -198,6 +200,17 @@ export default {
           .reject()
           .promise();
       }
+    });
+  },
+
+  searchAddressbookAndDepartment: ({ projectId, keywords, range, pageIndex, pageSize, isFilterOther }) => {
+    return AddressListController.searchAddressbookAndDepartment({
+      projectId,
+      keywords,
+      range,
+      pageIndex,
+      pageSize,
+      isFilterOther,
     });
   },
 };

@@ -136,6 +136,11 @@ export const EditInfo = styled(InfoWrap)`
       color: #2196f3;
     }
   }
+  &.borderError {
+    border-color: #f44336;
+    background: #fef2f4;
+    color: #f44336;
+  }
 `;
 
 export const DropdownPlaceholder = styled.div`
@@ -155,7 +160,7 @@ export const DropdownPlaceholder = styled.div`
       border-color: #ddd;
     }
     &.deleted {
-      border-color: #FF0000;
+      border-color: #ff0000;
     }
   }
   &.disabled {
@@ -163,9 +168,9 @@ export const DropdownPlaceholder = styled.div`
     cursor: not-allowed;
   }
   &.deleted {
-    background-color: rgba(251,238,241);
-    color: #FF0000;
-    border: 1px solid #FF0000;
+    background-color: rgba(251, 238, 241);
+    color: #ff0000;
+    border: 1px solid #ff0000;
     cursor: pointer;
   }
   &.invalid {

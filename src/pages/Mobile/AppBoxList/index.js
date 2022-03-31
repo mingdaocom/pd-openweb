@@ -51,7 +51,7 @@ export default class AddBoxList extends Component {
         libraryId: item.libraryId,
       });
     }
-  }
+  };
   renderAppsInfo() {
     const { dataBysearch } = this.state;
     return (
@@ -69,7 +69,8 @@ export default class AddBoxList extends Component {
                 className="valignWrapper install bold"
                 onClick={() => {
                   this.handleAddProject(item);
-                }}>
+                }}
+              >
                 {_l('添加')}
               </div>
             }
@@ -78,7 +79,8 @@ export default class AddBoxList extends Component {
                 return;
               }
               this.props.history.push(`/mobile/appBoxInfo/${item.libraryId}`);
-            }}>
+            }}
+          >
             <div className="bold Font16">{item.name}</div>
           </Item>
         ))}
@@ -111,7 +113,7 @@ export default class AddBoxList extends Component {
         <div className="content">
           {this.renderHome()}
           <AddDialog
-            getRef={ref => this.addDialogEl = ref}
+            getRef={ref => (this.addDialogEl = ref)}
             visible={this.state.showDialog}
             isMobile={true}
             onCancel={() => this.setState({ showDialog: false })}

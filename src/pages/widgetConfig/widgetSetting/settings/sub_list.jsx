@@ -3,7 +3,7 @@ import { Dialog, Menu, MenuItem, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import { getWorksheetInfo } from 'src/api/worksheet';
 import { changeSheet } from 'src/api/appManagement';
@@ -87,10 +87,13 @@ export default function SubListSetting(props) {
       getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
         .then(res => {
           const controls = _.get(res, ['template', 'controls']);
+          const saveData = _.find(allControls, i => i.controlId === data.controlId);
+
           // 关联表子表因为无法新增字段 所以不需要更新relationControls
           if (res.type !== 2) return;
           const { showControls } = allControls.find(item => item.controlId === controlId);
           onChange({
+            ...saveData,
             relationControls: dealControlData(controls),
             showControls,
           });
@@ -149,7 +152,7 @@ export default function SubListSetting(props) {
   const onOk = ({ createType, sheetId, appId, controlName }) => {
     // 从空白创建时,创建一个占位dataSource
     if (createType === '1') {
-      onChange({ dataSource: uuid() });
+      onChange({ dataSource: uuidv4() });
     } else {
       onChange({ appId, dataSource: sheetId, controlName });
     }

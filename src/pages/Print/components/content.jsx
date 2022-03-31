@@ -65,7 +65,7 @@ export default class Con extends React.Component {
           url = `${url}&&${printId}&&${projectId}`;
         }
         this.setState({
-          shareUrl: `${__api_server__}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
+          shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
         });
       });
   };

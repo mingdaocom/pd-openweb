@@ -222,7 +222,7 @@ export const SYSTEM_CONTROLS = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建人'),
+    controlName: _l('创建者'),
     controlPermissions: '100',
     type: 26,
     display: true,
