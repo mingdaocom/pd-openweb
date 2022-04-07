@@ -326,7 +326,7 @@ export default class CellControl extends React.Component {
       cell.isSubtotal = true;
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
         cell.type = 2;
-        cell.value = Math.round(parseFloat(cell.value) * 100) + '%';
+        cell.value = _.round(parseFloat(cell.value) * 100, cell.dot || 0).toFixed(cell.dot || 0) + '%';
       } else {
         cell.type = cell.enumDefault2 || 6;
       }

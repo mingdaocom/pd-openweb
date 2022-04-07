@@ -6,6 +6,7 @@ import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import Tooltip from 'ming-ui/components/Tooltip';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { emitter } from 'worksheet/util';
 import sheetAjax from 'src/api/worksheet';
 import SaveWorksheetFilter from '../SaveWorksheetFilter';
@@ -521,7 +522,7 @@ export default class WorkSheetFilter extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
-    columns = columns.map(redefineComplexControl);
+    columns = columns.filter(c => controlState(c).visible).map(redefineComplexControl);
     columns = columns
       .filter(c => _.includes(filterWhiteKeys, c.type))
       .filter(c => !(c.type === 38 && c.enumDefault === 3));

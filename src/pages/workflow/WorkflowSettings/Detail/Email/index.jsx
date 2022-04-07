@@ -235,7 +235,7 @@ export default class Email extends Component {
                 {singleObj.controlName}
                 {singleObj.required && <span className="mLeft5 red">*</span>}
               </div>
-              {item.fieldId === 'attachments' && <div className="mTop5 Gray_75">{_l('附件总大小不超过10M')}</div>}
+              {item.fieldId === 'attachments' && <div className="mTop5 Gray_75">{_l('附件总大小不超过50M')}</div>}
 
               {item.fieldId === 'content' && (
                 <div className="flexRow mTop10 relative">

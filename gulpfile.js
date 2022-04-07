@@ -13,10 +13,19 @@ const { webpackTaskFactory, findEntryMap, uploadFunctionFileToWorksheet } = requ
 require('./locale/gulplang');
 const isProduction = process.env.NODE_ENV === 'production';
 
+function handleError(err) {
+  console.error(err.toString());
+  process.exit(-1);
+}
+
 /** 生成 html 入口模板 */
 gulp.task('generate-mainweb', done => {
-  generate(done);
-  done();
+  try {
+    generate();
+    done();
+  } catch (err) {
+    handleError(err);
+  }
 });
 
 /** 前端 server 服务 */

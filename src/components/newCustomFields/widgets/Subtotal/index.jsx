@@ -123,7 +123,7 @@ export default class Widgets extends Component {
     }
 
     if (!_.isUndefined(value) && advancedSetting.summaryresult === '1') {
-      content = Math.round(parseFloat(value) * 100) + '%';
+      content = _.round(parseFloat(value) * 100, dot || 0).toFixed(dot || 0) + '%';
     }
 
     if (advancedSetting.prefix || advancedSetting.suffix) {

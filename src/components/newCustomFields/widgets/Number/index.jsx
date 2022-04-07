@@ -39,7 +39,7 @@ export default class Widgets extends Component {
 
     this.number.value = value;
 
-    if (advancedSetting.numshow === '1' && typeof value === 'number') {
+    if (advancedSetting.numshow === '1' && !isNaN(parseFloat(value))) {
       value = parseFloat(value) / 100;
     }
 

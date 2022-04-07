@@ -286,7 +286,7 @@ class EditPublishSetDialog extends React.Component {
                 </ul>
               </div>
 
-              {/* <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
+              <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
               <div className="publishAppCourse">
                 {_l('发布到')}
                 <span
@@ -308,7 +308,7 @@ class EditPublishSetDialog extends React.Component {
                 >
                   {_l('钉钉工作台')}
                 </span>
-              </div> */}
+              </div>
 
               <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
               <p className="Gray_9 mTop12">

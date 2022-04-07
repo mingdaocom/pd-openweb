@@ -607,19 +607,23 @@ export default function Container(props) {
                     );
                   }}
                 />
-                {loginMode.weChat && isWXOfficialExist && !browserIsMobile() && !paramForPcWx && (
-                  <WrapTpLogin>
-                    <div className="title Gray_9e mTop32">{_l('或')}</div>
-                    <div
-                      className="wxLogin mTop32 Hand"
-                      onClick={() => {
-                        setNextTp(true);
-                      }}
-                    >
-                      <i className="weixinIcon hvr-pop"></i> {_l('微信登录')}
-                    </div>
-                  </WrapTpLogin>
-                )}
+                {loginMode.weChat &&
+                  isWXOfficialExist &&
+                  !browserIsMobile() &&
+                  !paramForPcWx &&
+                  !md.global.Config.IsLocal && ( //私有部署隐藏
+                    <WrapTpLogin>
+                      <div className="title Gray_9e mTop32">{_l('或')}</div>
+                      <div
+                        className="wxLogin mTop32 Hand"
+                        onClick={() => {
+                          setNextTp(true);
+                        }}
+                      >
+                        <i className="weixinIcon hvr-pop"></i> {_l('微信登录')}
+                      </div>
+                    </WrapTpLogin>
+                  )}
               </React.Fragment>
             )}
           </div>

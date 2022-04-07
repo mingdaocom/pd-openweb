@@ -33,6 +33,14 @@ export default class extends Component {
       customRangeDay: false
     }
   }
+  getTableData = () => {
+    this.props.changeBase({
+      reportSingleCacheId: null,
+      apkId: null,
+      match: {}
+    });
+    this.props.getTableData();
+  }
   handleUpdateScope = value => {
     this.setState({
       dropdownScopeValue: value,
@@ -58,6 +66,7 @@ export default class extends Component {
         rangeValue: dropdownDayValue
       }
     }, true);
+    this.getTableData()
   }
   renderScope() {
     const { currentReport } = this.props;
@@ -312,6 +321,7 @@ export default class extends Component {
                       filterControls: conditions,
                     }
                   }, true);
+                  this.getTableData();
                 }}
               />
             </div>

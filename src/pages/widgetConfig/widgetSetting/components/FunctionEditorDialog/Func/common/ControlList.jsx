@@ -78,20 +78,22 @@ export default function ControlList(props) {
         >
           {controlGroups.map(group => (
             <Collapse.Panel key={group.id} header={<span className="fnTitle">{group.name}</span>}>
-              {group.controls.map((c, i) => (
-                <ControlItem
-                  key={i}
-                  onClick={() => {
-                    insertTagToEditor({
-                      value: group.id + '-' + c.controlId,
-                      text: c.controlName,
-                    });
-                  }}
-                >
-                  <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
-                  {c.controlName}
-                </ControlItem>
-              ))}
+              {group.controls
+                .filter(c => new RegExp(keywords).test(c.controlName))
+                .map((c, i) => (
+                  <ControlItem
+                    key={i}
+                    onClick={() => {
+                      insertTagToEditor({
+                        value: group.id + '-' + c.controlId,
+                        text: c.controlName,
+                      });
+                    }}
+                  >
+                    <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
+                    {c.controlName}
+                  </ControlItem>
+                ))}
             </Collapse.Panel>
           ))}
         </Collapse>

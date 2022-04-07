@@ -36,6 +36,7 @@ class Projects extends Component {
     this.state = {
       visible: false,
       confirmVisible: false,
+      bindProjectIds: [],
       projects: [],
       loading: true,
     }
@@ -43,14 +44,23 @@ class Projects extends Component {
   getProjects() {
     this.setState({ loading: true });
     privateGuide.getProjects().then(result => {
+      debugger;
+      // 所有组织列表
+      let projects = [];
+      // 已绑定的组织Id
+      let bindProjectIds = [];
+      result.map(item => {
+        if (item.isBind) {
+          item.disabled = true;
+          bindProjectIds.push(item.projectId);
+        }
+        projects.push(item);
+      })
+
       this.setState({
         loading: false,
-        projects: result.map(item => {
-          if (item.isBind) {
-            item.disabled = true;
-          }
-          return item;
-        })
+        projects: projects,
+        bindProjectIds: bindProjectIds
       });
     });
   }
@@ -67,13 +77,21 @@ class Projects extends Component {
     });
   }
   handleSave = () => {
+
+    // 如果没有组织id变化，直接关闭弹层即可
+    const { projects, bindProjectIds } = this.state;
+    const projectIds = projects.filter(item => item.isBind).map(item => item.projectId);
+    let newProjectIds = projectIds.filter(function (id) { return bindProjectIds.indexOf(id) == -1 });
+    if (!newProjectIds.length) {
+      this.setState({ visible: false });
+      return;
+    }
+
     this.setState({ confirmVisible: true });
     Dialog.confirm({
       title: _l('您确认要关联新组织吗 ？'),
       description: _l('关联后会占用租户名额，且不可取消'),
       onOk: () => {
-        const { projects } = this.state;
-        const projectIds = projects.filter(item => item.isBind).map(item => item.projectId);
         privateGuide.bindProject({
           projectIds,
         }).then(result => {
@@ -150,8 +168,8 @@ class Projects extends Component {
           },
         }}
       >
-        <div className={cx({pointer: usable})}>
-          <span className={cx({associated: usable})}>{_l('关联')}</span>
+        <div className={cx({ pointer: usable })}>
+          <span className={cx({ associated: usable })}>{_l('关联')}</span>
         </div>
       </Trigger>
     );
@@ -400,13 +418,13 @@ export default class privateDeployment extends Component {
           <div className="flex flexRow valignWrapper">{formatDate(startDate)}</div>
           <div className="flex flexRow valignWrapper">{formatDate(expirationDate)}</div>
           <div className="flex flexRow valignWrapper">{technicalSupport ? formatDate(technicalSupport) : '--'}</div>
-          <div className="flex flexRow valignWrapper">{ projectNum == 2147483647 ? '不限' : projectNum }</div>
-          <div className="flex flexRow valignWrapper">{ projectUserNum == 2147483647 ? '不限' : projectUserNum }</div>
-          <div className="flex flexRow valignWrapper">{ externalUserNum == 2147483647 ? '不限' : externalUserNum }</div>
-          <div className="flex flexRow valignWrapper">{ applicationNum == 2147483647 ? '不限' : applicationNum }</div>
-          <div className="flex flexRow valignWrapper">{ worktableNum == 2147483647 ? '不限' : worktableNum }</div>
-          <div className="flex flexRow valignWrapper">{ worktableRowNum == 2147483647 ? '不限' : worktableRowNum }</div>
-          <div className="flex flexRow valignWrapper">{ workflowNum == 1000000 ? '不限' : workflowNum }</div>
+          <div className="flex flexRow valignWrapper">{projectNum == 2147483647 ? '不限' : projectNum}</div>
+          <div className="flex flexRow valignWrapper">{projectUserNum == 2147483647 ? '不限' : projectUserNum}</div>
+          <div className="flex flexRow valignWrapper">{externalUserNum == 2147483647 ? '不限' : externalUserNum}</div>
+          <div className="flex flexRow valignWrapper">{applicationNum == 2147483647 ? '不限' : applicationNum}</div>
+          <div className="flex flexRow valignWrapper">{worktableNum == 2147483647 ? '不限' : worktableNum}</div>
+          <div className="flex flexRow valignWrapper">{worktableRowNum == 2147483647 ? '不限' : worktableRowNum}</div>
+          <div className="flex flexRow valignWrapper">{workflowNum == 1000000 ? '不限' : workflowNum}</div>
           <div className="flex flexRow valignWrapper">
             <Projects usable={!isEfficacyVlaue && state == 1} />
           </div>
@@ -546,7 +564,7 @@ export default class privateDeployment extends Component {
               <div className="Font17 bold mBottom2">{_l('安装管理器')}</div>
               <div className="Gray_9e">
                 {_l('升级、重启、访问地址设置等，请访问')}
-                <a className="pointer mLeft2 mRight2" href={ md.global.SysSettings.installCaptainUrl || location.protocol + '//' + location.hostname + ':38881/settings' } target="_blank">
+                <a className="pointer mLeft2 mRight2" href={md.global.SysSettings.installCaptainUrl || location.protocol + '//' + location.hostname + ':38881/settings'} target="_blank">
                   {_l('安装管理器')}
                 </a>
                 {_l('进行操作')}{', '}{_l('设置')}
@@ -632,7 +650,7 @@ export default class privateDeployment extends Component {
                   </div>
                   <div className="Gray_75">{_l('暂无密钥')}</div>
                   <div className="mTop30">
-                    <a href={`https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${serverInfo.serverId}#apply`)}`}target="_blank" className="applyBtn mRight10">{_l('注册并申请')}</a>
+                    <a href={`https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${serverInfo.serverId}#apply`)}`} target="_blank" className="applyBtn mRight10">{_l('注册并申请')}</a>
                     <a href={`https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${serverInfo.serverId}#apply`} target="_blank" className="applyBtn">{_l('登录并申请')}</a>
                   </div>
                 </div>

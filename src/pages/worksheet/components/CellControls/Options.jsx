@@ -111,6 +111,7 @@ export default class Options extends React.Component {
 
   render() {
     const {
+      isSubList,
       from,
       className,
       rowIndex,
@@ -171,7 +172,10 @@ export default class Options extends React.Component {
           />
         ) : (
           <Dropdown
-            {...cell}
+            {...{
+              ...cell,
+              advancedSetting: { ...cell.advancedSetting, allowadd: isSubList ? '0' : cell.advancedSetting.allowadd },
+            }}
             dropdownClassName="scrollInTable"
             value={value}
             selectProps={{
@@ -212,7 +216,7 @@ export default class Options extends React.Component {
                   key={index}
                   style={Object.assign(
                     {},
-                    { ...getOptionStyle(option, cell), maxWidth: style.width - 20 },
+                    { ...getOptionStyle(option, cell), maxWidth: style.width - 14 },
                     from === FROM.CARD ? { margin: '0px 4px 0px 0px' } : {},
                   )}
                 >
