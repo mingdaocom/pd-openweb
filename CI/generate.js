@@ -5,7 +5,7 @@ const moment = require('moment');
 const cheerio = require('cheerio');
 const minify = require('html-minifier').minify;
 const { htmlTemplatesPath, getEntryName, getEntryFromHtml } = require('./utils');
-const { apiServer, workflowApiServer, reportApiServer, webpackPublicPath } = require('./publishConfig');
+const { apiServer, webpackPublicPath } = require('./publishConfig');
 
 const isProduction = process.env.NODE_ENV === 'production';
 

@@ -2,7 +2,7 @@
   "name": "mingdao-web",
   "version": "4.0.1",
   "scripts": {
-    "start": "cross-env API_SERVER=http://172.17.30.60:8880/wwwapi/ WORKFLOW_API_SERVER=http://172.17.30.60:8880 REPORT_API_SERVER=http://172.17.30.60:8880 node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main",
+    "start": "cross-env API_SERVER=http://172.17.30.60:8880 node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main",
     "release": "cross-env NODE_ENV=production node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js release",
     "publish": "cross-env NODE_ENV=production API_SERVER=/wwwapi/ WEBPACK_PUBLIC_PATH=/dist/pack/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js publish"
   },

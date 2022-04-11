@@ -9,10 +9,8 @@ var fs = require('fs');
 var proxy = require('proxy-middleware');
 const gutil = require('gulp-util');
 const utils = require('./utils');
-const { apiServer, workflowApiServer, reportApiServer } = require('./publishConfig');
+const { apiServer } = require('./publishConfig');
 var apiProxyMiddleware = proxy(apiServer);
-var workflowApiProxyMiddleware = proxy(workflowApiServer || '');
-var reportApiProxyMiddleware = proxy(reportApiServer || '');
 
 const statusData = {};
 
@@ -86,16 +84,16 @@ const middlewareList = [
       res.end();
     } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
-      req.url = req.url.replace('/api/', '');
+      req.url = req.url.replace('/api/', '/wwwapi/');
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/workflow_api/')) {
       // 代理接口请求到 工作流 api 服务器
       req.url = req.url.replace('/workflow_api/', '/api/workflow/');
-      workflowApiProxyMiddleware(req, res, next);
+      apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/report_api/')) {
       // 代理接口请求到 图表 api 服务器
       req.url = req.url.replace('/report_api/', '/report/');
-      reportApiProxyMiddleware(req, res, next);
+      apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件
       next();
