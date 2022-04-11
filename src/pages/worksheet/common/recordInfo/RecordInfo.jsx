@@ -810,10 +810,18 @@ export default class RecordInfo extends Component {
                       getRowDetail({ worksheetId, rowId: recordId, getType: 1 }).then(data => {
                         const controlValue = safeParse(data.rowData)[c.controlId];
                         if (!_.isUndefined(controlValue)) {
+                          this.setState({
+                            recordinfo: {
+                              ...recordinfo,
+                              formData: recordinfo.formData.map(cc =>
+                                cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
+                              ),
+                            },
+                          });
                           this.recordform.current.dataFormat.updateDataSource({
                             controlId: c.controlId,
                             value: controlValue,
-                            notInsertControlIds: true,
+                            // notInsertControlIds: true,
                           });
                           this.recordform.current.updateRenderData();
                         }

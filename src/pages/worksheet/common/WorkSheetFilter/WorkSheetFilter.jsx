@@ -522,7 +522,7 @@ export default class WorkSheetFilter extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
-    columns = columns.filter(c => controlState(c).visible).map(redefineComplexControl);
+    columns = columns.filter(c => (c.controlPermissions || '111')[0] === '1').map(redefineComplexControl);
     columns = columns
       .filter(c => _.includes(filterWhiteKeys, c.type))
       .filter(c => !(c.type === 38 && c.enumDefault === 3));

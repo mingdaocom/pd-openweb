@@ -139,8 +139,8 @@ export default class CellControl extends React.Component {
   }
 
   validate(cell, row) {
-    const { tableFromModule, cellUniqueValidate, clearCellError } = this.props;
-    let { errorType } = onValidator(cell);
+    const { tableFromModule, cellUniqueValidate, clearCellError, formdata } = this.props;
+    let { errorType } = onValidator(cell, undefined, formdata());
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value) ? '' : 'UNIQUE';
     }
@@ -160,9 +160,14 @@ export default class CellControl extends React.Component {
 
   @autobind
   onValidate(value) {
-    const { cell, row, checkRulesErrorOfControl } = this.props;
+    const { cell, row, checkRulesErrorOfControl, formdata } = this.props;
     const errorType = this.validate({ ...cell, value }, row);
-    const errorText = errorType && this.getErrorText(errorType, { ...cell, value });
+    let errorText;
+    if (_.includes([15, 16], cell.type)) {
+      errorText = onValidator(cell, undefined, formdata()).errorText;
+    } else {
+      errorText = errorType && this.getErrorText(errorType, { ...cell, value });
+    }
     const error = checkRulesErrorOfControl(cell, { ...row, [cell.controlId]: value });
     if (error) {
       this.setState({ error: error.errorMessage });

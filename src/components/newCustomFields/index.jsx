@@ -95,6 +95,7 @@ export default class CustomFields extends Component {
     if (this.props.flag !== nextProps.flag || this.props.data.length !== nextProps.data.length) {
       this.initSource(nextProps.data, nextProps.disabled);
       this.updateErrorState(false);
+      this.changeStatus = false;
     }
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
@@ -124,8 +125,15 @@ export default class CustomFields extends Component {
       updateLoadingItems: loadingItems => {
         this.setState({ loadingItems });
       },
+      activeTrigger: () => {
+        if (!this.changeStatus && this.dataFormat) {
+          this.props.onChange(this.dataFormat.getDataSource(), this.dataFormat.getUpdateControlIds());
+          this.changeStatus = true;
+        }
+      },
       onAsyncChange: ({ controlId, value }) => {
         this.props.onChange(this.dataFormat.getDataSource(), [controlId]);
+        this.changeStatus = true;
         this.setState(
           {
             renderData: this.getFilterDataByRule(true),
@@ -561,6 +569,7 @@ export default class CustomFields extends Component {
               const ids = this.dataFormat.getUpdateControlIds();
               if (ids.length) {
                 this.props.onChange(this.dataFormat.getDataSource(), ids);
+                this.changeStatus = true;
               }
             }
           }}

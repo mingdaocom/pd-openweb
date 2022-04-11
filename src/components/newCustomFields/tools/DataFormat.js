@@ -262,7 +262,10 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
 
   const expression = formulaStr.replace(/\$.+?\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
-    let column = Object.assign({}, _.find(data, obj => obj.controlId === controlId));
+    let column = Object.assign(
+      {},
+      _.find(data, obj => obj.controlId === controlId),
+    );
 
     if (!column) {
       columnIsUndefined = true;
@@ -423,11 +426,11 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
             value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
           } else {
             if (i !== timeDiff % 7) {
-              weekDayHour += moment(
-                moment(newStart)
-                  .add(1, 'd')
-                  .format('YYYY-MM-DD'),
-              ).diff(i === 0 ? newStart : newStart.format('YYYY-MM-DD'), TIME_UNIT[currentItem.unit] || 'm', true);
+              weekDayHour += moment(moment(newStart).add(1, 'd').format('YYYY-MM-DD')).diff(
+                i === 0 ? newStart : newStart.format('YYYY-MM-DD'),
+                TIME_UNIT[currentItem.unit] || 'm',
+                true,
+              );
             } else {
               weekDayHour += moment(newStart.format('YYYY-MM-DD') + moment(endTime).format(' HH:mm')).diff(
                 moment(newStart).format('YYYY-MM-DD'),
@@ -706,6 +709,7 @@ export default class DataFormat {
     searchConfig = [],
     onAsyncChange = () => {},
     updateLoadingItems = () => {},
+    activeTrigger = () => {},
   }) {
     this.projectId = projectId;
     this.masterRecordRowId = masterRecordRowId;
@@ -720,6 +724,7 @@ export default class DataFormat {
     this.searchConfig = searchConfig;
     this.onAsyncChange = onAsyncChange;
     this.updateLoadingItems = updateLoadingItems;
+    this.activeTrigger = activeTrigger;
 
     const departmentIds = [];
     const locationIds = [];
@@ -909,6 +914,7 @@ export default class DataFormat {
               !notInsertControlIds
             ) {
               this.controlIds.push(controlId);
+              this.activeTrigger();
             }
           }
         });

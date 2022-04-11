@@ -5,6 +5,8 @@ import { Switch } from 'ming-ui';
 import { Button, Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
+import RegExp from 'src/util/expression';
+import { encrypt } from 'src/util';
 
 const SetInitialPassword = styled.div`
   padding: 20px 0;
@@ -42,8 +44,6 @@ const SetInitialPassword = styled.div`
   }
 `;
 
-const reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$/; // 密码校验
-
 export default class IntegrationSetPssword extends Component {
   constructor(props) {
     super(props);
@@ -66,7 +66,7 @@ export default class IntegrationSetPssword extends Component {
   changeInitialPassword = password => {
     Ajax.editIntergrationAccountInitializeInfo({
       projectId: Config.projectId,
-      password,
+      password: encrypt(password),
     }).then(res => {
       if (this.state.isSetPassword) {
         if (res) {
@@ -90,14 +90,19 @@ export default class IntegrationSetPssword extends Component {
   // 保存密码
   savePassword = () => {
     let { password } = this.state;
-    this.setState({ passwordError: !reg.test(password) }, () => {
-      if (!this.state.passwordError) {
-        this.changeInitialPassword(password);
-      }
-    });
+    const { passwordRegex } = md.global.SysSettings;
+
+    if (RegExp.isPasswordRule(password, passwordRegex)) {
+      this.setState({ passwordError: false });
+      this.changeInitialPassword(password);
+    } else {
+      this.setState({ passwordError: true });
+    }
   };
   render() {
     let { disabled } = this.props;
+    const { passwordRegexTip, passwordRegex } = md.global.SysSettings;
+
     return (
       <SetInitialPassword>
         <div className="flex">
@@ -117,23 +122,19 @@ export default class IntegrationSetPssword extends Component {
               <Input.Password
                 className={cx('password', { passwordError: this.state.passwordError })}
                 value={this.state.password}
-                placeholder={_l('8-20位，需要包含字母和数字')}
+                placeholder={passwordRegexTip}
                 autoComplete="new-password"
                 onChange={e => {
                   let value = e.target.value;
                   this.setState({
-                    password: value.replace(/[^A-Za-z0-9]/g, ''),
+                    password: value,
                   });
                 }}
-                // onBlur={e => {
-                //   let value = e.target.value;
-                //   this.setState({ passwordError: value && !reg.test(value) });
-                // }}
               />
               <Button type="primary" onClick={this.savePassword}>
                 {_l('保存')}
               </Button>
-              {this.state.passwordError && <div className="passwordErrorTxt">{_l('8-20位，需要包含字母和数字')}</div>}
+              {this.state.passwordError && <div className="passwordErrorTxt">{passwordRegexTip}</div>}
             </div>
           )}
         </div>

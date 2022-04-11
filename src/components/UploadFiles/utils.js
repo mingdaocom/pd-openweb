@@ -242,7 +242,7 @@ export const findIndex = (res, id) => {
 };
 
 export const checkAccountUploadLimit = (size, params = {}) => {
-  return kcCtrl.getUsage(params).then(function (usage) {
+  return kcCtrl.getUsage(params).then(function(usage) {
     return usage.used + size < usage.total;
   });
 };
@@ -288,12 +288,14 @@ export const openNetStateDialog = projectId => {
     description: (
       <div className="netStateWrap">
         <div className="imgWrap" />
-        <div className="hint">{_l('您的当年应用附件上传量已到最大值')}</div>
-        <div className="explain">{_l('%0每年最多 %1G，请升级以继续', displayObj('version'), displayObj)}</div>
+        <div className="hint">{_l('应用附件上传量已到最大值')}</div>
+        {typeof licenseType === 'number' && (
+          <div className="explain">{_l('%0每年最多 %1G，请升级以继续', displayObj('version'), displayObj)}</div>
+        )}
       </div>
     ),
     noFooter: buyBtn,
-    okText: licenseType ? _l('购买上传量扩展包') : _l('立即购买'),
+    okText: typeof licenseType !== 'number' ? '' : licenseType ? _l('购买上传量扩展包') : _l('立即购买'),
     onOk: () =>
       licenseType
         ? navigateTo(`/admin/expansionservice/${projectId}/storage`)
@@ -303,7 +305,7 @@ export const openNetStateDialog = projectId => {
 };
 
 export const openMdDialog = () => {
-  require(['mdDialog'], function (mdDialog) {
+  require(['mdDialog'], function(mdDialog) {
     mdDialog.index({
       container: {
         content: `<div id="uploadStorageOverDialog">

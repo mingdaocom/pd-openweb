@@ -90,11 +90,11 @@ const middlewareList = [
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/workflow_api/')) {
       // 代理接口请求到 工作流 api 服务器
-      req.url = req.url.replace('/workflow_api/', '');
+      req.url = req.url.replace('/workflow_api/', '/api/workflow/');
       workflowApiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/report_api/')) {
       // 代理接口请求到 图表 api 服务器
-      req.url = req.url.replace('/report_api/', '');
+      req.url = req.url.replace('/report_api/', '/report/');
       reportApiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件
