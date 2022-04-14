@@ -194,13 +194,13 @@ class PrivateImageInstall extends Component {
           className="info"
           dangerouslySetInnerHTML={{
             __html: _l(
-              '注册明道云并 %0 , 如果您已经是明道云用户，可以 %1',
+              '如果您未有明道云账号，请 %0 ； 如果您已有明道云账号，请 %1',
               `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(
                 `/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
-              )}" target="_blank" class="applyPrivatekey">${_l('申请密钥')}</a>`,
+              )}" target="_blank" class="applyPrivatekey">${_l('注册并申请密钥')}</a>`,
               `<a href="https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${
                 stepResult.serverId
-              }#apply" target="_blank" class="genNewKey">${_l('登录并申请')}</a>`,
+              }#apply" target="_blank" class="genNewKey">${_l('登录并申请密钥')}</a>`,
             ),
           }}
         ></div>

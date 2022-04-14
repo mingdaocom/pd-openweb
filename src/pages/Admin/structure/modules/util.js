@@ -218,16 +218,21 @@ export const updateTreeData = (newDepartments = [], departmentId, departmentName
   // 获取当前修改节点
   let currentEditNode = { ..._.get(arr, currentEditPath), departmentName };
   // 获取父节点path
-  let parentPath = currentEditPath.replace(/.subDepartments\[\d\]$/g, '');
+  let parentPath = currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, '');
   // 获取父节点
   let parentNode = _.get(arr, parentPath);
 
   _.unset(arr, currentEditPath);
 
-  if (currentEditPath.replace(/.subDepartments\[\d\]$/g, '') === currentEditPath) {
+  if (currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, '') === currentEditPath) {
     arr = [..._.filter(arr, item => item)];
+  } else if (parentNode.departmentId === parentDepartment) {
+    _.update(arr, currentEditPath, data => {
+      return { ...data, ...currentEditNode };
+    });
+    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
   } else {
-    _.update(arr, currentEditPath.replace(/.subDepartments\[\d\]$/g, ''), data => {
+    _.update(arr, currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, ''), data => {
       let temp = _.filter(data.subDepartments, item => item);
       if (temp.length) {
         return { ...data, subDepartments: temp };
@@ -239,13 +244,6 @@ export const updateTreeData = (newDepartments = [], departmentId, departmentName
     });
   }
 
-  if (parentNode.departmentId === parentDepartment) {
-    _.update(arr, currentEditPath, data => {
-      return { ...data, ...currentEditNode };
-    });
-
-    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
-  }
   if (!parentDepartment) {
     arr = arr.concat([currentEditNode]);
     return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };

@@ -255,7 +255,7 @@ class BatchOperate extends React.Component {
     }
     startProcess({
       appId: worksheetId,
-      sources: selectedRows.map(item => item.rowid),
+      sources: selectedRows.map(item => item.rowid).slice(0, md.global.SysSettings.worktableBatchOperateDataLimitCount),
       triggerId: btn.btnId,
       ...args,
     }).then(data => {

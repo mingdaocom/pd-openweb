@@ -42,7 +42,7 @@ export function loadRecord({
     }
     let promise;
     if (!getRules) {
-      promise = Promise.all([(promise = getRowDetail(apiargs, controls))]);
+      promise = Promise.all([(promise = getRowDetail(apiargs, controls, { fireImmediately: true }))]);
     } else {
       promise = Promise.all([
         getRowDetail(apiargs, controls),

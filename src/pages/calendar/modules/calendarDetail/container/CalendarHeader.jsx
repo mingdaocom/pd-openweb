@@ -173,7 +173,6 @@ export default class CalendarHeader extends Component {
     const { isShowOpList } = this.state;
     return (
       <div className="calendarOperations pLeft15">
-        {/* {showShare ? <span className="icon-shareLink Font18 ThemeHoverColor3 pointer" title={_l('加入分享日程')} onClick={shareCalendar} /> : null} */}
         <span className="Relative mLeft20 calMoreOp">
           <span
             className="icon-task-point-more Font19 ThemeHoverColor3 pointer"

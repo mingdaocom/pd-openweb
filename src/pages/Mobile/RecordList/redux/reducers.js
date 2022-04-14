@@ -161,7 +161,7 @@ export const mobileViewPermission = (state = {}, action) => {
   }
 };
 
-export const isClickChart = (state = {}, action) => {
+export const isClickChart = (state = false, action) => {
   switch (action.type) {
     case 'UPDATE_CLICK_CHART':
       return action.flag;

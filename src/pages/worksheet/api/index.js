@@ -3,12 +3,12 @@ import { updateWorksheetRow } from 'src/api/worksheet';
 import { replaceByIndex } from 'worksheet/util';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 
-export function getRowDetail(params, controls) {
+export function getRowDetail(params, controls, options = {}) {
   return new Promise((resolve, reject) => {
     if (!controls) {
       params.getTemplate = true;
     }
-    getRowDetailApi(params)
+    getRowDetailApi(params, options)
       .then(data => {
         const rowData = safeParse(data.rowData);
         data.formData = (controls || data.templateControls || []).map(c => ({

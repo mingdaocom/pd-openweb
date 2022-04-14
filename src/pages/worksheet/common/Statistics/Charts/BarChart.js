@@ -338,6 +338,7 @@ export default class extends Component {
         ? {
             autoRotate: fontStyle ? true : false,
             autoHide: true,
+            autoEllipsis: true,
             formatter: (name, item) => {
               return particleSizeType === 6 ? _l('%0时', name) : name;
             },

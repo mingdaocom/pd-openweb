@@ -132,7 +132,7 @@ const mergeDepartments = (state, action) => {
       return {
         ...state,
         ...entities,
-        users: originData[0].users,
+        users: (_.isArray(originData) && !_.isEmpty(originData) && originData[0].users) || [],
         departments: { ...state.departments, ...entities.departments },
       };
     default:

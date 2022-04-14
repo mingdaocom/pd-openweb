@@ -143,6 +143,25 @@ export default class MyAppGroup extends Component {
           if (data) this.getIndexApp();
         });
         break;
+      case 'quit':
+        appManagementApi.quitRole(para).then(res => {
+          if (res.isRoleForUser) {
+            if (res.isRoleDepartment) {
+              this.getIndexApp();
+            } else {
+              Dialog.confirm({
+                title: <span style={{ color: '#f44336' }}>{_l('无法退出通过部门加入的应用')}</span>,
+                description: _l('您所在的部门被加入了此应用，只能由应用管理员进行操作'),
+                closable: false,
+                removeCancelBtn: true,
+                okText: _l('关闭'),
+              });
+            }
+          } else {
+            alert(_l('退出失败'), 2);
+          }
+        });
+        break;
       default:
         break;
     }
@@ -361,7 +380,7 @@ export default class MyAppGroup extends Component {
         ].filter(item => !addAppItem[item.key]);
         return (
           <div className="functionIntro">
-            <div className="welcomeImg"></div>
+            <div className="welcomeImg" />
             <h2>{_l('欢迎使用')}</h2>
             <p className="Font17">{_l('现在，从创建一个应用开始吧')}</p>
             <div className="introWrap">
@@ -392,11 +411,11 @@ export default class MyAppGroup extends Component {
                   }}
                 >
                   <div className="iconWrap">
-                    <i className={`icon-${icon}`} style={{ color: iconColor }}></i>
+                    <i className={`icon-${icon}`} style={{ color: iconColor }} />
                   </div>
                   <div className="title">
                     {title}
-                    {type === 'solution' && <i className="icon-launch Font12" style={{ verticalAlign: 'super' }}></i>}
+                    {type === 'solution' && <i className="icon-launch Font12" style={{ verticalAlign: 'super' }} />}
                   </div>
                   <div className="desc">{desc}</div>
                 </div>

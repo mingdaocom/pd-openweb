@@ -77,9 +77,18 @@ export default class Text extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { value, oldValue } = this.state;
     if (!prevProps.isediting && this.props.isediting) {
-      this.focus();
+      if (this.isNumberPercent && value) {
+        this.setState({ value: value * 100, oldValue: oldValue ? oldValue * 100 : oldValue }, this.focus);
+      } else {
+        this.focus();
+      }
     }
+  }
+  get isNumberPercent() {
+    const { cell } = this.props;
+    return _.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1';
   }
 
   con = React.createRef();
@@ -105,10 +114,11 @@ export default class Text extends React.Component {
   @autobind
   handleBlur(target) {
     const { cell, error, updateCell, updateEditingStatus } = this.props;
-    const { oldValue } = this.state;
+    let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
-    if (_.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
+    if (this.isNumberPercent && value) {
       value = parseFloat(value) / 100;
+      oldValue = parseFloat(oldValue) / 100;
     }
     if ((cell.type === 6 || cell.type === 8) && value === '-') {
       value = '';

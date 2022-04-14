@@ -173,8 +173,9 @@ class TableView extends React.Component {
 
   @autobind
   updateRecordEvent({ worksheetId, recordId }) {
-    const { viewId, controls, updateRows, hideRows } = this.props;
-    if (worksheetId === this.props.worksheetId) {
+    const { viewId, controls, updateRows, hideRows, sheetViewData } = this.props;
+    const { rows } = sheetViewData;
+    if (worksheetId === this.props.worksheetId && _.find(rows, r => r.rowid === recordId)) {
       getRowDetail({
         checkView: true,
         getType: 1,

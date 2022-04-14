@@ -19,9 +19,12 @@ export default class User extends Component {
         <div className="GSelect-User__avatar">
           <img data-accountid={user.accountId} src={user.avatar} />
         </div>
-        {!shouldShowInfo ? <div className="GSelect-User__fullname">{_l('我自己')}</div> : <div className="GSelect-User__fullname">{user.fullname}</div>}
-        {user.companyName && shouldShowInfo && <div className="GSelect-User__companyName">{user.companyName}</div>}
-        {user.department && shouldShowInfo && <div className="GSelect-User__companyName">{user.department}</div>}
+        {!shouldShowInfo ? (
+          <div className="GSelect-User__fullname">{_l('我自己')}</div>
+        ) : (
+          <div className="GSelect-User__fullname">{user.fullname}</div>
+        )}
+        {shouldShowInfo && <div className="GSelect-User__companyName">{user.companyName || user.department || ''}</div>}
       </div>
     );
   }

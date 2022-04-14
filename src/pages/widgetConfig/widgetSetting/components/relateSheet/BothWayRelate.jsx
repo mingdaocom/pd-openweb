@@ -109,7 +109,8 @@ export default function BothWayRelate(props) {
               className="sourceName pointer Bold"
               onClick={() =>
                 toEditWidgetPage({ sourceId: worksheetId, targetControl: sourceControlId, fromURL: 'newPage' })
-              }>
+              }
+            >
               {name || sourceName}
             </span>
           </div>
@@ -125,13 +126,18 @@ export default function BothWayRelate(props) {
           title={_l('添加双向关联')}
           onCancel={() => setConfig({ configVisible: false })}
           onOk={() => {
+            if (!name) {
+              alert(_l('字段名称不能为空'), 3);
+              return;
+            }
             onOk({
               controlName: name,
               enumDefault: count,
               advancedSetting: { showtype: displayType },
             });
             setConfig({ configVisible: false });
-          }}>
+          }}
+        >
           <div className="hint Gray_75">
             {_l('在 “%0”中添加关联字段“%1” ，双向同步关联的数据。', sheetName, sourceName)}
           </div>

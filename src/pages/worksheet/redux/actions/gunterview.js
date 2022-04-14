@@ -178,7 +178,7 @@ export const destroyGunterView = () => {
 export const refreshGunterView = (time) => {
   return (dispatch, getState) => {
     const { gunterView } = getState().sheet;
-    dispatch(updataPeriodType(gunterView.periodType, time));
+    dispatch(updataPeriodType(gunterView.periodType || PERIOD_TYPE.day, time));
     dispatch({ type: 'CHANGE_GUNTER_IS_REFRESH', data: !gunterView.isRefresh });
   };
 }

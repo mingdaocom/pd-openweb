@@ -103,11 +103,11 @@ export default class CustomButtons extends React.Component {
         // 无 clickType 有误
       }
     }
-    if (count > 1000) {
+    if (count > md.global.SysSettings.worktableBatchOperateDataLimitCount) {
       Dialog.confirm({
         title: (
           <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
-            {_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？')}
+            {_l('最大支持批量执行%0行记录，是否只选中并执行前%0行数据？', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
           </span>
         ),
         onOk: handleTrigger,

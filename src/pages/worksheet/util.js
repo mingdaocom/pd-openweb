@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import moment from 'moment';
+var filterXss = require('xss');
 import { navigateTo } from 'src/router/navigateTo';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
@@ -285,7 +286,7 @@ export function regexFilterHtmlScript(str) {
  */
 export function domFilterHtmlScript(str) {
   var div = document.createElement('div');
-  div.innerHTML = str;
+  div.innerHTML = filterXss(str);
   return div.innerText;
 }
 

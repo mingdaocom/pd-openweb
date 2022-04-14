@@ -227,7 +227,7 @@ export const getTableData = () => {
       reportConfigAjax.getTableData(data, { fireImmediately: true }).then(result => {
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result)
+          data: result
         });
       });
     } else {
@@ -261,7 +261,7 @@ export const getTableData = () => {
       reportRequestAjax.getTableData(params, { fireImmediately: true }).then(result => {
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result)
+          data: result
         });
       });
     }
@@ -314,7 +314,7 @@ export const getReportSingleCacheId = (data) => {
 export const requestOriginalData = (data) => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
-    const { filter } = currentReport;
+    const { filter = {} } = currentReport;
     const style = currentReport.style || {};
     const viewDataType = style.viewDataType || 1;
     const { viewId } = filter;

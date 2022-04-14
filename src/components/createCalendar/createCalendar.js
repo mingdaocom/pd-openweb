@@ -1654,9 +1654,6 @@ CreateCalendar.methods = {
           source.data.endDate = end;
           source.data.isRecur = isRecur;
           settings.dialog.closeDialog();
-          if (settings.createShare) {
-            CreateCalendar.methods.yesSelCalendar(source.data);
-          }
 
           if ($.isFunction(settings.callback)) {
             settings.callback(source.data);
