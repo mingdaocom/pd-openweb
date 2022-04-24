@@ -59,7 +59,7 @@ class Message extends React.Component {
     if (keys.includes('fullName')) {
       this.itiHideFn();
     } else {
-      if (!this.iti) {
+      if (!this.iti || !$('.iti__flag-container').length) {
         this.itiFn();
       }
       if (
@@ -87,8 +87,8 @@ class Message extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { keys = [], openLDAP } = prevProps;
-    if ((keys.includes('emailOrTel') || keys.includes('tel')) && openLDAP !== this.props.openLDAP) {
+    const { openLDAP } = prevProps;
+    if (openLDAP !== this.props.openLDAP && openLDAP) {
       this.itiFn();
     }
   }
@@ -531,7 +531,6 @@ class Message extends React.Component {
             >
               <input
                 type="text"
-                className=""
                 id="txtMobilePhone"
                 className={cx({ onlyRead: onlyRead })}
                 disabled={onlyRead ? 'disabled' : ''}

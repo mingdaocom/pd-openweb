@@ -34,6 +34,11 @@ export const ACTION_TYPES = {
     text: _l('获取记录打印文件'),
     icon: 'print',
   },
+  20: {
+    id: 'pbc',
+    text: _l('封装业务流程'),
+    icon: 'pbc',
+  },
 };
 
 export const TYPE_TO_STYLE = {
@@ -74,6 +79,11 @@ export const TYPE_TO_STYLE = {
   },
   print: {
     icon: 'print',
+    bg: '#4c7d9e',
+    shallowBg: '#4c7d9e33',
+  },
+  pbc: {
+    icon: 'pbc',
     bg: '#4c7d9e',
     shallowBg: '#4c7d9e33',
   },
