@@ -2,9 +2,8 @@ import React from 'react';
 import { string } from 'prop-types';
 import OtherField from './OtherField';
 import { OtherFieldList, FieldInfo, RelateControl } from '../styled';
-import { getDateType, getControlType, showClear } from '../util';
+import { getDateType, getControlType, showClear, getTypeList } from '../util';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
-import { CHECKBOX_TYPES } from '../config';
 
 const isOnlySelect = (dynamicValue, data) => {
   const type = getControlType(data);
@@ -47,11 +46,29 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
           const value = getValue(item, type);
           if (type === 'user') {
             const { accountId, fullname, avatar, name } = value;
+
+            if (accountId === 'user-self') {
+              return (
+                <OtherField
+                  className="timeField"
+                  dynamicValue={dynamicValue}
+                  data={data}
+                  item={item}
+                  text={_l('当前用户')}
+                  {...rest}
+                />
+              );
+            }
+
             return (
               <FieldInfo key={accountId}>
                 <img
                   className="avatar"
-                  src={_.includes(avatar, 'UserAvatar') ? avatar : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`}
+                  src={
+                    _.includes(avatar, 'UserAvatar')
+                      ? avatar
+                      : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`
+                  }
                 />
                 <div className="name">{fullname || name}</div>
                 <div
@@ -106,7 +123,7 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
             );
           }
           if (type === 'switch') {
-            const text = _.get(_.find(CHECKBOX_TYPES, ct => ct.id === item.staticValue) || {}, 'text');
+            const text = _.get(_.find(getTypeList(data), ct => ct.id === item.staticValue) || {}, 'text');
             return (
               <OtherField
                 className="timeField"

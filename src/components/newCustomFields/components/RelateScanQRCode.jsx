@@ -6,6 +6,7 @@ import ScanQRCode from './ScanQRCode';
 
 export default class Widgets extends Component {
   static propTypes = {
+    projectId: PropTypes.string,
     onChange: PropTypes.func,
     children: PropTypes.element,
   };
@@ -48,8 +49,9 @@ export default class Widgets extends Component {
     }
   }
   render() {
+    const { projectId, children } = this.props;
     return (
-      <ScanQRCode onScanQRCodeResult={this.handleRelateRow}>{this.props.children}</ScanQRCode>
+      <ScanQRCode projectId={projectId} onScanQRCodeResult={this.handleRelateRow}>{children}</ScanQRCode>
     );
   }
 }

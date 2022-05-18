@@ -9,8 +9,7 @@ import { timeToPercentage, percentageToTime } from 'worksheet/views/GunterView/u
 import { Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
 
-const getAssignWorkDays = (value, time) => {
-  const { dayOff, format } = viewConfig;
+const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
   const target = Math.abs(value);
   let count = value >= 0 ? 1 : -1;
@@ -29,8 +28,7 @@ const getAssignWorkDays = (value, time) => {
   return result;
 };
 
-const getNextWorkStartTime = time => {
-  const { dayOff } = viewConfig;
+const getNextWorkStartTime = (time, dayOff) => {
   let current = moment(time);
   while (dayOff.includes(current.day())) {
     current = current.add(1, 'd');
@@ -38,8 +36,7 @@ const getNextWorkStartTime = time => {
   return current.format('YYYY-MM-DD');
 };
 
-const getLastWorkEndTime = time => {
-  const { dayOff } = viewConfig;
+const getLastWorkEndTime = (time, dayOff) => {
   let current = moment(time);
   while (dayOff.includes(current.day())) {
     current = current.add(-1, 'd');
@@ -50,13 +47,14 @@ const getLastWorkEndTime = time => {
 @connect(
   state => ({
     ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll']),
-    ..._.pick(state.sheet, ['controls'])
+    ..._.pick(state.sheet, ['controls', 'base'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
 export default class RowBlock extends Component {
   constructor(props) {
     super(props);
+    const { base } = props;
     this.state = {
       tooltipLeft: 0,
       dragStartTime: null,
@@ -68,14 +66,14 @@ export default class RowBlock extends Component {
     this.$ref = createRef(null);
     this.isScroll = false;
     this.timer = null;
-    this.gunterChartWrapperEl = document.querySelector('.gunterChartWrapper');
+    this.gunterChartWrapperEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.style, this.props.style)) {
-      // this.$ref.current.style.transform = null;
+      this.$ref.current.style.transform = null;
     }
     if (nextProps.row.resetTime !== this.props.row.resetTime) {
-      // this.$ref.current.style.transform = null;
+      this.$ref.current.style.transform = null;
       this.$ref.current.style.left = `${nextProps.row.left}px`;
       this.$ref.current.style.width = `${nextProps.row.width}px`;
     }
@@ -156,8 +154,8 @@ export default class RowBlock extends Component {
       const isEndDayOff = dayOff.includes(moment(row.endTime).days());
       const isStartHour = moment(row.startTime).minute() || moment(row.startTime).hour();
       const isEndHour = moment(row.endTime).minute() || moment(row.endTime).hour();
-      const starts = getAssignWorkDays(day, getNextWorkStartTime(row.startTime));
-      const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime));
+      const starts = getAssignWorkDays(day, getNextWorkStartTime(row.startTime, dayOff), dayOff);
+      const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime, dayOff), dayOff);
       let startTime = starts[starts.length - 1];
       let endTime = ends[ends.length - 1];
       if (isHours) {
@@ -165,8 +163,8 @@ export default class RowBlock extends Component {
         const startIsDayOff = dayOff.includes(moment(row.startTime).days());
         const startHoursWidth = startIsZero ? 0 : timeToPercentage(row.startTime, minDayWidth);
         const startDay = (value > 0 ? (startIsDayOff ? value : startHoursWidth + value) : (startIsDayOff ? value - minDayWidth : (startHoursWidth + value) - minDayWidth)) / minDayWidth
-        const currentStartTime = getNextWorkStartTime(row.startTime);
-        const starts = getAssignWorkDays(parseInt(startDay), currentStartTime);
+        const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
+        const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
         const startHours = value > 0 ? percentageToTime(startDay % 1 * 100) : percentageToTime(100 - (Math.abs(startDay) % 1 * 100));
         const startTime = moment(startDayTime ? startDayTime : currentStartTime).add(startHours, 'h').format('YYYY-MM-DD HH:mm');
@@ -175,8 +173,8 @@ export default class RowBlock extends Component {
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
         const endDay = (value > 0 ? (endIsDayOff ? minDayWidth + value : endHoursWidth + value) : (endIsDayOff ? value : (endHoursWidth + value) - minDayWidth)) / minDayWidth;
-        const currentEndTime = getLastWorkEndTime(row.endTime);
-        const ends = getAssignWorkDays(parseInt(endDay), currentEndTime);
+        const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
+        const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
         const endHours = value > 0 ? percentageToTime((endDayTime ? endDay : value / minDayWidth) % 1 * 100) : percentageToTime(100 - (Math.abs(endDay) % 1 * 100));
         const endTime = moment(endDayTime ? endDayTime : currentEndTime).add(endHours, 'h').format('YYYY-MM-DD HH:mm');
@@ -225,8 +223,8 @@ export default class RowBlock extends Component {
         const startIsDayOff = dayOff.includes(moment(row.startTime).days());
         const startHoursWidth = startIsZero ? 0 : timeToPercentage(row.startTime, minDayWidth);
         const startDay = (value > 0 ? (startIsDayOff ? value : startHoursWidth + value) : (startIsDayOff ? value - minDayWidth : (startHoursWidth + value) - minDayWidth)) / minDayWidth
-        const currentStartTime = getNextWorkStartTime(row.startTime);
-        const starts = getAssignWorkDays(parseInt(startDay), currentStartTime);
+        const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
+        const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
         const startHours = value > 0 ? percentageToTime(startDay % 1 * 100) : percentageToTime(100 - (Math.abs(startDay) % 1 * 100));
         const startTime = moment(startDayTime ? startDayTime : currentStartTime).add(startHours, 'h').format('YYYY-MM-DD HH:mm');
@@ -241,7 +239,7 @@ export default class RowBlock extends Component {
     }
     const day = parseInt(value / minDayWidth);
     if (onlyWorkDay) {
-      const starts = getAssignWorkDays(day, getNextWorkStartTime(row.startTime));
+      const starts = getAssignWorkDays(day, getNextWorkStartTime(row.startTime, dayOff), dayOff);
       const startTime = starts[starts.length - 1];
       return [startTime, null];
     } else {
@@ -262,8 +260,8 @@ export default class RowBlock extends Component {
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
         const endDay = (value > 0 ? (endIsDayOff ? minDayWidth + value : endHoursWidth + value) : (endIsDayOff ? value : (endHoursWidth + value) - minDayWidth)) / minDayWidth;
-        const currentEndTime = getLastWorkEndTime(row.endTime);
-        const ends = getAssignWorkDays(parseInt(endDay), currentEndTime);
+        const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
+        const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
         const endHours = value > 0 ? percentageToTime((endDayTime ? endDay : value / minDayWidth) % 1 * 100) : percentageToTime(100 - (Math.abs(endDay) % 1 * 100));
         const endTime = moment(endDayTime ? endDayTime : currentEndTime).add(endHours, 'h').format('YYYY-MM-DD HH:mm');
@@ -278,7 +276,7 @@ export default class RowBlock extends Component {
     }
     const day = parseInt(value / minDayWidth);
     if (onlyWorkDay) {
-      const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime));
+      const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime, dayOff), dayOff);
       const endTime = ends[ends.length - 1];
       return [null, endTime];
     } else {
@@ -326,8 +324,8 @@ export default class RowBlock extends Component {
           currentChangeStartTime: start,
           currentChangeEndTime: end
         });
-        // this.$ref.current.style.transform = `translateX(${changValue}px)`;
-        this.$ref.current.style.left = `${left + changValue}px`;
+        this.$ref.current.style.transform = `translateX(${changValue}px)`;
+        // this.$ref.current.style.left = `${left + changValue}px`;
       }
       // this.openScroll(event.clientX, changValue);
     };

@@ -39,7 +39,11 @@ export default class WorkSheetComment extends React.Component {
     this.getAtData();
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.formFlag !== this.props.formFlag || !_.isEqual(this.props.formdata, nextProps.formdata)) {
+    if (
+      nextProps.formFlag !== this.props.formFlag ||
+      nextProps.status !== this.props.status || //内部和外部讨论
+      !_.isEqual(this.props.formdata, nextProps.formdata)
+    ) {
       this.getAtData(nextProps);
     }
   }
@@ -49,15 +53,31 @@ export default class WorkSheetComment extends React.Component {
     }
   }
   getAtData = nextProps => {
-    const { formdata = [] } = nextProps || this.props;
+    let {
+      formdata = [],
+      allowExAccountDiscuss = false, //是否配置外部门户可参与讨论
+      exAccountDiscussEnum = 0, //外部门户可见讨论区域为全部
+      status, //1:线上|内部 4:外部讨论
+    } = nextProps || this.props;
     const { discussions = [] } = this.state;
     let data = [];
+    if (status === 1) {
+      //内部讨论
+      if (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) {
+        //未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
+        formdata = formdata.filter(
+          o =>
+            o.type === 26 && //成员字段
+            (o.userPermission !== 0 || o.controlId === 'ownerid') && //排除仅用于记录人员数据(除了拥有者字段外)
+            (o.advancedSetting || {}).usertype !== '2',
+        );
+      }
+    }
     formdata
       .filter(
         o =>
           o.type === 26 && //成员字段
-          (o.userPermission !== 0 || o.controlId === 'ownerid') && //排除仅用于记录人员数据(除了拥有者字段外)
-          (o.advancedSetting || {}).usertype !== '2', //不能@外部用户
+          (o.userPermission !== 0 || o.controlId === 'ownerid'), //排除仅用于记录人员数据(除了拥有者字段外)
       )
       .map(o => {
         let d;
@@ -77,18 +97,26 @@ export default class WorkSheetComment extends React.Component {
     });
     data = data
       //参与讨论的
-      .concat(dis.map(item => Object.assign({}, item, { job: _l('讨论') })))
+      .concat(dis.map(item => Object.assign({}, item, { job: _l('讨论用户') })))
       //@到的
-      .concat(accountsInMessage.map(item => Object.assign({}, item, { job: _l('讨论') })))
+      .concat(accountsInMessage.map(item => Object.assign({}, item, { job: _l('讨论用户') })))
       //排除自己以及未指定等
       .filter(
         d =>
           !(
             ['user-undefined', 'user-publicform', md.global.Account.accountId].includes(d.accountId) ||
-            d.accountId.indexOf('user-') >= 0 ||
-            d.accountId.indexOf('a#') >= 0
+            d.accountId.indexOf('user-') >= 0
           ),
       );
+    data = data.filter(
+      d =>
+        !(
+          status === 1 &&
+          (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) &&
+          d.accountId.indexOf('a#') >= 0
+        ) && //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
+        d.status === 1, //状态为正常的用户
+    );
     let hash = {};
     const data2 = data.reduce((preVal, curVal) => {
       hash[curVal.accountId] ? '' : (hash[curVal.accountId] = true && preVal.push(curVal));
@@ -127,8 +155,14 @@ export default class WorkSheetComment extends React.Component {
     }
   }
   render() {
-    const { disableScroll, addCallback, projectId, forReacordDiscussion } = this.props;
+    const { disableScroll, addCallback, projectId, forReacordDiscussion, status, exAccountDiscussEnum } = this.props;
     const { worksheetInfo } = this.state;
+    let entityType = //0 = 全部，1 = 不包含外部讨论，2=外部讨论
+      status === 4
+        ? 2
+        : status === 1 && !md.global.Account.isPortal && exAccountDiscussEnum === 1 //当前内部成员，外部门户开放讨论且外部门户设置为不可见内部
+        ? 1
+        : 0;
     const commenterProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       scrollToListTop: this.scrollToListTop.bind(this),
@@ -139,6 +173,7 @@ export default class WorkSheetComment extends React.Component {
       addCallback,
       projectId,
       forReacordDiscussion,
+      entityType,
     };
     const commentListProps = {
       worksheet: this.props,
@@ -151,6 +186,8 @@ export default class WorkSheetComment extends React.Component {
       },
       addCallback,
       forReacordDiscussion,
+      status,
+      entityType,
     };
 
     return (

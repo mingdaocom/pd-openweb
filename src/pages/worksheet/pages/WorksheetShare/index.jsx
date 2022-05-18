@@ -133,7 +133,7 @@ class WorksheetSahre extends React.Component {
     this.promiseShareInfo.then((res = {}) => {
       const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res;
       const { viewId = '', rowId = '', exported = false, shareAuthor } = res;
-      shareAuthor && window.sessionStorage.setItem('shareAuthor', shareAuthor);
+      shareAuthor && (window.shareAuthor = shareAuthor);
       this.setState(
         {
           appId,
@@ -399,19 +399,20 @@ class WorksheetSahre extends React.Component {
       this.promiseRowsData = sheetAjax.getPrint(sheetArgs);
     }
     this.promiseRowsData.then(data => {
+      let { resultCode } = data || {};
       this.setState({
         pageIndex,
       });
       if (!printId) {
-        if (data.resultCode !== 1 && !isPublicquery) {
+        if (resultCode !== 1 && !isPublicquery) {
           this.setState({
             listLoading: false,
             error: true,
             loading: false,
-            relationRowDetailResultCode: data.resultCode,
+            relationRowDetailResultCode: resultCode,
           });
         } else {
-          if (data.resultCode === 14 && isPublicquery) {
+          if (resultCode === 14 && isPublicquery) {
             //验证码错误
             this.setState({
               listLoading: false,
@@ -422,7 +423,7 @@ class WorksheetSahre extends React.Component {
             alert(_l('验证码错误'));
             return;
           }
-          if (data.resultCode === 4 && isPublicquery) {
+          if (resultCode === 4 && isPublicquery) {
             //无数据
             this.setState({
               listLoading: false,
@@ -433,7 +434,7 @@ class WorksheetSahre extends React.Component {
             });
             return;
           }
-          if (data.resultCode === 8 && isPublicquery) {
+          if (resultCode === 8 && isPublicquery) {
             //查询已关闭 visibleType: 1,
             this.setState({
               listLoading: false,
@@ -446,7 +447,7 @@ class WorksheetSahre extends React.Component {
             });
             return;
           }
-          if (data.resultCode === 7) {
+          if (resultCode === 7) {
             this.setState({
               listLoading: false,
               error: true,
@@ -478,7 +479,7 @@ class WorksheetSahre extends React.Component {
                 viewName: data.worksheet.views[0].name,
                 rowDetail: getRowDetail,
                 rowDetailStep2: getRowDetail,
-                relationRowDetailResultCode: data.resultCode,
+                relationRowDetailResultCode: resultCode,
                 worksheetName: data.worksheet.name,
                 dataTitle: controls.find(o => o.attribute == '1').controlName || '',
                 rowIds: _.get(data, ['data']).map(item => item.rowid),
@@ -488,12 +489,12 @@ class WorksheetSahre extends React.Component {
           );
         }
       } else {
-        if (data.resultCode === 4) {
+        if (resultCode === 4) {
           this.setState({
             loading: false,
             error: true,
             listLoading: false,
-            relationRowDetailResultCode: data.resultCode,
+            relationRowDetailResultCode: resultCode,
           });
         } else {
           let list = data.receiveControls.filter(it => it.checked || it.attribute === 1);
@@ -512,7 +513,7 @@ class WorksheetSahre extends React.Component {
             rowDetail: list,
             rowDetailStep2: list,
             printData: data,
-            relationRowDetailResultCode: data.resultCode,
+            relationRowDetailResultCode: resultCode,
           });
         }
       }

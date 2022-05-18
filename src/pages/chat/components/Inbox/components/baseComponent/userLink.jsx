@@ -3,7 +3,6 @@ import cx from 'classnames';
 import 'mdBusinessCard';
 
 export default class UserLink extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -18,9 +17,11 @@ export default class UserLink extends React.Component {
     this.setState({
       binded: true,
     });
-    $(this.card).mdBusinessCard({
-      accountId: this.state.accountId,
-    }).trigger('mouseenter');
+    $(this.card)
+      .mdBusinessCard({
+        accountId: this.state.accountId,
+      })
+      .trigger('mouseenter');
   }
 
   componentWillUnMount() {
@@ -31,8 +32,22 @@ export default class UserLink extends React.Component {
 
   render() {
     const { accountId, fullname } = this.props;
+    let param = {};
+    if (!(md.global.Account.isPortal || (accountId || '').indexOf('a#') > -1)) {
+      param = {
+        href: '/user_' + accountId,
+        target: '_blank',
+      };
+    }
     return (
-      <a href={'/user_' + accountId} target='_blank' onMouseOver={this.bindBusinessCard.bind(this)} ref={(elem) => { this.card = elem; }}>{fullname}</a>
+      <a
+        onMouseOver={this.bindBusinessCard.bind(this)}
+        ref={elem => {
+          this.card = elem;
+        }}
+      >
+        {fullname}
+      </a>
     );
   }
 }

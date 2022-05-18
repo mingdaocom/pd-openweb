@@ -59,10 +59,10 @@ const RelateInfo = styled.div`
 `;
 
 export default function BothWayRelate(props) {
-  const { data, worksheetInfo, globalSheetInfo, onOk } = props;
-  const { sourceControl = {} } = data;
+  const { data, worksheetInfo, globalSheetInfo = {}, onOk } = props;
+  const { sourceControl = {}, controlId } = data;
   const { controlId: sourceControlId, controlName, enumDefault = 2, advancedSetting = {} } = sourceControl;
-  const { name: sourceName } = globalSheetInfo;
+  const [sourceName, setSourceName] = useState(globalSheetInfo.name);
   const { name: sheetName, worksheetId, roleType } = worksheetInfo;
   const [{ name, count, displayType, configVisible }, setConfig] = useSetState({
     configVisible: false,
@@ -70,6 +70,11 @@ export default function BothWayRelate(props) {
     count: enumDefault || 2,
     displayType: advancedSetting.showtype || '2',
   });
+
+  useEffect(() => {
+    setSourceName(globalSheetInfo.name);
+    setConfig({ name: controlName || sourceName });
+  }, [controlId]);
 
   const handleClick = () => {
     // getWorksheetControlsQuantity({ worksheetId }).then(({ data }) => {

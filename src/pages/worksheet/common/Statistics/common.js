@@ -674,6 +674,13 @@ export const isNumberControl = (type, isIncludeRecord = true) => {
 };
 
 /**
+ * 是否是数值&公式和检查框控件
+ */
+export const isFormatNumber = (type) => {
+  return isNumberControl(type) || type === WIDGETS_TO_API_TYPE_ENUM.SWITCH || type === WIDGETS_TO_API_TYPE_ENUM.SCORE;
+}
+
+/**
  * 是否是关联记录
  */
 export const isRelateSheetControl = type => {

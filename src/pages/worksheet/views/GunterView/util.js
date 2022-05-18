@@ -1,13 +1,13 @@
 
-import { viewConfig, PERIODS, PERIOD_TYPE } from './config';
+import { PERIODS, PERIOD_TYPE } from './config';
 import { browserIsMobile } from 'src/util';
 
 /**
  * 修改当前视图配置
  */
-export const changeViewConfig = (value = PERIOD_TYPE.day) => {
+export const changeViewConfig = (value = PERIOD_TYPE.day, viewConfig) => {
   const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value });
-  const count = getPeriodCount(value, minDayWidth);
+  const count = getPeriodCount(value, minDayWidth, viewConfig);
   return Object.assign(viewConfig, {
     periodCount: count,
     minDayWidth,
@@ -18,7 +18,7 @@ export const changeViewConfig = (value = PERIOD_TYPE.day) => {
 /**
  * 根据用户屏幕获取 periodCount
  */
-export const getPeriodCount = (type, minDayWidth) => {
+export const getPeriodCount = (type, minDayWidth, viewConfig) => {
   const { onlyWorkDay, dayOff } = viewConfig;
   const monthDay = 30;
   const monthWorkDay = monthDay - (dayOff.length * 4);
@@ -54,8 +54,7 @@ export const getPeriodCount = (type, minDayWidth) => {
 /**
  * 获取一个时间点(time)到指定数量(value, 正数向前，负数向后)的工作日
  */
-export const getAssignWorkDays = (value, time) => {
-  const { dayOff, format } = viewConfig;
+export const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
   const target = Math.abs(value);
   let count = value >= 0 ? 0 : -1;
@@ -77,26 +76,26 @@ export const getAssignWorkDays = (value, time) => {
 /**
  * 获取日视图数据(仅工作日)
  */
-export const getWorkDays = (start, end, center) => {
-  const { minDayWidth, periodCount } = viewConfig;
+export const getWorkDays = (start, end, center, viewConfig) => {
+  const { minDayWidth, periodCount, dayOff } = viewConfig;
   const movePeriodCount = periodCount / 2;
   const days = [];
 
   if (start && _.isNull(end)) {
-    const res = getAssignWorkDays(-movePeriodCount, start);
+    const res = getAssignWorkDays(-movePeriodCount, start, dayOff);
     const leftStart = res[res.length - 1];
-    days.push(...getAssignWorkDays(periodCount + periodCount, leftStart));
+    days.push(...getAssignWorkDays(periodCount + periodCount, leftStart, dayOff));
   } else if (end && _.isNull(start)) {
-    const res = getAssignWorkDays(movePeriodCount + 2, end);
+    const res = getAssignWorkDays(movePeriodCount + 2, end, dayOff);
     const rightEnd = res[res.length - 1];
-    days.push(...getAssignWorkDays(-(periodCount + periodCount), rightEnd).reverse());
+    days.push(...getAssignWorkDays(-(periodCount + periodCount), rightEnd, dayOff).reverse());
   } else if (start && end) {
-    const count = getWeekDayCount(start, end);
-    const res = getAssignWorkDays(count, start);
+    const count = getWeekDayCount(start, end, dayOff);
+    const res = getAssignWorkDays(count, start, dayOff);
     days.push(...res);
   } else {
-    const startTime = getAssignWorkDays(-periodCount, center).reverse();
-    const endTime = getAssignWorkDays(periodCount, center);
+    const startTime = getAssignWorkDays(-periodCount, center, dayOff).reverse();
+    const endTime = getAssignWorkDays(periodCount, center, dayOff);
     days.push(...startTime.concat(endTime));
   }
 
@@ -132,7 +131,7 @@ export const getWorkDays = (start, end, center) => {
 /**
  * 获取日视图数据
  */
-export const getDays = (start, end, center) => {
+export const getDays = (start, end, center, viewConfig) => {
   const { minDayWidth, periodCount } = viewConfig;
   const startTime = start ? start : moment(center).add(-periodCount, 'd');
   const endTime = end ? end : moment(center).add(periodCount, 'd');
@@ -170,8 +169,7 @@ export const getDays = (start, end, center) => {
 /**
  * 获取今天的位置
  */
-const getTodayLeftValue = (start, end) => {
-  const { dayOff } = viewConfig;
+const getTodayLeftValue = (start, end, dayOff) => {
   const diff = Math.abs(start.diff(end, 'd'));
   let value = 0;
   for (let i = 0; i <= diff; i++) {
@@ -190,7 +188,7 @@ const getTodayLeftValue = (start, end) => {
 /**
  * 获取周视图数据
  */
-export const getWeeks = (start, end, center) => {
+export const getWeeks = (start, end, center, viewConfig) => {
   const { minDayWidth, periodCount, onlyWorkDay, dayOff } = viewConfig;
   const weeksDay = onlyWorkDay ? (7 - dayOff.length) : 7;
   const startTime = start ? start : moment(center).startOf('w').add(-periodCount, 'w');
@@ -209,7 +207,7 @@ export const getWeeks = (start, end, center) => {
 
     if (isCurrent) {
       base.isToday = onlyWorkDay ? !dayOff.includes(moment().days()) : true;
-      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('w'), moment().endOf('w')) : moment().days() || 7) * minDayWidth;
+      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('w'), moment().endOf('w'), dayOff) : moment().days() || 7) * minDayWidth;
       base.left = base.left - (minDayWidth / 2);
       result.push(base);
     } else {
@@ -230,7 +228,7 @@ export const getWeeks = (start, end, center) => {
 /**
  * 获取月视图数据
  */
-export const getMonths = (start, end, center) => {
+export const getMonths = (start, end, center, viewConfig) => {
   const { minDayWidth, periodCount, onlyWorkDay, dayOff } = viewConfig;
   const startTime = start ? start : moment(center).add(-periodCount, 'M');
   const endTime = end ? end : moment(center).add(periodCount, 'M');
@@ -242,14 +240,14 @@ export const getMonths = (start, end, center) => {
     const momentObj = moment(startTime).add(i, 'M');
     const m = momentObj.format('YYYY-MM');
     const y = momentObj.format('YYYY');
-    const value = (onlyWorkDay ? getWeekDayCount(momentObj.startOf('month').format('YYYY-MM-DD'), momentObj.endOf('month').format('YYYY-MM-DD')) : momentObj.daysInMonth());
+    const value = (onlyWorkDay ? getWeekDayCount(momentObj.startOf('month').format('YYYY-MM-DD'), momentObj.endOf('month').format('YYYY-MM-DD'), dayOff) : momentObj.daysInMonth());
     const periodWidth = value * minDayWidth;
     const isCurrent = m === moment().format('YYYY-MM');
     const base = { time: m, width: periodWidth };
 
     if (isCurrent) {
       base.isToday = onlyWorkDay ? !dayOff.includes(moment().days()) : true;
-      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('M'), moment().endOf('M')) : Number(moment().format('DD'))) * minDayWidth;
+      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('M'), moment().endOf('M'), dayOff) : Number(moment().format('DD'))) * minDayWidth;
       base.left = base.left - (minDayWidth / 2);
       result.push(base);
     } else {
@@ -270,7 +268,7 @@ export const getMonths = (start, end, center) => {
 /**
  * 获取季度视图数据
  */
-export const getQuarters = (start, end, center) => {
+export const getQuarters = (start, end, center, viewConfig) => {
   const { minDayWidth, periodCount, onlyWorkDay, dayOff } = viewConfig;
   const startTime = start ? start : moment(center).startOf('Q').add(-periodCount, 'Q');
   const endTime = end ? end : moment(center).endOf('Q').add(periodCount, 'Q');
@@ -284,14 +282,14 @@ export const getQuarters = (start, end, center) => {
     const y = momentObj.format('YYYY');
     const startDay = momentObj.startOf('Q').format('YYYY-MM-DD');
     const endDay = momentObj.endOf('Q').format('YYYY-MM-DD');
-    const value = onlyWorkDay ? getWeekDayCount(startDay, endDay) : (Math.abs(moment(startDay).diff(moment(endDay), 'd')) + 1);
+    const value = onlyWorkDay ? getWeekDayCount(startDay, endDay, dayOff) : (Math.abs(moment(startDay).diff(moment(endDay), 'd')) + 1);
     const periodWidth = value * minDayWidth;
     const isCurrent = momentObj.format('YYYY-Q') === moment().format('YYYY-Q');
     const base = { time: m, width: periodWidth };
 
     if (isCurrent) {
       base.isToday = onlyWorkDay ? !dayOff.includes(moment().days()) : true;
-      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('Q'), moment().endOf('Q')) : Math.abs(moment(startDay).diff(moment(), 'd'))) * minDayWidth;
+      base.left = (onlyWorkDay ? getTodayLeftValue(moment().startOf('Q'), moment().endOf('Q'), dayOff) : Math.abs(moment(startDay).diff(moment(), 'd'))) * minDayWidth;
       base.left = base.left - (minDayWidth / 2);
       result.push(base);
     } else {
@@ -313,7 +311,7 @@ export const getQuarters = (start, end, center) => {
 /**
  * 获取年视图数据
  */
-export const getYears = (start, end, center) => {
+export const getYears = (start, end, center, viewConfig) => {
   const { minDayWidth, periodCount, onlyWorkDay, dayOff } = viewConfig;
   const yearPeriodCount = periodCount / 2;
   const startTime = start ? start : moment(center).startOf('Y').add(-yearPeriodCount, 'Y');
@@ -328,13 +326,13 @@ export const getYears = (start, end, center) => {
     // 上半年
     const firstStart = momentObj.format('YYYY-MM-DD');
     const firstEnd = moment(`${y}-06`).endOf('M').format('YYYY-MM-DD');
-    const firstValue = onlyWorkDay ? getWeekDayCount(firstStart, firstEnd) : Math.abs(moment(firstStart).diff(moment(firstEnd), 'd')) + 1;
+    const firstValue = onlyWorkDay ? getWeekDayCount(firstStart, firstEnd, dayOff) : Math.abs(moment(firstStart).diff(moment(firstEnd), 'd')) + 1;
     const firstPeriodWidth = firstValue * minDayWidth;
     const first = { time: `${y}-01-01`, width: firstPeriodWidth };
     // 下半年
     const lastStart = `${y}-07-01`;
     const lastEnd = moment(`${y}-12`).endOf('M').format('YYYY-MM-DD');
-    const lastValue = onlyWorkDay ? getWeekDayCount(lastStart, lastEnd) : Math.abs(moment(lastStart).diff(moment(lastEnd), 'd')) + 1;
+    const lastValue = onlyWorkDay ? getWeekDayCount(lastStart, lastEnd, dayOff) : Math.abs(moment(lastStart).diff(moment(lastEnd), 'd')) + 1;
     const lastPeriodWidth = lastValue * minDayWidth;
     const last = { time: `${y}-07-01`, width: lastPeriodWidth };
 
@@ -346,11 +344,11 @@ export const getYears = (start, end, center) => {
       const isToday = onlyWorkDay ? !dayOff.includes(moment().days()) : true;
       if (m <= 6) {
         first.isToday = isToday;
-        first.left = (onlyWorkDay ? getTodayLeftValue(moment(firstStart), moment(firstEnd)) : Math.abs(moment(firstStart).diff(moment(), 'd'))) * minDayWidth;
+        first.left = (onlyWorkDay ? getTodayLeftValue(moment(firstStart), moment(firstEnd), dayOff) : Math.abs(moment(firstStart).diff(moment(), 'd'))) * minDayWidth;
         first.left = first.left - (minDayWidth / 2);
       } else {
         last.isToday = isToday;
-        last.left = (onlyWorkDay ? getTodayLeftValue(moment(lastStart), moment(lastEnd)) : Math.abs(moment(lastStart).diff(moment(), 'd'))) * minDayWidth;
+        last.left = (onlyWorkDay ? getTodayLeftValue(moment(lastStart), moment(lastEnd), dayOff) : Math.abs(moment(lastStart).diff(moment(), 'd'))) * minDayWidth;
         last.left = last.left - (minDayWidth / 2);
       }
       result.push(first, last);
@@ -373,23 +371,21 @@ export const getYears = (start, end, center) => {
  * 一段时间内包含多少个工作日
  */
 
-const getWeekDayCount = (start, end) => {
-  const { dayOff } = viewConfig;
+const getWeekDayCount = (start, end, dayOff) => {
   const weekStart = moment(start).endOf('w').format('YYYY-MM-DD');
   const weekEnd = moment(end).startOf('w').add(-1, 'd').format('YYYY-MM-DD');
   const diff = moment(weekEnd).diff(moment(weekStart), 'd');
   const count = (diff / 7) * (7 - dayOff.length);
   if (count > 0) {
-    const s = getWeekDayCount2(start, weekStart);
-    const e = getWeekDayCount2(moment(weekEnd).add(1, 'd').format('YYYY-MM-DD'), end);
+    const s = getWeekDayCount2(start, weekStart, dayOff);
+    const e = getWeekDayCount2(moment(weekEnd).add(1, 'd').format('YYYY-MM-DD'), end, dayOff);
     return s + count + e;
   } else {
-    return getWeekDayCount2(start, end);
+    return getWeekDayCount2(start, end, dayOff);
   }
 }
 
-const getWeekDayCount2 = (start, end) => {
-  const { dayOff } = viewConfig;
+const getWeekDayCount2 = (start, end, dayOff) => {
   const diff = moment(end).diff(moment(start), 'd');
   let count = 0;
   for(let i = 0; i <= diff; i++) {
@@ -405,7 +401,7 @@ const getWeekDayCount2 = (start, end) => {
 /**
  * 判断指定天是否是一周的最后一天
  */
-export const isWeekEndDay = (date, type) => {
+export const isWeekEndDay = (date, type, viewConfig) => {
   const { onlyWorkDay, dayOff } = viewConfig;
   if (type !== PERIOD_TYPE.day) {
     return false;
@@ -430,8 +426,8 @@ export const getRowsTime = (rows) => {
   const data = rows.filter(item => (item.dragBeforeStartTime || item.startTime) && (item.dragBeforeEndTime || item.endTime));
   const startTimes = data.map(item => f(item.dragBeforeStartTime || item.startTime)).filter(item => item);
   const endTimes = data.map(item => f(item.dragBeforeEndTime || item.endTime)).filter(item => item);
-  const startTime = startTimes.length ? d(Math.min.apply(null, startTimes)) : null;
-  const endTime = endTimes.length ? d(Math.max.apply(null, endTimes)) : null;
+  const startTime = startTimes.length ? d(Math.min.apply(null, startTimes)) : undefined;
+  const endTime = endTimes.length ? d(Math.max.apply(null, endTimes)) : undefined;
   return {
     startTime,
     endTime
@@ -441,7 +437,7 @@ export const getRowsTime = (rows) => {
 /**
  * 绘制时间块
  */
-const calculateTimeBlock = (item, periodList) => {
+const calculateTimeBlock = (item, periodList, viewConfig) => {
   const { minDayWidth, onlyWorkDay, periodType, dayOff, milepost } = viewConfig;
   // const startTime = item.groupId ? (item.dragStartTime || item.startTime) : item.startTime;
   // const endTime = item.groupId ? (item.dragEndTime || item.endTime) : item.endTime;
@@ -474,14 +470,14 @@ const calculateTimeBlock = (item, periodList) => {
   let endLeft = 0;
 
   if (moment(startTime).isSameOrAfter(minStartTime)) {
-    const dayCount = onlyWorkDay ? getWeekDayCount(minStartTime, moment(startTime).add(-1, 'd').format('YYYY-MM-DD')) : moment(startTime).diff(moment(minStartTime), 'd');
+    const dayCount = onlyWorkDay ? getWeekDayCount(minStartTime, moment(startTime).add(-1, 'd').format('YYYY-MM-DD'), dayOff) : moment(startTime).diff(moment(minStartTime), 'd');
     startLeft = dayCount * minDayWidth;
     if (periodType === PERIOD_TYPE.day && (onlyWorkDay ? !dayOff.includes(moment(startTime).days()) : true) && !isMilepost) {
       startLeft = startLeft + timeToPercentage(startTime, minDayWidth);
     }
   }
   if (moment(endTime).isSameOrAfter(minStartTime)) {
-    const dayCount = onlyWorkDay ? getWeekDayCount(minStartTime, endTime) : moment(endTime).diff(moment(minStartTime), 'd') + 1;
+    const dayCount = onlyWorkDay ? getWeekDayCount(minStartTime, endTime, dayOff) : moment(endTime).diff(moment(minStartTime), 'd') + 1;
     endLeft = dayCount * minDayWidth;
     if (periodType === PERIOD_TYPE.day && (onlyWorkDay ? !dayOff.includes(moment(endTime).days()) : true) && !isMilepost) {
       const endHoursWidth = timeToPercentage(endTime, minDayWidth);
@@ -501,14 +497,14 @@ const calculateTimeBlock = (item, periodList) => {
 /**
  * 计算分组时间块的位置和宽度
  */
-export const groupingTimeBlock = (grouping, periodList) => {
+export const groupingTimeBlock = (grouping, periodList, viewConfig) => {
   if (_.isEmpty(periodList)) return grouping;
   grouping.forEach(item => {
-    const data = calculateTimeBlock(item, periodList);
+    const data = calculateTimeBlock(item, periodList, viewConfig);
     item.rows.forEach(row => {
       delete row.left;
       delete row.right;
-      const data = calculateTimeBlock(row, periodList);
+      const data = calculateTimeBlock(row, periodList, viewConfig);
       Object.assign(row, data);
     });
     Object.assign(item, data);

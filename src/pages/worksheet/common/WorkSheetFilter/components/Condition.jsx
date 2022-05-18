@@ -157,7 +157,8 @@ export default class Condition extends Component {
       relateSheetList,
       sourceControlId = '',
       filterDept,
-      conditionItemForDynamicStyle
+      isSheetFieldError,
+      conditionItemForDynamicStyle,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
     if (isRules && control) {
@@ -200,14 +201,19 @@ export default class Condition extends Component {
       !_.includes(listControlType, condition.controlType) &&
       !isCustomOptions(control);
     return (
-      <div className={cx('conditionItem', { readonly: !canEdit, conditionItemForDynamicStyle: isDynamicStyle, })}>
+      <div
+        className={cx('conditionItem', {
+          readonly: !canEdit,
+          conditionItemForDynamicStyle: isDynamicStyle,
+        })}
+      >
         <div
           className={cx('conditionItemHeader', { isbool: conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value })}
         >
           {control ? (
             <React.Fragment>
-              <span className="columnName ellipsis" title={control.controlName}>
-                {control.controlName}
+              <span className={cx('columnName ellipsis', { errorName: isSheetFieldError })} title={control.controlName}>
+                {isSheetFieldError ? _l('%0(无效数据)', control.controlName) : control.controlName}
               </span>
               {conditionGroupType !== CONTROL_FILTER_WHITELIST.BOOL.value && (
                 <span className="relation">

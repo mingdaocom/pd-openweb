@@ -97,7 +97,7 @@ export default class OriginalData extends Component {
     const { columnsSorts } = this;
     return (
       <Fragment>
-        <div className="mBottom10 Font13">{_l('显示字段')}</div>
+        <div className="mBottom10 Font13">{_l('显示数据')}</div>
         <div className="mBottom16">
           <Radio.Group onChange={this.handleChange} value={displaySetup.showControlIds.length ? 2 : 1}>
             <Space direction="vertical">
@@ -144,7 +144,7 @@ export default class OriginalData extends Component {
     const { style, viewId, worksheetInfo } = this.props;
     const { views } = worksheetInfo;
     const view = _.find(views, { viewId });
-    const disabled = viewId ? [VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(view.viewType.toString()) : true;
+    const disabled = view ? [VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(view.viewType.toString()) : true;
     const viewDataType = style.viewDataType || 1;
     return (
       <Fragment>

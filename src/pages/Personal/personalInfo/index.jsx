@@ -15,9 +15,9 @@ import { Progress } from 'antd';
 import account from 'src/api/account';
 import './index.less';
 import Trigger from 'rc-trigger';
-import cx from 'classnames';
 import { formatFileSize } from 'src/util';
-
+import { checkSensitive } from 'src/api/fixedData.js';
+import cx from 'classnames';
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
   { label: _l('性别'), key: 'gender', filter: 'transFormGender' },
@@ -51,6 +51,7 @@ export default class PersonalInfo extends React.Component {
       loading: false,
       operateMenuVisible: false,
       editFullName: false, //编辑姓名
+      isErr: false,
     };
   }
 
@@ -565,20 +566,33 @@ export default class PersonalInfo extends React.Component {
 
   //修改姓名
   setFullName() {
-    account
-      .editAccountBasicInfo(this.state.baseDetail)
-      .then(data => {
-        if (data) {
-          this.setState({ editFullName: false });
-        } else {
-          this.setState({ editFullName: false });
-        }
-      })
-      .fail();
+    const { fullname } = this.state.baseDetail;
+    checkSensitive({ content: fullname }).then(res => {
+      if (res) {
+        this.setState({
+          isErr: true,
+        });
+        return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+      } else {
+        this.setState({
+          isErr: false,
+        });
+        account
+          .editAccountBasicInfo(this.state.baseDetail)
+          .then(data => {
+            if (data) {
+              this.setState({ editFullName: false });
+            } else {
+              this.setState({ editFullName: false });
+            }
+          })
+          .fail();
+      }
+    });
   }
 
   render() {
-    const { accountInfo, loading, educationList, workList, baseDetail, editFullName } = this.state;
+    const { accountInfo, loading, educationList, workList, baseDetail, editFullName, isErr } = this.state;
     if (loading) {
       return <LoadDiv />;
     }
@@ -596,7 +610,7 @@ export default class PersonalInfo extends React.Component {
               <div className="Gray Font17 overflow_ellipsis LineHeight32">
                 {editFullName ? (
                   <input
-                    className="editfullNameInput"
+                    className={cx('editfullNameInput', { isErr })}
                     autofocus="autofocus"
                     value={baseDetail.fullname}
                     onChange={e => this.setState({ baseDetail: { ...baseDetail, fullname: e.target.value } })}

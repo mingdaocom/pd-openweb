@@ -60,10 +60,9 @@ class CreateBtn extends Component {
   render() {
     return (
       <span
-        className="Hand mLeft24 ThemeColor3 creatDepartment pTop16 pBottom16"
+        className="Hand mLeft24 ThemeColor3 creatDepartment pTop16 pBottom16 mRight24"
         style={{
           borderTop: '1px solid #EAEAEA',
-          width: '192px',
           display: 'flex',
           alignItems: 'center',
         }}

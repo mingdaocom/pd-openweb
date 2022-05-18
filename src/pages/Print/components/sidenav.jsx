@@ -505,7 +505,7 @@ class Sidenav extends React.Component {
   render() {
     const { handChange, params, printData, systemControl, controls = [], signature = [], saveTem } = this.props;
     const { printId, type, from, printType, isDefault } = params;
-    const { receiveControls = [], workflow = [] } = printData;
+    const { receiveControls = [], workflow = [], shareType = 0 } = printData;
     const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
     return (
       <div className="sidenavBox flexRow">
@@ -677,6 +677,22 @@ class Sidenav extends React.Component {
                   }}
                   text={_l('二维码')}
                 />
+                {printData.qrCode && (
+                  <Dropdown
+                    className="forSizeText forQrCode"
+                    value={shareType}
+                    onChange={value => {
+                      handChange({
+                        ...printData,
+                        shareType: value,
+                      });
+                    }}
+                    data={[
+                      { text: _l('对外公开分享链接'), value: 0 },
+                      { text: _l('内部成员访问链接'), value: 1 },
+                    ].filter(o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1))}//外部门户没有内部成员访问链接
+                  />
+                )}
                 <Checkbox
                   checked={printData.titleChecked}
                   className="mTop12"

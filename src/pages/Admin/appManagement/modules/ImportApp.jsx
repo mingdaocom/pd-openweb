@@ -31,6 +31,7 @@ export default class ImportApp extends React.Component {
       url: '',
       matchOffice: true,
       appBeyond: null, //应用是否超标或工作表超标
+      isHighVersions: false, // 应用版本高于环境版本
     };
   }
 
@@ -102,7 +103,7 @@ export default class ImportApp extends React.Component {
       data: JSON.stringify(params),
       dataType: 'JSON',
       contentType: 'application/json',
-    }).done(({ data: { errorCode, apps = [] } }) => {
+    }).done(({ data: { errorCode, apps = [], isHighVersions } }) => {
       if (errorCode === 5) {
         this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
       } else if (ERRORMSG[errorCode]) {
@@ -113,6 +114,7 @@ export default class ImportApp extends React.Component {
             step: errorCode >= 2 ? 2 : 3,
             list: apps,
             appBeyond: errorCode,
+            isHighVersions,
           },
           () => this.uploader.destroy(),
         );
@@ -165,7 +167,7 @@ export default class ImportApp extends React.Component {
   }
 
   renderStepContent() {
-    const { step, password, list, file, errTip } = this.state;
+    const { step, password, list, file, errTip, isHighVersions } = this.state;
     switch (step) {
       case 1:
         return (
@@ -199,7 +201,7 @@ export default class ImportApp extends React.Component {
                   trailColor="#eaeaea"
                   strokeColor="#2196f3"
                   strokeWidth={8}
-                  percent={(file.loaded / (file.size || 0)) * 100}
+                  percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                 />
                 <span
                   className="icon-cancel1 Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
@@ -255,6 +257,7 @@ export default class ImportApp extends React.Component {
                     <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
                   </div>
                   {item.name}
+                  {isHighVersions && <span className="Gray_9e">{_l('（从高版本系统导出）')}</span>}
                 </div>
               );
             })}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no, viewport-fit=cover" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>数字化企业伴侣</title>
+    <script>
+      let time = new Date();
+      let year = time.getFullYear();
+      let month = ('0' + (time.getMonth() + 1)).slice(-2);
+      let day = time.getDate();
+      let curTime = year + '' + month + '' + day;
+      document.write(
+        "<script type='text/javascript' src='https://alifile.mingdaocloud.com/open/js/applibrary.js?" +
+          curTime +
+          "'><\/script>",
+      );
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        width: 6px;
+        height: 6px;
+        border-radius: 6px;
+        background: rgba(187, 187, 187, 0.8);
+        background-clip: padding-box;
+        border: 2px solid transparent;
+      }
+      ::-webkit-scrollbar-thumb:active,
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(125, 125, 125, 0.8);
+        background-clip: padding-box;
+      }
+      .appCon {
+        max-height: 100% !important;
+      }
+      .pageLoading {
+        width: 30px;
+        height: 30px;
+        border: 2px solid #2196f3;
+        border-top-color: transparent;
+        border-radius: 100%;
+        animation: circlePage infinite 0.75s linear;
+        margin: 300px auto;
+      }
+
+      @keyframes circlePage {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="containerAppLib"><div class="pageLoading"></div></div>
+    <script type="text/javascript">
+      const getRen = () => {
+        let windowData = JSON.parse(window.localStorage.getItem('libraryData') || '{}');
+        const { access_token, getUrl } = windowData || {};
+        let data = {
+          MDAppLibraryId: 'containerAppLib',
+          getUrl,
+          Authorization: `access_token ${access_token}`,
+          isGetMeta: true,
+        };
+        window.MDLibrary && window.MDLibrary(data);
+      };
+      window.MD_APP_RESPONSE = para => {
+        const decodedData = window.atob(para);
+        let windowData = decodeURIComponent(escape(decodedData));
+        window.localStorage.setItem('libraryData', windowData);
+        getRen();
+      };
+      window.localStorage.getItem('libraryData') && getRen();
+    </script>
+  </body>
+</html>

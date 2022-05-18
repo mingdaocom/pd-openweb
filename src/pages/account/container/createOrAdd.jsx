@@ -7,7 +7,7 @@ export default class CreateOrAdd extends React.Component {
   }
 
   renderCon = () => {
-    const { changeStep, step, registerData, setDataFn } = this.props;
+    const { changeStep, step, registerData, onChangeData } = this.props;
     return <React.Fragment>
       <div className='gNextBox mTop32' onClick={() => {
         changeStep('add')
@@ -33,7 +33,7 @@ export default class CreateOrAdd extends React.Component {
   }
 
   render() {
-    const { changeStep, step, registerData, setDataFn } = this.props;
+    const { changeStep, step, registerData, onChangeData } = this.props;
     return <React.Fragment>
       <div className='titleHeader'>
         <span className='mTop40 Font15 InlineBlock Hand backspaceT' onClick={() => {

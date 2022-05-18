@@ -16,6 +16,7 @@ rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 bre
 # 纯静态页面
 rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
 rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
+rewrite (?i)^/appLibrary /staticfiles/html/appLibrary.html break;
 
 # 主站 独立入口
 rewrite (?i)^/apps/kcshare/ /kcshare.html break;
@@ -36,7 +37,6 @@ rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
 rewrite (?i)^/recordshare /recordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
-rewrite (?i)^/appLibrary /appLibrary.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
@@ -95,3 +95,4 @@ rewrite (?i)^/chat_window /index.html break;
 rewrite (?i)^/workflow /index.html break;
 rewrite (?i)^/myprocess /index.html break;
 rewrite (?i)^/gunterExport /index.html break;
+rewrite (?i)^/embed/view /index.html break;

@@ -4,6 +4,7 @@ import CityPicker from 'ming-ui/components/CityPicker';
 import { Select } from 'antd';
 import classNames from 'classnames';
 import projectController from 'src/api/project';
+import { checkSensitive } from 'src/api/fixedData.js';
 
 import './common.less';
 
@@ -55,14 +56,21 @@ export default class SetInfoDialog extends Component {
 
   // 名称设置
   handleFieldBlur(field) {
-    const { errors = {} } = this.state;
+    let { errors = {} } = this.state;
     const value = this.state[field];
     const checkResult = checkFuncs[field](value);
     if (checkResult) {
       errors[field] = checkResult;
+      this.setState({
+        errors: errors,
+      });
     }
-    this.setState({
-      errors: errors,
+    checkSensitive({ content: value }).then(res => {
+      if (res) {
+        this.setState({
+          errors: { ...errors, [field]: _l('输入内容包含敏感词，请重新填写') },
+        });
+      }
     });
   }
 
@@ -212,33 +220,41 @@ export default class SetInfoDialog extends Component {
       geographyName,
       geographyId,
     } = this.state;
-    projectController
-      .setProjectInfo({
-        companyName,
-        companyDisplayName,
-        companyNameEnglish,
-        industryId,
-        geographyId,
-        projectId: this.props.projectId,
-      })
-      .then(data => {
-        if (data == 0) {
-          alert(_l('设置失败'), 2);
-        } else if (data == 1) {
-          this.props.updateValue({
-            companyDisplayName,
-            companyNameEnglish,
-            companyName,
-            industryId,
-            industryName,
-            geographyId,
-            geographyName,
-          });
-          alert(_l('设置成功'));
-        } else if (data == 3) {
-          alert(_l('您输入的信息含有禁用词汇'), 3);
+    Promise.all([checkSensitive({ content: companyDisplayName }), checkSensitive({ content: companyName })]).then(
+      results => {
+        if (!results.find(result => result)) {
+          projectController
+            .setProjectInfo({
+              companyName,
+              companyDisplayName,
+              companyNameEnglish,
+              industryId,
+              geographyId,
+              projectId: this.props.projectId,
+            })
+            .then(data => {
+              if (data == 0) {
+                alert(_l('设置失败'), 2);
+              } else if (data == 1) {
+                this.props.updateValue({
+                  companyDisplayName,
+                  companyNameEnglish,
+                  companyName,
+                  industryId,
+                  industryName,
+                  geographyId,
+                  geographyName,
+                });
+                alert(_l('设置成功'));
+              } else if (data == 3) {
+                alert(_l('您输入的信息含有禁用词汇'), 3);
+              }
+            });
+        } else {
+          alert(_l('输入内容包含敏感词，请重新填写'), 3);
         }
-      });
+      },
+    );
   }
 
   renderBodyContent() {

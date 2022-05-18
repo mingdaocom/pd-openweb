@@ -29,7 +29,7 @@ class Sidenav extends React.Component {
             }}
           >
             <div className="">
-              <Icon icon="settings" className="aliasIcon" />
+              <Icon icon="toggle_off" className="aliasIcon" />
               <span className="flex mLeft12 Bold">{_l('功能开关')}</span>
             </div>
             <p className="mTop5 Font12">{_l('设置启用的系统功能和使用范围')}</p>
@@ -77,6 +77,18 @@ class Sidenav extends React.Component {
               <span className="mLeft12 Bold">{_l('打印模板')}</span>
             </div>
             <p className="mTop5 Font12">{_l('自定义记录打印时的样式')}</p>
+          </li>
+          <li
+            className={cx({ current: type === 'indexSetting' })}
+            onClick={() => {
+              navigateTo(`/worksheet/formSet/edit/${worksheetId}/indexSetting`);
+            }}
+          >
+            <div className="">
+              <Icon icon="db_index" className="printIcon" />
+              <span className="mLeft12 Bold">{_l('检索加速')}</span>
+            </div>
+            <p className="mTop5 Font12">{_l('自定义工作表索引以加快检索速度')}</p>
           </li>
         </ul>
       </ScrollView>

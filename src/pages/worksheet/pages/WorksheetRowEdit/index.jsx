@@ -43,6 +43,19 @@ class WorksheetRowEdit extends Component {
     $('body').addClass('recordShare');
     window.isPublicWorksheet = true;
     this.getLinkDetail();
+    $('body,html').scrollTop(0);
+    $(document).on('scroll', e => {
+      var scrollTop = $(e.target).scrollTop();
+      var clientHeight = $(e.target).innerHeight();
+      if (scrollTop >= clientHeight - 16 - document.documentElement.clientHeight) {
+        console.log('s');
+        this.handleScroll();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    $(document).off('scroll');
   }
 
   customwidget = React.createRef();
@@ -89,12 +102,19 @@ class WorksheetRowEdit extends Component {
         shareId,
       })
       .then(data => {
-        this.setState({
-          rowRelationRowsData: pageIndex > 1 ? { ...data, data: rowRelationRowsData.data.concat(data.data) } : data,
-          loading: false,
-          controlId: id,
-          count: data.count,
-        });
+        this.setState(
+          {
+            rowRelationRowsData: pageIndex > 1 ? { ...data, data: rowRelationRowsData.data.concat(data.data) } : data,
+            loading: false,
+            controlId: id,
+            count: data.count,
+          },
+          () => {
+            if (pageIndex === 1) {
+              $('body,html').scrollTop(0);
+            }
+          },
+        );
       });
   };
 
@@ -254,13 +274,8 @@ class WorksheetRowEdit extends Component {
     );
   }
 
-  handleScroll = (event, values) => {
-    const { direction, maximum, position } = values;
-    if (
-      direction === 'down' &&
-      maximum - position < 20 &&
-      this.state.count > this.state.pageIndex * this.state.pageSize
-    ) {
+  handleScroll = () => {
+    if (this.state.count > this.state.pageIndex * this.state.pageSize) {
       this.setState(
         {
           pageIndex: this.state.pageIndex + 1,
@@ -294,7 +309,7 @@ class WorksheetRowEdit extends Component {
           </div>
         </div>
 
-        <ScrollView className="flex mTop20" updateEvent={this.handleScroll}>
+        <div className="flex mTop20">
           <div className="worksheetRowEditList">
             {!rowRelationRowsData.data.length && (
               <div
@@ -322,7 +337,7 @@ class WorksheetRowEdit extends Component {
             ))}
           </div>
           {loading && pageIndex > 1 && <LoadDiv className="mTop20" />}
-        </ScrollView>
+        </div>
       </div>
     );
   }
@@ -339,13 +354,13 @@ class WorksheetRowEdit extends Component {
     }
 
     return (
-      <ScrollView className="worksheetRowEdit flexColumn">
+      <div className="worksheetRowEdit flexColumn">
         {isError
           ? this.renderError()
           : isComplete || data.writeCount > 0
           ? this.renderComplete()
           : this.renderContent()}
-      </ScrollView>
+      </div>
     );
   }
 }

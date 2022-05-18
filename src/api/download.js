@@ -79,6 +79,10 @@ module.exports = {
   /**
   * 导出公司员工列表
   * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.accountIds 账号id
+  * @param {string} args.departmentIds 部门ids
+  * @param {} args.userStatus 用户状态
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -86,6 +90,32 @@ module.exports = {
    exportProjectUserList: function (args, options = {}) {
      
      return $.api('Download', 'ExportProjectUserList', args, options);
+   },
+  /**
+  * 导出导入用户错误列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.dowloadId 下载Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportImportUserFailList: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportImportUserFailList', args, options);
+   },
+  /**
+  * 编辑导入用户错误列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.dowloadId 下载Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportImportEditUserFailList: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportImportEditUserFailList', args, options);
    },
   /**
   * 下载银行信息
@@ -143,5 +173,16 @@ module.exports = {
    exportLoginLog: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return $.api('Download', 'ExportLoginLog', args, options);
+   },
+  /**
+  * 下载应用备份文件
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   downloadBackupFile: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('Download', 'DownloadBackupFile', args, options);
    },
 };

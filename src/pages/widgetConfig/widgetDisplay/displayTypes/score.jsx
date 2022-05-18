@@ -1,15 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
-import { Score } from 'ming-ui';
+import React, { Fragment } from 'react';
+import { CustomScore } from 'ming-ui';
 
-const Line = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: #f0f0f0;
-`;
-
-export default function ScoreDisplay({ data, onChange }) {
-  const isStar = data.enumDefault === 1;
+export default function ScoreDisplay({ data }) {
   let score = 0;
   const source = _.get(data, ['advancedSetting', 'defsource']);
   if (source) {
@@ -22,14 +14,7 @@ export default function ScoreDisplay({ data, onChange }) {
   }
   return (
     <Fragment>
-      <Score
-        disabled
-        defaultIcon="icon-task_custom_starred"
-        score={+score}
-        type={isStar ? 'star' : 'line'}
-        count={isStar ? 5 : 10}
-        backgroundColor="#bdbdbd"
-      />
+      <CustomScore disabled data={data} score={+score} />
     </Fragment>
   );
 }

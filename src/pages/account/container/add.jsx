@@ -24,7 +24,7 @@ export default class Add extends React.Component {
   };
 
   doAddProjectCode = (res, callback) => {
-    const { registerData = {}, setDataFn } = this.props;
+    const { registerData = {}, onChangeData } = this.props;
     const { regcode = '' } = registerData;
     this.setState({
       loading: true,
@@ -43,7 +43,7 @@ export default class Add extends React.Component {
           loading: false,
         });
         if (data.joinProjectResult === 1) {
-          setDataFn({
+          onChangeData({
             ...registerData,
             projectId: data.userCard.user.projectId,
             userCard: data.userCard,
@@ -98,7 +98,7 @@ export default class Add extends React.Component {
   };
 
   renderCon = () => {
-    const { changeStep, step, registerData, setDataFn } = this.props;
+    const { changeStep, step, registerData, onChangeData } = this.props;
     const { regcode } = registerData;
     const { warnningText } = this.state;
     return (
@@ -114,7 +114,7 @@ export default class Add extends React.Component {
               onFocus={this.inputOnFocus}
               onChange={e => {
                 $('.errorDiv').removeClass('errorDiv');
-                setDataFn({
+                onChangeData({
                   ...registerData,
                   regcode: e.target.value.trim(),
                 });
@@ -137,7 +137,7 @@ export default class Add extends React.Component {
   };
 
   render() {
-    const { changeStep, step, registerData = {}, setDataFn } = this.props;
+    const { changeStep, step, registerData = {}, onChangeData } = this.props;
     const { regcode = '' } = registerData;
     return (
       <React.Fragment>

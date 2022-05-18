@@ -306,6 +306,7 @@ export default class DepartmentTree extends Component {
                   <User
                     key={item.accountId}
                     user={item}
+                    projectId={this.props.projectId}
                     checked={this.getChecked(item)}
                     onChange={this.props.onChange}
                   />

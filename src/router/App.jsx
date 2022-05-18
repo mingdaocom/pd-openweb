@@ -200,7 +200,7 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function(e) {
+    $(document).on('keypress', function (e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;

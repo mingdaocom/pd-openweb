@@ -9,8 +9,8 @@ import {
   SelectNodeObject,
   FindResult,
 } from '../components';
-import { APP_TYPE, TRIGGER_ID_TYPE, NODE_TYPE } from '../../enum';
-import { checkConditionsIsNull } from '../../utils';
+import { APP_TYPE, ACTION_ID, NODE_TYPE } from '../../enum';
+import { checkConditionsIsNull, getIcons } from '../../utils';
 import cx from 'classnames';
 
 export default class FindSystem extends Component {
@@ -78,7 +78,7 @@ export default class FindSystem extends Component {
       return;
     }
 
-    if (!_.includes([TRIGGER_ID_TYPE.FROM_WORKSHEET, TRIGGER_ID_TYPE.WORKSHEET_FIND], actionId)) {
+    if (!_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], actionId)) {
       if (!selectNodeId) {
         alert(_l('必须选择对象'), 2);
         return;
@@ -116,65 +116,65 @@ export default class FindSystem extends Component {
     const { data } = this.state;
     const TEXT = {
       [APP_TYPE.USER]: {
-        [TRIGGER_ID_TYPE.RELATION]: {
+        [ACTION_ID.RELATION]: {
           title: _l('从人员字段获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一名人员的相关信息'),
         },
-        [TRIGGER_ID_TYPE.WORKSHEET_FIND]: {
+        [ACTION_ID.WORKSHEET_FIND]: {
           title: _l('从组织人员中获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前组织的所有人员中获得第一名（最新入职）人员的相关信息',
           ),
         },
-        [TRIGGER_ID_TYPE.FROM_RECORD]: {
+        [ACTION_ID.FROM_RECORD]: {
           title: _l('从人员字段获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的人员的相关信息'),
         },
-        [TRIGGER_ID_TYPE.FROM_WORKSHEET]: {
+        [ACTION_ID.FROM_WORKSHEET]: {
           title: _l('从组织人员中获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有人员的相关信息'),
         },
       },
       [APP_TYPE.DEPARTMENT]: {
-        [TRIGGER_ID_TYPE.RELATION]: {
+        [ACTION_ID.RELATION]: {
           title: _l('从部门字段获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一个部门的相关信息'),
         },
-        [TRIGGER_ID_TYPE.WORKSHEET_FIND]: {
+        [ACTION_ID.WORKSHEET_FIND]: {
           title: _l('从组织部门中获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前组织的所有部门中获得第一个（最新创建）部门的相关信息',
           ),
         },
-        [TRIGGER_ID_TYPE.FROM_RECORD]: {
+        [ACTION_ID.FROM_RECORD]: {
           title: _l('从部门字段获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的部门的相关信息'),
         },
-        [TRIGGER_ID_TYPE.FROM_WORKSHEET]: {
+        [ACTION_ID.FROM_WORKSHEET]: {
           title: _l('从组织部门中获取'),
           filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有部门的相关信息'),
         },
       },
       [APP_TYPE.EXTERNAL_USER]: {
-        [TRIGGER_ID_TYPE.RELATION]: {
+        [ACTION_ID.RELATION]: {
           title: _l('从外部用户字段获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一名外部用户的相关信息',
           ),
         },
-        [TRIGGER_ID_TYPE.WORKSHEET_FIND]: {
+        [ACTION_ID.WORKSHEET_FIND]: {
           title: _l('从外部门户中获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前应用的所有外部用户中获得第一名（最新注册）人员的相关信息',
           ),
         },
-        [TRIGGER_ID_TYPE.FROM_RECORD]: {
+        [ACTION_ID.FROM_RECORD]: {
           title: _l('从外部用户字段获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的外部用户的相关信息',
           ),
         },
-        [TRIGGER_ID_TYPE.FROM_WORKSHEET]: {
+        [ACTION_ID.FROM_WORKSHEET]: {
           title: _l('从外部门户中获取'),
           filterText: _l(
             '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前应用的所有外部用户的相关信息',
@@ -214,7 +214,7 @@ export default class FindSystem extends Component {
           {(DESC_TEXT[selectNodeType] || {})[data.appType]}
         </div>
 
-        {_.includes([TRIGGER_ID_TYPE.FROM_RECORD, TRIGGER_ID_TYPE.RELATION], data.actionId) && (
+        {_.includes([ACTION_ID.FROM_RECORD, ACTION_ID.RELATION], data.actionId) && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择查找对象')}</div>
             <div className="Gray_75 mTop5">{_l('当前流程中的节点对象')}</div>
@@ -227,7 +227,7 @@ export default class FindSystem extends Component {
 
             <div className="mTop20 bold">{_l('选择字段')}</div>
             <SelectFields
-              controls={data.actionId === TRIGGER_ID_TYPE.RELATION ? data.controls : data.relationControls}
+              controls={data.actionId === ACTION_ID.RELATION ? data.controls : data.relationControls}
               selectedIds={data.fields.map(item => item.fieldId)}
               updateSource={ids =>
                 this.getNodeDetail(this.props, data.selectNodeId, JSON.stringify(ids.map(id => ({ fieldId: id }))))
@@ -244,10 +244,11 @@ export default class FindSystem extends Component {
           <TriggerCondition
             processId={this.props.processId}
             selectNodeId={this.props.selectNodeId}
-            controls={data.actionId === TRIGGER_ID_TYPE.RELATION ? data.relationControls : data.controls}
+            controls={data.actionId === ACTION_ID.RELATION ? data.relationControls : data.controls}
             data={data.conditions}
             updateSource={data => this.updateSource({ conditions: data })}
             projectId={this.props.companyId}
+            singleCondition={data.appType === APP_TYPE.EXTERNAL_USER}
           />
         )}
 
@@ -305,8 +306,8 @@ export default class FindSystem extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
-          icon={selectNodeType === NODE_TYPE.FIND_SINGLE_MESSAGE ? 'icon-person_search' : 'icon-group-members'}
+          data={{ ...data, selectNodeType: selectNodeType }}
+          icon={getIcons(selectNodeType, data.appType)}
           bg="BGBlue"
           closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
@@ -318,7 +319,7 @@ export default class FindSystem extends Component {
         </div>
         <DetailFooter
           isCorrect={
-            _.includes([TRIGGER_ID_TYPE.FROM_WORKSHEET, TRIGGER_ID_TYPE.WORKSHEET_FIND], data.actionId) ||
+            _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], data.actionId) ||
             (!!data.selectNodeId && !!data.fields.length)
           }
           onSave={this.onSave}

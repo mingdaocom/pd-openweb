@@ -148,11 +148,13 @@ function User(props) {
     setHideIds,
     setFastFilters,
     setBaseInfo,
+    setSortControls,
+    handleChangeSort,
+    setTelFilters,
   } = props;
   const {
     roleList = [],
     controls = [],
-    controlsSYS = [],
     showPortalControlIds,
     list,
     commonCount,
@@ -161,6 +163,7 @@ function User(props) {
     baseInfo = {},
     fastFilters = [],
     filters,
+    telFilters,
   } = portal;
   const { isSendMsgs } = baseInfo;
 
@@ -198,6 +201,8 @@ function User(props) {
   useEffect(() => {
     setFilter([]);
     setKeyWords('');
+    setSortControls([]);
+    setTelFilters('');
   }, []);
 
   useEffect(() => {
@@ -207,7 +212,7 @@ function User(props) {
   useEffect(() => {
     changePageIndex(1);
     getUserList();
-  }, [keyWords, filters]);
+  }, [keyWords, filters, telFilters]);
 
   const getShowControls = () => {
     getViewShowControls({
@@ -235,7 +240,7 @@ function User(props) {
       .sort((a, b) => {
         return a.row - b.row;
       })
-      .filter(o => !['portal_avatar', 'portal_regtime'].includes(o.controlId))
+      .filter(o => !['portal_avatar', 'partal_id'].includes(o.controlId))
       .map(o => {
         if (o.controlId === 'portal_name') {
           columns.push({
@@ -246,7 +251,6 @@ function User(props) {
             render: (text, data, index) => {
               return (
                 <div className="userImgBox Hand flex">
-                  {/* <img src={data['portal_avatar']} alt="" srcset="" /> */}
                   <span className="name">{data['portal_name']}</span>
                 </div>
               );
@@ -299,11 +303,11 @@ function User(props) {
             width: 120,
             render: (text, data, index) => {
               //正常、未激活（添加用户后用户未注册）停用
-              if (data.portal_status === '5') {
+              if (data.portal_status + '' === '5') {
                 return (
                   <Dropdown
                     isAppendToBody
-                    className={cx('flex', { isNo: data.portal_status === '5' })}
+                    className={cx('flex', { isNo: data.portal_status + '' === '5' })}
                     data={[
                       {
                         value: '6',
@@ -340,24 +344,28 @@ function User(props) {
               return (
                 <Dropdown
                   isAppendToBody
-                  data={userStatusList.filter(o => o.value !== '5')}
-                  value={data.portal_status}
+                  data={userStatusList.filter(o => o.value + '' !== '5')}
+                  value={data.portal_status + ''}
                   className={cx('flex')}
                   onChange={newValue => {
                     updateListByStatus({
                       newState: newValue,
-                      rowId: data.rowid,
+                      rowIds: [data.rowid],
+                      cb: () => {
+                        setSelectedIds([]); //清除选择
+                      },
                     });
                   }}
                 />
               );
             },
           });
-        } else if (!['portal_avatar', 'partal_regtime', 'portal_openid', 'partal_id'].includes(o.controlId)) {
+        } else {
           columns.push({
             ...o,
             id: o.controlId,
             name: o.controlName,
+            sorter: [15, 16].includes(o.type),
             render: (text, data, index) => {
               return <div className="ellipsis">{renderText({ ...o, value: data[o.controlId] })}</div>;
             },
@@ -369,9 +377,7 @@ function User(props) {
   const [showControls, setShowControls] = useState([]); //显示列
 
   useEffect(() => {
-    setShowControls(
-      columns.filter(o => showPortalControlIds.includes(o.id) || controlsSYS.map(o => o.controlId).includes(o.id)),
-    );
+    setShowControls(columns.filter(o => showPortalControlIds.includes(o.id)));
   }, [columns, showPortalControlIds]);
   //导出
   const down = isAll => {
@@ -415,6 +421,7 @@ function User(props) {
       getList(); //重新获取当前页面数据
     });
   };
+
   return (
     <Wrap>
       <div className="topAct">
@@ -478,27 +485,80 @@ function User(props) {
               {_l('更改角色')}
             </span>
             <span
+              className={cx('del InlineBlock Hand mLeft32')}
+              onClick={() => {
+                let NoList = list.filter(o => o.portal_status + '' === '5').map(o => o.rowid);
+                if (_.intersection(NoList, selectedIds).length > 0) {
+                  return alert(_l('未激活的用户不能停用', 2));
+                }
+                Dialog.confirm({
+                  title: <span className="Red">{_l('停用%0个用户', selectedIds.length || 1)}</span>,
+                  buttonType: 'danger',
+                  okText: _l('停用'),
+                  description: _l('停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用'),
+                  onOk: () => {
+                    updateListByStatus({
+                      newState: 4,
+                      rowIds: selectedIds,
+                      cb: () => {
+                        setSelectedIds([]); //清除选择
+                      },
+                    });
+                  },
+                });
+              }}
+            >
+              {_l('停用')}
+            </span>
+            <span
+              className={cx('download InlineBlock Hand mLeft10')}
+              onClick={() => {
+                let NoList = list.filter(o => o.portal_status + '' === '5').map(o => o.rowid);
+                if (_.intersection(NoList, selectedIds).length > 0) {
+                  return alert(_l('未激活的用户不能启用', 2));
+                }
+                Dialog.confirm({
+                  title: <span className="">{_l('启用%0个用户', selectedIds.length || 1)}</span>,
+                  buttonType: '',
+                  okText: _l('启用'),
+                  description: _l('启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用'),
+                  onOk: () => {
+                    updateListByStatus({
+                      newState: 1,
+                      rowIds: selectedIds,
+                      cb: () => {
+                        setSelectedIds([]); //清除选择
+                      },
+                    });
+                  },
+                });
+              }}
+            >
+              {_l('启用')}
+            </span>
+            <span
+              className={cx('download InlineBlock Hand mLeft32')}
+              onClick={() => {
+                down();
+              }}
+            >
+              {_l('导出')}
+            </span>
+            <span
               className={cx('del InlineBlock Hand mLeft10')}
               onClick={() => {
                 Dialog.confirm({
-                  title: <span className="Red">{_l('删除%0个成员', selectedIds.length || 1)}</span>,
+                  title: <span className="Red">{_l('注销%0个成员', selectedIds.length || 1)}</span>,
                   buttonType: 'danger',
-                  description: _l('被删除的成员不能通过外部门户的链接登录到此应用内'),
+                  okText: _l('注销'),
+                  description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
                   onOk: () => {
                     deleteRows();
                   },
                 });
               }}
             >
-              {_l('删除')}
-            </span>
-            <span
-              className={cx('download InlineBlock Hand mLeft10')}
-              onClick={() => {
-                down();
-              }}
-            >
-              {_l('导出')}
+              {_l('注销')}
             </span>
           </div>
         )}
@@ -576,6 +636,9 @@ function User(props) {
           getList();
           setSelectedIds([]);
         }}
+        handleChangeSortHeader={sorter => {
+          handleChangeSort(sorter);
+        }}
         clickRow={(info, id) => {
           setCurrentData(info);
           setCurrentId(id);
@@ -625,13 +688,15 @@ function User(props) {
         <UserInfoDialog
           show={showUserInfoDialog}
           appId={appId}
-          currentData={currentData.map(o => {
-            if (['portal_name', 'portal_mobile'].includes(o.controlId)) {
-              return { ...o, disabled: true };
-            } else {
-              return o;
-            }
-          })}
+          currentData={currentData
+            .filter(o => !['portal_avatar', 'portal_status', 'portal_role'].includes(o.controlId)) //详情不显示
+            .map(o => {
+              if (['portal_name', 'portal_mobile', 'partal_regtime', 'portal_openid'].includes(o.controlId)) {
+                return { ...o, disabled: true };
+              } else {
+                return o;
+              }
+            })}
           setCurrentData={setCurrentData}
           setShow={setShowUserInfoDialog}
           onOk={(data, ids) => {

@@ -1,6 +1,7 @@
 import React, { memo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CellControl, { renderCellText } from 'worksheet/components/CellControls';
+import Switch from 'worksheet/components/CellControls/Switch';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
@@ -223,28 +224,23 @@ const BaseCard = props => {
     );
   };
   const renderContent = ({ item, content }) => {
-    const displayContent = !checkCellIsEmpty(item.value) ? (
-      <div className="contentWrap">{content}</div>
-    ) : (
-      <div className="emptyHolder"> </div>
-    );
+    let currentContent = content;
 
     if (item.type === 36) {
       const canEdit =
         isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && allowEdit && controlState(item).editable;
-      return (
+      currentContent = (
         <div onClick={e => e.stopPropagation()}>
-          <Checkbox
-            disabled={!canEdit}
-            text={item.controlName}
-            checked={Number(item.value || 0)}
-            onClick={checked => {
-              props.onChange(item, checked ? '0' : '1');
-            }}
-          />
+          <Switch cell={item} from={4} editable={canEdit} updateCell={({ value }) => props.onChange(item, value)} />
         </div>
       );
     }
+
+    const displayContent = !checkCellIsEmpty(item.value) ? (
+      <div className="contentWrap">{currentContent}</div>
+    ) : (
+      <div className="emptyHolder"> </div>
+    );
 
     if (isShowControlName() && item.controlName) {
       return (
@@ -308,7 +304,7 @@ const BaseCard = props => {
               );
               // 画廊视图或有内容控件则渲染
               return (
-                <div key={item.controlId} className={'fieldItem'}>
+                <div key={item.controlId} className={'fieldItem'} style={item.type === 6 ? { width: '100%' } : {}}>
                   {renderContent({ content, item })}
                 </div>
               );

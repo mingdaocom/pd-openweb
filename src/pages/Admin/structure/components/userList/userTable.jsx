@@ -177,8 +177,8 @@ class UserTable extends React.Component {
         totalColWidth += item.width;
       }
     });
-    let setWidth = $('.departmentContent') && totalColWidth > $('.departmentContent').width();
-    let actWidth = $('.departmentContent').height() > 48 * usersCurrentPage.length ? 80 : 90;
+    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
+    let actWidth = $('.listInfo').height() > 48 * usersCurrentPage.length ? 80 : 90;
     return (
       <thead>
         <tr>

@@ -9,7 +9,13 @@ import cx from 'classnames';
 import { Dialog, LoadDiv, EditingBar } from 'ming-ui';
 import { getSameLevelIds } from '../utils';
 import { NODE_TYPE, APP_TYPE } from '../enum';
-import { addFlowNode, deleteFlowNode, updateFlowNodeName, updateNodeDesc } from '../../redux/actions';
+import {
+  addFlowNode,
+  deleteFlowNode,
+  updateFlowNodeName,
+  updateNodeDesc,
+  updateBranchGatewayType,
+} from '../../redux/actions';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 
 @errorBoundary
@@ -25,6 +31,7 @@ class EditFlow extends Component {
       scale: 100,
       isCopy: false,
       selectCopyIds: [],
+      hideNodes: JSON.parse(localStorage.getItem('workflowHideNodes') || '[]'),
     };
   }
 
@@ -48,7 +55,7 @@ class EditFlow extends Component {
     }
 
     if (prevState.nodeId !== this.state.nodeId || prevState.isCopy !== this.state.isCopy) {
-      $('.workflowEdit').css('margin-right', this.state.nodeId && !this.state.isCopy ? 560 : 0);
+      $('.workflowEdit').css('margin-right', this.state.nodeId && !this.state.isCopy ? 640 : 0);
 
       if (this.state.nodeId) {
         this.setNodeCenter(this.state.nodeId, true);
@@ -214,6 +221,13 @@ class EditFlow extends Component {
   };
 
   /**
+   * 修改分支节点类型
+   */
+  updateBranchGatewayType = (nodeId, gatewayType) => {
+    this.props.dispatch(updateBranchGatewayType(this.props.workflowDetail.id, nodeId, gatewayType));
+  };
+
+  /**
    * render节点
    */
   renderNode = (data, firstId) => {
@@ -238,6 +252,8 @@ class EditFlow extends Component {
         selectCopyIds: this.state.selectCopyIds,
         child,
         relationId: flowInfo.relationId,
+        isRelease: !!flowInfo.parentId,
+        hideNodes: this.state.hideNodes,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
         selectCopyNode: this.selectCopyNode,
@@ -246,6 +262,8 @@ class EditFlow extends Component {
         openDetail: this.openDetail,
         updateNodeName: this.updateNodeName,
         updateNodeDesc: this.updateNodeDesc,
+        updateBranchGatewayType: this.updateBranchGatewayType,
+        updateHideNodes: hideNodes => this.setState({ hideNodes }),
       };
 
       if (!data[id]) return null;
@@ -328,6 +346,8 @@ class EditFlow extends Component {
       selectNodeName: selectNodeId ? (flowNodeMap[selectNodeId] || {}).name : '',
       child: flowInfo.child,
       isCopy,
+      isRelease: !!flowInfo.parentId,
+      isPBCProcess: flowInfo.startAppType === APP_TYPE.PBC,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
     };
@@ -338,7 +358,13 @@ class EditFlow extends Component {
 
     return (
       <Fragment>
-        <div className={cx('workflowEdit flex mTop20 flexRow', { addTop: startNodeError })}>
+        <div
+          className={cx(
+            'workflowEdit flex mTop20 flexRow',
+            { addTop: startNodeError },
+            { workflowEditRelease: flowInfo.parentId },
+          )}
+        >
           <div
             className="workflowEditContent"
             style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center top' }}
@@ -358,7 +384,7 @@ class EditFlow extends Component {
           actionId={actionId}
           addFlowNode={this.addFlowNode}
           selectAddNodeId={this.selectAddNodeId}
-          hasPushNode={_.includes([8], flowInfo.startAppType) && !flowInfo.child}
+          hasPushNode={_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], flowInfo.startAppType) && !flowInfo.child}
         />
 
         <div className={cx('workflowEditBtns', { addTop: startNodeError })}>

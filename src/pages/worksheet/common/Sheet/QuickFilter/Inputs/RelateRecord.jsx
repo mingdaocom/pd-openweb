@@ -43,24 +43,12 @@ const Dropdown = styled(RelateRecordDropdown)`
   }
 `;
 
-function filterDynamicSource(filters) {
-  if (!filters) {
-    return;
-  }
-  try {
-    return JSON.stringify(JSON.parse(filters).filter(c => _.isEmpty(c.dynamicSource)));
-  } catch (err) {
-    return;
-  }
-}
-
 export default function RelateRecord(props) {
   const { values = [], advancedSetting, onChange = () => {} } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
       searchcontrol: controlAdvancedSetting.searchcontrol,
-      filters: filterDynamicSource(controlAdvancedSetting.filters),
     },
   });
   const { relationControls = [] } = control;

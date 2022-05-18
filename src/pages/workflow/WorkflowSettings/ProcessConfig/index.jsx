@@ -413,6 +413,8 @@ class ProcessConfig extends Component {
   renderPBCContent() {
     const { flowInfo } = this.props;
     const { data, errorItems } = this.state;
+    const importData = data.processVariables.filter(item => item.processVariableType === 1);
+    const exportData = data.processVariables.filter(item => item.processVariableType === 2);
     const options = [
       {
         text: _l('通过回调地址接受返回参数'),
@@ -452,12 +454,6 @@ class ProcessConfig extends Component {
 
         {data.pbcConfig.enable && (
           <Fragment>
-            <SetControlName
-              data={data.processVariables}
-              errorItems={errorItems}
-              setErrorItems={errorItems => this.setState({ errorItems })}
-              updateSource={this.updateSource}
-            />
             <div className="bold Font16 mTop20">{_l('请求地址')}</div>
             <div className="mTop5 Gray_9e">{_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}</div>
             <div className="mTop10 flexRow">
@@ -492,7 +488,20 @@ class ProcessConfig extends Component {
               </div>
             </div>
 
-            <div className="bold Font16 mTop20">{_l('返回参数')}</div>
+            {!!importData.length && (
+              <Fragment>
+                <div className="mTop20 Font16 bold">{_l('请求参数')}</div>
+                <SetControlName
+                  data={data.processVariables}
+                  list={importData}
+                  errorItems={errorItems}
+                  setErrorItems={errorItems => this.setState({ errorItems })}
+                  updateSource={this.updateSource}
+                />
+              </Fragment>
+            )}
+
+            <div className="bold Font16 mTop20">{_l('响应方式')}</div>
             {options.map((item, i) => (
               <Fragment key={i}>
                 <div className="mTop15">
@@ -518,6 +527,19 @@ class ProcessConfig extends Component {
                 )}
               </Fragment>
             ))}
+
+            {!!exportData.length && (
+              <Fragment>
+                <div className="mTop20 Font16 bold">{_l('响应参数')}</div>
+                <SetControlName
+                  data={data.processVariables}
+                  list={exportData}
+                  errorItems={errorItems}
+                  setErrorItems={errorItems => this.setState({ errorItems })}
+                  updateSource={this.updateSource}
+                />
+              </Fragment>
+            )}
           </Fragment>
         )}
       </Fragment>

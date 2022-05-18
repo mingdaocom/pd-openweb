@@ -222,8 +222,6 @@ export default class ExportSheet extends Component {
         if (['ownerid', 'caid', 'ctime', 'utime'].includes(key) && value) {
           // 创建者、拥有者的字段类型为：成员
           if (key === 'ownerid' || key === 'caid') column.type = 26;
-          // 创建时间、最近修改时间的字段类型为：时间
-          else column.type = 1;
           if (columnsSelected[key]) systemColumn.push(column);
         } else if (columnsSelected[key]) exportControlsId.push(key);
       });

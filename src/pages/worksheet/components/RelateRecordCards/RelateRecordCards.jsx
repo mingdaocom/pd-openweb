@@ -15,6 +15,7 @@ import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/to
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
+import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
 import { completeControls } from 'worksheet/util';
@@ -73,6 +74,7 @@ export default class RelateRecordCards extends Component {
       appId: PropTypes.string, // 他表字段被关联表所在应用 id
       viewId: PropTypes.string, // 他表字段被关联表所在应用所在视图 id
       worksheetId: PropTypes.string, // 他表字段所在表 id
+      projectId: PropTypes.string, // 网络 id
       from: PropTypes.number, // 来源
       recordId: PropTypes.string, // 他表字段所在记录 id
       controlId: PropTypes.string, // 他表字段 id
@@ -353,6 +355,7 @@ export default class RelateRecordCards extends Component {
       appId,
       viewId,
       worksheetId,
+      projectId,
       from,
       recordId,
       controlId,
@@ -371,8 +374,7 @@ export default class RelateRecordCards extends Component {
     const { showAddRecord, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
     const isMobile = browserIsMobile();
-    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+    const isScanQR = getIsScanQR();
     const isCard =
       parseInt(advancedSetting.showtype, 10) === 1 ||
       (from === FROM.H5_ADD && parseInt(advancedSetting.showtype, 10) === 2);
@@ -412,16 +414,17 @@ export default class RelateRecordCards extends Component {
                 ) : null}
               </Fragment>
             )}
-          {onlyRelateByScanCode && !(isWeLink || isDing) && (
+          {onlyRelateByScanCode && !(isScanQR) && (
             <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
           )}
           {(!records.length || enumDefault === 2) &&
             from !== FROM.SHARE &&
             enumDefault2 !== 11 &&
             onlyRelateByScanCode &&
-            (isWeLink || isDing) &&
+            isScanQR &&
             !disabled && (
               <RelateScanQRCode
+                projectId={projectId}
                 worksheetId={dataSource}
                 filterControls={filterControls}
                 onChange={data => {

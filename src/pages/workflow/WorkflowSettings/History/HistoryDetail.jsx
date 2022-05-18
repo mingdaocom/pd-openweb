@@ -15,6 +15,7 @@ import {
   COUNTER_TYPE,
 } from './config';
 import { resetInstance, endInstance } from '../../api/instanceVersion';
+import { getProcessPublish } from '../../api/process';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -30,12 +31,14 @@ export default class HistoryDetail extends Component {
   state = {
     data: {},
     isRetry: false,
+    processInfo: {},
   };
 
   retryPosition = '';
 
   componentWillMount() {
     this.getData();
+    this.getProcessPublish();
   }
 
   getData = () => {
@@ -44,6 +47,14 @@ export default class HistoryDetail extends Component {
       api.getHistoryDetail({ instanceId: id }).then(data => {
         this.setState({ data });
       });
+  };
+
+  getProcessPublish = () => {
+    const { id } = this.props;
+
+    getProcessPublish({ instanceId: id }).then(res => {
+      this.setState({ processInfo: res });
+    });
   };
 
   renderOperationInfo = item => {
@@ -202,7 +213,7 @@ export default class HistoryDetail extends Component {
   };
 
   render() {
-    const { data, isRetry } = this.state;
+    const { data, isRetry, processInfo } = this.state;
     if (_.isEmpty(data)) return <LoadDiv />;
 
     const { onClick } = this.props;
@@ -239,7 +250,22 @@ export default class HistoryDetail extends Component {
             </div>
           </div>
           <div className="logWrap">
-            <div className="logTitle Font16 Gray_75">{_l('日志')}</div>
+            <div className="logTitle Font16 Gray_75 flexRow" style={{ alignItems: 'center' }}>
+              <div className="flex">{_l('日志')}</div>
+              {!_.isEmpty(processInfo) && (
+                <div className="Font13 Normal">
+                  {_l('版本：%0', moment(processInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
+                  <span
+                    className="mLeft5 ThemeColor3 ThemeHoverColor2 pointer"
+                    onClick={() => {
+                      location.href = `/workflowedit/${processInfo.id}`;
+                    }}
+                  >
+                    {_l('详情')}
+                  </span>
+                </div>
+              )}
+            </div>
             <ul className="logList">
               {works.map((item, index) => {
                 const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort } = item;

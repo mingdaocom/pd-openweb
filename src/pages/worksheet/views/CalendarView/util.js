@@ -201,3 +201,35 @@ export const getTimeControls = controls => {
       item.controlId !== 'utime' && (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
   );
 };
+
+export const getShowExternalData = () => {
+  let showExternalData = [];
+  try {
+    showExternalData = JSON.parse(window.localStorage.getItem('CalendarShowExternal')) || [];
+  } catch (error) {
+    showExternalData = [];
+  }
+  //老数据兼容
+  if (!_.isArray(showExternalData)) {
+    showExternalData = [];
+  }
+  return showExternalData;
+};
+
+export const getCalendartypeData = () => {
+  //老数据兼容
+  if (
+    ['timeGridWeek', 'timeGridDay', 'dayGridMonth', 'dayGridWeek', 'dayGridDay'].includes(
+      window.localStorage.getItem('CalendarViewType'),
+    )
+  ) {
+    return {};
+  }
+  let CalendartypeData = {};
+  try {
+    CalendartypeData = JSON.parse(window.localStorage.getItem('CalendarViewType')) || {};
+  } catch (error) {
+    CalendartypeData = {};
+  }
+  return CalendartypeData;
+};

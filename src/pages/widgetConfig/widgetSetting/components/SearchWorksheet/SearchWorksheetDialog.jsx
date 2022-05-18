@@ -172,7 +172,8 @@ export default class SearchWorksheetDialog extends Component {
           //选择字段
           const selectControl = getCurrent(item.subCid);
           // 映射字段匹配筛选规则
-          const subControls = relateDy(selectControl.type, filterControls, selectControl) || [];
+          const subControls =
+            relateDy(selectControl.type, filterControls, { ...selectControl, containSelf: true }) || [];
           const isDelete = item.cid && !_.find(subControls, subControl => subControl.controlId === item.cid);
           return (
             <div className="mappingItem">

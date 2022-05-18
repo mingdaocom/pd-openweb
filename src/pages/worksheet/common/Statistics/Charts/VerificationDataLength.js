@@ -6,7 +6,7 @@ const verificationDataLength = (Component) => {
   class VerificationDataLength extends React.Component {
     get isOverload() {
       const { reportData } = this.props;
-      const { map, contrastMap, aggregations = [] } = reportData;
+      const { map = [], contrastMap = [], aggregations = [] } = reportData;
       if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.RadarChart, reportTypes.DualAxes].includes(reportData.reportType)) {
         const max = 5000;
         const length = map.length * (_.get(map[0], ['value', 'length']) || 1);

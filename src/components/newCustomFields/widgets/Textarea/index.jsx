@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Textarea, Linkify } from 'ming-ui';
 import cx from 'classnames';
 import TextScanQRCode from '../../components/TextScanQRCode';
+import { getIsScanQR } from '../../components/ScanQRCode';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -17,6 +18,11 @@ export default class Widgets extends Component {
 
   state = {
     isEditing: false,
+    originValue: '',
+  };
+
+  onFocus = e => {
+    this.setState({ originValue: e.target.value.trim() });
   };
 
   onChange = value => {
@@ -25,13 +31,14 @@ export default class Widgets extends Component {
 
   onBlur = () => {
     const { onBlur } = this.props;
+    const { originValue } = this.state;
 
     this.setState({ isEditing: false });
     if (navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
     }
-    onBlur();
+    onBlur(originValue);
   };
 
   /**
@@ -40,6 +47,9 @@ export default class Widgets extends Component {
   joinTextareaEdit = evt => {
     const { disabled, advancedSetting } = this.props;
     const href = evt.target.getAttribute('href');
+
+    // 复制中的时候不进入编辑
+    if (window.getSelection().toString()) return;
 
     if (href) {
       const a = document.createElement('a');
@@ -56,17 +66,13 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { disabled, value = '', enumDefault, strDefault = '10', advancedSetting } = this.props;
+    const { disabled, value = '', enumDefault, strDefault = '10', advancedSetting, projectId } = this.props;
     let { hint } = this.props;
     const { isEditing } = this.state;
     const disabledInput = advancedSetting.dismanual === '1';
     const isSingleLine = enumDefault === 2;
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Config.IsLocal;
-    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    const startTextScanCode =
-      !disabled && ((isWx && !isWxWork) || isWeLink || isDing) && strDefault.split('')[1] === '1';
+    const isScanQR = getIsScanQR();
+    const startTextScanCode = !disabled && isScanQR && strDefault.split('')[1] === '1';
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {
@@ -83,6 +89,7 @@ export default class Widgets extends Component {
               'customFormControlBox customFormTextareaBox',
               { Gray_bd: !value },
               { controlDisabled: disabled },
+              { textAreaDisabledControl: enumDefault === 1 && disabled },
             )}
             style={{
               minHeight: enumDefault === 1 ? 90 : 36,
@@ -105,6 +112,7 @@ export default class Widgets extends Component {
               this.text = text;
             }}
             placeholder={hint}
+            onFocus={this.onFocus}
             value={(value || '').replace(/\r\n|\n/g, ' ')}
             onChange={event => this.onChange(event.target.value)}
             onBlur={event => {
@@ -125,12 +133,13 @@ export default class Widgets extends Component {
             value={value}
             placeholder={hint}
             spellCheck={false}
+            onFocus={this.onFocus}
             onChange={this.onChange}
             onBlur={this.onBlur}
           />
         )}
 
-        {startTextScanCode && <TextScanQRCode onChange={this.onChange} />}
+        {startTextScanCode && <TextScanQRCode projectId={projectId} onChange={this.onChange} />}
       </Fragment>
     );
   }

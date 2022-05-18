@@ -7,6 +7,7 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import './index.less';
 import { FASTFILTER_CONDITION_TYPE, getSetDefault } from './util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 const Wrap = styled.div`
   .hasData {
@@ -93,14 +94,14 @@ const Wrap = styled.div`
 `;
 const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand dragHandle" icon="drag" />);
 
-const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr }) => {
+const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr, showOtherField }) => {
   return (
     <div className="customItemForFastFilter mBottom10" style={{}}>
       <SortHandle />
       <span
-        className={cx('con', { Red: isErr })}
+        className={cx('con', { Red: isErr || showOtherField })}
         onClick={() => {
-          if (isErr || !onEdit) {
+          if (isErr || showOtherField || !onEdit) {
             return;
           }
           onEdit(controlId);
@@ -108,9 +109,9 @@ const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr }
       >
         <span className="overflow_ellipsis Font13 WordBreak">
           <Icon icon={getIconByType(type, false)} className={cx('mRight12 Font18 customIcon', { Red: isErr })} />
-          {isErr ? _l('该字段已删除') : name || ''}
+          {isErr ? _l('该字段已删除') : showOtherField ? _l('%0(无效类型)', name) : name || ''}
         </span>
-        {!!onEdit && !isErr && <Icon className="Font16 Hand editIcon" icon="new_mail" />}
+        {!!onEdit && !isErr && !showOtherField && <Icon className="Font16 Hand editIcon" icon="new_mail" />}
       </span>
       {!!onDelete && (
         <Tooltip text={<span>{_l('删除')}</span>}>
@@ -174,6 +175,7 @@ export default function FastFilterCon(params) {
           ...rest,
           controlId: typeof filterItem === 'string' ? filterItem : filterItem.controlId,
           isErr: !controlName,
+          showOtherField: isOtherShowFeild({ type, ...rest }),
           controlName,
           type,
         };
@@ -187,7 +189,7 @@ export default function FastFilterCon(params) {
       <AddCondition
         renderInParent
         className="addControl"
-        columns={worksheetControls.filter(
+        columns={filterOnlyShowField(worksheetControls).filter(
           o =>
             (FASTFILTER_CONDITION_TYPE.includes(o.type) ||
               (o.type === 30 && FASTFILTER_CONDITION_TYPE.includes((o.sourceControl || {}).type))) &&

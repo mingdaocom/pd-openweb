@@ -267,7 +267,11 @@ export default class ConfigControl extends Component {
     }
 
     let fieldsList = data.template.controls
-      .filter(item => _.includes([2, 3, 4, 5, 6, 7, 33], item.type))
+      .filter(
+        item =>
+          _.includes([2, 3, 4, 5, 6, 7, 33], item.type) ||
+          (item.type === 26 && item.enumDefault === 0 && item.advancedSetting.usertype !== '2'),
+      )
       .map(item => {
         return {
           text: item.controlName,
@@ -449,11 +453,17 @@ export default class ConfigControl extends Component {
             : _l('请设置重复记录的依据字段');
         }
 
+        const currentRepeatItem = _.find(controlMapping, item => item.ControlId === repeatConfig.controlId) || {};
+        if (repeatConfig.controlId !== recordObj.value && !_.get(currentRepeatItem, 'ColumnNum')) {
+          throw _l('请设置“%0”字段的映射关系', repeatConfig.controlName);
+        }
+
         if (
           repeatConfig.controlId !== recordObj.value &&
-          !_.get(_.find(controlMapping, item => item.ControlId === repeatConfig.controlId) || {}, 'ColumnNum')
+          currentRepeatItem.type === 26 &&
+          currentRepeatItem.accountMatchId !== 'userId'
         ) {
-          throw _l('请设置“%0”字段的映射关系', repeatConfig.controlName);
+          throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
         }
       }
 
@@ -717,7 +727,7 @@ export default class ConfigControl extends Component {
                 text={
                   <span>
                     {_l(
-                      '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID',
+                      '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选',
                     )}
                   </span>
                 }

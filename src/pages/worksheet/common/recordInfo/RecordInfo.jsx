@@ -23,6 +23,8 @@ import RecordForm from './RecordForm';
 import Header from './RecordForm/Header';
 import RecordInfoRight from './RecordInfoRight';
 import './RecordInfo.less';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { getDiscussConfig } from 'src/api/externalPortal';
 
 const Drag = styled.div(
   ({ left }) => `
@@ -106,6 +108,8 @@ export default class RecordInfo extends Component {
       currentIndex: _.findIndex(props.currentSheetRows, item => {
         return item.rowid === props.recordId;
       }),
+      allowExAccountDiscuss: false, //允许外部用户讨论
+      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
     this.hadWaterMark = window.hadWaterMark;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
@@ -133,6 +137,11 @@ export default class RecordInfo extends Component {
     emitter.removeListener('RELOAD_RECORD_INFO', this.debounceRefresh);
   }
 
+  getPortalDiscussSet = async nextProps => {
+    const { appId } = nextProps;
+    return getDiscussConfig({ appId });
+  };
+
   getFormWidth(props) {
     let { width, viewId, sheetSwitchPermit } = props || this.props;
     if (width > 1600) {
@@ -144,9 +153,6 @@ export default class RecordInfo extends Component {
     ) {
       return width;
     }
-    if (md.global.Account.isPortal) {
-      return width;
-    }
     let formWidth;
     try {
       formWidth = parseInt(localStorage.getItem('RECORD_INFO_FORM_WIDTH'), 10);
@@ -154,10 +160,10 @@ export default class RecordInfo extends Component {
         throw new Error();
       }
     } catch (err) {
-      formWidth = width - 420;
+      formWidth = width - 500;
     }
-    if (formWidth > width - 345) {
-      formWidth = width - 345;
+    if (formWidth > width - 425) {
+      formWidth = width - 425;
     }
     return formWidth;
   }
@@ -203,6 +209,7 @@ export default class RecordInfo extends Component {
         getRules: !rules,
         controls,
       });
+      const portalDiscussSet = await this.getPortalDiscussSet(data);
       // 设置隐藏字段的 hidden 属性
       data.formData = data.formData.map(c => ({
         ...c,
@@ -219,6 +226,9 @@ export default class RecordInfo extends Component {
         }
       }
       this.setState({
+        ...portalDiscussSet,
+        sideVisible:
+          md.global.Account.isPortal && !portalDiscussSet.allowExAccountDiscuss ? false : this.state.sideVisible, //外部门户是否开启讨论
         recordinfo: {
           ...data,
           allowAdd,
@@ -346,11 +356,11 @@ export default class RecordInfo extends Component {
   }
 
   @autobind
-  handleFormChange(data, ids = [], slient) {
+  handleFormChange(data, ids = []) {
     const { updateControlIds } = this.state;
     this.setState({
       tempFormData: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
-      iseditting: slient ? this.state.iseditting : true,
+      iseditting: true,
       updateControlIds: _.uniqBy(updateControlIds.concat(ids)),
     });
   }
@@ -392,7 +402,7 @@ export default class RecordInfo extends Component {
     const { recordId, recordinfo } = this.state;
     let hasError;
     emitter.emit('SAVE_CANCEL_RECORD');
-    const subListControls = data.filter(item => item.type === 34);
+    const subListControls = data.filter(item => item.type === 34).filter(c => controlState(c).editable);
     function getRows(controlId) {
       try {
         return cellObjs[controlId].cell.props.rows;
@@ -647,6 +657,8 @@ export default class RecordInfo extends Component {
       iseditting,
       sideVisible,
       dragMaskVisible,
+      allowExAccountDiscuss,
+      exAccountDiscussEnum,
     } = this.state;
     let { width } = this.props;
     if (width > 1600) {
@@ -700,6 +712,8 @@ export default class RecordInfo extends Component {
           >
             {!abnormal && (
               <Header
+                allowExAccountDiscuss={allowExAccountDiscuss}
+                exAccountDiscussEnum={exAccountDiscussEnum}
                 loading={loading}
                 viewId={viewId}
                 header={header}
@@ -761,7 +775,7 @@ export default class RecordInfo extends Component {
                 <DragMask
                   value={formWidth}
                   min={400}
-                  max={width - 343}
+                  max={width - 423}
                   onChange={value => {
                     localStorage.setItem('RECORD_INFO_FORM_WIDTH', value);
                     this.setState({ dragMaskVisible: false, formWidth: value });
@@ -804,6 +818,19 @@ export default class RecordInfo extends Component {
                   if (!this.recordform) {
                     return;
                   }
+                  if (typeof num === 'number' && num >= 0) {
+                    this.recordform.current.dataFormat.updateDataSource({
+                      controlId,
+                      value: String(num),
+                      notInsertControlIds: true,
+                    });
+                    this.recordform.current.updateRenderData({ noRule: true });
+                    this.setState({
+                      tempFormData: tempFormData.map(item =>
+                        item.controlId === controlId ? { ...item, value: String(num) } : item,
+                      ),
+                    });
+                  }
                   tempFormData
                     .filter(c => c.type === 37 && _.includes(c.dataSource, controlId))
                     .forEach(c => {
@@ -835,6 +862,8 @@ export default class RecordInfo extends Component {
               {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
               {!abnormal && sideVisible && (
                 <RecordInfoRight
+                  allowExAccountDiscuss={allowExAccountDiscuss}
+                  exAccountDiscussEnum={exAccountDiscussEnum}
                   className="flex"
                   recordbase={recordbase}
                   workflow={workflow}

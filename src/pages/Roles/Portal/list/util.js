@@ -1,7 +1,8 @@
 import React from 'react';
 import CellControl from 'worksheet/components/CellControls';
 import { renderCellText } from 'worksheet/components/CellControls';
-import { Icon, Checkbox, Dialog, Dropdown } from 'ming-ui';
+import { Checkbox, Switch, Radio } from 'ming-ui';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 
 export const pageSize = 20;
 export const COLORS = [
@@ -28,15 +29,37 @@ export const BGTYPE = [_l('颜色'), _l('背景图')];
 
 export const SYSPORTAL = ['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status'];
 
+export const renderContent = data => {
+  const { value, advancedSetting = {} } = data;
+  const { showtype } = advancedSetting;
+  const itemnames = getSwitchItemNames(data);
+  const isChecked = '1' === value + '';
+  if (showtype === '1') {
+    const text = isChecked ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
+    return (
+      <div className="flexCenter">
+        <Switch checked={isChecked} size="small" />
+        {text && <span className="mLeft6">{text}</span>}
+      </div>
+    );
+  }
+  if (showtype === '2') {
+    return (
+      <div className="ming RadioGroup">
+        {itemnames.map((o, index) => {
+          return <Radio text={o.value} value={o.key} key={index} checked={`${value}` === o.key} size={'middle'} />;
+        })}
+      </div>
+    );
+  }
+  return <Checkbox className="TxtCenter InlineBlock Hand" text={''} checked={isChecked} />;
+};
+
 export const renderText = o => {
   if ([1, 2, 23].includes(o.type)) {
     return renderCellText({ ...o });
   } else {
-    if (o.type === 36) {
-      return <Checkbox className="TxtCenter InlineBlock Hand" text={''} checked={o.value === '1'} />;
-    } else {
-      return <CellControl cell={{ ...o }} />;
-    }
+    return <CellControl cell={{ ...o }} from={4} mode="portal" />;
   }
 };
 

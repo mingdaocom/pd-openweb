@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Switch, Button } from 'ming-ui';
 import { getPublicQuery, editPublicQueryState } from 'src/api/publicWorksheet';
 import Skeleton from 'src/router/Application/Skeleton';
-import ShareUrl from '../components/ShareUrl';
+import ShareUrl from 'worksheet/components/ShareUrl';
 import QueryConfigDialog from './QueryConfigDialog';
 import { VISIBLE_TYPE } from '../enum';
 

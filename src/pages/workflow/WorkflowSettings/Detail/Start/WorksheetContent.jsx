@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { TRIGGER_ID } from '../../enum';
 import { TriggerCondition, SelectFields } from '../components';
 import { Dropdown, Radio } from 'ming-ui';
 
@@ -22,10 +22,10 @@ export default ({
   });
 
   const TYPES = [
-    { text: _l('当新增或更新记录时'), value: TRIGGER_ID_TYPE.EDIT, selectFields: true },
-    { text: _l('仅新增记录时'), value: TRIGGER_ID_TYPE.ADD, desc: _l('当新增记录时触发流程') },
-    { text: _l('仅更新记录时'), value: TRIGGER_ID_TYPE.ONLY_EDIT, selectFields: true },
-    { text: _l('删除记录时'), value: TRIGGER_ID_TYPE.DELETE },
+    { text: _l('当新增或更新记录时'), value: TRIGGER_ID.EDIT, selectFields: true },
+    { text: _l('仅新增记录时'), value: TRIGGER_ID.ADD, desc: _l('当新增记录时触发流程') },
+    { text: _l('仅更新记录时'), value: TRIGGER_ID.ONLY_EDIT, selectFields: true },
+    { text: _l('删除记录时'), value: TRIGGER_ID.DELETE },
   ];
 
   return (

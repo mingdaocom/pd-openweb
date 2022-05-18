@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import { Score } from 'ming-ui';
+import { CustomScore } from 'ming-ui';
 import { FROM } from './enum';
 import cx from 'classnames';
+import { browserIsMobile } from 'src/util';
 
 function levelSafeParse(value) {
   let levelValue = parseInt(value, 10);
@@ -35,23 +36,6 @@ export default class Level extends React.Component {
     }
   }
 
-  getLineColor = score => {
-    const { cell } = this.props;
-
-    if (cell.enumDefault === 1) {
-      return false;
-    }
-
-    let foregroundColor = '#f44336';
-    if (score >= 5 && score <= 7) {
-      foregroundColor = '#fed156';
-    } else if (score >= 8) {
-      foregroundColor = '#4caf50';
-    }
-
-    return foregroundColor;
-  };
-
   @autobind
   handleChange(value) {
     const { updateCell } = this.props;
@@ -64,22 +48,37 @@ export default class Level extends React.Component {
   render() {
     const { from, className, style, cell, editable, isediting, onClick } = this.props;
     const { value } = this.state;
-    if (from === FROM.CARD && cell.enumDefault !== 1) {
-      return _l('%0 级', value);
+    const isMobile = browserIsMobile();
+    if (isMobile) {
+      const itemnames = cell && cell.advancedSetting ? JSON.parse(cell.advancedSetting.itemnames || '[]') : [];
+      const currentName =
+        _.get(
+          _.find(itemnames, i => i.key === `${value}`),
+          'value',
+        ) || _l('%0 级', value);
+      return currentName;
     }
     return (
-      <div className={cx(className, 'levelWrapper cellControl flexRow', { canedit: editable, isInCard: from === FROM.CARD })} style={style} onClick={onClick}>
-        { cell.enumDefault !== 1 && <span className="mRight10">{ _l('%0 级', value) }</span> }
-        <div className={cx('flex', { mTop7: cell.enumDefault !== 1 }, cell.enumDefault === 1 ? 'star' : 'line')}>
-          <Score
+      <div
+        className={cx(className, 'levelWrapper cellControl flexRow', {
+          canedit: editable,
+          isInCard: from === FROM.CARD,
+        })}
+        style={style}
+        onClick={onClick}
+      >
+        <div className="flex flexRow">
+          {isMobile && (
+            <span className="mRight5" style={{ marginTop: '-2px' }}>
+              {value}
+            </span>
+          )}
+          <CustomScore
             hideTip
-            disabled={!editable}
-            type={cell.enumDefault === 1 ? 'star' : 'line'}
             score={value}
-            foregroundColor={cell.enumDefault === 1 ? '#fed156' : this.getLineColor(value)}
-            hover={this.getLineColor}
+            data={cell}
+            disabled={!editable || from === FROM.CARD}
             callback={this.handleChange}
-            count={cell.enumDefault === 1 ? 5 : 10}
           />
         </div>
       </div>

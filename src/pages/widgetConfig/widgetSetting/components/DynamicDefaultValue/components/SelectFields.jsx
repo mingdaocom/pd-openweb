@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import update from 'immutability-helper';
 import { Checkbox } from 'ming-ui';
-import { getControls, filterControls } from '../util';
+import { getControls, filterControls, getOtherSelectField } from '../util';
 import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
 import { getIconByType } from '../../../../util';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
@@ -58,12 +58,14 @@ export default class SelectFields extends Component {
     // 关联多条----关联单条、多条（列表除外）
     const filterSubListControls = filterControls(data, subListControls);
     // 获取当前记录和关联表控件
-    const sheetList = initSheetList.concat(
-      filterSubListControls.map(item => ({
-        id: item.controlId,
-        name: item.type === 35 ? _l('级联选择 “%0”', item.controlName) : _l('关联记录 “%0”', item.controlName),
-      })),
-    );
+    const sheetList = _.includes(['customCreate'], from)
+      ? initSheetList
+      : initSheetList.concat(
+          filterSubListControls.map(item => ({
+            id: item.controlId,
+            name: item.type === 35 ? _l('级联选择 “%0”', item.controlName) : _l('关联记录 “%0”', item.controlName),
+          })),
+        );
     // 获取当前表的控件
     const fieldList = {
       current: getControls({ data, controls: subListControls, isCurrent: true }),
@@ -108,11 +110,17 @@ export default class SelectFields extends Component {
   getControlCount = list => {
     return _.keys(list).reduce((p, c) => p + (list[c] || []).length, 0);
   };
+  getOtherCount = data => {
+    return data.reduce((p, c) => {
+      return (p.list || []).length + (c.list || []).length;
+    }, 0);
+  };
   render() {
     const { searchValue } = this.state;
     const { onClick, data, dynamicValue } = this.props;
+    const otherList = getOtherSelectField(data, searchValue);
     const { sheetList, filteredList } = this.filterFieldList();
-    const filteredControlCount = this.getControlCount(filteredList);
+    const filteredControlCount = this.getControlCount(filteredList) + this.getOtherCount(otherList);
     return (
       <SelectFieldsWrap>
         <div className="search">
@@ -122,7 +130,7 @@ export default class SelectFields extends Component {
         <div className="fieldsWrap">
           {sheetList.map(({ id: recordId, name }) => {
             const list = filteredList[recordId];
-            return list.length > 0 ? (
+            return list && list.length > 0 ? (
               <ul className="relateSheetList">
                 <li>
                   <div className="title">
@@ -158,6 +166,26 @@ export default class SelectFields extends Component {
                         <li className="overflow_ellipsis" onClick={() => onClick(ids)}>
                           <i className={`icon-${getIconByType(type)}`}></i>
                           <span className="overflow_ellipsis">{controlName}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              </ul>
+            ) : null;
+          })}
+          {otherList.map(({ list, name }) => {
+            return list.length > 0 ? (
+              <ul className="relateSheetList">
+                <li>
+                  <div className="title">
+                    <span>{name}</span>
+                  </div>
+                  <ul className="fieldList">
+                    {list.map(({ text, id }) => {
+                      return (
+                        <li className="overflow_ellipsis" onClick={() => onClick({ fieldId: id })}>
+                          <span className="overflow_ellipsis">{text}</span>
                         </li>
                       );
                     })}

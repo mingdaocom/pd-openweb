@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 
 export default class Code extends Component {
   constructor(props) {
@@ -29,7 +29,7 @@ export default class Code extends Component {
 
     return (
       <div className="pLeft8 pRight8">
-        {item.actionId === TRIGGER_ID_TYPE.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
+        {item.actionId === ACTION_ID.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
       </div>
     );
   }

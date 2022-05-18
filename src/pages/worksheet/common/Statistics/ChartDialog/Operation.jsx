@@ -26,12 +26,11 @@ const Operation = ({
 }) => {
   const { report } = base;
   const isChartPublicShare = location.href.includes('public/chart');
-  const isPagePublicShare = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
+  const isPagePublicShare = location.href.includes('public/page') || window.shareAuthor;
   const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
   return (
     <div className="flexRow valignWrapper">
-      {isSheetView && (
-        sheetVisible && !settingVisible ? (
+      {sheetVisible && !settingVisible ? (
           <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')} placement="bottom">
             <Icon
               icon="call_to_action_on"
@@ -42,17 +41,18 @@ const Operation = ({
             />
           </Tooltip>
         ) : (
-          <Tooltip title={_l('以表格显示')} placement="bottom">
-            <Icon
-              icon="worksheet"
-              className="Font20 Gray_9e pointer mLeft16"
-              onClick={() => {
-                onChangeSheetVisible();
-              }}
-            />
-          </Tooltip>
-        )
-      )}
+          isSheetView && (
+            <Tooltip title={_l('以表格显示')} placement="bottom">
+              <Icon
+                icon="worksheet"
+                className="Font20 Gray_9e pointer mLeft16"
+                onClick={() => {
+                  onChangeSheetVisible();
+                }}
+              />
+            </Tooltip>
+          )
+        )}
       {!settingVisible && (
         <Tooltip title={_l('刷新')} placement="bottom">
           <Icon

@@ -86,14 +86,9 @@
 
 // 等级
 .levelWrapper {
-  .star .Score-wrapper {
+  .Score-wrapper {
     min-width: 96px;
-    .StarScore-item {
-      margin-right: 2px !important;
-      i {
-        font-size: 16px !important;
-      }
-    }
+    flex-wrap: nowrap !important;
   }
   &:not(.canedit) {
     .StarScore-item,
@@ -105,8 +100,15 @@
     .Score-wrapper {
       width: auto;
       display: block !important;
-      .StarScore-item i {
-        font-size: 16px !important;
+      .StarScore-item {
+        display: inline-block;
+        i {
+          font-size: 16px !important;
+        }
+      }
+      .text {
+        display: inline-block;
+        line-height: 13px !important;
       }
     }
   }
@@ -272,6 +274,15 @@
 .cellSwitch {
   display: inline-block;
   vertical-align: middle;
+  .mobileFormSwitchDisabled {
+    opacity: 0.4;
+    &.ming.Switch--off {
+      background-color: #ccc !important;
+    }
+    &.ming.Switch--on {
+      background: #01ca83 !important;
+    }
+  }
   .ming.Checkbox {
     .Checkbox-box {
       margin-top: 0px !important;
@@ -331,7 +342,7 @@
 .control-10,
 .control-11 {
   &:not(.columnHead) {
-    padding: 4.5px 6px !important;
+    padding: 4.5px 6px;
   }
 }
 .control-14,

@@ -72,6 +72,7 @@ function View(props) {
     'view',
     'viewId',
     'chartId',
+    'maxCount',
     'showControlIds',
     'openNewRecord',
     'setViewConfigVisible',

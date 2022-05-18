@@ -527,15 +527,19 @@ Modified by Kenneth Auchenberg
           var strNoOne = _l('输入姓名或群组名，提醒TA查看');
           $noData.append('<div class="noOne">' + strNoOne + '</div>');
         } else {
-          $noData.append(
-            '<div class="invite"><i class="icon-invite"></i><p>' +
-              _l('没有找到，') +
-              '<span class="ThemeColor3 Hand">' +
-              _l('邀请更多的同事') +
-              ' </span>' +
-              _l('加入吧！') +
-              ' </p></div>',
-          );
+          if (md.global.Account.isPortal) {
+            $noData.append('<div class="invite"><p>' + _l('没有找到') + ' </p></div>');
+          } else {
+            $noData.append(
+              '<div class="invite"><i class="icon-invite"></i><p>' +
+                _l('没有找到，') +
+                '<span class="ThemeColor3 Hand">' +
+                _l('邀请更多的同事') +
+                ' </span>' +
+                _l('加入吧！') +
+                ' </p></div>',
+            );
+          }
         }
         $noData.find('.invite').on('mousedown', function (evt) {
           require(['addFriends'], function (addFriends) {
@@ -565,8 +569,9 @@ Modified by Kenneth Auchenberg
           var itemUid = _.uniqueId('mention_');
           let template = '';
           if (item.isAll) {
-            template =
-              `<div class="itemContent"><span class="wMax100 InlineBlock pTop5 ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span><br/><span class="Gray_9e pBottom5 InlineBlock">${_l('所有记录成员与参与讨论的人')}</span></div>`;
+            template = `<div class="itemContent"><span class="wMax100 InlineBlock pTop5 ThemeColor3" title={{! it.fullname }}>{{! it.fullname}}</span><br/><span class="Gray_9e pBottom5 InlineBlock">${_l(
+              '所有记录成员与参与讨论的人',
+            )}</span></div>`;
           } else {
             if (settings.forReacordDiscussion) {
               if (item.isAtData) {
@@ -771,15 +776,18 @@ Modified by Kenneth Auchenberg
           if (recordAtdatas.length > 0 && settings.forReacordDiscussion) {
             let ids = recordAtdatas.map(o => o.accountId);
             responseData.accounts = data.concat(recordAtdatas).concat(
-              _.take(
-                responseData.accounts.filter(o => !ids.includes(o.accountId)),
-                20 - recordAtdatas.length,
-              ).map(o => {
-                return {
-                  ...o,
-                  isAtData: false,
-                };
-              }),
+              // _.take(
+              //   responseData.accounts.filter(o => !ids.includes(o.accountId)),
+              //   20 - recordAtdatas.length,
+              // )
+              responseData.accounts
+                .filter(o => !ids.includes(o.accountId))
+                .map(o => {
+                  return {
+                    ...o,
+                    isAtData: false,
+                  };
+                }),
             );
           } else {
             responseData.accounts = data.concat(responseData.accounts);

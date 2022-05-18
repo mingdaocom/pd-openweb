@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, SelectNodeObject, FilterAndSort, SpecificFieldsValue } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
@@ -15,6 +15,7 @@ export default class GetMoreRecord extends Component {
       saveRequest: false,
       showOtherWorksheet: false,
       cacheKey: +new Date(),
+      noAction: false,
     };
   }
 
@@ -40,12 +41,12 @@ export default class GetMoreRecord extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, actionId) {
     const { processId, selectNodeId, selectNodeType } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
+    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, actionId }).then(result => {
       result.name = this.props.selectNodeName;
-      this.setState({ data: result, cacheKey: +new Date() });
+      this.setState({ data: result, cacheKey: +new Date(), noAction: !result.actionId || !!actionId });
     });
   }
 
@@ -64,37 +65,29 @@ export default class GetMoreRecord extends Component {
     const { data, saveRequest } = this.state;
     const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue } = data;
 
-    if (actionId === TRIGGER_ID_TYPE.FROM_WORKSHEET && !appId) {
+    if (actionId === ACTION_ID.FROM_WORKSHEET && !appId) {
       alert(_l('必须选择工作表'), 2);
       return;
     }
 
     if (
-      _.includes(
-        [
-          TRIGGER_ID_TYPE.FROM_RECORD,
-          TRIGGER_ID_TYPE.FROM_ARRAY,
-          TRIGGER_ID_TYPE.FROM_CODE,
-          TRIGGER_ID_TYPE.FROM_PBC_ARRAY,
-        ],
-        actionId,
-      )
+      _.includes([ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], actionId)
     ) {
       if (!selectNodeId) {
-        alert(actionId === TRIGGER_ID_TYPE.FROM_RECORD ? _l('必须选择对象') : _l('必须选择节点'), 2);
+        alert(actionId === ACTION_ID.FROM_RECORD ? _l('必须选择对象') : _l('必须选择节点'), 2);
         return;
       } else if (!fields.length) {
-        alert(actionId === TRIGGER_ID_TYPE.FROM_RECORD ? _l('必须选择他表字段') : _l('必须选择数组'), 2);
+        alert(actionId === ACTION_ID.FROM_RECORD ? _l('必须选择他表字段') : _l('必须选择数组'), 2);
         return;
       }
     }
 
-    if (actionId === TRIGGER_ID_TYPE.FROM_ADD && !selectNodeId) {
+    if (actionId === ACTION_ID.FROM_ADD && !selectNodeId) {
       alert(_l('必须选择新增记录节点'), 2);
       return;
     }
 
-    if (actionId === TRIGGER_ID_TYPE.FROM_ARTIFICIAL && !selectNodeId) {
+    if (actionId === ACTION_ID.FROM_ARTIFICIAL && !selectNodeId) {
       alert(_l('必须选择对象'), 2);
       return;
     }
@@ -181,7 +174,7 @@ export default class GetMoreRecord extends Component {
       .then(result => {
         this.updateSource({
           relationControls:
-            data.actionId === TRIGGER_ID_TYPE.FROM_RECORD
+            data.actionId === ACTION_ID.FROM_RECORD
               ? result.filter(item => item.type === 29)
               : result.filter(item => item.type === 10000003),
         });
@@ -224,38 +217,81 @@ export default class GetMoreRecord extends Component {
     const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount } = md.global.SysSettings;
     return (
       <div className="workflowDetailBox">
-        <div className="bold">{actionTypes[data.actionId]}</div>
+        {data.actionId &&
+          !_.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId) && (
+            <div className="bold mBottom20">{actionTypes[data.actionId]}</div>
+          )}
 
-        <div className="Font14 Gray_75 workflowDetailDesc mTop20">
-        {_l(
+        <div className="Font14 Gray_75 workflowDetailDesc">
+          {_l(
             '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
             workflowBatchGetDataLimitCount,
-            workflowSubProcessDataLimitCount
+            workflowSubProcessDataLimitCount,
           )}
         </div>
 
-        {data.actionId === TRIGGER_ID_TYPE.FROM_WORKSHEET && this.renderWorksheet()}
-        {data.actionId === TRIGGER_ID_TYPE.FROM_RECORD && this.renderRecord()}
-        {data.actionId === TRIGGER_ID_TYPE.FROM_ADD && this.renderAdd()}
-        {_.includes(
-          [TRIGGER_ID_TYPE.FROM_ARRAY, TRIGGER_ID_TYPE.FROM_CODE, TRIGGER_ID_TYPE.FROM_PBC_ARRAY],
-          data.actionId,
-        ) && this.renderArray()}
-        {data.actionId === TRIGGER_ID_TYPE.FROM_ARTIFICIAL && this.renderArtificial()}
+        {(!data.actionId ||
+          _.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId)) &&
+          this.renderSelectArrayType()}
 
-        <div className="mTop20 bold">{_l('限制数量')}</div>
-        <div className="Font13 Gray_9e mTop5">{_l('最多获取条数')}</div>
-        <div className="mTop10">
-          <SpecificFieldsValue
-            processId={this.props.processId}
-            selectNodeId={this.props.selectNodeId}
-            updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
-            type="number"
-            allowedEmpty
-            data={data.numberFieldValue}
-          />
-        </div>
+        {data.actionId === ACTION_ID.FROM_WORKSHEET && this.renderWorksheet()}
+        {data.actionId === ACTION_ID.FROM_RECORD && this.renderRecord()}
+        {data.actionId === ACTION_ID.FROM_ADD && this.renderAdd()}
+        {_.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId) &&
+          this.renderArray()}
+        {data.actionId === ACTION_ID.FROM_ARTIFICIAL && this.renderArtificial()}
+
+        {data.actionId && (
+          <Fragment>
+            <div className="mTop20 bold">{_l('限制数量')}</div>
+            <div className="Font13 Gray_9e mTop5">{_l('最多获取条数')}</div>
+            <div className="mTop10">
+              <SpecificFieldsValue
+                processId={this.props.processId}
+                selectNodeId={this.props.selectNodeId}
+                updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
+                type="number"
+                allowedEmpty
+                data={data.numberFieldValue}
+              />
+            </div>
+          </Fragment>
+        )}
       </div>
+    );
+  }
+
+  /**
+   * 渲染选择数组类型
+   */
+  renderSelectArrayType() {
+    const { isPBCProcess } = this.props;
+    const { data, noAction } = this.state;
+    const list = [
+      { text: _l('Webhook数组'), value: '403' },
+      { text: _l('代码块数组'), value: '404' },
+      { text: _l('业务流程数组'), value: '408' },
+    ];
+
+    if (!isPBCProcess) {
+      _.remove(list, item => item.value === '408');
+    }
+
+    return (
+      <Fragment>
+        <div className="mTop20 bold">{_l('选择数据类型')}</div>
+        <Dropdown
+          className="flowDropdown mTop10"
+          data={list}
+          value={data.actionId}
+          disabled={!noAction}
+          border
+          onChange={actionId => {
+            this.updateSource({ actionId });
+            this.getNodeDetail(this.props, actionId);
+          }}
+        />
+      </Fragment>
     );
   }
 
@@ -448,11 +484,11 @@ export default class GetMoreRecord extends Component {
     return (
       <Fragment>
         <div className="mTop20 bold">
-          {data.actionId === TRIGGER_ID_TYPE.FROM_ARRAY
+          {data.actionId === ACTION_ID.FROM_ARRAY
             ? _l('选择Webhook节点')
-            : data.actionId === TRIGGER_ID_TYPE.FROM_CODE
+            : data.actionId === ACTION_ID.FROM_CODE
             ? _l('选择代码块节点')
-            : _l('数据源：输入节点')}
+            : _l('选择业务流程节点')}
         </div>
         <SelectNodeObject
           smallBorder={true}
@@ -546,7 +582,7 @@ export default class GetMoreRecord extends Component {
   render() {
     const { data, showOtherWorksheet } = this.state;
 
-    if (_.isEmpty(data) || !data.actionId) {
+    if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
     }
 
@@ -564,20 +600,14 @@ export default class GetMoreRecord extends Component {
         </div>
         <DetailFooter
           isCorrect={
-            (data.actionId === TRIGGER_ID_TYPE.FROM_WORKSHEET && data.appId) ||
+            (data.actionId === ACTION_ID.FROM_WORKSHEET && data.appId) ||
             (_.includes(
-              [
-                TRIGGER_ID_TYPE.FROM_RECORD,
-                TRIGGER_ID_TYPE.FROM_ARRAY,
-                TRIGGER_ID_TYPE.FROM_CODE,
-                TRIGGER_ID_TYPE.FROM_PBC_ARRAY,
-              ],
+              [ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY],
               data.actionId,
             ) &&
               data.selectNodeId &&
               data.fields.length) ||
-            (_.includes([TRIGGER_ID_TYPE.FROM_ADD, TRIGGER_ID_TYPE.FROM_ARTIFICIAL], data.actionId) &&
-              data.selectNodeId)
+            (_.includes([ACTION_ID.FROM_ADD, ACTION_ID.FROM_ARTIFICIAL], data.actionId) && data.selectNodeId)
           }
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}

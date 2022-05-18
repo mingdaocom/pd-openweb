@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { string } from 'prop-types';
 import styled from 'styled-components';
 import { Modal } from 'antd';
+import { Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
 import './modalbindesc';
 import './less/Modal.less';
@@ -17,7 +18,6 @@ const ModalButton = styled.div`
   cursor: pointer;
   font-size: 20px;
   line-height: 40px;
-  width: 40px;
   text-align: center;
   color: #9e9e9e;
   &:hover {
@@ -27,11 +27,28 @@ const ModalButton = styled.div`
 
 const TipCon = styled.div`
   height: 30px;
+  width: 40px;
+  text-align: center;
+`;
+
+const ConfirmCon = styled.div`
+  margin-top: 20px;
+  text-align: right;
 `;
 
 export default function MdModal(props) {
-  const { allowScale, visible, dislocate, closeSize = 40, verticalAlign, closeIcon, onCancel } = props;
+  const {
+    allowScale,
+    visible,
+    dislocate,
+    closeSize = 40,
+    verticalAlign,
+    iconButtons = [],
+    closeIcon,
+    onCancel,
+  } = props;
   let { width } = props;
+  const showConfirm = props.onOk || props.okText || props.cancelText;
   const [left, setLeft] = useState(0);
   const [isLarge, setIsLarge] = useState(localStorage.getItem('NEW_RECORD_IS_LARGE') === 'true');
   if (allowScale && isLarge) {
@@ -126,7 +143,14 @@ export default function MdModal(props) {
         onCancel(e, 'click');
       }}
     >
-      <ModalButtonCon>
+      <ModalButtonCon className="flexRow">
+        {iconButtons.map((btn, i) => (
+          <ModalButton key={i} onClick={btn.onClick}>
+            <TipCon data-tip={btn.tip}>
+              <i className={`icon ${btn.icon}`}></i>
+            </TipCon>
+          </ModalButton>
+        ))}
         {allowScale && (
           <ModalButton
             onClick={() => {
@@ -141,6 +165,16 @@ export default function MdModal(props) {
         )}
       </ModalButtonCon>
       <ErrorWrapper>{props.children}</ErrorWrapper>
+      {showConfirm && (
+        <ConfirmCon>
+          <Button type="link" onClick={props.onCancel || _.noop}>
+            {props.cancelText || _l('取消')}
+          </Button>
+          <Button type="primary" onClick={props.onOk || _.noop}>
+            {props.okText || _l('确定')}
+          </Button>
+        </ConfirmCon>
+      )}
     </Modal>
   );
 }
@@ -158,5 +192,8 @@ MdModal.propTypes = {
   closeSize: PropTypes.number,
   bodyStyle: PropTypes.shape({}),
   children: PropTypes.node,
+  cancelText: string,
+  okText: string,
   onCancel: PropTypes.func,
+  onOk: PropTypes.func,
 };

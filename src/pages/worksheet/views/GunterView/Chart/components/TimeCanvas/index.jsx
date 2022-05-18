@@ -5,7 +5,8 @@ import { isWeekEndDay } from 'worksheet/views/GunterView/util';
 
 @connect(
   state => ({
-    ..._.pick(state.sheet.gunterView, ['grouping', 'periodList', 'periodType', 'withoutArrangementVisible', 'chartScroll', 'groupingScroll']),
+    ..._.pick(state.sheet.gunterView, ['grouping', 'periodList', 'periodType', 'viewConfig', 'withoutArrangementVisible', 'chartScroll', 'groupingScroll']),
+    ..._.pick(state.sheet, ['base']),
   })
 )
 export default class TimeCanvas extends Component {
@@ -36,10 +37,10 @@ export default class TimeCanvas extends Component {
     window.removeEventListener('resize', this.debounceUpdateHeight);
   }
   updateHeight = (event, props) => {
-    const { grouping, chartScroll, groupingScroll } = props || this.props;
-    const gunterChartWrapperEl = document.querySelector('.gunterChartWrapper');
-    const gunterGroupingScrollerEl = document.querySelector('.gunterGroupingScroller');
-    const height = document.body.clientHeight - gunterChartWrapperEl.getBoundingClientRect().top;
+    const { grouping, chartScroll, groupingScroll, base } = props || this.props;
+    const gunterChartWrapperEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
+    const gunterGroupingScrollerEl = document.querySelector(`.gunterView-${base.viewId} .gunterGroupingScroller`);
+    const height = document.body.clientHeight - (gunterChartWrapperEl ? gunterChartWrapperEl.getBoundingClientRect().top : 0);
     const maxHeight = grouping.length ? grouping[grouping.length - 1].openCount * 32 : 0;
     const isScroll = maxHeight >= height;
     const marginBottom = 80;
@@ -57,14 +58,14 @@ export default class TimeCanvas extends Component {
     }
   }
   render() {
-    const { periodType, periodList } = this.props;
+    const { periodType, periodList, viewConfig } = this.props;
     return (
       <div className="timeCanvasWrapper flexRow" ref={this.$ref}>
         {
           periodList.map((item, index) => (
             <div
               key={index}
-              className={cx('item', { Relative: item.isToday, weekEndDay: isWeekEndDay(item.time, periodType) })}
+              className={cx('item', { Relative: item.isToday, weekEndDay: isWeekEndDay(item.time, periodType, viewConfig) })}
               style={{ width: item.width }}
             >
               {item.isToday && (

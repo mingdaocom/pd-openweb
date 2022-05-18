@@ -11,6 +11,7 @@ module.exports = {
   * @param {string} args.appId 基础模块或第三方应用的 appId
   * @param {} args.location 坐标位置
   * @param {string} args.extendsId 扩展ID(工作表:appId|viewId)
+  * @param {} args.entityType 0 = 全部，2=外部讨论
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -27,6 +28,7 @@ module.exports = {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {boolean} args.isFocus 是否只取自己相关
+  * @param {} args.entityType 0 = 全部，1 = 不包含外部讨论，2=外部讨论
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -43,6 +45,7 @@ module.exports = {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {boolean} args.isFocus 是否只取自己相关
+  * @param {} args.entityType 0 = 全部，1 = 不包含外部讨论，2=外部讨论
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

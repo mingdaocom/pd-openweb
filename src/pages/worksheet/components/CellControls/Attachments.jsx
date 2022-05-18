@@ -223,6 +223,7 @@ function previewAttachment(attachments, index, sheetSwitchPermit = [], viewId = 
 
 function HoverPreviewPanel(props, cb = () => {}) {
   const {
+    isPicture,
     isSubList,
     editable,
     cell = {},
@@ -273,7 +274,7 @@ function HoverPreviewPanel(props, cb = () => {}) {
   }
   return (
     <HoverPreviewPanelCon onClick={e => e.stopPropagation()}>
-      {File.isPicture(attachment.ext) && (
+      {isPicture && (
         <ImageCoverCon>
           <ImageCover
             src={loading ? smallThumbnailUrl : imageUrl}
@@ -314,15 +315,20 @@ function Attachment(props) {
     deleteLocalAttachment,
   } = props;
   const { attachment } = props;
+  const [isPicture, setIsPicture] = useState(File.isPicture(attachment.ext));
   const smallThumbnailUrl = attachment.previewUrl.replace(
     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
     'imageView2/2/h/' + fileHeight,
   );
+  useEffect(() => {
+    setIsPicture(File.isPicture(attachment.ext));
+  }, [attachment.ext]);
   return (
     <Trigger
       action={['hover']}
       popup={
         <HoverPreviewPanel
+          isPicture={isPicture}
           isSubList={isSubList}
           editable={editable}
           attachment={attachment}
@@ -353,13 +359,14 @@ function Attachment(props) {
           e.stopPropagation();
         }}
       >
-        {File.isPicture(attachment.ext) && <ShadowInset />}
-        {File.isPicture(attachment.ext) && <ImageHoverMask className="hoverMask" />}
-        {File.isPicture(attachment.ext) ? (
+        {isPicture && <ShadowInset />}
+        {isPicture && <ImageHoverMask className="hoverMask" />}
+        {isPicture ? (
           <AttachmentImage
             crossOrigin="anonymous"
             role="presentation"
             src={smallThumbnailUrl}
+            onError={() => setIsPicture(false)}
             style={{ width: 'auto', height: fileHeight }}
           />
         ) : (
@@ -539,6 +546,7 @@ export default function cellAttachments(props) {
         destroyPopupOnHide
         popupAlign={{
           points: ['tl', 'tl'],
+          overflow: { adjustY: true },
         }}
       >
         <div className={className} style={style} onClick={onClick} />

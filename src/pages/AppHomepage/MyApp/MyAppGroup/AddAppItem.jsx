@@ -16,7 +16,6 @@ const ADD_APP_MODE = [
     text: _l('从应用库中安装'),
     href: '/app/lib',
   },
-  { id: 'buildService', icon: 'work', text: _l('解决方案'), href: 'https://blog.mingdao.com/solution' },
 ].filter(item => !addAppItem[item.id]);
 export default class AddAppItem extends Component {
   static propTypes = {
@@ -47,9 +46,6 @@ export default class AddAppItem extends Component {
           iconColor: COLORS[_.random(0, COLORS.length - 1)],
           permissionType: 200,
         });
-        break;
-      case 'buildService':
-        window.open(href);
         break;
       default:
         break;

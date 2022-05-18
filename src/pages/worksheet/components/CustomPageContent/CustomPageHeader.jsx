@@ -10,10 +10,10 @@ import { updatePage } from 'src/pages/worksheet/common/Statistics/api/custom';
 import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
 import PageDesc from './PageDesc';
-import ShareDialog from './ShareDialog';
+import Share from 'src/pages/worksheet/components/Share';
 import { pick } from 'lodash';
 import filterXSS from 'xss';
-import { exportImage } from 'src/pages/customPage/util';
+import { createFontLink, exportImage } from 'src/pages/customPage/util';
 import { saveAs } from 'file-saver';
 import SvgIcon from 'src/components/SvgIcon';
 
@@ -43,14 +43,14 @@ export default function CustomPageHeader(props) {
   const { workSheetId: pageId, icon, iconColor, workSheetName } = currentSheet;
   const [visible, updateVisible] = useState({ popupVisible: false, editNameVisible: false, editIntroVisible: false });
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
-  const name = pageName !== workSheetName ? (workSheetName || pageName) : (pageName || workSheetName);
+  const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
 
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const saveImage = () => {
-    const imageName = `${ appName ? `${appName}_` : '' }${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
+    const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
-    exportImage().then(blob => {
+    createFontLink().then(exportImage).then(blob => {
       setExportLoading(false);
       saveAs(blob, imageName);
     });
@@ -157,7 +157,7 @@ export default function CustomPageHeader(props) {
           {desc && !isPublicShare && (
             <Tooltip
               disable={editIntroVisible}
-              onClick={() => isCharge ? handleVisibleChange(true, 'editIntroVisible') : _.noop}
+              onClick={() => (isCharge ? handleVisibleChange(true, 'editIntroVisible') : _.noop)}
               tooltipClass="sheetDescTooltip"
               popupPlacement="bottom"
               text={
@@ -239,16 +239,20 @@ export default function CustomPageHeader(props) {
           }}
         />
       )}
-      <ShareDialog
-        title={_l('分享页面: %0', name)}
-        appId={appId}
-        isCharge={isCharge}
-        sourceId={pageId}
-        visible={shareDialogVisible}
-        onCancel={() => {
-          setShareDialogVisible(false);
-        }}
-      />
+      {shareDialogVisible && (
+        <Share
+          title={_l('分享页面: %0', name)}
+          from="customPage"
+          isCharge={isCharge}
+          params={{
+            appId,
+            sourceId: pageId,
+            worksheetId: pageId,
+            title: name,
+          }}
+          onClose={() => setShareDialogVisible(false)}
+        />
+      )}
     </Fragment>
   );
 }

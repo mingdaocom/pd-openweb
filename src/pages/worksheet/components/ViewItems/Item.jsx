@@ -86,7 +86,7 @@ export default class Item extends Component {
                     changeViewDisplayType(
                       getDefaultViewSet({
                         ...item,
-                        // viewControl: '',
+                        viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
                         viewControls: [],
                         viewType: VIEW_DISPLAY_TYPE[viewType],
                         filters: item.filters, // formatValuesOfOriginConditions(item.filters),

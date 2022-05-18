@@ -202,7 +202,7 @@ export default class ChartDialog extends Component {
     const { report, permissions, sourceType, currentReport, worksheetInfo, base, onRemove, ownerId } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
+    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor;
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />
@@ -246,8 +246,12 @@ export default class ChartDialog extends Component {
               permissions={sourceType ? null : permissions}
               isMove={sourceType ? false : true}
               report={report}
+              filter={currentReport.filter}
               exportData={{
                 filters: base.filters,
+                sorts: currentReport.sorts,
+                particleSizeType: currentReport.particleSizeType,
+                ...currentReport.filter
               }}
               sheetVisible={base.sheetVisible}
               appId={worksheetInfo.appId}

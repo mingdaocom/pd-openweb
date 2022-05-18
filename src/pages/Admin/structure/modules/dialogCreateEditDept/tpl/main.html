@@ -3,7 +3,7 @@
     <div class="singleInfo departmentName">
         <span class="infoLabel">{{= _l('部门名称')}}</span>
         <span class="info Relative">
-            <input type="text" value="{{= it.departmentName || '' }}" class="deptName TxtBottom" />
+            <input type="text" value="{{= it.departmentName || '' }}" maxlength="64" class="deptName TxtBottom" />
         </span>
     </div>
     <div class="singleInfo parentDepartment">
@@ -27,7 +27,7 @@
         <div class="singleInfo departmentName">
             <span class="infoLabel">{{= _l('部门名称')}}</span>
             <span class="info Relative">
-                <input type="text" class="deptName TxtBottom" maxlength="32" />
+                <input type="text" class="deptName TxtBottom" maxlength="64" />
             </span>
         </div>
         {{? !it.isLevel0}}

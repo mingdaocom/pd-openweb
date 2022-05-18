@@ -419,7 +419,7 @@ class RegisterContainer extends React.Component {
       changeStep: this.changeStep,
       registerData: _.cloneDeep(this.state.registerData),
       loginSuc: this.loginSuc,
-      setDataFn: (data, callback) => {
+      onChangeData: (data, callback) => {
         this.setState(
           {
             registerData: {

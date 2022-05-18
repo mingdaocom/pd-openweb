@@ -22,6 +22,7 @@ const rowHeight = 32;
 @connect(
   state => ({
     ..._.pick(state.sheet.gunterView, ['editIndex', 'grouping', 'searchRecordId', 'chartScroll', 'groupingScroll']),
+    ..._.pick(state.sheet, ['base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -42,8 +43,8 @@ export default class SelectionIndicator extends React.Component {
     }
   }
   componentDidMount() {
-    const { chartScroll, groupingScroll } = this.props;
-    this.gunterViewEl = document.querySelector('.gunterView');
+    const { chartScroll, groupingScroll, base } = this.props;
+    this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId}`);
     this.gunterViewEl.addEventListener('mousemove', this.handleMouseMove);
     this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     this.appEl = document.querySelector('#app');

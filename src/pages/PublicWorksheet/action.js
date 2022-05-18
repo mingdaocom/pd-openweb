@@ -24,7 +24,7 @@ function getVisibleControls(data) {
     ...c,
     advancedSetting: {
       ...(c.advancedSetting || {}),
-      showtype: (c.advancedSetting || {}).showtype === '2' ? '1' : (c.advancedSetting || {}).showtype,
+      showtype: c.type === 29 && (c.advancedSetting || {}).showtype === '2' ? '1' : (c.advancedSetting || {}).showtype,
     },
     controlPermissions:
       _.find(needHidedControlIds, hcid => c.controlId === hcid) ||
@@ -68,7 +68,7 @@ export function getPublicWorksheet(shareId, cb = (err, data) => {}) {
         });
         return;
       }
-      data.shareAuthor && window.sessionStorage.setItem('shareAuthor', data.shareAuthor);
+      data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       const controls = getVisibleControls(data);
       getControlRules({
         worksheetId: data.worksheetId,

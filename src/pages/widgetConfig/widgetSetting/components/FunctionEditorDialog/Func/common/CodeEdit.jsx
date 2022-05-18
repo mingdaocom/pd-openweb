@@ -49,7 +49,7 @@ const Editor = styled.div`
 `;
 
 function CodeEdit(props, ref) {
-  const { mode, value, title, placeholder, controls, renderTag, onClick = () => {} } = props;
+  const { mode, type, value, title, placeholder, controls, renderTag, onClick = () => {} } = props;
   const readOnly = mode === 'read';
   const editorDomRef = useRef();
   const editorRef = useRef();
@@ -60,6 +60,7 @@ function CodeEdit(props, ref) {
         options: { readOnly: mode === 'read' ? 'nocursor' : undefined },
         getControlName: controlId => (_.find(controls, { controlId }) || {}).controlName,
         renderTag,
+        type,
       });
       editorRef.current = window.functionEditor = functionEditor;
     }
@@ -77,6 +78,7 @@ function CodeEdit(props, ref) {
       editorRef.current.insertFn(value, position);
     },
     getValue: () => editorRef.current.editor.getValue(),
+    setValue: v => editorRef.current.editor.setValue(v),
   }));
   return (
     <Con readOnly={readOnly} onClick={onClick}>
@@ -90,9 +92,10 @@ function CodeEdit(props, ref) {
 export default forwardRef(CodeEdit);
 
 CodeEdit.propTypes = {
-  value: string,
   mode: bool,
+  type: string,
   title: string,
+  value: string,
   placeholder: string,
   controls: arrayOf(shape({})),
   renderTag: func,

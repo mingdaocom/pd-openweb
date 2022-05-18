@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import './index.less';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import ajaxRequest from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
 import JsonView from 'react-json-view';
@@ -20,7 +18,7 @@ import {
   appSuccessData,
 } from './config';
 import homeApp from 'src/api/homeApp';
-import { Icon } from 'ming-ui';
+import { Icon, Dialog, Textarea, LoadDiv, ScrollView } from 'ming-ui';
 import color from 'color';
 import { navigateTo } from 'src/router/navigateTo';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -30,6 +28,64 @@ import SvgIcon from 'src/components/SvgIcon';
 import MoreOption from './MoreOption';
 import processAjax from 'src/pages/workflow/api/process';
 import preall from 'src/common/preall';
+import SecretKey from './SecretKey';
+import styled from 'styled-components';
+
+const Wrap = styled.div`
+  input {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 6px;
+    width: 100%;
+    box-sizing: border-box;
+    &:focus {
+      border: 1px solid #2196f3;
+    }
+  }
+`;
+class WorksheetAliasDialog extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { alias: '' };
+  }
+  componentDidMount() {
+    const { alias } = this.props;
+    this.setState({
+      alias,
+    });
+  }
+  render() {
+    const { show, onOk } = this.props;
+    const { alias } = this.state;
+    return (
+      <Dialog
+        className=""
+        visible={show}
+        onCancel={this.props.onClose}
+        title={_l('设置工作表别名')}
+        onOk={() => {
+          onOk(alias);
+        }}
+      >
+        <Wrap>
+          <input
+            type="text"
+            className="name mTop6"
+            placeholder={_l('请输入')}
+            value={alias}
+            onChange={e => {
+              this.setState({
+                alias: e.target.value.trim(),
+              });
+            }}
+          />
+        </Wrap>
+      </Dialog>
+    );
+  }
+}
 
 @preall
 class WorksheetApi extends Component {
@@ -43,12 +99,14 @@ class WorksheetApi extends Component {
       showMoreOption: false,
       appKey: '',
       authorizes: [],
-      addLoading: false,
+      addSecretKey: false,
       isError: false,
       showAliasDialog: false,
       numberTypeList: [],
       appInfo: {},
+      whiteListDialog: false,
 
+      showWorksheetAliasDialog: false,
       // 新增 / 编辑选项集参数列表
       addOptionsParams: [],
 
@@ -144,19 +202,6 @@ class WorksheetApi extends Component {
     });
   };
 
-  addAuthorizes = () => {
-    const { authorizes } = this.state;
-    this.setState({
-      addLoading: true,
-    });
-    appManagementAjax.addAuthorize({ appId: this.getId() }).then(data => {
-      this.setState({
-        addLoading: false,
-        authorizes: authorizes.concat(data),
-      });
-    });
-  };
-
   // 获取工作表信息
   getWorksheetApiInfo = worksheetId => {
     Promise.all([
@@ -172,8 +217,13 @@ class WorksheetApi extends Component {
         getTemplate: true,
       }),
     ]).then(result => {
-      const [data = [], list = {}] = result;
-      this.setState({ data, numberTypeList: list.template.controls || [], loading: false }, () => {
+      let [data = [], list = {}] = result;
+      if (!!list.alias) {
+        data = data.map(o => {
+          return { ...o, alias: list.alias };
+        });
+      }
+      this.setState({ data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias }, () => {
         this.scrollToFixedPosition();
       });
       MENU_LIST.forEach(item => {
@@ -410,7 +460,7 @@ class WorksheetApi extends Component {
     const url = apiUrl + 'open/app/get';
     return (
       <Fragment>
-        <div className="flex worksheetApiContent1">
+        <div className="worksheetApiContent1">
           <div className="Font22 bold">{_l('获取应用信息 GET')}</div>
           <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
@@ -432,8 +482,8 @@ class WorksheetApi extends Component {
         </div>
         {this.renderRightContent({
           data: this.getUrl(url, {
-            appKey: apiRequest.appKey,
-            sign: apiRequest.sign,
+            appKey: apiRequest.appKey || 'APPKEY',
+            sign: apiRequest.sign || 'SIGN',
           }),
           successData: appSuccessData,
           errorData: appRoleErrorData,
@@ -449,7 +499,7 @@ class WorksheetApi extends Component {
     const { data = [] } = this.state;
     return (
       <Fragment>
-        <div className="flex worksheetApiContent1">
+        <div className="worksheetApiContent1">
           <div className="Font22 bold">{_l('获取工作表结构信息 POST')}</div>
           <input
             className="mTop24 worksheetApiInput"
@@ -474,9 +524,9 @@ class WorksheetApi extends Component {
         </div>
         {this.renderRightContent({
           data: {
-            appKey: data[0].appKey,
-            sign: data[0].sign,
-            worksheetId: data[0].worksheetId,
+            appKey: data[0].appKey || 'APPKEY',
+            sign: data[0].sign || 'SIGN',
+            worksheetId: data[0].alias || data[0].worksheetId,
           },
         })}
       </Fragment>
@@ -494,7 +544,7 @@ class WorksheetApi extends Component {
       10000003: _l('数组'),
     };
 
-    let inputExample = { appKey: data[0].appKey, sign: data[0].sign };
+    let inputExample = { appKey: data[0].appKey || 'APPKEY', sign: data[0].sign || 'SIGN' };
     let outputExample = {};
 
     if (_.isEmpty(workflowInfo)) return null;
@@ -503,16 +553,18 @@ class WorksheetApi extends Component {
       inputExample['callbackURL'] = '';
     }
     workflowInfo.inputs.forEach(item => {
-      inputExample[item.alias || item.controlName] = item.value || '';
+      inputExample[item.alias || item.controlName] =
+        item.value && item.type === 10000003 ? JSON.parse(item.value) : item.value || '';
     });
 
     workflowInfo.outputs.forEach(item => {
-      outputExample[item.alias || item.controlName] = item.value || '';
+      outputExample[item.alias || item.controlName] =
+        item.value && item.type === 10000003 ? JSON.parse(item.value) : item.value || '';
     });
 
     return (
       <Fragment>
-        <div className="flex worksheetApiContent1">
+        <div className="worksheetApiContent1">
           <div className="Font22 bold">{workflowInfo.name + ' POST'}</div>
           <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + workflowInfo.url} />
           <div className="Font17 bold mTop30">{_l('请求参数')}</div>
@@ -586,12 +638,14 @@ class WorksheetApi extends Component {
           const url = appInfo.apiUrl + apiName;
           let dataObj = {};
           data.map(({ name, desc }) => {
-            dataObj[name] = _.includes(['appKey', 'sign'], name) ? (this.state.data[0] || {})[name] : desc;
+            dataObj[name] = _.includes(['appKey', 'sign'], name)
+              ? (this.state.data[0] || {})[name] || name.toUpperCase()
+              : desc;
           });
 
           return (
             <div className="flexRow worksheetApiLi" id={id + '-content'}>
-              <div className="flex worksheetApiContent1">
+              <div className="worksheetApiContent1">
                 {i === 0 && <div className="Font22 bold mBottom40">{_l('应用角色')}</div>}
                 <div className="Font17 bold">{title}</div>
                 <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
@@ -708,7 +762,7 @@ class WorksheetApi extends Component {
                   },
                 })
               ) : o.id === 'AreaInfo' ? (
-                <div className="flex worksheetApiContent2">
+                <div className="worksheetApiContent2">
                   <div className="Font14 White mBottom6">{_l('获取一级省份信息')}</div>
                   <JsonView
                     src={o.provinceData}
@@ -728,7 +782,7 @@ class WorksheetApi extends Component {
                   />
                 </div>
               ) : (
-                <div className="flex worksheetApiContent2" />
+                <div className="worksheetApiContent2" />
               )}
             </div>
           );
@@ -741,11 +795,25 @@ class WorksheetApi extends Component {
    * 对照表
    */
   renderTable(item, i) {
-    const { showAliasDialog, numberTypeList = [] } = this.state;
+    const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias } = this.state;
     return (
       <Fragment>
         <div className="flex worksheetApiContent1">
           <div className="Font22 bold">{item.name}</div>
+          <div className="Font14 bold mTop20">
+            {_l('工作表别名')} ：{alias}
+            <span
+              className="Hand Font13 mLeft20"
+              style={{ color: '#2196F3' }}
+              onClick={() => {
+                this.setState({
+                  showWorksheetAliasDialog: true,
+                });
+              }}
+            >
+              {_l('设置')}
+            </span>
+          </div>
           <div className="Font17 bold mTop40">
             {MENU_LIST[0].title}{' '}
             <span
@@ -803,7 +871,41 @@ class WorksheetApi extends Component {
             }}
           />
         )}
-        <div className="flex worksheetApiContent2" />
+        {showWorksheetAliasDialog && (
+          <WorksheetAliasDialog
+            show={showWorksheetAliasDialog}
+            onClose={() => {
+              this.setState({ showWorksheetAliasDialog: false });
+            }}
+            alias={alias}
+            onOk={alias => {
+              ajaxRequest
+                .updateWorksheetAlias({
+                  appId: this.getId(),
+                  worksheetId: item.worksheetId,
+                  alias,
+                })
+                .then(res => {
+                  if (res === 0) {
+                    this.setState({
+                      alias,
+                      data: this.state.data.map(o => {
+                        return { ...o, alias: alias };
+                      }),
+                      showWorksheetAliasDialog: false,
+                    });
+                  } else if (res === 3) {
+                    alert(_l('工作表别名格式不匹配', 3));
+                  } else if (res === 2) {
+                    alert(_l('工作表别名已存在，请重新输入', 3));
+                  } else {
+                    alert(_l('别名修改失败', 3));
+                  }
+                });
+            }}
+          />
+        )}
+        <div className="worksheetApiContent2" />
       </Fragment>
     );
   }
@@ -812,82 +914,66 @@ class WorksheetApi extends Component {
    * 授权管理
    */
   renderAuthorizationManagement = () => {
-    const { authorizes = [] } = this.state;
+    const { authorizes = [], addSecretKey } = this.state;
+
     return (
       <Fragment>
-        <div className="flex worksheetApiContent1">
+        <div className="worksheetApiContent1">
           <div className="Font22 bold">{_l('授权管理')}</div>
           {authorizes.length > 0 && (
             <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
               <div className="w25">AppKey</div>
               <div className="mLeft30 w25">SecretKey</div>
-              <div className="mLeft30 w30">Sign</div>
-              <div className="mLeft30 w12">{_l('授权类型')}</div>
-              <div className="mLeft30 w12">{_l('备注')}</div>
+              <div className="mLeft30 w25">Sign</div>
+              <div className="mLeft30 w30">{_l('授权类型')}</div>
               <div className="mLeft30 w8">{_l('操作')}</div>
             </div>
           )}
           {authorizes.map((o, i) => {
-            let str = '';
-            switch (o.dispalyType) {
-              case 2:
-                str = _l('未启用');
-                break;
-              case 3:
-                str = _l('本应用全部');
-                break;
-              case 4:
-                str = _l('本应用只读');
-                break;
-            }
             return (
-              <div key={o.appKey} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w25">{o.appKey}</div>
+              <div key={o.appKey} className="flexRow worksheetApiLine flexRowHeight pTop8 pBottom8">
+                <div className="w25">
+                  <div>{o.appKey}</div>
+                  <div className="Gray_9e">{o.remark}</div>
+                </div>
                 <div className="mLeft30 w25">{o.secretKey}</div>
-                <div className="mLeft30 w30">{o.sign}</div>
-                <div className="mLeft30 w12">{str}</div>
-                <div className="mLeft30 w12">{o.remark}</div>
+                <div className="mLeft30 w25">{o.sign}</div>
+                <div className="mLeft30 w30">
+                  <div>
+                    {o.status === 2 ? _l('授权已关闭') : o.type === 1 ? _l('本应用全部接口') : _l('本应用只读接口')}
+                  </div>
+                  {o.status !== 2 && o.viewNull && <div>{_l('空视图参数不返回数据')}</div>}
+                </div>
                 <div className="mLeft30 w8 Relative">
-                  {!o.default && ( // 固定数据不能操作
-                    <React.Fragment>
-                      <Icon
-                        icon="moreop"
-                        className="Font18 Hand Relative"
-                        onClick={() => {
-                          this.setState({ showMoreOption: true, appKey: o.appKey });
-                        }}
-                      />
-                      {this.moreOption(o)}
-                    </React.Fragment>
-                  )}
+                  <Icon
+                    icon="more_horiz1"
+                    className="Font18 Hand Relative"
+                    onClick={() => {
+                      this.setState({ showMoreOption: true, appKey: o.appKey });
+                    }}
+                  />
+                  {this.moreOption(o)}
                 </div>
               </div>
             );
           })}
           <span
             className="addSecretKey Font14 Hand LineHeight28 mTop20 InlineBlock"
-            onClick={() => {
-              this.addAuthorizes();
-            }}
+            onClick={() => this.setState({ addSecretKey: true })}
           >
             <Icon icon="add" className="Font18 mRight8" />
-            SecretKey
+            {_l('新建授权密钥')}
           </span>
-          {this.loadingDia()}
+          {addSecretKey && (
+            <SecretKey
+              appId={this.getId()}
+              getAuthorizes={this.getAuthorizes}
+              onClose={() => this.setState({ addSecretKey: false })}
+            />
+          )}
         </div>
-        <div className="flex worksheetApiContent2" />
+        <div className="worksheetApiContent2" />
       </Fragment>
-    );
-  };
-
-  loadingDia = () => {
-    if (!this.state.addLoading) {
-      return;
-    }
-    return (
-      <div className="loadingDia">
-        <LoadDiv className="loading" /> {_l('正在生成SecretKey...')}
-      </div>
     );
   };
 
@@ -907,9 +993,94 @@ class WorksheetApi extends Component {
             showMoreOption: showMoreOption,
           });
         }}
-        onClickAwayExceptions={['.setDescDialog']}
+        onClickAwayExceptions={['.mui-dialog-container']}
         onClickAway={() => this.setState({ showMoreOption: false })}
       />
+    );
+  };
+
+  /**
+   * IP 白名单
+   */
+  renderWhiteList = () => {
+    const { dataApp, whiteListDialog } = this.state;
+
+    return (
+      <Fragment>
+        <div className="worksheetApiContent1">
+          <div className="Font22 bold">{_l('IP 白名单')}</div>
+          <div className="mTop24">
+            {_l('在 IP 白名单内的 IP 来源地址才能发起请求。未设置则所有 IP 来源都可发起请求。')}
+          </div>
+          {(dataApp.openApiWhiteList || []).map((ip, index) => {
+            return (
+              <div className={index === 0 ? 'mTop20' : ''} key={index}>
+                {ip}
+              </div>
+            );
+          })}
+          <div className="mTop20">
+            <span className="addSecretKey Font14 Hand" onClick={() => this.setState({ whiteListDialog: true })}>
+              {_l('修改')}
+            </span>
+          </div>
+        </div>
+        <div className="worksheetApiContent2" />
+
+        {whiteListDialog && (
+          <Dialog
+            className="addSheetFieldDialog"
+            title={_l('IP 白名单')}
+            visible={true}
+            width={480}
+            onOk={() => {
+              const whiteList = _.uniq(
+                this.whiteList.value
+                  .split('\n')
+                  .filter(o => o.trim())
+                  .map(o => o.trim()),
+              );
+              let hasError = false;
+
+              whiteList.forEach(ip => {
+                if (!/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(ip)) {
+                  hasError = true;
+                }
+              });
+
+              if (hasError) {
+                alert(_l('请输入正确的 IP 地址'), 2);
+              } else {
+                homeApp
+                  .editWhiteList({ appId: dataApp.id, projectId: dataApp.projectId, whiteIps: whiteList })
+                  .then(res => {
+                    if (res.data) {
+                      this.setState({
+                        dataApp: Object.assign({}, dataApp, { openApiWhiteList: whiteList }),
+                        whiteListDialog: false,
+                      });
+                    } else {
+                      alert(_l('修改失败'), 2);
+                    }
+                  });
+              }
+            }}
+            onCancel={() => this.setState({ whiteListDialog: false })}
+          >
+            <Textarea
+              className="w100"
+              defaultValue={(dataApp.openApiWhiteList || []).join('\n')}
+              minHeight={150}
+              maxHeight={400}
+              placeholder={_l('请填写 IP 地址，一行一个')}
+              spellCheck={false}
+              manualRef={whiteList => {
+                this.whiteList = whiteList;
+              }}
+            />
+          </Dialog>
+        )}
+      </Fragment>
     );
   };
 
@@ -932,7 +1103,7 @@ class WorksheetApi extends Component {
     const { data } = this.state;
 
     return (
-      <div className="flex worksheetApiContent1">
+      <div className="worksheetApiContent1">
         <div />
         <div className="Font17 bold">{MENU_LIST[i].title}</div>
         <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + data[0].apiUrl + MENU_LIST[i].apiName} />
@@ -968,7 +1139,7 @@ class WorksheetApi extends Component {
    */
   renderRightContent({ data, successData, errorData, outputData }) {
     return (
-      <div className="flex worksheetApiContent2">
+      <div className="worksheetApiContent2">
         <div className="mBottom16 Font14 Gray_bd">{_l('提交数据提示')}</div>
         <JsonView src={data} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
         {successData ? (
@@ -1008,9 +1179,9 @@ class WorksheetApi extends Component {
    */
   setCommonPostParameters(item, otherOptions) {
     return {
-      appKey: item.appKey,
-      sign: item.sign,
-      worksheetId: item.worksheetId,
+      appKey: item.appKey || 'APPKEY',
+      sign: item.sign || 'SIGN',
+      worksheetId: item.alias || item.worksheetId,
       ...otherOptions,
     };
   }
@@ -1244,7 +1415,7 @@ class WorksheetApi extends Component {
           const url = appInfo.apiUrl + apiName;
           return (
             <div className="flexRow worksheetApiLi" id={id + '-content'}>
-              <div className="flex worksheetApiContent1">
+              <div className="worksheetApiContent1">
                 {i === 0 && <div className="Font22 bold mBottom40">{_l('选项集')}</div>}
                 <div className="Font17 bold">{title}</div>
                 <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + url} />
@@ -1363,7 +1534,7 @@ class WorksheetApi extends Component {
             ) : (
               <ScrollView className="worksheetApiScroll" updateEvent={this.scroll}>
                 <div className="flexRow worksheetApiLi" id="summary-content">
-                  <div className="flex worksheetApiContent1">
+                  <div className="worksheetApiContent1">
                     <div className="Font22 bold">{_l('概述')}</div>
                     <div className="Font14 mTop15">
                       {_l(
@@ -1372,10 +1543,10 @@ class WorksheetApi extends Component {
                       )}
                     </div>
                   </div>
-                  <div className="flex worksheetApiContent2" />
+                  <div className="worksheetApiContent2" />
                 </div>
                 <div className="flexRow worksheetApiLi" id="requestFormat-content">
-                  <div className="flex worksheetApiContent1">
+                  <div className="worksheetApiContent1">
                     <div className="Font22 bold">{_l('请求格式')}</div>
                     <div className="Font14 mTop15">{_l('对于 GET 请求，所有参数通过拼接在 URL 之后传递。')}</div>
                     <div className="Font14 mTop10">
@@ -1384,10 +1555,13 @@ class WorksheetApi extends Component {
                       )}
                     </div>
                   </div>
-                  <div className="flex worksheetApiContent2" />
+                  <div className="worksheetApiContent2" />
                 </div>
                 <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
                   {this.renderAuthorizationManagement()}
+                </div>
+                <div className="flexRow worksheetApiLi" id="whiteList-content">
+                  {this.renderWhiteList()}
                 </div>
                 <div className="flexRow worksheetApiLi" id="appInfo-content">
                   {this.renderAppInfo()}

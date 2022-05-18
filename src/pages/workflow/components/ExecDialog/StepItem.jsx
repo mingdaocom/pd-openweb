@@ -124,9 +124,6 @@ export default class StepItem extends Component {
       return (
         <Fragment>
           <div className="userName">{workItemAccount.fullName}</div>
-          <div className="timeAction flexRow">
-            <div className="Gray_75">{_l('发起流程')}</div>
-          </div>
           <div className="info">
             {START_TYPE_TEXT[triggerId]}
             {triggerField && <span className="triggerField"> ({triggerField})</span>}

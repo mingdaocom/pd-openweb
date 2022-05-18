@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import DialogLayer from 'mdDialog';
 import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import api from 'api/homeApp';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
 import { navigateTo } from 'src/router/navigateTo.jsx';
@@ -32,6 +31,7 @@ import { updateAppGroup, syncAppDetail } from 'src/pages/PageHeader/redux/action
 import AppGroup from 'src/pages/PageHeader/AppPkgHeader/AppGroup';
 import TelDialog from './TelDialog';
 import DelDialog from './DelDialog';
+import PortalMessage from './PortalMessage';
 const WrapHeader = styled.div`
   .cover {
     position: fixed;
@@ -50,7 +50,7 @@ const WrapHeader = styled.div`
   .appNameHeaderBoxPortal {
     top: 0;
     width: 100%;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     position: relative;
     &.isMobile {
@@ -162,7 +162,15 @@ const Wrap = styled.div`
   &.isMobile {
     top: 0;
     height: 100%;
-    min-width: calc(100% - 40px) !important;
+    min-width: 100% !important;
+    .back {
+      height: 70px;
+      line-height: 70px;
+    }
+    .infoConBox {
+      height: calc(100% - 140px);
+      padding: 6px 24px 24px;
+    }
   }
   .closeBtnN {
     position: absolute;
@@ -185,6 +193,11 @@ const Wrap = styled.div`
   }
   .rInfo {
     width: calc(100% - 56px);
+    &.isOption {
+      .editableCellCon {
+        padding-left: 0px !important;
+      }
+    }
   }
   .logoutBox {
     display: flex;
@@ -281,6 +294,8 @@ export default class PortalAppHeader extends Component {
       disabledPointer: 'left',
       showTelDialog: false,
       showDelDialog: false,
+      allowExAccountDiscuss: false, //允许外部用户讨论
+      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
     if (!browserIsMobile()) {
       const { groupId, worksheetId } = getIds(props) || {};
@@ -370,10 +385,15 @@ export default class PortalAppHeader extends Component {
       appId: this.props.appId || this.props.match.params.appId,
     }).then(res => {
       const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
-      this.setState({
-        currentData: res.receiveControls,
-        avatar: avatarData.value || md.global.Account.avatar,
-      });
+      this.setState(
+        {
+          currentData: res.receiveControls,
+          avatar: avatarData.value || md.global.Account.avatar,
+        },
+        () => {
+          md.global.Account.avatar = avatarData.value || md.global.Account.avatar;
+        },
+      );
     });
   };
 
@@ -421,6 +441,7 @@ export default class PortalAppHeader extends Component {
                 }),
             }).then(res => {
               this.setState({ avatar: res.data.portal_avatar }, () => {
+                md.global.Account.avatar = res.data.portal_avatar;
                 $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
               });
             });
@@ -501,9 +522,10 @@ export default class PortalAppHeader extends Component {
                 <AppGroup appStatus={appStatus} {...this.props} {..._.pick(data, ['permissionType', 'isLock'])} />
               )}
             </div>
+            <PortalMessage color={color} isMobile={isMobile} />
             {!noAvatar && (
               <div
-                className={cx('InlineBlock mRight16', { avatarM: isMobile })}
+                className={cx('InlineBlock mRight16 Hand', { avatarM: isMobile })}
                 ref={avatar => {
                   this.avatar = avatar;
                 }}
@@ -538,6 +560,19 @@ export default class PortalAppHeader extends Component {
             >
               {
                 <Wrap className={cx({ isMobile })}>
+                  {isMobile && (
+                    <React.Fragment>
+                      <span
+                        className="Font17 Hand InlineBlock back pLeft16"
+                        onClick={() => {
+                          this.setState({ showUserInfo: false });
+                        }}
+                      >
+                        <Icon icon="backspace mRight8 Gray_9e" />
+                        {_l('我的账户')}
+                      </span>
+                    </React.Fragment>
+                  )}
                   <div className="infoConBox">
                     <div className="account flexRow">
                       <div className="userImage" onClick={this.handleUploadImg}>
@@ -565,7 +600,7 @@ export default class PortalAppHeader extends Component {
                       }}
                     /> */}
                     </div>
-                    <div className="tel flexRow mTop32">
+                    <div className={cx('tel flexRow mTop32')}>
                       <span className="title InlineBlock Gray_9e">{_l('手机号')}</span>
                       <span className="telNumber flex">
                         {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
@@ -581,7 +616,7 @@ export default class PortalAppHeader extends Component {
                         </span>
                       </span>
                     </div>
-                    <h6 className="mTop32 Font16">{_l('我的信息')}</h6>
+                    <h6 className={cx('Font16', { mTop32: !isMobile, mTop24: isMobile })}>{_l('我的信息')}</h6>
                     <div className="infoBox">
                       {info
                         .sort((a, b) => {
@@ -591,7 +626,9 @@ export default class PortalAppHeader extends Component {
                           return (
                             <div className="tel flexRow mTop10">
                               <span className="title InlineBlock Gray_9e WordBreak">{o.controlName}</span>
-                              <span className="flex mLeft24 rInfo">{renderText({ ...o })}</span>
+                              <span className={cx('flex mLeft24 rInfo', { isOption: [9, 10, 11].includes(o.type) })}>
+                                {renderText({ ...o })}
+                              </span>
                             </div>
                           );
                         })}

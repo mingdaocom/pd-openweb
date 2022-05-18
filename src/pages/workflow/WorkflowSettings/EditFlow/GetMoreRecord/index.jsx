@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -14,13 +14,13 @@ export default class GetMoreRecord extends Component {
   renderContent() {
     const { item } = this.props;
     const text = {
-      [TRIGGER_ID_TYPE.FROM_WORKSHEET]: _l('从工作表获取多条记录'),
-      [TRIGGER_ID_TYPE.FROM_RECORD]: _l('从一条记录获取多条关联记录'),
-      [TRIGGER_ID_TYPE.FROM_ADD]: _l('从新增记录节点获取多条记录'),
-      [TRIGGER_ID_TYPE.FROM_ARRAY]: _l('从Webhook数组获取数据'),
-      [TRIGGER_ID_TYPE.FROM_CODE]: _l('从代码块数组获取数据'),
-      [TRIGGER_ID_TYPE.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细数据'),
-      [TRIGGER_ID_TYPE.FROM_PBC_ARRAY]: _l('从业务流程数组获取数据'),
+      [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取多条记录'),
+      [ACTION_ID.FROM_RECORD]: _l('从一条记录获取多条关联记录'),
+      [ACTION_ID.FROM_ADD]: _l('从新增记录节点获取多条记录'),
+      [ACTION_ID.FROM_ARRAY]: _l('从Webhook数组获取数据'),
+      [ACTION_ID.FROM_CODE]: _l('从代码块数组获取数据'),
+      [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细数据'),
+      [ACTION_ID.FROM_PBC_ARRAY]: _l('从业务流程数组获取数据'),
     };
 
     if (!item.appId && !item.selectNodeId) {
@@ -37,7 +37,7 @@ export default class GetMoreRecord extends Component {
     }
 
     if (
-      _.includes([TRIGGER_ID_TYPE.FROM_ARRAY, TRIGGER_ID_TYPE.FROM_CODE, TRIGGER_ID_TYPE.FROM_PBC_ARRAY], item.actionId)
+      _.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], item.actionId)
     ) {
       return <div className="pLeft8 pRight8 ellipsis Gray_75">{text[item.actionId]}</div>;
     }

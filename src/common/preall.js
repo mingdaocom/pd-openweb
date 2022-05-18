@@ -1,9 +1,8 @@
 import React from 'react';
-var qs = require('query-string');
+import qs from 'query-string';
 import global from 'src/api/global';
 import project from 'src/api/project';
 import { LoadDiv } from 'ming-ui';
-import DocumentTitle from 'react-document-title';
 import { getPssId, setPssId } from 'src/util/pssId';
 if (/theportal\.cn$/.test(location.host) && window.__api_server__ && window.__api_server__.main) {
   window.__api_server__.main = '/api/';
@@ -60,7 +59,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
 
     window.config = data.config;
     window.md.global = data['md.global'];
-    window.md.global.Config.ServiceTel = '010-53153053';
+    window.md.global.Config.ServiceTel = '400-665-6655';
     let SysSettings = _.get(window.md.global, ['SysSettings']);
     if (!SysSettings) {
       window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
@@ -70,18 +69,6 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     if (md.global.SysSettings && md.global.SysSettings.forbidSuites) {
       md.global.Config.ForbidSuites = md.global.SysSettings.forbidSuites.split('|').map(item => Number(item));
     }
-
-    setTimeout(() => {
-      fetch('/docpreview/fonts/213');
-      fetch('/docpreview/fonts/196');
-      fetch('/docpreview/fonts/036');
-
-      fetch('/docpreview/fonts/082');
-      fetch('/docpreview/fonts/054');
-      fetch('/docpreview/fonts/210');
-      fetch('/docpreview/fonts/212');
-      fetch('/docpreview/fonts/229');
-    }, 10000);
 
     const lang = getCookie('i18n_langtag') || getNavigatorLang();
     if (lang) {
@@ -140,24 +127,6 @@ export default function (Comp, { allownotlogin, preloadcb, hideloading, transfer
     return wrapComponent(Comp, { allownotlogin, hideloading, transfertoken });
   }
 }
-
-(function (arr) {
-  arr.forEach(function (item) {
-    item.prepend =
-      item.prepend ||
-      function () {
-        var argArr = Array.prototype.slice.call(arguments),
-          docFrag = document.createDocumentFragment();
-
-        argArr.forEach(function (argItem) {
-          var isNode = argItem instanceof Node;
-          docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
-        });
-
-        this.insertBefore(docFrag, this.firstChild);
-      };
-  });
-})([Element.prototype, Document.prototype, DocumentFragment.prototype]);
 
 /** 存储分发类入口 状态 和 分享id */
 function parseShareId() {

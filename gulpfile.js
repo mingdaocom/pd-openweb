@@ -8,7 +8,7 @@ const generate = require('./CI/generate');
 const serve = require('./CI/serve');
 const webpackConfig = require('./CI/webpack.config');
 const webpackConfigForMdFunction = require('./CI/webpack.mdfunction.config');
-const webpackSingleConfig = require('./CI/webpack.single.config');
+const getWebpackSingleConfig = require('./CI/webpack.single.config');
 const { webpackTaskFactory, findEntryMap, uploadFunctionFileToWorksheet } = require('./CI/utils');
 require('./locale/gulplang');
 const isProduction = process.env.NODE_ENV === 'production';
@@ -47,7 +47,12 @@ gulp.task('webpack:watch', webpackTaskFactory(merge(webpackConfig, { entry: find
 
 gulp.task(
   'singleEntryWebpack',
-  webpackTaskFactory(merge(webpackSingleConfig, { entry: findEntryMap('single') }), false),
+  webpackTaskFactory(merge(getWebpackSingleConfig('single'), { entry: findEntryMap('single') }), false),
+);
+
+gulp.task(
+  'sheetsingleEntryWebpack',
+  webpackTaskFactory(merge(getWebpackSingleConfig('sheetsingle'), { entry: findEntryMap('sheetsingle') }), false),
 );
 
 /** MdFunction 库构建 */
@@ -69,6 +74,7 @@ function pipeAll(pipes, done) {
 async function copy(done) {
   pipeAll(
     [
+      gulp.src(['src/common/mdcss/iconfont/**/*']).pipe(gulp.dest('./build/files/staticfiles/iconfont')),
       gulp.src(['src/library/**/*']).pipe(gulp.dest('./build/files/staticfiles/library')),
       gulp.src(['src/common/mdcss/**/*']).pipe(gulp.dest('./build/files/staticfiles/mdcss')),
       gulp.src(['src/common/mdjs/**/*']).pipe(gulp.dest('./build/files/staticfiles/mdjs')),
@@ -134,7 +140,7 @@ gulp.task('dev:main', done => {
 });
 
 /** 构建 ->  webpack 编译 js 代码，生成至 ./build/dist */
-gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryWebpack'));
+gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryWebpack', 'sheetsingleEntryWebpack'));
 
 /** 清理 sourceMap, LICENSE 文件 */
 gulp.task('clean-file', done => {
@@ -149,11 +155,11 @@ gulp.task('clean-file', done => {
  * 4. 拷贝静态资源
  */
 gulp.task('publish', publishdone => {
-  if (!(fs.existsSync('./build/dist/pack') && fs.existsSync('./build/dist/manifest.json'))) {
-    console.log(gutil.colors.red('publish 失败💀'));
-    console.log('dist 文件不存在，请先执行 release 操作');
-    return;
-  }
+  // if (!(fs.existsSync('./build/dist/pack') && fs.existsSync('./build/dist/manifest.json'))) {
+  //   console.log(gutil.colors.red('publish 失败💀'));
+  //   console.log('dist 文件不存在，请先执行 release 操作');
+  //   return;
+  // }
   gulp.series('clean-file', 'generate-mainweb', 'copy', function log(done) {
     done();
     publishdone();

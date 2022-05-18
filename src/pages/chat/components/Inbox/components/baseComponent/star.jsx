@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import Icon from 'ming-ui/components/Icon';
-
+import { browserIsMobile } from 'src/util';
 import inboxController from 'src/api/inbox';
 
 export default class Star extends React.Component {
@@ -33,6 +33,9 @@ export default class Star extends React.Component {
   }
   render() {
     const { isFavorite } = this.state;
+    if (md.global.Account.isPortal && browserIsMobile()) {
+      return null;
+    }
     return (
       <div className="Right">
         {isFavorite === '1' ?

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
 import './index.less';
+import { checkSensitive } from 'src/api/fixedData.js';
 
 class DialogCreatePosition extends React.Component {
   constructor(props) {
@@ -54,11 +55,16 @@ class DialogCreatePosition extends React.Component {
               alert(_l('该职位名称已存在'), 3);
               return;
             }
-            setValue({
-              isOk: true,
-              showPositionDialog: false,
-              jobName: jobName.trim(),
-              jobId: jobId,
+            checkSensitive({ content: jobName }).then(res => {
+              if (res) {
+                return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+              }
+              setValue({
+                isOk: true,
+                showPositionDialog: false,
+                jobName: jobName.trim(),
+                jobId: jobId,
+              });
             });
           }}
         >

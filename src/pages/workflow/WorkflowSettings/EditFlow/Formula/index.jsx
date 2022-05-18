@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 
 export default class Formula extends Component {
   constructor(props) {
@@ -25,13 +25,13 @@ export default class Formula extends Component {
     } = item;
 
     if (
-      (actionId !== TRIGGER_ID_TYPE.TOTAL_STATISTICS && !formulaValue) ||
-      (actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && !selectNodeId)
+      (actionId !== ACTION_ID.TOTAL_STATISTICS && !formulaValue) ||
+      (actionId === ACTION_ID.TOTAL_STATISTICS && !selectNodeId)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
-    if (actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS) {
+    if (actionId === ACTION_ID.TOTAL_STATISTICS) {
       if (!selectNodeName) {
         return (
           <div className="pLeft8 pRight8 red">
@@ -53,7 +53,7 @@ export default class Formula extends Component {
       );
     }
 
-    if (actionId !== TRIGGER_ID_TYPE.DATE_DIFF_FORMULA) {
+    if (actionId !== ACTION_ID.DATE_DIFF_FORMULA) {
       const arr = formulaValue.match(/\$.*?\$/g);
       if (arr) {
         arr.forEach(obj => {
@@ -71,7 +71,7 @@ export default class Formula extends Component {
       <Fragment>
         <div className="pLeft8 pRight8">
           <span className="Gray_75">
-            {actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}
+            {actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}
           </span>
           {fieldValue + fieldControlName + formulaValue}
         </div>

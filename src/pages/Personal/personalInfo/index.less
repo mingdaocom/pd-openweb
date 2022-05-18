@@ -37,9 +37,9 @@
     -moz-border-radius: 4px 4px 4px 4px;
     -webkit-border-radius: 4px 4px 4px 4px;
     border-radius: 4px 4px 4px 4px;
-    box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
-    -webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
-    -moz-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.08);
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.08);
+    -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.08);
+    -moz-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.08);
   }
   .myBadgeCount span {
     margin-left: 5px;
@@ -56,12 +56,15 @@
     }
     .editfullNameInput {
       width: 100%;
-      border: 1px solid #2999F3;
+      border: 1px solid #2999f3;
       border-radius: 3px;
       height: 32px;
       line-height: 30px;
       padding: 6px 12px;
       box-sizing: border-box;
+      &.isErr {
+        border: 1px solid red;
+      }
     }
     .accountHeadBox {
       display: flex;

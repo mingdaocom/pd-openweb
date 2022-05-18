@@ -1143,6 +1143,8 @@ export default class GeneraSelect extends Component {
     --------------------------------------         渲染        ------------------------------------------
     ---------------------------------------------------------------------------------------------------- */
   renderUsersList() {
+    const { commonSettings } = this.props;
+
     let mainData = this.state.mainData;
     if (!mainData) {
       return null;
@@ -1152,6 +1154,7 @@ export default class GeneraSelect extends Component {
       case RenderTypes.CONTACK_USER:
         return (
           <DefaultUserList
+            projectId={commonSettings.projectId}
             data={mainData.data}
             includeUndefinedAndMySelf={this.userSettings.includeUndefinedAndMySelf}
             onChange={this.toogleUserSelect}

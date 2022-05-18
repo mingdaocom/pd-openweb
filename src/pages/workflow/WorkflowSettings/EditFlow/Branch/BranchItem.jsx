@@ -56,7 +56,9 @@ export default class BranchItem extends Component {
                       </span>
                       <span className="ellipsis maxWidth">
                         <span className="mRight5 Gray_75">
-                          {CONDITION_TYPE[obj.conditionId]}
+                          {_.includes(['29', '30'], obj.conditionId)
+                            ? CONDITION_TYPE[obj.conditionId][_.get(obj, 'advancedSetting.showtype') || '0']
+                            : CONDITION_TYPE[obj.conditionId]}
                           {isOldCondition && '*'}
                         </span>
                         {this.renderSingleValue(obj)}

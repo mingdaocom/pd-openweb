@@ -1,7 +1,7 @@
 import discussionAjax from 'src/api/discussion';
 import worksheetAjax from 'src/api/worksheet';
 
-export const getSheetDiscussion = ({worksheetId, rowId, pageIndex}, callback) => (dispatch, getState) => {
+export const getSheetDiscussion = ({worksheetId, rowId, pageIndex, entityType}, callback) => (dispatch, getState) => {
   const sourceType = rowId ? 8 : 7;
   const sourceId = rowId ? `${worksheetId}|${rowId}` : worksheetId;
   discussionAjax.getDiscussions({
@@ -10,6 +10,7 @@ export const getSheetDiscussion = ({worksheetId, rowId, pageIndex}, callback) =>
     pageIndex,
     pageSize: 10,
     isFocus: false,
+    entityType,
   }).then(result => {
     if (pageIndex === 1) {
       dispatch({ type: 'MOBILE_SET_SHEET_DISCUSSION', data: result.data });

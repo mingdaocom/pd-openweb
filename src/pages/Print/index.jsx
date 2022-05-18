@@ -28,6 +28,7 @@ class PrintForm extends React.Component {
         name: params.name,
         showData: false, // 空值是否隐藏 默认隐藏
         printOption: false, //选择平铺 //打印未选中的项
+        shareType: 0, //0 = 默认，1= 内部
       },
       isChange: false, // 当前模板是否修改
       appId,
@@ -220,7 +221,8 @@ class PrintForm extends React.Component {
       this.setState({
         printData: {
           ...this.state.printData,
-          ...res,
+          ..._.omit(res, ['rowId']),
+          rowIdForQr: res.rowId,
           receiveControls,
           rules,
           font: Number(res.font || DEFAULT_FONT_SIZE),
@@ -344,6 +346,7 @@ class PrintForm extends React.Component {
             'ownerAccountChecked',
             'showData', // 空值是否隐藏
             'printOption',
+            'shareType',
             'formName',
             'name',
             'font',

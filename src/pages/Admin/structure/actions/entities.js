@@ -287,3 +287,8 @@ export const loadAllUsers = (projectId, pageIndex) => dispatch => {
   // TODO: check fields if necessary
   return dispatch(fetchAllUser(projectId, pageIndex || 1));
 };
+
+export const updateShowExport = isShowExport => ({
+  type: 'UPDATE_SHOW_EXPORT',
+  isShowExport,
+});

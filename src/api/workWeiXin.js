@@ -121,7 +121,7 @@ module.exports = {
   * 获取js-sdk的签名信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {} args.suiteType 套件类型（1：通讯录 2：任务 3：审批 4：考勤 5：明道云小程序 6：明道云）
+  * @param {} args.suiteType 套件类型（1：通讯录 2：任务 3：审批 4：考勤 5：明道云小程序 6：明道云 8：自建应用包括代开发）
   * @param {string} args.url 调用JS接口页面的完整URL，不包含#及其后面部分
   * @param {integer} args.ticketType 签名类型
 1表示企业 wx.config；2表示应用 agentConfig

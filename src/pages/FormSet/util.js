@@ -20,3 +20,18 @@ export const isOpenPermit = (type, list = [], viewId) => {
     return true;
   }
 };
+
+export const refreshBtnData = (data, btns, isAdd) => {
+  let btnData = data;
+  if (isAdd) {
+    btnData.push(btns);
+    return btnData;
+  }
+  return data.map(o => {
+    if (o.btnId === btns.btnId) {
+      return btns;
+    } else {
+      return o;
+    }
+  });
+};

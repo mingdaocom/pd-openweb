@@ -22,6 +22,8 @@ window.getNavigatorLang = () => {
       case 'zh-Hant-TW':
       case 'zh-Hant':
         return 'zh-Hant';
+      case 'ja':
+        return 'ja';
       default:
         return 'zh-Hans';
     }
@@ -132,7 +134,7 @@ md.staticglobal = md.global = {
     pubHost: 'https://fp1.mingdaoyun.cn/',
   },
   Config: {
-    ServiceTel: '010-53153053',
+    ServiceTel: '400-665-6655',
     IsLocal: true,
   },
   /** 内部各应用的 ID */
@@ -156,7 +158,7 @@ md.staticglobal = md.global = {
   domainSuffix: 'mingdao.com',
   SysSettings: {
     passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
-    passwordRegexTip: window._l('8-20位，需包含字母和数字'),
+    passwordRegexTip: '',
   },
 };
 
@@ -647,6 +649,27 @@ window.createTimeSpan = dateStr => {
     document.head.appendChild(script);
   }
 })();
+
+/**
+ * 兼容企业微信windows客户端低版本没有prepend方法报错的问题
+ */
+(function(arr) {
+  arr.forEach(function(item) {
+    item.prepend =
+      item.prepend ||
+      function() {
+        var argArr = Array.prototype.slice.call(arguments),
+          docFrag = document.createDocumentFragment();
+
+        argArr.forEach(function(argItem) {
+          var isNode = argItem instanceof Node;
+          docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
+        });
+
+        this.insertBefore(docFrag, this.firstChild);
+      };
+  });
+})([Element.prototype, Document.prototype, DocumentFragment.prototype]);
 
 // 兼容钉钉内核63 问题
 if (!Object.fromEntries) {

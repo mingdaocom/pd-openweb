@@ -89,7 +89,7 @@ export const dealBoardViewData = props => {
   }
 };
 
-export const getTargetName = (value, controls = {}, { type, enumDefault }) => {
+export const getTargetName = (value, controls = {}, { type }) => {
   if (type === 26) {
     return value;
   } else if ([9, 11].includes(type)) {
@@ -98,6 +98,6 @@ export const getTargetName = (value, controls = {}, { type, enumDefault }) => {
   } else if (type === 29) {
     return JSON.parse(value || {}).name;
   } else if (type === 28) {
-    return value + `${enumDefault === 2 ? _l('级') : _l('星')}`;
+    return _l('%0 级', value);
   }
 };

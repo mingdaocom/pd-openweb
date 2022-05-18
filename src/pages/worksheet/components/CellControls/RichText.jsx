@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dialog } from 'ming-ui';
 import EditableCellCon from '../EditableCellCon';
+import { domFilterHtmlScript } from 'worksheet/util';
 import renderText from './renderText';
 import { RichText } from 'ming-ui';
 export default class Text extends React.Component {
@@ -33,14 +34,10 @@ export default class Text extends React.Component {
   }
 
   @autobind
-  handleChange(value) {
-    const { updateCell, updateEditingStatus } = this.props;
+  handleChange() {
+    const { updateCell } = this.props;
     updateCell({
-      value,
-    });
-    // updateEditingStatus(false);
-    this.setState({
-      value,
+      value: this.state.value,
     });
   }
 
@@ -53,11 +50,18 @@ export default class Text extends React.Component {
         width={800}
         footer={null}
         anim={false}
-        onCancel={() => updateEditingStatus(false)}
+        onCancel={() => {
+          this.handleChange();
+          updateEditingStatus(false);
+        }}
       >
         <RichText
           data={this.state.value || ''}
-          onSave={this.handleChange}
+          onSave={value => {
+            this.setState({
+              value,
+            });
+          }}
           className={cx('cellControlRichTextDialog')}
         />
       </Dialog>
@@ -80,7 +84,10 @@ export default class Text extends React.Component {
       >
         {isediting && this.renderEditDialog()}
         {!!value && (
-          <div className={cx('worksheetCellPureString', { linelimit: needLineLimit })}>
+          <div
+            className={cx('worksheetCellPureString', { linelimit: needLineLimit })}
+            title={domFilterHtmlScript(value)}
+          >
             {renderText({ ...cell, value })}
           </div>
         )}

@@ -232,6 +232,7 @@ export default function Container(props) {
     termsAndAgreementEnable, //开启了协议
     setParamForPcWx,
     paramForPcWx,
+    noticeScope = {},
   } = props;
 
   const [hasRead, setHasRead] = useState(false); //是否同意
@@ -457,7 +458,7 @@ export default function Container(props) {
             </div>
             <p className="txtConsole">{_l('注册成功')}</p>
             <p className="txtConsole Font15 mTop6">{_l('请耐心等待运营方审核')}</p>
-            <p className="txtConsole Font15">{_l('会通过短信告知您审核结果')}</p>
+            {noticeScope.exAccountSmsNotice && <p className="txtConsole Font15">{_l('会通过短信告知您审核结果')}</p>}
           </div>
         ) : status === 4 ? (
           <div className="tipConBox" style={tipStyle}>
@@ -545,7 +546,7 @@ export default function Container(props) {
                   openLDAP={false}
                   dataList={dataLogin}
                   isNetwork={false}
-                  setDataFn={data => {
+                  onChangeData={data => {
                     setData({ ...dataLogin, ...data });
                   }}
                   appId={appId}

@@ -11,6 +11,10 @@ export default class Widgets extends Component {
     onBlur: PropTypes.func,
   };
 
+  state = {
+    originValue: '',
+  };
+
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
@@ -24,6 +28,7 @@ export default class Widgets extends Component {
 
   render() {
     const { disabled, hint, value, onBlur, onChange } = this.props;
+    const { originValue } = this.state;
 
     return (
       <input
@@ -36,12 +41,13 @@ export default class Widgets extends Component {
         disabled={disabled}
         defaultValue={value}
         onChange={this.onChange}
+        onFocus={e => this.setState({ originValue: e.target.value.trim() })}
         onBlur={event => {
           if (event.target.value.trim() !== value) {
             onChange(event.target.value.trim());
           }
 
-          onBlur();
+          onBlur(originValue);
         }}
       />
     );

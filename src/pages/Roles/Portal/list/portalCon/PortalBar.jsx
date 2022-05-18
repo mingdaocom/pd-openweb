@@ -9,6 +9,7 @@ import { Switch } from 'antd';
 import FilterDrop from './FilterDrop';
 import * as actions from '../../redux/actions';
 import { editViewShowControls } from 'src/api/externalPortal';
+import SearchTelsDialog from './SearchTels';
 const Wrap = styled.div`
   .mRight14 {
     margin-right: 14px;
@@ -22,33 +23,61 @@ const Wrap = styled.div`
       color: #2196f3;
     }
   }
+  .searchTels {
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    font-size: 20px;
+    color: #9e9e9e;
+    line-height: 30px;
+    padding: 0 6px;
+  }
   i::before {
     line-height: 36px;
   }
   i {
     vertical-align: top;
   }
-  .searchInputComp {
-    margin-top: 4px;
-    width: 200px;
-    height: 30px;
+  .searchInputPortal {
+    height: 36px;
     overflow: hidden;
     display: inline-block;
-    border-radius: 15px;
-    background-color: #eaeaea;
+    border-radius: 3px;
+    background-color: #fff;
     .inputCon {
       display: flex;
-      padding: 0 5px;
-      input {
+      .inputConLeft {
+        line-height: 32px;
+        border: 1px solid #ddd !important;
+        border-radius: 4px 0 0 4px;
         flex: 1;
-        border: none;
-        line-height: 28px;
-        box-sizing: border-box;
-        vertical-align: top;
-        background-color: #eaeaea;
+        padding-right: 10px;
+        position: relative;
+        &:hover {
+          border: 1px solid #2196f3 !important;
+        }
+        input {
+          flex: 1;
+          border: none;
+          line-height: 34px;
+          box-sizing: border-box;
+          vertical-align: top;
+          padding: 0 12px;
+          border-radius: 3px;
+          &:-ms-input-placeholder {
+            color: #ccc !important;
+          }
+          &::-ms-input-placeholder {
+            color: #ccc;
+          }
+          &::placeholder {
+            color: #ccc;
+          }
+        }
       }
       i::before {
-        line-height: 28px;
+        line-height: 34px;
       }
       .none {
         display: none;
@@ -121,16 +150,26 @@ const Popup = styled.div`
     }
   }
 `;
+const ClearIcon = styled.i`
+  position: absolute;
+  right: 0;
+  font-size: 16px;
+  color: #9e9e9e;
+  margin-right: 8px;
+  cursor: pointer;
+  &:hover {
+    color: #777;
+  }
+`;
 function PortalBar(props) {
   const { portal, setHideIds, setKeyWords, keys, appId } = props; //['search', 'columns', 'filter', 'down']
   const { showPortalControlIds = [], controls = [], filters = [], keyWords } = portal;
   const [isSearching, setIsSearching] = useState(false); //搜索激活
+  const [showTels, setShowTels] = useState(false); //批量搜索手机号弹层
   const inputEl = useRef(null);
   const [columnsKey, setcolumnsKey] = useState(''); //列显示key
   const getControls = () => {
-    return controls.filter(
-      o => !['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status', 'openid'].includes(o.alias),
-    ); //隐藏显示，只有用户收集的控件+openID
+    return controls.filter(o => !['avatar'].includes(o.alias)); //头像不显示
   };
   const [columns, setColumns] = useState([]); //可控制的列
   useEffect(() => {
@@ -151,10 +190,10 @@ function PortalBar(props) {
     <Wrap className="InlineBlock">
       {keys.includes('search') && (
         <React.Fragment>
-          {isSearching ? (
-            <div className={cx('searchInputComp InlineBlock mRight14')}>
-              <div className="inputCon">
-                <Icon className="mRight5 Font16 Hand actIcon" icon="search" />
+          {/* {isSearching ? ( */}
+          <div className={cx('searchInputPortal InlineBlock mRight14')}>
+            <div className="inputCon">
+              <div className="inputConLeft">
                 <input
                   ref={inputEl}
                   placeholder={_l('搜索')}
@@ -175,28 +214,23 @@ function PortalBar(props) {
                     }
                   }}
                 />
-                <i
-                  className={cx('icon icon-cancel Font14 Hand InlineBlock actIcon', {
-                    none: !keyWords,
-                  })}
-                  onClick={() => {
-                    setKeyWords('');
-                    setIsSearching(false);
-                  }}
-                />
+                {keyWords && (
+                  <ClearIcon
+                    className="icon-cancel"
+                    onClick={() => {
+                      setKeyWords('');
+                    }}
+                  />
+                )}
               </div>
-            </div>
-          ) : (
-            <Tooltip popupPlacement="bottom" text={<span>{_l('搜索')}</span>}>
-              <Icon
-                className="mRight14 Font18 Hand InlineBlock actIcon"
-                icon="search"
+              <i
+                className={cx('icon icon-lookup Font20 Hand InlineBlock actIcon searchTels ThemeHoverColor3', {})}
                 onClick={() => {
-                  setIsSearching(true);
+                  setShowTels(true);
                 }}
               />
-            </Tooltip>
-          )}
+            </div>
+          </div>
         </React.Fragment>
       )}
       {keys.includes('refresh') && (
@@ -301,6 +335,14 @@ function PortalBar(props) {
             }}
           />
         </Tooltip>
+      )}
+      {showTels && (
+        <SearchTelsDialog
+          setShow={show => {
+            setShowTels(show);
+          }}
+          show={showTels}
+        />
       )}
       {props.comp && props.comp()}
     </Wrap>

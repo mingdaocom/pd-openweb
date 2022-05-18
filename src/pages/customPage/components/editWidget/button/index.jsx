@@ -71,7 +71,8 @@ export default function Btn(props) {
       const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
       data.config = {
         icon,
-        iconUrl
+        iconUrl,
+        isNewBtn: true
       }
     }
     setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
@@ -128,7 +129,7 @@ export default function Btn(props) {
       className="editWidgetDialogWrap"
       visible
       onClose={onClose}
-      closeIcon={<Icon icon="close ThemeHoverColor3" />}>
+      closeIcon={<Icon icon="close Font24 ThemeHoverColor3" />}>
       <Header>
         <div className="typeName">{_l('按钮')}</div>
         <Button className="saveBtn" onClick={handleSave}>{_l('保存')}</Button>

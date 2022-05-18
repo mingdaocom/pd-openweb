@@ -90,7 +90,7 @@ export default class NodeOperate extends Component {
    * 渲染节点描述
    */
   renderNodeDescribe() {
-    const { item } = this.props;
+    const { item, isRelease } = this.props;
 
     return (
       <Tooltip
@@ -109,7 +109,7 @@ export default class NodeOperate extends Component {
           isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM}
           onMouseDown={e => {
             e.stopPropagation();
-            this.addNodeDescribe();
+            !isRelease && this.addNodeDescribe();
           }}
         />
       </Tooltip>

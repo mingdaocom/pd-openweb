@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { navigateTo } from 'router/navigateTo';
-import ShareUrl from 'src/pages/publicWorksheetConfig/components/ShareUrl';
+import ShareUrl from 'worksheet/components/ShareUrl';
 import * as actions from './redux/actions';
 import PortalTable from './list';
 import { Icon } from 'ming-ui';

@@ -153,13 +153,13 @@ export const functions = {
     return values.length;
   },
   // 条件求和
-  SUMIF: function () {
-    // TODO 待定
-  },
-  // 条件计数
-  COUNTIF: function () {
-    // TODO 待定
-  },
+  // SUMIF: function () {
+  //   // TODO 待定
+  // },
+  // // 条件计数
+  // COUNTIF: function () {
+  //   // TODO 待定
+  // },
   // 返回随机数
   RANDBETWEEN: function (begin, end) {
     begin = Math.round(Number(begin));
@@ -373,7 +373,7 @@ export const functions = {
   },
   // 强制转文本
   STRING: function (value) {
-    return String(value || '');
+    return String(typeof value === 'undefined' ? '' : value);
   },
   // 删除空格
   TRIM: function (value) {
@@ -409,7 +409,7 @@ export const functions = {
   },
   // 是否为空
   ISBLANK: function (value) {
-    return typeof value === 'undefined' || value === null || value === '' || value === '[]';
+    return typeof value === 'undefined' || value === null || value === '' || value === '[]' || _.isEqual(value, []);
   },
   // 高级函数
   ENCODEURI: function (value) {
@@ -464,10 +464,10 @@ export const functions = {
   // 查找单个文本
   FIND: function (text = '', start, end) {
     if (start) {
-      start = start.replace(/([(?[*)])/g, '\\$1');
+      start = start.replace(/([(?[*)|])/g, '\\$1');
     }
     if (end) {
-      end = end.replace(/([(?[*)])/g, '\\$1');
+      end = end.replace(/([(?[*)|])/g, '\\$1');
     }
     if (!text || (!start && !end)) {
       return text;

@@ -128,4 +128,6 @@ export const PORTAL = [
   'addRecord',
   'searchRecord',
   'groupFilterDetail',
+  'addDiscuss',
+  'discuss'
 ];

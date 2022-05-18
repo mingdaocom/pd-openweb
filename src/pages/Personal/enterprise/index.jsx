@@ -189,7 +189,7 @@ export default class AccountChart extends React.Component {
                     {authCount > 99 ? '99+' : authCount}
                   </span>
                 </span>
-                <span className="mRight30 mLeft30 Hand MyInvitation" onClick={() => this.handleCreate()}>
+                <span className="Font14 Hand mLeft40 mRight30 itemCreat InlineBlock" onClick={() => this.handleCreate()}>
                   {_l('创建组织')}
                 </span>
                 <span className="addBtn Hand" onClick={() => this.handleAdd()}>

@@ -1,20 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import ButtonList from 'src/pages/customPage/components/WidgetContent/ButtonList';
+import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
 import { getEnumType } from 'src/pages/customPage/util';
-import { addRecord } from 'src/pages/customPage/redux/action';
 import PreviewContent from './PreviewContent';
 import ChartContent from './ChartContent';
+import { View } from 'src/pages/customPage/components/editWidget/view/Preview.jsx';
 import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
-  padding: ${props => (props.componentType === 'embedUrl' ? 0 : '8px 15px')};
+  padding: 8px 15px;
   background-color: #fff;
   height: 100%;
   &.button {
     display: flex;
+  }
+  &.mobileEmbedUrl, &.mobileView {
+    padding: 0 !important;
   }
   img {
     max-width: 100%;
@@ -27,19 +30,9 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { type, value, name, button, ids, param = [], config = {} } = props;
+  const { ids, widget, apk } = props;
+  const { type, value, name, button, param = [], config = {} } = widget;
   const componentType = getEnumType(type);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (componentType !== 'analysis') return;
-    const { width, height } = ref.current.getBoundingClientRect();
-    // WidgetContent style padding
-    const paddingHorizontal = 15 * 2;
-    const paddingVertical = 8 * 2;
-    setDimensions({ width: width - paddingHorizontal, height: height - paddingVertical });
-  }, []);
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
     if (componentType === 'richText')
@@ -49,22 +42,25 @@ function WidgetDisplay(props) {
         <ButtonList
           editable={false}
           button={button}
-          ids={ids}
-          layoutType="mobile"
-          addRecord={data => {
-            addRecord(data)();
+          info={{
+            ...ids,
+            projectId: apk.projectId,
+            itemId: ids.worksheetId
           }}
+          layoutType="mobile"
+          addRecord={data => {}}
         />
       );
-    if (componentType === 'analysis') return <ChartContent reportId={value} name={name} dimensions={dimensions} />;
+    if (componentType === 'analysis') return <ChartContent reportId={value} name={name} />;
+    if (componentType === 'view') {
+      return (
+        <View appId={ids.appId} setting={widget} />
+      );
+    }
   };
 
   return (
-    <WidgetContent
-      className={`mobile${fistLetterUpper(componentType)} flexColumn`}
-      ref={ref}
-      componentType={componentType}
-    >
+    <WidgetContent className={`mobile${fistLetterUpper(componentType)} flexColumn`}>
       {renderContent()}
     </WidgetContent>
   );

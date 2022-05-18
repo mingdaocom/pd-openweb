@@ -105,7 +105,7 @@ export default class RelateRecord extends React.Component {
       updateCell({
         value: JSON.stringify(
           formatRecordToRelateRecord(cell.relationControls, this.records).map(r => ({
-            ..._.pick(r, ['sid', 'name', 'sourcevalue']),
+            ..._.pick(r, ['sid', 'name', 'sourcevalue', 'row']),
           })),
         ),
       });
@@ -167,7 +167,7 @@ export default class RelateRecord extends React.Component {
             disabled={!editable}
             selected={records}
             cellFrom={from}
-            control={cell}
+            control={{ ...cell, formData: formdata }}
             formData={formdata}
             viewId={cell.viewId}
             recordId={recordId}

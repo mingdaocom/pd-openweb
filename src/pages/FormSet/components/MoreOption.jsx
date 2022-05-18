@@ -10,10 +10,10 @@ export default class MoreOption extends React.Component {
   }
 
   deleteFn = () => {
-    const { setFn, deleteFn, delTxt } = this.props;
+    const { setFn, deleteFn, delTxt, description } = this.props;
     return confirm({
       title: <span className="Red">{delTxt || _l('删除模板')}</span>,
-      description: _l('删除后将无法恢复'),
+      description: description || _l('删除后将无法恢复'),
       onOk: () => {
         deleteFn();
       },
@@ -21,20 +21,24 @@ export default class MoreOption extends React.Component {
   };
 
   render() {
-    const { setFn, delTxt } = this.props;
+    const { setFn, delTxt, disabledRename } = this.props;
     return (
       <React.Fragment>
         <ul className="moreOptionTrigger">
-          <li
-            onClick={() => {
-              setFn({
-                isRename: true,
-                showMoreOption: false,
-              });
-            }}
-          >
-            {_l('重命名')}
-          </li>
+          {disabledRename ? (
+            ''
+          ) : (
+            <li
+              onClick={() => {
+                setFn({
+                  isRename: true,
+                  showMoreOption: false,
+                });
+              }}
+            >
+              {_l('重命名')}
+            </li>
+          )}
           <li
             className="Red"
             onClick={() => {

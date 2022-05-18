@@ -14,7 +14,7 @@ import {
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, getIsAlienationColor, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
@@ -134,12 +134,13 @@ export default class extends Component {
     const { xaxes, split } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
     }
     if (split.controlId) {
-      param[split.cid] = currentData.data.groupKey;
+      const isNumber = isFormatNumber(split.controlType);
+      param[split.cid] = isNumber ? Number(currentData.data.groupKey) : currentData.data.groupKey;
     }
     this.setState({
       dropdownVisible: true,

@@ -8,7 +8,7 @@ const alert = Modal.alert;
 
 export default function RowDetailModal(props) {
   const {
-    disabled,
+    mobileIsEdit,
     className,
     data,
     title,
@@ -20,7 +20,8 @@ export default function RowDetailModal(props) {
     allowDelete
   } = props;
   const formContent = useRef(null);
-  const type = (!_.isEmpty(data.updatedControlIds) || !data.rowid.includes('temp')) ? 'edit' : 'new';
+  const type = mobileIsEdit ? (data.rowid.includes('temp') || data.rowid.includes('default')) ? 'new' : 'edit' : 'edit';
+  const disabled = mobileIsEdit ? props.disabled : true;
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>

@@ -22,11 +22,12 @@ class External extends Component {
       eventConH: 0,
       loadUp: false,
       isSearch: false,
+      random: parseInt(Math.random() * 1000000000000),
     };
   }
 
   componentDidMount() {
-    new Draggable(document.getElementById('externalEvents'), {
+    new Draggable(document.getElementById(`externalEvents-${this.state.random}`), {
       itemSelector: '.fcEvent',
     });
   }
@@ -218,7 +219,7 @@ class External extends Component {
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
-      <div id="externalEvents" className="externalEvents">
+      <div id={`externalEvents-${this.state.random}`} className="externalEvents">
         {this.props.showExternal ? (
           <div className="listBox">
             <div className="searchWrapper">

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { getWorkDays, getDays, getWeeks, getMonths } from 'src/pages/worksheet/views/GunterView/util';
-import { PERIOD_TYPE, viewConfig } from 'src/pages/worksheet/views/GunterView/config';
+import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 
 const SpeedCreateTimeWrapper = styled.div`
   height: 100%;
@@ -58,7 +58,7 @@ const recordHeight = 32;
 const milepostWidth = 22;
 const borderRight = 1;
 
-const flattenPeriodList = (periodList, periodType) => {
+const flattenPeriodList = (periodList, periodType, viewConfig) => {
   const start = periodList[0];
   const end = periodList[periodList.length - 1];
 
@@ -66,23 +66,23 @@ const flattenPeriodList = (periodList, periodType) => {
     return periodList;
   }
   if ([PERIOD_TYPE.month].includes(periodType)) {
-    return getWeeks(moment(start.time), moment(end.time)).result;
+    return getWeeks(moment(start.time), moment(end.time), null, viewConfig).result;
   }
   if ([PERIOD_TYPE.quarter, PERIOD_TYPE.year].includes(periodType)) {
-    return getMonths(moment(start.time), moment(end.time)).result;
+    return getMonths(moment(start.time), moment(end.time), null, viewConfig).result;
   }
 
   return periodList;
 };
 
-const getDayPeriodList = (periodList, periodType) => {
+const getDayPeriodList = (periodList, periodType, viewConfig) => {
   const { onlyWorkDay } = viewConfig;
   const start = periodList[0];
   const end = periodList[periodList.length - 1];
   if ([PERIOD_TYPE.day].includes(periodType)) {
     return periodList;
   }
-  return onlyWorkDay ? getWorkDays(start.time, end.time).result : getDays(moment(start.time), moment(end.time)).result;
+  return onlyWorkDay ? getWorkDays(start.time, end.time).result : getDays(moment(start.time), moment(end.time), null, viewConfig).result;
 };
 
 const getWithoutArrangementIndexs = (grouping, milepost) => {
@@ -109,7 +109,7 @@ const getWithoutArrangementIndexs = (grouping, milepost) => {
 
 @connect(
   state => ({
-    ..._.pick(state.sheet, ['gunterView']),
+    ..._.pick(state.sheet, ['gunterView', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -141,9 +141,9 @@ export default class SpeedCreateTime extends Component {
     }
   }
   componentDidMount() {
-    const { gunterView } = this.props;
+    const { gunterView, base } = this.props;
     this.debounceHandleMouseMove = _.throttle(this.handleMouseMove, 50);
-    this.gunterViewEl = document.querySelector('.gunterChartWrapper');
+    this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
     this.gunterViewEl.addEventListener('mousemove', this.debounceHandleMouseMove);
     this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     gunterView.chartScroll.on('scrollStart', this.handleMouseLeave);
@@ -156,11 +156,11 @@ export default class SpeedCreateTime extends Component {
     chartScroll.off('scrollStart', this.handleMouseLeave);
   }
   initPeriodList({ grouping, periodList, periodType, viewConfig }) {
-    const newPeriodList = flattenPeriodList(periodList, periodType);
+    const newPeriodList = flattenPeriodList(periodList, periodType, viewConfig);
     const { records, indexs, milepostIndexs } = getWithoutArrangementIndexs(grouping, viewConfig.milepost);
     this.setState({
       periodList: newPeriodList,
-      dayPeriodList: milepostIndexs.length ? getDayPeriodList(periodList, periodType) : [],
+      dayPeriodList: milepostIndexs.length ? getDayPeriodList(periodList, periodType, viewConfig) : [],
       withoutArrangementIndexs: indexs,
       withoutArrangementMilepostIndexs: milepostIndexs,
       records,

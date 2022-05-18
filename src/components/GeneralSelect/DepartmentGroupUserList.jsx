@@ -27,14 +27,22 @@ export default class DepartmentGroupUserList extends Component {
               <div key={department[ID]}>
                 <div className="GSelect-treeItem">
                   <div className="GSelect-arrow" onClick={() => this.props.toggleUserItem(department[ID])}>
-                    <i className={cx('GSelect-arrow__arrowIcon', department.open ? 'GSelect-arrow__arrowIcon--open' : 'GSelect-arrow__arrowIcon--close')} />
+                    <i
+                      className={cx(
+                        'GSelect-arrow__arrowIcon',
+                        department.open ? 'GSelect-arrow__arrowIcon--open' : 'GSelect-arrow__arrowIcon--close',
+                      )}
+                    />
                   </div>
                   <div className="flex flexRow pointer" onClick={() => this.props.toggleUserItem(department[ID])}>
                     <div className="GSelect-treeItem-name overflow_ellipsis">{department[NAME]}</div>
                     <div className="GSelect-treeItem-number">{`（${department[COUNT]}人）`}</div>
                   </div>
                   {this.props.unique ? null : (
-                    <div className="GSelect-treeItem-allSelect ThemeColor3" onClick={() => this.props.allSelectUserItem(department[ID])}>
+                    <div
+                      className="GSelect-treeItem-allSelect ThemeColor3"
+                      onClick={() => this.props.allSelectUserItem(department[ID])}
+                    >
                       {_l('全选')}
                     </div>
                   )}
@@ -42,7 +50,15 @@ export default class DepartmentGroupUserList extends Component {
                 {!department.open ? null : (
                   <div className="GSelect-userList">
                     {department.users.map(user => {
-                      return <User user={user} checked={this.getChecked(user)} onChange={this.props.onChange} key={user.accountId} />;
+                      return (
+                        <User
+                          user={user}
+                          checked={this.getChecked(user)}
+                          projectId={this.props.projectId}
+                          onChange={this.props.onChange}
+                          key={user.accountId}
+                        />
+                      );
                     })}
                   </div>
                 )}

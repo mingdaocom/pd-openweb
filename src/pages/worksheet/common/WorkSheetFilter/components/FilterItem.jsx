@@ -11,6 +11,7 @@ import Condition from './Condition';
 import wrapDisableClick from './wrapDisableClick';
 import { FILTER_TYPE, CONTROL_FILTER_WHITELIST } from '../enum';
 import { getTypeKey, checkConditionAvailable, getDefaultCondition } from '../util';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 const NewMenuItem = wrapDisableClick(MenuItem);
 
@@ -85,38 +86,36 @@ export default class FilterItem extends Component {
     const { columns, filter, updateCondition, deleteCondition, updateFilter, projectId, appId } = this.props;
     const { relationType, conditions } = filter;
     const canEdit = this.checkFilterEditable();
-    return conditions
-      .filter(condition => _.find(columns, column => condition.controlId === column.controlId))
-      .map((condition, index) => {
-        const control = _.find(columns, column => condition.controlId === column.controlId);
-        const conditionGroupKey = getTypeKey(control.type);
-        const conditionGroupType = CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
-        return conditionGroupType ? (
-          <Condition
-            canEdit={filter.type === FILTER_TYPE.TEMP ? true : canEdit}
-            projectId={projectId}
-            appId={appId}
-            key={condition.keyStr}
-            index={index}
-            condition={condition}
-            conditionsLength={conditions.length}
-            conditionGroupType={conditionGroupType}
-            relationType={relationType}
-            control={control}
-            onChange={value => {
-              updateCondition(this.props.filter, index, value);
-            }}
-            onDelete={() => {
-              deleteCondition(this.props.filter, index);
-            }}
-            onUpdateFilter={value => {
-              updateFilter(this.props.filter, value);
-            }}
-          />
-        ) : (
-          ''
-        );
-      });
+    return conditions.map((condition, index) => {
+      const control = _.find(columns, column => condition.controlId === column.controlId);
+      const conditionGroupKey = getTypeKey((control || {}).type);
+      const conditionGroupType = control ? CONTROL_FILTER_WHITELIST[conditionGroupKey].value : '';
+      const isSheetFieldError = isOtherShowFeild(control);
+      return (
+        <Condition
+          canEdit={filter.type === FILTER_TYPE.TEMP ? true : canEdit}
+          projectId={projectId}
+          appId={appId}
+          key={condition.keyStr}
+          index={index}
+          condition={condition}
+          conditionsLength={conditions.length}
+          conditionGroupType={conditionGroupType}
+          relationType={relationType}
+          isSheetFieldError={isSheetFieldError}
+          control={control}
+          onChange={value => {
+            updateCondition(this.props.filter, index, value);
+          }}
+          onDelete={() => {
+            deleteCondition(this.props.filter, index);
+          }}
+          onUpdateFilter={value => {
+            updateFilter(this.props.filter, value);
+          }}
+        />
+      );
+    });
   }
   @autobind
   renderOperate(canSave) {
@@ -295,7 +294,7 @@ export default class FilterItem extends Component {
         <div className="flexRow" style={{ width: '100%' }}>
           <div className="flex">
             <AddCondition
-              columns={columns}
+              columns={filterOnlyShowField(columns)}
               defaultVisible={showCustomAddCondition}
               onAdd={control => {
                 addCondition(filter, getDefaultCondition(control), () => {
@@ -388,7 +387,7 @@ export default class FilterItem extends Component {
             {this.renderConditions()}
             {canEdit && (
               <AddCondition
-                columns={columns}
+                columns={filterOnlyShowField(columns)}
                 onAdd={control => {
                   addCondition(filter, getDefaultCondition(control), () => {
                     $('.conditionsCon .conditionItem').eq(-1).find('input').eq(0).focus();

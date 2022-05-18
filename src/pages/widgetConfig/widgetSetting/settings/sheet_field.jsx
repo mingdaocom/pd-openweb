@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, RadioGroup, Dialog } from 'ming-ui';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
-import { filterControlsFromAll, getDefaultSizeByType, getIconByType, resortControlByColRow } from '../../util';
+import {
+  filterControlsFromAll,
+  getDefaultSizeByType,
+  getIconByType,
+  resortControlByColRow,
+  filterOnlyShowField,
+} from '../../util';
 import { useSheetInfo } from '../../hooks';
-import { parseDataSource, isSingleRelateSheet } from '../../util/setting';
+import { parseDataSource, isSingleRelateSheet, updateConfig } from '../../util/setting';
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
 import { SettingItem, DropdownPlaceholder, DropdownOverlay } from '../../styled';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { isEmpty } from 'lodash';
+
+const SHEET_FIELD_TYPES = [
+  {
+    value: '1',
+    text: _l('仅显示'),
+  },
+  {
+    value: '0',
+    text: _l('存储数据'),
+  },
+];
 
 export default function SheetField(props) {
   const {
@@ -18,7 +35,9 @@ export default function SheetField(props) {
     onChange,
     status: { saveIndex },
   } = props;
-  const { controlId, dataSource } = data;
+  const { controlId, dataSource, strDefault = '10' } = data;
+
+  const showType = strDefault.split('')[0] || '0';
 
   const parsedDataSource = parseDataSource(dataSource);
   const [searchValue, setSearchValue] = useState('');
@@ -53,7 +72,8 @@ export default function SheetField(props) {
   } = useSheetInfo({ worksheetId });
 
   const fields = getFieldsByControls(controls);
-  const filteredFields = searchValue ? _.filter(fields, item => _.includes(item.controlName, searchValue)) : fields;
+  const filterBySearch = searchValue ? _.filter(fields, item => _.includes(item.controlName, searchValue)) : fields;
+  const filteredFields = filterOnlyShowField(filterBySearch);
 
   const updateDisabledInfo = () => {
     const sheetObj = _.find(sheetList, item => item.value === parsedDataSource);
@@ -97,6 +117,27 @@ export default function SheetField(props) {
     const name = _.find(fields, item => item.controlId === data.sourceControlId);
     setInfo({ controlName: (name || {}).controlName });
   }, [controlId, data.sourceControlId, controls, allControls]);
+
+  const sureChangeToOnlyShow = () => {
+    Dialog.confirm({
+      title: <span className="Bold Font16">{_l('修改他表字段类型为：仅显示')}</span>,
+      description: (
+        <span className="Gray_9e">
+          {_l(
+            '修改后将清除此字段存储的数据。此字段将不能在用于搜索、筛选、公式、文本组合、统计。请确认以上位置都不再需要此字段的数据后执行操作。',
+          )}
+        </span>
+      ),
+      buttonType: 'danger',
+      onOk: () => {
+        updateValue('1');
+      },
+    });
+  };
+
+  const updateValue = value => {
+    onChange({ strDefault: updateConfig({ config: strDefault, value, index: 0 }) });
+  };
 
   return (
     <div className="settingItemWrap">
@@ -211,6 +252,46 @@ export default function SheetField(props) {
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('类型')}</div>
+        <RadioGroup
+          size="middle"
+          checkedValue={showType}
+          data={SHEET_FIELD_TYPES}
+          onChange={type => {
+            if (type === '1') {
+              if (isSaved) {
+                sureChangeToOnlyShow();
+              } else {
+                updateValue('1');
+              }
+            } else {
+              updateValue('0');
+            }
+          }}
+        />
+      </SettingItem>
+      {showType === '1' ? (
+        <div className="Gray_9e mTop10">{_l('在加载记录时实时获取数据。适合只需要显示字段的场景。')}</div>
+      ) : (
+        <div>
+          <div className="Gray_9e mTop10">
+            {_l(
+              '在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。',
+            )}
+          </div>
+          <div className="mTop10">
+            <span>
+              {_l(
+                '注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。',
+              )}
+            </span>
+            <span className="Gray_9e">
+              {_l('所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。')}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

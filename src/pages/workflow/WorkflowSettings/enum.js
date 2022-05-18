@@ -25,11 +25,18 @@ export const NODE_TYPE = {
   FIND_MORE_MESSAGE: 1001,
 };
 
-export const TRIGGER_ID_TYPE = {
+export const TRIGGER_ID = {
   ADD: '1',
   EDIT: '2',
   DELETE: '3',
   ONLY_EDIT: '4',
+  STOP: '105',
+};
+
+export const ACTION_ID = {
+  ADD: '1',
+  EDIT: '2',
+  DELETE: '3',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -78,17 +85,17 @@ export const APP_TYPE = {
 };
 
 export const CONTROLS_NAME = {
-  1: _l('文本框'),
-  2: _l('文本框'),
+  1: _l('文本'),
+  2: _l('文本'),
   3: _l('手机'),
   4: _l('座机'),
   5: _l('邮箱'),
   6: _l('数值'),
   7: _l('证件'),
   8: _l('金额'),
-  9: _l('单选项'),
-  10: _l('多选项'),
-  11: _l('下拉框'),
+  9: _l('单选'),
+  10: _l('多选'),
+  11: _l('单选'),
   14: _l('附件'),
   15: _l('日期'),
   16: _l('日期时间'),
@@ -110,7 +117,7 @@ export const CONTROLS_NAME = {
   33: _l('自动编号'),
   34: _l('子表'),
   35: _l('级联选择'),
-  36: _l('检查框'),
+  36: _l('检查项'),
   37: _l('汇总'),
   38: _l('公式'),
   40: _l('定位'),
@@ -152,8 +159,16 @@ export const CONDITION_TYPE = {
   26: _l('结束晚于'),
   27: _l('结束已填写'),
   28: _l('结束未填写'),
-  29: _l('选中'),
-  30: _l('未选中'),
+  29: {
+    0: _l('选中'),
+    1: _l('开启'),
+    2: _l('是'),
+  },
+  30: {
+    0: _l('未选中'),
+    1: _l('关闭'),
+    2: _l('否'),
+  },
   31: _l('不为空'),
   32: _l('为空'),
   33: _l('是'),
@@ -397,4 +412,13 @@ export const PUSH_LIST = [
   { text: _l('打开工作表视图'), value: PUSH_TYPE.VIEW },
   { text: _l('打开自定义页面'), value: PUSH_TYPE.PAGE },
   { text: _l('打开链接'), value: PUSH_TYPE.LINK },
+];
+
+export const FIELD_TYPE_LIST = [
+  { text: _l('文本'), value: 2 },
+  { text: _l('数值'), value: 6 },
+  { text: _l('日期时间'), value: 16 },
+  { text: _l('人员'), value: 26 },
+  { text: _l('部门'), value: 27 },
+  { text: _l('数组'), value: 10000003 },
 ];

@@ -2,7 +2,7 @@
   .workflowBranch {
     display: inline-flex;
     position: relative;
-    padding-top: 13px;
+    padding-top: 16px;
     background-color: #f5f5f9;
     ~ .workflowLineBtn {
       &::before {
@@ -89,14 +89,14 @@
       }
     }
     .workflowBranchBtn {
-      font-size: 26px;
+      font-size: 34px;
       position: absolute;
       top: 0;
       left: 50%;
       z-index: 3;
-      width: 26px;
+      width: 34px;
       cursor: pointer;
-      margin-left: -13px;
+      margin-left: -17px;
       background: #f5f5f9;
       color: #2196f3;
       &:hover {
@@ -119,5 +119,62 @@
         }
       }
     }
+  }
+  .workflowBranchHide {
+    .workflowLineBtn {
+      padding-top: 37px !important;
+    }
+  }
+  .workflowBranchNumber {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.workflowBranchTips {
+  white-space: nowrap;
+  height: 34px;
+  width: 98px;
+  .ant-tooltip-inner {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+  }
+  .ant-tooltip-arrow {
+    display: none !important;
+  }
+  .workflowBranchBtnSmall {
+    width: 24px;
+    height: 24px;
+    background: #FFFFFF;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    i {
+      font-size: 16px;
+    }
+    &.workflowBranchBtnSmallTips {
+      &:after {
+        width: 250px;
+        word-break: break-all;
+        white-space: normal;
+      }
+    }
+  }
+  .workflowBranchBtnBig {
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
   }
 }

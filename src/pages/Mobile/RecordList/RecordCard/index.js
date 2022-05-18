@@ -150,12 +150,13 @@ export default class RecordCard extends Component {
     return (
       <div className="controlWrapper" key={id}>
         {nameVisible && <div className="controlName ellipsis Gray_9e">{visibleControl.controlName}</div>}
-        <div className="controlContent">
+        <div className="controlContent ellipsis">
           {data[visibleControl.controlId] ? (
             <CellControl
               rowHeight={34}
               cell={Object.assign({}, visibleControl, { value: data[visibleControl.controlId] })}
               from={4}
+              className={'w100'}
             />
           ) : (
             <div className="emptyTag"></div>

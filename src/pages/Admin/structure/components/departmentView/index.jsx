@@ -7,7 +7,7 @@ class TreeView extends React.Component {
     const { root } = this.props;
     return (
       <div
-        className=""
+        className="w100 pRight8"
         style={{
           position: 'absolute',
           left: 0,
@@ -16,7 +16,8 @@ class TreeView extends React.Component {
           top: '274px',
           height: 'auto', // override
           zIndex: 0,
-        }}>
+        }}
+      >
         <DepartmentTree id={root} autoLoad={true} isRoot={true} />
       </div>
     );

@@ -1,16 +1,18 @@
 import sheetAjax from 'src/api/worksheet';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
-import { setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
+import { setDataFormat, getShowExternalData } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
-import { isTimeStyle, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
+import { isTimeStyle, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 let getRows;
+let getRowsIds = [];
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
     const { base, filters } = getState().sheet;
     const { worksheetId, viewId, appId, chartId } = base;
-    if (getRows) {
+    if (getRows && getRowsIds.includes(viewId)) {
       getRows.abort();
     }
+    getRowsIds.push(viewId);
     getRows = sheetAjax.getFilterRows({
       appId,
       viewId: viewId,
@@ -32,6 +34,7 @@ export const fetch = searchArgs => {
       ]),
     });
     getRows.then(res => {
+      getRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       dispatch({ type: 'CHANGE_CALENDARLIST', data: res.data, resultCode: res.resultCode });
       dispatch(updataEditable(true));
       dispatch(updateFormatData());
@@ -77,9 +80,10 @@ export const refresh = () => {
 
 export const fetchExternal = () => {
   return (dispatch, getState) => {
-    let show = !!window.localStorage.getItem('CalendarShowExternal');
+    const { base = {} } = getState().sheet;
+    const { worksheetId, viewId } = base;
     let isMobile = browserIsMobile();
-    if (!show && !isMobile) {
+    if (!(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) && !isMobile) {
       dispatch(getEventScheduledData('eventNoScheduled'));
     } else {
       dispatch(getEventScheduledData(dispatch(getInitType())));
@@ -191,7 +195,7 @@ export function changeCalendarTime(start, end) {
 export function getCalendarData() {
   return (dispatch, getState) => {
     const { controls, base, views } = getState().sheet;
-    const { viewId = '' } = base;
+    const { viewId = '', worksheetId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     let {
       calendarType = '0',
@@ -209,7 +213,7 @@ export function getCalendarData() {
     let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
     let timeControls = getTimeControls(controls);
     if (calendarcids.length <= 0) {
-      calendarcids = [{ begin: begindate ? begindate : timeControls[0].controlId, end: enddate }]; //兼容老数据
+      calendarcids = [{ begin: begindate ? begindate : (timeControls[0] || {}).controlId, end: enddate }]; //兼容老数据
     }
     let calendarInfo = calendarcids.map(o => {
       const startData = o.begin ? timeControls.find(it => it.controlId === o.begin) || {} : {};
@@ -225,7 +229,7 @@ export function getCalendarData() {
     const btnList = isTimeStyle(calendarInfo[0].startData)
       ? 'today prev,next dayGridMonth,timeGridWeek,timeGridDay'
       : 'today prev,next dayGridMonth,dayGridWeek,dayGridDay';
-    let viewType = window.localStorage.getItem('CalendarViewType');
+    let viewType = getCalendartypeData()[`${worksheetId}-${viewId}`];
     let typeStr = '';
     if (viewType) {
       if (['dayGridWeek', 'timeGridWeek'].includes(viewType)) {
@@ -289,6 +293,7 @@ export const getEventScheduledData = type => {
 };
 
 let getFilterRows;
+let getFilterRowsIds = [];
 export function getEventList({
   pageIndex = 1,
   typeEvent = 'eventNoScheduled',
@@ -309,7 +314,7 @@ export function getEventList({
     if ([`${typeEvent}Index`] === pageIndex) {
       return;
     }
-    if (getFilterRows) {
+    if (getFilterRows && getFilterRowsIds.includes(viewId)) {
       getFilterRows.abort();
     }
     dispatch({ type: 'CHANGE_CALENDAR_ISOVER', data: true });
@@ -322,6 +327,7 @@ export function getEventList({
       pageSize: keyWords ? 10000 : 20,
       keyWords,
     };
+    getFilterRowsIds.push(viewId);
     let list = [];
     calendarInfo.map(o => {
       list.push({
@@ -400,6 +406,7 @@ export function getEventList({
     getFilterRows = sheetAjax.getFilterRows(prams);
     let l = calenderEventList[`${typeEvent}Dt`] || [];
     getFilterRows.then(rowsData => {
+      getFilterRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       let s = rowsData.data;
       if (keyWords) {
         let seachDataList = [];
@@ -414,7 +421,6 @@ export function getEventList({
             }),
           );
         });
-        console.log(seachDataList)
         dispatch({
           type: 'CHANGE_CALENDAR_LIST',
           data: {
@@ -602,7 +608,6 @@ export function updateEventData(rowId, data, time) {
           da.push(it);
         }
       });
-      console.log(da)
       dispatch({
         type: 'CHANGE_CALENDAR_LIST',
         data: {

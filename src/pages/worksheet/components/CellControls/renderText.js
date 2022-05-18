@@ -1,6 +1,7 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
 import { accMul } from 'src/util';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 
 export default function renderText(cell, options = {}) {
   try {
@@ -71,6 +72,10 @@ export default function renderText(cell, options = {}) {
               '$1,',
             );
           }
+        }
+        // 兼容百分比进度没有百分比符号
+        if ((cell.advancedSetting || {}).numshow === '1') {
+          suffix = '%';
         }
         value = (prefix || '') + value + (unit || suffix || '');
         return value;
@@ -149,7 +154,12 @@ export default function renderText(cell, options = {}) {
           .map((department, index) => (department.departmentName ? department.departmentName : _l('该部门已删除')))
           .join('、');
       case 36: // SWITCH 检查框
-        return value === '1' || value === 1 ? _l('已选中') : '';
+        const itemnames = getSwitchItemNames(cell, { needDefault: true });
+        const text = _.get(
+          _.find(itemnames, i => i.key === value || parseFloat(i.key) === value),
+          'value',
+        );
+        return value === '1' || value === 1 ? text || _l('已选中') : '';
       case 14: // ATTACHMENT 附件
         try {
           parsedData = JSON.parse(value);
@@ -202,11 +212,13 @@ export default function renderText(cell, options = {}) {
         if (!cell.value) {
           return '';
         }
-        if (options.noUnit) {
-          return parseInt(cell.value, 10);
-        } else {
-          return cell.enumDefault === 1 ? _l('%0星', parseInt(cell.value, 10)) : _l('%0级', parseInt(cell.value, 10));
-        }
+        const itemNames = JSON.parse((cell.advancedSetting || {}).itemnames || '[]');
+        return (
+          _.get(
+            _.find(itemNames, i => i.key === cell.value),
+            'value',
+          ) || _l('%0 级', parseInt(cell.value, 10))
+        );
       // case 42: // SIGNATURE 签名
       // case 43: // CASCADER 多级下拉
       case 32: // CONCATENATE 文本组合

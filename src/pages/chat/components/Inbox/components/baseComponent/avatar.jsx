@@ -92,9 +92,15 @@ export default class Avatar extends React.Component {
         />
       );
     } else {
+      let param = {};
+      if (!(md.global.Account.isPortal || (accountId || '').indexOf('a#') > -1)) {
+        param = {
+          href: '/user_' + accountId,
+        };
+      }
       return (
         <a
-          href={'/user_' + accountId}
+          {...param}
           target="_blank"
           className="inboxAvatar"
           onMouseOver={this.bindBusinessCard.bind(this)}

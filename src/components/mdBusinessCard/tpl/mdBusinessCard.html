@@ -1,4 +1,4 @@
-﻿{{ var data = it.data, isGroup = it.type === 2, isUser = it.type === 1; }} {{? isUser }}
+{{ var data = it.data, isGroup = it.type === 2, isUser = it.type === 1; }} {{? isUser }}
 <!--user-->
 <div class="cardHeader">
     {{?data.status === 3}}
@@ -63,7 +63,6 @@
         <div class="cardContentDesc">
             {{? it.secretType === 0 }}
             <span class="contentItem">{{= _l('开放沟通 扁平协作')}}</span>
-            <span class="contentItem">010-53153053</span>
             {{??}}
             <span class="contentItem">{{= _l('原负责人已经离职，由企业小秘书托管')}}</span>
             <span class="contentItem">{{= _l('你可以联系管理员进行移交')}}</span>

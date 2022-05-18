@@ -9,6 +9,8 @@ export const urlList = [
   'mobile/addRecord/',
   'mobile/searchRecord/',
   'mobile/groupFilterDetail/',
+  'mobile/discuss/',
+  'mobile/addDiscuss/',
   'printForm/',
 ];
 
@@ -113,4 +115,3 @@ export const accountResultAction = res => {
   return;
 };
 export const statusList = [2, 3, 4, 9, 10, 11, 12, 13, 14, 10000, 20000]; //需要呈现相对落地页的状态码
-

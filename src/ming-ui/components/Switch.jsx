@@ -1,8 +1,8 @@
-import PropTypes from "prop-types";
-import React, { Component } from "react";
-import cx from "classnames";
-import formControl from "ming-ui/decorators/formControl";
-import "./less/Switch.less";
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import cx from 'classnames';
+import formControl from 'ming-ui/decorators/formControl';
+import './less/Switch.less';
 
 @formControl
 class Switch extends Component {
@@ -42,19 +42,19 @@ class Switch extends Component {
     /**
      * text
      */
-    text: PropTypes.string
+    text: PropTypes.string,
   };
 
   static defaultProps = {
     onClick: () => {},
-    text: ""
+    text: '',
   };
 
   constructor(props) {
     super(props);
     const checked = props.checked || props.defaultChecked || false;
     this.state = {
-      checked
+      checked,
     };
     this.props.$formDataChange(checked);
   }
@@ -62,7 +62,7 @@ class Switch extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.checked !== undefined) {
       this.setState({
-        checked: nextProps.checked
+        checked: nextProps.checked,
       });
       this.props.$formDataChange(nextProps.checked);
     }
@@ -75,7 +75,7 @@ class Switch extends Component {
     } else {
       const checked = !this.state.checked;
       this.setState({
-        checked
+        checked,
       });
       this.props.$formDataChange(checked);
       this.props.onClick(checked, this.props.value);
@@ -83,18 +83,19 @@ class Switch extends Component {
   }
 
   render() {
-    const { disabled, text } = this.props;
+    const { disabled, text, size } = this.props;
     const { checked } = this.state;
     return (
       <label
         className={cx(
-          "ming Switch",
-          checked ? "Switch--on" : "Switch--off",
+          'ming Switch',
+          checked ? 'Switch--on' : 'Switch--off',
+          size || '',
           { hasText: text },
           this.props.className,
           {
-            "Switch--disabled": disabled
-          }
+            'Switch--disabled': disabled,
+          },
         )}
         onClick={() => {
           this.handleClick();

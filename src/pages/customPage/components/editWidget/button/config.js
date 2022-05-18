@@ -29,8 +29,7 @@ export const ICONS = [
   'help_center',
 ];
 export const DEFAULT_BUTTON_LIST = [
-  { style: 1, width: 2, explain: '', count: 5, mobileCount: 1, buttonList: [{ name: _l('添加新订单'), color: '#2196f3', icon: '' }] },
-  { style: 2, width: 2, explain: '', count: 5, mobileCount: 1, buttonList: [{ name: _l('添加新客户'), color: '#2196f3', icon: '' }] },
+  { style: 1, width: 2, explain: '', count: 5, mobileCount: 1, buttonList: [{ name: _l('添加新订单'), color: '#2196f3' }] },
   {
     style: 1,
     width: 2,
@@ -38,22 +37,56 @@ export const DEFAULT_BUTTON_LIST = [
     count: 5,
     mobileCount: 1,
     buttonList: [
-      { name: _l('添加客户'), color: '#4caf50', icon: '' },
-      { name: _l('添加拜访记录'), color: '#4caf50', icon: '' },
-      { name: _l('添加报表'), color: '#2196f3', icon: '' },
+      { name: _l('添加客户'), color: '#4caf50' },
+      { name: _l('添加拜访记录'), color: '#4caf50' },
+      { name: _l('添加报表'), color: '#2196f3' },
     ],
   },
   {
+    style: 1,
+    wdith: 2,
+    explain: _l('常用导航'),
+    count: 4,
+    mobileCount: 4,
+    buttonList: [
+      { name: _l('我的客户'), color: '#f69926', config: { icon: '18_1_apartment_house', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/18_1_apartment_house.svg` } },
+      { name: _l('我的线索'), color: '#e62165', config: { icon: '10_5_star', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/10_5_star.svg` } },
+      { name: _l('销售订单'), color: '#289af0', config: { icon: '1_2_order', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/1_2_order.svg` } },
+      { name: _l('报表'), color: '#4faf54', config: { icon: '2_3_statistics', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/2_3_statistics.svg` } },
+    ],
+    config: {
+      btnType: 2,
+      direction: 1
+    }
+  },
+  {
+    style: 2,
+    wdith: 2,
+    explain: '',
+    count: 2,
+    mobileCount: 2,
+    buttonList: [
+      { name: _l('采购入库'), color: '#4caf50', config: { icon: '1_6_document', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/1_6_document.svg` } },
+      { name: _l('销售出库'), color: '#2196f3', config: { icon: '1_0_home', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/1_0_home.svg` } },
+      { name: _l('产品库存'), color: '#f69926', config: { icon: '10_1_health_data', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/10_1_health_data.svg` } },
+      { name: _l('调拨记录'), color: '#3e53b4', config: { icon: '1_5_create_new', iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/1_5_create_new.svg` } },
+    ],
+    config: {
+      btnType: 2,
+      direction: 2
+    }
+  },
+{
     style: 3,
     width: 1,
     explain: _l('快捷方式'),
     count: 2,
     mobileCount: 1,
     buttonList: [
-      { name: _l('添加新订单'), color: '#2196f3', icon: '' },
-      { name: _l('添加新客户'), color: '#2196f3', icon: '' },
-      { name: _l('查看我的订单'), color: '#2196f3', icon: '' },
-      { name: _l('查看我的统计'), color: '#2196f3', icon: '' },
+      { name: _l('添加新订单'), color: '#2196f3' },
+      { name: _l('添加新客户'), color: '#2196f3' },
+      { name: _l('查看我的订单'), color: '#2196f3' },
+      { name: _l('查看我的统计'), color: '#2196f3' },
     ],
-  },
+  }
 ];

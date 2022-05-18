@@ -1,7 +1,7 @@
 .ming.Switch {
   -webkit-transition: all 0.4s ease;
   transition: all 0.4s ease;
-  border-radius: 1em;
+  border-radius: 100px;
   position: relative;
   display: inline-block;
   width: 48px;
@@ -18,7 +18,7 @@
     width: 20px;
     height: 20px;
     top: 2px;
-    content: "";
+    content: '';
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
     border-radius: 50%;
@@ -44,6 +44,11 @@
         left: 40px;
       }
     }
+    &.small {
+      .dot {
+        left: 18px;
+      }
+    }
   }
   &--off {
     background: #ccc;
@@ -55,7 +60,15 @@
     }
   }
   &--disabled {
-    background: #ccc;
+    opacity: 0.5;
     cursor: not-allowed;
+  }
+  &.small {
+    width: 34px;
+    height: 18px;
+    .dot {
+      width: 14px;
+      height: 14px;
+    }
   }
 }

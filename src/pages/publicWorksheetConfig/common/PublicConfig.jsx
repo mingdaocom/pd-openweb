@@ -5,12 +5,12 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import ClipboardButton from 'react-clipboard.js';
 import { Dialog, Tabs, Radio, Switch, Dropdown, Button, RichText } from 'ming-ui';
 import * as actions from '../redux/actions';
-import { Hr, H1, H3, Tip75, Tipbd, TipBlock } from '../components/Basics';
-import ShareUrl from '../components/ShareUrl';
+import { Hr, H1, H3, Tip75, Tipbd, TipBlock } from 'worksheet/components/Basics';
+import ShareUrl from 'worksheet/components/ShareUrl';
 import SourceKeys from '../components/SourceKeys';
-import CopyBtn from '../components/CopyBtn';
 import AddControlDialog from '../components/AddControlDialog';
 import { FILL_TIMES } from '../enum';
 import cx from 'classnames';
@@ -394,9 +394,13 @@ class PublicConfig extends React.Component {
               {this.getIframeHtml()}
             </TipBlock>
             <div className="TxtRight mTop35">
-              <CopyBtn copycontent={this.getIframeHtml()}>
+              <ClipboardButton
+                component="span"
+                data-clipboard-text={this.getIframeHtml()}
+                onSuccess={() => alert(_l('复制成功'))}
+              >
                 <Button>{_l('复制')}</Button>
-              </CopyBtn>
+              </ClipboardButton>
             </div>
           </React.Fragment>
         )}

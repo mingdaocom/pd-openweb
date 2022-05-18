@@ -15,6 +15,9 @@ import { Base64 } from 'js-base64';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
+const ModalWrap = styled(Modal)`
+  height: 300px !important;
+`;
 const SignatureBox = styled.div`
   cursor: pointer;
   height: ${props => props.autoHeight && 'auto !important'};
@@ -272,7 +275,7 @@ export default class Signature extends Component {
           <span className="mLeft5">{_l('添加签名')}</span>
         </div>
 
-        <Modal popup visible={popupVisible} animationType="slide-up" className="mobileNewRecordDialog">
+        <ModalWrap popup visible={popupVisible} animationType="slide-up" className="mobileNewRecordDialog">
           <div className="flexColumn leftAlign h100">
             <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
               <div className="Font18 Gray flex bold ellipsis">{_l('请在下方空白区域书写签名')}</div>
@@ -281,7 +284,7 @@ export default class Signature extends Component {
             <canvas id="signatureCanvas" className="signatureCanvas flex"></canvas>
             {this.renderFooter()}
           </div>
-        </Modal>
+        </ModalWrap>
       </Fragment>
     ) : (
       <Trigger

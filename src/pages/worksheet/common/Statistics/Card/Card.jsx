@@ -37,7 +37,7 @@ export default class Card extends Component {
       sheetVisible: false,
       activeData: undefined
     }
-    this.isPublicShare = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
+    this.isPublicShare = location.href.includes('public/page') || window.shareAuthor;
   }
   componentDidMount() {
     const { id } = this.props.report;
@@ -75,7 +75,7 @@ export default class Card extends Component {
   }
   getData = (reportId, reload = false) => {
     const { filters } = this.props;
-    const shareAuthor = window.sessionStorage.getItem('shareAuthor');
+    const shareAuthor = window.shareAuthor;
     const headersConfig = {
       shareAuthor,
     };
@@ -192,14 +192,19 @@ export default class Card extends Component {
   }
   renderWrap() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
-    const { report, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, className } = this.props;
+    const { report, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, className, onRemove } = this.props;
     const permissions = ownerId || _.includes([1, 2], roleType);
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
       <div className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className)}>
         <div className="header">
+          {permissions && (
+            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">
+              <Icon icon="drag" />
+            </span>
+          )}
           <div className="flex valignWrapper ellipsis">
-            <div className="pointer ellipsis bold">{reportData.name}</div>
+            <div className="pointer ellipsis bold pLeft5">{reportData.name}</div>
             {reportData.desc && (
               <Tooltip title={reportData.desc} placement="bottom">
                 <Icon
@@ -212,7 +217,7 @@ export default class Card extends Component {
           <div className="operateIconWrap valignWrapper Relative">
             {needEnlarge && isSheetView && (
               <span
-                className="iconItem"
+                className="iconItem Gray_9e"
                 data-tip={_l('以表格显示')}
                 onClick={() => {
                   this.setState({
@@ -228,13 +233,13 @@ export default class Card extends Component {
               </span>
             )}
             {needRefresh && (
-              <span onClick={() => this.getData(report.id, true)} data-tip={_l('刷新')} className="iconItem freshDataIconWrap">
+              <span onClick={() => this.getData(report.id, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
                 <Icon icon="rotate" />
               </span>
             )}
             {needEnlarge && (
               <span
-                className="iconItem"
+                className="iconItem Gray_9e"
                 data-tip={_l('放大')}
                 onClick={() => {
                   this.handleOperateClick({
@@ -248,9 +253,12 @@ export default class Card extends Component {
             )}
             {needEnlarge && !this.isPublicShare && (
               <MoreOverlay
-                className="iconItem Font20"
+                className="iconItem Gray_9e Font20"
                 permissions={sourceType ? null : permissions}
                 reportType={reportData.reportType}
+                filter={reportData.filter}
+                isMove={permissions}
+                onRemove={permissions && sourceType !== 1 ? onRemove : null}
                 exportData={{
                   filters
                 }}
@@ -259,6 +267,7 @@ export default class Card extends Component {
                   name: reportData.name,
                   desc: reportData.desc
                 }}
+                ownerId={ownerId}
                 getPopupContainer={() => document.querySelector(`.statisticsCard-${report.id} .header .ant-dropdown-open`)}
                 worksheetId={sourceType ? worksheetId : null}
                 onOpenSetting={permissions ? () => {
@@ -277,11 +286,6 @@ export default class Card extends Component {
                   });
                 }}
               />
-            )}
-            {permissions && (
-              <span data-tip={_l('拖拽')} className="iconItem">
-                <Icon icon="drag" />
-              </span>
             )}
           </div>
         </div>
@@ -311,7 +315,7 @@ export default class Card extends Component {
                 this.getData(reportId);
               }
             }}
-            onRemove={this.props.onRemove}
+            onRemove={onRemove}
           />
         )}
       </div>

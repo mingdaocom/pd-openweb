@@ -39,8 +39,8 @@
 }
 
 .cardContentBox {
-  box-shadow: 0 9px 12px -6px rgba(0, 0, 0, 0.2),
-    0 19px 29px 2px rgba(0, 0, 0, 0.14), 0 7px 36px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 9px 12px -6px rgba(0, 0, 0, 0.2), 0 19px 29px 2px rgba(0, 0, 0, 0.14),
+    0 7px 36px 6px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   background: #fff;
 }
@@ -78,6 +78,9 @@
 
 .useFadeIn {
   display: block;
+  @media screen and (max-width: 640px) {
+    display: none;
+  }
 }
 
 .useFadeOut {
@@ -152,7 +155,7 @@
   padding: 0;
   width: 85px;
   height: 17px;
-  background: url("../images/socre-logo-small.png") no-repeat;
+  background: url('../images/socre-logo-small.png') no-repeat;
   background-size: contain;
 }
 
@@ -184,7 +187,6 @@
 .cardContentDesc .contentTagItemCon .contentItemLeft {
   max-width: 100%;
 }
-
 
 .cardContentDesc .contentTagItem {
   display: block;

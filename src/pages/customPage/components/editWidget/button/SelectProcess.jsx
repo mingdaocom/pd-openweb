@@ -38,9 +38,11 @@ export default function SelectProcess(props) {
   useEffect(() => {
     if (_.get(btnSetting, ['config', 'text']) === 2 && _.isEmpty(processList)) {
       getList();
+      return;
     }
     if (_.get(btnSetting, ['action']) === 6 && _.isEmpty(processList)) {
       getList();
+      return;
     }
   }, [btnSetting.config, btnSetting.action]);
 

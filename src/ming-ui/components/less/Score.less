@@ -19,12 +19,27 @@
   }
   .StarScore-item {
     cursor: pointer;
-    margin-right: 2px;
+    margin-right: 3px;
     i {
       font-size: 16px;
     }
     &:last-child {
       margin-right: 0;
+    }
+  }
+  .mobileStyle {
+    flex: 1;
+    margin-right: 0;
+    text-align: center;
+  }
+  &.customScoreWrap {
+    display: flex;
+    align-items: center;
+    .text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

@@ -148,7 +148,7 @@ export default class CardMessage extends Component {
                     yesText: '',
                     noText: '',
                   }}
-                  readyFn={function(Comp) {
+                  readyFn={function (Comp) {
                     $('#chatFeedDialog_container').on('scroll', () => {
                       if (typeof $.fn.lazyload === 'function') {
                         $('#chatFeedDialog_container .lazy').lazyload();
@@ -228,9 +228,7 @@ export default class CardMessage extends Component {
             className="Message-cardSummary Message-cardItem-task"
             dangerouslySetInnerHTML={{ __html: htmlDecodeReg(cardDetails.summary) }}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
@@ -292,7 +290,7 @@ export default class CardMessage extends Component {
           <span>{_l('拥有者')}：</span>
           <div className="Message-cardItem-members">
             <div key={owner.accountId} className="Message-cardItem-charger">
-              <img src={`${window.config.AttrPath}${owner.avatar}?imageView2/1/w/100/h/100/q/100`} />
+              <img src={`${window.config.AttrPath}${owner.avatar}`} />
             </div>
           </div>
         </div>
@@ -325,9 +323,7 @@ export default class CardMessage extends Component {
             <i className="icon-ic_textsms_black" />
             <span>{commentCount}</span>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

@@ -78,8 +78,11 @@ function PendingReview(props) {
     setKeyWords,
     projectId,
     onChangePortalVersion,
+    setSortControls,
+    handleChangeSort,
+    setTelFilters,
   } = props;
-  const { roleList = [], controls = [], list, unApproveCount, pageIndex, keyWords, filters = [] } = portal;
+  const { roleList = [], controls = [], list, unApproveCount, pageIndex, keyWords, filters = [], telFilters } = portal;
   const [show, setShow] = useState(false);
   const [showPassDrop, setShowPassDrop] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -99,11 +102,13 @@ function PendingReview(props) {
     getInfo();
     setFilter([]);
     setKeyWords('');
+    setSortControls([]);
+    setTelFilters('');
   }, []);
   //筛选
   useEffect(() => {
     fetch();
-  }, [keyWords, filters]);
+  }, [keyWords, filters, telFilters]);
   const fetch = () => {
     if (loading) {
       return;
@@ -159,6 +164,7 @@ function PendingReview(props) {
             ...o,
             id: o.controlId,
             name: o.controlName,
+            sorter: [15, 16].includes(o.type),
             width: 120,
             render: (control, data) => {
               return <div className="ellipsis">{renderText({ ...o, value: data[o.controlId] })}</div>;
@@ -286,6 +292,9 @@ function PendingReview(props) {
           changePageIndex(pageIndex);
           getList(3);
           setSelectedIds([]);
+        }}
+        handleChangeSortHeader={sorter => {
+          handleChangeSort(sorter, 3);
         }}
       />
       {showPassDrop && (

@@ -35,7 +35,7 @@ export default class Container extends React.Component {
   };
 
   doAction = res => {
-    const { changeStep, step, registerData, setDataFn, defaultAccountVerifyNextAction } = this.props;
+    const { changeStep, step, registerData, onChangeData, defaultAccountVerifyNextAction } = this.props;
     const {
       password,
       emailOrTel,
@@ -244,7 +244,7 @@ export default class Container extends React.Component {
   };
 
   doCreateAccount = callback => {
-    const { changeStep, step, registerData, setDataFn, defaultAccountVerifyNextAction } = this.props;
+    const { changeStep, step, registerData, onChangeData, defaultAccountVerifyNextAction } = this.props;
     const { password, emailOrTel, verifyCode, confirmation, isLink, inviteFromType, TPParams, loginForAdd, dialCode } =
       registerData;
     RegisterController.createAccount({
@@ -286,7 +286,7 @@ export default class Container extends React.Component {
             ) {
               const { user = {} } = data;
               const { encrypeAccount, encrypePassword } = user;
-              setDataFn({
+              onChangeData({
                 ...registerData,
                 encrypeAccount,
                 encrypePassword,
@@ -297,19 +297,19 @@ export default class Container extends React.Component {
             callback();
           }
         } else if (data.actionResult == ActionResult.userAccountExists) {
-          setDataFn({
+          onChangeData({
             ...registerData,
             warnningData: [{ tipDom: '#txtMobilePhone', warnningText: _l('该号码已注册，您可以使用已有账号登录') }],
           });
         } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
           changeStep('inviteLinkExpirate');
         } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
-          setDataFn({
+          onChangeData({
             ...registerData,
             warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码错误'), isError: true }],
           });
         } else if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
-          setDataFn({
+          onChangeData({
             ...registerData,
             warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码已经失效，请重新发送'), isError: true }],
           });
@@ -322,12 +322,12 @@ export default class Container extends React.Component {
   };
 
   useOldAccountFn = () => {
-    const { registerData, setDataFn } = this.props;
+    const { registerData, onChangeData } = this.props;
     const { isLink, loginForAdd } = registerData;
     let request = getRequest();
     let returnUrl = request.ReturnUrl;
     if (isLink) {
-      setDataFn({
+      onChangeData({
         ...registerData,
         loginForAdd: !loginForAdd,
         warnningData: [],
@@ -342,7 +342,7 @@ export default class Container extends React.Component {
   };
 
   render() {
-    const { changeStep, step, registerData, setDataFn, defaultAccountVerifyNextAction } = this.props;
+    const { changeStep, step, registerData, onChangeData, defaultAccountVerifyNextAction } = this.props;
     const { inviteInfo = {}, confirmation, isLink, company = {}, loginForAdd, onlyRead } = registerData;
     const { companyName = '', titleStr } = company;
     const { createUserName = '' } = inviteInfo;
@@ -369,7 +369,7 @@ export default class Container extends React.Component {
               : ['tel', 'code', 'password']
           }
           dataList={_.cloneDeep(registerData)}
-          setDataFn={setDataFn}
+          onChangeData={onChangeData}
           nextHtml={isValid => {
             return (
               <React.Fragment>

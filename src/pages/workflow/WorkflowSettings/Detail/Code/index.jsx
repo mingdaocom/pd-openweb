@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, CustomTextarea, ParameterList } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
@@ -285,7 +285,7 @@ export default class Code extends Component {
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font14 Gray_75 workflowDetailDesc">
-                {data.actionId === TRIGGER_ID_TYPE.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
+                {data.actionId === ACTION_ID.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
               </div>
 
               <div className="Font13 bold mTop20">{_l('定义input对象')}</div>
@@ -293,7 +293,7 @@ export default class Code extends Component {
 
               <div className="Font13 bold mTop20">{_l('代码块')}</div>
               <div className="mTop5 Gray_9e">
-                {data.actionId === TRIGGER_ID_TYPE.JAVASCRIPT
+                {data.actionId === ACTION_ID.JAVASCRIPT
                   ? _l('Output 示例：output = {output: "hello world" };')
                   : _l("Output 示例：output = {'hello': 'world!'}")}
               </div>

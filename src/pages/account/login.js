@@ -272,7 +272,7 @@ class LoginContainer extends React.Component {
       openLDAP: this.state.openLDAP,
       loginData: this.state.loginData,
       isFrequentLoginError: this.state.isFrequentLoginError,
-      setDataFn: (data, callback) => {
+      onChangeData: (data, callback) => {
         this.setState(
           {
             loginData: {

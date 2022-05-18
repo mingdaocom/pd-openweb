@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
+import { checkSensitive } from 'src/api/fixedData.js';
 
 export default class SiteName extends Component {
   constructor(props) {
@@ -10,14 +11,14 @@ export default class SiteName extends Component {
       workSiteName: '',
     };
   }
-  
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       workSiteName: nextProps.workSiteId ? nextProps.workSiteName : '',
     });
     setTimeout(() => {
-      $(this.processName).focus()
-    }, 300)
+      $(this.processName).focus();
+    }, 300);
   }
 
   handleChange(e) {
@@ -26,22 +27,29 @@ export default class SiteName extends Component {
 
   handleOk() {
     if (this.state.workSiteName) {
-      const workFn = this.props.workSiteId ? 'updateWorkSiteName' : 'addWorkSite';
-      workSiteController[workFn]({
-        workSiteId: this.props.workSiteId,
-        workSiteName: $.trim(this.state.workSiteName),
-        projectId: this.props.projectId,
-      }).then(data => {
-        if (data === 1) {
-          alert(_l(`${this.dialogtype}成功`));
-          this.setState({
-            workSiteName: '',
-          });
-          this.props.updateValue(true);
-        } else if (data === 2) {
-          this.showMes(_l('此工作地点已存在'));
+      checkSensitive({ content: this.state.workSiteName }).then(res => {
+        if (res) {
+          this.showMes(_l('输入内容包含敏感词，请重新填写'));
+          return;
         } else {
-          alert(_l(`${this.dialogtype}失败`));
+          const workFn = this.props.workSiteId ? 'updateWorkSiteName' : 'addWorkSite';
+          workSiteController[workFn]({
+            workSiteId: this.props.workSiteId,
+            workSiteName: $.trim(this.state.workSiteName),
+            projectId: this.props.projectId,
+          }).then(data => {
+            if (data === 1) {
+              alert(_l(`${this.dialogtype}成功`));
+              this.setState({
+                workSiteName: '',
+              });
+              this.props.updateValue(true);
+            } else if (data === 2) {
+              this.showMes(_l('此工作地点已存在'));
+            } else {
+              alert(_l(`${this.dialogtype}失败`));
+            }
+          });
         }
       });
     } else {
@@ -50,13 +58,9 @@ export default class SiteName extends Component {
   }
 
   showMes(str) {
-    $('.existResult')
-      .fadeIn()
-      .html(str);
-    setTimeout(function() {
-      $('.existResult')
-        .fadeOut()
-        .html('');
+    $('.existResult').fadeIn().html(str);
+    setTimeout(function () {
+      $('.existResult').fadeOut().html('');
     }, 3000);
   }
 
@@ -72,9 +76,10 @@ export default class SiteName extends Component {
         onCancel={() => {
           this.props.updateValue();
         }}
-        onOk={() => this.handleOk()}>
+        onOk={() => this.handleOk()}
+      >
         <input
-          ref={(processName) => {
+          ref={processName => {
             this.processName = processName;
           }}
           onChange={e => this.handleChange(e)}

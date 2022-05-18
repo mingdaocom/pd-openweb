@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv } from 'ming-ui';
-import { APP_TYPE, TRIGGER_ID_TYPE } from '../../enum';
+import { APP_TYPE, ACTION_ID } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter } from '../components';
 import UpdateSheetRecord from './UpdateSheetRecord';
@@ -67,7 +67,7 @@ export default class Action extends Component {
       })
       .then(result => {
         this.updateSource({ controls: result }, () => {
-          if (data.actionId === TRIGGER_ID_TYPE.ADD) {
+          if (data.actionId === ACTION_ID.ADD) {
             this.changeFields(result);
           }
         });
@@ -103,10 +103,10 @@ export default class Action extends Component {
     } = data;
     let hasError = false;
 
-    if (actionId === TRIGGER_ID_TYPE.ADD && !appId) {
+    if (actionId === ACTION_ID.ADD && !appId) {
       alert(_l('必须先选择一个工作表'), 2);
       return;
-    } else if (actionId !== TRIGGER_ID_TYPE.ADD && !selectNodeId && appType !== APP_TYPE.PROCESS) {
+    } else if (actionId !== ACTION_ID.ADD && !selectNodeId && appType !== APP_TYPE.PROCESS) {
       alert(_l('必须先选择一个对象'), 2);
       return;
     }
@@ -121,7 +121,7 @@ export default class Action extends Component {
     }
 
     // 新增验证必填项
-    if (actionId === TRIGGER_ID_TYPE.ADD) {
+    if (actionId === ACTION_ID.ADD) {
       data.controls.forEach(item => {
         if (item.required) {
           fields.forEach(o => {
@@ -171,7 +171,7 @@ export default class Action extends Component {
     const { data, cacheKey } = this.state;
 
     // 新增工作表记录 || 创建任务
-    if (data.actionId === TRIGGER_ID_TYPE.ADD) {
+    if (data.actionId === ACTION_ID.ADD) {
       return (
         <CreateRecordAndTask
           key={cacheKey}
@@ -185,7 +185,7 @@ export default class Action extends Component {
     }
 
     // 修改工作表记录
-    if (data.actionId === TRIGGER_ID_TYPE.EDIT) {
+    if (data.actionId === ACTION_ID.EDIT) {
       return (
         <UpdateSheetRecord
           key={cacheKey}
@@ -198,7 +198,7 @@ export default class Action extends Component {
     }
 
     // 关联他表字段
-    if (data.actionId === TRIGGER_ID_TYPE.RELATION) {
+    if (data.actionId === ACTION_ID.RELATION) {
       return (
         <RelationFields
           key={cacheKey}
@@ -213,7 +213,7 @@ export default class Action extends Component {
     /**
      * 删除节点对象
      */
-    if (data.actionId === TRIGGER_ID_TYPE.DELETE) {
+    if (data.actionId === ACTION_ID.DELETE) {
       return <DeleteNodeObj data={data} SelectNodeObjectChange={this.SelectNodeObjectChange} />;
     }
   }
@@ -242,7 +242,7 @@ export default class Action extends Component {
           : [],
       },
       () => {
-        if (data.actionId !== TRIGGER_ID_TYPE.DELETE) {
+        if (data.actionId !== ACTION_ID.DELETE) {
           this.getAppTemplateControls(selectNodeId, selectNodeObj.appId);
         }
       },
@@ -284,7 +284,7 @@ export default class Action extends Component {
   getIcon = data => {
     const { appType, actionId } = data;
     const { TASK, PROCESS } = APP_TYPE;
-    const { EDIT, ADD, RELATION, DELETE } = TRIGGER_ID_TYPE;
+    const { EDIT, ADD, RELATION, DELETE } = ACTION_ID;
 
     if (appType === TASK) {
       return 'icon-custom_assignment';
@@ -330,13 +330,13 @@ export default class Action extends Component {
 
               {((!data.selectNodeId &&
                 !data.appId &&
-                data.actionId !== TRIGGER_ID_TYPE.DELETE &&
+                data.actionId !== ACTION_ID.DELETE &&
                 data.appType !== APP_TYPE.PROCESS) ||
-                (data.actionId === TRIGGER_ID_TYPE.EDIT &&
+                (data.actionId === ACTION_ID.EDIT &&
                   data.selectNodeId &&
                   !data.selectNodeObj.nodeName &&
                   !data.selectNodeObj.appName) ||
-                (data.actionId === TRIGGER_ID_TYPE.ADD &&
+                (data.actionId === ACTION_ID.ADD &&
                   ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
                 <div className="Gray_9e Font13 flexRow flowDetailTips">
                   <i className="icon-task-setting_promet Font16" />
@@ -344,7 +344,7 @@ export default class Action extends Component {
                 </div>
               )}
 
-              {data.actionId === TRIGGER_ID_TYPE.EDIT &&
+              {data.actionId === ACTION_ID.EDIT &&
                 data.selectNodeId &&
                 data.selectNodeObj.nodeName &&
                 !data.selectNodeObj.appName && (
@@ -366,10 +366,10 @@ export default class Action extends Component {
         </div>
         <DetailFooter
           isCorrect={
-            (data.actionId === TRIGGER_ID_TYPE.ADD && data.appId) ||
-            ((data.actionId === TRIGGER_ID_TYPE.EDIT ||
-              data.actionId === TRIGGER_ID_TYPE.DELETE ||
-              data.actionId === TRIGGER_ID_TYPE.RELATION) &&
+            (data.actionId === ACTION_ID.ADD && data.appId) ||
+            ((data.actionId === ACTION_ID.EDIT ||
+              data.actionId === ACTION_ID.DELETE ||
+              data.actionId === ACTION_ID.RELATION) &&
               data.selectNodeId) ||
             data.appType === APP_TYPE.PROCESS
           }

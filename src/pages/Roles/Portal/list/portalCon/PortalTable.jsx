@@ -113,7 +113,6 @@ const Wrap = styled.div`
 
 function PorTalTable(props) {
   const [pageSize, setPageSize] = useState(props.pageSize || 10);
-  const [currentData, setCurrentData] = useState([]);
   const { onOk, type, clickRow, portal, noShowCheck, scrolly } = props;
   const [listCell, setList] = useState([]);
   const [columnsCell, setColumns] = useState([]);
@@ -169,6 +168,10 @@ function PorTalTable(props) {
             x: props.width - 1,
             //  y: listCell.length <= 0 ? false : scrolly || 'calc(100vh - 550px)'
           }}
+          showSorterTooltip={false}
+          onChange={(pagination, filters, sorter) => {
+            props.handleChangeSortHeader(sorter);
+          }}
           onRow={data => {
             return {
               onClick: event => {
@@ -192,11 +195,11 @@ function PorTalTable(props) {
         />
       </ConfigProvider>
       {type !== 2 && //角色不分页
-        props.total > pageSize && (
+        props.portal.count > pageSize && (
           <Pagination
             showSizeChanger={false}
             pageSize={pageSize}
-            total={props.total}
+            total={props.portal.count}
             current={props.pageIndex}
             onChange={data => {
               props.changePage(data);

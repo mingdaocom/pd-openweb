@@ -159,6 +159,7 @@ html {
   background: #fff;
   padding: 48px 32px 48px 40px;
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+  flex: 1.5;
 
   .w32 {
     flex: 32;
@@ -220,7 +221,7 @@ html {
   }
   .moreOptionTrigger {
     position: absolute;
-    left: 20px;
+    right: 10px;
     top: 20px;
     width: 150px;
     z-index: 1;
@@ -235,7 +236,7 @@ html {
       display: inline-block;
       vertical-align: bottom;
       height: 36px;
-      padding-left: 10px;
+      padding-left: 16px;
       white-space: nowrap;
       text-decoration: none;
       text-overflow: ellipsis;
@@ -244,7 +245,7 @@ html {
       transition: none;
       cursor: pointer;
       &:hover {
-        color: #fff;
+        color: #fff !important;
         background-color: #1e88e5;
       }
     }
@@ -273,6 +274,7 @@ html {
   padding: 48px 40px 48px 32px;
   overflow-x: auto;
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
+  flex: 1;
 
   .react-json-view {
     background: transparent !important;

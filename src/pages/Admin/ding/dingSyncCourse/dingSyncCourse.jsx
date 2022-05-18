@@ -430,7 +430,7 @@ export default class DingSyncCourse extends React.Component {
               {_l('因企业微信规则调整，新的对接方案正在开发，支持线下完成对接。')}
             </p>
             <p className="Font14 mBottom30 Gray_75 LineHeight22">
-              {_l('您可以在线咨询客服或者电话咨询客服，联系电话：010-53153053')}
+              {_l('您可以在线咨询客服或者电话咨询客服，联系电话：400-665-6655')}
             </p>
             <Button
               type="primary"

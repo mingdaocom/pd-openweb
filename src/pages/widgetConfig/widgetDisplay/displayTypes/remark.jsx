@@ -8,7 +8,7 @@ const Text = styled.div`
 `;
 export default function Remark({ data }) {
   return data.dataSource ? (
-    <RichText className="remarkControl" data={data.dataSource} disabled={true} />
+    <RichText className="remarkControl" data={data.dataSource} disabled={true} renderByHtml={true}/>
   ) : (
     <Text>{_l('在此添加 注意事项 或 填写要求 等，来指导使用者(或填写者)正确地操作')}</Text>
   );

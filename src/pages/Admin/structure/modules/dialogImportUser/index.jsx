@@ -37,7 +37,7 @@ export default class ImportUser extends Component {
         },
       ],
       init: {
-        BeforeUpload: function (up, file) {
+        BeforeUpload: function(up, file) {
           // 导入过程进行锁定，文件上传功能失效
           if (isUploading) {
             up.stop();
@@ -63,6 +63,13 @@ export default class ImportUser extends Component {
           });
           isUploading = false;
         },
+        Error(up, error) {
+          if (error.code === window.plupload.FILE_SIZE_ERROR) {
+            alert(_l('单个文件大小超过4mb，无法支持上传'), 2);
+          } else {
+            alert(_l('上传失败，请稍后再试。'), 2);
+          }
+        }
       },
     });
   }
@@ -104,7 +111,7 @@ export default class ImportUser extends Component {
       }).fail()
     };
 
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.staticglobal.getCaptchaType()=== 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
@@ -149,66 +156,45 @@ export default class ImportUser extends Component {
         </div>
       );
     } else if (actionResult === 1) {
-      return (
-        <div className="uploadUserResult">
-          <span className="color_gr Font56 icon-check_circle"></span>
-          <span className="Font24 color_b mTop35">{_l('成功导入 %0 人', successCount || 0)}</span>
-          <span className="color_g mTop16">{_l('成功导入的成员可直接登录使用')}</span>
-          <div className="color_r mTop16 errorMesaage">{this.renderErrorContent()}</div>
-          <button
-            type="button"
-            className="ming Button Button--primary uploadBtn"
-            onClick={this.handleChangeShow.bind(this)}
-          >
-            {_l('重新上传')}
-          </button>
-        </div>
-      );
-    }
-  }
-
-  renderErrorContent() {
-    const { resultDetail = {} } = this.state;
-    let tips = [];
-    // 数据格式错误信息
-    if (resultDetail.invalidMessages && resultDetail.invalidMessages.length) {
-      for (let i = 0; i < resultDetail.invalidMessages.length; i++) {
-        tips.push(<div>{resultDetail.invalidMessages[i]}</div>);
+      if (!failCount) {
+        return (
+          <div className="uploadUserResult">
+            <span className="color_gr Font56 icon-check_circle"></span>
+            <span className="Font24 color_b mTop35">{_l('成功导入 %0 人', successCount || 0)}</span>
+            <span className="color_g mTop16">{_l('成功导入的成员可直接登录使用')}</span>
+            <button
+              type="button"
+              className="ming Button Button--primary uploadBtn"
+              onClick={() => this.props.closeDialog()}
+            >
+              {_l('完成')}
+            </button>
+          </div>
+        );
+      } else {
+        return (
+          <div className="uploadUserResult">
+            <span className="color_blue Font56 icon-info"></span>
+            <span className="Font24 color_b">
+              {_l('成功导入 %0 人, 失败 ', successCount || 0)}
+              <span className="color_r">{failCount}</span>
+              {_l(' 人')}
+            </span>
+            <span className="color_g mTop16">{_l('成功导入的成员可以收到邀请链接')}</span>
+            <button
+              type="button"
+              className="ming Button Button--primary uploadBtn"
+              onClick={this.handleChangeShow.bind(this)}
+            >
+              {_l('重新上传')}
+            </button>
+            {/* <button type="button" className="ming Button Button--link ThemeColor3 Font12 mTop30">
+                {_l('查看失败列表')}
+              </button> */}
+          </div>
+        );
       }
-      tips.push(<br />);
     }
-
-    // 已存在的用户
-    if (resultDetail.existsUsers && resultDetail.existsUsers.length) {
-      tips.push(<div>以下用户已存在（含离职）：</div>);
-      for (let i = 0; i < resultDetail.existsUsers.length; i++) {
-        let user = resultDetail.existsUsers[i];
-        tips.push(<div>{user.account}/{user.fullname}</div>);
-      }
-      tips.push(<br />);
-    }
-
-    // 禁止导入的用户
-    if (resultDetail.forbidUsers && resultDetail.forbidUsers.length) {
-      tips.push(<div>以下用户禁止导入：</div>);
-      for (let i = 0; i < resultDetail.forbidUsers.length; i++) {
-        let user = resultDetail.forbidUsers[i];
-        tips.push(<div>{user.account}/{user.fullname}</div>);
-      }
-      tips.push(<br />);
-    }
-
-    // 失败的用户
-    if (resultDetail.failUsers && resultDetail.failUsers.length) {
-      tips.push(<div>以下用户导入失败：</div>);
-      for (let i = 0; i < resultDetail.failUsers.length; i++) {
-        let user = resultDetail.failUsers[i];
-        tips.push(<div>{user.account}/{user.fullname}</div>);
-      }
-      tips.push(<br />);
-    }
-
-    return tips;
   }
 
   render() {

@@ -114,10 +114,11 @@ export default class TriggerCondition extends Component {
    * 渲染单个条件
    */
   renderItem(item, i, j, hasOr, hasAnd) {
-    const { singleCondition } = this.props;
+    const { singleCondition, controls, isNodeHeader } = this.props;
     let controlNumber;
     let conditionData = [];
     let conditionIndex;
+    let single;
     const switchConditionId = id => {
       switch (id) {
         case '15':
@@ -130,6 +131,18 @@ export default class TriggerCondition extends Component {
           return '39';
       }
     };
+
+    if (isNodeHeader) {
+      controls.forEach(obj => {
+        if (obj.nodeId === item.nodeId) {
+          single = _.find(obj.controls, o => o.controlId === item.filedId);
+        }
+      });
+    } else {
+      single = _.find(controls, o => o.controlId === item.filedId);
+    }
+
+    const showType = _.get(single || {}, 'advancedSetting.showtype');
 
     if (item.filedId) {
       conditionData = getConditionList(item.filedTypeId, item.enumDefault).ids.map((id, index) => {
@@ -148,7 +161,7 @@ export default class TriggerCondition extends Component {
         }
 
         return {
-          text: CONDITION_TYPE[id],
+          text: _.includes(['29', '30'], id) ? CONDITION_TYPE[id][showType] : CONDITION_TYPE[id],
           value: id,
         };
       });
@@ -180,7 +193,11 @@ export default class TriggerCondition extends Component {
             disabled={!item.filedId}
             renderTitle={() =>
               item.conditionId && (
-                <span>{CONDITION_TYPE[item.conditionId] + (typeof conditionIndex === 'number' ? '*' : '')}</span>
+                <span>
+                  {(_.includes(['29', '30'], item.conditionId)
+                    ? CONDITION_TYPE[item.conditionId][showType]
+                    : CONDITION_TYPE[item.conditionId]) + (typeof conditionIndex === 'number' ? '*' : '')}
+                </span>
               )
             }
             onChange={conditionId => this.switchCondition(conditionId, i, j)}

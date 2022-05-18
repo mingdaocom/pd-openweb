@@ -554,12 +554,19 @@ export default class UploadTemplateSheet extends React.Component {
             <p className="Gray_75">
               <span>
                 {_l(
-                  '7. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。',
+                  '7. 打印的二维码默认所有人可扫码查看，若需控制仅限应用内部成员查看，可将二维码字段代码设置为“#{二维码$[20*20]$_Private}”，用户扫码后需登录并且根据权限才能访问。',
                 )}
               </span>
             </p>
             <p className="Gray_75">
-              8. <span className="urlForTel">{_l('下载系统模板')}</span>
+              <span>
+                {_l(
+                  '8. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。',
+                )}
+              </span>
+            </p>
+            <p className="Gray_75">
+              9. <span className="urlForTel">{_l('下载系统模板')}</span>
               <span>
                 {_l('作为参考范例、查看了解具体如何制作打印模板。')}
                 <Support type={3} href="https://help.mingdao.com/operation17.html" text={_l('帮助')} />

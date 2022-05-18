@@ -98,13 +98,16 @@ const inviteCallback = (data, callback, copyText) => {
   } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
     alert(_l('超过%0数量限制', text), 3);
   } else {
-    const { failUsers, successUsers, existsUsers, forbidUsers } = data;
-    if (failUsers) {
+    const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
+    if (failUsers && failUsers.length) {
       alert(_l('%0失败', text), 2);
-    } else if (successUsers) {
+    } else if (successUsers || successCount) {
       copyText && copy(copyText);
       copyText ? alert(_l('创建成功, 账号密码已复制'), 1) : alert(_l('邀请成功'), 1);
-      callback();
+
+      if (!isClear) {
+        callback();
+      }
     } else if (existsUsers) {
       alert(_l('手机号/邮箱已存在'), 2);
     } else if (forbidUsers) {

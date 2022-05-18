@@ -371,7 +371,11 @@ export default class UploadFiles extends Component {
               }
             } catch (error) { }
           }
-          alert(_l('上传失败'), 2);
+          if (error.code === window.plupload.FILE_SIZE_ERROR) {
+            alert(_l('单个文件大小超过%0mb，无法支持上传', maxTotalSize), 2);
+          } else {
+            alert(_l('上传失败，请稍后再试。'), 2);
+          }
         },
       },
     });

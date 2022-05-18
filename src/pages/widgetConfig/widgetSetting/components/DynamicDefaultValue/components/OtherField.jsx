@@ -4,7 +4,7 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import { getControlType, getControls } from '../util';
 import { OtherFieldWrap } from '../styled';
-import { SYSTEM_FIELD_TO_TEXT } from '../config';
+import { SYSTEM_FIELD_TO_TEXT, USER_LIST, SYSTEM_LIST, CURRENT_TYPES } from '../config';
 
 export default function OtherField(props) {
   const {
@@ -27,6 +27,31 @@ export default function OtherField(props) {
 
   const getFieldName = (controls, fieldId) => {
     if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
+    if (
+      _.includes(
+        [
+          'userId',
+          'phone',
+          'email',
+          'projectId',
+          'appId',
+          'groupId',
+          'worksheetId',
+          'viewId',
+          'recordId',
+          'ua',
+          'timestamp',
+          'user-self',
+        ],
+        fieldId,
+      )
+    ) {
+      const formatList = _.flatten(Object.values(CURRENT_TYPES));
+      return _.get(
+        _.find(USER_LIST.concat(SYSTEM_LIST, formatList), i => i.id === fieldId),
+        'text',
+      );
+    }
     return (
       _.get(
         _.find(controls, item => _.includes([item.controlId, item.id], fieldId)),
@@ -64,6 +89,26 @@ export default function OtherField(props) {
     const { cid, rcid } = item;
     const isFieldNotInControls = (controls, cid) => {
       if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], cid)) return false;
+      if (
+        _.includes(
+          [
+            'userId',
+            'phone',
+            'email',
+            'projectId',
+            'appId',
+            'groupId',
+            'worksheetId',
+            'viewId',
+            'recordId',
+            'ua',
+            'timestamp',
+            'user-self',
+          ],
+          cid,
+        )
+      )
+        return false;
       return !_.some(controls, item => _.includes([item.controlId, item.id], cid));
     };
     if (rcid) {

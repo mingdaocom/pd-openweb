@@ -107,10 +107,11 @@ export default class MDMap extends Component {
   compareDistance(lng, lat) {
     const { distance } = this.props;
     const { defaultLocation } = this.state;
+    const position = (defaultLocation || {}).position || {};
 
     if (!distance) return true;
 
-    const lngLat = new AMap.LngLat(defaultLocation.position.lng, defaultLocation.position.lat);
+    const lngLat = new AMap.LngLat(position.lng || '', position.lat || '');
     const myDistance = lngLat.distance([lng, lat]);
 
     if (myDistance < distance) {

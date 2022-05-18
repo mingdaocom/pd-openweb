@@ -122,17 +122,7 @@ export default function RowHead(props) {
               }}
             />
           ) : (
-            <div
-              className="deleteRowIcon"
-              key="deleteRowIcon"
-              onClick={() => {
-                Dialog.confirm({
-                  title: _l('是否删除此条记录'),
-                  buttonType: 'danger',
-                  onOk: () => deleteRelateRow(row.rowid),
-                });
-              }}
-            >
+            <div className="deleteRowIcon" key="deleteRowIcon" onClick={() => setConfirmVisible(true)}>
               <i className="icon icon-close deleteRow Font18 Hand"></i>
             </div>
           ))}

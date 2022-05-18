@@ -18,6 +18,7 @@ import RichText from './RichText';
 import Date from './Date';
 import User from './User';
 import Options from './Options';
+import OptionSteps from './OptionSteps';
 import Department from './Department';
 import Level from './Level';
 import Relation from './Relation';
@@ -27,6 +28,7 @@ import Signature from './Signature';
 import Switch from './Switch';
 import MobilePhone from './MobilePhone';
 import Cascader from './Cascader';
+import NumberSlider from './NumberSlider';
 
 import './CellControls.less';
 
@@ -290,6 +292,7 @@ export default class CellControl extends React.Component {
       formdata,
       masterData,
       from,
+      mode,
       rowHeight,
       popupContainer,
       projectId,
@@ -368,6 +371,7 @@ export default class CellControl extends React.Component {
       formdata,
       masterData,
       from: from,
+      mode,
       tableFromModule,
       isediting,
       error,
@@ -397,10 +401,16 @@ export default class CellControl extends React.Component {
       if (cell.type === 3) {
         return <MobilePhone {...props} />;
       }
+      if (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2') {
+        return <NumberSlider {...props} />;
+      }
       return <Text {...props} needLineLimit={needLineLimit} />;
     }
-    if (_.includes([9, 10, 11], cell.type)) {
+    if (_.includes([9, 10, 11], cell.type) && cell.advancedSetting.showtype !== '2') {
       return <Options {...props} />;
+    }
+    if (_.includes([9, 10, 11], cell.type) && cell.advancedSetting.showtype === '2') {
+      return <OptionSteps {...props} />;
     }
     if (cell.type === 28) {
       return <Level {...props} />;

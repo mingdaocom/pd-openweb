@@ -3,12 +3,12 @@ import { params, projectId } from '../../config';
 import { COMPANY_DEPARMENTID } from '../constant';
 
 const initialState = () => {
-  let typeCursor = 0
-  if(location.href.indexOf('admin/approve') > -1) {
-    typeCursor = 3
+  let typeCursor = 0;
+  if (location.href.indexOf('admin/approve') > -1) {
+    typeCursor = 3;
   }
-  if(params && params[3] === 'uncursor') {
-    typeCursor = 2
+  if (params && params[3] === 'uncursor') {
+    typeCursor = 2;
   }
   return {
     projectId,
@@ -43,7 +43,7 @@ const updateUserSet = (state, action) => {
 };
 
 export default (state = initialState(), action) => {
-  const { departmentId, type, accountId, typeNum, typeCursor, isSelectAll } = action;
+  const { departmentId, type, accountId, typeNum, typeCursor, isSelectAll, selectedAccountIds } = action;
   switch (type) {
     case 'PROJECT_ID_CHANGED':
       return initialState();
@@ -113,6 +113,11 @@ export default (state = initialState(), action) => {
       return {
         ...state,
         autoShow: false,
+      };
+    case 'UPDATE_SELECTED_ACCOUNTIDS':
+      return {
+        ...state,
+        selectedAccountIds,
       };
     default:
       return state;

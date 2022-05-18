@@ -10,7 +10,7 @@ import {
   getChartColors
 } from './common';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 
 const formatChartData = (data, yaxisList) => {
   const result = [];
@@ -76,12 +76,13 @@ export default class extends Component {
   handleClick = ({ data, gEvent }) => {
     const { xaxes, split } = this.props.reportData;
     const currentData = data.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: isNumber ? Number(currentData.name) : currentData.name
     }
     if (split.controlId) {
-      param[split.cid] = currentData.groupKey;
+      const isNumber = isFormatNumber(split.controlType);
+      param[split.cid] = isNumber ? Number(currentData.groupKey) : currentData.groupKey;
     }
     this.setState({
       dropdownVisible: true,
@@ -228,7 +229,7 @@ export default class extends Component {
                 key={index}
                 onClick={() => {
                   const { xaxes, split } = this.props.reportData;
-                  const isNumber = isNumberControl(xaxes.controlType);
+                  const isNumber = isFormatNumber(xaxes.controlType);
                   const param = {
                     [xaxes.cid]: isNumber ? Number(item.name) : item.name
                   }

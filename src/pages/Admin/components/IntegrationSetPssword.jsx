@@ -134,7 +134,7 @@ export default class IntegrationSetPssword extends Component {
               <Button type="primary" onClick={this.savePassword}>
                 {_l('保存')}
               </Button>
-              {this.state.passwordError && <div className="passwordErrorTxt">{passwordRegexTip}</div>}
+              {this.state.passwordError && <div className="passwordErrorTxt">{passwordRegexTip || _l('8-20位，需包含字母和数字')}</div>}
             </div>
           )}
         </div>

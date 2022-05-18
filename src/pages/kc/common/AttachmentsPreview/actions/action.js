@@ -273,7 +273,7 @@ export function loading() {
 
 export function error() {
   return {
-    type: ACTION_TYPES.ERROR,
+    type: 'FILE_PREVIEW_ERROR',
     error: true,
   };
 }

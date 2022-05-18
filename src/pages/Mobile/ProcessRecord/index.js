@@ -20,6 +20,8 @@ import Back from '../components/Back';
 import RecordAction from 'src/pages/Mobile/Record/RecordAction';
 import ChatCount from '../components/ChatCount';
 import { renderCellText } from 'worksheet/components/CellControls';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import {
   ACTION_TYPES,
   ACTION_LIST,
@@ -66,6 +68,7 @@ class ProcessRecord extends Component {
   operrationRef = React.createRef();
   componentDidMount() {
     const { params } = this.props.match;
+    const { appId } = this.props.base;
     worksheetAjax
       .getWorkItem({
         instanceId: params.instanceId,
@@ -87,6 +90,16 @@ class ProcessRecord extends Component {
             this.loadRow();
           },
         );
+        worksheetAjax
+          .getSwitchPermit({
+            appId,
+            worksheetId,
+          })
+          .then(res => {
+            this.setState({
+              switchPermit: res,
+            });
+          });
       })
       .fail(error => {
         this.setState({ isError: true, loading: false });
@@ -556,7 +569,7 @@ class ProcessRecord extends Component {
             appId={app.id}
             ref={this.customwidget}
             projectId={sheetRow.projectId}
-            disabled={sheetRow.allowEdit ? !_.isEmpty(viewId) && !isEdit : false}
+            disabled={sheetRow.allowEdit ? !_.isEmpty(viewId) && !isEdit : true}
             recordCreateTime={sheetRow.createTime}
             recordId={rowId}
             worksheetId={worksheetId}
@@ -641,7 +654,7 @@ class ProcessRecord extends Component {
     );
   }
   renderContent() {
-    const { viewId, sheetRow, instance, rowId, worksheetId, currentTab, isEdit } = this.state;
+    const { viewId, sheetRow, instance, rowId, worksheetId, currentTab, isEdit, switchPermit = [] } = this.state;
     const { relationRow, base = {} } = this.props;
     const { appId } = base;
     const { operationTypeList, flowNode, backFlowNodes, app } = instance;
@@ -729,9 +742,17 @@ class ProcessRecord extends Component {
           onClick={() => {
             history.back();
           }}
-          style={{ bottom: '105px' }}
+          style={{
+            bottom: !(
+              isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) &&
+              (!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink))
+            )
+              ? '60px'
+              : '105px',
+          }}
         />
-        {(!_.isEmpty(newOperationTypeList) || !(isWxWork || isWeLink)) && (
+        {((isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) && !_.isEmpty(newOperationTypeList)) ||
+          !(isWxWork || isWeLink)) && (
           <ChatCount
             worksheetId={worksheetId}
             rowId={rowId}

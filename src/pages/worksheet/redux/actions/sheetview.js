@@ -11,14 +11,11 @@ import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig
 import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig } from 'worksheet/util';
 import { wrapAjax } from './util';
 import { getNavGroupCount } from './index';
-const wrappedGetFilterRows = wrapAjax(getFilterRows);
-const wrappedGetFilterRowsTotalNum = wrapAjax(getFilterRowsTotalNum);
-const wrappedGetFilterRowsReport = wrapAjax(getFilterRowsReport);
 
 export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId, chartId, showAsSheetView } = base;
+    const { appId, viewId, worksheetId, maxCount, chartId, showAsSheetView } = base;
     let { pageSize, pageIndex, sortControls } = sheetview.sheetFetchParams;
     if (changeView) {
       pageIndex = 1;
@@ -51,6 +48,10 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
       navGroupFilters,
       ...(showAsSheetView ? { getType: 0 } : {}),
     };
+    if (maxCount) {
+      args.pageIndex = 1;
+      args.pageSize = maxCount;
+    }
     if (changeView || isFirst) {
       dispatch(setViewLayout(viewId));
     }
@@ -61,7 +62,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
       },
     });
     dispatch(getWorksheetSheetViewSummary());
-    wrappedGetFilterRows(args).then(res => {
+    getFilterRows(args).then(res => {
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
         rows: res.data,
@@ -75,7 +76,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
       }
     });
     if (pageIndex === 1 && !chartId) {
-      wrappedGetFilterRowsTotalNum(args).then(data => {
+      getFilterRowsTotalNum(args).then(data => {
         const count = parseInt(data, 10);
         if (!_.isNaN(count)) {
           dispatch({
@@ -465,7 +466,7 @@ export function getWorksheetSheetViewSummary() {
     if (!columnRpts.length) {
       return;
     }
-    wrappedGetFilterRowsReport({
+    getFilterRowsReport({
       appId,
       viewId,
       worksheetId,

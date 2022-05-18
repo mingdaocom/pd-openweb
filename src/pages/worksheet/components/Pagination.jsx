@@ -15,7 +15,8 @@ const NoData = styled.div`
   line-height: 28px;
 `;
 const PageNum = styled.span`
-  padding: 6px 15px;
+  padding: 6px 8px;
+  margin: 0 8px;
   border-radius: 3px;
   cursor: pointer;
   &:hover {
@@ -216,8 +217,15 @@ export default class Pagination extends React.Component {
   }
 
   render() {
-    const { className = '', pageIndex, allCount, onPrev, onNext } = this.props;
+    const { className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
     const { popupVisible } = this.state;
+    if (maxCount) {
+      return (
+        <Con className={className}>
+          <NoData>{_l('共%0行', allCount > maxCount ? maxCount : allCount)}</NoData>
+        </Con>
+      );
+    }
     if (!allCount) {
       return (
         <Con className={className}>

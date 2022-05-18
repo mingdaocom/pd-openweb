@@ -59,10 +59,10 @@
     }
     .customFormControlBox {
       border-color: #e0e0e0 !important;
-      &:not(.formBoxNoBorder):not(.relateRecord) {
+      &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-right: 12px !important;
       }
-      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord) {
+      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -360,6 +360,42 @@
           animation: rotate 2s linear infinite;
         }
       }
+      &.customFormSwitchColumn {
+        height: auto;
+        .customFormCheck {
+          flex-wrap: wrap;
+          label.Radio {
+            max-width: 100%;
+            margin-top: 6px;
+            margin-bottom: 6px;
+          }
+        }
+      }
+      .mobileFormSwitchDisabled {
+        opacity: 0.4;
+        &.ming.Switch--off {
+          background-color: #ccc !important;
+        }
+        &.ming.Switch--on {
+          background: #01ca83 !important;
+        }
+      }
+      &.customFormControlSwitch,
+      &.customFormControlScore {
+        background: none !important;
+        border: none !important;
+        padding-left: 0 !important;
+      }
+    }
+
+    &.richTextDisabledControl {
+      .ck .ck-content {
+        min-height: 36px !important;
+      }
+    }
+
+    .textAreaDisabledControl {
+      min-height: 36px !important;
     }
 
     .customFormTextareaBox {
@@ -423,11 +459,45 @@
     }
 
     .customFormCheck {
-      display: inline-block;
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      label.Radio {
+        display: inline-block;
+        max-width: 50%;
+        margin-right: 0;
+        padding-right: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       .Checkbox-box {
         margin-right: 0;
       }
+      &.mobileCustomFormRadio {
+        label.Radio {
+          max-width: 100%;
+          white-space: inherit;
+          padding-right: 0;
+          margin-right: 10px;
+        }
+        label {
+          .Radio-box--middle {
+            display: inline-block;
+          }
+          .Radio-text {
+            vertical-align: top;
+            width: (calc(~'100% - 28px'));
+            display: inline-block;
+          }
+        }
+      }
+      // .mobileDisableChaeckRadio{
+      //   overflow: hidden;
+      //   white-space: nowrap;
+      //   text-overflow: ellipsis;
+      // }
     }
 
     .customFormReadonly {
@@ -442,8 +512,6 @@
 
     .Score-wrapper {
       .StarScore-item {
-        margin-right: 5px;
-
         i {
           font-size: 20px;
         }

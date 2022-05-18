@@ -49,4 +49,5 @@ export const MODULE_TYPE_TO_NAME = {
   printTemplate: _l('打印模板'),
   functionalSwitch: _l('功能开关'),
   customBtn: _l('自定义动作'),
+  indexSetting: _l('检索加速'),
 };

@@ -33,6 +33,7 @@ export default class PrintQrCode extends Component {
       customText: _l('扫描二维码查看'),
       printColumns: [titleControl],
       isGenerating: false,
+      shareType: 1,
     };
   }
 
@@ -85,15 +86,16 @@ export default class PrintQrCode extends Component {
   }
   @autobind
   handlePrint() {
-    const { selectedRows, worksheetName, columns } = this.props;
-    const { printType, layoutType, printColumns, customText } = this.state;
+    const _this = this;
+    const { appId, worksheetId, viewId, selectedRows, worksheetName, columns } = this.props;
+    const { printType, layoutType, shareType, printColumns, customText } = this.state;
     const { maxColumnLength } = this;
     this.setState({
       isGenerating: true,
     });
-    this.getShortUrl(urls => {
-      const qrs = selectedRows.map(data => ({
-        url: urls[data.rowid] || '/404',
+    function execute(urls) {
+      const qrs = selectedRows.map((data, i) => ({
+        url: urls[data.rowid] || urls[i] || '/404',
         texts: printColumns
           .slice(0, maxColumnLength)
           .map(column => {
@@ -104,12 +106,17 @@ export default class PrintQrCode extends Component {
       renderQr(printType, layoutType, qrs, {
         worksheetName,
         cb: () => {
-          this.setState({
+          _this.setState({
             isGenerating: false,
           });
         },
       });
-    });
+    }
+    if (shareType === 1) {
+      this.getShortUrl(execute);
+    } else {
+      execute(selectedRows.map(r => `${location.origin}/app/${appId}/${worksheetId}/row/${r.rowid}`));
+    }
   }
   getSizeData(type) {
     return type === PRINT_TYPE.A4
@@ -176,7 +183,7 @@ export default class PrintQrCode extends Component {
   }
   render() {
     const { columns, visible, onHide } = this.props;
-    const { isGenerating, layoutType, printColumns, printType, customText } = this.state;
+    const { isGenerating, layoutType, shareType, printColumns, printType, customText } = this.state;
     const { maxColumnLength } = this;
     const titleControl = columns.filter(column => column.attribute)[0];
     return (
@@ -277,6 +284,32 @@ export default class PrintQrCode extends Component {
                   defaultValue={customText}
                   onChange={value => {
                     this.setState({ customText: value });
+                  }}
+                />
+              </div>
+            </div>
+            <div className="configItem">
+              <div className="itemLabel">{_l('二维码权限')}</div>
+              <div className="itemContent">
+                <Dropdown
+                  data={[
+                    {
+                      text: _l('公开分享'),
+                      value: 1,
+                    },
+                    {
+                      text: _l('仅限应用成员访问'),
+                      value: 2,
+                    },
+                  ]}
+                  style={{
+                    width: '100%',
+                  }}
+                  isAppendToBody
+                  border
+                  value={shareType}
+                  onChange={v => {
+                    this.setState({ shareType: v });
                   }}
                 />
               </div>

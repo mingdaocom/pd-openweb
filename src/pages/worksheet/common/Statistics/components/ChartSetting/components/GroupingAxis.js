@@ -96,17 +96,30 @@ export default class GroupingAxis extends Component {
     );
   }
   renderAxis(item) {
-    const { axisControls, split } = this.props;
-    const axis = _.find(axisControls, { controlId: split.controlId }) || {};
-    const isTime = isTimeControl(axis.type);
-    const isArea = isAreaControl(axis.type);
+    const { split, axisControls, allControls } = this.props;
+    const axis = _.find(axisControls, { controlId: split.controlId });
+    const control = _.find(allControls, { controlId: split.controlId }) || {};
+    const isTime = isTimeControl(split.controlType);
+    const isArea = isAreaControl(split.controlType);
     return (
       <div className="flexRow valignWrapper fidldItem">
-        <span className="Gray flex ellipsis">
-          {axis ? axis.controlName : _l('该控件不存在')}
-          {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
-          {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
-        </span>
+        {axis ? (
+          <span className="Gray flex ellipsis">
+            {axis.controlName}
+            {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
+            {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
+          </span>
+        ) : (
+          control.strDefault === '10' ? (
+            <span className="Red flex ellipsis">
+              {`${control.controlName} (${_l('无效类型')})`}
+            </span>
+          ) : (
+            <span className="Red flex ellipsis">
+              {_l('该控件不存在')}
+            </span>
+          )
+        )}
         {isTime && (
           <Dropdown overlay={this.renderTimeOverlay()} trigger={['click']}>
             <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />

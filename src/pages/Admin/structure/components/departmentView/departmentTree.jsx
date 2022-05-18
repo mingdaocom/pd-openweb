@@ -8,7 +8,6 @@ import departmentController from 'src/api/department'; //moveDepartment
 import DiaActionTree from './diaActionTree';
 import './departmentTree.less';
 import { getParentsId } from '../../modules/util';
-import _ from 'lodash';
 
 const loop = (data, key, callback) => {
   data.forEach((item, index, arr) => {

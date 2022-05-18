@@ -12,6 +12,7 @@ import {
   getDefaultOptions,
   getDefaultCheckedOption,
   parseOptionValue,
+  getAdvanceSetting,
   handleAdvancedSettingChange,
   getOptions,
 } from '../../../util/setting';
@@ -103,6 +104,7 @@ export default function SelectOptions(props) {
   const { type, controlName, controlId, strDefault, enumDefault, enumDefault2, options, dataSource } = data;
   const { appId } = globalSheetInfo;
   const colorful = enumDefault2 === 1;
+  const { showtype } = getAdvanceSetting(data);
 
   // 是新增控件
   const isNewControl = controlId.includes('-');
@@ -200,7 +202,7 @@ export default function SelectOptions(props) {
               ></i>
               <span>{_l('彩色')}</span>
             </div>
-            {!dataSource && (
+            {!dataSource && showtype !== '2' && (
               <div className="toOptionList flexCenter hoverText" onClick={toOptionList}>
                 <Icon icon="swap_horiz" />
                 <span>{_l('转为选项集')}</span>

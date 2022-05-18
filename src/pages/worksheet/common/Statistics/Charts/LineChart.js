@@ -12,7 +12,7 @@ import {
   getChartColors
 } from './common';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 
 const lastDateText = _l('上一期');
 
@@ -161,12 +161,13 @@ export default class extends Component {
     const { xaxes, split, displaySetup } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: contrastType ? currentData.name : (isNumber ? Number(currentData.originalId) : currentData.originalId)
     }
     if (split.controlId) {
-      param[split.cid] = currentData.groupKey;
+      const isNumber = isFormatNumber(split.controlType);
+      param[split.cid] = isNumber ? Number(currentData.groupKey) : currentData.groupKey;
     }
     this.setState({
       dropdownVisible: true,
@@ -233,7 +234,7 @@ export default class extends Component {
           nice: false,
         },
       },
-      connectNulls: true,
+      connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
       animation: true,
       legend: displaySetup.showLegend

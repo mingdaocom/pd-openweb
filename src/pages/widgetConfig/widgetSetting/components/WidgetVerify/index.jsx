@@ -83,7 +83,7 @@ export default function WidgetVerify(props) {
   const { type } = data;
   const Comp = CompConfig[type] || null;
   const settings = fromPortal ? TYPES_SETTING_PORTAL[type] || ['required'] : TYPES_SETTING[type] || ['required'];
-  const { max = '', min = '', checkrange = '0', allowweek = '', allowtime = '' } = getAdvanceSetting(data);
+  const { max = '', min = '', checkrange = '0', allowweek = '', allowtime = '', showtype } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
   return (
     <VerifySettingItem>
@@ -100,7 +100,7 @@ export default function WidgetVerify(props) {
             />
           </div>
         ))}
-        {_.includes([2, 6, 8, 10], type) && (
+        {(_.includes([2, 8, 10], type) || (type === 6 && showtype !== '1')) && (
           <div className="labelWrap">
             <Checkbox
               size="small"

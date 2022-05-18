@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 
 export default class PBC extends Component {
   constructor(props) {
@@ -13,7 +13,7 @@ export default class PBC extends Component {
    */
   renderContent() {
     const { item } = this.props;
-    const isPBCExport = item.actionId === TRIGGER_ID_TYPE.PBC_OUT;
+    const isPBCExport = item.actionId === ACTION_ID.PBC_OUT;
 
     if (!item.appId) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
@@ -53,7 +53,7 @@ export default class PBC extends Component {
 
   render() {
     const { item, disabled, selectNodeId, openDetail } = this.props;
-    const isPBCExport = item.actionId === TRIGGER_ID_TYPE.PBC_OUT;
+    const isPBCExport = item.actionId === ACTION_ID.PBC_OUT;
 
     return (
       <div className="flexColumn">

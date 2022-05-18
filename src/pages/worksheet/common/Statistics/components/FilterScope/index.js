@@ -16,7 +16,7 @@ const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20];
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo'])
+    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'base'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -58,6 +58,7 @@ export default class extends Component {
   }
   handleSave = () => {
     const { filter } = this.props.currentReport;
+    const { sheetVisible } = this.props.base;
     const { dropdownScopeValue, dropdownDayValue } = this.state;
     this.props.changeCurrentReport({
       filter: {
@@ -66,7 +67,9 @@ export default class extends Component {
         rangeValue: dropdownDayValue
       }
     }, true);
-    this.getTableData()
+    if (sheetVisible) {
+      this.getTableData();
+    }
   }
   renderScope() {
     const { currentReport } = this.props;

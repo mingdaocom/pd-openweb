@@ -37,7 +37,7 @@ export const getReportConfigDetail = (data, callBack) => {
     const { reportId, reportType, appId } = data;
     const { currentReport: oldReport, base } = getState().statistics;
     const { viewId, permissions } = base;
-    const isPublicShare = location.href.includes('public/chart') || location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
+    const isPublicShare = location.href.includes('public/chart') || location.href.includes('public/page') || window.shareAuthor;
 
     if (reportType) {
       dispatch({
@@ -118,7 +118,7 @@ export const getReportData = () => {
         }
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-          data: data
+          data: _.isEmpty(currentReport) ? data : currentReport
         });
       }
       dispatch({
@@ -211,9 +211,12 @@ export const getTableData = () => {
 
     const formatYaxisList = (data) => {
       const { yaxisList = [] } = data;
+      const leftYaxisList = reportData.yaxisList || [];
+      const rightYaxisList = _.get(reportData, ['rightY', 'yaxisList']) || [];
       if (yaxisList.length > 1) {
-        const { magnitude, ydot, suffix, dot } = yaxisList[0];
         yaxisList.forEach(item => {
+          const isRight = _.find(rightYaxisList, { controlId: item.controlId });
+          const { magnitude, ydot, suffix, dot } = isRight ? rightYaxisList[0] : leftYaxisList[0];
           item.magnitude = magnitude;
           item.ydot = ydot;
           item.suffix = suffix;
@@ -227,7 +230,7 @@ export const getTableData = () => {
       reportConfigAjax.getTableData(data, { fireImmediately: true }).then(result => {
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: result
+          data: formatYaxisList(result)
         });
       });
     } else {
@@ -235,6 +238,7 @@ export const getTableData = () => {
       const params = {
         reportId: report.id,
         version: data.version,
+        reload: true,
         filters: []
       }
       if (!_.isEmpty(filters)) {
@@ -261,7 +265,7 @@ export const getTableData = () => {
       reportRequestAjax.getTableData(params, { fireImmediately: true }).then(result => {
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: result
+          data: formatYaxisList(result)
         });
       });
     }
@@ -999,11 +1003,16 @@ export const removeColumns = ({ controlId, particleSizeType }) => {
 
 export const changeDirection = (value) => {
   return (dispatch, getState) => {
-    const { direction } = getState().statistics;
+    const { direction, reportData } = getState().statistics;
+    const style = reportData.style || {};
+    const newDirection = value ? value : (direction === 'vertical' ? 'horizontal' : 'vertical');
     dispatch({
       type: 'CHANGE_STATISTICS_DIRECTION',
-      data: value ? value : (direction === 'vertical' ? 'horizontal' : 'vertical')
+      data: newDirection
     });
+    if (newDirection === 'vertical' && style.pivotTableColumnFreeze) {
+      dispatch(getReportData());
+    }
   }
 }
 

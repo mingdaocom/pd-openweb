@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { getResetPasswordTrigerInfo, resetPasswordByState } from 'src/api/register';
 // import captcha from 'src/components/captcha';
 import preall from 'src/common/preall';
-import { inputFocusFn, inputBlurFn, warnningTipFn, setCNFn } from './util';
+import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from './util';
 import { encrypt, getRequest } from 'src/util';
 import RegExp from 'src/util/expression';
 
@@ -168,7 +168,7 @@ class ResetPassword extends React.Component {
         <div className="messageBox mTop20">
           <div
             className={cx('mesDiv', {
-              ...setCNFn(warnningData, ['.passwordIcon', this.password], focusDiv, password),
+              ...setWarnningData(warnningData, ['.passwordIcon', this.password], focusDiv, password),
             })}
           >
             <input
@@ -198,7 +198,7 @@ class ResetPassword extends React.Component {
           </div>
           <div
             className={cx('mesDiv', {
-              ...setCNFn(warnningData, ['.passwordCopy', this.passwordCopy], focusDiv, passwordCopy),
+              ...setWarnningData(warnningData, ['.passwordCopy', this.passwordCopy], focusDiv, passwordCopy),
             })}
           >
             <input

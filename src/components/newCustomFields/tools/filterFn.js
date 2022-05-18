@@ -21,6 +21,12 @@ const getValueByDateRange = dateRange => {
   return value;
 };
 
+const getTotalDataRange = () => {
+  return _.flattenDeep(DATE_OPTIONS)
+    .filter(o => o.value !== 18)
+    .map(i => i.value);
+};
+
 const dayFn = (filterData = {}, value, isGT, type) => {
   let { dateRange, dynamicSource = [] } = filterData;
   if (dynamicSource.length > 0) {
@@ -151,6 +157,8 @@ export const filterFn = (filterData, originControl, data = []) => {
   const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
   const conditionGroupType = conditionGroup.value;
   const { showtype } = advancedSetting; // 1 卡片 2 列表 3 下拉
+  // 特定时间按天比较
+  const timeLevelDay = !dynamicSource.length && _.includes(getTotalDataRange(), dateRange) ? 'day' : 'second';
   let currentControl = {};
   //是否多选
   if (dynamicSource.length > 0) {
@@ -629,7 +637,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           return parseFloat(value || 0) > parseFloat(compareValue || 0);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
-          return moment(value).isAfter(day, 'second');
+          return moment(value).isAfter(day, timeLevelDay);
         default:
           return true;
       }
@@ -638,7 +646,7 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
-          return moment(value).isAfter(day, 'second');
+          return moment(value).isAfter(day, timeLevelDay);
         default:
           return true;
       }
@@ -657,7 +665,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           return parseFloat(value || 0) < parseFloat(compareValue || 0);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, true, currentControl.type);
-          return moment(value).isBefore(day, 'second');
+          return moment(value).isBefore(day, timeLevelDay);
         default:
           return true;
       }
@@ -666,7 +674,7 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, true, currentControl.type);
-          return moment(value).isBefore(day, 'second');
+          return moment(value).isBefore(day, timeLevelDay);
         default:
           return true;
       }
@@ -696,7 +704,7 @@ export const filterFn = (filterData, originControl, data = []) => {
               moment(value).isSameOrBefore(day, 'day')
             );
           }
-          return moment(value).isSame(day, 'second');
+          return moment(value).isSame(day, timeLevelDay);
         default:
           return true;
       }
@@ -718,7 +726,7 @@ export const filterFn = (filterData, originControl, data = []) => {
               moment(value).isAfter(day, 'day')
             );
           }
-          return !moment(value).isSame(day, 'second');
+          return !moment(value).isSame(day, timeLevelDay);
         default:
           return true;
       }

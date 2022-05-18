@@ -12,6 +12,7 @@ import RecordCard from 'src/components/recordCard';
 import { fieldCanSort } from 'src/pages/worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM } from 'src/components/newCustomFields/tools/config';
+import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import './mobile.less';
 
 export default class RecordCardListDialog extends Component {
@@ -63,7 +64,7 @@ export default class RecordCardListDialog extends Component {
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
   }
   componentDidMount() {
-    const { control } = this.props;
+    const { control, keyWords } = this.props;
     if (control) {
       (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
         .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
@@ -73,11 +74,11 @@ export default class RecordCardListDialog extends Component {
               allowAdd: data.allowAdd,
               worksheetInfo: data,
             },
-            this.clickSearch ? () => {} : this.loadRecorcd,
+            !this.clickSearch || keyWords ? this.loadRecorcd : () => {},
           );
         });
     } else {
-      if (!this.clickSearch) {
+      if (!this.clickSearch || keyWords) {
         this.loadRecorcd();
       }
     }
@@ -87,6 +88,11 @@ export default class RecordCardListDialog extends Component {
       this.setState({
         keyWords: nextProps.keyWords,
       });
+    }
+  }
+  abortSearch() {
+    if (this.searchAjax && _.isFunction(this.searchAjax.abort)) {
+      this.searchAjax.abort();
     }
   }
   loadRecorcd() {
@@ -104,6 +110,9 @@ export default class RecordCardListDialog extends Component {
       formData,
     } = this.props;
     const { pageIndex, keyWords, list, sortControls, worksheetInfo } = this.state;
+    if (!keyWords && this.clickSearch) {
+      return;
+    }
     let getFilterRowsPromise, args;
     let filterControls;
     if (control && control.advancedSetting.filters) {
@@ -117,6 +126,7 @@ export default class RecordCardListDialog extends Component {
       this.setState({ loading: false });
       return;
     }
+
     if (from !== FROM.PUBLIC && !window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
       args = {
@@ -159,7 +169,10 @@ export default class RecordCardListDialog extends Component {
       args.rowId = recordId;
       args.controlId = controlId;
     }
-    getFilterRowsPromise(args)
+    this.setState({ loading: true });
+    this.abortSearch();
+    this.searchAjax = getFilterRowsPromise(args);
+    this.searchAjax
       .then(res => {
         if (res.resultCode === 1) {
           this.setState(
@@ -207,7 +220,14 @@ export default class RecordCardListDialog extends Component {
         loading: true,
         list: [],
       },
-      this.lazyLoadRecorcd,
+      () => {
+        if (!value && this.clickSearch) {
+          this.abortSearch();
+          this.setState({ loading: false });
+          return;
+        }
+        this.lazyLoadRecorcd();
+      },
     );
   }
   @autobind
@@ -292,19 +312,16 @@ export default class RecordCardListDialog extends Component {
     return cardControls.filter(c => !!c);
   }
   renderSearchWrapper() {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !md.global.Config.IsLocal;
-    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+    const isScanQR = getIsScanQR();
     const { relateSheetId, onOk, onClose, control, formData } = this.props;
-    const { keyWords } = this.state;
+    const { keyWords, worksheet, worksheetInfo } = this.state;
     const filterControls = getFilter({ control, formData });
     return (
       <div className="searchWrapper">
         <Icon icon="h5_search" />
         <input
           type="text"
-          placeholder={_l('搜索')}
+          placeholder={_l('搜索%0', worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'))}
           value={keyWords}
           onChange={e => {
             this.handleSearch(e.target.value);
@@ -318,8 +335,9 @@ export default class RecordCardListDialog extends Component {
             }}
           />
         ) : (
-          ((isWx && !isWxWork) || isWeLink || isDing) && (
+          isScanQR && (
             <RelateScanQRCode
+              projectId={worksheet.projectId}
               worksheetId={relateSheetId}
               filterControls={filterControls}
               onChange={data => {
@@ -327,7 +345,9 @@ export default class RecordCardListDialog extends Component {
                 onClose();
               }}
               onOpenRecordCardListDialog={keyWords => {
-                this.handleSearch(keyWords);
+                setTimeout(() => {
+                  this.handleSearch(keyWords);
+                }, 200);
               }}
             >
               <Icon className="Font20" icon="qr_code_19" />
@@ -354,8 +374,18 @@ export default class RecordCardListDialog extends Component {
       onOk,
       onClose,
     } = this.props;
-    const { loading, loadouted, error, list, controls, selectedRecordIds, keyWords, worksheet, showNewRecord } =
-      this.state;
+    const {
+      loading,
+      loadouted,
+      error,
+      list,
+      controls,
+      selectedRecordIds,
+      keyWords,
+      worksheet,
+      worksheetInfo,
+      showNewRecord,
+    } = this.state;
     const { cardControls } = this;
     const formData = this.props.formData.filter(_.identity);
     const titleControl = formData.filter(c => c && c.attribute === 1);
@@ -421,7 +451,7 @@ export default class RecordCardListDialog extends Component {
               return (
                 <WingBlank key={i} size="md">
                   <RecordCard
-                    from={2}
+                    from={3}
                     coverCid={coverCid}
                     showControls={showControls}
                     controls={controls}
@@ -443,7 +473,10 @@ export default class RecordCardListDialog extends Component {
                       {keyWords
                         ? _l('无匹配的结果')
                         : this.clickSearch
-                        ? _l('输入关键字搜索记录')
+                        ? _l(
+                            '输入%0后，显示可选择的记录',
+                            worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'),
+                          )
                         : _l('暂无%0', worksheet.entityName || _l('记录'))}
                     </p>
                   )}

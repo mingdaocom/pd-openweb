@@ -242,15 +242,17 @@ export const formatControlValueDot = (value, data) => {
   if (magnitude === 0) {
     return format(value, ydot);
   } else if (magnitude === 1) {
-    let newValue = null;
+    let newValue = 0;
     if (ydot === '') {
-      newValue = value.toFixed(dot);
+      newValue = value.toFixed(dot).toLocaleString('zh', { minimumFractionDigits: dot });
     } else {
-      newValue = value.toFixed(isRecordCount ? 0 : ydot);
+      const dot = isRecordCount ? 0 : ydot;
+      newValue = value.toFixed(dot).toLocaleString('zh', { minimumFractionDigits: dot });
     }
     return fixType ? `${suffix}${newValue}` : `${newValue}${suffix}`;
   } else {
-    const result = format(value).toFixed(ydot);
+    const newValue = format(value).toFixed(ydot);
+    const result = Number(newValue).toLocaleString('zh', { minimumFractionDigits: ydot });
     return fixType ? `${suffix}${result}` : `${result}${suffix}`;
   }
 }

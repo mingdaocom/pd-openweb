@@ -1,14 +1,24 @@
-import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
-import { string, bool, element, arrayOf } from 'prop-types';
+import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
+import { string, bool, element, arrayOf, number } from 'prop-types';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 import { updateBase } from 'worksheet/redux/actions';
 import ViewComp from './ViewComp';
-
-const store = configureStore();
 function SingleView(props, ref) {
-  const { showHeader, showAsSheetView, appId, viewId, worksheetId, chartId, showControlIds, headerLeft, headerRight } =
-    props;
+  const {
+    showPageTitle,
+    showHeader,
+    showAsSheetView,
+    appId,
+    viewId,
+    worksheetId,
+    maxCount,
+    chartId,
+    showControlIds,
+    headerLeft,
+    headerRight,
+  } = props;
+  const store = useMemo(configureStore, []);
   useEffect(() => {
     store.dispatch(
       updateBase({
@@ -16,6 +26,7 @@ function SingleView(props, ref) {
         viewId,
         worksheetId,
         chartId,
+        maxCount,
         showAsSheetView,
       }),
     );
@@ -27,7 +38,9 @@ function SingleView(props, ref) {
   return (
     <Provider store={store}>
       <ViewComp
+        showPageTitle={showPageTitle}
         chartId={chartId}
+        maxCount={maxCount}
         showHeader={showHeader}
         showAsSheetView={showAsSheetView}
         showControlIds={showControlIds}
@@ -41,10 +54,12 @@ function SingleView(props, ref) {
 export default forwardRef(SingleView);
 
 SingleView.propTypes = {
+  showPageTitle: bool,
   showHeader: bool,
   showAsSheetView: bool,
   headerLeft: element,
   headerRight: element,
+  maxCount: number,
   appId: string,
   showControlIds: arrayOf(string),
   worksheetId: string,

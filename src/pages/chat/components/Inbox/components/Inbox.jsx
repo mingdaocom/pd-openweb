@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DROPDOWN_GROUPLIST, TYPENAMES, INBOXTYPES } from '../constants';
 import InboxHeader from './inboxHeader';
 import InboxList from './inboxList';
+import { browserIsMobile } from 'src/util';
 
 const getInitialLoadType = inboxType => {
   if (inboxType && DROPDOWN_GROUPLIST[inboxType]) {
@@ -29,7 +30,7 @@ export default class Inbox extends React.Component {
   state = {
     type: getInitialLoadType(this.props.inboxType),
     inboxFavorite: false,
-    filter: null
+    filter: null,
   };
 
   componentWillReceiveProps(nextProps) {
@@ -57,7 +58,7 @@ export default class Inbox extends React.Component {
     this.setState({
       filter,
     });
-  }
+  };
 
   renderHeader() {
     const { inboxType } = this.props;
@@ -72,7 +73,7 @@ export default class Inbox extends React.Component {
       dropdownData: DROPDOWN_GROUPLIST[inboxType],
       changeType: this.changeType,
       changeFaviorite: this.changeFaviorite,
-      changeInboxFilter: this.changeInboxFilter
+      changeInboxFilter: this.changeInboxFilter,
     };
     return <InboxHeader {...props} />;
   }
@@ -86,7 +87,7 @@ export default class Inbox extends React.Component {
   render() {
     return (
       <div className="flexColumn h100">
-        {this.renderHeader()}
+        {md.global.Account.isPortal && browserIsMobile() ? null : this.renderHeader()}
         {this.renderList()}
       </div>
     );

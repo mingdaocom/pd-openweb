@@ -71,6 +71,7 @@ export default class ValidPassWord extends Component {
             type="password"
             className="inputBox"
             value={password}
+            autocomplete="new-password"
             placeholder={_l('请输入登录密码')}
             onChange={e => {
               this.setState({ password: e.target.value });

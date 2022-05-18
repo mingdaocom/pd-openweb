@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE, APP_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE } from '../../enum';
 
 export default class Action extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class Action extends Component {
     }
 
     // 更新记录
-    if (isSheet && item.actionId === TRIGGER_ID_TYPE.EDIT) {
+    if (isSheet && item.actionId === ACTION_ID.EDIT) {
       if (item.selectNodeName) {
         return (
           <Fragment>
@@ -54,7 +54,7 @@ export default class Action extends Component {
     }
 
     // 新增工作表记录
-    if (isSheet && item.actionId === TRIGGER_ID_TYPE.ADD) {
+    if (isSheet && item.actionId === ACTION_ID.ADD) {
       if (item.appName) {
         return (
           <Fragment>
@@ -85,7 +85,7 @@ export default class Action extends Component {
     }
 
     // 删除记录
-    if (isSheet && item.actionId === TRIGGER_ID_TYPE.DELETE) {
+    if (isSheet && item.actionId === ACTION_ID.DELETE) {
       if (item.appName) {
         return (
           <Fragment>
@@ -106,7 +106,7 @@ export default class Action extends Component {
     }
 
     // 获得指定关联记录
-    if (isSheet && item.actionId === TRIGGER_ID_TYPE.RELATION) {
+    if (isSheet && item.actionId === ACTION_ID.RELATION) {
       if (item.selectNodeName) {
         if (!item.controlName || !item.sourceEntityName) {
           return (
@@ -139,7 +139,7 @@ export default class Action extends Component {
     }
 
     // 新建任务
-    if (item.appType === APP_TYPE.TASK && item.actionId === TRIGGER_ID_TYPE.ADD) {
+    if (item.appType === APP_TYPE.TASK && item.actionId === ACTION_ID.ADD) {
       if (item.appName) {
         return (
           <Fragment>
@@ -209,12 +209,12 @@ export default class Action extends Component {
                     : bgClassName,
                   {
                     'icon-workflow_update':
-                      isSheet && item.actionId === TRIGGER_ID_TYPE.EDIT && item.appType !== APP_TYPE.PROCESS,
+                      isSheet && item.actionId === ACTION_ID.EDIT && item.appType !== APP_TYPE.PROCESS,
                   },
-                  { 'icon-workflow_new': isSheet && item.actionId === TRIGGER_ID_TYPE.ADD },
-                  { 'icon-hr_delete': isSheet && item.actionId === TRIGGER_ID_TYPE.DELETE },
+                  { 'icon-workflow_new': isSheet && item.actionId === ACTION_ID.ADD },
+                  { 'icon-hr_delete': isSheet && item.actionId === ACTION_ID.DELETE },
                   {
-                    'icon-workflow_search': isSheet && item.actionId === TRIGGER_ID_TYPE.RELATION,
+                    'icon-workflow_search': isSheet && item.actionId === ACTION_ID.RELATION,
                   },
                   { 'icon-custom_assignment': item.appType === APP_TYPE.TASK },
                   { 'icon-parameter': isSheet && item.appType === APP_TYPE.PROCESS },

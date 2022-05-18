@@ -14,6 +14,7 @@ import {
   compareControlType,
   redefineComplexControl,
 } from '../util';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 // setting编辑字段，关联他表筛选/汇总 rule字段显示规则=> 不需要验证的from
 const noCheckConditionAvailable = ['relateSheet', 'rule', 'subTotal', 'custombutton'];
@@ -144,6 +145,7 @@ export default class SingleFilter extends Component {
       const control = _.find(columns, column => condition.controlId === column.controlId);
       const conditionGroupKey = control && getTypeKey(control.type);
       const conditionGroupType = conditionGroupKey && CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
+      const isSheetFieldError = isOtherShowFeild(control);
       return (
         <Condition
           isRules={isRules}
@@ -158,6 +160,7 @@ export default class SingleFilter extends Component {
           condition={condition}
           conditionsLength={conditions.length}
           conditionGroupType={conditionGroupType}
+          isSheetFieldError={isSheetFieldError}
           relationType={relationType}
           control={control}
           columns={this.props.columns}
@@ -178,7 +181,7 @@ export default class SingleFilter extends Component {
     });
   }
   render() {
-    const { from, canEdit, showSystemControls, filterColumnClassName } = this.props;
+    const { from, canEdit, showSystemControls, filterColumnClassName, offset } = this.props;
     let { columns = [] } = this.props;
     const { conditions } = this.state;
     const filterWhiteKeys = _.flatten(
@@ -189,6 +192,7 @@ export default class SingleFilter extends Component {
         .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
         .concat(SYSTEM_CONTROLS);
     }
+
     columns = columns.map(redefineComplexControl);
     columns = columns
       .filter(c => _.includes(filterWhiteKeys, c.type))
@@ -199,11 +203,12 @@ export default class SingleFilter extends Component {
         {this.renderConditions(columns)}
         {canEdit && (
           <AddCondition
+            offset={offset}
             from={from}
             comp={this.props.comp}
             filterColumnClassName={filterColumnClassName}
             conditionCount={conditions.length}
-            columns={columns}
+            columns={filterOnlyShowField(columns)}
             onAdd={this.addCondition}
           />
         )}

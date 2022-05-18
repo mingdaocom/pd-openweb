@@ -185,7 +185,10 @@ export default function BtnGroupSetting(props) {
                   key={value}
                   data-tip={tip}
                   onClick={() => {
-                    setSetting({ config: { ...config, direction: value } });
+                    setSetting({
+                      config: { ...config, direction: value },
+                      mobileCount: value === 1 ? 4 : 2
+                    });
                   }}
                 >
                   <i className={`icon-${icon}`}></i>

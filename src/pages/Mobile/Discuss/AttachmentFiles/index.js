@@ -154,8 +154,10 @@ export class UploadFileWrapper extends Component {
         self.uploading = false;
       },
       Error(uploader, error) {
-        if (error.code == -600) {
-          Toast.info('附件总大小超过 ' + utils.formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) + '，请您分批次上传');
+        if (error.code === window.plupload.FILE_SIZE_ERROR) {
+          Toast.info(_l('单个文件大小超过%0，无法支持上传', utils.formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024)));
+        } else {
+          Toast.info(_l('上传失败，请稍后再试。'));
         }
       },
       Init() {

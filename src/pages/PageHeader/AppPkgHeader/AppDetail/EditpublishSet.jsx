@@ -168,7 +168,7 @@ class EditPublishSetDialog extends React.Component {
               {_l('提交申请')}
             </div>
             <div className="connectInfo mTop16">
-              {_l('提交后，顾问会电话联系您完成应用集成,也可主动联系顾问 联系电话：010-53153053')}
+              {_l('提交后，顾问会电话联系您完成应用集成,也可主动联系顾问 联系电话：400-665-6655')}
             </div>
           </div>
         </Modal>

@@ -349,6 +349,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isArea = control && _.includes([19, 23, 24], control.type);
   switch (type) {
     case FILTER_CONDITION_TYPE.LIKE:
+      if (isDepartment) return _l('下级包含');
       if (isRelateRecord) return _l('标题包含');
       return _l('包含');
     case FILTER_CONDITION_TYPE.EQ:
@@ -360,6 +361,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     case FILTER_CONDITION_TYPE.END:
       return _l('结尾为');
     case FILTER_CONDITION_TYPE.NCONTAIN:
+      if (isDepartment) return _l('下级不包含');
       if (isRelateRecord) return _l('标题不包含');
       return _l('不包含');
     case FILTER_CONDITION_TYPE.NE:

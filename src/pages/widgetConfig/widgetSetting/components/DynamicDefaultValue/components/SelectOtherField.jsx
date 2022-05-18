@@ -102,7 +102,17 @@ export default class SelectOtherField extends Component {
         this.setState({ isDynamic: false });
         break;
       case OTHER_FIELD_TYPE.USER:
-        onDynamicValueChange([{ rcid: '', cid: data.id, staticValue: '', isAsync: false }]);
+        onDynamicValueChange([
+          {
+            rcid: '',
+            cid: '',
+            staticValue: JSON.stringify({
+              accountId: data.id,
+              name: _l('当前用户'),
+            }),
+            isAsync: false,
+          },
+        ]);
         this.setState({ isDynamic: false });
         break;
       case OTHER_FIELD_TYPE.DATE:
@@ -113,6 +123,15 @@ export default class SelectOtherField extends Component {
   };
 
   getCurrentField = data => {
+    // 自定义默认值
+    if (this.props.from === 'customCreate') {
+      return this.props.writeObject === 1
+        ? CURRENT_TYPES[data.type] || []
+        : (CURRENT_TYPES[data.type] || []).concat([
+            { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
+          ]);
+    }
+
     let types = OTHER_FIELD_LIST;
     // 没有函数的控件
     if (!_.includes(CAN_AS_FX_DYNAMIC_FIELD, data.type)) {
@@ -212,6 +231,7 @@ export default class SelectOtherField extends Component {
         )}
         {fxVisible && (
           <FunctionEditorDialog
+            supportJavaScript
             value={getAdvanceSetting(data, 'defaultfunc')}
             title={data.controlName}
             controls={allControls.filter(c => c.controlId !== data.controlId)}

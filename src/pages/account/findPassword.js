@@ -123,7 +123,7 @@ class FindPassword extends React.Component {
           keys={['emailOrTel', 'code', 'password']}
           maxLength="6"
           dataList={this.state.loginData}
-          setDataFn={(data, callback) => {
+          onChangeData={(data, callback) => {
             this.setState(
               {
                 loginData: {

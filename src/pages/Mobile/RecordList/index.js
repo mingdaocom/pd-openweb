@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import DocumentTitle from 'react-document-title';
-import { Tabs, Flex, ActivityIndicator, Drawer } from 'antd-mobile';
+import { Tabs, Flex, ActivityIndicator } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { Icon, Button, WaterMark } from 'ming-ui';
@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import Back from '../components/Back';
 import AppPermissions from '../components/AppPermissions';
-import QuickFilter from './QuickFilter';
 import State from './State';
 import View from './View';
 import './index.less';
@@ -17,6 +16,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'src/pages/Mobile/App/FixedPage.jsx';
+
 @withRouter
 @AppPermissions
 class RecordList extends Component {
@@ -61,13 +61,7 @@ class RecordList extends Component {
   setCache = params => {
     const { worksheetId, viewId } = params;
     localStorage.setItem(`mobileViewSheet-${worksheetId}`, viewId);
-  };
-  handleOpenDrawer = () => {
-    const { filters } = this.props;
-    this.props.updateFilters({
-      visible: !filters.visible,
-    });
-  };
+  }
   handleChangeView = view => {
     const { match, now } = this.props;
     const { params } = match;
@@ -80,28 +74,6 @@ class RecordList extends Component {
         true,
       );
     }
-  };
-  renderSidebar(view) {
-    const { fastFilters = [] } = view;
-    const { worksheetInfo } = this.props;
-    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const filters = fastFilters
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
-    return (
-      <QuickFilter
-        projectId={worksheetInfo.projectId}
-        appId={worksheetInfo.appId}
-        worksheetId={worksheetInfo.worksheetId}
-        view={view}
-        filters={filters}
-        controls={sheetControls}
-        onHideSidebar={this.handleOpenDrawer}
-      />
-    );
   }
   renderContent() {
     const {
@@ -154,13 +126,7 @@ class RecordList extends Component {
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
     return (
-      <Drawer
-        className="filterStepListWrapper"
-        position="right"
-        sidebar={_.isEmpty(view) ? null : this.renderSidebar(view)}
-        open={filters.visible}
-        onOpenChange={this.handleOpenDrawer}
-      >
+      <Fragment>
         <div className="flexColumn h100">
           <DocumentTitle title={name} />
           {!batchOptVisible && (
@@ -230,7 +196,7 @@ class RecordList extends Component {
             </div>
           ) : null}
         </div>
-      </Drawer>
+      </Fragment>
     );
   }
   render() {

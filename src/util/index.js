@@ -83,7 +83,7 @@ export const getItem = key => {
 
 export const upgradeVersionDialog = options => {
   Dialog.confirm({
-    className: 'upgradeVersionDialogBtn',
+    className: options.className ? options.className : 'upgradeVersionDialogBtn',
     title: '',
     description: (
       <div className="netStateWrap">
@@ -698,4 +698,33 @@ export function accAdd(arg1, arg2) {
  */
 export function accSub(arg1, arg2) {
   return accAdd(arg1, -arg2);
+}
+
+/**
+ * 根据背景色判断文字颜色
+ */
+export function getColorCountByBg(backgroundColor) {
+  const RgbValue =
+    'rgb(' +
+    parseInt('0x' + backgroundColor.slice(1, 3)) +
+    ',' +
+    parseInt('0x' + backgroundColor.slice(3, 5)) +
+    ',' +
+    parseInt('0x' + backgroundColor.slice(5, 7)) +
+    ')';
+  const RgbValueArry = RgbValue.replace('rgb(', '').replace(')', '').split(',');
+  return RgbValueArry[0] * 0.299 + RgbValueArry[1] * 0.587 + RgbValueArry[2] * 0.114;
+}
+
+export function replaceNotNumber(value) {
+  return value
+    .replace(/[^-\d.]/g, '')
+    .replace(/^\./g, '')
+    .replace(/^-/, '$#$')
+    .replace(/-/g, '')
+    .replace('$#$', '-')
+    .replace(/^-\./, '-')
+    .replace('.', '$#$')
+    .replace(/\./g, '')
+    .replace('$#$', '.');
 }

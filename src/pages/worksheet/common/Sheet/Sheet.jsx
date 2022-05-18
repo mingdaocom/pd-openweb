@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import * as actions from 'worksheet/redux/actions';
-import { addRecord } from 'worksheet/common/newRecord';
 import Skeleton from 'src/router/Application/Skeleton';
 import View from 'worksheet/views';
 import SheetContext from './SheetContext';
@@ -14,8 +13,6 @@ import SheetHeader from './SheetHeader';
 import ViewControl from './ViewControl';
 import QuickFilter from './QuickFilter';
 import GroupFilter from './GroupFilter';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
 import { Icon } from 'ming-ui';
@@ -50,28 +47,8 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   border-left: 1px solid rgba(0,0,0,0.04);
-  // .openBtn{
-  //   width: 16px;
-  //   height: 32px;
-  //   border: 1px solid #e0e0e0;
-  //   position: absolute;
-  //   z-index: 10;
-  //   line-height: 32px;
-  //   text-align: center;
-  //   border-radius: 0 6px 6px 0;
-  //   left: -1px;
-  //   top: 50%;
-  //   cursor: pointer;
-  //   margin-top: -16px;
-  //   background: #fff;
-  // }
   &:hover{
     border-left: 1px solid #2196f3;
-    // .openBtn{
-    //   background: #2196f3;
-    //   color:#fff;
-    //   border: 1px solid #2196f3;
-    // }
   }
 `,
 );
@@ -83,14 +60,17 @@ function Sheet(props) {
     groupId,
     worksheetId,
     worksheetInfo,
-    sheetSwitchPermit,
     flag,
+    type = 'common',
     views,
     activeViewStatus,
     isCharge,
-    addNewRecord,
     updateGroupFilter,
     navGroupFilters = [],
+    chartId,
+    showControlId,
+    showAsSheetView,
+    openNewRecord,
   } = props;
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
   let [dragMaskVisible, setDragMaskVisible] = useState(false);
@@ -101,52 +81,10 @@ function Sheet(props) {
     isOpenGroup ? window.localStorage.getItem('navGroupWidth') || 210 : 32,
   );
   let { viewId } = props;
-  const { loadWorksheet, updateWorksheetSomeControls } = props;
+  const { loadWorksheet } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
-  let hasGroupFilter =
+  const hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
-  const getDefaultValueInCreate = () => {
-    let data = navGroupFilters[0];
-    if ([9, 10, 11].includes(data.dataType)) {
-      return { [data.controlId]: JSON.stringify([data.values[0]]) };
-    } else if ([29, 35]) {
-      return {
-        [data.controlId]: JSON.stringify([
-          {
-            sid: data.values[0],
-            name: data.navNames[0] || '',
-          },
-        ]),
-      };
-    }
-  };
-  function openNewRecord() {
-    let defaultFormData = {};
-    let param = {};
-    if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
-      defaultFormData = getDefaultValueInCreate();
-      param = {
-        defaultFormData,
-        defaultFormDataEditable: true,
-      };
-    }
-    addRecord({
-      ...param,
-      showFillNext: true,
-      appId,
-      viewId,
-      worksheetId,
-      worksheetInfo,
-      projectId: worksheetInfo.projectId,
-      needCache: true,
-      addType: 1,
-      showShare: isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId),
-      isCharge: isCharge,
-      entityName: worksheetInfo.entityName,
-      onAdd: data => addNewRecord(data, view),
-      updateWorksheetControls: updateWorksheetSomeControls,
-    });
-  }
   const basePara = {
     loading,
     appId,
@@ -161,9 +99,14 @@ function Sheet(props) {
     viewConfigVisible,
     setViewConfigVisible,
     groupFilterWidth: hasGroupFilter ? groupFilterWidth : 0,
+    chartId,
+    showControlId,
+    showAsSheetView,
   };
   useEffect(() => {
-    loadWorksheet(worksheetId);
+    if (worksheetId) {
+      loadWorksheet(worksheetId);
+    }
   }, [worksheetId, flag]);
 
   useEffect(() => {
@@ -173,7 +116,7 @@ function Sheet(props) {
   return (
     <SheetContext.Provider base={basePara}>
       <Con className="worksheetSheet">
-        {worksheetInfo.name && (
+        {type === 'common' && worksheetInfo.name && (
           <DocumentTitle
             title={`${(window.appInfo && window.appInfo.name) || _l('应用')} - ${worksheetInfo.name || ''}`}
           />
@@ -190,13 +133,17 @@ function Sheet(props) {
           </Loading>
         ) : (
           <React.Fragment>
-            <SheetHeader {...basePara} />
-            {/* TODO 临时处理 避免对象传值导致的值变更 */}
-            <ViewControl {...basePara} view={_.cloneDeep(view)} />
-            {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && (
+            {type === 'common' && (
+              <React.Fragment>
+                <SheetHeader {...basePara} />
+                <ViewControl {...basePara} view={_.cloneDeep(view)} />
+              </React.Fragment>
+            )}
+            {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
+            {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && !chartId && (
               <QuickFilter {...basePara} filters={view.fastFilters} />
             )}
-            {hasGroupFilter ? (
+            {hasGroupFilter && !chartId ? (
               <ConView>
                 {dragMaskVisible && (
                   <DragMask
@@ -223,24 +170,7 @@ function Sheet(props) {
                     }
                   }}
                 />
-                {isOpenGroup && (
-                  <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}>
-                    {/* {isOpenGroup && (
-                      <span
-                        className="openBtn"
-                        onMouseDown={e => {
-                          e.stopPropagation();
-                          setDragMaskVisible(false);
-                          setGroupFilterWidth(32);
-                          window.localStorage.setItem('navGroupIsOpen', !isOpenGroup);
-                          setIsOpenGroup(!isOpenGroup);
-                        }}
-                      >
-                        <Icon icon={'a-arrowback'} />
-                      </span>
-                    )} */}
-                  </Drag>
-                )}
+                {isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}></Drag>}
                 <View {...basePara} />
               </ConView>
             ) : (
@@ -255,6 +185,7 @@ function Sheet(props) {
 
 Sheet.propTypes = {
   flag: PropTypes.string,
+  type: PropTypes.string,
   loading: PropTypes.bool,
   appId: PropTypes.string,
   groupId: PropTypes.string,
@@ -266,8 +197,6 @@ Sheet.propTypes = {
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   views: PropTypes.arrayOf(PropTypes.shape({})),
   loadWorksheet: PropTypes.func,
-  addNewRecord: PropTypes.func,
-  updateWorksheetSomeControls: PropTypes.func,
 };
 
 export default connect(
@@ -277,22 +206,14 @@ export default connect(
     worksheetId: state.sheet.base.worksheetId,
     viewId: state.sheet.base.viewId,
     worksheetInfo: state.sheet.worksheetInfo,
-    sheetSwitchPermit: state.sheet.sheetSwitchPermit,
     isCharge: state.sheet.isCharge,
     loading: state.sheet.loading,
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
-    navGroupFilters: state.sheet.navGroupFilters,
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, [
-        'addNewRecord',
-        'updateBase',
-        'loadWorksheet',
-        'updateWorksheetSomeControls',
-        'updateGroupFilter',
-      ]),
+      _.pick(actions, ['updateBase', 'loadWorksheet', 'updateGroupFilter', 'openNewRecord']),
       dispatch,
     ),
 )(errorBoundary(Sheet));

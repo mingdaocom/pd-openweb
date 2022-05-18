@@ -10,12 +10,15 @@ import { getVerifyInfo } from '../util/setting';
 
 export default function WidgetDisplay(props) {
   const { data = {}, activeWidget, allControls, actualControls } = props;
-  const { type, required, hint, unit, desc } = data;
-  const { prefix, suffix } = getAdvanceSetting(data);
+  const { type, required, hint, unit, desc, strDefault } = data;
+  const { prefix, suffix  } = getAdvanceSetting(data);
 
   // 分段字段
   const isSplitLine = type === 22;
   const isActive = data.controlId === (activeWidget || {}).controlId;
+
+  // 他表字段
+  const showIcon = type === 30 && (strDefault || '')[0] !== '1';
 
   const Component = displayTypes[enumWidgetType[type]];
 
@@ -29,7 +32,10 @@ export default function WidgetDisplay(props) {
         <div className="nameAndStatus">
           {required && <div className={cx({ required })}>*</div>}
           {!isSplitLine && <i className={`typeIcon icon-${getIconByType(type)}`}></i>}
-          <div className={cx('controlName overflow_ellipsis', { isSplitLine })}>{controlName}</div>
+          <div className={cx('controlName overflow_ellipsis', { isSplitLine })}>
+            {controlName}
+            {showIcon && <span className="icon-refresh Gray_9e mLeft6"></span>}
+          </div>
           <Components.WidgetStatus data={data} />
         </div>
       )}

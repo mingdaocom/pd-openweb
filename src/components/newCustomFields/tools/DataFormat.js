@@ -4,7 +4,7 @@ import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
 import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, UN_TEXT_TYPE } from './config';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
@@ -16,6 +16,7 @@ import {
   getCurrentValue,
   specialTelVerify,
   compareWithTime,
+  getEmbedValue,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -62,7 +63,14 @@ const parseStaticValue = (item, staticValue) => {
 
   // 人员 || 部门
   if (_.includes([26, 27], item.type)) {
-    return JSON.parse(staticValue);
+    const value = safeParse(staticValue);
+
+    if (value.accountId === 'user-self') {
+      const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
+      if (_.isEmpty(obj)) return '';
+      return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
+    }
+    return _.isEmpty(value) ? '' : value;
   }
 
   // 关联表
@@ -82,7 +90,7 @@ const parseStaticValue = (item, staticValue) => {
 };
 
 // 获取动态默认值
-export const getDynamicValue = (data, currentItem, masterData) => {
+export const getDynamicValue = (data, currentItem, masterData, embedData) => {
   let value = JSON.parse(currentItem.advancedSetting.defsource).map(item => {
     if (item.isAsync) return '';
 
@@ -161,10 +169,38 @@ export const getDynamicValue = (data, currentItem, masterData) => {
     // 当前行记录字段
     if (item.cid) {
       if (
+        _.includes(
+          [
+            'userId',
+            'phone',
+            'email',
+            'projectId',
+            'appId',
+            'groupId',
+            'worksheetId',
+            'viewId',
+            'recordId',
+            'ua',
+            'timestamp',
+          ],
+          item.cid,
+        )
+      ) {
+        return getEmbedValue(embedData, item.cid);
+      }
+
+      if (
         currentItem.type === 26 &&
-        item.cid === 'caid' &&
+        _.includes(['caid', 'user-self'], item.cid) &&
         !(window.isPublicWorksheet && window.publicWorksheetShareId)
       ) {
+        if (item.cid === 'caid' && (embedData || {}).recordId) {
+          const userValue = _.get(
+            _.find(data, i => i.controlId === item.cid),
+            'value',
+          );
+          return JSON.parse(userValue || '[]')[0] || '';
+        }
         const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
         if (_.isEmpty(obj)) return '';
         return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
@@ -273,7 +309,8 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
     }
 
     if (_.includes([9, 10, 11], column.type)) {
-      return getControlValue(data, { type: 31 }, controlId);
+      const optionValue = getControlValue(data, { type: 31 }, controlId);
+      return nullzero === '1' && optionValue === '' ? 0 : optionValue;
     }
 
     // 汇总字段默认按 0 处理
@@ -318,8 +355,14 @@ function calcDefaultValueFunction({ formData, fnControl }) {
   }
 }
 
+function asyncUpdateMdFunction({ formData, fnControl, update }) {
+  try {
+    execValueFunction(fnControl, formData, { update });
+  } catch (err) {}
+}
+
 // 嵌入字段处理
-const parseValueIframe = (data, currentItem, masterData) => {
+const parseValueIframe = (data, currentItem, masterData, embedData) => {
   return getDynamicValue(
     data,
     {
@@ -330,6 +373,7 @@ const parseValueIframe = (data, currentItem, masterData) => {
       },
     },
     masterData,
+    embedData,
   );
 };
 
@@ -452,7 +496,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       const strIndex = value.indexOf('.');
 
       if (strIndex > -1) {
-        value = value.substring(0, strIndex + currentItem.dot);
+        value = value.substring(0, strIndex + currentItem.dot + 1);
       }
     } else {
       value = String(Math.floor(value));
@@ -707,6 +751,7 @@ export default class DataFormat {
     masterData,
     from = FROM.DEFAULT,
     searchConfig = [],
+    embedData = {},
     onAsyncChange = () => {},
     updateLoadingItems = () => {},
     activeTrigger = () => {},
@@ -715,6 +760,7 @@ export default class DataFormat {
     this.masterRecordRowId = masterRecordRowId;
     this.data = _.cloneDeep(data);
     this.masterData = masterData;
+    this.embedData = embedData;
     this.loadingInfo = {};
     this.controlIds = [];
     this.ruleControlIds = [];
@@ -736,12 +782,30 @@ export default class DataFormat {
         if (item.value) {
           this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
         } else if (item.advancedSetting && item.advancedSetting.defaultfunc && item.type !== 30) {
-          const value = calcDefaultValueFunction({
-            formData: this.data,
-            fnControl: item,
-          });
-          if (value) {
-            this.updateDataSource({ controlId: item.controlId, value, isInit });
+          if (_.get(safeParse(item.advancedSetting.defaultfunc), 'type') === 'javascript') {
+            asyncUpdateMdFunction({
+              formData: this.data,
+              fnControl: item,
+              update: v => {
+                this.updateDataSource({
+                  controlId: item.controlId,
+                  value: v,
+                  isInit,
+                });
+                this.onAsyncChange({
+                  controlId: item.controlId,
+                  value: v,
+                });
+              },
+            });
+          } else {
+            const value = calcDefaultValueFunction({
+              formData: this.data,
+              fnControl: item,
+            });
+            if (value) {
+              this.updateDataSource({ controlId: item.controlId, value, isInit });
+            }
           }
         } else if (item.advancedSetting && item.advancedSetting.defsource && item.type !== 30) {
           const value = getDynamicValue(this.data, item, this.masterData);
@@ -792,7 +856,7 @@ export default class DataFormat {
           if (item.enumDefault === 1 && item.dataSource) {
             this.updateDataSource({
               controlId: item.controlId,
-              value: parseValueIframe(this.data, item, this.masterData),
+              value: parseValueIframe(this.data, item, this.masterData, this.embedData),
             });
           }
         }
@@ -874,7 +938,7 @@ export default class DataFormat {
 
             // 等级控件
             if (item.type === 28) {
-              const maxCount = item.enumDefault === 1 ? 5 : 10;
+              const maxCount = (item.advancedSetting || {}).max || (item.enumDefault === 1 ? 5 : 10);
               item.value = Math.min(parseInt(Number(value || 0)), maxCount);
             }
 
@@ -1001,7 +1065,7 @@ export default class DataFormat {
                   : `${formulaResult.result.toFixed(singleControl.dot)}${singleControl.unit}`;
               }
 
-              return formatColumnToText(singleControl);
+              return formatColumnToText(singleControl, true);
             });
           }
 
@@ -1013,10 +1077,28 @@ export default class DataFormat {
           // 动态默认值 函数
           if (currentItem.advancedSetting && currentItem.advancedSetting.defaultfunc && currentItem.type !== 30) {
             delete currentItem.advancedSetting.defsource;
-            value = calcDefaultValueFunction({
-              formData: this.data,
-              fnControl: currentItem,
-            });
+            if (_.get(safeParse(currentItem.advancedSetting.defaultfunc), 'type') === 'javascript') {
+              asyncUpdateMdFunction({
+                formData: this.data,
+                fnControl: currentItem,
+                update: v => {
+                  this.updateDataSource({
+                    controlId: currentItem.controlId,
+                    value: v,
+                  });
+                  this.onAsyncChange({
+                    controlId: currentItem.controlId,
+                    value: v,
+                  });
+                },
+              });
+              return;
+            } else {
+              value = calcDefaultValueFunction({
+                formData: this.data,
+                fnControl: currentItem,
+              });
+            }
           }
 
           // 动态默认值
@@ -1027,7 +1109,7 @@ export default class DataFormat {
           // 嵌入控件
           if (currentItem.type === 45) {
             if (currentItem.enumDefault === 1 && currentItem.dataSource) {
-              value = parseValueIframe(this.data, currentItem, this.masterData);
+              value = parseValueIframe(this.data, currentItem, this.masterData, this.embedData);
             }
           }
 
@@ -1084,10 +1166,14 @@ export default class DataFormat {
                     (currentItem.type === 37 && (currentItem.enumDefault2 === 15 || currentItem.enumDefault2 === 16));
                   switch (currentItem.enumDefault) {
                     case 13: // 已填
-                      value = noUndefinedValues.filter(c => (sourceControl.type === 36 ? c === '1' : !!c)).length;
+                      value = valuesOfRecords.filter(c =>
+                        sourceControl.type === 36 ? c === '1' : !checkCellIsEmpty(c),
+                      ).length;
                       break;
                     case 14: // 未填
-                      value = noUndefinedValues.filter(c => (sourceControl.type === 36 ? c !== '1' : !c)).length;
+                      value = valuesOfRecords.filter(c =>
+                        sourceControl.type === 36 ? c !== '1' : checkCellIsEmpty(c),
+                      ).length;
                       break;
                     case 5: // 求和
                       value = _.sum(

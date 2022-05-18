@@ -75,3 +75,29 @@ export const RELATION_OPTIONS = [
     text: _l('申请单'),
   },
 ];
+
+export const DEFAULT_TEXT = {
+  1: [
+    { key: '1', value: _l('开启') },
+    { key: '0', value: _l('关闭') },
+  ],
+  2: [
+    { key: '1', value: _l('是') },
+    { key: '0', value: _l('否') },
+  ],
+};
+
+export const SWITCH_TYPES = [
+  {
+    value: '0',
+    text: _l('检查框'),
+  },
+  {
+    value: '1',
+    text: _l('开关'),
+  },
+  {
+    value: '2',
+    text: _l('是/否'),
+  },
+];

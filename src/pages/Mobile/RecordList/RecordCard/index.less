@@ -82,14 +82,17 @@
       display: flex;
       align-items: center;
       .controlWrapper {
-        width: 33%;
+        width: calc(~'33% - 8px');
         display: flex;
         flex-direction: column;
       }
+      .controlWrapper:nth-child(2) {
+        margin: 0 12px;
+      }
       .controlContent {
         height: 30px;
-        display: flex;
-        align-items: center;
+        // display: flex;
+        // align-items: center;
       }
       .cellAttachments .cellAttachment {
         margin-bottom: 0;

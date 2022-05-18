@@ -30,7 +30,7 @@ class Detail extends Component {
   };
 
   render() {
-    const { selectNodeId, selectNodeType, isCopy } = this.props;
+    const { selectNodeId, selectNodeType, isCopy, isRelease } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
 
     // 分支
@@ -45,7 +45,13 @@ class Detail extends Component {
         transitionLeaveTimeout={250}
       >
         {!!selectNodeId && (
-          <div className={cx('workflowDetail flexColumn', { workflowDetailDisabled: isCopy })}>
+          <div
+            className={cx(
+              'workflowDetail flexColumn',
+              { workflowDetailDisabled: isCopy },
+              { 'workflowDetailRelease pBottom20': isRelease },
+            )}
+          >
             {this.renderContent()}
           </div>
         )}

@@ -73,7 +73,12 @@ var MDFunction = {
           if (noLink) {
             replaceStr += ' @' + name + ' ';
           } else {
-            replaceStr += ' <a data-accountid="' + aid + '" href="/user_' + aid + '">@' + name + '</a> ';
+            if (md.global.Account.isPortal || (aid || '').indexOf('a#') > -1) {
+              // 外部门户
+              replaceStr += ' <a>@' + name + '</a> ';
+            } else {
+              replaceStr += ' <a data-accountid="' + aid + '" href="/user_' + aid + '">@' + name + '</a> ';
+            }
           }
         }
         var userRegExp = new RegExp('\\[aid]' + aid + '\\[/aid]', 'gi');

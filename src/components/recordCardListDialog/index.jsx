@@ -352,7 +352,6 @@ export default class RecordCardListDialog extends Component {
       visible,
       multiple,
       allowNewRecord,
-      coverCid,
       defaultRelatedSheet,
       onOk,
       onClose,
@@ -379,6 +378,7 @@ export default class RecordCardListDialog extends Component {
     const searchConfig = control ? getSearchConfig(control) : {};
     const { clickSearch, searchControl } = searchConfig;
     const showList = !control || !(clickSearch && !keyWords);
+    const coverCid = this.props.coverCid || (control && control.coverCid);
     return (
       <Dialog
         className="recordCardListDialog"
@@ -406,7 +406,7 @@ export default class RecordCardListDialog extends Component {
           )}
           {showList ? (
             <React.Fragment>
-              <div className="recordCardListHeader flexRow">
+              <div className="recordCardListHeader flexRow" style={{ padding: coverCid ? '6px 94px 6px 6px' : '6px' }}>
                 {cardControls.slice(0, 7).map((control, i) => {
                   const canSort = this.canSort(control);
                   const isAsc = this.getControlSortStatus(control);
@@ -450,7 +450,7 @@ export default class RecordCardListDialog extends Component {
                         <RecordCard
                           key={i}
                           from={2}
-                          coverCid={coverCid || (control && control.coverCid)}
+                          coverCid={coverCid}
                           showControls={cardControls.map(c => c.controlId)}
                           controls={controls}
                           data={record}

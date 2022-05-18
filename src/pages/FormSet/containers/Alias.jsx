@@ -53,6 +53,7 @@ class Alias extends React.Component {
       id: '',
       showAliasDialog: false,
       controls: [],
+      alias: '',
     };
   }
 
@@ -70,20 +71,21 @@ class Alias extends React.Component {
     if (!_.isEqual(nextProps, this.props)) {
       const { formSet } = nextProps;
       const { worksheetInfo = [] } = formSet;
-      const { template = [], entityName } = worksheetInfo;
+      const { template = [], entityName, alias = '' } = worksheetInfo;
       const { controls = [] } = template;
       const attribute = controls.find(it => it.attribute === 1) || [];
       this.setState({
         name: entityName || '记录',
         id: attribute.controlId,
         controls: controls.filter(it => !SYS.includes(it.controlId)),
+        alias,
       });
     }
   }
 
   render() {
     const { formSet } = this.props;
-    const { showControlList, name, nameFocus, id, showAliasDialog } = this.state;
+    const { showControlList, name, nameFocus, id, showAliasDialog, alias = '' } = this.state;
     const { worksheetInfo = [], worksheetId } = formSet;
     const { template = [], projectId = '', appId = '' } = worksheetInfo;
     // const { controls = [] } = template;
@@ -219,10 +221,47 @@ class Alias extends React.Component {
                   </div>
                 </div>
                 <span className="line"></span>
-                <h5 className="Font17">{_l('字段别名')}</h5>
-                <p>{_l('通过设置字段别名，使得字段在API、webhook、自定义打印、等场景使用的时候更具有辨识度。')}</p>
+                <h5 className="Font17">{_l('工作表/字段别名')}</h5>
+                <p>
+                  {_l('通过设置工作表和字段别名，使得它们在API、webhook、自定义打印等场景使用的时候更具有辨识度。')}
+                </p>
+                <h6 className="Font13 mTop24">{_l('工作表别名')}</h6>
+                <input
+                  type="text"
+                  className="name mTop6"
+                  placeholder={_l('请输入')}
+                  value={alias}
+                  onChange={e => {
+                    this.setState({
+                      alias: e.target.value.trim(),
+                    });
+                  }}
+                  onBlur={e => {
+                    sheetAjax
+                      .updateWorksheetAlias({
+                        appId,
+                        worksheetId,
+                        alias: e.target.value.trim(),
+                      })
+                      .then(res => {
+                        //0:成功 1：失败 2：别名重复 3：格式不匹配
+                        if (res === 0) {
+                          this.setState({
+                            alias: e.target.value.trim(),
+                          });
+                        } else if (res === 3) {
+                          alert(_l('工作表别名格式不匹配', 3));
+                        } else if (res === 2) {
+                          alert(_l('工作表别名已存在，请重新输入', 3));
+                        } else {
+                          alert(_l('别名修改失败', 3));
+                        }
+                      });
+                  }}
+                />
+                <h6 className="Font13 mTop24">{_l('字段别名')}</h6>
                 <div
-                  className="btnAlias mTop24"
+                  className="btnAlias mTop6"
                   onClick={() => {
                     this.setState({
                       showAliasDialog: !showAliasDialog,

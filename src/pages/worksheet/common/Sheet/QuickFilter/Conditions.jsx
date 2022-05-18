@@ -176,7 +176,7 @@ export default function Conditions(props) {
     didMount.current = true;
   }, []);
   return (
-    <Con className={className}>
+    <Con className={cx('quickFilterWrap', className)}>
       {items.map((item, i) => (
         <Item
           key={i}

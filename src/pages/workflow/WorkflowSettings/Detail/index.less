@@ -21,7 +21,7 @@
 
 .workflowSettings {
   .workflowDetailTransition-enter {
-    transform: translateX(640px);
+    transform: translateX(800px);
     transition: all 250ms ease-out;
   }
 
@@ -35,12 +35,12 @@
   }
 
   .workflowDetailTransition-leave.workflowDetailTransition-leave-active {
-    transform: translateX(640px);
+    transform: translateX(800px);
   }
 
   .workflowDetail {
     z-index: 11;
-    width: 640px;
+    width: 800px;
     position: absolute;
     top: 0;
     right: 0;
@@ -72,6 +72,15 @@
       .workflowDetailFooter {
         visibility: hidden;
         height: 0 !important;
+      }
+    }
+    &.workflowDetailRelease {
+      .workflowDetailHeader input,
+      .workflowDetailBox {
+        pointer-events: none;
+      }
+      .workflowDetailFooter {
+        display: none;
       }
     }
     .flexRow {

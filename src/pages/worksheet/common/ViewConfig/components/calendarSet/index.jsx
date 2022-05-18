@@ -9,7 +9,7 @@ let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周�
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
-import { getCalendarViewType, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
+import { getCalendarViewType, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 
 const CalendarTypeChoose = styled.div`
@@ -96,7 +96,7 @@ const TimeDropdownChoose = styled.div`
 `;
 export default function CalendarSet(props) {
   const { appId, view, updateCurrentView, worksheetControls } = props;
-  const { advancedSetting = {} } = view;
+  const { advancedSetting = {}, worksheetId, viewId } = view;
   const {
     calendarType = '0',
     unlunar, //默认显示农历
@@ -183,7 +183,10 @@ export default function CalendarSet(props) {
                 className={cx('Hand', { current: String(i) === calendarType })}
                 onClick={() => {
                   handleChange({ calendarType: String(i) });
-                  window.localStorage.setItem('CalendarViewType', getCalendarViewType(String(i), startData));
+                  let type = getCalendarViewType(String(i), startData);
+                  let data = getCalendartypeData();
+                  data[`${worksheetId}-${viewId}`] = type;
+                  window.localStorage.setItem('CalendarViewType', JSON.stringify(data));
                 }}
               >
                 {it}

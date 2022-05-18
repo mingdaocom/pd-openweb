@@ -9,6 +9,7 @@ import { getControlRules } from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
+import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
 
 export function getWorksheetInfo(...args) {
@@ -316,22 +317,18 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
     let recordTitle = getTitleTextFromControls(row.formData);
     let allowChange = isCharge || isOwner(row.ownerAccount, row.formData);
     let shareRange = row.shareRange;
-    import('src/components/shareAttachment/shareAttachment').then(share => {
-      const params = {
-        name: recordTitle,
-        dialogTitle: _l('分享记录'),
+    openShareDialog({
+      from: 'recordInfo',
+      title: _l('分享记录'),
+      isPublic: shareRange === 2,
+      isCharge: allowChange,
+      params: {
         appId,
+        worksheetId,
         viewId,
-        id: worksheetId,
         rowId: recordId,
-        ext: '',
-        attachmentType: 4,
-        canChangeSharable: allowChange,
-        visibleType: shareRange,
-      };
-      share.default(params, {
-        updateShareRangeOfRecord: callback,
-      });
+        title: recordTitle,
+      },
     });
   } catch (err) {
     alert(_l('分享失败'));
@@ -361,18 +358,26 @@ export async function handleCreateTask({ appId, worksheetId, viewId, recordId })
   }
 }
 
-export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {
+export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId }) {
   if (!appId) {
     const res = await getWorksheetInfo({ worksheetId });
     appId = res.appId;
   }
+  const appFeaturesPath = getAppFeaturesPath();
   if (viewId) {
-    window.open(
-      `${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}?${getAppFeaturesPath()}`,
-    );
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
   } else {
-    window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}?${getAppFeaturesPath()}`);
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
   }
+}
+
+export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {
+  const url = await getRecordLandUrl({ appId, worksheetId, viewId, recordId });
+  window.open(url);
 }
 
 export function handleCustomWidget(worksheetId) {

@@ -1,15 +1,12 @@
 import sheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 
-const getPermissionInfo = (controlId, rowInfo, worksheet) => {
+const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
   const { receiveControls, allowEdit } = rowInfo;
   const activeSheetIndex = 0;
-  const relateSheetControls = receiveControls.filter(
-    control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
-  );
-  const activeRelateSheetControl = _.find(relateSheetControls, { controlId }) || {};
-  const controlPermission = controlState(activeRelateSheetControl);
+  const controlPermission = controlState(activeRelateSheetControl, 3);
   const { enumDefault2, strDefault, controlPermissions = '111' } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
   const isSubList = activeRelateSheetControl.type === 34;
@@ -29,8 +26,7 @@ const getPermissionInfo = (controlId, rowInfo, worksheet) => {
     allowEdit &&
     !onlyRelateByScanCode;
   const hasEdit = controlPermission.editable && allowEdit && (allowAdd || isSubList);
-  const isWxWork = false;
-  const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+  const isScanQR = getIsScanQR();
 
   return {
     isCreate,
@@ -39,7 +35,7 @@ const getPermissionInfo = (controlId, rowInfo, worksheet) => {
     isSubList,
     activeRelateSheetControl,
     controlPermission,
-    onlyRelateByScanCode: onlyRelateByScanCode && (isWxWork || isWeLink),
+    onlyRelateByScanCode: onlyRelateByScanCode && isScanQR,
   };
 }
 
@@ -50,7 +46,7 @@ export const updateBase = base => (dispatch, getState) => {
   });
 }
 
-export const loadRow = () => (dispatch, getState) => {
+export const loadRow = (control) => (dispatch, getState) => {
 
   const { base, rowInfo } = getState().mobile;
   const { instanceId, workId, worksheetId, rowId } = base;
@@ -76,14 +72,14 @@ export const loadRow = () => (dispatch, getState) => {
   if (_.isEmpty(rowInfo)) {
     sheetAjax.getRowByID(params).then(result => {
       dispatch({ type: 'MOBILE_RELATION_ROW_INFO', data: result });
-      dispatch(loadRowRelationRows());
+      dispatch(loadRowRelationRows(control));
     });
   } else {
-    dispatch(loadRowRelationRows());
+    dispatch(loadRowRelationRows(control));
   }
 }
 
-export const loadRowRelationRows = () => (dispatch, getState) => {
+export const loadRowRelationRows = (relationControl) => (dispatch, getState) => {
 
   const { base, loadParams, relationRows, rowInfo } = getState().mobile;
   const { pageIndex } = loadParams;
@@ -111,7 +107,7 @@ export const loadRowRelationRows = () => (dispatch, getState) => {
   }).then(result => {
     if (pageIndex === 1) {
       const { controls } = result.template;
-      const control = _.find(rowInfo.receiveControls, { controlId });
+      const control = relationControl || _.find(rowInfo.receiveControls, { controlId });
       const titleControl = _.find(controls, { attribute: 1 });
       const fileControls = controls.filter(item => item.type === 14);
       dispatch({
@@ -120,7 +116,7 @@ export const loadRowRelationRows = () => (dispatch, getState) => {
       });
       dispatch({
         type: 'MOBILE_PERMISSION_INFO',
-        data: getPermissionInfo(controlId, rowInfo, result.worksheet)
+        data: getPermissionInfo(control, rowInfo, result.worksheet)
       });
       dispatch({
         type: 'MOBILE_RELATION_ACTION_PARAMS',

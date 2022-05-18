@@ -13,6 +13,7 @@ import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import { CONTROL_EDITABLE_BALCKLIST } from 'worksheet/constants/enum';
 import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'worksheet/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import './ColumnHead.less';
 
 class ColumnHead extends Component {
@@ -113,8 +114,9 @@ class ColumnHead extends Component {
       canBatchEdit = true,
     } = this.props;
     let control = { ...this.props.control };
+    const isShowOtherField = isOtherShowFeild(control);
     const itemType = this.getType(control);
-    const canSort = fieldCanSort(itemType);
+    const canSort = fieldCanSort(itemType, control);
     const canEdit =
       !_.includes(CONTROL_EDITABLE_BALCKLIST, control.type) &&
       controlState(control).editable &&
@@ -123,7 +125,11 @@ class ColumnHead extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
-    const canFilter = _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter');
+    let canFilter =
+      _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter') && !window.hideColumnHeadFilter;
+    if (control.type === 30 && control.strDefault === '10') {
+      canFilter = false;
+    }
     control = redefineComplexControl(control);
     return (
       <BaseColumnHead
@@ -144,6 +150,7 @@ class ColumnHead extends Component {
             onClickAway={closeMenu}
           >
             {canSort &&
+              !isShowOtherField &&
               getSortData(itemType, control).map(item => (
                 <MenuItem
                   key={item.value}
@@ -182,7 +189,7 @@ class ColumnHead extends Component {
                 {_l('编辑选中记录')}
               </MenuItem>
             )}
-            {canFilter && !rowIsSelected && (
+            {canFilter && !rowIsSelected && !isShowOtherField && (
               <MenuItem
                 onClick={() => {
                   emitter.emit('FILTER_ADD_FROM_COLUMNHEAD', control);

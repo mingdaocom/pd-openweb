@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Hr } from 'src/pages/publicWorksheetConfig/components/Basics';
+import { Hr } from 'worksheet/components/Basics';
 import { FILL_TIMES } from 'src/pages/publicWorksheetConfig/enum';
 import { FILL_STATUS } from './enum';
 import { RichText } from 'ming-ui';

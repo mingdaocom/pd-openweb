@@ -368,15 +368,6 @@ export default class MyAppGroup extends Component {
             href: `/app/lib?projectId=${projectId}`,
             key: 'installFromLib',
           },
-          {
-            icon: 'verify',
-            iconColor: '#7d58c2',
-            title: _l('解决方案'),
-            desc: _l('了解各行各业如何实现企业数字化，探索和选择您的解决方案'),
-            type: 'solution',
-            href: 'https://blog.mingdao.com/solution',
-            key: 'buildService',
-          },
         ].filter(item => !addAppItem[item.key]);
         return (
           <div className="functionIntro">

@@ -87,6 +87,12 @@ export const MENU_LIST = [
         type: 'boolean',
         desc: _l('是否不统计总行数以提高性能'),
       },
+      {
+        name: 'useControlId',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否只返回controlId，默认false'),
+      },
     ]),
   },
   {
@@ -1393,6 +1399,10 @@ export const SIDEBAR_LIST = [
   {
     key: 'authorizationInstr',
     title: _l('授权管理'),
+  },
+  {
+    key: 'whiteList',
+    title: _l('IP 白名单'),
   },
   {
     key: 'appInfo',

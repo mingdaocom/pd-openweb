@@ -8,6 +8,7 @@ export const QRErrorCorrectLevel = {
 };
 
 const defaultOptions = {
+  gap: 0,
   render: 'canvas',
   width: 256,
   height: 256,
@@ -17,7 +18,7 @@ const defaultOptions = {
   foreground: '#000000',
 };
 
-const genQrDataurl = function(options) {
+const genQrDataurl = function (options) {
   options = Object.assign({}, defaultOptions, options);
   const qrcode = new QRCode(options.typeNumber, options.correctLevel);
   qrcode.addData(options.value);
@@ -28,10 +29,12 @@ const genQrDataurl = function(options) {
   canvas.width = options.width;
   canvas.height = options.height;
   const ctx = canvas.getContext('2d');
+  ctx.fillStyle = options.background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // compute tileW/tileH based on options.width/options.height
-  const tileW = options.width / qrcode.getModuleCount();
-  const tileH = options.height / qrcode.getModuleCount();
+  const tileW = (options.width - options.gap * 2) / qrcode.getModuleCount();
+  const tileH = (options.height - options.gap * 2) / qrcode.getModuleCount();
 
   // draw in the canvas
   for (let row = 0; row < qrcode.getModuleCount(); row++) {
@@ -39,7 +42,7 @@ const genQrDataurl = function(options) {
       ctx.fillStyle = qrcode.isDark(row, col) ? options.foreground : options.background;
       const w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
       const h = Math.ceil((row + 1) * tileH) - Math.floor(row * tileH);
-      ctx.fillRect(Math.round(col * tileW), Math.round(row * tileH), w, h);
+      ctx.fillRect(Math.round(col * tileW) + options.gap, Math.round(row * tileH) + options.gap, w, h);
     }
   }
   // return just built canvas

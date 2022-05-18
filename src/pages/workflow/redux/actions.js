@@ -195,3 +195,30 @@ export const updateNodeDesc = (id, alias, desc) => (dispatch, getState) => {
     publishStatus: 1,
   });
 };
+
+/**
+ * 更新分支节点类型
+ */
+export const updateBranchGatewayType = (processId, nodeId, gatewayType) => (dispatch, getState) => {
+  flowNode
+    .saveNode({
+      nodeId,
+      processId,
+      gatewayType,
+    })
+    .then(result => {
+      const { workflowDetail } = _.cloneDeep(getState().workflow);
+
+      workflowDetail.flowNodeMap[nodeId].gatewayType = gatewayType;
+
+      dispatch({
+        type: 'UPDATE_NODE_GATEWAY',
+        data: workflowDetail,
+      });
+
+      dispatch({
+        type: 'UPDATE_PUBLISH_STATUS',
+        publishStatus: 1,
+      });
+    });
+};

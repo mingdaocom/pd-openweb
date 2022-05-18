@@ -28,6 +28,9 @@ const BtnWrap = styled.div`
   transition: border 0.25s;
   border: 1px solid transparent;
   box-sizing: border-box;
+  &.noMargin {
+    margin: 0;
+  }
   &.isFullWidth {
     flex-grow: 1;
   }
@@ -70,7 +73,6 @@ const BtnWrap = styled.div`
             .string()};
     }
   }
-
   &.adjustText {
     button {
       background-color: #f8f8f8;
@@ -102,12 +104,12 @@ export default function ButtonDisplay({
   config,
   onClick,
 }) {
-  const { btnType, direction } = config || {};
+  const { btnType, direction = 1 } = config || {};
   const isFullWidth = btnType === 2 ? true : width === 1;
   const isMobile = layoutType === 'mobile';
   const newList = _.chunk(buttonList, layoutType === 'web' ? count : mobileCount);
-  const getWidth = (list) => {
-    if (isFullWidth || isMobile) return { width: `${100 / (isMobile ? list.length : count)}%` };
+  const getWidth = () => {
+    if (isFullWidth || isMobile) return { width: `${100 / (isMobile ? mobileCount : count)}%` };
     return {};
   };
   return (
@@ -116,7 +118,7 @@ export default function ButtonDisplay({
       <ButtonListWrap>
         {newList.map((list, index) => {
           return (
-            <div className={cx('chunkListWrap', { center: !isFullWidth })} key={index}>
+            <div className={cx('chunkListWrap', { center: isMobile ? false : !isFullWidth })} key={index}>
               {list.map((item, i) => {
                 const { icon, color, name, config } = item;
                 const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
@@ -124,9 +126,14 @@ export default function ButtonDisplay({
                 return (
                   <BtnWrap
                     key={i}
-                    style={{ ...getWidth(list) }}
+                    style={{ ...getWidth() }}
                     color={color}
-                    className={cx(displayMode, { active: activeIndex === index, adjustText: style === 3 })}
+                    className={cx(displayMode, {
+                      active: activeIndex === index,
+                      adjustText: style === 3,
+                      noMargin: btnType === 2,
+                      flexRow: direction === 2
+                    })}
                     onClick={() => {
                       if (typeof onClick === 'function') {
                         onClick({ ...item, index });
@@ -135,13 +142,19 @@ export default function ButtonDisplay({
                   >
                     {btnType === 2 ? (
                       <GraphWrap
-                        className={cx('valignWrapper', direction === 1 ? 'column' : 'row')}
+                        className={cx('valignWrapper', direction === 1 ? 'column' : 'row', {
+                          small: isMobile && ((direction === 1 && [3, 4].includes(mobileCount)) || (direction === 2 && [2].includes(mobileCount)))
+                        })}
                         color={color}
                         radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
                       >
                         {iconUrl && (
                           <div className="iconWrap flexRow valignWrapper">
-                            <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={direction === 1 ? 36 : 28} />
+                            <SvgIcon
+                              url={iconUrl}
+                              fill={style === 3 ? color : '#fff'}
+                              size={(direction === 2 || (isMobile && direction === 1 && [3, 4].includes(mobileCount))) ? 28 : 36}
+                            />
                           </div>
                         )}
                         <div className="nameWrap valignWrapper">

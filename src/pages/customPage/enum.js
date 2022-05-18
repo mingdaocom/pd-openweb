@@ -11,10 +11,10 @@ export const widgets = {
     icon: 'custom_actions',
     name: _l('按钮'),
   },
-  // view: {
-  //   icon: '',
-  //   name: _l('视图'),
-  // },
+  view: {
+    icon: 'view',
+    name: _l('视图'),
+  },
   richText: {
     icon: 'richtext',
     name: _l('富文本'),

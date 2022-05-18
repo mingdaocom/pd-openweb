@@ -223,6 +223,8 @@ class PortalSetting extends React.Component {
           'userAgreement',
           'privacyTerms',
           'customizeName',
+          'exAccountDiscussEnum',
+          'allowExAccountDiscuss',
         ]),
         appId,
         // domainName,

@@ -9,7 +9,7 @@ import {
   FilterAndSort,
   FindResult,
 } from '../components';
-import { CONTROLS_NAME, RELATION_TYPE, TRIGGER_ID_TYPE } from '../../enum';
+import { CONTROLS_NAME, RELATION_TYPE, ACTION_ID } from '../../enum';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
 
@@ -122,7 +122,7 @@ export default class Search extends Component {
           {_l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
         </div>
 
-        {data.actionId === TRIGGER_ID_TYPE.WORKSHEET_FIND ? (
+        {data.actionId === ACTION_ID.WORKSHEET_FIND ? (
           this.renderWorksheet()
         ) : (
           <Fragment>

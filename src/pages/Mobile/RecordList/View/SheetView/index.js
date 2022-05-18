@@ -7,8 +7,9 @@ import styled from 'styled-components';
 import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
 import * as sheetviewActions from 'src/pages/worksheet/redux/actions/sheetview.js';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { Modal } from 'antd-mobile';
+import { Modal, Drawer } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
+import QuickFilter from 'src/pages/Mobile/RecordList/QuickFilter';
 import Search from 'src/pages/Mobile/RecordList/QuickFilter/Search';
 import SheetRows, { WithoutRows } from '../../SheetRows';
 import { Flex, ActivityIndicator } from 'antd-mobile';
@@ -18,6 +19,29 @@ import worksheetAjax from 'src/api/worksheet';
 import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import RecordAction from 'src/pages/Mobile/Record/RecordAction';
 import { startProcess } from 'src/pages/workflow/api/process';
+
+const SearchWrapper = styled.div`
+  background-color: #F2F2F3;
+
+  .filterStepListWrapper {
+    -webkit-overflow-scrolling: touch;
+    position: inherit;
+    .am-drawer-sidebar {
+      z-index: 100;
+      border-radius: 14px 0 0 14px;
+      background-color: #fff;
+      overflow: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .am-drawer-overlay, .am-drawer-content {
+      position: inherit;
+    }
+    &.am-drawer-open {
+      z-index: 100;
+      position: fixed;
+    }
+  }
+`;
 
 const FilterWrapper = styled.div`
   background-color: #fff;
@@ -419,13 +443,39 @@ class SheetView extends Component {
   };
   showRunInfo = flag => {
     this.setState({ runInfoVisible: flag });
-  };
+  }
+  handleOpenDrawer = () => {
+    const { filters, updateFilters } = this.props;
+    updateFilters({ visible: !filters.visible });
+  }
+  renderSidebar(view) {
+    const { fastFilters = [] } = view;
+    const { worksheetInfo } = this.props;
+    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
+    const filters = fastFilters
+      .map(filter => ({
+        ...filter,
+        control: _.find(sheetControls, c => c.controlId === filter.controlId),
+      }))
+      .filter(c => c.control);
+    return (
+      <QuickFilter
+        projectId={worksheetInfo.projectId}
+        appId={worksheetInfo.appId}
+        worksheetId={worksheetInfo.worksheetId}
+        view={view}
+        filters={filters}
+        controls={sheetControls}
+        onHideSidebar={this.handleOpenDrawer}
+      />
+    );
+  }
   render() {
     const {
       view,
+      filters,
       worksheetInfo,
       quickFilter,
-      updateFilters,
       batchOptCheckedData,
       batchOptVisible,
       match,
@@ -434,14 +484,14 @@ class SheetView extends Component {
     const { params } = match;
     let { customBtns = [], showButtons, permission } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const filters = view.fastFilters
+    const viewFilters = view.fastFilters
       .map(filter => ({
         ...filter,
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
       }))
       .filter(c => c.control);
-    const excludeTextFilter = filters.filter(item => !TextTypes.includes(item.dataType));
-    const textFilters = filters.filter(item => TextTypes.includes(item.dataType));
+    const excludeTextFilter = viewFilters.filter(item => !TextTypes.includes(item.dataType));
+    const textFilters = viewFilters.filter(item => TextTypes.includes(item.dataType));
     const isFilter = quickFilter.filter(item => !TextTypes.includes(item.dataType)).length;
     let checkedCount = batchOptCheckedData.length;
     return (
@@ -461,21 +511,27 @@ class SheetView extends Component {
             <a onClick={this.selectedAll}>{_l('全选')}</a>
           </div>
         )}
-        <div className="flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
+        <SearchWrapper className="flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
           <Search textFilters={textFilters} />
           {!_.isEmpty(excludeTextFilter) && (
             <FilterWrapper>
               <Icon
                 icon="filter"
                 className={cx('Font20 Gray_9e', { active: isFilter })}
-                onClick={() => {
-                  const { filters } = this.props;
-                  updateFilters({ visible: !filters.visible });
-                }}
+                onClick={this.handleOpenDrawer}
               />
             </FilterWrapper>
           )}
-        </div>
+          <Drawer
+            className={cx('filterStepListWrapper', { open: filters.visible })}
+            position="right"
+            sidebar={_.isEmpty(view) ? null : this.renderSidebar(view)}
+            open={filters.visible}
+            onOpenChange={this.handleOpenDrawer}
+          >
+            <Fragment />
+          </Drawer>
+        </SearchWrapper>
         {this.renderContent()}
         {batchOptVisible && (
           <BatchOptBtn>

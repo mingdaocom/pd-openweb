@@ -67,7 +67,7 @@ class ChildTable extends React.Component {
       previewRowIndex: null,
       recordVisible: false,
       cellErrors: {},
-      loading: !!props.recordId,
+      loading: !!props.recordId && !props.initSource,
     };
     this.state.sheetColumnWidths = this.getSheetColumnWidths();
     this.controls = props.controls;
@@ -370,7 +370,11 @@ class ChildTable extends React.Component {
       );
     };
     const formdata = new DataFormat({
-      data: this.state.controls.map(c => ({ ...c, isQueryWorksheetFill, value: (row || {})[c.controlId] || c.value })),
+      data: this.state.controls.map(c => ({
+        ...c,
+        isQueryWorksheetFill,
+        value: (row || {})[c.controlId] || (isCreate || !row ? c.value : undefined),
+      })),
       isCreate: isCreate || !row,
       from: FROM.NEWRECORD,
       projectId,
@@ -865,6 +869,7 @@ class ChildTable extends React.Component {
               previewRowIndex > -1 ? `${control.controlName}#${previewRowIndex + 1}` : _l('创建%0', control.controlName)
             }
             disabled={disabled || (!/^temp/.test(_.get(tableRows, `${previewRowIndex}.rowid`)) && !allowedit)}
+            mobileIsEdit={mobileIsEdit}
             allowDelete={/^temp/.test(_.get(tableRows, `${previewRowIndex}.rowid`)) || allowcancel}
             controls={controls}
             data={previewRowIndex > -1 ? tableRows[previewRowIndex] || {} : this.newRow()}

@@ -12,7 +12,7 @@ import {
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
-import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 import { Dropdown, Menu } from 'antd';
 
 const getLineChartXAxis = (controlId, data) => {
@@ -352,15 +352,17 @@ export default class extends Component {
     const event = data.gEvent;
     const currentData = data.data;
     const isRight = 'rightValue' in currentData.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
     }
     if (split.controlId && !isRight) {
-      param[split.cid] = currentData.data.groupKey;
+      const isNumber = isFormatNumber(split.controlType);
+      param[split.cid] = isNumber ? Number(currentData.data.groupKey) : currentData.data.groupKey;
     }
     if (rightYSplit.controlId && isRight) {
-      param[rightYSplit.cid] = currentData.data.groupKey;
+      const isNumber = isFormatNumber(rightYSplit.controlType);
+      param[rightYSplit.cid] = isNumber ? Number(currentData.data.groupKey) : currentData.data.groupKey;
     }
     this.setState({
       dropdownVisible: true,

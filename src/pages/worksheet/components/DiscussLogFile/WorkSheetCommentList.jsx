@@ -50,11 +50,14 @@ export default class WorkSheetCommentList extends Component {
       addCallback,
       forReacordDiscussion,
       atData,
+      status,
+      entityType,
     } = this.props;
     const { isOnlyMe } = this.state;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
     const props = {
       forReacordDiscussion,
+      entityType,
       atData,
       placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('发表评论'),
       activePlaceholder: _l('输入@成员，按Ctrl+Enter快速发布'),
@@ -92,6 +95,7 @@ export default class WorkSheetCommentList extends Component {
         {/* <span className="Gray_9">{_l('只显示与我相关')}</span>*/}
         {/* </CheckBox>*/}
         <CommentList
+          status={status}
           sourceId={id}
           sourceType={rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET}
           isFocus={isOnlyMe}
@@ -107,6 +111,7 @@ export default class WorkSheetCommentList extends Component {
           manualRef={comp => {
             this.commentList = comp;
           }}
+          entityType={entityType}
         >
           <Commenter {...props} />
         </CommentList>

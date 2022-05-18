@@ -150,9 +150,24 @@
 }
 
 .approveDialog {
+  .mui-dialog-footer {
+    .ming.Button {
+      font-weight: bold;
+    }
+  }
   &.approveDialogBtn {
     .Button--primary.Button {
       background: #f44336;
+
+      &:hover {
+        background: #ba160a;
+      }
+    }
+  }
+  &.overruleBackBtn {
+    .Button--link.Button {
+      background: #f44336;
+      color: #fff;
 
       &:hover {
         background: #ba160a;

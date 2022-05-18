@@ -265,7 +265,7 @@ class CustomBtn extends Component {
           <div
             className="addBtn Hand mTop20 Relative"
             onClick={() => {
-              if (btnList.length === btnData.length) {
+              if (btnList.length <= btnData.length) {
                 this.props.showCreateCustomBtnFn(true, false);
               } else {
                 this.setState(

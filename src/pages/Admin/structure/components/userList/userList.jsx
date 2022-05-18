@@ -181,7 +181,6 @@ class UserList extends Component {
           </span>
           {this.state.isSuperAdmin && (
             <span onClick={this.batchChangePassword} className="selectedAccountAction Hand mLeft40 Hover_49">
-              <Icon className="Font16 listName mRight12" icon="replay" />
               {_l('批量重置密码')}
             </span>
           )}
@@ -295,7 +294,7 @@ class UserList extends Component {
             )}
           </div>
           <Dialog
-            title={_l('批量重置密码（已选 %0 个用户）', selectedAccountIds.length)}
+            title={_l('重置%0个用户密码', selectedAccountIds.length)}
             okText={_l('保存')}
             cancelText={_l('取消')}
             visible={batchResetPasswordVisible}

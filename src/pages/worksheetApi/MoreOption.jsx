@@ -2,157 +2,214 @@ import React, { Component } from 'react';
 import appManagementAjax from 'src/api/appManagement';
 import { Dialog } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Input } from 'antd';
+import account from 'src/api/account';
+import captcha from 'src/components/captcha';
+import { encrypt } from 'src/util';
+import SecretKey from './SecretKey';
 
 @withClickAway
 export default class MoreOption extends Component {
   constructor(props) {
     super(props);
-    const { data = {} } = this.props;
+
+    const { data = {} } = props;
     const { remark } = data;
+
     this.state = {
-      showDescDia: false,
+      showDescDialog: false,
+      showConfirm: false,
+      showEditDialog: false,
       remark,
+      password: '',
+      type: '',
     };
   }
 
-  deleteConfirm = () => {
-    const { getAuthorizes } = this.props;
+  editAuthorizeStatus = () => {
+    const { appId, data = {}, setFn, getAuthorizes } = this.props;
+    const { type } = this.state;
+    let ajax;
 
-    return Dialog.confirm({
-      title: _l('确定删除这条 SecretKey？'),
-      description: '',
-      onOk: () => {
-        this.editAuthorizeStatus(1, () => {
-          getAuthorizes();
-        });
-      },
+    if (type === 'cancel') {
+      ajax = appManagementAjax.editAuthorizeStatus({
+        appId,
+        appKey: data.appKey,
+        type: data.type,
+        viewNull: data.viewNull,
+        status: 2,
+      });
+    } else {
+      ajax = appManagementAjax.deleteAuthorizeStatus({
+        appId,
+        appKey: data.appKey,
+      });
+    }
+
+    ajax.then(res => {
+      getAuthorizes();
+      setFn(false);
     });
   };
 
-  editAuthorizeStatus = (displayType, cb) => {
-    const { appId, data = {}, setFn, getAuthorizes, showMoreOption } = this.props;
+  renderDesc = () => {
+    const { setFn, data = {}, appId, getAuthorizes } = this.props;
     const { appKey } = data;
-    appManagementAjax // 编辑应用授权类型
-      .eiitAuthorizeStatus({
-        appId,
-        appKey,
-        displayType, // 1=删除，2=取消授权，3=全部，4=只读
-      })
-      .then(res => {
-        getAuthorizes();
-        setFn(!showMoreOption);
-        if (cb) {
-          cb();
-        }
-      });
-  };
+    const { showDescDialog, remark } = this.state;
 
-  setDesc = () => {
-    const { showMoreOption, setFn, data = {}, appId, getAuthorizes } = this.props;
-    const { appKey } = data;
-    const { remark } = this.state;
-    if (!this.state.showDescDia) {
-      return;
-    }
+    if (!showDescDialog) return null;
+
     return (
       <Dialog
         className="setDescDialog"
-        visible={this.state.showDescDia}
+        visible={true}
         title={_l('备注')}
         autoScrollBody
         type="scroll"
         maxHeight={200}
-        width={400}
+        width={500}
         onOk={() => {
-          if (!remark || remark.trim() === '') {
+          if (remark.trim() === '') {
             alert(_l('请输入备注信息'), 3);
             return;
           }
-          appManagementAjax // 编辑备注
+
+          appManagementAjax
             .editAuthorizeRemark({
               appId,
               appKey,
-              remark,
+              remark: remark.trim(),
             })
             .then(res => {
               getAuthorizes();
-              setFn(!showMoreOption);
-              this.setState({
-                showDescDia: false,
-              });
+              this.setState({ showDescDialog: false });
+              setFn(false);
             });
         }}
         onCancel={() => {
-          this.setState({
-            showDescDia: false,
-          });
-          setFn(!showMoreOption);
+          this.setState({ showDescDialog: false });
+          setFn(false);
         }}
       >
         <input
           type="text"
           placeholder={_l('备注')}
-          onChange={e => {
-            this.setState({
-              remark: e.target.value,
-            });
-          }}
+          onChange={e => this.setState({ remark: e.target.value })}
           value={remark}
         />
       </Dialog>
     );
   };
+
+  renderCancelAndDeleteDialog() {
+    const { setFn } = this.props;
+    const { showConfirm, type, password } = this.state;
+
+    if (!showConfirm) return null;
+
+    return (
+      <Dialog
+        visible={true}
+        overlayClosable={false}
+        title={
+          type === 'cancel' ? <div>{_l('关闭授权')}</div> : <div style={{ color: '#f44336' }}>{_l('删除授权密钥')}</div>
+        }
+        width={500}
+        onOk={() => {
+          if (!password.toString().trim()) {
+            alert(_l('请输入密码'), 2);
+            return;
+          }
+
+          this.checkPassword(() => this.editAuthorizeStatus());
+        }}
+        onCancel={() => {
+          this.setState({ showConfirm: false });
+          setFn(false);
+        }}
+      >
+        <div className="Gray_75">
+          {type === 'cancel'
+            ? _l('应用授权密钥是极为重要的凭证，关闭时需要验证身份')
+            : _l('应用授权密钥是极为重要的凭证，删除时需要验证身份')}
+        </div>
+        <div className="mTop20">{_l('当前用户密码')}</div>
+        <Input.Password
+          className="boderRadAll_3 mTop10"
+          placeholder={_l('请输入密码确认授权')}
+          onChange={e => this.setState({ password: e.target.value })}
+        />
+      </Dialog>
+    );
+  }
+
+  /**
+   * 验证密码
+   */
+  checkPassword = callback => {
+    const { password } = this.state;
+    const checkPasswordFun = res => {
+      if (res.ret !== 0) {
+        return;
+      }
+
+      account
+        .checkAccount({
+          password: encrypt(password),
+          ticket: res.ticket,
+          randStr: res.randstr,
+          captchaType: md.staticglobal.getCaptchaType(),
+        })
+        .then(data => {
+          if (data === 1) {
+            callback();
+          } else if (data === 6) {
+            alert(_l('密码错误'), 2);
+          } else if (data === 8) {
+            alert(_l('验证码错误'), 2);
+          } else {
+            alert(_l('操作失败'), 2);
+          }
+        });
+    };
+
+    if (md.staticglobal.getCaptchaType() === 1) {
+      new captcha(checkPasswordFun);
+    } else {
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), checkPasswordFun).show();
+    }
+  };
+
   render() {
-    const { showMoreOption, setFn, data } = this.props;
+    const { data, appId, getAuthorizes, setFn } = this.props;
+    const { showEditDialog } = this.state;
+
     return (
       <React.Fragment>
         <ul className="moreOptionTrigger">
-          {data.dispalyType !== 3 && (
-            <li
-              onClick={() => {
-                this.editAuthorizeStatus(3);
-              }}
-            >
-              {_l('授权全部接口')}
-            </li>
+          <li onClick={() => this.setState({ showEditDialog: true })}>{_l('编辑')}</li>
+          {data.status !== 2 && (
+            <li onClick={() => this.setState({ showConfirm: true, type: 'cancel' })}>{_l('关闭授权')}</li>
           )}
-          {data.dispalyType !== 4 && (
-            <li
-              onClick={() => {
-                this.editAuthorizeStatus(4);
-              }}
-            >
-              {_l('授权只读接口')}
-            </li>
-          )}
-          {data.dispalyType !== 2 && (
-            <li
-              onClick={() => {
-                this.editAuthorizeStatus(2);
-              }}
-            >
-              {_l('取消授权')}
-            </li>
-          )}
-          <li
-            onClick={() => {
-              this.setState({
-                showDescDia: true,
-              });
-            }}
-          >
-            {_l('修改备注')}
-          </li>
-          <li
-            onClick={() => {
-              setFn(!showMoreOption);
-              this.deleteConfirm();
-            }}
-          >
+          <li onClick={() => this.setState({ showDescDialog: true })}>{_l('修改备注')}</li>
+          <li onClick={() => this.setState({ showConfirm: true, type: 'delete' })} style={{ color: '#f44336' }}>
             {_l('删除')}
           </li>
         </ul>
-        {this.setDesc()}
+
+        {showEditDialog && (
+          <SecretKey
+            appId={appId}
+            appKey={data.appKey}
+            status={data.status}
+            type={data.type}
+            viewNull={data.viewNull}
+            getAuthorizes={getAuthorizes}
+            onClose={() => setFn(false)}
+          />
+        )}
+        {this.renderDesc()}
+        {this.renderCancelAndDeleteDialog()}
       </React.Fragment>
     );
   }

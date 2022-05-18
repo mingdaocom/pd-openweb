@@ -7,6 +7,7 @@ import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import { validate, TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import { conditionAdapter, formatQuickFilter } from 'src/pages/Mobile/RecordList/QuickFilter/Inputs';
+import './index.less';
 
 const SearchRowsWrapper = styled.div`
   background-color: #fff;
@@ -32,6 +33,7 @@ const Mask = styled.div`
   background: #00000030;
   position: fixed;
   top: 0;
+  left: 0;
 `;
 
 class Search extends Component {
@@ -111,8 +113,8 @@ class Search extends Component {
             onPopupVisibleChange={this.handleVisibleChange}
             popup={this.renderPopup()}
             popupAlign={{
-              points: ['tc', 'bc'],
-              offset: [0, 12],
+              points: ['tl', 'bl'],
+              offset: [-20, 10],
             }}
           >
             <div className="flexRow valignWrapper mobileQuickFilterTrigger">

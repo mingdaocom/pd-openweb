@@ -353,7 +353,7 @@ class MdBusinessCard extends React.Component {
               {type === TYPES.SECRET_TPYE_1 ? (
                 <React.Fragment>
                   <span className="contentItem">{_l('当员工离职时，企业小秘书暂时托管数据')}</span>
-                  <span className="contentItem">010-53153053</span>
+                  <span className="contentItem">400-665-6655</span>
                 </React.Fragment>
               ) : (
                 <React.Fragment>

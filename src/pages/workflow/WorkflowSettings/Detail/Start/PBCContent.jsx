@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { Dropdown, Checkbox, Textarea } from 'ming-ui';
 import styled from 'styled-components';
 import homeAppAjax from 'src/api/homeApp';
+import { FIELD_TYPE_LIST } from '../../enum';
 
 const ErrorTips = styled.div`
   position: absolute;
@@ -28,12 +29,6 @@ const ErrorTips = styled.div`
 `;
 
 export default ({ data, updateSource, errorItems, setErrorItems }) => {
-  const TYPES = [
-    { text: _l('文本'), value: 2 },
-    { text: _l('数值'), value: 6 },
-    { text: _l('数组'), value: 10000003 },
-    // { text: _l('人员'), value: 26 },
-  ];
   const PROCESS_TYPE = {
     1: {
       title: _l('工作流'),
@@ -83,7 +78,7 @@ export default ({ data, updateSource, errorItems, setErrorItems }) => {
                 <Dropdown
                   className="flowDropdown mRight10"
                   style={{ width: 120 }}
-                  data={TYPES}
+                  data={FIELD_TYPE_LIST}
                   value={item.type}
                   border
                   disabled={!!item.controlId}
@@ -138,6 +133,12 @@ export default ({ data, updateSource, errorItems, setErrorItems }) => {
 
                     _.remove(controls, (o, i) => i === index);
                     _.remove(errorItems, (o, i) => i === index);
+
+                    controls.forEach((element, i) => {
+                      if (!_.find(controls, (o, j) => o.controlName === element.controlName && i !== j)) {
+                        errorItems[i] = '';
+                      }
+                    });
 
                     setErrorItems(errorItems);
                     updateSource({ controls });

@@ -170,6 +170,7 @@ export default function Board(props) {
         count={boardViewRecordCount[list.key] || 0}
         showRecordInfo={showRecordInfo}
         keyType={list.key}
+        selectControl={rest.selectControl}
         {..._.pick(list, ['name', 'type', 'key', 'color', 'enumDefault', 'enumDefault2', 'noGroup', 'rowId'])}
       />
       <ScrollView className="boardDataItemScrollWrap" updateEvent={_.throttle(scrollLoad, 400)}>
@@ -208,7 +209,7 @@ export default function Board(props) {
           {loading && <LoadDiv />}
         </div>
       </ScrollView>
-      {!isMobile && isShowAddRecord() && <AddRecord noItem={!list.data.length} onAddRecord={handleAddRecord} />}
+      {!isMobile && isShowAddRecord() && <AddRecord className="addBoardRecord" noItem={!list.data.length} onAddRecord={handleAddRecord} />}
       {createRecordVisible && (
         <NewRecord
           visible

@@ -172,7 +172,7 @@ export default function GunterSet(props) {
         key="milepost"
         addName={'里程碑'}
         title={_l('里程碑')}
-        txt={_l('选择一个检查框字段标记记录属性为里程碑')}
+        txt={_l('选择一个检查项字段标记记录属性为里程碑')}
       />
       <DropDownSet
         {...props}

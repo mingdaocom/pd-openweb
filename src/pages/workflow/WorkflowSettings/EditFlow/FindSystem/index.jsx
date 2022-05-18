@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { NODE_TYPE, TRIGGER_ID_TYPE, APP_TYPE } from '../../enum';
+import { NODE_TYPE, ACTION_ID, APP_TYPE } from '../../enum';
 
 export default class FindSystem extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ export default class FindSystem extends Component {
   renderContent() {
     const { item } = this.props;
 
-    if (_.includes([TRIGGER_ID_TYPE.FROM_WORKSHEET, TRIGGER_ID_TYPE.WORKSHEET_FIND], item.actionId)) {
+    if (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], item.actionId)) {
       return (
         <div className="pLeft8 pRight8">
           {item.appType === APP_TYPE.EXTERNAL_USER
@@ -61,7 +61,7 @@ export default class FindSystem extends Component {
 
   render() {
     const { item, disabled, selectNodeId, openDetail } = this.props;
-    const isSystem = _.includes([TRIGGER_ID_TYPE.FROM_WORKSHEET, TRIGGER_ID_TYPE.WORKSHEET_FIND], item.actionId);
+    const isSystem = _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], item.actionId);
 
     return (
       <div className="flexColumn">

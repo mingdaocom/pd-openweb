@@ -89,6 +89,8 @@ export default class GunterChart extends Component {
         chartScroll.scrollTo(isGunterExport ? 0 : chartScroll.maxScrollX / 2, chartScroll.y);
         chartScroll._execEvent('scroll');
       }, 0);
+      this.headerEl = null;
+      this.timeDotWrapperEl = null;
     }
     if (nextProps.gunterView.groupingVisible !== this.props.gunterView.groupingVisible) {
       const { chartScroll } = nextProps.gunterView;
@@ -101,7 +103,7 @@ export default class GunterChart extends Component {
     if (chartScroll) {
       chartScroll.off('scroll', this.handleScroll);
       chartScroll.off('scroll', this.linkageScroll);
-      chartScroll.destroy();
+      chartScroll.destroy && chartScroll.destroy();
     }
   }
   setScrollValue = value => {
@@ -163,10 +165,15 @@ export default class GunterChart extends Component {
       });
     }
 
-    const header = document.querySelector('.gunterChartHeader .headerScroll');
-    const timeDotWrapper = document.querySelector('.gunterChart .timeDotWrapper');
-    header && (header.style.transform = `translateX(${chartScroll.x}px)`);
-    timeDotWrapper && (timeDotWrapper.style.transform = `translateY(${chartScroll.y}px)`);
+    const { viewId } = this.props.base;
+    if (!this.headerEl) {
+      this.headerEl = document.querySelector(`.gunterView-${viewId} .gunterChartHeader .headerScroll`);
+    }
+    if (!this.timeDotWrapperEl) {
+      this.timeDotWrapperEl = document.querySelector(`.gunterView-${viewId} .gunterChart .timeDotWrapper`);
+    }
+    this.headerEl && (this.headerEl.style.transform = `translateX(${chartScroll.x}px)`);
+    this.timeDotWrapperEl && (this.timeDotWrapperEl.style.transform = `translateY(${chartScroll.y}px)`);
   }
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
@@ -220,7 +227,8 @@ export default class GunterChart extends Component {
     );
   }
   render() {
-    const { loading, grouping, groupingVisible, chartScroll, groupingScroll } = this.props.gunterView;
+    const { base, gunterView } = this.props;
+    const { loading, grouping, groupingVisible, chartScroll, groupingScroll } = gunterView;
     return (
       <div className="gunterChart flexColumn flex">
         <Header />
@@ -243,11 +251,11 @@ export default class GunterChart extends Component {
               onClick={this.handleUpdateGroupingVisible}
               onMouseOver={() => {
                 if (!groupingVisible) return;
-                document.querySelector('.gunterDirectory').style.borderColor = '#2196f3';
+                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor = '#2196f3';
               }}
               onMouseOut={() => {
                 if (!groupingVisible) return;
-                document.querySelector('.gunterDirectory').style.borderColor = null;
+                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor = null;
               }}
             >
               <Icon className="Gray_bd" icon="a-arrowback" />

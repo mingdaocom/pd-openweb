@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Funnel } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors } from './common';
-import { formatSummaryName, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 import { Dropdown, Menu } from 'antd';
 
 const mergeDataTime = (data, contrastData) => {
@@ -150,7 +150,7 @@ export default class extends Component {
     const { xaxes, split, displaySetup } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: isNumber ? Number(currentData.id) : currentData.id
     }

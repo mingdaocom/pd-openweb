@@ -16,7 +16,9 @@ function attachments(state = [], action) {
       newAttachments.splice(action.index, 1);
       return newAttachments;
     case 'FILE_PREVIEW_LOAD_MORE_SUCESS':
-      newAttachments = action.isPre ? action.attachments.concat(newAttachments) : newAttachments.concat(action.attachments);
+      newAttachments = action.isPre
+        ? action.attachments.concat(newAttachments)
+        : newAttachments.concat(action.attachments);
       return newAttachments;
     default:
       return state;
@@ -92,6 +94,7 @@ function showAttInfo(state = false, action) {
 
 function error(state = false, action) {
   switch (action.type) {
+    case 'FILE_PREVIEW_ERROR':
     case 'FILE_PREVIEW_LOAD_FILE_SUCESS':
       return action.error || false;
     default:

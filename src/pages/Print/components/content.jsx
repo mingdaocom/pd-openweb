@@ -19,6 +19,7 @@ import {
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { SYSTOPRINTTXT } from '../config';
+import _ from 'lodash';
 
 export default class Con extends React.Component {
   constructor(props) {
@@ -41,33 +42,50 @@ export default class Con extends React.Component {
       fontSize: printData.font || DEFAULT_FONT_SIZE,
     });
   }
-  loadWorksheetShortUrl = () => {
-    const { appId, worksheetId, viewId, rowId, printId, type, from, printType, isDefault, projectId } =
-      this.props.params;
-    sheetAjax
-      .getWorksheetShareUrl({
-        worksheetId,
-        appId,
-        viewId,
-        rowId,
-        objectType: 2,
-      })
-      .then(shareUrl => {
-        let url = shareUrl;
-        if (
-          from === fromType.PRINT &&
-          type === typeForCon.PREVIEW &&
-          isDefault &&
-          printId &&
-          printType === 'worksheet'
-        ) {
-          url = shareUrl.replace(/worksheetshare/, 'printshare');
-          url = `${url}&&${printId}&&${projectId}`;
-        }
-        this.setState({
-          shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
+  componentWillReceiveProps(nextProps, nextState) {
+    if (_.get(this.props, ['printData', 'shareType']) !== _.get(nextProps, ['printData', 'shareType'])) {
+      this.loadWorksheetShortUrl(nextProps);
+    }
+  }
+  loadWorksheetShortUrl = props => {
+    let { appId, worksheetId, viewId, rowId, printId, type, from, printType, isDefault, projectId } = this.props.params;
+    const { printData } = props || this.props;
+    const { shareType = 0, rowIdForQr } = printData;
+    // shareType 0 普通=>记录分享 1 对内=>记录详情
+    if (shareType === 0) {
+      sheetAjax
+        .getWorksheetShareUrl({
+          worksheetId,
+          appId,
+          viewId,
+          rowId: rowId || rowIdForQr,
+          objectType: 2,
+        })
+        .then(shareUrl => {
+          let url = shareUrl;
+          if (
+            from === fromType.PRINT &&
+            type === typeForCon.PREVIEW &&
+            isDefault &&
+            printId &&
+            printType === 'worksheet'
+          ) {
+            url = shareUrl.replace(/worksheetshare/, 'printshare');
+            url = `${url}&&${printId}&&${projectId}`;
+          }
+          this.setState({
+            shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
+          });
         });
+    } else {
+      viewId = !viewId ? undefined : viewId;
+      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${
+        rowId || rowIdForQr
+      }`;
+      this.setState({
+        shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
       });
+    }
   };
 
   renderControls() {

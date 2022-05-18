@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { TRIGGER_ID } from '../../enum';
 import { Radio } from 'ming-ui';
 import { TriggerCondition } from '../components';
 
@@ -10,25 +10,26 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
       icon: 'icon-hr_structure',
       title: _l('人员'),
       actions: [
-        { text: _l('当新人入职时'), value: TRIGGER_ID_TYPE.ADD },
-        { text: _l('当人员离职时'), value: TRIGGER_ID_TYPE.DELETE },
+        { text: _l('当新人入职时'), value: TRIGGER_ID.ADD },
+        { text: _l('当人员离职时'), value: TRIGGER_ID.DELETE },
       ],
     },
     21: {
       icon: 'icon-workflow',
       title: _l('部门'),
       actions: [
-        { text: _l('当创建部门时'), value: TRIGGER_ID_TYPE.ADD },
-        { text: _l('当解散部门时'), value: TRIGGER_ID_TYPE.DELETE },
+        { text: _l('当创建部门时'), value: TRIGGER_ID.ADD },
+        { text: _l('当解散部门时'), value: TRIGGER_ID.DELETE },
       ],
     },
     23: {
       icon: 'icon-language',
       title: _l('外部用户'),
       actions: [
-        { text: _l('当新用户注册时'), value: TRIGGER_ID_TYPE.ADD },
-        { text: _l('当用户登录时'), value: TRIGGER_ID_TYPE.ONLY_EDIT },
-        { text: _l('当用户被删除时'), value: TRIGGER_ID_TYPE.DELETE },
+        { text: _l('当新用户注册时'), value: TRIGGER_ID.ADD },
+        { text: _l('当用户登录时'), value: TRIGGER_ID.ONLY_EDIT },
+        { text: _l('当用户注销时'), value: TRIGGER_ID.DELETE },
+        { text: _l('当用户被停用时'), value: TRIGGER_ID.STOP },
       ],
     },
   };
@@ -50,6 +51,15 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
               checked={data.triggerId === item.value}
               onClick={() => updateSource({ triggerId: item.value, operateCondition: [] })}
             />
+            {item.value === TRIGGER_ID.DELETE && (
+              <span
+                className="Gray_9e"
+                data-tip={_l('包括用户自行注销或被管理员注销')}
+                style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}
+              >
+                <i className="Font14 icon-workflow_help" />
+              </span>
+            )}
           </div>
         ))}
 

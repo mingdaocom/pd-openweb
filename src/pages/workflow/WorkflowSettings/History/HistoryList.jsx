@@ -13,6 +13,7 @@ const HISTORY_TITLE = [
   { id: 'cause', text: _l('原因') },
   { id: 'time', text: _l('触发时间') },
   { id: 'retry', text: '' },
+  { id: 'version', text: '' },
 ];
 
 const Box = styled.div`

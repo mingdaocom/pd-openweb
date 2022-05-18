@@ -91,14 +91,14 @@ export default class extends React.PureComponent {
               <div className="mBottom16 Gray_75">{_l('如何安排此角色下的用户')}</div>
               <Radio
                 className="Bold Block mBottom16"
-                text={_l('同时将所有用户移动到其他角色')}
+                text={_l('同时将此角色下的所有用户移动到其他角色')}
                 checked={deleteType === DELETE_TYPES.MOVE}
                 onClick={() => this.setState({ deleteType: DELETE_TYPES.MOVE })}
               />
               {deleteType === DELETE_TYPES.MOVE && this.renderMove(props)}
               <Radio
                 className="Bold Block"
-                text={_l('同时删除所有用户')}
+                text={_l('同时删除此角色下的所有用户')}
                 checked={deleteType === DELETE_TYPES.DELETE}
                 onClick={() => this.setState({ deleteType: DELETE_TYPES.DELETE })}
               />

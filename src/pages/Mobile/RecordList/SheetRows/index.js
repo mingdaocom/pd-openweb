@@ -58,6 +58,7 @@ class SheetRows extends Component {
           batchOptCheckedData={batchOptCheckedData}
           changeBatchOptData={this.props.changeBatchOptData}
           onClick={() => {
+            if (!window.mobileNavigateTo) return;
             window.mobileNavigateTo(
               `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
                 item.rowid

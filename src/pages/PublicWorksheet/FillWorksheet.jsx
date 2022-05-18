@@ -5,7 +5,7 @@ import { autobind } from 'core-decorators';
 import { Button, Dialog, RichText, Linkify } from 'ming-ui';
 import captcha from 'src/components/captcha';
 import CustomFields from 'src/components/newCustomFields';
-import { Hr } from 'src/pages/publicWorksheetConfig/components/Basics';
+import { Hr } from 'worksheet/components/Basics';
 import { addWorksheetRow } from './action';
 import { getSubListError } from 'worksheet/util';
 import './index.less';

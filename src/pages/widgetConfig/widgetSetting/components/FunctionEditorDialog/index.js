@@ -1,10 +1,10 @@
 import React from 'react';
-import { func } from 'prop-types';
+import { func, bool } from 'prop-types';
 import { Modal } from 'ming-ui';
 import Function from './Func';
 
 export default function FunctionEditorDialog(props) {
-  const { onSave, onClose } = props;
+  const { onClose } = props;
   let width = 960;
   let height = 600;
   if (document.body.clientWidth * 0.8 > 960) {
@@ -35,5 +35,4 @@ export default function FunctionEditorDialog(props) {
 
 FunctionEditorDialog.propTypes = {
   onClose: func,
-  onSave: func,
 };

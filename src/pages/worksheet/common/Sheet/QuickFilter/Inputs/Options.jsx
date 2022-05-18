@@ -110,7 +110,7 @@ export default function Options(props) {
     return (
       <Con>
         <Dropdown
-          {...{ ...control, advancedSetting: { ...control.advancedSetting, allowadd: '0' } }}
+          {...{ ...control, advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' } }}
           default={undefined}
           dropdownClassName="scrollInTable"
           value={JSON.stringify(values)}

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown, Radio, RichText } from 'ming-ui';
-import { NODE_TYPE, TRIGGER_ID_TYPE, CONTROLS_NAME } from '../../enum';
+import { NODE_TYPE, ACTION_ID, CONTROLS_NAME } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
   Member,
@@ -146,10 +146,10 @@ export default class Email extends Component {
   renderContent() {
     const { data, showSelectUserDialog, cacheKey, showSelectCCUserDialog, fieldsVisible, fieldsData } = this.state;
     const list = [
-      { text: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: TRIGGER_ID_TYPE.SEND_EMAIL },
+      { text: _l('标准（支持抄送，每个收件人都可以看到所有收件人和抄送人）'), value: ACTION_ID.SEND_EMAIL },
       {
         text: _l('群发单显（采用一对一单独发送，每个收件人只能看到自己的地址）'),
-        value: TRIGGER_ID_TYPE.SEND_EMAIL_SINGLE_DISPLAY,
+        value: ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY,
       },
     ];
     const contentTypes = [
@@ -169,7 +169,7 @@ export default class Email extends Component {
           onChange={actionId => {
             this.updateSource({
               actionId,
-              ccAccounts: actionId === TRIGGER_ID_TYPE.SEND_EMAIL_SINGLE_DISPLAY ? [] : data.ccAccounts,
+              ccAccounts: actionId === ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY ? [] : data.ccAccounts,
             });
           }}
         />
@@ -196,7 +196,7 @@ export default class Email extends Component {
           />
         </div>
 
-        {data.actionId === TRIGGER_ID_TYPE.SEND_EMAIL && (
+        {data.actionId === ACTION_ID.SEND_EMAIL && (
           <Fragment>
             <div className="mTop20 bold">{_l('抄送人')}</div>
             <Member

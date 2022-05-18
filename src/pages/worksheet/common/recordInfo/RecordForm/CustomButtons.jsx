@@ -314,6 +314,7 @@ export default class CustomButtons extends React.Component {
             appId: relationControl.appId,
             rowId: this.fillRecordId,
             viewId: relationControl.viewId,
+            masterFormData: rowInfo.formData,
           };
         } catch (err) {
           Dialog.confirm({

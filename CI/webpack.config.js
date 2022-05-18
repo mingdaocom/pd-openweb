@@ -71,7 +71,7 @@ module.exports = {
         terserOptions: {
           safari10: true,
           compress: {
-            drop_console: true,
+            pure_funcs: ['console.log'],
           },
         },
         extractComments: 'all',

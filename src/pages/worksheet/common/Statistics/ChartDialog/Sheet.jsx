@@ -13,6 +13,11 @@ import * as actions from 'worksheet/common/Statistics/redux/actions';
 
 const Con = styled.div`
   padding: 17px 20px;
+  .SingleViewHeader {
+    .icon-task-later, .addRecord {
+      display: none;
+    }
+  }
   .hoverHighlight {
     &:hover {
       color: #2196f3 !important;
@@ -190,7 +195,7 @@ export default class ChartSheet extends Component {
     const { currentReport, tableData, worksheetInfo, base, reportSingleCacheLoading, settingVisible } = this.props;
     const Chart = charts[reportTypes.PivotTable];
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');;
+    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor;
 
     if (
       (_.isEmpty(tableData) && this.isRequestTableData) ||

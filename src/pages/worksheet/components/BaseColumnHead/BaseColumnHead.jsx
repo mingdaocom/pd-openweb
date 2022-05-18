@@ -90,10 +90,16 @@ export default class BaseColumnHead extends React.Component {
       return;
     }
     const mdtableId = (mdtableElement.className.match(/id-([\w-]+)-id/) || [])[1];
+    const defaultLeft = clientX - mdtableElement.getBoundingClientRect().left;
+    let maskMinLeft;
+    if (control.type === 6 && control.advancedSetting && control.advancedSetting.showtype === '2') {
+      maskMinLeft = defaultLeft - (columnWidth - 10) + 120;
+    }
     emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + mdtableId, {
       columnIndex,
       columnWidth,
-      defaultLeft: clientX - mdtableElement.getBoundingClientRect().left,
+      defaultLeft,
+      maskMinLeft,
       target: mdtableElement,
       callback: newWidth => {
         updateSheetColumnWidths({ controlId: control.controlId, value: newWidth });
@@ -136,7 +142,7 @@ export default class BaseColumnHead extends React.Component {
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
     const canSort = !disabled && fieldCanSort(controlType);
-    let sustractWidth = 13;
+    let sustractWidth = 0;
     if (showRequired) {
       sustractWidth += 8;
     }

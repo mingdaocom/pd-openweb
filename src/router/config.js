@@ -91,6 +91,10 @@ export const ROUTE_CONFIG = {
     path: '/worksheet/:worksheetId/row/:rowId',
     component: () => import('src/pages/worksheet/pages/WorksheetRowLand'),
   },
+  viewDetail: {
+    path: '/embed/view/:appId/:worksheetId/:viewId',
+    component: () => import('src/pages/ViewLand'),
+  },
   workflowRecordLand: {
     path: '/app/:appId/workflow/record/:id/:workId',
     component: () => import('src/pages/worksheet/pages/WorkflowRecordLand'),
@@ -283,6 +287,7 @@ const withoutChatPathList = [
   'mobile',
   'worksheet/uploadTemplateSheet',
   'gunterExport',
+  'land',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

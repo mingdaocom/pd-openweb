@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, Switch, RadioGroup } from 'ming-ui';
 import cx from 'classnames';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -15,12 +17,62 @@ export default class Widgets extends Component {
     this.props.onChange(value);
   };
 
+  renderContent = () => {
+    const { disabled, value, advancedSetting = {} } = this.props;
+    const itemnames = getSwitchItemNames(this.props);
+
+    const isChecked = value === 1 || value === '1';
+    let isMobile = browserIsMobile();
+
+    if (advancedSetting.showtype === '1') {
+      const text = isChecked ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
+      return (
+        <div className={cx('flexCenter w100', { flexRow: browserIsMobile() })}>
+          <Switch
+            disabled={disabled}
+            checked={isChecked}
+            onClick={this.onChange}
+            className={cx({ mobileFormSwitchDisabled: disabled })}
+          />
+          {text && <span className={cx('mLeft6 flex overflow_ellipsis', { LineHeight24: browserIsMobile() })}>{text}</span>}
+        </div>
+      );
+    }
+
+    if (advancedSetting.showtype === '2') {
+      if (isMobile && disabled) {
+        let radioLabel = (itemnames || []).filter(item => item.key === value).length
+          ? itemnames.filter(item => item.key === value)[0].value
+          : '';
+        return <div className="mobileDisableChaeckRadio ellipsis">{radioLabel}</div>;
+      }
+
+      return (
+        <RadioGroup
+          size="middle"
+          disabled={disabled}
+          className={cx('customFormCheck', { mobileCustomFormRadio: isMobile })}
+          checkedValue={`${value}`}
+          data={itemnames.map(item => ({ text: item.value, value: item.key }))}
+          onChange={type => this.onChange(type !== '1')}
+        />
+      );
+    }
+
+    return <Checkbox className="customFormCheck" disabled={disabled} checked={isChecked} onClick={this.onChange} />;
+  };
+
   render() {
-    const { disabled, value } = this.props;
+    const { disabled, advancedSetting = {} } = this.props;
 
     return (
-      <div className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}>
-        <Checkbox className="customFormCheck" text="" disabled={disabled} checked={value === 1 || value === '1'} onClick={this.onChange} />
+      <div
+        className={cx('customFormControlBox customFormButton flexRow customFormControlSwitch', {
+          controlDisabled: disabled,
+          customFormSwitchColumn: advancedSetting.showtype === '2', // 详情排列格式
+        })}
+      >
+        {this.renderContent()}
       </div>
     );
   }

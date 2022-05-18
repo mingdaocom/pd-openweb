@@ -6,6 +6,7 @@ import { SettingItem, SelectFieldsWrap, ControlTag } from '../../styled';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import SelectControl from './SelectControl';
 import { getConcatenateControls } from '../../util/data';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 export default function Concatenate({ data, onChange, allControls }) {
   const $tagtextarea = useRef(null);
@@ -27,11 +28,15 @@ export default function Concatenate({ data, onChange, allControls }) {
               $tagtextarea.current = tagtextarea;
             }}
             renderTag={(id, options) => {
-              const controlName = get(
-                find(availableControls, item => item.controlId === id),
-                'controlName',
+              const originControl = find(availableControls, item => item.controlId === id);
+              const controlName = get(originControl, 'controlName');
+              const invalidError =
+                originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
+              return (
+                <ControlTag className={cx({ invalid: !controlName || invalidError })}>
+                  {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('已删除')}
+                </ControlTag>
               );
-              return <ControlTag className={cx({ invalid: !controlName })}>{controlName || _l('已删除')}</ControlTag>;
             }}
             onChange={(err, value) => {
               if (!err) {
@@ -45,7 +50,7 @@ export default function Concatenate({ data, onChange, allControls }) {
           {visible && (
             <SelectControl
               className={'isolate'}
-              list={availableControls}
+              list={filterOnlyShowField(availableControls)}
               onClickAway={() => setVisible(false)}
               onClick={item => {
                 $tagtextarea.current.insertColumnTag(item.controlId);

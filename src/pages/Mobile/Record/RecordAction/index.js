@@ -122,7 +122,6 @@ class RecordAction extends Component {
         percent: 100,
         total: 1,
         num: 1,
-        btnDisable: {},
       });
       this.props.loadRow();
       clearTimeout(timeout);
@@ -192,11 +191,12 @@ class RecordAction extends Component {
     if (pushType === PUSH_TYPE.LINK) {
       location.href = content;
     }
-    message.destroy()
+    message.destroy();
   };
   renderRunInfo = () => {
     const { batchOptCheckedData } = this.props;
-    let { custBtnName = '', total = 1, runInfoVisible } = this.state;
+    let { custBtnName = '', total = 1, runInfoVisible, btnDisable } = this.state;
+    if (!_.isEmpty(btnDisable)) return;
     let totalNum = total || batchOptCheckedData.length;
     return (
       <Modal animationType="slide-up" visible={runInfoVisible} className="runInfoModal">
@@ -244,6 +244,7 @@ class RecordAction extends Component {
   };
   triggerImmediately = btn => {
     const { batchOptCheckedData = [], isMobileOperate } = this.props;
+    this.disableCustomButton(btn.btnId);
     if (isMobileOperate) {
       this.setState({ runInfoVisible: true });
     } else {
@@ -280,7 +281,6 @@ class RecordAction extends Component {
         }, durationValue);
       }
       this.props.loadCustomBtns();
-      this.disableCustomButton(btn.btnId);
     });
   };
   disableCustomButton = id => {
@@ -450,6 +450,7 @@ class RecordAction extends Component {
   };
   handleOpenShare = () => {
     const { shareUrl } = this.state;
+    const { sheetRow } = this.props;
     navigator
       .share({
         title: _l('系统'),

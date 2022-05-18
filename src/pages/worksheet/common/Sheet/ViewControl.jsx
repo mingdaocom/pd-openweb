@@ -28,6 +28,8 @@ import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarc
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { getSearchData } from 'worksheet/views/util';
 import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
+import { openShareDialog } from 'src/pages/worksheet/components/Share';
+
 const Con = styled.div`
   display: flex;
   align-items: center;
@@ -116,26 +118,20 @@ function ViewControl(props) {
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
         }}
         onShare={() => {
-          import('src/components/shareAttachment/shareAttachment').then(share => {
-            const params = {
-              id: worksheetId,
-              viewId: viewId,
-              appSectionId: groupId,
-              shareRange: view.shareRange,
+          openShareDialog({
+            from: 'view',
+            isCharge,
+            title: _l('分享视图'),
+            isPublic: view.shareRange === 2,
+            params: {
               appId,
-              ext: '',
-              name: view.name,
-              dialogTitle: _l('分享视图'),
-              attachmentType: 3,
-              node: {
-                canChangeSharable: isCharge,
-              },
-            };
-            share.default(params, {
-              updateView: value => {
-                updateView(Object.assign({}, view, value));
-              },
-            });
+              worksheetId,
+              viewId,
+              title: view.name,
+            },
+            onUpdate: value => {
+              updateView(Object.assign({}, view, value));
+            },
           });
         }}
         onExport={() => {
@@ -260,6 +256,8 @@ function ViewControl(props) {
             '.ant-picker-dropdown',
             '.quickAddControlDialog',
             '.ant-modal-root',
+            '.ant-tooltip',
+            '.CodeMirror-hints',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -314,6 +312,8 @@ function ViewControl(props) {
             '.ant-tree-select-dropdown',
             '.ant-picker-dropdown',
             '.ant-modal-root',
+            '.ant-tooltip',
+            '.CodeMirror-hints',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}

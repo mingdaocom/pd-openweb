@@ -80,6 +80,16 @@
       color: #fff;
     }
   }
+  &.backupRestore {
+    .Item-content {
+      overflow: inherit;
+    }
+    .activeIcon .icon {
+      left: 0;
+      line-height: inherit;
+      color: #fff;
+    }
+  }
   .Item-content {
     padding-left: 48px !important;
 
@@ -139,5 +149,24 @@
       width: 385px;
       text-align: center;
     }
+  }
+}
+
+.backupRestoreCon {
+  width: 180px;
+  background-color: #fff;
+  z-index: 1;
+  padding: 6px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+  .backupRestoreItem {
+    height: 36px;
+    line-height: 36px;
+    font-size: 14;
+    color: #333;
+    padding-left: 20px;
+  }
+  .backupRestoreItem:hover {
+    background-color: #2196f3;
+    color: #fff;
   }
 }

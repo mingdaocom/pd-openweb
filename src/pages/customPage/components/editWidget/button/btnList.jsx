@@ -27,6 +27,9 @@ const BtnWrap = styled.div`
   padding: 0 10px;
   cursor: pointer;
   box-sizing: border-box;
+  &.noMargin {
+    margin: 0;
+  }
   &.isFullWidth {
     flex-grow: 1;
   }
@@ -147,6 +150,8 @@ export default function BtnList({
                           active: activeIndex === actualIndex,
                           error: errorBtns.includes(index),
                           adjustText: style === 3,
+                          noMargin: btnType === 2,
+                          flexRow: direction === 2
                         })}
                       >
                         {btnType === 2 ? (

@@ -1,9 +1,6 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
-// import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
-
-const WORKSHEET_TABLE_PAGESIZE = 20;
 
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
@@ -102,17 +99,22 @@ export const loadWorksheet = () => (dispatch, getState) => {
 
 export const fetchSheetRows = params => (dispatch, getState) => {
   const { base, filters, sheetView, quickFilter, mobileNavGroupFilters } = getState().mobile;
-  const { appId, worksheetId, viewId } = base;
+  const { appId, worksheetId, viewId, maxCount } = base;
   const { keyWords } = filters;
-  const { pageIndex } = sheetView;
+  let { pageIndex } = sheetView;
   let extraParams = params ? { ...params } : {};
+  let pageSize = 20;
   dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
+  if (maxCount) {
+    pageIndex = 1;
+    pageSize = maxCount;
+  }
   sheetAjax
     .getFilterRows({
       worksheetId,
       appId,
       searchType: 1,
-      pageSize: WORKSHEET_TABLE_PAGESIZE,
+      pageSize,
       pageIndex,
       status: 1,
       viewId,
@@ -138,7 +140,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     .then(sheetRowsAndTem => {
       const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
       const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
-      const isMore = currentSheetRows.length === WORKSHEET_TABLE_PAGESIZE;
+      const isMore = maxCount ? false : currentSheetRows.length === pageSize;
       dispatch({
         type,
         data: currentSheetRows,

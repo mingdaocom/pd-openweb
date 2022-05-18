@@ -13,14 +13,14 @@ import DiscussionController from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 
-const loadAllComment = function(postId) {
+const loadAllComment = function (postId) {
   var _this = this;
   var dfd = $.Deferred();
   postAjax
     .getMorePostComments({
       postID: postId,
     })
-    .done(function(data) {
+    .done(function (data) {
       if (data === 'error') {
         alert(_l('操作失败'), 2);
         dfd.reject();
@@ -43,7 +43,7 @@ const removeTopicConfirm = props => {
   });
 };
 
-const removeTopic = function(props) {
+const removeTopic = function (props) {
   const { sourceType, sourceId, discussionId, isDeleteAttachment } = props;
 
   if (sourceType === SOURCE_TYPE.POST) {
@@ -53,7 +53,7 @@ const removeTopic = function(props) {
         postID: sourceId,
         commentID: discussionId,
       })
-      .done(function(data) {
+      .done(function (data) {
         const { success } = data;
         if (success) {
           alert(_l('删除成功'));
@@ -69,7 +69,7 @@ const removeTopic = function(props) {
       sourceType,
     };
     return DiscussionController.removeDiscussion(params)
-      .then(function(result) {
+      .then(function (result) {
         var dfd = $.Deferred();
         if (result.code === 1) {
           dfd.resolve();
@@ -79,18 +79,18 @@ const removeTopic = function(props) {
         return dfd.promise();
       })
       .then(
-        function() {
+        function () {
           alert(_l('删除成功'));
           props.removeCallback(props.discussionId);
         },
-        function() {
+        function () {
           alert(_l('操作失败'), 2);
         },
       );
   }
 };
 
-const getComponentProps = function(props) {
+const getComponentProps = function (props) {
   const {
     params: { sourceType, discussionId, extendsId, name, projectId, createAccount },
   } = props;
@@ -492,14 +492,16 @@ export default class CommentArea extends React.Component {
     return (
       <div className="Font12">
         <div>
-          <a
-            href="javascript:void 0;"
-            onClick={() => {
-              this.setState({ showComments: !showComments, commenterIsFocus: true });
-            }}
-          >
-            {_l('回复')}
-          </a>
+          {!md.global.Account.isPortal && ( //外部门户没有回复
+            <a
+              href="javascript:void 0;"
+              onClick={() => {
+                this.setState({ showComments: !showComments, commenterIsFocus: true });
+              }}
+            >
+              {_l('回复')}
+            </a>
+          )}
         </div>
         {this.renderComments()}
         {this.renderViewMore()}

@@ -118,7 +118,7 @@ class Upload extends Component {
             tokenFiles.push({ bucket: 2, ext: fileExt });
           });
 
-          getToken(tokenFiles, 5).then(res => {
+          getToken(tokenFiles, 6).then(res => {
             files.forEach((item, i) => {
               item.token = res[i].uptoken;
               item.key = res[i].key;

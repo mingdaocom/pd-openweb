@@ -373,7 +373,7 @@ BusinessCard.prototype.applyPlacement = function () {
 BusinessCard.prototype.formatData = function (result) {
   var type = this.options.type;
   var data = {};
-  if (this.options.accountId.indexOf('#') > -1) {
+  if (md.global.Account.isPortal || (_.get(this.options, ['accountId']) || '').indexOf('#') > -1) {
     data.status = 3;
     data.isPortal = true;
     data.fullname = result.fullname;

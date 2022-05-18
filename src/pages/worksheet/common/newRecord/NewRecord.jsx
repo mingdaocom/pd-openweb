@@ -7,8 +7,18 @@ import NewRecordContent from './NewRecordContent';
 import { browserIsMobile } from 'src/util';
 
 export default function NewRecord(props) {
-  const { visible, notDialog, className, showFillNext, showContinueAdd = true, hideNewRecord, ...rest } = props;
+  const {
+    visible,
+    notDialog,
+    className,
+    showFillNext,
+    showContinueAdd = true,
+    hideNewRecord,
+    showShare,
+    ...rest
+  } = props;
   const newRecordContent = useRef(null);
+  const [shareVisible, setShareVisible] = useState();
   const [modalClassName] = useState(Math.random().toString().slice(2));
   const [abnormal, setAbnormal] = useState();
   const [autoFill, setAutoFill] = useState();
@@ -23,6 +33,8 @@ export default function NewRecord(props) {
       autoFill={autoFill}
       showTitle
       onCancel={hideNewRecord}
+      shareVisible={shareVisible}
+      setShareVisible={setShareVisible}
       onSubmitBegin={() => setLoading(true)}
       onSubmitEnd={() => setLoading(false)}
       onError={() => setAbnormal(true)}
@@ -84,14 +96,21 @@ export default function NewRecord(props) {
     type: 'fixed',
     verticalAlign: 'bottom',
     width: browserIsMobile() ? window.innerWidth - 20 : 900,
-    onCancel: (e, type) => {
-      if (type === 'click' && rest.viewId) {
-        removeFromLocal('tempNewRecord', rest.viewId);
-      }
-      hideNewRecord();
-    },
+    onCancel: hideNewRecord,
     footer,
     visible,
+    iconButtons:
+      showShare && !md.global.Account.isPortal
+        ? [
+            {
+              icon: 'icon-share',
+              tip: _l('分享'),
+              onClick: () => {
+                setShareVisible(true);
+              },
+            },
+          ]
+        : [],
   };
   return notDialog ? (
     <div className={cx('workSheetNewRecord', className, modalClassName)}>

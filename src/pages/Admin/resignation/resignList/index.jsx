@@ -12,13 +12,13 @@ import Checkbox from 'ming-ui/components/Checkbox';
 
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { addToken } from 'src/util';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 import 'pager';
 import Confirm from 'confirm';
 import './style.less';
 import Empty from '../../common/TableEmpty';
+import { getPssId } from 'src/util/pssId';
 
 export default class ResignList extends React.Component {
   static propTypes = {
@@ -126,14 +126,27 @@ export default class ResignList extends React.Component {
     }
 
     var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
-    var fromHtml = `<form id="downFile" target="_blank" action="${addToken(url)}" method="post">
-    <input type="hidden" name="userStatus" value="4" />
-    <input type="hidden" name="projectId" value="${projectId}" />
-    <input type="hidden" name="accountIds" value="${accountIds.toString()}" />
-    </form>
-    `;
-    $('body').append(fromHtml);
-    $('#downFile').submit().remove();
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: `md_pss_id ${getPssId()}`,
+      },
+      body: JSON.stringify({
+        userStatus: '4',
+        projectId,
+        accountIds: accountIds.join(','),
+      }),
+    })
+      .then(response => response.blob())
+      .then(blob => {
+        const link = document.createElement('a');
+
+        link.href = window.URL.createObjectURL(blob);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      });
   }
 
   recovery(accountId, fullName) {

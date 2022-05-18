@@ -126,8 +126,9 @@
       .time {
         min-width: 160px;
       }
-      .retry {
-        min-width: 55px;
+      .retry,
+      .version {
+        min-width: 30px;
       }
       .triggerData,
       .cause {
@@ -142,7 +143,8 @@
       cursor: pointer;
       position: relative;
       &:hover {
-        .retry {
+        .retry,
+        .version {
           visibility: visible;
         }
       }
@@ -150,8 +152,10 @@
       .triggerTime {
         min-width: 160px;
       }
-      .retry {
-        min-width: 55px;
+      .retry,
+      .version {
+        height: 16px;
+        min-width: 30px;
         visibility: hidden;
       }
     }

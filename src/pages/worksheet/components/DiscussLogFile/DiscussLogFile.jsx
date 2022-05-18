@@ -20,8 +20,19 @@ class DiscussLogFile extends Component {
 
   constructor(props) {
     super(props);
+    this.getShowTabs(props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.hiddenTabs !== this.props.hiddenTabs) {
+      this.getShowTabs(nextProps);
+    }
+  }
+
+  getShowTabs = props => {
     this.showTabs = [
       { id: 1, name: 'discuss', text: _l('讨论') },
+      { id: 4, name: 'discussPortal', text: md.global.Account.isPortal ? _l('讨论') : _l('讨论(外部)') },
       { id: 3, name: 'files', text: _l('文件') },
       { id: 2, name: 'logs', text: _l('日志') },
     ].filter(tab => !_.find(props.hiddenTabs, tname => tname === tab.name));
@@ -32,7 +43,7 @@ class DiscussLogFile extends Component {
       loading: false,
       status: this.showTabs.length && this.showTabs[0].id, // 日志讨论  1 日志  2讨论
     };
-  }
+  };
 
   render() {
     const { workflow } = this.props;
@@ -67,9 +78,9 @@ class DiscussLogFile extends Component {
                 {workflow}
               </ScrollView>
             )}
-            {status === 1 && (
+            {(status === 1 || status === 4) && (
               <div className="talkBox">
-                <WorkSheetComment {...this.props} />
+                <WorkSheetComment status={status} {...this.props} />
               </div>
             )}
             {status === 2 && <WorksheetLog {...this.props} />}

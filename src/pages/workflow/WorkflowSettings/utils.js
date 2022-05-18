@@ -1,4 +1,4 @@
-import { NODE_TYPE, APP_TYPE, TRIGGER_ID_TYPE } from './enum';
+import { NODE_TYPE, APP_TYPE, ACTION_ID } from './enum';
 
 /**
  * 遍历获取统计id
@@ -55,11 +55,11 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.ACTION:
       if (appType === APP_TYPE.TASK) {
         icon = 'icon-custom_assignment';
-      } else if (appType === APP_TYPE.SHEET && actionId === TRIGGER_ID_TYPE.EDIT) {
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.EDIT) {
         icon = 'icon-workflow_update';
-      } else if (appType === APP_TYPE.SHEET && actionId === TRIGGER_ID_TYPE.ADD) {
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.ADD) {
         icon = 'icon-workflow_new';
-      } else if (appType === APP_TYPE.SHEET && actionId === TRIGGER_ID_TYPE.RELATION) {
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.RELATION) {
         icon = 'icon-workflow_search';
       }
       break;

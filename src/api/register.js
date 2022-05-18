@@ -129,6 +129,7 @@ module.exports = {
   * 设置 用户名称
   * @param {Object} args 请求参数
   * @param {string} args.fullname 真实姓名
+  * @param {string} args.email 邮箱
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -185,7 +186,12 @@ module.exports = {
   * @param {string} args.tpCompanyId 第三方企业ID
   * @param {string} args.job 职位
   * @param {string} args.email 邮箱
-  * @param {integer} args.scaleId 注册来源
+  * @param {integer} args.scaleId 规模Id
+  * @param {string} args.scale 规模中文
+  * @param {string} args.industry 行业中文
+  * @param {integer} args.industryId 行业id
+  * @param {string} args.departmentType 部门类型
+  * @param {string} args.jobType 职级类型
   * @param {string} args.code 授权code方式
   * @param {string} args.unionId 第3方
   * @param {string} args.state 第3方
@@ -215,6 +221,7 @@ module.exports = {
   * @param {string} args.workSiteId 工作地id
   * @param {string} args.jobNumber 工号
   * @param {string} args.contactPhone 座机
+  * @param {string} args.email 邮箱
   * @param {string} args.regFrom 注册广告来源
   * @param {string} args.referrer 注册来源页面
   * @param {Object} options 配置参数
@@ -233,6 +240,7 @@ module.exports = {
   * @param {string} args.password 密码
   * @param {string} args.verifyCode 验证码
   * @param {string} args.fullname 用户名
+  * @param {string} args.email 邮箱
   * @param {array} args.jobIds 职位id
   * @param {string} args.companyName 公司名
   * @param {array} args.departmentIds 部门id

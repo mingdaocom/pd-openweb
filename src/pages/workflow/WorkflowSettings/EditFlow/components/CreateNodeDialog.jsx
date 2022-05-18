@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Dialog, Radio, ScrollView, Support } from 'ming-ui';
+import { Dialog, Radio, ScrollView, Support, Icon } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { NODE_TYPE, TRIGGER_ID_TYPE } from '../../enum';
+import { NODE_TYPE, ACTION_ID } from '../../enum';
 import { upgradeVersionDialog } from 'src/util';
 import { getProjectLicenseInfo } from 'src/api/project';
 
@@ -15,6 +15,7 @@ export default class CreateNodeDialog extends Component {
     this.state = {
       list: [
         {
+          id: 'data',
           name: _l('数据处理'),
           items: [
             {
@@ -109,23 +110,8 @@ export default class CreateNodeDialog extends Component {
                 {
                   type: 13,
                   appType: 1,
-                  actionId: '403',
-                  name: _l('从Webhook数组获取数据'),
-                  describe: _l('获取Webhook节点中的JSON数组对象'),
-                },
-                {
-                  type: 13,
-                  appType: 1,
-                  actionId: '404',
-                  name: _l('从代码块数组获取数据'),
-                  describe: _l('获取代码块节点中的JSON数组对象'),
-                },
-                {
-                  type: 13,
-                  appType: 1,
-                  actionId: '408',
-                  name: _l('从业务流程数组获取数据'),
-                  describe: _l('获取封装业务流程输入节点的JSON数组对象'),
+                  name: _l('从对象数组获取数据'),
+                  describe: _l('获取Webhook、代码块、封装业务流程输入节点的JSON数组对象'),
                 },
               ],
             },
@@ -140,10 +126,17 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
+          id: 'artificial',
           name: _l('人工'),
           items: [
             { type: 4, name: _l('审批'), iconColor: '#7E57C2', iconName: 'icon-workflow_ea' },
             { type: 3, name: _l('填写'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
+          ],
+        },
+        {
+          id: 'notice',
+          name: _l('通知'),
+          items: [
             { type: 5, name: _l('发送站内通知'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
             { type: 10, name: _l('发送短信'), iconColor: '#2196f3', iconName: 'icon-workflow_sms' },
             {
@@ -171,6 +164,7 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
+          id: 'component',
           name: _l('构件'),
           items: [
             { type: 1, name: _l('分支'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
@@ -265,14 +259,43 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
-          name: _l('人员/部门/协作'),
+          id: 'developer',
+          name: '开发者',
+          items: [
+            { type: 8, name: _l('Webhook'), iconColor: '#4C7D9E', iconName: 'icon-workflow_webhook' },
+            {
+              type: 14,
+              name: _l('代码块'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-url',
+              typeText: _l('选择代码块语言'),
+              secondList: [
+                {
+                  type: 14,
+                  name: _l('JavaScript'),
+                  actionId: '102',
+                  describe: _l('使用JavaScript语言'),
+                },
+                {
+                  type: 14,
+                  name: _l('Python'),
+                  actionId: '103',
+                  describe: _l('使用Python语言'),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'message',
+          name: _l('组织/部门/协作'),
           items: [
             {
               type: 1000,
-              name: _l('获取单条人员/部门信息'),
+              name: _l('获取单条人员/部门数据'),
               iconColor: '#2196f3',
               iconName: 'icon-person_search',
-              typeText: _l('组织人员/部门'),
+              typeText: _l('获取方式'),
               secondList: [
                 {
                   type: 1000,
@@ -303,30 +326,13 @@ export default class CreateNodeDialog extends Component {
                   describe: _l('从当前组织的所有部门中获取一个指定部门的相关信息'),
                 },
               ],
-              typeText2: _l('外部用户'),
-              secondList2: [
-                {
-                  type: 1000,
-                  appType: 23,
-                  actionId: '20',
-                  name: _l('从外部用户字段获取'),
-                  describe: _l('从外部用户字段获取一名指定人员的相关信息'),
-                },
-                {
-                  type: 1000,
-                  appType: 23,
-                  actionId: '406',
-                  name: _l('从外部门户中获取'),
-                  describe: _l('从当前应用的所有外部用户中获取一名指定人员的相关信息'),
-                },
-              ],
             },
             {
               type: 1001,
-              name: _l('获取多条人员/部门信息'),
+              name: _l('获取多条人员/部门数据'),
               iconColor: '#2196f3',
               iconName: 'icon-group-members',
-              typeText: _l('组织人员/部门'),
+              typeText: _l('获取方式'),
               secondList: [
                 {
                   type: 1001,
@@ -357,8 +363,51 @@ export default class CreateNodeDialog extends Component {
                   describe: _l('从当前组织的所有部门中获取批量部门的相关信息'),
                 },
               ],
-              typeText2: _l('外部用户'),
-              secondList2: [
+            },
+            {
+              type: 6,
+              name: _l('创建任务'),
+              appType: 2,
+              actionId: '1',
+              iconColor: '#01CA83',
+              iconName: 'icon-custom_assignment',
+            },
+          ],
+        },
+        {
+          id: 'external',
+          name: _l('外部用户'),
+          items: [
+            {
+              type: 1000,
+              name: _l('获取单条外部人员数据'),
+              iconColor: '#2196f3',
+              iconName: 'icon-external_users',
+              typeText: _l('获取方式'),
+              secondList: [
+                {
+                  type: 1000,
+                  appType: 23,
+                  actionId: '20',
+                  name: _l('从外部用户字段获取'),
+                  describe: _l('从外部用户字段获取一名指定人员的相关信息'),
+                },
+                {
+                  type: 1000,
+                  appType: 23,
+                  actionId: '406',
+                  name: _l('从外部门户中获取'),
+                  describe: _l('从当前应用的所有外部用户中获取一名指定人员的相关信息'),
+                },
+              ],
+            },
+            {
+              type: 1001,
+              name: _l('获取多条外部人员数据'),
+              iconColor: '#2196f3',
+              iconName: 'icon-folder-public',
+              typeText: _l('获取方式'),
+              secondList: [
                 {
                   type: 1001,
                   appType: 23,
@@ -375,41 +424,6 @@ export default class CreateNodeDialog extends Component {
                 },
               ],
             },
-            {
-              type: 6,
-              name: _l('创建任务'),
-              appType: 2,
-              actionId: '1',
-              iconColor: '#01CA83',
-              iconName: 'icon-custom_assignment',
-            },
-          ],
-        },
-        {
-          name: '开发者',
-          items: [
-            { type: 8, name: _l('Webhook'), iconColor: '#4C7D9E', iconName: 'icon-workflow_webhook' },
-            {
-              type: 14,
-              name: _l('代码块'),
-              iconColor: '#4C7D9E',
-              iconName: 'icon-url',
-              typeText: _l('选择代码块语言'),
-              secondList: [
-                {
-                  type: 14,
-                  name: _l('JavaScript'),
-                  actionId: '102',
-                  describe: _l('使用JavaScript语言'),
-                },
-                {
-                  type: 14,
-                  name: _l('Python'),
-                  actionId: '103',
-                  describe: _l('使用Python语言'),
-                },
-              ],
-            },
           ],
         },
       ],
@@ -419,6 +433,7 @@ export default class CreateNodeDialog extends Component {
       isOrdinary: true,
       showBranchDialog: false,
       moveType: 1,
+      foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
     };
 
     if (!props.hasPushNode) {
@@ -455,7 +470,16 @@ export default class CreateNodeDialog extends Component {
    */
   renderContent() {
     const { isLast, nodeType, actionId, flowNodeMap, nodeId } = this.props;
-    const { list, selectItem, selectSecond, showDialog, isOrdinary, showBranchDialog, moveType } = this.state;
+    const {
+      list,
+      selectItem,
+      selectSecond,
+      showDialog,
+      isOrdinary,
+      showBranchDialog,
+      moveType,
+      foldFeatures,
+    } = this.state;
     const MOVE_TYPE = () => {
       if (isOrdinary) {
         return [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
@@ -471,7 +495,7 @@ export default class CreateNodeDialog extends Component {
 
       if (
         _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], nodeType) ||
-        (nodeType === NODE_TYPE.ACTION && actionId === TRIGGER_ID_TYPE.RELATION)
+        (nodeType === NODE_TYPE.ACTION && actionId === ACTION_ID.RELATION)
       ) {
         return [
           { text: _l('左侧（有数据分支）'), value: 1 },
@@ -499,32 +523,45 @@ export default class CreateNodeDialog extends Component {
             </div>
           )}
           {this.renderSecondList(selectItem.secondList)}
-
-          {selectItem.typeText2 && <div className="bold pLeft10 mTop10">{selectItem.typeText2}</div>}
-          {this.renderSecondList(selectItem.secondList2)}
         </div>
       );
     }
 
     return (
-      <div className="pBottom15 pLeft24 pRight24">
+      <div className="pBottom15 pLeft10 pRight10">
         {list.map((data, i) => {
           return (
-            <Fragment key={i}>
-              <div className="Font14 Gray_75 pTop15">{data.name}</div>
-              <ul className="nodeList">
-                {data.items.map((item, j) => {
-                  return (
-                    <li key={j} onClick={() => this.createNodeClick(item)}>
-                      <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
-                        <i className={item.iconName} />
-                      </span>
-                      <div className="Font13 mTop8 LineHeight16">{item.name}</div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Fragment>
+            <div className="mTop15 nodeListContainer" key={i}>
+              <div
+                className="Font16 bold pTop5 pBottom5 pointer"
+                onClick={() => {
+                  const newFold = Object.assign({}, foldFeatures, { [data.id]: !foldFeatures[data.id] });
+
+                  this.setState({ foldFeatures: newFold });
+                  localStorage.setItem(`workflowFoldFeatures-${md.global.Account.accountId}`, JSON.stringify(newFold));
+                }}
+              >
+                <Icon
+                  icon={foldFeatures[data.id] ? 'arrow-right-tip' : 'arrow-down'}
+                  className="mRight13 Gray_9e Font13 nodeFoldIcon"
+                />
+                {data.name}
+              </div>
+              {!foldFeatures[data.id] && (
+                <ul className="nodeList clearfix">
+                  {data.items.map((item, j) => {
+                    return (
+                      <li key={j} onClick={() => this.createNodeClick(item)}>
+                        <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
+                          <i className={item.iconName} />
+                        </span>
+                        <div className="Font14">{item.name}</div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           );
         })}
 
@@ -538,7 +575,7 @@ export default class CreateNodeDialog extends Component {
           }
           onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
           onOk={() =>
-            isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === TRIGGER_ID_TYPE.PBC_OUT
+            isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
               ? this.onOk({ noMove: true })
               : this.setState({ showDialog: false, showBranchDialog: true })
           }
@@ -644,7 +681,7 @@ export default class CreateNodeDialog extends Component {
     } else if (
       item.type === NODE_TYPE.BRANCH &&
       !isLast &&
-      (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== TRIGGER_ID_TYPE.PBC_OUT
+      (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== ACTION_ID.PBC_OUT
     ) {
       this.setState({ selectItem: item, showBranchDialog: true });
     } else {

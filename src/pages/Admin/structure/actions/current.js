@@ -30,7 +30,7 @@ export const UPDATE_SELECT_ALL = 'UPDATE_SELECT_ALL';
  * action: 设置当前网络id
  * @param projectId
  */
-export const updateProjectId = (projectId) => ({
+export const updateProjectId = projectId => ({
   type: UPDATE_PROJECT_ID,
   projectId,
 });
@@ -38,7 +38,7 @@ export const updateProjectId = (projectId) => ({
  * action: 设置当前部门/职位tab
  * @param type
  */
-export const updateType = (typeNum) => ({
+export const updateType = typeNum => ({
   type: UPDATE_TYPE,
   typeNum,
 });
@@ -47,7 +47,7 @@ export const updateType = (typeNum) => ({
  * action: 全公司0/未分配1/未审核2/待激活3
  * @param type
  */
-export const updateTypeCursor = (typeCursor) => ({
+export const updateTypeCursor = typeCursor => ({
   type: UPDATE_TYPE_CURSOR,
   typeCursor,
 });
@@ -56,7 +56,7 @@ export const updateTypeCursor = (typeCursor) => ({
  * action: 设置当前选中部门
  * @param departmentId
  */
-export const updateCursor = (departmentId) => ({
+export const updateCursor = departmentId => ({
   type: UPDATE_CURSOR,
   departmentId,
 });
@@ -72,7 +72,7 @@ export const removeCursor = () => ({
  * action: 打开对应accountId用户的设置列表
  * @param accountId
  */
-export const updateUserOpList = (accountId) => ({
+export const updateUserOpList = accountId => ({
   type: UPDATE_ACTIVE_OPLIST,
   accountId,
 });
@@ -81,7 +81,7 @@ export const updateUserOpList = (accountId) => ({
  * action: 添加accountIds到选中用户set
  * @param accountIds
  */
-export const addUserToSet = (accountIds) => ({
+export const addUserToSet = accountIds => ({
   type: ADD_TO_USERSET,
   accountIds,
 });
@@ -90,7 +90,7 @@ export const addUserToSet = (accountIds) => ({
  * action: 从用户set中移除accountIds
  * @param accountIds
  */
-export const removeUserFromSet = (accountIds) => ({
+export const removeUserFromSet = accountIds => ({
   type: REMOVE_FROM_USERSET,
   accountIds,
 });
@@ -102,11 +102,10 @@ export const emptyUserSet = () => ({
   type: EMPTY_USERSET,
 });
 
-
 /**
  * action: 选中all用户set
  */
-export const updateSelectAll = (isSelectAll) => ({
+export const updateSelectAll = isSelectAll => ({
   type: UPDATE_SELECT_ALL,
   isSelectAll,
 });
@@ -115,7 +114,7 @@ export const updateSelectAll = (isSelectAll) => ({
  * action: 获取网络下未激活的用户数
  * @param projectId
  */
-export const fetchApproval = (projectId) => (dispatch) => {
+export const fetchApproval = projectId => dispatch => {
   return dispatch({
     [CALL_API]: {
       types: [APPROVAL_LOAD, APPROVAL_SUCCESS, APPROVAL_FAILED],
@@ -124,7 +123,7 @@ export const fetchApproval = (projectId) => (dispatch) => {
   });
 };
 
-export const fetchInActive = (projectId) => (dispatch) => {
+export const fetchInActive = projectId => dispatch => {
   return dispatch({
     [CALL_API]: {
       types: [INACTIVE_LOAD, INACTIVE_SUCCESS, INACTIVE_FAILED],
@@ -132,3 +131,8 @@ export const fetchInActive = (projectId) => (dispatch) => {
     },
   });
 };
+
+export const updateSelectedAccountIds = selectedAccountIds => ({
+  type: 'UPDATE_SELECTED_ACCOUNTIDS',
+  selectedAccountIds,
+});

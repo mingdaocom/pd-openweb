@@ -8,6 +8,7 @@ import { Icon, Dropdown } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 const ConditionsWrap = styled.div`
   .operateBtn {
@@ -148,7 +149,8 @@ export default class SortConditions extends React.Component {
     const userCondition = _.find(sortConditionControls, scc => scc.type === 26);
     const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
     const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
-    return columns
+    return filterOnlyShowField(columns)
+      .filter(o => o.type !== 42) //排除签名字段
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&
@@ -175,6 +177,7 @@ export default class SortConditions extends React.Component {
     return sortConditions.map((condition, index) => {
       const canDelete = !(index === 0 && sortConditions.length === 1);
       const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
+      const control = _.find(columns, i => i.controlId === condition.controlId);
       return (
         <div className="flexRow mTop5" key={condition.controlId}>
           <Dropdown
@@ -189,6 +192,9 @@ export default class SortConditions extends React.Component {
                 this.handleChangeSortControl(index, value);
               }
             }}
+            {...(isOtherShowFeild(control)
+              ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
+              : {})}
           />
           <Dropdown
             border

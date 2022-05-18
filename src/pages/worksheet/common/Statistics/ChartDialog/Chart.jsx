@@ -88,7 +88,7 @@ export default class Chart extends Component {
     const { reportType } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.sessionStorage.getItem('shareAuthor');
+    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor;
 
     const props = {
       isViewOriginalData: !settingVisible && !isMobile && !isPublicShareChart && !isPublicSharePage,
@@ -116,7 +116,7 @@ export default class Chart extends Component {
       );
     }
     if (reportTypes.CountryLayer === reportType) {
-      const { map, country } = reportData;
+      const { map, country, summary } = reportData;
       return (
         map.length ? (
           <Chart
@@ -125,6 +125,7 @@ export default class Chart extends Component {
               ...currentReport,
               map,
               country,
+              summary: settingVisible ? currentReport.summary : summary,
             }}
           />
         ) : (
@@ -141,7 +142,7 @@ export default class Chart extends Component {
         reportTypes.DualAxes,
       ].includes(reportType)
     ) {
-      const { map, contrastMap } = reportData;
+      const { map, contrastMap, summary } = reportData;
       return (
         map.length || contrastMap.length ? (
           <Chart
@@ -150,6 +151,7 @@ export default class Chart extends Component {
               ...currentReport,
               map,
               contrastMap,
+              summary: settingVisible ? currentReport.summary : summary,
               reportId
             }}
           />
@@ -159,7 +161,7 @@ export default class Chart extends Component {
       );
     }
     if ([reportTypes.PieChart].includes(reportType)) {
-      const { aggregations = [] } = reportData;
+      const { aggregations = [], summary } = reportData;
       return (
         aggregations.filter(item => item.v).length ? (
           <Chart
@@ -167,6 +169,7 @@ export default class Chart extends Component {
             reportData={{
               ...currentReport,
               aggregations,
+              summary: settingVisible ? currentReport.summary : summary,
               reportId
             }}
           />

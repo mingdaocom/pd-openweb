@@ -72,11 +72,15 @@ export default class CustomFields extends Component {
     if (!rulesLoading && !isWorksheetQuery) {
       this.initSource(data, disabled);
     } else if (rulesLoading && _.isEmpty(rules)) {
-      this.getRules(undefined, () => {
-        if (isWorksheetQuery && !searchConfig.length) {
-          this.getSearchConfig();
-        }
-      });
+      this.getRules(
+        undefined,
+        () => {
+          if (isWorksheetQuery && !searchConfig.length) {
+            this.getSearchConfig();
+          }
+        },
+        isWorksheetQuery && !searchConfig.length,
+      );
     } else if (isWorksheetQuery && !searchConfig.length) {
       this.getSearchConfig();
     }
@@ -93,9 +97,12 @@ export default class CustomFields extends Component {
 
   componentWillReceiveProps(nextProps, nextState) {
     if (this.props.flag !== nextProps.flag || this.props.data.length !== nextProps.data.length) {
-      this.initSource(nextProps.data, nextProps.disabled);
-      this.updateErrorState(false);
-      this.changeStatus = false;
+      this.initSource(nextProps.data, nextProps.disabled, {
+        setStateCb: () => {
+          this.updateErrorState(false);
+          this.changeStatus = false;
+        },
+      });
     }
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
@@ -110,7 +117,7 @@ export default class CustomFields extends Component {
   /**
    * 初始化数据
    */
-  initSource(data, disabled) {
+  initSource(data, disabled, { setStateCb = () => {} } = {}) {
     const { projectId, initSource, recordId, recordCreateTime, from, onFormDataReady, masterRecordRowId } = this.props;
 
     this.dataFormat = new DataFormat({
@@ -121,13 +128,18 @@ export default class CustomFields extends Component {
       recordCreateTime,
       masterRecordRowId,
       from,
+      embedData: {
+        ..._.pick(this.props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
+      },
       searchConfig: this.state.searchConfig,
       updateLoadingItems: loadingItems => {
         this.setState({ loadingItems });
       },
       activeTrigger: () => {
         if (!this.changeStatus && this.dataFormat) {
-          this.props.onChange(this.dataFormat.getDataSource(), this.dataFormat.getUpdateControlIds());
+          this.props.onChange(this.dataFormat.getDataSource(), this.dataFormat.getUpdateControlIds(), {
+            noSaveTemp: true,
+          });
           this.changeStatus = true;
         }
       },
@@ -156,6 +168,7 @@ export default class CustomFields extends Component {
         rulesLoading: false,
       },
       () => {
+        setStateCb();
         onFormDataReady(this.dataFormat);
       },
     );
@@ -183,13 +196,15 @@ export default class CustomFields extends Component {
   /**
    * 获取字段显示规则
    */
-  getRules = (nextProps, cb = () => {}) => {
+  getRules = (nextProps, cb = () => {}, noInitSource) => {
     const { worksheetId, data, disabled, onRulesLoad = () => {} } = nextProps || this.props;
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
       onRulesLoad(rules);
       this.setState({ rules }, () => {
-        this.initSource(data, disabled);
+        if (!noInitSource) {
+          this.initSource(data, disabled);
+        }
         cb();
       });
     });
@@ -484,6 +499,7 @@ export default class CustomFields extends Component {
    */
   getWidgets(item) {
     const {
+      initSource,
       flag,
       projectId,
       worksheetId,
@@ -525,7 +541,7 @@ export default class CustomFields extends Component {
     // (禁用或只读) 且 内容不存在
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
-      ((!item.value && item.value !== 0) ||
+      ((!item.value && item.value !== 0 && item.type !== 28) ||
         (_.includes([21, 26, 27, 29], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
@@ -552,6 +568,7 @@ export default class CustomFields extends Component {
           recordId={recordId}
           appId={appId}
           viewIdForPermit={viewId}
+          initSource={initSource}
           onChange={(value, cid = controlId) => {
             if (item.value !== value) {
               this.dataFormat.updateDataSource({
@@ -573,12 +590,12 @@ export default class CustomFields extends Component {
               }
             }
           }}
-          onBlur={() => {
-            const newValue = item.value && item.value.toString().trim();
+          onBlur={originValue => {
+            const newValue = `${item.value}` ? `${item.value}`.trim() : '';
             if (item.unique && newValue) {
               this.checkControlUnique(controlId, type, newValue);
             }
-            if (newValue) {
+            if (newValue && newValue !== originValue) {
               this.dataFormat.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
           }}
@@ -641,9 +658,9 @@ export default class CustomFields extends Component {
   uniqueErrorUpdate(uniqueErrorIds) {
     const { uniqueErrorItems } = this.state;
 
-    uniqueErrorIds.forEach(controlId => {
-      alert(_l('记录提交失败：数据重复'), 2);
+    alert(_l('记录提交失败：数据重复'), 2);
 
+    (uniqueErrorIds || []).forEach(controlId => {
       if (
         !_.find(uniqueErrorItems, item => item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE)
       ) {

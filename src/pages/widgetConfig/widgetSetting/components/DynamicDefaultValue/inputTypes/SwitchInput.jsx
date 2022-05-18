@@ -1,12 +1,13 @@
 import React, { useState, Fragment, createRef } from 'react';
 import { DynamicValueInputWrap } from '../styled';
-import { CHECKBOX_TYPES } from '../config';
+import { getTypeList } from '../util';
 import { OtherFieldList, SelectOtherField, ClickAwayMenu, DynamicInput } from '../components';
 
 export default function (props) {
-  const { onDynamicValueChange, dynamicValue = [], defaultType } = props;
+  const { onDynamicValueChange, dynamicValue = [], defaultType, data = {} } = props;
   const [visible, setVisible] = useState(false);
   const $wrap = createRef(null);
+  const Type_List = getTypeList(data);
 
   const setDynamicValue = newValue => {
     onDynamicValueChange(newValue || []);
@@ -33,7 +34,7 @@ export default function (props) {
         <ClickAwayMenu
           showClear={false}
           dynamicValue={dynamicValue}
-          types={CHECKBOX_TYPES}
+          types={Type_List}
           handleTimeSelect={handleTimeSelect}
           onClickAway={() => setVisible(false)}
         />

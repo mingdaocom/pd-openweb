@@ -48,8 +48,8 @@ function generate() {
     if (entry) {
       const moduleName = getEntryName(entry.src, filename);
       let publicPath = getPublicPath();
-      if (isProduction && entry.type === 'single') {
-        publicPath = publicPath.replace('/dist/pack/', '/dist/single/pack/');
+      if (isProduction && entry.type !== 'index') {
+        publicPath = publicPath.replace('/dist/pack/', `/dist/${entry.type}/pack/`);
       }
       if (!isProduction) {
         apiMap.workflow = '/workflow_api';
@@ -69,6 +69,7 @@ function generate() {
           ) {
             location.href = '/browserupgrade';
           }
+          this.globalThis || (this.globalThis = this)
         </script>
         </head>`,
       );
@@ -89,13 +90,14 @@ function generate() {
         );
       } else {
         // 发布模式
-        const manifestData = JSON.parse(
+        let manifestData;
+        manifestData = JSON.parse(
           fs
             .readFileSync(path.join(buildPath, `dist/${entry.type === 'index' ? '' : `${entry.type}/`}manifest.json`))
             .toString(),
         );
         const baseEntry =
-          entry.type === 'single' ? ['vendors', 'globals'] : ['nodemodules', 'common', 'vendors', 'globals'];
+          entry.type !== 'index' ? ['vendors', 'globals'] : ['nodemodules', 'common', 'vendors', 'globals'];
         $entryScript.replaceWith(
           [...baseEntry, moduleName]
             .filter(key => !!manifestData[key] && manifestData[key].js)

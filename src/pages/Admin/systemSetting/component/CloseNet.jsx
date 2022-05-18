@@ -43,6 +43,10 @@ export default class CloseNet extends Component {
     this.getData();
   }
 
+  componentDidUpdate() {
+    $('input.ant-input').attr('autocomplete', 'new-password');
+  }
+
   getData() {
     this.setState({ isLoading: true });
     $.when(this.getLicenseType(), this.getExpireDays()).then(({ licenseType, logoffs }, { expireDays, isTrial }) => {

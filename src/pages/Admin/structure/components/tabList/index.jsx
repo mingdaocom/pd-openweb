@@ -2,14 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import TreeView from '../departmentView';
 import CreateBtn from '../departmentView/createBtn';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import { loadAllUsers, loadDepartments, loadUsers, loadInactiveUsers, loadApprovalUsers } from '../../actions/entities';
-import { updateCursor, updateTypeCursor } from '../../actions/current';
+import { updateCursor, updateTypeCursor, fetchInActive } from '../../actions/current';
 import { loadJobList, loadJobUsers, updateCursorJobId } from '../../actions/jobs';
 import DialogCreatePosition from '../../modules/dialogCreatePosition';
 import './index.less';
 import cx from 'classnames';
 import * as jobController from 'src/api/job';
+import { checkSensitive } from 'src/api/fixedData.js';
 
 const shouldLoadDepartments = props => {
   const { haveSubDepartment, subDepartments, isLoading, isExpired } = props;
@@ -19,12 +20,14 @@ const shouldLoadDepartments = props => {
 class TabList extends React.Component {
   constructor(props) {
     super(props);
+    const { dispatch, projectId } = props;
     this.state = {
       showPositionDialog: false,
       isNew: true,
       jobId: '',
       jobName: '',
     };
+    dispatch(fetchInActive(projectId));
   }
 
   handleClick = typeCursor => {
@@ -54,6 +57,11 @@ class TabList extends React.Component {
     this.setState({
       showPositionDialog: false,
     });
+  };
+  onScrollEnd = () => {
+    const { isMore, dispatch, jobListPageIndex, projectId, isLoading, canRequest, jobId } = this.props;
+    if (!isMore || isLoading || !canRequest) return;
+    dispatch(loadJobList(projectId, jobId, jobListPageIndex + 1));
   };
 
   render() {
@@ -92,17 +100,14 @@ class TabList extends React.Component {
               </span>
             </span>
           </div>
-          <ul
-            className="pBottom20 jobListUl box-sizing"
-            style={{ height: document.documentElement.clientHeight - 300 }}
-          >
+          <ScrollView className="jobListUl" onScrollEnd={this.onScrollEnd}>
             {isLoading ? (
               <LoadDiv />
             ) : (
               jobList.map(item => {
                 return (
-                  <li
-                    className={cx({ current: jobId === item.jobId })}
+                  <div
+                    className={cx('jobItem', { current: jobId === item.jobId })}
                     onClick={() => {
                       dispatch(updateCursorJobId(item.jobId));
                     }}
@@ -121,11 +126,11 @@ class TabList extends React.Component {
                         });
                       }}
                     />
-                  </li>
+                  </div>
                 );
               })
             )}
-          </ul>
+          </ScrollView>
           {this.state.showPositionDialog && (
             <DialogCreatePosition
               showPositionDialog={this.state.showPositionDialog}
@@ -162,24 +167,29 @@ class TabList extends React.Component {
                   if (!name) {
                     alert(_l('请输入职位名称'), 3);
                   }
-                  // 创建职位
-                  jobController
-                    .editJobName({
-                      jobId: id,
-                      jobName: name,
-                      projectId,
-                    })
-                    .then(data => {
-                      if (data === 1) {
-                        alert(_l('编辑成功'));
-                        dispatch(loadJobList(projectId, id));
-                      } else if (data == 2) {
-                        JobList.showMsg(_l('编辑失败，相同职位名称已经存在'));
-                      } else {
-                        JobList.showMsg(_l('操作失败'));
-                      }
-                      this.closeFn();
-                    });
+                  checkSensitive({ content: name }).then(res => {
+                    if (res) {
+                      return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+                    }
+                    // 创建职位
+                    jobController
+                      .editJobName({
+                        jobId: id,
+                        jobName: name,
+                        projectId,
+                      })
+                      .then(data => {
+                        if (data === 1) {
+                          alert(_l('编辑成功'));
+                          dispatch(loadJobList(projectId, id));
+                        } else if (data == 2) {
+                          JobList.showMsg(_l('编辑失败，相同职位名称已经存在'));
+                        } else {
+                          JobList.showMsg(_l('操作失败'));
+                        }
+                        this.closeFn();
+                      });
+                  });
                 }
               }}
               delFn={() => {
@@ -276,6 +286,9 @@ const mapStateToProps = state => {
       jobList,
       jobId = '', //当前的职位ID
       isLoading,
+      isMore,
+      canRequest,
+      jobListPageIndex,
     },
   } = state;
   const { departments } = state.entities;
@@ -297,6 +310,9 @@ const mapStateToProps = state => {
     jobList,
     jobId,
     isLoading,
+    isMore,
+    canRequest,
+    jobListPageIndex,
   };
 };
 

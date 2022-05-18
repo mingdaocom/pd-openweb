@@ -31,6 +31,9 @@ import AppFixStatus from './AppFixStatus';
 import './index.less';
 import { upgradeVersionDialog, getAppFeaturesVisible } from 'src/util';
 import EditPublishSetDialog from './EditpublishSet';
+import CreateAppBackupDialog from './appBackupRestore/CreateAppBackupDialog';
+import ManageBackupFilesDialog from './appBackupRestore/ManageBackupFilesDialog';
+
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
   syncAppDetail: detail => dispatch(syncAppDetail(detail)),
@@ -69,6 +72,9 @@ export default class AppInfo extends Component {
       data: {},
       hasChange: false,
       showEditPublishSetDialog: false,
+      createBackupVisisble: false,
+      manageBackupFilesVisible: false,
+      noUseBackupRestore: false,
     };
   }
 
@@ -86,6 +92,13 @@ export default class AppInfo extends Component {
     this.ids = getIds(nextProps);
     if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData();
+    }
+    if (!_.isEqual(this.props.location.search, nextProps.location.search)) {
+      this.getData();
+    } else if (nextProps.location.search === '?backup') {
+      this.setState({
+        manageBackupFilesVisible: true,
+      });
     }
   }
 
@@ -116,6 +129,18 @@ export default class AppInfo extends Component {
           'pcDisplay',
         ]),
       );
+      const { tb } = getAppFeaturesVisible();
+      const isNormalApp = _.includes([1, 5], data.appStatus);
+      if (location.href.indexOf('backup') > -1 && isNormalApp && isCanEdit(data.permissionType, data.isLock) && tb) {
+        if (this.state.manageBackupFilesVisible) {
+          this.setState({ manageBackupFilesKey: Date.now() });
+        } else {
+          this.setState({
+            manageBackupFilesVisible: true,
+          });
+        }
+      }
+
       this.setState({ data });
       window.appInfo = data;
       this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
@@ -213,10 +238,13 @@ export default class AppInfo extends Component {
 
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
-    if (!this.state.data.projectId && (type === 'ding' || type === 'weixin' || type === 'worksheetapi')) {
+    const { projectId } = this.state.data;
+    const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+
+    if (!projectId && _.includes(['ding', 'weixin', 'worksheetapi'], type)) {
       return '';
     } else {
-      if (['del', 'publishSettings'].includes(type)) {
+      if (_.includes(['del', 'publishSettings'], type)) {
         return (
           <React.Fragment>
             <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
@@ -224,6 +252,7 @@ export default class AppInfo extends Component {
           </React.Fragment>
         );
       }
+
       if (type === 'editAppNavStyle') {
         return (
           <Trigger
@@ -243,9 +272,51 @@ export default class AppInfo extends Component {
           </Trigger>
         );
       }
+
       if (type === 'editAppFixStatus') {
         return this.renderMenuHtml({ type, icon, text: rest.getText(data.fixed), action, ...rest });
       }
+
+      if (type === 'backupRestore') {
+        if (licenseType !== 0 && version && version.versionId > 1) {
+          return (
+            <Trigger
+              action={['hover']}
+              popupAlign={{ points: ['tl', 'tr'], offset: [0, -6] }}
+              popup={
+                <div className="backupRestoreCon">
+                  <div
+                    className="backupRestoreItem"
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setState({ appConfigVisible: false, createBackupVisisble: true });
+                    }}
+                  >
+                    {_l('创建备份')}
+                  </div>
+                  <div
+                    className="backupRestoreItem"
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setState({ manageBackupFilesVisible: true, appConfigVisible: false });
+                    }}
+                  >
+                    {_l('管理备份文件')}
+                  </div>
+                </div>
+              }
+              getPopupContainer={() => document.querySelector('.appConfigIcon .backupRestore .Item-content')}
+            >
+              {this.renderMenuHtml({ type, icon, text, action, ...rest })}
+            </Trigger>
+          );
+        } else if (licenseType === 0 || version) {
+          return this.renderMenuHtml({ type, icon, text, action, ...rest });
+        } else {
+          return '';
+        }
+      }
+
       return this.renderMenuHtml({ type, icon, text, action, ...rest });
     }
   };
@@ -273,6 +344,8 @@ export default class AppInfo extends Component {
   renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
     const { appId } = this.ids;
     const { projectId } = this.state.data;
+    const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+
     return (
       <MenuItem
         key={type}
@@ -280,15 +353,22 @@ export default class AppInfo extends Component {
         icon={<Icon className="appConfigItemIcon Font18" icon={icon} />}
         onClick={e => {
           e.stopPropagation();
+
+          if (type === 'backupRestore' && (licenseType === 0 || (version && version.versionId === 1))) {
+            upgradeVersionDialog({
+              projectId,
+              isFree: licenseType === 0,
+              explainText: _l('应用备份还原是一个高级功能，请升级至专业版解锁开启'),
+            });
+            return;
+          }
+
           if (type === 'publishSettings') {
             this.setState({ showEditPublishSetDialog: true, appConfigVisible: false });
             return;
           }
+
           if (type === 'worksheetapi') {
-            const licenseType = _.get(
-              _.find(md.global.Account.projects, item => item.projectId === projectId) || {},
-              'licenseType',
-            );
             if (licenseType === 0) {
               upgradeVersionDialog({
                 projectId,
@@ -300,16 +380,21 @@ export default class AppInfo extends Component {
             window.open(`/worksheetapi/${appId}`);
             return;
           }
+
           if (type === 'export') {
             this.handleAppConfigClick(action);
             return;
           }
+
           this.handleAppConfigClick(action);
         }}
         {...rest}
       >
         <span>{text}</span>
         {type === 'editAppNavStyle' && <Icon className="rightArrow Font20" icon="navigate_next" />}
+        {type === 'backupRestore' && licenseType !== 0 && version && version.versionId > 1 && (
+          <Icon className="rightArrow Font20" icon="navigate_next" />
+        )}
       </MenuItem>
     );
   };
@@ -335,6 +420,8 @@ export default class AppInfo extends Component {
       copyAppVisible,
       data,
       showEditPublishSetDialog,
+      createBackupVisisble,
+      manageBackupFilesVisible,
       isAutofucus,
     } = this.state;
     const {
@@ -525,7 +612,7 @@ export default class AppInfo extends Component {
             isAutofucus={isAutofucus}
             appId={appId}
             projectId={projectId}
-            fixed={data.fixed}
+            fixed={manageBackupFilesVisible ? false : data.fixed}
             fixRemark={data.fixRemark}
             onChangeStatus={obj => {
               this.setState({
@@ -557,6 +644,47 @@ export default class AppInfo extends Component {
             onClose={() => {
               this.setState({
                 showEditPublishSetDialog: false,
+              });
+            }}
+          />
+        )}
+
+        {createBackupVisisble && (
+          <CreateAppBackupDialog
+            projectId={projectId}
+            appId={appId}
+            appName={name}
+            openManageBackupDrawer={() => {
+              this.setState({
+                manageBackupFilesVisible: true,
+              });
+            }}
+            closeDialog={() => {
+              this.setState({ createBackupVisisble: false });
+            }}
+          />
+        )}
+
+        {manageBackupFilesVisible && (
+          <ManageBackupFilesDialog
+            visible={manageBackupFilesVisible}
+            fixed={data.fixed}
+            onChangeFixStatus={flag => this.setState({ editAppFixStatusVisible: flag, isAutofucus: true })}
+            projectId={projectId}
+            appId={appId}
+            appName={name}
+            manageBackupFilesKey={this.state.manageBackupFilesKey}
+            onClose={() => {
+              this.setState({
+                manageBackupFilesVisible: false,
+              });
+            }}
+            onChangeStatus={obj => {
+              this.setState({
+                data: {
+                  ...data,
+                  ...obj,
+                },
               });
             }}
           />

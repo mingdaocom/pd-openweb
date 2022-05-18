@@ -130,9 +130,7 @@ export default class BaseMessageComponent extends React.Component {
   renderSourceFrom() {
     const { fromLink, fromMessage, fromTitle, sourceId } = this.props;
     if (!fromTitle) return null;
-    const msg = $('<span>')
-      .html(fromMessage)
-      .text();
+    const msg = $('<span>').html(fromMessage).text();
     return (
       <div className="mTop5 comeFrom">
         {sourceId ? (

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID_TYPE, APP_TYPE, EXEC_TIME_TYPE, DATE_TYPE, TIME_TYPE_NAME, CUSTOM_ACTION_TEXT } from '../../enum';
+import { TRIGGER_ID, APP_TYPE, EXEC_TIME_TYPE, DATE_TYPE, TIME_TYPE_NAME, CUSTOM_ACTION_TEXT } from '../../enum';
 import { getIcons, getColor } from '../../utils';
 
 export default class Start extends Component {
@@ -65,15 +65,15 @@ export default class Start extends Component {
             <span className="Gray_75">{item.appTypeName}</span>“{item.appName}”
           </div>
           <div className="workflowContentInfo ellipsis mTop4">
-            {(item.triggerId === TRIGGER_ID_TYPE.EDIT || item.triggerId === TRIGGER_ID_TYPE.ONLY_EDIT) && (
+            {(item.triggerId === TRIGGER_ID.EDIT || item.triggerId === TRIGGER_ID.ONLY_EDIT) && (
               <span>
-                {item.triggerId === TRIGGER_ID_TYPE.EDIT ? _l('当新增和更新记录时触发') : _l('当更新记录时触发')}
+                {item.triggerId === TRIGGER_ID.EDIT ? _l('当新增和更新记录时触发') : _l('当更新记录时触发')}
                 {item.assignFieldName && _l('：指定字段')}
                 {item.assignFieldName && <span className="blue">{item.assignFieldName}</span>}
               </span>
             )}
-            {item.triggerId === TRIGGER_ID_TYPE.ADD && _l('当新增记录时触发')}
-            {item.triggerId === TRIGGER_ID_TYPE.DELETE && _l('当删除记录时触发')}
+            {item.triggerId === TRIGGER_ID.ADD && _l('当新增记录时触发')}
+            {item.triggerId === TRIGGER_ID.DELETE && _l('当删除记录时触发')}
           </div>
         </Fragment>
       );
@@ -204,17 +204,18 @@ export default class Start extends Component {
     if (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType)) {
       const TEXT = {
         [APP_TYPE.USER]: {
-          [TRIGGER_ID_TYPE.ADD]: _l('当新人入职时'),
-          [TRIGGER_ID_TYPE.DELETE]: _l('当人员离职时'),
+          [TRIGGER_ID.ADD]: _l('当新人入职时'),
+          [TRIGGER_ID.DELETE]: _l('当人员离职时'),
         },
         [APP_TYPE.DEPARTMENT]: {
-          [TRIGGER_ID_TYPE.ADD]: _l('当创建部门时'),
-          [TRIGGER_ID_TYPE.DELETE]: _l('当解散部门时'),
+          [TRIGGER_ID.ADD]: _l('当创建部门时'),
+          [TRIGGER_ID.DELETE]: _l('当解散部门时'),
         },
         [APP_TYPE.EXTERNAL_USER]: {
-          [TRIGGER_ID_TYPE.ADD]: _l('当新用户注册时'),
-          [TRIGGER_ID_TYPE.ONLY_EDIT]: _l('当用户登录时'),
-          [TRIGGER_ID_TYPE.DELETE]: _l('当用户被删除时'),
+          [TRIGGER_ID.ADD]: _l('当新用户注册时'),
+          [TRIGGER_ID.ONLY_EDIT]: _l('当用户登录时'),
+          [TRIGGER_ID.DELETE]: _l('当用户注销时'),
+          [TRIGGER_ID.STOP]: _l('当用户被停用时'),
         },
       };
       return (

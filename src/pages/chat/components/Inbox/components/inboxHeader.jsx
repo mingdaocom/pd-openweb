@@ -70,20 +70,33 @@ export default class InboxHeader extends React.Component {
     });
     const fullname = user ? user.fullname : '';
     return (
-      <div className='inboxHeader'>
-        <div className='inboxType Absolute'>{title}</div>
+      <div className="inboxHeader">
+        <div className="inboxType Absolute">{title}</div>
         <span
           className={clsNameFunc(!inboxFavorite)}
-          onClick={() => { this.handleClick(false) }}>
+          onClick={() => {
+            this.handleClick(false);
+          }}
+        >
           {this.renderDropDown()}
         </span>
         <span
           className={clsNameFunc(inboxFavorite)}
-          onClick={() => { this.handleClick(true) }}>{_l('星标')}</span>
-        <antd.Dropdown overlay={this.renderOverlay()} trigger={['click']} placement="bottomRight" overlayClassName="inboxFilterDropdown">
-          <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
-            {
-              filter ? (
+          onClick={() => {
+            this.handleClick(true);
+          }}
+        >
+          {_l('星标')}
+        </span>
+        {!md.global.Account.isPortal && (
+          <antd.Dropdown
+            overlay={this.renderOverlay()}
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="inboxFilterDropdown"
+          >
+            <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
+              {filter ? (
                 <Fragment>
                   <Icon className="Font20" icon="filter" />
                   <span>
@@ -94,18 +107,18 @@ export default class InboxHeader extends React.Component {
                   <Icon
                     icon="close"
                     className="Font15 mBottom2"
-                    onClick={(event) => {
+                    onClick={event => {
                       event.stopPropagation();
                       this.props.changeInboxFilter(null);
                     }}
-                    />
+                  />
                 </Fragment>
               ) : (
                 <Icon className="Font20 Gray_9e pointer" icon="filter" />
-              )
-            }
-          </div>
-        </antd.Dropdown>
+              )}
+            </div>
+          </antd.Dropdown>
+        )}
       </div>
     );
   }

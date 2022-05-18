@@ -20,7 +20,8 @@ export default function (props) {
   };
 
   const handleChange = value => {
-    const parseValue = value ? parseFloat(value) : '';
+    const formatValue = value.replace(/[^\d]/g, '');
+    const parseValue = formatValue ? parseFloat(value) : '';
     setValue(parseValue);
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: parseValue }]);
   };

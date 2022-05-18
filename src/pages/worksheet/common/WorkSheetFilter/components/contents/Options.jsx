@@ -206,7 +206,7 @@ export default class Options extends Component {
           .sort((a, b) => a.index - b.index)
           .map(option => ({ id: option.key, name: option.value }));
       } else if (control.type === 28) {
-        options = [...new Array(control.enumDefault === 1 ? 5 : 10)].map((v, i) => ({
+        options = Array.from({ length: (control.advancedSetting || {}).max }).map((v, i) => ({
           id: i + 1 + '',
           name: SCORE_TEXT[i],
         }));

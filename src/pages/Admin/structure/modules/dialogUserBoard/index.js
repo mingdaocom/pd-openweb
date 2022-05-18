@@ -1,22 +1,34 @@
-﻿var doT = require('dot');
+var doT = require('dot');
 var mdDialog = require('mdDialog').index;
 var userController = require('src/api/user');
-var departmentController = require('src/api/department');
 var importUserController = require('src/api/importUser');
 var Confirm = require('confirm');
-var utils = require('src/util');
+import { getPssId } from 'src/util/pssId';
 import './style.less';
 
 const exportUsers = (projectId, accountIds = []) => {
   var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
-  var fromHtml = `<form id='downFile' action="${utils.addToken(url)}" method="post" target="${ window.isDingTalk ? '_self' : '_blank' }">
-  <input type="hidden" name="userStatus" value='1' />
-  <input type="hidden" name="projectId" value="${projectId}" />
-  <input type="hidden" name="accountIds" value="${accountIds.toString()}" />
-  <input type="submit" name="submit" /></form>
-  `;
-  $('body').append(fromHtml);
-  $('#downFile').find('[name=submit]').click().end().remove();
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `md_pss_id ${getPssId()}`,
+    },
+    body: JSON.stringify({
+      userStatus: '1',
+      projectId,
+      accountIds: accountIds.join(','),
+    }),
+  })
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+
+      link.href = window.URL.createObjectURL(blob);
+      link.click();
+      window.URL.revokeObjectURL(link.href);
+    });
 };
 
 var DEFAULTS = {

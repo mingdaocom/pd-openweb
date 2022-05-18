@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { func, arrayOf, shape } from 'prop-types';
+import { func, arrayOf, shape, string } from 'prop-types';
 import FnList from './FnList';
 import ControlList from './ControlList';
 
@@ -59,34 +59,39 @@ const Content = styled.div`
 `;
 
 export default function SelectFnControl(props) {
-  const { controls, controlGroups, insertTagToEditor, insertFn } = props;
+  const { type = 'mdfunction', controls, controlGroups, insertTagToEditor, insertFn } = props;
   const [keywords, setKeywords] = useState('');
-  const [activeTab, setActiveTab] = useState('fn');
+  const [activeTab, setActiveTab] = useState(type === 'mdfunction' ? 'fn' : 'control');
+  useEffect(() => {
+    setActiveTab(type === 'mdfunction' ? 'fn' : 'control');
+  }, [type]);
   return (
     <Con>
-      <Tabs>
-        {[
-          {
-            name: 'fn',
-            text: _l('函数'),
-          },
-          {
-            name: 'control',
-            text: _l('字段'),
-          },
-        ].map((item, i) => (
-          <Tab
-            key={i}
-            className={activeTab === item.name ? 'active' : ''}
-            onClick={() => {
-              setActiveTab(item.name);
-              setKeywords('');
-            }}
-          >
-            {item.text}
-          </Tab>
-        ))}
-      </Tabs>
+      {type === 'mdfunction' && (
+        <Tabs>
+          {[
+            {
+              name: 'fn',
+              text: _l('函数'),
+            },
+            {
+              name: 'control',
+              text: _l('字段'),
+            },
+          ].map((item, i) => (
+            <Tab
+              key={i}
+              className={activeTab === item.name ? 'active' : ''}
+              onClick={() => {
+                setActiveTab(item.name);
+                setKeywords('');
+              }}
+            >
+              {item.text}
+            </Tab>
+          ))}
+        </Tabs>
+      )}
       <Search>
         <Icon className="icon icon-search" />
         <input type="text" value={keywords} placeholder={_l('搜索')} onChange={e => setKeywords(e.target.value)} />
@@ -107,6 +112,7 @@ export default function SelectFnControl(props) {
 }
 
 SelectFnControl.propTypes = {
+  type: string,
   insertTagToEditor: func,
   insertFn: func,
   controls: arrayOf(shape({})),

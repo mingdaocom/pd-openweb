@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mingdao-web\n"
-"POT-Creation-Date:  2022/3/7 下午1:24:10+08:00\n"
+"POT-Creation-Date:  2022/4/28 18:05:36+08:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,21 +10,1413 @@ msgstr ""
 "Last-Translator: ""\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date:  2022/3/7 下午1:24:10-0400\n"
+"PO-Revision-Date:  2022/4/28 18:05:36-0400\n"
 
 #: Disabled references:1
-msgid "本应用全部"
-msgstr "本應用全部"
+msgid "单个文件大小超过%0mb，无法支持上传"
+msgstr "單個檔案大小超過%0mb，無法支援上傳"
 
 #: Disabled references:1
-msgid "本应用只读"
-msgstr "本應用只讀"
+msgid "上传失败，请稍后再试。"
+msgstr "上傳失敗，請稍後再試。"
 
 #: Disabled references:1
-msgid "日语"
-msgstr "日語"
+msgid "应用附件上传量已到最大值"
+msgstr "應用附件上傳量已到最大值"
+
+#: Disabled references:1
+msgid "输入内容包含敏感词，请重新填写"
+msgstr "輸入內容包含敏感詞，請重新填寫"
+
+#: Disabled references:1
+msgid "没有找到"
+msgstr "沒有找到"
+
+#: Disabled references:1
+msgid "输入%0后，显示可选择的记录"
+msgstr "輸入%0後，顯示可選擇的記錄"
+
+#: Disabled references:1
+msgid "检索加速"
+msgstr "檢索加速"
+
+#: Disabled references:1
+msgid "授权不足，请管理员到组织管理-微信公众号重新绑定授权"
+msgstr "授權不足，請管理員到組織管理-微信公眾號重新繫結授權"
+
+#: Disabled references:1
+msgid "同时将此角色下的所有用户移动到其他角色"
+msgstr "同時將此角色下的所有使用者移動到其他角色"
+
+#: Disabled references:1
+msgid "同时删除此角色下的所有用户"
+msgstr "同時刪除此角色下的所有使用者"
+
+#: Disabled references:1
+msgid "7. 打印的二维码默认所有人可扫码查看，若需控制仅限应用内部成员查看，可将二维码字段代码设置为“#{二维码$[20*20]$_Private}”，用户扫码后需登录并且根据权限才能访问。"
+msgstr "7. 列印的二維碼預設所有人可掃碼檢視，若需控制僅限應用內部成員檢視，可將二維碼欄位程式碼設定為“#{二維碼$[20*20]$_Private}”，使用者掃碼後需登入並且根據許可權才能訪問。"
+
+#: Disabled references:1
+msgid "8. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "8. 如需不列印沒有資料的關聯表/子表，請將程式碼：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，程式碼之間的關聯記錄/子表沒有資料則不會列印。"
+
+#: Disabled references:1
+msgid "是否只返回controlId，默认false"
+msgstr "是否只返回controlId，預設false"
+
+#: Disabled references:1
+msgid "IP 白名单"
+msgstr "IP 白名單"
+
+#: Disabled references:1
+msgid "关闭授权"
+msgstr "關閉授權"
+
+#: Disabled references:1
+msgid "删除授权密钥"
+msgstr "刪除授權金鑰"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，关闭时需要验证身份"
+msgstr "應用授權金鑰是極為重要的憑證，關閉時需要驗證身份"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，删除时需要验证身份"
+msgstr "應用授權金鑰是極為重要的憑證，刪除時需要驗證身份"
+
+#: Disabled references:1
+msgid "当前用户密码"
+msgstr "當前使用者密碼"
+
+#: Disabled references:1
+msgid "请输入密码确认授权"
+msgstr "請輸入密碼確認授權"
+
+#: Disabled references:1
+msgid "本应用全部接口"
+msgstr "本應用全部介面"
+
+#: Disabled references:1
+msgid "本应用只读接口"
+msgstr "本應用只讀介面"
+
+#: Disabled references:1
+msgid "编辑授权密钥"
+msgstr "編輯授權金鑰"
+
+#: Disabled references:1
+msgid "新建授权密钥"
+msgstr "新建授權金鑰"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，修改时需要验证身份"
+msgstr "應用授權金鑰是極為重要的憑證，修改時需要驗證身份"
+
+#: Disabled references:1
+msgid "授权状态"
+msgstr "授權狀態"
+
+#: Disabled references:1
+msgid "接口权限"
+msgstr "介面許可權"
+
+#: Disabled references:1
+msgid "其他设置"
+msgstr "其他設定"
+
+#: Disabled references:1
+msgid "调用获取工作表列表接口时，视图参数为空则不返回数据"
+msgstr "呼叫獲取工作表列表介面時，檢視引數為空則不返回資料"
+
+#: Disabled references:1
+msgid "设置工作表别名"
+msgstr "設定工作表別名"
+
+#: Disabled references:1
+msgid "工作表别名"
+msgstr "工作表別名"
+
+#: Disabled references:1
+msgid "工作表别名格式不匹配"
+msgstr "工作表別名格式不匹配"
+
+#: Disabled references:1
+msgid "工作表别名已存在，请重新输入"
+msgstr "工作表別名已存在，請重新輸入"
+
+#: Disabled references:1
+msgid "别名修改失败"
+msgstr "別名修改失敗"
+
+#: Disabled references:1
+msgid "授权已关闭"
+msgstr "授權已關閉"
+
+#: Disabled references:1
+msgid "空视图参数不返回数据"
+msgstr "空檢視引數不返回資料"
+
+#: Disabled references:1
+msgid "在 IP 白名单内的 IP 来源地址才能发起请求。未设置则所有 IP 来源都可发起请求。"
+msgstr "在 IP 白名單內的 IP 來源地址才能發起請求。未設定則所有 IP 來源都可發起請求。"
+
+#: Disabled references:1
+msgid "请输入正确的 IP 地址"
+msgstr "請輸入正確的 IP 地址"
+
+#: Disabled references:1
+msgid "请填写 IP 地址，一行一个"
+msgstr "請填寫 IP 地址，一行一個"
+
+#: Disabled references:1
+msgid "关闭 → 开启"
+msgstr "關閉 → 開啟"
+
+#: Disabled references:1
+msgid "开启 → 关闭"
+msgstr "開啟 → 關閉"
+
+#: Disabled references:1
+msgid "否 → 是"
+msgstr "否 → 是"
+
+#: Disabled references:1
+msgid "是 → 否"
+msgstr "是 → 否"
+
+#: Disabled references:1
+msgid "请先集成企业微信"
+msgstr "請先整合企業微信"
+
+#: Disabled references:1
+msgid "请使用待开发模式集成企业微信"
+msgstr "請使用待開發模式整合企業微信"
+
+#: Disabled references:1
+msgid "无法识别您的摄像头"
+msgstr "無法識別您的攝像頭"
+
+#: Disabled references:1
+msgid "单个文件大小超过50m，无法支持上传"
+msgstr "單個檔案大小超過50m，無法支援上傳"
+
+#: Disabled references:1
+msgid "Sign（注：只针对应用下的接口生效，其余还走企业授权模式）"
+msgstr "Sign（注：只針對應用下的介面生效，其餘還走企業授權模式）"
+
+#: Disabled references:1
+msgid "根据字段名的拼音自动生成别名，若字段名为英文则直接取字段名作为别名，此操作不会影响已设置的别名。"
+msgstr "根據欄位名的拼音自動生成別名，若欄位名為英文則直接取欄位名作為別名，此操作不會影響已設定的別名。"
+
+#: Disabled references:1
+msgid "工作表/字段别名"
+msgstr "工作表/欄位別名"
+
+#: Disabled references:1
+msgid "通过设置工作表和字段别名，使得它们在API、webhook、自定义打印等场景使用的时候更具有辨识度。"
+msgstr "通過設定工作表和欄位別名，使得它們在API、webhook、自定義列印等場景使用的時候更具有辨識度。"
+
+#: Disabled references:1
+msgid "文本索引"
+msgstr "文字索引"
+
+#: Disabled references:1
+msgid "手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。"
+msgstr "手動為大資料量的工作表建立合適的索引，可以加快工作表檢索速度，最多建立%0個。"
+
+#: Disabled references:1
+msgid "创建索引"
+msgstr "建立索引"
+
+#: Disabled references:1
+msgid "暂无索引"
+msgstr "暫無索引"
+
+#: Disabled references:1
+msgid "请输入索引名称"
+msgstr "請輸入索引名稱"
+
+#: Disabled references:1
+msgid "删除索引"
+msgstr "刪除索引"
+
+#: Disabled references:1
+msgid "确定删除索引吗？删除后将无法恢复"
+msgstr "確定刪除索引嗎？刪除後將無法恢復"
+
+#: Disabled references:1
+msgid "唯一索引"
+msgstr "唯一索引"
+
+#: Disabled references:1
+msgid "后台执行失败"
+msgstr "後臺執行失敗"
+
+#: Disabled references:1
+msgid "占位"
+msgstr "佔位"
+
+#: Disabled references:1
+msgid "自定义工作表索引以加快检索速度"
+msgstr "自定義工作表索引以加快檢索速度"
+
+#: Disabled references:1
+msgid "您暂无权限添加应用，请联系管理员进行添加使用"
+msgstr "您暫無許可權新增應用，請聯絡管理員進行新增使用"
+
+#: Disabled references:1
+msgid "备份与还原"
+msgstr "備份與還原"
+
+#: Disabled references:1
+msgid "我的账户"
+msgstr "我的賬戶"
+
+#: Disabled references:1
+msgid "对外公开分享链接"
+msgstr "對外公開分享連結"
+
+#: Disabled references:1
+msgid "内部成员访问链接"
+msgstr "內部成員訪問連結"
+
+#: Disabled references:1
+msgid "还没有创建工作表或自定义页面"
+msgstr "還沒有建立工作表或自定義頁面"
+
+#: Disabled references:1
+msgid "请选择行业"
+msgstr "請選擇行業"
+
+#: Disabled references:1
+msgid "请选择规模"
+msgstr "請選擇規模"
+
+#: Disabled references:1
+msgid "请选择您的职级"
+msgstr "請選擇您的職級"
+
+#: Disabled references:1
+msgid "请选择您的部门"
+msgstr "請選擇您的部門"
+
+#: Disabled references:1
+msgid "行业"
+msgstr "行業"
+
+#: Disabled references:1
+msgid "规模"
+msgstr "規模"
+
+#: Disabled references:1
+msgid "您的职级"
+msgstr "您的職級"
+
+#: Disabled references:1
+msgid "您的部门"
+msgstr "您的部門"
+
+#: Disabled references:1
+msgid "请填写姓名和邮箱"
+msgstr "請填寫姓名和郵箱"
+
+#: Disabled references:1
+msgid "请填写真实姓名和邮箱，方便大家与您联系"
+msgstr "請填寫真實姓名和郵箱，方便大家與您聯絡"
+
+#: Disabled references:1
+msgid "开关"
+msgstr "開關"
+
+#: Disabled references:1
+msgid "是/否"
+msgstr "是/否"
+
+#: Disabled references:1
+msgid "检查项"
+msgstr "檢查項"
+
+#: Disabled references:1
+msgid "%0(无效类型)"
+msgstr "%0(無效型別)"
+
+#: Disabled references:1
+msgid "当用户注销时"
+msgstr "當使用者登出時"
+
+#: Disabled references:1
+msgid "当用户被停用时"
+msgstr "當使用者被停用時"
+
+#: Disabled references:1
+msgid "共%0行"
+msgstr "共%0行"
+
+#: Disabled references:1
+msgid "（从高版本系统导出）"
+msgstr "（從高版本系統匯出）"
+
+#: Disabled references:1
+msgid "本年用量扩充包"
+msgstr "本年用量擴充包"
+
+#: Disabled references:1
+msgid "仅本年内使用有效，次年1月1日清零"
+msgstr "僅本年內使用有效，次年1月1日清零"
+
+#: Disabled references:1
+msgid "退回到"
+msgstr "退回到"
+
+#: Disabled references:1
+msgid "直接否决"
+msgstr "直接否決"
+
+#: Disabled references:1
+msgid "否决并退回"
+msgstr "否決並退回"
+
+#: Disabled references:1
+msgid "创建备份"
+msgstr "建立備份"
+
+#: Disabled references:1
+msgid "管理备份文件"
+msgstr "管理備份檔案"
+
+#: Disabled references:1
+msgid "应用备份还原是一个高级功能，请升级至专业版解锁开启"
+msgstr "應用備份還原是一個高階功能，請升級至專業版解鎖開啟"
+
+#: Disabled references:1
+msgid "未激活的用户不能停用"
+msgstr "未啟用的使用者不能停用"
+
+#: Disabled references:1
+msgid "停用%0个用户"
+msgstr "停用%0個使用者"
+
+#: Disabled references:1
+msgid "停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用"
+msgstr "停用只對“正常”狀態的使用者生效；使用者被停用後將不能通過外部門戶連結登入此應用"
+
+#: Disabled references:1
+msgid "未激活的用户不能启用"
+msgstr "未啟用的使用者不能啟用"
+
+#: Disabled references:1
+msgid "启用%0个用户"
+msgstr "啟用%0個使用者"
+
+#: Disabled references:1
+msgid "启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用"
+msgstr "啟用只對“停用”狀態的使用者生效；使用者被啟用後可以通過外部門戶連結登入此應用"
+
+#: Disabled references:1
+msgid "注销%0个成员"
+msgstr "登出%0個成員"
+
+#: Disabled references:1
+msgid "被注销的成员不能通过外部门户的链接登录到此应用内。"
+msgstr "被登出的成員不能通過外部門戶的連結登入到此應用內。"
+
+#: Disabled references:1
+msgid "可见全部讨论"
+msgstr "可見全部討論"
+
+#: Disabled references:1
+msgid "不可见内部讨论"
+msgstr "不可見內部討論"
+
+#: Disabled references:1
+msgid "功能设置"
+msgstr "功能設定"
+
+#: Disabled references:1
+msgid "允许外部用户对记录讨论"
+msgstr "允許外部使用者對記錄討論"
+
+#: Disabled references:1
+msgid "记录讨论的使用范围继承设置：工作表-功能开关-讨论范围设置"
+msgstr "記錄討論的使用範圍繼承設定：工作表-功能開關-討論範圍設定"
+
+#: Disabled references:1
+msgid "记录讨论的使用范围继承设置工作表-功能开关-讨论范围设置"
+msgstr "記錄討論的使用範圍繼承設定工作表-功能開關-討論範圍設定"
+
+#: Disabled references:1
+msgid "确定切换为不可见内部讨论？"
+msgstr "確定切換為不可見內部討論？"
+
+#: Disabled references:1
+msgid "确定切换为可见全部讨论？"
+msgstr "確定切換為可見全部討論？"
+
+#: Disabled references:1
+msgid "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
+msgstr "切換後，已有的外部討論內容全部歸為內部討論，外部使用者對其不可檢視且不能回覆；"
+
+#: Disabled references:1
+msgid "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
+msgstr "切換後，應用成員回覆已有討論，回覆內容歸屬於內部討論，外部使用者不可檢視且不能回覆"
+
+#: Disabled references:1
+msgid "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
+msgstr "切換後，討論分為兩個討論區域，外部使用者只能參與外部討論"
+
+#: Disabled references:1
+msgid "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
+msgstr "切換後，外部和內部兩個討論共用一個討論區，已有的外部和內部討論內容歸在一起"
+
+#: Disabled references:1
+msgid "外部用户与成员共用一个讨论区域，可见全部讨论内容"
+msgstr "外部使用者與成員共用一個討論區域，可見全部討論內容"
+
+#: Disabled references:1
+msgid "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
+msgstr "分為內部和外部兩個討論區，外部使用者不可見內部討論區"
+
+#: Disabled references:1
+msgid "用户协议和隐私条款"
+msgstr "使用者協議和隱私條款"
+
+#: Disabled references:1
+msgid "根据工信部等相关部门要求，用户在注册、登录网站时需要提供相应的协议及隐私政策内容告知用户同意后才可以注册"
+msgstr "根據工信部等相關部門要求，使用者在註冊、登入網站時需要提供相應的協議及隱私政策內容告知使用者同意後才可以註冊"
+
+#: Disabled references:1
+msgid "通知设置"
+msgstr "通知設定"
+
+#: Disabled references:1
+msgid "一行三个"
+msgstr "一行三個"
+
+#: Disabled references:1
+msgid "一行四个"
+msgstr "一行四個"
+
+#: Disabled references:1
+msgid "动态颜色"
+msgstr "動態顏色"
+
+#: Disabled references:1
+msgid "为进度区间设置颜色。当鼠标悬停或字段值在对应区间，显示该区间设置的颜色。"
+msgstr "為進度區間設定顏色。當滑鼠懸停或欄位值在對應區間，顯示該區間設定的顏色。"
+
+#: Disabled references:1
+msgid "当数值≤"
+msgstr "當數值≤"
+
+#: Disabled references:1
+msgid "颜色为"
+msgstr "顏色為"
+
+#: Disabled references:1
+msgid "刻度"
+msgstr "刻度"
+
+#: Disabled references:1
+msgid "使用刻度标记进度位置，通过参考标记位置以便选值。如在数值为37时，显示刻度37℃。"
+msgstr "使用刻度標記進度位置，通過參考標記位置以便選值。如在數值為37時，顯示刻度37℃。"
+
+#: Disabled references:1
+msgid "允许扫描条形码"
+msgstr "允許掃描條形碼"
+
+#: Disabled references:1
+msgid "允许扫描二维码"
+msgstr "允許掃描二維碼"
+
+#: Disabled references:1
+msgid "通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。"
+msgstr "通過啟用裝置攝像頭實現掃碼輸入。僅移動app中掃碼支援區分條形碼、二維碼，其他平臺掃碼不做區分。"
+
+#: Disabled references:1
+msgid "进度"
+msgstr "進度"
+
+#: Disabled references:1
+msgid "固定颜色"
+msgstr "固定顏色"
+
+#: Disabled references:1
+msgid "输入方式"
+msgstr "輸入方式"
+
+#: Disabled references:1
+msgid "区间"
+msgstr "區間"
+
+#: Disabled references:1
+msgid "间隔"
+msgstr "間隔"
+
+#: Disabled references:1
+msgid "显示输入框"
+msgstr "顯示輸入框"
+
+#: Disabled references:1
+msgid "显示刻度"
+msgstr "顯示刻度"
+
+#: Disabled references:1
+msgid "固定"
+msgstr "固定"
+
+#: Disabled references:1
+msgid "为每个等级设置颜色。当鼠标悬停或选中对应等级后，图标将显示为该等级设置的颜色"
+msgstr "為每個等級設定顏色。當滑鼠懸停或選中對應等級後，圖示將顯示為該等級設定的顏色"
+
+#: Disabled references:1
+msgid "仅显示"
+msgstr "僅顯示"
+
+#: Disabled references:1
+msgid "存储数据"
+msgstr "儲存資料"
+
+#: Disabled references:1
+msgid "修改他表字段类型为：仅显示"
+msgstr "修改他表欄位型別為：僅顯示"
+
+#: Disabled references:1
+msgid "修改后将清除此字段存储的数据。此字段将不能在用于搜索、筛选、公式、文本组合、统计。请确认以上位置都不再需要此字段的数据后执行操作。"
+msgstr "修改後將清除此欄位儲存的資料。此欄位將不能在用於搜尋、篩選、公式、文字組合、統計。請確認以上位置都不再需要此欄位的資料後執行操作。"
+
+#: Disabled references:1
+msgid "在加载记录时实时获取数据。适合只需要显示字段的场景。"
+msgstr "在載入記錄時實時獲取資料。適合只需要顯示欄位的場景。"
+
+#: Disabled references:1
+msgid "在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。"
+msgstr "在當前表中儲存資料並保持同步，儲存後他表欄位可用於工作表搜尋、篩選、排序、統計，或被公式、文字組合欄位使用。"
+
+#: Disabled references:1
+msgid "注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。"
+msgstr "注意：1.儲存的資料與實際資料存在一定延時；2.當顯示欄位的資料變更後，最大支援更新與之關聯的1000行資料。"
+
+#: Disabled references:1
+msgid "所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。"
+msgstr "所以此方式適合顯示欄位的值不會變更，或雖然變更但關聯的記錄數量較少（不超過1000行）的場景。"
+
+#: Disabled references:1
+msgid "显示开关文字"
+msgstr "顯示開關文字"
+
+#: Disabled references:1
+msgid "版本：%0"
+msgstr "版本：%0"
+
+#: Disabled references:1
+msgid "响应方式"
+msgstr "響應方式"
+
+#: Disabled references:1
+msgid "批量操作单次最大支持1000行记录，点击删除后将只删除前1000行记录"
+msgstr "批量操作單次最大支援1000行記錄，點選刪除後將只刪除前1000行記錄"
+
+#: Disabled references:1
+msgid "当前所选记录数量超过1000行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作"
+msgstr "當前所選記錄數量超過1000行，資料不會進入回收站而直接進行徹底刪除，且不會觸發工作流。此操作只有應用管理員可以執行，請請務必確認所有應用成員都不再需要這些資料後再執行此操作"
+
+#: Disabled references:1
+msgid "彻底删除所有数据"
+msgstr "徹底刪除所有資料"
+
+#: Disabled references:1
+msgid "A → Z"
+msgstr "A → Z"
+
+#: Disabled references:1
+msgid "Z → A"
+msgstr "Z → A"
+
+#: Disabled references:1
+msgid "最新的在前面"
+msgstr "最新的在前面"
+
+#: Disabled references:1
+msgid "最旧的在前面"
+msgstr "最舊的在前面"
+
+#: Disabled references:1
+msgid "哪些工作表需要创建索引？"
+msgstr "哪些工作表需要建立索引？"
+
+#: Disabled references:1
+msgid "如果工作表的数据量比较大（通常为数万或数十万以上），而且在查询工作表时已经出现明显的加载延迟，那就可以在该工作表上创建索引以尝试加快检索速度。"
+msgstr "如果工作表的資料量比較大（通常為數萬或數十萬以上），而且在查詢工作表時已經出現明顯的載入延遲，那就可以在該工作表上建立索引以嘗試加快檢索速度。"
+
+#: Disabled references:1
+msgid "创建索引时如何选择索引字段？"
+msgstr "建立索引時如何選擇索引欄位？"
+
+#: Disabled references:1
+msgid "在视图、筛选、快速筛选等查询场景中被检索的字段或者在视图、子表、关联记录中被排序的字段才需要创建索引。"
+msgstr "在檢視、篩選、快速篩選等查詢場景中被檢索的欄位或者在檢視、子表、關聯記錄中被排序的欄位才需要建立索引。"
+
+#: Disabled references:1
+msgid "选择索引字段时请记住一个原则：记录中重复值越少的字段，越适合建立索引。例如一个不允许重复的「商品编号」字段，就非常适合创建索引；反之，一个用于记录男、女的「性别」字段，则不适合创建索引。"
+msgstr "選擇索引欄位時請記住一個原則：記錄中重複值越少的欄位，越適合建立索引。例如一個不允許重複的「商品編號」欄位，就非常適合建立索引；反之，一個用於記錄男、女的「性別」欄位，則不適合建立索引。"
+
+#: Disabled references:1
+msgid "如果一些字段总是需要一起参与检索，它们组合起来之后的重复率更低，例如「First Name」和「Last Name」，那么你可以同时选择这两个字段创建一个复合索引，比为这两个字段分别创建索引效果更好。"
+msgstr "如果一些欄位總是需要一起參與檢索，它們組合起來之後的重複率更低，例如「First Name」和「Last Name」，那麼你可以同時選擇這兩個欄位建立一個複合索引，比為這兩個欄位分別建立索引效果更好。"
+
+#: Disabled references:1
+msgid "索引字段排序有什么用？"
+msgstr "索引欄位排序有什麼用？"
+
+#: Disabled references:1
+msgid "索引字段的排序和你在视图中使用此字段参与排序的规则有关。当索引只有一个字段时，视图中排序的方向不会影响检索的加速；除此之外，请尽量保证在视图中的字段排序方式与索引中设置的一致，否则检索可能不会被加速。"
+msgstr "索引欄位的排序和你在檢視中使用此欄位參與排序的規則有關。當索引只有一個欄位時，檢視中排序的方向不會影響檢索的加速；除此之外，請儘量保證在檢視中的欄位排序方式與索引中設定的一致，否則檢索可能不會被加速。"
+
+#: Disabled references:1
+msgid "为什么索引会创建失败？"
+msgstr "為什麼索引會建立失敗？"
+
+#: Disabled references:1
+msgid "创建索引时，会有下列限制，不遵循限制可能会出现索引创建失败的情况："
+msgstr "建立索引時，會有下列限制，不遵循限制可能會出現索引建立失敗的情況："
+
+#: Disabled references:1
+msgid "○ 创建「唯一索引」时，选择的索引字段在已有记录里不能存在重复值；"
+msgstr "○ 建立「唯一索引」時，選擇的索引欄位在已有記錄裡不能存在重複值；"
+
+#: Disabled references:1
+msgid "○ 创建索引时选择的字段不能和之前已创建的某个索引的字段完全一样；"
+msgstr "○ 建立索引時選擇的欄位不能和之前已建立的某個索引的欄位完全一樣；"
+
+#: Disabled references:1
+msgid "○ 一张工作表只能创建一个「文本索引」或「所有文本字段全文索引」；"
+msgstr "○ 一張工作表只能建立一個「文字索引」或「所有文字欄位全文索引」；"
+
+#: Disabled references:1
+msgid "○ 一个索引只能包含一个「选项」类型的字段，如单选/多选/人员/部门等；"
+msgstr "○ 一個索引只能包含一個「選項」型別的欄位，如單選/多選/人員/部門等；"
+
+#: Disabled references:1
+msgid "索引越多越好吗？"
+msgstr "索引越多越好嗎？"
+
+#: Disabled references:1
+msgid "并非如此。索引只会加速检索，而在新增、更新、删除记录时系统会花费更多的时间用于更新索引，过多的索引会很明显的降低这些操作的速度，甚至影响到查询的速度。"
+msgstr "並非如此。索引只會加速檢索，而在新增、更新、刪除記錄時系統會花費更多的時間用於更新索引，過多的索引會很明顯的降低這些操作的速度，甚至影響到查詢的速度。"
+
+#: Disabled references:1
+msgid "系统会自动为我建立索引吗？"
+msgstr "系統會自動為我建立索引嗎？"
+
+#: Disabled references:1
+msgid "是的，我们会根据公有云平台每天的访问日志，自动学习和智能分析被频繁使用的查询语句，并自动创建合适的索引。所以，请不要随意修改和删除不是由你自己创建的索引。私有部署环境暂不支持自动创建索引。"
+msgstr "是的，我們會根據公有云平臺每天的訪問日誌，自動學習和智慧分析被頻繁使用的查詢語句，並自動建立合適的索引。所以，請不要隨意修改和刪除不是由你自己建立的索引。私有部署環境暫不支援自動建立索引。"
+
+#: Disabled references:1
+msgid "编辑索引"
+msgstr "編輯索引"
+
+#: Disabled references:1
+msgid "请移除索引中已删除的字段"
+msgstr "請移除索引中已刪除的欄位"
+
+#: Disabled references:1
+msgid "每张工作表只能创建一个文本索引"
+msgstr "每張工作表只能建立一個文字索引"
+
+#: Disabled references:1
+msgid "索引只能包含一个多选类型字段"
+msgstr "索引只能包含一個多選型別欄位"
+
+#: Disabled references:1
+msgid "索引不能同时包含文本索引与多选类型字段"
+msgstr "索引不能同時包含文字索引與多選型別欄位"
+
+#: Disabled references:1
+msgid "超出索引最多显示"
+msgstr "超出索引最多顯示"
+
+#: Disabled references:1
+msgid "索引已存在"
+msgstr "索引已存在"
+
+#: Disabled references:1
+msgid "选择索引字段"
+msgstr "選擇索引欄位"
+
+#: Disabled references:1
+msgid "每张工作表只能创建一个「文本索引」或者「文本字段全文索引」；创建「文本索引」时，不能包含「选项字段」；每个索引只能包含一个「选项字段」"
+msgstr "每張工作表只能建立一個「文字索引」或者「文字欄位全文索引」；建立「文字索引」時，不能包含「選項欄位」；每個索引只能包含一個「選項欄位」"
+
+#: Disabled references:1
+msgid "索引类型"
+msgstr "索引型別"
+
+#: Disabled references:1
+msgid "建立唯一索引后，字段的值不允许重复。如果字段为非必填，则整个工作表只能有一条为空的数据，以保证数据的唯一性"
+msgstr "建立唯一索引後，欄位的值不允許重複。如果欄位為非必填，則整個工作表只能有一條為空的資料，以保證資料的唯一性"
+
+#: Disabled references:1
+msgid "所有文本字段全文索引"
+msgstr "所有文字欄位全文索引"
+
+#: Disabled references:1
+msgid "支持所有文本字段全文检索。工作表创建文本索引后不可再创建此类型索引"
+msgstr "支援所有文字欄位全文檢索。工作表建立文字索引後不可再建立此型別索引"
+
+#: Disabled references:1
+msgid "索引名称"
+msgstr "索引名稱"
+
+#: Disabled references:1
+msgid "不输入名称将按字段名称自动创建"
+msgstr "不輸入名稱將按欄位名稱自動建立"
+
+#: Disabled references:1
+msgid "如何利用索引加速检索？"
+msgstr "如何利用索引加速檢索？"
+
+#: Disabled references:1
+msgid "为工作表建立索引，就像是为一本字典建立一个可以用拼音检索的目录。创建适合的索引可以非常有效的加快特定查询条件下的记录检索速度。在创建索引之前，你需要了解创建索引的一些基本原则。"
+msgstr "為工作表建立索引，就像是為一本字典建立一個可以用拼音檢索的目錄。建立適合的索引可以非常有效的加快特定查詢條件下的記錄檢索速度。在建立索引之前，你需要了解建立索引的一些基本原則。"
+
+#: Disabled references:1
+msgid "修改保存"
+msgstr "修改儲存"
+
+#: Disabled references:1
+msgid "不能修改排队中的索引"
+msgstr "不能修改排隊中的索引"
+
+#: Disabled references:1
+msgid "二维码权限"
+msgstr "二維碼許可權"
+
+#: Disabled references:1
+msgid "仅限应用成员访问"
+msgstr "僅限應用成員訪問"
+
+#: Disabled references:1
+msgid "下级包含"
+msgstr "下級包含"
+
+#: Disabled references:1
+msgid "下级不包含"
+msgstr "下級不包含"
+
+#: Disabled references:1
+msgid "有上次未提交的内容，是否恢复？"
+msgstr "有上次未提交的內容，是否恢復？"
+
+#: Disabled references:1
+msgid "丢弃"
+msgstr "丟棄"
+
+#: Disabled references:1
+msgid "讨论(外部)"
+msgstr "討論(外部)"
+
+#: Disabled references:1
+msgid "讨论用户"
+msgstr "討論使用者"
+
+#: Disabled references:1
+msgid "记录拥有者才能操作"
+msgstr "記錄擁有者才能操作"
+
+#: Disabled references:1
+msgid "应用管理员才能操作"
+msgstr "應用管理員才能操作"
+
+#: Disabled references:1
+msgid "未找到相关的人员或群聊"
+msgstr "未找到相關的人員或群聊"
+
+#: Disabled references:1
+msgid "最近聊天"
+msgstr "最近聊天"
+
+#: Disabled references:1
+msgid "发送到"
+msgstr "傳送到"
+
+#: Disabled references:1
+msgid "添加说明内容"
+msgstr "新增說明內容"
+
+#: Disabled references:1
+msgid "分享链接关闭或数据不存在"
+msgstr "分享連結關閉或資料不存在"
+
+#: Disabled references:1
+msgid "请输入登录密码，以验证管理员身份"
+msgstr "請輸入登入密碼，以驗證管理員身份"
+
+#: Disabled references:1
+msgid "1.下载导入模版"
+msgstr "1.下載匯入模版"
+
+#: Disabled references:1
+msgid "导入模板"
+msgstr "匯入模板"
+
+#: Disabled references:1
+msgid "2.上传完善后的表格"
+msgstr "2.上傳完善後的表格"
+
+#: Disabled references:1
+msgid "·导入成功后，成员会收到邀请链接，验证后可加入组织"
+msgstr "·匯入成功後，成員會收到邀請連結，驗證後可加入組織"
+
+#: Disabled references:1
+msgid "·最多一次可以导入 500 个用户，否则可能导致失效"
+msgstr "·最多一次可以匯入 500 個使用者，否則可能導致失效"
+
+#: Disabled references:1
+msgid "1.导出通讯录"
+msgstr "1.匯出通訊錄"
+
+#: Disabled references:1
+msgid "导出后，可在本地修改成员信息，上传更新"
+msgstr "匯出後，可在本地修改成員資訊，上傳更新"
+
+#: Disabled references:1
+msgid "如果需要修改成员信息，可在本地编辑后，上传表格完成修改"
+msgstr "如果需要修改成員資訊，可在本地編輯後，上傳表格完成修改"
+
+#: Disabled references:1
+msgid "支持 excel"
+msgstr "支援 excel"
+
+#: Disabled references:1
+msgid "导入 / 导出 / 修改"
+msgstr "匯入 / 匯出 / 修改"
+
+#: Disabled references:1
+msgid "导入新成员"
+msgstr "匯入新成員"
+
+#: Disabled references:1
+msgid "导出 / 修改"
+msgstr "匯出 / 修改"
+
+#: Disabled references:1
+msgid "正在导入..."
+msgstr "正在匯入..."
+
+#: Disabled references:1
+msgid "失败原因"
+msgstr "失敗原因"
+
+#: Disabled references:1
+msgid "导入新成员失败列表"
+msgstr "匯入新成員失敗列表"
+
+#: Disabled references:1
+msgid "导入修改用户信息失败列表"
+msgstr "匯入修改使用者資訊失敗列表"
+
+#: Disabled references:1
+msgid "成功导入 %0 人，失败 %1 人"
+msgstr "成功匯入 %0 人，失敗 %1 人"
+
+#: Disabled references:1
+msgid "成功更新%0人，未更新 %1 人"
+msgstr "成功更新%0人，未更新 %1 人"
+
+#: Disabled references:1
+msgid "更新成员信息失败列表"
+msgstr "更新成員資訊失敗列表"
+
+#: Disabled references:1
+msgid "下载失败列表"
+msgstr "下載失敗列表"
+
+#: Disabled references:1
+msgid "导入错误"
+msgstr "匯入錯誤"
+
+#: Disabled references:1
+msgid "请"
+msgstr "請"
+
+#: Disabled references:1
+msgid "，按格式修改后重新导入"
+msgstr "，按格式修改後重新匯入"
+
+#: Disabled references:1
+msgid "单个文件大小超过4mb，无法支持上传"
+msgstr "單個檔案大小超過4mb，無法支援上傳"
+
+#: Disabled references:1
+msgid "地址"
+msgstr "地址"
+
+#: Disabled references:1
+msgid "请输入新密码"
+msgstr "請輸入新密碼"
+
+#: Disabled references:1
+msgid "密码过于简单，至少8~20位且含字母+数字"
+msgstr "密碼過於簡單，至少8~20位且含字母+數字"
+
+#: Disabled references:1
+msgid "批量重置密码(%0 个用户)"
+msgstr "批量重置密碼(%0 個使用者)"
+
+#: Disabled references:1
+msgid "密码，8-20位，必须含字母+数字"
+msgstr "密碼，8-20位，必須含字母+數字"
+
+#: Disabled references:1
+msgid "仅看无部门人员"
+msgstr "僅看無部門人員"
+
+#: Disabled references:1
+msgid "批量重置密码"
+msgstr "批量重置密碼"
+
+#: Disabled references:1
+msgid "编辑%0个用户信息"
+msgstr "編輯%0個使用者資訊"
+
+#: Disabled references:1
+msgid "选择编辑字段"
+msgstr "選擇編輯欄位"
+
+#: Disabled references:1
+msgid "通知用户新密码"
+msgstr "通知使用者新密碼"
+
+#: Disabled references:1
+msgid "用备份还原了新应用"
+msgstr "用備份還原了新應用"
+
+#: Disabled references:1
+msgid "将应用备份为"
+msgstr "將應用備份為"
+
+#: Disabled references:1
+msgid "将应用还原为"
+msgstr "將應用還原為"
+
+#: Disabled references:1
+msgid "删除了备份"
+msgstr "刪除了備份"
+
+#: Disabled references:1
+msgid "重命名了备份"
+msgstr "重新命名了備份"
+
+#: Disabled references:1
+msgid "下载了备份"
+msgstr "下載了備份"
+
+#: Disabled references:1
+msgid " 暂无备份文件"
+msgstr " 暫無備份檔案"
+
+#: Disabled references:1
+msgid "还原应用"
+msgstr "還原應用"
+
+#: Disabled references:1
+msgid "还原为新应用"
+msgstr "還原為新應用"
+
+#: Disabled references:1
+msgid "下载备份"
+msgstr "下載備份"
+
+#: Disabled references:1
+msgid "删除备份"
+msgstr "刪除備份"
+
+#: Disabled references:1
+msgid "token失效"
+msgstr "token失效"
+
+#: Disabled references:1
+msgid "网络版本过低，无法使用高版本功能"
+msgstr "網路版本過低，無法使用高版本功能"
+
+#: Disabled references:1
+msgid "确认备份“%0”应用？"
+msgstr "確認備份“%0”應用？"
+
+#: Disabled references:1
+msgid "该应用已备份文件达到上限%0个，请前往“管理备份文件”删除一些备份文件后再进行备份"
+msgstr "該應用已備份檔案達到上限%0個，請前往“管理備份檔案”刪除一些備份檔案後再進行備份"
+
+#: Disabled references:1
+msgid "此操作仅备份"
+msgstr "此操作僅備份"
+
+#: Disabled references:1
+msgid "当前应用的结构和配置，该应用下的数据不会备份。每个备份文件仅保留"
+msgstr "當前應用的結構和配置，該應用下的資料不會備份。每個備份檔案僅保留"
+
+#: Disabled references:1
+msgid "60天"
+msgstr "60天"
+
+#: Disabled references:1
+msgid "有效期，超过60天的会自动删除，每个应用最多可备份"
+msgstr "有效期，超過60天的會自動刪除，每個應用最多可備份"
+
+#: Disabled references:1
+msgid "10个"
+msgstr "10個"
+
+#: Disabled references:1
+msgid "文件。"
+msgstr "檔案。"
+
+#: Disabled references:1
+msgid "当前已备份:"
+msgstr "當前已備份:"
+
+#: Disabled references:1
+msgid "删除成功 "
+msgstr "刪除成功 "
+
+#: Disabled references:1
+msgid "删除失败 "
+msgstr "刪除失敗 "
+
+#: Disabled references:1
+msgid "确定将备份文件“%0”删除吗？"
+msgstr "確定將備份檔案“%0”刪除嗎？"
+
+#: Disabled references:1
+msgid "暂无信息"
+msgstr "暫無資訊"
+
+#: Disabled references:1
+msgid "每个应用最多创建10个备份文件，每个文件仅保留60天有效期"
+msgstr "每個應用最多建立10個備份檔案，每個檔案僅保留60天有效期"
+
+#: Disabled references:1
+msgid "该应用已备份文件数达到上限%0个，删除一些备份文件后方可再次备份"
+msgstr "該應用已備份檔案數達到上限%0個，刪除一些備份檔案後方可再次備份"
+
+#: Disabled references:1
+msgid "备份文件"
+msgstr "備份檔案"
+
+#: Disabled references:1
+msgid "密码不正确"
+msgstr "密碼不正確"
+
+#: Disabled references:1
+msgid "请进行身份验证"
+msgstr "請進行身份驗證"
+
+#: Disabled references:1
+msgid "还原应用为敏感操作，需要验证身份"
+msgstr "還原應用為敏感操作，需要驗證身份"
+
+#: Disabled references:1
+msgid "将应用还原到“%0”备份的版本，意味着"
+msgstr "將應用還原到“%0”備份的版本，意味著"
+
+#: Disabled references:1
+msgid "在%0之后所有配置相关的更改都将丢失，"
+msgstr "在%0之後所有配置相關的更改都將丟失，"
+
+#: Disabled references:1
+msgid "建议在还原之前先将当前版本进行备份，还原前请先打开应用维护状态。"
+msgstr "建議在還原之前先將當前版本進行備份，還原前請先開啟應用維護狀態。"
+
+#: Disabled references:1
+msgid "应用维护状态"
+msgstr "應用維護狀態"
+
+#: Disabled references:1
+msgid "还原成功后自动结束维护状态"
+msgstr "還原成功後自動結束維護狀態"
+
+#: Disabled references:1
+msgid "还原时同时备份当前版本"
+msgstr "還原時同時備份當前版本"
+
+#: Disabled references:1
+msgid "（已有10个备份文件，不能进行备份）"
+msgstr "（已有10個備份檔案，不能進行備份）"
+
+#: Disabled references:1
+msgid "确定将备份文件“%0”还原为一个新的应用吗？"
+msgstr "確定將備份檔案“%0”還原為一個新的應用嗎？"
+
+#: Disabled references:1
+msgid "批量搜索手机号"
+msgstr "批量搜尋手機號"
+
+#: Disabled references:1
+msgid "通过手机号批量搜索用户，每个手机号占一行"
+msgstr "通過手機號批量搜尋使用者，每個手機號佔一行"
+
+#: Disabled references:1
+msgid ""%0"应用"
+msgstr ""%0"應用"
+
+#: Disabled references:1
+msgid ""%0"工作表"
+msgstr ""%0"工作表"
+
+#: Disabled references:1
+msgid "常用导航"
+msgstr "常用導航"
+
+#: Disabled references:1
+msgid "我的客户"
+msgstr "我的客戶"
+
+#: Disabled references:1
+msgid "我的线索"
+msgstr "我的線索"
+
+#: Disabled references:1
+msgid "销售订单"
+msgstr "銷售訂單"
+
+#: Disabled references:1
+msgid "报表"
+msgstr "報表"
+
+#: Disabled references:1
+msgid "采购入库"
+msgstr "採購入庫"
+
+#: Disabled references:1
+msgid "销售出库"
+msgstr "銷售出庫"
+
+#: Disabled references:1
+msgid "产品库存"
+msgstr "產品庫存"
+
+#: Disabled references:1
+msgid "调拨记录"
+msgstr "調撥記錄"
+
+#: Disabled references:1
+msgid "通过点击按钮创建记录时，将会优先生效此处配置的默认值"
+msgstr "通過點選按鈕建立記錄時，將會優先生效此處配置的預設值"
+
+#: Disabled references:1
+msgid "字段默认值"
+msgstr "欄位預設值"
+
+#: Disabled references:1
+msgid "触发者所在的部门"
+msgstr "觸發者所在的部門"
+
+#: Disabled references:1
+msgid "你确认执行此操作吗？"
+msgstr "你確認執行此操作嗎？"
+
+#: Disabled references:1
+msgid "无权查看"
+msgstr "無權檢視"
+
+#: Disabled references:1
+msgid "请先选择一个视图"
+msgstr "請先選擇一個檢視"
+
+#: Disabled references:1
+msgid "组件名称"
+msgstr "元件名稱"
+
+#: Disabled references:1
+msgid "输入组件名称"
+msgstr "輸入元件名稱"
+
+#: Disabled references:1
+msgid "视图来源"
+msgstr "檢視來源"
+
+#: Disabled references:1
+msgid "数据展示数量"
+msgstr "資料展示數量"
+
+#: Disabled references:1
+msgid "输入最大展示（为空表示不限制）"
+msgstr "輸入最大展示（為空表示不限制）"
+
+#: Disabled references:1
+msgid "允许新建记录"
+msgstr "允許新建記錄"
+
+#: Disabled references:1
+msgid "显示选中结果"
+msgstr "顯示選中結果"
+
+#: Disabled references:1
+msgid "自定义等级文案"
+msgstr "自定義等級文案"
+
+#: Disabled references:1
+msgid "设置等级说明"
+msgstr "設定等級說明"
+
+#: Disabled references:1
+msgid "为每个等级设置说明文案。当鼠标悬停在对应等级或在选中后，显示对等级的描述文案。"
+msgstr "為每個等級設定說明文案。當滑鼠懸停在對應等級或在選中後，顯示對等級的描述文案。"
+
+#: Disabled references:1
+msgid "Webhook数组"
+msgstr "Webhook陣列"
+
+#: Disabled references:1
+msgid "代码块数组"
+msgstr "程式碼塊陣列"
+
+#: Disabled references:1
+msgid "业务流程数组"
+msgstr "業務流程陣列"
+
+#: Disabled references:1
+msgid "选择数据类型"
+msgstr "選擇資料型別"
+
+#: Disabled references:1
+msgid "选择业务流程节点"
+msgstr "選擇業務流程節點"
+
+#: Disabled references:1
+msgid "仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。"
+msgstr "僅通過自定義頁面上的按鈕呼叫的PBP支援介面推送功能（通過API和工作流呼叫時此節點無法生效）。"
+
+#: Disabled references:1
+msgid "在本组织下，正在被以下事件调用"
+msgstr "在本組織下，正在被以下事件呼叫"
+
+#: Disabled references:1
+msgid "未被任何流程或按钮调用"
+msgstr "未被任何流程或按鈕呼叫"
+
+#: Disabled references:1
+msgid "包括用户自行注销或被管理员注销"
+msgstr "包括使用者自行登出或被管理員登出"
 
 #: Disabled references:1
 msgid "系统默认接受数据后返回"
 msgstr "系統預設接受資料後返回"
+
+#: Disabled references:1
+msgid "转为唯一分支：只执行第一个满足条件的分支下的节点序列，其他分支均不执行"
+msgstr "轉為唯一分支：只執行第一個滿足條件的分支下的節點序列，其他分支均不執行"
+
+#: Disabled references:1
+msgid "转为包容分支：满足任一分支条件的节点序列均同步执行，直至合并"
+msgstr "轉為包容分支：滿足任一分支條件的節點序列均同步執行，直至合併"
+
+#: Disabled references:1
+msgid "包容分支(点击折叠)"
+msgstr "包容分支(點選摺疊)"
+
+#: Disabled references:1
+msgid "唯一分支(点击折叠)"
+msgstr "唯一分支(點選摺疊)"
+
+#: Disabled references:1
+msgid "添加分支"
+msgstr "新增分支"
+
+#: Disabled references:1
+msgid "从对象数组获取数据"
+msgstr "從物件陣列獲取資料"
+
+#: Disabled references:1
+msgid "获取Webhook、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "獲取Webhook、程式碼塊、封裝業務流程輸入節點的JSON陣列物件"
+
+#: Disabled references:1
+msgid "组织/部门/协作"
+msgstr "組織/部門/協作"
+
+#: Disabled references:1
+msgid "获取单条人员/部门数据"
+msgstr "獲取單條人員/部門資料"
+
+#: Disabled references:1
+msgid "获取多条人员/部门数据"
+msgstr "獲取多條人員/部門資料"
+
+#: Disabled references:1
+msgid "获取单条外部人员数据"
+msgstr "獲取單條外部人員資料"
+
+#: Disabled references:1
+msgid "获取多条外部人员数据"
+msgstr "獲取多條外部人員資料"
+
+#: Disabled references:1
+msgid "%0(无效数据)"
+msgstr "%0(無效資料)"
+
+#: Disabled references:1
+msgid "导入完成，有部分数据未被导入,请删除重复值后重试"
+msgstr "匯入完成，有部分資料未被匯入,請刪除重複值後重試"
+
+#: Disabled references:1
+msgid "当前记录的字段值"
+msgstr "當前記錄的欄位值"
+
+#: Disabled references:1
+msgid "自定义函数"
+msgstr "自定義函式"
+
+#: Disabled references:1
+msgid "导出Excel数据格式"
+msgstr "匯出Excel資料格式"
+
+#: Disabled references:1
+msgid "按统计显示单位导出"
+msgstr "按統計顯示單位匯出"
+
+#: Disabled references:1
+msgid "选择一个检查项字段标记记录属性为里程碑"
+msgstr "選擇一個檢查項欄位標記記錄屬性為里程碑"
+
+#: Disabled references:1
+msgid "依据字段“%0“的匹配字段仅限人员ID"
+msgstr "依據欄位“%0“的匹配欄位僅限人員ID"
+
+#: Disabled references:1
+msgid "选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选"
+msgstr "選擇關聯表的一個欄位作為對映的匹配欄位，支援的欄位型別包括：文字框、電話號碼、郵件地址、證件、文字拼接、自動編號、記錄ID、成員單選"
+
+#: Disabled references:1
+msgid "单个文件大小超过10mb，无法支持上传"
+msgstr "單個檔案大小超過10mb，無法支援上傳"
+
+#: Disabled references:1
+msgid "请在函数头部定义变量接受字段动态值"
+msgstr "請在函式頭部定義變數接受欄位動態值"
+
+#: Disabled references:1
+msgid "自定义函数指采用 JavaScript 代码来实现函数，函数体需要返回一个值"
+msgstr "自定義函式指採用 JavaScript 程式碼來實現函式，函式體需要返回一個值"
+
+#: Disabled references:1
+msgid "自定义函数采用异步更新，函数独立线程运行不会阻塞 UI"
+msgstr "自定義函式採用非同步更新，函式獨立執行緒執行不會阻塞 UI"
+
+#: Disabled references:1
+msgid "函数 1 秒内没有返回结果将被主动终止"
+msgstr "函式 1 秒內沒有返回結果將被主動終止"
+
+#: Disabled references:1
+msgid "无效类型"
+msgstr "無效型別"
+
+#: Disabled references:1
+msgid "显示为 -- (连续)"
+msgstr "顯示為 -- (連續)"
+
+#: Disabled references:1
+msgid "显示为 -- (中断)"
+msgstr "顯示為 -- (中斷)"
 

@@ -90,7 +90,7 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35];
  * 富文本
  * 签名
  */
-export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 36, 41, 42];
+export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 41, 42];
 
 export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 8, 9, 10, 11, 15, 16, 19, 23, 24, 27, 28, 36];
 
@@ -112,10 +112,10 @@ export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 43, 45, 10010];
 
 // 需要单独显示样式的控件
 export const NEED_SPECIAL_DISPLAY_CONTROLS = [
-  2, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 36, 38, 40, 41, 42, 43, 35, 10010,
+  2, 6, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 36, 38, 40, 41, 42, 43, 35, 10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [3, 11, 15, 16, 35, 40];
+export const HAVE_CONFIG_CONTROL = [3, 15, 16, 26, 28, 35, 40];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [14, 21, 22, 34, 41, 10010];
 
@@ -126,4 +126,4 @@ export const NOT_HAVE_WIDTH_CONFIG = [43];
 
 export const MAX_CONTROLS_COUNT = 2000;
 
-export const HAVE_CONFIG_SUB_LIST = [3, 15, 16, 35];
+export const HAVE_CONFIG_SUB_LIST = [3, 15, 16, 28, 35];

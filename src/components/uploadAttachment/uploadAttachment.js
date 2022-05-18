@@ -618,10 +618,10 @@ module.exports = (function ($) {
               options.uploadProgress(up, file);
             },
             Error: function (up, error) {
-              if (error.code === plupload.FILE_SIZE_ERROR) {
-                alert(_l('单个文件大小超过 %0，无法支持上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 3);
+              if (error.code === window.plupload.FILE_SIZE_ERROR) {
+                alert(_l('单个文件大小超过 %0，无法支持上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 2);
               } else {
-                alert(_l('上传失败。请稍后再试。'));
+                alert(_l('上传失败，请稍后再试。'), 2);
               }
               if (error.file) {
                 _this.uploadFailed(error.file);

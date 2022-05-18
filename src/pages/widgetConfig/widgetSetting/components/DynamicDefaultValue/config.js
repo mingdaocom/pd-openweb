@@ -62,7 +62,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -136,7 +136,7 @@ export const OTHER_FIELD_TYPE = {
 export const CURRENT_TYPES = {
   15: DATE_TYPES,
   16: TIME_TYPES,
-  26: [{ key: 'user', id: 'caid', text: _l('当前用户') }],
+  26: [{ key: 'user', id: 'user-self', text: _l('当前用户') }],
   27: [{ key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') }],
 };
 
@@ -145,3 +145,65 @@ export const DEFAULT_TYPES = {
   1: 'defaultfunc',
   2: 'dynamicsrc',
 };
+
+export const USER_LIST = [
+  {
+    text: _l('用户ID'),
+    id: 'userId',
+  },
+  {
+    text: _l('手机号'),
+    id: 'phone',
+  },
+
+  {
+    text: _l('邮箱'),
+    id: 'email',
+  },
+];
+
+export const SYSTEM_LIST = [
+  {
+    text: _l('组织ID'),
+    id: 'projectId',
+  },
+  {
+    text: _l('应用ID'),
+    id: 'appId',
+  },
+  {
+    text: _l('分组ID'),
+    id: 'groupId',
+  },
+  {
+    text: _l('工作表ID'),
+    id: 'worksheetId',
+  },
+  {
+    text: _l('视图ID'),
+    id: 'viewId',
+  },
+  {
+    text: _l('记录ID'),
+    id: 'recordId',
+  },
+  {
+    text: _l('UserAgent'),
+    id: 'ua',
+  },
+  {
+    text: _l('时间戳'),
+    id: 'timestamp',
+  },
+];
+
+export const EMEBD_FIELDS = [
+  {
+    name: _l('当前用户信息'),
+    list: USER_LIST,
+  },
+  {
+    name: _l('系统信息'),
+    list: SYSTEM_LIST,
+  },
+];

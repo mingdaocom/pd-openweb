@@ -58,19 +58,33 @@ const renderOverlay = ({ controlId, controlType, normType }, { onNormType, onCha
 }
 
 const SortableItem = SortableElement(props => {
-  const { item, onClear, onNormType, onChangeControlId } = props;
+  const { item, onClear, onNormType, onChangeControlId, axisControls, allControls } = props;
   const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
   const isNumber = isNumberControl(item.controlType, false);
+  const axis = _.find(axisControls, { controlId: item.controlId });
+  const control = _.find(allControls, { controlId: item.controlId }) || {};
   return (
     <SortableItemContent>
       <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
       <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
-        <Tooltip title={tip}>
-          <span className="Gray flex ellipsis">
-            {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
-            {item.rename || item.controlName || _l('该控件不存在')}
-          </span>
-        </Tooltip>
+        {axis ? (
+          <Tooltip title={tip}>
+            <span className="Gray flex ellipsis">
+              {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
+              {item.rename || item.controlName}
+            </span>
+          </Tooltip>
+        ) : (
+          control.strDefault === '10' ? (
+            <span className="Red flex ellipsis">
+              {`${control.controlName} (${_l('无效类型')})`}
+            </span>
+          ) : (
+            <span className="Red flex ellipsis">
+              {_l('该控件不存在')}
+            </span>
+          )
+        )}
         <Dropdown overlay={renderOverlay(item, { onNormType, onChangeControlId })} trigger={['click']}>
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
@@ -177,7 +191,7 @@ export default class YAxis extends Component {
     );
   }
   render() {
-    const { name, currentReport, yaxisList, split } = this.props;
+    const { name, currentReport, axisControls, allControls, yaxisList, split } = this.props;
     const { reportType } = currentReport;
     const only = [
       reportTypes.PieChart,
@@ -192,6 +206,8 @@ export default class YAxis extends Component {
           axis="xy"
           helperClass="sortableNumberField"
           list={yaxisList}
+          allControls={allControls}
+          axisControls={axisControls}
           shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
           onClear={this.props.onRemoveAxis}
           onNormType={this.handleNormType}

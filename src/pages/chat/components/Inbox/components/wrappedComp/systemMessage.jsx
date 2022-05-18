@@ -113,7 +113,10 @@ export default class SystemMessage extends PureComponent {
     };
 
     delete xss.whiteList.video;
-
+    let content = (Message.content || '');
+    if (md.global.Account.isPortal) {
+      content = content.replace(/<a data-accountid=[^>]*/gi, '<a');//外部门户不能点击用户
+    }
     return (
       <div className="messageItem">
         <div className="Left">

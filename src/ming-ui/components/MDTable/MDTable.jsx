@@ -463,11 +463,11 @@ export default class MDTable extends React.Component {
   }
 
   @autobind
-  showColumnWidthChangeMask({ columnWidth, defaultLeft, callback }) {
+  showColumnWidthChangeMask({ columnWidth, defaultLeft, maskMinLeft, callback }) {
     this.setState({
       columnWidthChangeMaskVisible: true,
       maskLeft: defaultLeft,
-      maskMinLeft: defaultLeft - (columnWidth - 10),
+      maskMinLeft: maskMinLeft || defaultLeft - (columnWidth - 10),
       maskMaxLeft: window.innerWidth,
       maskOnChange: left => {
         this.setState({

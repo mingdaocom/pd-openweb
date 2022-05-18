@@ -15,7 +15,7 @@ class RelationList extends Component {
     super(props);
   }
   componentDidMount() {
-    const { match, controlId, instanceId, workId } = this.props;
+    const { match, controlId, control, instanceId, workId } = this.props;
     const { params } = match;
     let newParams = null;
     if (instanceId && workId) {
@@ -34,7 +34,7 @@ class RelationList extends Component {
       };
     }
     this.props.updateBase(newParams);
-    this.props.loadRow();
+    this.props.loadRow(control);
   }
   componentWillUnmount() {
     this.props.reset();
@@ -43,7 +43,7 @@ class RelationList extends Component {
     const { controlId, rowInfo, relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
     const { worksheet } = relationRow;
     const { isEdit, selectedRecordIds } = actionParams;
-    const control = _.find(rowInfo.receiveControls, { controlId });
+    const control = _.find(rowInfo.receiveControls, { controlId }) || {};
     if (isEdit) {
       updateActionParams({
         selectedRecordIds: selected

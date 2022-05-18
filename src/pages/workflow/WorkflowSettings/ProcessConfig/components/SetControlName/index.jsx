@@ -1,5 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { FIELD_TYPE_LIST } from '../../../enum';
 
 const Box = styled.div`
   margin-top: 10px;
@@ -74,139 +75,109 @@ const ErrorTips = styled.div`
   }
 `;
 
-export default ({ data = [], errorItems, setErrorItems, updateSource }) => {
-  const TYPES = [
-    { text: _l('文本'), value: 2 },
-    { text: _l('数值'), value: 6 },
-    { text: _l('数组'), value: 10000003 },
-    { text: _l('人员'), value: 26 },
-  ];
-
+export default ({ data = [], list = [], errorItems, setErrorItems, updateSource }) => {
   return (
-    <Fragment>
-      <div className="mTop20 Font16 bold">{_l('参数名和参考值')}</div>
-      <div className="mTop5 Gray_75">
-        {_l('注：参数名仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头，不可重复。')}
+    <Box>
+      <div className="header flexRow">
+        <div className="bold pLeft15 pRight15 w130">{_l('名称')}</div>
+        <div className="bold pLeft15 pRight15 w180">{_l('参数名')}</div>
+        <div className="bold pLeft15 pRight15 w80">{_l('类型')}</div>
+        <div className="bold pLeft15 pRight15 flex">{_l('参考值')}</div>
       </div>
-      {[
-        { title: _l('输入参数'), source: data.filter(item => item.processVariableType === 1) },
-        { title: _l('输出参数'), source: data.filter(item => item.processVariableType === 2) },
-      ]
-        .filter(o => !!o.source.length)
-        .map(item => {
+      <ul className="list">
+        {list.map(obj => {
           return (
-            <Fragment key={item.title}>
-              <div className="mTop10 bold">{item.title}</div>
-              <Box>
-                <div className="header flexRow">
-                  <div className="bold pLeft15 pRight15 w130">{_l('名称')}</div>
-                  <div className="bold pLeft15 pRight15 w180">{_l('参数名')}</div>
-                  <div className="bold pLeft15 pRight15 w80">{_l('类型')}</div>
-                  <div className="bold pLeft15 pRight15 flex">{_l('参考值')}</div>
-                </div>
-                <ul className="list">
-                  {item.source.map(obj => {
-                    return (
-                      <li className="flexRow relative" key={obj.controlId}>
-                        <div className="pLeft15 pRight15 w130 pTop10 pBottom10">{obj.controlName}</div>
-                        <div className="pLeft15 pRight15 w180">
-                          <input
-                            type="text"
-                            placeholder={_l('请输入参数名')}
-                            value={obj.alias}
-                            onFocus={e => e.target.select()}
-                            onChange={e => {
-                              const value = e.target.value.trim();
-                              let error = '';
+            <li className="flexRow relative" key={obj.controlId}>
+              <div className="pLeft15 pRight15 w130 pTop10 pBottom10">{obj.controlName}</div>
+              <div className="pLeft15 pRight15 w180">
+                <input
+                  type="text"
+                  placeholder={_l('请输入参数名')}
+                  value={obj.alias}
+                  onFocus={e => e.target.select()}
+                  onChange={e => {
+                    const value = e.target.value.trim();
+                    let error = '';
 
-                              if (value) {
-                                if (!/^[a-zA-Z]{1}\w*$/.test(value)) {
-                                  error = 1;
-                                } else if (
-                                  item.source.filter(o => value === o.alias && o.controlId !== obj.controlId).length > 0
-                                ) {
-                                  error = 2;
-                                } else {
-                                  error = '';
-                                }
-                              } else {
-                                error = '';
-                              }
+                    if (value) {
+                      if (!/^[a-zA-Z]{1}\w*$/.test(value)) {
+                        error = 1;
+                      } else if (list.filter(o => value === o.alias && o.controlId !== obj.controlId).length > 0) {
+                        error = 2;
+                      } else {
+                        error = '';
+                      }
+                    } else {
+                      error = '';
+                    }
 
-                              const others = item.source.filter(o => o.controlId !== obj.controlId);
-                              let repeatControl = {};
-                              others.forEach(element => {
-                                if (
-                                  !_.find(
-                                    others,
-                                    o => o.controlName === element.controlName && o.controlId !== element.controlId,
-                                  )
-                                ) {
-                                  repeatControl[element.controlId] = errorItems[element.controlId] === 1 ? 1 : '';
-                                }
-                              });
+                    const others = list.filter(o => o.controlId !== obj.controlId);
+                    let repeatControl = {};
+                    others.forEach(element => {
+                      if (
+                        !_.find(others, o => o.controlName === element.controlName && o.controlId !== element.controlId)
+                      ) {
+                        repeatControl[element.controlId] = errorItems[element.controlId] === 1 ? 1 : '';
+                      }
+                    });
 
-                              setErrorItems(Object.assign({}, errorItems, { [obj.controlId]: error }, repeatControl));
-                              updateSource(
-                                data.map(o => {
-                                  if (o.controlId === obj.controlId) {
-                                    o.alias = value;
-                                  }
-                                  return o;
-                                }),
-                              );
-                            }}
-                          />
-                        </div>
-                        <div className="pLeft15 pRight15 w80 pTop10 pBottom10">
-                          {_.find(TYPES, o => o.value === obj.type).text}
-                        </div>
-                        <div className="pLeft15 pRight15 flex">
-                          {obj.type !== 10000003 ? (
-                            <input
-                              type="text"
-                              placeholder={_l('请输入参考值')}
-                              value={obj.value}
-                              onFocus={e => e.target.select()}
-                              onChange={e => {
-                                updateSource(
-                                  data.map(o => {
-                                    if (o.controlId === obj.controlId) {
-                                      o.value = e.target.value;
-                                    }
-                                    return o;
-                                  }),
-                                );
-                              }}
-                              onBlur={e => {
-                                updateSource(
-                                  data.map(o => {
-                                    if (o.controlId === obj.controlId) {
-                                      o.value = e.target.value.trim();
-                                    }
-                                    return o;
-                                  }),
-                                );
-                              }}
-                            />
-                          ) : (
-                            <div className="LineHeight40">{obj.value}</div>
-                          )}
-                        </div>
-                        {!!errorItems[obj.controlId] && (
-                          <ErrorTips>
-                            {errorItems[obj.controlId] === 1 ? _l('非法字符') : _l('参数名称不允许重复')}
-                            <i className="errorArrow" />
-                          </ErrorTips>
-                        )}
-                      </li>
+                    setErrorItems(Object.assign({}, errorItems, { [obj.controlId]: error }, repeatControl));
+                    updateSource(
+                      data.map(o => {
+                        if (o.controlId === obj.controlId) {
+                          o.alias = value;
+                        }
+                        return o;
+                      }),
                     );
-                  })}
-                </ul>
-              </Box>
-            </Fragment>
+                  }}
+                />
+              </div>
+              <div className="pLeft15 pRight15 w80 pTop10 pBottom10">
+                {_.find(FIELD_TYPE_LIST, o => o.value === obj.type).text}
+              </div>
+              <div className="pLeft15 pRight15 flex">
+                {obj.type !== 10000003 ? (
+                  <input
+                    type="text"
+                    placeholder={_l('请输入参考值')}
+                    value={obj.value}
+                    onFocus={e => e.target.select()}
+                    onChange={e => {
+                      updateSource(
+                        data.map(o => {
+                          if (o.controlId === obj.controlId) {
+                            o.value = e.target.value;
+                          }
+                          return o;
+                        }),
+                      );
+                    }}
+                    onBlur={e => {
+                      updateSource(
+                        data.map(o => {
+                          if (o.controlId === obj.controlId) {
+                            o.value = e.target.value.trim();
+                          }
+                          return o;
+                        }),
+                      );
+                    }}
+                  />
+                ) : (
+                  <div className="LineHeight40">{obj.value}</div>
+                )}
+              </div>
+              {!!errorItems[obj.controlId] && (
+                <ErrorTips>
+                  {errorItems[obj.controlId] === 1 ? _l('非法字符') : _l('参数名称不允许重复')}
+                  <i className="errorArrow" />
+                </ErrorTips>
+              )}
+            </li>
           );
         })}
-    </Fragment>
+      </ul>
+    </Box>
   );
 };

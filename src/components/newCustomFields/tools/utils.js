@@ -518,3 +518,20 @@ export const compareWithTime = (start, end, type) => {
       return startTime >= endTime;
   }
 };
+
+export const getEmbedValue = (embedData = {}, id) => {
+  switch (id) {
+    case 'userId':
+      return md.global.Account.accountId;
+    case 'phone':
+      return md.global.Account.mobilePhone;
+    case 'email':
+      return md.global.Account.email;
+    case 'ua':
+      return window.navigator.userAgent;
+    case 'timestamp':
+      return new Date().getTime();
+    default:
+      return embedData[id] || '';
+  }
+};

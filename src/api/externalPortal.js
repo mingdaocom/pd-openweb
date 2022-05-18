@@ -72,17 +72,17 @@ module.exports = {
      return $.api('ExternalPortal', 'GetPortalEnableState', args, options);
    },
   /**
-  * 校验域名
+  * 根据 AppId
+获取 门户讨论配置
   * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {string} args.domainName 门户自定义域名
+  * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   validateDomianName: function (args, options = {}) {
+   getDiscussConfig: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'ValidateDomianName', args, options);
+     return $.api('ExternalPortal', 'GetDiscussConfig', args, options);
    },
   /**
   * 编辑 外部门户的启用状态
@@ -338,8 +338,8 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用Id
   * @param {} args.newState 新状态
-  * @param {string} args.rowId 行Id
-  * @param {string} args.exAccountId 外部用户Id
+  * @param {array} args.rowIds 行Id
+  * @param {array} args.exAccountIds 外部用户Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

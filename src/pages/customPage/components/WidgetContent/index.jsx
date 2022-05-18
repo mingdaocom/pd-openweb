@@ -75,6 +75,7 @@ const LayoutContent = styled.div`
       background: transparent;
       min-width: 60px;
       max-width: 100%;
+      width: 100%;
       box-sizing: border-box;
       transition: width border-bottom 0.2s;
       padding-right: 16px;
@@ -90,6 +91,9 @@ const LayoutContent = styled.div`
   .componentsWrap {
     padding: 0 0 4px 0;
     height: 100%;
+  }
+  .react-resizable-handle {
+    z-index: 1;
   }
 `;
 const LAYOUT_CONFIG = {
@@ -120,9 +124,9 @@ function WidgetContent(props) {
     insertTitle = _.noop,
     addRecord = _.noop,
     updatePageInfo = _.noop,
+    editingWidget = {},
     setWidget = _.noop,
     isFullscreen = false,
-    scrollTop = 0,
     adjustScreen,
     apk,
   } = props;
@@ -142,6 +146,7 @@ function WidgetContent(props) {
     window.addEventListener('resize', throttle(handle));
   }, []);
 
+  /*
   useEffect(() => {
     const $inputDom = $input.current;
     if (!$inputDom) return;
@@ -152,6 +157,7 @@ function WidgetContent(props) {
     $inputDom.addEventListener('keydown', handler);
     return () => $inputDom.removeEventListener('keydown', handler);
   }, [$input.current]);
+  */
 
   const handleToolClick = (clickType, { widget, index }) => {
     switch (clickType) {
@@ -186,9 +192,21 @@ function WidgetContent(props) {
         updateWidgetVisible({ widget, layoutType });
         break;
       case 'switchButtonDisplay':
+        const { btnType, direction } = widget.button.config || {};
         updateWidget({
           widget,
-          button: update(widget.button, { mobileCount: { $apply: item => (item === 1 ? 2 : 1) } }),
+          button: update(widget.button, {
+            mobileCount: {
+              $apply: item => {
+                // 图形按钮，上下结构
+                if (btnType === 2 && direction === 1) {
+                  return item === 4 ? 1 : (item + 1);
+                } else {
+                  return item === 1 ? 2 : 1;
+                }
+              }
+            }
+          }),
         });
         break;
       default:
@@ -249,7 +267,7 @@ function WidgetContent(props) {
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && (
-                <div className="componentTitle overflow_ellipsis disableDrag">
+                <div className="componentTitle overflow_ellipsis disableDrag" title={title}>
                   {editable || isEdit ? (
                     <input
                       ref={$input}
@@ -270,7 +288,8 @@ function WidgetContent(props) {
                 })}
               >
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'param', 'value', 'needUpdate', 'button', 'name', 'config', 'param'])}
+                  widget={widget}
+                  editingWidget={editingWidget}
                   ids={ids}
                   projectId={apk.projectId}
                   ref={el => {
@@ -279,7 +298,6 @@ function WidgetContent(props) {
                   editable={editable}
                   layoutType={layoutType}
                   isFullscreen={isFullscreen}
-                  scrollTop={scrollTop}
                   addRecord={addRecord}
                 />
                 {editable && (

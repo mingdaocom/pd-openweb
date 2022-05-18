@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 
 export default class Example extends Component {
   constructor(props) {
@@ -105,7 +105,7 @@ export default class Example extends Component {
           </ScrollView>
         </div>
         <DetailFooter
-          isCorrect={data.actionId === TRIGGER_ID_TYPE.NUMBER_FORMULA && data.formulaValue}
+          isCorrect={data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue}
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}
         />

@@ -70,6 +70,15 @@
     bottom: 10px;
     width: 800px;
     height: 600px;
+    &.portalChatPanel {
+      right: 10px !important;
+      &.isMobile{
+        width: 100%!important;
+        height: 100%!important;
+        bottom: 0!important;
+        right: 0px !important;
+      }
+    }
   }
 
   &-up {
@@ -91,7 +100,7 @@
     }
     .ChatPanel-sessionInfo {
       width: 350px;
-      >div {
+      > div {
         width: 350px;
       }
     }

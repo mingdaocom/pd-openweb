@@ -3,6 +3,7 @@ require('mdDialog');
 var doT = require('dot');
 var util = require('../util');
 var departmentController = require('src/api/department');
+import { checkSensitive } from 'src/api/fixedData.js';
 
 var chargerTpl = require('./tpl/chargeUserTpl.html');
 var mainTpl = require('./tpl/main.html').replace('#include.chargeUserTpl', chargerTpl);
@@ -193,27 +194,32 @@ CreateEditDeptDialog.prototype.createDept = function () {
   if ($.trim(deptName) === '') {
     return alert(_l('请输入部门名称'), 2);
   }
-  options.promise = departmentController
-    .addDepartment({
-      projectId: options.projectId,
-      departmentName: deptName,
-      parentId: parentId,
-    })
-    .then(function (data) {
-      if (data.resultStatus !== RESULTS.SUCCESS) {
-        return $.Deferred().reject(data).promise();
-      } else {
-        options.callback.call(null, {
-          type: 'CREATE',
-          departmentId: options.departmentId,
-          response: data.departmentInfo,
-        });
-        _this.dialog.closeDialog();
-      }
-    })
-    .then(null, function (error) {
-      _this.createErrorHandler(error.resultStatus);
-    });
+  checkSensitive({ content: deptName }).then(res => {
+    if (res) {
+      return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+    }
+    options.promise = departmentController
+      .addDepartment({
+        projectId: options.projectId,
+        departmentName: deptName,
+        parentId: parentId,
+      })
+      .then(function (data) {
+        if (data.resultStatus !== RESULTS.SUCCESS) {
+          return $.Deferred().reject(data).promise();
+        } else {
+          options.callback.call(null, {
+            type: 'CREATE',
+            departmentId: options.departmentId,
+            response: data.departmentInfo,
+          });
+          _this.dialog.closeDialog();
+        }
+      })
+      .then(null, function (error) {
+        _this.createErrorHandler(error.resultStatus);
+      });
+  });
 };
 
 CreateEditDeptDialog.prototype.createErrorHandler = function (errMessage) {
@@ -251,46 +257,51 @@ CreateEditDeptDialog.prototype.editDept = function () {
   if ($.trim(deptName) === '') {
     return alert(_l('请输入部门名称'), 2);
   }
-  options.promise = departmentController
-    .editDepartment({
-      projectId: options.projectId,
-      departmentId: options.departmentId,
-      departmentName: deptName,
-      parentId: parentId,
-      chargeAccountIds,
-    })
-    .then(function (data) {
-      if (!data || data.resultStatus !== RESULTS.SUCCESS) {
-        return $.Deferred().reject(data).promise();
-      } else {
-        return $.Deferred().resolve(data.departmentInfo);
-      }
-    })
-    .then(
-      function (departmentInfo) {
-        let { newDepartments = [], expandedKeys } = updateTreeData(
-          options.newDepartments,
-          options.departmentId,
-          departmentInfo.departmentName,
-          parentId,
-        );
-        options.callback.call(null, {
-          type: 'EDIT',
-          departmentId: options.departmentId,
-          expandedKeys,
-          response: {
-            ...departmentInfo,
-            parentDepartment: parentId,
-            chargeUsers: chargeAccountIds,
-            newDepartments,
-          },
-        });
-        _this.dialog.closeDialog();
-      },
-      function (error) {
-        _this.editErrorHandler(error.resultStatus);
-      },
-    );
+  checkSensitive({ content: deptName }).then(res => {
+    if (res) {
+      return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+    }
+    options.promise = departmentController
+      .editDepartment({
+        projectId: options.projectId,
+        departmentId: options.departmentId,
+        departmentName: deptName,
+        parentId: parentId,
+        chargeAccountIds,
+      })
+      .then(function (data) {
+        if (!data || data.resultStatus !== RESULTS.SUCCESS) {
+          return $.Deferred().reject(data).promise();
+        } else {
+          return $.Deferred().resolve(data.departmentInfo);
+        }
+      })
+      .then(
+        function (departmentInfo) {
+          let { newDepartments = [], expandedKeys } = updateTreeData(
+            options.newDepartments,
+            options.departmentId,
+            departmentInfo.departmentName,
+            parentId,
+          );
+          options.callback.call(null, {
+            type: 'EDIT',
+            departmentId: options.departmentId,
+            expandedKeys,
+            response: {
+              ...departmentInfo,
+              parentDepartment: parentId,
+              chargeUsers: chargeAccountIds,
+              newDepartments,
+            },
+          });
+          _this.dialog.closeDialog();
+        },
+        function (error) {
+          _this.editErrorHandler(error.resultStatus);
+        },
+      );
+  });
 };
 
 CreateEditDeptDialog.prototype.editErrorHandler = function (errMessage) {

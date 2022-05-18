@@ -3,6 +3,7 @@ import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { formatValues } from 'worksheet/common/WorkSheetFilter/util';
+import { addRecord } from 'worksheet/common/newRecord';
 import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
@@ -10,11 +11,10 @@ import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunte
 import { initBoardViewData } from './boardView';
 import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
 import { updateGunterSearchRecord } from './gunterview';
-import { wrapAjax } from './util';
+import { refreshBtnData } from 'src/pages/FormSet/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
-
-const wrappedGetWorksheetInfo = wrapAjax(getWorksheetInfo);
-const wrappedGetSwitchPermit = wrapAjax(getSwitchPermit);
 
 export const updateBase = base => {
   return (dispatch, getState) => {
@@ -46,7 +46,7 @@ export function loadWorksheet(worksheetId) {
     dispatch({
       type: 'WORKSHEET_FETCH_START',
     });
-    wrappedGetWorksheetInfo({
+    getWorksheetInfo({
       worksheetId,
       reportId: chartId || undefined,
       getViews: true,
@@ -59,7 +59,7 @@ export function loadWorksheet(worksheetId) {
       });
     });
     worksheetId &&
-      wrappedGetSwitchPermit({ worksheetId }).then(res => {
+      getSwitchPermit({ worksheetId }).then(res => {
         dispatch({
           type: 'WORKSHEET_PERMISSION_INIT',
           value: res,
@@ -103,27 +103,25 @@ export function updateCustomButtons(btns, isAdd) {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     let { buttons = [], sheetButtons = [] } = sheet;
-    const refreshData = data => {
-      if (isAdd) {
-        data.push(btns);
-        return data;
-      }
-      return data.map(o => {
-        if (o.btnId === btns.btnId) {
-          return btns;
-        } else {
-          return o;
-        }
+    if (isAdd) {
+      const sheet = getState().sheet;
+      const { base } = sheet;
+      const { worksheetId, appId, viewId } = base;
+      dispatch({
+        type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
+        buttons: refreshBtnData(_.cloneDeep(sheetButtons), btns, isAdd),
+      }); //更新本表的按钮
+      dispatch(loadCustomButtons({ worksheetId, appId, viewId })); //因为按钮有排序 需要通过接口获取
+    } else {
+      dispatch({
+        type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
+        buttons: refreshBtnData(_.cloneDeep(sheetButtons), btns, isAdd),
       });
-    };
-    dispatch({
-      type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
-      buttons: refreshData(sheetButtons),
-    });
-    dispatch({
-      type: 'WORKSHEET_UPDATE_BUTTONS',
-      buttons: refreshData(buttons),
-    });
+      dispatch({
+        type: 'WORKSHEET_UPDATE_BUTTONS',
+        buttons: refreshBtnData(_.cloneDeep(buttons), btns, isAdd),
+      });
+    }
   };
 }
 
@@ -242,6 +240,64 @@ export function addNewRecord(data, view) {
   };
 }
 
+// 打开创建记录弹层
+export function openNewRecord() {
+  return (dispatch, getState) => {
+    const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge } = getState().sheet;
+    const { appId, viewId, worksheetId } = base;
+    const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+    const hasGroupFilter =
+      !_.isEmpty(view.navGroup) &&
+      view.navGroup.length > 0 &&
+      _.includes([VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery], String(view.viewType));
+    const getDefaultValueInCreate = () => {
+      let data = navGroupFilters[0];
+      if ([9, 10, 11].includes(data.dataType)) {
+        return { [data.controlId]: JSON.stringify([data.values[0]]) };
+      } else if ([29, 35]) {
+        return {
+          [data.controlId]: JSON.stringify([
+            {
+              sid: data.values[0],
+              name: data.navNames[0] || '',
+            },
+          ]),
+        };
+      }
+    };
+
+    let defaultFormData = {};
+    let param = {};
+    if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
+      defaultFormData = getDefaultValueInCreate();
+      param = {
+        defaultFormData,
+        defaultFormDataEditable: true,
+      };
+    }
+    addRecord({
+      ...param,
+      showFillNext: true,
+      appId,
+      viewId,
+      worksheetId,
+      worksheetInfo,
+      projectId: worksheetInfo.projectId,
+      needCache: true,
+      addType: 1,
+      showShare: isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId),
+      isCharge: isCharge,
+      entityName: worksheetInfo.entityName,
+      onAdd: data => {
+        dispatch(addNewRecord(data, view));
+      },
+      updateWorksheetControls: controls => {
+        dispatch(updateWorksheetSomeControls(controls));
+      },
+    });
+  };
+}
+
 // 更新字段
 export const updateWorksheetControls = controls => ({
   type: 'WORKSHEET_UPDATE_CONTROLS',
@@ -259,7 +315,7 @@ export const refreshWorksheetControls = controls => {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     const { worksheetId } = sheet.base;
-    wrappedGetWorksheetInfo({ worksheetId, getTemplate: true }).then(res => {
+    getWorksheetInfo({ worksheetId, getTemplate: true }).then(res => {
       dispatch({
         type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
         controls: res.template.controls,
@@ -432,7 +488,7 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
       type: 'WORKSHEET_UPDATE_BASE',
       base,
     });
-    wrappedGetWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(
+    getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(
       res => {
         dispatch({
           type: 'WORKSHEET_INIT',

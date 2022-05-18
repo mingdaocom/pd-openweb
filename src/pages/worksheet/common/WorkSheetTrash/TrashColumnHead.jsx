@@ -5,9 +5,11 @@ import { Menu, MenuItem } from 'ming-ui';
 import { fieldCanSort, getSortData } from 'worksheet/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 export default function ColumnHead(props) {
   const { selected, className, style, control, isAsc, isLast, changeSort, updateSheetColumnWidths, setFilter } = props;
+  const isShowOtherField = isOtherShowFeild(control);
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
   const filterWhiteKeys = _.flatten(
     Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
@@ -27,6 +29,7 @@ export default function ColumnHead(props) {
       renderPopup={({ closeMenu }) => (
         <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
           {canSort &&
+            !isShowOtherField &&
             getSortData(itemType, control).map(item => (
               <MenuItem
                 key={item.value}
@@ -40,7 +43,7 @@ export default function ColumnHead(props) {
               </MenuItem>
             ))}
 
-          {canFilter && !selected && (
+          {canFilter && !selected && !isShowOtherField && (
             <MenuItem
               onClick={() => {
                 setFilter(control);

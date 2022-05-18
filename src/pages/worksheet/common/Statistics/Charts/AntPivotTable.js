@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { formatrChartValue } from './common';
-import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl, isNumberControl, relevanceImageSize } from 'src/pages/worksheet/common/Statistics/common';
+import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl, isFormatNumber, relevanceImageSize } from 'src/pages/worksheet/common/Statistics/common';
 import { Table } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
@@ -88,16 +88,16 @@ const PivotTableContent = styled.div`
     overflow-x: overlay !important;
   }
   .relevanceContent {
-    width: 130px;
+    width: 60px;
     display: flex;
     align-items: center;
     padding-right: 10px;
   }
   .otherContent {
-    width: 130px;
+    width: 60px;
   }
   .fileContent {
-    min-width: 130px;
+    min-width: 60px;
     flex-wrap: wrap;
     flex: none;
     overflow: hidden;
@@ -164,7 +164,7 @@ const mergeTableCell = list => {
 
 const mergeColumnsCell = (data, yaxisList) => {
   data = _.cloneDeep(data);
-  const length = _.find(data, { summary_col: false }).y.length;
+  const length = _.get(_.find(data, { summary_col: false }), ['y', 'length']) || 0;
   const result = [];
 
   for(let i = 0; i < length; i++) {
@@ -280,7 +280,7 @@ const getColumnTotal = (result, yaxisList, columns, showColumnTotal) => {
 export default class extends Component {
   constructor(props) {
     super(props);
-    this.columnWidth = 130;
+    this.columnWidth = 60;
   }
   get result() {
     const { data, yaxisList } = this.props.reportData;
@@ -432,12 +432,12 @@ export default class extends Component {
                 data.x.forEach(item => {
                   const key = _.findKey(item);
                   const { controlType } = _.find(lines, { controlId: key }) || {};
-                  const isNumber = isNumberControl(controlType);
+                  const isNumber = isFormatNumber(controlType);
                   const value = item[key][record.key];
                   param[key] = isNumber ? Number(value) : value;
                 });
                 columns.forEach((item, i) => {
-                  const isNumber = isNumberControl(item.controlType);
+                  const isNumber = isFormatNumber(item.controlType);
                   const value = data.data[index].y[i];
                   param[item.cid] = isNumber ? Number(value) : value;
                 });
@@ -509,9 +509,10 @@ export default class extends Component {
 
     const children = [];
     const childrenYaxisList = [];
+    const sumData = columnSummary.controlList.length === 1 ? columnSummary.controlList[0] : {};
 
     const data = {
-      title: _l('列汇总'),
+      title: sumData.name ? `${_l('列汇总')} (${sumData.name})` : _l('列汇总'),
       children: [],
       rowSpan: columns.length,
       colSpan: yaxisList.length
@@ -643,7 +644,7 @@ export default class extends Component {
       if (field.controlType === 14) {
         width += this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: field.size }).px;
       } else {
-        width += 130;
+        width += 60;
       }
     });
     return width;

@@ -71,15 +71,18 @@ const FilterTextWrap = styled.div`
 `;
 
 export default function FilterData(props) {
-  const { projectId, appId, worksheetId, filterId, isFilter, controls, onSave, onChangeIsFilter } = props;
+  const { projectId, appId, worksheetId, filterId, controls, config, onChangeConfig } = props;
+  const { isFilter, filterConditions = [] } = config;
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState([]);
-  const [conditions, setConditions] = useState([]);
-  const filterItemTexts = filterData(controls, filter);
+  const filterItemTexts = filterData(controls, filterConditions);
 
-  useEffect(() => {
-    setFilter([]);
-  }, [worksheetId]);
+  const handleChangeConfig = (data) =>{
+    onChangeConfig({
+      ...config,
+      ...data
+    });
+  }
 
   useEffect(() => {
     if (filterId) {
@@ -88,17 +91,22 @@ export default function FilterData(props) {
       }).then(data => {
         const { items = [] } = data;
         setFilter(items);
+        handleChangeConfig({
+          filterConditions: items
+        });
       });
     }
-  }, []);
+  }, [filterId]);
 
   return (
     <Fragment>
       <Checkbox
         checked={isFilter}
         onChange={(e) => {
-          if (filter.length > 0) {
-            onChangeIsFilter(e.target.checked);
+          if (filterConditions.length > 0) {
+            handleChangeConfig({
+              isFilter: e.target.checked
+            });
           } else if (e.target.checked) {
             setVisible(true);
           }
@@ -113,22 +121,12 @@ export default function FilterData(props) {
         cancelText={_l('取消')}
         onCancel={() => {
           setVisible(false);
-          setConditions([]);
         }}
         onOk={() => {
-          if (conditions.length) {
-            setFilter(conditions);
-            worksheetApi.saveWorksheetFilter({
-              appId,
-              filterId: filterId || undefined,
-              worksheetId,
-              module: 2,
-              items: formatValuesOfOriginConditions(conditions),
-              name: '',
-              type: '',
-            }).then(data => {
-              setConditions([]);
-              onSave(data.filterId);
+          if (filter.length) {
+            handleChangeConfig({
+              filterConditions: filter,
+              isFilter: true,
             });
             setVisible(false);
           } else {
@@ -148,9 +146,9 @@ export default function FilterData(props) {
           projectId={projectId}
           appId={appId}
           columns={controls}
-          conditions={filter}
+          conditions={filterConditions}
           onConditionsChange={conditions => {
-            setConditions(conditions);
+            setFilter(conditions);
           }}
         />
       </Dialog>

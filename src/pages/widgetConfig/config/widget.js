@@ -1,6 +1,7 @@
 import { isEmpty, head, pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { WHOLE_SIZE } from './Drag';
+import { NUM_5_SETTINGS } from './score';
 
 const getDefaultOptions = () => {
   return [
@@ -222,7 +223,7 @@ export const DEFAULT_CONFIG = {
     minSize: WHOLE_SIZE,
     moreIntroLink: 'https://help.mingdao.com/sheet22.html',
   },
-  SWITCH: { icon: 'checkbox_01', widgetName: _l('检查框'), intro: _l('可以选中或取消选中') },
+  SWITCH: { icon: 'checkbox_01', widgetName: _l('检查项'), intro: _l('可以选中或取消选中') },
   SUBTOTAL: {
     icon: 'sigma',
     widgetName: _l('汇总'),
@@ -323,6 +324,9 @@ export const DEFAULT_DATA = {
     size: 6,
     dot: 0,
     hint: _l('请填写数值'),
+    advancedSetting: {
+      showtype: '0',
+    },
   },
   CRED: {
     controlName: _l('证件'),
@@ -419,6 +423,7 @@ export const DEFAULT_DATA = {
     controlName: _l('等级'),
     size: 6,
     enumDefault: 1,
+    advancedSetting: NUM_5_SETTINGS,
   },
   RELATE_SHEET: {
     controlName: _l('关联记录'),
@@ -431,6 +436,7 @@ export const DEFAULT_DATA = {
     controlName: _l('他表字段'),
     size: 6,
     enumDefault: 1,
+    strDefault: '10',
     dataSource: '',
     sourceControlId: '', // 字段id
   },
@@ -458,10 +464,11 @@ export const DEFAULT_DATA = {
     },
   },
   SWITCH: {
-    controlName: _l('检查框'),
+    controlName: _l('检查项'),
     size: 6,
     advancedSetting: {
       defsource: '[{"cid":"","rcid":"","staticValue":"0"}]',
+      showtype: '0',
     },
   },
   SUBTOTAL: {

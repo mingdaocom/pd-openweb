@@ -24,6 +24,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import ChatCount from '../components/ChatCount';
 import './index.less';
 import { isClickChart } from '../RecordList/redux/reducers';
+import { getDiscussConfig } from 'src/api/externalPortal';
 
 const formatParams = params => {
   const { appId, viewId } = params;
@@ -54,13 +55,16 @@ class Record extends Component {
       abnormal: null,
       originalData: null,
       currentTab: {},
+      allowExAccountDiscuss: false, //允许外部用户讨论
+      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
   }
   componentDidMount() {
     const { params } = this.props.match;
     this.loadRow();
     this.loadCustomBtns();
-    this.getSwitchPermit();
+    this.getSwitchPermit(params.worksheetId);
+    this.getPortalDiscussSet();
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.match.params.rowId !== this.props.match.params.rowId) {
@@ -72,44 +76,45 @@ class Record extends Component {
       this.loadRow(nextProps);
       this.loadCustomBtns(nextProps);
     }
+    if (!_.isEqual(nextProps.match.params.worksheetId, this.props.match.params.worksheetId)) {
+      this.getSwitchPermit(nextProps.match.params.worksheetId);
+    }
   }
   customwidget = React.createRef();
   recordRef = React.createRef();
   loadRow = (props = this.props) => {
     const { params } = props.match;
-    worksheetAjax
-      .getRowByID({
-        ...formatParams(params),
-        getType: 1,
-        checkView: true,
-        appId: null,
-      })
-      .then(result => {
-        const { receiveControls, view } = result;
-        const isWorkfllow = params.workId;
-        this.formData = receiveControls;
-        const newReceiveControls = receiveControls.filter(
-          item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId),
-        );
-        result.receiveControls = newReceiveControls.map(c =>
-          Object.assign({}, c, isWorkfllow ? { fieldPermission: '111' } : {}),
-        );
-        this.setState({
-          random: Date.now(),
-          sheetRow: result,
-          originalData: result.receiveControls,
-          loading: false,
-          abnormal: !_.isUndefined(result.resultCode) && result.resultCode !== 1,
-        });
+    const getRowByIdRequest = worksheetAjax.getRowByID({
+      ...formatParams(params),
+      getType: 1,
+      checkView: true,
+      appId: null,
+    });
+    const getWorksheetInfoRequest = worksheetAjax.getWorksheetInfo({
+      getRules: true,
+      worksheetId: params.worksheetId,
+    });
+    Promise.all([getRowByIdRequest, getWorksheetInfoRequest]).then(data => {
+      const [rowResult, worksheetInfoResult] = data;
+      const { receiveControls, view } = rowResult;
+      const isWorkfllow = params.workId;
+      this.formData = receiveControls;
+      const newReceiveControls = receiveControls.filter(
+        item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId),
+      );
+      rowResult.receiveControls = newReceiveControls.map(c =>
+        Object.assign({}, c, isWorkfllow ? { fieldPermission: '111' } : {}),
+      );
+      this.setState({
+        random: Date.now(),
+        sheetRow: rowResult,
+        originalData: rowResult.receiveControls,
+        loading: false,
+        abnormal: !_.isUndefined(rowResult.resultCode) && rowResult.resultCode !== 1,
+        rules: worksheetInfoResult.rules,
+        isWorksheetQuery: worksheetInfoResult.isWorksheetQuery 
       });
-    worksheetAjax
-      .getWorksheetInfo({
-        getRules: true,
-        worksheetId: params.worksheetId,
-      })
-      .then(data => {
-        this.setState({ rules: data.rules, isWorksheetQuery: data.isWorksheetQuery });
-      });
+    });
   };
   loadCustomBtns = (props = this.props) => {
     const { params } = props.match;
@@ -132,14 +137,22 @@ class Record extends Component {
       this.setState({ submitLoading: false });
       return;
     }
-    const { sheetRow } = this.state;
+    const { sheetRow, originalData } = this.state;
     const { params } = this.props.match;
     const cells = data
       .filter(item => updateControlIds.indexOf(item.controlId) > -1 && item.type !== 30)
       .map(formatControlToServer);
 
     if (_.isEmpty(cells)) {
-      this.setState({ isEdit: false, submitLoading: false });
+      this.setState({
+        isEdit: false,
+        submitLoading: false,
+        random: Date.now(),
+        sheetRow: {
+          ...sheetRow,
+          receiveControls: originalData,
+        },
+      });
       return;
     }
 
@@ -288,6 +301,7 @@ class Record extends Component {
   };
   renderRecordBtns() {
     const { isEdit, sheetRow, customBtns } = this.state;
+    const allowEdit = sheetRow.allowEdit || this.editable;
     let copyCustomBtns = _.cloneDeep(customBtns);
     let showBtnsOut =
       copyCustomBtns.length && copyCustomBtns.length >= 2
@@ -296,7 +310,7 @@ class Record extends Component {
         ? copyCustomBtns
         : [];
     return (
-      <div className="btnsWrapper">
+      <div className={cx('btnsWrapper', { hide: !allowEdit && _.isEmpty(customBtns) })}>
         <div className="flexRow">
           {isEdit ? (
             <Fragment>
@@ -326,7 +340,7 @@ class Record extends Component {
             </Fragment>
           ) : (
             <Fragment>
-              {(sheetRow.allowEdit || this.editable) && (
+              {allowEdit && (
                 <WingBlank className="flex mLeft6 mRight6" size="sm">
                   <Button
                     className="Font13 edit letterSpacing"
@@ -468,7 +482,7 @@ class Record extends Component {
     if (tab.id) {
       return (
         <div className="flexColumn h100">
-          <RelationList controlId={tab.id} />
+          <RelationList controlId={tab.id} control={tab.control} />
         </div>
       );
     } else {
@@ -505,12 +519,21 @@ class Record extends Component {
           name: item.controlName,
           value: newValue,
           index: index + 1,
+          control: item,
         };
       }),
     );
     return (
       <Fragment>
-        <DocumentTitle title={isEdit ? `${_l('编辑')}${sheetRow.entityName}` : `${sheetRow.entityName}${_l('详情')}`} />
+        <DocumentTitle
+          title={
+            isEdit
+              ? `${_l('编辑')}${sheetRow.entityName}`
+              : sheetRow.titleName
+              ? `${sheetRow.titleName}`
+              : `${sheetRow.entityName}${_l('详情')}`
+          }
+        />
         <div
           className="flexColumn flex recordScroll"
           style={{ overflowX: 'hidden', overflowY: 'auto' }}
@@ -534,9 +557,24 @@ class Record extends Component {
       </Fragment>
     );
   }
-  getSwitchPermit() {
+  getPortalDiscussSet = () => {
     const { params } = this.props.match;
-    const { appId, worksheetId } = formatParams(params);
+    const { appId } = formatParams(params);
+
+    getDiscussConfig({ appId }).then(res => {
+      const {
+        allowExAccountDiscuss, //允许外部用户讨论
+        exAccountDiscussEnum,
+      } = res;
+      this.setState({
+        allowExAccountDiscuss, //允许外部用户讨论
+        exAccountDiscussEnum,
+      });
+    });
+  };
+  getSwitchPermit(worksheetId) {
+    const { params } = this.props.match;
+    const { appId } = formatParams(params);
     worksheetAjax
       .getSwitchPermit({
         appId: appId,
@@ -550,7 +588,17 @@ class Record extends Component {
   }
   render() {
     const { params } = this.props.match;
-    const { submitLoading, loading, abnormal, isEdit, switchPermit, sheetRow } = this.state;
+    const {
+      submitLoading,
+      loading,
+      abnormal,
+      isEdit,
+      switchPermit,
+      sheetRow,
+      allowExAccountDiscuss,
+      exAccountDiscussEnum,
+      customBtns,
+    } = this.state;
     const { viewId, appId, worksheetId, rowId } = formatParams(params);
 
     if (loading) {
@@ -562,7 +610,6 @@ class Record extends Component {
         </div>
       );
     }
-
     return (
       <WaterMark projectId={sheetRow.projectId}>
         <div className="mobileSheetRowRecord flexColumn h100">
@@ -573,25 +620,26 @@ class Record extends Component {
           )}
           {abnormal ? this.renderWithoutJurisdiction() : this.renderContent()}
           {this.renderRecordAction()}
-          <div className="extraAction">
+          <div className={cx('extraAction', { low: !(sheetRow.allowEdit || this.editable) && _.isEmpty(customBtns) })}>
             <div className="backContainer">{!isEdit && this.renderBack()}</div>
-            {!md.global.Account.isPortal && (
+            {((!md.global.Account.isPortal && isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) ||
+              (md.global.Account.isPortal && allowExAccountDiscuss)) && ( //外部门户开启讨论的
               <div className="chatMessageContainer">
-                {!isEdit &&
-                  appId &&
-                  (!this.isSubList || isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) && (
-                    <ChatCount
-                      worksheetId={worksheetId}
-                      rowId={rowId}
-                      appId={appId || ''}
-                      onClick={() => {
-                        this.props.updateClickChart(true);
-                        if (this.recordRef.current) {
-                          this.recordRef.current.handleOpenDiscuss();
-                        }
-                      }}
-                    />
-                  )}
+                {!isEdit && appId && !this.isSubList && (
+                  <ChatCount
+                    allowExAccountDiscuss={allowExAccountDiscuss}
+                    exAccountDiscussEnum={exAccountDiscussEnum}
+                    worksheetId={worksheetId}
+                    rowId={rowId}
+                    appId={appId || ''}
+                    onClick={() => {
+                      this.props.updateClickChart(true);
+                      if (this.recordRef.current) {
+                        this.recordRef.current.handleOpenDiscuss();
+                      }
+                    }}
+                  />
+                )}
               </div>
             )}
           </div>

@@ -51,17 +51,6 @@ function webLayout(props) {
 
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
-  const [scrollTop, setScrollTop] = useState(0);
-
-  useEffect(() => {
-    const $dom = $ref.current;
-    if (!$dom) return;
-    const handler = _.throttle(e => {
-      setScrollTop(e.target.scrollTop);
-    });
-    $dom.addEventListener('scroll', handler);
-    return () => $dom.removeEventListener('scroll', handler);
-  }, []);
 
   return (
     <Fragment>
@@ -69,7 +58,7 @@ function webLayout(props) {
       <ContentWrap ref={$ref} className={cx(className, { componentsEmpty: components <= 0 })} id="componentsWrap">
         {components.length > 0 ? (
           <div className="componentsWrap">
-            <WidgetContent {...props} setWidget={setWidget} scrollTop={scrollTop} />
+            <WidgetContent {...props} editingWidget={editingWidget} setWidget={setWidget} />
           </div>
         ) : (
           emptyPlaceholder || (

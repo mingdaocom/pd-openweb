@@ -51,6 +51,7 @@ function SheetHeader(props) {
   const { appId, groupId, view, viewId, isCharge } = props;
   // functions
   const {
+    onlyBatchOperate,
     chartId,
     updateSheetList,
     updateSheetListIsUnfold,
@@ -85,40 +86,46 @@ function SheetHeader(props) {
   const sheet = _.find(sheetList.filter(_.identity), s => s.workSheetId === worksheetId) || {};
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
+  const batchOperateComp = (
+    <BatchOperate
+      isCharge={isCharge}
+      appId={appId}
+      worksheetId={worksheetId}
+      viewId={viewId}
+      view={view}
+      count={count}
+      controls={controls}
+      filters={filters}
+      quickFilter={quickFilter}
+      pageSize={pageSize}
+      navGroupFilters={navGroupFilters}
+      worksheetInfo={worksheetInfo}
+      permission={(permission || {})[viewId]}
+      allWorksheetIsSelected={allWorksheetIsSelected}
+      rows={rows}
+      selectedRows={sheetSelectedRows}
+      selectedLength={allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length}
+      updateViewPermission={updateViewPermission}
+      sheetSwitchPermit={sheetSwitchPermit}
+      rowsSummary={rowsSummary}
+      updateRows={updateRows}
+      hideRows={hideRows}
+      getWorksheetSheetViewSummary={getWorksheetSheetViewSummary}
+      reload={() => {
+        changePageIndex(1);
+        refresh();
+      }}
+      clearSelect={clearSelect}
+      refreshWorksheetControls={refreshWorksheetControls}
+    />
+  );
+  if (onlyBatchOperate) {
+    return batchOperateComp;
+  }
   return (
     <Fragment>
       <Con className="sheetHeader">
-        <BatchOperate
-          isCharge={isCharge}
-          appId={appId}
-          worksheetId={worksheetId}
-          viewId={viewId}
-          view={view}
-          count={count}
-          controls={controls}
-          filters={filters}
-          quickFilter={quickFilter}
-          pageSize={pageSize}
-          navGroupFilters={navGroupFilters}
-          worksheetInfo={worksheetInfo}
-          permission={(permission || {})[viewId]}
-          allWorksheetIsSelected={allWorksheetIsSelected}
-          rows={rows}
-          selectedRows={sheetSelectedRows}
-          selectedLength={allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length}
-          updateViewPermission={updateViewPermission}
-          sheetSwitchPermit={sheetSwitchPermit}
-          rowsSummary={rowsSummary}
-          updateRows={updateRows}
-          hideRows={hideRows}
-          getWorksheetSheetViewSummary={getWorksheetSheetViewSummary}
-          reload={() => {
-            changePageIndex(1);
-            refresh();
-          }}
-          clearSelect={clearSelect}
-          refreshWorksheetControls={refreshWorksheetControls}
-        />
+        {batchOperateComp}
         <div className="flex">
           <span className="fixed pointer">
             <Tooltip popupPlacement="bottom" text={<span>{isUnfold ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}>

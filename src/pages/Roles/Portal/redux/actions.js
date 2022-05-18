@@ -19,14 +19,6 @@ export const getControls = appId => {
     );
     getUserTemple({ appId }).then((data = []) => {
       dispatch(setControls(data));
-      dispatch({
-        type: 'UPDATE_CONTROLS_SYS',
-        data: data.filter(o =>
-          ['portal_name', 'portal_mobile', 'portal_avatar', 'portal_role', 'portal_status', 'portal_regtime'].includes(
-            o.controlId,
-          ),
-        ),
-      });
     });
   };
 };
@@ -120,7 +112,7 @@ export const updateListByRoleid = ({ roleId = '', rowIds = [] }, cb) => {
 };
 
 //更新用户数据 状态
-export const updateListByStatus = ({ newState, rowId }) => {
+export const updateListByStatus = ({ newState, rowIds, cb }) => {
   return (dispatch, getState) => {
     const { portal = {} } = getState();
     const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {}, list } = portal;
@@ -128,7 +120,7 @@ export const updateListByStatus = ({ newState, rowId }) => {
     editExAccountState({
       appId,
       newState,
-      rowId,
+      rowIds,
     }).then(res => {
       if (!res) {
         alert(_l('修改失败请稍后再试'), 2);
@@ -136,14 +128,15 @@ export const updateListByStatus = ({ newState, rowId }) => {
         dispatch(
           setList(
             list.map(o => {
-              if (rowId === o.rowid) {
-                return { ...o, portal_status: newState };
+              if (rowIds.includes(o.rowid)) {
+                return { ...o, portal_status: newState + '' };
               } else {
                 return o;
               }
             }),
           ),
         );
+        cb && cb();
       }
     });
   };
@@ -220,28 +213,102 @@ export const setFastFilters = data => {
     dispatch(getList());
   };
 };
-
+export const setSortControls = (data, cb) => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'UPDATE_SORTCONTROLS', data });
+    cb && cb();
+  };
+};
 export const setKeyWords = data => {
   return (dispatch, getState) => {
     dispatch({ type: 'UPDATE_KEYWORDS', data });
   };
+};
+export const setTelFilters = data => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'UPDATE_TELFILTERS', data });
+  };
+};
+//排序
+export const handleChangeSort = (sorter, PotralStatus = 0) => {
+  return (dispatch, getState) => {
+    const { field, column, order } = sorter;
+    if (!order) {
+      dispatch(
+        setSortControls([], () => {
+          dispatch(getList(PotralStatus));
+        }),
+      );
+    } else {
+      dispatch(
+        setSortControls(
+          [
+            {
+              controlId: field,
+              datatype: column.type,
+              isAsc: order === 'ascend',
+            },
+          ],
+          () => {
+            dispatch(getList(PotralStatus));
+          },
+        ),
+      );
+    }
+  };
+};
+
+const getFilterTels = telFilters => {
+  if (!telFilters) {
+    return '';
+  }
+  let code = telFilters.split(/[(\r\n)\r\n]+/); // 根据换行或者回车进行识别
+  code.forEach((item, index) => {
+    // 删除空项
+    if (!item) {
+      code.splice(index, 1);
+    }
+  });
+  return Array.from(new Set(code));
 };
 let ajaxFn = null;
 export const getList = (PotralStatus = 0, cb) => {
   return (dispatch, getState) => {
     dispatch({ type: 'UPDATE_LOADING', data: true });
     const { portal = {} } = getState();
-    const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {} } = portal;
+    const {
+      filters = [],
+      keyWords,
+      pageIndex,
+      fastFilters = [],
+      baseInfo = {},
+      sortControls = [],
+      telFilters = ``,
+    } = portal;
     const { appId = '' } = baseInfo;
+
     ajaxFn && ajaxFn.abort();
     ajaxFn = getFilterRows({
       pageSize,
       pageIndex,
       keyWords,
       filterControls: filters,
-      fastFilters: PotralStatus === 3 ? [] : fastFilters,
+      fastFilters:
+        PotralStatus === 3
+          ? []
+          : !!telFilters
+          ? fastFilters.concat({
+              controlId: 'portal_mobile',
+              dataType: 3,
+              dynamicSource: [],
+              filterType: 1,
+              spliceType: 1,
+              values: getFilterTels(telFilters),
+            })
+          : fastFilters,
       appId,
       PotralStatus, //3待审核
+      sortControls,
     });
     _.debounce(() => {
       ajaxFn.then(res => {

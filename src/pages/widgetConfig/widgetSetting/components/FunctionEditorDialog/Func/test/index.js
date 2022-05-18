@@ -49,6 +49,12 @@ const sumData = {
     { type: 6, controlId: '6189ddd91c2854dd35392446', value: 1000 },
   ],
 };
+const jsData = {
+  control: JSON.parse(
+    `{"controlId":"6233e5dee45e6b32e6399022","type":2,"advancedSetting":{"dismanual":"0","getinput":"0","getsave":"0","defaulttype":"1","dynamicsrc":"","defaultfunc":"{\\"type\\":\\"javascript\\",\\"expression\\":\\"var a = $6233e5dee45e6b32e6399021$;\\\\nreturn [...new Array(5)].fill(a).join('-');\\",\\"status\\":1}","min":"","max":""}}`,
+  ),
+  formData: [JSON.parse('{"type":2,"controlId":"6233e5dee45e6b32e6399021","value":"cc"}')],
+};
 
 async function test(prefix, data) {
   await runAndOutput(prefix, data);
@@ -58,4 +64,6 @@ async function test(prefix, data) {
 (async () => {
   await test('部门人员拼接', concatDepartmentAndUserData);
   await test('日期计算 DATEADD(DATENOW(), "+1Y")', dateaddData);
+  await test('求和', sumData);
+  await test('javascript', jsData);
 })();

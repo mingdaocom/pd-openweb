@@ -118,8 +118,11 @@ export function compareType(type, cellControl) {
 /**
  * 字段是否支持排序
  */
-export function fieldCanSort(type) {
+export function fieldCanSort(type, control = {}) {
   const canSortTypes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42];
+  if (control.type === 30 && control.strDefault === '10') {
+    return false;
+  }
   return _.includes(canSortTypes, type);
 }
 
@@ -164,13 +167,22 @@ export function getSortData(type, control = {}) {
       },
     ];
   } else if (type === 36) {
+    let defaultText = [_l('未选中 → 选中'), _l('选中 → 未选中')];
+    if (control.advancedSetting) {
+      if (control.advancedSetting.showtype === '1') {
+        defaultText = [_l('关闭 → 开启'), _l('开启 → 关闭')];
+      }
+      if (control.advancedSetting.showtype === '2') {
+        defaultText = [_l('否 → 是'), _l('是 → 否')];
+      }
+    }
     return [
       {
-        text: _l('未选中 → 选中'),
+        text: defaultText[0],
         value: ascendingValue,
       },
       {
-        text: _l('选中 → 未选中'),
+        text: defaultText[1],
         value: descendingValue,
       },
     ];
@@ -649,8 +661,8 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
       if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
         if (control.value && control.value.rows && control.value.rows.length) {
           results[control.controlId] = control.value.rows.map(r => {
-            const newRow = _.pick(r, v => !checkCellIsEmpty(v));
-            const relateRecordKeys = _.keys(_.pick(r, v => typeof v === 'string' && v.indexOf('sourcevalue') > -1));
+            const newRow = _.pickBy(r, v => !checkCellIsEmpty(v));
+            const relateRecordKeys = _.keys(_.pickBy(r, v => typeof v === 'string' && v.indexOf('sourcevalue') > -1));
             relateRecordKeys.forEach(key => {
               try {
                 const parsed = JSON.parse([newRow[key]]);
@@ -658,7 +670,7 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
                   parsed.map(relateRecord => ({
                     ...relateRecord,
                     sourcevalue: JSON.stringify(
-                      _.pick(
+                      _.pickBy(
                         JSON.parse(relateRecord.sourcevalue),
                         v => !checkCellIsEmpty(v) && (typeof v !== 'string' || v.indexOf('sourcevalue') < 0),
                       ),
@@ -857,16 +869,74 @@ export function runCode(code) {
   return new vm.Script(code).runInNewContext();
 }
 
+const execWorkerCode = `onmessage = function (e) {
+  const result = new Function(e.data)();
+  try {
+    if (typeof result === 'object' && typeof result.then === 'function') {
+      postMessage('promise begin');
+      Promise.all([result]).then(function ([value]) {
+        postMessage('promise value ' + value);
+        postMessage({
+          type: 'over',
+          value,
+        });
+      });
+    } else {
+      postMessage({
+        type: 'over',
+        value: new Function(e.data)(),
+      });
+    }
+  } catch (err) {
+    postMessage({
+      type: 'error',
+      err,
+    });
+  }
+};
+`;
+
+function genFunctionWorker() {
+  return new Worker('data:application/javascript,' + encodeURIComponent(execWorkerCode));
+}
+
+export function asyncRun(code, cb, { timeout = 3000 } = {}) {
+  const functionWorker = genFunctionWorker();
+  const timer = setTimeout(() => {
+    functionWorker.terminate();
+    cb(timeout + 'ms time out');
+  }, timeout);
+  functionWorker.onmessage = msg => {
+    if (msg.data.type === 'over') {
+      cb(null, msg.data.value);
+      clearTimeout(timer);
+      functionWorker.terminate();
+    }
+    if (msg.data.type === 'error') {
+      console.error(msg.err);
+      cb(msg.err);
+      clearTimeout(timer);
+      functionWorker.terminate();
+    } else {
+      // console.log(msg.data);
+    }
+  };
+  functionWorker.postMessage(code);
+}
+
 /**
  * 验证函数表达式基础语法
  */
-export function validateFnExpression(expression) {
-  expression = expression.replace(/[\r\r\n ]/g, '');
-  expression = expression.replace(/([A-Z]+)(?=\()/g, 'test');
-  // expression = expression.replace(/\$((\w{8}(-\w{4}){3}-\w{12})|[0-9a-z]{24})\$/g, '1');
-  expression = expression.replace(/\$(.+?)\$/g, '1');
+export function validateFnExpression(expression, type = 'mdfunction') {
   try {
-    runCode(`function test() {return '-';}${expression}`);
+    expression = expression.replace(/\$(.+?)\$/g, '"1"');
+    if (type === 'mdfunction') {
+      expression = expression.replace(/[\r\r\n ]/g, '');
+      expression = expression.replace(/([A-Z]+)(?=\()/g, 'test');
+      runCode(`function test() {return '-';}${expression}`);
+    } else if (type === 'javascript') {
+      runCode(`function test() {${expression} }`);
+    }
     return true;
   } catch (err) {
     return false;
@@ -897,4 +967,8 @@ export function completeControls(controls) {
     controls = controls.concat(SYSTEM_CONTROLS);
   }
   return controls;
+}
+
+export function getNewRecordPageUrl({ appId, worksheetId, viewId }) {
+  return `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
 }

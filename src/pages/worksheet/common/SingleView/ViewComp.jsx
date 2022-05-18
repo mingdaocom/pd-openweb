@@ -1,11 +1,13 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { loadWorksheet, updateFilters } from 'worksheet/redux/actions';
+import DocumentTitle from 'react-document-title';
+import { loadWorksheet, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } from 'worksheet/redux/actions';
 import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
+import { getSearchData } from 'worksheet/views/util';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import View from 'worksheet/views';
+import Sheet from 'worksheet/common/Sheet/Sheet';
 import Header from './Header';
 
 const Con = styled.div`
@@ -18,62 +20,53 @@ const Con = styled.div`
 const ViewCon = styled.div`
   flex: 1;
   border: 1px solid #e0e0e0 !important;
+  overflow: hidden;
 `;
 
 function ViewComp(props) {
-  const { showHeader, headerLeft, headerRight } = props;
+  const { showHeader, showPageTitle, headerLeft, headerRight } = props;
   const {
-    isCharge,
-    loading,
-    appId,
-    worksheetId,
+    worksheetInfo,
     views,
     viewId,
     chartId,
     showControlIds,
     showAsSheetView,
-    activeViewStatus,
     sheetViewData,
     sheetFetchParams,
+    sheetSwitchPermit,
+    searchData,
+    maxCount
   } = props;
-  const { loadWorksheet, changePageIndex, changePageSize, updateFilters } = props;
+  const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
-  const basePara = {
-    loading,
-    appId,
-    worksheetId,
-    view,
-    activeViewStatus,
-    viewId,
-    chartId,
-    showControlIds,
-    showAsSheetView,
-    isCharge,
-  };
-  useEffect(() => {
-    if (worksheetId) {
-      loadWorksheet(worksheetId);
-    }
-  }, [worksheetId]);
   return (
-    !loading && (
-      <Con>
-        {showHeader && (
-          <Header
-            headerLeft={headerLeft}
-            headerRight={headerRight}
-            sheetViewData={sheetViewData}
-            sheetFetchParams={sheetFetchParams}
-            changePageIndex={changePageIndex}
-            changePageSize={changePageSize}
-            updateFiltersWithView={value => updateFilters(value, view)}
-          />
-        )}
-        <ViewCon>
-          <View {...basePara} />
-        </ViewCon>
-      </Con>
-    )
+    <Con className="SingleViewWrap">
+      {showPageTitle && view.name && <DocumentTitle title={`${worksheetInfo.name}-${view.name}`} />}
+      {showHeader && (
+        <Header
+          maxCount={maxCount}
+          worksheetInfo={worksheetInfo}
+          view={view}
+          sheetSwitchPermit={sheetSwitchPermit}
+          showAsSheetView={showAsSheetView}
+          headerLeft={headerLeft}
+          headerRight={headerRight}
+          sheetViewData={sheetViewData}
+          searchData={searchData}
+          sheetFetchParams={sheetFetchParams}
+          changePageIndex={changePageIndex}
+          changePageSize={changePageSize}
+          updateSearchRecord={updateSearchRecord}
+          refreshSheet={refreshSheet}
+          openNewRecord={openNewRecord}
+          updateFiltersWithView={value => updateFilters(value, view)}
+        />
+      )}
+      <ViewCon className="SingleViewBody">
+        <Sheet type="single" chartId={chartId} showControlIds={showControlIds} showAsSheetView={showAsSheetView} />
+      </ViewCon>
+    </Con>
   );
 }
 
@@ -86,6 +79,9 @@ export default connect(
     loading: state.sheet.loading,
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
+    worksheetInfo: state.sheet.worksheetInfo,
+    sheetSwitchPermit: state.sheet.sheetSwitchPermit,
+    searchData: getSearchData(state.sheet),
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,
@@ -97,6 +93,9 @@ export default connect(
         changePageIndex,
         changePageSize,
         updateFilters,
+        updateSearchRecord,
+        refreshSheet,
+        openNewRecord,
       },
       dispatch,
     ),

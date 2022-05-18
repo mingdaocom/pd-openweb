@@ -8,6 +8,7 @@ import { FROM } from '../../tools/config';
 import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import { getDynamicValue } from '../../tools/DataFormat';
 import { compareWithTime } from '../../tools/utils';
 import { browserIsMobile } from 'src/util';
@@ -34,6 +35,7 @@ export default class Widgets extends Component {
 
   state = {
     isFocus: false,
+    originValue: '',
   };
 
   onChange = value => {
@@ -60,6 +62,7 @@ export default class Widgets extends Component {
       masterData,
       onBlur,
     } = this.props;
+    const { originValue } = this.state;
     let { value } = this.props;
     if (/^\d+$/.test(String(value)) && String(value).length < 5) {
       value = '';
@@ -127,7 +130,7 @@ export default class Widgets extends Component {
     return (
       <PCDatePicker
         className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
-        locale={lang === 'en' ? en_US : lang === 'zh-Hant' ? zh_TW : zh_CN}
+        locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
         disabled={disabled}
         value={value ? moment(value) : ''}
         showTime={showTime || false}
@@ -228,14 +231,16 @@ export default class Widgets extends Component {
         onOpenChange={open => {
           if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
             setTimeout(() => {
-              $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
+              $(`.customAntPicker_${controlId}`)
+                .find('.ant-picker-time-panel-column:first')
+                .scrollTop(220);
             }, 200);
           }
         }}
-        onFocus={() => this.setState({ isFocus: true })}
+        onFocus={e => this.setState({ isFocus: true, originValue: e.target.value.trim() })}
         onBlur={() => {
           this.setState({ isFocus: false });
-          onBlur();
+          onBlur(originValue);
         }}
         onChange={this.onChange}
         onOk={this.onChange}

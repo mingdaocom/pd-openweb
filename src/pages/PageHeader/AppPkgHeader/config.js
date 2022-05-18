@@ -66,6 +66,7 @@ export const APP_CONFIG = {
     },
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {
@@ -97,6 +98,7 @@ export const APP_CONFIG = {
     },
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {
@@ -134,6 +136,7 @@ export const APP_CONFIG = {
     },
     { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
     { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     {

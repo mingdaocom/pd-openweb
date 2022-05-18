@@ -16,19 +16,25 @@
     display: flex;
     align-items: center;
     height: 32px;
-    .operateIconWrap {
+    position: relative;
+    .operateIconWrap, .dragWrap {
       display: none;
-      .iconItem {
-        margin-right: 12px;
-        font-size: 18px;
-        color: #a2a2a2;
-        cursor: pointer;
-        &:hover {
-          color: #2196f3;
-        }
-        &:last-child {
-          margin: 0;
-        }
+    }
+    .dragWrap {
+      font-size: 15px !important;
+      position: absolute;
+      left: -10px;
+      top: 8px;
+    }
+    .iconItem {
+      margin-right: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      &:hover {
+        color: #2196f3 !important;
+      }
+      &:last-child {
+        margin: 0;
       }
     }
   }
@@ -102,7 +108,7 @@
   &:hover,
   &.active,
   &.edit {
-    .header .operateIconWrap {
+    .header .operateIconWrap, .header .dragWrap {
       display: flex;
     }
   }
@@ -118,7 +124,7 @@
 
 .sortableCard {
   z-index: 9999;
-  .operateIconWrap {
+  .operateIconWrap, .dragWrap {
     display: flex !important;
   }
   .statisticsCard {

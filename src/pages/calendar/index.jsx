@@ -22,6 +22,8 @@ export default class CalendarEntrypoint extends Component {
     let promise;
     if ((getCookie('i18n_langtag') || getNavigatorLang()) === 'zh-Hant') {
       promise = import('./modules/calendarControl/lang/zh-tw');
+    } else if ((getCookie('i18n_langtag') || getNavigatorLang()) === 'ja') {
+      promise = import('./modules/calendarControl/lang/ja');
     } else if ((getCookie('i18n_langtag') || getNavigatorLang()) !== 'en') {
       promise = import('./modules/calendarControl/lang/zh-cn');
     } else {

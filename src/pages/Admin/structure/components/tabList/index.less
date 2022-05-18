@@ -1,26 +1,27 @@
 .departmentTop,
 .jobListBox {
   padding: 10px 0;
-
-  li {
+  margin-right: 24px;
+  li,
+  .jobItem {
     line-height: 36px;
     cursor: pointer;
     padding-left: 24px;
 
     .jobNameLi {
       display: inline-block;
-      width: calc(~"100% - 52px");
+      width: calc(~'100% - 52px');
       line-height: 36px;
       vertical-align: middle;
     }
 
     &.current {
       &:hover {
-        background: #DBEEFF 0% 0% no-repeat padding-box;
+        background: #dbeeff 0% 0% no-repeat padding-box;
         border-radius: 0px 16px 16px 0px;
       }
 
-      background: #DBEEFF 0% 0% no-repeat padding-box;
+      background: #dbeeff 0% 0% no-repeat padding-box;
       border-radius: 0px 16px 16px 0px;
       color: #2196f3 !important;
       .listName {
@@ -42,7 +43,7 @@
       display: inline-block;
       min-width: 19px;
       height: 19px;
-      background: #FFD2D2;
+      background: #ffd2d2;
       line-height: 19px;
       text-align: center;
       color: #ff0000;
@@ -55,4 +56,7 @@
       margin: 10px 10px 10px 0;
     }
   }
+}
+.jobListBox{
+  margin-right: 0;
 }

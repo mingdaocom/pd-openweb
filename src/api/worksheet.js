@@ -1,5 +1,115 @@
 module.exports = {
   /**
+  * 获取 工作表 索引字段配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRowIndexes: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetRowIndexes', args, options);
+   },
+  /**
+  * 新增 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {array} args.indexFields 索引字段
+  * @param {boolean} args.uniqueIndex 是否 唯一索引
+  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
+  * @param {boolean} args.sparseIndex 是否 稀疏索引
+  * @param {boolean} args.backgroundIndex 是否 后台索引
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addRowIndex: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'AddRowIndex', args, options);
+   },
+  /**
+  * 更新 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.indexConfigId 索引配置Id
+（系统级索引可为空）
+  * @param {string} args.appId AppId
+  * @param {boolean} args.isSystemIndex 是否 系统级索引
+  * @param {string} args.systemIndexName 系统级索引名称
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {array} args.indexFields 索引字段
+  * @param {boolean} args.uniqueIndex 是否 唯一索引
+  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
+  * @param {boolean} args.sparseIndex 是否 稀疏索引
+  * @param {boolean} args.backgroundIndex 是否 后台索引
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateRowIndex: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'UpdateRowIndex', args, options);
+   },
+  /**
+  * 更新 工作表行内容表索引名称
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.indexConfigId 索引配置Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateRowIndexCustomeIndexName: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
+   },
+  /**
+  * 移除 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.indexConfigId 索引配置Id
+  * @param {boolean} args.isSystemIndex 是否 系统级索引
+  * @param {string} args.systemIndexName 系统级索引名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeRowIndex: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'RemoveRowIndex', args, options);
+   },
+  /**
+  * 获取链接行记录
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getLinkDetail: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetLinkDetail', args, options);
+   },
+  /**
+  * 提交链接
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {array} args.newOldControl 要修改的cell
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editRowByLink: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditRowByLink', args, options);
+   },
+  /**
   * 获取功能系统开关配置
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -338,6 +448,20 @@ module.exports = {
    updateEntityName: function (args, options = {}) {
      
      return $.api('Worksheet', 'UpdateEntityName', args, options);
+   },
+  /**
+  * 更新 工作表别名
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.alias 别名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateWorksheetAlias: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'UpdateWorksheetAlias', args, options);
    },
   /**
   * 编辑按钮和记录名称
@@ -791,6 +915,7 @@ module.exports = {
   * @param {string} args.keyWords 搜索关键字
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {boolean} args.thoroughDelete 彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1323,6 +1448,7 @@ module.exports = {
   * @param {string} args.viewId 视图ID
   * @param {string} args.rowId 行记录ID
   * @param {string} args.worksheetId 工作表ID
+  * @param {string} args.btnId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1330,6 +1456,22 @@ module.exports = {
    getWorksheetBtns: function (args, options = {}) {
      
      return $.api('Worksheet', 'GetWorksheetBtns', args, options);
+   },
+  /**
+  * 获取按钮详情
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用ID
+  * @param {string} args.viewId 视图ID
+  * @param {string} args.rowId 行记录ID
+  * @param {string} args.worksheetId 工作表ID
+  * @param {string} args.btnId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetBtnByID: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetWorksheetBtnByID', args, options);
    },
   /**
   * 操作按钮
@@ -1752,30 +1894,5 @@ module.exports = {
    editShowData: function (args, options = {}) {
      
      return $.api('Worksheet', 'EditShowData', args, options);
-   },
-  /**
-  * 获取链接行记录
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getLinkDetail: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'GetLinkDetail', args, options);
-   },
-  /**
-  * 提交链接
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {array} args.newOldControl 要修改的cell
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editRowByLink: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditRowByLink', args, options);
    },
 };

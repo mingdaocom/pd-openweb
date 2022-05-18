@@ -14,6 +14,8 @@ import {
   CAN_AS_NUMBER_DYNAMIC_FIELD,
   CAN_AS_EMBED_DYNAMIC_FIELD,
   FIELD_REG_EXP,
+  CHECKBOX_TYPES,
+  EMEBD_FIELDS,
 } from './config';
 
 export const getControlType = data => {
@@ -26,7 +28,12 @@ export const getDateType = data => {
 
 export const showClear = (data = {}, dynamicValue) => {
   const { staticValue } = dynamicValue[0] || {};
-  return _.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue;
+  if (_.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue) return true;
+  if (data.type === 26) {
+    const transferValue = typeof staticValue === 'string' ? JSON.parse(staticValue || '{}') : staticValue;
+    return (transferValue || {}).accountId === 'user-self';
+  }
+  return false;
 };
 
 const isSingleRelate = control => control.type === 29 && control.enumDefault === 1;
@@ -172,4 +179,33 @@ export const transferValue = (value = '') => {
 
 export const isIframeControl = item => {
   return item && item.type === 45 && item.enumDefault === 1;
+};
+
+export const getTypeList = (data = {}) => {
+  const { advancedSetting: { showtype } = {} } = data;
+  if (showtype === '1') {
+    return [
+      { id: '1', text: _l('开启') },
+      { id: '0', text: _l('关闭') },
+    ];
+  } else if (showtype === '2') {
+    return [
+      { id: '1', text: _l('是') },
+      { id: '0', text: _l('否') },
+    ];
+  } else {
+    return CHECKBOX_TYPES;
+  }
+};
+
+export const getOtherSelectField = (control, value) => {
+  let data = [];
+  if (control.type === 45 && control.enumDefault === 1) {
+    data = EMEBD_FIELDS;
+  }
+  return value
+    ? data.map(item => {
+        return { ...item, list: (item.list || []).filter(i => _.includes(i.text, value)) };
+      })
+    : data;
 };

@@ -46,6 +46,8 @@ export default function InfoHeader(props) {
     onSideIconClick,
     handleAddSheetRow,
     viewId,
+    // allowExAccountDiscuss = false, //允许外部用户讨论
+    // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
   } = props;
   let { header } = props;
   const { isSmall, worksheetId, recordId } = recordbase;
@@ -53,15 +55,25 @@ export default function InfoHeader(props) {
   const [discussCount, setDiscussCount] = useState();
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
+  const portalNotHasDiscuss = md.global.Account.isPortal && !props.allowExAccountDiscuss; //外部用户且未开启讨论
+  const showSodeBar =
+    (!md.global.Account.isPortal && (discussVisible || logVisible)) ||
+    (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible);
   function loadDiscussionsCount() {
-    if (sideVisible || !discussVisible || md.global.Account.isPortal) {
+    if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;
+    }
+    let entityType = 0;
+    //外部用户且未开启讨论 不能内部讨论
+    if (md.global.Account.isPortal && props.allowExAccountDiscuss && props.exAccountDiscussEnum === 1) {
+      entityType = 2;
     }
     getDiscussionsCount({
       pageIndex: 1,
       pageSize: 1,
       sourceId: worksheetId + '|' + rowId.current,
       sourceType: 8,
+      entityType, // 0 = 全部，1 = 不包含外部讨论，2=外部讨论
     }).then(data => {
       setDiscussCount(data.data);
     });
@@ -69,7 +81,7 @@ export default function InfoHeader(props) {
   useEffect(() => {
     rowId.current = recordId;
     loadDiscussionsCount();
-  }, [recordId]);
+  }, [recordId, props.allowExAccountDiscuss]);
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     return () => {
@@ -120,8 +132,7 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
-          {/* 查看日志权限 查看讨论和文件权限 默认true */}
-          {(discussVisible || logVisible) && !md.global.Account.isPortal && (
+          {showSodeBar && (
             <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
               <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
                 <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />

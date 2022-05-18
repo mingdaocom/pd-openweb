@@ -12,7 +12,7 @@ import MoreOption from '../components/MoreOption';
 import { redefineComplexControl, formatValuesOfOriginConditions } from 'worksheet/common/WorkSheetFilter/util';
 import cx from 'classnames';
 import { RangeDrop } from 'src/pages/FormSet/components/RangeDrop';
-
+import { refreshBtnData } from 'src/pages/FormSet/util';
 const Con = styled.div`
   width: 100%;
   height: 100%;
@@ -80,20 +80,7 @@ function CustomBtnFormSet(props) {
   };
 
   const updateCustomButtons = (btns, isAdd) => {
-    const refreshData = data => {
-      if (isAdd) {
-        data.push(btns);
-        return data;
-      }
-      return data.map(o => {
-        if (o.btnId === btns.btnId) {
-          return btns;
-        } else {
-          return o;
-        }
-      });
-    };
-    setBtnList(refreshData(btnList));
+    setBtnList(refreshBtnData(_.cloneDeep(btnList), btns, isAdd));
   };
 
   useEffect(() => {
@@ -386,6 +373,8 @@ function CustomBtnFormSet(props) {
                 '.mdAlertDialog',
                 '.ant-cascader-menus',
                 '.ant-tree-select-dropdown',
+                '.ant-tooltip',
+                '.CodeMirror-hints',
               ]}
               onClickAway={() => setShowCreateCustomBtn(false)}
               isEdit={isEdit}
@@ -402,7 +391,7 @@ function CustomBtnFormSet(props) {
               btnDataInfo={btnId ? _.find(btnList, item => item.btnId === btnId) : []}
               projectId={worksheetInfo.projectId}
               worksheetControls={worksheetControls}
-              currentSheetInfo={{ template: { controls: worksheetControls } }}
+              currentSheetInfo={{ ...worksheetInfo, template: { controls: worksheetControls } }}
               viewId={''}
               appId={worksheetInfo.appId}
               worksheetId={worksheetId}

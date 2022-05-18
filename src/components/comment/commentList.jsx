@@ -59,13 +59,10 @@ class CommentList extends React.Component {
             if ($(this).data('accountid') === undefined || $(this).data('bind')) {
               return;
             }
-            $(this)
-              .mdBusinessCard({ secretType: 1 })
-              .data('bind', true)
-              .mouseenter();
+            $(this).mdBusinessCard({ secretType: 1 }).data('bind', true).mouseenter();
           },
         },
-        '.singleTalk .singeText a'
+        '.singleTalk .singeText a',
       );
     }
 
@@ -74,14 +71,19 @@ class CommentList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isFocus !== nextProps.isFocus || this.props.sourceId !== nextProps.sourceId) {
+    if (
+      this.props.isFocus !== nextProps.isFocus ||
+      nextProps.status !== this.props.status || //内部和外部讨论
+      nextProps.entityType !== this.props.entityType || //内部和外部讨论
+      this.props.sourceId !== nextProps.sourceId
+    ) {
       this.abortRequest();
       this.setState(
         {
           pageIndex: 1,
           isFocus: nextProps.isFocus,
         },
-        this.fetch
+        this.fetch,
       );
     }
   }
@@ -111,7 +113,7 @@ class CommentList extends React.Component {
   }
 
   fetch() {
-    const { sourceId, sourceType, isFocus, commentList } = this.props;
+    const { sourceId, sourceType, isFocus, commentList, entityType } = this.props;
     const { pageIndex, pageSize } = this.state;
 
     this.setState({
@@ -124,6 +126,7 @@ class CommentList extends React.Component {
       pageIndex,
       pageSize,
       isFocus,
+      entityType,
     });
     this.ajax
       .then(res => {
@@ -136,7 +139,7 @@ class CommentList extends React.Component {
             }
           }
           this.setState({
-            hasMore: res.data && res.data.length !== 0,
+            hasMore: res.data && res.data.length !== 0 && res.data.length >= pageSize,
           });
         } else {
           alert(_l('获取讨论失败'), 2);
@@ -189,27 +192,29 @@ class CommentList extends React.Component {
           this.list = el;
         }}
       >
-        {commentList.filter(o => !!o).map((item, index) => (
-          <CommentListItem
-            key={item.discussionId}
-            comment={item}
-            storageId={`${sourceId}-${item.discussionId}`}
-            sourceType={sourceType}
-            switchReplyComment={this.switchReplyComment.bind(this)}
-            removeComment={this.props.removeComment}
-            updateComment={comment => this.updateComment(comment)}
-          >
-            {children && showReplyCommentId === item.discussionId
-              ? React.cloneElement(children, {
-                  replyId: item.discussionId,
-                  autoFocus: true,
-                  autoShrink: false,
-                  shrinkAfterSubmit: true,
-                  onSubmitCallback: () => this.setState({ showReplyCommentId: '' }),
-                })
-              : null}
-          </CommentListItem>
-        ))}
+        {commentList
+          .filter(o => !!o)
+          .map((item, index) => (
+            <CommentListItem
+              key={item.discussionId}
+              comment={item}
+              storageId={`${sourceId}-${item.discussionId}`}
+              sourceType={sourceType}
+              switchReplyComment={this.switchReplyComment.bind(this)}
+              removeComment={this.props.removeComment}
+              updateComment={comment => this.updateComment(comment)}
+            >
+              {children && showReplyCommentId === item.discussionId
+                ? React.cloneElement(children, {
+                    replyId: item.discussionId,
+                    autoFocus: true,
+                    autoShrink: false,
+                    shrinkAfterSubmit: true,
+                    onSubmitCallback: () => this.setState({ showReplyCommentId: '' }),
+                  })
+                : null}
+            </CommentListItem>
+          ))}
         {isLoading && pageIndex > 1 ? <LoadDiv className="mTop10 mBottom10" /> : null}
       </div>
     );

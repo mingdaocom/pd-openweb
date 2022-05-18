@@ -38,10 +38,10 @@
     background: #dbeeff 0 0 no-repeat padding-box;
     border-radius: 0 16px 16px 0;
     height: 36px;
-    width: 256px;
+    line-height: 36px;
     position: absolute;
     right: 0;
-    left: auto;
+    left: 0;
     z-index: -1;
   }
 
@@ -79,6 +79,9 @@
       }
 
       .ant-tree-title {
+        .departmentName {
+          padding-right: 23px;
+        }
         .departmentAction {
           display: block;
         }
@@ -99,6 +102,9 @@
     &.ant-tree-treenode-switcher-close,
     &.ant-tree-treenode-switcher-open {
       .ant-tree-title {
+        .departmentName {
+          padding-right: 0px;
+        }
         .departmentAction {
           display: none !important;
         }
@@ -107,6 +113,9 @@
     &.ant-tree-treenode-switcher-close.ant-tree-treenode-selected,
     &.ant-tree-treenode-switcher-open.ant-tree-treenode-selected {
       .ant-tree-title {
+        .departmentName {
+          padding-right: 23px;
+        }
         .departmentAction {
           display: block !important;
         }
@@ -129,13 +138,13 @@
   .ant-tree .ant-tree-switcher {
     .ant-tree-switcher-icon svg,
     .ant-select-tree-switcher-icon svg {
-      color: #757575 !important;
+      color: #9e9e9e !important;
     }
   }
 
   .ant-tree.ant-tree-block-node .ant-tree-list-holder-inner .ant-tree-node-content-wrapper {
     position: relative;
-
+    margin-left: -2px;
     .ant-tree-title {
       position: absolute;
       right: 0;
@@ -157,7 +166,7 @@
 
     .ant-tree-treenode {
       cursor: pointer;
-      padding: 0 0 0 5px;
+      padding: 0 0 0 4px;
       z-index: 0;
       position: relative;
 
@@ -175,14 +184,14 @@
           display: inline-block;
           z-index: 0;
           width: 100%;
-          padding-right: 23px;
           box-sizing: border-box;
-          padding-left: 6px;
+          padding-left: 4px;
+          line-height: 36px;
         }
 
         .departmentAction {
           z-index: 1;
-          line-height: 32px;
+          line-height: 36px;
           vertical-align: top;
           position: absolute;
           right: 5px;
@@ -204,24 +213,24 @@
       }
 
       span.ant-tree-switcher {
-        line-height: 32px;
+        line-height: 36px;
         height: 36px;
         width: 20px;
         text-align: center;
       }
 
       .anticon.anticon-loading.ant-tree-switcher-loading-icon {
-        line-height: 32px;
+        line-height: 36px;
       }
 
       .ant-tree-node-content-wrapper {
         display: inline-block;
-        line-height: 32px;
+        line-height: 36px;
         height: 36px;
         box-sizing: border-box;
 
         .ant-tree-iconEle {
-          line-height: 32px;
+          vertical-align: middle;
         }
       }
 
@@ -229,6 +238,9 @@
         z-index: 1;
 
         .ant-tree-title {
+          .departmentName {
+            padding-right: 23px;
+          }
           .departmentAction {
             display: block;
           }
@@ -244,7 +256,7 @@
     .ant-tree-child-tree
     > .ant-tree-treenode.ant-tree-treenode-selected
     > span.ant-tree-node-content-wrapper::before {
-    background: #dbeeff 0% 0% no-repeat padding-box;
+    // background: #dbeeff 0% 0% no-repeat padding-box;
     border-radius: 0px 16px 16px 0px;
     height: 36px;
     width: 256px;
@@ -270,7 +282,7 @@
 
   .ant-tree .ant-tree-treenode span[draggable],
   .ant-tree .ant-tree-treenode span[draggable='true'] {
-    line-height: 32px;
+    line-height: 36px;
   }
 
   .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-node-content-wrapper::before,
@@ -305,9 +317,17 @@
     .ant-tree.ant-tree-directory
     .ant-tree-treenode
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    .departmentName {
+      padding-right: 23px;
+    }
     .departmentAction {
       display: inline-block;
     }
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,
+  .ant-tree.ant-tree-directory .ant-tree-treenode-selected::before {
+    background: #dbeeff 0 0 no-repeat padding-box !important;
   }
 
   .nano-pane {

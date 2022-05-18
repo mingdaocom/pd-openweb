@@ -1,0 +1,79 @@
+.dialogBatchEdit {
+  max-height: inherit !important;
+  .mui-dialog-body {
+    overflow: inherit !important;
+    .RadioGroup {
+      margin-top: 20px;
+      .Radio {
+        &.show {
+          display: inline-block;
+        }
+        &.hide {
+          display: none;
+        }
+      }
+    }
+  }
+  .itemSpan {
+    display: inline-block;
+    padding: 0 16px;
+    line-height: 32px;
+    border-radius: 18px;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    border: 1px solid #dddddd;
+
+    .isTopIcon {
+      background: #2196f3;
+      color: #fff;
+      font-size: 13px;
+      line-height: 13px;
+      width: 13px;
+      height: 13px;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    .moreOption {
+      position: relative;
+      display: inline-block;
+
+      ul {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        box-shadow: 0px 8px 16px #0000003d;
+        border-radius: 3px;
+        width: 180px;
+        display: block;
+        padding: 5px 0;
+        z-index: 1;
+
+        li {
+          width: 100%;
+          line-height: 30px;
+          padding: 0 10px;
+          box-sizing: border-box;
+
+          &:hover {
+            background: #dddddd;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+  .ant-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    .ant-checkbox-inner {
+      top: -8px;
+    }
+    .ant-checkbox-checked::after {
+      border: none;
+    }
+  }
+  .ant-radio-checked::after {
+    border: none;
+  }
+}

@@ -23,7 +23,7 @@ function createUploader(option) {
       xap_url: '/src/library/plupload/Moxie.xap',
       dragdrop: true,
       chunk_size: '4mb',
-      // max_file_size: '2g',
+      max_file_size: md.global.SysSettings.fileUploadLimitSize + 'mb',
       bucket: 0,
     },
     option,

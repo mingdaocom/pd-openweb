@@ -25,7 +25,7 @@ export default function AttachmentVerify({ data, onChange }) {
           <span>{_l('限制文件数量')}</span>
         </Checkbox>
       </div>
-      {maxcount && <AttachmentConfig data={data} onChange={onChange} />}
+      {maxcount && <AttachmentConfig data={data} onChange={onChange} attr="maxcount" />}
 
       <div className="labelWrap">
         <Checkbox

@@ -14,7 +14,7 @@ import {
   CustomTextarea,
   SelectNodeObject,
 } from '../components';
-import { TRIGGER_ID_TYPE } from '../../enum';
+import { ACTION_ID } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 
@@ -93,30 +93,30 @@ export default class Formula extends Component {
     } = data;
 
     // 日期/时间
-    if (actionId === TRIGGER_ID_TYPE.DATE_FORMULA && !fieldValue && !fieldControlId) {
+    if (actionId === ACTION_ID.DATE_FORMULA && !fieldValue && !fieldControlId) {
       alert(_l('日期/时间字段不能为空'), 2);
       return;
     }
 
-    if (_.includes([TRIGGER_ID_TYPE.NUMBER_FORMULA, TRIGGER_ID_TYPE.DATE_FORMULA], actionId) && !formulaValue) {
+    if (_.includes([ACTION_ID.NUMBER_FORMULA, ACTION_ID.DATE_FORMULA], actionId) && !formulaValue) {
       alert(_l('运算公式不能为空'), 2);
       return;
     }
 
     if (
-      actionId === TRIGGER_ID_TYPE.DATE_DIFF_FORMULA &&
+      actionId === ACTION_ID.DATE_DIFF_FORMULA &&
       ((!startTime.fieldValue && !startTime.fieldControlId) || (!endTime.fieldValue && !endTime.fieldControlId))
     ) {
       alert(_l('开始日期和结束日期不能为空'), 2);
       return;
     }
 
-    if (actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && !selectNodeId) {
+    if (actionId === ACTION_ID.TOTAL_STATISTICS && !selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
       return;
     }
 
-    if (actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION) {
+    if (actionId === ACTION_ID.FUNCTION_CALCULATION) {
       if (functionError) {
         alert(_l('函数有误'), 2);
         return;
@@ -174,7 +174,7 @@ export default class Formula extends Component {
         getRef={tagtextarea => (this.tagtextarea = tagtextarea)}
         onFocus={() => this.setState({ isFocus: true })}
         onChange={(err, value, obj) =>
-          this.handleChange(err, value, obj, data.actionId === TRIGGER_ID_TYPE.NUMBER_FORMULA)
+          this.handleChange(err, value, obj, data.actionId === ACTION_ID.NUMBER_FORMULA)
         }
         updateSource={this.updateSource}
       />
@@ -624,24 +624,24 @@ export default class Formula extends Component {
         <div className="flex mTop20">
           <ScrollView>
             <div className="workflowDetailBox">
-              {data.actionId === TRIGGER_ID_TYPE.NUMBER_FORMULA && this.renderNumberContent()}
-              {data.actionId === TRIGGER_ID_TYPE.DATE_FORMULA && this.renderDateContent()}
-              {data.actionId === TRIGGER_ID_TYPE.DATE_DIFF_FORMULA && this.renderDateDiffContent()}
-              {data.actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && this.renderTotalStatisticsContent()}
-              {data.actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION && this.renderFunctionExecContent()}
+              {data.actionId === ACTION_ID.NUMBER_FORMULA && this.renderNumberContent()}
+              {data.actionId === ACTION_ID.DATE_FORMULA && this.renderDateContent()}
+              {data.actionId === ACTION_ID.DATE_DIFF_FORMULA && this.renderDateDiffContent()}
+              {data.actionId === ACTION_ID.TOTAL_STATISTICS && this.renderTotalStatisticsContent()}
+              {data.actionId === ACTION_ID.FUNCTION_CALCULATION && this.renderFunctionExecContent()}
             </div>
           </ScrollView>
         </div>
         <DetailFooter
           isCorrect={
-            (data.actionId === TRIGGER_ID_TYPE.NUMBER_FORMULA && data.formulaValue) ||
-            (data.actionId === TRIGGER_ID_TYPE.DATE_FORMULA &&
+            (data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue) ||
+            (data.actionId === ACTION_ID.DATE_FORMULA &&
               ((data.fieldValue && data.fieldControlId) || data.formulaValue)) ||
-            (data.actionId === TRIGGER_ID_TYPE.DATE_DIFF_FORMULA &&
+            (data.actionId === ACTION_ID.DATE_DIFF_FORMULA &&
               (data.startTime.fieldValue || data.startTime.fieldControlId) &&
               (data.endTime.fieldValue || data.endTime.fieldControlId)) ||
-            (data.actionId === TRIGGER_ID_TYPE.TOTAL_STATISTICS && data.selectNodeId) ||
-            (data.actionId === TRIGGER_ID_TYPE.FUNCTION_CALCULATION && data.formulaValue)
+            (data.actionId === ACTION_ID.TOTAL_STATISTICS && data.selectNodeId) ||
+            (data.actionId === ACTION_ID.FUNCTION_CALCULATION && data.formulaValue)
           }
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}

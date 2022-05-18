@@ -6,7 +6,7 @@ import { Switch, Support, Button } from 'ming-ui';
 import Skeleton from 'src/router/Application/Skeleton';
 import PublicWorksheetConfigForm from '../common/PublicWorksheetConfigForm';
 import ConfigPanel from '../common/ConfigPanel';
-import ShareUrl from '../components/ShareUrl';
+import ShareUrl from 'worksheet/components/ShareUrl';
 import * as actions from '../redux/actions';
 import { VISIBLE_TYPE } from '../enum';
 

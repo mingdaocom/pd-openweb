@@ -26,6 +26,20 @@ const emptyTypes = [{
   name: _l('显示为 --')
 }];
 
+const lineChartEmptyTypes = [{
+  value: 0,
+  name: _l('隐藏')
+}, {
+  value: 1,
+  name: _l('显示为 0')
+}, {
+  value: 2,
+  name: _l('显示为 -- (连续)')
+}, {
+  value: 3,
+  name: _l('显示为 -- (中断)')
+}];
+
 export default class XAxis extends Component {
   constructor(props) {
     super(props);
@@ -131,6 +145,12 @@ export default class XAxis extends Component {
     const isTime = isTimeControl(xaxes.controlType);
     const isArea = reportType !== reportTypes.CountryLayer && isAreaControl(xaxes.controlType);
     const timeData = (isTime ? xaxes.controlType === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
+    const isLineChart = reportType === reportTypes.LineChart
+
+    if (!isLineChart && xaxes.emptyType === 3) {
+      xaxes.emptyType = 2;
+    }
+
     return (
       <Menu className="chartControlMenu chartMenu">
         <Menu.Item
@@ -207,7 +227,7 @@ export default class XAxis extends Component {
             popupOffset={[0, -15]}
           >
             {
-              emptyTypes.map(item => (
+              (isLineChart ? lineChartEmptyTypes : emptyTypes).map(item => (
                 <Menu.Item
                   key={item.value}
                   style={{ color: item.value === xaxes.emptyType ? '#1e88e5' : null }}
@@ -234,19 +254,34 @@ export default class XAxis extends Component {
     );
   }
   renderAxis() {
-    const { xaxes, reportType } = this.props.currentReport;
+    const { allControls, axisControls, currentReport } = this.props;
+    const { xaxes, reportType } = currentReport;
     const tip = xaxes.rename && xaxes.rename !== xaxes.controlName ? xaxes.controlName : null;
     const isTime = isTimeControl(xaxes.controlType);
     const isArea = reportType !== reportTypes.CountryLayer && isAreaControl(xaxes.controlType);
+    const axis = _.find(axisControls, { controlId: xaxes.controlId });
+    const control = _.find(allControls, { controlId: xaxes.controlId }) || {};
     return (
       <div className="flexRow valignWrapper fidldItem">
-        <Tooltip title={tip}>
-          <span className="Gray flex ellipsis">
-            {xaxes.rename || xaxes.controlName || _l('该控件不存在')}
-            {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
-            {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
-          </span>
-        </Tooltip>
+        {axis ? (
+          <Tooltip title={tip}>
+            <span className="Gray flex ellipsis">
+              {xaxes.rename || xaxes.controlName}
+              {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
+              {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
+            </span>
+          </Tooltip>
+        ) : (
+          control.strDefault === '10' ? (
+            <span className="Red flex ellipsis">
+              {`${control.controlName} (${_l('无效类型')})`}
+            </span>
+          ) : (
+            <span className="Red flex ellipsis">
+              {_l('该控件不存在')}
+            </span>
+          )
+        )}
         <Dropdown overlay={this.renderOverlay()} trigger={['click']}>
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>

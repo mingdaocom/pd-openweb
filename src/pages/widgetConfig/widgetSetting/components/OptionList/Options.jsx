@@ -39,6 +39,9 @@ const HandleOption = styled.div`
     align-items: center;
     justify-content: space-between;
     width: 116px;
+    &.flexEnd {
+      justify-content: flex-end;
+    }
   }
 
   .hoverText {
@@ -148,6 +151,7 @@ const OptionItem = SortableElement(
     colorful,
     isMulti,
     updateOption,
+    showtype,
   }) => {
     const [visible, setVisible] = useState(false);
     const { key, value, isDeleted, color } = item;
@@ -226,6 +230,7 @@ export default function SelectOptions(props) {
   const { mode = 'add', onAdd, enableScore, onChange, options, isMulti, data = {}, fromPortal } = props;
   const [focusIndex, setIndex] = useState(-1);
   const checkedValue = parseOptionValue(data.default);
+  const { showtype } = getAdvanceSetting(data);
 
   const [{ assignValueVisible, batchAddVisible }, setVisible] = useSetState({
     assignValueVisible: false,
@@ -286,6 +291,7 @@ export default function SelectOptions(props) {
       <OptionList
         {...props}
         useDragHandle
+        showtype={showtype}
         addOption={addOption}
         onSortEnd={onSortEnd}
         switchChecked={switchChecked}
@@ -299,8 +305,8 @@ export default function SelectOptions(props) {
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>
-        <div className={cx('operate', { 'TxtRight': fromPortal })}>
-          <div className={cx('batchAdd hoverText', { 'flex': fromPortal })} onClick={() => updateVisible('batchAdd')}>
+        <div className={cx('operate', { TxtRight: fromPortal })}>
+          <div className={cx('batchAdd hoverText', { flex: fromPortal })} onClick={() => updateVisible('batchAdd')}>
             {_l('批量添加')}
           </div>
           {!fromPortal && (

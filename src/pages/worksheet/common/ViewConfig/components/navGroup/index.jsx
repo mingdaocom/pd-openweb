@@ -7,6 +7,7 @@ import { canNavGroup, getSetDefault, getSetHtmlData } from './util';
 import bgNavGroups from './img/bgNavGroups.png';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import sheetAjax from 'src/api/worksheet';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 const Wrap = styled.div`
   .hasData {
@@ -249,7 +250,7 @@ export default function NavGroup(params) {
       <AddCondition
         renderInParent
         className="addControl"
-        columns={worksheetControls.filter(
+        columns={filterOnlyShowField(worksheetControls).filter(
           o => canNavGroup(o, worksheetId), // && !navGroup.controlId === o.controlId,
         )}
         onAdd={addNavGroups}

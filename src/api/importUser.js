@@ -16,6 +16,22 @@ module.exports = {
      return $.api('ImportUser', 'ImportUserList', args, options);
    },
   /**
+  * 导入编辑用户
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.fileName 文件名
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   importEditUserList: function (args, options = {}) {
+     
+     return $.api('ImportUser', 'ImportEditUserList', args, options);
+   },
+  /**
   * 邀请单个用户
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

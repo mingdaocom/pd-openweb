@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { RadioGroup } from 'ming-ui';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 export default class YesNo extends Component {
   static propTypes = {
@@ -19,10 +21,8 @@ export default class YesNo extends Component {
   getRadioGroupData() {
     const { control } = this.props;
     if (control.type === 36) {
-      return [
-        { text: _l('选中'), value: 1 },
-        { text: _l('未选中'), value: 0 },
-      ];
+      const itemnames = getSwitchItemNames(control, { isShow: true });
+      return itemnames.map(item => ({ text: item.value, value: Number(item.key) }));
     }
     if (control.type === 40) {
       return [

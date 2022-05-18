@@ -113,6 +113,21 @@ export default function Info(props) {
         appId,
         exAccountId: accountId,
       }).then(res => {
+        res = res.map(o => {
+          if (o.type === 36) {
+            //检查框默认值处理
+            let defsource = _.get(o, ['advancedSetting', 'defsource']);
+            try {
+              defsource = JSON.parse(defsource)[0];
+            } catch (error) {
+              defsource = {};
+            }
+            let { staticValue = '' } = defsource;
+            return { ...o, value: staticValue || o.value };
+          } else {
+            return o;
+          }
+        });
         setCells(res);
         setLoading(false);
       });

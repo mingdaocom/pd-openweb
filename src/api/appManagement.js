@@ -499,6 +499,8 @@ module.exports = {
   * 新增应用授权
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {integer} args.type 权限范围类型 1=全部，2=只读
+  * @param {boolean} args.viewNull 不传视图id不返回数据配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -523,15 +525,30 @@ module.exports = {
   * 编辑应用授权类型
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
-  * @param {string} args.appKey
-  * @param {} args.displayType 类型  1=删除，2=取消授权，3=全部，4=只读
+  * @param {string} args.appKey 应用key
+  * @param {integer} args.type 权限范围类型 1=全部，2=只读
+  * @param {boolean} args.viewNull 不传视图id不返回数据配置
+  * @param {integer} args.status 授权状态 1-开启 2-关闭 3-删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   eiitAuthorizeStatus: function (args, options = {}) {
+   editAuthorizeStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EiitAuthorizeStatus', args, options);
+     return $.api('AppManagement', 'EditAuthorizeStatus', args, options);
+   },
+  /**
+  * 删除应用授权类型
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.appKey 应用key
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteAuthorizeStatus: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'DeleteAuthorizeStatus', args, options);
    },
   /**
   * 编辑备注
@@ -803,5 +820,82 @@ module.exports = {
    getEntityShareById: function (args, options = {}) {
      
      return $.api('AppManagement', 'GetEntityShareById', args, options);
+   },
+  /**
+  * 删除应用备份文件
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.appId 应用id
+  * @param {string} args.id 应用备份操作日志Id
+  * @param {string} args.fileName 应用备份的文件名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteBackupFile: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'DeleteBackupFile', args, options);
+   },
+  /**
+  * 分页获取应用备份还原操作日志
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用Id
+  * @param {boolean} args.isBackup 是否为获取备份文件列表，true表示获取备份文件列表，false表示获取操作日志列表
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pageGetBackupRestoreOperationLog: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'PageGetBackupRestoreOperationLog', args, options);
+   },
+  /**
+  * 重命名应用备份文件
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.appId 应用id
+  * @param {string} args.id 应用备份操作日志Id
+  * @param {string} args.fileName 备份新名称
+  * @param {string} args.fileOldName 备份新名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   renameBackupFileName: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'RenameBackupFileName', args, options);
+   },
+  /**
+  * 获取有效备份文件信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getValidBackupFileInfo: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetValidBackupFileInfo', args, options);
+   },
+  /**
+  * 还原应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id
+  * @param {string} args.id 备份还原操作日志id
+  * @param {boolean} args.autoEndMaintain 是否自动结束应用维护状态
+  * @param {boolean} args.backupCurrentVersion 备份当前版本
+  * @param {boolean} args.isRestoreNew 是否还原为新应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   restore: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'Restore', args, options);
    },
 };

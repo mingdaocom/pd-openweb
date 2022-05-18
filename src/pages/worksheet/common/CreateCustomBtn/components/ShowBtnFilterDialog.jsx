@@ -50,6 +50,7 @@ class ShowBtnFilterDialog extends React.Component {
           filterColumnClassName="showBtnFilter"
           projectId={projectId}
           appId={appId}
+          offset={[0, 0]}
           columns={segmentation(columns)}
           conditions={this.state.filters}
           onConditionsChange={conditions => {

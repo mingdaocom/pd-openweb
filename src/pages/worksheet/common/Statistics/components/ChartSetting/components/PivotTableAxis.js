@@ -164,8 +164,9 @@ const renderOverlay = ({
 };
 
 const SortableItem = SortableElement(props => {
-  const { type, item, axisControls, onClear, onNormType, verifyNumber, disableParticleSizeTypes, onUpdateParticleSizeType, onUpdateXaxisEmpty, onShowControl, onSelectReNameId } = props;
+  const { type, item, axisControls, allControls, onClear, onNormType, verifyNumber, disableParticleSizeTypes, onUpdateParticleSizeType, onUpdateXaxisEmpty, onShowControl, onSelectReNameId } = props;
   const axis = _.find(axisControls, { controlId: item.controlId }) || {};
+  const control = _.find(allControls, { controlId: item.controlId }) || {};
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
@@ -188,14 +189,26 @@ const SortableItem = SortableElement(props => {
     <SortableItemContent className="mBottom12">
       <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
-        <Tooltip title={tip}>
-          <span className="Gray flex ellipsis">
-            {(isNumber && verifyNumber) && `${_.find(normTypes, { value: item.normType }).text}: `}
-            {item.rename || axis.controlName || _l('该控件不存在')}
-            {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
-            {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
-          </span>
-        </Tooltip>
+        {axis.controlId ? (
+          <Tooltip title={tip}>
+            <span className="Gray flex ellipsis">
+              {(isNumber && verifyNumber) && `${_.find(normTypes, { value: item.normType }).text}: `}
+              {item.rename || axis.controlName}
+              {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+              {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+            </span>
+          </Tooltip>
+        ) : (
+          control.strDefault === '10' ? (
+            <span className="Red flex ellipsis">
+              {`${control.controlName} (${_l('无效类型')})`}
+            </span>
+          ) : (
+            <span className="Red flex ellipsis">
+              {_l('该控件不存在')}
+            </span>
+          )
+        )}
         <Dropdown trigger={['click']} overlay={renderOverlay(overlayProps)}>
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
@@ -381,7 +394,7 @@ export default class PivotTableAxis extends Component {
     );
   }
   render() {
-    const { type, name, list, axisControls, disableParticleSizeTypes, verifyNumber } = this.props;
+    const { type, name, list, axisControls, allControls, disableParticleSizeTypes, verifyNumber } = this.props;
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
@@ -391,6 +404,7 @@ export default class PivotTableAxis extends Component {
           type={type}
           list={list}
           axisControls={axisControls}
+          allControls={allControls}
           verifyNumber={verifyNumber}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onClear={this.props.onRemove}

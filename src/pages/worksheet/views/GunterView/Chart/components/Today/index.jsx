@@ -22,7 +22,7 @@ const TodayWrapper = styled.div`
 
 @connect(
   state => ({
-    ..._.pick(state.sheet, ['gunterView']),
+    ..._.pick(state.sheet, ['gunterView', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -52,8 +52,9 @@ export default class Today extends Component {
     });
   }
   handleScroll = () => {
-    const { chartScroll, periodList } = this.props.gunterView;
-    const todayEl = document.querySelector('.gunterChart .today');
+    const { base, gunterView } = this.props;
+    const { chartScroll, periodList } = gunterView;
+    const todayEl = document.querySelector(`.gunterView-${base.viewId} .gunterChart .today`);
     if (todayEl) {
       const parentNode = todayEl.parentNode;
       const offsetLeft = parentNode.offsetLeft + todayEl.offsetLeft;

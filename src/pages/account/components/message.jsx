@@ -7,7 +7,7 @@ import './message.less';
 import Config from '../config';
 import RegisterController from 'src/api/register';
 import captcha from 'src/components/captcha';
-import { inputFocusFn, inputBlurFn, warnningTipFn, setCNFn } from '../util';
+import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from '../util';
 import RegExp from 'src/util/expression';
 
 let sendVerifyCodeTimer = null;
@@ -157,7 +157,7 @@ class Message extends React.Component {
   };
 
   setValue = props => {
-    const { dataList = {}, setDataFn, type } = props;
+    const { dataList = {}, onChangeData, type } = props;
     let { emailOrTel = '' } = dataList;
     if (this.iti) {
       if (emailOrTel.indexOf('+') >= 0) {
@@ -169,14 +169,14 @@ class Message extends React.Component {
         !isNaN(emailOrTel.replace(/\s*/g, '')) &&
         this.getEmailOrTelLen(props)
       ) {
-        setDataFn({
+        onChangeData({
           ...dataList,
           emailOrTel: this.getEmailOrTel(emailOrTel),
           dialCode: `+${this.iti.getSelectedCountryData().dialCode}`,
         });
         this.itiShowFn();
       } else {
-        setDataFn({
+        onChangeData({
           ...dataList,
           emailOrTel: this.getEmailOrTel(emailOrTel),
           dialCode: '',
@@ -187,7 +187,7 @@ class Message extends React.Component {
   };
 
   itiFn = () => {
-    const { dataList = {}, setDataFn, type } = this.props;
+    const { dataList = {}, onChangeData, type } = this.props;
     let { emailOrTel = '' } = dataList;
     if (this.mobile) {
       this.iti && this.iti.destroy();
@@ -242,7 +242,7 @@ class Message extends React.Component {
 
   // 验证input内容 手机 验证码 密码
   isValid = isForSendCode => {
-    const { type = 'register', dataList = {}, setDataFn, keys = [] } = this.props;
+    const { type = 'register', dataList = {}, onChangeData, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', onlyRead } = dataList;
     let isRight = true;
     let warnningData = [];
@@ -320,7 +320,7 @@ class Message extends React.Component {
         }
       }
     }
-    setDataFn({
+    onChangeData({
       ...dataList,
       warnningData: warnningData,
     });
@@ -329,7 +329,7 @@ class Message extends React.Component {
 
   // 获取验证码
   handleSendVerifyCode = codeType => {
-    const { setDataFn } = this.props;
+    const { onChangeData } = this.props;
     if (this.isValid(true)) {
       const { dataList = {}, type, sendVerifyCode, appId } = this.props;
       const { emailOrTel = '', dialCode } = dataList;
@@ -355,7 +355,7 @@ class Message extends React.Component {
         let thenFn = data => {
           const { ActionResult } = Config;
           if (data.actionResult == ActionResult.success) {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [
                 {
@@ -366,12 +366,12 @@ class Message extends React.Component {
             });
             this.countDown();
           } else if (data.actionResult == ActionResult.userAccountExists) {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [{ tipDom: this.mobile, warnningText: _l('该号码已注册，您可以使用已有账号登录') }],
             });
           } else if (data.actionResult == ActionResult.sendMobileMessageFrequent) {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [
                 {
@@ -381,17 +381,17 @@ class Message extends React.Component {
               ],
             });
           } else if (data.actionResult == ActionResult.userInfoNotFound) {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [{ tipDom: '.warnningDiv', warnningText: _l('账号不正确') }],
             });
           } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [{ tipDom: '.warnningDiv', warnningText: _l('验证码错误') }],
             });
           } else {
-            setDataFn({
+            onChangeData({
               ...dataList,
               warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码发送失败'), isError: true }],
             });
@@ -444,7 +444,7 @@ class Message extends React.Component {
   };
 
   countDown = () => {
-    const { setDataFn } = this.props;
+    const { onChangeData } = this.props;
     let seconds = 30;
     let hasWarn = false;
     $(this.code).focus();
@@ -458,7 +458,7 @@ class Message extends React.Component {
         const { dataList = {} } = this.props;
         const { verifyCode = '' } = dataList;
         if (!verifyCode) {
-          setDataFn({
+          onChangeData({
             ...dataList,
             warnningData: [
               {
@@ -474,7 +474,7 @@ class Message extends React.Component {
         if (seconds < 22 && !hasWarn) {
           // 8秒后提示收不到验证码的帮助
           const { dataList = {} } = this.props;
-          setDataFn({
+          onChangeData({
             ...dataList,
             warnningData: [
               {
@@ -494,7 +494,7 @@ class Message extends React.Component {
   };
 
   render() {
-    const { type = 'register', dataList = {}, setDataFn, nextHtml, maxLength, keys = [] } = this.props;
+    const { type = 'register', dataList = {}, onChangeData, nextHtml, maxLength, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', warnningData = [], onlyRead } = dataList;
     let { isMobile, verifyCodeText, verifyCodeLoading, focusDiv } = this.state;
     let str = this.iti && isMobile ? this.getEmailOrTel(emailOrTel) : emailOrTel;
@@ -526,7 +526,7 @@ class Message extends React.Component {
           {(keys.includes('emailOrTel') || keys.includes('tel')) && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, [this.mobile, '#txtMobilePhone'], focusDiv, emailOrTel),
+                ...setWarnningData(warnningData, [this.mobile, '#txtMobilePhone'], focusDiv, emailOrTel),
               })}
             >
               <input
@@ -539,7 +539,7 @@ class Message extends React.Component {
                 onFocus={this.inputOnFocus}
                 placeholder={str}
                 onPaste={e => {
-                  setDataFn(
+                  onChangeData(
                     {
                       ...dataList,
                       emailOrTel: this.getEmailOrTel(e.target.value),
@@ -553,7 +553,7 @@ class Message extends React.Component {
                 }}
                 onChange={e => {
                   let data = _.filter(dataList.warnningData, it => it.tipDom !== this.mobile);
-                  setDataFn(
+                  onChangeData(
                     {
                       ...dataList,
                       warnningData: data,
@@ -582,7 +582,7 @@ class Message extends React.Component {
           {keys.includes('fullName') && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, [this.fullName, '#fullName'], focusDiv, fullName),
+                ...setWarnningData(warnningData, [this.fullName, '#fullName'], focusDiv, fullName),
               })}
             >
               <input
@@ -595,7 +595,7 @@ class Message extends React.Component {
                 placeholder={fullName || ''}
                 onChange={e => {
                   let data = _.filter(dataList.warnningData, it => it.tipDom !== this.fullName);
-                  setDataFn({
+                  onChangeData({
                     ...dataList,
                     warnningData: data,
                     fullName: e.target.value,
@@ -617,7 +617,7 @@ class Message extends React.Component {
           {keys.includes('code') && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, ['.txtLoginCode'], focusDiv, verifyCode),
+                ...setWarnningData(warnningData, ['.txtLoginCode'], focusDiv, verifyCode),
               })}
             >
               <input
@@ -631,7 +631,7 @@ class Message extends React.Component {
                 onFocus={this.inputOnFocus}
                 onChange={e => {
                   let data = _.filter(dataList.warnningData, it => it.tipDom !== '.txtLoginCode');
-                  setDataFn({
+                  onChangeData({
                     ...dataList,
                     warnningData: data,
                     verifyCode: e.target.value.replace(/[^\d]/g, ''),
@@ -665,7 +665,7 @@ class Message extends React.Component {
           {keys.includes('password') && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, ['.passwordIcon', this.password], focusDiv, password),
+                ...setWarnningData(warnningData, ['.passwordIcon', this.password], focusDiv, password),
               })}
             >
               <input
@@ -677,14 +677,14 @@ class Message extends React.Component {
                 onFocus={this.inputOnFocus}
                 onChange={e => {
                   let data = _.filter(dataList.warnningData, it => it.tipDom !== this.password);
-                  setDataFn({
+                  onChangeData({
                     ...dataList,
                     warnningData: data,
                     password: e.target.value,
                   });
                 }}
                 value={password}
-                {...autoCompleteData}
+                autocomplete="new-password" //密码不自动填充
               />
               <div
                 className="title"

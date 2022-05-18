@@ -251,6 +251,7 @@ export function getFilterTypes(type, control = {}, conditionType, from) {
       FILTER_CONDITION_TYPE.NE,
       FILTER_CONDITION_TYPE.BETWEEN,
       FILTER_CONDITION_TYPE.NBETWEEN,
+      ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
       FILTER_CONDITION_TYPE.ISNULL,
       FILTER_CONDITION_TYPE.HASVALUE,
     ].map(filterType => ({
@@ -335,18 +336,19 @@ export function getDefaultCondition(control) {
  *  */
 export function redefineComplexControl(contorl) {
   if (contorl.type === 37) {
-    return { ...contorl, ...{ type: contorl.enumDefault2 || 6 } };
+    return { ...contorl, ...{ type: contorl.enumDefault2 || 6, originType: contorl.type } };
   }
   if (contorl.type === 30) {
     return {
       ...contorl,
       ...{
         type: contorl.sourceControltype === 37 ? contorl.enumDefault2 : contorl.sourceControlType,
+        originType: contorl.type,
       },
     };
   }
   if (contorl.type === 38) {
-    return { ...contorl, ...{ type: contorl.enumDefault === 2 ? 15 : 6 } };
+    return { ...contorl, ...{ type: contorl.enumDefault === 2 ? 15 : 6, originType: contorl.type } };
   }
   return { ...contorl };
 }
@@ -404,10 +406,11 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
   }
   let typeList = [];
   switch (conditionType) {
-    // 文本框、文本组合
+    // 文本框、文本组合、自动编号
     case API_ENUM_TO_TYPE.TEXTAREA_INPUT_1:
     case API_ENUM_TO_TYPE.TEXTAREA_INPUT_2:
     case API_ENUM_TO_TYPE.CONCATENATE:
+    case API_ENUM_TO_TYPE.AUTOID:
       // 除了检查框、自由连接、等级、他表字段以外所有能取到文本值的字段类型
       // 除分段、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表外
       typeList = [
@@ -449,12 +452,11 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.EMAIL_INPUT, // 邮件
       ];
       return _.filter(contorls, items => _.includes(typeList, items.type));
-    // 数值、金额、公式、自动编号
+    // 数值、金额、公式
     case API_ENUM_TO_TYPE.NUMBER_INPUT:
     case API_ENUM_TO_TYPE.MONEY_AMOUNT_8:
     case API_ENUM_TO_TYPE.MONEY_CN:
     case API_ENUM_TO_TYPE.NEW_FORMULA_31:
-    case API_ENUM_TO_TYPE.AUTOID:
       // 数值、金额、公式和汇总（数值类型）、自动编号
       typeList = [
         API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
@@ -532,7 +534,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         items =>
           _.includes(typeList, items.type) &&
           items.dataSource === control.dataSource &&
-          items.controlId !== control.controlId,
+          (control.containSelf || items.controlId !== control.controlId),
       );
     // 关联单条
     case API_ENUM_TO_TYPE.RELATESHEET:

@@ -471,7 +471,7 @@ function GroupFilter(props) {
     );
   };
   return (
-    <Con width={width} style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}>
+    <Con className="groupFilterWrap" width={width} style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}>
       <div
         className={cx('searchBar flexRow', {
           pAll0: !isOpenGroup,

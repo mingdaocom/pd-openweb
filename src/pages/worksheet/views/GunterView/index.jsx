@@ -36,16 +36,18 @@ export default class Gunter extends Component {
   constructor(props) {
     super(props);
     const gunterDirectoryWidth = localStorage.getItem('gunterDirectoryWidth');
-    const worksheetSheetEl = document.querySelector('.worksheetSheet');
     this.state = {
       directoryWidth: isGunterExport ? 570 : (gunterDirectoryWidth ? Number(gunterDirectoryWidth) : 210),
       dragMaskVisible: false,
-      maxWidth: worksheetSheetEl ? (60 / 100) * worksheetSheetEl.offsetWidth : 0,
+      maxWidth: 0
     };
   }
   componentDidMount() {
-    const { calendartype } = this.props.view.advancedSetting;
-    this.props.updateViewConfig();
+    const { view, updateViewConfig } = this.props;
+    const { calendartype } = view.advancedSetting;
+
+    updateViewConfig();
+
     if (isGunterExport) {
       this.props.fetchRows();
     } else {
@@ -55,6 +57,11 @@ export default class Gunter extends Component {
       );
       this.props.fetchRows();
     }
+
+    const viewEl = document.querySelector(`.gunterView-${view.viewId}`);
+    this.setState({
+      maxWidth: viewEl ? (60 / 100) * viewEl.offsetWidth : 0
+    });
   }
   componentWillUnmount() {
     this.props.destroyGunterView();
@@ -86,12 +93,12 @@ export default class Gunter extends Component {
     }
   }
   render() {
-    const { loading, groupingVisible } = this.props;
+    const { view, loading, groupingVisible } = this.props;
     const { directoryWidth, dragMaskVisible, maxWidth } = this.state;
     const isMobile = browserIsMobile();
 
     return (
-      <div className={cx('gunterView flexRow', { gunterViewLoading: loading })}>
+      <div className={cx('gunterView flexRow', `gunterView-${view.viewId}`, { gunterViewLoading: loading })}>
         {groupingVisible && !isMobile && (
           <Fragment>
             {dragMaskVisible && (

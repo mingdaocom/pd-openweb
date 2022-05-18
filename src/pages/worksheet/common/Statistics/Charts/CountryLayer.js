@@ -65,6 +65,8 @@ const getColorValues = data => {
   }
 };
 
+let mapbox = null;
+
 @connect(
   state => ({
     base: state.statistics.base
@@ -410,17 +412,21 @@ export default class extends Component {
 
     this.setCount(newYaxisList);
 
-    this.scene = new Scene({
-      id: this.chartEl,
-      logoVisible: false,
-      map: new Mapbox({
+    if (!mapbox) {
+      mapbox = new Mapbox({
         center: [116.2825, 39.9],
         pitch: 0,
         style: 'blank',
         zoom: 3,
         minZoom: 1,
         maxZoom: 10,
-      }),
+      });
+    }
+
+    this.scene = new Scene({
+      id: this.chartEl,
+      logoVisible: false,
+      map: mapbox,
     });
 
     const { scene } = this;

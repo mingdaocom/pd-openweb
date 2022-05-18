@@ -23,6 +23,7 @@ const GroupingTotalWrapper = styled.div`
 @connect(
   state => ({
     ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'groupingScroll', 'chartScroll']),
+    ..._.pick(state.sheet, ['base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -30,7 +31,6 @@ export default class Grouping extends Component {
   constructor(props) {
     super(props);
     this.$groupingWrapperRef = createRef(null);
-    this.$groupingTotalWrapperRef = createRef(null);
   }
   componentDidMount() {
     const scroll = new IScroll(this.$groupingWrapperRef.current, {
@@ -75,10 +75,12 @@ export default class Grouping extends Component {
     }
   }
   handleScroll = () => {
-    const { groupingScroll } = this.props;
-    const groupingControlHeaderEl = document.querySelector('.groupingControlHeader');
-    groupingControlHeaderEl && (groupingControlHeaderEl.style.transform = `translateX(${groupingScroll.x}px)`);
-    // this.$groupingTotalWrapperRef.current.style.transform = `translateY(${groupingScroll.y}px)`;
+    const { groupingScroll, base } = this.props;
+    if (!this.groupingControlHeaderEl) {
+      const el = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
+      this.groupingControlHeaderEl = el;
+    }
+    this.groupingControlHeaderEl && (this.groupingControlHeaderEl.style.transform = `translateX(${groupingScroll.x}px)`);
   };
   linkageScroll = event => {
     if (window.chartScrollLock) {
@@ -91,7 +93,7 @@ export default class Grouping extends Component {
   renderGroupingTotal() {
     const { grouping } = this.props;
     return (
-      <GroupingTotalWrapper className="Relative" ref={this.$groupingTotalWrapperRef}>
+      <GroupingTotalWrapper className="Relative">
         {grouping.map((item, index) => (
           <div
             key={index}

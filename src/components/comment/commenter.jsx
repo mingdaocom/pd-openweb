@@ -276,7 +276,7 @@ class Commenter extends React.Component {
 
       this.setState({ disabled: true });
 
-      const { sourceId, sourceType, replyId, appId, remark, extendsId } = this.props;
+      const { sourceId, sourceType, replyId, appId, remark, extendsId, entityType, forReacordDiscussion } = this.props;
 
       let promise = null;
 
@@ -333,6 +333,7 @@ class Commenter extends React.Component {
             knowledgeAtts: JSON.stringify(kcAttachmentData),
             appId,
             extendsId,
+            entityType: forReacordDiscussion && entityType === 2 ? 2 : 0,//后端接口只区分0 2
           })
           .then(
             res => {
@@ -467,7 +468,7 @@ class Commenter extends React.Component {
           >
             <Icon className="Hand" icon="smile" />
           </span>
-          {!this.props.disableShareToPost ? (
+          {!this.props.disableShareToPost && !md.global.Account.isPortal ? (
             <span className="tip-top commentIconBtn" data-tip={_l('同时转发此条')}>
               <i
                 className={cx('icon-forward2 Font19 ThemeColor3', { hoverRelayBtn: !this.state.isReshare })}

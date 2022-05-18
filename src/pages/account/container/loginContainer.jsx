@@ -156,7 +156,7 @@ export default class Container extends React.Component {
   };
 
   render() {
-    const { loginData = {}, setDataFn, isNetwork, openLDAP } = this.props;
+    const { loginData = {}, onChangeData, isNetwork, openLDAP } = this.props;
     let { isCheck = false } = loginData;
     let { loginDisabled } = this.state;
     return (
@@ -170,7 +170,7 @@ export default class Container extends React.Component {
           openLDAP={openLDAP}
           dataList={loginData}
           isNetwork={isNetwork}
-          setDataFn={setDataFn}
+          onChangeData={onChangeData}
           nextHtml={isValid => {
             return (
               <React.Fragment>
@@ -184,7 +184,7 @@ export default class Container extends React.Component {
                   <div
                     className="cbRememberPasswordDiv Right Hand"
                     onClick={() => {
-                      setDataFn({
+                      onChangeData({
                         ...loginData,
                         isCheck: !isCheck,
                       });

@@ -433,7 +433,7 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 单选项 || 下拉框 || 检查框
+    // 单选项 || 下拉框 || 检查项
     if (item.type === 9 || item.type === 11 || item.type === 36) {
       list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
         return {

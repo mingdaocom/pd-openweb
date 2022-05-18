@@ -10,6 +10,7 @@ import { FlexCenter, getEnumType, reportCountLimit } from '../../util';
 import { widgets } from '../../enum';
 import Analysis from './analysis';
 import ButtonComp from './button';
+import View from './view';
 import RcDialog from 'rc-dialog';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 
@@ -23,7 +24,6 @@ const Header = styled(FlexCenter)`
   background-color: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
   border-radius: 5px 5px 0 0;
-
   font-size: 17px;
 `;
 const EditWidgetContent = styled.div`
@@ -35,13 +35,13 @@ const TYPE_TO_COMPONENTS = {
   embedUrl: EmbedUrl,
   analysis: Analysis,
   button: ButtonComp,
+  view: View,
 };
 
 function EditWidget(props) {
   const [show, setShow] = useState(true);
   const [top, setTop] = useState(0);
   const [left, setLeft] = useState(300);
-  // const [hasChange, setHasChange] = useState(false);
   const { components, widget, onClose, mode, addWidget, updateWidget } = props;
   const type = getEnumType(widget.type);
   const Comp = TYPE_TO_COMPONENTS[type];

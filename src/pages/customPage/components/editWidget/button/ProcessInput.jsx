@@ -48,6 +48,7 @@ const ControlTag = styled.div`
 const OPERAION_FLOW_PARAM = [
   { value: 'codeResult', text: _l('扫码结果') },
   { value: 'triggerUser', text: _l('触发者') },
+  { value: 'triggerDepartment', text: _l('触发者所在的部门') },
   { value: 'triggerTime', text: _l('触发时间') },
 ];
 

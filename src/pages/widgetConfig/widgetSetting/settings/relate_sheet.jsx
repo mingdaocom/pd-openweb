@@ -593,7 +593,7 @@ export default function RelateSheet(props) {
           <Tooltip
             placement={'bottom'}
             title={_l(
-              '支持移动app和在钉钉，微信，welink中使用的web移动端应用；暂不支持企业微信，和其他方式使用的web移动端应用',
+              '通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。',
             )}
           >
             <i className="icon-help Gray_9e Font16 pointer"></i>

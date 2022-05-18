@@ -5,7 +5,11 @@ const flowInfo = (state = {}, action) => {
     case 'GET_FLOW_INFO':
       return action.data;
     case 'UPDATE_PROCESS':
-      return Object.assign({}, state, { name: action.data.name, groupId: action.data.groupId, explain: action.data.explain });
+      return Object.assign({}, state, {
+        name: action.data.name,
+        groupId: action.data.groupId,
+        explain: action.data.explain,
+      });
     case 'UPDATE_PUBLIC_STATE':
       return Object.assign({}, state, action.obj);
     case 'UPDATE_PUBLISH_STATUS':
@@ -25,6 +29,7 @@ const workflowDetail = (state = {}, action) => {
     case 'UPDATE_NODE_DATA':
     case 'GO_BACK_UPDATE_SOURCE':
     case 'UPDATE_FLOW_NODE_NAME':
+    case 'UPDATE_NODE_GATEWAY':
       return action.data;
     case 'CLEAR_SOURCE':
       return {};

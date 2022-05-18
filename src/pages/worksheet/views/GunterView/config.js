@@ -1,16 +1,4 @@
 
-
-export const viewConfig = {
-  // 天的宽度
-  minDayWidth: null,
-  // 呈现维度的数量
-  periodCount: null,
-  // 是否只显示工作日
-  onlyWorkDay: true,
-  // 休息日
-  dayOff: []
-}
-
 export const PERIOD_TYPE = {
   day: 0,
   week: 1,

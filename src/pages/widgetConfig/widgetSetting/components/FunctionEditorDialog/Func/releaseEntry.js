@@ -9,7 +9,7 @@ function runWithParams(control, formData) {
       };
     } catch (err) {}
   }
-  const result = exec(control, formData);
+  const result = exec(control, formData, { type: 'lib' });
   if (!result.error) {
     return result.value;
   } else {

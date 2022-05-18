@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { ScrollView, RichText } from 'ming-ui';
 import Skeleton from 'src/router/Application/Skeleton';
 import * as actions from '../redux/actions';
-import { Absolute, BlackBtn, Hr } from '../components/Basics';
+import { Absolute, BlackBtn, Hr } from 'worksheet/components/Basics';
 import Logo from '../components/Logo';
 import EditableText from '../components/EditableText';
 import EditableButton from '../components/EditableButton';

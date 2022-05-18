@@ -1,17 +1,21 @@
-.disabled {
+.disabled,
+.ckByHtml {
   .ck-sticky-panel {
     display: none !important;
   }
   .todo-list {
     position: relative;
     &::before {
-      content: ' ';//防止 disabled的状态下 被激活
+      content: ' '; //防止 disabled的状态下 被激活
       position: absolute;
       top: 0;
       z-index: 1;
       left: 0;
       width: 40px;
       bottom: 0;
+    }
+    .todo-list__label > input:after {
+      opacity: 0;
     }
   }
 }

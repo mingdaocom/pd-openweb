@@ -193,6 +193,9 @@ export default function RecordForm(props) {
     setFormHeight(recordForm.current.clientHeight);
     setNavVisible();
   });
+  useEffect(() => {
+    setRelateNumOfControl({});
+  }, [recordId]);
   function setSplit(value) {
     if (value) {
       localStorage.setItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
@@ -305,6 +308,7 @@ export default function RecordForm(props) {
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
                   disabled={!allowEdit}
                   projectId={recordinfo.projectId}
+                  groupId={recordinfo.groupId}
                   masterRecordRowId={masterRecordRowId}
                   worksheetId={worksheetId}
                   recordId={recordId}
@@ -318,7 +322,7 @@ export default function RecordForm(props) {
                   onFormDataReady={dataFormat => {
                     setNavVisible();
                     if (!recordId) {
-                      onChange(dataFormat.getDataSource(), { noSaveTemp: true });
+                      onChange(dataFormat.getDataSource(), [], { noSaveTemp: true });
                     }
                   }}
                 />
@@ -342,20 +346,24 @@ export default function RecordForm(props) {
                   relateRecordData={relateRecordData}
                   sheetSwitchPermit={sheetSwitchPermit}
                   addRefreshEvents={addRefreshEvents}
-                  setRelateNumOfControl={(value, controlId) => {
-                    setRelateNumOfControl({ ...relateNumOfControl, ...value });
+                  setRelateNumOfControl={(value, controlId, updatedControl) => {
+                    const num = _.isFunction(value)
+                      ? value(relateNumOfControl[controlId] || updatedControl.value || 0)
+                      : value;
+                    const changes = { [controlId]: num };
+                    setRelateNumOfControl({ ...relateNumOfControl, ...changes });
                     updateRows(
                       [recordId],
                       {
-                        ...[{}, ...recordinfo.formData, value].reduce((a, b) =>
+                        ...[{}, ...recordinfo.formData, changes].reduce((a, b) =>
                           Object.assign({}, a, { [b.controlId]: b.value }),
                         ),
-                        ...value,
                         rowid: recordId,
+                        ...changes,
                       },
-                      value,
+                      changes,
                     );
-                    updateRelateRecordNum(controlId, value[controlId]);
+                    updateRelateRecordNum(controlId, num);
                   }}
                   onRelateRecordsChange={onRelateRecordsChange}
                   onActiveIdChange={controlId => {

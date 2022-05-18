@@ -8,6 +8,7 @@ import 'moment/locale/zh-cn';
 import { ControlTag } from '../../styled';
 import { SYSTEM_DATE_CONTROL } from '../../config/widget';
 import SelectControl from './SelectControl';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 const DateInfoWrap = styled.div`
   display: flex;
@@ -67,6 +68,10 @@ export default function DynamicSelectDateControl({ value, onChange, allControls 
 
   const isSelectPlainTime = !value || /(\/|:)/.test(value);
 
+  const originControl = find(filteredControls, item => item.controlId === value);
+  const controlName = get(originControl, 'controlName');
+  const invalidError = originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
+
   return (
     <Fragment>
       <DateInfoWrap>
@@ -89,15 +94,13 @@ export default function DynamicSelectDateControl({ value, onChange, allControls 
                   }}
                   onClear={() => {
                     onChange('');
-                  }}>
+                  }}
+                >
                   <div className="selectedDate">{value && moment(value).format('YYYY-MM-DD HH:mm')}</div>
                 </DatePicker>
               ) : (
-                <ControlTag>
-                  {get(
-                    find(filteredControls, item => item.controlId === value),
-                    'controlName',
-                  )}
+                <ControlTag className={cx({ invalid: !controlName || invalidError })}>
+                  {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('已删除')}
                 </ControlTag>
               )}
             </Fragment>
@@ -117,7 +120,7 @@ export default function DynamicSelectDateControl({ value, onChange, allControls 
         <SelectControl
           searchable={false}
           className={'isolate'}
-          list={filteredControls}
+          list={filterOnlyShowField(filteredControls)}
           onClickAway={() => setVisible({ dateControlVisible: false })}
           onClick={item => {
             onChange(`$${item.controlId}$`);

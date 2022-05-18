@@ -220,7 +220,6 @@ export default function InfoSet(props) {
   let { controlTemplate = {} } = portalSet;
   const { groupId, name, projectId, worksheetId } = portal.baseInfo || {};
   const [show, setShow] = useState(false);
-  const [baseInfo, setBaseInfo] = useState({});
   const [controls, setControls] = useState([]);
   const [controlsFilter, setControlsFilter] = useState([]);
   const [currentControl, setCurrenControl] = useState({});
@@ -237,14 +236,6 @@ export default function InfoSet(props) {
     );
     setControlsFilter(controls.length > 0 ? controls.filter(o => filterAlias.includes(o.alias)) : []);
     setAllControl(controls || []);
-    const { sourceId, worksheetId, version } = controlTemplate;
-    setBaseInfo({
-      ...portal.baseInfo,
-      sourceId,
-      worksheetId,
-      projectId,
-      version,
-    });
   }, []);
   useEffect(() => {
     if (controls.length <= 0) {

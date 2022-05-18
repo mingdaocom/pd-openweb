@@ -14,6 +14,7 @@ import Print from './containers/Print';
 import Alias from './containers/Alias';
 import FunctionalSwitch from './containers/FunctionalSwitch';
 import CustomBtnFormSet from './containers/CustomBtnFormSet';
+import FormIndexSetting from './containers/FormIndexSetting'
 import './index.less';
 import ErrorState from 'src/components/errorPage/errorState';
 import { MODULE_TYPE_TO_NAME } from './config';
@@ -70,6 +71,8 @@ class FormSet extends React.Component {
           return <FunctionalSwitch />;
         case 'customBtn':
           return <CustomBtnFormSet />;
+        case 'indexSetting':
+          return <FormIndexSetting/>
         default:
           return <Alias />;
           break;

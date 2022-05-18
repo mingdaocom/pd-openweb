@@ -142,6 +142,7 @@
             vertical-align: middle;
             font-size: 24px;
             color: #333;
+            white-space: pre-wrap;
           }
         }
         .recordInfoFormContent {
@@ -162,9 +163,9 @@
       }
 
       .recordInfoInfo {
-        min-width: 345px;
+        min-width: 425px;
         &:not(.flex) {
-          width: 420px;
+          width: 500px;
         }
         .discussLogFile {
           width: 100%;
@@ -182,8 +183,13 @@
               margin: 0 14px;
               font-size: 14px !important;
               font-weight: 500;
+              max-width: calc(~'20% - 28px');
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
               &.tab0 {
                 margin-right: 37px;
+                max-width: calc(~'20% - 37px');
                 &:after {
                   content: ' ';
                   position: absolute;
@@ -226,12 +232,11 @@
 .relateRecordBlock {
   .searchIcon {
     position: relative;
-    top: 4px;
     right: 10px;
     z-index: 2;
     .icon-search {
       position: relative;
-      margin: 5px 0;
+      margin: 5px 0 0;
     }
     .searchInput {
       font-size: 0px;

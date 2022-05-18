@@ -25,3 +25,4 @@ export { default as SheetDesc } from './SheetDesc';
 export { default as SelectIcon } from './SelectIcon';
 export { default as CreateCustomBtn } from './CreateCustomBtn';
 export { default as DragMask } from './DragMask';
+export { default as CreateIndex } from './CreateIndex';

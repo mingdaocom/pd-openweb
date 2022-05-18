@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Icon, LoadDiv, Support, WaterMark } from 'ming-ui';
 import * as actionsPortal from 'src/pages/Roles/Portal/redux/actions.js';
 import cx from 'classnames';
 import HomeAjax from 'src/api/homeApp';
@@ -232,121 +232,123 @@ class AppRole extends PureComponent {
       return <LoadDiv />;
     }
     return (
-      <div className={styles.roleWrapper}>
-        <DocumentTitle title={`${appDetail.name || ''} - ${_l('用户')}`} />
-        <div className={cx(styles.topBar, { mBottom0: editType === 1 })}>
-          <div className={styles.topBarContent}>
-            <span className="Font18 Bold mRight24 LineHeight50">{_l('用户')}</span>
-          </div>
-          {isAdmin && isOpenPortal && (
-            <Wrap className="editTypeTab">
-              {[0, 1].map(o => {
-                return (
-                  <span
-                    className={cx('editTypeTabLi Hand', { current: editType === o })}
-                    onClick={() => {
-                      if (o === editType) {
-                        return;
-                      }
-                      if (o === 1) {
-                        navigateTo(`/app/${appId}/role/external`);
-                        //获取外部门户的角色信息
-                      } else {
-                        navigateTo(`/app/${appId}/role`);
-                      }
-                      this.setState({
-                        editType: o,
-                      });
-                    }}
-                  >
-                    {EDITTYLE_CONFIG[o]}
-                  </span>
-                );
-              })}
-            </Wrap>
-          )}
-          {isAdmin && !isOpenPortal && !portal && (
-            <Trigger
-              action={['click']}
-              popup={
-                <WrapPop className="openPortalWrap">
-                  <img src={openImg} className="Block" />
-                  <div className="con">
-                    <h6>{_l('将应用发布给组织外用户使用')}</h6>
-                    <ul>
-                      <li>{_l('用于提供会员服务，如：作为资料库、内容集、讨论组等。')}</li>
-                      <li>{_l('用于和你的业务客户建立关系，如：服务外部客户的下单，查单等场景。')}</li>
-                      <li>{_l('支持微信、手机验证码登录。')}</li>
-                    </ul>
-                    <div
-                      className={cx('btn InlineBlock', { disable: openLoading })}
+      <WaterMark projectId={projectId}>
+        <div className={styles.roleWrapper}>
+          <DocumentTitle title={`${appDetail.name || ''} - ${_l('用户')}`} />
+          <div className={cx(styles.topBar, { mBottom0: editType === 1 })}>
+            <div className={styles.topBarContent}>
+              <span className="Font18 Bold mRight24 LineHeight50">{_l('用户')}</span>
+            </div>
+            {isAdmin && isOpenPortal && (
+              <Wrap className="editTypeTab">
+                {[0, 1].map(o => {
+                  return (
+                    <span
+                      className={cx('editTypeTabLi Hand', { current: editType === o })}
                       onClick={() => {
-                        if (openLoading) {
+                        if (o === editType) {
                           return;
                         }
+                        if (o === 1) {
+                          navigateTo(`/app/${appId}/role/external`);
+                          //获取外部门户的角色信息
+                        } else {
+                          navigateTo(`/app/${appId}/role`);
+                        }
                         this.setState({
-                          openLoading: true,
-                        });
-                        editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
-                          if (res) {
-                            this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
-                              navigateTo(`/app/${appId}/role/external`);
-                            });
-                          } else {
-                            this.setState({
-                              openLoading: false,
-                            });
-                            alert(_l('开启失败'), 2);
-                          }
+                          editType: o,
                         });
                       }}
                     >
-                      {openLoading ? _l('开启中...') : _l('启用外部门户')}
+                      {EDITTYLE_CONFIG[o]}
+                    </span>
+                  );
+                })}
+              </Wrap>
+            )}
+            {isAdmin && !isOpenPortal && (
+              <Trigger
+                action={['click']}
+                popup={
+                  <WrapPop className="openPortalWrap">
+                    <img src={openImg} className="Block" />
+                    <div className="con">
+                      <h6>{_l('将应用发布给组织外用户使用')}</h6>
+                      <ul>
+                        <li>{_l('用于提供会员服务，如：作为资料库、内容集、讨论组等。')}</li>
+                        <li>{_l('用于和你的业务客户建立关系，如：服务外部客户的下单，查单等场景。')}</li>
+                        <li>{_l('支持微信、手机验证码登录。')}</li>
+                      </ul>
+                      <div
+                        className={cx('btn InlineBlock', { disable: openLoading })}
+                        onClick={() => {
+                          if (openLoading) {
+                            return;
+                          }
+                          this.setState({
+                            openLoading: true,
+                          });
+                          editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
+                            if (res) {
+                              this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
+                                navigateTo(`/app/${appId}/role/external`);
+                              });
+                            } else {
+                              this.setState({
+                                openLoading: false,
+                              });
+                              alert(_l('开启失败'), 2);
+                            }
+                          });
+                        }}
+                      >
+                        {openLoading ? _l('开启中...') : _l('启用外部门户')}
+                      </div>
+                      <Support
+                        href="https://help.mingdao.com/external.html"
+                        type={3}
+                        className="helpPortal"
+                        text={_l('了解更多')}
+                      />
                     </div>
-                    <Support
-                      href="https://help.mingdao.com/external.html"
-                      type={3}
-                      className="helpPortal"
-                      text={_l('了解更多')}
-                    />
-                  </div>
-                </WrapPop>
-              }
-              popupAlign={{
-                points: ['tr', 'tr'],
-                offset: [17, 0],
+                  </WrapPop>
+                }
+                popupAlign={{
+                  points: ['tr', 'tr'],
+                  offset: [17, 0],
+                }}
+              >
+                <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
+                  <Icon className="Font20 Hand mLeft10 mRight6 set " icon="language" />
+                  {openLoading ? _l('开启中...') : _l('启用外部门户')}
+                </WrapOpenPortalBtn>
+              </Trigger>
+            )}
+          </div>
+          {editType === 0 ? (
+            <RoleCon {...this.props} appDetail={this.state.appDetail} />
+          ) : (
+            <Portal
+              {...this.props}
+              appDetail={this.state.appDetail}
+              projectId={projectId}
+              portalName={appDetail.name}
+              appId={appId}
+              closePortal={() => {
+                editExPortalEnable({ appId, isEnable: false }).then(res => {
+                  if (res) {
+                    navigateTo(`/app/${appId}/role`);
+                    this.setState({ isOpenPortal: false, editType: 0 });
+                  } else {
+                    alert(_l('关闭失败！'), 2);
+                  }
+                });
               }}
-            >
-              <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
-                <Icon className="Font20 Hand mLeft10 mRight6 set " icon="language" />
-                {openLoading ? _l('开启中...') : _l('启用外部门户')}
-              </WrapOpenPortalBtn>
-            </Trigger>
+              showPortalRoleSetting={showPortalRoleSetting}
+            />
           )}
         </div>
-        {editType === 0 ? (
-          <RoleCon {...this.props} appDetail={this.state.appDetail} />
-        ) : (
-          <Portal
-            {...this.props}
-            appDetail={this.state.appDetail}
-            projectId={projectId}
-            portalName={appDetail.name}
-            appId={appId}
-            closePortal={() => {
-              editExPortalEnable({ appId, isEnable: false }).then(res => {
-                if (res) {
-                  navigateTo(`/app/${appId}/role`);
-                  this.setState({ isOpenPortal: false, editType: 0 });
-                } else {
-                  alert(_l('关闭失败！'), 2);
-                }
-              });
-            }}
-            showPortalRoleSetting={showPortalRoleSetting}
-          />
-        )}
-      </div>
+      </WaterMark>
     );
   }
 }

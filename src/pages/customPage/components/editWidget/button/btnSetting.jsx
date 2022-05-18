@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect, useCallback } from 'react';
-import { Input, Dropdown, Icon } from 'ming-ui';
-import { Checkbox, Input as AntdInput, Dropdown as AntdDropdown, Button, Divider, Radio, Space, ConfigProvider } from 'antd';
+import { Input, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Input as AntdInput, Dropdown as AntdDropdown, Divider, Radio, Space, ConfigProvider } from 'antd';
 import styled from 'styled-components';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
@@ -13,6 +13,7 @@ import { COLORS, ICONS } from './config';
 import './index.less';
 import BtnName from './BtnName';
 import LinkPara from '../LinkPara';
+import DefaultValue from './DefaultValue';
 import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
 import ClickConfirm from './ClickConfirm';
@@ -166,12 +167,6 @@ const BtnSettingWrap = styled.div`
       padding: 7px 11px;
       border-radius: 3px 0 0 3px !important;
     }
-    .ant-btn {
-      text-shadow: none;
-      box-shadow: none;
-      height: 36px;
-      border-radius: 0 3px 3px 0 !important;
-    }
   }
   .customPageBtnSelectIcon {
     width: 312px;
@@ -252,7 +247,7 @@ function BtnSetting(props) {
   const initConfigData = { action: '', viewId: '', openMode: 1, value: '' };
 
   const { worksheets, views, pages, controls } = dataSource;
-  const { name, action, viewId, searchId, filterId, openMode, icon, color, value, param, config } = btnSetting;
+  const { name, action, viewId, searchId, filterId, openMode, icon, color, btnId, value, param, config } = btnSetting;
 
   useEffect(() => {
     setParas(btnSetting.param || []);
@@ -281,40 +276,63 @@ function BtnSetting(props) {
   }, []);
 
   useEffect(() => {
-    if (!value || !_.includes([2, 5], action)) return;
-    sheetAjax
-      .getWorksheetInfo({
-        worksheetId: value,
-        getTemplate: true,
-        getViews: true,
-        appId,
-      })
-      .then(res => {
-        const { views = [], template } = res;
-        setDataSource({ views: views.map(({ viewId, name }) => ({ text: name, value: viewId })) });
-        if (action === 5) {
-          setDataSource({ controls: template.controls });
-        }
-      });
+    if (value && _.includes([1, 2, 5], action)) {
+      sheetAjax
+        .getWorksheetInfo({
+          worksheetId: value,
+          getTemplate: true,
+          getViews: true,
+          appId,
+        })
+        .then(res => {
+          const { views = [], template } = res;
+          setDataSource({
+            views: views.map(({ viewId, name }) => ({ text: name, value: viewId })),
+            controls: template.controls
+          });
+        });
+    }
   }, [value, action]);
 
   const renderConfig = () => {
     // 创建记录
     if (action === 1) {
       return (
-        <div className="settingItem">
-          <div className="settingTitle">{_l('工作表')}</div>
-          <SelectWorksheet
-            dialogClassName={'btnSettingSelectDialog'}
-            worksheetType={0}
-            projectId={projectId}
-            appId={appId}
-            value={value}
-            onChange={(__, itemId) => {
-              setBtnSetting({ ...btnSetting, value: itemId });
-            }}
-          />
-        </div>
+        <Fragment>
+          <div className="settingItem">
+            <div className="settingTitle">{_l('工作表')}</div>
+            <SelectWorksheet
+              dialogClassName={'btnSettingSelectDialog'}
+              worksheetType={0}
+              projectId={projectId}
+              appId={appId}
+              value={value}
+              onChange={(__, itemId) => {
+                setBtnSetting({
+                  ...btnSetting,
+                  value: itemId,
+                  config: {
+                    ...config,
+                    temporaryWriteControls: []
+                  }
+                });
+              }}
+            />
+          </div>
+          {value && !_.isEmpty(controls) && (
+            <DefaultValue
+              appId={appId}
+              btnId={btnId}
+              worksheetId={value}
+              projectId={projectId}
+              controls={controls}
+              config={config}
+              onChangeConfig={(config) => {
+                setBtnSetting({ ...btnSetting, config});
+              }}
+            />
+          )}
+        </Fragment>
       );
     }
     // 打开视图
@@ -603,6 +621,7 @@ function BtnSetting(props) {
                       config: {
                         ...config,
                         isFilter: false,
+                        filterConditions: []
                       }
                     });
                   }}
@@ -630,25 +649,9 @@ function BtnSetting(props) {
                       worksheetId={value}
                       filterId={filterId}
                       controls={controls}
-                      isFilter={isFilter}
-                      onSave={(filterId) => {
-                        setBtnSetting({
-                          ...btnSetting,
-                          config: {
-                            ...config,
-                            isFilter: true,
-                          },
-                          filterId
-                        });
-                      }}
-                      onChangeIsFilter={(value) => {
-                        setBtnSetting({
-                          ...btnSetting,
-                          config: {
-                            ...config,
-                            isFilter: value
-                          }
-                        });
+                      config={config}
+                      onChangeConfig={(config) => {
+                        setBtnSetting({ ...btnSetting, config});
                       }}
                     />
                   </div>
@@ -719,22 +722,29 @@ function BtnSetting(props) {
     if (value === 5) {
       data.config = {
         ...data.config,
-        ...ScanDefaultConfig
+        ...ScanDefaultConfig,
+        inputs: [],
       }
     }
     if (value === 6) {
       data.config = {
         ...data.config,
-        ...ProcessDefaultConfig
+        ...ProcessDefaultConfig,
+        inputs: [],
       }
     }
-    const { svgIcon } = _.find(CLICK_ACTION, { value });
-    const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon}.svg`;
-    data.config = {
-      ...data.config,
-      icon: svgIcon,
-      iconUrl
+
+    if (_.get(data, ['config', 'isNewBtn'])) {
+      const { svgIcon } = _.find(CLICK_ACTION, { value });
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon}.svg`;
+      delete data.config.isNewBtn;
+      data.config = {
+        ...data.config,
+        icon: svgIcon,
+        iconUrl
+      }
     }
+
     setBtnSetting(data);
   }
 

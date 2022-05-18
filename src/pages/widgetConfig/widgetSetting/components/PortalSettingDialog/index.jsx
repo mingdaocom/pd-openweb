@@ -14,7 +14,9 @@ import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import TelConfig from 'src/pages/widgetConfig/widgetSetting/components/ControlSetting/TelConfig';
 import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
 import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
-import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less'
+import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
+import Switch from '../../settings/switch';
+import DynamicDefaultValue from '../DynamicDefaultValue';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -68,8 +70,15 @@ export default class PortalSettingDialog extends Component {
           {HAS_RADIO_CONTROL.includes(type) && <SettingComponent className="mTop0" {...allProps} />}
           {/**选项、数值、地区设置 */}
           {HAS_OPTION_CONTROL.includes(type) && <SettingComponent className="mTop0" {...allProps} fromPortal={true} />}
-          {HAS_NUMBER_CONTROL.includes(type) && <SettingComponent {...allProps} />}
+          {HAS_NUMBER_CONTROL.includes(type) && <SettingComponent {...allProps} fromPortal={true} />}
           {HAS_AREA_CONTROL.includes(type) && <SettingComponent {...allProps} />}
+          {/** 检查项 */}
+          {type === 36 && (
+            <div className="checkWrap">
+              <Switch {...allProps} />
+              <DynamicDefaultValue {...allProps} allControls={[]} />
+            </div>
+          )}
           {/**验证 */}
           {HAS_VERITY_CONTROL.includes(type) && <WidgetVerify {...allProps} fromPortal={true} />}
           {/**电话设置 */}

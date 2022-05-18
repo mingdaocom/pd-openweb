@@ -19,7 +19,7 @@ const SideWrap = styled.div`
     right: 0;
     top: 0;
     bottom: 0;
-    width: 640px;
+    width: 720px;
     background-color: #f5f5f5;
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
     header {
@@ -35,7 +35,8 @@ const SideWrap = styled.div`
     display: flex;
     flex-direction: column;
     height: calc(100% - 56px);
-    padding: 20px 0;
+    overflow: auto;
+    padding: 0 24px;
   }
   header {
     padding: 0 24px;

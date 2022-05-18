@@ -6,12 +6,14 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/se
 import TelConfig from './TelConfig';
 import UserConfig from './UserConfig';
 import DateConfig from './DateConfig';
+import ScoreConfig from './ScoreConfig';
 
 const TYPE_TO_COMP = {
   3: TelConfig,
   15: DateConfig,
   16: DateConfig,
   26: UserConfig,
+  28: ScoreConfig,
 };
 
 const CASCADER_CONFIG = [
@@ -36,7 +38,7 @@ export default function WidgetConfig(props) {
   const { allowadd, showxy, showtype, checktype } = getAdvanceSetting(data);
 
   const getConfig = () => {
-    if (type === 11 || (type === 10 && checktype === '1')) {
+    if ((type === 11 && showtype !== '2') || (type === 10 && checktype === '1')) {
       return (
         <div className="labelWrap">
           <Checkbox

@@ -2,11 +2,12 @@ import React, { useState, useEffect, createRef } from 'react';
 import { Input } from 'antd';
 import { DynamicValueInputWrap } from '../styled';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
   const { staticValue = '', cid = '' } = dynamicValue[0] || {};
-  const maxValue = data.enumDefault === 1 ? 5 : 10;
+  const maxValue = getAdvanceSetting(data, 'max') || (data.enumDefault === 1 ? 5 : 10);
   const [isDynamic, setDynamic] = useState(!!cid);
   const $wrap = createRef(null);
 

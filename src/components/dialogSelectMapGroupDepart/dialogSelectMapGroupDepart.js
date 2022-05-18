@@ -1,5 +1,6 @@
 ﻿import './style.css';
 import { htmlEncodeReg } from 'src/util';
+import { checkSensitive } from 'src/api/fixedData.js';
 
 var departmentController = require('src/api/department');
 
@@ -225,26 +226,31 @@ module.exports = (function ($) {
       $dialogSelectMapGroupDepart.find('.btnCreateDept').on('click', function () {
         var department = $txtNewDeptName.val().trim();
         if (department) {
-          _this.createDepartment(department, function (result) {
-            if (result.resultStatus == 1) {
-              alert(_l('创建成功'));
-              // 部门输入框为空
-              $txtNewDeptName.val('');
-              // 隐藏部门创建区域
-              $dialogSelectMapGroupDepart.find('.showInput').click();
-              // 关键词置空
-              $dialogSelectMapGroupDepart.find('.txtSearch').val('');
-              options.postData.keywords = '';
-              options.defaultSelectName = department;
-              options.defaultSelectId = '';
-              options.postData.pageIndex = 1;
-              // 重新加载数据
-              _this.loadData();
-            } else if (result.resultStatus == 2) {
-              alert(_l('此部门已存在'), 3);
-            } else {
-              alert(_l('创建失败'), 2);
+          checkSensitive({ content: department }).then(res => {
+            if (res) {
+              return alert(_l('输入内容包含敏感词，请重新填写'), 3);
             }
+            _this.createDepartment(department, function (result) {
+              if (result.resultStatus == 1) {
+                alert(_l('创建成功'));
+                // 部门输入框为空
+                $txtNewDeptName.val('');
+                // 隐藏部门创建区域
+                $dialogSelectMapGroupDepart.find('.showInput').click();
+                // 关键词置空
+                $dialogSelectMapGroupDepart.find('.txtSearch').val('');
+                options.postData.keywords = '';
+                options.defaultSelectName = department;
+                options.defaultSelectId = '';
+                options.postData.pageIndex = 1;
+                // 重新加载数据
+                _this.loadData();
+              } else if (result.resultStatus == 2) {
+                alert(_l('此部门已存在'), 3);
+              } else {
+                alert(_l('创建失败'), 2);
+              }
+            });
           });
         } else {
           alert(_l('请输入部门名称'), 3);

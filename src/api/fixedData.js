@@ -34,4 +34,15 @@ module.exports = {
      
      return $.api('FixedData', 'LoadIndustry', args, options);
    },
+  /**
+  * 校验敏感词
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkSensitive: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('FixedData', 'CheckSensitive', args, options);
+   },
 };

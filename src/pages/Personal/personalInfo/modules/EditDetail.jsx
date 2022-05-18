@@ -4,13 +4,14 @@ import cx from 'classnames';
 import { DatePicker, RadioGroup } from 'ming-ui';
 import './index.less';
 import moment from 'moment';
-
+import { checkSensitive } from 'src/api/fixedData.js';
 export default class EditDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       baseInfo: this.props.baseInfo || {},
       isError: false,
+      errTxtInfo: [],
     };
   }
 
@@ -19,28 +20,64 @@ export default class EditDetail extends React.Component {
       baseInfo: {
         ...preState.baseInfo,
         [key]: value,
-      }
+      },
     }));
   }
 
-  saveBaseInfo() {
-    const { isError, baseInfo } = this.state
-    if(isError) {
-      return
+  saveBaseInfo = () => {
+    const { isError, baseInfo, errTxtInfo } = this.state;
+    if (isError || errTxtInfo.length > 0) {
+      return;
     }
-    account.editAccountBasicInfo(baseInfo).then((data) => {
-      if (data) {
-        alert(_l('编辑成功'), 1);
-        this.props.updateValue(baseInfo)
-        this.props.closeDialog()
+    Promise.all([
+      checkSensitive({ content: baseInfo.fullname }),
+      checkSensitive({ content: baseInfo.companyName }),
+      checkSensitive({ content: baseInfo.profession }),
+      checkSensitive({ content: baseInfo.address }),
+    ]).then(
+      results => {
+        if (!results.find(result => result)) {
+          account
+            .editAccountBasicInfo(baseInfo)
+            .then(data => {
+              if (data) {
+                alert(_l('编辑成功'), 1);
+                this.props.updateValue(baseInfo);
+                this.props.closeDialog();
+              } else {
+                alert(_l('编辑失败'), 2);
+              }
+            })
+            .fail();
+        } else {
+          alert(_l('输入内容包含敏感词，请重新填写'), 3);
+        }
+      },
+      () => {},
+    );
+  };
+
+  setTxterr = (e, domStr) => {
+    const { errTxtInfo } = this.state;
+    checkSensitive({ content: e.target.value }).then(res => {
+      if (res) {
+        this.setState({ errTxtInfo: errTxtInfo.concat(domStr) });
       } else {
-        alert(_l('编辑失败'), 2);
+        this.setState({ errTxtInfo: errTxtInfo.filter(o => o !== domStr) });
       }
-    }).fail();
-  }
+    });
+  };
+
+  renderErrTxt = () => {
+    return (
+      <div className="Red errorBox">
+        <span>{_l('输入内容包含敏感词，请重新填写')}</span>
+      </div>
+    );
+  };
 
   render() {
-    const { baseInfo, isError } = this.state;
+    const { baseInfo, isError, errTxtInfo = [] } = this.state;
     return (
       <div className="baseInfoEditContent Gray">
         {/**姓名 */}
@@ -52,21 +89,29 @@ export default class EditDetail extends React.Component {
           type="text"
           className={cx('formControl mTop6', { error: isError })}
           defaultValue={baseInfo.fullname}
-          onChange={(e) => {
-            this.updateValue('fullname', e.target.value)
+          onChange={e => {
+            this.updateValue('fullname', e.target.value);
           }}
-          onBlur={() => {
-            this.setState({ isError: !baseInfo.fullname })
+          onBlur={e => {
+            if (!!baseInfo.fullname) {
+              this.setTxterr(e, 'fullname');
+            } else {
+              this.setState({ isError: !baseInfo.fullname });
+            }
           }}
           onFocus={() => this.setState({ isError: false })}
         />
-        <div className='Red errorBox'><span className={cx({ Hidden: !isError })}>{_l('姓名不能为空')}</span></div>
+        <div className="Red errorBox">
+          <span className={cx({ Hidden: !isError && !errTxtInfo.includes('fullname') })}>
+            {errTxtInfo.includes('fullname') ? _l('输入内容包含敏感词，请重新填写') : _l('姓名不能为空')}
+          </span>
+        </div>
         {/**生日 */}
         <div className="Bold">{_l('生日')}</div>
         <DatePicker
           selectedValue={baseInfo.birthdate ? moment(baseInfo.birthdate) : moment('19900101')}
           min={moment('19500101')}
-          max={moment(`${new Date().getFullYear()-18}0101`)}
+          max={moment(`${new Date().getFullYear() - 18}0101`)}
           onClear={() => {
             this.updateValue('birthdate', '');
           }}
@@ -76,7 +121,10 @@ export default class EditDetail extends React.Component {
             }
           }}
         >
-          <input className="formControl mTop6 mBottom24" value={baseInfo.birthdate ? moment(baseInfo.birthdate).format('YYYY-MM-DD') : ''} />
+          <input
+            className="formControl mTop6 mBottom24"
+            value={baseInfo.birthdate ? moment(baseInfo.birthdate).format('YYYY-MM-DD') : ''}
+          />
         </DatePicker>
         {/**性别 */}
         <div className="Bold">{_l('性别')}</div>
@@ -102,37 +150,50 @@ export default class EditDetail extends React.Component {
         <div className="Bold">{_l('组织名称')}</div>
         <input
           type="text"
-          className="mTop6 mBottom24 formControl"
+          className="mTop6 formControl"
           value={baseInfo.companyName}
           onChange={e => {
             this.updateValue('companyName', e.target.value);
           }}
+          onBlur={e => {
+            this.setTxterr(e, 'companyName');
+          }}
         />
+        {errTxtInfo.includes('companyName') && this.renderErrTxt()}
         {/**职位 */}
-        <div className="Bold">{_l('职位')}</div>
+        <div className="Bold mTop24">{_l('职位')}</div>
         <input
           type="text"
-          className="mTop6 mBottom24 formControl"
+          className="mTop6 formControl"
           value={baseInfo.profession}
           onChange={e => {
             this.updateValue('profession', e.target.value);
           }}
+          onBlur={e => {
+            this.setTxterr(e, 'profession');
+          }}
         />
+        {errTxtInfo.includes('profession') && this.renderErrTxt()}
         {/**职位 */}
-        <div className="Bold">{_l('居住地址')}</div>
+        <div className="Bold mTop24">{_l('居住地址')}</div>
         <input
           type="text"
-          className="mTop6 mBottom24 formControl"
+          className="mTop6 formControl"
           value={baseInfo.address}
           onChange={e => {
             this.updateValue('address', e.target.value);
           }}
+          onBlur={e => {
+            this.setTxterr(e, 'address');
+          }}
         />
-        <div className="mTop20 flexEnd mBottom24">
+        {errTxtInfo.includes('address') && this.renderErrTxt()}
+        <div className="mTop20 mBottom24 flexEnd ">
           <button
             type="button"
             className="ming Button Button--link Gray_9e mRight30"
-            onClick={() => this.props.closeDialog()}>
+            onClick={() => this.props.closeDialog()}
+          >
             {_l('取消')}
           </button>
           <button type="button" className="ming Button Button--primary saveBtn" onClick={() => this.saveBaseInfo()}>

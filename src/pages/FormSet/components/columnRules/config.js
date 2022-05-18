@@ -10,7 +10,7 @@ import {
   API_ENUM_TO_TYPE,
   DATE_OPTIONS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 
 //初始规则数据
@@ -298,11 +298,14 @@ export const filterText = (key, filterData, control) => {
         })[0].text;
       }
     case CONTROL_FILTER_WHITELIST.BOOL.value:
-      if (filterType === FILTER_CONDITION_TYPE.EQ) {
-        return _l('选中');
-      } else if (filterType === FILTER_CONDITION_TYPE.NE) {
-        return _l('未选中');
-      }
+      const selectKey = filterType === FILTER_CONDITION_TYPE.EQ ? '1' : '0';
+      let itemnames = getSwitchItemNames(control, { isShow: true });
+      return (
+        _.get(
+          _.find(itemnames, i => i.key === selectKey),
+          'value',
+        ) || ''
+      );
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
       if (
         filterData.dataType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||

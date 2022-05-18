@@ -25,6 +25,11 @@ export default function ChangeLang() {
               value: 'en',
               display: 'EN',
             },
+            {
+              key: '日本語',
+              value: 'ja',
+              display: 'JA',
+            },
           ],
           callback: function (key, value) {
             setCookie('i18n_langtag', value);

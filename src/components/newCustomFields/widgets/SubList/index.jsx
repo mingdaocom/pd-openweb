@@ -94,7 +94,7 @@ export default class SubList extends React.Component {
   }
 
   render() {
-    const { from, registerCell, worksheetId, recordId, formData, disabled, appId } = this.props;
+    const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource } = this.props;
     const { controls, projectId, info } = this.state;
     const control = { ...this.props };
     const { loading } = this.state;
@@ -105,6 +105,7 @@ export default class SubList extends React.Component {
       >
         {!loading && (
           <ChildTable
+            initSource={initSource}
             entityName={info.entityName}
             rules={info.rules}
             registerCell={registerCell}

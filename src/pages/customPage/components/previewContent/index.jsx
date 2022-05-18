@@ -53,7 +53,7 @@ const PreviewContentWrapper = styled.div`
   }
 `;
 
-const hrefReg = /^https?:\/\/.+$/;
+export const hrefReg = /^https?:\/\/.+$/;
 
 const videoReg = /^https?:\/\/.*?\.(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)$/i;
 

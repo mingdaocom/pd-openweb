@@ -68,7 +68,7 @@ export default class ChartSetting extends Component {
     );
   }
   renderPivotTableAxis(x, y) {
-    const { currentReport, axisControls, changeCurrentReport } = this.props;
+    const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { lines = [], columns = [] } = currentReport.pivotTable || {};
     const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
@@ -77,6 +77,7 @@ export default class ChartSetting extends Component {
           name={x}
           type="lines"
           axisControls={axisControls}
+          allControls={worksheetInfo.columns}
           list={lines}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(lines, id) => {
@@ -95,6 +96,7 @@ export default class ChartSetting extends Component {
           name={y}
           type="columns"
           axisControls={axisControls}
+          allControls={worksheetInfo.columns}
           list={columns}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(columns, id) => {
@@ -114,6 +116,7 @@ export default class ChartSetting extends Component {
           verifyNumber={true}
           disableParticleSizeTypes={[]}
           axisControls={axisControls.concat(currentReport.formulas)}
+          allControls={worksheetInfo.columns}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
             changeCurrentReport({
@@ -130,8 +133,8 @@ export default class ChartSetting extends Component {
     );
   }
   renderChartAxis(x, y) {
-    const { currentReport, axisControls, changeCurrentReport } = this.props;
-    const { reportType, displaySetup, xaxes, split, rightY } = currentReport;
+    const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
+    const { reportType, displaySetup, xaxes, split, rightY, formulas = [] } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
@@ -143,6 +146,8 @@ export default class ChartSetting extends Component {
               disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
               currentReport={currentReport}
               onChangeCurrentReport={changeCurrentReport}
+              allControls={worksheetInfo.columns}
+              axisControls={axisControls}
               addXaxes={this.props.addXaxes}
               removeXaxes={this.props.removeXaxes}
             />
@@ -153,6 +158,8 @@ export default class ChartSetting extends Component {
           split={currentReport.split}
           yaxisList={currentReport.yaxisList}
           currentReport={currentReport}
+          axisControls={axisControls.concat(formulas)}
+          allControls={worksheetInfo.columns}
           onChangeCurrentReport={this.props.changeYaxisList}
           onRemoveAxis={this.props.removeYaxisList}
           onAddAxis={this.props.addYaxisList}
@@ -164,6 +171,8 @@ export default class ChartSetting extends Component {
               split={rightY.split}
               yaxisList={rightY.yaxisList}
               currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
               onChangeCurrentReport={this.props.changeRightYaxisList}
               onRemoveAxis={this.props.removeRightYaxisList}
               onAddAxis={this.props.addRightYaxisList}
@@ -178,6 +187,7 @@ export default class ChartSetting extends Component {
               yaxisList={currentReport.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
+              allControls={worksheetInfo.columns}
               onChangeCurrentReport={this.props.changeSplit}
             />
           )
@@ -190,6 +200,7 @@ export default class ChartSetting extends Component {
               yaxisList={currentReport.rightY.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
+              allControls={worksheetInfo.columns}
               onChangeCurrentReport={this.props.changeRightSplit}
             />
           )

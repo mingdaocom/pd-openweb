@@ -5,6 +5,7 @@ import {
   UPDATE_LAYOUT,
   UPDATE_PAGE_INFO,
   UPDATE_LOADING,
+  UPDATE_SAVE_LOADING,
   INSET_TITLE,
   UPDATE_MODIFIED,
   COPY_WIDGET,
@@ -34,6 +35,8 @@ export const updateEditPageVisible = genAction(UPDATE_EDIT_PAGE_VISIBLE);
 export const updateLayout = genAction(UPDATE_LAYOUT);
 
 export const updateLoading = genAction(UPDATE_LOADING);
+
+export const updateSaveLoading = genAction(UPDATE_SAVE_LOADING);
 
 export const insertTitle = genAction(INSET_TITLE);
 

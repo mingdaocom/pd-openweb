@@ -18,6 +18,8 @@ import * as actions from 'worksheet/redux/actions/galleryview';
 import { addRecord } from 'worksheet/common/newRecord';
 import { navigateTo } from 'src/router/navigateTo';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 
 @autoSize
 @connect(
@@ -93,6 +95,10 @@ export default class RecordGallery extends Component {
   };
 
   scrollLoad = (e, o) => {
+    const { maxCount } = this.props;
+    if (maxCount) {
+      return;
+    }
     const { galleryViewRecordCount, gallery, galleryLoading, galleryIndex } = this.props.galleryview;
     if (o.maximum - o.position <= 30 && gallery.length < galleryViewRecordCount && !galleryLoading) {
       const nextPageIndex = galleryIndex + 1;
@@ -154,7 +160,7 @@ export default class RecordGallery extends Component {
 
   render() {
     const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls, quickFilter } = this.props;
-    const { viewId, appId, worksheetId } = base;
+    const { viewId, appId, worksheetId, groupId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex } = galleryview;
     const { coverCid } = currentView;
@@ -211,8 +217,34 @@ export default class RecordGallery extends Component {
         >
           {gallery.map((item, index) => {
             const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
+            let coverData = { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] };
+            if (coverData.type === 45) {
+              //嵌入字段 dataSource需要转换
+              let dataSource = transferValue(coverData.value);
+              let urlList = [];
+              dataSource.map(o => {
+                if (!!o.staticValue) {
+                  urlList.push(o.staticValue);
+                } else {
+                  urlList.push(
+                    getEmbedValue(
+                      {
+                        projectId: worksheetInfo.projectId,
+                        appId,
+                        groupId,
+                        worksheetId,
+                        viewId,
+                        recordId,
+                      },
+                      o.cid,
+                    ),
+                  );
+                }
+              });
+              coverData = { ...coverData, value: urlList.join('') };
+            }
             let data = {
-              coverData: { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
+              coverData,
               coverImage,
               allAttachments,
               allowEdit: item.allowedit,

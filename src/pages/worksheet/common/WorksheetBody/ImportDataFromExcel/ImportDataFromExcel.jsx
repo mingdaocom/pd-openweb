@@ -7,17 +7,18 @@ import ErrorDialog from './ErrorDialog';
 import { antNotification } from 'ming-ui';
 
 export const wsexcelSocketInit = () => {
-  IM.socket.on('wsexcel', ({ worksheetName, accountIds, successCount, errorCount, id }) => {
+  IM.socket.on('wsexcel', ({ worksheetName, accountIds, successCount, errorCount, id, wsServiceErrorCount }) => {
     if (_.includes(accountIds, md.global.Account.accountId)) {
       const sCount = successCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
       const eCount = errorCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
 
       antNotification.close(id);
       antNotification.success({
-        duration: null,
         message: _l('导入完成'),
         description:
-          errorCount > 0
+          wsServiceErrorCount > 0
+            ? _l('导入完成，有部分数据未被导入,请删除重复值后重试')
+            : errorCount > 0
             ? _l('“%0”导入 %1 行数据，%2 行错误', worksheetName, sCount, eCount)
             : _l('“%0”导入 %1 行数据', worksheetName, sCount),
         btnText: errorCount > 0 ? _l('查看错误报告') : '',
@@ -89,7 +90,6 @@ export default class ImportDataFromExcel extends Component {
             antNotification.info({
               key,
               loading: true,
-              duration: null,
               message: _l('正在导入数据“%0”', worksheetName),
               description: _l('这可能需要一段时间。现在您可以进行其他操作，全部导入完成后将会通知您'),
             });

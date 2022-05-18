@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Score, Icon } from 'ming-ui';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import { isLightColor } from 'src/util';
@@ -79,7 +79,17 @@ export default class BoardTitle extends Component {
   static defaultProps = {};
 
   renderBoardTitle = () => {
-    const { type, name, showRecordInfo, color, keyType, enumDefault, enumDefault2, noGroup, rowId } = this.props;
+    const {
+      type,
+      name,
+      selectControl: { advancedSetting = {} } = {},
+      color,
+      keyType,
+      enumDefault,
+      enumDefault2,
+      noGroup,
+      rowId,
+    } = this.props;
 
     if (noGroup) return <div className="noGroupTitle">{_l('未指定')}</div>;
     if (_.includes(CAN_AS_BOARD_OPTION, type)) {
@@ -90,7 +100,8 @@ export default class BoardTitle extends Component {
             haveColor: isColorful,
             isLightColor: isLightColor(color),
           })}
-          style={{ backgroundColor: isColorful ? color : 'transparent' }}>
+          style={{ backgroundColor: isColorful ? color : 'transparent' }}
+        >
           {name}
         </div>
       );
@@ -105,17 +116,13 @@ export default class BoardTitle extends Component {
       );
     }
     if (_.includes([28], type)) {
-      const gradeCount = Number(keyType);
-      if (enumDefault === 2) return <div className="gradeType">{name}</div>;
-      return (
-        <Score
-          disabled
-          foregroundColor="#fed156"
-          defaultStyle={{ color: '#fed156' }}
-          type={'star'}
-          score={gradeCount}
-        />
-      );
+      const itemnames = JSON.parse(advancedSetting.itemnames || '[]');
+      const currentName =
+        _.get(
+          _.find(itemnames, i => i.key === keyType),
+          'value',
+        ) || name;
+      return <div className="gradeType">{currentName}</div>;
     }
     return (
       <div className="relationSheetType boardTitle">

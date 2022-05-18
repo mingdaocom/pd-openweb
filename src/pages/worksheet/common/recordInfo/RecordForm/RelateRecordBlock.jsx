@@ -122,15 +122,7 @@ export default function RelateRecordBlock(props) {
         controls={activeControl.relationControls}
         addRefreshEvents={addRefreshEvents}
         setRelateNumOfControl={num => {
-          setRelateNumOfControl(
-            {
-              ...relateNumOfControl,
-              [activeControl.controlId]: _.isFunction(num)
-                ? num(relateNumOfControl[activeControl.controlId] || activeControl.value)
-                : num,
-            },
-            activeControl.controlId,
-          );
+          setRelateNumOfControl(num, activeControl.controlId, activeControl);
         }}
         setLoading={setLoading}
         onRelateRecordsChange={records => {

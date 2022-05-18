@@ -7,10 +7,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
+import { getAppFeaturesVisible } from 'src/util';
 
-@connect(undefined, dispatch => ({
-  updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
-}))
+@connect(
+  undefined,
+  dispatch => ({
+    updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
+  }),
+)
 export default class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
@@ -61,6 +65,11 @@ export default class AppPkgHeader extends Component {
 
   render() {
     const { ...props } = this.props;
+    // 获取url参数
+    const { s, tb, tr } = getAppFeaturesVisible();
+
+    if (!s && !tb && !tr) return null;
+
     return <AppDetail {...props} />;
   }
 }

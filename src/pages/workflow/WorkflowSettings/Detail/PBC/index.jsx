@@ -9,7 +9,7 @@ import {
   SelectNodeObject,
   SelectOtherPBCDialog,
 } from '../components';
-import { CONTROLS_NAME, TRIGGER_ID_TYPE } from '../../enum';
+import { CONTROLS_NAME, ACTION_ID } from '../../enum';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 
@@ -75,7 +75,7 @@ export default class PBC extends Component {
     const { processId, selectNodeId, selectNodeType } = props;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      if (result.actionId === TRIGGER_ID_TYPE.PBC_OUT && !result.fields.length) {
+      if (result.actionId === ACTION_ID.PBC_OUT && !result.fields.length) {
         result.fields = [{ fieldName: '', desc: '', type: 2, fieldId: uuidv4() }];
       }
 
@@ -100,8 +100,8 @@ export default class PBC extends Component {
    */
   onSave = () => {
     const { data, saveRequest, errorItems } = this.state;
-    const { appId, name, fields, executeType, number, selectNodeId, nextExecute } = data;
-    const isPBCOut = data.actionId === TRIGGER_ID_TYPE.PBC_OUT;
+    const { appId, name, fields, executeType, number, selectNodeId, nextExecute, subProcessVariables } = data;
+    const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
 
     if (!appId && !isPBCOut) {
       alert(_l('请选择业务流程'), 2);
@@ -129,7 +129,11 @@ export default class PBC extends Component {
     // 验证必填项
     let hasError = 0;
     fields.forEach(item => {
-      if (item.require && !item.fieldValue && !item.fieldValueId) {
+      if (
+        ((subProcessVariables || []).find(o => o.controlId === item.controlId) || {}).require &&
+        !item.fieldValue &&
+        !item.fieldValueId
+      ) {
         hasError++;
       }
     });
@@ -229,6 +233,12 @@ export default class PBC extends Component {
 
                     _.remove(fields, (o, i) => i === index);
                     _.remove(errorItems, (o, i) => i === index);
+
+                    fields.forEach((element, i) => {
+                      if (!_.find(fields, (o, j) => o.fieldName === element.fieldName && i !== j)) {
+                        errorItems[i] = '';
+                      }
+                    });
 
                     this.setState({ errorItems });
                     this.updateSource({ fields });
@@ -504,7 +514,7 @@ export default class PBC extends Component {
 
   render() {
     const { data, showOtherPBC } = this.state;
-    const isPBCOut = data.actionId === TRIGGER_ID_TYPE.PBC_OUT;
+    const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;

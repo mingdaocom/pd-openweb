@@ -15,6 +15,7 @@ import { formatControlsToDropdown, getAdvanceSetting } from '../../../util';
 import { SettingItem } from '../../../styled';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import { useSetState } from 'react-use';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
@@ -162,7 +163,7 @@ export default function SearchConfig(props) {
                     popupStyle={{ width: 280 }}
                     popup={
                       <SelectControl
-                        list={controls.filter(({ type, sourceControlType, controlId }) => {
+                        list={filterOnlyShowField(controls).filter(({ type, sourceControlType, controlId }) => {
                           const ids = searchfilters.map(({ controlId }) => controlId);
                           return (
                             _.includes(FASTFILTER_CONDITION_TYPE, type === 30 ? sourceControlType : type) &&

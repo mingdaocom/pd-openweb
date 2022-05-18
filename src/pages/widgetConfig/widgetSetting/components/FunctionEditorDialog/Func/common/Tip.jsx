@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { shape } from 'prop-types';
+import { string } from 'prop-types';
 import styled from 'styled-components';
 import { functionDetails } from '../enum';
 
@@ -69,6 +69,7 @@ function beautify(content) {
 }
 
 export default function Tip(props) {
+  const { type } = props;
   const [hoverFn, setHoverFn] = useState();
   const [activeFn, setActiveFn] = useState();
   const visibleFn = hoverFn || activeFn;
@@ -94,33 +95,46 @@ export default function Tip(props) {
   }, []);
   return (
     <Con>
-      {!visibleFn && (
+      {type === 'javascript' ? (
         <ul>
-          <li>{_l('从左侧面板选择字段名和函数，或输入函数')}</li>
-          <li>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: beautify(_l('公式编辑示例：NETWORKDAYS($开始时间$, $结束$)')),
-              }}
-            />
-          </li>
+          <li>{_l('请在函数头部定义变量接受字段动态值')}</li>
+          <li>{_l('自定义函数指采用 JavaScript 代码来实现函数，函数体需要返回一个值')}</li>
+          <li>{_l('自定义函数采用异步更新，函数独立线程运行不会阻塞 UI')}</li>
+          <li>{_l('函数 1 秒内没有返回结果将被主动终止')}</li>
         </ul>
-      )}
-      {visibleFn && fn && (
-        <div>
-          <div className="fn">{visibleFn}</div>
-          <div className="grey">{fn.title}</div>
-          <ul>
-            <Des
-              dangerouslySetInnerHTML={{
-                __html: beautify(fn.des || ''),
-              }}
-            />
-          </ul>
-        </div>
+      ) : (
+        <React.Fragment>
+          {!visibleFn && (
+            <ul>
+              <li>{_l('从左侧面板选择字段名和函数，或输入函数')}</li>
+              <li>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: beautify(_l('公式编辑示例：NETWORKDAYS($开始时间$, $结束$)')),
+                  }}
+                />
+              </li>
+            </ul>
+          )}
+          {visibleFn && fn && (
+            <div>
+              <div className="fn">{visibleFn}</div>
+              <div className="grey">{fn.title}</div>
+              <ul>
+                <Des
+                  dangerouslySetInnerHTML={{
+                    __html: beautify(fn.des || ''),
+                  }}
+                />
+              </ul>
+            </div>
+          )}
+        </React.Fragment>
       )}
     </Con>
   );
 }
 
-Tip.propTypes = {};
+Tip.propTypes = {
+  type: string,
+};

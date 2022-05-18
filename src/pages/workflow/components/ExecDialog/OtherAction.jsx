@@ -4,6 +4,7 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import { Dialog, Textarea, Dropdown, Signature } from 'ming-ui';
 import { ACTION_TO_TEXT } from './config';
 import codeAuth from 'src/api/codeAuth';
+import cx from 'classnames';
 
 export default class Approve extends Component {
   static propTypes = {
@@ -32,14 +33,26 @@ export default class Approve extends Component {
     onOk: () => {},
     onCancel: () => {},
   };
-  state = {
-    content: '',
-    backNodeId: '',
-    showCode: false,
-    link: '',
-    code: '',
-    resultCode: '',
-  };
+
+  constructor(props) {
+    super(props);
+
+    const { isCallBack } = (props.data || {}).flowNode || {};
+    let backNodeId = '';
+
+    if (props.action === 'overrule' && isCallBack) {
+      backNodeId = _.get(props.data, 'backFlowNodes[0].id') || '';
+    }
+
+    this.state = {
+      content: '',
+      backNodeId,
+      showCode: false,
+      link: '',
+      code: '',
+      resultCode: '',
+    };
+  }
 
   isComplete = true;
 
@@ -112,11 +125,11 @@ export default class Approve extends Component {
     );
   }
 
-  onOk = () => {
+  onOk = (backNodeId = '') => {
     const { action, workId, onOk, onCancel, selectedUser, selectedUsers } = this.props;
     const { auth } = (this.props.data || {}).flowNode || {};
     const id = selectedUsers.length ? selectedUsers.map(item => item.accountId).join(',') : selectedUser.accountId;
-    const { content, backNodeId } = this.state;
+    const { content } = this.state;
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
@@ -208,15 +221,13 @@ export default class Approve extends Component {
     const { action, onCancel } = this.props;
     const { isCallBack, auth } = (this.props.data || {}).flowNode || {};
     const { content, backNodeId, showCode, link, resultCode } = this.state;
-    const backFlowNodes = [{ text: _l('不退回'), value: '' }].concat(
-      ((this.props.data || {}).backFlowNodes || []).map(item => {
-        return {
-          text: item.name,
-          value: item.id,
-        };
-      }),
-    );
-
+    const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
+      return {
+        text: item.name,
+        value: item.id,
+      };
+    });
+    const isOverruleBack = action === 'overrule' && isCallBack && !!backFlowNodes.length;
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
     const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
@@ -299,13 +310,20 @@ export default class Approve extends Component {
 
     return (
       <Dialog
-        className={`approveDialog ${action === 'overrule' ? 'approveDialogBtn' : ''}`}
+        className={cx(
+          'approveDialog',
+          { approveDialogBtn: action === 'overrule' && !isOverruleBack },
+          { overruleBackBtn: isOverruleBack },
+        )}
         visible
+        overlayClosable={false}
         width={560}
         title={this.renderHeader()}
-        onOk={this.onOk}
-        onCancel={onCancel}
-        okText={(ACTION_TO_TEXT[action] || {}).okText}
+        handleClose={onCancel}
+        onOk={() => this.onOk(backNodeId)}
+        onCancel={isOverruleBack ? () => this.onOk() : onCancel}
+        cancelText={isOverruleBack ? _l('直接否决') : _l('取消')}
+        okText={isOverruleBack ? _l('否决并退回') : (ACTION_TO_TEXT[action] || {}).okText}
       >
         <div className="Gray_75 relative">
           {(passContent || overruleContent) && (
@@ -323,9 +341,9 @@ export default class Approve extends Component {
           placeholder={(ACTION_TO_TEXT[action] || {}).placeholder}
         />
 
-        {isCallBack && action === 'overrule' && (
+        {isCallBack && action === 'overrule' && !!backFlowNodes.length && (
           <Fragment>
-            <div className="Gray_75 mTop20">{_l('退回并重新进行审批')}</div>
+            <div className="Gray_75 mTop20">{_l('退回到')}</div>
             <Dropdown
               className="mTop10 approveDialogCallBack"
               data={backFlowNodes}

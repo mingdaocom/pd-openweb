@@ -1,20 +1,24 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
 import Card from 'src/pages/worksheet/common/Statistics/Card';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { getEnumType, parseLink } from '../../util';
 import ButtonList from './ButtonList';
-// import PreviewContent from '../previewContent';
 import PreviewWraper from '../previewContent';
+import { View } from '../editWidget/view/Preview';
 import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
-  padding: ${props => (props.componentType === 'embedUrl' ? 0 : '8px 15px 16px')};
+  padding: 8px 15px 16px;
   background-color: #fff;
   height: 100%;
   &.button {
     display: flex;
+  }
+  &.embedUrl, &.view {
+    padding: 0 !important;
   }
   img {
     max-width: 100%;
@@ -27,25 +31,20 @@ const WidgetContent = styled.div`
 const WidgetDisplay = forwardRef((props, $cardRef) => {
   const {
     layoutType,
-    type,
-    value,
-    button,
-    needUpdate,
     isFullscreen,
-    scrollTop,
     editable,
     ids,
     projectId,
-    name,
-    param = [],
-    config = {},
+    widget,
+    editingWidget,
     ...rest
   } = props;
-  const { newTab = false, reload = false } = config;
+  const { type, param = [], value, needUpdate, button, name, config = {} } = widget;
   const componentType = getEnumType(type);
   const ref = useRef(null);
   const renderContent = () => {
     if (componentType === 'embedUrl') {
+      const { newTab = false, reload = false } = config;
       return (
         <PreviewWraper
           reload={reload}
@@ -74,9 +73,21 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+    if (componentType === 'view') {
+      return (
+        editingWidget.viewId !== widget.viewId && (
+          <View
+            layoutType={layoutType}
+            className={cx({ disableSingleView: editable })}
+            appId={ids.appId}
+            setting={widget}
+          />
+        )
+      );
+    }
   };
   return (
-    <WidgetContent className={componentType} ref={ref} componentType={componentType}>
+    <WidgetContent className={componentType} ref={ref}>
       {renderContent()}
     </WidgetContent>
   );

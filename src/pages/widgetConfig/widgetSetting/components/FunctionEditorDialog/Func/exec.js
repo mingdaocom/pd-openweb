@@ -4,13 +4,14 @@ import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
 
-export default function (control, formData) {
+export default function (control, formData, { update, type } = {}) {
   const run = functions;
   let expressionData = {};
   try {
     expressionData = JSON.parse(control.advancedSetting.defaultfunc);
   } catch (err) {}
   let expression = _.get(expressionData, 'expression');
+  let fnType = _.get(expressionData, 'type');
   if (!expression) {
     throw new Error('expression is undefined');
   }
@@ -53,7 +54,28 @@ export default function (control, formData) {
   }
   return (function () {
     try {
-      let result = eval(expression);
+      let result;
+      if (type === 'lib') {
+        result = eval(fnType === 'javascript' ? 'function run() { ' + expression + ' } run()' : expression);
+      } else {
+        if (fnType === 'javascript') {
+          // 打包函数库时花括号内这段代码注释掉
+          const { asyncRun } = require('worksheet/util');
+          result = asyncRun(
+            expression,
+            (err, value) => {
+              if (!err) {
+                update(_.isUndefined(value) || _.isNaN(value) || _.isNull(value) ? '' : String(value));
+              } else {
+                console.log(err);
+              }
+            },
+            { timeout: 1000 },
+          );
+        } else {
+          result = eval(expression);
+        }
+      }
       switch (control.type) {
         case WIDGETS_TO_API_TYPE_ENUM.TEXT:
           result = _.isUndefined(result) ? '' : result;

@@ -2,6 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import { renderCellText } from 'worksheet/components/CellControls';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { SYSTOPRINT } from './config';
 import { RichText } from 'ming-ui';
 import _ from 'lodash';
@@ -29,6 +31,14 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
   };
   switch (type) {
     case 36:
+      const { showtype } = getAdvanceSetting(item);
+      if (_.includes(['1', '2'], showtype)) {
+        const itemnames = getSwitchItemNames(item, { needDefault: true });
+        return _.get(
+          _.find(itemnames, i => i.key === value),
+          'value',
+        );
+      }
       return value === '1' ? '✓' : '□';
     case 6:
     case 8:
@@ -49,20 +59,12 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     case 14:
       return value ? renderRecordAttachments(value, item.isRelateMultipleSheet) : '';
     case 28:
-      return value ? (
-        item.enumDefault === 1 ? (
-          // value + '星'
-          <span>
-            {_.map(new Array(5), (d, i) => {
-              return i + 1 - value > 0 ? '☆ ' : '★ ';
-            })}
-          </span>
-        ) : (
-          value + '/10'
-        )
-      ) : (
-        ''
-      );
+      return value
+        ? _.get(
+            _.find(getAdvanceSetting(item, 'itemnames') || [], i => i.key === `${value}`),
+            'value',
+          ) || _l('%0 级', value)
+        : '';
     case 29:
       if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
         //非列表

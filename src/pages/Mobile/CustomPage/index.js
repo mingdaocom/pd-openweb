@@ -53,6 +53,7 @@ export default class CustomPage extends Component {
     super(props);
     this.state = {
       loading: false,
+      apk: {},
       pageComponents: [],
       pagName: '',
     };
@@ -106,6 +107,7 @@ export default class CustomPage extends Component {
             });
           }
           this.setState({
+            apk: result.apk,
             pageComponents: result.components.filter(item => item.mobile.visible),
             loading: false,
             pagName: result.name,
@@ -134,7 +136,7 @@ export default class CustomPage extends Component {
     );
   }
   renderContent() {
-    const { pageComponents } = this.state;
+    const { apk, pageComponents } = this.state;
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
     return (
@@ -157,7 +159,8 @@ export default class CustomPage extends Component {
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
               <div className={cx('widgetContent', { haveTitle: titleVisible })}>
                 <WidgetDisplay
-                  {..._.pick(widget, ['type', 'value', 'needUpdate', 'button', 'name', 'param', 'config'])}
+                  widget={widget}
+                  apk={apk}
                   ids={{
                     appId: params.appId,
                     groupId: params.groupId,

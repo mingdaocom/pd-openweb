@@ -1,19 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-  emptyJobUserSet,
-  loadJobUsers,
-  loadJobList,
-  updateSelectJobUser,
-  updateAllSelectJobUser,
-} from '../../actions/jobs';
+import { loadJobUsers, loadJobList, updateSelectJobUser, updateAllSelectJobUser } from '../../actions/jobs';
 import userBoard from '../../modules/dialogUserBoard';
 import { Icon, LoadDiv, Checkbox } from 'ming-ui';
-import DropDownCheck from './dropDownCheck';
 import classNames from 'classnames';
 import 'dialogSelectUser';
 import { Pagination } from 'antd';
 import * as jobController from 'src/api/job';
+import { bindActionCreators } from 'redux';
 
 class JopList extends React.Component {
   constructor(props) {
@@ -22,21 +16,21 @@ class JopList extends React.Component {
   }
 
   componentDidMount() {
-    const { jobId, projectId, dispatch } = this.props;
+    const { jobId, projectId, loadJobUsers } = this.props;
     if (!!jobId) {
-      dispatch(loadJobUsers(projectId, jobId, 1));
+      loadJobUsers(projectId, jobId, 1);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { jobId, projectId, dispatch } = nextProps;
+    const { jobId, projectId, loadJobUsers } = nextProps;
     if (this.props.jobId !== jobId) {
-      dispatch(loadJobUsers(projectId, jobId, 1));
+      loadJobUsers(projectId, jobId, 1);
     }
   }
 
   addUser = () => {
-    const { projectId, jobId, dispatch } = this.props;
+    const { projectId, jobId, loadJobUsers } = this.props;
     const SelectUserSettingsForAdd = {
       unique: false,
       projectId: projectId,
@@ -55,7 +49,7 @@ class JopList extends React.Component {
           })
           .then(data => {
             if (data) {
-              dispatch(loadJobUsers(projectId, jobId, 1));
+              loadJobUsers(projectId, jobId, 1);
               alert(_l('添加成功'));
             } else alert(_l('添加失败'), 2);
           });
@@ -70,19 +64,19 @@ class JopList extends React.Component {
   };
 
   handleExportUser = () => {
-    const { userIds = [], projectId, dispatch, isSelectAll } = this.props;
+    const { userIds = [], projectId, isSelectAll, updateSelectJobUser } = this.props;
     userBoard({
       type: 'export',
       projectId,
       accountIds: isSelectAll ? [] : userIds.map(it => it.accountId),
       noFn() {
-        dispatch(emptyJobUserSet()); //清空所选
+        updateSelectJobUser([]); //清空所选
       },
     });
   };
 
   renderUserTableWithNum = () => {
-    const { userIds = [], isSelectAll, projectId, jobId, dispatch } = this.props;
+    const { userIds = [], isSelectAll, projectId, jobId, loadJobUsers } = this.props;
     return (
       <React.Fragment>
         <span className="Font16 Gray">{!isSelectAll ? _l('已选择 %0 条', userIds.length) : _l('已选择所有')}</span>
@@ -96,8 +90,8 @@ class JopList extends React.Component {
               };
               jobController.deleteJobUsers(reqData).then(function (data) {
                 if (data) {
-                  dispatch(loadJobUsers(projectId, jobId, 1));
-                  dispatch(emptyJobUserSet()); //清空所选
+                  loadJobUsers(projectId, jobId, 1);
+                  updateSelectJobUser([]); //清空所选
                   alert(_l('移出成功'));
                 } else alert(_l('移出失败'), 2);
               });
@@ -137,23 +131,13 @@ class JopList extends React.Component {
 
   // 分页
   changPage = page => {
-    const { jobId, projectId, dispatch } = this.props;
+    const { jobId, projectId, loadJobUsers } = this.props;
     if (!!jobId) {
-      dispatch(loadJobUsers(projectId, jobId, page));
+      loadJobUsers(projectId, jobId, page);
     }
   };
   renderHeader = () => {
-    const {
-      jobId,
-      projectId,
-      dispatch,
-      jobName,
-      userIds = [],
-      allCount,
-      pageIndex,
-      pageSize,
-      isSelectAll,
-    } = this.props;
+    const { jobId, projectId, jobName, userIds = [], allCount, pageIndex, pageSize, isSelectAll } = this.props;
     return (
       <React.Fragment>
         {userIds.length > 0 || isSelectAll ? (
@@ -184,7 +168,7 @@ class JopList extends React.Component {
   };
 
   renderThead = () => {
-    const { isSelectAll, isThisPageCheck, userIds, user, dispatch, hasSelectCount } = this.props;
+    const { isSelectAll, isThisPageCheck, userIds, user, hasSelectCount, updateSelectJobUser } = this.props;
     let isCheck = isThisPageCheck || isSelectAll;
     return (
       <thead>
@@ -204,9 +188,9 @@ class JopList extends React.Component {
                 } else {
                   let ids = _.map(user, it => it.accountId);
                   list = userIds.filter(it => !_.includes(ids, it.accountId));
-                  dispatch(updateAllSelectJobUser(false));
+                  updateAllSelectJobUser(false);
                 }
-                dispatch(updateSelectJobUser(list));
+                updateSelectJobUser(list);
               }}
             ></Checkbox>
             {/* <DropDownCheck
@@ -240,12 +224,19 @@ class JopList extends React.Component {
   };
 
   handleCheckbox = () => {
-    const { dispatch } = this.props;
-    dispatch(updateSelectJobUser(list));
+    const { updateSelectJobUser } = this.props;
+    updateSelectJobUser(list);
   };
 
   renderUsers = () => {
-    const { user = [], isSelectAll = false, dispatch, userIds, hasSelectCount } = this.props;
+    const {
+      user = [],
+      isSelectAll = false,
+      userIds,
+      hasSelectCount,
+      updateAllSelectJobUser,
+      updateSelectJobUser,
+    } = this.props;
     return user.map(item => {
       let isCheck = !!_.find(userIds, it => item.accountId === it.accountId) || isSelectAll;
       return (
@@ -262,9 +253,9 @@ class JopList extends React.Component {
                   list.push(item);
                 } else {
                   list = userIds.filter(it => it.accountId !== item.accountId);
-                  dispatch(updateAllSelectJobUser(false));
+                  updateAllSelectJobUser(false);
                 }
-                dispatch(updateSelectJobUser(list));
+                updateSelectJobUser(list);
               }}
             ></Checkbox>
           </td>
@@ -424,6 +415,16 @@ const mapStateToProps = state => {
   };
 };
 
-const connectedJopList = connect(mapStateToProps)(JopList);
+const connectedJopList = connect(mapStateToProps, dispatch =>
+  bindActionCreators(
+    {
+      loadJobUsers,
+      loadJobList,
+      updateSelectJobUser,
+      updateAllSelectJobUser,
+    },
+    dispatch,
+  ),
+)(JopList);
 
 export default connectedJopList;

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { func } from 'prop-types';
 import { Icon } from 'ming-ui';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
@@ -133,7 +133,7 @@ export default class HistoryHeader extends Component {
               'Font18 pointer ThemeHoverColor3 Block',
               isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_9e',
             )}
-            icon="refresh1"
+            icon="ic_refresh_black"
           />
         </span>
       </div>

@@ -718,6 +718,33 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     )
   }
+  renderExportType() {
+    const { currentReport, changeCurrentReport } = this.props;
+    const { exportType } = currentReport.displaySetup;
+    return (
+      <Collapse.Panel
+        key="exportType"
+        header={_l('导出Excel数据格式')}
+        extra={
+          <Switch
+            size="small"
+            checked={exportType}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeDisplaySetup({
+                ...currentReport.displaySetup,
+                exportType: checked ? 1 : 0
+              });
+            }}
+          />
+        }
+      >
+        <div className="Gray_75 mBottom20">{_l('按统计显示单位导出')}</div>
+      </Collapse.Panel>
+    );
+  }
   renderExpandIcon(panelProps) {
     return (
       <Icon
@@ -759,6 +786,7 @@ export default class ChartStyle extends Component {
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
             this.renderColor()}
           {[reportTypes.NumberChart].includes(reportType) && this.renderFontSize()}
+          {/*{this.renderExportType()}*/}
         </Collapse>
       </div>
     );

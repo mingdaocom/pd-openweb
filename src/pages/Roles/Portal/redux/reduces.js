@@ -16,9 +16,19 @@ export const controls = (state = [], action) => {
       return state;
   }
 };
-export const controlsSYS = (state = [], action) => {
+
+export const sortControls = (state = [], action) => {
   switch (action.type) {
-    case 'UPDATE_CONTROLS_SYS':
+    case 'UPDATE_SORTCONTROLS':
+      return action.data;
+    default:
+      return state;
+  }
+};
+//批量搜索手机号
+export const telFilters = (state = ``, action) => {
+  switch (action.type) {
+    case 'UPDATE_TELFILTERS':
       return action.data;
     default:
       return state;
@@ -154,7 +164,6 @@ export const keyWords = (state = '', action) => {
 };
 export default combineReducers({
   controls,
-  controlsSYS,
   roleList,
   list,
   pageIndex,
@@ -169,4 +178,6 @@ export default combineReducers({
   loading,
   commonCount,
   unApproveCount,
+  sortControls,
+  telFilters,
 });

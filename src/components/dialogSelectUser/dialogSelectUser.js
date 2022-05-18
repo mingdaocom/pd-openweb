@@ -337,7 +337,7 @@ $.extend(DialogSelectUser.prototype, {
       const project = _.find(md.global.Account.projects, { projectId: options.SelectUserSettings.projectId });
       if (!project) {
         commonSettings.projectId = '';
-        commonSettings.dataRange = 0;
+        // commonSettings.dataRange = 0;
       }
       ReactDOM.render(
         <GeneralSelect

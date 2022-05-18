@@ -139,6 +139,7 @@ class EditInfo extends React.Component {
       .getUserCard({
         accountId: this.props.accountId,
         projectId: this.props.projectId,
+        setAcountPravite: false,
       })
       .then(
         data => {

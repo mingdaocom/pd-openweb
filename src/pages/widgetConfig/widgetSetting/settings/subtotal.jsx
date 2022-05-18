@@ -16,6 +16,8 @@ import CommonComponents from '../../components';
 import components from '../components';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import NumberConfig from '../components/ControlSetting/NumberConfig';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import cx from 'classnames';
 const { PointerConfig, PreSuffix } = components;
 
 const SubtotalSettingWrap = styled.div``;
@@ -91,7 +93,7 @@ export default function Subtotal(props) {
   const filtersCache = useRef(filters);
 
   const filterControls = filterByTypeAndSheetFieldType(
-    resortControlByColRow(availableControls || []),
+    resortControlByColRow(filterOnlyShowField(availableControls) || []),
     type => !includes([22, 25, 29, 30, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
@@ -187,6 +189,17 @@ export default function Subtotal(props) {
                   ),
                 },
               ].concat(filterControls)}
+              renderDisplay={value => {
+                const originControl = availableControls.find(item => item.controlId === value);
+                const controlName = value === 'count' ? _l('记录数量') : get(originControl, 'controlName');
+                const invalidError =
+                  originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
+                return (
+                  <div className={cx('text', { Red: !controlName || invalidError })}>
+                    {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : ''}
+                  </div>
+                );
+              }}
               onChange={handleChange}
             />
           </SettingItem>

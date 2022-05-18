@@ -9,6 +9,7 @@ import {
   UPDATE_LAYOUT,
   UPDATE_PAGE_INFO,
   UPDATE_LOADING,
+  UPDATE_SAVE_LOADING,
   INSET_TITLE,
   UPDATE_MODIFIED,
   COPY_WIDGET,
@@ -126,6 +127,8 @@ export default function customPage(state = initialState, action) {
       return update(state, { $apply: item => ({ ...item, ...payload }) });
     case UPDATE_LOADING:
       return update(state, { loading: { $set: payload } });
+    case UPDATE_SAVE_LOADING:
+      return update(state, { saveLoading: { $set: payload } });
     case UPDATE_EDIT_PAGE_VISIBLE:
       if (!state.pageId) {
         _.keys(sessionStorage)
@@ -149,7 +152,7 @@ export default function customPage(state = initialState, action) {
                 title: _l(''),
                 titleVisible: false,
                 visible: true,
-                layout: getDefaultLayout({ components: state.components, layoutType: 'web' }),
+                layout: getDefaultLayout({ components: state.components, layoutType: 'web', type: payload.type }),
               },
               mobile: {
                 title: _l(''),

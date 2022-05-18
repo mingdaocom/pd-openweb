@@ -436,7 +436,7 @@ export default class Sort extends Component {
   renderContent() {
     const { rightYaxisList } = this.state;
     const { reportType, currentReport } = this.props;
-    const { xaxes, yaxisList, split, rightY, pivotTable } = currentReport;
+    const { xaxes = {}, yaxisList = [], split, rightY, pivotTable } = currentReport;
     return (
       <SortContent className="displaySetupPanel">
         {xaxes.controlId && reportType !== reportTypes.PivotTable && this.renderItem({

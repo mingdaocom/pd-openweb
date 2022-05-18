@@ -22,7 +22,6 @@ window.private = Object.freeze({
     //添加应用操作(模版安装、解决方案、添加应用按钮)
     addAppItem: {
       installFromLib: true,
-      buildService: true,
       addAppIcon: false,
     },
     //UserMenu(中间操作模块)

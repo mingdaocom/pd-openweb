@@ -13,7 +13,15 @@ export default class ExtraUserList extends Component {
         <div>
           {data.list.length ? (
             <div>
-              {data.list.map(user => <User user={user} onChange={this.props.onChange} checked={this.getChecked(user)} key={'user' + user.accountId} />)}
+              {data.list.map(user => (
+                <User
+                  user={user}
+                  projectId={this.props.projectId}
+                  onChange={this.props.onChange}
+                  checked={this.getChecked(user)}
+                  key={'user' + user.accountId}
+                />
+              ))}
             </div>
           ) : null}
         </div>

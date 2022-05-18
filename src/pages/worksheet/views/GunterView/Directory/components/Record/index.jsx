@@ -349,7 +349,7 @@ export default class Record extends Component {
     const { recordInfoVisible } = this.state;
     const { row } = this.props;
     return (
-      <RecordWrapper className={cx('valignWrapper', `gunterRecord-${row.rowid}`)}>
+      <RecordWrapper className={cx('valignWrapper gunterRecord', `gunterRecord-${row.rowid}`)}>
         {this.renderMore()}
         {this.renderTitle()}
         {this.renderStartTime()}

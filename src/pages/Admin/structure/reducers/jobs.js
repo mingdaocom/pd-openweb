@@ -2,23 +2,24 @@ import * as JOBS_ACTIONS from '../actions/jobs';
 import { PAGE_SIZE } from '../constant';
 
 const initialState = {
-  user: [],///当前职位下的成员
-  jobId: '',//当前的职位ID
-  userIds: [],//选择的成员
-  allCount: 0,//成员个数
-  jobList: [],//职位列表
+  user: [], ///当前职位下的成员
+  jobId: '', //当前的职位ID
+  userIds: [], //选择的成员
+  allCount: 0, //成员个数
+  jobList: [], //职位列表
   isLoading: false,
   isUserLoading: false,
   pageIndex: 1,
+  jobListPageIndex: 1,
   pageSize: PAGE_SIZE,
-  isSelectAll: false,//是否全选
+  isSelectAll: false, //是否全选
   jobName: '',
-  currentJobId: ''
-}
+  currentJobId: '',
+};
 
 export default (state = initialState, action) => {
-  const { jobList = [], currentJobId } = state
-  const { jobId, response, type, userIds, pageIndex, isSelectAll } = action;
+  const { jobList = [], currentJobId } = state;
+  const { jobId, response, type, userIds, pageIndex, isSelectAll, jobListPageIndex } = action;
   if (type === 'PROJECT_ID_CHANGED') return initialState;
   // if (typeof JOBS_ACTIONS[type] === 'undefined') return state;
   switch (type) {
@@ -32,7 +33,8 @@ export default (state = initialState, action) => {
     case JOBS_ACTIONS.JOB_LIST_REQUEST:
       return {
         ...state,
-        isLoading: true,
+        isLoading: jobListPageIndex > 1 ? false : true,
+        canRequest: false,
       };
     case JOBS_ACTIONS.JOB_USER_REQUEST:
       if (currentJobId === jobId) {
@@ -44,7 +46,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         userIds: [],
-        isSelectAll: false,//是否全选
+        isSelectAll: false, //是否全选
         isUserLoading: true,
         currentJobId: jobId,
         jobId,
@@ -60,24 +62,22 @@ export default (state = initialState, action) => {
         pageIndex,
         jobName: list ? list.jobName : '',
         isUserLoading: false,
-      }
-    case JOBS_ACTIONS.EMPTY_JOB_USERSELECT:
-      return {
-        ...state,
-        userIds: [],
-        isSelectAll: false,//是否全选
-      }
+      };
     case JOBS_ACTIONS.JOB_LIST_SUCCESS:
-      let resList = response.list || [];
+      let resList = jobListPageIndex > 1 ? jobList.concat(response.list) : response.list;
+      let isMore = response.list && response.list.length >= PAGE_SIZE;
       if (!jobId) {
         return {
           ...state,
-          jobList: resList,//?
+          jobList: resList, //?
           jobId: resList.length > 0 ? resList[0].jobId : '',
           currentJobId: resList.length > 0 ? resList[0].jobId : '',
           jobName: resList.length > 0 ? resList[0].jobName : '',
           isLoading: false,
-        }
+          canRequest: true,
+          isMore,
+          jobListPageIndex,
+        };
       } else {
         // 有jobId ，编辑
         return {
@@ -87,20 +87,23 @@ export default (state = initialState, action) => {
           currentJobId: jobId,
           jobName: resList.find(it => it.jobId === jobId).jobName,
           isLoading: false,
-        }
+          canRequest: true,
+          isMore,
+          jobListPageIndex,
+        };
       }
     case JOBS_ACTIONS.UPDATE_SELECT_JOB_USER:
       return {
         ...state,
         userIds,
-        isSelectAll: false,//是否全选
-      }
+        isSelectAll: false, //是否全选
+      };
     case JOBS_ACTIONS.UPDATE_SELECT_ALL_JOBUSER:
       return {
         ...state,
         userIds: [],
         isSelectAll,
-      }
+      };
     default:
       return state;
   }

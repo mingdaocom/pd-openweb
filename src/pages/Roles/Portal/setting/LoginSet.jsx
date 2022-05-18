@@ -10,8 +10,6 @@ import cCbg from './img/centerC.png';
 import rbg from './img/right.png';
 import rCbg from './img/rightC.png';
 import SvgIcon from 'src/components/SvgIcon';
-import { SwitchStyle } from './BaseSet';
-import EditAgreementOrPrivacy from 'src/pages/Roles/Portal/components/EditAgreementOrPrivacy';
 const Wrap = styled.div`
   position: relative;
   height: calc(100% - 100px);
@@ -297,8 +295,6 @@ export default function LoginSet(props) {
   const { iconColor = '#00bcd4', iconUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg' } = appPkg;
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadBgLoading, setUploadBgLoading] = useState(false);
-  const [type, setType] = useState();
-  const [show, setShow] = useState(false);
 
   useEffect(() => {
     let { portalSet = {} } = props;
@@ -546,73 +542,7 @@ export default function LoginSet(props) {
         ) : (
           renderBgBtn()
         )}
-        <div className="mTop32">
-          <SwitchStyle>
-            <div className="switchText InlineBlock Bold Gray Font16 LineHeight24">{_l('协议条款')}</div>
-            <Icon
-              icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font24 Hand mLeft12 TxtBottom"
-              onClick={() => {
-                onChangePortalSet({
-                  portalSetModel: {
-                    ...portalSetModel,
-                    termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
-                  },
-                });
-              }}
-            />
-          </SwitchStyle>
-          <p className="Gray_9e mTop6 LineHeight24 mBottom8">
-            {_l(
-              '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
-            )}
-          </p>
-          {!!portalSetModel.termsAndAgreementEnable && (
-            <div className="bold">
-              {_l('设置')}
-              <span
-                className="ThemeColor3 Hand mRight10 mLeft10"
-                onClick={() => {
-                  setShow(true);
-                  setType(0);
-                }}
-              >
-                {_l('用户协议')}
-              </span>
-              {_l('和')}
-              <span
-                className="ThemeColor3 Hand mLeft10"
-                onClick={() => {
-                  setShow(true);
-                  setType(1);
-                }}
-              >
-                {_l('隐私政策')}
-              </span>
-            </div>
-          )}
-        </div>
       </div>
-      {show && (
-        <EditAgreementOrPrivacy
-          show={show}
-          type={type}
-          data={type === 1 ? portalSetModel.privacyTerms : portalSetModel.userAgreement}
-          setShow={() => {
-            setShow(false);
-            setType(null);
-          }}
-          onChange={data => {
-            let da = type === 1 ? { privacyTerms: data } : { userAgreement: data };
-            onChangePortalSet({
-              portalSetModel: {
-                ...portalSetModel,
-                ...da,
-              },
-            });
-          }}
-        />
-      )}
       <div className="loginDemo">
         <WrapDemo
           style={

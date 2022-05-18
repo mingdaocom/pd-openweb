@@ -16,6 +16,12 @@ const ButtonWrap = styled.div`
       opacity: 1;
     }
   }
+  .ant-btn {
+    text-shadow: none;
+    box-shadow: none;
+    height: 36px;
+    border-radius: 0 3px 3px 0 !important;
+  }
   .arrowWrap {
     opacity: 0;
     justify-content: center;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Pie } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
-import { formatSummaryName, getIsAlienationColor, isNumberControl } from 'src/pages/worksheet/common/Statistics/common';
+import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'src/pages/worksheet/common/Statistics/common';
 import { Dropdown, Menu } from 'antd';
 import { browserIsMobile } from 'src/util';
 
@@ -68,7 +68,7 @@ export default class extends Component {
     const { xaxes } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
-    const isNumber = isNumberControl(xaxes.controlType);
+    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
       [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
     }

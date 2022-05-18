@@ -95,6 +95,7 @@ export default ({
   pageName,
   displayType,
   updateSheetList,
+  saveLoading = false,
   cancelModified = _.noop,
   modified,
   updatePageInfo = _.noop,
@@ -177,7 +178,7 @@ export default ({
       <Button type="link" className="close" onClick={handleClose}>
         {_l('关闭')}
       </Button>
-      <Button onClick={save}>{_l('保存')}</Button>
+      <Button onClick={save} loading={saveLoading}>{_l('保存')}</Button>
     </ConfigHeader>
   );
 };

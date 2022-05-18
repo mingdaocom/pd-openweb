@@ -15,11 +15,11 @@ export default () => {
       action = 'success';
       message = _l('导出文件准备完成');
       description = _l('“%0” 导出文件已准备完成，文件下载链接将于24小时失效，请尽快下载', reportName);
-      duration = 3;
+      duration = 5;
     } else {
       action = 'error';
       message = _l('导出数据 “%0” 失败', reportName);
-      duration = 3;
+      duration = 5;
     }
 
     antNotification[action]({

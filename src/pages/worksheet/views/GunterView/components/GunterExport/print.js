@@ -3,12 +3,14 @@ import domtoimage from 'dom-to-image';
 const printImage = el => {
   return new Promise((resolve, reject) => {
     domtoimage.toPng(el).then((dataUrl) => {
-      var img = new Image();
+      let img = new Image();
+      img.onload = () => {
+        resolve(img);
+      }
       img.src = dataUrl;
-      return resolve(img);
     }).catch((error) => {
       console.error('oops, something went wrong!', error);
-      return resolve(null);
+      resolve();
     });
   });
 }
@@ -35,14 +37,14 @@ class Canvas {
   download() {
     return new Promise((resolve, reject) => {
       this.canvas.toBlob(blob => {
-        resolve(blob);
-        const a = document.createElement('a');
-        a.download = this.title;
-        a.style.display = 'none';
-        a.href = URL.createObjectURL(blob);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        try {
+          saveAs(blob, this.title);
+          setTimeout(() => {
+            resolve(blob);
+          }, 1000);
+        } catch (err) {
+          reject();
+        }
       });
     });
   }
@@ -91,6 +93,8 @@ const printGunter = (name) => {
         } else {
           resolve(true);
         }
+      }).catch(() => {
+        resolve(true);
       });
     });
 

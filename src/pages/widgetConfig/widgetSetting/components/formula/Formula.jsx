@@ -16,6 +16,7 @@ import FnList from './FnList';
 import { SettingItem } from '../../../styled';
 import PreSuffix from '../PreSuffix';
 import NumberConfig from '../ControlSetting/NumberConfig';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 export default class Formula extends React.Component {
   constructor(props) {
@@ -259,6 +260,7 @@ export default class Formula extends React.Component {
     const dataSource = data.dataSource || '';
     const { nullzero, numshow } = getAdvanceSetting(data);
     let formulaValue = this.getFormulaFromDataSource(calType, dataSource);
+    const filterAllControls = filterOnlyShowField(allControls);
     const fnListEle = (
       <FnList
         fnmatch={showInSideFormulaSelect ? fnmatch : ''}
@@ -326,7 +328,7 @@ export default class Formula extends React.Component {
                 showSearch
                 visible={selectColumnVisible}
                 onClickAway={this.hideSelectColumn}
-                list={getFormulaControls(allControls, data).map(data => ({
+                list={getFormulaControls(filterAllControls, data).map(data => ({
                   value: data.controlId,
                   filterValue: data.controlName,
                   element: _.isEmpty(worksheetData) ? (

@@ -16,21 +16,31 @@ const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4 });
+export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5 });
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
   const id = component.id || component.uuid;
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
-export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible }) => {
-  if (layoutType === 'web') return { x: (components.length * 6) % 12, y: Infinity, w: 6, h: 6, minW: 2, minH: 2 };
+export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type }) => {
+  if (layoutType === 'web') {
+    if (type === 'view') {
+      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 2 };
+    } else {
+      return { x: (components.length * 6) % 12, y: Infinity, w: 6, h: 6, minW: 2, minH: 2 };
+    }
+  };
   if (layoutType === 'mobile') {
     const { type } = _.pick(components[index], 'type');
     const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
     const enumType = getEnumType(type);
     const minW = _.includes(['button'], enumType) ? 2 : 1;
-    return { x: 0, y: y + h, w: 2, h: titleVisible ? 7 : 6, minW, minH: 2 };
+    if (type === 'view') {
+      return { x: 0, y: y + h, w: 2, h: titleVisible ? 9 : 8, minW, minH: 4 };
+    } else {
+      return { x: 0, y: y + h, w: 2, h: titleVisible ? 7 : 6, minW, minH: 2 };
+    }
   }
 };
 
@@ -53,11 +63,12 @@ export const getIconByType = type => {
 
 const htmlReg = /<.+?>/g;
 export const getComponentTitleText = component => {
-  const { value, type, name, button } = component;
+  const { value, type, name, button, config = {} } = component;
   const enumType = getEnumType(type);
   if (enumType === 'analysis') return name || _l('未命名图表');
   if (enumType === 'richText') return value.replace(htmlReg, '');
   if (enumType === 'button') return _.get(button, ['buttonList', '0', 'name']);
+  if (enumType === 'view') return config.name;
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
@@ -153,6 +164,18 @@ const watermark = (canvas, layouts) => {
   });
 };
 
+export const createFontLink = () => {
+  return new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.onload = resolve;
+    link.setAttribute('class', 'fontlinksheet');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('type', 'text/css');
+    link.setAttribute('href', '/staticfiles/iconfont/iconfont.css');
+    document.head.appendChild(link);
+  });
+}
+
 export const exportImage = () => {
   return new Promise((resolve, reject) => {
     const wrap = document.querySelector('.componentsWrap .react-grid-layout');
@@ -162,6 +185,7 @@ export const exportImage = () => {
       item => item.parentNode.parentNode,
     );
     const { offsetWidth, offsetHeight } = wrap;
+    const fontlinksheet = document.querySelector('.fontlinksheet');
     document.querySelectorAll('.mapboxgl-ctrl').forEach(item => {
       item.remove();
     });
@@ -182,7 +206,11 @@ export const exportImage = () => {
           };
         });
         const newBlob = await watermark(canvas, layouts);
+        fontlinksheet && fontlinksheet.remove();
         resolve(newBlob);
+      }).catch((error, data) => {
+        fontlinksheet && fontlinksheet.remove();
+        console.log(error, data);
       });
   });
 };

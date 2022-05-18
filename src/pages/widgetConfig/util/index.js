@@ -1,9 +1,9 @@
-import { get, keys, flatten, sortBy, omit, isEmpty, upperFirst, findIndex, isArray, isObject } from 'lodash';
+import _, { get, keys, flatten, sortBy, omit, isEmpty, upperFirst, findIndex, isArray, isObject } from 'lodash';
 import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
 import { NOT_AS_TITLE_CONTROL } from '../config';
-import { RELATION_OPTIONS } from '../config/setting';
+import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
@@ -306,4 +306,50 @@ export const getRelationText = enumDefault => {
       'text',
     ) || _l('自由连接')
   );
+};
+
+export const filterOnlyShowField = (controls = []) => {
+  return controls.filter(i => !((i.type === 30 || i.originType === 30) && (i.strDefault || '')[0] === '1'));
+};
+
+export const getSwitchItemNames = (data, { needDefault, isShow } = {}) => {
+  const itemnames = getAdvanceSetting(data, 'itemnames') || [];
+  const showtype = getAdvanceSetting(data, 'showtype');
+  const defaultData = DEFAULT_TEXT[showtype];
+  // 筛选按默认来
+  if (isShow) {
+    return (
+      DEFAULT_TEXT[showtype] || [
+        { key: '1', value: _l('选中') },
+        { key: '0', value: _l('未选中') },
+      ]
+    );
+  }
+
+  // 需要兜底显示
+  if (needDefault) {
+    return defaultData.map(i => {
+      const cur = _.find(itemnames, it => it.key === i.key);
+      return _.get(cur, 'value') ? cur : i;
+    });
+  }
+
+  // radio框必须要文案
+  if (showtype === 2) {
+    return itemnames.every(i => !!i.value) ? itemnames : defaultData;
+  }
+
+  return itemnames;
+};
+
+export const levelSafeParse = value => {
+  let levelValue = parseFloat(value, 10);
+  if (!_.isNumber(levelValue) || _.isNaN(levelValue)) {
+    levelValue = undefined;
+  }
+  return levelValue;
+};
+
+export const isOtherShowFeild = (control = {}) => {
+  return (control.type === 30 || control.originType === 30) && (control.strDefault || '')[0] === '1';
 };

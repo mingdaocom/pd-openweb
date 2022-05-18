@@ -9813,8 +9813,8 @@ msgid "请联系您的组织管理员购买开通"
 msgstr "Please contact your administrator for purchase."
 
 #: Disabled references:1
-msgid "或拨打服务热线：010-53153053 我们会安排部署顾问协助开通"
-msgstr "Or call our service hotline: 010-53153053 (CHINA), we will have service agent help you."
+msgid "或拨打服务热线：400-665-6655 我们会安排部署顾问协助开通"
+msgstr "Or call our service hotline: 400-665-6655 (CHINA), we will have service agent help you."
 
 #: Disabled references:1
 msgid "草稿箱"
@@ -12673,8 +12673,8 @@ msgid "后续我们将安排顾问进行一对一演示，包括后续的部署�
 msgstr "Later we will arrange an one-to-one demonstration from our consultants for you, including subsequent deployment services."
 
 #: Disabled references:1
-msgid "或直接拨打 010-53153053 咨询"
-msgstr "or dial 010-53153053 to inquire"
+msgid "或直接拨打 400-665-6655 咨询"
+msgstr "or dial 400-665-6655 to inquire"
 
 #: Disabled references:1
 msgid "传真可选填，其余为必填项"
@@ -13025,8 +13025,8 @@ msgid "联系电话：%0"
 msgstr "Contact Phone: %0"
 
 #: Disabled references:1
-msgid "如需发票，请拨打010-53153053联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。"
-msgstr "If you need an invoice, please call 010-53153053 to contact the consultant to make out an invoice for you. You can also go to Managing organization - > Billing to apply."
+msgid "如需发票，请拨打400-665-6655联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。"
+msgstr "If you need an invoice, please call 400-665-6655 to contact the consultant to make out an invoice for you. You can also go to Managing organization - > Billing to apply."
 
 #: Disabled references:1
 msgid "在线支付"
@@ -13849,8 +13849,8 @@ msgid "请联系部署顾问"
 msgstr "please contact deployment consultant"
 
 #: Disabled references:1
-msgid "请联系电话 010-53153053"
-msgstr "please contact 010-53153053."
+msgid "请联系电话 400-665-6655"
+msgstr "please contact 400-665-6655."
 
 #: Disabled references:1
 msgid "每月执行数免费额度不足时可购买使用，即时生效。"
@@ -13953,8 +13953,8 @@ msgid "选择充值金额"
 msgstr "Charging Amounts"
 
 #: Disabled references:1
-msgid "如需特别定制，请联系电话 010-53153053"
-msgstr "For special customization, please contact 010-53153053"
+msgid "如需特别定制，请联系电话 400-665-6655"
+msgstr "For special customization, please contact 400-665-6655"
 
 #: Disabled references:1
 msgid "请输入金额"
@@ -14445,8 +14445,8 @@ msgid "因企业微信规则调整，新的对接方案正在开发，支持线�
 msgstr "Due to the rule adjustment of WeChat Work, a new docking scheme is being developed to support offline docking."
 
 #: Disabled references:1
-msgid "您可以在线咨询客服或者电话咨询客服，联系电话：010-53153053"
-msgstr "You can consult customer service online or by telephone. Contact number: 010-53153053"
+msgid "您可以在线咨询客服或者电话咨询客服，联系电话：400-665-6655"
+msgstr "You can consult customer service online or by telephone. Contact number: 400-665-6655"
 
 #: Disabled references:1
 msgid "联系客服"
@@ -36523,8 +36523,8 @@ msgid "提交申请失败"
 msgstr "Submission failed"
 
 #: Disabled references:1
-msgid "提交后，顾问会电话联系您完成应用集成,也可主动联系顾问 联系电话：010-53153053"
-msgstr "After submission, we will contact you by phone to complete the application integration, or you can contact us by phone: 010-53153053"
+msgid "提交后，顾问会电话联系您完成应用集成,也可主动联系顾问 联系电话：400-665-6655"
+msgstr "After submission, we will contact you by phone to complete the application integration, or you can contact us by phone: 400-665-6655"
 
 #: Disabled references:1
 msgid "请先配置企业微信集成"
@@ -37541,4 +37541,1412 @@ msgstr "Red Increase and green decrease"
 #: Disabled references:1
 msgid "允许选取地图"
 msgstr "Allow map selection"
+
+#: Disabled references:1
+msgid "单个文件大小超过%0mb，无法支持上传"
+msgstr "Single file size exceeds %0mb, cannot upload"
+
+#: Disabled references:1
+msgid "上传失败，请稍后再试。"
+msgstr "Upload failed, please try again later."
+
+#: Disabled references:1
+msgid "应用附件上传量已到最大值"
+msgstr "Application attachment uploads have reached their maximum"
+
+#: Disabled references:1
+msgid "输入内容包含敏感词，请重新填写"
+msgstr "Input content contains sensitive words, please fill in again"
+
+#: Disabled references:1
+msgid "没有找到"
+msgstr "Not found"
+
+#: Disabled references:1
+msgid "输入%0后，显示可选择的记录"
+msgstr "After entering %0, the selectable records are displayed"
+
+#: Disabled references:1
+msgid "检索加速"
+msgstr "Search acceleration"
+
+#: Disabled references:1
+msgid "授权不足，请管理员到组织管理-微信公众号重新绑定授权"
+msgstr "Insufficient authorization, please go to Organization Management - WeChat Public to re-bind authorization"
+
+#: Disabled references:1
+msgid "同时将此角色下的所有用户移动到其他角色"
+msgstr "Also move all users under this role to other roles"
+
+#: Disabled references:1
+msgid "同时删除此角色下的所有用户"
+msgstr "Also delete all users under this role"
+
+#: Disabled references:1
+msgid "7. 打印的二维码默认所有人可扫码查看，若需控制仅限应用内部成员查看，可将二维码字段代码设置为“#{二维码$[20*20]$_Private}”，用户扫码后需登录并且根据权限才能访问。"
+msgstr "7. The printed QR code can be scanned by everyone by default. If you need to control that only internal members of the application can view it, you can set the QR code field code to \"#{二维码$[20*20]$_Private}\", and users need to log in and access it according to their permission after scanning the code."
+
+#: Disabled references:1
+msgid "8. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "8. If you want to not print the associated table/sub-table without data, please insert the codes: #NoDataNotPrint[start]# and #NoDataNotPrint[end]# into the template, the associated record/sub-table between the codes will not be printed if there is no data."
+
+#: Disabled references:1
+msgid "是否只返回controlId，默认false"
+msgstr "Whether to return only controlId, default false"
+
+#: Disabled references:1
+msgid "IP 白名单"
+msgstr "IP Whitelist"
+
+#: Disabled references:1
+msgid "关闭授权"
+msgstr "Close authorization"
+
+#: Disabled references:1
+msgid "删除授权密钥"
+msgstr "Delete license key"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，关闭时需要验证身份"
+msgstr "The application license key is an extremely important credential that requires identity verification when closing"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，删除时需要验证身份"
+msgstr "The application license key is an extremely important credential that requires identity verification when deleted"
+
+#: Disabled references:1
+msgid "当前用户密码"
+msgstr "Current user password"
+
+#: Disabled references:1
+msgid "请输入密码确认授权"
+msgstr "Please enter your password to confirm authorization"
+
+#: Disabled references:1
+msgid "本应用全部接口"
+msgstr "All interfaces of this application"
+
+#: Disabled references:1
+msgid "本应用只读接口"
+msgstr "Read-only interface for this application"
+
+#: Disabled references:1
+msgid "编辑授权密钥"
+msgstr "Edit License Key"
+
+#: Disabled references:1
+msgid "新建授权密钥"
+msgstr "Create a new license key"
+
+#: Disabled references:1
+msgid "应用授权密钥是极为重要的凭证，修改时需要验证身份"
+msgstr "The application license key is an extremely important credential that requires identity verification for modification"
+
+#: Disabled references:1
+msgid "授权状态"
+msgstr "Authorization Status"
+
+#: Disabled references:1
+msgid "接口权限"
+msgstr "Interface Permissions"
+
+#: Disabled references:1
+msgid "其他设置"
+msgstr "Settings"
+
+#: Disabled references:1
+msgid "调用获取工作表列表接口时，视图参数为空则不返回数据"
+msgstr "When the Get Sheet List interface is called, no data is returned if the view parameter is empty"
+
+#: Disabled references:1
+msgid "设置工作表别名"
+msgstr "Setting Worksheet Aliases"
+
+#: Disabled references:1
+msgid "工作表别名"
+msgstr "Worksheet Alias"
+
+#: Disabled references:1
+msgid "工作表别名格式不匹配"
+msgstr "Worksheet alias format mismatch"
+
+#: Disabled references:1
+msgid "工作表别名已存在，请重新输入"
+msgstr "Worksheet alias already exists, please re-enter"
+
+#: Disabled references:1
+msgid "别名修改失败"
+msgstr "Alias modification failure"
+
+#: Disabled references:1
+msgid "授权已关闭"
+msgstr "Authorization is closed"
+
+#: Disabled references:1
+msgid "空视图参数不返回数据"
+msgstr "Empty view parameters do not return data"
+
+#: Disabled references:1
+msgid "在 IP 白名单内的 IP 来源地址才能发起请求。未设置则所有 IP 来源都可发起请求。"
+msgstr "IP sources in the IP whitelist can only initiate requests. If not set, all IP sources can initiate requests."
+
+#: Disabled references:1
+msgid "请输入正确的 IP 地址"
+msgstr "Please enter the correct IP address"
+
+#: Disabled references:1
+msgid "请填写 IP 地址，一行一个"
+msgstr "Please fill in the IP address, one line"
+
+#: Disabled references:1
+msgid "关闭 → 开启"
+msgstr "Off → On"
+
+#: Disabled references:1
+msgid "开启 → 关闭"
+msgstr "On → Off"
+
+#: Disabled references:1
+msgid "否 → 是"
+msgstr "No → Yes"
+
+#: Disabled references:1
+msgid "是 → 否"
+msgstr "Does it contain"
+
+#: Disabled references:1
+msgid "请先集成企业微信"
+msgstr "Please integrate Enterprise WeChat first"
+
+#: Disabled references:1
+msgid "请使用待开发模式集成企业微信"
+msgstr "Please use the pending development mode to integrate enterprise WeChat"
+
+#: Disabled references:1
+msgid "无法识别您的摄像头"
+msgstr "Your camera is not recognized"
+
+#: Disabled references:1
+msgid "单个文件大小超过50m，无法支持上传"
+msgstr "Single file size more than 50m, cannot support upload"
+
+#: Disabled references:1
+msgid "Sign（注：只针对应用下的接口生效，其余还走企业授权模式）"
+msgstr "Sign (Note: only for the application under the interface in effect, the rest also go to the enterprise licensing model)"
+
+#: Disabled references:1
+msgid "根据字段名的拼音自动生成别名，若字段名为英文则直接取字段名作为别名，此操作不会影响已设置的别名。"
+msgstr "The alias is automatically generated according to the phonetic alphabet of the field name, or if the field name is English, the field name is directly taken as the alias, and this operation will not affect the alias already set."
+
+#: Disabled references:1
+msgid "工作表/字段别名"
+msgstr "Worksheet/Field Aliases"
+
+#: Disabled references:1
+msgid "通过设置工作表和字段别名，使得它们在API、webhook、自定义打印等场景使用的时候更具有辨识度。"
+msgstr "Make them more recognizable when used in API, webhook, custom printing and other scenarios by setting worksheet and field aliases."
+
+#: Disabled references:1
+msgid "文本索引"
+msgstr "Text Index"
+
+#: Disabled references:1
+msgid "手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。"
+msgstr "Manually creating suitable indexes for worksheets with large data volumes can speed up worksheet retrieval, up to %0."
+
+#: Disabled references:1
+msgid "创建索引"
+msgstr "Create Index"
+
+#: Disabled references:1
+msgid "暂无索引"
+msgstr "No index"
+
+#: Disabled references:1
+msgid "请输入索引名称"
+msgstr "Please enter the index name"
+
+#: Disabled references:1
+msgid "删除索引"
+msgstr "Delete Index"
+
+#: Disabled references:1
+msgid "确定删除索引吗？删除后将无法恢复"
+msgstr "Are you sure you want to delete the index? It will not be recovered after deletion"
+
+#: Disabled references:1
+msgid "唯一索引"
+msgstr "Unique Index"
+
+#: Disabled references:1
+msgid "后台执行失败"
+msgstr "Backend execution failure"
+
+#: Disabled references:1
+msgid "占位"
+msgstr "Occupy a seat"
+
+#: Disabled references:1
+msgid "自定义工作表索引以加快检索速度"
+msgstr "Customize worksheet indexes to speed up searches"
+
+#: Disabled references:1
+msgid "您暂无权限添加应用，请联系管理员进行添加使用"
+msgstr "You do not have permission to add the application, please contact the administrator to add the use"
+
+#: Disabled references:1
+msgid "备份与还原"
+msgstr "Backup and Restore"
+
+#: Disabled references:1
+msgid "我的账户"
+msgstr "My Account"
+
+#: Disabled references:1
+msgid "对外公开分享链接"
+msgstr "External public sharing link"
+
+#: Disabled references:1
+msgid "内部成员访问链接"
+msgstr "Internal member access links"
+
+#: Disabled references:1
+msgid "还没有创建工作表或自定义页面"
+msgstr "No worksheet or custom page has been created yet"
+
+#: Disabled references:1
+msgid "请选择行业"
+msgstr "Please select industry"
+
+#: Disabled references:1
+msgid "请选择规模"
+msgstr "Please select size"
+
+#: Disabled references:1
+msgid "请选择您的职级"
+msgstr "Please select your rank"
+
+#: Disabled references:1
+msgid "请选择您的部门"
+msgstr "Please select your department"
+
+#: Disabled references:1
+msgid "行业"
+msgstr "Industry"
+
+#: Disabled references:1
+msgid "规模"
+msgstr "Size"
+
+#: Disabled references:1
+msgid "您的职级"
+msgstr "Your rank"
+
+#: Disabled references:1
+msgid "您的部门"
+msgstr "Your Department"
+
+#: Disabled references:1
+msgid "请填写姓名和邮箱"
+msgstr "Please fill in your name and email"
+
+#: Disabled references:1
+msgid "请填写真实姓名和邮箱，方便大家与您联系"
+msgstr "Please fill in your real name and email address, so that it is convenient for people to contact you"
+
+#: Disabled references:1
+msgid "开关"
+msgstr "OnOff"
+
+#: Disabled references:1
+msgid "是/否"
+msgstr "Does it contain"
+
+#: Disabled references:1
+msgid "检查项"
+msgstr "Check items"
+
+#: Disabled references:1
+msgid "%0(无效类型)"
+msgstr "%0 (invalid type)"
+
+#: Disabled references:1
+msgid "当用户注销时"
+msgstr "When a user logs out"
+
+#: Disabled references:1
+msgid "当用户被停用时"
+msgstr "When the user is deactivated"
+
+#: Disabled references:1
+msgid "共%0行"
+msgstr "Total %0 lines"
+
+#: Disabled references:1
+msgid "（从高版本系统导出）"
+msgstr "(exported from a higher version system)"
+
+#: Disabled references:1
+msgid "本年用量扩充包"
+msgstr "Current year usage expansion kit"
+
+#: Disabled references:1
+msgid "仅本年内使用有效，次年1月1日清零"
+msgstr "Valid for use during the current year only, to be cleared on January 1 of the following year"
+
+#: Disabled references:1
+msgid "退回到"
+msgstr "Return to"
+
+#: Disabled references:1
+msgid "直接否决"
+msgstr "Direct veto"
+
+#: Disabled references:1
+msgid "否决并退回"
+msgstr "Rejected and returned"
+
+#: Disabled references:1
+msgid "创建备份"
+msgstr "Create Backup"
+
+#: Disabled references:1
+msgid "管理备份文件"
+msgstr "Manage backup files"
+
+#: Disabled references:1
+msgid "应用备份还原是一个高级功能，请升级至专业版解锁开启"
+msgstr "Application Backup Restore is an advanced feature, please upgrade to Pro version to unlock it"
+
+#: Disabled references:1
+msgid "未激活的用户不能停用"
+msgstr "Inactive users cannot be deactivated"
+
+#: Disabled references:1
+msgid "停用%0个用户"
+msgstr "Deactivate %0 users"
+
+#: Disabled references:1
+msgid "停用只对“正常”状态的用户生效；用户被停用后将不能通过外部门户链接登录此应用"
+msgstr "Deactivation is only effective for users in \"normal\" status; users who are deactivated will not be able to log in to the application through the external portal link"
+
+#: Disabled references:1
+msgid "未激活的用户不能启用"
+msgstr "Cannot be enabled for inactive users"
+
+#: Disabled references:1
+msgid "启用%0个用户"
+msgstr "Enable %0 users"
+
+#: Disabled references:1
+msgid "启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用"
+msgstr "Enabled only for users with \"disabled\" status; users can log in to this application through an external portal link after being enabled"
+
+#: Disabled references:1
+msgid "注销%0个成员"
+msgstr "Cancelled %0 members"
+
+#: Disabled references:1
+msgid "被注销的成员不能通过外部门户的链接登录到此应用内。"
+msgstr "Logged out members cannot log in to this application via a link to an external portal."
+
+#: Disabled references:1
+msgid "可见全部讨论"
+msgstr "See the full discussion"
+
+#: Disabled references:1
+msgid "不可见内部讨论"
+msgstr "No internal discussions visible"
+
+#: Disabled references:1
+msgid "功能设置"
+msgstr "Function Setting"
+
+#: Disabled references:1
+msgid "允许外部用户对记录讨论"
+msgstr "Allow external users to discuss the record"
+
+#: Disabled references:1
+msgid "记录讨论的使用范围继承设置：工作表-功能开关-讨论范围设置"
+msgstr "Record the scope of use of the discussion inheritance settings: Worksheet - Function switch - Discussion scope settings"
+
+#: Disabled references:1
+msgid "记录讨论的使用范围继承设置工作表-功能开关-讨论范围设置"
+msgstr "Record the scope of use of discussion inheritance setting worksheet - Function switch - Discussion scope setting"
+
+#: Disabled references:1
+msgid "确定切换为不可见内部讨论？"
+msgstr "Sure to switch to invisible internal discussion?"
+
+#: Disabled references:1
+msgid "确定切换为可见全部讨论？"
+msgstr "Sure to switch to visible all discussions?"
+
+#: Disabled references:1
+msgid "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
+msgstr "After the switch, all existing external discussions are classified as internal discussions and cannot be viewed or replied to by external users."
+
+#: Disabled references:1
+msgid "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
+msgstr "After switching, application members reply to existing discussions, the content of the reply belongs to the internal discussion, external users can not view and can not reply"
+
+#: Disabled references:1
+msgid "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
+msgstr "After the switch, the discussion is divided into two discussion areas, and external users can only participate in external discussions"
+
+#: Disabled references:1
+msgid "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
+msgstr "After switching, the external and internal discussions share a common discussion area, and the existing external and internal discussions are grouped together"
+
+#: Disabled references:1
+msgid "外部用户与成员共用一个讨论区域，可见全部讨论内容"
+msgstr "External users share a discussion area with members and can see all the discussion content"
+
+#: Disabled references:1
+msgid "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
+msgstr "There are two discussion forums, internal and external, and the internal discussion forum is not visible to external users"
+
+#: Disabled references:1
+msgid "用户协议和隐私条款"
+msgstr "User Agreement and Privacy Policy"
+
+#: Disabled references:1
+msgid "根据工信部等相关部门要求，用户在注册、登录网站时需要提供相应的协议及隐私政策内容告知用户同意后才可以注册"
+msgstr "According to the Ministry of Industry and Information Technology and other relevant departments, users need to provide the corresponding agreement and privacy policy content when registering and logging into the website to inform the user to agree before registration"
+
+#: Disabled references:1
+msgid "通知设置"
+msgstr "Notification Settings"
+
+#: Disabled references:1
+msgid "一行三个"
+msgstr "Three in a row"
+
+#: Disabled references:1
+msgid "一行四个"
+msgstr "A line of four"
+
+#: Disabled references:1
+msgid "动态颜色"
+msgstr "Dynamic colors"
+
+#: Disabled references:1
+msgid "为进度区间设置颜色。当鼠标悬停或字段值在对应区间，显示该区间设置的颜色。"
+msgstr "Set the color for the progress interval. When the mouse hovers or the field value is in the corresponding interval, the color set for that interval is displayed."
+
+#: Disabled references:1
+msgid "当数值≤"
+msgstr "When the value ≤"
+
+#: Disabled references:1
+msgid "颜色为"
+msgstr "Colors are"
+
+#: Disabled references:1
+msgid "刻度"
+msgstr "Graduations"
+
+#: Disabled references:1
+msgid "使用刻度标记进度位置，通过参考标记位置以便选值。如在数值为37时，显示刻度37℃。"
+msgstr "Use the scale to mark the progress position by referring to the mark position in order to select the value. For example, when the value is 37, the scale 37°C is displayed."
+
+#: Disabled references:1
+msgid "允许扫描条形码"
+msgstr "Allows barcode scanning"
+
+#: Disabled references:1
+msgid "允许扫描二维码"
+msgstr "Allow scanning of QR codes"
+
+#: Disabled references:1
+msgid "通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。"
+msgstr "Sweep code input by enabling device camera. Only the mobile app in the sweep code support to distinguish between bar codes, QR codes, other platforms sweep code does not make a distinction."
+
+#: Disabled references:1
+msgid "进度"
+msgstr "Progress"
+
+#: Disabled references:1
+msgid "固定颜色"
+msgstr "Fixed color"
+
+#: Disabled references:1
+msgid "输入方式"
+msgstr "Input method"
+
+#: Disabled references:1
+msgid "区间"
+msgstr "Interval"
+
+#: Disabled references:1
+msgid "间隔"
+msgstr "Returns the text content between the specified spacers (only the first one found from left to right)"
+
+#: Disabled references:1
+msgid "显示输入框"
+msgstr "Show input box"
+
+#: Disabled references:1
+msgid "显示刻度"
+msgstr "Display scale"
+
+#: Disabled references:1
+msgid "固定"
+msgstr "Fixed"
+
+#: Disabled references:1
+msgid "为每个等级设置颜色。当鼠标悬停或选中对应等级后，图标将显示为该等级设置的颜色"
+msgstr "Set the color for each level. When the mouse hovers over or selects the corresponding level, the icon will be displayed in the color set for that level"
+
+#: Disabled references:1
+msgid "仅显示"
+msgstr "Display only"
+
+#: Disabled references:1
+msgid "存储数据"
+msgstr "Storage Data"
+
+#: Disabled references:1
+msgid "修改他表字段类型为：仅显示"
+msgstr "Modify his table field type to: Display only"
+
+#: Disabled references:1
+msgid "修改后将清除此字段存储的数据。此字段将不能在用于搜索、筛选、公式、文本组合、统计。请确认以上位置都不再需要此字段的数据后执行操作。"
+msgstr "Modifications will clear the data stored in this field. This field will not be available for search, filter, formula, text combination, statistics. Please make sure that the data in this field is no longer needed in any of the above locations and then perform the operation."
+
+#: Disabled references:1
+msgid "在加载记录时实时获取数据。适合只需要显示字段的场景。"
+msgstr "Get data in real time while loading records. Suitable for scenarios where only fields need to be displayed."
+
+#: Disabled references:1
+msgid "在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。"
+msgstr "Store data in the current table and keep it synchronized. After storage, other table fields can be used for worksheet search, filtering, sorting, statistics, or used by formulas or text combination fields."
+
+#: Disabled references:1
+msgid "注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。"
+msgstr "Note: 1. There is a certain delay between the stored data and the actual data; 2. When the data of the display field is changed, the maximum support is to update the 1000 rows of data associated with it."
+
+#: Disabled references:1
+msgid "所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。"
+msgstr "So this method is suitable for scenarios where the value of the displayed field does not change, or changes but the number of associated records is small (no more than 1000 rows)."
+
+#: Disabled references:1
+msgid "显示开关文字"
+msgstr "Display switch text"
+
+#: Disabled references:1
+msgid "版本：%0"
+msgstr "Version: %0"
+
+#: Disabled references:1
+msgid "响应方式"
+msgstr "Response Method"
+
+#: Disabled references:1
+msgid "批量操作单次最大支持1000行记录，点击删除后将只删除前1000行记录"
+msgstr "Batch operation supports up to 1000 rows of records at a time, and only the first 1000 rows of records will be deleted after clicking Delete"
+
+#: Disabled references:1
+msgid "当前所选记录数量超过1000行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作"
+msgstr "If the number of currently selected records exceeds 1000 rows, the data will not go to the Recycle Bin and will be deleted completely without triggering a workflow. This operation can only be performed by application administrators, so please make sure that all application members no longer need this data before performing this operation"
+
+#: Disabled references:1
+msgid "彻底删除所有数据"
+msgstr "Completely delete all data"
+
+#: Disabled references:1
+msgid "A → Z"
+msgstr "Based on the project name A-Z"
+
+#: Disabled references:1
+msgid "Z → A"
+msgstr "Based on the project name A-Z"
+
+#: Disabled references:1
+msgid "最新的在前面"
+msgstr "Latest in front"
+
+#: Disabled references:1
+msgid "最旧的在前面"
+msgstr "The oldest is in the front"
+
+#: Disabled references:1
+msgid "哪些工作表需要创建索引？"
+msgstr "Which worksheets need to create indexes?"
+
+#: Disabled references:1
+msgid "如果工作表的数据量比较大（通常为数万或数十万以上），而且在查询工作表时已经出现明显的加载延迟，那就可以在该工作表上创建索引以尝试加快检索速度。"
+msgstr "If the worksheet has a relatively large amount of data (usually tens or hundreds of thousands or more) and there is already a noticeable load delay when querying the worksheet, then an index can be created on that worksheet to try to speed up the retrieval."
+
+#: Disabled references:1
+msgid "创建索引时如何选择索引字段？"
+msgstr "How to select index fields when creating indexes?"
+
+#: Disabled references:1
+msgid "在视图、筛选、快速筛选等查询场景中被检索的字段或者在视图、子表、关联记录中被排序的字段才需要创建索引。"
+msgstr "Indexes need to be created only for fields that are retrieved in query scenarios such as views, filters, quick filters, or fields that are sorted in views, sub-tables, or associated records."
+
+#: Disabled references:1
+msgid "选择索引字段时请记住一个原则：记录中重复值越少的字段，越适合建立索引。例如一个不允许重复的「商品编号」字段，就非常适合创建索引；反之，一个用于记录男、女的「性别」字段，则不适合创建索引。"
+msgstr "When selecting index fields, keep in mind the principle that the fewer duplicate values in a record, the more suitable the field is for indexing. For example, an \"item number\" field that does not allow duplicates is ideal for indexing; conversely, a \"gender\" field that is used to record male and female is not suitable for indexing."
+
+#: Disabled references:1
+msgid "如果一些字段总是需要一起参与检索，它们组合起来之后的重复率更低，例如「First Name」和「Last Name」，那么你可以同时选择这两个字段创建一个复合索引，比为这两个字段分别创建索引效果更好。"
+msgstr "If some fields always need to participate in the search together and they have a lower duplication rate when combined, such as \"First Name\" and \"Last Name\", then you can select both fields to create a compound index, which is better than creating separate indexes for these two fields."
+
+#: Disabled references:1
+msgid "索引字段排序有什么用？"
+msgstr "What is the use of index field sorting?"
+
+#: Disabled references:1
+msgid "索引字段的排序和你在视图中使用此字段参与排序的规则有关。当索引只有一个字段时，视图中排序的方向不会影响检索的加速；除此之外，请尽量保证在视图中的字段排序方式与索引中设置的一致，否则检索可能不会被加速。"
+msgstr "The sorting of an index field is related to the rules you use in the view to involve this field in the sorting. When the index has only one field, the direction of sorting in the view will not affect the acceleration of the retrieval; otherwise, please try to ensure that the field sorting in the view is the same as the one set in the index, otherwise the retrieval may not be accelerated."
+
+#: Disabled references:1
+msgid "为什么索引会创建失败？"
+msgstr "Why does index creation fail?"
+
+#: Disabled references:1
+msgid "创建索引时，会有下列限制，不遵循限制可能会出现索引创建失败的情况："
+msgstr "When creating an index, the following restrictions apply, and failure to follow them may result in index creation failure."
+
+#: Disabled references:1
+msgid "○ 创建「唯一索引」时，选择的索引字段在已有记录里不能存在重复值；"
+msgstr "o When creating a \"unique index\", the selected index field cannot have duplicate values in existing records."
+
+#: Disabled references:1
+msgid "○ 创建索引时选择的字段不能和之前已创建的某个索引的字段完全一样；"
+msgstr "o the fields selected when creating an index cannot be exactly the same as the fields of a previously created index."
+
+#: Disabled references:1
+msgid "○ 一张工作表只能创建一个「文本索引」或「所有文本字段全文索引」；"
+msgstr "o Only one \"text index\" or \"full text index of all text fields\" can be created for a worksheet."
+
+#: Disabled references:1
+msgid "○ 一个索引只能包含一个「选项」类型的字段，如单选/多选/人员/部门等；"
+msgstr "o An index can only contain one \"option\" type field, such as single/multiple choice/person/department, etc."
+
+#: Disabled references:1
+msgid "索引越多越好吗？"
+msgstr "Is more indexing better?"
+
+#: Disabled references:1
+msgid "并非如此。索引只会加速检索，而在新增、更新、删除记录时系统会花费更多的时间用于更新索引，过多的索引会很明显的降低这些操作的速度，甚至影响到查询的速度。"
+msgstr "Not so. Indexing will only speed up retrieval, and the system will spend more time on updating indexes when adding, updating, and deleting records. Too much indexing will obviously slow down these operations, and even affect the speed of queries."
+
+#: Disabled references:1
+msgid "系统会自动为我建立索引吗？"
+msgstr "Will the system automatically create an index for me?"
+
+#: Disabled references:1
+msgid "是的，我们会根据公有云平台每天的访问日志，自动学习和智能分析被频繁使用的查询语句，并自动创建合适的索引。所以，请不要随意修改和删除不是由你自己创建的索引。私有部署环境暂不支持自动创建索引。"
+msgstr "Yes, we will automatically learn and intelligently analyze the frequently used query statements based on the daily access logs of the public cloud platform and automatically create the appropriate indexes. So, please do not modify and delete indexes that are not created by you. The private deployment environment does not support automatic index creation at the moment."
+
+#: Disabled references:1
+msgid "编辑索引"
+msgstr "Edit Index"
+
+#: Disabled references:1
+msgid "请移除索引中已删除的字段"
+msgstr "Please remove the deleted fields from the index"
+
+#: Disabled references:1
+msgid "每张工作表只能创建一个文本索引"
+msgstr "Only one text index can be created per worksheet"
+
+#: Disabled references:1
+msgid "索引只能包含一个多选类型字段"
+msgstr "Indexes can only contain one field of multiple choice type"
+
+#: Disabled references:1
+msgid "索引不能同时包含文本索引与多选类型字段"
+msgstr "Indexes cannot contain both text indexes and multiple choice type fields"
+
+#: Disabled references:1
+msgid "超出索引最多显示"
+msgstr "Out of index display up to"
+
+#: Disabled references:1
+msgid "索引已存在"
+msgstr "Index already exists"
+
+#: Disabled references:1
+msgid "选择索引字段"
+msgstr "Selecting Index Fields"
+
+#: Disabled references:1
+msgid "每张工作表只能创建一个「文本索引」或者「文本字段全文索引」；创建「文本索引」时，不能包含「选项字段」；每个索引只能包含一个「选项字段」"
+msgstr "Only one Text Index or Text Field Full Text Index can be created per worksheet; when creating a Text Index, it cannot contain an Option Field; each index can only contain one Option Field"
+
+#: Disabled references:1
+msgid "索引类型"
+msgstr "Index Type"
+
+#: Disabled references:1
+msgid "建立唯一索引后，字段的值不允许重复。如果字段为非必填，则整个工作表只能有一条为空的数据，以保证数据的唯一性"
+msgstr "When a unique index is created, the values of the fields are not allowed to be duplicated. If the field is not required, the entire worksheet can only have one empty data to ensure the uniqueness of the data"
+
+#: Disabled references:1
+msgid "所有文本字段全文索引"
+msgstr "Full-text indexing of all text fields"
+
+#: Disabled references:1
+msgid "支持所有文本字段全文检索。工作表创建文本索引后不可再创建此类型索引"
+msgstr "Support full-text search for all text fields. You cannot create this type of index after creating a text index on a worksheet"
+
+#: Disabled references:1
+msgid "索引名称"
+msgstr "Index name"
+
+#: Disabled references:1
+msgid "不输入名称将按字段名称自动创建"
+msgstr "Not entering a name will automatically create the field by its name"
+
+#: Disabled references:1
+msgid "如何利用索引加速检索？"
+msgstr "How to use indexing to speed up retrieval?"
+
+#: Disabled references:1
+msgid "为工作表建立索引，就像是为一本字典建立一个可以用拼音检索的目录。创建适合的索引可以非常有效的加快特定查询条件下的记录检索速度。在创建索引之前，你需要了解创建索引的一些基本原则。"
+msgstr "Creating an index for a worksheet is like creating a phonetically searchable table of contents for a dictionary. Creating suitable indexes can be very effective in speeding up the retrieval of records for specific query conditions. Before creating an index, you need to understand some basic principles of index creation."
+
+#: Disabled references:1
+msgid "修改保存"
+msgstr "Modify Save"
+
+#: Disabled references:1
+msgid "不能修改排队中的索引"
+msgstr "Cannot modify indexes in queue"
+
+#: Disabled references:1
+msgid "二维码权限"
+msgstr "QR Code Permissions"
+
+#: Disabled references:1
+msgid "仅限应用成员访问"
+msgstr "Access is restricted to application members only"
+
+#: Disabled references:1
+msgid "下级包含"
+msgstr "Subordinate contains"
+
+#: Disabled references:1
+msgid "下级不包含"
+msgstr "Subordinate not included"
+
+#: Disabled references:1
+msgid "有上次未提交的内容，是否恢复？"
+msgstr "Is there content that was not submitted last time, is it restored?"
+
+#: Disabled references:1
+msgid "丢弃"
+msgstr "Discard"
+
+#: Disabled references:1
+msgid "讨论(外部)"
+msgstr "Discussion (external)"
+
+#: Disabled references:1
+msgid "讨论用户"
+msgstr "Discuss users"
+
+#: Disabled references:1
+msgid "记录拥有者才能操作"
+msgstr "Only the record owner can operate"
+
+#: Disabled references:1
+msgid "应用管理员才能操作"
+msgstr "Only application administrators can operate"
+
+#: Disabled references:1
+msgid "未找到相关的人员或群聊"
+msgstr "No related person or group chat found"
+
+#: Disabled references:1
+msgid "最近聊天"
+msgstr "Recent Chats"
+
+#: Disabled references:1
+msgid "发送到"
+msgstr "Send to"
+
+#: Disabled references:1
+msgid "添加说明内容"
+msgstr "Add description content"
+
+#: Disabled references:1
+msgid "分享链接关闭或数据不存在"
+msgstr "Share link is closed or data does not exist"
+
+#: Disabled references:1
+msgid "请输入登录密码，以验证管理员身份"
+msgstr "Please enter your login password to verify your administrator identity"
+
+#: Disabled references:1
+msgid "1.下载导入模版"
+msgstr "1.Download Import Template"
+
+#: Disabled references:1
+msgid "导入模板"
+msgstr "Import Templates"
+
+#: Disabled references:1
+msgid "2.上传完善后的表格"
+msgstr "2.Upload the completed form"
+
+#: Disabled references:1
+msgid "·导入成功后，成员会收到邀请链接，验证后可加入组织"
+msgstr "-After successful import, members will receive an invitation link and can join the organization after verification"
+
+#: Disabled references:1
+msgid "·最多一次可以导入 500 个用户，否则可能导致失效"
+msgstr "-Up to 500 users can be imported at a time, otherwise it may fail"
+
+#: Disabled references:1
+msgid "1.导出通讯录"
+msgstr "1.Exporting Address Book"
+
+#: Disabled references:1
+msgid "导出后，可在本地修改成员信息，上传更新"
+msgstr "After exporting, you can modify member information locally and upload updates"
+
+#: Disabled references:1
+msgid "如果需要修改成员信息，可在本地编辑后，上传表格完成修改"
+msgstr "If you need to change the member information, you can edit it locally and then upload the form to complete the changes"
+
+#: Disabled references:1
+msgid "支持 excel"
+msgstr "Support excel"
+
+#: Disabled references:1
+msgid "导入 / 导出 / 修改"
+msgstr "Import / Export / Modify"
+
+#: Disabled references:1
+msgid "导入新成员"
+msgstr "Importing new members"
+
+#: Disabled references:1
+msgid "导出 / 修改"
+msgstr "Export / Modify"
+
+#: Disabled references:1
+msgid "正在导入..."
+msgstr "Importing..."
+
+#: Disabled references:1
+msgid "失败原因"
+msgstr "Reasons for Failure"
+
+#: Disabled references:1
+msgid "导入新成员失败列表"
+msgstr "Importing new members failure list"
+
+#: Disabled references:1
+msgid "导入修改用户信息失败列表"
+msgstr "Importing a list of failed attempts to modify user information"
+
+#: Disabled references:1
+msgid "成功导入 %0 人，失败 %1 人"
+msgstr "Successful import %0 people, failed %1 people"
+
+#: Disabled references:1
+msgid "成功更新%0人，未更新 %1 人"
+msgstr "Successfully updated %0 people, not updated %1 people"
+
+#: Disabled references:1
+msgid "更新成员信息失败列表"
+msgstr "Update member information failure list"
+
+#: Disabled references:1
+msgid "下载失败列表"
+msgstr "Download Failure List"
+
+#: Disabled references:1
+msgid "导入错误"
+msgstr "Import error"
+
+#: Disabled references:1
+msgid "请"
+msgstr "Please"
+
+#: Disabled references:1
+msgid "，按格式修改后重新导入"
+msgstr "Modify the format and re-import it."
+
+#: Disabled references:1
+msgid "单个文件大小超过4mb，无法支持上传"
+msgstr "Single file size more than 4mb, cannot support upload"
+
+#: Disabled references:1
+msgid "地址"
+msgstr "Address "
+
+#: Disabled references:1
+msgid "请输入新密码"
+msgstr " Please enter a new password "
+
+#: Disabled references:1
+msgid "密码过于简单，至少8~20位且含字母+数字"
+msgstr "Password is too simple, at least 8~20 digits and contains letters + numbers"
+
+#: Disabled references:1
+msgid "批量重置密码(%0 个用户)"
+msgstr "Batch password reset (%0 users)"
+
+#: Disabled references:1
+msgid "密码，8-20位，必须含字母+数字"
+msgstr "Password, 8-20 digits, must contain letters + numbers"
+
+#: Disabled references:1
+msgid "仅看无部门人员"
+msgstr "Only see no department personnel"
+
+#: Disabled references:1
+msgid "批量重置密码"
+msgstr "Batch password reset"
+
+#: Disabled references:1
+msgid "编辑%0个用户信息"
+msgstr "Edit %0 user information"
+
+#: Disabled references:1
+msgid "选择编辑字段"
+msgstr "Select the edit field"
+
+#: Disabled references:1
+msgid "通知用户新密码"
+msgstr "Notify users of new passwords"
+
+#: Disabled references:1
+msgid "用备份还原了新应用"
+msgstr "Restored the new app with a backup"
+
+#: Disabled references:1
+msgid "将应用备份为"
+msgstr "Back up the application as"
+
+#: Disabled references:1
+msgid "将应用还原为"
+msgstr "Restore the application to"
+
+#: Disabled references:1
+msgid "删除了备份"
+msgstr "Deleted the backup"
+
+#: Disabled references:1
+msgid "重命名了备份"
+msgstr "Renamed the backup"
+
+#: Disabled references:1
+msgid "下载了备份"
+msgstr "Downloaded backup"
+
+#: Disabled references:1
+msgid " 暂无备份文件"
+msgstr " No backup file available"
+
+#: Disabled references:1
+msgid "还原应用"
+msgstr "Restore Applications"
+
+#: Disabled references:1
+msgid "还原为新应用"
+msgstr "Restore to new application"
+
+#: Disabled references:1
+msgid "下载备份"
+msgstr "Download Backup"
+
+#: Disabled references:1
+msgid "删除备份"
+msgstr "Delete Backup"
+
+#: Disabled references:1
+msgid "token失效"
+msgstr "token expiration"
+
+#: Disabled references:1
+msgid "网络版本过低，无法使用高版本功能"
+msgstr "Network version is too low to use higher version features"
+
+#: Disabled references:1
+msgid "确认备份“%0”应用？"
+msgstr "Confirm backup \"%0\" application?"
+
+#: Disabled references:1
+msgid "该应用已备份文件达到上限%0个，请前往“管理备份文件”删除一些备份文件后再进行备份"
+msgstr "The application has reached the maximum %0 backup files, please go to \"Manage backup files\" to delete some backup files and then backup again."
+
+#: Disabled references:1
+msgid "此操作仅备份"
+msgstr "This operation only backs up"
+
+#: Disabled references:1
+msgid "当前应用的结构和配置，该应用下的数据不会备份。每个备份文件仅保留"
+msgstr "The structure and configuration of the current application, the data under that application is not backed up. Each backup file retains only"
+
+#: Disabled references:1
+msgid "60天"
+msgstr "60 days"
+
+#: Disabled references:1
+msgid "有效期，超过60天的会自动删除，每个应用最多可备份"
+msgstr "Valid for more than 60 days, will be automatically deleted, each application can be backed up at most"
+
+#: Disabled references:1
+msgid "10个"
+msgstr "10"
+
+#: Disabled references:1
+msgid "文件。"
+msgstr "Associate Folder"
+
+#: Disabled references:1
+msgid "当前已备份:"
+msgstr "Currently backed up:"
+
+#: Disabled references:1
+msgid "删除成功 "
+msgstr "Deleted successfully"
+
+#: Disabled references:1
+msgid "删除失败 "
+msgstr "Failed to delete"
+
+#: Disabled references:1
+msgid "确定将备份文件“%0”删除吗？"
+msgstr "Are you sure to delete the backup file \"%0\"?"
+
+#: Disabled references:1
+msgid "暂无信息"
+msgstr "No information"
+
+#: Disabled references:1
+msgid "每个应用最多创建10个备份文件，每个文件仅保留60天有效期"
+msgstr "Create up to 10 backup files per application and keep each file valid for 60 days only"
+
+#: Disabled references:1
+msgid "该应用已备份文件数达到上限%0个，删除一些备份文件后方可再次备份"
+msgstr "The application has reached the maximum number of backup files %0, delete some backup files before you can backup again"
+
+#: Disabled references:1
+msgid "备份文件"
+msgstr "Backup file"
+
+#: Disabled references:1
+msgid "密码不正确"
+msgstr "incorrect password"
+
+#: Disabled references:1
+msgid "请进行身份验证"
+msgstr "Please verify your identity"
+
+#: Disabled references:1
+msgid "还原应用为敏感操作，需要验证身份"
+msgstr "Restore application is a sensitive operation and requires identity verification"
+
+#: Disabled references:1
+msgid "将应用还原到“%0”备份的版本，意味着"
+msgstr "Restoring the application to the \"%0\" backup version means"
+
+#: Disabled references:1
+msgid "在%0之后所有配置相关的更改都将丢失，"
+msgstr "All configuration-related changes after %0 will be lost, the"
+
+#: Disabled references:1
+msgid "建议在还原之前先将当前版本进行备份，还原前请先打开应用维护状态。"
+msgstr "It is recommended to make a backup of the current version before restoring, and please open the application maintenance status before restoring."
+
+#: Disabled references:1
+msgid "应用维护状态"
+msgstr "Application Maintenance Status"
+
+#: Disabled references:1
+msgid "还原成功后自动结束维护状态"
+msgstr "Automatic end of maintenance status after successful restoration"
+
+#: Disabled references:1
+msgid "还原时同时备份当前版本"
+msgstr "Backup the current version at the same time when restoring"
+
+#: Disabled references:1
+msgid "（已有10个备份文件，不能进行备份）"
+msgstr "(There are already 10 backup files and no backups can be made)"
+
+#: Disabled references:1
+msgid "确定将备份文件“%0”还原为一个新的应用吗？"
+msgstr "Are you sure you want to restore the backup file \"%0\" to a new application?"
+
+#: Disabled references:1
+msgid "批量搜索手机号"
+msgstr "Bulk search for cell phone numbers"
+
+#: Disabled references:1
+msgid "通过手机号批量搜索用户，每个手机号占一行"
+msgstr "Bulk search for users by cell phone number, each cell phone number occupies one row"
+
+#: Disabled references:1
+msgid "\"%0\"应用"
+msgstr "The Worksheet is quoted by App Bundle %0, deletion will cause the App Bundle unavailable"
+
+#: Disabled references:1
+msgid "\"%0\"工作表"
+msgstr "%0 Preview"
+
+#: Disabled references:1
+msgid "常用导航"
+msgstr "Common Navigation"
+
+#: Disabled references:1
+msgid "我的客户"
+msgstr "My Clients"
+
+#: Disabled references:1
+msgid "我的线索"
+msgstr "My Leads"
+
+#: Disabled references:1
+msgid "销售订单"
+msgstr "Sales Order"
+
+#: Disabled references:1
+msgid "报表"
+msgstr "Report Form"
+
+#: Disabled references:1
+msgid "采购入库"
+msgstr "Stock In"
+
+#: Disabled references:1
+msgid "销售出库"
+msgstr "Sales out"
+
+#: Disabled references:1
+msgid "产品库存"
+msgstr "Inventory"
+
+#: Disabled references:1
+msgid "调拨记录"
+msgstr "Allocation records"
+
+#: Disabled references:1
+msgid "通过点击按钮创建记录时，将会优先生效此处配置的默认值"
+msgstr "When creating a record by clicking the button, the default values configured here will take precedence"
+
+#: Disabled references:1
+msgid "字段默认值"
+msgstr "Field Default Value"
+
+#: Disabled references:1
+msgid "触发者所在的部门"
+msgstr "The department where the trigger is located"
+
+#: Disabled references:1
+msgid "你确认执行此操作吗？"
+msgstr "Do you confirm to perform this action?"
+
+#: Disabled references:1
+msgid "无权查看"
+msgstr "No right to view"
+
+#: Disabled references:1
+msgid "请先选择一个视图"
+msgstr "Please select a view first"
+
+#: Disabled references:1
+msgid "组件名称"
+msgstr "Component Name"
+
+#: Disabled references:1
+msgid "输入组件名称"
+msgstr "Enter the component name"
+
+#: Disabled references:1
+msgid "视图来源"
+msgstr "View Source"
+
+#: Disabled references:1
+msgid "数据展示数量"
+msgstr "Number of data displays"
+
+#: Disabled references:1
+msgid "输入最大展示（为空表示不限制）"
+msgstr "Enter the maximum display (null means no limit)"
+
+#: Disabled references:1
+msgid "允许新建记录"
+msgstr "Allow new records"
+
+#: Disabled references:1
+msgid "显示选中结果"
+msgstr "Show selected results"
+
+#: Disabled references:1
+msgid "自定义等级文案"
+msgstr "Custom Grade Copy"
+
+#: Disabled references:1
+msgid "设置等级说明"
+msgstr "Setting level description"
+
+#: Disabled references:1
+msgid "为每个等级设置说明文案。当鼠标悬停在对应等级或在选中后，显示对等级的描述文案。"
+msgstr "Set the description text for each level. When the mouse hovers over the corresponding level or when it is selected, the description text for the level is displayed."
+
+#: Disabled references:1
+msgid "Webhook数组"
+msgstr "Webhook arrays"
+
+#: Disabled references:1
+msgid "代码块数组"
+msgstr "Code Block Arrays"
+
+#: Disabled references:1
+msgid "业务流程数组"
+msgstr "Business Process Arrays"
+
+#: Disabled references:1
+msgid "选择数据类型"
+msgstr "Select data type"
+
+#: Disabled references:1
+msgid "选择业务流程节点"
+msgstr "Select Business Process Node"
+
+#: Disabled references:1
+msgid "仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。"
+msgstr "Interface push functionality is only supported for PBPs invoked via buttons on custom pages (this node does not work when invoked via APIs and workflows)."
+
+#: Disabled references:1
+msgid "在本组织下，正在被以下事件调用"
+msgstr "Under this organization, is being called by the following events"
+
+#: Disabled references:1
+msgid "未被任何流程或按钮调用"
+msgstr "Not called by any process or button"
+
+#: Disabled references:1
+msgid "包括用户自行注销或被管理员注销"
+msgstr "This includes users logging themselves out or being logged out by the administrator"
+
+#: Disabled references:1
+msgid "系统默认接受数据后返回"
+msgstr "The system accepts data by default and returns"
+
+#: Disabled references:1
+msgid "转为唯一分支：只执行第一个满足条件的分支下的节点序列，其他分支均不执行"
+msgstr "To unique branch: only the sequence of nodes under the first branch satisfying the condition is executed, all other branches are not executed"
+
+#: Disabled references:1
+msgid "转为包容分支：满足任一分支条件的节点序列均同步执行，直至合并"
+msgstr "To inclusive branches: sequences of nodes that satisfy any branch condition are executed synchronously until merged"
+
+#: Disabled references:1
+msgid "包容分支(点击折叠)"
+msgstr "Inclusive branching (click to collapse)"
+
+#: Disabled references:1
+msgid "唯一分支(点击折叠)"
+msgstr "Unique branch (click to collapse)"
+
+#: Disabled references:1
+msgid "添加分支"
+msgstr "Add a branch"
+
+#: Disabled references:1
+msgid "从对象数组获取数据"
+msgstr "Getting data from an array of objects"
+
+#: Disabled references:1
+msgid "获取Webhook、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "Get Webhook, code block, JSON array objects encapsulating business process input nodes"
+
+#: Disabled references:1
+msgid "组织/部门/协作"
+msgstr "Organization/Department/Collaboration"
+
+#: Disabled references:1
+msgid "获取单条人员/部门数据"
+msgstr "Get single person / department data"
+
+#: Disabled references:1
+msgid "获取多条人员/部门数据"
+msgstr "Get multiple people/department data"
+
+#: Disabled references:1
+msgid "获取单条外部人员数据"
+msgstr "Get single external person data"
+
+#: Disabled references:1
+msgid "获取多条外部人员数据"
+msgstr "Get multiple external people data"
+
+#: Disabled references:1
+msgid "%0(无效数据)"
+msgstr "%0 (invalid data)"
+
+#: Disabled references:1
+msgid "导入完成，有部分数据未被导入,请删除重复值后重试"
+msgstr "Import is complete, some data has not been imported, please delete the duplicate values and try again."
+
+#: Disabled references:1
+msgid "当前记录的字段值"
+msgstr "Field value of the current record"
+
+#: Disabled references:1
+msgid "自定义函数"
+msgstr "Custom Functions"
+
+#: Disabled references:1
+msgid "导出Excel数据格式"
+msgstr "Exporting Excel data format"
+
+#: Disabled references:1
+msgid "按统计显示单位导出"
+msgstr "Export by statistical display unit"
+
+#: Disabled references:1
+msgid "选择一个检查项字段标记记录属性为里程碑"
+msgstr "Select a check item field to mark the record attribute as a milestone"
+
+#: Disabled references:1
+msgid "依据字段“%0“的匹配字段仅限人员ID"
+msgstr "Matching fields based on the field \"%0\" are limited to the person ID"
+
+#: Disabled references:1
+msgid "选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选"
+msgstr "Select a field from the associated table as the matching field for the mapping. Supported field types include: text box, phone number, email address, ID, text splice, auto number, record ID, member radio"
+
+#: Disabled references:1
+msgid "单个文件大小超过10mb，无法支持上传"
+msgstr "Single file size more than 10mb, cannot support upload"
+
+#: Disabled references:1
+msgid "请在函数头部定义变量接受字段动态值"
+msgstr "Please define variables in the function header to accept dynamic values for the fields"
+
+#: Disabled references:1
+msgid "自定义函数指采用 JavaScript 代码来实现函数，函数体需要返回一个值"
+msgstr "Custom functions are functions that use JavaScript code to implement a function whose body needs to return a value"
+
+#: Disabled references:1
+msgid "自定义函数采用异步更新，函数独立线程运行不会阻塞 UI"
+msgstr "Custom functions are updated asynchronously, and the functions run in separate threads without blocking the UI"
+
+#: Disabled references:1
+msgid "函数 1 秒内没有返回结果将被主动终止"
+msgstr "The function will be terminated if no result is returned within 1 second."
+
+#: Disabled references:1
+msgid "无效类型"
+msgstr "Invalid type"
+
+#: Disabled references:1
+msgid "显示为 -- (连续)"
+msgstr "Displayed as -- (continuous)"
+
+#: Disabled references:1
+msgid "显示为 -- (中断)"
+msgstr "Displayed as -- (interrupt)"
 

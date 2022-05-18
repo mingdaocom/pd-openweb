@@ -94,7 +94,7 @@ function WidgetSetting(props) {
               {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
               {(HAVE_CONFIG_CONTROL.includes(type) ||
                 (type === 10 && advancedSetting.checktype === '1') ||
-                (type === 26 && advancedSetting.usertype !== '2')) && <ControlSetting {...allProps} />}
+                (type === 11 && advancedSetting.showtype !== '2')) && <ControlSetting {...allProps} />}
               {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
               {/* // 文本控件移动端输入 */}
               {includes([2], type) && <WidgetMobileInput {...allProps} />}

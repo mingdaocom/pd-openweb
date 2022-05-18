@@ -30,7 +30,7 @@ export const inputBlurFn = (e, cb) => {
   }
 };
 //className list=> current,errorDiv,errorDivCu
-export const setCNFn = (warnningData, list, focusDiv, currentData) => {
+export const setWarnningData = (warnningData, list, focusDiv, currentData) => {
   return {
     current: !!currentData,
     errorDiv: _.find(warnningData, it => _.includes(list, it.tipDom)),

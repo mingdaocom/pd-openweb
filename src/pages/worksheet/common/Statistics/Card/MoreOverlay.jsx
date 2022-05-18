@@ -3,80 +3,88 @@ import cx from 'classnames';
 import { Icon, Dialog } from 'ming-ui';
 import { reportTypes } from '../Charts/common';
 import { exportExcel } from '../common';
-import ShareDialog from '../components/ShareDialog';
+import Share from 'src/pages/worksheet/components/Share';
 import PageMove from '../components/PageMove';
 import reportConfig from '../api/reportConfig';
 import { Dropdown, Menu, Divider } from 'antd';
 import { connect } from 'react-redux';
 import reportApi from 'src/pages/worksheet/common/Statistics/api/report';
+import sheetApi from 'src/api/worksheet';
 
 const confirm = Dialog.confirm;
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['isCharge']),
-  })
-)
+@connect(state => ({
+  ..._.pick(state.sheet, ['base', 'isCharge']),
+}))
 export default class MoreOverlay extends Component {
   constructor(props) {
     super(props);
     this.state = {
       shareVisible: false,
-      showPageMove: false
-    }
+      showPageMove: false,
+    };
   }
   handleExportExcel = () => {
     const { report, worksheetId, exportData } = this.props;
-    const { filters = [] } = exportData;
-    reportApi.export({
-      reportId: report.id,
-      pageId: worksheetId,
-      filters: filters.length ? [filters] : undefined
-    }).then(result => {
-      if (!result) {
-        alert(_l('导出错误'), 2);
-      }
-    }).fail(error => {
-      alert(error, 2);
-    });
-  }
+    const { filters = [], sorts, filterControls, filterRangeId, rangeType, rangeValue, particleSizeType } = exportData;
+    reportApi
+      .export({
+        reportId: report.id,
+        pageId: worksheetId,
+        particleSizeType,
+        filterRangeId,
+        rangeType,
+        rangeValue,
+        sorts,
+        filters: [filters, filterControls].filter(n => !_.isEmpty(n))
+      })
+      .then(result => {
+        if (!result) {
+          alert(_l('导出错误'), 2);
+        }
+      })
+      .fail(error => {
+        alert(error, 2);
+      });
+  };
   handleDelete = () => {
-    const { id, name } = this.props.report;
+    const { report, filter, base } = this.props;
+    const { id, name } = report;
+    const appId = this.props.appId || base.appId;
     confirm({
       title: <span className="Red">{_l('您确定要删除表“%0” ?', name)}</span>,
       onOk: () => {
         reportConfig.deleteReport({
-          reportId: id,
+          reportId: id
         }).then(result => {
           this.props.onRemove(id);
+          if (filter.filterId) {
+            sheetApi.deleteWorksheetFilter({
+              appId: appId,
+              filterId: filter.filterId,
+            }).then();
+          }
         });
       },
     });
-  }
+  };
   handleUpdateOwnerId = () => {
     const { ownerId, report } = this.props;
-    reportConfig.updateOwnerId({
+    reportConfig
+      .updateOwnerId({
         ownerId: ownerId ? '' : md.global.Account.accountId,
         reportId: report.id,
-    }).then(result => {
-      if (result) {
-        alert(_l('移出成功'));
-        this.props.onRemove(report.id);
-      }
-    });
-  }
+      })
+      .then(result => {
+        if (result) {
+          alert(_l('移出成功'));
+          this.props.onRemove(report.id);
+        }
+      });
+  };
   renderOverlay() {
-    const {
-      reportType,
-      report,
-      ownerId,
-      isMove,
-      isCharge,
-      permissions,
-      onOpenFilter,
-      onOpenSetting,
-      onRemove
-    } = this.props;
+    const { reportType, report, ownerId, isMove, isCharge, permissions, onOpenFilter, onOpenSetting, onRemove } =
+      this.props;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType);
     return (
       <Menu className="chartMenu" style={{ width: 180 }}>
@@ -110,10 +118,7 @@ export default class MoreOverlay extends Component {
           </Menu.Item>
         )}
         {reportTypes.NumberChart !== reportType && (
-          <Menu.Item
-            className="pLeft10"
-            onClick={this.handleExportExcel}
-          >
+          <Menu.Item className="pLeft10" onClick={this.handleExportExcel}>
             <div className="flexRow valignWrapper">
               <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="file_download" />
               <span>{_l('导出Excel')}</span>
@@ -123,10 +128,7 @@ export default class MoreOverlay extends Component {
         {isMove && isCharge && (
           <Fragment>
             <Divider className="mTop5 mBottom5" />
-            <Menu.Item
-              className="pLeft10"
-              onClick={this.handleUpdateOwnerId}
-            >
+            <Menu.Item className="pLeft10" onClick={this.handleUpdateOwnerId}>
               <div className="flexRow valignWrapper">
                 <Icon className="Gray_9e Font18 mLeft5 mRight5" icon={ownerId ? 'worksheet_public' : 'minus-square'} />
                 <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
@@ -161,7 +163,8 @@ export default class MoreOverlay extends Component {
   }
   render() {
     const { shareVisible, showPageMove } = this.state;
-    const { report, className, permissions, appId, isCharge, getPopupContainer } = this.props;
+    const { worksheetId, report, className, permissions, isCharge, getPopupContainer, base } = this.props;
+    const appId = this.props.appId || base.appId;
     return (
       <Fragment>
         <Dropdown
@@ -172,15 +175,20 @@ export default class MoreOverlay extends Component {
         >
           <Icon className={className} icon="more_horiz" />
         </Dropdown>
-        <ShareDialog
-          title={_l('分享统计图: %0', report.name)}
-          isCharge={permissions || isCharge}
-          sourceId={report.id}
-          visible={shareVisible}
-          onCancel={() => {
-            this.setState({ shareVisible: false });
-          }}
-        />
+        {shareVisible && (
+          <Share
+            title={_l('分享统计图: %0', report.name)}
+            from="report"
+            isCharge={permissions || isCharge}
+            params={{
+              appId,
+              sourceId: report.id,
+              worksheetId,
+              title: report.name,
+            }}
+            onClose={() => this.setState({ shareVisible: false })}
+          />
+        )}
         {showPageMove && (
           <PageMove
             appId={appId}
@@ -194,4 +202,3 @@ export default class MoreOverlay extends Component {
     );
   }
 }
-

@@ -14,7 +14,7 @@ import {
   removeFromLocal,
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
-import ShareNewRecord from './ShareNewRecord';
+import Share from 'src/pages/worksheet/components/Share';
 import './NewRecord.less';
 
 const Con = styled.div`
@@ -27,10 +27,10 @@ const Con = styled.div`
 `;
 const EditingBarCon = styled.div`
   position: absolute;
-  top: 60px;
+  top: 2px;
   width: 100%;
   overflow: hidden;
-  height: 56px;
+  height: 86px;
 `;
 
 function foucsInput(formcon) {
@@ -56,13 +56,15 @@ function NewReccordForm(props) {
     entityName,
     showTitle,
     needCache,
-    showShare = false,
     defaultRelatedSheet,
     defaultFormDataEditable,
     defaultFormData,
+    writeControls,
     registeFunc,
     masterRecord,
     masterRecordRowId,
+    shareVisible,
+    setShareVisible = () => {},
     onSubmitBegin = () => {},
     onSubmitEnd = () => {},
     onAdd = () => {},
@@ -81,7 +83,6 @@ function NewReccordForm(props) {
   const [originFormdata, setOriginFormdata] = useState([]);
   const [formdata, setFormdata] = useState([]);
   const { projectId, publicShareUrl, visibleType } = worksheetInfo;
-  const [shareVisible, setShareVisible] = useState();
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
@@ -102,6 +103,7 @@ function NewReccordForm(props) {
           defaultRelatedSheet,
           defaultFormData,
           defaultFormDataEditable,
+          writeControls,
         });
         setWorksheetInfo(newWorksheetInfo);
         setFormdata(newFormdata);
@@ -183,9 +185,6 @@ function NewReccordForm(props) {
       if (requesting) {
         return false;
       }
-      if (viewId) {
-        removeFromLocal('tempNewRecord_' + viewId);
-      }
       setRequesting(true);
       const { autoFill, continueAdd } = cache.current.newRecordOptions || {};
       submitNewRecord({
@@ -221,7 +220,12 @@ function NewReccordForm(props) {
           setRandom(Math.random().toString());
           foucsInput(formcon.current);
         },
-        onAdd,
+        onAdd: resData => {
+          if (viewId) {
+            removeFromLocal('tempNewRecord_' + viewId);
+          }
+          onAdd(resData);
+        },
         ..._.pick(props, [
           'notDialog',
           'addWorksheetRow',
@@ -237,6 +241,7 @@ function NewReccordForm(props) {
   }
   registeFunc({ newRecord });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
+  const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
   return (
     <Con>
       {tempNewRecord && (
@@ -245,8 +250,9 @@ function NewReccordForm(props) {
             visible={restoreVisible}
             defaultTop={-140}
             visibleTop={8}
-            title={_l('有上次意外退出未提交的内容，是否恢复？')}
-            updateText={_l('确定')}
+            title={_l('有上次未提交的内容，是否恢复？')}
+            updateText={_l('恢复')}
+            cancelText={_l('丢弃')}
             onUpdate={() => {
               setRestoreVisible(false);
               if (viewId) {
@@ -268,28 +274,22 @@ function NewReccordForm(props) {
       )}
       <RecordCon>
         {!window.isPublicApp && shareVisible && (
-          <ShareNewRecord
-            visible
+          <Share
+            title={_l('新建记录链接')}
+            from="newRecord"
+            isPublic={visibleType === 2}
+            publicUrl={publicShareUrl}
             isCharge={isCharge}
-            appId={appId}
-            viewId={viewId}
-            worksheetId={worksheetId}
-            publicShareUrl={publicShareUrl}
-            visibleType={visibleType}
+            params={{
+              appId,
+              viewId,
+              worksheetId,
+              title: recordTitle,
+            }}
             onClose={() => setShareVisible(false)}
           />
         )}
-        {showTitle && (
-          <div className="newRecordTitle ellipsis Font19 mBottom10">
-            {title || _l('创建%0', entityName || worksheetInfo.entityName || '')}
-            {showShare && (
-              <i
-                className="icon icon-share newRecordLinkIcon ThemeHoverColor3"
-                onClick={() => setShareVisible(true)}
-              ></i>
-            )}
-          </div>
-        )}
+        {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10">{recordTitle}</div>}
         <div className="customFieldsCon" ref={formcon}>
           <RecordForm
             from={2}
@@ -312,7 +312,7 @@ function NewReccordForm(props) {
             relateRecordData={relateRecordData}
             worksheetId={worksheetId}
             showError={errorVisible}
-            onChange={(data, { noSaveTemp } = {}) => {
+            onChange={(data, ids, { noSaveTemp } = {}) => {
               if (isSubmitting.current) {
                 return;
               }
@@ -361,10 +361,10 @@ NewReccordForm.propTypes = {
   title: PropTypes.string,
   entityName: PropTypes.string,
   showTitle: PropTypes.bool,
-  showShare: PropTypes.bool,
   defaultRelatedSheet: PropTypes.shape({}),
   defaultFormData: PropTypes.shape({}),
   defaultFormDataEditable: PropTypes.bool,
+  writeControls: PropTypes.arrayOf(PropTypes.shape({})),
   registeFunc: PropTypes.func,
   onError: PropTypes.func,
 };

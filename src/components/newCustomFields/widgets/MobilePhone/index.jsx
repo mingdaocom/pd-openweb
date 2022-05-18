@@ -24,6 +24,7 @@ export default class Widgets extends Component {
 
   state = {
     hideCountry: false,
+    originValue: '',
   };
 
   componentDidMount() {
@@ -82,6 +83,17 @@ export default class Widgets extends Component {
     }
   }
 
+  onFocus = e => {
+    const countryData = this.iti.getSelectedCountryData();
+    let value;
+    if (!_.keys(countryData).length) {
+      value = $(this.input).val().replace(/ /g, '');
+    } else {
+      value = this.iti.getNumber();
+    }
+    this.setState({ originValue: value });
+  };
+
   onChange = () => {
     const countryData = this.iti.getSelectedCountryData();
     let value;
@@ -97,7 +109,7 @@ export default class Widgets extends Component {
 
   render() {
     const { disabled, hint, inputClassName, onBlur, onInputKeydown, enumDefault, from, value } = this.props;
-    const { hideCountry } = this.state;
+    const { hideCountry, originValue } = this.state;
 
     return (
       <div className={cx({ customFormControlTel: enumDefault === 1 || hideCountry })}>
@@ -109,7 +121,8 @@ export default class Widgets extends Component {
           }}
           placeholder={hint}
           disabled={disabled}
-          onBlur={onBlur}
+          onFocus={this.onFocus}
+          onBlur={() => onBlur(originValue)}
           onKeyDown={onInputKeydown}
         />
 

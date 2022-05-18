@@ -303,7 +303,12 @@ export function createWorksheetColumnTag(id, options) {
 export function genControlTag(allControls, id) {
   const control = getControlByControlId(allControls, id);
   const invalid = isEmpty(control);
-  return <ControlTag className={cx({ invalid })}>{invalid ? _l('字段已删除') : control.controlName}</ControlTag>;
+  const invalidError = control && control.type === 30 && (control.strDefault || '')[0] === '1';
+  return (
+    <ControlTag className={cx({ invalid: invalid || invalidError })}>
+      {invalid ? _l('字段已删除') : invalidError ? _l('%0(无效类型)', control.controlName) : control.controlName}
+    </ControlTag>
+  );
 }
 
 export function navigateToApp(worksheetId) {

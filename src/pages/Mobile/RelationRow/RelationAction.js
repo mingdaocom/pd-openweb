@@ -235,6 +235,7 @@ class RelationAction extends Component {
 
     return (
       <RelateScanQRCode
+        projectId={worksheet.projectId}
         worksheetId={worksheet.worksheetId}
         filterControls={filterControls}
         onChange={data => {

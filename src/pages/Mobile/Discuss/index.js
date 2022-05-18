@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import { Tabs, Flex } from 'antd-mobile';
 import * as actions from './redux/actions';
 import DiscussList from './DiscussList';
@@ -12,22 +12,25 @@ import worksheetAjax from 'src/api/worksheet';
 import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { getDiscussConfig } from 'src/api/externalPortal';
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
-const tabs = [
-  { title: _l('讨论'), type: 1 },
-  { title: _l('文件'), type: 2 },
-  { title: _l('日志'), type: 3 },
-];
+const tabs = md.global.Account.isPortal
+  ? [{ title: _l('讨论'), type: 1 }]
+  : [
+      { title: _l('讨论'), type: 1 },
+      { title: _l('文件'), type: 2 },
+      { title: _l('日志'), type: 3 },
+    ];
 
 const tabsHeight = 43;
 const bottomHeight = 52;
 
 const getGroupId = (appSectionDetail, worksheetId) => {
   let groupId = null;
-  for(let i = 0; i < appSectionDetail.length; i++) {
+  for (let i = 0; i < appSectionDetail.length; i++) {
     let section = appSectionDetail[i];
-    for(let j = 0; j < section.workSheetInfo.length; j++) {
+    for (let j = 0; j < section.workSheetInfo.length; j++) {
       if (section.workSheetInfo[j].workSheetId === worksheetId) {
         groupId = section.appSectionId;
         break;
@@ -36,7 +39,7 @@ const getGroupId = (appSectionDetail, worksheetId) => {
     if (groupId) break;
   }
   return groupId;
-}
+};
 
 class Discuss extends Component {
   constructor(props) {
@@ -45,42 +48,80 @@ class Discuss extends Component {
       height: document.documentElement.clientHeight - tabsHeight - bottomHeight,
       groupId: null,
       switchPermit: {},
-    }
+      allowExAccountDiscuss: false, //允许外部用户讨论
+      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+      loading: true,
+    };
   }
   componentDidMount() {
     const { params } = this.props.match;
     if (_.isEmpty(params.rowId)) {
       this.getGroupInfo();
     }
-    worksheetAjax.getSwitchPermit({
-      appId: params.appId,
-      worksheetId: params.worksheetId,
-    }).then(res => {
-      this.setState({
-        switchPermit: res,
+    this.getPortalDiscussSet();
+    worksheetAjax
+      .getSwitchPermit({
+        appId: params.appId,
+        worksheetId: params.worksheetId,
+      })
+      .then(res => {
+        this.setState({
+          switchPermit: res,
+        });
       });
-    });
   }
   componentWillUnmount() {
     this.props.dispatch(actions.emptySheetDiscussion());
     this.props.dispatch(actions.emptySheetLogs());
   }
+
+  getPortalDiscussSet = () => {
+    const { params } = this.props.match;
+    const { appId } = params;
+
+    getDiscussConfig({ appId }).then(res => {
+      const {
+        allowExAccountDiscuss, //允许外部用户讨论
+        exAccountDiscussEnum,
+      } = res;
+      this.setState({
+        allowExAccountDiscuss, //允许外部用户讨论
+        exAccountDiscussEnum,
+        loading: false,
+      });
+    });
+  };
   getGroupInfo() {
     const { params } = this.props.match;
     const { appId, worksheetId } = params;
-    homeAppAjax.getAppInfo({
-      appId,
-    }).then(result => {
-      this.setState({
-        groupId: getGroupId(result.appSectionDetail, worksheetId),
+    homeAppAjax
+      .getAppInfo({
+        appId,
+      })
+      .then(result => {
+        this.setState({
+          groupId: getGroupId(result.appSectionDetail, worksheetId),
+        });
       });
-    });
   }
   render() {
     const { params } = this.props.match;
     const { worksheetId, rowId } = params;
     const style = { height: this.state.height };
-    const { switchPermit } = this.state;
+    const {
+      switchPermit,
+      allowExAccountDiscuss, //允许外部用户讨论
+      exAccountDiscussEnum,
+      loading,
+    } = this.state;
+    let entityType = 0;
+    //外部用户且未开启讨论 不能内部讨论
+    if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
+      entityType = 2;
+    }
+    if (md.global.Account.isPortal && loading) {
+      return <LoadDiv />;
+    }
     return (
       <div className="discussTabs">
         <Tabs
@@ -93,24 +134,21 @@ class Discuss extends Component {
               worksheetId={worksheetId}
               rowId={rowId}
               height={style.height}
+              entityType={entityType}
               onReply={(discussionId, name) => {
-                window.mobileNavigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || null}/${discussionId}|${name}`);
+                window.mobileNavigateTo(
+                  `/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${
+                    params.rowId || null
+                  }/${discussionId}|${name}`,
+                );
               }}
             />
           </div>
           <div style={style}>
-            <AttachmentList
-              worksheetId={params.worksheetId}
-              rowId={rowId}
-              height={style.height}
-            />
+            <AttachmentList worksheetId={params.worksheetId} rowId={rowId} height={style.height} />
           </div>
           <div style={style}>
-            <Logs
-              worksheetId={params.worksheetId}
-              rowId={rowId || ''}
-              height={style.height}
-            />
+            <Logs worksheetId={params.worksheetId} rowId={rowId || ''} height={style.height} />
           </div>
         </Tabs>
         <Flex
@@ -120,7 +158,9 @@ class Discuss extends Component {
               alert(_l('预览模式下，不能操作'), 3);
               return;
             }
-            window.mobileNavigateTo(`/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || ''}`);
+            window.mobileNavigateTo(
+              `/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || ''}`,
+            );
           }}
         >
           <div className="text">{_l('参与讨论...')}</div>
@@ -148,6 +188,6 @@ class Discuss extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   return {};
 })(Discuss);

@@ -48,8 +48,9 @@ export const insertToRowEnd = ({ widgets, srcPath, srcItem, targetIndex }) => {
   );
 };
 
-export const insertControlInSameLine = ({ widgets, srcItem, dropPath, location }) => {
+export const insertControlInSameLine = ({ widgets, srcItem, srcPath, dropPath, location }) => {
   const [rowIndex, colIndex] = dropPath;
+  const [starRowIndex, startColIndex] = srcPath || [];
   return update(widgets, {
     [rowIndex]: {
       $apply: row => {
@@ -61,7 +62,21 @@ export const insertControlInSameLine = ({ widgets, srcItem, dropPath, location }
         if (colIndex === row.length && location === 'right') {
           return row.concat(srcItem).map(item => ({ ...item, size: WHOLE_SIZE / (row.length + 1) }));
         }
-        let nextRow = update(row, { $splice: [[location === 'left' ? colIndex : colIndex + 1, 0, srcItem]] });
+        let nextRow = update(row, {
+          $splice: [
+            [
+              starRowIndex === rowIndex && startColIndex < colIndex // 同行且从左拖右
+                ? location === 'left'
+                  ? colIndex - 1
+                  : colIndex
+                : location === 'left'
+                ? colIndex
+                : colIndex + 1,
+              0,
+              srcItem,
+            ],
+          ],
+        });
         return nextRow.map(item => ({ ...item, size: WHOLE_SIZE / nextRow.length }));
       },
     },
@@ -70,7 +85,7 @@ export const insertControlInSameLine = ({ widgets, srcItem, dropPath, location }
 
 export const insertToCol = ({ widgets, srcPath, ...rest }) => {
   const removedSrcItem = removeSrcItem(widgets, srcPath);
-  return removeEmptyRow(insertControlInSameLine({ widgets: removedSrcItem, ...rest }));
+  return removeEmptyRow(insertControlInSameLine({ widgets: removedSrcItem, srcPath, ...rest }));
 };
 
 export const isFullLineDragItem = item => {

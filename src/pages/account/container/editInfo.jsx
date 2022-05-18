@@ -7,7 +7,7 @@ import { getRequest } from 'src/util';
 import { Dropdown, LoadDiv } from 'ming-ui';
 import account from 'src/api/account';
 let request = getRequest();
-import { inputFocusFn, inputBlurFn, setCNFn } from '../util';
+import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
 import { encrypt } from 'src/util';
 
 export default class EditInfo extends React.Component {
@@ -124,7 +124,7 @@ export default class EditInfo extends React.Component {
 
   // 提交名片信息
   submitUserCard = () => {
-    const { registerData = {}, setDataFn, changeStep, loginSuc } = this.props;
+    const { registerData = {}, onChangeData, changeStep, loginSuc } = this.props;
     const {
       fullName,
       password,
@@ -138,6 +138,7 @@ export default class EditInfo extends React.Component {
       verifyCode,
       dialCode,
       regcode,
+      email,
     } = registerData;
     if (this.validateUserCardRequiredField()) {
       this.setState({
@@ -175,6 +176,7 @@ export default class EditInfo extends React.Component {
         isApplyJoinOrInviteJoin = true;
         params.regFrom = window.localStorage.getItem('RegFrom');
         params.referrer = window.localStorage.getItem('Referrer');
+        params.email = email;
         if (isApplyJoin) {
           joinCompanyAction = RegisterController.applyJoinCompany;
           params.projectId = projectId;
@@ -255,7 +257,7 @@ export default class EditInfo extends React.Component {
 
   // 名片字段验证
   validateUserCardRequiredField = () => {
-    const { registerData, setDataFn } = this.props;
+    const { registerData, onChangeData } = this.props;
     const { company = {} } = registerData;
     const {
       companyName = '',
@@ -294,7 +296,7 @@ export default class EditInfo extends React.Component {
       warnningData.push({ tipDom: this.jobNumber, warnningText: _l('请填写工号') });
       isRight = false;
     }
-    setDataFn({
+    onChangeData({
       ...registerData,
       warnningData,
     });
@@ -302,7 +304,7 @@ export default class EditInfo extends React.Component {
   };
 
   renderCon = () => {
-    const { registerData, setDataFn } = this.props;
+    const { registerData, onChangeData } = this.props;
     const { company = {}, userCard = [], warnningData } = registerData;
     const { loading, focusDiv } = this.state;
     const { isMustCompanyName, isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
@@ -319,7 +321,7 @@ export default class EditInfo extends React.Component {
           {isMustCompanyName && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, ['.companyName', this.companyName], focusDiv, companyName),
+                ...setWarnningData(warnningData, ['.companyName', this.companyName], focusDiv, companyName),
               })}
             >
               <input
@@ -332,7 +334,7 @@ export default class EditInfo extends React.Component {
                 onFocus={this.inputOnFocus}
                 onChange={e => {
                   let data = _.filter(registerData.warnningData, it => it.tipDom !== this.companyName);
-                  setDataFn({
+                  onChangeData({
                     ...registerData,
                     warnningData: data,
                     company: {
@@ -370,7 +372,7 @@ export default class EditInfo extends React.Component {
           {isMustDepartment && (
             <div
               className={cx('mesDiv current', {
-                ...setCNFn(warnningData, [this.departmentId], focusDiv, departmentId),
+                ...setWarnningData(warnningData, [this.departmentId], focusDiv, departmentId),
               })}
             >
               <div ref={departmentId => (this.departmentId = departmentId)}>
@@ -381,7 +383,7 @@ export default class EditInfo extends React.Component {
                   onFocus={this.inputOnFocus}
                   onChange={value => {
                     let data = _.filter(registerData.warnningData, it => it.tipDom !== this.departmentId);
-                    setDataFn({
+                    onChangeData({
                       ...registerData,
                       warnningData: data,
                       company: {
@@ -410,7 +412,7 @@ export default class EditInfo extends React.Component {
           {isMustJob && (
             <div
               className={cx('mesDiv current', {
-                ...setCNFn(warnningData, [this.jobId], focusDiv, jobId),
+                ...setWarnningData(warnningData, [this.jobId], focusDiv, jobId),
               })}
             >
               <div ref={jobId => (this.jobId = jobId)}>
@@ -421,7 +423,7 @@ export default class EditInfo extends React.Component {
                   onFocus={this.inputOnFocus}
                   onChange={value => {
                     let data = _.filter(registerData.warnningData, it => it.tipDom !== this.jobId);
-                    setDataFn({
+                    onChangeData({
                       ...registerData,
                       warnningData: data,
                       company: {
@@ -450,7 +452,7 @@ export default class EditInfo extends React.Component {
           {isMustWorkSite && (
             <div
               className={cx('mesDiv current', {
-                ...setCNFn(warnningData, [this.workSiteId], focusDiv, workSiteId),
+                ...setWarnningData(warnningData, [this.workSiteId], focusDiv, workSiteId),
               })}
             >
               <div ref={workSiteId => (this.workSiteId = workSiteId)}>
@@ -461,7 +463,7 @@ export default class EditInfo extends React.Component {
                   onFocus={this.inputOnFocus}
                   onChange={value => {
                     let data = _.filter(registerData.warnningData, it => it.tipDom !== this.workSiteId);
-                    setDataFn({
+                    onChangeData({
                       ...registerData,
                       warnningData: data,
                       company: {
@@ -490,7 +492,7 @@ export default class EditInfo extends React.Component {
           {isMustJobNumber && (
             <div
               className={cx('mesDiv', {
-                ...setCNFn(warnningData, [this.jobNumber], focusDiv, jobNumber),
+                ...setWarnningData(warnningData, [this.jobNumber], focusDiv, jobNumber),
               })}
             >
               <input
@@ -503,7 +505,7 @@ export default class EditInfo extends React.Component {
                 onFocus={this.inputOnFocus}
                 onChange={e => {
                   let data = _.filter(registerData.warnningData, it => it.tipDom !== this.jobNumber);
-                  setDataFn({
+                  onChangeData({
                     ...registerData,
                     warnningData: data,
                     company: {

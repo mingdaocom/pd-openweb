@@ -18,31 +18,45 @@ export const ButtonListWrap = styled.div`
 
 export const GraphWrap = styled.div`
   justify-content: center;
-  padding: 10px;
+  padding: 10px 0;
   &.column {
     flex-direction: column;
+    &.small {
+      .iconWrap {
+        width: 56px !important;
+        height: 56px !important;
+      }
+    }
     .iconWrap {
       width: 72px;
       height: 72px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .nameWrap {
       font-size: 14px;
-      min-height: 39px;
     }
   }
   &.row {
     display: inline-flex;
     flex-direction: row;
+    &.small {
+      .iconWrap {
+        width: 38px !important;
+        height: 38px !important;
+        svg {
+          transform: scale(0.85);
+        }
+      }
+    }
     .iconWrap {
       width: 48px;
       height: 48px;
       margin-right: 10px;
     }
     .nameWrap {
+      text-align: left;
       flex: 1;
-      width: 100px;
-      max-width: 200px;
+      width: 90px;
     }
   }
   .name {

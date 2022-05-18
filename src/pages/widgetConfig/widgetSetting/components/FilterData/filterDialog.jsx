@@ -24,7 +24,7 @@ export default function FilterDialog(props) {
     globalSheetControls, //主标控件 用于 子表中的关联记录字段筛选选择范围，支持使用主表中的字段
   } = props;
 
-  const { sourceControlId } = data;
+  const { sourceControlId, type } = data;
   const [filters, setFilters] = useState(getAdvanceSetting(data, 'filters'));
 
   const relateSheetList = filterControlsFromAll(
@@ -91,7 +91,7 @@ export default function FilterDialog(props) {
         <SingleFilter
           canEdit
           feOnly
-          filterDept={true}
+          filterDept={type !== 29}
           filterColumnClassName="showBtnFilter"
           projectId={globalSheetInfo.projectId}
           appId={globalSheetInfo.appId}

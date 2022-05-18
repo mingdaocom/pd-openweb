@@ -17,28 +17,44 @@ const MULTI_SELECT_DISPLAY = [
 ];
 const OPTIONS_DISPLAY = [
   {
-    value: 11,
+    value: '0',
     text: _l('下拉菜单'),
+    type: 11,
   },
   {
-    value: 9,
+    value: '1',
     text: _l('平铺'),
+    type: 9,
+  },
+  {
+    value: '2',
+    text: _l('进度'),
+    type: 11,
   },
 ];
 
 export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal }) {
-  const { direction = '0' } = getAdvanceSetting(data);
+  const { direction = '0', showtype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>
-        <RadioGroup
-          size="middle"
-          checkedValue={data.type}
-          data={OPTIONS_DISPLAY}
-          onChange={type => {
-            onChange({ type, advancedSetting: handleAdvancedSettingChange(data, { allowadd: '0' }).advancedSetting });
-          }}
-        />
+        <div className="settingItemTitle">{_l('显示方式')}</div>
+        <div className="labelWrap">
+          <Dropdown
+            border
+            data={OPTIONS_DISPLAY}
+            value={showtype}
+            onChange={value => {
+              onChange({
+                ...handleAdvancedSettingChange(data, { showtype: value, allowadd: '0' }),
+                type: _.get(
+                  _.find(OPTIONS_DISPLAY, i => i.value === value),
+                  'type',
+                ),
+              });
+            }}
+          />
+        </div>
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('排列方式')}</div>

@@ -137,6 +137,10 @@ const Con = styled.div(
 `,
 );
 
+const TableBtnCon = styled.div`
+  align-items: center;
+`;
+
 const Desc = styled.div`
   color: #9e9e9e;
   padding: 12px 24px 0px;
@@ -662,7 +666,7 @@ export default function RelateRecordTable(props) {
         )}
         <div className="flex"></div>
         {!loading && !isNewRecord && (
-          <div className="Right flexRow" style={{ lineHeight: '36px' }}>
+          <TableBtnCon className="flexRow" style={{ lineHeight: '36px' }}>
             <Motion
               defaultStyle={{ width: 0, opacity: 0, iconLeft: 0 }}
               style={{
@@ -733,7 +737,7 @@ export default function RelateRecordTable(props) {
                 );
               }}
             />
-          </div>
+          </TableBtnCon>
         )}
       </Con>
       <div

@@ -30,12 +30,13 @@ class DiscussList extends Component {
     ActionSheet.close();
   }
   getSheetDiscussion(pageIndex) {
-    const { worksheetId, rowId } = this.props;
+    const { worksheetId, rowId, entityType } = this.props;
     this.setState({ loading: true });
     this.props.dispatch(actions.getSheetDiscussion({
       pageIndex,
       worksheetId,
       rowId,
+      entityType,
     }, isMore => {
       this.setState({
         pageIndex,

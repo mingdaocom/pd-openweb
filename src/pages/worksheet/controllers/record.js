@@ -9,6 +9,7 @@ export function getFormDataForNewRecord({
   defaultRelatedSheet = {},
   defaultFormData = {},
   defaultFormDataEditable,
+  writeControls = [],
 }) {
   return new Promise((resolve, reject) => {
     let controls = _.cloneDeep(worksheetInfo.template.controls);
@@ -55,6 +56,15 @@ export function getFormDataForNewRecord({
             return { ...control };
           });
         controls = controls.map(control => {
+          const writeControl = _.find(writeControls, wc => control.controlId === wc.controlId) || {};
+          if (writeControl.defsource) {
+            control.value = '';
+            if (_.includes([9, 10, 11], control.type)) {
+              control.value = control.default = safeParse(writeControl.defsource)[0].staticValue;
+            } else {
+              control.advancedSetting = { ...(control.advancedSetting || {}), defsource: writeControl.defsource };
+            }
+          }
           if (control.type === 30 && !control.value) {
             const parentControl = _.find(
               worksheetInfo.template.controls,

@@ -9,18 +9,26 @@ import './index.less';
 export default class extends Component {
   constructor(props) {
     super(props);
-    const { backFlowNodes } = props.instance;
+    const { action, instance } = this.props;
+    const backFlowNodes = (instance || {}).backFlowNodes || [];
+    const { isCallBack } = (instance || {}).flowNode || {};
+    let backFlowNode = '';
+
+    if (props.action === 'overrule' && isCallBack && backFlowNodes.length) {
+      backFlowNode = backFlowNodes[0].id;
+    }
+
     this.state = {
       backFlowNodesVisible: false,
-      backFlowNodes: [{ name: _l('不退回'), id: '' }].concat(backFlowNodes),
-      backFlowNode: '',
+      backFlowNodes,
+      backFlowNode,
       content: '',
       signature: '',
     };
   }
-  handleAction = () => {
+  handleAction = (backFlowNode = '') => {
     const { action, selectedUser, instance } = this.props;
-    const { content, backFlowNode, signature } = this.state;
+    const { content, signature } = this.state;
     const { auth } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -46,7 +54,6 @@ export default class extends Component {
               onClick={() => {
                 this.setState({
                   backFlowNodesVisible: false,
-                  backFlowNode: '',
                 });
               }}
             >
@@ -95,14 +102,16 @@ export default class extends Component {
     const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
     const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
 
-    if (isCallBack && action === 'overrule') {
+    if (isCallBack && action === 'overrule' && backFlowNodes.length) {
+      const node = backFlowNodes.filter(item => item.id === backFlowNode)[0];
+      const { name } = node ? node : {};
       return (
         <List>
           <List.Item>
             <Flex>
-              <span className="flex Gray">{_l('退回并重新进行审批')}</span>
+              <span className="flex Gray">{_l('退回到')}</span>
               <div className="Gray_75" onClick={() => { this.setState({ backFlowNodesVisible: true }) }}>
-                <span>{backFlowNodes.filter(item => item.id === backFlowNode)[0].name}</span>
+                <span>{name}</span>
                 <Icon icon="navigate_next" className="Font22"/>
               </div>
             </Flex>
@@ -157,9 +166,11 @@ export default class extends Component {
     }
   }
   renderContent() {
-    const { action, onHide } = this.props;
-    const { content } = this.state;
+    const { action, onHide, instance } = this.props;
+    const { content, backFlowNode, backFlowNodes } = this.state;
     const currentAction = ACTION_TO_TEXT[action];
+    const { isCallBack } = (instance || {}).flowNode || {};
+    const isOverruleBack = action === 'overrule' && isCallBack && backFlowNodes.length;
     return (
       <Fragment>
         <TextareaItem
@@ -175,8 +186,34 @@ export default class extends Component {
         />
         {this.renderInfo()}
         <div className="flexRow actionBtnWrapper">
-          <div className="flex actionBtn" onClick={onHide}>{_l('取消')}</div>
-          <div className="flex actionBtn ok" onClick={this.handleAction}>{currentAction.okText}</div>
+          {isOverruleBack ? (
+            <Fragment>
+              <div
+                className="flex actionBtn overrule"
+                onClick={() => {
+                  this.handleAction();
+                }}
+              >
+                {_l('直接否决')}
+              </div>
+              <div
+                className="flex actionBtn ok"
+                onClick={() => { this.handleAction(backFlowNode) }}
+              >
+                {_l('否决并退回')}
+              </div>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <div className="flex actionBtn" onClick={onHide}>{_l('取消')}</div>
+              <div
+                className="flex actionBtn ok"
+                onClick={() => { this.handleAction(backFlowNode) }}
+              >
+                {currentAction.okText}
+              </div>
+            </Fragment>
+          )}
         </div>
       </Fragment>
     );

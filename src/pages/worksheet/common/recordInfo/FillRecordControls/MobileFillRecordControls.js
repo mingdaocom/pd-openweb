@@ -5,6 +5,7 @@ import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
 import { LoadDiv } from 'ming-ui';
 import { getSubListError } from 'worksheet/util';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 
@@ -60,9 +61,38 @@ const LoadMask = styled.div`
 class FillRecordControls extends React.Component {
   constructor(props) {
     super(props);
+    const { projectId } = props;
     const controls = update(props.formData, {
-      $apply: formData =>
-        formData
+      $apply: formData => {
+        const formDataForDataFormat = formData.map(c => {
+          const newControl = { ...c };
+          const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
+          newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '' };
+          if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
+            newControl.value = '';
+            if (_.includes([9, 10, 11], newControl.type)) {
+              newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
+            } else {
+              newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: writeControl.defsource };
+            }
+          }
+          return newControl;
+        });
+        const defaultFormData = new DataFormat({
+          data: formDataForDataFormat,
+          isCreate: true,
+          from: 2,
+          projectId,
+        })
+          .getDataSource()
+          .filter(
+            c =>
+              _.includes(
+                props.writeControls.map(c => c.controlId),
+                c.controlId,
+              ) && !_.includes([30, 31, 37, 38], c.type),
+          );
+        formData = formData
           .map(c => {
             const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
             if (_.isUndefined(c.dataSource)) {
@@ -82,17 +112,19 @@ class FillRecordControls extends React.Component {
               };
             }
 
-            // 备注控件只能是只读的  所以不需要转换
-            if (c.type !== 10010) {
-              c.controlPermissions =
-                c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
-              c.fieldPermission = '111';
-              c.required = writeControl.type === 3;
+            c.controlPermissions =
+              c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
+            c.required = writeControl.type === 3;
+            c.fieldPermission = '111';
+            const defultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+            if (defultFormControl) {
+              c.value = defultFormControl.value;
             }
-
             return c;
           })
-          .filter(c => !!c),
+          .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
+        return formData;
+      },
     });
     this.state = {
       formData: controls,
@@ -164,6 +196,7 @@ class FillRecordControls extends React.Component {
       return;
     }
     this.setState({ submitLoading: false });
+    updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
       newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
       {
@@ -193,7 +226,7 @@ class FillRecordControls extends React.Component {
               ref={this.customwidget}
               data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
               recordId={recordId}
-              from={6}
+              from={3}
               projectId={projectId}
               worksheetId={worksheetId}
               showError={showError}

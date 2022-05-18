@@ -28,8 +28,10 @@ const PointerConfigWrap = styled.div`
   }
 `;
 
-export default function AttachmentConfig({ data = {}, onChange }) {
-  const { maxcount } = getAdvanceSetting(data);
+export default function AttachmentConfig({ data = {}, onChange, attr }) {
+  const maxcount = getAdvanceSetting(data, attr);
+  // 数值上限
+  const maxNum = data.type === 28 ? 10 : 20;
   const [count, setCount] = useState();
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function AttachmentConfig({ data = {}, onChange }) {
     const parsedValue = parseFloat(value);
     if (!value) return 1;
     const fixedValue = Number(parsedValue).toFixed(0);
-    return Math.max(1, Math.min(20, fixedValue));
+    return Math.max(1, Math.min(maxNum, fixedValue));
   };
 
   const handleChange = event => {
@@ -50,15 +52,15 @@ export default function AttachmentConfig({ data = {}, onChange }) {
 
   const handleBlur = () => {
     setCount(dealValue(count));
-    onChange(handleAdvancedSettingChange(data, { maxcount: dealValue(count) }));
+    onChange(handleAdvancedSettingChange(data, { [attr]: dealValue(count) }));
   };
 
   const addNumber = () => {
-    onChange(handleAdvancedSettingChange(data, { maxcount: Math.min(20, maxcount + 1) }));
+    onChange(handleAdvancedSettingChange(data, { [attr]: Math.min(maxNum, maxcount + 1) }));
   };
 
   const reduceNumber = () => {
-    onChange(handleAdvancedSettingChange(data, { maxcount: Math.max(1, maxcount - 1) }));
+    onChange(handleAdvancedSettingChange(data, { [attr]: Math.max(1, maxcount - 1) }));
   };
 
   return (

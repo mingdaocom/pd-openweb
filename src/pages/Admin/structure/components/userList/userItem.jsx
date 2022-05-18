@@ -133,7 +133,13 @@ class OpList extends Component {
             )}
             {(typeCursor === 0 || typeCursor === 1) && (
               <React.Fragment>
-                <li className="opItem" onClick={handleEditUserClick}>
+                <li
+                  className="opItem"
+                  onClick={() => {
+                    this.props.handleEditUserClick();
+                    $('.dropDownOptBox .opList').css({ display: 'none' });
+                  }}
+                >
                   {_l('编辑')}
                 </li>
                 <li className="opItem" onClick={handleResetPasswordClick}>
@@ -531,7 +537,7 @@ class UserItem extends Component {
         totalColWidth += item.width;
       }
     });
-    let setWidth = $('.departmentContent') && totalColWidth > $('.departmentContent').width();
+    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
     return (
       <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
         {
@@ -556,27 +562,21 @@ class UserItem extends Component {
         }
         {isHideCurrentColumn('name') && (
           <td className="nameTh" style={{ width: setWidth ? 200 : 'unset' }}>
-            <table className="fixedTable">
-              <tbody>
-                <tr>
-                  <td width="32px">
-                    <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
-                  </td>
-                  <td className="TxtMiddle pRight0">
-                    <div className="name mLeft10" style={{ display: 'flex' }}>
-                      <a href={'/user_' + user.accountId} className="Gray overflow_ellipsis" title={user.fullname}>
-                        {user.fullname}
-                      </a>
-                      {isChargeUser ? (
-                        <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
-                          <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
-                        </Tooltip>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="flexRow">
+              <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
+              <a
+                href={'/user_' + user.accountId}
+                className="Gray overflow_ellipsis mLeft10 LineHeight32"
+                title={user.fullname}
+              >
+                {user.fullname}
+              </a>
+              {isChargeUser ? (
+                <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
+                  <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
+                </Tooltip>
+              ) : null}
+            </div>
           </td>
         )}
         {typeCursor === 3 && isHideCurrentColumn('status') && (
