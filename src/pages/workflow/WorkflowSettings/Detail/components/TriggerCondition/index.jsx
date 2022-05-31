@@ -7,7 +7,7 @@ import 'dialogSelectUser';
 import DialogSelectDept from 'dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
-import { CONTROLS_NAME, CONDITION_TYPE, GRADE_STAR_TYPE, GRADE_LEVEL_TYPE, DATE_LIST } from '../../../enum';
+import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST } from '../../../enum';
 import { getConditionList, getConditionNumber } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
@@ -506,16 +506,9 @@ export default class TriggerCondition extends Component {
         options = options || [];
         data = options.map(opts => {
           return {
-            text:
-              filedTypeId === 28
-                ? enumDefault === 1
-                  ? GRADE_STAR_TYPE[opts.key]
-                  : GRADE_LEVEL_TYPE[opts.key]
-                : opts.value,
+            text: opts.value,
             value: opts.key,
-            disabled:
-              !(_.includes(['9', '10'], item.conditionId) && _.includes([9, 11], filedTypeId)) &&
-              !!_.find(conditionValues, obj => obj.value.key === opts.key),
+            disabled: !!_.find(conditionValues, obj => obj.value.key === opts.key),
           };
         });
       }
@@ -829,21 +822,8 @@ export default class TriggerCondition extends Component {
             {conditionValues.map((list, index) => {
               return (
                 <li key={index} className="tagItem flexRow">
-                  <span
-                    className="tag"
-                    title={
-                      filedTypeId === 28
-                        ? enumDefault === 1
-                          ? GRADE_STAR_TYPE[list.value.key]
-                          : GRADE_LEVEL_TYPE[list.value.key]
-                        : list.value.value
-                    }
-                  >
-                    {filedTypeId === 28
-                      ? enumDefault === 1
-                        ? GRADE_STAR_TYPE[list.value.key]
-                        : GRADE_LEVEL_TYPE[list.value.key]
-                      : list.value.value}
+                  <span className="tag" title={list.value.value}>
+                    {list.value.value}
                   </span>
                   <span
                     className="delTag"

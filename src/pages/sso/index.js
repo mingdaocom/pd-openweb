@@ -24,7 +24,7 @@ function start() {
         succees: result => {
           const { accountResult, sessionId } = result.data;
           if (accountResult === 1) {
-            setPssId(sessionId);
+            setPssId(sessionId, true);
             if (url) {
               location.href = decodeURIComponent(url);
             } else {

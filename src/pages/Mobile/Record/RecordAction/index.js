@@ -2,6 +2,7 @@ import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import { getRequest } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
 import { InputItem, Modal, Progress, WingBlank } from 'antd-mobile';
 import { message } from 'antd';
 import { Icon } from 'ming-ui';
@@ -292,11 +293,15 @@ class RecordAction extends Component {
     const { worksheetId, rowId } = this.props;
     let rowInfo;
     if (rowId) {
-      rowInfo = await worksheetAjax.getRowByID({
+      rowInfo = await getRowDetail({
         worksheetId,
         getType: 1,
         rowId,
       });
+      rowInfo = {
+        ...rowInfo,
+        receiveControls: rowInfo.formData,
+      };
     } else {
       const worksheetInfo = await worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true });
       rowInfo = {

@@ -197,7 +197,7 @@ const GroupFilter = props => {
     let txt = item.txt instanceof Array ? path[path.length - 1] : item.txt;
     let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}/${encodeURIComponent(txt)}`;
     localStorage.setItem('groupFilterDetailUrl', url);
-    window.mobileNavigateTo(url);
+    window.mobileNavigateTo && window.mobileNavigateTo(url);
   };
   const renderContent = data => {
     return data.map(item => {

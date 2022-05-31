@@ -273,12 +273,15 @@ class TableView extends React.Component {
     return (pageIndex - 1) * pageSize;
   }
 
+  get chartId() {
+    return this.props.chartId || this.props.chartIdFromUrl;
+  }
   get readonly() {
-    return !!this.props.chartId;
+    return !!this.chartId;
   }
 
   get disabledFunctions() {
-    const { chartId } = this.props;
+    const { chartId } = this;
     if (chartId) {
       return ['filter'];
     } else {
@@ -287,7 +290,7 @@ class TableView extends React.Component {
   }
 
   get rowHeadOnlyNum() {
-    return !!this.props.chartId;
+    return !!this.chartId;
   }
 
   @autobind
@@ -518,7 +521,6 @@ class TableView extends React.Component {
   render() {
     const {
       isCharge,
-      chartId,
       sheetViewData,
       sheetViewConfig,
       appId,
@@ -646,7 +648,7 @@ class TableView extends React.Component {
             columns={columns}
             projectId={projectId}
             keyWords={filters.keyWords}
-            showSummary={!chartId}
+            showSummary={!this.chartId}
             onCellClick={this.handleCellClick}
             onCellMouseDown={this.handleCellMouseDown}
             renderFooterCell={this.renderSummaryCell}
@@ -685,6 +687,7 @@ export default connect(
     buttons: state.sheet.buttons,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
+    chartIdFromUrl: _.get(state, 'sheet.base.chartId'),
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,

@@ -75,6 +75,7 @@ const ScalePoint = styled.span`
   border-radius: 8px;
   border: 2px solid ${({ color }) => color};
   > span {
+    font-size: 12px;
     user-select: none;
     white-space: nowrap;
     transform: translateX(calc(-50% + 2px));

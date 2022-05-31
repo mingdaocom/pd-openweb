@@ -600,7 +600,7 @@ export const checkRequired = item => {
 
   if (
     item.required &&
-    (!item.value ||
+    ((!_.includes([6, 8], item.type) && !item.value) ||
       (_.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !JSON.parse(item.value).length) ||
       (item.type === 14 &&

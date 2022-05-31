@@ -158,6 +158,19 @@ export default class SearchWorksheetDialog extends Component {
     });
   }, 300);
 
+  getAvailableControls = (controls = [], control = {}, isRowId) => {
+    let filterControls = relateDy(control.type, controls, { ...control, containSelf: true }) || [];
+    if (isRowId) {
+      filterControls = filterControls.concat(
+        controls.filter(i => i.type === 29 && i.dataSource === this.state.sheetId),
+      );
+    }
+    if (_.includes([36], control.type)) {
+      filterControls = getControls({ data: control, controls, isCurrent: true, fromSearch: true });
+    }
+    return filterControls;
+  };
+
   renderMapping = () => {
     let { configs = [], controls = [], relationControls = [] } = this.state;
     const getCurrent = id => {
@@ -172,8 +185,7 @@ export default class SearchWorksheetDialog extends Component {
           //选择字段
           const selectControl = getCurrent(item.subCid);
           // 映射字段匹配筛选规则
-          const subControls =
-            relateDy(selectControl.type, filterControls, { ...selectControl, containSelf: true }) || [];
+          const subControls = this.getAvailableControls(filterControls, selectControl, item.subCid === 'rowid');
           const isDelete = item.cid && !_.find(subControls, subControl => subControl.controlId === item.cid);
           return (
             <div className="mappingItem">

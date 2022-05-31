@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sheetAjax from 'src/api/worksheet';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { Toast } from 'antd-mobile';
 import ScanQRCode from './ScanQRCode';
 
@@ -12,7 +13,8 @@ export default class Widgets extends Component {
   };
   getRowById = ({ appId, worksheetId, viewId, rowId }) => {
     const { filterControls } = this.props;
-    sheetAjax.getFilterRows({
+    const getFilterRowsPromise = window.isPublicWorksheet ? publicWorksheetAjax.getRelationRows : sheetAjax.getFilterRows
+    getFilterRowsPromise({
       appId,
       worksheetId,
       rowId,
@@ -21,6 +23,8 @@ export default class Widgets extends Component {
       getType: 7,
       status: 1,
       searchType: 1,
+      linkId: window.isPublicWorksheet && window.recordShareLinkId ? window.recordShareLinkId : undefined,
+      formId: window.isPublicWorksheet && window.publicWorksheetShareId ? window.publicWorksheetShareId : undefined
     }).then(result => {
       const row = _.find(result.data, { rowid: rowId });
       if (row) {

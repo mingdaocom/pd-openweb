@@ -543,7 +543,7 @@ export default class SelectUser extends Component {
     return (
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
-          {!isRangeData && userType === 1 && this.renderDepartment()}
+          {!isRangeData && (userType === 1 || userType === 3) && this.renderDepartment()}
           <List className="leftAlign" renderHeader={() => 'A-Z'}>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">
@@ -602,9 +602,8 @@ export default class SelectUser extends Component {
       <div className="flex flexColumn">
         {this.renderSearch()}
         {this.renderSelected()}
-        {departmentVisible && userType === 1 ? this.renderDepartment() : null}
-        {!departmentVisible && userType === 1 ? this.renderUsers(): null}
-        {userType === 2 && this.renderUsers()}
+        {departmentVisible && (userType === 1 || userType === 3) ? this.renderDepartment() : null}
+        {!departmentVisible ? this.renderUsers() : null}
       </div>
     );
   }

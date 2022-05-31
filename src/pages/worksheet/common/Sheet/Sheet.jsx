@@ -68,7 +68,7 @@ function Sheet(props) {
     updateGroupFilter,
     navGroupFilters = [],
     chartId,
-    showControlId,
+    showControlIds,
     showAsSheetView,
     openNewRecord,
   } = props;
@@ -100,7 +100,7 @@ function Sheet(props) {
     setViewConfigVisible,
     groupFilterWidth: hasGroupFilter ? groupFilterWidth : 0,
     chartId,
-    showControlId,
+    showControlIds,
     showAsSheetView,
   };
   useEffect(() => {

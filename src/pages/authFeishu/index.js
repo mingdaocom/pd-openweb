@@ -22,7 +22,8 @@ if (code) {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
-          setPssId(sessionId);
+          // 飞书可以从网页端自动登录，无法从 ua 判断环境，所以强制设置 md_pss_id
+          setPssId(sessionId, true);
           if (url) {
             location.href = decodeURIComponent(url);
           } else {

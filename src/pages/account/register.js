@@ -68,6 +68,10 @@ class RegisterContainer extends React.Component {
   }
 
   componentDidMount() {
+    if (md.global.SysSettings.hideRegister && (location.href.indexOf('/register') > -1 || (location.href.toLowerCase().indexOf('linkinvite.htm') > -1 && request.projectId))) {
+      location.href = '/login.htm';
+      return;
+    }
     $('html').addClass('registerContainerCon');
     if (location.href.indexOf('/enterpriseRegister.htm?type=create') >= 0) {
       document.title = _l('创建组织');

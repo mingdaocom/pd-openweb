@@ -2,6 +2,8 @@ import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 
+let promiseRequest = null;
+
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_UPDATE_BASE',
@@ -109,60 +111,62 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     pageIndex = 1;
     pageSize = maxCount;
   }
-  sheetAjax
-    .getFilterRows({
-      worksheetId,
-      appId,
-      searchType: 1,
-      pageSize,
-      pageIndex,
-      status: 1,
-      viewId,
-      keyWords,
-      filterControls: [],
-      sortControls: [],
-      fastFilters: quickFilter.map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      ),
-      navGroupFilters: mobileNavGroupFilters,
-      ...extraParams,
-    })
-    .then(sheetRowsAndTem => {
-      const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
-      const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
-      const isMore = maxCount ? false : currentSheetRows.length === pageSize;
-      dispatch({
-        type,
-        data: currentSheetRows,
-      });
-      dispatch({
-        type: 'CHANGE_GALLERY_VIEW_DATA',
-        list: currentSheetRows,
-      });
-      dispatch(changeSheetControls());
-      dispatch({
-        type: 'MOBILE_UPDATE_VIEW_CODE',
-        value: sheetRowsAndTem.resultCode,
-      });
-      dispatch({
-        type: 'MOBILE_UPDATE_SHEET_VIEW',
-        sheetView: {
-          isMore,
-          count: sheetRowsAndTem.count,
-        },
-      });
-      dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
+  if (promiseRequest && promiseRequest.state() === 'pending' && promiseRequest.abort) {
+    promiseRequest.abort();
+  }
+  promiseRequest = sheetAjax.getFilterRows({
+    worksheetId,
+    appId,
+    searchType: 1,
+    pageSize,
+    pageIndex,
+    status: 1,
+    viewId,
+    keyWords,
+    filterControls: [],
+    sortControls: [],
+    fastFilters: quickFilter.map(f =>
+      _.pick(f, [
+        'controlId',
+        'dataType',
+        'spliceType',
+        'filterType',
+        'dateRange',
+        'value',
+        'values',
+        'minValue',
+        'maxValue',
+      ]),
+    ),
+    navGroupFilters: mobileNavGroupFilters,
+    ...extraParams,
+  });
+  promiseRequest.then(sheetRowsAndTem => {
+    const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
+    const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
+    const isMore = maxCount ? false : currentSheetRows.length === pageSize;
+    dispatch({
+      type,
+      data: currentSheetRows,
     });
+    dispatch({
+      type: 'CHANGE_GALLERY_VIEW_DATA',
+      list: currentSheetRows,
+    });
+    dispatch(changeSheetControls());
+    dispatch({
+      type: 'MOBILE_UPDATE_VIEW_CODE',
+      value: sheetRowsAndTem.resultCode,
+    });
+    dispatch({
+      type: 'MOBILE_UPDATE_SHEET_VIEW',
+      sheetView: {
+        isMore,
+        count: sheetRowsAndTem.count,
+      },
+    });
+    dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
+  });
 };
 
 export const changePageIndex = pageIndex => (dispatch, getState) => {
@@ -311,6 +315,6 @@ export const updateMobileViewPermission = params => (dispatch, getState) => {
   });
 };
 
-export const updateClickChart = (flag) => (dispatch, getState) => {
-  dispatch({type: 'UPDATE_CLICK_CHART', flag});
-}
+export const updateClickChart = flag => (dispatch, getState) => {
+  dispatch({ type: 'UPDATE_CLICK_CHART', flag });
+};

@@ -6,7 +6,6 @@ import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import DialogSelectDept from 'dialogSelectDept';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
-import { GRADE_STAR_TYPE, GRADE_LEVEL_TYPE } from '../../../enum';
 import { getIcons } from '../../../utils';
 
 export default class SingleControlValue extends Component {
@@ -679,10 +678,11 @@ export default class SingleControlValue extends Component {
 
     // 等级
     if (item.type === 28) {
-      const { options, enumDefault } = _.find(controls, obj => obj.controlId === item.fieldId);
+      const { options } = _.find(controls, obj => obj.controlId === item.fieldId);
+
       list = options.map(o => {
         return {
-          text: enumDefault === 1 ? GRADE_STAR_TYPE[o.key] : GRADE_LEVEL_TYPE[o.key],
+          text: o.value,
           value: o.key,
         };
       });

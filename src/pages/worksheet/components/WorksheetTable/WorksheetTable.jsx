@@ -210,7 +210,9 @@ export default class WorksheetTable extends PureComponent {
     let data = typeof this.props.data === 'function' ? this.props.data() : this.props.data;
     let nextData = typeof nextProps.data === 'function' ? nextProps.data() : nextProps.data;
     data = data.filter(r => r.rowid);
-    nextData = (nextData || []).filter(r => r.rowid);
+    if (_.isArray(nextData)) {
+      nextData = nextData.filter(r => r.rowid);
+    }
     if (nextProps.width !== this.props.width || !_.isEqual(nextProps.columns, this.props.columns)) {
       this.columns = this.getColumns(nextProps);
     }

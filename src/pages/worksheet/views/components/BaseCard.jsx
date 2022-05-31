@@ -297,7 +297,6 @@ const BaseCard = props => {
         {!_.isEmpty(otherFields) && (
           <RecordFieldsWrap hasCover={!!coverImage}>
             {otherFields.map(item => {
-              if (isListRelate(item)) return null;
               if (checkCellIsEmpty(item.value) && !isGalleryView) return null;
               const content = (
                 <CellControl from={4} cell={item} sheetSwitchPermit={sheetSwitchPermit} viewId={viewId} />

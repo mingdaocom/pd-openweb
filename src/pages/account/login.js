@@ -70,6 +70,7 @@ class LoginContainer extends React.Component {
         },
       },
       isFrequentLoginError: false, // 是否需要验证登录
+      homeImage: '',
     };
   }
 
@@ -188,16 +189,12 @@ class LoginContainer extends React.Component {
               projectId: data.projectId,
               text: data.companyName,
               logo: data.logo,
-              loading: false,
               linkInvite: '/linkInvite.htm?projectId=' + data.projectId,
+              homeImage: data.homeImage,
               hideRegister: data.hideRegister,
             },
             () => {
               document.title = data.companyName;
-              $('.loginContainerCon').css({
-                'background-image': 'url(' + data.homeImage + ')',
-                'background-size': 'cover',
-              });
               if (callback) {
                 callback();
               }
@@ -211,36 +208,42 @@ class LoginContainer extends React.Component {
   ssoLogin = (returnUrl = '') => {
     const isMobile = browserIsMobile();
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isApp = userAgent.includes('dingtalk') || userAgent.includes('wxwork') || userAgent.includes('huawei-anyoffice') || userAgent.includes('feishu');
+    const isApp =
+      userAgent.includes('dingtalk') ||
+      userAgent.includes('wxwork') ||
+      userAgent.includes('huawei-anyoffice') ||
+      userAgent.includes('feishu');
     if (isMobile && returnUrl.includes('mobile') && isApp) {
       const { pathname } = new URL(returnUrl);
       const [mobile, page, appId] = pathname.split('/').filter(_ => _);
       if (appId) {
-        workWeiXinController.getIntergrationInfo({
-          appId,
-        }).then(data => {
-          const { item1, item2 } = data;
-          const url = encodeURIComponent(pathname.replace(/^\//, ''));
-          // 钉钉
-          if (item1 === 1) {
-            location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
-          }
-          // 企业微信
-          if (item1 === 3) {
-            location.href = `/auth/workwx?p=${item2}&url=${url}`;
-          }
-          // welink
-          if (item1 === 4) {
-            location.href = `/auth/welink?p=${item2}&url=${url}`;
-          }
-          // 飞书
-          if (item1 === 6) {
-            location.href = `/auth/feishu?p=${item2}&url=${url}`;
-          }
-        });
+        workWeiXinController
+          .getIntergrationInfo({
+            appId,
+          })
+          .then(data => {
+            const { item1, item2 } = data;
+            const url = encodeURIComponent(pathname.replace(/^\//, ''));
+            // 钉钉
+            if (item1 === 1) {
+              location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
+            }
+            // 企业微信
+            if (item1 === 3) {
+              location.href = `/auth/workwx?p=${item2}&url=${url}`;
+            }
+            // welink
+            if (item1 === 4) {
+              location.href = `/auth/welink?p=${item2}&url=${url}`;
+            }
+            // 飞书
+            if (item1 === 6) {
+              location.href = `/auth/feishu?p=${item2}&url=${url}`;
+            }
+          });
       }
     }
-  }
+  };
 
   getWorkWeiXinCorpInfoByApp = projectId => {
     loginController
@@ -362,6 +365,12 @@ class LoginContainer extends React.Component {
     if (this.state.loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
     } else {
+      this.state.homeImage &&
+        this.state.isNetwork &&
+        $('.loginContainerCon').css({
+          'background-image': 'url(' + this.state.homeImage + ')',
+          'background-size': 'cover',
+        });
       return (
         <div className="loginBox">
           <div className="loginContainer">

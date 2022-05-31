@@ -181,27 +181,6 @@ export const CONDITION_TYPE = {
   41: _l('早于'),
 };
 
-export const GRADE_STAR_TYPE = {
-  1: _l('1星'),
-  2: _l('2星'),
-  3: _l('3星'),
-  4: _l('4星'),
-  5: _l('5星'),
-};
-
-export const GRADE_LEVEL_TYPE = {
-  1: _l('1级'),
-  2: _l('2级'),
-  3: _l('3级'),
-  4: _l('4级'),
-  5: _l('5级'),
-  6: _l('6级'),
-  7: _l('7级'),
-  8: _l('8级'),
-  9: _l('9级'),
-  10: _l('10级'),
-};
-
 export const USER_TYPE = {
   USER: 1,
   ROLE: 2,

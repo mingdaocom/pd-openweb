@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { CreateNode, NodeOperate } from '../components';
-import { CONDITION_TYPE, GRADE_STAR_TYPE, GRADE_LEVEL_TYPE } from '../../enum';
+import { CONDITION_TYPE } from '../../enum';
 import { addFlowNode } from '../../../redux/actions';
 
 export default class BranchItem extends Component {
@@ -117,12 +117,6 @@ export default class BranchItem extends Component {
                     {obj.controlName || _l('字段已删除')}
                   </span>
                 </Fragment>
-              ) : item.filedTypeId === 28 ? (
-                item.enumDefault === 1 ? (
-                  GRADE_STAR_TYPE[obj.value.value]
-                ) : (
-                  GRADE_LEVEL_TYPE[obj.value.value]
-                )
               ) : obj.value && typeof obj.value === 'object' ? (
                 obj.value.value
               ) : (
