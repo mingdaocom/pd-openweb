@@ -12,7 +12,7 @@ export const getMembers = (
     // 申请状况
     ajaxRequest.getAppApplyInfo({ appId }).then(),
     // 获取成员是否可角色见列表状态
-    ajaxRequest.getMemberStatus({ appId }).then(),
+    window.isPublicApp ? undefined : ajaxRequest.getMemberStatus({ appId }).then(),
   ]).then(
     result => {
       const [detail, list, applyList, rolesVisibleConfig] = result;
@@ -61,6 +61,7 @@ export const deleteApp = ({
   homeAppAjax.deleteApp({
     appId,
     projectId,
+    isHomePage: true,
   }).then(res => {
     cb && cb(res);
   });

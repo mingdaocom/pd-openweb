@@ -14,12 +14,12 @@ export const getTodoCount = () => {
     }
     request = instance.getTodoCount();
     request.then(list => {
-      const mySponsor = list[0];        // 我的发起
-      const waitingWrite = list[3];     // 待填写
-      const waitingApproval = list[4];  // 待审批
-      const waitingExamine = list[5];   // 待查看
+      const mySponsor = list[0]; // 我的发起
+      const waitingWrite = list[3]; // 待填写
+      const waitingApproval = list[4]; // 待审批
+      const waitingExamine = list[5]; // 待查看
 
-      const waitingDispose = waitingWrite + waitingApproval;  // 待处理
+      const waitingDispose = waitingWrite + waitingApproval; // 待处理
       const myProcessCount = waitingDispose + waitingExamine; // 我的流程总数
 
       resolve({
@@ -32,7 +32,7 @@ export const getTodoCount = () => {
       });
     });
   });
-}
+};
 
 export default class Entry extends Component {
   constructor(props) {
@@ -44,34 +44,32 @@ export default class Entry extends Component {
     });
   }
   render() {
-    const { countData, onClick, type } = this.props;
+    const { countData, onClick, type, renderContent } = this.props;
     const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
     const isNative = type === 'native';
     const { iconColor } = store.getState().appPkg;
-    return (
-      type ? (
-        <Tooltip text={<span>{_l('我的流程')}</span>}>
-          <div className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'}`} onClick={onClick}>
-            <Icon icon={cx('knowledge_file', {appIcon: !isNative})} className="mRight5 Font20"/>
-            {count ? (
-              <span
-                className={`count ${isNative ? 'native' : 'app'}`}
-                style={{color: isNative ? '' : iconColor}}
-              >
-                {count}
-              </span>
-            ) : null}
-          </div>
-        </Tooltip>
-      ) : (
-        <ul className="mTop10">
-          <li className="myProcess" onClick={onClick}>
-            <Icon icon="knowledge_file"/>
-            <span className="Gray_75 bold">{_l('我的流程')}</span>
-            {count ? <span className="count">{count}</span> : null}
-          </li>
-        </ul>
-      )
+    if (_.isFunction(renderContent)) {
+      return renderContent(count);
+    }
+    return type ? (
+      <Tooltip text={<span>{_l('流程待办')}</span>}>
+        <div className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'}`} onClick={onClick}>
+          <Icon icon={cx('knowledge_file', { appIcon: !isNative })} className="mRight5 Font20" />
+          {count ? (
+            <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>
+              {count}
+            </span>
+          ) : null}
+        </div>
+      </Tooltip>
+    ) : (
+      <ul className="mTop10">
+        <li className="myProcess" onClick={onClick}>
+          <Icon icon="knowledge_file" />
+          <span className="Gray_75 bold">{_l('流程待办')}</span>
+          {count ? <span className="count">{count}</span> : null}
+        </li>
+      </ul>
     );
   }
 }

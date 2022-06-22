@@ -1,5 +1,5 @@
 import React, { Component, Fragment, useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import { Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { getControlType, getControls } from '../util';
@@ -56,7 +56,11 @@ export default function OtherField(props) {
       _.get(
         _.find(controls, item => _.includes([item.controlId, item.id], fieldId)),
         'controlName',
-      ) || '已删除'
+      ) || (
+        <Tooltip text={<span>{_l('ID: %0', fieldId)}</span>} popupPlacement="bottom">
+          <span>{_l('已删除')}</span>
+        </Tooltip>
+      )
     );
   };
   const getFieldNameById = (item, controls) => {

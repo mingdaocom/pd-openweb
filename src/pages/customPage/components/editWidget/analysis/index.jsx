@@ -1,6 +1,6 @@
 import React, { useState, Fragment, useEffect } from 'react';
 import { string } from 'prop-types';
-import ChartDialog from 'src/pages/worksheet/common/Statistics/ChartDialog';
+import ChartDialog from 'statistics/ChartDialog';
 import sheetAjax from 'src/api/worksheet';
 import { useSetState } from 'react-use';
 import CreateAnalysis from './CreateAnalysis';

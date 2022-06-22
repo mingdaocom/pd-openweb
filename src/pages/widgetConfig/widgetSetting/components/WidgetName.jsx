@@ -4,14 +4,16 @@ import { Input } from 'antd';
 import { SettingItem } from '../../styled';
 
 export default function WidgetName(props) {
-  const { title = _l('字段名称'), data = {}, onChange } = props;
+  const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;
   const { type, controlName, controlId = '' } = data;
   const $ref = useRef(null);
 
   useEffect(() => {
-    if ($ref.current && controlId.includes('-')) {
+    if ($ref.current && !isRecycle) {
       const $dom = $ref.current.input;
-      $dom.setSelectionRange(0, $dom.value.length);
+      if (controlId.includes('-')) {
+        $dom.setSelectionRange(0, $dom.value.length);
+      }
       $dom.focus();
     }
   }, [data.controlId]);
@@ -22,7 +24,6 @@ export default function WidgetName(props) {
       <Input
         ref={$ref}
         data-editcomfirm="true"
-        autoFocus
         type="text"
         value={controlName}
         onBlur={() => {

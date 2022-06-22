@@ -60,24 +60,29 @@ const OPTIONS_TYPE = [
 ];
 export const OPTIONS = {
   //选项
-  key: 'isAsc',
-  default: true,
-  types: OPTIONS_TYPE,
+  data: [{ key: 'isAsc', types: OPTIONS_TYPE, txt: '排序方式', default: true }],
   keys: [
     11, // 选项
     10, // 多选
     9, // 单选 平铺
   ],
-  txt: '排序方式',
 };
-
+const RELATE_TYPE = [
+  { text: _l('是'), value: 24 },
+  { text: _l('属于'), value: 11 },
+];
 export const RELATES = {
   //选项
-  key: 'viewId',
   keys: [29],
-  // types: RELATE_TYPE,
-  des: '当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航',
-  txt: '层级视图',
+  data: [
+    { key: 'viewId', txt: '层级视图', des: '当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航' },
+    { key: 'filterType', types: RELATE_TYPE, txt: '筛选方式', default: 11 },
+  ],
+};
+export const CASCADER = {
+  //选项
+  keys: [35],
+  data: [{ key: 'filterType', types: RELATE_TYPE, txt: '筛选方式', default: 11 }],
 };
 export const getSetDefault = control => {
   let { controlId = '', type } = control;
@@ -86,11 +91,14 @@ export const getSetDefault = control => {
     dataType: type,
   };
   let data = {};
-  [OPTIONS, RELATES].map(o => {
+  [OPTIONS, RELATES, CASCADER].map(o => {
     if (o.keys.includes(type)) {
-      data = {
-        [o.key]: o.default,
-      };
+      o.data.map(it => {
+        data = {
+          ...data,
+          [it.key]: it.default,
+        };
+      });
     }
   });
   return {
@@ -100,16 +108,18 @@ export const getSetDefault = control => {
 };
 
 export const getSetHtmlData = type => {
-  let data = {};
+  let data = [];
   type &&
-    [OPTIONS, RELATES].map(o => {
-      if (o.keys.includes(type)) {
-        data = {
-          txt: o.txt,
-          des: o.des,
-          types: o.types,
-          key: o.key,
-        };
+    [OPTIONS, RELATES, CASCADER].map(it => {
+      if (it.keys.includes(type)) {
+        it.data.map(o => {
+          data.push({
+            txt: o.txt,
+            des: o.des,
+            types: o.types,
+            key: o.key,
+          });
+        });
       }
     });
   return data;

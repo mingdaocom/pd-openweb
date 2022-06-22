@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { TRIGGER_ID, APP_TYPE, EXEC_TIME_TYPE, DATE_TYPE, TIME_TYPE_NAME, CUSTOM_ACTION_TEXT } from '../../enum';
-import { getIcons, getColor } from '../../utils';
+import { getIcons, getStartNodeColor } from '../../utils';
 
 export default class Start extends Component {
   constructor(props) {
@@ -18,8 +18,10 @@ export default class Start extends Component {
     // 子流程
     if (child) {
       const types = {
-        7: 'Webhook',
+        7: _l('发送 API 请求'),
         12: _l('代码块'),
+        17: _l('业务流程数组'),
+        18: _l('JSON 解析'),
         20: _l('人员信息'),
         21: _l('部门信息'),
         405: _l('人工节点'),
@@ -200,6 +202,11 @@ export default class Start extends Component {
       );
     }
 
+    // 外部用户讨论触发
+    if (item.triggerId === TRIGGER_ID.DISCUSS) {
+      return <div className="pLeft8 pRight8 Gray_75">{_l('当外部用户收到讨论通知时（被回复、被提到）触发')}</div>;
+    }
+
     // 人员与部门
     if (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType)) {
       const TEXT = {
@@ -261,7 +268,11 @@ export default class Start extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: isCopy },
-              { errorShadow: item.appId && !item.appName && item.appType !== APP_TYPE.PBC },
+              {
+                errorShadow:
+                  (item.appId && !item.appName && item.appType !== APP_TYPE.PBC) ||
+                  (item.appType === APP_TYPE.DATE && item.isException),
+              },
               { active: selectNodeId === item.id },
             )}
             onMouseDown={() => openDetail(item.id, item.typeId)}
@@ -270,12 +281,15 @@ export default class Start extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  child ? 'BGBlueAsh' : getColor(item.appType),
-                  child ? 'icon-subprocess' : getIcons(item.typeId, item.appType),
+                  child ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId),
+                  child ? 'icon-subprocess' : getIcons(item.typeId, item.appType, item.triggerId),
                 )}
               />
             </div>
-            <NodeOperate nodeClassName={child ? 'BGBlueAsh' : getColor(item.appType)} {...this.props} />
+            <NodeOperate
+              nodeClassName={child ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
+              {...this.props}
+            />
             <div className="workflowContent">{this.renderContent()}</div>
           </div>
           <CreateNode {...this.props} />

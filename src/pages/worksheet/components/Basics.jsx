@@ -181,3 +181,13 @@ export const VerticalMiddle = styled.div`
   display: flex;
   align-items: center;
 `;
+
+export const FlexCenter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const FlexSpacer = styled.div`
+  flex: 1;
+`;

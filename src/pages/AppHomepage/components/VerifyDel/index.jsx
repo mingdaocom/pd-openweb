@@ -59,9 +59,7 @@ export default class VerifyDel extends Component {
             {_l('删除应用 “%0”', currentName)}
           </div>
           <div className="hint">
-            <span style={{ color: '#333', fontWeight: 'bold' }}>
-              {_l('注意：应用下所有配置和数据将被永久删除，不可恢复。')}
-            </span>
+            <span style={{ color: '#333', fontWeight: 'bold' }}>{_l('注意：应用下所有配置和数据将被删除。')}</span>
             {_l('请确认所有应用成员都不再需要此应用后，再执行此操作')}
           </div>
           <div className="inputVerify">

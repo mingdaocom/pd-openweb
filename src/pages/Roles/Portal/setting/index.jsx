@@ -175,7 +175,7 @@ class PortalSetting extends React.Component {
   editPortal = () => {
     const { portalSet = {} } = this.state;
     const { projectId, closeSet } = this.props;
-    const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {} } = portalSet;
+    const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {}, epDiscussWorkFlow = {} } = portalSet;
     let mdSign = getStrBytesLength(
       ((_.get(md, ['global', 'Account', 'projects']) || []).find(o => o.projectId === projectId) || {}).companyName,
     );
@@ -226,6 +226,7 @@ class PortalSetting extends React.Component {
           'exAccountDiscussEnum',
           'allowExAccountDiscuss',
         ]),
+        epDiscussWorkFlow,
         appId,
         // domainName,
         loginMode,

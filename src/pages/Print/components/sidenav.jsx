@@ -183,9 +183,9 @@ class Sidenav extends React.Component {
         }
       });
     }
-    //关联表富文本不不显示 分段 ,OCR 不显示
+    //关联表富文本不不显示 分段 ,OCR ,条码不显示
     controls = controls.filter(
-      it => ![...UNPRINTCONTROL, 41, 22].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
+      it => ![...UNPRINTCONTROL, 41, 22, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let orderNumberList = orderNumber.find(it => it.receiveControlId === list.controlId) || [];
     return (
@@ -690,7 +690,7 @@ class Sidenav extends React.Component {
                     data={[
                       { text: _l('对外公开分享链接'), value: 0 },
                       { text: _l('内部成员访问链接'), value: 1 },
-                    ].filter(o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1))}//外部门户没有内部成员访问链接
+                    ].filter(o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1))} //外部门户没有内部成员访问链接
                   />
                 )}
                 <Checkbox

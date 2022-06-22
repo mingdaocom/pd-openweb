@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { ActionSheet, Modal, List, WhiteSpace } from 'antd-mobile';
-import SelectUser from 'src/pages/Mobile/components/SelectUser';
+import SelectUser from 'mobile/components/SelectUser';
 import { OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
 
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');

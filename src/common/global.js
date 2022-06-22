@@ -159,6 +159,7 @@ md.staticglobal = md.global = {
   SysSettings: {
     passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
     passwordRegexTip: '',
+    hideHelpTip: true,
   },
 };
 
@@ -675,9 +676,13 @@ window.createTimeSpan = dateStr => {
 if (!Object.fromEntries) {
   Object.fromEntries = function(entries) {
     let entriesObj = {};
-    (entries || []).forEach(element => {
-      entriesObj[element[0]] = element[1];
-    });
+
+    if (Array.isArray(entries)) {
+      (entries || []).forEach(element => {
+        entriesObj[element[0]] = element[1];
+      });
+    }
+
     return entriesObj;
   };
 }

@@ -70,17 +70,9 @@
 }
 
 .appConfigItem {
-  &.editAppNavStyle {
-    .Item-content {
-      overflow: inherit;
-    }
-    .activeIcon .icon {
-      left: 0;
-      line-height: inherit;
-      color: #fff;
-    }
-  }
-  &.backupRestore {
+  &.editAppNavStyle,
+  &.backupRestore,
+  &.appManageMenu {
     .Item-content {
       overflow: inherit;
     }
@@ -100,6 +92,39 @@
       right: 16px;
       left: auto !important;
     }
+  }
+  &.copy,
+  &.export,
+  &.importAppUpgrade,
+  &.createBackup,
+  &.restore {
+    .Item-content {
+      color: #333 !important;
+      .icon {
+        color: #9e9e9e !important;
+      }
+    }
+  }
+  &.copy:hover,
+  &.export:hover,
+  &.importAppUpgrade:hover,
+  &.createBackup:hover,
+  &.restore:hover {
+    .Item-content {
+      color: #fff !important;
+      .icon {
+        color: #fff !important;
+      }
+    }
+  }
+  .appManageMenuWrap {
+    color: #333;
+    width: 180px;
+    line-height: normal;
+    padding: 6px 0px;
+    border-radius: 3px;
+    box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+    background-color: white;
   }
 }
 

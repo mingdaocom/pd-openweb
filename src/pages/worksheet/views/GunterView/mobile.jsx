@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/worksheet/redux/actions';
 import { Flex, ActivityIndicator } from 'antd-mobile';
-import ViewErrorPage from 'src/pages/Mobile/RecordList/View/components/ViewErrorPage';
+import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
 import Gunter from './index.jsx';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/util';

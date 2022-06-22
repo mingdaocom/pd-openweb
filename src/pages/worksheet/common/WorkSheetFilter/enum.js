@@ -154,10 +154,10 @@ export const CONTROL_FILTER_WHITELIST = {
   TEXT: {
     value: 1,
     types: [
-      FILTER_CONDITION_TYPE.LIKE,
-      FILTER_CONDITION_TYPE.NCONTAIN,
       FILTER_CONDITION_TYPE.EQ,
       FILTER_CONDITION_TYPE.NE,
+      FILTER_CONDITION_TYPE.LIKE,
+      FILTER_CONDITION_TYPE.NCONTAIN,
       FILTER_CONDITION_TYPE.START,
       FILTER_CONDITION_TYPE.END,
       FILTER_CONDITION_TYPE.ISNULL,
@@ -334,6 +334,7 @@ export const API_ENUM_TO_TYPE = {
   CASCADER: 35, //级联选择
   SUBLIST: 34, //子表
   EMBED: 45, // 嵌入
+  BARCODE: 47, //条码
 };
 
 export function getFilterTypeLabel(typeKey, type, control, controlType) {

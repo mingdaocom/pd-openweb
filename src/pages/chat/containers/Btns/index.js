@@ -286,7 +286,7 @@ class Btns extends Component {
           offset={visible ? [isEn ? -20 : -10, 1] : [1, 1]}
         >
           <div className={cx('ChatList-btn sidebar-btn', { dark: dark })} onClick={this.handleOpenChatList.bind(this)}>
-            <i className={`${visible ? 'ThemeColor3' : ''} ${visible ? 'icon-chat_retract' : 'icon-chat_open'}`} />
+            <i className={`${visible ? 'ThemeColor3' : ''} ${visible ? 'icon-menu_right' : 'icon-menu_left'}`} />
           </div>
         </Tooltip>
       </div>
@@ -330,9 +330,7 @@ class Btns extends Component {
               this.setState({ searchVisible: false });
             }}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {this.renderAddressBook()}
         <Trigger
           popupVisible={menuVisible}

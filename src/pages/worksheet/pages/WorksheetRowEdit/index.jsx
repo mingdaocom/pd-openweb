@@ -74,6 +74,7 @@ class WorksheetRowEdit extends Component {
         data.receiveControls.forEach(item => {
           item.fieldPermission = '111';
         });
+        data.shareAuthor && (window.shareAuthor = data.shareAuthor);
         this.setState({ loading: false, data });
       } else if (data.resultCode === 4) {
         this.setState({ loading: false, isError: true });

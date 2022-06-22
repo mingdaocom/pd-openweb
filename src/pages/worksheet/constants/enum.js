@@ -169,7 +169,7 @@ export const VIEW_TYPE_ICON = [
   { icon: 'event', color: '#F64082', text: _l('日历'), id: 'calendar' },
   { icon: 'gallery_view', color: '#3949ab', text: _l('画廊'), id: 'gallery' },
   { icon: 'hierarchy', color: '#9C27AF', text: _l('层级'), id: 'structure' },
-  { icon: 'gantt', color: '#01BCD5', text: _l('甘特图'), id: 'gunter' }
+  { icon: 'gantt', color: '#01BCD5', text: _l('甘特图'), id: 'gunter' },
 ];
 
 export const WORKSHEET_VIEW_PAGE_SIZE = {
@@ -243,4 +243,4 @@ export const SYSTEM_CONTROLS = [
   },
 ];
 
-export const CONTROL_EDITABLE_BALCKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 45];
+export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 45, 47];

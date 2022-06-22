@@ -51,7 +51,8 @@ export default function RelateSheet({ data }) {
                   <tr>
                     {showControls.map((controlId, index) => {
                       const { controlName, required } =
-                        _.find(relationControls.concat(SYSTEM_CONTROL), item => item.controlId === controlId) || {};
+                        _.find((relationControls || []).concat(SYSTEM_CONTROL), item => item.controlId === controlId) ||
+                        {};
                       return (
                         <th key={controlId} className="overflow_ellipsis" style={{ width: `${widths[index]}px` }}>
                           {required && <span>{_l('*')}</span>}

@@ -2,7 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tree } from 'antd';
-import { initRoot, loadDepartments, loadUsers, departmentUpdate, expandedKeysUpdate } from '../../actions/entities';
+import {
+  initRoot,
+  loadDepartments,
+  loadUsers,
+  departmentUpdate,
+  expandedKeysUpdate,
+  updateShowExport,
+  updateImportType,
+} from '../../actions/entities';
 import { updateCursor } from '../../actions/current';
 import departmentController from 'src/api/department'; //moveDepartment
 import DiaActionTree from './diaActionTree';
@@ -89,12 +97,12 @@ class DepartmentTree extends React.Component {
   }
 
   init = () => {
-    const { isRoot, autoLoad, id, dispatch } = this.props;
+    const { isRoot, autoLoad, id, initRoot = () => {}, loadDepartments = () => {} } = this.props;
     if (isRoot) {
-      dispatch(initRoot(id));
+      initRoot(id);
     }
     if (autoLoad) {
-      dispatch(loadDepartments(id, 1, this.getHeight));
+      loadDepartments(id, 1, this.getHeight);
     }
     $('.departmentTreeBox').scroll(() => {
       this.setState({
@@ -135,11 +143,10 @@ class DepartmentTree extends React.Component {
   };
 
   onDragEnter = info => {
-    this.props.dispatch(expandedKeysUpdate(info.expandedKeys));
+    this.props.expandedKeysUpdate(info.expandedKeys);
   };
 
   onDrop = info => {
-    const { dispatch } = this.props;
     let sortedDepartmentIds = []; //拖拽后排序
     let moveToParentId = '';
     const dropKey = info.node.props.eventKey; //拖dao ID
@@ -202,14 +209,14 @@ class DepartmentTree extends React.Component {
           newDepartments: _.cloneDeep(data),
         },
         () => {
-          dispatch(departmentUpdate(data, dragObj, id));
+          this.props.departmentUpdate(data, dragObj, id);
         },
       );
     });
   };
 
   loadDataFn = (treeNode = {}, isMore) => {
-    const { projectId, dispatch } = this.props;
+    const { projectId } = this.props;
     const { props = {} } = treeNode;
     return new Promise(resolve => {
       if (props.subDepartments && !isMore) {
@@ -268,7 +275,7 @@ class DepartmentTree extends React.Component {
               arr[index].subDepartments = subDepartments;
             });
           }
-          dispatch(departmentUpdate(list, subDepartments, props.departmentId));
+          this.props.departmentUpdate(list, subDepartments, props.departmentId);
           resolve();
         });
     });
@@ -280,9 +287,8 @@ class DepartmentTree extends React.Component {
       return;
     }
     this.setState({ selectedKeys });
-    const { dispatch } = this.props;
-    dispatch(updateCursor(id));
-    dispatch(loadUsers(id));
+    this.props.updateCursor(id);
+    this.props.loadUsers(id);
   };
 
   renderDropListDia = () => {
@@ -410,7 +416,7 @@ class DepartmentTree extends React.Component {
   };
 
   onExpand = expandedKeys => {
-    this.props.dispatch(expandedKeysUpdate(expandedKeys));
+    this.props.expandedKeysUpdate(expandedKeys);
     this.setState({
       autoExpandParent: false,
     });
@@ -418,6 +424,23 @@ class DepartmentTree extends React.Component {
 
   render() {
     const { newDepartments, expandedKeys, selectedKeys, autoExpandParent, height } = this.state;
+    if (_.isEmpty(newDepartments)) {
+      return (
+        <div className="Gray_9e Font13 mLeft24 mTop16">
+          {_l('暂无部门，可 ')}
+          <span
+            className="Hand"
+            style={{ color: '#2196F3' }}
+            onClick={() => {
+              this.props.updateShowExport(true);
+              this.props.updateImportType('importDepartment');
+            }}
+          >
+            {_l('批量导入')}
+          </span>
+        </div>
+      );
+    }
     return (
       <div className="departmentTreeBox box-sizing pBottom20">
         <DirectoryTree
@@ -469,6 +492,15 @@ const mapStateToProps = (state, ownProps) => {
     searchValue,
   };
 };
-const ConnectedNode = connect(mapStateToProps)(DepartmentTree);
+const ConnectedNode = connect(mapStateToProps, {
+  initRoot,
+  loadDepartments,
+  loadUsers,
+  departmentUpdate,
+  expandedKeysUpdate,
+  updateShowExport,
+  updateImportType,
+  updateCursor,
+})(DepartmentTree);
 
 export default ConnectedNode;

@@ -12,7 +12,7 @@ import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig 
 import { wrapAjax } from './util';
 import { getNavGroupCount } from './index';
 
-export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
+export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, updateWorksheetControls } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId, maxCount, chartId, showAsSheetView } = base;
@@ -46,6 +46,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
         ]),
       ),
       navGroupFilters,
+      isGetWorksheet: updateWorksheetControls,
       ...(showAsSheetView ? { getType: 0 } : {}),
     };
     if (maxCount) {
@@ -59,10 +60,22 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
       type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
       value: {
         noLoading,
+        noClearSelected,
       },
     });
     dispatch(getWorksheetSheetViewSummary());
     getFilterRows(args).then(res => {
+      if (updateWorksheetControls && _.get(res, 'template.controls')) {
+        try {
+          dispatch({
+            type: 'WORKSHEET_UPDATE_CONTROLS',
+            controls: _.get(res, 'template.controls').filter(
+              c => c.controlId.length === 24 || _.includes(['ownerid', 'caid', 'ctime', 'utime'], c.controlId),
+            ),
+          });
+        } catch (err) {}
+        dispatch(setViewLayout(viewId));
+      }
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
         rows: res.data,
@@ -77,15 +90,33 @@ export const fetchRows = ({ isFirst, changeView, noLoading } = {}) => {
     });
     if (pageIndex === 1 && !chartId) {
       getFilterRowsTotalNum(args).then(data => {
-        const count = parseInt(data, 10);
-        if (!_.isNaN(count)) {
+        if (!data) {
           dispatch({
-            type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
-            count,
+            type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT_ABNORMAL',
           });
+        } else {
+          const count = parseInt(data, 10);
+          if (!_.isNaN(count)) {
+            dispatch({
+              type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+              count,
+            });
+            dispatch(updateNavGroup());
+          }
         }
       });
     }
+  };
+};
+
+// 更新分组筛选
+export const updateNavGroup = () => {
+  return (dispatch, getState) => {
+    const { views, base } = getState().sheet;
+    const { viewId = '' } = base;
+    const view = views.find(o => o.viewId === viewId) || {};
+    const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
+    navGroup.controlId && dispatch(getNavGroupCount());
   };
 };
 
@@ -120,12 +151,29 @@ export function updateViewPermission() {
   };
 }
 
-export function updateControlOfRow({ recordId, controlId, value, editType }, options = {}) {
+export function updateControlOfRow({ cell = {}, cells = [], recordId }, options = {}) {
   return (dispatch, getState) => {
+    if (!_.isEmpty(cell) && _.isEmpty(cells)) {
+      cells = [cell];
+    }
     const { base, controls } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
+    const { controlId, value } = cell;
     const control = _.find(controls, { controlId });
-    if (!control) {
+    const newOldControl = cells
+      .map(cell => {
+        const { controlId, value, editType } = cell;
+        const control = _.find(controls, { controlId });
+        return (
+          control && {
+            ..._.pick(control, ['controlId', 'type', 'controlName', 'dot']),
+            editType,
+            value,
+          }
+        );
+      })
+      .filter(_.identity);
+    if (_.isEmpty(newOldControl)) {
       return;
     }
     updateWorksheetRow({
@@ -133,17 +181,11 @@ export function updateControlOfRow({ recordId, controlId, value, editType }, opt
       viewId,
       worksheetId,
       rowId: recordId,
-      newOldControl: [
-        {
-          ..._.pick(control, ['controlId', 'type', 'controlName', 'dot']),
-          editType,
-          value,
-        },
-      ],
+      newOldControl,
     })
       .then(res => {
         if (res.resultCode === 1) {
-          dispatch(getNavGroupCount());
+          dispatch(updateNavGroup());
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
@@ -200,7 +242,7 @@ export function hideRows(rowIds) {
         rowIds,
       });
     }
-    dispatch(getNavGroupCount());
+    dispatch(updateNavGroup());
   };
 }
 
@@ -212,7 +254,7 @@ export function updateRows(rowIds, value) {
   };
 }
 
-export function refresh({ resetPageIndex, changeFilters, noLoading } = {}) {
+export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelected, updateWorksheetControls } = {}) {
   return (dispatch, getState) => {
     const {
       filters,
@@ -228,7 +270,7 @@ export function refresh({ resetPageIndex, changeFilters, noLoading } = {}) {
     if (needClickToSearch && _.isEmpty(quickFilter)) {
       dispatch(setRowsEmpty());
     } else {
-      dispatch(fetchRows({ noLoading }));
+      dispatch(fetchRows({ noLoading, noClearSelected, updateWorksheetControls }));
     }
   };
 }
@@ -400,11 +442,11 @@ function resetView() {
   };
 }
 
-function setViewLayout(viewId) {
+export function setViewLayout(viewId) {
   return (dispatch, getState) => {
     const { views } = getState().sheet;
     const view = _.find(views, { viewId });
-    if (!view) {
+    if (!view || view.viewType !== 0) {
       return;
     }
     const { advancedSetting } = view;
@@ -532,6 +574,11 @@ export function addRecord(record, afterRowId) {
   return (dispatch, getState) => {
     const { sheetview } = getState().sheet;
     const { rows, count } = sheetview.sheetViewData;
+    dispatch(updateNavGroup());
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+      count: count + 1,
+    });
     if (afterRowId) {
       const afterRowIndex = _.findIndex(rows, row => row.rowid === afterRowId);
       const newRows = _.isUndefined(afterRowId)

@@ -3,7 +3,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { getControlRules } from 'src/api/worksheet';
 import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-// import { formatFileControls } from 'src/pages/Mobile/Record';
+// import { formatFileControls } from 'mobile/Record';
 import { getInfo } from './utils';
 import { browserIsMobile } from 'src/util';
 

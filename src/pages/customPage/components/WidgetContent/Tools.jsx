@@ -6,7 +6,7 @@ import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { useToggle } from 'react-use';
 import { getEnumType } from '../../util';
-import PageMove from 'worksheet/common/Statistics/components/PageMove';
+import PageMove from 'statistics/components/PageMove';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },
@@ -125,13 +125,11 @@ const DelVerify = styled.div`
 `;
 
 const getTools = ({ widgetType, layoutType }) => {
-  if (layoutType === 'mobile' && widgetType === 'button') return MOBILE_BUTTON_TOOLS;
+  if (layoutType === 'mobile') {
+    return widgetType === 'button' ? MOBILE_BUTTON_TOOLS : MOBILE_CONTENT_TOOLS;
+  };
   if (widgetType === 'view') {
-    if (layoutType === 'mobile') {
-      return MOBILE_CONTENT_TOOLS;
-    } else {
-      return WEB_CONTENT_TOOLS.filter(item => !['move', 'copy'].includes(item.type));
-    }
+    return WEB_CONTENT_TOOLS.filter(item => !['move', 'copy'].includes(item.type));
   };
   if (widgetType !== 'analysis') return WEB_CONTENT_TOOLS.filter(item => item.type !== 'move');
   return TOOLS_BY_LAYOUT_TYPE[layoutType];

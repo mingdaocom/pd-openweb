@@ -59,7 +59,9 @@ export default class SelectWorkflow extends Component {
 
     if (keywords) {
       data = data.map(item => {
-        item.processList = item.processList.filter(flow => _.includes(flow.name.toLocaleLowerCase(), keywords.toLocaleLowerCase()));
+        item.processList = item.processList.filter(flow =>
+          _.includes(flow.name.toLocaleLowerCase(), keywords.toLocaleLowerCase()),
+        );
         return item;
       });
     }
@@ -123,9 +125,11 @@ export default class SelectWorkflow extends Component {
     const { visible, onSave, onClose } = this.props;
     const { data, selectItems } = this.state;
 
+    if (!visible) return null;
+
     return (
       <Dialog
-        visible={visible}
+        visible
         width={540}
         className="selectWorkflowDialog"
         title={_l('选择工作流')}
@@ -137,7 +141,12 @@ export default class SelectWorkflow extends Component {
       >
         <div className="flexColumn h100">
           <div className="flexRow relative">
-            <input type="text" placeholder={_l('搜索工作流名称')} className="selectWorkflowInput" onChange={e => this.setState({ keywords: e.target.value })} />
+            <input
+              type="text"
+              placeholder={_l('搜索工作流名称')}
+              className="selectWorkflowInput"
+              onChange={e => this.setState({ keywords: e.target.value })}
+            />
             <Icon icon="workflow_find" className="selectWorkflowSearch Gray_9e Font16" />
           </div>
           <div className="flex mTop15">

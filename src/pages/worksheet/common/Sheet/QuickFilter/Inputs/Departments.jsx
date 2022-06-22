@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { BaseSelectedItem } from './Styles';
 
 const Con = styled.div`
   display: flex;
   align-items: center;
-  height: 32px;
+  min-height: 32px;
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
@@ -27,7 +28,7 @@ const DepartmentsCon = styled.div`
   flex: 1;
   overflow: hidden;
   font-size: 13px;
-  height: 32px;
+  min-height: 32px;
   padding: 0 0 0 10px;
 `;
 
@@ -73,9 +74,24 @@ export default function Departments(props) {
     >
       <DepartmentsCon>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
-        <DepartmentsText className="ellipsis" title={values.map(user => user.departmentName).join(', ')}>
-          {values.map(user => user.departmentName).join(', ')}
-        </DepartmentsText>
+        {!isMultiple && !!values.length && (
+          <DepartmentsText className="ellipsis" title={values[0].departmentName}>
+            {values[0].departmentName}
+          </DepartmentsText>
+        )}
+        {isMultiple &&
+          values.map((v, i) => (
+            <BaseSelectedItem key={i}>
+              <span className="name ellipsis">{v.departmentName}</span>
+              <i
+                className="icon icon-delete Gray_9e Font10 Hand"
+                onClick={e => {
+                  e.stopPropagation();
+                  onChange({ values: values.filter(d => d.departmentId !== v.departmentId) });
+                }}
+              />
+            </BaseSelectedItem>
+          ))}
       </DepartmentsCon>
       <Icon className="icon icon-workflow downIcon" />
       {!!values.length && (

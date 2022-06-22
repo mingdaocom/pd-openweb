@@ -2,6 +2,7 @@ import React from 'react';
 import qs from 'query-string';
 import global from 'src/api/global';
 import project from 'src/api/project';
+import redirect from './redirect';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
 if (/theportal\.cn$/.test(location.host) && window.__api_server__ && window.__api_server__.main) {
@@ -76,6 +77,9 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     }
 
     setPssId(getPssId());
+    if (redirect(location.pathname)) {
+      return;
+    }
     cb();
   });
 }
@@ -115,6 +119,8 @@ function getMomentLocale(lang) {
     return 'en';
   } else if (lang === 'zh-Hant') {
     return 'zh-tw';
+  } else if (lang === 'ja') {
+    return 'ja';
   } else {
     return 'zh-cn';
   }

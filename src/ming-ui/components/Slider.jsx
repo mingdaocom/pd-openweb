@@ -19,6 +19,7 @@ const Con = styled.div`
   align-items: center;
   padding-left: 7px;
   padding-right: 7px;
+  user-select: none;
   ${({ hasScale }) => (hasScale ? 'padding-bottom: 20px;' : '')}
   ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
 `;
@@ -175,6 +176,17 @@ function formatByMinMax(value, min, max, step) {
   }
   return value;
 }
+
+function getNumberMaxWidth(max, step = 1, isPercent) {
+  let count = String(max).length;
+  if (/\./.test(String(step))) {
+    count += ((String(step).match(/\.(.*)/) || '')[1] || '').length;
+  }
+  if (isPercent) {
+    count += 1;
+  }
+  return 9 * count + 5;
+}
 export default function Slider(props) {
   const {
     from,
@@ -201,6 +213,7 @@ export default function Slider(props) {
     max = max * 100;
     step = step * 100;
   }
+  const numberWidth = getNumberMaxWidth(max, step, showAsPercent);
   const disabled = props.disabled || readonly;
   const cache = useRef({});
   const barRef = useRef();
@@ -327,8 +340,9 @@ export default function Slider(props) {
                 onClick={
                   disabled
                     ? _.noop
-                    : () => {
+                    : e => {
                         updateValue(scale.value * (showAsPercent ? 100 : 1), true);
+                        e.stopPropagation();
                       }
                 }
               >
@@ -406,10 +420,18 @@ export default function Slider(props) {
           {!!showAsPercent && numberIsFocusing && !_.isUndefined(valueForInput) && <span className="percent">%</span>}
         </InputCon>
       )}
-      {showNumber && (!showInput || disabled) && !_.isUndefined(value) && (
-        <NumberValue style={numStyle} disabled={props.disabled} isMobile={isMobile}>
-          {value}
-          {!!showAsPercent && !_.isUndefined(value) && '%'}
+      {showNumber && (!showInput || disabled) && (
+        <NumberValue
+          style={{ ...numStyle, width: disabled ? 'auto' : numberWidth }}
+          disabled={props.disabled}
+          isMobile={isMobile}
+        >
+          {!_.isUndefined(value) && (
+            <Fragment>
+              {value}
+              {!!showAsPercent && !_.isUndefined(value) && '%'}
+            </Fragment>
+          )}
         </NumberValue>
       )}
     </Con>

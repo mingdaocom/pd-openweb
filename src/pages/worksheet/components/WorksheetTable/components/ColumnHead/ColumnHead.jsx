@@ -10,7 +10,7 @@ import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum'
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { CONTROL_EDITABLE_BALCKLIST } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
 import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'worksheet/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
@@ -103,6 +103,8 @@ class ColumnHead extends Component {
       count,
       style,
       isLast,
+      allWorksheetIsSelected,
+      sheetSelectedRows = [],
       disabledFunctions = [],
       rowIsSelected,
       columnIndex,
@@ -118,7 +120,7 @@ class ColumnHead extends Component {
     const itemType = this.getType(control);
     const canSort = fieldCanSort(itemType, control);
     const canEdit =
-      !_.includes(CONTROL_EDITABLE_BALCKLIST, control.type) &&
+      !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
       controlState(control).editable &&
       canBatchEdit &&
       !SYS.filter(o => o !== 'ownerid').includes(control.controlId); //系统字段(除了拥有者字段)，不可编辑
@@ -170,7 +172,10 @@ class ColumnHead extends Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
-                  if (count > 1000) {
+                  const selectedLength = allWorksheetIsSelected
+                    ? count - sheetSelectedRows.length
+                    : sheetSelectedRows.length;
+                  if (selectedLength > 1000) {
                     Dialog.confirm({
                       title: (
                         <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
@@ -261,6 +266,8 @@ class ColumnHead extends Component {
 const mapStateToProps = state => ({
   sheetHiddenColumns: state.sheet.sheetview.sheetViewConfig.sheetHiddenColumns,
   sortControls: state.sheet.sheetview.sheetFetchParams.sortControls,
+  allWorksheetIsSelected: state.sheet.sheetview.sheetViewConfig.allWorksheetIsSelected,
+  sheetSelectedRows: state.sheet.sheetview.sheetViewConfig.sheetSelectedRows,
 });
 
 const mapDispatchToProps = dispatch =>

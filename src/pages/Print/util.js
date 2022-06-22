@@ -7,6 +7,10 @@ import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { SYSTOPRINT } from './config';
 import { RichText } from 'ming-ui';
 import _ from 'lodash';
+import Embed from 'src/components/newCustomFields/widgets/Embed';
+import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
+import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
 /*
   获取控件呈现内容
   sourceControlType: 他表字段type
@@ -191,6 +195,24 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       return value;
     case 42: {
       return value ? <img src={value} style={{ width: 168 }} /> : '';
+    }
+    case 45: {
+      return value ? <Embed {...dataItem} from="print" /> : '';
+    }
+    case 47: {
+      let barCodeData = { ...dataItem, formData: dataItem.controls };
+      const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId, isView } =
+        barCodeData;
+      if (
+        !getBarCodeValue({
+          data: barCodeData.formData,
+          control: { enumDefault, enumDefault2, dataSource: parseDataSource(dataSource) },
+          codeInfo: { recordId, appId, worksheetId, viewId: viewId || viewIdForPermit },
+        })
+      ) {
+        return '';
+      }
+      return <BarCode {...barCodeData} />;
     }
     case 41:
     case 10010:

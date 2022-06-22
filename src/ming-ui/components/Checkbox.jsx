@@ -133,7 +133,7 @@ class Checkbox extends React.Component {
             indeterminate,
             clearselected,
           },
-          className
+          className,
         )}
         onClick={event => {
           event.nativeEvent.stopImmediatePropagation();
@@ -142,7 +142,7 @@ class Checkbox extends React.Component {
         title={title}
       >
         <span className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Checkbox-box--' + size : '', 'Checkbox-box')}>{icon}</span>
-        {text}
+        <span className="Font13">{text}</span>
         {children}
       </label>
     );

@@ -5,10 +5,10 @@ import { FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/My
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
-import OtherAction from 'src/pages/Mobile/ProcessRecord/OtherAction';
+import OtherAction from 'mobile/ProcessRecord/OtherAction';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import instance from 'src/pages/workflow/api/instance';
-import { processInformTabs } from 'src/pages/Mobile/Process/ProcessInform';
+import { processInformTabs } from 'mobile/Process/ProcessInform';
 
 const TABS = {
   WAITING_DISPOSE: 1, // 待处理

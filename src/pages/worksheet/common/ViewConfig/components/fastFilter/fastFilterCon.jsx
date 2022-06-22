@@ -109,7 +109,19 @@ const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr, 
       >
         <span className="overflow_ellipsis Font13 WordBreak">
           <Icon icon={getIconByType(type, false)} className={cx('mRight12 Font18 customIcon', { Red: isErr })} />
-          {isErr ? _l('该字段已删除') : showOtherField ? _l('%0(无效类型)', name) : name || ''}
+          {isErr ? (
+            <Tooltip
+              text={<span>{_l('ID: %0', controlId)}</span>}
+              popupPlacement="bottom"
+              tooltipClass="deleteHoverTips"
+            >
+              <span>{_l('该字段已删除')}</span>
+            </Tooltip>
+          ) : showOtherField ? (
+            _l('%0(无效类型)', name)
+          ) : (
+            name || ''
+          )}
         </span>
         {!!onEdit && !isErr && !showOtherField && <Icon className="Font16 Hand editIcon" icon="new_mail" />}
       </span>

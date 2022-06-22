@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import { Dropdown, Icon, Input } from 'ming-ui';
+import { Dropdown, Icon, Input, Tooltip } from 'ming-ui';
 import DiabledInput from 'worksheet/common/WorkSheetFilter/components/contents/DiabledInput';
 import { Select } from 'antd';
 import AddCondition from './AddCondition';
@@ -242,7 +242,9 @@ export default class Condition extends Component {
             <div className="conditionDeleteCon">
               <div className="deletedColumn">
                 <i className="icon icon-info"></i>
-                {_l('该字段已删除')}
+                <Tooltip text={<span>{_l('ID: %0', condition.controlId)}</span>} popupPlacement="bottom">
+                  <span className="Hand">{_l('该字段已删除')}</span>
+                </Tooltip>
                 <span
                   className="deleteBtn ThemeHoverColor3"
                   onClick={() => {

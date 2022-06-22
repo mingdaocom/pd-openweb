@@ -3,7 +3,8 @@ import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import './index.less';
-import 'src/pages/Mobile/MyHome/index.less';
+import 'mobile/MyHome/index.less';
+
 const {
   app: { appManagementHeader },
 } = window.private;

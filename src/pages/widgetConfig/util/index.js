@@ -146,7 +146,7 @@ export const putControlByOrder = controls => {
     });
 };
 
-export const dealControlData = controls => {
+export const dealControlData = (controls = []) => {
   return controls.map(item => {
     const { type } = item;
     // 子表控件递归处理其中的控件
@@ -352,4 +352,11 @@ export const levelSafeParse = value => {
 
 export const isOtherShowFeild = (control = {}) => {
   return (control.type === 30 || control.originType === 30) && (control.strDefault || '')[0] === '1';
+};
+
+export const formatSearchConfigs = res => {
+  if (!(res.queries || []).length) return [];
+  return res.queries.map(item => {
+    return { ...item, templates: [{ controls: (res.templates || {})[item.sourceId] || [] }] };
+  });
 };

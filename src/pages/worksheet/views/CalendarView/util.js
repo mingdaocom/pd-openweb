@@ -4,6 +4,7 @@ import moment from 'moment';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { isLightColor } from 'src/util';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
+const defaultColor = '#C9E6FC';
 export const eventStr = {
   0: 'eventAll', //全部
   1: 'eventScheduled', //已排期
@@ -52,6 +53,36 @@ export const isEmojiCharacter = substring => {
     }
   }
 };
+const getAllDay = (data, o) => {
+  return data[o.begin] && data[o.end] && getIsOverOneDay(data, o) && moment(data[o.begin]).isBefore(data[o.end]);
+};
+const getStart = (data, o) => {
+  return !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
+};
+const getEnd = (data, o) => {
+  return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
+    ? ''
+    : moment(
+        //全天事件 都要加一天
+        !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+      ).format(o.endFormat);
+};
+const getIsOverOneDay = (data, o) => {
+  return (
+    moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
+    moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439
+  );
+};
+const getTitleControls = worksheetControls => {
+  return worksheetControls.find(item => item.attribute === 1) || [];
+};
+const getStringColor = (calendarData, data, currentView, worksheetControls) => {
+  const { colorOptions = [] } = calendarData;
+  const { colorid = '' } = getAdvanceSetting(currentView);
+  let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
+  //未设置颜色时，背景色的默认颜色为：蓝色浅色，黑色文字
+  return coloridData ? (colorOptions.find(it => coloridData === it.key) || []).color || defaultColor : defaultColor;
+};
 
 // type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
 //格式events数据//根据多组时间拆分出多条数据
@@ -61,33 +92,16 @@ export const setDataFormat = pram => {
     return setDataFormatByRowId(pram);
   }
   const { hiddenDays = [], colorOptions = [], btnList, initialView, calendarInfo = [] } = calendarData;
-  const { colorid = '' } = getAdvanceSetting(currentView);
-  let titleControls = worksheetControls.find(item => item.attribute === 1) || [];
-  let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
-  if (!coloridData && colorid) {
-    let colorControls = worksheetControls.find(item => item.controlId === colorid) || {};
-    let defaultS = colorControls.default || '[]';
-    //无选项，取默认值
-    coloridData = JSON.parse(defaultS)[0];
-  }
+  let titleControls = getTitleControls(worksheetControls);
   //无选项且无默认值，才用默认颜色
-  let stringColor = (colorOptions.find(it => coloridData === it.key) || []).color || '#2196f3';
+  let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
   let list = [];
   calendarInfo.map(o => {
     if (!!data[o.begin]) {
-      let start = !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
-      let isOverOneDay =
-        moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
-        moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439;
-      let allDay = data[o.begin] && data[o.end] && isOverOneDay && moment(data[o.begin]).isBefore(data[o.end]);
-      allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
-      let end =
-        !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
-          ? ''
-          : moment(
-              //全天事件 都要加一天
-              !allDay ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-            ).format(o.endFormat);
+      let start = getStart(data, o);
+      let allDay = getAllDay(data, o);
+      // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
+      let end = getEnd(data, o);
       list.push({
         ...o,
         info: o,
@@ -125,32 +139,16 @@ export const setDataFormat = pram => {
 export const setDataFormatByRowId = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
   const { colorOptions = [], calendarInfo = [] } = calendarData;
-  const { colorid = '' } = getAdvanceSetting(currentView);
-  let titleControls = worksheetControls.find(item => item.attribute === 1) || [];
-  let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
-  if (!coloridData && colorid) {
-    let colorControls = worksheetControls.find(item => item.controlId === colorid) || {};
-    let defaultS = colorControls.default || '[]';
-    //无选项，取默认值
-    coloridData = JSON.parse(defaultS)[0];
-  }
+  let titleControls = getTitleControls(worksheetControls);
+
   //无选项且无默认值，才用默认颜色
-  let stringColor = (colorOptions.find(it => coloridData === it.key) || []).color || '#2196f3';
+  let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
   let timeList = [];
   calendarInfo.map(o => {
-    let start = !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
-    let isOverOneDay =
-      moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
-      moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439;
-    let allDay = data[o.begin] && data[o.end] && isOverOneDay && moment(data[o.begin]).isBefore(data[o.end]);
-    allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
-    let end =
-      !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
-        ? ''
-        : moment(
-            //全天事件 都要加一天
-            !allDay ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-          ).format(o.endFormat);
+    let start = getStart(data, o);
+    let allDay = getAllDay(data, o);
+    // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件 //开始日期不包含时间  仅跨天日程需要包含背景色
+    let end = getEnd(data, o);
     timeList.push({
       info: o,
       start,

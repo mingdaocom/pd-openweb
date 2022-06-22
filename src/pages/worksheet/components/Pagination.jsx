@@ -87,6 +87,7 @@ const pageSizeNums = [
 
 export default class Pagination extends React.Component {
   static propTypes = {
+    abnormalMode: PropTypes.bool,
     className: PropTypes.string,
     allowChangePageSize: PropTypes.bool,
     pageIndex: PropTypes.number,
@@ -99,6 +100,7 @@ export default class Pagination extends React.Component {
   };
 
   static defaultProps = {
+    abnormalMode: false,
     allowChangePageSize: true,
     pageIndex: 0,
     pageSize: 0,
@@ -124,16 +126,19 @@ export default class Pagination extends React.Component {
   }
 
   renderPopup() {
-    const { pageIndex, pageSize, allowChangePageSize, changePageIndex, changePageSize } = this.props;
+    const { abnormalMode, pageIndex, pageSize, allowChangePageSize, changePageIndex, changePageSize } = this.props;
     let minShowPage = pageIndex - 2;
     let isEnd;
-    if (minShowPage + 5 >= this.pageNum - 1) {
+    if (minShowPage + 5 >= this.pageNum - 1 && !abnormalMode) {
       minShowPage = this.pageNum - 1 - 5;
       isEnd = true;
     }
-    if (minShowPage <= 3) {
+    if (minShowPage <= 3 && !abnormalMode) {
       minShowPage = 2;
       isEnd = true;
+    }
+    if (minShowPage < 2) {
+      minShowPage = 2;
     }
     return (
       <Popup className="flexColumn">
@@ -150,9 +155,9 @@ export default class Pagination extends React.Component {
               ...
             </div>
           )}
-          {[...new Array(isEnd ? 6 : 5)]
+          {[...new Array(abnormalMode ? 7 : isEnd ? 6 : 5)]
             .map((a, i) => minShowPage + i)
-            .filter(page => page < this.pageNum)
+            .filter(page => page < this.pageNum || abnormalMode)
             .map((page, i) => (
               <div
                 key={i}
@@ -162,7 +167,7 @@ export default class Pagination extends React.Component {
                 {page}
               </div>
             ))}
-          {minShowPage + 5 < this.pageNum - 1 && (
+          {(minShowPage + 5 < this.pageNum - 1 || abnormalMode) && (
             <div key="dotend" className="pageIndex dot">
               ...
             </div>
@@ -201,7 +206,7 @@ export default class Pagination extends React.Component {
               if (e.keyCode === 13 && this.jumpInputRef.current && this.jumpInputRef.current.value) {
                 const jumpPage = parseInt(this.jumpInputRef.current.value, 10);
                 if (!_.isNaN(jumpPage)) {
-                  if (jumpPage > 0 && jumpPage <= this.pageNum) {
+                  if ((jumpPage > 0 && jumpPage <= this.pageNum) || abnormalMode) {
                     changePageIndex(jumpPage);
                   } else {
                     alert(_l('请输入正确的页数'), 3);
@@ -217,7 +222,7 @@ export default class Pagination extends React.Component {
   }
 
   render() {
-    const { className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
+    const { abnormalMode, className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
     const { popupVisible } = this.state;
     if (maxCount) {
       return (
@@ -226,7 +231,7 @@ export default class Pagination extends React.Component {
         </Con>
       );
     }
-    if (!allCount) {
+    if (!allCount && !abnormalMode) {
       return (
         <Con className={className}>
           <NoData>{_l('共0行')}</NoData>
@@ -246,7 +251,9 @@ export default class Pagination extends React.Component {
           popup={this.renderPopup()}
           getPopupContainer={() => this.conRef.current || document.body}
         >
-          <PageNum>{_l('共%0行，%1/%2页', allCount, pageIndex, this.pageNum)}</PageNum>
+          <PageNum>
+            {abnormalMode ? _l('第%0页', pageIndex) : _l('共%0行，%1/%2页', allCount, pageIndex, this.pageNum)}
+          </PageNum>
         </Trigger>
         <Btn className={pageIndex === 1 && 'disabled'} onClick={pageIndex === 1 ? () => {} : onPrev}>
           <i className="icon icon-arrow-left-border" />

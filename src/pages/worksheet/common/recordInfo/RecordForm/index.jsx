@@ -105,7 +105,9 @@ export default function RecordForm(props) {
     onChange,
     onCancel,
     onSave,
+    onError,
     masterRecordRowId,
+    onWidgetChange = () => {},
   } = props;
   let { formdata = [] } = props;
   formdata.forEach(item => {
@@ -307,7 +309,7 @@ export default function RecordForm(props) {
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
                   disabled={!allowEdit}
-                  projectId={recordinfo.projectId}
+                  projectId={recordinfo.projectId || props.projectId}
                   groupId={recordinfo.groupId}
                   masterRecordRowId={masterRecordRowId}
                   worksheetId={worksheetId}
@@ -316,6 +318,7 @@ export default function RecordForm(props) {
                   showError={showError}
                   onChange={onChange}
                   onSave={onSave}
+                  onError={onError}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
                   appId={recordinfo.appId}
@@ -325,6 +328,7 @@ export default function RecordForm(props) {
                       onChange(dataFormat.getDataSource(), [], { noSaveTemp: true });
                     }
                   }}
+                  onWidgetChange={onWidgetChange}
                 />
               </div>
             </div>

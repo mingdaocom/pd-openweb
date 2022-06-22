@@ -326,6 +326,7 @@ export default function DisplayItem(props) {
       }
       setWidgets(deleteWidgetById({ widgets, controlId, path }));
       updateQueryConfigs({ controlId }, 'delete');
+      alert(_l('删除成功'));
       return;
     }
     if (mode === 'hide') {

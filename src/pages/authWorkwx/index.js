@@ -19,7 +19,6 @@ if (code) {
         state,
       },
       async: true,
-      withCredentials: true,
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {

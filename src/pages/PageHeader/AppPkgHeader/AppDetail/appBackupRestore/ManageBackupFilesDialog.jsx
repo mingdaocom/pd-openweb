@@ -1,13 +1,18 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { Drawer, Tabs } from 'antd';
+import { Drawer } from 'antd';
 import { Icon, LoadDiv, Support } from 'ming-ui';
-import ActionLogs from './ActionLogs';
-import BackupFiles from './BackupFiles';
+import ActionLogs from './components/ActionLogs';
+import BackupFiles from './components/BackupFiles';
 import { pageGetBackupRestoreOperationLog, getValidBackupFileInfo } from 'src/api/appManagement';
 import './less/manageBackupFilesDialog.less';
+import cx from 'classnames';
 
-const { TabPane } = Tabs;
 const PAGESIZE = 30;
+
+const tabInfos = [
+  { label: _l('备份文件'), value: 'backupFiles' },
+  { label: _l('操作日志'), value: 'actLogs' },
+];
 
 export default function ManageBackupFilesDialog(props) {
   const { onClose, visible, fixed, appId, projectId, appName, manageBackupFilesKey } = props;
@@ -18,8 +23,8 @@ export default function ManageBackupFilesDialog(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMore, setIsMore] = useState(false);
   const [validLimit, setValidLimit] = useState(0);
-  const [currentValid, setCcurrentValid] = useState(0);
-  const [countloading, setCountloading] = useState(true);
+  const [currentValid, setCurrentValid] = useState(0);
+  const [countLoading, setCountLoading] = useState(true);
 
   useEffect(() => {
     if (!appId) return;
@@ -39,8 +44,8 @@ export default function ManageBackupFilesDialog(props) {
   const getBackupCount = () => {
     getValidBackupFileInfo({ appId, projectId }).then(res => {
       setValidLimit(res.validLimit);
-      setCcurrentValid(res.currentValid);
-      setCountloading(false);
+      setCurrentValid(res.currentValid);
+      setCountLoading(false);
     });
   };
 
@@ -76,7 +81,7 @@ export default function ManageBackupFilesDialog(props) {
             </div>
             <Icon icon="close" className="Font20 Hand closeIcon Gray_9e" onClick={onClose} />
           </div>
-          {!isLoading && !countloading && currentValid >= validLimit && (
+          {!isLoading && !countLoading && currentValid >= validLimit && (
             <div className="limitMax">
               <Icon icon="info" className="mRight8" />
               {_l('该应用已备份文件数达到上限%0个，删除一些备份文件后方可再次备份', validLimit)}
@@ -92,11 +97,22 @@ export default function ManageBackupFilesDialog(props) {
       visible={visible}
       maskStyle={{ background: 'rgba(0, 0, 0, 0.7) ' }}
     >
-      <Tabs defaultActiveKey="backupFiles" onChange={changeTabs} activeKey={currentTab}>
-        <TabPane tab={_l('备份文件')} key="backupFiles">
-          {isLoading ? (
-            <LoadDiv />
-          ) : (
+      <div className="manageBackupFilesWrap flexColumn ">
+        <div className="headerInfo">
+          {tabInfos.map(item => (
+            <div
+              className={cx('tabItem Hand', { active: item.value === currentTab })}
+              onClick={() => {
+                changeTabs(item.value);
+              }}
+            >
+              {item.label}
+            </div>
+          ))}
+        </div>
+        <div className="listWrap flex">
+          {isLoading && <LoadDiv className="mTop15" />}
+          {!isLoading && currentTab === 'backupFiles' && (
             <BackupFiles
               fixed={fixed}
               onChangeFixStatus={props.onChangeFixStatus}
@@ -113,11 +129,7 @@ export default function ManageBackupFilesDialog(props) {
               currentValid={currentValid}
             />
           )}
-        </TabPane>
-        <TabPane tab={_l('操作日志')} key="actLogs">
-          {isLoading ? (
-            <LoadDiv />
-          ) : (
+          {!isLoading && currentTab === 'actLogs' && (
             <ActionLogs
               actLogList={actLogList || []}
               pageIndex={pageIndex}
@@ -126,8 +138,8 @@ export default function ManageBackupFilesDialog(props) {
               isMore={isMore}
             />
           )}
-        </TabPane>
-      </Tabs>
+        </div>
+      </div>
     </Drawer>
   );
 }

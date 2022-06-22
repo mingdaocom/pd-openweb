@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { LoadDiv } from 'ming-ui';
-import customApi from 'src/pages/worksheet/common/Statistics/api/custom.js';
+import customApi from 'statistics/api/custom.js';
 import sheetApi from 'src/api/worksheet';
 import update from 'immutability-helper';
 import ConfigHeader from './ConfigHeader';
@@ -31,7 +31,7 @@ const CustomPageWrap = styled.div`
   bottom: 0;
   z-index: 99;
   background-color: #fff;
-  .contentWrap {
+  .customPageContentWrap {
     box-sizing: border-box;
     display: flex;
     height: 100%;
@@ -385,7 +385,7 @@ export default class CustomPage extends Component {
           onBack={this.handleBack}
           onSave={this.handleSave}
         />
-        <div className="contentWrap">{loading ? <LoadDiv style={{ marginTop: '60px' }} /> : <Comp {...rest} />}</div>
+        <div className="customPageContentWrap">{loading ? <LoadDiv style={{ marginTop: '60px' }} /> : <Comp {...rest} />}</div>
       </CustomPageWrap>
     );
   }

@@ -3,7 +3,7 @@ import { ScrollView, Dropdown, LoadDiv, Radio } from 'ming-ui';
 import cx from 'classnames';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, CustomTextarea, SelectNodeObject } from '../components';
-import { PUSH_TYPE, PUSH_LIST } from '../../enum';
+import { PUSH_TYPE, PUSH_LIST, APP_TYPE } from '../../enum';
 import worksheet from 'src/api/worksheet';
 import homeApp from 'src/api/homeApp';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
@@ -371,7 +371,7 @@ export default class Push extends Component {
   };
 
   render() {
-    const { isPBCProcess } = this.props;
+    const { flowInfo } = this.props;
     const { data, showOtherWorksheet, currentAppList } = this.state;
 
     if (_.isEmpty(data)) {
@@ -398,7 +398,8 @@ export default class Push extends Component {
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font14 Gray_75 workflowDetailDesc">
-                {isPBCProcess &&
+                {flowInfo.startAppType === APP_TYPE.PBC &&
+                  !flowInfo.child &&
                   _l('仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。')}
                 {_l(
                   '触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个',

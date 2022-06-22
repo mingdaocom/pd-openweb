@@ -48,10 +48,7 @@ export default ({
   const [data, changeData] = useState(schedule);
   const [isShowDialog, showDialog] = useState(false);
   const [userDialogState, showUserDialog] = useState({});
-  const TYPE_List = [
-    { text: _l('自定义'), value: 1 },
-    { text: _l('指定的日期时间'), value: 2 },
-  ];
+  const TYPE_List = [{ text: _l('自定义'), value: 1 }, { text: _l('指定的日期时间'), value: 2 }];
   const UNIT_List = [
     { text: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
     { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
@@ -195,23 +192,29 @@ export default ({
     );
   };
 
-  useEffect(() => {
-    changeData(schedule);
-  }, [schedule]);
+  useEffect(
+    () => {
+      changeData(schedule);
+    },
+    [schedule],
+  );
 
-  useEffect(() => {
-    if (!schedule.type) {
-      changeData(
-        Object.assign({}, data, {
-          type: 1,
-          unit: 3,
-          executeTime: { fieldValue: '1' },
-          actions: [getDefaultAction()],
-        }),
-      );
-      showDialog(true);
-    }
-  }, [schedule.enable]);
+  useEffect(
+    () => {
+      if (!schedule.type) {
+        changeData(
+          Object.assign({}, data, {
+            type: 1,
+            unit: 3,
+            executeTime: { fieldValue: '1' },
+            actions: [getDefaultAction()],
+          }),
+        );
+        showDialog(true);
+      }
+    },
+    [schedule.enable],
+  );
 
   if (!schedule.enable) return null;
 
@@ -226,253 +229,257 @@ export default ({
         </Box>
       )}
 
-      <Dialog
-        className="workflowDialogBox"
-        visible={isShowDialog}
-        width={640}
-        title={_l('限时处理')}
-        onCancel={() => {
-          if (schedule.type) {
-            changeData(schedule);
-          } else {
-            updateSource({ schedule: Object.assign({}, schedule, { enable: false }) });
-          }
-          showDialog(false);
-        }}
-        onOk={() => {
-          const accountNullIndex = [];
-
-          data.actions
-            .filter(o => o.type === 1)
-            .forEach((item, index) => {
-              if (!item.accounts.length) {
-                accountNullIndex.push(index + 1);
-              }
-            });
-
-          if (!!accountNullIndex.length) {
-            alert(_l('第%0条截止提醒规则的提醒人为空！', accountNullIndex.join('、')), 2);
-          } else {
-            updateSource({ schedule: Object.assign({}, data, { enable: true }) });
+      {isShowDialog && (
+        <Dialog
+          className="workflowDialogBox"
+          visible
+          width={640}
+          title={_l('限时处理')}
+          onCancel={() => {
+            if (schedule.type) {
+              changeData(schedule);
+            } else {
+              updateSource({ schedule: Object.assign({}, schedule, { enable: false }) });
+            }
             showDialog(false);
-          }
-        }}
-      >
-        <div className="flexRow alignItemsCenter">
-          <div>{_l('截止时刻是')}</div>
-          <Dropdown
-            className="mLeft10"
-            style={{ width: 240 }}
-            data={TYPE_List}
-            value={data.type}
-            border
-            onChange={type => {
-              changeData(
-                Object.assign({}, data, {
-                  type,
-                  executeTime: { fieldValue: type === 1 ? '1' : '' },
-                  unit: type === 1 ? 3 : undefined,
-                }),
-              );
-            }}
-          />
-        </div>
+          }}
+          onOk={() => {
+            const accountNullIndex = [];
 
-        {data.type === 1 ? (
-          <div className="flexRow alignItemsCenter mTop10">
-            <div>{_l('到达此节点后的')}</div>
-            <div className="flex mLeft10">
-              <SpecificFieldsValue
-                processId={processId}
-                selectNodeId={selectNodeId}
-                type={
-                  data.unit === TIME_TYPE.MINUTE
-                    ? 'minuteFieldValue'
-                    : data.unit === TIME_TYPE.HOUR
-                    ? 'hourFieldValue'
-                    : 'numberFieldValue'
+            data.actions
+              .filter(o => o.type === 1)
+              .forEach((item, index) => {
+                if (!item.accounts.length) {
+                  accountNullIndex.push(index + 1);
                 }
-                min={1}
-                allowedEmpty
-                data={data.executeTime}
-                updateSource={executeTime => changeData(Object.assign({}, data, { executeTime }))}
-              />
-            </div>
+              });
+
+            if (!!accountNullIndex.length) {
+              alert(_l('第%0条截止提醒规则的提醒人为空！', accountNullIndex.join('、')), 2);
+            } else {
+              updateSource({ schedule: Object.assign({}, data, { enable: true }) });
+              showDialog(false);
+            }
+          }}
+        >
+          <div className="flexRow alignItemsCenter">
+            <div>{_l('截止时刻是')}</div>
             <Dropdown
               className="mLeft10"
-              style={{ width: 100 }}
-              data={UNIT_List}
-              value={data.unit}
+              style={{ width: 240 }}
+              data={TYPE_List}
+              value={data.type}
               border
-              onChange={unit => {
-                changeData(Object.assign({}, data, { unit }));
+              onChange={type => {
+                changeData(
+                  Object.assign({}, data, {
+                    type,
+                    executeTime: { fieldValue: type === 1 ? '1' : '' },
+                    unit: type === 1 ? 3 : undefined,
+                  }),
+                );
               }}
             />
           </div>
-        ) : (
-          <div className="flexRow alignItemsCenter mTop10">
-            <div className="flex">
-              <SpecificFieldsValue
-                processId={processId}
-                selectNodeId={selectNodeId}
-                type="date"
-                timePicker
-                data={data.executeTime}
-                updateSource={executeTime =>
-                  changeData(
-                    Object.assign({}, data, {
-                      executeTime,
-                      dayTime: executeTime.fieldControlType === 15 ? '08:00' : '',
-                    }),
-                  )
-                }
+
+          {data.type === 1 ? (
+            <div className="flexRow alignItemsCenter mTop10">
+              <div>{_l('到达此节点后的')}</div>
+              <div className="flex mLeft10">
+                <SpecificFieldsValue
+                  processId={processId}
+                  selectNodeId={selectNodeId}
+                  type={
+                    data.unit === TIME_TYPE.MINUTE
+                      ? 'minuteFieldValue'
+                      : data.unit === TIME_TYPE.HOUR
+                      ? 'hourFieldValue'
+                      : 'numberFieldValue'
+                  }
+                  min={1}
+                  allowedEmpty
+                  data={data.executeTime}
+                  updateSource={executeTime => changeData(Object.assign({}, data, { executeTime }))}
+                />
+              </div>
+              <Dropdown
+                className="mLeft10"
+                style={{ width: 100 }}
+                data={UNIT_List}
+                value={data.unit}
+                border
+                onChange={unit => {
+                  changeData(Object.assign({}, data, { unit }));
+                }}
               />
             </div>
-            {!!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
-              <Fragment>
-                <div className="mLeft10">{_l('的')}</div>
-                <div className="mLeft10" style={{ width: 100 }}>
-                  <Time
-                    type="minute"
-                    value={{
-                      hour: data.dayTime ? parseInt(data.dayTime.split(':')[0]) : 8,
-                      minute: data.dayTime ? parseInt(data.dayTime.split(':')[1]) : 0,
-                      second: 0,
-                    }}
-                    onChange={(event, value) => {
-                      changeData(
-                        Object.assign({}, data, {
-                          dayTime:
-                            value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
-                        }),
-                      );
-                    }}
-                  />
-                </div>
-                <div className="mLeft10">{_l('执行')}</div>
-              </Fragment>
-            )}
-          </div>
-        )}
-
-        <div className="mTop25 flexRow alignItemsCenter">
-          <div className="bold">{_l('截止提醒')}</div>
-          <Switch
-            className="mLeft10"
-            size="small"
-            checked={!!data.actions.filter(o => o.type === 1).length}
-            onChange={checked =>
-              changeData(
-                Object.assign({}, data, {
-                  actions: checked ? data.actions.concat([getDefaultAction()]) : data.actions.filter(o => o.type === 2),
-                }),
-              )
-            }
-          />
-        </div>
-        <div className="mTop10 Gray_9e">{_l('设置提醒规则，在停留时间到达某时刻时提醒相关人员查看')}</div>
-
-        {data.actions
-          .filter(o => o.type === 1)
-          .map((item, index) => {
-            return (
-              <Fragment key={item.id}>
-                {renderDeadlineContent(item)}
-                <Member
-                  type={selectNodeType}
-                  accounts={item.accounts}
-                  updateSource={accounts => changeAction(item.id, accounts)}
+          ) : (
+            <div className="flexRow alignItemsCenter mTop10">
+              <div className="flex">
+                <SpecificFieldsValue
+                  processId={processId}
+                  selectNodeId={selectNodeId}
+                  type="date"
+                  timePicker
+                  data={data.executeTime}
+                  updateSource={executeTime =>
+                    changeData(
+                      Object.assign({}, data, {
+                        executeTime,
+                        dayTime: executeTime.fieldControlType === 15 ? '08:00' : '',
+                      }),
+                    )
+                  }
                 />
-                <div
-                  className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
-                  onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}
-                >
-                  <i className="Font28 icon-task-add-member-circle mRight10" />
-                  {_l('添加提醒人')}
-                  <SelectUserDropDown
-                    appId={relationType === 2 ? relationId : ''}
-                    visible={userDialogState[item.id]}
-                    companyId={companyId}
-                    processId={processId}
-                    nodeId={selectNodeId}
-                    unique={false}
-                    schedule={true}
+              </div>
+              {!!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
+                <Fragment>
+                  <div className="mLeft10">{_l('的')}</div>
+                  <div className="mLeft10" style={{ width: 100 }}>
+                    <Time
+                      type="minute"
+                      value={{
+                        hour: data.dayTime ? parseInt(data.dayTime.split(':')[0]) : 8,
+                        minute: data.dayTime ? parseInt(data.dayTime.split(':')[1]) : 0,
+                        second: 0,
+                      }}
+                      onChange={(event, value) => {
+                        changeData(
+                          Object.assign({}, data, {
+                            dayTime:
+                              value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
+                          }),
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="mLeft10">{_l('执行')}</div>
+                </Fragment>
+              )}
+            </div>
+          )}
+
+          <div className="mTop25 flexRow alignItemsCenter">
+            <div className="bold">{_l('截止提醒')}</div>
+            <Switch
+              className="mLeft10"
+              size="small"
+              checked={!!data.actions.filter(o => o.type === 1).length}
+              onChange={checked =>
+                changeData(
+                  Object.assign({}, data, {
+                    actions: checked
+                      ? data.actions.concat([getDefaultAction()])
+                      : data.actions.filter(o => o.type === 2),
+                  }),
+                )
+              }
+            />
+          </div>
+          <div className="mTop10 Gray_9e">{_l('设置提醒规则，在停留时间到达某时刻时提醒相关人员查看')}</div>
+
+          {data.actions
+            .filter(o => o.type === 1)
+            .map((item, index) => {
+              return (
+                <Fragment key={item.id}>
+                  {renderDeadlineContent(item)}
+                  <Member
+                    type={selectNodeType}
                     accounts={item.accounts}
                     updateSource={accounts => changeAction(item.id, accounts)}
-                    onClose={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: false }))}
                   />
-                </div>
+                  <div
+                    className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
+                    onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}
+                  >
+                    <i className="Font28 icon-task-add-member-circle mRight10" />
+                    {_l('添加提醒人')}
+                    <SelectUserDropDown
+                      appId={relationType === 2 ? relationId : ''}
+                      visible={userDialogState[item.id]}
+                      companyId={companyId}
+                      processId={processId}
+                      nodeId={selectNodeId}
+                      unique={false}
+                      schedule={true}
+                      accounts={item.accounts}
+                      updateSource={accounts => changeAction(item.id, accounts)}
+                      onClose={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: false }))}
+                    />
+                  </div>
 
-                <div className="mTop15 flexRow alignItemsCenter">
-                  <div>{_l('通知内容')}</div>
-                  <input
-                    type="text"
-                    className="mLeft10 flex ThemeBorderColor3 actionControlBox pLeft10 pRight10"
-                    value={item.message}
-                    onChange={evt => changeAction(item.id, { message: evt.target.value })}
-                    onBlur={evt => {
-                      if (!evt.target.value.trim()) {
-                        evt.target.value = _l('请您尽快处理！');
-                      }
+                  <div className="mTop15 flexRow alignItemsCenter">
+                    <div>{_l('通知内容')}</div>
+                    <input
+                      type="text"
+                      className="mLeft10 flex ThemeBorderColor3 actionControlBox pLeft10 pRight10"
+                      value={item.message}
+                      onChange={evt => changeAction(item.id, { message: evt.target.value })}
+                      onBlur={evt => {
+                        if (!evt.target.value.trim()) {
+                          evt.target.value = _l('请您尽快处理！');
+                        }
 
-                      changeAction(item.id, { message: evt.target.value.trim() });
-                    }}
-                  />
-                </div>
+                        changeAction(item.id, { message: evt.target.value.trim() });
+                      }}
+                    />
+                  </div>
 
-                {index !== data.actions.length - 1 && (
-                  <div className="mTop20 mBottom20" style={{ backgroundColor: '#ddd', height: 1 }} />
-                )}
-              </Fragment>
-            );
-          })}
+                  {index !== data.actions.length - 1 && (
+                    <div className="mTop20 mBottom20" style={{ backgroundColor: '#ddd', height: 1 }} />
+                  )}
+                </Fragment>
+              );
+            })}
 
-        <div className="mTop25">
-          <Button
-            className="ThemeColor3 ThemeHoverColor2 ThemeBorderColor3 ThemeHoverBorderColor2"
-            onClick={() =>
-              changeData(
-                Object.assign({}, data, {
-                  actions: data.actions.concat([getDefaultAction()]),
-                }),
-              )
-            }
-          >
-            + {_l('提醒')}
-          </Button>
-        </div>
+          <div className="mTop25">
+            <Button
+              className="ThemeColor3 ThemeHoverColor2 ThemeBorderColor3 ThemeHoverBorderColor2"
+              onClick={() =>
+                changeData(
+                  Object.assign({}, data, {
+                    actions: data.actions.concat([getDefaultAction()]),
+                  }),
+                )
+              }
+            >
+              + {_l('提醒')}
+            </Button>
+          </div>
 
-        <div className="mTop25 flexRow alignItemsCenter">
-          <div className="bold">{selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过')}</div>
-          <Switch
-            className="mLeft10"
-            size="small"
-            checked={!!data.actions.filter(o => o.type === 2).length}
-            onChange={checked =>
-              changeData(
-                Object.assign({}, data, {
-                  actions: checked
-                    ? data.actions.concat([
-                        {
-                          executeTime: {},
-                          executeTimeType: 0,
-                          id: uuidv4(),
-                          type: 2,
-                        },
-                      ])
-                    : data.actions.filter(o => o.type === 1),
-                }),
-              )
-            }
-          />
-        </div>
-        <div className="mTop10 Gray_9e">
-          {selectNodeType === NODE_TYPE.WRITE
-            ? _l('设置自动提交规则，当节点超时后进行自动提交')
-            : _l('设置自动通过规则，当节点超时后进行自动通过')}
-        </div>
-        {data.actions.filter(o => o.type === 2).map(item => renderDeadlineContent(item, true))}
-      </Dialog>
+          <div className="mTop25 flexRow alignItemsCenter">
+            <div className="bold">{selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过')}</div>
+            <Switch
+              className="mLeft10"
+              size="small"
+              checked={!!data.actions.filter(o => o.type === 2).length}
+              onChange={checked =>
+                changeData(
+                  Object.assign({}, data, {
+                    actions: checked
+                      ? data.actions.concat([
+                          {
+                            executeTime: {},
+                            executeTimeType: 0,
+                            id: uuidv4(),
+                            type: 2,
+                          },
+                        ])
+                      : data.actions.filter(o => o.type === 1),
+                  }),
+                )
+              }
+            />
+          </div>
+          <div className="mTop10 Gray_9e">
+            {selectNodeType === NODE_TYPE.WRITE
+              ? _l('设置自动提交规则，当节点超时后进行自动提交')
+              : _l('设置自动通过规则，当节点超时后进行自动通过')}
+          </div>
+          {data.actions.filter(o => o.type === 2).map(item => renderDeadlineContent(item, true))}
+        </Dialog>
+      )}
     </Fragment>
   );
 };

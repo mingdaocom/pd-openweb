@@ -1,7 +1,7 @@
 var Common = {};
 var qs = require('query-string');
 const {
-  personal: { muneLeft },
+  personal: { menuLeft },
 } = window.private;
 
 Common.url = function (params) {
@@ -33,7 +33,7 @@ Common.MENULEFT = [
     typetag: ['system'],
     component: () => import('./systemSettings'),
   },
-].filter(item => !item.typetag.some(type => muneLeft[type]));
+].filter(item => !item.typetag.some(type => menuLeft[type]));
 
 Common.PROJECT_STATUS_TYPES_LABLE = {
   // 免费

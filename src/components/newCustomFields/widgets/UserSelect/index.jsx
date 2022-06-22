@@ -5,7 +5,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import 'dialogSelectUser';
 import 'quickSelectUser';
 import cx from 'classnames';
-import SelectUser from 'src/pages/Mobile/components/SelectUser';
+import SelectUser from 'mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 

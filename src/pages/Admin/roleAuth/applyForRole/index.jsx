@@ -61,10 +61,7 @@ export default class ApplyForRole extends React.Component {
             isLoading: false,
           });
         } else {
-          return $
-            .Deferred()
-            .reject()
-            .promise();
+          return $.Deferred().reject().promise();
         }
       })
       .fail(() => {
@@ -85,7 +82,11 @@ export default class ApplyForRole extends React.Component {
             return (
               <tr key={user.accountId}>
                 <td>
-                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} size={40} />
+                  <UserHead
+                    className="avatarImg"
+                    user={{ userHead: user.avatar, accountId: user.accountId }}
+                    size={30}
+                  />
                 </td>
                 <td>{user.fullName}</td>
                 <td>{user.departName}</td>
@@ -105,13 +106,10 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return $
-                              .Deferred()
-                              .reject()
-                              .promise();
+                            return $.Deferred().reject().promise();
                           }
                         })
-                        .fail(function() {
+                        .fail(function () {
                           alert(_l('操作失败'), 2);
                         });
                     }}
@@ -131,13 +129,10 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return $
-                              .Deferred()
-                              .reject()
-                              .promise();
+                            return $.Deferred().reject().promise();
                           }
                         })
-                        .fail(function() {
+                        .fail(function () {
                           alert(_l('操作失败'), 2);
                         });
                     }}
@@ -174,6 +169,7 @@ export default class ApplyForRole extends React.Component {
       onCancel: onClose,
       onOk: onOk,
       anim: false,
+      footer: null,
     };
 
     return (

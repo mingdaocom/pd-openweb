@@ -9,10 +9,11 @@ import copy from 'copy-to-clipboard';
 import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
 import { getAppSimpleInfo } from 'src/api/homeApp';
 import { getDepartmentsByAccountId } from 'src/api/department';
-import { getWorksheetBtnByID } from 'src/api/worksheet';
+import { getWorksheetBtnByID, getShareInfoByShareId } from 'src/api/worksheet';
 import { startProcessByPBC } from 'src/pages/workflow/api/process';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
+import { RecordInfoModal } from 'mobile/Record';
 import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile } from 'src/util';
@@ -45,6 +46,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const isMobile = browserIsMobile();
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
+  const [previewRecord, setPreviewRecord] = useState({});
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
 
@@ -201,7 +203,19 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
 
     // 链接
     if (hrefReg.test(result)) {
-      if (config.recordLink || config.otherLink) {
+      if (config.recordLink && result.includes('worksheetshare')) {
+        const shareId = result.match(/\/worksheetshare\/(.*)/)[1];
+        Toast.loading(_l('加载中，请稍后'));
+        const shareData = await getShareInfoByShareId({ shareId });
+        Toast.hide();
+        if (shareData.rowId) {
+          setPreviewRecord(shareData);
+        } else {
+          window.open(result);
+        }
+        return;
+      }
+      if (config.otherLink) {
         window.open(result);
       } else {
         showModal();
@@ -235,7 +249,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       {visible && (
         <NewRecordComponent
           visible
-          showContinueAdd={true}
+          showFillNext={true}
           onAdd={data => {
             alert(_l('添加成功'));
             addRecord(data);
@@ -248,6 +262,17 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           hideNewRecord={() => setInfo({ visible: false })}
         />
       )}
+      <RecordInfoModal
+        className="full"
+        visible={!!previewRecord.rowId}
+        appId={previewRecord.appId}
+        worksheetId={previewRecord.worksheetId}
+        viewId={previewRecord.viewId}
+        rowId={previewRecord.rowId}
+        onClose={() => {
+          setPreviewRecord({});
+        }}
+      />
     </ButtonListWrap>
   );
 }

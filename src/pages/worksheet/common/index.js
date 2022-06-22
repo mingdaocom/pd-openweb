@@ -18,7 +18,6 @@ export { default as SheetMove } from './SheetMove';
 export { default as WorksheetEmpty } from './WorksheetEmpty';
 export { default as SaveWorksheetFilter } from './SaveWorksheetFilter';
 export { default as PrintQrCode } from './PrintQrCode';
-export { default as Statistics } from './Statistics';
 export { default as ViewConfig } from './ViewConfig';
 export { default as Discussion } from './Discussion';
 export { default as SheetDesc } from './SheetDesc';

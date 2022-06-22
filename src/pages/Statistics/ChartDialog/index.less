@@ -1,0 +1,406 @@
+
+.ChartDialogContainer {
+  .mui-dialog-fixed {
+    padding-bottom: 0 !important;
+  }
+  .ChartDialog {
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+}
+
+.ChartDialog {
+  .mui-dialog-header {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    box-sizing: border-box;
+    padding: 0 24px !important;
+    border-radius: 0 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    position: relative;
+    z-index: 9;
+
+    &:hover .hideDesc {
+      display: block;
+    }
+    .hideDesc {
+      display: none;
+    }
+  }
+  .mui-dialog-default-title {
+    width: 100%;
+  }
+  .mui-dialog-body {
+    height: 710px;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+  .mui-dialog-footer {
+    display: none;
+  }
+  .buttonSave {
+    font-weight: bold;
+    width: 72px !important;
+    &:hover, &:focus {
+      color: #fff;
+      background: #218de6;
+      border-color: #218de6;
+    }
+    .MdLoader-path {
+      stroke: #fff;
+    }
+  }
+
+  .ring-guide-value {
+    font-size: 22px !important;
+    font-weight: 500 !important;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .nameWrapper {
+      margin-right: 5px;
+      min-width: 0;
+    }
+    .icon:hover, .active {
+      color: #2196F3 !important;
+    }
+  }
+
+  .icon-arrow-right-border, .icon-arrow-left-border, .icon-search {
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
+  .icon-call_to_action_on.vertical {
+    transform: rotateZ(-90deg);
+  }
+
+  .chart {
+    flex: 1;
+    padding: 20px;
+    &.vertical {
+      width: 100%;
+      min-height: 0;
+    }
+    &.horizontal {
+      min-width: 0;
+    }
+    .justifyContent {
+      justify-content: center;
+    }
+  }
+  .chartBody {
+    min-width: 0
+  }
+  .chartWrapper {
+    min-height: 0;
+  }
+  .chartHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .count {
+    font-weight: 500;
+    font-size: 20px;
+    font-family: system-ui,BlinkMacSystemFont,segoe ui,Roboto,Helvetica,Arial,sans-serif,apple color emoji,segoe ui emoji,segoe ui symbol;
+  }
+  .g2-tooltip {
+    .g2-tooltip-list-item {
+      display: flex;
+      align-items: center;
+    }
+    .g2-tooltip-name {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .g2-tooltip-value {
+      flex: 1;
+      text-align: right;
+    }
+  }
+  .showTotalHeight {
+    height: calc(~'100% - 31px');
+  }
+  .spaceBetween {
+    justify-content: space-between;
+  }
+  .setting {
+    width: 320px;
+    height: 100%;
+    background-color: #f8f8f8;
+    box-sizing: border-box;
+    transition: width 0.2s;
+    &.small {
+      width: 50px;
+    }
+    .charts {
+      flex-wrap: wrap;
+      .chartItem {
+        color: #757575;
+        font-size: 28px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px 5px 0;
+        padding: 3px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        &:hover {
+          background-color: #ededed;
+        }
+        &.active {
+          color: #2196F3;
+          border: 1px solid #2196F3;
+          border-radius: 3px;
+          background-color: #fff;
+        }
+      }
+    }
+  }
+  .displaySetup {
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    margin-right: 12px;
+    &:last-child {
+      margin-right: 0;
+    }
+    .item {
+      color: #9e9e9e;
+      font-size: 14px;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid #ccc;
+      cursor: pointer;
+      &:last-child {
+        border-right: none;
+      }
+    }
+    .WhiteBG {
+      background-color: #fff;
+    }
+    .active {
+      color: #1e88e5 !important;
+    }
+    &:hover .icon {
+      color: #1e88e5 !important;
+    }
+  }
+  .workSheetFilter {
+    background-color: transparent;
+  }
+  .hoverHighlight {
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
+}
+
+.ChartDialogSetting {
+  .chartTabs {
+    overflow: inherit;
+    .ant-tabs-nav-list {
+      width: 100%;
+    }
+    .ant-tabs-nav {
+      margin: 0;
+      &::before {
+        border-color: #ddd;
+      }
+    }
+    .ant-tabs-tab {
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+    .ant-tabs-nav .ant-tabs-ink-bar-animated {
+      height: 3px;
+    }
+  }
+  .chartTypeSelect {
+    font-size: 13px;
+    border-radius: 3px;
+    padding: 3px;
+    background-color: #eff0f0;
+    >div {
+      height: 25px;
+      line-height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .active {
+      color: #2196F3 !important;
+      border-radius: 3px;
+      padding: 3px 0;
+      font-weight: bold;
+      background-color: #fff;
+    }
+  }
+  .dataSourceCollapse .icon-arrow-down-border {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    &:hover {
+      background-color: #f6f6f6;
+    }
+  }
+  .chartSelect();
+  .chartInput();
+}
+
+.sortableDimensionalityCard {
+  z-index: 9999;
+  .sortableDrag {
+    position: relative;
+    top: 0;
+    left: -16px;
+    opacity: 1;
+    width: 0;
+  }
+}
+
+.chartModal {
+  padding: 0;
+  .ant-modal-content {
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ant-modal-title {
+    font-size: 17px;
+  }
+  .ant-modal-close-x {
+    line-height: 66px;
+  }
+  .ant-modal-header {
+    padding: 24px;
+    border-bottom: none;
+  }
+  .ant-modal-footer {
+    border-top: none;
+  }
+  .ant-modal-body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .chartSelect();
+  .chartInput();
+  .ant-select-selector, .ant-select-selection-item, .ant-input, .ant-picker {
+    height: 36px !important;
+    line-height: 34px !important;
+  }
+  .ant-modal-close {
+    cursor: inherit;
+  }
+  .icon-close, .hoverHighlight {
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
+  .ant-btn-link {
+    color: #9e9e9e;
+    &:hover {
+      color: #3196f3;
+    }
+  }
+  .ant-btn-primary {
+    height: 36px;
+    padding: 0 32px;
+    background: #3196f3;
+    border-color: #3196f3;
+  }
+}
+
+.selectOptionWrapper {
+  padding: 7px 12px 7px 20px;
+  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: unset;
+    color: #fff;
+    background-color: #2196F3;
+  }
+}
+
+.chartSelect() {
+  .chartSelect {
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      border-color: #2196F3 !important;
+    }
+    .ant-select-selector {
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+    .ant-select-selector, .ant-select-selection-item {
+      height: 32px;
+      line-height: 30px;
+    }
+    .ant-select-arrow {
+      width: auto;
+      height: auto;
+      top: 40%;
+    }
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+      opacity: 1;
+      font-size: 13px;
+    }
+    &.ant-select-single.ant-select-open .ant-select-selection-item {
+      color: inherit;
+    }
+  }
+}
+
+.chartInput () {
+  .chartInput {
+    &.ant-input-affix-wrapper {
+      padding: 0 0 0 11px;
+      .ant-input {
+        height: 30px;
+      }
+    }
+    &.ant-input-affix-wrapper:hover, &:hover {
+      border-color: #2196F3 !important;
+    }
+    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+    .ant-input-suffix {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 4px 4px 0;
+      border-left: 1px solid #d9d9d9;
+      background-color: #fff;
+    }
+    .icon-expand_less, .icon-expand_more {
+      line-height: 10px;
+    }
+  }
+  .chartColorInput {
+    &:hover, &:focus {
+      color: #2196F3;
+      border-color: #d9d9d9 !important;
+    }
+  }
+}
+
+.ant-tooltip-inner {
+  min-height: auto;
+  line-height: initial;
+}

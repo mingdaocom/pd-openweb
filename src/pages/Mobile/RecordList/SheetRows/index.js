@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
 import { bindActionCreators } from 'redux';
 import { Flex, Card, ListView, ActivityIndicator, PullToRefresh, WhiteSpace, WingBlank } from 'antd-mobile';
-import CustomRecordCard from 'src/pages/Mobile/RecordList/RecordCard';
+import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import * as actions from '../redux/actions';
 import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
+import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
 import './index.less';
 
@@ -17,6 +18,7 @@ class SheetRows extends Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
+      previewRecordId: undefined,
       dataSource: dataSource.cloneWithRows({ ...currentSheetRows })
     }
   }
@@ -59,19 +61,18 @@ class SheetRows extends Component {
           changeBatchOptData={this.props.changeBatchOptData}
           onClick={() => {
             if (!window.mobileNavigateTo) return;
-            window.mobileNavigateTo(
-              `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-                item.rowid
-              }`,
-            );
+            this.setState({
+              previewRecordId: item.rowid
+            });
+            // console.log(`/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`)
           }}
         />
       </WingBlank>
     );
   }
   render() {
-    const { dataSource } = this.state;
-    const { currentSheetRows, sheetRowLoading, sheetView } = this.props;
+    const { dataSource, previewRecordId } = this.state;
+    const { currentSheetRows, sheetRowLoading, sheetView, base, view } = this.props;
     return (
       <Fragment>
         <ListView
@@ -99,6 +100,19 @@ class SheetRows extends Component {
             overflow: 'auto',
           }}
           renderRow={this.renderRow}
+        />
+        <RecordInfoModal
+          className="full"
+          visible={!!previewRecordId}
+          appId={base.appId}
+          worksheetId={base.worksheetId}
+          viewId={base.viewId || view.viewId}
+          rowId={previewRecordId}
+          onClose={() => {
+            this.setState({
+              previewRecordId: undefined
+            });
+          }}
         />
       </Fragment>
     );

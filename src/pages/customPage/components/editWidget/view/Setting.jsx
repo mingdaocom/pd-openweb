@@ -32,8 +32,8 @@ function Setting(props) {
   const { appPkg = {}, ids = {}, setting, setSetting, setLoading, components } = props;
   const { appId, pageId } = ids;
   const projectId = appPkg.projectId || appPkg.id;
-  const { value, viewId, config = { isAddRecord: true } } = setting;
-  const { name, maxCount, isAddRecord } = config;
+  const { value, viewId, config = { isAddRecord: true, searchRecord: true, openView: true } } = setting;
+  const { name, maxCount, isAddRecord, searchRecord, openView } = config;
 
   const [dataSource, setDataSource] = useState({ views: [] });
   const [currentViewId, setCurrentViewId] = useState(viewId);
@@ -149,14 +149,36 @@ function Setting(props) {
       )}
       <div className="mTop20">
         <div className="mBottom12 bold">{_l('操作')}</div>
-        <Checkbox
-          checked={isAddRecord}
-          onChange={(e) => {
-            changeConfig({ isAddRecord: e.target.checked });
-          }}
-        >
-          {_l('允许新建记录')}
-        </Checkbox>
+        <div className="mBottom12">
+          <Checkbox
+            checked={isAddRecord}
+            onChange={(e) => {
+              changeConfig({ isAddRecord: e.target.checked });
+            }}
+          >
+            {_l('允许新建记录')}
+          </Checkbox>
+        </div>
+        <div className="mBottom12">
+          <Checkbox
+            checked={searchRecord}
+            onChange={(e) => {
+              changeConfig({ searchRecord: e.target.checked });
+            }}
+          >
+            {_l('搜索记录')}
+          </Checkbox>
+        </div>
+        <div className="mBottom12">
+          <Checkbox
+            checked={openView}
+            onChange={(e) => {
+              changeConfig({ openView: e.target.checked });
+            }}
+          >
+            {_l('打开视图')}
+          </Checkbox>
+        </div>
       </div>
     </Wrap>
   );

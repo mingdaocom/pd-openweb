@@ -170,33 +170,16 @@ class Dialog extends Component {
   constructor(props) {
     super(props);
 
-    // let visible = false;
-    // if (props.visible) {
-    //   visible = props.visible;
-    // }
-    //
-    // this.state = {
-    //   visible,
-    // };
-
     this.handleCancel = this.handleCancel.bind(this);
     this.handleOk = this.handleOk.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    // if (nextProps.visible !== this.state.visible) {
-    //   this.setState({ visible: nextProps.visible });
-    // }
-  }
-
   handleCancel() {
     this.props.onCancel();
-    // this.setState({ visible: false });
   }
 
   handleOk(e) {
     this.props.onOk(e);
-    // this.setState({ visible: false });
   }
 
   render() {

@@ -93,7 +93,7 @@ class DialogCreatePosition extends React.Component {
         visible={showPositionDialog}
       >
         <div>
-          <h5>{_l('职位名称')}</h5>
+          <div className="mTop5 mBottom5">{_l('职位名称')}</div>
           <input
             class="inputBox"
             maxLength={32}

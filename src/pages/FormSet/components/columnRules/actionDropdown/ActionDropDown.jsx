@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Icon, Checkbox } from 'ming-ui';
+import { Icon, Checkbox, Tooltip } from 'ming-ui';
 import './ActionDropDown.less';
 import { getTextById, getNewDropDownData, getControlSpecialName, getNewIconByType } from '../config';
 export default class DropDownItem extends Component {
@@ -146,7 +146,13 @@ export default class DropDownItem extends Component {
         {currentArr.map(item => {
           return (
             <span className={cx('valueText', { disabled: item.isDelete })}>
-              <span className="ellipsis controlNameBox">{item.name}</span>
+              <Tooltip
+                disable={!item.isDel}
+                text={<span>{_l('ID: %0', item.controlId)}</span>}
+                popupPlacement="bottom"
+              >
+                <span className="ellipsis controlNameBox">{item.name}</span>
+              </Tooltip>
               <i
                 className="icon-close"
                 onClick={e => {

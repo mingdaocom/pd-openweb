@@ -16,11 +16,22 @@ import text2Img from './img/text2.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
-import { getRandomString } from 'src/util';
-import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
+import { getRandomString, getProject } from 'src/util';
+import styled from 'styled-components';
+
 const {
   app: { addAppItem },
 } = window.private;
+
+const GroupIcon = styled(SvgIcon)`
+  font-size: 0px;
+  margin-right: 10px;
+`;
+
+const GroupTitle = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 function loadLinkStyle(url) {
   const head = document.getElementsByTagName('head')[0];
@@ -52,12 +63,16 @@ class AppHome extends React.Component {
     };
   }
   componentDidMount() {
-    const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
+    const currentProject = getProject(localStorage.getItem('currentProjectId'));
+    const maturityTime = moment(md.global.Account.createTime)
+      .add(7, 'day')
+      .format('YYYY-MM-DD');
     const isAdmin = md.global.Account.projects[0]
       ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
       : false;
     const isMaturity = moment().isBefore(maturityTime);
     this.props.dispatch(actions.getAppList());
+    this.props.dispatch(actions.getMyApp(currentProject ? currentProject.projectId : null));
     $('html').addClass('appHomeMobile');
     this.getTodoCount();
     if (isWxWork && isAdmin && isMaturity) {
@@ -153,7 +168,7 @@ class AppHome extends React.Component {
           buttonIndex = buttonIndex + 1;
         }
         if (buttonIndex === 0) {
-          this.props.history.push(`/mobile/appBox`);
+          window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
           const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'));
@@ -162,35 +177,107 @@ class AppHome extends React.Component {
       },
     );
   };
+  filterSearchResult = (apps = [], keyWords) => {
+    return apps.filter(
+      item =>
+        new RegExp((keyWords || '').trim().toUpperCase()).test(item.name) ||
+        new RegExp((keyWords || '').trim().toUpperCase()).test((item.enName || '').toUpperCase()),
+    );
+  };
+  renderSearchApp = () => {
+    let { searchValue } = this.state;
+    const { myAppData = {} } = this.props;
+    const { apps = [], externalApps = [], aloneApps = [] } = myAppData;
+    return (
+      <div className="appSearchWrapper">
+        <Icon icon="h5_search" className="Font16 mRight8 searchIcon" />
+        <form
+          action="#"
+          className="flex"
+          onSubmit={e => {
+            e.preventDefault();
+          }}
+        >
+          <input
+            type="search"
+            className="pAll0 Border0 w100 Font14"
+            placeholder={_l('搜索应用')}
+            value={searchValue}
+            onChange={e => {
+              const { value } = e.target;
+              let searchResult = [
+                ...this.filterSearchResult(apps, value),
+                ...this.filterSearchResult(externalApps, value),
+                ...this.filterSearchResult(aloneApps, value),
+              ];
+              this.setState({ searchValue: value, searchResult });
+            }}
+          />
+        </form>
+        {searchValue && (
+          <Icon
+            className="Gray_bd mLeft8"
+            icon="workflow_cancel"
+            onClick={() => {
+              this.setState({ searchValue: '', searchResult: [] });
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+  renderSearchResult = () => {
+    const { searchResult = [] } = this.state;
+    if (_.isEmpty(searchResult)) {
+      return (
+        <div className="flexColumn emptyWrap">
+          <Icon icon="h5_search" className="Font50" />
+          <div className="Gray_bd Font17 Bold">{_l('没有搜索结果')}</div>
+        </div>
+      );
+    }
+    return (
+      <div className=" h100">
+        <Flex align="center" wrap="wrap" className="appCon">
+          {_.map(searchResult, (item, i) => {
+            return this.renderItem(item);
+          })}
+        </Flex>
+      </div>
+    );
+  };
   renderProcess() {
     const { countData } = this.state;
     const waitingDispose = countData.waitingDispose > 99 ? '99+' : countData.waitingDispose;
     const waitingExamine = countData.waitingExamine > 99 ? '99+' : countData.waitingExamine;
     return (
-      <div className="processWrapper flexRow">
-        <div
-          className="processItem flex valignWrapper"
-          onClick={() => {
-            this.props.history.push('/mobile/processMatters');
-          }}
-        >
-          <Icon icon="knowledge_file" className="Font20 mRight5" />
-          <span className="bold">{_l('流程事项')}</span>
-          {waitingDispose ? <span className="count">{waitingDispose}</span> : null}
-        </div>
-        <div
-          className="processNotice flex valignWrapper"
-          onClick={() => {
-            this.props.history.push('/mobile/processInform');
-          }}
-        >
-          <div className="Relative">
-            <Icon icon="notifications_11" className="Font20 mRight5" />
-            {waitingExamine ? <span className="waitingExamineSign" /> : null}
+      <Fragment>
+        <div className="processWrapper flexRow">
+          <div
+            className="processItem flex valignWrapper"
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/processMatters');
+            }}
+          >
+            <Icon icon="knowledge_file" className="Font20 mRight5" />
+            <span className="bold">{_l('流程事项')}</span>
+            {waitingDispose ? <span className="count">{waitingDispose}</span> : null}
           </div>
-          <span className="bold">{_l('流程通知')}</span>
+          <div
+            className="processNotice flex valignWrapper"
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/processInform');
+            }}
+          >
+            <div className="Relative">
+              <Icon icon="notifications_11" className="Font20 mRight5" />
+              {waitingExamine ? <span className="waitingExamineSign" /> : null}
+            </div>
+            <span className="bold">{_l('流程通知')}</span>
+          </div>
         </div>
-      </div>
+        {this.renderSearchApp()}
+      </Fragment>
     );
   }
   renderItem(data) {
@@ -200,7 +287,8 @@ class AppHome extends React.Component {
           className="myAppItem mTop24"
           onClick={e => {
             localStorage.removeItem('currentNavWorksheetId');
-            data.onClick ? data.onClick() : this.props.history.push(`/mobile/app/${data.id}`);
+            localStorage.setItem('currentGroupInfo', JSON.stringify({}));
+            data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);
           }}
         >
           <div className="myAppItemDetail TxtCenter Relative" style={{ backgroundColor: data.iconColor }}>
@@ -224,17 +312,26 @@ class AppHome extends React.Component {
     switch (type) {
       case 'markedApps':
         return (
-          <div>
-            <span className="Gray Font16 Bold TxtTop">{_l('星标应用')}</span>
-          </div>
+          <span>
+            <Icon icon="star" className="Gray_9e TxtMiddle mRight10 Font20" />
+            <span className="Gray Font17 Bold TxtMiddle">{_l('星标应用')}</span>
+          </span>
         );
       case 'validProject':
-        return <div className="Gray Font16 Bold">{data.projectName}</div>;
+        return <span className="Gray Font16 Bold">{data.projectName}</span>;
+      case 'apps':
+        return (
+          <span>
+            <Icon icon="workbench" className="mRight10 TxtMiddle Gray_9e Font20" />
+            <span className="Gray Font17 Bold TxtMiddle">{_l('全部应用')}</span>
+          </span>
+        );
       case 'externalApps':
         return (
-          <div>
-            <span className="Gray Font16 Bold TxtMiddle">{_l('外部协作应用')}</span>
-          </div>
+          <span>
+            <Icon icon="h5_external" className=" mRight10 TxtMiddle Gray_9e Font20" />
+            <span className="Gray Font17 Bold TxtMiddle">{_l('外部协作')}</span>
+          </span>
         );
       case 'expireProject':
         return (
@@ -246,29 +343,50 @@ class AppHome extends React.Component {
           </div>
         );
       case 'aloneApps':
-        return <div className="Gray Font16 Bold">{_l('个人')}</div>;
+        return (
+          <span>
+            <Icon icon="people_5" className=" mRight10 TxtMiddle Gray_9e Font20" />
+            <span className="Gray Font17 Bold TxtMiddle">{_l('个人')}</span>
+          </span>
+        );
+      default:
+        return (
+          <GroupTitle>
+            {data.iconUrl ? (
+              <GroupIcon url={data.iconUrl} fill="#9e9e9e" size={20} />
+            ) : (
+              <Icon icon={data.icon} className="mRight10 TxtMiddle Gray_9e Font20" />
+            )}
+            <span className="Gray Font17 Bold TxtTop">{data.name}</span>
+          </GroupTitle>
+        );
     }
   }
   renderList(data, type) {
-    if (data.length <= 0) {
+    const { myAppData = {} } = this.props;
+    const { homeSetting } = myAppData;
+    if (data.length <= 0 && type !== 'apps') {
       return;
     } else {
-      let list = type === 'validProject' || type === 'expireProject' ? data.projectApps : data;
+      let list = type === 'markedGroup' ? data.apps : data;
       list = list.filter(o => !o.webMobileDisplay); //排除webMobileDisplay h5未发布
-      if (list.length <= 0) {
-        return '';
-      }
       const distance = ((this.state.width - 12) / 4 - 56) / 2;
       return (
-        <Fragment key={`${type}-${getRandomString()}`}>
-          <div className="pTop30" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
+        <div className="groupDetail" key={`${type}-${getRandomString()}`}>
+          <div className="pTop16 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
             {this.forTitle(data, type)}
+            <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(list) && list.length}</span>
+            {type === 'markedApps' && homeSetting.markedAppDisplay ? (
+              <span className="allOrg mLeft12 Gray_9e Font13 TxtMiddle InlineBlock Bold">{_l('所有组织')}</span>
+            ) : (
+              ''
+            )}
           </div>
           <Flex align="center" wrap="wrap" className="appCon">
             {_.map(list, (item, i) => {
               return this.renderItem(item);
             })}
-            {type === 'validProject' &&
+            {(type === 'apps' || type === 'markedGroup') &&
               !addAppItem.addAppIcon &&
               !(_.find(md.global.Account.projects, item => item.projectId === data.projectId) || {}).cannotCreateApp &&
               this.renderItem({
@@ -279,21 +397,68 @@ class AppHome extends React.Component {
                 onClick: this.showActionSheet,
               })}
           </Flex>
-        </Fragment>
+        </div>
       );
     }
   }
-  renderErr() {
+  renderExternalList = (data, type) => {
+    const distance = ((this.state.width - 12) / 4 - 56) / 2;
+    return (
+      <div className="groupDetail" key={`${type}-${getRandomString()}`}>
+        <div className="pTop26 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
+          {this.forTitle(data, type)}
+          <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(data) && data.length}</span>
+        </div>
+        {type === 'externalApps' && _.isEmpty(data) && (
+          <div className="Gray_bd Font15 pLeft47 mBottom32 Bold mTop16">{_l('暂无与外部协作者的应用')}</div>
+        )}
+        <Flex align="center" wrap="wrap" className="appCon">
+          {_.map(data, (item, i) => {
+            return this.renderItem(item);
+          })}
+        </Flex>
+      </div>
+    );
+  };
+  renderErr(noProject) {
     const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const isApp = isWxWork || isWeLink || isDing;
     const cannotCreateApp = isApp ? _.get(md.global.Account.projects[0], ['cannotCreateApp']) : true;
 
+    const projects = _.get(md, ['global', 'Account', 'projects']);
+    if (_.isEmpty(projects)) {
+      return (
+        <div className={cx('noNetworkBox flexColumn', { h100: !noProject })}>
+          <div className="noNetworkBoxBG" />
+          <div className="Font17 bold mTop40">{_l('创建或申请加入一个组织，开始创建应用')}</div>
+          <div className="flexRow mTop28">
+            <button
+              type="button"
+              className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
+              onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}
+            >
+              {_l('加入组织')}
+            </button>
+            <button
+              type="button"
+              className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
+              onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
+            >
+              {_l('创建组织')}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flexColumn flex valignWrapper justifyContentCenter">
         <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">
-          {cannotCreateApp ? _l('暂无任何应用') : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
+          {cannotCreateApp
+            ? _l('暂无任何应用，请选择从应用库添加应用开始使用')
+            : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
         </p>
         {cannotCreateApp && (
           <Button className="addApp bold Font17" onClick={this.showActionSheet}>
@@ -339,50 +504,96 @@ class AppHome extends React.Component {
     }
   }
   renderContent() {
-    const { HomeData, isHomeLoading, hasData } = this.props;
-
+    const { HomeData, isHomeLoading, myAppData = {} } = this.props;
+    const {
+      markedApps = [],
+      markedGroup = [],
+      apps = [],
+      externalApps = [],
+      personalGroups = [],
+      projectGroups = [],
+      aloneApps = [],
+      homeSetting = {},
+    } = myAppData;
+    const currentProject = getProject(localStorage.getItem('currentProjectId')) || { projectId: 'external' };
+    const distance = ((this.state.width - 12) / 4 - 56) / 2;
     if (isHomeLoading) {
       return <AppGroupSkeleton />;
     }
-
+    if (currentProject.projectId === 'external') {
+      return (
+        <div className="content">
+          {this.renderExternalList(externalApps, 'externalApps')}
+          {!_.isEmpty(aloneApps) && <div className="spaceBottom" />}
+          {!_.isEmpty(aloneApps) && this.renderExternalList(aloneApps, 'aloneApps')}
+        </div>
+      );
+    }
     if (
-      HomeData[0].markedApps.length <= 0 &&
-      HomeData[0].validProject.length <= 0 &&
-      HomeData[0].aloneApps.length <= 0 &&
-      HomeData[0].externalApps.length <= 0 &&
-      HomeData[0].expireProject <= 0
+      _.isEmpty(markedApps) &&
+      _.isEmpty(markedGroup) &&
+      _.isEmpty(apps) &&
+      _.isEmpty(externalApps) &&
+      _.isEmpty(aloneApps)
     ) {
       return this.renderErr();
-    } else if (
-      HomeData[0].markedApps.length <= 0 &&
-      HomeData[0].aloneApps.length <= 0 &&
-      HomeData[0].externalApps.length <= 0 &&
-      HomeData[0].validProject.filter(item => item.projectApps.length > 0).length <= 0 &&
-      HomeData[0].expireProject.filter(item => item.projectApps.length > 0).length <= 0
-    ) {
-      return this.renderErr();
+    } else if (!currentProject && !_.isEmpty(externalApps)) {
+      return (
+        <div className="content">
+          {this.renderErr(true)}
+          {!_.isEmpty(externalApps) && <div className="spaceBottom" />}
+          {!_.isEmpty(externalApps) && this.renderList(externalApps, 'externalApps')}
+        </div>
+      );
     } else {
       return (
         <div className="content">
-          {HomeData[0].markedApps &&
-            HomeData[0].markedApps.length > 0 &&
-            this.renderList(HomeData[0].markedApps, 'markedApps')}
-          {HomeData[0].validProject.map((item, index) => this.renderList(item, 'validProject'))}
-          {HomeData[0].aloneApps.length > 0 && this.renderList(HomeData[0].aloneApps, 'aloneApps')}
-          {HomeData[0].externalApps.length > 0 && this.renderList(HomeData[0].externalApps, 'externalApps')}
-          {HomeData[0].expireProject.map((item, index) => this.renderList(item, 'expireProject'))}
+          {!_.isEmpty(markedApps) && this.renderList(markedApps, 'markedApps')}
+          {!_.isEmpty(markedApps) && <div className="spaceBottom" />}
+          {!_.isEmpty(markedGroup) &&
+            markedGroup.map(item => {
+              if (!item || !item.apps || _.isEmpty(item.apps)) return;
+              return (
+                <Fragment>
+                  {this.renderList(item, 'markedGroup')}
+                  <div className="spaceBottom" />
+                </Fragment>
+              );
+            })}
+          {(!_.isEmpty(markedGroup) || !_.isEmpty(personalGroups) || !_.isEmpty(projectGroups)) && (
+            <div
+              className="appGroupEntry flexRow"
+              style={{ paddingLeft: `${distance}px` }}
+              onClick={() => {
+                window.mobileNavigateTo('/mobile/appGroupList');
+              }}
+            >
+              <span>
+                <Icon icon="table_rows" className="mRight10 TxtMiddle Gray_9e Font20" />
+                <span className="Gray Font17 Bold TxtMiddle">{_l('应用分组')}</span>
+              </span>
+              <Icon icon="arrow-right-border" className="Gray_9e" />
+            </div>
+          )}
+          {(!_.isEmpty(markedGroup) || !_.isEmpty(personalGroups) || !_.isEmpty(projectGroups)) && (
+            <div className="spaceBottom" />
+          )}
+          {currentProject && this.renderList(apps, 'apps')}
+          {!_.isEmpty(externalApps) && homeSetting.exDisplay ? <div className="spaceBottom" /> : ''}
+          {!_.isEmpty(externalApps) && homeSetting.exDisplay ? this.renderList(externalApps, 'externalApps') : ''}
         </div>
       );
     }
   }
   render() {
-    const { guideStep } = this.state;
+    const { guideStep, searchValue } = this.state;
 
     return (
       <Fragment>
         <div className="listConBox h100">
           {this.renderProcess()}
-          {this.renderContent()}
+          {!searchValue && this.renderContent()}
+          {searchValue && this.renderSearchResult()}
           <TabBar action="appHome" />
         </div>
         {guideStep ? this.renderGuide() : null}
@@ -392,9 +603,10 @@ class AppHome extends React.Component {
 }
 
 export default connect(state => {
-  const { getAppHomeList, isHomeLoading } = state.mobile;
+  const { getAppHomeList, isHomeLoading, myAppData } = state.mobile;
   return {
     HomeData: getAppHomeList,
+    myAppData,
     isHomeLoading,
   };
 })(AppHome);

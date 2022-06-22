@@ -169,18 +169,6 @@ const Wrapper = styled.div(
       padding: 0 !important;
     }
   }
-  &.fieldEditorRemark {
-    .ck .ck-content {
-      min-height: ${minHeight || 90}px ;
-      max-height: 500px !important;
-      background: none !important;
-      border: 1px solid #dddddd!important;
-      border-radius: 2px!important;
-      &:hover{
-        border: 1px solid #2196f3!important;
-      }
-    }
-  }
 `,
 );
 class MyUploadAdapter {
@@ -259,12 +247,7 @@ class MyUploadAdapter {
         data.append(
           'x:originalFileName',
           encodeURIComponent(
-            res[0].fileName.indexOf('.') > -1
-              ? res[0].fileName
-                  .split('.')
-                  .slice(0, -1)
-                  .join('.')
-              : res[0].fileName,
+            res[0].fileName.indexOf('.') > -1 ? res[0].fileName.split('.').slice(0, -1).join('.') : res[0].fileName,
           ),
         );
         var fileExt = '.' + File.GetExt(res[0].fileName);
@@ -305,37 +288,20 @@ export default ({
   maxHeight,
   dropdownPanelPosition,
   toolbarList,
-  renderByHtml,
+  isRemark,
 }) => {
   const editorDiv = useRef();
   let editorDom = useRef();
-  useEffect(
-    () => {
-      if (!disabled && editorDom && editorDom.current && editorDom.current.editor) {
-        editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-          return new MyUploadAdapter(loader);
-        };
-      }
-      if (disabled && renderByHtml) {
-        $(editorDiv.current)
-          .find('a')
-          .attr('target', '_blank'); //只读的情况下，a标签新开页处理
-      }
-    },
-    [disabled],
-  );
-  if (disabled && !data) {
-    return (
-      <Wrapper
-        className={cx('editorNull', { Hand: !!onClickNull })}
-        onClick={() => {
-          onClickNull && onClickNull();
-        }}
-      >
-        {placeholder}
-      </Wrapper>
-    );
-  }
+  useEffect(() => {
+    if (!disabled && editorDom && editorDom.current && editorDom.current.editor) {
+      editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
+        return new MyUploadAdapter(loader);
+      };
+    }
+    if (disabled) {
+      $(editorDiv.current).find('a').attr('target', '_blank'); //只读的情况下，a标签新开页处理
+    }
+  }, [disabled]);
   const lang = () => {
     const lang = getCookie('i18n_langtag') || getNavigatorLang();
     if (lang === 'zh-Hant') {
@@ -350,7 +316,13 @@ export default ({
   };
   return (
     <Wrapper
-      className={cx(className, { disabled, showTool })}
+      className={cx(className, {
+        disabled,
+        showTool,
+        editorNull: disabled && !data,
+        Hand: !!onClickNull,
+        remarkControl: isRemark,
+      })}
       minHeight={minHeight}
       maxWidth={maxWidth}
       maxHeight={maxHeight}
@@ -360,7 +332,7 @@ export default ({
         onClickNull && disabled && onClickNull();
       }}
     >
-      {renderByHtml ? (
+      {disabled ? (
         <div class="ck ck-reset ck-editor ck-rounded-corners ckByHtml" role="application" dir="ltr" lang="zh-cn">
           <div class="ck ck-editor__main" role="presentation">
             <div
@@ -370,7 +342,7 @@ export default ({
               role="textbox"
               contenteditable="false"
               dangerouslySetInnerHTML={{
-                __html: filterXSS(data, {
+                __html: filterXSS(data || placeholder, {
                   stripIgnoreTag: true,
                   whiteList: newWhiteList,
                   css: false,
@@ -519,12 +491,6 @@ export default ({
           data={data}
           ref={editorDom}
           onReady={editor => {
-            if (!!disabled) {
-              $(editorDiv.current)
-                .find('a')
-                .attr('target', '_blank'); //只读的情况下，a标签新开页处理
-              return;
-            }
             if (editor && editor.plugins) {
               editor.plugins.get('FileRepository').createUploadAdapter = loader => {
                 return new MyUploadAdapter(loader);
@@ -532,9 +498,6 @@ export default ({
             }
           }}
           onChange={(event, editor) => {
-            if (!!disabled) {
-              return;
-            }
             const data = editor.getData();
             changeSetting && changeSetting(true);
             if (onActualSave) {
@@ -542,24 +505,14 @@ export default ({
             }
           }}
           onBlur={(event, editor) => {
-            if (!!disabled) {
-              return;
-            }
             if (onSave) {
               const data = editor.getData();
               onSave(data);
             }
           }}
           onFocus={(event, editor) => {
-            if (!!disabled) {
-              return;
-            }
             setTimeout(() => {
-              !showTool &&
-                !disabled &&
-                $(editorDiv.current)
-                  .find('.ck-sticky-panel')
-                  .show();
+              !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
             }, 300);
           }}
         />

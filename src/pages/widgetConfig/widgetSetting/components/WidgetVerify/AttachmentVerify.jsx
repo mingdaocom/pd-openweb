@@ -42,7 +42,7 @@ export default function AttachmentVerify({ data, onChange }) {
             title={
               <span>
                 {_l(
-                  '用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过2048MB，最多支持2位小数，例如',
+                  '用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过1024MB，最多支持2位小数，例如',
                 )}
                 <br />
                 {'0.01MB。'}
@@ -66,7 +66,7 @@ export default function AttachmentVerify({ data, onChange }) {
               }
             }}
             onBlur={() => {
-              const value = !max || max < 0.01 ? 1 : max > 2048 ? 2048 : max;
+              const value = !max || max < 0.01 ? 1 : max > 1024 ? 1024 : max;
               setMax(value);
               onChange(
                 handleAdvancedSettingChange(data, {

@@ -131,7 +131,6 @@ export default class File extends Component {
 
         <div className="mTop20 bold">{_l('Word打印模板')}</div>
         <Dropdown
-          className="flowDropdown mTop10"
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
           data={appList}
           value={data.appId}

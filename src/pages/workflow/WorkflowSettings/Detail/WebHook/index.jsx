@@ -1,9 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { SelectNodeObject, DetailHeader, DetailFooter, CustomTextarea, ParameterList } from '../components';
-import { APP_TYPE } from '../../enum';
-import cx from 'classnames';
+import {
+  SelectNodeObject,
+  DetailHeader,
+  DetailFooter,
+  CustomTextarea,
+  ParameterList,
+  KeyPairs,
+  TestParameter,
+} from '../components';
+import { APP_TYPE, METHODS_TYPE } from '../../enum';
+import styled from 'styled-components';
+
+const Input = styled.input`
+  height: 36px;
+  border-radius: 3px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  &:focus {
+    border-color: #2196f3;
+  }
+`;
 
 export default class WebHook extends Component {
   constructor(props) {
@@ -12,6 +30,8 @@ export default class WebHook extends Component {
       data: {},
       saveRequest: false,
       sendRequest: false,
+      showTestDialog: false,
+      testArray: [],
     };
   }
 
@@ -97,7 +117,18 @@ export default class WebHook extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { selectNodeId, name, sendContent, body, headers, method, contentType, formControls, settings } = data;
+    const {
+      selectNodeId,
+      name,
+      sendContent,
+      body,
+      headers,
+      method,
+      contentType,
+      formControls,
+      settings,
+      testMap,
+    } = data;
 
     if (data.appType === APP_TYPE.SHEET && !selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -105,7 +136,7 @@ export default class WebHook extends Component {
     }
 
     if (!sendContent.trim()) {
-      alert(_l('Webhook URL必填'), 2);
+      alert(_l('API URL必填'), 2);
       return;
     }
 
@@ -129,6 +160,7 @@ export default class WebHook extends Component {
         settings: {
           openSSL: settings.openSSL,
         },
+        testMap,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -146,7 +178,7 @@ export default class WebHook extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('数据对象')}</div>
+        <div className="Font13 bold">{_l('数据对象')}</div>
         <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
@@ -174,15 +206,11 @@ export default class WebHook extends Component {
    * 渲染自定义数据
    */
   renderCustomSource() {
-    const { data } = this.state;
-    const methods = [
-      { text: 'GET', value: 1 },
-      { text: 'POST', value: 2 },
-    ];
+    const { data, showTestDialog, testArray } = this.state;
 
     return (
       <Fragment>
-        <div className="Font13 mTop20 flexRow">
+        <div className="Font13 flexRow">
           <div className="flex bold">{_l('请选择请求方式')}</div>
           <Checkbox
             className="flexRow"
@@ -195,25 +223,47 @@ export default class WebHook extends Component {
         </div>
         <Dropdown
           className="flowDropdown flowDropdownBorder mTop10"
-          data={methods}
+          data={METHODS_TYPE}
           value={data.method}
           border
-          onChange={method => this.updateSource({ method, body: method === 1 ? '' : data.body })}
+          onChange={method => this.updateSource({ method, body: _.includes([1, 5], method) ? '' : data.body })}
         />
 
         {this.renderUrl()}
         {this.renderHeaders()}
 
-        {data.method !== 1 && this.renderBody()}
+        {!_.includes([1, 4, 5], data.method) && this.renderBody()}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-
-        <ParameterList controls={data.controls} />
-
-        <div className="mTop20 Gray_9e">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
-        <div className="mTop15 webhookBtn InlineBlock" onClick={this.send}>
-          {_l('发送')}
+        <div className="mTop10 Gray_9e">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
+        <div className="mTop15 webhookBtn InlineBlock" onClick={this.test}>
+          {_l('测试 API')}
         </div>
+
+        {!!(data.controls || []).length && (
+          <Fragment>
+            {data.requestDate && (
+              <div className="mTop25 Gray_75">
+                {_l('请求时间 %0, 状态码 %1，耗时 %2 秒', data.requestDate, data.statusCode, data.requestTime / 1000)}
+              </div>
+            )}
+            <div className="mTop15 bold">{_l('响应 Body')}</div>
+            <ParameterList controls={data.controls.filter(item => item.enumDefault === 0)} />
+            <div className="mTop15 bold">{_l('响应 Header')}</div>
+            <ParameterList controls={data.controls.filter(item => item.enumDefault === 1)} hideControlType />
+          </Fragment>
+        )}
+
+        {showTestDialog && (
+          <TestParameter
+            title={_l('编辑 API 测试数据')}
+            onOk={this.send}
+            onClose={() => this.setState({ showTestDialog: false })}
+            testArray={testArray}
+            formulaMap={data.formulaMap}
+            testMap={data.testMap}
+          />
+        )}
       </Fragment>
     );
   }
@@ -223,10 +273,7 @@ export default class WebHook extends Component {
    */
   renderBody() {
     const { data } = this.state;
-    const contentTypes = [
-      { text: 'key-value pairs', value: 1 },
-      { text: 'raw (application/json)', value: 2 },
-    ];
+    const contentTypes = [{ text: 'key-value pairs', value: 1 }, { text: 'raw (application/json)', value: 2 }];
 
     return (
       <Fragment>
@@ -248,7 +295,15 @@ export default class WebHook extends Component {
         </div>
 
         {data.contentType === 1 ? (
-          this.renderKeyValues('formControls', data.formControls, '+ key-value pairs')
+          <KeyPairs
+            key={this.props.selectNodeId}
+            processId={this.props.processId}
+            selectNodeId={this.props.selectNodeId}
+            source={data.formControls}
+            sourceKey="formControls"
+            formulaMap={data.formulaMap}
+            updateSource={this.updateSource}
+          />
         ) : (
           <CustomTextarea
             className="minH100"
@@ -266,68 +321,13 @@ export default class WebHook extends Component {
   }
 
   /**
-   * 渲染键值对
-   */
-  renderKeyValues(key, source, btnText) {
-    const { data } = this.state;
-
-    return (
-      <Fragment>
-        {source.map((item, i) => {
-          return (
-            <Fragment key={this.props.selectNodeId + i}>
-              <div className={i === 0 ? 'mTop10' : 'mTop20'}>
-                <input
-                  type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-                  style={{ width: 200 }}
-                  placeholder="key"
-                  value={item.name}
-                  onChange={evt => this.updateKeyValues(key, 'name', evt.target.value, i)}
-                />
-              </div>
-              <div className="flexRow">
-                <div className="flex" style={{ minWidth: 0 }}>
-                  <CustomTextarea
-                    processId={this.props.processId}
-                    selectNodeId={this.props.selectNodeId}
-                    placeholder="value"
-                    type={2}
-                    height={0}
-                    content={item.value}
-                    formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) => this.updateKeyValues(key, 'value', value, i)}
-                    updateSource={this.updateSource}
-                  />
-                </div>
-                <i
-                  className="icon-delete2 Font16 mLeft8 mTop20 ThemeHoverColor3 pointer Gray_bd"
-                  onClick={() => this.deleteKeys(key, i)}
-                />
-              </div>
-            </Fragment>
-          );
-        })}
-        <div className="mTop10">
-          <span
-            className="ThemeHoverColor3 pointer Gray_9e"
-            onClick={() => this.updateSource({ [key]: data[key].concat({ name: '', value: '' }) })}
-          >
-            {btnText}
-          </span>
-        </div>
-      </Fragment>
-    );
-  }
-
-  /**
    * 渲染URL
    */
   renderUrl() {
     const { data } = this.state;
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('Webhook URL （必填）')}</div>
+        <div className="Font13 bold mTop20">{_l('API URL （必填）')}</div>
         <div className="mTop15 Gray_9e">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')}</div>
 
         <CustomTextarea
@@ -353,43 +353,52 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold mTop20">{_l('Headers')}</div>
-        {this.renderKeyValues('headers', data.headers, '+ header')}
+        <KeyPairs
+          key={this.props.selectNodeId}
+          processId={this.props.processId}
+          selectNodeId={this.props.selectNodeId}
+          source={data.headers}
+          sourceKey="headers"
+          formulaMap={data.formulaMap}
+          updateSource={this.updateSource}
+          btnText="+ header"
+        />
       </Fragment>
     );
   }
 
   /**
-   * 添加key参数
+   * 测试
    */
-  updateKeyValues(key, keyName, value, i) {
+  test = () => {
     const { data } = this.state;
-    const items = _.cloneDeep(data[key]);
+    const { sendContent, headers, formControls, body } = data;
+    const testArray = _.uniq(
+      (sendContent + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(/\$.*?\$/g) || [],
+    );
 
-    items[i][keyName] = value;
-    this.updateSource({ [key]: items });
-  }
-
-  /**
-   * 删除头参数
-   */
-  deleteKeys(key, i) {
-    const { data } = this.state;
-    const items = _.cloneDeep(data[key]);
-
-    _.remove(items, (obj, index) => index === i);
-    this.updateSource({ [key]: items });
-  }
+    if (!testArray.length) {
+      this.send();
+    } else {
+      this.setState({
+        showTestDialog: true,
+        testArray,
+      });
+    }
+  };
 
   /**
    * 发送
    */
-  send = () => {
+  send = (testMap = {}) => {
     const { processId, selectNodeId } = this.props;
     const { data, sendRequest } = this.state;
     const { headers, body, sendContent, method, formControls, contentType, settings } = data;
 
+    this.setState({ showTestDialog: false });
+
     if (!sendContent) {
-      alert(_l('Webhook URL必填'), 2);
+      alert(_l('API URL必填'), 2);
       return;
     }
 
@@ -402,17 +411,24 @@ export default class WebHook extends Component {
         processId,
         nodeId: selectNodeId,
         method,
-        url: sendContent,
-        headers: headers.filter(item => item.name),
-        body,
+        url: this.formatParameters(sendContent, testMap),
+        headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
+        body: this.formatParameters(body, testMap),
         formControls: formControls.filter(item => item.name),
         contentType,
         settings,
       })
       .then(result => {
         if (result.status === 1) {
-          this.updateSource({ controls: result.data.controls });
+          this.updateSource({
+            controls: result.data.controls,
+            testMap,
+            requestDate: result.requestDate,
+            requestTime: result.requestTime,
+            statusCode: result.statusCode,
+          });
         } else {
+          this.updateSource({ testMap });
           alert(result.msg, 2);
         }
 
@@ -422,12 +438,19 @@ export default class WebHook extends Component {
     this.setState({ sendRequest: true });
   };
 
+  /**
+   * 格式化参数
+   */
+  formatParameters = (source, testMap) => {
+    (source.match(/\$.*?\$/g) || []).forEach(key => {
+      source = source.replace(key, testMap[key] || '');
+    });
+
+    return source;
+  };
+
   render() {
     const { data } = this.state;
-    const types = [
-      { text: _l('发送指定数据对象'), value: APP_TYPE.SHEET, otherType: [APP_TYPE.CUSTOM_ACTION] },
-      { text: _l('发送自定义请求'), value: APP_TYPE.WEBHOOK },
-    ];
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -445,17 +468,6 @@ export default class WebHook extends Component {
         <div className="flex mTop20">
           <ScrollView>
             <div className="workflowDetailBox">
-              {types.map((item, i) => {
-                return (
-                  <div className={cx({ mTop10: i > 0 })} key={i}>
-                    <Radio
-                      text={item.text}
-                      checked={data.appType === item.value || _.includes(item.otherType, data.appType)}
-                      onClick={() => this.updateSource({ appType: item.value, body: '', method: 1, selectNodeId: '' })}
-                    />
-                  </div>
-                );
-              })}
               {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], data.appType) && this.renderDefaultSource()}
               {data.appType === APP_TYPE.WEBHOOK && this.renderCustomSource()}
             </div>

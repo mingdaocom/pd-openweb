@@ -41,6 +41,8 @@ class WorksheetDetailShare extends React.Component {
       printId,
       getRowRelationRowDetailData,
       viewSet = {},
+      sheetSwitchPermit = [],
+      viewIdForPermit
     } = this.props;
     const Controls = rowDetail.filter(
       item => !_.find(viewSet.controls || [], hidedControlId => item.controlId === hidedControlId), // || item.attribute === 1,
@@ -68,6 +70,8 @@ class WorksheetDetailShare extends React.Component {
             <React.Fragment>
               <h1>{titleName || _l('未命名')}</h1>
               <CustomFields
+                sheetSwitchPermit={sheetSwitchPermit}
+                viewId={viewIdForPermit}
                 from={1}
                 data={Controls.filter(
                   o => ![43].includes(o.type) && !['uaid', 'daid'].concat(SYS).includes(o.controlId),

@@ -14,7 +14,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
     homeAppAjax.getAppDetail(params).then(),
     homeAppAjax.getAppInfo(params).then(),
     homeAppAjax.checkApp({ appId }, { silent: true }).then(),
-    instanceVersion.getTodoListFilter({ type: -1 }).then(),
+    window.isPublicApp ? undefined : instanceVersion.getTodoListFilter({ type: -1 }).then(),
   ]).then(result => {
     const [ detail, info, status, processTodoList ] = result;
     const processData = _.find(processTodoList, { app: { id: appId } });

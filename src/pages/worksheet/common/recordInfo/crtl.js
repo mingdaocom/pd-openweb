@@ -128,14 +128,17 @@ export function updateRecord(
     });
 }
 
-export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell }) {
+export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell, cells = [] }) {
   return new Promise((resolve, reject) => {
+    if (_.isEmpty(cells) && cell) {
+      cells = [cell];
+    }
     updateWorksheetRow({
       appId,
       viewId,
       worksheetId: worksheetId,
       rowId: recordId,
-      newOldControl: [cell],
+      newOldControl: cells,
     }).then(data => {
       if (!data.data) {
         if (data.resultCode === 11) {

@@ -68,6 +68,8 @@ const RangeBox = styled.div`
   }
   .dropOptionTrigger {
     padding: 24px;
+    max-height: 260px;
+    overflow: auto;
   }
 `;
 @withClickAway

@@ -38,13 +38,13 @@ export default class RecordCard extends Component {
   };
   @autobind
   handleCoverClick(e) {
-    const { from = 1 } = this.props;
+    const { from = 1, disableDownload } = this.props;
     const { cover } = this;
     const isMobile = from === FROMS.MOBILE;
     if (isMobile) {
       return;
     }
-    previewQiniuUrl(cover.previewUrl.replace(/\?(.*)/, ''));
+    previewQiniuUrl(cover.previewUrl.replace(/\?(.*)/, ''), { disableDownload });
     e.stopPropagation();
   }
   get cover() {

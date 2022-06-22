@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Radio, Textarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
-import { ParameterList, CustomTextarea } from '../components';
+import { ParameterList, CustomTextarea, KeyPairs } from '../components';
 import copy from 'copy-to-clipboard';
 
 const STATUS = {
@@ -74,99 +74,6 @@ export default class WebhookContent extends Component {
       alert(_l('验证格式失败，请修改'), 2);
     }
   };
-
-  /**
-   * 渲染键值对
-   */
-  renderKeyValues(key, source) {
-    const { data, updateSource } = this.props;
-
-    return (
-      <Fragment>
-        {source.map((item, i) => {
-          return (
-            <Fragment key={this.props.selectNodeId + i}>
-              <div className={i === 0 ? 'mTop10' : 'mTop20'}>
-                <input
-                  type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-                  style={{ width: 200 }}
-                  placeholder="key"
-                  value={item.name}
-                  onChange={evt => this.updateKeyValues(key, 'name', evt.target.value, i)}
-                />
-              </div>
-              <div className="flexRow">
-                <div className="flex" style={{ minWidth: 0 }}>
-                  {key === 'params' ? (
-                    <Textarea
-                      className="mTop10"
-                      maxHeight={250}
-                      minHeight={0}
-                      style={{ paddingTop: 6, paddingBottom: 6 }}
-                      placeholder={_l('参考value')}
-                      value={item.value}
-                      onChange={value => {
-                        this.updateKeyValues(key, 'value', value, i);
-                      }}
-                    />
-                  ) : (
-                    <CustomTextarea
-                      processId={this.props.processId}
-                      selectNodeId={this.props.selectNodeId}
-                      sourceAppId={data.appId}
-                      type={2}
-                      height={0}
-                      content={item.value}
-                      formulaMap={data.formulaMap}
-                      onChange={(err, value, obj) => this.updateKeyValues(key, 'value', value, i)}
-                      updateSource={updateSource}
-                    />
-                  )}
-                </div>
-                <i
-                  className="icon-delete2 Font16 mLeft8 mTop20 ThemeHoverColor3 pointer Gray_bd"
-                  onClick={() => this.deleteKeys(key, i)}
-                />
-              </div>
-            </Fragment>
-          );
-        })}
-        <div className="mTop10">
-          <span
-            className="ThemeHoverColor3 pointer Gray_9e"
-            onClick={() => updateSource({ [key]: source.concat({ name: '', value: '' }) })}
-          >
-            + key-value pairs
-          </span>
-        </div>
-      </Fragment>
-    );
-  }
-
-  /**
-   * 添加key参数
-   */
-  updateKeyValues(key, keyName, value, i) {
-    const { data, updateSource } = this.props;
-    let items = _.cloneDeep(data[key]);
-
-    if (!items[i]) items[i] = {};
-
-    items[i][keyName] = value;
-    updateSource({ [key]: items });
-  }
-
-  /**
-   * 删除参数
-   */
-  deleteKeys(key, i) {
-    const { data, updateSource } = this.props;
-    const items = _.cloneDeep(data[key]);
-
-    _.remove(items, (obj, index) => index === i);
-    updateSource({ [key]: items });
-  }
 
   /**
    * 提交key-value参数
@@ -312,7 +219,17 @@ export default class WebhookContent extends Component {
           {type === STATUS.PAIRS && (
             <Fragment>
               <div className="mTop20 bold">{_l('从key-value pairs生成')}</div>
-              {this.renderKeyValues('params', data.params)}
+              <KeyPairs
+                key={this.props.selectNodeId}
+                processId={this.props.processId}
+                selectNodeId={this.props.selectNodeId}
+                appId={data.appId}
+                source={data.params}
+                sourceKey="params"
+                formulaMap={data.formulaMap}
+                updateSource={updateSource}
+                pairsOnlyText
+              />
               <div className="mTop15 flexRow">
                 <div className="webhookBtn mRight10" onClick={() => this.setState({ type: STATUS.NULL })}>
                   {_l('返回')}
@@ -370,7 +287,16 @@ export default class WebhookContent extends Component {
                 })}
               </div>
               {contentType === 1 ? (
-                this.renderKeyValues('returns', data.returns.length ? data.returns : [{ name: '', value: '' }])
+                <KeyPairs
+                  key={this.props.selectNodeId}
+                  processId={this.props.processId}
+                  selectNodeId={this.props.selectNodeId}
+                  appId={data.appId}
+                  source={data.returns.length ? data.returns : [{ name: '', value: '' }]}
+                  sourceKey="returns"
+                  formulaMap={data.formulaMap}
+                  updateSource={updateSource}
+                />
               ) : (
                 <CustomTextarea
                   className="minH100"

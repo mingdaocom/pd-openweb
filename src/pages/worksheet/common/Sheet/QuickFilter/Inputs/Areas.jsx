@@ -2,11 +2,12 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string, shape } from 'prop-types';
 import CityPicker from 'ming-ui/components/CityPicker';
+import { BaseSelectedItem } from './Styles';
 
 const Con = styled.div`
   display: flex;
   align-items: center;
-  height: 32px;
+  min-height: 32px;
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
@@ -27,7 +28,7 @@ const AreasCon = styled.div`
   flex: 1;
   overflow: hidden;
   font-size: 13px;
-  height: 32px;
+  min-height: 32px;
   padding: 0 0 0 10px;
 `;
 
@@ -77,9 +78,24 @@ export default function Areas(props) {
           }}
         >
           {!values.length && <Empty>{_l('请选择')}</Empty>}
-          <AreasText className="ellipsis" title={values.map(user => user.name).join(', ')}>
-            {values.map(user => user.name).join(', ')}
-          </AreasText>
+          {!isMultiple && !!values.length && (
+            <AreasText className="ellipsis" title={values[0].name}>
+              {values[0].name}
+            </AreasText>
+          )}
+          {isMultiple &&
+            values.map((v, i) => (
+              <BaseSelectedItem key={i}>
+                <span className="name ellipsis">{v.name}</span>
+                <i
+                  className="icon icon-delete Gray_9e Font10 Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onChange({ values: values.filter(d => d.id !== v.id) });
+                  }}
+                />
+              </BaseSelectedItem>
+            ))}
         </AreasCon>
         <Icon className="icon icon-arrow-down-border downIcon" />
         {!!values.length && (

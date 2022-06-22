@@ -5,7 +5,7 @@ import { Flex, ActivityIndicator } from 'antd-mobile';
 import { ScrollView } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
-import customApi from 'src/pages/worksheet/common/Statistics/api/custom';
+import customApi from 'statistics/api/custom';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
@@ -159,6 +159,7 @@ export default class CustomPage extends Component {
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
               <div className={cx('widgetContent', { haveTitle: titleVisible })}>
                 <WidgetDisplay
+                  pageComponents={pageComponents}
                   widget={widget}
                   apk={apk}
                   ids={{

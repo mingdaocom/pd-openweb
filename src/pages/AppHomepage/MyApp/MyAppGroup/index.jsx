@@ -134,9 +134,14 @@ export default class MyAppGroup extends Component {
   handleApp = ({ mode, ...para }) => {
     switch (mode) {
       case 'del':
-        api.deleteApp(para).then(res => {
-          if (res) this.getIndexApp();
-        });
+        api
+          .deleteApp({
+            ...para,
+            isHomePage: true,
+          })
+          .then(res => {
+            if (res) this.getIndexApp();
+          });
         break;
       case 'mark':
         api.markApp(para).then(({ data }) => {
@@ -307,10 +312,10 @@ export default class MyAppGroup extends Component {
             newAppItemId={newAppItemId}
           />
         ))}
+        {externalApps.length > 0 && <MyAppGroupItem type="externalApps" items={externalApps} {...propsAndMethods} />}
         {aloneApps.length > 0 && (
           <MyAppGroupItem type="aloneApps" items={aloneApps} newAppItemId={newAppItemId} {...propsAndMethods} />
         )}
-        {externalApps.length > 0 && <MyAppGroupItem type="externalApps" items={externalApps} {...propsAndMethods} />}
       </Fragment>
     );
   };
@@ -359,6 +364,7 @@ export default class MyAppGroup extends Component {
             iconColor: '#2196f3',
             title: _l('创建空白应用'),
             desc: _l('从头开始创造您自己的应用'),
+            key: 'addAppIcon',
           },
           {
             icon: 'custom_store',

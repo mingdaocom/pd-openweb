@@ -14,7 +14,8 @@ const Con = styled.div`
   background-color: #fff;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 4px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
   &:hover {
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+    ${({ canView }) =>
+      canView ? 'box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;' : ''}
   }
   &:hover .icon-minus-square {
     display: inline-block;
@@ -69,11 +70,16 @@ function click(func) {
 }
 
 export default function RecordCoverCard(props) {
-  const { disabled, width, title, controls, data, cover, onClick, onDelete, viewId } = props;
+  const { disabled, width, title, controls, data, cover, onClick, onDelete, viewId, allowlink } = props;
   const coverSize = 50 + 28 * controls.slice(0, 3).length;
   const isMobile = browserIsMobile();
   return (
-    <Con onClick={onClick} style={width ? { width } : {}} className={!disabled && 'Hand'}>
+    <Con
+      onClick={onClick}
+      style={width ? { width } : {}}
+      className={!disabled && allowlink !== '0' && 'Hand'}
+      canView={allowlink !== '0'}
+    >
       {!disabled && (
         <DeleteButton onClick={click(onDelete)}>
           <i className="icon icon-minus-square" style={isMobile ? { display: 'inline-block' } : {}}></i>

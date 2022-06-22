@@ -28,11 +28,12 @@ export default function MDCell(props) {
     sheetSwitchPermit,
     viewId,
     appId,
+    allowlink,
     onCellFocus,
     checkRulesErrorOfControl,
   } = props;
   const onClick = () => {
-    if (control.key === 'number' || rowIndex === 0 || !row.rowid) return;
+    if (control.key === 'number' || rowIndex === 0 || !row.rowid || allowlink === '0') return;
     onCellClick(control, row, rowIndex);
   };
   return (
@@ -51,6 +52,7 @@ export default function MDCell(props) {
       cellUniqueValidate={cellUniqueValidate}
       className={className}
       style={style}
+      allowlink={allowlink}
       canedit={lineeditable && !_.find(['caid', 'ctime', 'utime'], id => id === control.controlId)}
       cell={{ ...control, value, disabled: !row.allowedit || control.disabled }}
       row={row}

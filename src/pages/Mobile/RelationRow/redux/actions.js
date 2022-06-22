@@ -16,15 +16,13 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
       controlPermission.editable &&
       allowAdd &&
       enumDefault2 !== 1 &&
-      enumDefault2 !== 11 &&
-      !onlyRelateByScanCode;
+      enumDefault2 !== 11;
   const isRelevance =
     !isSubList &&
     controlPermission.editable &&
     enumDefault2 !== 10 &&
     enumDefault2 !== 11 &&
-    allowEdit &&
-    !onlyRelateByScanCode;
+    allowEdit;
   const hasEdit = controlPermission.editable && allowEdit && (allowAdd || isSubList);
   const isScanQR = getIsScanQR();
 

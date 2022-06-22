@@ -149,7 +149,7 @@ export function moveSheet(ages) {
   };
 }
 
-export function deleteSheet({ appId, groupId, worksheetId, type }) {
+export function deleteSheet({ appId, groupId, worksheetId, projectId, type }) {
   return function (dispatch, getState) {
     const { data: sheetList } = getState().sheetList;
     const deleteFun = function (data, type) {
@@ -173,7 +173,9 @@ export function deleteSheet({ appId, groupId, worksheetId, type }) {
     appManagementAjax
       .removeWorkSheetForApp({
         appId,
+        projectId,
         type,
+        isPermanentlyDelete: false,
         appSectionId: groupId,
         workSheetId: worksheetId,
       })

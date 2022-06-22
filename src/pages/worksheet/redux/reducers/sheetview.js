@@ -32,6 +32,9 @@ export function sheetViewConfig(state = initialSheetViewConfig, action) {
       return { ...state, allWorksheetIsSelected: false, sheetSelectedRows: [...action.rows] };
     case 'WORKSHEET_SHEETVIEW_CLEAR_SELECT':
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
+      if (_.get(action, 'value.noClearSelected')) {
+        return { ...state };
+      }
       return { ...state, allWorksheetIsSelected: false, sheetSelectedRows: [] };
     // 列宽调整逻辑
     case 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH':
@@ -111,6 +114,9 @@ export function sheetViewData(state = initialSheetViewData, action) {
     // 更新记录页数
     case 'WORKSHEET_SHEETVIEW_UPDATE_COUNT':
       return { ...state, count: action.count };
+    // 更新记录页数
+    case 'WORKSHEET_SHEETVIEW_UPDATE_COUNT_ABNORMAL':
+      return { ...state, pageCountAbnormal: true };
     // 更新单个记录数据
     case 'WORKSHEET_SHEETVIEW_UPDATE_ROWS_BY_ROWIDS':
       return {

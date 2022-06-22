@@ -65,7 +65,15 @@ export default class DepartmentTree extends Component {
       isMoreDepartment: true,
       department: props.data || [],
       departmentLoading: false,
+      onlyJoinDepartmentChecked: localStorage.getItem('isCheckedOnlyMyJoin')
+        ? JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin'))
+        : false,
     };
+  }
+  componentDidMount() {
+    if (this.props.defaultCheckedDepId) {
+      this.handleSelectGroup(this.props.defaultCheckedDepId);
+    }
   }
   getChecked(user) {
     return !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length;
@@ -129,7 +137,6 @@ export default class DepartmentTree extends Component {
   handleSelectGroup = id => {
     const { pageIndex } = this.state;
     const { userSettings, projectId } = this.props;
-    const { groupId } = this.state;
     this.setState({ groupId: id, loading: true });
     departmentController
       .getDepartmentUsers({
@@ -174,7 +181,6 @@ export default class DepartmentTree extends Component {
       })
       .then(res => {
         let data = res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }));
-        console.log(this.updateTreeData(department, id, data), 'this.updateTreeData(department, id, data)');
         this.setState({ department: this.updateTreeData(department, id, data), departmentLoading: false });
       });
   };
@@ -229,31 +235,44 @@ export default class DepartmentTree extends Component {
       </Fragment>
     );
   }
+  onlyShowJoinDepartment = checked => {
+    this.setState({ onlyJoinDepartmentChecked: !checked });
+    localStorage.setItem('isCheckedOnlyMyJoin', !checked);
+    this.props.userAction();
+  };
   renderDepartmentTree() {
-    const { projectId } = this.props;
-    const { department = [], departmentLoading } = this.state;
-    const project = _.find(md.global.Account.projects, { projectId });
+    const { department = [], departmentLoading, onlyJoinDepartmentChecked } = this.state;
     return (
-      <DepartmentTreeWrapper className="flex">
-        <ScrollView
-          className="flex asdsad"
-          onScrollEnd={() => {
-            const { isMoreDepartment } = this.state;
-            if (!departmentLoading && isMoreDepartment && department.length >= this.state.pagedDepartmentSize) {
-              this.getNextPageDepartmentTrees();
-            }
-          }}
+      <DepartmentTreeWrapper className="flexColumn flex">
+        <Checkbox
+          className="mBottom10 pLeft7"
+          checked={onlyJoinDepartmentChecked}
+          onClick={this.onlyShowJoinDepartment}
         >
-          {this.renderDepartment({
-            id: project.projectId,
-            name: project.companyName,
-            subs: department.length ? department : [],
-            haveSubDepartment: department.length ? true : false,
-          })}
-          {departmentLoading && (
-            <div className="justifyCenter flexRow valignWrapper" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+          {_l('只看我加入的部门')}
+        </Checkbox>
+        <div className="flex">
+          {!departmentLoading && _.isEmpty(department) ? (
+            <NoData>{_l('无结果')}</NoData>
+          ) : (
+            <ScrollView
+              className="flex asdsad"
+              onScrollEnd={() => {
+                const { isMoreDepartment } = this.state;
+                if (!departmentLoading && isMoreDepartment && department.length >= this.state.pagedDepartmentSize) {
+                  this.getNextPageDepartmentTrees();
+                }
+              }}
+            >
+              {department.map(item => {
+                return this.renderDepartment(item);
+              })}
+              {departmentLoading && (
+                <div className="justifyCenter flexRow valignWrapper" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+              )}
+            </ScrollView>
           )}
-        </ScrollView>
+        </div>
       </DepartmentTreeWrapper>
     );
   }
@@ -329,10 +348,11 @@ export default class DepartmentTree extends Component {
     }
   }
   render() {
+    let { departmentLoading, department = [] } = this.state;
     return (
       <div className="flexRow h100">
         {this.renderDepartmentTree()}
-        {this.renderUsers()}
+        {!departmentLoading && !_.isEmpty(department) && this.renderUsers()}
       </div>
     );
   }

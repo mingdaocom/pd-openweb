@@ -5,7 +5,8 @@ import CalendarView from 'src/pages/worksheet/views/CalendarView';
 import ScheduleModal from './components/ScheduleModal';
 import ViewErrorPage from '../components/ViewErrorPage';
 import * as calendarActions from 'src/pages/worksheet/redux/actions/calendarview';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
+import { RecordInfoModal } from 'mobile/Record';
 import { getAdvanceSetting } from 'src/util';
 import { Icon } from 'ming-ui';
 import './index.less';
@@ -15,6 +16,7 @@ class MobileCalendarView extends Component {
     super(props);
     this.state = {
       scheduleVisible: false,
+      previewRecordId: undefined
     };
   }
   componentDidMount() {}
@@ -46,7 +48,7 @@ class MobileCalendarView extends Component {
   };
 
   render() {
-    let { scheduleVisible } = this.state;
+    let { scheduleVisible, previewRecordId } = this.state;
     const { view, currentSheetRows, calendarview = {}, base = {} } = this.props;
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
@@ -80,10 +82,8 @@ class MobileCalendarView extends Component {
       },
       eventClick: eventInfo => {
         if (calendarType === '2') {
-          let { appId, worksheetId, viewId } = base;
           const { extendedProps } = eventInfo.event._def;
-          let url = `/mobile/record/${appId}/${worksheetId}/${viewId}/${extendedProps.rowid}`;
-          window.mobileNavigateTo(url);
+          this.setState({ previewRecordId: extendedProps.rowid });
         } else {
           const { range = {} } = eventInfo.event._instance;
           range.start && this.getMoreClickData(range.start);
@@ -110,6 +110,19 @@ class MobileCalendarView extends Component {
         )) ||
           null}
         {scheduleVisible && <ScheduleModal visible={scheduleVisible} showschedule={this.showschedule} />}
+        <RecordInfoModal
+          className="full"
+          visible={!!previewRecordId}
+          appId={base.appId}
+          worksheetId={base.worksheetId}
+          viewId={base.viewId}
+          rowId={previewRecordId}
+          onClose={() => {
+            this.setState({
+              previewRecordId: undefined
+            });
+          }}
+        />
       </div>
     );
   }

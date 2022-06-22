@@ -52,6 +52,7 @@ export default class SingleControlValue extends Component {
             appType={item.nodeAppType || item.appType}
             actionId={item.nodeActionId || item.actionId}
             nodeName={item.nodeName}
+            controlId={item.fieldValueId}
             controlName={item.fieldValueName}
             isSourceApp={item.isSourceApp}
           />
@@ -315,14 +316,21 @@ export default class SingleControlValue extends Component {
       return (
         <div className="mTop8 flexRow relative">
           <TagTextarea
-            className={cx('flex', { minH100: item.fieldId === 'content' })}
+            className={cx(
+              'flex',
+              { minH100: item.fieldId === 'content' },
+              {
+                smallPadding:
+                  item.fieldId !== 'content' && item.fieldValue && item.fieldValue.match(/\$[\w]+-[\w]+\$/g),
+              },
+            )}
             height={0}
             defaultValue={item.fieldValue}
             getRef={tagtextarea => {
               this.tagtextarea = tagtextarea;
             }}
             renderTag={(tag, options) => {
-              const ids = tag.split('-');
+              const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
               const nodeObj = formulaMap[ids[0]] || {};
               const controlObj = formulaMap[ids[1]] || {};
 
@@ -332,6 +340,7 @@ export default class SingleControlValue extends Component {
                   appType={nodeObj.appType}
                   actionId={nodeObj.actionId}
                   nodeName={nodeObj.name || ''}
+                  controlId={ids[1]}
                   controlName={controlObj.name || ''}
                   isSourceApp={nodeObj.isSourceApp === 'true'}
                 />

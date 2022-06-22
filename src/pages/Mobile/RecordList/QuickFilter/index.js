@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { validate, conditionAdapter, formatQuickFilter, NumberTypes } from './Inputs';

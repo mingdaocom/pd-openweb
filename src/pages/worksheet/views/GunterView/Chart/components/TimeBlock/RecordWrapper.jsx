@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordBlock from './RecordBlock';
-import { browserIsMobile } from 'src/util';
 import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
 
 @connect(
@@ -44,13 +43,9 @@ export default class RecordWrapper extends Component {
         return;
       }
     } else {
-      if (browserIsMobile()) {
-        window.mobileNavigateTo(`/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`);
-      } else {
-        this.setState({
-          recordInfoVisible: true
-        });
-      }
+      this.setState({
+        recordInfoVisible: true
+      });
     }
   }
   render() {

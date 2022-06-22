@@ -150,7 +150,7 @@ export default class SortConditions extends React.Component {
     const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
     const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
     return filterOnlyShowField(columns)
-      .filter(o => o.type !== 42) //排除签名字段
+      .filter(o => ![42, 47].includes(o.type)) //排除签名字段 扫码
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&

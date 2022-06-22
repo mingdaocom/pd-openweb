@@ -80,7 +80,7 @@ export default class Text extends React.Component {
     const { value, oldValue } = this.state;
     if (!prevProps.isediting && this.props.isediting) {
       if (this.isNumberPercent && value) {
-        this.setState({ value: value * 100, oldValue: oldValue ? oldValue * 100 : oldValue }, this.focus);
+        this.setState({ value: accMul(value, 100), oldValue: oldValue ? accMul(oldValue, 100) : oldValue }, this.focus);
       } else {
         this.focus();
       }
@@ -117,8 +117,8 @@ export default class Text extends React.Component {
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
     if (this.isNumberPercent && value) {
-      value = parseFloat(value) / 100;
-      oldValue = parseFloat(oldValue) / 100;
+      value = accMul(parseFloat(value), 1 / 100);
+      oldValue = accMul(parseFloat(oldValue), 1 / 100);
     }
     if ((cell.type === 6 || cell.type === 8) && value === '-') {
       value = '';
@@ -126,6 +126,9 @@ export default class Text extends React.Component {
     }
 
     if (oldValue === value) {
+      if (this.isNumberPercent && value) {
+        this.setState({ oldValue, value });
+      }
       updateEditingStatus(false);
       return;
     } else if ((cell.enumDefault === 0 || cell.enumDefault === 2) && typeof value === 'string') {
@@ -222,6 +225,8 @@ export default class Text extends React.Component {
       value = '';
     }
     const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
+    const isMacWxWork =
+      /wxwork/.test(navigator.userAgent.toLowerCase()) && /applewebkit/.test(navigator.userAgent.toLowerCase());
     const text = renderText({ ...cell, value });
     const editcontent = (
       <ClickAwayable
@@ -238,7 +243,7 @@ export default class Text extends React.Component {
               height: style.height,
             }}
           >
-            {isSafari ? ( // 子表行内编辑 input 位置会计算异常 改用textarea模拟
+            {isSafari || isMacWxWork ? ( // 子表行内编辑 input 位置会计算异常 改用textarea模拟
               <Input
                 className="Ming"
                 {...editProps}
@@ -300,11 +305,17 @@ export default class Text extends React.Component {
           {!isediting &&
             (!!value || value == 0) &&
             (() => {
-              if (cell.type === 2) {
+              if ((cell.type === 2 || cell.type === 32) && (cell.advancedSetting || {}).analysislink === '1') {
                 return (
-                  <span title={text}>
+                  <span
+                    className={
+                      cell.type === 32
+                        ? cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })
+                        : ''
+                    }
+                    title={text}
+                  >
                     <Linkify
-                      className={cx('worksheetCellPureString cellControl linelimit', { ellipsis: isMobile })}
                       properties={{
                         target: '_blank',
                         onClick: e => {

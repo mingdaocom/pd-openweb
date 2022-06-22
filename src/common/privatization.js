@@ -8,7 +8,9 @@ window.private = Object.freeze({
   app: {
     // 侧边栏(资源模块及下级整体)
     appSide: {
-      sourcemodule: false,
+      educate: true,
+      recommend: true,
+      thirdPartyApp: true,
     },
     //头部导航栏(导航切换模块)
     appManagementHeader: {
@@ -19,7 +21,7 @@ window.private = Object.freeze({
     commonUserHandle: {
       help: true,
     },
-    //添加应用操作(模版安装、解决方案、添加应用按钮)
+    //添加应用操作(模版安装、添加应用按钮)
     addAppItem: {
       installFromLib: true,
       addAppIcon: false,
@@ -85,7 +87,7 @@ window.private = Object.freeze({
       wechartnotice: true,
     },
     //侧边栏(我的组织)
-    muneLeft: {
+    menuLeft: {
       enterprise: false,
     },
     //安全设置(账号绑定、隐私设置、qq和微信)

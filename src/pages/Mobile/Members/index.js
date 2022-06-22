@@ -13,7 +13,7 @@ class Members extends Component {
     super(props);
     this.state = {
       checked: this.props.memberData.rolesVisibleConfig === ROLE_CONFIG.REFUSE,
-    }
+    };
     this.modal = null;
   }
   componentDidMount() {
@@ -32,84 +32,98 @@ class Members extends Component {
   handleExitApp = () => {
     const { detail } = this.props.memberData;
 
-    this.modal = Modal.prompt((
-      <span className="Font17 bold">{_l('确认删除应用吗？')}</span>
-    ), (
-      <span className="Font13 Gray mBottom5">{_l('应用下所有配置和数据将被永久删除，不可恢复，请确认是否执行此操作！')}</span>
-    ), [
-      { text: _l('取消'), onPress: () => { }, style: { color: '#2196f3' } },
-      {
-        text: _l('确定'),
-        onPress: (value) => {
-          if (detail.name === value) {
-            this.props.dispatch(actions.deleteApp({
-              projectId: '',
-              appId: this.props.match.params.appId,
-            }, ({ data }) => {
-              if (data) {
-                this.props.history.push('/mobile/appHome');
-              }
-            }));
-          } else {
-            alert(_l('应用名称错误'), 2);
-          }
+    this.modal = Modal.prompt(
+      <span className="Font17 bold">{_l('确认删除应用吗？')}</span>,
+      <span className="Font13 Gray mBottom5">
+        {_l('应用下所有配置和数据将被永久删除，不可恢复，请确认是否执行此操作！')}
+      </span>,
+      [
+        { text: _l('取消'), onPress: () => {}, style: { color: '#2196f3' } },
+        {
+          text: _l('确定'),
+          onPress: value => {
+            if (detail.name === value) {
+              this.props.dispatch(
+                actions.deleteApp(
+                  {
+                    projectId: '',
+                    appId: this.props.match.params.appId,
+                    isHomePage: true,
+                  },
+                  ({ data }) => {
+                    if (data) {
+                      this.props.history.push('/mobile/appHome');
+                    }
+                  },
+                ),
+              );
+            } else {
+              alert(_l('应用名称错误'), 2);
+            }
+          },
+          style: { color: 'red' },
         },
-        style: { color: 'red' },
-      },
-    ], 'default', null, [_l('输入应用名称以确定删除')]);
-  }
+      ],
+      'default',
+      null,
+      [_l('输入应用名称以确定删除')],
+    );
+  };
   renderCard(data, isAdmin) {
     const { params } = this.props.match;
     const { detail, rolesVisibleConfig } = this.props.memberData;
     const isUserAdmin = detail.permissionType >= 100;
     return (
-    <div className="memberListCon">
-      {data.map((item, i) => {
-        const { users } = item;
-        const isInCurrentRole = !isAdmin && !!_.filter(users, ({ accountId }) => accountId === md.global.Account.accountId).length;
-        if (!isAdmin && item.permissionWay != 80 && this.props.memberData.rolesVisibleConfig === ROLE_CONFIG.REFUSE) {
-          return '';
-        }
-        return (
-          <Fragment key={item.roleId}>
-            <WhiteSpace size="md" />
-            <Card className={cx({ cardBorder: isInCurrentRole })} onClick={() => {
-              this.props.history.push(`/mobile/membersList/${params.appId}/${item.roleId}`);
-            }}>
-              <Card.Body>
-                <div>
-                  <Flex direction="row">
-                    <Flex.Item className="Gray Font17 Bold overflow_ellipsis">
-                      {item.label}
-                      {isInCurrentRole && <span className="myRole TxtMiddle mLeft8">{_l('我的角色')}</span>}
-                    </Flex.Item>
-                    <Flex.Item className="TxtMiddle TxtRight moreAction">
-                      <span className="Gray_75 Bold">
-                        {!_.isEmpty(item.users) && _l('%0人', item.users.length)}
-                        {!_.isEmpty(item.users) && !_.isEmpty(item.departmentsInfos) && `、`}
-                        {!_.isEmpty(item.departmentsInfos) && _l('%0个部门', item.departmentsInfos.length)}
-                      </span>
-                      <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75" />
-                    </Flex.Item>
-                  </Flex>
-                </div>
-                <div className="Gray_75 Font14 mTop8">
-                  {
-                    item.description || (item.permissionWay === 80 ? _l('可以配置应用，管理应用下所有数据和人员') : _l('自定义权限'))
-                  }
-                </div>
-              </Card.Body>
-            </Card>
-            {isUserAdmin && rolesVisibleConfig == ROLE_CONFIG.REFUSE && item.roleType === ROLE_TYPES.ADMIN && (
-              <WingBlank size="md">
-                <WhiteSpace size="xl" />
-                <div>{_l('对非管理员隐藏以下角色')}</div>
-              </WingBlank>
-            )}
-          </Fragment>
-        );
-      })}
-    </div>
+      <div className="memberListCon">
+        {data.map((item, i) => {
+          const { users } = item;
+          const isInCurrentRole =
+            !isAdmin && !!_.filter(users, ({ accountId }) => accountId === md.global.Account.accountId).length;
+          if (!isAdmin && item.permissionWay != 80 && this.props.memberData.rolesVisibleConfig === ROLE_CONFIG.REFUSE) {
+            return '';
+          }
+          return (
+            <Fragment key={item.roleId}>
+              <WhiteSpace size="md" />
+              <Card
+                className={cx({ cardBorder: isInCurrentRole })}
+                onClick={() => {
+                  this.props.history.push(`/mobile/membersList/${params.appId}/${item.roleId}`);
+                }}
+              >
+                <Card.Body>
+                  <div>
+                    <Flex direction="row">
+                      <Flex.Item className="Gray Font17 Bold overflow_ellipsis">
+                        {item.label}
+                        {isInCurrentRole && <span className="myRole TxtMiddle mLeft8">{_l('我的角色')}</span>}
+                      </Flex.Item>
+                      <Flex.Item className="TxtMiddle TxtRight moreAction">
+                        <span className="Gray_75 Bold">
+                          {!_.isEmpty(item.users) && _l('%0人', item.users.length)}
+                          {!_.isEmpty(item.users) && !_.isEmpty(item.departmentsInfos) && `、`}
+                          {!_.isEmpty(item.departmentsInfos) && _l('%0个部门', item.departmentsInfos.length)}
+                        </span>
+                        <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75" />
+                      </Flex.Item>
+                    </Flex>
+                  </div>
+                  <div className="Gray_75 Font14 mTop8">
+                    {item.description ||
+                      (item.permissionWay === 80 ? _l('可以配置应用，管理应用下所有数据和人员') : _l('自定义权限'))}
+                  </div>
+                </Card.Body>
+              </Card>
+              {isUserAdmin && rolesVisibleConfig == ROLE_CONFIG.REFUSE && item.roleType === ROLE_TYPES.ADMIN && (
+                <WingBlank size="md">
+                  <WhiteSpace size="xl" />
+                  <div>{_l('对非管理员隐藏以下角色')}</div>
+                </WingBlank>
+              )}
+            </Fragment>
+          );
+        })}
+      </div>
     );
   }
   renderApplyList() {
@@ -117,16 +131,16 @@ class Members extends Component {
     const { params } = this.props.match;
     return (
       <div className="memberListCon">
-        <Card onClick={() => { this.props.history.push(`/mobile/applyList/${params.appId}`); }}>
+        <Card
+          onClick={() => {
+            this.props.history.push(`/mobile/applyList/${params.appId}`);
+          }}
+        >
           <Card.Body>
             <Flex direction="row">
-              <Flex.Item className="Gray Font17 overflow_ellipsis pendingApply">
-                {_l('待处理的申请')}
-              </Flex.Item>
+              <Flex.Item className="Gray Font17 overflow_ellipsis pendingApply">{_l('待处理的申请')}</Flex.Item>
               <Flex.Item className="TxtMiddle TxtRight moreAction">
-                <span className="Bold Red">
-                  {_l('%0人', memberData.applyList.length)}
-                </span>
+                <span className="Bold Red">{_l('%0人', memberData.applyList.length)}</span>
                 <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75" />
               </Flex.Item>
             </Flex>
@@ -170,7 +184,7 @@ class Members extends Component {
       const isAdmin = detail.permissionType === ROLE_TYPES.OWNER || detail.permissionType === ROLE_TYPES.ADMIN;
       return (
         <div className="memberListMobile h100">
-          {(isAdmin && memberData.applyList && memberData.applyList.length > 0) && this.renderApplyList()}
+          {isAdmin && memberData.applyList && memberData.applyList.length > 0 && this.renderApplyList()}
           {this.renderCard(memberData.listData, isAdmin)}
           {!window.isPublicApp && this.renderBtn()}
           <Back
@@ -185,7 +199,7 @@ class Members extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   // status = rolesVisibleConfig === ROLE_CONFIG.REFUSE ? ROLE_CONFIG.PERMISSION : ROLE_CONFIG.REFUSE;
   const { memberData, isMemberLoading } = state.mobile;
   return {

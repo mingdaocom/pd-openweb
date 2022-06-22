@@ -78,17 +78,24 @@ class WorkSheetLeft extends Component {
       createType: '',
       createMenuVisible: false,
     };
+    this.getSheetList = this.getSheetList.bind(this);
   }
   componentWillMount = function () {
     this.getSheetList(this.props);
+  };
+  componentDidMount = function () {
+    window.__worksheetLeftReLoad = this.getSheetList;
   };
   componentWillReceiveProps(nextProps) {
     if (nextProps.groupId !== this.props.groupId) {
       this.getSheetList(nextProps);
     }
   }
+  componentWillUnmount = function () {
+    delete window.__worksheetLeftReLoad;
+  };
   getSheetList(props) {
-    const { appId, groupId } = props;
+    const { appId, groupId } = props || this.props;
     if (appId && groupId) {
       this.props.sheetListActions.getSheetList({
         appId,
@@ -98,7 +105,7 @@ class WorkSheetLeft extends Component {
   }
   // 删除工作表弹层
   showDeleteWorkSheet = deleteSheetInfo => {
-    const { sheetListActions, appId, groupId } = this.props;
+    const { sheetListActions, appId, projectId, groupId } = this.props;
     const { workSheetName: name, type } = deleteSheetInfo;
     DeleteConfirm({
       clickOmitText: true,
@@ -112,22 +119,19 @@ class WorkSheetLeft extends Component {
       description: (
         <div>
           <span style={{ color: '#333', fontWeight: 'bold' }}>
-            {type
-              ? _l('注意：自定义页面下所有配置和数据将被永久删除，不可恢复。')
-              : _l('注意：工作表下所有配置和数据将被永久删除，不可恢复。')}
+            {type ? _l('注意：自定义页面下所有配置和数据将被删除。') : _l('注意：工作表下所有配置和数据将被删除。')}
           </span>
           {type
             ? _l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')
             : _l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
         </div>
       ),
-      data: [
-        { text: type ? _l('我确认永久删除自定义页面和所有数据') : _l('我确认永久删除工作表和所有数据'), value: 1 },
-      ],
+      data: [{ text: type ? _l('我确认删除自定义页面和所有数据') : _l('我确认删除工作表和所有数据'), value: 1 }],
       onOk: () => {
         sheetListActions.deleteSheet({
           type,
           appId,
+          projectId,
           groupId,
           worksheetId: deleteSheetInfo.workSheetId,
         });
@@ -323,7 +327,7 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   data: state.sheetList.isCharge
     ? state.sheetList.data.filter(_ => _)
-    : state.sheetList.data.filter(item => item.status === 1 && !item.navigateHide),//左侧列表状态为1 且 角色权限没有设置隐藏
+    : state.sheetList.data.filter(item => item.status === 1 && !item.navigateHide), //左侧列表状态为1 且 角色权限没有设置隐藏
   loading: state.sheetList.loading,
   isCharge: state.sheetList.isCharge,
   isUnfold: state.sheetList.isUnfold,

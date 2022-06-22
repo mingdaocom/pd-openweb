@@ -1,4 +1,3 @@
-
 .appHomeMobile {
   background: #fff;
 
@@ -7,17 +6,17 @@
   }
 
   .processWrapper {
-    padding: 20px;
-    border-bottom: 5px solid #f5f5f5;
-    .processItem, .processNotice {
+    padding: 17px 20px;
+    .processItem,
+    .processNotice {
       font-size: 15px;
       justify-content: center;
     }
     .processItem {
-      border-right: 1px solid #E0E0E0;
+      border-right: 1px solid #e0e0e0;
     }
     .icon {
-      color: #2196F3;
+      color: #2196f3;
     }
     .count {
       color: #fff;
@@ -25,7 +24,7 @@
       border-radius: 24px;
       padding: 0px 5px;
       justify-content: center;
-      background-color: #F44336;
+      background-color: #f44336;
       margin-left: 5px;
     }
     .waitingExamineSign {
@@ -33,7 +32,7 @@
       height: 8px;
       border-radius: 50%;
       border: 1px solid #fff;
-      background-color: #F44336;
+      background-color: #f44336;
       position: absolute;
       right: 5px;
       top: 2px;
@@ -109,13 +108,45 @@
         flex-direction: column;
         .content {
           flex: 1;
-          overflow-y: scroll;
-          padding-bottom: 32px;
+          overflow-y: auto;
+          padding-bottom: 40px;
+          background-color: #fff;
+          .appGroupEntry {
+            height: 50px;
+            line-height: 50px;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 0 16px 0 0;
+            .icon {
+              line-height: 50px;
+              &.icon-list {
+                margin-right: 14px;
+              }
+            }
+          }
+          .spaceBottom {
+            height: 5px;
+            background-color: #f5f5f5;
+          }
+          .groupDetail {
+            background-color: #fff;
+            .pTop26 {
+              padding-top: 26px;
+            }
+            .allOrg {
+              background: #f5f5f5;
+              border-radius: 14px;
+              padding: 4px 14px;
+            }
+          }
+          .pLeft47 {
+            padding-left: 47px;
+          }
         }
 
         .appCon {
           width: 100%;
-          padding: 0 6px;
+          padding: 0 6px 16px;
           box-sizing: border-box;
 
           .myAppItemWrap {
@@ -183,6 +214,86 @@
             cursor: pointer;
           }
         }
+        .appSearchWrapper {
+          height: 36px;
+          line-height: 36px;
+          border-radius: 36px;
+          background-color: #f5f5f5;
+          padding: 11px 13px;
+          height: 36px;
+          line-height: 36px;
+          border-radius: 36px;
+          background-color: #f5f5f5;
+          padding: 0px 13px;
+          display: flex;
+          font-size: 14px;
+          margin: 0 16px 7px;
+          .icon {
+            line-height: 36px;
+            &.searchIcon {
+              color: #616161;
+            }
+          }
+          input {
+            background-color: #f5f5f5;
+          }
+        }
+        .emptyWrap {
+          width: 100%;
+          height: 100%;
+          align-items: center;
+          justify-content: center;
+          background-color: #fff;
+          color: #bdbdbd;
+          .Font50 {
+            font-size: 50px;
+            margin-bottom: 27px;
+          }
+        }
+        .noNetworkBox {
+          margin: 70px auto;
+          align-items: center;
+          justify-content: center;
+          &.noNetworkBoxBorder {
+            border-bottom: 1px solid #eaeaea;
+            padding-top: 90px;
+            padding-bottom: 90px;
+          }
+          .noNetworkBoxBG {
+            background: url('./img/empty.png') no-repeat;
+            background-size: 256px 131px;
+            width: 256px;
+            height: 131px;
+          }
+          .joinNetwork,
+          .createNetwork {
+            padding: 0 20px;
+            height: 36px;
+            line-height: 36px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+          }
+          .createNetwork {
+            border-width: 1px;
+            border-style: solid;
+            &:not(:hover) {
+              background: #fff !important;
+            }
+            &:hover {
+              color: #fff !important;
+            }
+          }
+          .ThemeColor3 {
+            color: #2196f3;
+          }
+          .ThemeBGColor3 {
+            background-color: #2196f3;
+          }
+        }
       }
     }
 
@@ -191,7 +302,7 @@
       padding-bottom: 5px;
       margin-top: 10px;
       border-radius: 25px;
-      background-color: #2196F3;
+      background-color: #2196f3;
     }
 
     .createInfoModal {

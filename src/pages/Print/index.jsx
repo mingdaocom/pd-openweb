@@ -183,18 +183,18 @@ class PrintForm extends React.Component {
       workId: workId,
     };
     let ajaxFn = printId ? sheetAjax.getPrint(sheetArgs) : sheetAjax.getPrintTemplate(sheetArgs);
-    let listAjsx = [ajaxFn];
+    let ajaxList = [ajaxFn];
     const isUseRules = from === fromType.PRINT && params.type === typeForCon.NEW;
     if (isUseRules) {
       //系统打印 请求规则
-      listAjsx.push(
+      ajaxList.push(
         sheetAjax.getControlRules({
           worksheetId,
           type: 1, // 1字段显隐
         }),
       );
     }
-    axios.all(listAjsx).then(resData => {
+    axios.all(ajaxList).then(resData => {
       const res = resData[0];
       if (res.resultCode === 4 && !(isDefault && from === fromType.FORMSET)) {
         this.setState({

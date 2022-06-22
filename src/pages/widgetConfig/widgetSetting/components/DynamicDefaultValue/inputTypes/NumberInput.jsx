@@ -72,7 +72,11 @@ export default function NumberInput(props) {
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
           onBlur={() => {
             if (value) {
-              setValue(value === '-' ? '' : parseFloat(value));
+              const dealValue = value === '-' ? '' : parseFloat(value);
+              setValue(dealValue);
+              if (dealValue === '') {
+                onDynamicValueChange([]);
+              }
             }
           }}
           onChange={e => handleChange(e.target.value)}

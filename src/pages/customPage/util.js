@@ -4,7 +4,7 @@ import maxBy from 'lodash/maxBy';
 import { widgets } from './enum';
 import { get } from 'lodash';
 import domtoimage from 'dom-to-image';
-import { reportTypes } from 'worksheet/common/Statistics/Charts/common';
+import { reportTypes } from 'statistics/Charts/common';
 
 export const FlexCenter = styled.div`
   display: flex;

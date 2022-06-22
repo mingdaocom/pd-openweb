@@ -163,7 +163,7 @@ export default class MyAppGroupItem extends Component {
       <div className="myAppGroupItem">
         <div className="myAppGroupTitle">
           <Icon icon="external_collaboration Font24" />
-          <span className="projectName">{_l('外部协作应用')}</span>
+          <span className="projectName">{_l('外部协作')}</span>
         </div>
         <SortableAppList type={type} items={items} {...props} />
       </div>

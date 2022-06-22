@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useImperativeHandle } from 'react';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import { ScrollView } from 'ming-ui';
@@ -81,6 +81,12 @@ const WidgetList = styled.div`
 `;
 
 export default function List(props) {
+  useImperativeHandle(props.onRef, () => {
+    return {
+      handleRecover: handleAdd,
+    };
+  });
+
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget } = props;
 
   // 如果新增控件在可视区外则滚动至可视区内

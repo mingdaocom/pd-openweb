@@ -28,6 +28,7 @@ export default class SpecificFieldsValue extends Component {
             appType={data.fieldAppType}
             actionId={data.fieldActionId}
             nodeName={data.fieldNodeName}
+            controlId={data.fieldControlId}
             controlName={data.fieldControlName}
           />
         </span>

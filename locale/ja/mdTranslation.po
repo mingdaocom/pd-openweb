@@ -38950,3 +38950,1135 @@ msgstr "として表示される --（連続）"
 msgid "显示为 -- (中断)"
 msgstr "と表示される -- （中断）"
 
+#: Disabled references:1
+msgid "流程待办"
+msgstr "行うべきプロセス"
+
+#: Disabled references:1
+msgid "外部协作"
+msgstr "外部コラボアプリ"
+
+#: Disabled references:1
+msgid "只看我加入的部门"
+msgstr "私が入社した部署のみご覧ください"
+
+#: Disabled references:1
+msgid "执行自定义动作"
+msgstr "カスタムアクションの実行"
+
+#: Disabled references:1
+msgid "提交表单"
+msgstr "現在、プレビューモードで、フォームの送信はできません。"
+
+#: Disabled references:1
+msgid "关闭弹层"
+msgstr "ポップアップ層の閉鎖"
+
+#: Disabled references:1
+msgid "继续创建下一条"
+msgstr "次の記事の作成に進む"
+
+#: Disabled references:1
+msgid "打开刚刚创建的记录"
+msgstr "作成したレコードを開く"
+
+#: Disabled references:1
+msgid "应用分组"
+msgstr "アプリケーションのグループ化についてご紹介します。"
+
+#: Disabled references:1
+msgid "分组应用列表"
+msgstr "グループ化されたアプリケーションの一覧"
+
+#: Disabled references:1
+msgid "手机验证码登录"
+msgstr "モバイル認証コードログイン"
+
+#: Disabled references:1
+msgid "更多人数"
+msgstr "より多くの人に"
+
+#: Disabled references:1
+msgid "更新分组失败"
+msgstr "グループの更新に失敗しました"
+
+#: Disabled references:1
+msgid "更新应用失败！"
+msgstr "アプリのアップデートに失敗しました"
+
+#: Disabled references:1
+msgid "删除应用失败！"
+msgstr "アプリケーションの削除に失敗しました"
+
+#: Disabled references:1
+msgid "设置失败！"
+msgstr "セットアップに失敗しました"
+
+#: Disabled references:1
+msgid "新建应用失败！"
+msgstr "新規申し込みに失敗しました"
+
+#: Disabled references:1
+msgid "更新应用排序失败！"
+msgstr "アップデートアプリの振り分けに失敗しました"
+
+#: Disabled references:1
+msgid "更新首页配置失败！"
+msgstr "ホームページ設定の更新に失敗しました"
+
+#: Disabled references:1
+msgid "协作"
+msgstr "協力者の追加"
+
+#: Disabled references:1
+msgid "学习资源"
+msgstr "学習リソース"
+
+#: Disabled references:1
+msgid "推广奖励"
+msgstr "プロモーションインセンティブ"
+
+#: Disabled references:1
+msgid "集成中心"
+msgstr "統合センター"
+
+#: Disabled references:1
+msgid "学习"
+msgstr "研究内容"
+
+#: Disabled references:1
+msgid "视频学习"
+msgstr "ビデオ学習"
+
+#: Disabled references:1
+msgid "帮助文档"
+msgstr "ヘルプファイル"
+
+#: Disabled references:1
+msgid "实践案例"
+msgstr "実用例"
+
+#: Disabled references:1
+msgid "应用为极其重要的数据，彻底删除应用数据时需要验证身份。彻底删除该数据后，将无法恢复。"
+msgstr "アプリケーションは非常に重要なデータであり、アプリケーションデータを完全に削除するためには本人確認が必要です。このデータを完全に削除すると、復元することはできません。"
+
+#: Disabled references:1
+msgid "请输入密码确认删除"
+msgstr "削除を確認するためにパスワードを入力してください"
+
+#: Disabled references:1
+msgid "应用回收站"
+msgstr "アプリケーションのごみ箱"
+
+#: Disabled references:1
+msgid "应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作"
+msgstr "アプリケーションのデータはすべて削除されます。この操作を行う前に、すべてのアプリケーションメンバーがこのアプリケーションを必要としなくなったことを確認してください。"
+
+#: Disabled references:1
+msgid "设置提交表单的文案和操作"
+msgstr "フォーム送信のテキストとアクションを設定する"
+
+#: Disabled references:1
+msgid "继续创建"
+msgstr "作り続ける"
+
+#: Disabled references:1
+msgid "修改按钮名称"
+msgstr "ボタン名の変更"
+
+#: Disabled references:1
+msgid "提交后："
+msgstr "提出後。"
+
+#: Disabled references:1
+msgid "视图："
+msgstr "表示"
+
+#: Disabled references:1
+msgid "更多设置"
+msgstr "その他の設定"
+
+#: Disabled references:1
+msgid "显示“继续创建时，保留上次提交内容”选项"
+msgstr "オプション \"作成続行時に前回の投稿を保持する \"を表示する。"
+
+#: Disabled references:1
+msgid "启用后，当按钮的提交方式为“提交后继续创建下一条”时，可以在提交记录时选择自动填充上次提交的内容。适合需要连续填报相似数据时的场景"
+msgstr "有効にすると、ボタンの投稿方法が「投稿して次のエントリーを作成し続ける」の場合に、レコードを投稿する際に前回の投稿内容を自動的に入力するかどうかを選択できます。類似のデータを継続的に入力する必要があるシナリオに最適です。"
+
+#: Disabled references:1
+msgid "需要先设置一个“提交后继续创建下一条”的按钮"
+msgstr "最初に「Submit to continue creating next entry」ボタンを設定する必要があります。"
+
+#: Disabled references:1
+msgid "搜索应用"
+msgstr "アプリケーション名/オペレータ名で検索"
+
+#: Disabled references:1
+msgid "所有组织"
+msgstr "全組織"
+
+#: Disabled references:1
+msgid "暂无与外部协作者的应用"
+msgstr "現在、外部協力者とのアプリケーションはありません。"
+
+#: Disabled references:1
+msgid "您未拥有任何组织，创建或申请加入组织"
+msgstr "組織を所有しない、組織を作成しない、組織への参加を申請しない"
+
+#: Disabled references:1
+msgid "切换组织"
+msgstr "組織変更に失敗した"
+
+#: Disabled references:1
+msgid "扫码关联"
+msgstr "スワイプして %0 を関連付ける"
+
+#: Disabled references:1
+msgid "加入/创建组织"
+msgstr "組織に参加する／組織を作る"
+
+#: Disabled references:1
+msgid "回到旧版"
+msgstr "旧バージョンに戻る"
+
+#: Disabled references:1
+msgid "体验新版"
+msgstr "新バージョンを体験する"
+
+#: Disabled references:1
+msgid "应用项回收站"
+msgstr "アプリケーションのごみ箱"
+
+#: Disabled references:1
+msgid "管理应用"
+msgstr "管理用アプリケーション"
+
+#: Disabled references:1
+msgid "导入应用升级"
+msgstr "アプリケーションのアップグレードをインポートする"
+
+#: Disabled references:1
+msgid "创建应用备份"
+msgstr "アプリケーションのバックアップを作成する"
+
+#: Disabled references:1
+msgid "从备份文件还原"
+msgstr "バックアップファイルからの復元"
+
+#: Disabled references:1
+msgid "按照原值导出"
+msgstr "オリジナル値への書き出し"
+
+#: Disabled references:1
+msgid "按显示单位导出"
+msgstr "表示単位で書き出す"
+
+#: Disabled references:1
+msgid "条码"
+msgstr "バーコード"
+
+#: Disabled references:1
+msgid "普通数组"
+msgstr "一般的な配列"
+
+#: Disabled references:1
+msgid "对象数组"
+msgstr "オブジェクトの配列"
+
+#: Disabled references:1
+msgid "可将关联的数据源转成条形码或二维码显示"
+msgstr "関連するデータソースをバーコードやQRコード表示に変換することができます。"
+
+#: Disabled references:1
+msgid "ID: %0"
+msgstr "組織 ID %0"
+
+#: Disabled references:1
+msgid "没有配置数据源"
+msgstr "データソースが設定されていない"
+
+#: Disabled references:1
+msgid "第%0页"
+msgstr "ページ %0"
+
+#: Disabled references:1
+msgid "请在app中获取当前位置"
+msgstr "アプリで現在地を取得してください"
+
+#: Disabled references:1
+msgid "应用、应用项、字段回收站，支持一键恢复/彻底删除回收站内数据"
+msgstr "アプリケーション、アプリケーションアイテム、フィールドごみ箱、ごみ箱内のデータのワンクリック回復/完全削除に対応"
+
+#: Disabled references:1
+msgid "应用备份与还原"
+msgstr "アプリケーションのバックアップとリストア"
+
+#: Disabled references:1
+msgid "垂询我们"
+msgstr "お問い合わせ"
+
+#: Disabled references:1
+msgid "星标分组"
+msgstr "星付きグループ"
+
+#: Disabled references:1
+msgid "例：产品管理"
+msgstr "例：プロダクトマネジメント"
+
+#: Disabled references:1
+msgid "编辑分组"
+msgstr "編集グループ"
+
+#: Disabled references:1
+msgid "无分组，可从左侧列表创建"
+msgstr "グループ化せず、左の一覧から作成可能"
+
+#: Disabled references:1
+msgid "设置分组"
+msgstr "グループの設定"
+
+#: Disabled references:1
+msgid "标星，显示在首页"
+msgstr "星印が付き、トップページに表示される"
+
+#: Disabled references:1
+msgid "删除分组\"%0"
+msgstr "グループ\"%0 \"を削除する"
+
+#: Disabled references:1
+msgid "仅删除分组，分组下的应用不会被删除"
+msgstr "グループのみを削除し、グループの下にあるアプリケーションは削除されません。"
+
+#: Disabled references:1
+msgid "删除分组成功"
+msgstr "グループの削除に成功"
+
+#: Disabled references:1
+msgid "删除分组失败"
+msgstr "グループの削除に失敗しました"
+
+#: Disabled references:1
+msgid "新建分组成功"
+msgstr "新しいグループの作成に成功"
+
+#: Disabled references:1
+msgid "新建分组失败，分组名重复"
+msgstr "新規グループ作成失敗、グループ名が重複している"
+
+#: Disabled references:1
+msgid "新建分组失败，分组超上限"
+msgstr "新規グループ作成失敗、グループオーバー"
+
+#: Disabled references:1
+msgid "新建分组失败，无权限操作"
+msgstr "新グループが失敗、営業許可が下りない"
+
+#: Disabled references:1
+msgid "新建分组失败"
+msgstr "新規グループ作成に失敗しました"
+
+#: Disabled references:1
+msgid "更新成功"
+msgstr "アップデートに成功"
+
+#: Disabled references:1
+msgid "更新分组失败，分组名重复"
+msgstr "グループの更新に失敗しました。グループ名が重複しています。"
+
+#: Disabled references:1
+msgid "更新分组失败，分组超上限"
+msgstr "グループアップデートに失敗、グループオーバー"
+
+#: Disabled references:1
+msgid "更新分组失败，无权限操作"
+msgstr "グループの更新に失敗、操作権限がない"
+
+#: Disabled references:1
+msgid "仅看当前组织"
+msgstr "現在の組織を見るだけでも"
+
+#: Disabled references:1
+msgid "显示所有组织"
+msgstr "すべての組織を表示する"
+
+#: Disabled references:1
+msgid "平铺排列"
+msgstr "タイル貼りのアレンジメント"
+
+#: Disabled references:1
+msgid "以选项卡切换"
+msgstr "タブによる切替"
+
+#: Disabled references:1
+msgid "星标应用分组"
+msgstr "星付きアプリケーションのグループ化"
+
+#: Disabled references:1
+msgid "显示外部协作"
+msgstr "外部とのコラボレーションを表示"
+
+#: Disabled references:1
+msgid "自定义显示"
+msgstr "表示欄のカスタマイズ"
+
+#: Disabled references:1
+msgid "注意：应用下所有配置和数据将被删除。"
+msgstr "注意：アプリケーション下の設定やデータはすべて削除されます。"
+
+#: Disabled references:1
+msgid "工作表 %0"
+msgstr "ワークシート: %0"
+
+#: Disabled references:1
+msgid "自定义页面 %0"
+msgstr "カスタム・ページ \"%0\" を削除してください。"
+
+#: Disabled references:1
+msgid "所属应用"
+msgstr "アプリケーション"
+
+#: Disabled references:1
+msgid "搜索人员"
+msgstr "サーチャー"
+
+#: Disabled references:1
+msgid "创建动态"
+msgstr "ダイナミクスを創造する"
+
+#: Disabled references:1
+msgid "至少选择一种登录方式"
+msgstr "ログイン方法を1つ以上選択する"
+
+#: Disabled references:1
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快读登录验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足"
+msgstr "唯一のコードをスキャンする最初の時間後にWeChatのログインを確認するには、携帯電話番号とWeChatのバインディングの入力を必要とし、その後別々にWeChatのスキャンコード高速読み取りログイン認証コードは、自動的に企業のアカウントの残高から差し引か$ 0.05 各、することができます。業務に支障をきたさないよう、法人口座の残高を十分に確保してください。"
+
+#: Disabled references:1
+msgid "有讨论消息时（被提到、被回复）通知外部用户"
+msgstr "ディスカッションのメッセージ（言及、返信）があった場合に外部ユーザーに通知する"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核（通过/拒绝）"
+msgstr "組織の略称、ウェブサイト名、ブランド名、漢字2～8文字を丁寧に記入してください。署名が仕様を満たしていない場合、オペレータによってブロックされます。この署名は、外部ポータル SMS シナリオ（外部ポータルユーザー登録およびログイン、外部ユーザー登録への招待、外部ユーザー監査（パス/リジェクト））に適用されます。"
+
+#: Disabled references:1
+msgid "辅助线"
+msgstr "補助線"
+
+#: Disabled references:1
+msgid "单行显示"
+msgstr "線の高さを1行で表示する"
+
+#: Disabled references:1
+msgid "加载中，请稍后"
+msgstr "ロード中です、お待ちください"
+
+#: Disabled references:1
+msgid "画布概览"
+msgstr "キャンバスの概要"
+
+#: Disabled references:1
+msgid "发送 API 请求"
+msgstr "APIリクエストの送信"
+
+#: Disabled references:1
+msgid "JSON 解析"
+msgstr "JSONパース"
+
+#: Disabled references:1
+msgid "API 连接与认证"
+msgstr "API接続と認証"
+
+#: Disabled references:1
+msgid "讨论通知触发"
+msgstr "ディスカッション通知トリガー"
+
+#: Disabled references:1
+msgid "确定要删除此字段？"
+msgstr "本当にこのフィールドを削除しますか？"
+
+#: Disabled references:1
+msgid "删除后对应表单数据也会被删除"
+msgstr "削除すると、対応するフォームデータも削除され、復元できなくなります"
+
+#: Disabled references:1
+msgid "回收站（字段）"
+msgstr "ごみ箱（フィールド）"
+
+#: Disabled references:1
+msgid "可恢复60天内删除的字段"
+msgstr "60日以内に削除されたフィールドの復元が可能"
+
+#: Disabled references:1
+msgid "字段名称/id/别名"
+msgstr "フィールド名/ID/エイリアス"
+
+#: Disabled references:1
+msgid "确定彻底删除这个字段？"
+msgstr "このフィールドを完全に削除してもよろしいですか？"
+
+#: Disabled references:1
+msgid "彻底删除该数据后，将无法恢复。"
+msgstr "このデータを完全に削除すると、復元することはできません。"
+
+#: Disabled references:1
+msgid "彻底删除成功"
+msgstr "完全消去に成功"
+
+#: Disabled references:1
+msgid "没有找到符合条件的结果"
+msgstr "条件に一致する結果は見つかりませんでした"
+
+#: Disabled references:1
+msgid "回收站暂无内容"
+msgstr "ごみ箱にコンテンツがない"
+
+#: Disabled references:1
+msgid "条形码"
+msgstr "バーコード"
+
+#: Disabled references:1
+msgid "记录内部访问链接"
+msgstr "内部アクセスリンクの記録"
+
+#: Disabled references:1
+msgid "编码方式：code128，仅支持数字、字母、符号，最大包含128个字符"
+msgstr "符号化方式：code128、数字、文字、記号のみ対応、最大128文字"
+
+#: Disabled references:1
+msgid "编码方式：QR-code，可支持汉字，最大包含150个字"
+msgstr "エンコード方式：QRコード、漢字対応可、最大150文字"
+
+#: Disabled references:1
+msgid "容错率"
+msgstr "フォールトトレランス"
+
+#: Disabled references:1
+msgid "容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。"
+msgstr "エラー許容度とは、QRコードが多少なりとも見えなくなった後でも読み取ることができる能力のことです。耐障害性が高いほど、QRコードの読み取りが容易になり、QRコード画像は複雑になります。"
+
+#: Disabled references:1
+msgid "最大宽"
+msgstr "最大幅"
+
+#: Disabled references:1
+msgid "当前位置周围"
+msgstr "現在地周辺"
+
+#: Disabled references:1
+msgid "定位地图上的位置"
+msgstr "地図上の位置を確認する"
+
+#: Disabled references:1
+msgid "获取当前位置经纬度（仅app）"
+msgstr "現在地の緯度・経度を取得する（アプリのみ）"
+
+#: Disabled references:1
+msgid "通过手机gps获取经纬度获取定位，使用WGS84坐标系"
+msgstr "携帯電話のgpsで緯度・経度を取得し、WGS84座標系を使用して位置を取得する。"
+
+#: Disabled references:1
+msgid "限制选择范围"
+msgstr "選択肢の幅を狭める"
+
+#: Disabled references:1
+msgid "勾选后禁止PC端和移动端手动添加关联记录"
+msgstr "PCとモバイルでリンクレコードの手動追加を無効にする場合はチェックを入れてください"
+
+#: Disabled references:1
+msgid "回收站（应用项）"
+msgstr "ごみ箱（アプリケーション項目）"
+
+#: Disabled references:1
+msgid "应用项名称"
+msgstr "アプリケーション名"
+
+#: Disabled references:1
+msgid "可恢复60天内删除的应用项"
+msgstr "削除されたアプリケーションの項目を60日以内に復元する"
+
+#: Disabled references:1
+msgid "将彻底删除工作表\"%0"
+msgstr "ワークシート\"%0 \"が完全に削除されます。"
+
+#: Disabled references:1
+msgid "彻底删除失败"
+msgstr "完全削除に失敗しました"
+
+#: Disabled references:1
+msgid "回收站（应用）"
+msgstr "ごみ箱（アプリケーション）"
+
+#: Disabled references:1
+msgid "可恢复7天内删除的应用"
+msgstr "7日以内に削除されたアプリケーションを復元する"
+
+#: Disabled references:1
+msgid "将彻底删除应用 “%0”，请认证你的身份"
+msgstr "アプリケーション\"%0 \"を完全に削除します、あなたの身元を認証してください。"
+
+#: Disabled references:1
+msgid "注意：自定义页面下所有配置和数据将被删除。"
+msgstr "注意：カスタムページ以下の設定やデータはすべて削除されます。"
+
+#: Disabled references:1
+msgid "注意：工作表下所有配置和数据将被删除。"
+msgstr "注意：ワークシート下の設定やデータはすべて削除されます。"
+
+#: Disabled references:1
+msgid "我确认删除自定义页面和所有数据"
+msgstr "カスタムページとすべてのデータの削除を確認する"
+
+#: Disabled references:1
+msgid "我确认删除工作表和所有数据"
+msgstr "ワークシートと全データの削除を確認する"
+
+#: Disabled references:1
+msgid "继续创建时，是否保留本次提交内容 ?"
+msgstr "続けて作成する場合、現在の投稿は残りますか？"
+
+#: Disabled references:1
+msgid "不保留"
+msgstr "予約不可"
+
+#: Disabled references:1
+msgid "保留"
+msgstr "予約済み"
+
+#: Disabled references:1
+msgid "我确认删除页面和所有数据"
+msgstr "私は、ページとすべてのデータの削除を確認します。"
+
+#: Disabled references:1
+msgid "扫码添加%0"
+msgstr "コードをスキャンして %0 を追加"
+
+#: Disabled references:1
+msgid "人员组织接口"
+msgstr "人事組織インターフェース"
+
+#: Disabled references:1
+msgid "汇报关系接口"
+msgstr "レポーティングリレーションシップインターフェイス"
+
+#: Disabled references:1
+msgid "应用管理接口"
+msgstr "アプリケーション管理インタフェース"
+
+#: Disabled references:1
+msgid "审批接口（协作套件-人事）"
+msgstr "承認インターフェース（Collaboration Suite - Personnel）"
+
+#: Disabled references:1
+msgid "编辑密钥"
+msgstr "編集キー"
+
+#: Disabled references:1
+msgid "新建密钥"
+msgstr "新しいキー"
+
+#: Disabled references:1
+msgid "请选择该密钥授权的接口访问权限和管理应用的范围"
+msgstr "このキーで許可されるインターフェースアクセスおよび管理アプリケーションの範囲を選択してください。"
+
+#: Disabled references:1
+msgid "删除密钥"
+msgstr "Deleteキー"
+
+#: Disabled references:1
+msgid "删除密钥后，之前所有使用此密钥的服务都将停止，请谨慎操作"
+msgstr "キーを削除すると、このキーを使用していた以前のサービスはすべて停止しますので、ご注意ください。"
+
+#: Disabled references:1
+msgid "组织密钥是极为重要的凭证，需要你输入密码确认后才能查看"
+msgstr "組織キーは非常に重要なクレデンシャルであり、閲覧する前にパスワードの入力による確認が必要です"
+
+#: Disabled references:1
+msgid "Sign"
+msgstr "サイン"
+
+#: Disabled references:1
+msgid "人员组织接口；汇报关系接口"
+msgstr "人組織インターフェイス、報告関係インターフェイス"
+
+#: Disabled references:1
+msgid "导入部门"
+msgstr "インポートデパートメント"
+
+#: Disabled references:1
+msgid "导出部门"
+msgstr "輸出部門"
+
+#: Disabled references:1
+msgid "暂无部门，可 "
+msgstr "現時点では部門がなく、利用可能"
+
+#: Disabled references:1
+msgid "导入职位"
+msgstr "インポートポジション"
+
+#: Disabled references:1
+msgid "导出职位"
+msgstr "輸出の仕事"
+
+#: Disabled references:1
+msgid "暂无职位，可 "
+msgstr "現在、ポジションはありません。"
+
+#: Disabled references:1
+msgid "错误行"
+msgstr "行違い"
+
+#: Disabled references:1
+msgid "错误原因"
+msgstr "エラー理由"
+
+#: Disabled references:1
+msgid "导入部门模板"
+msgstr "部門別テンプレートのインポート"
+
+#: Disabled references:1
+msgid "导入职位模板"
+msgstr "ジョブテンプレートのインポート"
+
+#: Disabled references:1
+msgid "成功导入%0条记录"
+msgstr "レコード %0 のインポートに成功しました。"
+
+#: Disabled references:1
+msgid "超出导入数量限制,单次导入上限1000行记录！"
+msgstr "インポートの上限を超え、1回のインポートで最大1000レコードまで可能です"
+
+#: Disabled references:1
+msgid "导入文件列名有误，请检查，或从导入模版中重新下载！"
+msgstr "インポートしたファイルのカラム名にエラーがあります。確認するか、インポートテンプレートから再ダウンロードしてください"
+
+#: Disabled references:1
+msgid "%0错误，请检查！"
+msgstr "0エラー、確認してください"
+
+#: Disabled references:1
+msgid "请调整后，"
+msgstr "調整後は"
+
+#: Disabled references:1
+msgid "错误信息"
+msgstr "具体的なエラーメッセージ"
+
+#: Disabled references:1
+msgid "恒定线"
+msgstr "定数線"
+
+#: Disabled references:1
+msgid "最小值线"
+msgstr "最小値線"
+
+#: Disabled references:1
+msgid "最大值线"
+msgstr "最大値線"
+
+#: Disabled references:1
+msgid "平均线"
+msgstr "平均ライン"
+
+#: Disabled references:1
+msgid "中值线"
+msgstr "中央線"
+
+#: Disabled references:1
+msgid "百分位数线"
+msgstr "パーセンタイルライン"
+
+#: Disabled references:1
+msgid "趋势线"
+msgstr "トレンドライン"
+
+#: Disabled references:1
+msgid "名称字符数量不能超过 12 个"
+msgstr "名前の文字数は12文字以下であること"
+
+#: Disabled references:1
+msgid "请输入固定值"
+msgstr "固定値を入力してください"
+
+#: Disabled references:1
+msgid "左轴"
+msgstr "左軸"
+
+#: Disabled references:1
+msgid "右轴"
+msgstr "右軸"
+
+#: Disabled references:1
+msgid "参考字段"
+msgstr "参考分野"
+
+#: Disabled references:1
+msgid "当前字段已删除"
+msgstr "現在のフィールドが削除されました"
+
+#: Disabled references:1
+msgid "百分位数"
+msgstr "パーセンタイル"
+
+#: Disabled references:1
+msgid "点线"
+msgstr "点線"
+
+#: Disabled references:1
+msgid "显示内容"
+msgstr "カード表示内容"
+
+#: Disabled references:1
+msgid "添加辅助线"
+msgstr "補助線の追加"
+
+#: Disabled references:1
+msgid "显示数据"
+msgstr "表示データ"
+
+#: Disabled references:1
+msgid "这一个旧的功能，目前已经被的辅助线功能所代替。新创建的图表已不再包含此配置。"
+msgstr "この旧機能は現在、補助線機能に置き換えられています。この設定は、新しく作成されたチャートに含まれなくなりました。"
+
+#: Disabled references:1
+msgid "用户名、密码不能为空"
+msgstr "ユーザー名とパスワードは空白にできません"
+
+#: Disabled references:1
+msgid "Access Token URL不能为空"
+msgstr "Access Token URLを空にすることはできません。"
+
+#: Disabled references:1
+msgid "参数名不能为空"
+msgstr "パラメータ名を空にすることはできません"
+
+#: Disabled references:1
+msgid "raw(JSON)不能为空"
+msgstr "raw(JSON)をnullにすることはできません。"
+
+#: Disabled references:1
+msgid "采用此方式，本节点将返回计算后的 Basic Auth 参数供后续节点使用"
+msgstr "このメソッドにより、このノードは計算されたBasic Authパラメータを返し、後続のノードが使用できるようにします。"
+
+#: Disabled references:1
+msgid "采用此方式，本节点将返回获取到的 Access Token 参数"
+msgstr "このメソッドでは、このノードが取得したAccess Tokenのパラメータを返します。"
+
+#: Disabled references:1
+msgid "Access Token URL"
+msgstr "アクセストークンURL"
+
+#: Disabled references:1
+msgid "隐藏请求参数详情"
+msgstr "リクエストパラメーターの詳細を隠す"
+
+#: Disabled references:1
+msgid "向 Access Token URL 发送请求并返回参数列表"
+msgstr "Access Token URLにリクエストを送信し、パラメータのリストを返す"
+
+#: Disabled references:1
+msgid "重新发送请求获取 Acess Token"
+msgstr "Acess Tokenの再送要求"
+
+#: Disabled references:1
+msgid "获取 Access Token"
+msgstr "アクセストークンの取得"
+
+#: Disabled references:1
+msgid "Access Token 过期时间"
+msgstr "アクセストークンの有効期限"
+
+#: Disabled references:1
+msgid "系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新"
+msgstr "アクセス・トークンが自動的にリフレッシュされる頻度は、ここでの長さの設定に基づいてシステムが決定します。"
+
+#: Disabled references:1
+msgid "秒"
+msgstr "秒"
+
+#: Disabled references:1
+msgid "编辑 Access Token 测试数据"
+msgstr "Access Tokenのテストデータを編集する"
+
+#: Disabled references:1
+msgid "发送API请求数组"
+msgstr "APIリクエスト配列の送信"
+
+#: Disabled references:1
+msgid "JSON解析数组"
+msgstr "JSONのパース配列"
+
+#: Disabled references:1
+msgid "选择发送API请求节点"
+msgstr "APIリクエストを送信するノードを選択します"
+
+#: Disabled references:1
+msgid "选择JSON解析节点"
+msgstr "JSONパージングノードの選択"
+
+#: Disabled references:1
+msgid "对象"
+msgstr "入力オブジェクトの定義"
+
+#: Disabled references:1
+msgid "必须先选择一个 JSON 对象"
+msgstr "JSONオブジェクトを選択する必要があります。"
+
+#: Disabled references:1
+msgid "输出参数配置有误"
+msgstr "出力パラメータが正しく設定されていない"
+
+#: Disabled references:1
+msgid "JSON 解析器可以把 发送 API 请求 节点或者 代码块 节点中输出的 JSON 对象解析为后续节点可直接使用的变量和数组参数。"
+msgstr "JSONパーサーは、APIリクエスト送信ノードやコードブロックノードから出力されるJSONオブジェクトを、後続のノードが直接使用できる変数や配列パラメーターに解析することができます。"
+
+#: Disabled references:1
+msgid "获取 JSON 对象"
+msgstr "JSONオブジェクトの取得"
+
+#: Disabled references:1
+msgid "定义输出参数"
+msgstr "出力パラメータの定義"
+
+#: Disabled references:1
+msgid "+ 输出参数"
+msgstr "出力パラメータ"
+
+#: Disabled references:1
+msgid "没有可以用来解析的流程参数"
+msgstr "を解析するためのプロセスパラメータは存在しない。"
+
+#: Disabled references:1
+msgid "查看 JSON 解析结果"
+msgstr "JSONのパース結果を表示"
+
+#: Disabled references:1
+msgid "复制节点 Path"
+msgstr "ノードパスのコピー"
+
+#: Disabled references:1
+msgid "复制数组 Path"
+msgstr "配列のコピー パス"
+
+#: Disabled references:1
+msgid "复制对象数组子节点 Path"
+msgstr "オブジェクト配列の子ノードをコピーする Path"
+
+#: Disabled references:1
+msgid "生成参数"
+msgstr "パラメータのリストを生成する"
+
+#: Disabled references:1
+msgid "我们根据获取的 JSON 为您解析了对应的 JSON Path，您也可以学习 JSON Path 的规则来更灵活的获取需要的数据"
+msgstr "取得したJSONを元にJSON Pathを解析していますが、JSON Pathのルールを覚えることで、より柔軟な方法で必要なデータを取得することができます"
+
+#: Disabled references:1
+msgid "从 JSON 解析结果中复制解析后的 JSON Path，填写到输出参数值中"
+msgstr "JSONパース結果からパースされたJSON Pathをコピーし、出力パラメータ値に埋め込む"
+
+#: Disabled references:1
+msgid "了解 JSON Path"
+msgstr "JSONパスの理解"
+
+#: Disabled references:1
+msgid "请填写参数名称"
+msgstr "パラメータ名をご記入ください。"
+
+#: Disabled references:1
+msgid "请填写 JSON Path 值"
+msgstr "JSON Pathの値を入力してください。"
+
+#: Disabled references:1
+msgid "共 %0 组数据，以下仅显示第 1 组参考值"
+msgstr "合計%0セットのデータで、1セット目のリファレンス値のみ以下に表示されます。"
+
+#: Disabled references:1
+msgid "记录链接不能为空"
+msgstr "レコードのリンクを空にすることはできません"
+
+#: Disabled references:1
+msgid "必须选择一个目标工作表"
+msgstr "対象となるワークシートが選択されていること"
+
+#: Disabled references:1
+msgid "通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。"
+msgstr "内部のメンバーがアクセスしたレコードリンクや公開されているレコードリンクを解析して、プロセス内の他のノードが使用するための対応するレコードオブジェクトを取得することで、レコードオブジェクトを取得することができます。シナリオ例：倉庫管理者がPCのスキャンガンを使って商品のQRコードをスキャンし、テキストボックスに記録へのリンクを書き込み、ワークフローが関連商品を解析して入出庫処理を自動化する。"
+
+#: Disabled references:1
+msgid "选择记录链接"
+msgstr "レコードのリンクを選択する"
+
+#: Disabled references:1
+msgid "当前流程节点中的文本类型字段，系统将根据此链接获取相应的记录，供流程中其他节点使用"
+msgstr "現在のプロセスノードのテキスト型フィールドで、システムはこのリンクをたどってプロセス内の他のノードの対応するレコードを取得します。"
+
+#: Disabled references:1
+msgid "选择目标工作表"
+msgstr "対象ワークシートの選択"
+
+#: Disabled references:1
+msgid "预计解析出的记录归属的工作表"
+msgstr "解析されたレコードが属すると予想されるワークシート"
+
+#: Disabled references:1
+msgid "结束执行时间"
+msgstr "実行終了時間"
+
+#: Disabled references:1
+msgid "当到达此时间点后将停止循环"
+msgstr "この時点に達すると、サイクルが停止します。"
+
+#: Disabled references:1
+msgid "讨论通知"
+msgstr "審議のお知らせ"
+
+#: Disabled references:1
+msgid "当外部用户收到讨论通知时（被回复、被提到）触发"
+msgstr "外部ユーザーにディスカッションの通知（返信、言及）があった場合にトリガーされる"
+
+#: Disabled references:1
+msgid "结束执行时间不能小于开始执行时间"
+msgstr "実行終了時間は実行開始時間より短くできない"
+
+#: Disabled references:1
+msgid "结束执行时间不能晚于当前时间"
+msgstr "実行終了時刻を現在時刻より遅くすることはできない"
+
+#: Disabled references:1
+msgid "生成初始七次的执行时间"
+msgstr "初期7回の実行時間を生成する"
+
+#: Disabled references:1
+msgid "当到达此时间点后，流程将会被自动关闭"
+msgstr "この時点に達すると、プロセスは自動的に終了します"
+
+#: Disabled references:1
+msgid "API URL必填"
+msgstr "API URL 必須"
+
+#: Disabled references:1
+msgid "测试 API"
+msgstr "テストAPI"
+
+#: Disabled references:1
+msgid "请求时间 %0, 状态码 %1，耗时 %2 秒"
+msgstr "要求時間 %0、ステータス・コード %1、経過時間 %2 秒。"
+
+#: Disabled references:1
+msgid "响应 Body"
+msgstr "応答本文"
+
+#: Disabled references:1
+msgid "响应 Header"
+msgstr "レスポンスヘッダー"
+
+#: Disabled references:1
+msgid "编辑 API 测试数据"
+msgstr "APIテストデータの編集"
+
+#: Disabled references:1
+msgid "API URL （必填）"
+msgstr "API URL (必須)"
+
+#: Disabled references:1
+msgid "未获取返回参数"
+msgstr "リターンパラメータが取得できない"
+
+#: Disabled references:1
+msgid "Basic Auth 认证"
+msgstr "Basic Auth認証"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证"
+msgstr "OAuth 2.0認証"
+
+#: Disabled references:1
+msgid "从发送API请求数组获取数据"
+msgstr "送信APIのリクエスト配列からデータを取得する"
+
+#: Disabled references:1
+msgid "从JSON解析数组获取数据"
+msgstr "JSONでパースされた配列からのデータ取得"
+
+#: Disabled references:1
+msgid "从记录链接获得"
+msgstr "レコードリンクから取得"
+
+#: Disabled references:1
+msgid "从记录链接获取"
+msgstr "レコードリンクからアクセス"
+
+#: Disabled references:1
+msgid "从存有记录链接的文本字段获取一条指定记录"
+msgstr "テキストフィールドから指定されたレコードをリンク付きで取得する"
+
+#: Disabled references:1
+msgid "获取发送API请求、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "APIリクエスト、コードブロックを送信し、ビジネスプロセスの入力ノードをカプセル化するJSON配列オブジェクトを取得します。"
+
+#: Disabled references:1
+msgid "鉴权方式"
+msgstr "認証方法"
+
+#: Disabled references:1
+msgid "新建 Basic Auth 认证"
+msgstr "新しいBasic Auth認証"
+
+#: Disabled references:1
+msgid "使用固定用户名和密码的 Basic Auth 认证"
+msgstr "ユーザー名とパスワードが固定されたBasic Auth認証"
+
+#: Disabled references:1
+msgid "新建 OAuth 2.0 认证（客户端凭证 client credentials）"
+msgstr "OAuth 2.0認証（クライアント認証）の新設"
+
+#: Disabled references:1
+msgid "使用客户端 id 和客户端 secret 获取 Access Token"
+msgstr "クライアントIDとクライアントシークレットを使用したアクセストークンの取得"
+
+#: Disabled references:1
+msgid "发送对象"
+msgstr "送信先"
+
+#: Disabled references:1
+msgid "向 API 发送自定义的Query Param、Header 和 Body 内容"
+msgstr "カスタムQuery Param、Header、BodyコンテンツをAPIに送信する"
+
+#: Disabled references:1
+msgid "向 API 发送工作流节点中的数据对象"
+msgstr "ワークフローノードからAPIへのデータオブジェクトの送信"
+
+#: Disabled references:1
+msgid "解析链接"
+msgstr "リンクの解析"
+
+#: Disabled references:1
+msgid "记录Id"
+msgstr "レコードID"
+
+#: Disabled references:1
+msgid "用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过1024MB，最多支持2位小数，例如"
+msgstr "個々のファイルのサイズを制限するために使用され、必要なファイルの種類に応じて行うことができる。例えば、IDフォトは1MBまで。最大サイズは1024MBを超えることはできず、小数点以下2桁までサポートします。"
+
+#: Disabled references:1
+msgid "测试数据"
+msgstr "テストデータ"
+
+#: Disabled references:1
+msgid "参数值"
+msgstr "パラメータ値"
+
+#: Disabled references:1
+msgid "请输入测试值"
+msgstr "テスト値を入力してください"
+
+#: Disabled references:1
+msgid "创建记录时，以选中列表作为默认值"
+msgstr "レコード作成時にチェックリストをデフォルト値として使用"
+
+#: Disabled references:1
+msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
+msgstr "例えば、商品テーブルのフィルターリストとして商品タイプ（生鮮食品、総菜、飲料など）を使用する場合、現在飲料カテゴリが選択されていると、レコード作成時の商品タイプは飲料がデフォルトとなる。"
+

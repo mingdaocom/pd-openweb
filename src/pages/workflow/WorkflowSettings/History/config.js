@@ -51,9 +51,9 @@ export const FLOW_FAIL_REASON = {
   20008: _l('账户余额不足'),
   20009: _l('查找节点关键词为空'),
   20010: _l('删除数据错误'),
-  20011: _l('Webhook非法url'),
-  20012: _l('Webhook配置错误'),
-  20013: _l('Webhook请求异常'),
+  20011: _l('url校验失败'),
+  20012: _l('配置错误'),
+  20013: _l('请求异常'),
   20014: _l('行数据重复'),
   20015: _l('筛选条件异常'),
   20016: _l('code配置错误'),
@@ -104,7 +104,7 @@ export const NODE_TYPE = {
   5: { type: 'notice', text: _l('站内通知') },
   6: { type: 'action', text: _l('动作') },
   7: { type: 'find', text: _l('获取单条数据') },
-  8: { type: 'webhook', text: _l('Webhook') },
+  8: { type: 'webhook', text: _l('发送 API 请求') },
   9: { type: 'formula', text: _l('公式') },
   10: { type: 'msg', text: _l('短信') },
   11: { type: 'email', text: _l('邮件') },
@@ -117,6 +117,8 @@ export const NODE_TYPE = {
   18: { type: 'file', text: _l('获取记录打印文件') },
   19: { type: 'template', text: _l('服务号消息') },
   20: { type: 'pbc', text: _l('封装业务流程(PBP)') },
+  21: { type: 'jsonParse', text: _l('JSON 解析') },
+  22: { type: 'auth', text: _l('API 连接与认证') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -160,6 +162,7 @@ export const NODE_ICON = {
       20: 'hr_structure',
       21: 'workflow',
       23: 'language',
+      106: 'replyto',
     },
     text: {
       1: _l('工作表事件触发'),
@@ -171,6 +174,7 @@ export const NODE_ICON = {
       20: _l('人员事件触发'),
       21: _l('部门事件触发'),
       23: _l('外部用户事件触发'),
+      106: _l('讨论通知触发'),
     },
     bgColor: {
       1: '#ffa340',
@@ -182,6 +186,7 @@ export const NODE_ICON = {
       20: '#01ca83',
       21: '#01ca83',
       23: '#01ca83',
+      106: '#2196f3',
     },
   },
 
@@ -282,6 +287,16 @@ export const NODE_ICON = {
     text: _l('封装业务流程(PBP)'),
     bgColor: '#4c7d9e',
   },
+  jsonParse: {
+    icon: 'task_custom_polymer',
+    text: _l('JSON 解析'),
+    bgColor: '#4c7d9e',
+  },
+  auth: {
+    icon: 'key1',
+    text: _l('API 连接与认证'),
+    bgColor: '#4c7d9e',
+  },
   singleInfo: {
     icon: 'person_search',
     text: _l('获取单条人员/部门信息'),
@@ -295,7 +310,7 @@ export const NODE_ICON = {
 
   webhook: {
     icon: 'workflow_webhook',
-    text: _l('Webhook'),
+    text: _l('发送 API 请求'),
     bgColor: '#4c7d9e',
   },
   code: {

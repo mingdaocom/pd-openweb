@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { func, oneOf } from 'prop-types';
 import { Motion, spring } from 'react-motion';
 import color from 'color';
@@ -22,6 +22,7 @@ import IndexSide from '../../components/IndexSide';
 import CommonUserHandle from '../../components/CommonUserHandle';
 import { APP_CONFIG, ADVANCE_AUTHORITY } from '../config';
 import ExportApp from 'src/pages/Admin/appManagement/modules/ExportApp';
+import AppItemTrash from 'src/pages/worksheet/common/Trash/AppItemTrash';
 import { getIds, compareProps, getItem, setItem, isCanEdit } from '../../util';
 import EditAppIntro from './EditIntro';
 import AppGroup from '../AppGroup';
@@ -198,7 +199,7 @@ export default class AppInfo extends Component {
     const { appId } = this.ids;
     const { data: { projectId } = { projectId: '' } } = this.state;
     this.setState({ delAppConfirmVisible: false });
-    api.deleteApp({ appId, projectId }).then(res => {
+    api.deleteApp({ appId, projectId, isHomePage: true }).then(res => {
       navigateTo('/app/my');
     });
   };
@@ -239,12 +240,11 @@ export default class AppInfo extends Component {
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
     const { projectId } = this.state.data;
-    const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
 
     if (!projectId && _.includes(['ding', 'weixin', 'worksheetapi'], type)) {
       return '';
     } else {
-      if (_.includes(['del', 'publishSettings'], type)) {
+      if (_.includes(['del', 'export', 'createBackup'], type)) {
         return (
           <React.Fragment>
             <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
@@ -277,46 +277,25 @@ export default class AppInfo extends Component {
         return this.renderMenuHtml({ type, icon, text: rest.getText(data.fixed), action, ...rest });
       }
 
-      if (type === 'backupRestore') {
-        if (licenseType !== 0 && version && version.versionId > 1) {
-          return (
+      if (type === 'appManageMenu') {
+        return (
+          <Fragment>
+            <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
             <Trigger
               action={['hover']}
               popupAlign={{ points: ['tl', 'tr'], offset: [0, -6] }}
               popup={
-                <div className="backupRestoreCon">
-                  <div
-                    className="backupRestoreItem"
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.setState({ appConfigVisible: false, createBackupVisisble: true });
-                    }}
-                  >
-                    {_l('创建备份')}
-                  </div>
-                  <div
-                    className="backupRestoreItem"
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.setState({ manageBackupFilesVisible: true, appConfigVisible: false });
-                    }}
-                  >
-                    {_l('管理备份文件')}
-                  </div>
+                <div className="appManageMenuWrap">
+                  {(rest.subMenuList || []).map(it => this.renderMenu({ ...it }))}
                 </div>
               }
-              getPopupContainer={() => document.querySelector('.appConfigIcon .backupRestore .Item-content')}
+              getPopupContainer={() => document.querySelector('.appConfigIcon .appManageMenu .Item-content')}
             >
               {this.renderMenuHtml({ type, icon, text, action, ...rest })}
             </Trigger>
-          );
-        } else if (licenseType === 0 || version) {
-          return this.renderMenuHtml({ type, icon, text, action, ...rest });
-        } else {
-          return '';
-        }
+          </Fragment>
+        );
       }
-
       return this.renderMenuHtml({ type, icon, text, action, ...rest });
     }
   };
@@ -341,7 +320,7 @@ export default class AppInfo extends Component {
     this.setState({ integratedWechat: false });
   };
 
-  renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
+  renderMenuHtml = ({ type, icon, text, action, subMenuList = [], ...rest }) => {
     const { appId } = this.ids;
     const { projectId } = this.state.data;
     const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
@@ -354,7 +333,10 @@ export default class AppInfo extends Component {
         onClick={e => {
           e.stopPropagation();
 
-          if (type === 'backupRestore' && (licenseType === 0 || (version && version.versionId === 1))) {
+          if (
+            (type === 'createBackup' || type === 'restore') &&
+            (licenseType === 0 || (version && version.versionId === 1))
+          ) {
             upgradeVersionDialog({
               projectId,
               isFree: licenseType === 0,
@@ -385,16 +367,26 @@ export default class AppInfo extends Component {
             this.handleAppConfigClick(action);
             return;
           }
+          if (type === 'appItemTrash') {
+            if (licenseType === 0) {
+              this.setState({ appConfigVisible: false });
+              upgradeVersionDialog({ projectId, isFree: true, explainText: _l('请升级到标准版本或以上版本') });
+            } else {
+              this.setState({ appItemTrashVisible: true, appConfigVisible: false });
+            }
+            return;
+          }
 
           this.handleAppConfigClick(action);
         }}
         {...rest}
       >
         <span>{text}</span>
-        {type === 'editAppNavStyle' && <Icon className="rightArrow Font20" icon="navigate_next" />}
-        {type === 'backupRestore' && licenseType !== 0 && version && version.versionId > 1 && (
-          <Icon className="rightArrow Font20" icon="navigate_next" />
+        {type === 'appItemTrash' && licenseType === 0 && (
+          <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
         )}
+        {type === 'editAppNavStyle' && <Icon className="rightArrow Font20" icon="navigate_next" />}
+        {type === 'appManageMenu' && <Icon className="rightArrow Font20" icon="navigate_next" />}
       </MenuItem>
     );
   };
@@ -423,6 +415,7 @@ export default class AppInfo extends Component {
       createBackupVisisble,
       manageBackupFilesVisible,
       isAutofucus,
+      appItemTrashVisible,
     } = this.state;
     const {
       id: appId,
@@ -687,6 +680,14 @@ export default class AppInfo extends Component {
                 },
               });
             }}
+          />
+        )}
+
+        {appItemTrashVisible && (
+          <AppItemTrash
+            appId={appId}
+            projectId={projectId}
+            onCancel={() => this.setState({ appItemTrashVisible: false })}
           />
         )}
       </div>

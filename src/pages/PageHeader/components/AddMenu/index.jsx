@@ -21,7 +21,7 @@ export default function UserMenu() {
               className="ThemeBGColor3"
             >
               <i className="icon icon-edit Font14" />
-              {_l('创建动态(S)')}
+              {_l('创建动态')}
             </li>
           )
         }
@@ -36,7 +36,7 @@ export default function UserMenu() {
               className="ThemeBGColor3"
             >
               <i className="icon icon-task-responsible" />
-              {_l('创建任务(T)')}
+              {_l('创建任务')}
             </li>
           )
         }
@@ -51,7 +51,7 @@ export default function UserMenu() {
               className="ThemeBGColor3"
             >
               <i className="icon icon-bellSchedule" />
-              {_l('创建日程(C)')}
+              {_l('创建日程')}
             </li>
           )
         }
@@ -66,7 +66,7 @@ export default function UserMenu() {
               className="ThemeBGColor3"
             >
               <i className="icon icon-knowledge-cloud" />
-              {_l('上传文件(U)')}
+              {_l('上传文件')}
             </li>
           )
         }

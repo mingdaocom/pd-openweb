@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment, useRef } from 'react';
-import { RadioGroup, Dropdown, Checkbox } from 'ming-ui';
+import { RadioGroup, Dropdown, Checkbox, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import _, { get, includes, isEmpty } from 'lodash';
 import { SettingItem } from '../../styled';
@@ -18,6 +18,7 @@ import { SYSTEM_CONTROL } from '../../config/widget';
 import NumberConfig from '../components/ControlSetting/NumberConfig';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
+
 const { PointerConfig, PreSuffix } = components;
 
 const SubtotalSettingWrap = styled.div``;
@@ -94,7 +95,7 @@ export default function Subtotal(props) {
 
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
-    type => !includes([22, 25, 29, 30, 10010], type),
+    type => !includes([22, 25, 29, 30, 45, 47, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
   const handleChange = value => {
@@ -196,7 +197,17 @@ export default function Subtotal(props) {
                   originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
                 return (
                   <div className={cx('text', { Red: !controlName || invalidError })}>
-                    {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : ''}
+                    {controlName ? (
+                      invalidError ? (
+                        _l('%0(无效类型)', controlName)
+                      ) : (
+                        controlName
+                      )
+                    ) : (
+                      <Tooltip text={<span>{_l('ID: %0', value)}</span>} popupPlacement="bottom">
+                        <span>{_l('字段已删除')}</span>
+                      </Tooltip>
+                    )}
                   </div>
                 );
               }}

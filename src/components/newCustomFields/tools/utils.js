@@ -2,6 +2,8 @@ import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getStringBytes } from 'src/util';
+import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
 
 export const convertControl = type => {
   switch (type) {
@@ -101,7 +103,9 @@ export const convertControl = type => {
     case 43:
       return 'OCR'; // 文字识别
     case 45:
-      return 'Embed'; // 文字识别
+      return 'Embed'; // 嵌入
+    case 47:
+      return 'BarCode'; // 嵌入
   }
 };
 
@@ -294,6 +298,14 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
           );
         }
         result.value = JSON.stringify(resultvalue);
+        if (_.isEmpty(resultvalue) && control && typeof control.value === 'string') {
+          try {
+            const rows = JSON.parse(control.value);
+            result.value = JSON.stringify(
+              rows.map(row => Object.keys(row).map(key => ({ controlId: key, value: row[key] }))),
+            );
+          } catch (err) {}
+        }
       }
       break;
   }
@@ -377,6 +389,7 @@ const FILTER_TYPE = {
   26: 'accountId',
   27: 'departmentId',
   29: 'sid',
+  35: 'sid',
 };
 
 export const formatFiltersValue = (filters = [], data = [], recordId) => {
@@ -417,7 +430,7 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           return;
         }
         //人员、部门、关联表
-        if (_.includes([26, 27, 29], currentControl.type)) {
+        if (_.includes([26, 27, 29, 35], currentControl.type)) {
           item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
           return;
         }
@@ -534,4 +547,26 @@ export const getEmbedValue = (embedData = {}, id) => {
     default:
       return embedData[id] || '';
   }
+};
+
+export const getBarCodeValue = ({ data, control, codeInfo }) => {
+  const { enumDefault, enumDefault2, dataSource } = control;
+  const { appId, worksheetId, viewId, recordId } = codeInfo;
+  if ((enumDefault === 1 || (enumDefault === 2 && enumDefault2 === 3)) && !dataSource) return '';
+  if (dataSource === 'rowid') return recordId;
+  if (enumDefault === 2) {
+    // 记录内部访问链接
+    if (enumDefault2 === 1) {
+      return recordId
+        ? `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}`
+        : `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
+    }
+  }
+  const selectControl = _.find(data, i => i.controlId === dataSource);
+  if (!(selectControl || {}).value) return '';
+  if (enumDefault === 1) {
+    const repVal = String(selectControl.value).replace(/[\u4e00-\u9fa5]/g, '');
+    return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
+  }
+  return String(selectControl.value).substr(0, 150);
 };

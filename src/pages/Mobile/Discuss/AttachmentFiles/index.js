@@ -165,14 +165,16 @@ export class UploadFileWrapper extends Component {
         const { inputType, disabledGallery, advancedSetting = {} } = self.props;
         const { filetype } = advancedSetting;
         let type = filetype && JSON.parse(filetype).type;
-        const accept = { 1: 'image/*', 2: 'video/*' };
+        const accept = { 1: 'image/*', 2: 'video/*', 0: 'image/*,video/*' };
         const fileTypeObj = { 1: 'image/*', 2: 'image/*,video/*', 3: 'video/*', 4: 'video/*' };
         if (ele) {
-          if (inputType) {
+          if (inputType || disabledGallery) {
             ele.setAttribute('accept', accept[inputType]);
             ele.setAttribute('capture', 'camera');
           } else if (type) {
             ele.setAttribute('accept', fileTypeObj[type]);
+          } else {
+            ele.setAttribute('accept', accept[inputType]);
           }
         }
       },

@@ -58,6 +58,7 @@ export default class CustomDefaultValue extends Component {
       >
         <div style={{ minHeight: 74, margin: '10px 0 12px' }}>
           <ChildTable
+            initRowIsCreate={false}
             from={0}
             control={{
               ...data,

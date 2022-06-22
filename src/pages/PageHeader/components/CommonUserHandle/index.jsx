@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { string } from 'prop-types';
 import { Icon, Tooltip } from 'ming-ui';
+import styled from 'styled-components';
 import Avatar from '../Avatar';
 import GlobalSearch from '../GlobalSearch';
 import UserMenu from '../UserMenu';
@@ -8,11 +9,32 @@ import AddMenu from '../AddMenu';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import './index.less';
-import cx from 'classnames'
+import cx from 'classnames';
 import { getAppFeaturesVisible } from 'src/util';
 
-const isHome = location.pathname.indexOf('app/my') !== -1;
-const { app: { commonUserHandle: {help} }} = window.private
+const {
+  app: {
+    commonUserHandle: { help },
+  },
+} = window.private;
+
+const BtnCon = styled.div`
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 28px;
+  margin: 0 5px;
+  .icon {
+    font-size: 20px;
+    color: rgb(0, 0, 0, 0.6);
+  }
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
 export default class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
@@ -30,52 +52,6 @@ export default class CommonUserHandle extends Component {
     });
   }
 
-  renderHeaderSearch = () => {
-    const { type } = this.props;
-    if (_.includes(['appPkg'], type)) {
-      return (
-        <div className="appPkgHeaderSearch" data-tip={_l('搜索')}>
-          <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
-        </div>
-      );
-    }
-    if (_.includes(['native'], type)) {
-      return (
-        <Fragment>
-          <Tooltip text={<AddMenu />} action={['click']} mouseEnterDelay={0.2} themeColor="white" tooltipClass="pAll0">
-            <div className="addOperationIconWrap mLeft20 mRight15 pointer">
-              <Icon icon="addapplication Font30" />
-            </div>
-          </Tooltip>
-          <form className="nativeHeaderForm" autoComplete="off">
-            <Icon icon="search" className="searchIcon Font20" />
-            <input
-              type="text"
-              className="globalSearch"
-              onFocus={() => this.setState({ globalSearchVisible: true })}
-              placeholder={_l('智能搜索(F)...')}
-              autoComplete="off"
-            />
-          </form>
-        </Fragment>
-      );
-    }
-    return (
-      <Fragment>
-        <Icon icon="search" className="searchIcon Font17" />
-        <form autoComplete="off">
-          <input
-            type="text"
-            className="globalSearch"
-            onFocus={() => this.setState({ globalSearchVisible: true })}
-            placeholder={_l('智能搜索(F)...')}
-            autoComplete="off"
-          />
-        </form>
-      </Fragment>
-    );
-  };
-
   render() {
     const { globalSearchVisible, countData, myProcessVisible, userVisible } = this.state;
     const { type } = this.props;
@@ -87,8 +63,24 @@ export default class CommonUserHandle extends Component {
     }
     return (
       <div className="commonUserHandleWrap">
-        {this.renderHeaderSearch()}
-        {type ? (
+        {type === 'native' && (
+          <Tooltip text={<AddMenu />} action={['click']} mouseEnterDelay={0.2} themeColor="white" tooltipClass="pAll0">
+            <div className="addOperationIconWrap mLeft20 mRight15 pointer">
+              <Icon icon="addapplication Font30" />
+            </div>
+          </Tooltip>
+        )}
+        {type !== 'appPkg' && (
+          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('搜索')}>
+            <Icon icon="search" />
+          </BtnCon>
+        )}
+        {type === 'appPkg' && (
+          <div className="appPkgHeaderSearch" data-tip={_l('搜索')}>
+            <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
+          </div>
+        )}
+        {_.includes(['native', 'appPkg'], type) ? (
           <MyProcessEntry
             type={type}
             countData={countData}
@@ -100,13 +92,24 @@ export default class CommonUserHandle extends Component {
             }}
           />
         ) : null}
-        <div
-          className={cx("workflowHelpIconWrap pointer", {Visibility: help, mAll0: help})}
-          data-tip={_l('帮助')}
-          onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
-        >
-          <Icon icon="workflow_help" className="helpIcon Font18" />
-        </div>
+        {type !== 'appPkg' && !help && (
+          <BtnCon
+            className={`mRight16 ${type === 'native' ? 'mLeft10' : ''}`}
+            data-tip={_l('帮助')}
+            onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+          >
+            <Icon icon="workflow_help" />
+          </BtnCon>
+        )}
+        {type === 'appPkg' && !help && (
+          <div
+            className="workflowHelpIconWrap pointer"
+            data-tip={_l('帮助')}
+            onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+          >
+            <Icon icon="workflow_help" className="helpIcon Font18" />
+          </div>
+        )}
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}
@@ -123,7 +126,9 @@ export default class CommonUserHandle extends Component {
               this.avatar = avatar;
             }}
           >
-            <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
+            <span className="tip-bottom-left" data-tip={md.global.Account.fullname}>
+              <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
+            </span>
           </div>
         </Tooltip>
         {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}

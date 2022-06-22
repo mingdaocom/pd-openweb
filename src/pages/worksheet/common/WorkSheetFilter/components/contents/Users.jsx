@@ -74,7 +74,6 @@ export default class Users extends Component {
       },
       zIndex: 10001,
       appId,
-      filterAccountIds: from === 'rule' || from === 'subTotal' ? [] : [md.global.Account.accountId],
       SelectUserSettings: {
         projectId,
         callback(users) {

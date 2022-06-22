@@ -405,9 +405,15 @@ function Hierarchy(props) {
 
   const renderContent = () => {
     const { viewControl, viewType, viewId, layersName = [], viewControls } = view;
+    const hierarchyData = hierarchyViewCanSelectFields({
+      controls,
+      worksheetId,
+    });
     const isHaveSelectControl =
       viewControl === 'create' ||
-      (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
+      (viewControl &&
+        _.find(controls, item => item.controlId === viewControl) &&
+        hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
     if (!isHaveSelectControl) {
       return (
@@ -416,10 +422,7 @@ function Hierarchy(props) {
           viewType={viewType}
           controls={controls}
           worksheetInfo={worksheetInfo}
-          fields={hierarchyViewCanSelectFields({
-            controls,
-            worksheetId,
-          })}
+          fields={hierarchyData}
           updateView={updateView}
           handleSelect={handleSelectField}
           toCustomWidget={toCustomWidget}

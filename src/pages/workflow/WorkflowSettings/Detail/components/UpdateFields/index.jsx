@@ -176,7 +176,7 @@ export default class UpdateFields extends Component {
       <Fragment>
         {fields.map((item, i) => {
           return (
-            <Fragment key={item.fieldId}>
+            <Fragment key={item.fieldId || i}>
               <div className="relative actionItem mTop15">
                 <div className="Gray_9e">{type === 1 ? _l('将字段') : _l('将参数')}</div>
                 <Dropdown

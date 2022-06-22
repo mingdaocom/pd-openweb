@@ -4,6 +4,7 @@ import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
 import { Breadcrumb } from 'antd';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { RecordInfoModal } from 'mobile/Record';
 import cx from 'classnames';
 import './index.less';
 
@@ -13,6 +14,7 @@ const GroupFilter = props => {
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
+  const [previewRecordId, setPreviewRecordId] = useState();
   const [navGroupData, setGroupFilterData] = useState([]);
   let [keywords, setKeywords] = useState();
   const [renderData, setRenderData] = useState([]);
@@ -167,7 +169,7 @@ const GroupFilter = props => {
                 <Breadcrumb.Item
                   key={item.value}
                   onClick={e => {
-                    if (!item.value && item.txt === '全部') {
+                    if (!item.value && item.txt === _l('全部')) {
                       fetchData({ worksheetId: item.wsid, appId, viewId: navGroup.viewId });
                     } else {
                       fetchData({
@@ -195,7 +197,8 @@ const GroupFilter = props => {
     let rowId = item.value ? item.value : 'all';
     let path = (item.path && JSON.parse(item.path)) || [];
     let txt = item.txt instanceof Array ? path[path.length - 1] : item.txt;
-    let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}/${encodeURIComponent(txt)}`;
+    let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}`;
+    sessionStorage.setItem(`group-${rowId}`, txt);
     localStorage.setItem('groupFilterDetailUrl', url);
     window.mobileNavigateTo && window.mobileNavigateTo(url);
   };
@@ -302,7 +305,7 @@ const GroupFilter = props => {
       ? renderData
       : !keywords && navGroupData && currentNodeId
       ? renderData
-      : [{ txt: '全部', value: '', isLeaf: true }].concat(renderData);
+      : [{ txt: _l('全部'), value: '', isLeaf: true }].concat(renderData);
     return (
       <ScrollView style={{ maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` }}>
         {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
@@ -316,8 +319,7 @@ const GroupFilter = props => {
                 <div
                   className="recordItem"
                   onClick={() => {
-                    let url = `/mobile/record/${appId}/${base.worksheetId}/${viewId}/${item.rowid}`;
-                    window.mobileNavigateTo(url);
+                    setPreviewRecordId(item.rowid);
                   }}
                 >
                   {txt}
@@ -371,6 +373,17 @@ const GroupFilter = props => {
       </div>
       {!keywords && navGroupData && currentNodeId && renderBreadcrumb()}
       {conRender()}
+      <RecordInfoModal
+        className="full"
+        visible={!!previewRecordId}
+        appId={base.appId}
+        worksheetId={base.worksheetId}
+        viewId={base.viewId}
+        rowId={previewRecordId}
+        onClose={() => {
+          setPreviewRecordId(undefined);
+        }}
+      />
     </div>
   );
 };

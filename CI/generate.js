@@ -12,6 +12,25 @@ const isProduction = process.env.NODE_ENV === 'production';
 const buildPath = path.join(__dirname, '../build');
 const htmlDestPath = path.join(__dirname, '../build/files');
 
+function findEntryChunk(moduleName, minSize = 0) {
+  try {
+    const entryMap = JSON.parse(fs.readFileSync(path.join(buildPath, './dist/single/entry-manifest.json')));
+    const mobileEntries = entryMap[moduleName];
+    const mobileEntriesInfo = mobileEntries.map(filename => {
+      const filePath = path.join(buildPath, './dist/single/pack', filename);
+      const stats = fs.statSync(filePath);
+      return {
+        filename,
+        size: stats.size,
+      };
+    });
+    return mobileEntriesInfo
+      .filter(item => item.size > minSize && /\.js$/.test(item.filename))
+      .map(item => item.filename);
+  } catch (err) {
+    return [];
+  }
+}
 function mkdir(dirPath) {
   dirPath = path.resolve(__dirname, dirPath);
   if (fs.existsSync(dirPath)) {
@@ -59,6 +78,7 @@ function generate() {
         apiServer: JSON.stringify(apiMap),
         releaseDate: moment().format('YYYY/MM/DD HH:mm:SS'),
         publicPath,
+        bigChunkFiles: findEntryChunk('mobile-app', 500 * 1024),
       });
       html = html.replace(
         '</head>',

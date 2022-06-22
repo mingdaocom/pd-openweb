@@ -37,12 +37,11 @@ export default class Widgets extends Component {
 
     return (
       <RichText
-        renderByHtml={type === 10010} //备注字段呈现处理
         maxWidth={this.state.width}
         id={flag}
         data={value || ''}
+        isRemark={type === 10010}
         className={cx('customFormItemControl', {
-          remarkControl: type === 10010,
           richTextForM: browserIsMobile(),
           richTextDisabledControl: disabled,
         })}

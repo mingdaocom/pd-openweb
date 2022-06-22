@@ -3,18 +3,18 @@ import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
 import plupload from 'plupload';
 import { Flex, ActionSheet, ActivityIndicator, WhiteSpace } from 'antd-mobile';
+import SelectUser from 'mobile/components/SelectUser';
 import AttachmentFiles, { UploadFileWrapper } from '../Discuss/AttachmentFiles';
 import discussionAjax from 'src/api/discussion';
 import './index.less';
 import { getDiscussConfig } from 'src/api/externalPortal';
+import { ModalWrap } from '../baseStyled';
 
-const BASE_BUTTONS = [_l('@用户'), _l('输入@'), _l('取消')];
+const BASE_BUTTONS = [_l('@用户'), _l('输入@')];
 const SHEET_AT_ALL = _l('@工作表全体成员');
 const ROW_AT_ALL = _l('@记录全体成员');
 const ROW_BUTTONS = [ROW_AT_ALL, ...BASE_BUTTONS];
 const SHEET_BUTTONS = [SHEET_AT_ALL, ...BASE_BUTTONS];
-const attachmentFilesHeight = 140;
-const bottomHeight = 60;
 
 const formatEmpty = value => {
   if (value === 'undefined' || value === 'null') {
@@ -23,14 +23,17 @@ const formatEmpty = value => {
   return value || '';
 };
 
+@connect(
+  state => ({})
+)
 class AddDiscuss extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      height: document.documentElement.clientHeight - attachmentFilesHeight - bottomHeight,
       value: '',
       files: [],
       members: [],
+      showSelectUser: false,
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
@@ -64,32 +67,28 @@ class AddDiscuss extends Component {
 
     ActionSheet.showActionSheetWithOptions(
       {
-        options: BUTTONS,
-        cancelButtonIndex: BUTTONS.length - 1,
+        message: (
+          <div className="flexRow">
+            <span className="flex Font13 leftAlign">{_l('讨论')}</span>
+            <Icon
+              onClick={() => {
+                ActionSheet.close();
+              }}
+              icon="closeelement-bg-circle"
+              className="Font22 Gray_9e"
+            />
+          </div>
+        ),
+        options: BUTTONS.map(item => (
+          <span className="Bold">{item}</span>
+        )),
       },
       buttonIndex => {
-        // buttonIndex = _.isEmpty(newRowId) ? buttonIndex : buttonIndex + 1;
         if (buttonIndex === 0) {
-          this.handlePushValue(BUTTONS[0]);
+          this.handlePushValue(` ${BUTTONS[0]} `);
         }
         if (buttonIndex === 1) {
-          import('dialogSelectUser').then(() => {
-            $({}).dialogSelectUser({
-              showMoreInvite: false,
-              isMobile: true,
-              SelectUserSettings: {
-                projectId: '',
-                filterAccountIds: [],
-                callback: members => {
-                  const { value } = this.state;
-                  this.setState({
-                    value: `${value} ` + members.map(item => `@${item.fullname}`).join(' '),
-                    members,
-                  });
-                },
-              },
-            });
-          });
+          this.setState({ showSelectUser: true });
         }
         if (buttonIndex === 2) {
           this.handlePushValue('@');
@@ -114,7 +113,7 @@ class AddDiscuss extends Component {
     const { params } = this.props.match;
     const { worksheetId, rowId, discussionInfo } = params;
     const newRowId = formatEmpty(rowId);
-    const [replyId, replyName] = formatEmpty(discussionInfo).split('|');
+    const { replyId, replyName } = discussionInfo;
     if (!value) return;
     let newValue = value.replace(_.isEmpty(newRowId) ? SHEET_AT_ALL : ROW_AT_ALL, '[all]atAll[/all]');
     if (members.length) {
@@ -135,12 +134,12 @@ class AddDiscuss extends Component {
         attachments: JSON.stringify(files),
         appId: md.global.APPInfo.worksheetAppID,
         extendsId: `${formatEmpty(params.appId)}|${formatEmpty(params.viewId)}`,
-        replyId: discussionInfo ? replyId : null,
+        replyId: replyId || undefined,
         entityType: entityType === 2 ? 2 : 0, //后端接口只区分0 2
       })
       .then(result => {
         if (result.data) {
-          history.back();
+          this.props.onAdd(result.data);
         }
       });
   }
@@ -161,15 +160,18 @@ class AddDiscuss extends Component {
     );
   }
   render() {
-    const { height, value, files } = this.state;
-    const { discussionInfo } = this.props.match.params;
-    const [replyId, replyName] = formatEmpty(discussionInfo).split('|');
+    const { value, files, showSelectUser } = this.state;
+    const { appId, discussionInfo } = this.props.match.params;
+    const { replyId, replyName } = discussionInfo;
     return (
-      <div className="addDiscuss">
+      <div className="addDiscuss flexColumn h100">
+        <div className="flexRow pAll10 pBottom0">
+          <div className="flex">{_l('讨论')}</div>
+          <Icon icon="closeelement-bg-circle" className="close Font22 Gray_9e" onClick={this.props.onClose} />
+        </div>
         <textarea
           placeholder={replyName ? _l('回复%0', replyName) : ''}
-          className="contentInput"
-          style={{ height: files.length ? height : height + attachmentFilesHeight }}
+          className="contentInput flex"
           value={value}
           onChange={event => {
             this.setState({
@@ -196,11 +198,46 @@ class AddDiscuss extends Component {
             {_l('发送')}
           </div>
         </Flex>
+        {showSelectUser && (
+          <SelectUser
+            visible={true}
+            type="user"
+            appId={appId}
+            onSave={(members) => {
+              const { value } = this.state;
+              this.setState({
+                value: `${value} ` + `${members.map(item => `@${item.fullname}`).join(' ')} `,
+                members,
+              });
+            }}
+            onClose={() => this.setState({ showSelectUser: false })}
+          />
+        )}
       </div>
     );
   }
 }
 
-export default connect(state => {
-  return {};
-})(AddDiscuss);
+export default props => {
+  const { appId, worksheetId, viewId, rowId, discussionInfo } = props;
+  const { className, visible, onClose, onAdd } = props;
+
+  return (
+    <ModalWrap
+      popup
+      animationType="slide-up"
+      className={className}
+      onClose={onClose}
+      visible={visible}
+    >
+      {rowId && (
+        <AddDiscuss
+          match={{ params: { appId, worksheetId, viewId, rowId, discussionInfo } }}
+          onAdd={onAdd}
+          onClose={onClose}
+        />
+      )}
+    </ModalWrap>
+  );
+}
+

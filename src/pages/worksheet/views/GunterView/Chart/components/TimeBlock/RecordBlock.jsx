@@ -480,7 +480,7 @@ export default class RowBlock extends Component {
             backgroundColor: row.color,
             width: isMilepost ? 0 : style.width,
             left: style.left,
-            top: isMilepost ? style.top - 5 : style.top,
+            top: isMilepost ? style.top - 7 : style.top,
           }}
           onMouseDown={dragDisable ? _.noop() : this.handleMouseDown}
           onMouseEnter={this.handleMouseEnter}

@@ -151,7 +151,7 @@ export const DropdownPlaceholder = styled.div`
   border: 1px solid #ddd;
   margin-top: 12px;
   border-radius: 3px;
-  padding: 0 12px;
+  padding: 0 5px 0 12px;
   cursor: pointer;
   &.active,
   &:hover {
@@ -180,6 +180,9 @@ export const DropdownPlaceholder = styled.div`
     i {
       color: #f44336;
     }
+  }
+  &.placeholder {
+    color: #bdbdbd;
   }
 `;
 

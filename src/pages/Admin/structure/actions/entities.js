@@ -292,3 +292,11 @@ export const updateShowExport = isShowExport => ({
   type: 'UPDATE_SHOW_EXPORT',
   isShowExport,
 });
+export const updateImportType = importExportType => ({
+  type: 'UPDATE_IMPORT_EXPORT_TYPE',
+  importExportType,
+});
+export const updateImportExportResult = importExportResult => ({
+  type: 'UPDATE_IMPORT_EXPORT_RESULT',
+  importExportResult,
+});

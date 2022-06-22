@@ -60,6 +60,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   SIGNATURE: 42,
   OCR: 43,
   EMBED: 45,
+  BAR_CODE: 47,
   REMARK: 10010,
 };
 
@@ -188,7 +189,7 @@ export const DEFAULT_CONFIG = {
     moreIntroLink: 'https://help.mingdao.com/sheet27.html',
   },
   DEPARTMENT: { icon: 'department', widgetName: _l('部门'), intro: _l('选择组织中的部门') },
-  SCORE: { icon: 'star', widgetName: _l('等级'), intro: _l('标记为5星或10级') },
+  SCORE: { icon: 'star', widgetName: _l('等级'), intro: _l('可输入1～10的数值') },
   RELATE_SHEET: {
     icon: 'link_record',
     widgetName: _l('关联记录'),
@@ -289,6 +290,11 @@ export const DEFAULT_CONFIG = {
     icon: 'code',
     intro: _l('在表单中嵌入URL，支持使用其他字段值传参'),
   },
+  BAR_CODE: {
+    widgetName: _l('条码'),
+    icon: 'a-barcode',
+    intro: _l('可将关联的数据源转成条形码或二维码显示'),
+  },
 };
 
 export const DEFAULT_DATA = {
@@ -297,6 +303,9 @@ export const DEFAULT_DATA = {
     size: 12,
     enumDefault: 2,
     hint: _l('请填写文本内容'),
+    advancedSetting: {
+      analysislink: '1',
+    },
   },
   MOBILE_PHONE: {
     controlName: _l('手机'),
@@ -412,7 +421,7 @@ export const DEFAULT_DATA = {
     hint: _l('请选择成员'),
     enumDefault: 0,
     userPermission: 1,
-    noticeItem: 1,
+    noticeItem: 0,
   },
   DEPARTMENT: {
     controlName: _l('部门'),
@@ -427,6 +436,9 @@ export const DEFAULT_DATA = {
   },
   RELATE_SHEET: {
     controlName: _l('关联记录'),
+    advancedSetting: {
+      allowlink: '1',
+    },
     size: 12,
     strDefault: '000',
     enumDefault: 1,
@@ -443,6 +455,9 @@ export const DEFAULT_DATA = {
   CONCATENATE: {
     controlName: _l('文本组合'),
     size: 12,
+    advancedSetting: {
+      analysislink: '1',
+    },
   },
   AUTO_ID: {
     advancedSetting: {
@@ -493,6 +508,7 @@ export const DEFAULT_DATA = {
     controlName: _l('定位'),
     size: 6,
     enumDefault2: 0,
+    strDefault: '00',
   },
   RICH_TEXT: {
     controlName: _l('富文本'),
@@ -521,6 +537,14 @@ export const DEFAULT_DATA = {
     enumDefault: 1,
     advancedSetting: {
       height: 400,
+    },
+  },
+  BAR_CODE: {
+    size: 12,
+    controlName: _l('条码'),
+    enumDefault: 1,
+    advancedSetting: {
+      width: 160,
     },
   },
 };
@@ -580,6 +604,7 @@ export const COMMON_USE_WIDGETS = pick(DEFAULT_CONFIG, [
   'ATTACHMENT',
   'AREA_COUNTY',
   'LOCATION',
+  'BAR_CODE',
 ]);
 
 export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [

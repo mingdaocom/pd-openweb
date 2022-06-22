@@ -89,8 +89,7 @@ function WidgetSetting(props) {
           {/* 快速创建字段暂时隐藏更多内容 */}
           {!rest.quickAddControl && (
             <Fragment>
-              {(HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) ||
-                (type === 26 && advancedSetting.usertype !== '2')) && <DynamicDefaultValue {...allProps} />}
+              {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
               {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
               {(HAVE_CONFIG_CONTROL.includes(type) ||
                 (type === 10 && advancedSetting.checktype === '1') ||

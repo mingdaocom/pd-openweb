@@ -169,6 +169,13 @@ export const fetchSheetRows = params => (dispatch, getState) => {
   });
 };
 
+export const unshiftSheetRow = data => (dispatch, getState) => {
+  dispatch({
+    type: 'MOBILE_UNSHIFT_SHEET_ROWS',
+    data: data,
+  });
+}
+
 export const changePageIndex = pageIndex => (dispatch, getState) => {
   const { sheetView } = getState().mobile;
   const index = pageIndex || sheetView.pageIndex + 1;

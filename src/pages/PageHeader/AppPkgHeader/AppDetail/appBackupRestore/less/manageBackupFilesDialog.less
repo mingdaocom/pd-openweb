@@ -45,22 +45,28 @@
       }
       .ant-drawer-body {
         padding: 0;
-        .ant-tabs {
+        .manageBackupFilesWrap {
+          width: 100%;
           height: 100%;
-          .ant-tabs-nav {
-            margin-bottom: 6px;
-            .ant-tabs-nav-wrap {
-              justify-content: center;
-              .ant-tabs-tab {
-                padding: 10px 20px;
+          .headerInfo {
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #f0f0f0;
+            .tabItem {
+              width: 96px;
+              height: 42px;
+              line-height: 42px;
+              text-align: center;
+              font-size: 14px;
+              font-weight: 500;
+              &:last-child {
+                margin-left: 32px;
+              }
+              &.active {
+                border-bottom: 2px solid #1890ff;
+                color: #1890ff;
               }
             }
-          }
-          .ant-tabs-content-holder {
-            height: calc(~'100% - 62px');
-          }
-          .ant-tabs-content {
-            height: 100%;
           }
         }
       }
@@ -100,7 +106,7 @@
     .editIcon {
       display: block;
     }
-    .hiden {
+    .hidden {
       display: none;
     }
   }
@@ -245,7 +251,7 @@
   }
 }
 
-.bacupRestoreDialogFooter {
+.backupRestoreDialogFooter {
   font-size: 14px;
   line-height: 36px;
   min-height: 36px;
@@ -271,15 +277,15 @@
   .cancelBtn:hover {
     color: #1e88e5;
   }
-  .disabledCofirmBtn {
+  .disabledConfirmBtn {
     color: #fff;
     background: #bdbdbd;
   }
-  .comfirmBtn {
+  .confirmBtn {
     background: #2196f3;
     cursor: pointer;
   }
-  .comfirmBtn:hover {
+  .confirmBtn:hover {
     background-color: #1565c0;
   }
 }
@@ -290,5 +296,16 @@
   }
   .ming.Button--primary:hover {
     background-color: #ba160a;
+  }
+}
+
+.restoreNewAppDialog {
+  .mui-dialog-header {
+    font-size: 13px;
+    line-height: 17px;
+    color: #757575;
+  }
+  .mui-dialog-body{
+    padding: 0;
   }
 }

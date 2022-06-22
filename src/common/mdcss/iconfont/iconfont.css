@@ -1,11 +1,11 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.eot?t=1649401537144'); /* IE9 */
-  src: url('iconfont.eot?t=1649401537144#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('iconfont.woff2?t=1649401537144') format('woff2'),
-       url('iconfont.woff?t=1649401537144') format('woff'),
-       url('iconfont.ttf?t=1649401537144') format('truetype'),
-       url('iconfont.svg?t=1649401537144#MD_Icon') format('svg');
+  src: url('iconfont.eot?t=1653026283959'); /* IE9 */
+  src: url('iconfont.eot?t=1653026283959#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('iconfont.woff2?t=1653026283959') format('woff2'),
+       url('iconfont.woff?t=1653026283959') format('woff'),
+       url('iconfont.ttf?t=1653026283959') format('truetype'),
+       url('iconfont.svg?t=1653026283959#MD_Icon') format('svg');
 }
 
 .MD_Icon {
@@ -14,6 +14,74 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-auto_awesome:before {
+  content: "\ecc3";
+}
+
+.icon-menu_right:before {
+  content: "\ecc6";
+}
+
+.icon-menu_left:before {
+  content: "\ecc7";
+}
+
+.icon-grid_view:before {
+  content: "\ecc5";
+}
+
+.icon-user_group:before {
+  content: "\ecc2";
+}
+
+.icon-a-barcode:before {
+  content: "\e653";
+}
+
+.icon-invited_users:before {
+  content: "\ecc0";
+}
+
+.icon-update_information:before {
+  content: "\ecc1";
+}
+
+.icon-drive_file_move:before {
+  content: "\e9aa";
+}
+
+.icon-class:before {
+  content: "\ecb8";
+}
+
+.icon-cooperation:before {
+  content: "\ecb9";
+}
+
+.icon-hub:before {
+  content: "\ecba";
+}
+
+.icon-rss_feed:before {
+  content: "\ecbb";
+}
+
+.icon-table_rows:before {
+  content: "\ecbc";
+}
+
+.icon-task_alt:before {
+  content: "\ecbd";
+}
+
+.icon-folder_off:before {
+  content: "\ecbe";
+}
+
+.icon-tab:before {
+  content: "\ecbf";
 }
 
 .icon-rectangle:before {

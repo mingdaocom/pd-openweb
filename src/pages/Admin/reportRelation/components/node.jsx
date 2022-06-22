@@ -8,9 +8,18 @@ import { fetchNode, updateCollapse, addSubordinates, replaceStructure, removeStr
 import { selectUser } from '../common';
 import Confirm from 'confirm';
 
-import Icon from 'ming-ui/components/Icon';
+import { Icon, LoadDiv } from 'ming-ui';
 import Item from './item';
 import NoData from './noData';
+import styled from 'styled-components';
+
+const LoadWrap = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const arrayEqual = function (arr1, arr2) {
   var length = arr1.length;
@@ -88,7 +97,7 @@ class Node extends Component {
           addSubordinates({
             id,
             accounts,
-          })
+          }),
         );
       },
     });
@@ -106,7 +115,7 @@ class Node extends Component {
             parentId,
             account: accounts[0],
             replacedAccountId: id,
-          })
+          }),
         );
       },
     });
@@ -126,9 +135,9 @@ class Node extends Component {
           removeStructure({
             parentId,
             accountId: id,
-          })
+          }),
         );
-      }
+      },
     );
   }
 
@@ -179,7 +188,14 @@ class Node extends Component {
   }
 
   render() {
-    const { isFirst, isLast, id, subordinates, auth } = this.props;
+    const { isFirst, isLast, id, subordinates, auth, isLoading } = this.props;
+    if (isLoading) {
+      return (
+        <LoadWrap>
+          <LoadDiv />
+        </LoadWrap>
+      );
+    }
     if (!id) {
       return (
         <div className="rootNodeItem">
@@ -218,12 +234,14 @@ const ConnectedNode = connect((state, ownProps) => {
   const {
     entities: { users },
     highLightId,
+    isLoading,
   } = state;
   const user = users[ownProps.id];
   return {
     ...user,
     level: ownProps.level,
     isHighLight: highLightId === ownProps.id,
+    isLoading,
   };
 })(Node);
 

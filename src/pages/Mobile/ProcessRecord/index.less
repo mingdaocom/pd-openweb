@@ -206,6 +206,11 @@
       display: none;
     }
   }
+  .fixedTabs {
+    &.top {
+      top: 54px;
+    }
+  }
 }
 
 .workflowStepListWrapper {
@@ -223,6 +228,7 @@
   .am-drawer-sidebar {
     background-color: #fff;
     overflow: auto;
+    z-index: 100;
     -webkit-overflow-scrolling: touch;
   }
   .chatMessage {

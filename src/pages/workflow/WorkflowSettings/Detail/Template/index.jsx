@@ -131,7 +131,11 @@ export default class Template extends Component {
         ) : (
           <div className="Gray_75 workflowDetailDesc mTop10">
             {_l('当前应用外部门户未开通微信登录，请前往')}
-            <a href={`/app/${this.props.relationId}/role/external`} className="ThemeColor3 ThemeHoverColor2">
+            <a
+              href={`/app/${this.props.relationId}/role/external`}
+              className="ThemeColor3 ThemeHoverColor2"
+              target={location.href.indexOf('role/external') ? '_blank' : '_self'}
+            >
               {_l('门户设置')}
             </a>
             {_l('操作')}

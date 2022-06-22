@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Dropdown, Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import reportApi from 'src/pages/worksheet/common/Statistics/api/report.js';
+import reportApi from 'statistics/api/report.js';
 import { getAppInfo } from 'src/api/homeApp';
 import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less'
 

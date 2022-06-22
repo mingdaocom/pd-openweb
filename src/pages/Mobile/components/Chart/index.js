@@ -2,9 +2,9 @@ import React, { Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import { Flex, ActivityIndicator } from 'antd-mobile';
-import charts from 'src/pages/worksheet/common/Statistics/Charts';
-import { WithoutData, Abnormal } from 'src/pages/worksheet/common/Statistics/components/ChartStatus';
-import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import charts from 'statistics/Charts';
+import { WithoutData, Abnormal } from 'statistics/components/ChartStatus';
+import { reportTypes } from 'statistics/Charts/common';
 import styled from 'styled-components';
 import './index.less';
 
@@ -59,13 +59,30 @@ function Chart({ data }) {
   }
 }
 
-function ChartWrapper({ data, loading, onOpenFilterModal, onOpenZoomModal, isHorizontal }) {
+function ChartWrapper({ data, loading, onOpenFilterModal, onOpenZoomModal, onLoadBeforeData, onLoadNextData, pageComponents = [], isHorizontal }) {
   const isVertical = window.orientation === 0;
   const isMobileChartPage = location.href.includes('mobileChart');
+  const index = _.findIndex(pageComponents, { value: data.reportId });
+  const beforeAllow = (pageComponents.length - index) < pageComponents.length;
+  const nextAllow = index < pageComponents.length - 1;
   return (
     <Fragment>
       <div className="mBottom10 flexRow valignWrapper">
         <div className="Font17 Gray ellipsis name flex">{data.name}</div>
+        {isHorizontal && (
+          <Fragment>
+            <Icon
+              icon="navigate_before"
+              className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
+              onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
+            />
+            <Icon
+              icon="navigate_next"
+              className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
+              onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
+            />
+          </Fragment>
+        )}
         <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
         {isHorizontal ? (
           <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />

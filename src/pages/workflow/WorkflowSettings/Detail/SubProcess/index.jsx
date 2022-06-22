@@ -71,6 +71,11 @@ export default class SubProcess extends Component {
     const { data, saveRequest } = this.state;
     const { name, selectNodeId, executeType, subProcessId, nextExecute, fields } = data;
 
+    if (!selectNodeId) {
+      alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
     if (saveRequest) {
       return;
     }
@@ -229,20 +234,22 @@ export default class SubProcess extends Component {
           </Fragment>
         )}
 
-        <Dialog
-          visible={subProcessDialog}
-          className="subProcessDialog"
-          onCancel={() => this.setState({ subProcessDialog: false })}
-          onOk={this.saveSubPorcessOptions}
-          title={_l('参数设置')}
-        >
-          <ProcessVariables
-            processVariables={processVariables}
-            errorItems={errorItems}
-            setErrorItems={errorItems => this.setState({ errorItems })}
-            updateSource={processVariables => this.setState(processVariables)}
-          />
-        </Dialog>
+        {subProcessDialog && (
+          <Dialog
+            visible
+            className="subProcessDialog"
+            onCancel={() => this.setState({ subProcessDialog: false })}
+            onOk={this.saveSubPorcessOptions}
+            title={_l('参数设置')}
+          >
+            <ProcessVariables
+              processVariables={processVariables}
+              errorItems={errorItems}
+              setErrorItems={errorItems => this.setState({ errorItems })}
+              updateSource={processVariables => this.setState(processVariables)}
+            />
+          </Dialog>
+        )}
       </Fragment>
     );
   }

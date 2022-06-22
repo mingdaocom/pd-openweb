@@ -1,3 +1,4 @@
+var fs = require('fs');
 var path = require('path');
 var WebpackBar = require('webpackbar');
 const TerserJSPlugin = require('terser-webpack-plugin');
@@ -6,7 +7,30 @@ var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
 var webpackConfig = require('./webpack.config');
 const { singleEntryList } = require('./webpack.common.config');
+
 const isProduction = process.env.NODE_ENV === 'production';
+
+class EntryMapGenPlugin {
+  constructor(props) {
+    this.path = props.path;
+    this.filename = props.filename;
+  }
+  apply(compiler) {
+    compiler.hooks.emit.tapAsync('EntryMapGenPlugin', (compilation, callback) => {
+      let entries = [];
+      [...compilation.chunks].forEach(chunk => ((chunk || {})._groups || []).forEach(group => entries.push(group)));
+      const entryMapManifest = entries.reduce((acc, entry) => {
+        const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name;
+        const files = [].concat(...(entry.chunks || []).map(chunk => chunk.files)).filter(Boolean);
+        return name ? { ...acc, [name]: files } : acc;
+      }, {});
+      fs.mkdirSync(this.path, { recursive: true });
+      fs.writeFileSync(path.join(this.path, this.filename), JSON.stringify(entryMapManifest, null, 2));
+      callback();
+    });
+  }
+}
+
 module.exports = function (entryType) {
   return Object.assign({}, webpackConfig, {
     entry: {
@@ -46,6 +70,10 @@ module.exports = function (entryType) {
     },
     plugins: [
       new WebpackBar(),
+      new EntryMapGenPlugin({
+        filename: 'entry-manifest.json',
+        path: path.resolve(__dirname, '../build/dist/' + entryType),
+      }),
       new AssetsPlugin({
         filename: 'manifest.json',
         path: path.resolve(__dirname, '../build/dist/' + entryType),

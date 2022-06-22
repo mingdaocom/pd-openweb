@@ -8,6 +8,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getMultiRelateViewConfig } from '../util';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 
 const CoverImageWrap = styled.div`
   position: relative;
@@ -62,6 +63,12 @@ const CoverImageWrap = styled.div`
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     .coverWrap {
       height: 170px;
+      &.coverWrapQr {
+        & > img {
+          height: 100% !important;
+          width: initial !important;
+        }
+      }
     }
     .mobileOverWrap {
       height: 100px;
@@ -139,9 +146,10 @@ const COVER_IMAGE_POSITION = {
 
 export default function CardCoverImage(props) {
   const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '' } = props;
-  const { allAttachments = [], coverData = {} } = data;
+  const { allAttachments = [], coverData = {}, formData, rowId } = data;
+  const { type } = coverData;
   const { previewUrl, ext } = head(allAttachments) || {};
-  const { viewType } = currentView;
+  const { viewType, appId, worksheetId } = currentView;
   const isGalleryView = String(viewType) === '3';
   const coverImage = data.coverImage || previewUrl;
   const coverSetting = getMultiRelateViewConfig(currentView, stateData);
@@ -150,7 +158,7 @@ export default function CardCoverImage(props) {
   const position = COVER_IMAGE_POSITION[coverposition];
 
   if (!coverCid) return null;
-  if (!isGalleryView && position !== 'left' && !coverImage) return null;
+  if (!isGalleryView && position !== 'left' && !coverImage && type !== 47) return null;
   // 嵌入字段iframe展示
   const isIframeCover = isIframeControl(coverData);
   const previewAttachment = e => {
@@ -233,9 +241,35 @@ export default function CardCoverImage(props) {
     );
   };
 
+  const getBarCode = () => {
+    return (
+      <BarCode
+        {...coverData}
+        className={cx('coverWrap', { coverWrapQr: coverData.enumDefault !== 1 })}
+        formData={formData}
+        appId={appId}
+        worksheetId={worksheetId}
+        recordId={rowId}
+        viewIdForPermit={viewId}
+        isView={true}
+      />
+    );
+  };
+
+  const renderContent = () => {
+    const isBarCode = type === 47;
+    if (isIframeCover) {
+      return getIframe();
+    } else if (isBarCode) {
+      return getBarCode();
+    } else {
+      return getCover();
+    }
+  };
+
   return (
     <CoverImageWrap className={cx(`dir-${position} display-${COVER_TYPE_TO_BACKGROUND_SIZE[coverType]}`)}>
-      {isIframeCover ? getIframe() : getCover()}
+      {renderContent()}
     </CoverImageWrap>
   );
 }

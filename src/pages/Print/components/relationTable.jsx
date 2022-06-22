@@ -141,6 +141,12 @@ export default class TableRelation extends React.Component {
           className: `${it.controlId}-${id}`,
           width,
           render: (text, record, index) => {
+            if ([29].includes(it.type)) {
+              let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
+              if (list.type && ![29, 30].includes(list.type)) {
+                it = { ...it, sourceControlType: list.type, advancedSetting: list.advancedSetting };
+              }
+            }
             return getPrintContent({
               ...it,
               isRelateMultipleSheet: true,

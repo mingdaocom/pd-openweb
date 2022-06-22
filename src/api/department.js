@@ -199,6 +199,22 @@ module.exports = {
      return $.api('Department', 'SearchProjectDepartment', args, options);
    },
   /**
+  * 导入部门
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.fileName 文件名
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   importDepartmentList: function (args, options = {}) {
+     
+     return $.api('Department', 'ImportDepartmentList', args, options);
+   },
+  /**
   * 网络管理 - 分页获取部门成员简要信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -278,6 +294,17 @@ module.exports = {
      return $.api('Department', 'GetProjectDepartments', args, options);
    },
   /**
+  * 根据部门Id 获取完整的部门路径
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDepartmentFullNameById: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('Department', 'GetDepartmentFullNameById', args, options);
+   },
+  /**
   * 根据部门父Id获取子部门,departmentId为null表示父部门是网络
   * @param {Object} args 请求参数
   * @param {integer} args.pageIndex
@@ -302,6 +329,7 @@ module.exports = {
   * @param {} args.sortField 排序字段
   * @param {} args.sortType 排序类型
   * @param {string} args.keywords 关键词
+  * @param {boolean} args.onlyMyJoin 是否仅看自己的部门
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -327,6 +355,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.parentId
+  * @param {boolean} args.onlyMyJoin 仅看我加入的部门
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize
   * @param {Object} options 配置参数

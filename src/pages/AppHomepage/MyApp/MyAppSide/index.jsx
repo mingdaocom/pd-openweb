@@ -37,7 +37,7 @@ export default class MyAppSide extends Component {
         };
       });
       MY_APP_SIDE_DATA.forEach(item => {
-        if (item.id === 'sourcemodule') {
+        if (item.id === 'educate') {
           item.data = sourcesList;
         }
       });

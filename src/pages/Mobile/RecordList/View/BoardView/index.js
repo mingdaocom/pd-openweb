@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import BoardView from 'src/pages/worksheet/views/BoardView';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import * as boardviewActions from 'src/pages/worksheet/redux/actions/boardView';
 import ViewErrorPage from '../components/ViewErrorPage';
 

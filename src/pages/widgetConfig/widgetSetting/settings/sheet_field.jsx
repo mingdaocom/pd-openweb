@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { LoadDiv, RadioGroup, Dialog } from 'ming-ui';
+import { LoadDiv, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import {
@@ -57,7 +57,7 @@ export default function SheetField(props) {
 
   const getFieldsByControls = (controls = []) => {
     return resortControlByColRow(controls).filter(
-      ({ type, enumDefault }) => !_.includes(CAN_NOT_AS_OTHER_FIELD, type) && !(type === 29 && enumDefault !== 1),
+      ({ type, enumDefault }) => !_.includes(CAN_NOT_AS_OTHER_FIELD, type) || !(type === 38 && enumDefault === 3),
     );
   };
 
@@ -244,7 +244,13 @@ export default function SheetField(props) {
             })}
           >
             {data.sourceControlId ? (
-              <span>{controlDel ? _l('字段已删除') : controlName}</span>
+              <Tooltip
+                text={<span>{_l('ID: %0', data.sourceControlId)}</span>}
+                popupPlacement="bottom"
+                disable={!controlDel}
+              >
+                <span>{controlDel ? _l('字段已删除') : controlName}</span>
+              </Tooltip>
             ) : (
               <span className="Gray_9e">{_l('请选择')}</span>
             )}

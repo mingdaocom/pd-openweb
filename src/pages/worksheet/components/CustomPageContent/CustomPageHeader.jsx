@@ -6,7 +6,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import update from 'immutability-helper';
-import { updatePage } from 'src/pages/worksheet/common/Statistics/api/custom';
+import { updatePage } from 'statistics/api/custom';
 import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
 import PageDesc from './PageDesc';
@@ -50,10 +50,12 @@ export default function CustomPageHeader(props) {
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
-    createFontLink().then(exportImage).then(blob => {
-      setExportLoading(false);
-      saveAs(blob, imageName);
-    });
+    createFontLink()
+      .then(exportImage)
+      .then(blob => {
+        setExportLoading(false);
+        saveAs(blob, imageName);
+      });
   };
 
   const handleUpdatePage = obj => {
@@ -100,15 +102,16 @@ export default function CustomPageHeader(props) {
           title: <span className="Bold">{_l('删除自定义页面 “%0”', name)}</span>,
           description: (
             <div>
-              <span style={{ color: '#f44336' }}>{_l('注意：自定义页面下所有配置和数据将被永久删除，不可恢复。')}</span>
+              <span style={{ color: '#f44336' }}>{_l('注意：自定义页面下所有配置和数据将被删除。')}</span>
               {_l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')}
             </div>
           ),
-          data: [{ text: _l('我确认永久删除页面和所有数据'), value: 1 }],
+          data: [{ text: _l('我确认删除页面和所有数据'), value: 1 }],
           onOk: () => {
             deleteSheet({
               type: 1,
               appId,
+              projectId,
               groupId,
               worksheetId: pageId,
             });

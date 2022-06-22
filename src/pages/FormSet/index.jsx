@@ -14,18 +14,13 @@ import Print from './containers/Print';
 import Alias from './containers/Alias';
 import FunctionalSwitch from './containers/FunctionalSwitch';
 import CustomBtnFormSet from './containers/CustomBtnFormSet';
-import FormIndexSetting from './containers/FormIndexSetting'
+import FormIndexSetting from './containers/FormIndexSetting';
+import SubmitFormSetting from './containers/SubmitFormSetting';
 import './index.less';
 import ErrorState from 'src/components/errorPage/errorState';
 import { MODULE_TYPE_TO_NAME } from './config';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
 class FormSet extends React.Component {
-  // static propTypes = {
-  //   match: PropTypes.shape({}),
-  //   loadColumnRules: PropTypes.func,
-  //   getWorksheetInfo: PropTypes.func,
-  //   formSet: PropTypes.shape({}),
-  // };
   constructor(props) {
     super(props);
     this.state = {
@@ -44,14 +39,6 @@ class FormSet extends React.Component {
     $('html').addClass('formSetWorksheet');
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { match, getWorksheetInfo } = this.props;
-    const { worksheetId, type = '' } = match.params;
-    if (type !== nextProps.match.params.type && nextProps.match.params.type === 'alias') {
-      getWorksheetInfo(worksheetId);
-    }
-  }
-
   componentWillUnmount() {
     $('html').removeClass('formSetWorksheet');
   }
@@ -60,7 +47,7 @@ class FormSet extends React.Component {
     {
       switch (type) {
         case 'alias':
-          return <Alias />;
+          return <Alias {...this.props} />;
         case 'display':
           return <ColumnRules />;
         case 'validationBox':
@@ -72,9 +59,11 @@ class FormSet extends React.Component {
         case 'customBtn':
           return <CustomBtnFormSet />;
         case 'indexSetting':
-          return <FormIndexSetting/>
+          return <FormIndexSetting />;
+        case 'submitForm':
+          return <SubmitFormSetting />;
         default:
-          return <Alias />;
+          return <SubmitFormSetting />;
           break;
       }
     }
@@ -108,7 +97,7 @@ class FormSet extends React.Component {
           <div className="flexBox columnRulesBox">
             <Sidenav worksheetId={worksheetId} type={type} displayNum={dispalyRulesNum} />
             <DocumentTitle
-              title={_l('表单设置 - %0 - %1', MODULE_TYPE_TO_NAME[type || 'alias'], worksheetName || '')}
+              title={_l('表单设置 - %0 - %1', MODULE_TYPE_TO_NAME[type || 'submitForm'], worksheetName || '')}
             />
             <ErrorBoundary>{this.renderCon(type)}</ErrorBoundary>
           </div>

@@ -11,7 +11,7 @@ import UserList from './userList';
 import PermissionsList from './permissionList';
 
 import EditRoleDialog from '../createEditRole';
-import { Input } from 'antd'
+import { Input } from 'antd';
 
 import 'dialogSelectUser';
 import './style.less';
@@ -42,7 +42,7 @@ class RoleDetail extends React.Component {
       isSuperAdmin: false,
       permissionTypes: [],
       hasMember: undefined,
-      keywords: ''
+      keywords: '',
     };
 
     this.getRolePermission = this.getRolePermission.bind(this);
@@ -96,7 +96,7 @@ class RoleDetail extends React.Component {
     }).then(roleDetail => {
       RoleAuthCommon.formatRoleAuth(roleDetail);
       const { roleName, auth, addAuth, isSuperAdmin, permissionTypes } = roleDetail;
-      this.props.setDetailTitle(roleName)
+      this.props.setDetailTitle(roleName);
       this.setState({
         roleName,
         addAuth,
@@ -111,7 +111,8 @@ class RoleDetail extends React.Component {
 
   render() {
     const { projectId, roleId, isApply } = this.props;
-    const { hasMember, userOpAuth, editOpAuth, deleteOpAuth, isSuperAdmin, addAuth, permissionTypes, tab, keywords } = this.state;
+    const { hasMember, userOpAuth, editOpAuth, deleteOpAuth, isSuperAdmin, addAuth, permissionTypes, tab, keywords } =
+      this.state;
     const isHrVisible = md.global.Account.projects.find(o => o.projectId === projectId).isHrVisible;
 
     const path = isApply ? '/admin/index/' + projectId : '/admin/rolelist/' + projectId;
@@ -157,14 +158,15 @@ class RoleDetail extends React.Component {
                           projectId: projectId,
                           roleId,
                         }).then(data => {
-                          if (data) {
+                          const { message, deleteSuccess } = data;
+                          if (deleteSuccess) {
                             alert(_l('操作成功'));
-                            navigateTo(path);
                           } else {
-                            alert(_l('操作失败'), 2);
+                            alert(message || _l('操作失败'), 2);
                           }
+                          navigateTo('/admin/rolelist/' + projectId);
                         });
-                      }
+                      },
                     );
                   }}
                 >
@@ -184,12 +186,18 @@ class RoleDetail extends React.Component {
                   {_l('编辑角色权限')}
                 </Button>
               ) : null}
-              <Button type="primary" disabled={!userOpAuth} size="small" className="mLeft20" onClick={this.addMemberHander}>
+              <Button
+                type="primary"
+                disabled={!userOpAuth}
+                size="small"
+                className="mLeft20"
+                onClick={this.addMemberHander}
+              >
                 {_l('添加成员')}
               </Button>
             </div>
           )}
-          <div className="Right" style={{ width: '192px'}}>
+          <div className="Right" style={{ width: '192px' }}>
             <Search allowClear placeholder={_l('搜索')} onSearch={keywords => this.setState({ keywords })} />
           </div>
         </div>
@@ -239,7 +247,9 @@ class RoleDetail extends React.Component {
           >
             {_l('权限详情')}
           </span>
-          {addAuth && tab === 'permissions' ? <span className="Right LineHeight30 Gray_9e">{_l('允许角色成员授予他人拥有相同权限（已开启）')}</span> : null}
+          {addAuth && tab === 'permissions' ? (
+            <span className="Right LineHeight30 Gray_9e">{_l('允许角色成员授予他人拥有相同权限（已开启）')}</span>
+          ) : null}
         </div>
         {tab !== 'permissions' ? (
           <UserList

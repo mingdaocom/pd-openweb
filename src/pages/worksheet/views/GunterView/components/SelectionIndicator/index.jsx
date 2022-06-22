@@ -16,7 +16,7 @@ const SelectionIndicatorWrapper = styled.div(
 `,
 );
 
-const headerHeight = 61;
+const headerHeight = 60;
 const rowHeight = 32;
 
 @connect(

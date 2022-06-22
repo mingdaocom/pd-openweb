@@ -23,7 +23,7 @@ import { getHoverColor, isTimeStyle, isEmojiCharacter, getShowExternalData, getC
 import { isLightColor } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
-import CurrentDateInfo from 'src/pages/Mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
+import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
 import Trigger from 'rc-trigger';
 import autoSize from 'ming-ui/decorators/autoSize';
 
@@ -895,32 +895,39 @@ class RecordCalendar extends Component {
                 });
               }}
               eventDidMount={info => {
+                // let { startData } = calendarInfo[0] || {};
+                let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
                 $(info.el.offsetParent).attr('title', info.event._def.title);
                 let time = info.event._def.extendedProps[info.event._def.extendedProps.begin] || '';
                 let d = $(info.el.offsetParent).find('.fc-event-time');
-                if (!info.event.allDay && info.view.type !== 'dayGridMonth') {
-                  if (!this.browserIsMobile()) {
-                    d.html(moment(time).format('HH:mm'));
-                  } else {
-                    d.html(``);
-                  }
+                if (startData.type === 15) {
+                  //日期视图 不显示时间
+                  d.html(``);
                 } else {
-                  if (hour24 === '0') {
-                    //12小时
-                    let hour = new Date(time.replace(/\-/g, '/')).getHours();
-                    let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
-                    let h = hour % 12 <= 0 ? 12 : hour % 12;
-                    if (!this.browserIsMobile()) {
-                      d.html(`${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`);
-                    } else {
-                      d.html(``);
-                    }
-                  } else {
-                    //24小时
+                  if (!info.event.allDay && info.view.type !== 'dayGridMonth') {
                     if (!this.browserIsMobile()) {
                       d.html(moment(time).format('HH:mm'));
                     } else {
                       d.html(``);
+                    }
+                  } else {
+                    if (hour24 === '0') {
+                      //12小时
+                      let hour = new Date(time.replace(/\-/g, '/')).getHours();
+                      let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
+                      let h = hour % 12 <= 0 ? 12 : hour % 12;
+                      if (!this.browserIsMobile()) {
+                        d.html(`${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`);
+                      } else {
+                        d.html(``);
+                      }
+                    } else {
+                      //24小时
+                      if (!this.browserIsMobile()) {
+                        d.html(moment(time).format('HH:mm'));
+                      } else {
+                        d.html(``);
+                      }
                     }
                   }
                 }
@@ -1083,8 +1090,12 @@ class RecordCalendar extends Component {
               }}
               eventMouseEnter={item => {
                 this.showTip(null, false);
+                let { startData } = calendarInfo[0] || {};
                 let colorHover = getHoverColor(item.event.backgroundColor);
-                if (!item.event.allDay && item.view.type === 'dayGridMonth') {
+                if (
+                  (startData.type === 15 && !item.event.allDay) ||
+                  (!item.event.allDay && item.view.type === 'dayGridMonth')
+                ) {
                   $(item.el).find('.fc-daygrid-event-dot').css({
                     'border-color': colorHover,
                   });
@@ -1101,7 +1112,11 @@ class RecordCalendar extends Component {
                 }
               }}
               eventMouseLeave={item => {
-                if (!item.event.allDay && item.view.type === 'dayGridMonth') {
+                let { startData } = calendarInfo[0] || {};
+                if (
+                  (startData.type === 15 && !item.event.allDay) ||
+                  (!item.event.allDay && item.view.type === 'dayGridMonth')
+                ) {
                   $(item.el).find('.fc-daygrid-event-dot').css({
                     'border-color': item.event.backgroundColor,
                   });

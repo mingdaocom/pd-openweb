@@ -290,6 +290,7 @@ class AppRole extends PureComponent {
                           });
                           editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
                             if (res) {
+                              window.appInfo.epEnableStatus = !this.state.isEnable;
                               this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
                                 navigateTo(`/app/${appId}/role/external`);
                               });
@@ -337,6 +338,7 @@ class AppRole extends PureComponent {
               closePortal={() => {
                 editExPortalEnable({ appId, isEnable: false }).then(res => {
                   if (res) {
+                    window.appInfo.epEnableStatus = false;
                     navigateTo(`/app/${appId}/role`);
                     this.setState({ isOpenPortal: false, editType: 0 });
                   } else {

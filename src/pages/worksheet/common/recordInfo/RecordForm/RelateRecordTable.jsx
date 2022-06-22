@@ -3,7 +3,7 @@ import PropTypes, { func } from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Motion, spring } from 'react-motion';
-import { getRowRelationRows, getSwitchPermit, editWorksheetControls } from 'src/api/worksheet';
+import { getRowRelationRows, getSwitchPermit, editWorksheetControls, getQueryBySheetId } from 'src/api/worksheet';
 import update from 'immutability-helper';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -21,9 +21,11 @@ import WorksheetTable from 'worksheet/components/WorksheetTable';
 import ColumnHead from './RelateRecordTableColumnHead';
 import RowHead from './RelateRecordTableRowHead';
 import RelateRecordBtn from './RelateRecordBtn';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { getWorksheetInfo, updateRecordControl, updateRelateRecords } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -185,8 +187,10 @@ export default function RelateRecordTable(props) {
     onRelateRecordsChange = () => {},
   } = props;
   const { worksheetId, recordId, isCharge, allowEdit } = recordbase;
+  const allowlink = (control.advancedSetting || {}).allowlink;
   const columnWidthsOfSetting = getCellWidths(control);
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = control.strDefault.split('').map(b => !!+b);
+  const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
   const searchRef = useRef();
   const conRef = useRef();
   const worksheetTableRef = useRef();
@@ -206,6 +210,7 @@ export default function RelateRecordTable(props) {
   const [keywordsForSearch, setKeywordsForSearch] = useState('');
   const [worksheetOfControl, setWorksheetOfControl] = useState({});
   const [sheetSwitchPermit, setSheetSwitchPermit] = useState([]);
+  const [sheetSearchConfig, setSheetSearchConfig] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageIndexForHead, setPageIndexForHead] = useState(1);
   const [sortControl, setSortControl] = useState();
@@ -229,6 +234,12 @@ export default function RelateRecordTable(props) {
     try {
       const data = await getSwitchPermit({ worksheetId: control.dataSource });
       setSheetSwitchPermit(data);
+    } catch (err) {}
+  }
+  async function loadSheetSearchConfig() {
+    try {
+      const data = await getQueryBySheetId({ worksheetId: control.dataSource });
+      setSheetSearchConfig(formatSearchConfigs(data));
     } catch (err) {}
   }
   async function loadRows({ showHideTip } = {}) {
@@ -350,6 +361,7 @@ export default function RelateRecordTable(props) {
       setSortControl();
     }
     loadSheetSwitchPermition();
+    loadSheetSearchConfig();
   }, [recordId, control.controlId]);
   useEffect(() => {
     if (!isNewRecord) {
@@ -407,7 +419,7 @@ export default function RelateRecordTable(props) {
     worksheetOfControl.allowAdd &&
     control.enumDefault2 !== 1 &&
     control.enumDefault2 !== 11 &&
-    !onlyRelateByScanCode;
+    !disabledManualWrite;
   const selectVisible =
     !control.disabled &&
     !_.isEmpty(worksheetOfControl) &&
@@ -415,7 +427,7 @@ export default function RelateRecordTable(props) {
     control.enumDefault2 !== 10 &&
     control.enumDefault2 !== 11 &&
     allowEdit &&
-    !onlyRelateByScanCode;
+    !disabledManualWrite;
   const titleControl = formdata.filter(c => c.attribute === 1) || {};
   const defaultRelatedSheetValue = {
     name: titleControl.value,
@@ -438,6 +450,20 @@ export default function RelateRecordTable(props) {
   const rowCount = records.length > 3 ? records.length + 1 : 4;
   const numberWidth = String(pageIndex * PAGE_SIZE).length * 8;
   let rowHeadWidth = (numberWidth > 24 ? numberWidth : 24) + 32;
+  function handleUpdateCell({ cell, cells, updateRecordId }, options = {}) {
+    updateRecordControl({
+      appId: worksheetOfControl.appId,
+      worksheetId: worksheetOfControl.worksheetId,
+      recordId: updateRecordId,
+      cells,
+      cell,
+    }).then(updatedRow => {
+      if (_.isFunction(options.updateSucessCb)) {
+        options.updateSucessCb(updatedRow);
+      }
+      tableActions.updateRecord({ ...updatedRow, allowedit: true, allowdelete: true }, true);
+    });
+  }
   const tableComp = useMemo(
     () => (
       <WorksheetTable
@@ -447,6 +473,7 @@ export default function RelateRecordTable(props) {
         fromModule={WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD}
         fixedColumnCount={fixedColumnCount}
         rowCount={rowCount}
+        allowlink={allowlink}
         viewId={control.viewId}
         sheetSwitchPermit={sheetSwitchPermit}
         lineeditable={
@@ -566,22 +593,44 @@ export default function RelateRecordTable(props) {
         onCellClick={(cell, row) => {
           setActiveRecord({
             id: row.rowid,
-            activeRelateTableContorlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,
+            activeRelateTableControlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,
           });
           setHighlightRows({});
         }}
         updateCell={({ cell, row }, options = {}) => {
-          updateRecordControl({
-            appId: worksheetOfControl.appId,
-            worksheetId: worksheetOfControl.worksheetId,
-            recordId: row.rowid,
-            cell,
-          }).then(updatedRow => {
-            if (_.isFunction(options.updateSucessCb)) {
-              options.updateSucessCb(updatedRow);
-            }
-            tableActions.updateRecord({ ...updatedRow, allowedit: true, allowdelete: true }, true);
+          const dataFormat = new DataFormat({
+            data: tableControls
+              .filter(c => c.advancedSetting)
+              .map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
+            projectId: worksheetOfControl.projectId,
+            searchConfig: sheetSearchConfig,
+            onAsyncChange: changes => {
+              let needUpdateCells = [];
+              if (!_.isEmpty(changes.controlIds)) {
+                changes.controlIds.forEach(cid => {
+                  needUpdateCells.push({
+                    controlId: cid,
+                    value: changes.value,
+                  });
+                });
+              } else if (changes.controlId) {
+                needUpdateCells.push(changes);
+              }
+              handleUpdateCell({ cells: needUpdateCells, updateRecordId: row.rowid }, options);
+            },
           });
+          dataFormat.updateDataSource(cell);
+          const data = dataFormat.getDataSource();
+          const updatedIds = dataFormat.getUpdateControlIds();
+          const updatedCells = data
+            .filter(c => _.includes(updatedIds, c.controlId))
+            .map(c => _.pick(c, ['controlId', 'controlName', 'type', 'value']));
+          updatedCells.forEach(c => {
+            if (c.controlId === cell.controlId) {
+              c.editType = cell.editType;
+            }
+          });
+          handleUpdateCell({ cell, cells: updatedCells, updateRecordId: row.rowid }, options);
         }}
         onColumnWidthChange={(controlId, value) => {
           setLayoutChanged(true);
@@ -627,6 +676,7 @@ export default function RelateRecordTable(props) {
                     tableActions.addRecords(record);
                   }
                 },
+                openRecord: id => setActiveRecord({ id }),
               });
             }}
             onSelect={() => {
@@ -773,7 +823,7 @@ export default function RelateRecordTable(props) {
             appId={worksheetOfControl.appId}
             viewId={control.viewId}
             recordId={activeRecord && activeRecord.id}
-            activeRelateTableContorlId={activeRecord && activeRecord.activeRelateTableContorlIdOfRecord}
+            activeRelateTableControlId={activeRecord && activeRecord.activeRelateTableControlIdOfRecord}
             worksheetId={worksheetOfControl.worksheetId}
             // rules={worksheetOfControl.rules}
             updateRows={([rowid], newrecord) => {

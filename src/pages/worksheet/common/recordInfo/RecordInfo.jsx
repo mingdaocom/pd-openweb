@@ -195,6 +195,7 @@ export default class RecordInfo extends Component {
       isWorksheetRowLand,
       hideRows,
       hideRecordInfo,
+      sheetSwitchPermit,
     } = props || this.props;
     const { tempFormData } = this.state;
     try {
@@ -209,7 +210,12 @@ export default class RecordInfo extends Component {
         getRules: !rules,
         controls,
       });
-      const portalDiscussSet = await this.getPortalDiscussSet(data);
+      const portalDiscussSet =
+        (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
+        !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)
+          ? //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
+            {}
+          : await this.getPortalDiscussSet(data);
       // 设置隐藏字段的 hidden 属性
       data.formData = data.formData.map(c => ({
         ...c,
@@ -316,6 +322,13 @@ export default class RecordInfo extends Component {
   @autobind
   bindPrevNextKeyEvent(e) {
     const { currentSheetRows } = this.props;
+    let activeDialogRecordId;
+    try {
+      activeDialogRecordId = [...document.querySelectorAll('.recordInfoCon')].pop().getAttribute('data-record-id');
+    } catch (err) {}
+    if (activeDialogRecordId !== this.state.recordId) {
+      return;
+    }
     const canPrev = currentSheetRows.length > 0 && this.state.currentIndex !== 0;
     const canNext = currentSheetRows.length > 0 && this.state.currentIndex !== currentSheetRows.length - 1;
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 188) {
@@ -707,6 +720,7 @@ export default class RecordInfo extends Component {
           )}
           <div
             className={cx('recordInfoCon flexColumn', { abnormal, isWorkflow: from === RECORD_INFO_FROM.WORKFLOW })}
+            data-record-id={recordId}
             ref={con => (this.con = con)}
             onClick={e => e.stopPropagation()}
           >
@@ -857,6 +871,9 @@ export default class RecordInfo extends Component {
                 }}
                 onSave={this.onSave}
                 onCancel={this.handleCancelChange}
+                onError={() => {
+                  this.setState({ submitLoading: false });
+                }}
                 currentIndex={currentIndex}
               />
               {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}

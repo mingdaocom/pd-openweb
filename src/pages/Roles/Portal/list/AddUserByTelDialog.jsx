@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions';
-import { Icon, Dialog, Checkbox, LoadDiv } from 'ming-ui';
+import { Icon, Dialog, Checkbox, LoadDiv, Dropdown } from 'ming-ui';
 import 'uploadAttachment';
 import cx from 'classnames';
 import { addExAccounts } from 'src/api/externalPortal';
@@ -14,12 +14,28 @@ const Wrap = styled.div`
   .sendMes {
     position: absolute;
     bottom: 28px;
+    left: 24px;
+  }
+  .add {
+    width: 77px;
+    height: 36px;
+    line-height: 36px;
+    background: #f8f8f8;
+    border-radius: 3px;
+    color: #2196f3;
+    i {
+      color: #2196f3;
+      line-height: 36px;
+    }
+    &:hover {
+      background: #f5f5f5;
+    }
   }
   .row {
     margin-top: 10px;
     display: flex;
     .rowTel {
-      width: 300px;
+      width: 200px;
       height: 36px;
       background: #ffffff;
       border: 1px solid #e0e0e0;
@@ -39,6 +55,24 @@ const Wrap = styled.div`
       margin-left: 16px;
       padding: 0 12px;
     }
+    .role {
+      width: 90px;
+      height: 36px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      opacity: 1;
+      border-radius: 3px;
+      .Dropdown--input {
+        display: flex;
+        .value {
+          flex: 1;
+        }
+        span.value,
+        i {
+          line-height: 26px;
+        }
+      }
+    }
     .del {
       opacity: 0;
       margin-left: 16px;
@@ -55,9 +89,10 @@ const Wrap = styled.div`
   }
 `;
 function AddUserByTelDialog(props) {
-  const { appId, show, setAddUserByTelDialog, getUserList } = props;
+  const { appId, show, setAddUserByTelDialog, getUserList, roleList } = props;
+  const roleId = roleList.find(o => o.isDefault).roleId;
   const [loading, setLoading] = useState(false); //
-  const [list, setList] = useState([{ phone: '', name: '' }]);
+  const [list, setList] = useState([{ phone: '', name: '', roleId: roleId }]);
   const [isSendMsgs, setIsSend] = useState(true); //
   const update = () => {
     if (loading) {
@@ -67,7 +102,7 @@ function AddUserByTelDialog(props) {
     let data = list
       .filter(o => !!o.phone && !!o.name && !o.isErr)
       .map(o => {
-        return { ..._.pick(o, ['phone', 'name']) };
+        return { ..._.pick(o, ['phone', 'name', 'roleId']) };
       });
     if (data.length <= 0 || list.filter(o => o.isErr || (!!o.phone && !o.name)).length > 0) {
       setLoading(false);
@@ -97,6 +132,9 @@ function AddUserByTelDialog(props) {
         setLoading(false);
       },
     );
+  };
+  const addNew = () => {
+    setList(list.concat({ phone: '', name: '', roleId: list[list.length - 1].roleId || roleId }));
   };
   return (
     <Dialog
@@ -136,7 +174,7 @@ function AddUserByTelDialog(props) {
                       i === list.length - 1 && //点击最后一行
                       list.filter(o => !o.phone).length < 3 //最多三个未填
                     ) {
-                      setList(list.concat({ phone: '', name: '' }));
+                      addNew();
                     }
                   }}
                 />
@@ -157,6 +195,25 @@ function AddUserByTelDialog(props) {
                     );
                   }}
                 />
+                <Dropdown
+                  isAppendToBody
+                  data={roleList.map(o => {
+                    return { ...o, value: o.roleId, text: o.name };
+                  })}
+                  value={o.roleId || roleId} //成员
+                  className={cx('flex role')}
+                  onChange={newValue => {
+                    setList(
+                      list.map((o, item) => {
+                        if (item === i) {
+                          return { ...o, roleId: newValue };
+                        } else {
+                          return o;
+                        }
+                      }),
+                    );
+                  }}
+                />
                 <Icon
                   className={cx('Font16  del Red', { op0: i === 0, Hand: i !== 0 })}
                   icon="trash"
@@ -170,6 +227,15 @@ function AddUserByTelDialog(props) {
             );
           })}
         </div>
+        <span
+          className="add mTop10 InlineBlock Hand TxtCenter Bold"
+          onClick={() => {
+            addNew();
+          }}
+        >
+          <Icon icon="add Bold" />
+          {_l('添加')}
+        </span>
         <Checkbox
           className="TxtCenter InlineBlock Hand Gray_75 sendMes"
           text={_l('发送短信通知')}

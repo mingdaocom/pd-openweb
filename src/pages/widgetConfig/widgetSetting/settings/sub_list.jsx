@@ -5,7 +5,7 @@ import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import { getWorksheetInfo, getQueryBySheetId } from 'src/api/worksheet';
 import { changeSheet } from 'src/api/appManagement';
 import styled from 'styled-components';
 import { getSortData } from 'src/pages/worksheet/util';
@@ -14,9 +14,15 @@ import SheetComponents from '../components/relateSheet';
 import { EditInfo, InfoWrap, SettingItem, WidgetIntroWrap } from '../../styled';
 import { getControlsSorts, getDefaultShowControls, handleAdvancedSettingChange } from '../../util/setting';
 import Components from '../components';
-import { canSetAsTitle, getAdvanceSetting, resortControlByColRow, dealControlData } from '../../util';
+import {
+  canSetAsTitle,
+  getAdvanceSetting,
+  resortControlByColRow,
+  dealControlData,
+  formatSearchConfigs,
+} from '../../util';
 import subListComponents from '../components/sublist';
-import _, { isEmpty, find, filter } from 'lodash';
+import _, { isEmpty, find, filter, findIndex } from 'lodash';
 import { DEFAULT_INTRO_LINK } from '../../config';
 import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
@@ -49,6 +55,7 @@ export default function SubListSetting(props) {
   const { allowadd, allowsingle } = advancedSetting;
   const batchcids = getAdvanceSetting(data, 'batchcids') || [];
   const [sheetInfo, setInfo] = useState({});
+  const [subQueryConfigs, setSubQueryConfigs] = useState([]);
   const [subListMode, setMode] = useState('new');
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(batchcids.length > 0);
@@ -66,7 +73,9 @@ export default function SubListSetting(props) {
   useEffect(() => {
     setVisible(batchcids.length > 0);
     if (dataSource && window.subListSheetConfig[dataSource]) {
-      setInfo((window.subListSheetConfig[dataSource] || {}).sheetInfo);
+      const { sheetInfo, subQueryConfigs = [] } = window.subListSheetConfig[dataSource] || {};
+      setInfo(sheetInfo);
+      setSubQueryConfigs(subQueryConfigs);
     }
   }, [controlId]);
 
@@ -105,12 +114,37 @@ export default function SubListSetting(props) {
               sheetInfo: res,
             },
           };
+          getQueryConfigs(res);
         })
         .always(() => {
           setLoading(false);
         });
     }
   }, [status.saveIndex]);
+
+  const getQueryConfigs = ({ isWorksheetQuery, worksheetId }) => {
+    if (isWorksheetQuery) {
+      getQueryBySheetId({ worksheetId }).then(res => {
+        const formatSearchData = formatSearchConfigs(res);
+        setSubQueryConfigs(formatSearchData);
+        window.subListSheetConfig[worksheetId] = {
+          ...(window.subListSheetConfig[worksheetId] || {}),
+          subQueryConfigs: formatSearchData || [],
+        };
+      });
+    }
+  };
+
+  const updateSubQueryConfigs = (value = {}, mode) => {
+    const index = findIndex(subQueryConfigs, item => item.controlId === value.controlId);
+    let newQueryConfigs = subQueryConfigs.slice();
+    if (mode) {
+      index > -1 && newQueryConfigs.splice(index, 1);
+    } else {
+      index > -1 ? newQueryConfigs.splice(index, 1, value) : newQueryConfigs.push(value);
+    }
+    setSubQueryConfigs(newQueryConfigs);
+  };
 
   useEffect(() => {
     if (!dataSource) return;
@@ -142,6 +176,8 @@ export default function SubListSetting(props) {
         // if ([0, 1].includes(res.type)) {
         nextData = { ...nextData, relationControls: dealControlData(controls) };
         // }
+        // 子表工作表查询
+        getQueryConfigs(res);
         onChange(nextData);
       })
       .always(() => {
@@ -210,6 +246,8 @@ export default function SubListSetting(props) {
           {dataSource ? (
             <ConfigureControls
               {...props}
+              subQueryConfigs={subQueryConfigs}
+              updateSubQueryConfigs={updateSubQueryConfigs}
               controls={filter(
                 showControls.map(id => find(relationControls, item => item.controlId === id)),
                 item => !isEmpty(item),
@@ -221,7 +259,7 @@ export default function SubListSetting(props) {
         </Fragment>
       );
     }
-    const sortedControls = resortControlByColRow(relationControls);
+    const sortedControls = resortControlByColRow(relationControls).filter(i => !_.includes([45, 47], i.type));
     return (
       <Fragment>
         <div className="settingItemTitle">{_l('显示字段')}</div>

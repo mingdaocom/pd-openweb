@@ -564,7 +564,7 @@ class AppWorkflowList extends Component {
                 <LoadDiv className="mTop10" />
               ) : !list.length ? (
                 <div className="flowEmptyWrap flexColumn">
-                  <div className={cx('flowEmptyPic', `flowEmptyPic-${FLOW_TYPE_NULL[type].icon}`)} />
+                  <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
                   <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
                 </div>
               ) : (

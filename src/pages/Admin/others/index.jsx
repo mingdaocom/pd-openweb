@@ -181,6 +181,7 @@ export default class OtherTool extends Component {
         return (
           <Input.Password
             className={`passwordInput errorInput${key}`}
+            autocomplete="new-password"
             value={this.state[key]}
             onChange={e => this.handleUpdateItem(e, key)}
             onFocus={this.clearError.bind(this, key)}

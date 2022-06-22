@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Flex } from 'antd-mobile';
@@ -30,21 +30,15 @@ class View extends Component {
     super(props);
   }
   componentDidMount() {
-    let { viewId, appId, worksheetId } = this.props.base || {};
     if (this.props.mobileNavGroupFilters.length) {
       this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
     } else {
       this.props.fetchSheetRows();
     }
-    this.props.updateMobileViewPermission({ viewId, appId, worksheetId });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
-    }
-    if (this.props.view.viewId !== nextProps.view.viewId) {
-      let { viewId, appId, worksheetId } = nextProps.base || {};
-      this.props.updateMobileViewPermission({ viewId, appId, worksheetId });
     }
   }
   renderError() {

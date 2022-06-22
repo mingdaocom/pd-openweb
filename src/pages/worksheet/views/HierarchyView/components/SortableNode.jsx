@@ -3,12 +3,14 @@ import { string, number, func } from 'prop-types';
 import cx from 'classnames';
 import { isEmpty, isEqual, pick } from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { RecordInfoModal } from 'mobile/Record';
 import { getItem } from '../../util';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
 import { browserIsMobile } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
+
+const isMobile = browserIsMobile();
 
 export default class SortableRecordItem extends Component {
   static propTypes = {
@@ -106,15 +108,6 @@ export default class SortableRecordItem extends Component {
     draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
   };
   handleRecordVisible = rowId => {
-    if (browserIsMobile()) {
-      const { appId } = this.props;
-      let { worksheetId, viewId } = { ...this.getRecordInfoPara() };
-      let url = viewId
-        ? `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`
-        : `/mobile/record/${appId}/${worksheetId}/${rowId}`;
-      navigateTo(url);
-      return;
-    }
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {
@@ -168,23 +161,37 @@ export default class SortableRecordItem extends Component {
           />
         </div>
         {recordInfoVisible && (
-          <RecordInfoWrapper
-            sheetSwitchPermit={sheetSwitchPermit}
-            allowAdd={view.allowAdd}
-            from={2}
-            visible
-            recordId={recordInfoRowId}
-            projectId={worksheetInfo.projectId}
-            hideRecordInfo={() => {
-              this.setState({ recordInfoVisible: false });
-            }}
-            updateSuccess={(recordIds, value, relateSheet) =>
-              updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet })
-            }
-            appId={appId}
-            deleteRows={(_, rows) => deleteHierarchyRecord({ rows, path, pathId })}
-            {...recordInfoPara}
-          />
+          isMobile ? (
+            <RecordInfoModal
+              className="full"
+              visible
+              appId={appId}
+              worksheetId={recordInfoPara.worksheetId}
+              viewId={recordInfoPara.viewId}
+              rowId={recordInfoRowId}
+              onClose={() => {
+                this.setState({ recordInfoVisible: false });
+              }}
+            />
+          ) : (
+            <RecordInfoWrapper
+              sheetSwitchPermit={sheetSwitchPermit}
+              allowAdd={view.allowAdd}
+              from={2}
+              visible
+              recordId={recordInfoRowId}
+              projectId={worksheetInfo.projectId}
+              hideRecordInfo={() => {
+                this.setState({ recordInfoVisible: false });
+              }}
+              updateSuccess={(recordIds, value, relateSheet) =>
+                updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet })
+              }
+              appId={appId}
+              deleteRows={(_, rows) => deleteHierarchyRecord({ rows, path, pathId })}
+              {...recordInfoPara}
+            />
+          )
         )}
       </Fragment>
     );

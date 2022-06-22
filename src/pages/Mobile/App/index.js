@@ -11,13 +11,13 @@ import textImg from './img/text.png';
 import okImg from './img/ok.png';
 import DocumentTitle from 'react-document-title';
 import { AppPermissionsInfo } from '../components/AppPermissions';
-import RecordList from 'src/pages/Mobile/RecordList';
-import CustomPage from 'src/pages/Mobile/CustomPage';
+import RecordList from 'mobile/RecordList';
+import CustomPage from 'mobile/CustomPage';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
 import PortalAppHeader from 'src/pages/PageHeader/PortalAppHeader/index.jsx';
-import WorksheetUnNormal from 'src/pages/Mobile/RecordList/State';
+import WorksheetUnNormal from 'mobile/RecordList/State';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 const Item = List.Item;
 let modal = null;
@@ -56,6 +56,7 @@ class App extends Component {
 
   componentWillUnmount() {
     $('html').removeClass('appListMobile');
+    sessionStorage.removeItem('detectionUrl');
     if (modal) {
       modal.close();
     } else {
@@ -75,7 +76,7 @@ class App extends Component {
 
   detectionUrl = ({ appRoleType, isLock, appNaviStyle, appSectionDetail }) => {
     const { params } = this.props.match;
-    if (appNaviStyle === 2 && !params.worksheetId) {
+    if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
       const isCharge = isHaveCharge(appRoleType, isLock);
       const { appSectionId, workSheetInfo } = appSectionDetail[0];
       const { workSheetId } = isCharge
@@ -192,7 +193,7 @@ class App extends Component {
       return (
         <div className="flexRow valignWrapper appNaviStyle2Header">
           <div
-            className="flex flexRow valignWrapper Gray_75 process Relative"
+            className={cx('flex flexRow valignWrapper Gray_75 process Relative', { hide: window.isPublicApp })}
             onClick={() => {
               this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
             }}
@@ -232,7 +233,7 @@ class App extends Component {
           </div>
           {!webMobileDisplay && (
             <React.Fragment>
-              <div className="Relative flexRow valignWrapper">
+              <div className={cx('Relative flexRow valignWrapper', { hide: window.isPublicApp })}>
                 <Icon
                   icon="knowledge_file"
                   className="Font26 Gray_bd"
@@ -404,9 +405,16 @@ class App extends Component {
             !fixed) ||
             (fixed && isAuthorityApp)) && (
             <Back
+              style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
               className="low"
               onClick={() => {
-                this.navigateTo('/mobile/appHome');
+                let currentGroupInfo =
+                  localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+                if (_.isEmpty(currentGroupInfo)) {
+                  this.navigateTo('/mobile/appHome');
+                } else {
+                  history.back();
+                }
               }}
             />
           )}
@@ -497,6 +505,7 @@ class App extends Component {
               onPress={() => {
                 const { params } = this.props.match;
                 this.navigateTo(`/mobile/app/${params.appId}`);
+                sessionStorage.setItem('detectionUrl', 1);
               }}
             />
           </TabBar>

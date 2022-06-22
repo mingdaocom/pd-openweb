@@ -13,8 +13,8 @@ import './index.less';
 const dateScope = getDateScope();
 
 export const TABS = {
-  WAITING_APPROVE: 0,  // 待审批
-  WAITING_FILL: 1,    // 待填写
+  WAITING_APPROVE: 0, // 待审批
+  WAITING_FILL: 1, // 待填写
   WAITING_EXAMINE: 2, // 待查看
   MY_SPONSOR: 3, // 我发起
   COMPLETE: 4, // 已完成
@@ -194,7 +194,7 @@ export default class MyProcess extends Component {
       countData: {},
       approveType: null,
       rejectVisible: false,
-      passVisible: false
+      passVisible: false,
     };
   }
   componentDidMount() {
@@ -362,27 +362,29 @@ export default class MyProcess extends Component {
       if (flowNode[batchType] === 1) {
         return {
           ...data,
-          signature
-        }
+          signature,
+        };
       } else {
         return data;
       }
     });
-    instanceVersion.batch({
-      type: 4,
-      batchOperationType: approveType,
-      selects
-    }).then(result => {
-      if (result) {
-        alert('操作成功');
-        this.setState({ approveCards: [] });
-        this.handleChangeTab(TABS.WAITING_APPROVE);
-        getTodoCount().then(countData => {
-          this.updateCountData(countData);
-        });
-      }
-    });
-  }
+    instanceVersion
+      .batch({
+        type: 4,
+        batchOperationType: approveType,
+        selects,
+      })
+      .then(result => {
+        if (result) {
+          alert('操作成功');
+          this.setState({ approveCards: [] });
+          this.handleChangeTab(TABS.WAITING_APPROVE);
+          getTodoCount().then(countData => {
+            this.updateCountData(countData);
+          });
+        }
+      });
+  };
   handleSave = item => {
     const { list } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
@@ -421,7 +423,7 @@ export default class MyProcess extends Component {
       <div className="header card">
         <div className="valignWrapper flex title">
           <Icon icon="knowledge_file" />
-          <span className="bold">{_l('我的流程')}</span>
+          <span className="bold">{_l('流程待办')}</span>
         </div>
         <div className="statesTab">
           <div
@@ -535,9 +537,7 @@ export default class MyProcess extends Component {
           </div>
           {isApprove && (
             <div className="valignWrapper Font14">
-              {!_.isEmpty(approveCards) && (
-                <div className="bold mRight24">{_l('已选择%0项', approveCards.length)}</div>
-              )}
+              {!_.isEmpty(approveCards) && <div className="bold mRight24">{_l('已选择%0项', approveCards.length)}</div>}
               <Tooltip
                 overlayClassName="myProcessApproveOverlay"
                 overlayStyle={{ width: 320, maxWidth: 320 }}
@@ -546,14 +546,16 @@ export default class MyProcess extends Component {
                 arrowPointAtCenter={true}
                 trigger={['click']}
                 color="#FFF"
-                title={(
+                title={
                   <div className="pAll10 flexColumn">
                     <span className="Gray Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
                     <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
                       <Button
                         type="link"
                         size="small"
-                        onClick={() => { $('.passApprove').click(); }}
+                        onClick={() => {
+                          $('.passApprove').click();
+                        }}
                       >
                         {_l('取消')}
                       </Button>
@@ -573,7 +575,7 @@ export default class MyProcess extends Component {
                       </Button>
                     </div>
                   </div>
-                )}
+                }
                 visible={passVisible}
                 onVisibleChange={passVisible => {
                   if (_.isEmpty(approveCards)) {
@@ -593,14 +595,16 @@ export default class MyProcess extends Component {
                 arrowPointAtCenter={true}
                 trigger={['click']}
                 color="#FFF"
-                title={(
+                title={
                   <div className="pAll10 flexColumn">
                     <span className="Gray Font15">{_l('您将否决选择的%0个审批事项', approveCards.length)}</span>
                     <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
                       <Button
                         type="link"
                         size="small"
-                        onClick={() => { $('.rejectApprove').click() }}
+                        onClick={() => {
+                          $('.rejectApprove').click();
+                        }}
                       >
                         {_l('取消')}
                       </Button>
@@ -620,7 +624,7 @@ export default class MyProcess extends Component {
                       </Button>
                     </div>
                   </div>
-                )}
+                }
                 visible={_.isEmpty(approveCards) ? false : rejectVisible}
                 onVisibleChange={rejectVisible => {
                   if (_.isEmpty(approveCards)) {
@@ -734,7 +738,9 @@ export default class MyProcess extends Component {
           this.setState({ approveType: null });
         }}
       >
-        <div className="Gray_75 Font14 mBottom10">{_l('包含需要%0个需要签名的审批事项', signatureApproveCards.length)}</div>
+        <div className="Gray_75 Font14 mBottom10">
+          {_l('包含需要%0个需要签名的审批事项', signatureApproveCards.length)}
+        </div>
         <Signature
           ref={signature => {
             this.signature = signature;
@@ -748,11 +754,7 @@ export default class MyProcess extends Component {
     const { list, stateTab, loading, filter, approveCards } = this.state;
 
     if (!loading && _.isEmpty(list)) {
-      return (
-        <div className="content">
-          {this.renderWithoutData()}
-        </div>
-      );
+      return <div className="content">{this.renderWithoutData()}</div>;
     }
 
     return (
@@ -771,16 +773,16 @@ export default class MyProcess extends Component {
                   selectCard: item,
                 });
               }}
-              onAddApproveRecord={(item) => {
+              onAddApproveRecord={item => {
                 const { approveCards } = this.state;
                 this.setState({
-                  approveCards: approveCards.concat(item)
+                  approveCards: approveCards.concat(item),
                 });
               }}
-              onRemoveApproveRecord={(id) => {
+              onRemoveApproveRecord={id => {
                 const { approveCards } = this.state;
                 this.setState({
-                  approveCards: approveCards.filter(item => item.id !== id)
+                  approveCards: approveCards.filter(item => item.id !== id),
                 });
               }}
             />

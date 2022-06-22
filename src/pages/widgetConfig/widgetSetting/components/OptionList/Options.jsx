@@ -181,6 +181,7 @@ const OptionItem = SortableElement(
               )}
               <div className="optionName">
                 <input
+                  id={key}
                   autoFocus={index === focusIndex}
                   value={value}
                   onKeyDown={e => {
@@ -239,10 +240,11 @@ export default function SelectOptions(props) {
 
   const addOption = () => {
     const colorIndex = _.findIndex(OPTION_COLORS_LIST, item => item === (_.last(options) || {}).color);
+    const nextKey = uuidv4();
     const nextOptions = update(options, {
       $push: [
         {
-          key: uuidv4(),
+          key: nextKey,
           value: _l('选项%0', options.length + 1),
           isDeleted: false,
           index: options.length + 1,
@@ -254,6 +256,9 @@ export default function SelectOptions(props) {
       options: nextOptions,
     });
     setIndex(nextOptions.length - 1);
+    setTimeout(() => {
+      document.getElementById(nextKey).select();
+    }, 50);
     if (onAdd) {
       onAdd();
     }

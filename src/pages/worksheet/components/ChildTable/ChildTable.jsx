@@ -21,6 +21,7 @@ import {
   copySublistRow,
   parseAdvancedSetting,
   formatRecordToRelateRecord,
+  handleSortRows,
 } from 'worksheet/util';
 import ColumnHead from '../BaseColumnHead';
 import RowHead from './ChildTableRowHead';
@@ -75,7 +76,8 @@ class ChildTable extends React.Component {
   }
 
   componentDidMount() {
-    const { rows, control, recordId, clearAndSetRows } = this.props;
+    const { rows, control, recordId, initRowIsCreate = true } = this.props;
+    this.updateDefsourceOfControl();
     if (recordId) {
       if (
         !rows.length &&
@@ -83,7 +85,7 @@ class ChildTable extends React.Component {
         control.value.action === 'clearAndSet' &&
         _.get(control, 'value.rows.length')
       ) {
-        clearAndSetRows(
+        this.handleClearAndSetRows(
           control.value.rows.map(r => this.newRow(r, { isDefaultValue: true, isQueryWorksheetFill: true })),
         );
         this.setState({ loading: false });
@@ -95,7 +97,14 @@ class ChildTable extends React.Component {
         const defaultRows =
           _.isObject(control.value) && _.isObject(control.value.rows) ? control.value.rows : JSON.parse(control.value);
         if (_.isArray(defaultRows)) {
-          clearAndSetRows(defaultRows.map(r => this.newRow(r, { isDefaultValue: true })));
+          this.handleClearAndSetRows(
+            defaultRows.map(r =>
+              this.newRow(r, {
+                isDefaultValue: true,
+                isCreate: _.isUndefined(r.initRowIsCreate) ? initRowIsCreate : r.initRowIsCreate,
+              }),
+            ),
+          );
         }
       } catch (err) {
         console.log(err);
@@ -111,6 +120,7 @@ class ChildTable extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { initRows, resetRows, addRows, clearAndSetRows } = this.props;
+    this.updateDefsourceOfControl(nextProps);
     const control = this.props.control;
     const nextControl = nextProps.control;
     const isAddRecord = !nextProps.recordId;
@@ -126,7 +136,7 @@ class ChildTable extends React.Component {
         } catch (err) {}
       });
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'clearAndSet') {
-      clearAndSetRows(
+      this.handleClearAndSetRows(
         nextControl.value.rows.map(row => this.newRow(row, { isCreate: true, isQueryWorksheetFill: true })),
       );
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'append') {
@@ -232,12 +242,26 @@ class ChildTable extends React.Component {
     return _.find(this.state.controls, { controlId });
   }
 
-  updateDefsourceOfControl() {
+  handleClearAndSetRows(rows) {
+    const { control, clearAndSetRows } = this.props;
+    const { controls = [] } = this.state;
+    const sort = safeParse(control.advancedSetting.sorts)[0];
+    if (sort && sort.controlId) {
+      const sortControl = _.find(controls, c => c.controlId === sort.controlId);
+      if (sortControl) {
+        clearAndSetRows(handleSortRows(rows, sortControl, sort.isAsc));
+        return;
+      }
+    }
+    clearAndSetRows(rows);
+  }
+
+  updateDefsourceOfControl(nextProps) {
     const {
       recordId,
       control: { controlId },
       masterData,
-    } = this.props;
+    } = nextProps || this.props;
     const { controls } = this.state;
     this.setState({
       controls: controls.map(control => {
@@ -351,7 +375,7 @@ class ChildTable extends React.Component {
   }
 
   rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
-    const { masterData, projectId, recordId } = this.props;
+    const { masterData, projectId, recordId, searchConfig } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
       this.handleUpdateCell(
         {
@@ -377,6 +401,7 @@ class ChildTable extends React.Component {
       })),
       isCreate: isCreate || !row,
       from: FROM.NEWRECORD,
+      searchConfig,
       projectId,
       masterData,
       masterRecordRowId: recordId,
@@ -638,6 +663,7 @@ class ChildTable extends React.Component {
       entityName,
       rules,
       appId,
+      searchConfig,
     } = this.props;
     const { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
     const {
@@ -864,6 +890,7 @@ class ChildTable extends React.Component {
             worksheetId={control.dataSource}
             projectId={projectId}
             appId={appId}
+            searchConfig={searchConfig}
             controlName={control.controlName}
             title={
               previewRowIndex > -1 ? `${control.controlName}#${previewRowIndex + 1}` : _l('创建%0', control.controlName)

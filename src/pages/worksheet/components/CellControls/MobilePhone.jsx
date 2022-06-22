@@ -133,6 +133,7 @@ export default class MobilePhone extends React.Component {
     const { className, style, error, rowIndex, needLineLimit, cell, popupContainer, editable, isediting, onClick } =
       this.props;
     const { value } = this.state;
+    const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
     const editProps = {
       ref: this.input,
       value,
@@ -171,7 +172,7 @@ export default class MobilePhone extends React.Component {
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
         action={['click']}
         popup={editcontent}
-        getPopupContainer={cell.enumDefault === 0 ? () => document.body : popupContainer}
+        getPopupContainer={isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer}
         popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable cellControlEdittingStatus', {
           cellControlErrorStatus: error,
         })}

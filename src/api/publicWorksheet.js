@@ -142,7 +142,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则

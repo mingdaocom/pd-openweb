@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { getSortData, isCustomSort, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'src/pages/worksheet/common/Statistics/common';
-import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import { getSortData, isCustomSort, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
+import { reportTypes } from 'statistics/Charts/common';
 
 const defaultSort = {
   value: 0,

@@ -79,7 +79,7 @@ function ViewControl(props) {
     updateSearchRecord,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
-  const { count, rowsSummary } = sheetViewData;
+  const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
   const { pageIndex, pageSize } = sheetFetchParams;
   const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
   const [createCustomBtnVisible, setCreateCustomBtnVisible] = useState();
@@ -198,12 +198,13 @@ function ViewControl(props) {
         <i
           className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
-            refreshSheet(view);
+            refreshSheet(view, { updateWorksheetControls: true });
           }}
         />
       </Tooltip>
       {Number(view && view.viewType) === 0 && (
         <Pagination
+          abnormalMode={pageCountAbnormal}
           className="pagination"
           pageIndex={pageIndex}
           pageSize={pageSize}
@@ -257,6 +258,7 @@ function ViewControl(props) {
             '.quickAddControlDialog',
             '.ant-modal-root',
             '.ant-tooltip',
+            '.deleteHoverTips',
             '.CodeMirror-hints',
           ]}
           onClickAway={() => setViewConfigVisible(false)}

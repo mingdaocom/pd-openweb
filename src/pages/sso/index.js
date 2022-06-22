@@ -24,7 +24,7 @@ function start() {
         succees: result => {
           const { accountResult, sessionId } = result.data;
           if (accountResult === 1) {
-            setPssId(sessionId, true);
+            setPssId(sessionId);
             if (url) {
               location.href = decodeURIComponent(url);
             } else {
@@ -101,7 +101,7 @@ function start() {
                 corpId: corpId,
                 onSuccess: function (result) {
                   const { code } = result;
-                  const isDingDingSidebar = (ret || '').includes('#noredirect');
+                  const isDingDingSidebar = (ret || '').includes('#noredirect') || isPcSlide;
                   const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(ret || '')}&i=${
                     i || ''
                   }&code=${code}&pc_slide=${pc_slide}`;

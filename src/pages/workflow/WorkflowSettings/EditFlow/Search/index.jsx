@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
+import { ACTION_ID } from '../../enum';
 
 export default class Search extends Component {
   constructor(props) {
@@ -50,7 +51,7 @@ export default class Search extends Component {
           <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
         </div>
         <div className="workflowContentInfo ellipsis Gray_75 mTop4 pBottom5">
-          {_l('从工作表获得')}
+          {item.actionId === ACTION_ID.WORKSHEET_FIND ? _l('从工作表获得') : _l('从记录链接获得')}
           {item.executeType === 0 && <span>{_l('，无结果时中止或执行查找结果分支')}</span>}
           {item.executeType === 1 && <span>{_l('，无结果时新增记录')}</span>}
           {item.executeType === 2 && <span>{_l('，无结果时继续执行')}</span>}

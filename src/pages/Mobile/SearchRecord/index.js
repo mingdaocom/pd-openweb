@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
 import { Flex, ActivityIndicator, WhiteSpace, ListView, WingBlank } from 'antd-mobile';
-import CustomRecordCard from 'src/pages/Mobile/RecordList/RecordCard';
+import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import sheetApi from 'src/api/worksheet';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
 import { getDefaultCondition, formatConditionForSave } from 'src/pages/worksheet/common/WorkSheetFilter/util';

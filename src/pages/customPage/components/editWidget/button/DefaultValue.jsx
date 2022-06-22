@@ -228,10 +228,6 @@ function DefaultValue(props) {
                 if (FORM_HIDDEN_CONTROL_IDS.includes(c.controlId)) {
                   return false;
                 }
-                // 外部门户成员
-                if ((c.type === 26 && _.get(c, ['advancedSetting', 'usertype']) === '2')) {
-                  return false;
-                }
                 // 关联表列表
                 if ((c.type === 29 && _.get(c, ['advancedSetting', 'showtype']) === '2')) {
                   return false;

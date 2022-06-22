@@ -140,6 +140,7 @@ module.exports = {
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
+  * @param {string} args.projectId 当前网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -27,6 +27,7 @@ import Cascader from './Cascader';
 import OCR from './OCR';
 import Subtotal from './Subtotal';
 import Embed from './Embed';
+import BarCode from './BarCode';
 
 export default {
   RADIO: Radio,
@@ -58,4 +59,5 @@ export default {
   OCR: OCR,
   SUBTOTAL: Subtotal,
   Embed: Embed,
+  BarCode: BarCode,
 };

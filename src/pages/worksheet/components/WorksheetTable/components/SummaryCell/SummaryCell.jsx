@@ -86,7 +86,7 @@ export default class extends React.Component {
       return <div style={style} />;
     }
     let type = control.sourceControlType || control.type;
-    if (type === 10010 || type === 33) {
+    if (_.includes([10010, 33, 45, 47], type)) {
       return <div className="sheetSummaryInfo disabled" style={style} />;
     }
     if (type === 'summaryhead') {

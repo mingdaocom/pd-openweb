@@ -677,6 +677,7 @@ function User(props) {
           show={addUserByTelDialog}
           getUserList={getUserList}
           appId={appId}
+          roleList={roleList}
           isSendMsgs={isSendMsgs}
           changeIsSendMsgs={isSendMsgs => {
             const { baseInfo = {} } = portal;

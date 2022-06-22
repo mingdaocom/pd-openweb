@@ -67,7 +67,6 @@ export default function ProcessInput(props) {
       <BtnParamWrap className="flexRow w100">
         <div className="flex">
           <TagTextarea
-            mode={2}
             defaultValue={tagTextareaValue}
             getRef={el => {
               tagtextarea.current = el;

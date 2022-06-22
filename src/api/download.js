@@ -96,6 +96,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.dowloadId 下载Id
+  * @param {integer} args.type 下载类型 1 是职位 2是部门
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -109,6 +110,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.dowloadId 下载Id
+  * @param {integer} args.type 下载类型 1 是职位 2是部门
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -116,6 +118,44 @@ module.exports = {
    exportImportEditUserFailList: function (args, options = {}) {
      
      return $.api('Download', 'ExportImportEditUserFailList', args, options);
+   },
+  /**
+  * 导入职位或者部门错误列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.dowloadId 下载Id
+  * @param {integer} args.type 下载类型 1 是职位 2是部门
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportFailJobOrDepartmentErrorList: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportFailJobOrDepartmentErrorList', args, options);
+   },
+  /**
+  * 导出公司职位列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportProjectJobList: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportProjectJobList', args, options);
+   },
+  /**
+  * 导出公司部门列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportProjectDepartmentList: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportProjectDepartmentList', args, options);
    },
   /**
   * 下载银行信息

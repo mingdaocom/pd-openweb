@@ -12,7 +12,7 @@ import Header from './Header';
 import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
 import { formatControlsData, getMsgByCode } from './util/data';
-import { getUrlPara, genWidgetsByControls, genControlsByWidgets, returnMasterPage } from './util';
+import { getUrlPara, genWidgetsByControls, genControlsByWidgets, returnMasterPage, formatSearchConfigs } from './util';
 import Components from './widgetSetting/components';
 import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
@@ -126,7 +126,7 @@ export default function Container(props) {
   const getQueryConfigs = (hasSearchQuery = false) => {
     if (hasSearchQuery) {
       getQueryBySheetId({ worksheetId: sourceId }).then(res => {
-        setQueryConfigs(res);
+        setQueryConfigs(formatSearchConfigs(res));
       });
     }
   };
@@ -275,7 +275,7 @@ export default function Container(props) {
     allControls: genControlsByWidgets(widgets),
     enableState,
     // 全局表信息
-    globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId']),
+    globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
   };
 
   const cancelSubmit = ({ redirectfn, desp } = {}) => {

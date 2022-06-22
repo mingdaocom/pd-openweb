@@ -129,8 +129,6 @@ export function getFormDataForNewRecord({
 
 export function submitNewRecord(props) {
   const {
-    notDialog,
-    resetForm,
     appId,
     projectId,
     addType,
@@ -138,14 +136,10 @@ export function submitNewRecord(props) {
     worksheetId,
     masterRecord,
     formdata,
-    continueAdd,
     customBtn,
-    sheetAddWorksheetRow,
-    addWorksheetRow,
-    onAdd,
     updateWorksheetControls,
     onSubmitEnd = () => {},
-    onCancel = () => {},
+    onSubmitSuccess = () => {},
     customwidget,
     setRequesting,
   } = props;
@@ -171,21 +165,13 @@ export function submitNewRecord(props) {
   addWorksheetRowApi(args)
     .then(res => {
       if (res.resultCode === 1) {
-        const resetOptions = {};
+        let newControls;
         let newOptionControls = updateOptionsOfControls(formdata, res.data);
         if (newOptionControls.length && _.isFunction(updateWorksheetControls)) {
           updateWorksheetControls(newOptionControls);
-          resetOptions.newControls = newOptionControls.map(c => ({ ...c, value: res.data[c.controlId] }));
+          newControls = newOptionControls.map(c => ({ ...c, value: res.data[c.controlId] }));
         }
-        if (continueAdd || notDialog) {
-          alert('保存成功', 1, 1000);
-          resetForm(resetOptions);
-        } else {
-          onCancel();
-        }
-        if (_.isFunction(onAdd)) {
-          onAdd(res.data);
-        }
+        onSubmitSuccess({ rowData: res.data, newControls });
       } else if (res.resultCode === 11) {
         if (customwidget.current && _.isFunction(customwidget.current.uniqueErrorUpdate)) {
           customwidget.current.uniqueErrorUpdate(res.badData);

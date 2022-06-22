@@ -53,9 +53,15 @@ export default class Widgets extends Component {
     }
   }
   render() {
-    const { projectId, children } = this.props;
+    const { className, projectId, children } = this.props;
     return (
-      <ScanQRCode projectId={projectId} onScanQRCodeResult={this.handleRelateRow}>{children}</ScanQRCode>
+      <ScanQRCode
+        className={className}
+        projectId={projectId}
+        onScanQRCodeResult={this.handleRelateRow}
+      >
+        {children}
+      </ScanQRCode>
     );
   }
 }

@@ -363,7 +363,7 @@ export default class Container extends React.Component {
           type={isLink ? (loginForAdd ? 'login' : 'invite') : 'register'}
           keys={
             isLink
-              ? loginForAdd
+              ? loginForAdd || location.pathname.indexOf('join') >= 0 //定向邀请已存在手机号和邮箱不需要验证
                 ? ['emailOrTel', 'password']
                 : ['emailOrTel', 'code', 'password']
               : ['tel', 'code', 'password']

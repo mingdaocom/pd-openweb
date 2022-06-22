@@ -74,7 +74,6 @@ rewrite (?i)^/app /index.html break;
 rewrite (?i)^/custom /index.html break;
 rewrite (?i)^/portal/app /index.html break;
 rewrite (?i)^/feed /index.html break;
-rewrite (?i)^/hr /index.html break;
 rewrite (?i)^/personal /index.html break;
 rewrite (?i)^/privateDeployment /index.html break;
 rewrite (?i)^/admin /index.html break;

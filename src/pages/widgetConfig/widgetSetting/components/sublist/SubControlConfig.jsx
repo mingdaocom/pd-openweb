@@ -55,9 +55,11 @@ export default function SubControlConfig({
   changeWidgetData,
   globalSheetInfo,
   allControls,
+  subQueryConfigs,
+  updateSubQueryConfigs,
   ...rest
 }) {
-  const { controlId, type, hint, desc } = control || {};
+  const { controlId, type } = control || {};
   const { controlName, dataSource: subListSheetId } = subListData;
   const SettingModel = Setting[enumWidgetType[type]];
   const handleChange = obj => {
@@ -68,9 +70,12 @@ export default function SubControlConfig({
     onChange: handleChange,
     from: 'subList',
     globalSheetInfo,
+    subListSheetId,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
-    hideSearchAndFun: true,
+    queryConfig: _.find(subQueryConfigs || [], i => i.controlId === controlId) || {},
+    updateQueryConfigs: updateSubQueryConfigs,
+    queryControls: controls, // 子表allControls被过滤过，用新字段覆盖
   };
   return (
     <SubControlConfigWrap>
@@ -90,7 +95,7 @@ export default function SubControlConfig({
         />
       )}
       {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && (
-        <DynamicDefaultValue {..._.omit(rest, 'onChange')} {...subListProps} />
+        <DynamicDefaultValue {..._.omit(rest, 'onChange')} {...subListProps} fromCondition={'relateSheet'} />
       )}
       {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...subListProps} />}
       {HAVE_CONFIG_SUB_LIST.includes(type) && <ControlSetting {...subListProps} />}

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { TagTextarea } from 'ming-ui';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
+import cx from 'classnames';
 
 export default class CustomTextarea extends Component {
   static propTypes = {
@@ -66,7 +67,9 @@ export default class CustomTextarea extends Component {
     return (
       <div className="flexRow mTop10 relative">
         <TagTextarea
-          className={`flex ${className}`}
+          className={cx('flex', className, {
+            smallPadding: height === 0 && content && content.match(/\$[\w]+-[\w]+\$/g),
+          })}
           height={height}
           defaultValue={content || ''}
           operatorsSetMargin={operatorsSetMargin}
@@ -75,7 +78,7 @@ export default class CustomTextarea extends Component {
           }}
           onFocus={onFocus}
           renderTag={(tag, options) => {
-            const ids = tag.split('-');
+            const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
             const nodeObj = formulaMap[ids[0]] || {};
             const controlObj = formulaMap[ids[1]] || {};
 
@@ -85,6 +88,7 @@ export default class CustomTextarea extends Component {
                 appType={nodeObj.appType}
                 actionId={nodeObj.actionId}
                 nodeName={nodeObj.name || ''}
+                controlId={ids[1]}
                 controlName={controlObj.name || ''}
               />
             );

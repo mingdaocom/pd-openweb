@@ -14,6 +14,7 @@ export default class Widgets extends Component {
 
   render() {
     const { value, type, dot, unit, advancedSetting } = this.props;
+    const isUnLink = type === 32 && advancedSetting.analysislink !== '1';
     let content = value;
 
     if (!_.isUndefined(value) && type === 31) {
@@ -38,7 +39,7 @@ export default class Widgets extends Component {
 
     return (
       <div className={cx('customFormControlBox customFormTextareaBox customFormReadonly', { spacing: type === 25 })}>
-        <Linkify properties={{ target: '_blank' }}>{content}</Linkify>
+        {isUnLink ? content : <Linkify properties={{ target: '_blank' }}>{content}</Linkify>}
       </div>
     );
   }

@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { Dialog, Dropdown, RadioGroup, Input, Button, Support } from 'ming-ui';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import sheetAjax from 'src/api/worksheet';
+import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import renderQr from './renderWorksheetRowQrCode';
 import './PrintQrCode.less';
 
@@ -251,7 +252,7 @@ export default class PrintQrCode extends Component {
                 {printColumns.slice(0, maxColumnLength).map((column, i) => (
                   <div key={i} className="selectColumn flexRow">
                     <Dropdown
-                      data={columns.map(c => ({
+                      data={columns.filter(FILTER[2]).map(c => ({
                         text: c.controlName + (c.attribute === 1 ? _l('（标题）') : ''),
                         value: c.controlId,
                         disabled: !!_.find(printColumns, cc => cc.controlId === c.controlId),
@@ -301,7 +302,7 @@ export default class PrintQrCode extends Component {
                       text: _l('仅限应用成员访问'),
                       value: 2,
                     },
-                  ]}
+                  ].filter(o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 2))}
                   style={{
                     width: '100%',
                   }}

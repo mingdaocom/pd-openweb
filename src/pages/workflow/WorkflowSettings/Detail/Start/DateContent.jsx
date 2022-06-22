@@ -2,6 +2,8 @@ import React, { Fragment } from 'react';
 import { CONTROLS_NAME } from '../../enum';
 import { TriggerCondition, TimeSelect } from '../components';
 import { Dropdown } from 'ming-ui';
+import Time from 'ming-ui/components/NewTimePicker';
+import { Tooltip } from 'antd';
 
 export default ({
   data,
@@ -15,7 +17,11 @@ export default ({
 }) => {
   const renderTitle = item => {
     if (!item) {
-      return <span style={{ color: '#f44336' }}>{_l('字段已删除')}</span>;
+      return (
+        <Tooltip title={`ID：${data.assignFieldId}`}>
+          <span style={{ color: '#f44336' }}>{_l('字段已删除')}</span>
+        </Tooltip>
+      );
     }
 
     return (
@@ -32,15 +38,16 @@ export default ({
       className: item.id === data.appId ? 'ThemeColor3' : '',
     };
   });
-  const list = data.controls
-    .filter(o => o.type === 15 || o.type === 16)
-    .map(item => {
-      return {
-        text: renderTitle(item),
-        value: item.controlId,
-        className: item.controlId === data.assignFieldId ? 'ThemeColor3' : '',
-      };
-    });
+  const getList = selectId =>
+    data.controls
+      .filter(o => o.type === 15 || o.type === 16)
+      .map(item => {
+        return {
+          text: renderTitle(item),
+          value: item.controlId,
+          className: item.controlId === selectId ? 'ThemeColor3' : '',
+        };
+      });
   const dateNoTime = (_.find(data.controls, obj => obj.controlId === data.assignFieldId) || {}).type === 15;
   const frequencyData = [
     { text: _l('不重复'), value: 0 },
@@ -74,11 +81,12 @@ export default ({
         <div className="Font13 Gray_9e mTop10">{_l('将按照此字段的日期作为日期表来触发流程')}</div>
         <Dropdown
           className="flowDropdown mTop10"
-          data={list}
+          data={getList(data.assignFieldId)}
           value={data.assignFieldId || undefined}
           border
           placeholder={_l('请选择字段')}
           onChange={value => updateSource({ assignFieldId: value })}
+          disabledClickElement=".ant-tooltip"
           renderTitle={() =>
             data.assignFieldId && renderTitle(_.find(data.controls, item => item.controlId === data.assignFieldId))
           }
@@ -97,6 +105,53 @@ export default ({
               border
               onChange={value => updateSource({ frequency: value })}
             />
+
+            {data.frequency !== 0 && (
+              <Fragment>
+                <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
+                <div className="Font13 Gray_9e mTop5">{_l('当到达此时间点后将停止循环')}</div>
+                <Dropdown
+                  className="flowDropdown mTop10"
+                  data={
+                    data.executeEndTime
+                      ? [{ text: _l('清除选择'), value: '' }].concat(getList(data.executeEndTime))
+                      : getList(data.executeEndTime)
+                  }
+                  value={data.executeEndTime || undefined}
+                  border
+                  placeholder={_l('请选择字段')}
+                  onChange={value =>
+                    updateSource({
+                      executeEndTime: value,
+                      endTime:
+                        value && _.find(data.controls, item => item.controlId === value).type === 15 ? '08:00' : '',
+                    })
+                  }
+                  renderTitle={() =>
+                    data.executeEndTime &&
+                    renderTitle(_.find(data.controls, item => item.controlId === data.executeEndTime))
+                  }
+                />
+                {(_.find(data.controls, item => item.controlId === data.executeEndTime) || {}).type === 15 && (
+                  <div className="mTop10 flexRow alignItemsCenter timeWidth">
+                    <Time
+                      type="minute"
+                      value={{
+                        hour: data.endTime ? parseInt(data.endTime.split(':')[0]) : 8,
+                        minute: data.endTime ? parseInt(data.endTime.split(':')[1]) : 0,
+                        second: 0,
+                      }}
+                      onChange={(event, value) => {
+                        updateSource({
+                          endTime:
+                            value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
+                        });
+                      }}
+                    />
+                  </div>
+                )}
+              </Fragment>
+            )}
           </Fragment>
         )}
 

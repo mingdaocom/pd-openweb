@@ -10,6 +10,7 @@ import { getArrBySpliceType, isRelateMoreList } from 'src/pages/FormSet/componen
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
 import { FORM_ERROR_TYPE } from './config';
+import { accDiv } from 'src/util';
 
 const getValueByDateRange = dateRange => {
   let value;
@@ -184,6 +185,19 @@ export const filterFn = (filterData, originControl, data = []) => {
       compareValues = [currentControl.value];
     }
   }
+
+  // value精度处理(公式、汇总计算)
+  function formatValueByUnit(v, con = {}) {
+    const isNumShow = (con.advancedSetting || {}).numshow === '1';
+    return (con.originType === 37 || con.type === 31 || (con.originType === 30 && con.sourceControltype === 37)) &&
+      v &&
+      /^\d+\.\d+$/.test(`${v}`)
+      ? accDiv((parseFloat(v) * 100).toFixed(isNumShow ? con.dot + 2 : con.dot), 100)
+      : v;
+  }
+  value = formatValueByUnit(value, control);
+  compareValue = formatValueByUnit(compareValue, currentControl);
+
   switch (filterType) {
     //   LIKE: 1, // 包含
     case FILTER_CONDITION_TYPE.LIKE:

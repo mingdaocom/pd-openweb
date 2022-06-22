@@ -205,7 +205,7 @@ class TableView extends React.Component {
       recordId: row.rowid,
     };
     if (cell.type === 29 && cell.enumDefault === 2) {
-      newState.activeRelateTableContorlIdOfRecord = cell.controlId;
+      newState.activeRelateTableControlIdOfRecord = cell.controlId;
     }
     this.setState(newState);
   }
@@ -488,12 +488,12 @@ class TableView extends React.Component {
     );
   }
 
-  asyncUpdate(row, cell) {
-    const { worksheetInfo, updateControlOfRow, controls } = this.props;
+  asyncUpdate(row, cell, options) {
+    const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig } = this.props;
     const { projectId } = worksheetInfo;
     const asyncUpdateCell = (cid, newValue) => {
       updateControlOfRow(
-        { recordId: row.rowid, controlId: cid, value: newValue },
+        { recordId: row.rowid, cell: { controlId: cid, value: newValue } },
         {
           updateSucessCb: needUpdateRow => {
             this.table.current.table.updateSheetRow({ ...needUpdateRow, allowedit: true, allowdelete: true });
@@ -505,6 +505,7 @@ class TableView extends React.Component {
       data: controls.filter(c => c.advancedSetting).map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
       projectId,
       // masterData,
+      searchConfig: sheetSearchConfig,
       onAsyncChange: changes => {
         if (!_.isEmpty(changes.controlIds)) {
           changes.controlIds.forEach(cid => {
@@ -516,6 +517,17 @@ class TableView extends React.Component {
       },
     });
     dataFormat.updateDataSource(cell);
+    const data = dataFormat.getDataSource();
+    const updatedIds = dataFormat.getUpdateControlIds();
+    const updatedCells = data
+      .filter(c => _.includes(updatedIds, c.controlId))
+      .map(c => _.pick(c, ['controlId', 'controlName', 'type', 'value']));
+    updatedCells.forEach(c => {
+      if (c.controlId === cell.controlId) {
+        c.editType = cell.editType;
+      }
+    });
+    updateControlOfRow({ cell, cells: updatedCells, recordId: row.rowid }, options);
   }
 
   render() {
@@ -542,13 +554,12 @@ class TableView extends React.Component {
       updateSheetColumnWidths,
       updateWorksheetSomeControls,
       openNewRecord,
-      updateControlOfRow,
     } = this.props;
     const { readonly } = this;
     const { loading, rows } = sheetViewData;
     const { sheetSelectedRows = [], sheetColumnWidths, fixedColumnCount, defaultScrollLeft } = sheetViewConfig;
     const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery } = worksheetInfo;
-    const { recordId, recordInfoVisible, activeRelateTableContorlIdOfRecord } = this.state;
+    const { recordId, recordInfoVisible, activeRelateTableControlIdOfRecord, tempViewIdForRecordInfo } = this.state;
     const { lineNumberBegin, columns } = this;
     const needClickToSearch = !readonly && _.get(view, 'advancedSetting.clicksearch') === '1';
     const numberWidth = String(lineNumberBegin + rows.length).length * 8;
@@ -570,17 +581,17 @@ class TableView extends React.Component {
             isCharge={isCharge}
             allowAdd={allowAdd}
             appId={appId}
-            viewId={viewId}
+            viewId={tempViewIdForRecordInfo || viewId}
             appSectionId={groupId}
             view={view}
             visible={recordInfoVisible}
             hideRecordInfo={closeId => {
               if (!closeId || closeId === this.state.recordId) {
-                this.setState({ recordInfoVisible: false });
+                this.setState({ recordInfoVisible: false, tempViewIdForRecordInfo: undefined });
               }
             }}
             recordId={recordId}
-            activeRelateTableContorlId={activeRelateTableContorlIdOfRecord}
+            activeRelateTableControlId={activeRelateTableControlIdOfRecord}
             worksheetId={worksheetId}
             updateWorksheetControls={updateWorksheetSomeControls}
             updateRows={updateRows}
@@ -662,11 +673,7 @@ class TableView extends React.Component {
               ) : undefined
             }
             updateCell={({ cell, row }, options) => {
-              this.asyncUpdate(row, cell);
-              updateControlOfRow(
-                { recordId: row.rowid, controlId: cell.controlId, value: cell.value, editType: cell.editType },
-                options,
-              );
+              this.asyncUpdate(row, cell, options);
             }}
             onColumnWidthChange={updateSheetColumnWidths}
           />
@@ -687,6 +694,7 @@ export default connect(
     buttons: state.sheet.buttons,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
+    sheetSearchConfig: state.sheet.sheetSearchConfig || [],
     chartIdFromUrl: _.get(state, 'sheet.base.chartId'),
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import SingleView from 'worksheet/common/SingleView';
-import MobileSingleView from 'src/pages/Mobile/components/SingleView';
+import MobileSingleView from 'mobile/components/SingleView';
 import { Icon, Tooltip, LoadDiv } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
@@ -52,7 +52,9 @@ const ViewWrap = styled.div`
   .SingleViewBody {
     border: none !important;
   }
-  &.hideAddRecord .addRecord {
+  &.hideAddRecord .addRecord,
+  &.hideSearchRecord .icon-search,
+  &.hideSearchRecord .searchWrapper {
     display: none;
   }
   &.disableSingleView {
@@ -121,7 +123,7 @@ export function View(props) {
   const Component = isMobileLayout ? MobileSingleView : SingleView;
 
   return (
-    <ViewWrap className={cx(className, { hideAddRecord: !config.isAddRecord })}>
+    <ViewWrap className={cx(className, { hideAddRecord: !config.isAddRecord, hideSearchRecord: !config.searchRecord })}>
       <Component
         showHeader
         ref={singleViewRef}
@@ -131,9 +133,11 @@ export function View(props) {
         maxCount={config.maxCount}
         headerLeft={(
           <span
-            className="SingleViewName Font15 bold Gray flex ellipsis"
+            className={cx('SingleViewName Font15 bold Gray flex ellipsis', { pointer: config.openView })}
             onClick={() => {
-              // navigateToView(value, viewId);
+              if (config.openView) {
+                navigateToView(value, viewId);
+              }
             }}
           >
             {config.name}

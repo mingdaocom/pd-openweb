@@ -23,6 +23,10 @@ export const getSheetDiscussion = ({worksheetId, rowId, pageIndex, entityType}, 
   });
 };
 
+export const unshiftSheetDiscussion = data => (dispatch, getState) => {
+  dispatch({ type: 'MOBILE_UNSHIFT_SHEET_DISCUSSION', data });
+}
+
 export const removeSheetDiscussion = (discussionId, rowId) => (dispatch, getState) => {
   const { sheetDiscussions } = getState().mobile;
   discussionAjax.removeDiscussion({

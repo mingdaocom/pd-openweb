@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { LoadDiv, Menu, MenuItem, Icon, Dialog } from 'ming-ui';
+import { Tooltip, Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
 import { startProcess } from 'src/pages/workflow/api/process';
 import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows } from 'src/api/worksheet';
@@ -556,13 +556,21 @@ class BatchOperate extends React.Component {
       rowsSummary,
       clearSelect,
       sheetSwitchPermit,
+      refresh,
     } = this.props;
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
     const { projectId, entityName, downLoadUrl } = worksheetInfo;
     const { select1000, printListLoading, customButtonLoading, customButtons } = this.state;
     const selectedRow = selectedRows.length === 1 && selectedRows[0];
-    const showExport = isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, viewId);
+    const showExport = isOpenPermit(permitList.export, sheetSwitchPermit, viewId);
+    const showCusTomBtn =
+      isOpenPermit(permitList.execute, sheetSwitchPermit, viewId) && !customButtonLoading && !!customButtons.length;
+    const canDelete =
+      isOpenPermit(permitList.delete, sheetSwitchPermit, viewId) &&
+      permission &&
+      permission.canRemove &&
+      (!selectedRow || selectedRow.allowdelete);
     const canEdit =
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
     return (
@@ -668,7 +676,7 @@ class BatchOperate extends React.Component {
                   }}
                 />
               )}
-              {permission && permission.canRemove && (!selectedRow || selectedRow.allowdelete) && (
+              {canDelete && (
                 <IconText
                   className="delete"
                   icon="delete2"
@@ -785,8 +793,8 @@ class BatchOperate extends React.Component {
                   }}
                 />
               )}
-              {!customButtonLoading && !!customButtons.length && (
-                <div className="flex">
+              <div className="flex">
+                {showCusTomBtn && (
                   <Buttons
                     count={selectedLength}
                     buttons={customButtons}
@@ -800,8 +808,18 @@ class BatchOperate extends React.Component {
                     handleTriggerCustomBtn={this.handleTriggerCustomBtn}
                     handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
                   />
-                </div>
-              )}
+                )}
+              </div>
+              <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
+                <i
+                  className={cx(
+                    'refreshBtn icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop5 mRight12',
+                  )}
+                  onClick={() => {
+                    refresh({ noClearSelected: true, updateWorksheetControls: true });
+                  }}
+                />
+              </Tooltip>
             </div>
           </div>
         )}

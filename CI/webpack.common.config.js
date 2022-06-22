@@ -102,6 +102,8 @@ module.exports = {
       mdFunction: 'src/components/common/function.js',
       addFriendConfirm: 'src/components/addFriendConfirm/addFriendConfirm.js',
       worksheet: 'src/pages/worksheet',
+      mobile: 'src/pages/Mobile',
+      statistics: 'src/pages/Statistics',
     },
     modules: [path.resolve(__dirname, '../'), path.join(__dirname, '../src'), 'node_modules'],
     extensions: ['.js', '.jsx', '.jsx.js', '.ts', '.tsx'],

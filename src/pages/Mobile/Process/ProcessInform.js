@@ -5,6 +5,7 @@ import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
 import Back from '../components/Back';
+import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
@@ -33,6 +34,7 @@ export default class ProcessInform extends Component {
       currentTab: processInformTabs[0].id,
       searchValue: '',
       countData: {},
+      previewRecord: {}
     }
   }
   componentDidMount() {
@@ -156,7 +158,10 @@ export default class ProcessInform extends Component {
                 return item.title;
               }}
               onClick={() => {
-                this.props.history.push(`/mobile/processRecord/${item.id}/${item.workId}`);
+                this.setState({
+                  previewRecord: { instanceId: item.id, workId: item.workId }
+                });
+                // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
             />
           </div>
@@ -167,7 +172,7 @@ export default class ProcessInform extends Component {
     );
   }
   render() {
-    const { currentTab, countData } = this.state;
+    const { currentTab, countData, previewRecord } = this.state;
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
@@ -189,6 +194,18 @@ export default class ProcessInform extends Component {
           />
           {currentTab === 'already' ? this.renderInput() : null}
           {this.renderContent()}
+          <ProcessRecordInfo
+            isModal
+            className="full"
+            visible={!_.isEmpty(previewRecord)}
+            instanceId={previewRecord.instanceId}
+            workId={previewRecord.workId}
+            onClose={() => {
+              this.setState({
+                previewRecord: {}
+              });
+            }}
+          />
         </div>
       </div>
     );

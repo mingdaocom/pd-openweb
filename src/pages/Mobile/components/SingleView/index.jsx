@@ -2,7 +2,7 @@ import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'reac
 import { string, bool, element, arrayOf, number } from 'prop-types';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
-import { updateBase } from 'src/pages/Mobile/RecordList/redux/actions';
+import { updateBase } from 'mobile/RecordList/redux/actions';
 import ViewComp from './ViewComp';
 
 function SingleView(props, ref) {

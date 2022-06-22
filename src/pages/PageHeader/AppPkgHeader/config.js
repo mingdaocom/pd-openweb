@@ -1,4 +1,6 @@
-const { app: {appInfo} } = window.private
+const {
+  app: { appInfo },
+} = window.private;
 
 export const ADD_GROUP_ID = '@ADD/GROUP';
 
@@ -64,11 +66,21 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-    { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
-    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    {
+      type: 'appManageMenu',
+      icon: 'custom_widgets',
+      text: _l('管理应用'),
+      subMenuList: [
+        { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+      ],
+    },
     {
       type: 'publishSettings',
       icon: 'send',
@@ -96,11 +108,28 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-    { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
-    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    {
+      type: 'appManageMenu',
+      icon: 'custom_widgets',
+      text: _l('管理应用'),
+      subMenuList: [
+        { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+        {
+          type: 'del',
+          icon: 'delete2',
+          text: _l('删除应用'),
+          action: 'delAppConfirmVisible',
+          className: 'delApp',
+        },
+      ],
+    },
     {
       type: 'publishSettings',
       icon: 'send',
@@ -112,13 +141,6 @@ export const APP_CONFIG = {
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
-    },
-    {
-      type: 'del',
-      icon: 'delete2',
-      text: _l('删除应用'),
-      action: 'delAppConfirmVisible',
-      className: 'delApp',
     },
   ].filter(item => !appInfo[item.type]),
   300: [
@@ -134,11 +156,21 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-    { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
-    { type: 'backupRestore', icon: 'refresh', text: _l('备份与还原') },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    {
+      type: 'appManageMenu',
+      icon: 'custom_widgets',
+      text: _l('管理应用'),
+      subMenuList: [
+        { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+      ],
+    },
     {
       type: 'publishSettings',
       icon: 'send',

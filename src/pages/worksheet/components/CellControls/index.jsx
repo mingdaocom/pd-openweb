@@ -29,6 +29,7 @@ import Switch from './Switch';
 import MobilePhone from './MobilePhone';
 import Cascader from './Cascader';
 import NumberSlider from './NumberSlider';
+import BarCode from './BarCode';
 
 import './CellControls.less';
 
@@ -136,6 +137,7 @@ export default class CellControl extends React.Component {
       cell.type === 28 ||
       cell.type === 34 ||
       cell.type === 36 ||
+      cell.type === 47 ||
       (cell.type === 29 && parseInt(cell.advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST)
     );
   }
@@ -166,7 +168,7 @@ export default class CellControl extends React.Component {
     const errorType = this.validate({ ...cell, value }, row);
     let errorText;
     if (_.includes([15, 16], cell.type)) {
-      errorText = onValidator(cell, undefined, formdata()).errorText;
+      errorText = onValidator(cell, undefined, _.isFunction(formdata) ? formdata() : formdata).errorText;
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
     }
@@ -302,6 +304,7 @@ export default class CellControl extends React.Component {
       sheetSwitchPermit,
       viewId,
       appId,
+      allowlink,
       disableDownload,
     } = this.props;
     const { isediting } = this.state;
@@ -340,7 +343,8 @@ export default class CellControl extends React.Component {
       }
     }
     const controlPermission = controlState(cell);
-    this.editable = canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal;
+    this.editable =
+      canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal && allowlink !== '0';
     if (!controlPermission.visible) {
       if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         return <div className={className} onClick={this.props.onClick} style={style} />;
@@ -454,6 +458,9 @@ export default class CellControl extends React.Component {
     }
     if (cell.type === 40) {
       return <Location {...props} />;
+    }
+    if (cell.type === 47) {
+      return <BarCode {...props} />;
     }
     return <div className={className} onClick={this.props.onClick} style={style} />;
   }

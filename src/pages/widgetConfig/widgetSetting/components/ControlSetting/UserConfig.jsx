@@ -58,7 +58,7 @@ const InfoWrap = styled.ul`
 `;
 
 export default function UserConfig({ globalSheetInfo, data, onChange }) {
-  const { noticeItem = 1, enumDefault2 } = data;
+  const { noticeItem, enumDefault2 } = data;
   const userRange = getAdvanceSetting(data, 'userrange') || [];
   const userType = getAdvanceSetting(data, 'usertype');
   const [overlayVisible, setVisible] = useState(false);

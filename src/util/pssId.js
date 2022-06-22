@@ -2,14 +2,11 @@
  * 设置 md_pss_id
  * @param {string} id
  */
-export const setPssId = (id, verification = false) => {
+export const setPssId = (id) => {
   if (id) {
     const userAgent = window.navigator.userAgent.toLowerCase();
     if (
-      verification ||
       userAgent.includes('dingtalk') ||
-      userAgent.includes('wxwork') ||
-      userAgent.includes('huawei-anyoffice') ||
       location.href.indexOf('theportal.cn') > -1 ||
       location.href.indexOf('localhost') > -1
     ) {

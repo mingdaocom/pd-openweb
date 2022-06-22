@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet';
 import { ScrollView } from 'ming-ui';
-import SheetModal from 'worksheet/common/Statistics/components/DataSource/components/SheetModal';
+import SheetModal from 'statistics/components/DataSource/components/SheetModal';
 
 function CreateAnalysis(props) {
   const {

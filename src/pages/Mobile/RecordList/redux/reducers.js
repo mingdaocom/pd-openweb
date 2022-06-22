@@ -22,6 +22,9 @@ export const currentSheetRows = (state = [], action) => {
       return Object.assign([], action.data);
     case 'MOBILE_ADD_SHEET_ROWS':
       return Object.assign([], state.concat(action.data));
+    case 'MOBILE_UNSHIFT_SHEET_ROWS':
+      state.unshift(action.data);
+      return Object.assign([], state);
     default:
       return state;
   }
@@ -146,15 +149,6 @@ export const batchOptVisible = (state = false, action) => {
 export const batchOptCheckedData = (state = [], action) => {
   switch (action.type) {
     case 'CAHNGE_BATCHOPT_CHECKED':
-      return action.data;
-    default:
-      return state;
-  }
-};
-
-export const mobileViewPermission = (state = {}, action) => {
-  switch (action.type) {
-    case 'UPDATE_MOBILEVIEW_PERMISSION':
       return action.data;
     default:
       return state;

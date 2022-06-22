@@ -7,6 +7,14 @@ export const getAppHomeList = (state = [], actions) => {
   }
 };
 
+export const myAppData = (state = {}, actions) => {
+  switch (actions.type) {
+    case 'UPDATE_MYAPPLIST':
+      return actions.data;
+    default:
+      return state;
+  }
+};
 
 export const isHomeLoading = (state = true, action) => {
   switch (action.type) {

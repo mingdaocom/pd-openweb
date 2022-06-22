@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { getWorksheetInfo } from 'src/api/worksheet';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import reportApi from 'src/pages/worksheet/common/Statistics/api/report.js';
+import reportApi from 'statistics/api/report.js';
 import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
 import FilterDialog from '../components/embed/filterDialog';
 import { FilterItemTexts } from '../components/FilterData';

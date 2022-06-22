@@ -132,7 +132,7 @@ export default class Approve extends Component {
     const { content } = this.state;
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
 
@@ -229,7 +229,7 @@ export default class Approve extends Component {
     });
     const isOverruleBack = action === 'overrule' && isCallBack && !!backFlowNodes.length;
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
 

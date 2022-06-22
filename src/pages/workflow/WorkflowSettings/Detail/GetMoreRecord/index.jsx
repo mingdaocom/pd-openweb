@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, SelectNodeObject, FilterAndSort, SpecificFieldsValue } from '../components';
-import { ACTION_ID } from '../../enum';
+import { ACTION_ID, APP_TYPE } from '../../enum';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
@@ -71,7 +71,16 @@ export default class GetMoreRecord extends Component {
     }
 
     if (
-      _.includes([ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], actionId)
+      _.includes(
+        [
+          ACTION_ID.FROM_RECORD,
+          ACTION_ID.FROM_ARRAY,
+          ACTION_ID.FROM_CODE_ARRAY,
+          ACTION_ID.FROM_PBC_ARRAY,
+          ACTION_ID.FROM_JSON_PARSE_ARRAY,
+        ],
+        actionId,
+      )
     ) {
       if (!selectNodeId) {
         alert(actionId === ACTION_ID.FROM_RECORD ? _l('必须选择对象') : _l('必须选择节点'), 2);
@@ -140,7 +149,7 @@ export default class GetMoreRecord extends Component {
   };
 
   /**
-   * 获取Webhook数组的参数
+   * 获取发送API请求数组的参数
    */
   getArrayFields = (appType, selectNodeId, controlId) => {
     const { processId } = this.props;
@@ -176,7 +185,7 @@ export default class GetMoreRecord extends Component {
           relationControls:
             data.actionId === ACTION_ID.FROM_RECORD
               ? result.filter(item => item.type === 29)
-              : result.filter(item => item.type === 10000003),
+              : result.filter(item => _.includes([10000003, 10000007, 10000008], item.type)),
         });
       });
   };
@@ -206,21 +215,24 @@ export default class GetMoreRecord extends Component {
   renderContent() {
     const { data } = this.state;
     const actionTypes = {
-      400: _l('从工作表获取记录'),
-      401: _l('从记录获取关联记录'),
-      402: _l('从新增节点获取记录'),
-      403: _l('从Webhook数组获取数据'),
-      404: _l('从代码块数组获取数据'),
-      405: _l('从人工节点获取操作明细'),
-      408: _l('从业务流程数组获取数据'),
+      [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取记录'),
+      [ACTION_ID.FROM_RECORD]: _l('从记录获取关联记录'),
+      [ACTION_ID.FROM_ADD]: _l('从新增节点获取记录'),
+      [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细'),
     };
     const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount } = md.global.SysSettings;
     return (
       <div className="workflowDetailBox">
         {data.actionId &&
-          !_.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId) && (
-            <div className="bold mBottom20">{actionTypes[data.actionId]}</div>
-          )}
+          !_.includes(
+            [
+              ACTION_ID.FROM_ARRAY,
+              ACTION_ID.FROM_CODE_ARRAY,
+              ACTION_ID.FROM_PBC_ARRAY,
+              ACTION_ID.FROM_JSON_PARSE_ARRAY,
+            ],
+            data.actionId,
+          ) && <div className="bold mBottom20">{actionTypes[data.actionId]}</div>}
 
         <div className="Font14 Gray_75 workflowDetailDesc">
           {_l(
@@ -231,14 +243,24 @@ export default class GetMoreRecord extends Component {
         </div>
 
         {(!data.actionId ||
-          _.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId)) &&
+          _.includes(
+            [
+              ACTION_ID.FROM_ARRAY,
+              ACTION_ID.FROM_CODE_ARRAY,
+              ACTION_ID.FROM_PBC_ARRAY,
+              ACTION_ID.FROM_JSON_PARSE_ARRAY,
+            ],
+            data.actionId,
+          )) &&
           this.renderSelectArrayType()}
 
         {data.actionId === ACTION_ID.FROM_WORKSHEET && this.renderWorksheet()}
         {data.actionId === ACTION_ID.FROM_RECORD && this.renderRecord()}
         {data.actionId === ACTION_ID.FROM_ADD && this.renderAdd()}
-        {_.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY], data.actionId) &&
-          this.renderArray()}
+        {_.includes(
+          [ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE_ARRAY, ACTION_ID.FROM_PBC_ARRAY, ACTION_ID.FROM_JSON_PARSE_ARRAY],
+          data.actionId,
+        ) && this.renderArray()}
         {data.actionId === ACTION_ID.FROM_ARTIFICIAL && this.renderArtificial()}
 
         {data.actionId && (
@@ -265,16 +287,17 @@ export default class GetMoreRecord extends Component {
    * 渲染选择数组类型
    */
   renderSelectArrayType() {
-    const { isPBCProcess } = this.props;
+    const { flowInfo } = this.props;
     const { data, noAction } = this.state;
     const list = [
-      { text: _l('Webhook数组'), value: '403' },
-      { text: _l('代码块数组'), value: '404' },
-      { text: _l('业务流程数组'), value: '408' },
+      { text: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
+      { text: _l('代码块数组'), value: ACTION_ID.FROM_CODE_ARRAY },
+      { text: _l('业务流程数组'), value: ACTION_ID.FROM_PBC_ARRAY },
+      { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
     ];
 
-    if (!isPBCProcess) {
-      _.remove(list, item => item.value === '408');
+    if (flowInfo.startAppType !== APP_TYPE.PBC || flowInfo.child) {
+      _.remove(list, item => item.value === ACTION_ID.FROM_PBC_ARRAY);
     }
 
     return (
@@ -480,16 +503,16 @@ export default class GetMoreRecord extends Component {
       text: controlName,
       value: controlId,
     }));
+    const ArrayTitle = {
+      [ACTION_ID.FROM_ARRAY]: _l('选择发送API请求节点'),
+      [ACTION_ID.FROM_CODE_ARRAY]: _l('选择代码块节点'),
+      [ACTION_ID.FROM_PBC_ARRAY]: _l('选择业务流程节点'),
+      [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('选择JSON解析节点'),
+    };
 
     return (
       <Fragment>
-        <div className="mTop20 bold">
-          {data.actionId === ACTION_ID.FROM_ARRAY
-            ? _l('选择Webhook节点')
-            : data.actionId === ACTION_ID.FROM_CODE
-            ? _l('选择代码块节点')
-            : _l('选择业务流程节点')}
-        </div>
+        <div className="mTop20 bold">{ArrayTitle[data.actionId]}</div>
         <SelectNodeObject
           smallBorder={true}
           appList={data.flowNodeList}
@@ -602,7 +625,13 @@ export default class GetMoreRecord extends Component {
           isCorrect={
             (data.actionId === ACTION_ID.FROM_WORKSHEET && data.appId) ||
             (_.includes(
-              [ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE, ACTION_ID.FROM_PBC_ARRAY],
+              [
+                ACTION_ID.FROM_RECORD,
+                ACTION_ID.FROM_ARRAY,
+                ACTION_ID.FROM_CODE_ARRAY,
+                ACTION_ID.FROM_PBC_ARRAY,
+                ACTION_ID.FROM_JSON_PARSE_ARRAY,
+              ],
               data.actionId,
             ) &&
               data.selectNodeId &&

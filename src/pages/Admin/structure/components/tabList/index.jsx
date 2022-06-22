@@ -3,7 +3,16 @@ import { connect } from 'react-redux';
 import TreeView from '../departmentView';
 import CreateBtn from '../departmentView/createBtn';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { loadAllUsers, loadDepartments, loadUsers, loadInactiveUsers, loadApprovalUsers } from '../../actions/entities';
+import { Dropdown, Menu } from 'antd';
+import {
+  loadAllUsers,
+  loadDepartments,
+  loadUsers,
+  loadInactiveUsers,
+  loadApprovalUsers,
+  updateShowExport,
+  updateImportType,
+} from '../../actions/entities';
 import { updateCursor, updateTypeCursor, fetchInActive } from '../../actions/current';
 import { loadJobList, loadJobUsers, updateCursorJobId } from '../../actions/jobs';
 import DialogCreatePosition from '../../modules/dialogCreatePosition';
@@ -11,6 +20,7 @@ import './index.less';
 import cx from 'classnames';
 import * as jobController from 'src/api/job';
 import { checkSensitive } from 'src/api/fixedData.js';
+import { getPssId } from 'src/util/pssId';
 
 const shouldLoadDepartments = props => {
   const { haveSubDepartment, subDepartments, isLoading, isExpired } = props;
@@ -20,35 +30,44 @@ const shouldLoadDepartments = props => {
 class TabList extends React.Component {
   constructor(props) {
     super(props);
-    const { dispatch, projectId } = props;
+    const { projectId, fetchInActive = () => {} } = props;
     this.state = {
       showPositionDialog: false,
       isNew: true,
       jobId: '',
       jobName: '',
     };
-    dispatch(fetchInActive(projectId));
+    fetchInActive(projectId);
   }
 
   handleClick = typeCursor => {
-    const { dispatch, projectId } = this.props;
-    dispatch(updateCursor(''));
-    dispatch(updateTypeCursor(typeCursor));
+    const {
+      projectId,
+      updateCursor = () => {},
+      updateTypeCursor = () => {},
+      loadAllUsers = () => {},
+      loadDepartments = () => {},
+      loadUsers = () => {},
+      loadInactiveUsers = () => {},
+      loadApprovalUsers = () => {},
+    } = this.props;
+    updateCursor('');
+    updateTypeCursor(typeCursor);
     switch (typeCursor) {
       case 0:
-        dispatch(loadAllUsers(projectId, 1));
+        loadAllUsers(projectId, 1);
         break;
       case 1:
         if (shouldLoadDepartments(this.props)) {
-          dispatch(loadDepartments('', 1));
+          loadDepartments('', 1);
         }
-        dispatch(loadUsers(''));
+        loadUsers('');
         break;
       case 2:
-        dispatch(loadInactiveUsers(projectId, 1));
+        loadInactiveUsers(projectId, 1);
         break;
       case 3:
-        dispatch(loadApprovalUsers(projectId, 1));
+        loadApprovalUsers(projectId, 1);
         break;
     }
   };
@@ -59,9 +78,39 @@ class TabList extends React.Component {
     });
   };
   onScrollEnd = () => {
-    const { isMore, dispatch, jobListPageIndex, projectId, isLoading, canRequest, jobId } = this.props;
+    const { isMore, jobListPageIndex, projectId, isLoading, canRequest, jobId, loadJobList } = this.props;
     if (!isMore || isLoading || !canRequest) return;
-    dispatch(loadJobList(projectId, jobId, jobListPageIndex + 1));
+    loadJobList(projectId, jobId, jobListPageIndex + 1);
+  };
+
+  // 导出职位列表
+  exportJobList = () => {
+    const { projectId } = this.props;
+    let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
+      ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
+      : '';
+    fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectJobList`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: `md_pss_id ${getPssId()}`,
+      },
+      body: JSON.stringify({
+        userStatus: '1',
+        projectId,
+      }),
+    })
+      .then(response => response.blob())
+      .then(blob => {
+        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
+        const link = document.createElement('a');
+
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      });
   };
 
   render() {
@@ -73,17 +122,17 @@ class TabList extends React.Component {
       inActiveNumber,
       root,
       cursor,
-      departmentName,
       jobList = [],
-      dispatch,
       jobId,
       isLoading,
+      updateCursorJobId = () => {},
+      loadJobList = () => {},
     } = this.props;
     if (typeNum !== 0) {
       return (
         <div className="jobListBox">
-          <div className="ThemeColor3 pTop10 pBottom10">
-            <span className="Hand mLeft24 creatDepartment">
+          <div className="ThemeColor3 pTop10 pBottom10 flexRow createPosition">
+            <span className="Hand mLeft24">
               <span
                 className="creatDepartmentTxt"
                 onClick={() => {
@@ -99,7 +148,45 @@ class TabList extends React.Component {
                 {_l('创建职位')}
               </span>
             </span>
+            <Dropdown
+              overlayClassName="createMoreDropDown"
+              trigger={['click']}
+              placement="bottomLeft"
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    key="0"
+                    onClick={() => {
+                      this.props.updateShowExport(true);
+                      this.props.updateImportType('importPosition');
+                    }}
+                  >
+                    {_l('导入职位')}
+                  </Menu.Item>
+                  <Menu.Item key="1" disabled={_.isEmpty(jobList)} onClick={this.exportJobList}>
+                    {_l('导出职位')}
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Icon icon="moreop" className="Gray_9e Hand Font15" style={{ height: '12px' }} />
+            </Dropdown>
           </div>
+          {!isLoading && _.isEmpty(jobList) && (
+            <div className="Gray_9e Font13 mLeft24 mTop16">
+              {_l('暂无职位，可 ')}
+              <span
+                className="Hand"
+                style={{ color: '#2196F3' }}
+                onClick={() => {
+                  this.props.updateShowExport(true);
+                  this.props.updateImportType('importPosition');
+                }}
+              >
+                {_l('批量导入')}
+              </span>
+            </div>
+          )}
           <ScrollView className="jobListUl" onScrollEnd={this.onScrollEnd}>
             {isLoading ? (
               <LoadDiv />
@@ -109,7 +196,7 @@ class TabList extends React.Component {
                   <div
                     className={cx('jobItem', { current: jobId === item.jobId })}
                     onClick={() => {
-                      dispatch(updateCursorJobId(item.jobId));
+                      updateCursorJobId(item.jobId);
                     }}
                   >
                     <Icon className="Font16 Gray_9e mRight10" icon="limit-principal" />
@@ -155,7 +242,7 @@ class TabList extends React.Component {
                     .then(data => {
                       if (data == 1) {
                         alert(_l('创建成功'));
-                        dispatch(loadJobList(projectId));
+                        loadJobList(projectId);
                       } else if (data == 2) {
                         alert(_l('创建失败，相同职位名称已经存在'), 3);
                       } else {
@@ -181,7 +268,7 @@ class TabList extends React.Component {
                       .then(data => {
                         if (data === 1) {
                           alert(_l('编辑成功'));
-                          dispatch(loadJobList(projectId, id));
+                          loadJobList(projectId, id);
                         } else if (data == 2) {
                           JobList.showMsg(_l('编辑失败，相同职位名称已经存在'));
                         } else {
@@ -201,7 +288,7 @@ class TabList extends React.Component {
                   .then(data => {
                     if (data) {
                       alert(_l('删除成功'));
-                      dispatch(loadJobList(projectId));
+                      loadJobList(projectId);
                     } else {
                       alert(_l('职位存在成员，无法删除'), 2);
                     }
@@ -218,7 +305,7 @@ class TabList extends React.Component {
     }
     return (
       <React.Fragment>
-        <div className="departmentTop">
+        <div className="departmentTop mRight24">
           <ul>
             <li
               onClick={() => {
@@ -316,4 +403,18 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(TabList);
+export default connect(mapStateToProps, {
+  loadAllUsers,
+  loadDepartments,
+  loadUsers,
+  loadInactiveUsers,
+  loadApprovalUsers,
+  updateShowExport,
+  updateCursor,
+  updateTypeCursor,
+  fetchInActive,
+  loadJobList,
+  loadJobUsers,
+  updateCursorJobId,
+  updateImportType,
+})(TabList);

@@ -17,6 +17,8 @@ const initialState = {
   expandedKeys: [], //默认展开的ID
   searchUsers: [],
   isShowExport: false,
+  importExportType: '',
+  importExportResult: {},
 };
 
 const mergeDepartmentUsers = (department, payload) => {
@@ -257,12 +259,35 @@ const mergeSearchDepartments = (state, action) => {
 };
 
 const entities = (state = initialState, action) => {
-  const { type, response, departmentId, department, id, curDepartmentId, isGetAll, isShowExport } = action;
+  const {
+    type,
+    response,
+    departmentId,
+    department,
+    id,
+    curDepartmentId,
+    isGetAll,
+    isShowExport,
+    importExportType,
+    importExportResult = {},
+  } = action;
   let { getDepartmentIds, newDepartments, departments } = state;
+  if (type === 'UPDATE_IMPORT_EXPORT_RESULT') {
+    return {
+      ...state,
+      importExportResult,
+    };
+  }
   if (type === 'UPDATE_SHOW_EXPORT') {
     return {
       ...state,
       isShowExport,
+    };
+  }
+  if (type === 'UPDATE_IMPORT_EXPORT_TYPE') {
+    return {
+      ...state,
+      importExportType,
     };
   }
   if (type === 'PROJECT_ID_CHANGED') return initialState;

@@ -1,10 +1,17 @@
-import { getWorksheetInfo, getSwitchPermit, saveWorksheetView, getWorksheetBtns, getNavGroup } from 'src/api/worksheet';
+import {
+  getWorksheetInfo,
+  getSwitchPermit,
+  saveWorksheetView,
+  getWorksheetBtns,
+  getNavGroup,
+  getQueryBySheetId,
+} from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { formatValues } from 'worksheet/common/WorkSheetFilter/util';
 import { addRecord } from 'worksheet/common/newRecord';
-import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord } from './sheetview';
+import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord, setViewLayout } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
 import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunterview';
@@ -14,6 +21,7 @@ import { updateGunterSearchRecord } from './gunterview';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 
 export const updateBase = base => {
@@ -42,29 +50,45 @@ export const updateWorksheetLoading = loading => ({ type: 'WORKSHEET_UPDATE_LOAD
 export function loadWorksheet(worksheetId) {
   return (dispatch, getState) => {
     const { base = {} } = getState().sheet;
-    const { chartId } = base;
+    const { viewId, chartId } = base;
     dispatch({
       type: 'WORKSHEET_FETCH_START',
     });
-    getWorksheetInfo({
-      worksheetId,
-      reportId: chartId || undefined,
-      getViews: true,
-      getTemplate: true,
-      getRules: true,
-    }).then(res => {
-      dispatch({
-        type: 'WORKSHEET_INIT',
-        value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
+
+    Promise.all([
+      getWorksheetInfo({
+        worksheetId,
+        reportId: chartId || undefined,
+        getViews: true,
+        getTemplate: true,
+        getRules: true,
+      }),
+      getQueryBySheetId({ worksheetId }, { silent: true }),
+    ])
+      .then(([res, searchConfig]) => {
+        dispatch({
+          type: 'WORKSHEET_INIT',
+          value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
+        });
+        dispatch(setViewLayout(viewId));
+        dispatch({
+          type: 'WORKSHEET_SEARCH_CONFIG_INIT',
+          value: formatSearchConfigs(searchConfig),
+        });
+      })
+      .catch(err => {
+        dispatch({
+          type: 'WORKSHEET_INIT_FAIL',
+        });
       });
-    });
-    worksheetId &&
+    if (worksheetId) {
       getSwitchPermit({ worksheetId }).then(res => {
         dispatch({
           type: 'WORKSHEET_PERMISSION_INIT',
           value: res,
         });
       });
+    }
   };
 }
 
@@ -246,7 +270,10 @@ export function openNewRecord() {
     const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+    const { advancedSetting = {} } = view;
+    let { usenav } = advancedSetting;
     const hasGroupFilter =
+      usenav === '1' && //设置了创建记录时，以选中列表作为默认值
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
       _.includes([VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery], String(view.viewType));
@@ -345,8 +372,8 @@ export function updateQuickFilter(filter = [], view) {
         if (c.values) {
           result.values = result.values.filter(_.identity);
         }
-        // 关联记录
-        if (c.dataType === 29) {
+        // 关联记录 级联
+        if (c.dataType === 29 || c.dataType === 35) {
           result.values = result.values.map(v => v.rowid);
         }
         // 人员

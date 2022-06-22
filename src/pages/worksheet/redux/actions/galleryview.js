@@ -1,8 +1,6 @@
 import { getFilterRows, updateWorksheetRow } from 'src/api/worksheet';
 import { getAdvanceSetting } from 'src/util';
 import { getNavGroupCount } from './index';
-import { wrapAjax } from './util';
-const wrappedGetFilterRows = wrapAjax(getFilterRows);
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
@@ -41,7 +39,7 @@ export const fetch = index => {
       args.pageIndex = 1;
       args.pageSize = maxCount;
     }
-    wrappedGetFilterRows(args).then(res => {
+    getFilterRows(args).then(res => {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
         list: index > 1 ? gallery.concat(res.data) : res.data,

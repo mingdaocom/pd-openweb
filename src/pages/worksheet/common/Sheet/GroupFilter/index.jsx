@@ -177,6 +177,15 @@ function GroupFilter(props) {
     } else {
       let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
       let obj = _.omit(navGroup, ['isAsc']);
+      let filterType = 2; //选项的选中
+      if ([29, 35].includes(soucre.type)) {
+        if (soucre.type === 29 && !navGroup.viewId) {
+          //未选择了层级视图 按是筛选
+          filterType = 24;
+        } else {
+          filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
+        }
+      }
       updateGroupFilter(
         [
           {
@@ -184,7 +193,7 @@ function GroupFilter(props) {
             values: [rowIdForFilter],
             navNames: [navName],
             dataType: soucre.type,
-            filterType: soucre.type === 29 || soucre.type === 35 ? 24 : 2,
+            filterType,
           },
         ],
         view,
@@ -471,7 +480,11 @@ function GroupFilter(props) {
     );
   };
   return (
-    <Con className="groupFilterWrap" width={width} style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}>
+    <Con
+      className="groupFilterWrap"
+      width={width}
+      style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}
+    >
       <div
         className={cx('searchBar flexRow', {
           pAll0: !isOpenGroup,

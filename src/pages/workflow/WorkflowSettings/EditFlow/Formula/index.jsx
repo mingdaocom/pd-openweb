@@ -57,7 +57,15 @@ export default class Formula extends Component {
       const arr = formulaValue.match(/\$.*?\$/g);
       if (arr) {
         arr.forEach(obj => {
-          formulaValue = formulaValue.replace(obj, formulaMap[obj.replace(/\$/g, '').split('-')[1]].name);
+          formulaValue = formulaValue.replace(
+            obj,
+            formulaMap[
+              obj
+                .replace(/\$/g, '')
+                .split(/([a-zA-Z0-9#]{24,32})-/)
+                .filter(item => item)[1]
+            ].name,
+          );
         });
       }
       formulaValue = formulaValue
@@ -70,9 +78,7 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8">
-          <span className="Gray_75">
-            {actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}
-          </span>
+          <span className="Gray_75">{actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}</span>
           {fieldValue + fieldControlName + formulaValue}
         </div>
       </Fragment>

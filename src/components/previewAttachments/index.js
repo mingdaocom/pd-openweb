@@ -12,7 +12,7 @@ function callPreview(options = {}, extra = {}) {
   ReactDOM.render(<AttachmentsPreview extra={extra} options={options} onClose={destory} />, div);
 }
 
-export function previewQiniuUrl(file, options) {
+export function previewQiniuUrl(file, options = {}) {
   let hideFunctions = ['editFileName'];
   if (options.disableDownload) {
     hideFunctions = hideFunctions.concat(['download', 'share', 'saveToKnowlege']);
@@ -31,9 +31,9 @@ export function previewQiniuUrl(file, options) {
     options.attachments = [
       {
         previewAttachmentType: 'QINIU',
-        name: _l('图片预览'),
+        name: options.name || _l('图片预览'),
         path: file,
-        ext: (file.match(/\.(\w+)$/) || '')[1],
+        ext: options.ext || (file.match(/\.(\w+)$/) || '')[1],
       },
     ];
   } else if (typeof file === 'object' && file.length) {
@@ -41,7 +41,7 @@ export function previewQiniuUrl(file, options) {
       previewAttachmentType: 'QINIU',
       name: _l('图片预览') + ((f.match(/\.(\w+)$/) || '')[1] || ''),
       path: f,
-      ext: (f.match(/\.(\w+)$/) || '')[1],
+      ext: options.ext || (f.match(/\.(\w+)$/) || '')[1],
     }));
   }
   callPreview(options);

@@ -58,7 +58,7 @@ export default function RelateSheet(props) {
   });
   let {
     showtype = String(enumDefault),
-    allowlink = '0',
+    allowlink,
     allowcancel = '1',
     controlssorts = '[]',
     ddset,
@@ -89,13 +89,16 @@ export default function RelateSheet(props) {
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
 
   const isListDisplay = String(showtype) === '2';
-  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45], item.type));
+  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45, 47], item.type));
   const titleControl = _.find(filterControls, item => item.attribute === 1);
 
   useEffect(() => {
     setState({ isRelateView: Boolean(viewId) });
     if (!showControls) {
       onChange({ showControls: filterControls.slice(0, 4).map(item => item.controlId) });
+    }
+    if (_.isUndefined(allowlink)) {
+      onChange(handleAdvancedSettingChange(data, { allowlink: '1' }));
     }
   }, [controlId]);
   const isSheetDisplay = () => {
@@ -448,16 +451,14 @@ export default function RelateSheet(props) {
             />
           </div>
         )}
-        {String(showtype) === '3' && (
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              text={_l('允许查看记录')}
-              checked={+allowlink}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowlink: +!checked }))}
-            />
-          </div>
-        )}
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            text={_l('允许查看记录')}
+            checked={+allowlink}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowlink: +!checked }))}
+          />
+        </div>
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('设置')}</div>
@@ -592,9 +593,7 @@ export default function RelateSheet(props) {
           {_l('限制移动端输入')}
           <Tooltip
             placement={'bottom'}
-            title={_l(
-              '通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。',
-            )}
+            title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
             <i className="icon-help Gray_9e Font16 pointer"></i>
           </Tooltip>
@@ -626,6 +625,9 @@ export default function RelateSheet(props) {
               onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
               text={_l('禁止手动输入')}
             />
+            <Tooltip placement={'bottom'} title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
+              <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
+            </Tooltip>
           </div>
           <div className="labelWrap">
             <Checkbox

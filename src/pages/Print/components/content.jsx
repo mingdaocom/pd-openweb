@@ -90,8 +90,15 @@ export default class Con extends React.Component {
 
   renderControls() {
     const { params, printData, controls = [] } = this.props;
-    const { type, from } = this.props.params;
-    const { showData, printOption } = printData;
+    let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
+    const { showData, printOption, rowIdForQr } = printData;
+    let dataInfo = {
+      recordId: rowId || rowIdForQr,
+      appId,
+      worksheetId,
+      viewIdForPermit: viewId,
+      controls,
+    };
     const controlData = putControlByOrder(
       replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => !UNPRINTCONTROL.includes(o.type))),
     );
@@ -120,7 +127,10 @@ export default class Con extends React.Component {
               }
             }
             if (
-              (!this.isShow(getPrintContent({ ...item[0], showData: isHideNull, noUnit: true }), item[0].checked) &&
+              (!this.isShow(
+                getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
+                item[0].checked,
+              ) &&
                 item[0].type !== 22) ||
               (item[0].type === 22 && !item[0].checked)
             ) {
@@ -139,7 +149,7 @@ export default class Con extends React.Component {
                   {/* 分段不计算value 走特殊显示方式 */}
                   {item[0].type !== 22 && (
                     <span className={cx('value', { value2: item[0].type === 2 })}>
-                      {getPrintContent({ ...item[0], showUnit: true, showData: isHideNull, printOption })}
+                      {getPrintContent({ ...item[0], showUnit: true, showData: isHideNull, printOption, ...dataInfo })}
                     </span>
                   )}
                 </div>
@@ -148,7 +158,7 @@ export default class Con extends React.Component {
           } else {
             //一行多个控件的显示
             let data = item.filter(it =>
-              this.isShow(getPrintContent({ ...it, showData: isHideNull, noUnit: true }), it.checked),
+              this.isShow(getPrintContent({ ...it, showData: isHideNull, noUnit: true, ...dataInfo }), it.checked),
             );
             if (data.length > 0) {
               return (
@@ -163,7 +173,7 @@ export default class Con extends React.Component {
                       >
                         <span className="title">{it.controlName || _l('未命名')}</span>
                         <span className={cx('value', { value2: it.type === 2 })}>
-                          {getPrintContent({ ...it, showUnit: true, printOption })}
+                          {getPrintContent({ ...it, showUnit: true, printOption, ...dataInfo })}
                         </span>
                       </div>
                     );
@@ -193,6 +203,7 @@ export default class Con extends React.Component {
     let relationsList = tableList.relationsData || {};
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     let list = relationsList.data || [];
+    // console.log(list, relationControls, printData);
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
       return '';
@@ -224,9 +235,9 @@ export default class Con extends React.Component {
         }
       });
     }
-    //关联表富文本不不显示 分段不显示
+    //关联表富文本不不显示 分段 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
     controls = controls.filter(
-      it => it.type !== 41 && it.type !== 22 && !(it.type === 30 && it.sourceControlType === 41),
+      it => ![41, 22, 45, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let relationStyleNum = relationStyle.find(it => it.controlId === tableList.controlId) || [];
     let setStyle = type => {
@@ -255,6 +266,13 @@ export default class Con extends React.Component {
         relationStyle: data,
       });
     };
+    // let dataInfo = {
+    //   recordId: rowId,
+    //   appId,
+    //   worksheetId,
+    //   viewIdForPermit: viewId,
+    //   controls,
+    // };
     return (
       <React.Fragment>
         <p className={cx('relationsTitle Font15', { tableP: !relationStyleNum.type || relationStyleNum.type === 1 })}>
@@ -314,6 +332,12 @@ export default class Con extends React.Component {
                         isRelateMultipleSheet: true,
                         showUnit: true,
                       };
+                      if ([29].includes(it.type)) {
+                        let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
+                        if (list.type && ![29, 30].includes(list.type)) {
+                          data = { ...data, sourceControlType: list.type, advancedSetting: list.advancedSetting };
+                        }
+                      }
                       if (
                         !this.isShow(
                           getPrintContent({
@@ -329,7 +353,20 @@ export default class Con extends React.Component {
                       return (
                         <div className={cx('relationsListLi', {})}>
                           <span className="title">{it.controlName || _l('未命名')}</span>
-                          <span className="value">{getPrintContent({ ...data })}</span>
+                          <span className="value">
+                            {getPrintContent({
+                              ...data,
+                              // ...{
+                              //   controls: relationControls.map(it => {
+                              //     return { ...it, value: o[it.controlId] };
+                              //   }),
+                              //   recordId: it.rowid,
+                              //   worksheetId: it.wsid,
+
+                              //   // viewIdForPermit: viewId,
+                              // },
+                            })}
+                          </span>
                         </div>
                       );
                     })}

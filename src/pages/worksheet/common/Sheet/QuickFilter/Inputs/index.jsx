@@ -5,6 +5,7 @@ import NumberUtil from 'src/util/number';
 import Text from './Text';
 import Number from './Number';
 import RelateRecord from './RelateRecord';
+import Cascader from './Cascader';
 import Options from './Options';
 import DateTime from './DateTime';
 import CheckboxComp from './CheckboxComp';
@@ -45,6 +46,11 @@ export const RelateRecordTypes = [
   WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, // 关联
 ];
 mapToComp(RelateRecordTypes, RelateRecord);
+
+export const CascaderTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 级联
+];
+mapToComp(CascaderTypes, Cascader);
 
 export const OptionsTypes = [
   WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选
@@ -98,6 +104,7 @@ export function validate(condition) {
         WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合
         WIDGETS_TO_API_TYPE_ENUM.AUTO_ID, // 自动编号
         WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, // 关联
+        WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 级联
         WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选
         WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选
         WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉

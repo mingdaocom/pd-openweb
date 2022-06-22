@@ -241,6 +241,7 @@ export default class InitPasswordDialog extends React.Component {
             onChange={this.handleFieldInput('newPwd')}
             onBlur={this.handleFieldBlur('newPwd')}
             onFocus={this.clearError('newPwd')}
+            autocomplete="new-password"
           />
         </div>
         <div className="warnBox">

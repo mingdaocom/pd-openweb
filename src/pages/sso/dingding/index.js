@@ -27,7 +27,7 @@ if (checkLogin()) {
     succees: result => {
       const { accountResult, sessionId } = result.data;
       if (accountResult === 1) {
-        setPssId(sessionId, true);
+        setPssId(sessionId);
         if (ret) {
           location.href = `/${replenishRet(ret, pc_slide)}`;
         } else {

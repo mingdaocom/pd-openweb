@@ -163,19 +163,16 @@ export default class Formula extends Component {
 
     return (
       <CustomTextarea
-        className="minH100"
+        className={cx('minH100', { errorBorder: !!data.formulaValue && data.isException && !isFocus })}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}
         operatorsSetMargin={true}
-        className={!!data.formulaValue && data.isException && !isFocus ? 'errorBorder' : ''}
         type={6}
         content={data.formulaValue}
         formulaMap={data.formulaMap}
         getRef={tagtextarea => (this.tagtextarea = tagtextarea)}
         onFocus={() => this.setState({ isFocus: true })}
-        onChange={(err, value, obj) =>
-          this.handleChange(err, value, obj, data.actionId === ACTION_ID.NUMBER_FORMULA)
-        }
+        onChange={(err, value, obj) => this.handleChange(err, value, obj, data.actionId === ACTION_ID.NUMBER_FORMULA)}
         updateSource={this.updateSource}
       />
     );
@@ -296,6 +293,7 @@ export default class Formula extends Component {
                 appType={data.fieldAppType}
                 actionId={data.fieldActionId}
                 nodeName={data.fieldNodeName}
+                controlId={data.fieldControlId}
                 controlName={data.fieldControlName}
               />
             </span>
@@ -381,10 +379,7 @@ export default class Formula extends Component {
 
         <Dropdown
           className="flowDropdown mTop10"
-          data={[
-            { text: _l('日期+时间'), value: 1 },
-            { text: _l('日期'), value: 2 },
-          ]}
+          data={[{ text: _l('日期+时间'), value: 1 }, { text: _l('日期'), value: 2 }]}
           value={data.number}
           border
           onChange={number => this.updateSource({ number })}
@@ -543,7 +538,7 @@ export default class Formula extends Component {
    */
   renderTag = tag => {
     const { data } = this.state;
-    const ids = tag.split('-');
+    const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
     const nodeObj = data.formulaMap[ids[0]] || {};
     const controlObj = data.formulaMap[ids[1]] || {};
 
@@ -554,6 +549,7 @@ export default class Formula extends Component {
         appType={nodeObj.appType}
         actionId={nodeObj.actionId}
         nodeName={nodeObj.name}
+        controlId={ids[1]}
         controlName={controlObj.name}
       />
     );
@@ -562,8 +558,10 @@ export default class Formula extends Component {
   /**
    * 编辑函数弹层
    */
-  editFormulaDialog = () => {
+  editFormulaDialog = event => {
     const { processId, selectNodeId } = this.props;
+
+    if ($(event.target).closest('.ant-tooltip').length) return;
 
     if (!this.state.fieldsData.length) {
       flowNode

@@ -96,7 +96,7 @@ export default class Discuss extends Component {
           });
           return (
             <div className="logItem" key={index}>
-              <Icon icon={[undefined, 'plus', 'edit'][item.type] || 'task-new-delete'} />
+              <Icon icon={[undefined, 'plus', 'edit', 'task-new-delete', 'restart', 'download', 'reply'][item.type]} />
               <span className="logContent" dangerouslySetInnerHTML={{ __html: message }} />
               <span className="logTime">{createTimeSpan(item.createTime)}</span>
             </div>

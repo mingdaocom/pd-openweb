@@ -16,7 +16,7 @@ import {
   updateSheetList,
   deleteSheet,
 } from 'src/pages/worksheet/redux/actions/sheetList';
-import customApi from 'src/pages/worksheet/common/Statistics/api/custom.js';
+import customApi from 'statistics/api/custom.js';
 import CustomPageHeader from './CustomPageHeader';
 import { browserIsMobile } from 'src/util';
 import DocumentTitle from 'react-document-title';

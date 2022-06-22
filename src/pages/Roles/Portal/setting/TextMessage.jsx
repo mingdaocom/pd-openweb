@@ -86,7 +86,7 @@ export default function TextMessage(props) {
         <h6 className="Font16 Gray Bold mBottom0">{_l('短信签名')}</h6>
         <div className="mTop6 Gray_9e">
           {_l(
-            '请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：邀请外部用户注册、外部用户审核（通过/拒绝）',
+            '请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核（通过/拒绝）',
           )}
         </div>
         <input
@@ -135,7 +135,7 @@ export default function TextMessage(props) {
         <h6 className="Font16 Gray Bold mBottom0 mTop32">{_l('短信通知内容设置')}</h6>
         <div className="mTop6 Gray_9e">
           {_l(
-            '注册开启审核后，审核结果（通过、拒绝）会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义；针对相应的短信会进行收费收费标准：短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
+            '注册开启审核后，审核结果（通过、拒绝）会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。',
           )}
         </div>
         <p className=" Bold mBottom0 mTop24">
@@ -165,11 +165,11 @@ export default function TextMessage(props) {
           className="Block "
         />
         <p className="Gray_9e mTop10">
-          {_l(
+          {/*_l(
             '已输入 %0  个字（含签名），按 %1 条计费',
             `[${sign}]${approvedSms || ''}`.length,
             getStrip(`[${sign}]${approvedSms || ''}`.length),
-          )}
+          )*/}
         </p>
         <p className=" Bold mBottom0 mTop24">
           {_l('通知：')}
@@ -199,11 +199,11 @@ export default function TextMessage(props) {
           className="Block "
         />
         <p className="Gray_9e mTop10">
-          {_l(
+          {/*_l(
             '已输入 %0  个字（含签名），按 %1 条计费',
             `[${sign}]${refusedSms || ''}`.length,
             getStrip(`[${sign}]${refusedSms || ''}`.length),
-          )}
+          )*/}
         </p>
         <p className=" Bold mBottom0 mTop24">{_l('邀请用户注册')}</p>
         <TextArea
@@ -229,11 +229,11 @@ export default function TextMessage(props) {
           className="Block "
         />
         <p className="Gray_9e mTop10">
-          {_l(
+          {/*_l(
             '已输入 %0  个字（含签名），按 %1 条计费',
             `[${sign}]${inviteSms || ''}`.length,
             getStrip(`[${sign}]${inviteSms || ''}`.length),
-          )}
+          )*/}
         </p>
       </div>
     </Wrap>

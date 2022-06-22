@@ -71,37 +71,6 @@ export default class ActionFields extends Component {
     this.setState({ activeIndex: index });
   };
 
-  /**
-   * 字段点击事件
-   */
-  handleFieldClick = (
-    nodeId,
-    fieldValueId,
-    nodeName,
-    fieldValueName,
-    fieldValueType,
-    nodeTypeId,
-    appType,
-    actionId,
-    isSourceApp,
-    nAlias,
-    cAlias,
-  ) => {
-    this.props.handleFieldClick({
-      nodeId,
-      fieldValueId,
-      nodeName,
-      fieldValueName,
-      fieldValueType,
-      nodeTypeId,
-      appType,
-      actionId,
-      isSourceApp,
-      nAlias,
-      cAlias,
-    });
-  };
-
   render() {
     const {
       header,
@@ -114,6 +83,7 @@ export default class ActionFields extends Component {
       onClickAwayExceptions,
       openSearch,
       title,
+      handleFieldClick,
     } = this.props;
     const { activeIndex, keywords } = this.state;
     let condition = _.cloneDeep(this.props.condition);
@@ -130,106 +100,110 @@ export default class ActionFields extends Component {
         onClickAwayExceptions={onClickAwayExceptions}
         onClickAway={onClose}
       >
-        {title && <div className="pLeft16 pRight16 mTop15">{title}</div>}
-        {openSearch && (
-          <div
-            className="flexRow mTop5 mBottom5"
-            style={{
-              padding: '0 16px 0 14px',
-              height: 36,
-              alignItems: 'center',
-              borderBottom: '1px solid #e0e0e0',
-            }}
-          >
-            <i className="icon-search Gray_75 Font14" />
-            <input
-              type="text"
-              ref={search => {
-                this.search = search;
+        <div className="conditionWrapContent">
+          {title && <div className="pLeft16 pRight16 mTop15">{title}</div>}
+          {openSearch && (
+            <div
+              className="flexRow mTop5 mBottom5"
+              style={{
+                padding: '0 16px 0 14px',
+                height: 36,
+                alignItems: 'center',
+                borderBottom: '1px solid #e0e0e0',
               }}
-              autoFocus
-              className="mLeft5 flex Border0 placeholderColor"
-              placeholder={_l('搜索')}
-              onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
-            />
-          </div>
-        )}
+            >
+              <i className="icon-search Gray_75 Font14" />
+              <input
+                type="text"
+                ref={search => {
+                  this.search = search;
+                }}
+                autoFocus
+                className="mLeft5 flex Border0 placeholderColor"
+                placeholder={_l('搜索')}
+                onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
+              />
+            </div>
+          )}
 
-        {header && header}
-        <div className="conditionWrap">
-          <div className="conditionScrollWrap">
-            {!condition.length && keywords && <div className="conditionDetail flexRow Gray_9e">{_l('无搜索结果')}</div>}
-            {!condition.length && noData && !keywords && (
-              <div className="conditionDetail flexRow Gray_9e">{noData}</div>
-            )}
-            {condition.map((item, index) => (
-              <div key={index} className="conditionBox">
-                <div
-                  className={cx('conditionDetail flexRow ThemeHoverColor3', {
-                    ThemeColor3: index === activeIndex && !keywords,
-                  })}
-                  onClick={() => !keywords && this.handleClick(index)}
-                >
-                  <Icon
-                    icon={
-                      item.isSourceApp
-                        ? 'workflow_field'
-                        : getIcons(item.nodeTypeId, item.appType, item.actionId).replace('icon-', '')
-                    }
-                    className="Gray_9e"
-                  />
-                  <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
-                  {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], item.appType) && (
-                    <div className="mLeft15 mRight10 Gray_9e ellipsis" style={{ maxWidth: 150 }}>{`${
-                      item.appTypeName
-                    }“${item.appName}”`}</div>
-                  )}
-                  <Icon
-                    icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
-                    className="mLeft10 Gray_9e"
-                  />
-                </div>
-                {
-                  <ul className={cx('conditionFieldBox', { show: index === activeIndex || keywords })}>
-                    {!item.items.length && (
-                      <li className="flexRow conditionFieldNull Gray_9e">
-                        <div className="ellipsis">{noItemTips}</div>
-                      </li>
+          {header && header}
+          <div className="conditionWrap">
+            <div className="conditionScrollWrap">
+              {!condition.length && keywords && (
+                <div className="conditionDetail flexRow Gray_9e">{_l('无搜索结果')}</div>
+              )}
+              {!condition.length && noData && !keywords && (
+                <div className="conditionDetail flexRow Gray_9e">{noData}</div>
+              )}
+              {condition.map((item, index) => (
+                <div key={index} className="conditionBox">
+                  <div
+                    className={cx('conditionDetail flexRow ThemeHoverColor3', {
+                      ThemeColor3: index === activeIndex && !keywords,
+                    })}
+                    onClick={() => !keywords && this.handleClick(index)}
+                  >
+                    <Icon
+                      icon={
+                        item.isSourceApp
+                          ? 'workflow_field'
+                          : getIcons(item.nodeTypeId, item.appType, item.actionId).replace('icon-', '')
+                      }
+                      className="Gray_9e"
+                    />
+                    <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
+                    {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], item.appType) && (
+                      <div className="mLeft15 mRight10 Gray_9e ellipsis" style={{ maxWidth: 150 }}>{`${
+                        item.appTypeName
+                      }“${item.appName}”`}</div>
                     )}
-                    {item.items.map((obj, index) => (
-                      <li
-                        className="flexRow ThemeHoverBGColor3"
-                        key={index}
-                        onClick={evt => {
-                          evt.stopPropagation();
-                          this.handleFieldClick(
-                            item.id,
-                            obj.value,
-                            item.text,
-                            obj.text,
-                            obj.type,
-                            item.nodeTypeId,
-                            item.appType,
-                            item.actionId,
-                            item.isSourceApp,
-                            item.nAlias,
-                            obj.cAlias,
-                          );
-                        }}
-                      >
-                        <div className="ellipsis">
-                          <span className="field">{`[${obj.field}]`}</span>
-                          <span title={obj.text}>{obj.text}</span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                }
-              </div>
-            ))}
+                    <Icon
+                      icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
+                      className="mLeft10 Gray_9e"
+                    />
+                  </div>
+                  {
+                    <ul className={cx('conditionFieldBox', { show: index === activeIndex || keywords })}>
+                      {!item.items.length && (
+                        <li className="flexRow conditionFieldNull Gray_9e">
+                          <div className="ellipsis">{noItemTips}</div>
+                        </li>
+                      )}
+                      {item.items.map((obj, index) => (
+                        <li
+                          className="flexRow ThemeHoverBGColor3"
+                          key={index}
+                          onClick={evt => {
+                            evt.stopPropagation();
+                            handleFieldClick({
+                              nodeId: item.id,
+                              fieldValueId: obj.value,
+                              nodeName: item.text,
+                              fieldValueName: obj.text,
+                              fieldValueType: obj.type,
+                              nodeTypeId: item.nodeTypeId,
+                              appType: item.appType,
+                              actionId: item.actionId,
+                              isSourceApp: item.isSourceApp,
+                              nAlias: item.nAlias,
+                              cAlias: obj.cAlias,
+                            });
+                          }}
+                        >
+                          <div className="ellipsis">
+                            <span className="field">{`[${obj.field}]`}</span>
+                            <span title={obj.text}>{obj.text}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  }
+                </div>
+              ))}
+            </div>
           </div>
+          {footer && footer}
         </div>
-        {footer && footer}
       </ClickAwayable>
     );
   }

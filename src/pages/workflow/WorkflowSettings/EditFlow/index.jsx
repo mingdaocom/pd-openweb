@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import './index.less';
 import nodeModules from './nodeModules';
 import End from './End';
-import CreateNodeDialog from './components/CreateNodeDialog';
+import { CreateNodeDialog, Thumbnail } from './components';
 import Detail from '../Detail';
 import cx from 'classnames';
 import { Dialog, LoadDiv, EditingBar } from 'ming-ui';
@@ -32,6 +32,9 @@ class EditFlow extends Component {
       isCopy: false,
       selectCopyIds: [],
       hideNodes: JSON.parse(localStorage.getItem('workflowHideNodes') || '[]'),
+      refreshPosition: '',
+      refreshThumbnail: '',
+      showThumbnail: false,
     };
   }
 
@@ -61,6 +64,14 @@ class EditFlow extends Component {
         this.setNodeCenter(this.state.nodeId, true);
       }
     }
+
+    if (
+      prevProps.workflowDetail.flowNodeMap &&
+      Object.keys(prevProps.workflowDetail.flowNodeMap).length !==
+        Object.keys(this.props.workflowDetail.flowNodeMap).length
+    ) {
+      this.setState({ refreshThumbnail: +new Date(), refreshPosition: +new Date() });
+    }
   }
 
   firstLoad = true;
@@ -80,8 +91,9 @@ class EditFlow extends Component {
   }
 
   setViewCenter() {
-    const scrollWidth = ($('.workflowEdit')[0] || {}).scrollWidth;
-    const width = $('.workflowEdit').width();
+    const box = document.getElementsByClassName('workflowEdit')[0] || {};
+    const scrollWidth = box.scrollWidth;
+    const width = box.clientWidth;
 
     if (scrollWidth > width && this.firstLoad) {
       $('.workflowEdit').scrollLeft((scrollWidth - width) / 2);
@@ -238,7 +250,7 @@ class EditFlow extends Component {
       ((firstNode.appType === APP_TYPE.SHEET || firstNode.appType === APP_TYPE.DATE) && !firstNode.appName) ||
       (firstNode.appType === APP_TYPE.LOOP && !firstNode.executeTime) ||
       (firstNode.appType === APP_TYPE.WEBHOOK && !firstNode.count) ||
-      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId);
+      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId && !child);
 
     return getSameLevelIds(data, firstId).map((id, i) => {
       const props = {
@@ -327,8 +339,18 @@ class EditFlow extends Component {
     this.change = change;
   };
 
+  /**
+   * 触发滚动
+   */
+  triggerScroll = _.debounce(() => {
+    if (this.state.showThumbnail) {
+      this.setState({ refreshPosition: +new Date() });
+    }
+  }, 300);
+
   render() {
     const { flowInfo, workflowDetail } = this.props;
+    const { refreshPosition, refreshThumbnail, showThumbnail } = this.state;
 
     if (_.isEmpty(workflowDetail)) {
       return <LoadDiv className="mTop15" />;
@@ -341,13 +363,11 @@ class EditFlow extends Component {
       processId: flowInfo.id,
       relationId: flowInfo.relationId,
       relationType: flowInfo.relationType,
+      flowInfo,
       selectNodeId,
       selectNodeType,
       selectNodeName: selectNodeId ? (flowNodeMap[selectNodeId] || {}).name : '',
-      child: flowInfo.child,
       isCopy,
-      isRelease: !!flowInfo.parentId,
-      isPBCProcess: flowInfo.startAppType === APP_TYPE.PBC,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
     };
@@ -364,6 +384,7 @@ class EditFlow extends Component {
             { addTop: startNodeError },
             { workflowEditRelease: flowInfo.parentId },
           )}
+          onScroll={this.triggerScroll}
         >
           <div
             className="workflowEditContent"
@@ -376,7 +397,7 @@ class EditFlow extends Component {
 
         <Detail {...detailProps} />
         <CreateNodeDialog
-          companyId={flowInfo.companyId}
+          flowInfo={flowInfo}
           flowNodeMap={flowNodeMap}
           isLast={nodeId ? (flowNodeMap[nodeId] || {}).nextId === '99' : false}
           nodeId={isCopy ? '' : nodeId}
@@ -384,18 +405,27 @@ class EditFlow extends Component {
           actionId={actionId}
           addFlowNode={this.addFlowNode}
           selectAddNodeId={this.selectAddNodeId}
-          hasPushNode={_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], flowInfo.startAppType) && !flowInfo.child}
         />
 
         <div className={cx('workflowEditBtns', { addTop: startNodeError })}>
-          <i
-            className={cx('ThemeColor3 icon-add', { disabled: scale === 100 })}
-            onClick={() => scale < 100 && this.setState({ scale: scale + 10 })}
-          />
-          <i
-            className={cx('ThemeColor3 icon-maximizing_a2', { disabled: scale === 50 })}
-            onClick={() => scale > 50 && this.setState({ scale: scale - 10 })}
-          />
+          <span data-tip={_l('画布概览')}>
+            <i
+              className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
+              onClick={() => this.setState({ showThumbnail: !showThumbnail, refreshPosition: +new Date() })}
+            />
+          </span>
+          <span data-tip={_l('放大')}>
+            <i
+              className={cx('icon-add ThemeHoverColor3', { disabled: scale === 100 })}
+              onClick={() => scale < 100 && this.setState({ scale: scale + 10, refreshThumbnail: +new Date() })}
+            />
+          </span>
+          <span data-tip={_l('缩小')}>
+            <i
+              className={cx('icon-maximizing_a2 ThemeHoverColor3', { disabled: scale === 50 })}
+              onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
+            />
+          </span>
           <span className="Font14 mLeft10">{scale}%</span>
         </div>
 
@@ -419,6 +449,8 @@ class EditFlow extends Component {
           onUpdate={this.createCopyNode}
           onCancel={this.cancelCopy}
         />
+
+        <Thumbnail visible={showThumbnail} refreshPosition={refreshPosition} refreshThumbnail={refreshThumbnail} />
       </Fragment>
     );
   }

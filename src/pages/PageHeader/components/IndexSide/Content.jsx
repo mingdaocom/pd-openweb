@@ -8,7 +8,7 @@ import NativeModule from './NativeModule';
 import SideAppGroup from './SideAppGroup';
 import { isEmpty } from 'lodash';
 
-const GROUP_TYPES = ['validProject', 'aloneApps', 'externalApps', 'expireProject'];
+const GROUP_TYPES = ['validProject', 'expireProject', 'externalApps', 'aloneApps'];
 export default function SideContent(props) {
   const { posX, visible, onClose } = props;
   const [value, setValue] = useState('');
@@ -38,12 +38,18 @@ export default function SideContent(props) {
     _.keys(temp).forEach(key => {
       if (_.includes(['validProject', 'expireProject'], key)) {
         temp[key].forEach(item => {
-          item.projectApps = (item.projectApps || []).filter(app =>
-            _.includes(app.name.toLowerCase(), value.toLowerCase()),
+          item.projectApps = (item.projectApps || []).filter(
+            app =>
+              new RegExp((value || '').trim().toUpperCase()).test(app.name) ||
+              new RegExp((value || '').trim().toUpperCase()).test((app.enName || '').toUpperCase()),
           );
         });
       } else {
-        temp[key] = (temp[key] || []).filter(app => _.includes(app.name.toLowerCase(), value.toLowerCase()));
+        temp[key] = (temp[key] || []).filter(
+          app =>
+            new RegExp((value || '').trim().toUpperCase()).test(app.name) ||
+            new RegExp((value || '').trim().toUpperCase()).test((app.enName || '').toUpperCase()),
+        );
       }
     });
     setData({ filteredData: temp });

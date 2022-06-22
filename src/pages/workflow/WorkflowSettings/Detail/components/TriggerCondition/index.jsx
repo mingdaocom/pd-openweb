@@ -12,6 +12,7 @@ import { getConditionList, getConditionNumber } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
+import { Tooltip } from 'antd';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
@@ -105,7 +106,9 @@ export default class TriggerCondition extends Component {
     return (
       <Fragment>
         <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
-        <span style={{ color: item.controlName ? '#333' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
+        <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
+          <span style={{ color: item.controlName ? '#333' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
+        </Tooltip>
       </Fragment>
     );
   }
@@ -195,7 +198,7 @@ export default class TriggerCondition extends Component {
               item.conditionId && (
                 <span>
                   {(_.includes(['29', '30'], item.conditionId)
-                    ? CONDITION_TYPE[item.conditionId][showType]
+                    ? CONDITION_TYPE[item.conditionId][showType] || ''
                     : CONDITION_TYPE[item.conditionId]) + (typeof conditionIndex === 'number' ? '*' : '')}
                 </span>
               )
@@ -278,7 +281,11 @@ export default class TriggerCondition extends Component {
         {isNodeHeader ? (
           <div
             className="ming Dropdown pointer flowDropdown flowDropdownBorder"
-            onClick={() => this.setState({ showControlsIndex: `${i}-${j}` })}
+            onClick={event => {
+              if ($(event.target).closest('.ant-tooltip').length) return;
+
+              this.setState({ showControlsIndex: `${i}-${j}` });
+            }}
           >
             <div className="Dropdown--input Dropdown--border">
               <span className="value">
@@ -288,6 +295,7 @@ export default class TriggerCondition extends Component {
                     appType={item.appType}
                     actionId={item.actionId}
                     nodeName={item.nodeName}
+                    controlId={item.filedId}
                     controlName={item.filedValue}
                   />
                 ) : (
@@ -306,8 +314,10 @@ export default class TriggerCondition extends Component {
             border
             openSearch
             placeholder={_l('请选择')}
+            disabledClickElement=".ant-tooltip"
             renderTitle={() =>
-              item.filedId && this.renderTitle({ type: item.filedTypeId, controlName: item.filedValue })
+              item.filedId &&
+              this.renderTitle({ type: item.filedTypeId, controlName: item.filedValue, controlId: item.filedId })
             }
             onChange={filedId => this.switchField({ i, j, filedId })}
           />
@@ -1098,6 +1108,7 @@ export default class TriggerCondition extends Component {
             appType={item.appType}
             actionId={item.actionId}
             nodeName={item.nodeName}
+            controlId={item.controlId}
             controlName={item.controlName}
           />
         </span>

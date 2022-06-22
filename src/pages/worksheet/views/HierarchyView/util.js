@@ -70,6 +70,9 @@ export const dealHierarchyData = (
     value: item[key],
   }));
   items.push(...displayItems);
+  let formData = worksheetControls.map(o => {
+    return { ...o, value: item[o.controlId] };
+  });
   return {
     rowId,
     item,
@@ -78,6 +81,7 @@ export const dealHierarchyData = (
     allowDelete,
     ...getRecordAttachments(item[coverCid]),
     coverData: { ...(worksheetControls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
+    formData,
     abstractValue: abstract
       ? renderCellText({
           ...(worksheetControls.find(it => it.controlId === abstract) || {}),

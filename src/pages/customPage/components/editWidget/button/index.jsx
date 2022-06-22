@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import Dialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
+import { v4 as uuidv4 } from 'uuid';
 import { Icon, Button } from 'ming-ui';
 import BtnGroupSetting from './btnGroupSetting';
 import BtnList from './btnList';
@@ -12,6 +13,7 @@ import { useSetState } from 'react-use';
 import SideWrap from '../../SideWrap';
 import { Header, EditWidgetContent } from '../../../styled';
 import { DEFAULT_BUTTON_LIST } from './config';
+import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import ButtonDisplay from './ButtonDisplay';
 
 const BtnWrap = styled.div`
@@ -64,8 +66,12 @@ export default function Btn(props) {
   };
 
   const addBtn = () => {
+    const lastButton = buttonList[buttonList.length - 1] || {};
+    const colorIndex = COLORS.indexOf(lastButton.color);
+    const defaultColor = '#2196f3';
+    const color = colorIndex === -1 ? defaultColor : (COLORS[colorIndex + 1] || COLORS[0]);
     const { btnType } = btnSetting.config || {};
-    const data = { name: _l('我是按钮'), color: '#2196f3' };
+    const data = { name: _l('我是按钮'), color, id: uuidv4() };
     if (btnType === 2) {
       const icon = 'custom_actions';
       const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
@@ -104,9 +110,6 @@ export default function Btn(props) {
       onEdit({ button: btnSetting });
     }
   };
-  const onSortEnd = btnList => {
-    setSetting(update(btnSetting, { buttonList: { $set: btnList } }));
-  };
 
   return visible ? (
     <SideWrap headerText={_l('选择按钮样式')} onClose={onClose}>
@@ -115,6 +118,9 @@ export default function Btn(props) {
           key={i}
           className="defaultItem"
           onClick={() => {
+            item.buttonList.forEach((btn) => {
+              btn.id = uuidv4();
+            });
             setSetting(item);
             setVisible(false);
           }}>
@@ -142,7 +148,6 @@ export default function Btn(props) {
               {...props}
               {...btnSetting}
               errorBtns={errorBtns}
-              onSortEnd={onSortEnd}
               activeIndex={activeIndex}
               onClick={({ index }) => setIndex(index)}
             />

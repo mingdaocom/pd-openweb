@@ -26,6 +26,7 @@ const AppStatus = styled.div`
   }
   &.mobilePadding {
     padding: 0 8px;
+    left: 42%;
   }
 `;
 export default class AppStatusComp extends Component {
@@ -38,7 +39,13 @@ export default class AppStatusComp extends Component {
     const text = getAppStatusText({ isGoodsStatus, isNew, fixed });
     if (!text) return null;
     return (
-      <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile })}>
+      <AppStatus
+        className={cx({
+          isOverdue: !isGoodsStatus,
+          fixed,
+          mobilePadding: fixed && isMobile,
+        })}
+      >
         {text}{' '}
       </AppStatus>
     );

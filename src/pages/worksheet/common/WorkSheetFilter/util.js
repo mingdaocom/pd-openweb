@@ -435,6 +435,8 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.SUBTOTAL,
         API_ENUM_TO_TYPE.SUBLIST,
         API_ENUM_TO_TYPE.EMBED,
+        API_ENUM_TO_TYPE.BARCODE,
+        API_ENUM_TO_TYPE.CASCADER,
       ];
       return _.filter(contorls, items => !_.includes(typeList, items.type));
     // 电话、证件、邮件
@@ -536,12 +538,11 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
           items.dataSource === control.dataSource &&
           (control.containSelf || items.controlId !== control.controlId),
       );
-    // 关联单条
+    // 关联单条、级联选择
     case API_ENUM_TO_TYPE.RELATESHEET:
-      return _.filter(
-        contorls,
-        items => items.type === API_ENUM_TO_TYPE.RELATESHEET && items.dataSource === control.dataSource,
-      );
+    case API_ENUM_TO_TYPE.CASCADER:
+      typeList = [API_ENUM_TO_TYPE.RELATESHEET, API_ENUM_TO_TYPE.CASCADER];
+      return _.filter(contorls, items => _.includes(typeList, items.type) && items.dataSource === control.dataSource);
     // 人员单选 人员多选
     case API_ENUM_TO_TYPE.USER_PICKER:
       // 人员单选、人员多选

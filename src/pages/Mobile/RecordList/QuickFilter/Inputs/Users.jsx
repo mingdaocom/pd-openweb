@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import SelectUser from 'src/pages/Mobile/components/SelectUser';
+import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { Icon } from 'ming-ui';
 

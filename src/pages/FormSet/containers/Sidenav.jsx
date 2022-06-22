@@ -11,7 +11,19 @@ class Sidenav extends React.Component {
         <div className="title">{_l('基础设置')}</div>
         <ul>
           <li
-            className={cx({ current: !type || type === 'alias' })}
+            className={cx({ current: !type || type === 'submitForm' })}
+            onClick={() => {
+              navigateTo(`/worksheet/formSet/edit/${worksheetId}/submitForm`);
+            }}
+          >
+            <div className="">
+              <Icon icon="task_alt" className="aliasIcon" />
+              <span className="flex mLeft12 Bold">{_l('提交表单')}</span>
+            </div>
+            <p className="mTop5 Font12">{_l('设置提交表单的文案和操作')}</p>
+          </li>
+          <li
+            className={cx({ current: type === 'alias' })}
             onClick={() => {
               navigateTo(`/worksheet/formSet/edit/${worksheetId}/alias`);
             }}

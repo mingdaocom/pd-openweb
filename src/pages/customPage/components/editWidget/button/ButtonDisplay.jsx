@@ -23,7 +23,7 @@ const ButtonDisplayWrap = styled.div`
 
 const BtnWrap = styled.div`
   margin: 4px 0;
-  padding: 0 10px;
+  padding: 0 18px;
   cursor: pointer;
   transition: border 0.25s;
   border: 1px solid transparent;

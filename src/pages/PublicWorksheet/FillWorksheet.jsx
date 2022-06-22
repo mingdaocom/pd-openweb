@@ -149,6 +149,9 @@ export default class FillWorkseet extends React.Component {
     }
     const submit = res => {
       if (res && !res.ticket) {
+        this.setState({
+          submitLoading: false,
+        });
         return;
       }
       this.issubmitting = true;
@@ -174,10 +177,16 @@ export default class FillWorkseet extends React.Component {
         (err, data) => {
           this.issubmitting = false;
           if (err) {
+            this.setState({
+              submitLoading: false,
+            });
             return;
           }
           if (!data) {
             alert(_l('当前表单已过期'), 3);
+            this.setState({
+              submitLoading: false,
+            });
             return;
           }
           // 添加成功
@@ -249,6 +258,9 @@ export default class FillWorkseet extends React.Component {
                 });
               }}
               onSave={this.onSave}
+              onError={() => {
+                this.setState({ submitLoading: false });
+              }}
             />
           )}
         </div>

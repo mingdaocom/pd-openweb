@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
 import React from 'react';
 import update from 'immutability-helper';
@@ -9,6 +10,22 @@ import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import { getUploadToken, getFileUploadToken } from 'src/api/qiniu';
 const {dialog: {netState: {buyBtn}}} = window.private;
+
+export const emitter = new EventEmitter();
+
+export function getProject(projectId) {
+  if (projectId === 'external' && browserIsMobile()) {
+    return { projectId, companyName: _l('外部协作') };
+  }
+  const projects = md.global.Account.projects;
+  if (projectId) {
+    const project = _.find(projects, { projectId });
+    if (project) {
+      return project;
+    }
+  }
+  return projects[0];
+}
 
 // 判断选项颜色是否为浅色系
 export const isLightColor = (color = '') => _.includes(LIGHT_COLOR, color.toUpperCase());

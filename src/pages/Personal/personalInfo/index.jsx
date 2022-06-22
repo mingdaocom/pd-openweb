@@ -544,7 +544,6 @@ export default class PersonalInfo extends React.Component {
       },
       dialogBoxID: 'uploadAvatorDialogId',
       width: '460px',
-      height: '365px',
     };
     ReactDom.render(
       <DialogLayer {...options}>

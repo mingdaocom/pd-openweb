@@ -30,7 +30,7 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk } = props;
+  const { ids, widget, apk, pageComponents } = props;
   const { type, value, name, button, param = [], config = {} } = widget;
   const componentType = getEnumType(type);
   const renderContent = () => {
@@ -51,7 +51,7 @@ function WidgetDisplay(props) {
           addRecord={data => {}}
         />
       );
-    if (componentType === 'analysis') return <ChartContent reportId={value} name={name} />;
+    if (componentType === 'analysis') return <ChartContent pageComponents={pageComponents.filter(p => p.type === 1)} reportId={value} name={name} />;
     if (componentType === 'view') {
       return (
         <View appId={ids.appId} setting={widget} />

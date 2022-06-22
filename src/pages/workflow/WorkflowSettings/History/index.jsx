@@ -40,11 +40,11 @@ class History extends Component {
       showFilter: false,
       filters: {},
       accumulation: {},
+      requestPending: false,
     };
   }
 
   pageSize = 20;
-  requestPending = false;
   filterPara = {};
 
   componentWillMount() {
@@ -57,7 +57,7 @@ class History extends Component {
 
   getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
-    const { pageIndex, workId, instanceId, filters } = this.state;
+    const { pageIndex, workId, instanceId, filters, requestPending } = this.state;
     const { pageSize, filterPara } = this;
     let para = { pageIndex, processId, pageSize, workId, instanceId, ...filterPara };
 
@@ -67,20 +67,23 @@ class History extends Component {
         .format('YYYY/MM/DD HH:mm');
     }
 
-    !this.requestPending &&
-      api
-        .getHistoryList(para)
-        .then(res => {
-          this.setState({
-            data: pageIndex === 1 ? res : this.state.data.concat(res),
-            pageIndex: pageIndex + 1,
-            hasMoreData: res.length >= this.pageSize,
-          });
-          callback();
-        })
-        .always(() => {
-          this.requestPending = false;
+    if (requestPending) return;
+
+    this.setState({ requestPending: true });
+
+    api
+      .getHistoryList(para)
+      .then(res => {
+        this.setState({
+          data: pageIndex === 1 ? res : this.state.data.concat(res),
+          pageIndex: pageIndex + 1,
+          hasMoreData: res.length >= this.pageSize,
         });
+        callback();
+      })
+      .always(() => {
+        this.setState({ requestPending: false });
+      });
   };
 
   getInstance() {
@@ -98,13 +101,11 @@ class History extends Component {
     this.filterPara = para;
     this.setState({ pageIndex: 1 }, () => {
       this.getData();
-      this.requestPending = true;
     });
   };
 
   getMore = () => {
     this.getData();
-    this.requestPending = true;
   };
 
   handleRestoreVisible = id => {
@@ -275,7 +276,16 @@ class History extends Component {
 
   render() {
     const { flowInfo } = this.props;
-    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters, accumulation } = this.state;
+    const {
+      data,
+      selectActionId,
+      hasMoreData,
+      historyVisible,
+      showFilter,
+      filters,
+      accumulation,
+      requestPending,
+    } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
 
@@ -396,7 +406,6 @@ class History extends Component {
             onRefresh={callback => {
               this.setState({ pageIndex: 1 }, () => {
                 this.getData(callback);
-                this.requestPending = true;
               });
               this.getProcessAccumulation();
             }}
@@ -412,61 +421,64 @@ class History extends Component {
             }}
             getMore={this.getMore}
             hasMoreData={hasMoreData}
+            requestPending={requestPending}
             onClick={selectActionId => this.setState({ selectActionId })}
             onRecovery={this.onRecovery}
           />
         </div>
 
-        <Dialog
-          className="workflowHistoryBox"
-          closable={false}
-          visible={showFilter}
-          title={_l('筛选条件')}
-          okDisabled={!filters.status || !filters.time}
-          onCancel={() => {
-            this.setState({ showFilter: false, filters: {} });
-            this.handleFilter({});
-          }}
-          onOk={() => {
-            this.handleFilter({
-              status: filters.status,
-              startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
-              endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
-            });
-            this.setState({ showFilter: false });
-          }}
-        >
-          <div>{_l('流程状态')}</div>
-          <Dropdown
-            className="w100 mTop10"
-            isAppendToBody
-            border
-            onChange={status => this.setState({ filters: Object.assign({}, filters, { status }) })}
-            value={filters.status}
-            data={this.formatData(FLOW_STATUS)}
-            placeholder={_l('请选择')}
-          />
-          <div className="mTop20 mBottom10">{_l('时间范围')}</div>
-          <DateRangePicker
-            mode="datetime"
-            timeMode="minute"
-            selectedValue={filters.time || ['', '']}
-            children={
-              <div className="filterTimeRange">
-                <div>{this.renderTimePlaceholder()}</div>
-                <Icon icon="bellSchedule" className="Gray_9e Font18" />
-              </div>
-            }
-            onOk={time => {
-              if (time[1] - time[0] > 180 * 24 * 60 * 60 * 1000) {
-                alert('最大跨度180天');
-              } else {
-                this.setState({ filters: Object.assign({}, filters, { time }) });
-              }
+        {showFilter && (
+          <Dialog
+            className="workflowHistoryBox"
+            closable={false}
+            visible
+            title={_l('筛选条件')}
+            okDisabled={!filters.status || !filters.time}
+            onCancel={() => {
+              this.setState({ showFilter: false, filters: {} });
+              this.handleFilter({});
             }}
-            onClear={() => this.setState({ filters: Object.assign({}, filters, { time: '' }) })}
-          />
-        </Dialog>
+            onOk={() => {
+              this.handleFilter({
+                status: filters.status,
+                startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
+                endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
+              });
+              this.setState({ showFilter: false });
+            }}
+          >
+            <div>{_l('流程状态')}</div>
+            <Dropdown
+              className="w100 mTop10"
+              isAppendToBody
+              border
+              onChange={status => this.setState({ filters: Object.assign({}, filters, { status }) })}
+              value={filters.status}
+              data={this.formatData(FLOW_STATUS)}
+              placeholder={_l('请选择')}
+            />
+            <div className="mTop20 mBottom10">{_l('时间范围')}</div>
+            <DateRangePicker
+              mode="datetime"
+              timeMode="minute"
+              selectedValue={filters.time || ['', '']}
+              children={
+                <div className="filterTimeRange">
+                  <div>{this.renderTimePlaceholder()}</div>
+                  <Icon icon="bellSchedule" className="Gray_9e Font18" />
+                </div>
+              }
+              onOk={time => {
+                if (time[1] - time[0] > 180 * 24 * 60 * 60 * 1000) {
+                  alert('最大跨度180天');
+                } else {
+                  this.setState({ filters: Object.assign({}, filters, { time }) });
+                }
+              }}
+              onClear={() => this.setState({ filters: Object.assign({}, filters, { time: '' }) })}
+            />
+          </Dialog>
+        )}
       </ScrollView>
     );
   }

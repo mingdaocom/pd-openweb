@@ -207,7 +207,13 @@ class WorkSheet extends Component {
     return (
       <WaterMark projectId={projectId}>
         <div className="worksheet flexRow">
-          <WorkSheetLeft appId={appId} groupId={groupId} id={id} onCreateItem={this.handleCreateItem} />
+          <WorkSheetLeft
+            appId={appId}
+            projectId={projectId}
+            groupId={groupId}
+            id={id}
+            onCreateItem={this.handleCreateItem}
+          />
           {this.renderRightComp({ ...match.params, currentSheet, id })}
 
           {visible &&

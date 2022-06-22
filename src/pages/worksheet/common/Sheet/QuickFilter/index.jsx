@@ -27,14 +27,28 @@ function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
 function QuickFilter(props) {
-  const { width, view, projectId, controls, filters = [], refreshSheet, updateQuickFilter, resetQuickFilter, appId } = props;
+  const {
+    width,
+    view,
+    projectId,
+    controls,
+    filters = [],
+    refreshSheet,
+    updateQuickFilter,
+    resetQuickFilter,
+    appId,
+  } = props;
   const filtersLength = useRef(filters.length);
   const needClickSearch = useRef(_.get(view, 'advancedSetting.clicksearch'));
   let colNum = 2;
-  if (width > 1200) {
+  if (width > 1220) {
     colNum = 4;
-  } else if (width > 800) {
+  } else if (width > 1000) {
     colNum = 3;
+  } else if (width > 500) {
+    colNum = 2;
+  } else {
+    colNum = 1;
   }
   const showQueryBtn = _.get(view, 'advancedSetting.enablebtn') === '1';
   const fullLineCount = filters.filter(isFullLine).length;

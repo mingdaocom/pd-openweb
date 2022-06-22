@@ -176,7 +176,7 @@ export default class Header extends Component {
     if (_.includes(['before', 'after'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { before: action === 'before', opinion: content, forwardAccountId: userId },
+        { before: action === 'before', opinion: content, forwardAccountId: userId, signature },
         action === 'before',
       );
     }
@@ -369,6 +369,7 @@ export default class Header extends Component {
           {addApproveWayVisible && (
             <AddApproveWay
               projectId={projectId}
+              data={data}
               onOk={this.handleAction}
               onCancel={() => this.switchStatus('addApproveWayVisible', false)}
               onSubmit={onSubmit}

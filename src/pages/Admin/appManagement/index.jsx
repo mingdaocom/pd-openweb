@@ -5,9 +5,11 @@ import './index.less';
 import { Link } from 'react-router-dom';
 import { LoadDiv, Dropdown, Switch, Icon, ScrollView, DeleteReconfirm, Dialog, Checkbox, Tooltip } from 'ming-ui';
 import cx from 'classnames';
+import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import Search from 'src/pages/workflow/components/Search';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
+import { deleteApp } from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
 import 'dialogSelectUser';
 import CustomIcon from './CustomIcon';
@@ -28,6 +30,7 @@ const optionData = [
   { label: _l('导入应用'), icon: 'reply1', action: 'handleImport', hasBeta: true },
   { label: _l('批量导出'), icon: 'cloud_download', action: 'handleExportAll', hasBeta: true },
   { label: _l('日志'), icon: 'assignment', action: 'handleLog', hasBeta: false },
+  { label: _l('应用回收站'), icon: 'knowledge-recycle', action: 'openAppTrash', hasBeta: false },
 ];
 
 const dialogHeader = {
@@ -45,6 +48,8 @@ export default class AppManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      hiddenIds: [],
+
       onlyManagerCreateApp: false,
       list: null,
       total: 0,
@@ -167,7 +172,7 @@ export default class AppManagement extends Component {
    * 渲染列表
    */
   renderList() {
-    const { list, pageIndex, loading } = this.state;
+    const { list, pageIndex, loading, hiddenIds } = this.state;
 
     if (list === null) return;
 
@@ -184,7 +189,7 @@ export default class AppManagement extends Component {
 
     return (
       <ScrollView className="flex" onScrollEnd={this.searchDataList}>
-        {list.map(item => this.renderListItem(item))}
+        {list.filter(item => !_.includes(hiddenIds, item.appId)).map(item => this.renderListItem(item))}
         {loading && pageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
       </ScrollView>
     );
@@ -194,6 +199,8 @@ export default class AppManagement extends Component {
    * 渲染单个列表项
    */
   renderListItem(item) {
+    const { projectId } = this.props.match.params;
+    const { list, hiddenIds } = this.state;
     return (
       <div className="flexRow manageList" key={item.appId}>
         <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
@@ -248,7 +255,40 @@ export default class AppManagement extends Component {
                   <li
                     className="deleteIcon"
                     onClick={() => {
-                      this.editAppStatus(item.appId, 2);
+                      DeleteReconfirm({
+                        title: _l('你确定删除此应用吗？'),
+                        description: _l('应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作'),
+                        data: [{ text: _l('我确认执行此操作'), value: true }],
+                        onOk: () => {
+                          const oldTotal = this.state.total;
+                          this.setState({
+                            total: oldTotal - 1,
+                            hiddenIds: _.uniq([...hiddenIds, item.appId]),
+                          });
+                          deleteApp({
+                            appId: item.appId,
+                            projectId,
+                            isHomePage: false,
+                          })
+                            .then(res => {
+                              if (res.data) {
+                                this.setState({
+                                  hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                });
+                                this.updateState({});
+                              } else {
+                                return $.Deferred().reject();
+                              }
+                            })
+                            .fail(() => {
+                              this.setState({
+                                hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                total: oldTotal,
+                              });
+                              alert(_l('操作失败，请稍候重试！'), 2);
+                            });
+                        },
+                      });
                       this.handleChangeVisible('rowVisible', item.appId);
                     }}
                   >
@@ -323,6 +363,16 @@ export default class AppManagement extends Component {
     );
   }
 
+  // 应用回收站
+  openAppTrash() {
+    const { projectId } = this.props.match.params;
+    if (this.state.isFree) {
+      upgradeVersionDialog({ projectId, isFree: this.state.isFree, explainText: _l('请升级到标准版本或以上版本') });
+    } else {
+      this.setState({ appTrashVisible: true });
+    }
+  }
+
   /**
    * 日志
    */
@@ -368,10 +418,7 @@ export default class AppManagement extends Component {
     const editAppStatusFun = () => {
       ajaxRequest.editAppStatus({ projectId, appId, status }).then(result => {
         if (result) {
-          // 删除
-          if (status === 2) {
-            _.remove(list, o => o.appId === appId);
-          } else {
+          if (status !== 2) {
             list = list.map(o => {
               if (o.appId === appId) {
                 o.status = status;
@@ -402,14 +449,6 @@ export default class AppManagement extends Component {
         description: _l('重新开启应用后，你需要在应用中手动开启需要运行的工作流'),
         onOk: editAppStatusFun,
         okText: _l('开启'),
-      });
-    } else if (status === 2) {
-      // 删除
-      DeleteReconfirm({
-        title: _l('你确定删除此应用吗？'),
-        description: _l('应用下所有数据将被彻底删除，且无法恢复。请确认所有应用成员都不再需要此应用后，再执行此操作'),
-        data: [{ text: _l('我确认执行此操作'), value: true }],
-        onOk: editAppStatusFun,
       });
     }
   }
@@ -554,7 +593,7 @@ export default class AppManagement extends Component {
     const { version = {} } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
 
     if (this.state.isFree) {
-      upgradeVersionDialog({ projectId, isFree: this.state.isFree,explainText: _l('请升级至付费版后使用')});
+      upgradeVersionDialog({ projectId, isFree: this.state.isFree, explainText: _l('请升级至付费版后使用') });
     } else {
       this.setState({ uploadSvg: true });
     }
@@ -592,7 +631,9 @@ export default class AppManagement extends Component {
       moreVisible,
       drawerVisible,
       exportIds,
+      appTrashVisible,
     } = this.state;
+    const projectId = this.props.match.params.projectId;
     const statusList = [
       { text: _l('全部状态'), value: '' },
       { text: _l('开启'), value: 1 },
@@ -758,6 +799,16 @@ export default class AppManagement extends Component {
         {exportIds.length > 0 ? (
           <ExportApp appIds={exportIds} closeDialog={() => this.setState({ exportIds: [] })} />
         ) : null}
+
+        {appTrashVisible && (
+          <AppTrash
+            projectId={projectId}
+            onCancel={() => this.setState({ appTrashVisible: false })}
+            onRestore={() => {
+              this.setState({ pageIndex: 1 }, this.searchDataList);
+            }}
+          />
+        )}
       </div>
     );
   }

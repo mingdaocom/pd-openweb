@@ -4,6 +4,7 @@ import './index.less';
 import cx from 'classnames';
 import { RENDER_RECORD_NECESSARY_ATTR, getRecordAttachments } from '../util';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { RecordInfoModal } from 'mobile/Record';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
@@ -16,10 +17,11 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import { addRecord } from 'worksheet/common/newRecord';
-import { navigateTo } from 'src/router/navigateTo';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+
+const isMobile = browserIsMobile();
 
 @autoSize
 @connect(
@@ -186,7 +188,7 @@ export default class RecordGallery extends Component {
       );
     }
     if (gallery.length <= 0) {
-      if (filters.keyWords || !isEmpty(filters.filterControls) || browserIsMobile()) {
+      if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
         return <ViewEmpty filters={filters} />;
       }
       return (
@@ -216,6 +218,9 @@ export default class RecordGallery extends Component {
           }}
         >
           {gallery.map((item, index) => {
+            let formData = controls.map(o => {
+              return { ...o, value: item[o.controlId] };
+            });
             const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
             let coverData = { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] };
             if (coverData.type === 45) {
@@ -251,6 +256,7 @@ export default class RecordGallery extends Component {
               allowDelete: item.allowdelete,
               rawRow: item,
               fields: this.formData(item),
+              formData,
               rowId: item.rowid,
               abstractValue: abstract
                 ? renderCellText({
@@ -262,13 +268,8 @@ export default class RecordGallery extends Component {
             return (
               <div
                 className="galleryItem"
-                style={browserIsMobile() ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
+                style={isMobile ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
                 onClick={() => {
-                  if (browserIsMobile()) {
-                    let url = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
-                    navigateTo(url);
-                    return;
-                  }
                   this.setState({ recordId: item.rowid, recordInfoVisible: true });
                 }}
               >
@@ -290,36 +291,49 @@ export default class RecordGallery extends Component {
           })}
           {galleryLoading && <LoadDiv size="big" className="mTop32" />}
           {/* 表单信息 */}
-          {recordInfoVisible && (
-            <RecordInfoWrapper
-              sheetSwitchPermit={sheetSwitchPermit} // 表单权限
-              allowAdd={worksheetInfo.allowAdd}
-              visible
-              projectId={worksheetInfo.projectId}
-              appId={appId}
-              viewId={viewId}
-              from={1}
-              hideRecordInfo={() => {
-                this.setState({ recordInfoVisible: false });
-              }}
-              view={currentView}
-              recordId={recordId}
-              worksheetId={worksheetId}
-              rules={worksheetInfo.rules}
-              updateSuccess={(ids, updated, data) => {
-                this.props.updateRow(data);
-              }}
-              onDeleteSuccess={data => {
-                // 删除行数据后重新加载页面
-                this.props.deleteRow();
-                this.setState({ recordInfoVisible: false });
-              }}
-              handleAddSheetRow={data => {
-                this.props.updateRow(data);
-                this.setState({ recordInfoVisible: false });
-              }}
-            />
-          )}
+          {recordInfoVisible &&
+            (isMobile ? (
+              <RecordInfoModal
+                className="full"
+                visible
+                appId={appId}
+                worksheetId={worksheetId}
+                viewId={viewId}
+                rowId={recordId}
+                onClose={() => {
+                  this.setState({ recordInfoVisible: false });
+                }}
+              />
+            ) : (
+              <RecordInfoWrapper
+                sheetSwitchPermit={sheetSwitchPermit} // 表单权限
+                allowAdd={worksheetInfo.allowAdd}
+                visible
+                projectId={worksheetInfo.projectId}
+                appId={appId}
+                viewId={viewId}
+                from={1}
+                hideRecordInfo={() => {
+                  this.setState({ recordInfoVisible: false });
+                }}
+                view={currentView}
+                recordId={recordId}
+                worksheetId={worksheetId}
+                rules={worksheetInfo.rules}
+                updateSuccess={(ids, updated, data) => {
+                  this.props.updateRow(data);
+                }}
+                onDeleteSuccess={data => {
+                  // 删除行数据后重新加载页面
+                  this.props.deleteRow();
+                  this.setState({ recordInfoVisible: false });
+                }}
+                handleAddSheetRow={data => {
+                  this.props.updateRow(data);
+                  this.setState({ recordInfoVisible: false });
+                }}
+              />
+            ))}
         </div>
       </ScrollView>
     );

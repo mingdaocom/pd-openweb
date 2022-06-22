@@ -3,7 +3,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Dialog, Radio, ScrollView, Support, Icon } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { NODE_TYPE, ACTION_ID } from '../../enum';
+import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { upgradeVersionDialog } from 'src/util';
 import { getProjectLicenseInfo } from 'src/api/project';
 
@@ -70,6 +70,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从关联字段获取'),
                   describe: _l('从关联表、子表或级联选择字段获取一条指定记录'),
                 },
+                {
+                  type: 7,
+                  appType: 1,
+                  actionId: '420',
+                  name: _l('从记录链接获取'),
+                  describe: _l('从存有记录链接的文本字段获取一条指定记录'),
+                },
               ],
             },
             {
@@ -111,7 +118,7 @@ export default class CreateNodeDialog extends Component {
                   type: 13,
                   appType: 1,
                   name: _l('从对象数组获取数据'),
-                  describe: _l('获取Webhook、代码块、封装业务流程输入节点的JSON数组对象'),
+                  describe: _l('获取发送API请求、代码块、封装业务流程输入节点的JSON数组对象'),
                 },
               ],
             },
@@ -262,7 +269,50 @@ export default class CreateNodeDialog extends Component {
           id: 'developer',
           name: '开发者',
           items: [
-            { type: 8, name: _l('Webhook'), iconColor: '#4C7D9E', iconName: 'icon-workflow_webhook' },
+            {
+              type: 22,
+              name: _l('API 连接与认证'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-key1',
+              typeText: _l('鉴权方式'),
+              secondList: [
+                {
+                  type: 22,
+                  appType: 31,
+                  name: _l('新建 Basic Auth 认证'),
+                  actionId: '521',
+                  describe: _l('使用固定用户名和密码的 Basic Auth 认证'),
+                },
+                {
+                  type: 22,
+                  appType: 32,
+                  name: _l('新建 OAuth 2.0 认证（客户端凭证 client credentials）'),
+                  actionId: '523',
+                  describe: _l('使用客户端 id 和客户端 secret 获取 Access Token'),
+                },
+              ],
+            },
+            {
+              type: 8,
+              name: _l('发送 API 请求'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-workflow_webhook',
+              typeText: _l('发送对象'),
+              secondList: [
+                {
+                  type: 8,
+                  appType: 7,
+                  name: _l('发送自定义请求'),
+                  describe: _l('向 API 发送自定义的Query Param、Header 和 Body 内容'),
+                },
+                {
+                  type: 8,
+                  appType: 1,
+                  name: _l('发送指定数据对象'),
+                  describe: _l('向 API 发送工作流节点中的数据对象'),
+                },
+              ],
+            },
             {
               type: 14,
               name: _l('代码块'),
@@ -283,6 +333,14 @@ export default class CreateNodeDialog extends Component {
                   describe: _l('使用Python语言'),
                 },
               ],
+            },
+            {
+              type: 21,
+              name: _l('JSON 解析'),
+              appType: 18,
+              actionId: '510',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-task_custom_polymer',
             },
           ],
         },
@@ -436,18 +494,32 @@ export default class CreateNodeDialog extends Component {
       foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
     };
 
-    if (!props.hasPushNode) {
+    if (!_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], props.flowInfo.startAppType) || props.flowInfo.child) {
       this.state.list.forEach(o => {
         console.log(o.items);
         _.remove(o.items, item => item.type === 17 || (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')));
       });
     }
 
-    const { admin: { adminLeftMenu: { weixin } }} = window.private;
+    const {
+      admin: {
+        adminLeftMenu: { weixin },
+      },
+    } = window.private;
 
     if (weixin) {
       this.state.list.forEach(o => {
         _.remove(o.items, item => item.type === 19);
+      });
+    }
+
+    if (
+      props.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
+      props.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
+    ) {
+      _.remove(this.state.list, o => o.id !== 'notice');
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === 5);
       });
     }
   }
@@ -565,68 +637,72 @@ export default class CreateNodeDialog extends Component {
           );
         })}
 
-        <Dialog
-          visible={showDialog}
-          width={560}
-          title={
-            nodeType === NODE_TYPE.APPROVAL
-              ? _l('在审批节点下添加分支有两种选择：')
-              : _l('在查找指定数据节点下添加分支有两种选择：')
-          }
-          onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
-          onOk={() =>
-            isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
-              ? this.onOk({ noMove: true })
-              : this.setState({ showDialog: false, showBranchDialog: true })
-          }
-        >
-          <Radio
-            className="Font15"
-            text={_l('添加普通分支')}
-            checked={isOrdinary}
-            onClick={() => this.setState({ isOrdinary: true })}
-          />
-          <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
-            {nodeType === NODE_TYPE.APPROVAL
-              ? _l('只对“通过”审批的数据进行分支处理')
-              : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
-          </div>
-          <Radio
-            className="Font15"
-            text={nodeType === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
-            checked={!isOrdinary}
-            onClick={() => this.setState({ isOrdinary: false })}
-          />
-          <div className="Gray_75 Font13 pLeft30 mTop5">
-            {nodeType === NODE_TYPE.APPROVAL
-              ? _l('分支固定为“通过”和“未通过”。如果你同时需要对“未通过”审批的数据进行处理时选择此分支')
-              : _l(
-                  '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
-                )}
-          </div>
-        </Dialog>
-
-        <Dialog
-          visible={showBranchDialog}
-          width={560}
-          title={_l('分支下方的节点整体放置在')}
-          onCancel={() => this.setState({ showBranchDialog: false, isOrdinary: true, moveType: 1 })}
-          onOk={this.onOk}
-        >
-          {MOVE_TYPE().map(o => (
-            <div key={o.value} className="mBottom15">
-              <Radio
-                className="Font15"
-                text={o.text}
-                checked={moveType === o.value}
-                onClick={() => this.setState({ moveType: o.value })}
-              />
+        {showDialog && (
+          <Dialog
+            visible
+            width={560}
+            title={
+              nodeType === NODE_TYPE.APPROVAL
+                ? _l('在审批节点下添加分支有两种选择：')
+                : _l('在查找指定数据节点下添加分支有两种选择：')
+            }
+            onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
+            onOk={() =>
+              isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
+                ? this.onOk({ noMove: true })
+                : this.setState({ showDialog: false, showBranchDialog: true })
+            }
+          >
+            <Radio
+              className="Font15"
+              text={_l('添加普通分支')}
+              checked={isOrdinary}
+              onClick={() => this.setState({ isOrdinary: true })}
+            />
+            <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
+              {nodeType === NODE_TYPE.APPROVAL
+                ? _l('只对“通过”审批的数据进行分支处理')
+                : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
             </div>
-          ))}
-          <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
-            {_l('等待分支汇集后再执行下方节点')}
-          </div>
-        </Dialog>
+            <Radio
+              className="Font15"
+              text={nodeType === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
+              checked={!isOrdinary}
+              onClick={() => this.setState({ isOrdinary: false })}
+            />
+            <div className="Gray_75 Font13 pLeft30 mTop5">
+              {nodeType === NODE_TYPE.APPROVAL
+                ? _l('分支固定为“通过”和“未通过”。如果你同时需要对“未通过”审批的数据进行处理时选择此分支')
+                : _l(
+                    '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
+                  )}
+            </div>
+          </Dialog>
+        )}
+
+        {showBranchDialog && (
+          <Dialog
+            visible
+            width={560}
+            title={_l('分支下方的节点整体放置在')}
+            onCancel={() => this.setState({ showBranchDialog: false, isOrdinary: true, moveType: 1 })}
+            onOk={this.onOk}
+          >
+            {MOVE_TYPE().map(o => (
+              <div key={o.value} className="mBottom15">
+                <Radio
+                  className="Font15"
+                  text={o.text}
+                  checked={moveType === o.value}
+                  onClick={() => this.setState({ moveType: o.value })}
+                />
+              </div>
+            ))}
+            <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
+              {_l('等待分支汇集后再执行下方节点')}
+            </div>
+          </Dialog>
+        )}
       </div>
     );
   }
@@ -667,7 +743,7 @@ export default class CreateNodeDialog extends Component {
    * 创建节点点击
    */
   createNodeClick(item) {
-    const { nodeId, isLast, companyId, flowNodeMap } = this.props;
+    const { nodeId, isLast, flowInfo, flowNodeMap } = this.props;
 
     // 二级创建
     if (item.secondList) {
@@ -685,11 +761,11 @@ export default class CreateNodeDialog extends Component {
     ) {
       this.setState({ selectItem: item, showBranchDialog: true });
     } else {
-      const currentProject = _.find(md.global.Account.projects || [], o => o.projectId === companyId) || {};
+      const currentProject = _.find(md.global.Account.projects || [], o => o.projectId === flowInfo.companyId) || {};
       const callback = ({ version, licenseType }) => {
         // 代码块、界面推送 Word打印模板
         if (_.includes([14, 17, 18], item.type) && (licenseType === 0 || version.versionId === 1)) {
-          upgradeVersionDialog({ projectId: companyId, isFree: licenseType === 0 });
+          upgradeVersionDialog({ projectId: flowInfo.companyId, isFree: licenseType === 0 });
         } else {
           this.addFlowNode({
             actionId: item.actionId,
@@ -703,7 +779,7 @@ export default class CreateNodeDialog extends Component {
 
       // 外协
       if (_.isEmpty(currentProject)) {
-        getProjectLicenseInfo({ projectId: companyId }).then(data => {
+        getProjectLicenseInfo({ projectId: flowInfo.companyId }).then(data => {
           callback(data);
         });
       } else {

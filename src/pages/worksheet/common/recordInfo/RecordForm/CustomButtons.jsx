@@ -451,6 +451,7 @@ export default class CustomButtons extends React.Component {
             filterRelateSheetrecordbase={worksheetId}
             visible={newRecordVisible}
             masterRecord={this.masterRecord}
+            projectId={projectId}
             customBtn={{
               btnId: this.activeBtn.btnId,
               btnWorksheetId: worksheetId,

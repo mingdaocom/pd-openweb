@@ -262,6 +262,7 @@ export default class RelateRecordDropdown extends React.Component {
       this.setState({ selected: [record], listvisible: false }, () => {
         this.handleChange();
         onVisibleChange(false);
+        this.setState({ newrecordVisible: false });
       });
     }
   }
@@ -296,7 +297,6 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderSingle() {
     const { insheet, isediting, control, allowOpenRecord, entityName } = this.props;
-    const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
     return (
@@ -407,7 +407,7 @@ export default class RelateRecordDropdown extends React.Component {
     );
   }
 
-  renderPopup({ onlyRelateByScanCode }) {
+  renderPopup({ disabledManualWrite }) {
     const { multiple, control, formData, insheet, disableNewRecord, onVisibleChange } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
     const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop } = this.state;
@@ -423,7 +423,7 @@ export default class RelateRecordDropdown extends React.Component {
         style={!this.isMobile ? {} : { position: 'relative', marginLeft: -20 }}
       >
         {insheet && this.renderSelected(true)}
-        {onlyRelateByScanCode && (
+        {disabledManualWrite && (
           <OnlyScanTip>
             {!insheet && !!selected.length && (
               <div className="clearBtn" onClick={this.handleClear}>
@@ -433,7 +433,7 @@ export default class RelateRecordDropdown extends React.Component {
             {_l('请在移动端扫码添加关联')}
           </OnlyScanTip>
         )}
-        {listvisible && !onlyRelateByScanCode && (
+        {listvisible && !disabledManualWrite && (
           <RelateRecordList
             keyWords={keywords}
             control={control}
@@ -483,6 +483,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderSelected(free) {
     const {
+      control = {},
       isQuickFilter,
       isediting,
       insheet,
@@ -509,7 +510,7 @@ export default class RelateRecordDropdown extends React.Component {
           active: listvisible || isediting,
           emptyRecord: !selected.length,
           readonly: disabled,
-          allowOpenRecord,
+          allowOpenRecord: allowOpenRecord && String(control.advancedSetting.showtype) === '3',
           'customFormControlBox mobile': this.isMobile,
         })}
         ref={this.cell}
@@ -557,7 +558,8 @@ export default class RelateRecordDropdown extends React.Component {
     } = this.props;
     const { isTop, listvisible, previewRecord, newrecordVisible } = this.state;
     const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
-    const popup = this.renderPopup({ onlyRelateByScanCode });
+    const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
+    const popup = this.renderPopup({ disabledManualWrite });
     const popupVisible = insheet ? isediting : listvisible;
     return (
       <div className={cx('RelateRecordDropdown', className)}>
@@ -587,7 +589,7 @@ export default class RelateRecordDropdown extends React.Component {
         >
           {!insheet || !isediting ? this.renderSelected() : <div style={selectedStyle} ref={this.cell} />}
         </Trigger>
-        {newrecordVisible && !onlyRelateByScanCode && (
+        {newrecordVisible && !disabledManualWrite && (
           <NewRecord
             showFillNext
             directAdd

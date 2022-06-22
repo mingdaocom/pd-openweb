@@ -350,7 +350,7 @@ export default class ExportSheet extends Component {
     }
 
     // 过滤掉不支持导出的字段、无权限字段
-    const notSupportableTtpe = [22, 34, 43, 45, 10010];
+    const notSupportableTtpe = [22, 34, 43, 45, 47, 10010];
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&

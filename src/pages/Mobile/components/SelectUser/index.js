@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Switch } from 'ming-ui';
 import { Modal, Button, WingBlank, List, Checkbox, Toast } from 'antd-mobile';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
@@ -37,6 +37,9 @@ export default class SelectUser extends Component {
       pageSize: 20,
       users: [],
       selectedUsers: [],
+      onlyJoinDepartmentChecked: false,
+      depPageIndex: 1,
+      isMoreDep: true,
     };
   }
   componentDidMount() {
@@ -127,29 +130,29 @@ export default class SelectUser extends Component {
     }
   };
   requestContactProjectDepartments = () => {
-    const { loading } = this.state;
-
-    if (loading) {
+    const { loading, depPageIndex, pageSize, departments, isMoreDep, onlyJoinDepartmentChecked = false } = this.state;
+    if (!isMoreDep) {
       return;
     }
-
-    this.setState({
-      loading: true,
+    if (this.request && this.request.state() === 'pending') {
+      this.request.abort();
+    }
+    const { projectId } = this.props;
+    this.request = departmentAjax.getProjectDepartmentByPage({
+      projectId,
+      pageIndex: depPageIndex,
+      pageSize,
+      onlyMyJoin: onlyJoinDepartmentChecked,
     });
 
-    const { projectId } = this.props;
-    departmentAjax
-      .getContactProjectDepartments({
-        projectId,
-        filterFriend: false,
-        filterAccountIds: [md.global.Account.accountId],
-      })
-      .then(result => {
-        this.setState({
-          loading: false,
-          departments: result.list,
-        });
+    this.request.then(result => {
+      this.setState({
+        departments: departments.concat(result.list),
+        loading: false,
+        depPageIndex: depPageIndex + 1,
+        isMoreDep: result.list.length === pageSize,
       });
+    });
   };
   requestSearchDepartment = () => {
     const { loading, searchValue } = this.state;
@@ -211,7 +214,6 @@ export default class SelectUser extends Component {
       .getDepartmentUsers({
         departmentId: department.departmentId,
         projectId,
-        filterAccountIds: [md.global.Account.accountId],
       })
       .then(result => {
         this.setState({
@@ -255,7 +257,8 @@ export default class SelectUser extends Component {
         >
           <input
             type="text"
-            placeholder={_l('搜索')}
+            placeholder={_l('搜索人员')}
+            className="Font14"
             value={searchValue}
             onChange={e => {
               this.setState({ searchValue: e.target.value });
@@ -281,6 +284,16 @@ export default class SelectUser extends Component {
       </div>
     );
   }
+
+  onlyShowJoinDepartment = checked => {
+    this.setState(
+      { onlyJoinDepartmentChecked: !checked, depPageIndex: 1, departments: [], isMoreDep: true, loading: true },
+      () => {
+        this.requestContactProjectDepartments();
+      },
+    );
+  };
+
   renderSelected() {
     const { selectedUsers } = this.state;
     const { type } = this.props;
@@ -294,7 +307,7 @@ export default class SelectUser extends Component {
               <span>{item[name]}</span>
               <Icon
                 icon="close"
-                className="Gray_9e Font19"
+                className="Gray_9e Font15"
                 onClick={() => {
                   const { selectedUsers } = this.state;
                   this.setState({
@@ -317,6 +330,7 @@ export default class SelectUser extends Component {
       departmentUsersLoading,
       loading,
       departmentPath,
+      onlyJoinDepartmentChecked,
     } = this.state;
     const { type } = this.props;
     if (departmentVisible) {
@@ -379,7 +393,7 @@ export default class SelectUser extends Component {
                       this.handleSelectSubDepartment(department, index + 1);
                     }}
                   >
-                    <i className="mRight3">></i>
+                    <i className="mRight3">&gt;</i>
                     {department.departmentName}
                   </span>
                 ))}
@@ -426,14 +440,21 @@ export default class SelectUser extends Component {
                       }
                     }}
                   >
-                    {item.fullname}
+                    <Fragment>
+                      <img src={item.avatar} className="avatar" />
+                      {item.fullname}
+                    </Fragment>
                   </CheckboxItem>
                 ))}
                 {_.isEmpty(departmentUsers) ? <div className="pTop30 pBottom30 TxtCenter">{_l('暂无人员')}</div> : null}
               </ScrollView>
             )
           ) : (
-            <ScrollView className="flex">
+            <ScrollView className="flex" onScrollEnd={this.requestContactProjectDepartments}>
+              <div className="flexRow onlyShowJoinDepartment">
+                <span>{_l('只看我加入的部门')}</span>
+                <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />
+              </div>
               {departments.map((item, index) => (
                 <Fragment key={item.departmentId}>
                   {type === 'department' ? (
@@ -522,21 +543,54 @@ export default class SelectUser extends Component {
         </List>
       );
     }
-
+    let currentAccount = md.global.Account || {};
     return (
-      <List>
-        <List.Item
-          arrow="horizontal"
+      <Fragment>
+        <List>
+          <List.Item
+            arrow="horizontal"
+            onClick={() => {
+              this.requestContactProjectDepartments();
+              this.setState({ departmentVisible: true });
+            }}
+          >
+            <div className="Font15 Gray mTop5 mBottom5">
+              <Icon icon="department" className="TxtMiddle Font18 Gray_9e mRight15" /> {_l('按部门选择')}
+            </div>
+          </List.Item>
+        </List>
+        <div
+          className="currentAccount mTop10"
           onClick={() => {
-            this.requestContactProjectDepartments();
-            this.setState({ departmentVisible: true });
+            this.selectedAccount(currentAccount);
           }}
         >
-          <div className="Font15 Gray mTop5 mBottom5">{_l('按部门选择')}</div>
-        </List.Item>
-      </List>
+          <img src={currentAccount.avatar} className="avatar mRight10" />
+          <span>{_l('我自己')}</span>
+        </div>
+      </Fragment>
     );
   }
+  selectedAccount = item => {
+    const { selectedUsers } = this.state;
+    const { onlyOne } = this.props;
+    const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
+    if (onlyOne) {
+      this.setState({
+        selectedUsers: isSelected ? [] : [item],
+      });
+      return;
+    }
+    if (isSelected) {
+      this.setState({
+        selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
+      });
+    } else {
+      this.setState({
+        selectedUsers: selectedUsers.concat(item),
+      });
+    }
+  };
   renderUsers() {
     const { isRangeData, userType } = this.props;
     const { users, loading, pageIndex } = this.state;
@@ -558,28 +612,12 @@ export default class SelectUser extends Component {
                       item.accountId,
                       this.state.selectedUsers.map(item => item.accountId),
                     )}
-                    onChange={() => {
-                      const { selectedUsers } = this.state;
-                      const { onlyOne } = this.props;
-                      const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
-                      if (onlyOne) {
-                        this.setState({
-                          selectedUsers: isSelected ? [] : [item],
-                        });
-                        return;
-                      }
-                      if (isSelected) {
-                        this.setState({
-                          selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
-                        });
-                      } else {
-                        this.setState({
-                          selectedUsers: selectedUsers.concat(item),
-                        });
-                      }
-                    }}
+                    onChange={() => this.selectedAccount(item)}
                   >
-                    {item.fullname}
+                    <Fragment>
+                      <img src={item.avatar} className="avatar" />
+                      {item.fullname}
+                    </Fragment>
                   </CheckboxItem>
                 ))}
                 {loading ? (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
-import { TagTextarea } from 'ming-ui';
+import { TagTextarea, Tooltip } from 'ming-ui';
 import { includes, get, find } from 'lodash';
 import cx from 'classnames';
 import { SettingItem, SelectFieldsWrap, ControlTag } from '../../styled';
@@ -33,9 +33,11 @@ export default function Concatenate({ data, onChange, allControls }) {
               const invalidError =
                 originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
               return (
-                <ControlTag className={cx({ invalid: !controlName || invalidError })}>
-                  {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('已删除')}
-                </ControlTag>
+                <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={controlName}>
+                  <ControlTag className={cx({ invalid: !controlName || invalidError, Hand: !controlName })}>
+                    {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('字段已删除')}
+                  </ControlTag>
+                </Tooltip>
               );
             }}
             onChange={(err, value) => {

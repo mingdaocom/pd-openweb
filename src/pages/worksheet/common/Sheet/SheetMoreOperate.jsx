@@ -38,31 +38,48 @@ export default function SheetMoreOperate(props) {
                 getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
                 action={['hover']}
                 popupAlign={{ points: ['tl', 'tr'], offset: [0, -20] }}
-                popup={(
+                popup={
                   <Menu className="subMenu">
-                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/display`) }}>
+                    <MenuItem
+                      onClick={() => {
+                        navigateTo(`/worksheet/formSet/edit/${worksheetId}/display`);
+                      }}
+                    >
                       <span className="text">{_l('业务规则')}</span>
                     </MenuItem>
-                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/functionalSwitch`) }}>
+                    <MenuItem
+                      onClick={() => {
+                        navigateTo(`/worksheet/formSet/edit/${worksheetId}/functionalSwitch`);
+                      }}
+                    >
                       <span className="text">{_l('功能开关')}</span>
                     </MenuItem>
-                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/customBtn`) }}>
+                    <MenuItem
+                      onClick={() => {
+                        navigateTo(`/worksheet/formSet/edit/${worksheetId}/customBtn`);
+                      }}
+                    >
                       <span className="text">{_l('自定义动作')}</span>
                     </MenuItem>
-                    <MenuItem onClick={() => { navigateTo(`/worksheet/formSet/edit/${worksheetId}/printTemplate`) }}>
+                    <MenuItem
+                      onClick={() => {
+                        navigateTo(`/worksheet/formSet/edit/${worksheetId}/printTemplate`);
+                      }}
+                    >
                       <span className="text">{_l('打印模板')}</span>
                     </MenuItem>
                     <hr className="splitLine" />
-                    <MenuItem onClick={() => { navigateTo(`/worksheet/form/edit/${worksheetId}`) }}>
+                    <MenuItem
+                      onClick={() => {
+                        navigateTo(`/worksheet/form/edit/${worksheetId}`);
+                      }}
+                    >
                       <span className="text">{_l('公开发布')}</span>
                     </MenuItem>
                   </Menu>
-                )}
+                }
               >
-                <MenuItem
-                  className="settingSheet"
-                  icon={<Icon icon="table" className="Font18 pLeft3" />}
-                >
+                <MenuItem className="settingSheet" icon={<Icon icon="table" className="Font18 pLeft3" />}>
                   <span className="text">{_l('设置工作表')}</span>
                   <Icon className="Font15" icon="arrow-right-tip" />
                 </MenuItem>
@@ -184,6 +201,7 @@ export default function SheetMoreOperate(props) {
                     deleteSheet({
                       appId,
                       groupId,
+                      projectId,
                       worksheetId,
                     });
                   },

@@ -6,7 +6,7 @@ import { Dialog, Dropdown } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RadioGroup from 'ming-ui/components/RadioGroup';
 import CustomFields from 'src/components/newCustomFields';
-import { CONTROL_EDITABLE_BALCKLIST } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
@@ -55,7 +55,7 @@ export default class EditRecord extends Component {
       const controlsForSelect = data.template.controls.filter(
         control =>
           control.type < 10000 &&
-          !_.includes(CONTROL_EDITABLE_BALCKLIST, control.type) &&
+          !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
           !_.find(view.controls, id => control.controlId === id) &&
           controlState(control).visible &&
           controlState(control).editable,

@@ -46,6 +46,7 @@ export default class HistoryList extends Component {
     accumulation: any,
     getMore: func,
     hasMoreData: bool,
+    requestPending: bool,
     onRecovery: func,
   };
   static defaultProps = {
@@ -155,7 +156,7 @@ export default class HistoryList extends Component {
   }
 
   render() {
-    const { data, getMore, hasMoreData, accumulation, ...res } = this.props;
+    const { data, getMore, hasMoreData, requestPending, accumulation, ...res } = this.props;
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
@@ -191,7 +192,7 @@ export default class HistoryList extends Component {
         {hasMoreData && (
           <div className="moreDataWrap">
             <div className="moreData" onClick={getMore}>
-              {_l('更多')}
+              {requestPending ? _l('加载中...') : _l('更多')}
             </div>
           </div>
         )}

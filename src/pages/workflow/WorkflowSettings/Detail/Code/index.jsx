@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, ParameterList } from '../components';
+import { DetailHeader, DetailFooter, CustomTextarea, ParameterList, KeyPairs } from '../components';
 import { ACTION_ID } from '../../enum';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
@@ -99,88 +99,6 @@ export default class Code extends Component {
 
     this.setState({ saveRequest: true });
   };
-
-  /**
-   * 渲染键值对
-   */
-  renderKeyValues() {
-    const { data } = this.state;
-
-    return (
-      <Fragment>
-        {data.inputDatas.map((item, i) => {
-          return (
-            <div className="flexRow" key={this.props.selectNodeId + i}>
-              <input
-                type="text"
-                className="mTop10 ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-                style={{ width: 100 }}
-                value={item.name}
-                onChange={evt => this.updateKeyValues('name', evt.target.value, i)}
-              />
-              <div className="flex mLeft10" style={{ minWidth: 0 }}>
-                <CustomTextarea
-                  processId={this.props.processId}
-                  selectNodeId={this.props.selectNodeId}
-                  type={2}
-                  height={0}
-                  content={item.value}
-                  formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => this.updateKeyValues('value', value, i)}
-                  updateSource={this.updateSource}
-                />
-              </div>
-              <i
-                className="icon-delete2 Font16 mLeft8 mTop20 ThemeHoverColor3 pointer Gray_bd"
-                onClick={() => this.deleteKeys(i)}
-              />
-            </div>
-          );
-        })}
-        <div className="mTop10">
-          <span
-            className="ThemeHoverColor3 pointer Gray_9e"
-            onClick={() => this.updateSource({ inputDatas: data.inputDatas.concat({ name: '', value: '' }) })}
-          >
-            + Key/Value Pair
-          </span>
-        </div>
-      </Fragment>
-    );
-  }
-
-  /**
-   * 添加key参数
-   */
-  updateKeyValues(keyName, value, i) {
-    const { data } = this.state;
-    const items = _.cloneDeep(data.inputDatas);
-
-    if (keyName === 'value' && !items[i].name && value.match(/\$.*?\$/)) {
-      items[i].name = (
-        data.formulaMap[
-          value
-            .match(/\$.*?\$/)[0]
-            .replace(/\$/g, '')
-            .split('-')[1]
-        ] || {}
-      ).name;
-    }
-
-    items[i][keyName] = value;
-    this.updateSource({ inputDatas: items });
-  }
-
-  /**
-   * 删除头参数
-   */
-  deleteKeys(i) {
-    const { data } = this.state;
-    const items = _.cloneDeep(data.inputDatas);
-
-    _.remove(items, (obj, index) => index === i);
-    this.updateSource({ inputDatas: items });
-  }
 
   /**
    * Output对象参数列表
@@ -289,7 +207,15 @@ export default class Code extends Component {
               </div>
 
               <div className="Font13 bold mTop20">{_l('定义input对象')}</div>
-              {this.renderKeyValues()}
+              <KeyPairs
+                key={this.props.selectNodeId}
+                processId={this.props.processId}
+                selectNodeId={this.props.selectNodeId}
+                source={data.inputDatas}
+                sourceKey="inputDatas"
+                formulaMap={data.formulaMap}
+                updateSource={this.updateSource}
+              />
 
               <div className="Font13 bold mTop20">{_l('代码块')}</div>
               <div className="mTop5 Gray_9e">
@@ -326,25 +252,27 @@ export default class Code extends Component {
         </div>
         <DetailFooter isCorrect={!!data.code} onSave={this.onSave} closeDetail={this.props.closeDetail} />
 
-        <Dialog
-          className="workfowFullCode"
-          closable={false}
-          type="fixed"
-          title={
-            <span
-              data-tip={_l('缩小')}
-              className="codeEditorSmall tip-top"
-              onClick={() => this.setState({ isFullCode: false })}
-            >
-              <Icon icon="close_fullscreen" />
-            </span>
-          }
-          visible={isFullCode}
-          width={800}
-          footer={null}
-        >
-          {this.renderCode({ minHeight: '100%' })}
-        </Dialog>
+        {isFullCode && (
+          <Dialog
+            className="workfowFullCode"
+            closable={false}
+            type="fixed"
+            title={
+              <span
+                data-tip={_l('缩小')}
+                className="codeEditorSmall tip-top"
+                onClick={() => this.setState({ isFullCode: false })}
+              >
+                <Icon icon="close_fullscreen" />
+              </span>
+            }
+            visible
+            width={800}
+            footer={null}
+          >
+            {this.renderCode({ minHeight: '100%' })}
+          </Dialog>
+        )}
       </Fragment>
     );
   }

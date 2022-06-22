@@ -149,7 +149,7 @@ class AttachmentsPreview extends React.Component {
     if (!this.props.attachments.length) {
       return <LoadDiv />;
     }
-    const { attachments, index, showAttInfo, hideFunctions, extra, error } = this.props;
+    const { attachments, index, showAttInfo, hideFunctions, extra, error, options = {} } = this.props;
     const currentAttachment = attachments[index];
     const { ext, name, previewAttachmentType } = currentAttachment;
     let { previewType } = currentAttachment;
@@ -168,7 +168,7 @@ class AttachmentsPreview extends React.Component {
 
     return (
       <div
-        className={cx('attachmentsPreview flexColumn', { fullscreen: isFullScreen })}
+        className={cx('attachmentsPreview flexColumn', options.theme, { fullscreen: isFullScreen })}
         style={this.state.style}
         onWheel={this.onWheel}
       >

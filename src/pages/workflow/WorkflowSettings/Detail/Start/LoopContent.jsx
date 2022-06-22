@@ -247,24 +247,38 @@ export default class LoopContent extends Component {
 
         <div
           className="mTop25 webhookBtn InlineBlock"
-          onClick={() =>
-            checkTimingTriggerConfig(data.config) && getNodeDetail(data.executeTime, JSON.stringify(data.config))
-          }
+          onClick={() => {
+            if (data.executeEndTime && moment(data.executeTime) >= moment(data.executeEndTime)) {
+              alert(_l('结束执行时间不能小于开始执行时间'), 2);
+              return;
+            }
+
+            if (data.executeEndTime && moment(data.executeEndTime) <= moment()) {
+              alert(_l('结束执行时间不能晚于当前时间'), 2);
+              return;
+            }
+
+            checkTimingTriggerConfig(data.config) &&
+              getNodeDetail(
+                data.executeTime + (data.executeEndTime ? `&${data.executeEndTime}` : ''),
+                JSON.stringify(data.config),
+              );
+          }}
         >
-          {_l('生成接下来七次的执行时间')}
+          {_l('生成初始七次的执行时间')}
         </div>
 
         {!!data.executeTimes.length && (
           <div className="mTop25 webhookBox">
             <div className="webhookHeader flexRow">
-              <div className="bold w140 ellipsis">{_l('序号')}</div>
+              <div className="bold w180 ellipsis">{_l('序号')}</div>
               <div className="bold mLeft15 flex ellipsis">{_l('日期时间')}</div>
             </div>
             <ul className="webhookList">
               {data.executeTimes.map((item, i) => {
                 return (
                   <li className="flexRow" key={i}>
-                    <div className="w140">{i + 1}</div>
+                    <div className="w180">{i + 1}</div>
                     <div className="mLeft15 flex">{item}</div>
                   </li>
                 );
@@ -364,10 +378,7 @@ export default class LoopContent extends Component {
         <div className="Font13 mTop20">{_l('天/星期')}</div>
         <RadioGroup
           className="mTop5 Font12"
-          data={[
-            { text: _l('天'), value: 1, checked: isDay },
-            { text: _l('星期'), value: 2, checked: !isDay },
-          ]}
+          data={[{ text: _l('天'), value: 1, checked: isDay }, { text: _l('星期'), value: 2, checked: !isDay }]}
           onChange={value => {
             if (value === 1) {
               this.updateConfigValue({ day: { type: 1, values: [] }, week: { type: 0, values: [] } });
@@ -419,10 +430,7 @@ export default class LoopContent extends Component {
    */
   renderMonth() {
     const { data } = this.props;
-    const list = [
-      { text: _l('每月都触发'), value: 1 },
-      { text: _l('按固定值触发'), value: 3 },
-    ];
+    const list = [{ text: _l('每月都触发'), value: 1 }, { text: _l('按固定值触发'), value: 3 }];
 
     return (
       <Fragment>
@@ -786,6 +794,21 @@ export default class LoopContent extends Component {
               }
             >
               {data.executeTime ? moment(data.executeTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
+            </DateTime>
+            <i className="icon-hr_time Absolute Font16 Gray_9e" style={{ right: 10, top: 10 }} />
+          </div>
+
+          <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
+          <div className="Font13 Gray_9e mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
+          <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
+            <DateTime
+              selectedValue={data.executeEndTime ? moment(data.executeEndTime) : ''}
+              timePicker
+              timeMode="minute"
+              onOk={e => updateSource({ executeEndTime: e.format('YYYY-MM-DD HH:mm') })}
+              onClear={() => updateSource({ executeEndTime: '' })}
+            >
+              {data.executeEndTime ? moment(data.executeEndTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
             <i className="icon-hr_time Absolute Font16 Gray_9e" style={{ right: 10, top: 10 }} />
           </div>

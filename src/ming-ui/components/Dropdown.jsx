@@ -63,6 +63,7 @@ class Dropdown extends Component {
      * Menu的样式名
      */
     menuClass: PropTypes.string,
+    currentItemClass: PropTypes.object,
     /**
      * 表单item名字
      */
@@ -184,6 +185,7 @@ class Dropdown extends Component {
     openSearch: PropTypes.bool,
     cancelAble: PropTypes.bool, //可取消的
     renderError: PropTypes.func, // 错误结果显示
+    disabledClickElement: PropTypes.string, // 禁止点击的元素（id、class）
   };
   /* eslint-enable */
   static defaultProps = {
@@ -194,6 +196,7 @@ class Dropdown extends Component {
     selectClose: true,
     openSearch: false,
     onVisibleChange: () => {},
+    disabledClickElement: '',
   };
 
   constructor(props) {
@@ -296,7 +299,11 @@ class Dropdown extends Component {
     const { keywords } = this.state;
     const text = typeof item.text === 'string' ? item.text : item.searchText || '';
 
-    return String(text).toLowerCase().indexOf(keywords.toLowerCase()) > -1;
+    return (
+      String(text)
+        .toLowerCase()
+        .indexOf(keywords.toLowerCase()) > -1
+    );
   }
 
   checkIsNull(item) {
@@ -307,7 +314,7 @@ class Dropdown extends Component {
   }
 
   renderListItem(data) {
-    const { showItemTitle } = this.props;
+    const { showItemTitle, currentItemClass, value } = this.props;
 
     return data.map((item, index) => {
       if (_.isArray(item)) {
@@ -332,6 +339,7 @@ class Dropdown extends Component {
             ) : (
               <MenuItem
                 {...item}
+                className={cx(item.className, value === item.value && currentItemClass ? currentItemClass : '')}
                 data-value={item.value}
                 icon={
                   item.iconName || item.icon ? <Icon icon={item.iconName || item.icon} hint={item.iconHint} /> : null
@@ -437,7 +445,7 @@ class Dropdown extends Component {
 
   displayPointer = () => {
     const { value } = this.state;
-    const { placeholder, data, cancelAble } = this.props;
+    const { placeholder, data, cancelAble, disabledClickElement } = this.props;
     const selectedData = _.find(data, item => item.value === value);
     return (
       <div
@@ -447,7 +455,11 @@ class Dropdown extends Component {
         }}
         onClick={event => {
           event.stopPropagation();
-          this.handleClick();
+          if (disabledClickElement) {
+            !$(event.target).closest(disabledClickElement).length && this.handleClick();
+          } else {
+            this.handleClick();
+          }
         }}
       >
         {value != undefined ? ( // eslint-disable-line eqeqeq

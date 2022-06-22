@@ -15,6 +15,7 @@ import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 
 export default class CustomFields extends Component {
   static propTypes = {
@@ -38,6 +39,7 @@ export default class CustomFields extends Component {
     registerCell: PropTypes.func,
     checkCellUnique: PropTypes.func,
     onFormDataReady: PropTypes.func,
+    onWidgetChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -60,7 +62,7 @@ export default class CustomFields extends Component {
       descMore: [],
       rules: props.rules || [],
       rulesLoading: !props.disableRules && !props.rules,
-      searchConfig: [],
+      searchConfig: props.searchConfig || [],
       loadingItems: {},
     };
   }
@@ -216,8 +218,8 @@ export default class CustomFields extends Component {
   getSearchConfig = nextProps => {
     const { worksheetId, data, disabled } = nextProps || this.props;
 
-    sheetAjax.getQueryBySheetId({ worksheetId }).then(searchConfig => {
-      this.setState({ searchConfig }, () => this.initSource(data, disabled));
+    sheetAjax.getQueryBySheetId({ worksheetId }).then(res => {
+      this.setState({ searchConfig: formatSearchConfigs(res) }, () => this.initSource(data, disabled));
     });
   };
 
@@ -513,6 +515,7 @@ export default class CustomFields extends Component {
       systemControlData,
       popupContainer,
       getMasterFormData,
+      onWidgetChange = () => {},
     } = this.props;
     const { uniqueErrorItems } = this.state;
 
@@ -541,7 +544,7 @@ export default class CustomFields extends Component {
     // (禁用或只读) 且 内容不存在
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
-      ((!item.value && item.value !== 0 && item.type !== 28) ||
+      ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
         (_.includes([21, 26, 27, 29], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
@@ -570,6 +573,9 @@ export default class CustomFields extends Component {
           viewIdForPermit={viewId}
           initSource={initSource}
           onChange={(value, cid = controlId) => {
+            if (!_.get(value, 'rows')) {
+              onWidgetChange();
+            }
             if (item.value !== value) {
               this.dataFormat.updateDataSource({
                 controlId: cid,
@@ -615,8 +621,8 @@ export default class CustomFields extends Component {
    * 验证唯一值
    */
   checkControlUnique(controlId, controlType, controlValue) {
-    const { worksheetId, recordId, checkCellUnique } = this.props;
-    const { uniqueErrorItems } = this.state;
+    const { worksheetId, recordId, checkCellUnique, onError = () => {} } = this.props;
+    const { uniqueErrorItems, loadingItems } = this.state;
 
     if (_.isFunction(checkCellUnique)) {
       if (checkCellUnique(controlId, controlValue)) {
@@ -632,6 +638,8 @@ export default class CustomFields extends Component {
       return;
     }
 
+    this.setState({ loadingItems: { ...loadingItems, [controlId]: true } });
+
     checkFieldUnique({
       worksheetId,
       controlId,
@@ -644,11 +652,17 @@ export default class CustomFields extends Component {
           errorType: FORM_ERROR_TYPE.UNIQUE,
           showError: true,
         });
+        onError();
       } else if (res.isSuccess) {
         _.remove(uniqueErrorItems, item => item.controlId === controlId && item.errorType === FORM_ERROR_TYPE.UNIQUE);
       }
 
-      this.setState({ uniqueErrorItems });
+      this.setState({ uniqueErrorItems, loadingItems: { ...loadingItems, [controlId]: false } }, () => {
+        if (res.isSuccess && this.submitPending) {
+          this.submitPending = false;
+          this.submitFormData();
+        }
+      });
     });
   }
 
@@ -772,6 +786,7 @@ export default class CustomFields extends Component {
     const { data, updateControlIds, error } = this.getSubmitData();
 
     if (!error && _.some(Object.values(loadingItems), i => i)) {
+      this.submitPending = true;
       return;
     }
 

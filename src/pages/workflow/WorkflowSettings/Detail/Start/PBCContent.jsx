@@ -78,7 +78,7 @@ export default ({ data, updateSource, errorItems, setErrorItems }) => {
                 <Dropdown
                   className="flowDropdown mRight10"
                   style={{ width: 120 }}
-                  data={FIELD_TYPE_LIST}
+                  data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27, 10000003], o.value))}
                   value={item.type}
                   border
                   disabled={!!item.controlId}

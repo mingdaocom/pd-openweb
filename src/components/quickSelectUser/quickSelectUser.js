@@ -344,6 +344,7 @@ $.extend(SelectUser.prototype, {
             includeUndefinedAndMySelf: options.includeUndefinedAndMySelf,
             includeSystemField: options.includeSystemField,
             prefixAccountIds: options.prefixAccountIds,
+            projectId: options.SelectUserSettings.projectId,
           })
           .then(function (data) {
             var renderData = {};
@@ -379,6 +380,7 @@ $.extend(SelectUser.prototype, {
             renderData.isCooperation = true;
             renderData.tip = options.tip;
             renderData.tabIndex = options.tabIndex;
+            renderData.projectId = options.SelectUserSettings.projectId;
             // fill the list
             SelectUser.Utils.bindListContent(_this.$coOperationList, renderData);
           });
@@ -652,6 +654,7 @@ $.extend(SelectUser.prototype, {
         options.promise = addressBookController.getUserAddressbookByKeywords({
           keywords: options.keywords,
           filterAccountIds: options.filterAccountIds,
+          currentProjectId: options.SelectUserSettings.projectId,
         });
         options.promise.then(function (data) {
           if (data.list) {
@@ -661,6 +664,7 @@ $.extend(SelectUser.prototype, {
             options.hasData = renderData.users.length > 0;
             renderData.isCooperation = false;
             renderData.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
+            renderData.projectId = options.SelectUserSettings.projectId;
             SelectUser.Utils.bindListContent(_this.$searchResultList, renderData);
           } else {
             _this.$searchResultList.empty();

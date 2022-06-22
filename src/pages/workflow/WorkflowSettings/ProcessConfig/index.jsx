@@ -548,7 +548,7 @@ class ProcessConfig extends Component {
 
   render() {
     const { flowInfo } = this.props;
-    const isPBC = _.includes([17], flowInfo.startAppType);
+    const isPBC = _.includes([17], flowInfo.startAppType) && !flowInfo.child;
     const { data, tab } = this.state;
 
     if (_.isEmpty(data)) {

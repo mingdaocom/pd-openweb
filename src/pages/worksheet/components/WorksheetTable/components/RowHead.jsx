@@ -7,6 +7,8 @@ import { Checkbox, Menu, MenuItem, Dialog } from 'ming-ui';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import { isEmpty } from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 
 const Con = styled.div`
   display: inline-block;
@@ -95,6 +97,13 @@ export default function RowHead(props) {
   const row = data[rowIndex - 1] || {};
   const selected =
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
+  const hasBatch =
+    isOpenPermit(permitList.batchGroup, sheetSwitchPermit) && //开启了批量操作 且有可操作项
+    (isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId) ||
+      isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId) ||
+      isOpenPermit(permitList.export, sheetSwitchPermit, viewId) ||
+      isOpenPermit(permitList.execute, sheetSwitchPermit, viewId) ||
+      isOpenPermit(permitList.delete, sheetSwitchPermit, viewId));
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
       onSelectAllWorksheet(false);
@@ -113,7 +122,12 @@ export default function RowHead(props) {
     return <Con className={cx(className, { selected })} style={style} />;
   }
   return (
-    <Con rowHeadOnlyNum={rowHeadOnlyNum} className={cx(className, { selected })} style={style} readonly={readonly}>
+    <Con
+      rowHeadOnlyNum={rowHeadOnlyNum}
+      className={cx(className, { selected })}
+      style={style}
+      readonly={readonly || !hasBatch}
+    >
       {rowIndex !== 0 && (
         <React.Fragment>
           {!readonly && !isTrash && (
@@ -174,7 +188,7 @@ export default function RowHead(props) {
           )}
         </React.Fragment>
       )}
-      {!readonly && rowIndex === 0 && (
+      {hasBatch && !readonly && rowIndex === 0 && (
         <div className="topCheckbox">
           {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSehetLayout} />}
           <div className="checkboxCon">

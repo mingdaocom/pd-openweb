@@ -2,8 +2,9 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Dropdown, Icon } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
+import { Tooltip } from 'antd';
 
-export default function ({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {
+export default function({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {
   const list = (controls || []).map(item => {
     return {
       text: (
@@ -28,6 +29,7 @@ export default function ({ controls, selectedIds, placeholder = _l('请选择'),
       openSearch
       placeholder={placeholder}
       onChange={value => updateSource(selectedIds.concat(value))}
+      disabledClickElement=".ant-tooltip"
       renderTitle={() =>
         !!selectedIds.length && (
           <ul className="tagWrap">
@@ -36,9 +38,9 @@ export default function ({ controls, selectedIds, placeholder = _l('请选择'),
 
               return (
                 <li key={id} className={cx('tagItem flexRow', { error: !control })}>
-                  <span className="tag" title={control ? control.controlName : _l('字段已删除')}>
-                    {control ? control.controlName : _l('字段已删除')}
-                  </span>
+                  <Tooltip title={control ? null : `ID：${id}`}>
+                    <span className="tag">{control ? control.controlName : _l('字段已删除')}</span>
+                  </Tooltip>
                   <span
                     className="delTag"
                     onClick={e => {

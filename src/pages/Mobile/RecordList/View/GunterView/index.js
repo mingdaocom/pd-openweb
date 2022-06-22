@@ -32,7 +32,7 @@ class MobileGunterView extends Component {
     }
 
     return (
-      <GunterView {...this.props} />
+      <GunterView {...this.props} layoutType="mobile" />
     );
   }
 }

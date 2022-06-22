@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, Dialog, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import { APP_TYPE, DATE_TYPE } from '../../enum';
+import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
 import flowNode from '../../../api/flowNode';
-import { checkConditionsIsNull, getIcons, getColor, checkJSON } from '../../utils';
+import { checkConditionsIsNull, getIcons, getStartNodeColor, checkJSON } from '../../utils';
 import { DetailHeader, DetailFooter } from '../components';
 import LoopContent from './LoopContent';
 import WebhookContent from './WebhookContent';
@@ -13,7 +13,7 @@ import UserAndDepartment from './UserAndDepartment';
 import WorksheetContent from './WorksheetContent';
 import DateContent from './DateContent';
 import PBCContent from './PBCContent';
-import _ from 'lodash';
+import DiscussContent from './DiscussContent';
 
 const START_NODE_EXECUTE_DATE_TYPE = 16;
 
@@ -46,7 +46,7 @@ export default class Start extends Component {
    * 获取动作详情
    */
   getNodeDetail = (appId, fields) => {
-    const { processId, selectNodeId, selectNodeType } = this.props;
+    const { processId, selectNodeId, selectNodeType, flowInfo } = this.props;
 
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields })
@@ -55,7 +55,7 @@ export default class Start extends Component {
           result.executeTime = moment().format('YYYY-MM-DD 08:00');
         }
 
-        if (result.appType === APP_TYPE.PBC && !result.controls.length) {
+        if (result.appType === APP_TYPE.PBC && !flowInfo.child && !result.controls.length) {
           result.controls = [{ type: 2, controlName: '', required: false, desc: '' }];
         }
 
@@ -75,7 +75,7 @@ export default class Start extends Component {
    * 保存
    */
   onSave = ({ close = true, isUpdate = undefined } = {}) => {
-    const { child } = this.props;
+    const { flowInfo } = this.props;
     const { data, saveRequest, errorItems } = this.state;
     // 处理按时间触发时间日期
     const isDateField =
@@ -93,6 +93,8 @@ export default class Start extends Component {
       number,
       unit,
       executeTime,
+      executeEndTime,
+      endTime,
       repeatType,
       interval,
       frequency,
@@ -109,7 +111,7 @@ export default class Start extends Component {
       return;
     }
 
-    if (!child) {
+    if (!flowInfo.child) {
       if (!appId && (appType === APP_TYPE.SHEET || appType === APP_TYPE.DATE)) {
         alert(_l('必须先选择一个工作表'), 2);
         return;
@@ -157,6 +159,11 @@ export default class Start extends Component {
           return;
         }
       }
+
+      if (appType === APP_TYPE.LOOP && executeEndTime && moment(executeTime) >= moment(executeEndTime)) {
+        alert(_l('结束执行时间不能小于开始执行时间'), 2);
+        return;
+      }
     }
 
     flowNode
@@ -176,6 +183,8 @@ export default class Start extends Component {
         unit,
         time,
         executeTime,
+        executeEndTime,
+        endTime,
         repeatType,
         interval,
         frequency,
@@ -287,7 +296,7 @@ export default class Start extends Component {
   };
 
   render() {
-    const { processId, selectNodeId, child } = this.props;
+    const { processId, selectNodeId, flowInfo } = this.props;
     const { data, errorItems } = this.state;
 
     if (_.isEmpty(data)) {
@@ -298,14 +307,14 @@ export default class Start extends Component {
       <Fragment>
         <DetailHeader
           data={{ ...data, selectNodeType: this.props.selectNodeType }}
-          icon={child ? 'icon-subprocess' : getIcons(data.typeId, data.appType)}
-          bg={child ? 'BGBlueAsh' : getColor(data.appType)}
+          icon={flowInfo.child ? 'icon-subprocess' : getIcons(data.typeId, data.appType, data.triggerId)}
+          bg={flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(data.appType, data.triggerId)}
           closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex">
           <ScrollView>
-            {child ? (
+            {flowInfo.child ? (
               <SubProcess data={data} />
             ) : (
               <Fragment>
@@ -347,14 +356,15 @@ export default class Start extends Component {
                   />
                 )}
                 {data.appType === APP_TYPE.CUSTOM_ACTION && <CustomAction data={data} />}
-                {_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], data.appType) && (
-                  <UserAndDepartment
-                    {...this.props}
-                    data={data}
-                    updateSource={this.updateSource}
-                    renderConditionBtn={this.renderConditionBtn}
-                  />
-                )}
+                {_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], data.appType) &&
+                  data.triggerId !== TRIGGER_ID.DISCUSS && (
+                    <UserAndDepartment
+                      {...this.props}
+                      data={data}
+                      updateSource={this.updateSource}
+                      renderConditionBtn={this.renderConditionBtn}
+                    />
+                  )}
                 {data.appType === APP_TYPE.PBC && (
                   <PBCContent
                     data={data}
@@ -363,21 +373,27 @@ export default class Start extends Component {
                     setErrorItems={setErrorItems => this.setState({ setErrorItems })}
                   />
                 )}
+                {data.triggerId === TRIGGER_ID.DISCUSS && <DiscussContent data={data} />}
               </Fragment>
             )}
           </ScrollView>
         </div>
         <DetailFooter
           isCorrect={
-            child ||
-            ((data.appType === APP_TYPE.SHEET || data.appType === APP_TYPE.DATE) && data.appId) ||
-            data.appType === APP_TYPE.LOOP ||
+            flowInfo.child ||
+            (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE], data.appType) && data.appId) ||
             (data.appType === APP_TYPE.WEBHOOK && data.controls.length) ||
             _.includes(
-              [APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.CUSTOM_ACTION, APP_TYPE.EXTERNAL_USER],
+              [
+                APP_TYPE.LOOP,
+                APP_TYPE.USER,
+                APP_TYPE.DEPARTMENT,
+                APP_TYPE.CUSTOM_ACTION,
+                APP_TYPE.EXTERNAL_USER,
+                APP_TYPE.PBC,
+              ],
               data.appType,
-            ) ||
-            data.appType === APP_TYPE.PBC
+            )
           }
           onSave={() => {
             if (data.appType === APP_TYPE.WEBHOOK) {

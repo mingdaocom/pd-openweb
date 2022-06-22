@@ -82,7 +82,7 @@ export default class SelectUserDropDown extends Component {
               </div>
             )}
             <MenuItem icon={<i className="icon-workflow_contacts" />} onClick={this.addMembers}>
-              {_l('从通讯录中选择')}
+              {_l('通讯录')}
             </MenuItem>
             <MenuItem icon={<i className="icon-invite_members" />} onClick={this.addDepartment}>
               {_l('部门')}
@@ -94,7 +94,7 @@ export default class SelectUserDropDown extends Component {
               icon={<i className="icon-workflow_role" />}
               onClick={() => this.setState({ showSelectAppUserDialog: true })}
             >
-              {_l('使用应用下角色')}
+              {_l('应用角色')}
             </MenuItem>
           </Fragment>
         )}

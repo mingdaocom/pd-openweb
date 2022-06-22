@@ -49,7 +49,7 @@ export default class SendEmblem extends Component {
       .getSystemMedals({
         pageIndex: 1,
         pageSize: 100,
-        type: this.state.activeBar,
+        medalType: this.state.activeBar,
       })
       .then(data => {
         this.setState({

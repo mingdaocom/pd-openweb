@@ -343,27 +343,29 @@ class Header extends Component {
           />
         )}
 
-        <DialogBase visible={showPublishDialog} width={480}>
-          <div className="publishSuccessDialog">
-            <div className="publishSuccessImg" />
-            <div className="Font20 mTop35">{_l('太棒了！流程已自动化运行')}</div>
-            <div className="Font14 mTop25 Gray_75">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
-            <div
-              className="Font14 mTop15 Gray_75"
-              dangerouslySetInnerHTML={{
-                __html: _l(
-                  '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
-                  `<span class="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer publishDialogOpenHistory">${_l(
-                    '历史',
-                  )}</span>`,
-                ),
-              }}
-            />
-            <Button size="large" onClick={() => this.setState({ showPublishDialog: false })} className="mTop40">
-              {_l('我知道了')}
-            </Button>
-          </div>
-        </DialogBase>
+        {showPublishDialog && (
+          <DialogBase visible width={480}>
+            <div className="publishSuccessDialog">
+              <div className="publishSuccessImg" />
+              <div className="Font20 mTop35">{_l('太棒了！流程已自动化运行')}</div>
+              <div className="Font14 mTop25 Gray_75">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
+              <div
+                className="Font14 mTop15 Gray_75"
+                dangerouslySetInnerHTML={{
+                  __html: _l(
+                    '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
+                    `<span class="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer publishDialogOpenHistory">${_l(
+                      '历史',
+                    )}</span>`,
+                  ),
+                }}
+              />
+              <Button size="large" onClick={() => this.setState({ showPublishDialog: false })} className="mTop40">
+                {_l('我知道了')}
+              </Button>
+            </div>
+          </DialogBase>
+        )}
       </div>
     );
   }

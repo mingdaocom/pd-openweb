@@ -100,7 +100,7 @@ export default class EditPassword extends Component {
   }
 
   forbidRightClick() {
-    document.oncontextmenu = function() {
+    document.oncontextmenu = function () {
       return false;
     };
   }
@@ -112,6 +112,7 @@ export default class EditPassword extends Component {
         <div className="Gray">{_l('原有密码')}</div>
         <Input.Password
           id="originInput"
+          autocomplete="new-password"
           value={originPassword}
           className="mTop10 mBottom10"
           placeholder={_l('原有密码')}
@@ -126,6 +127,7 @@ export default class EditPassword extends Component {
         <div className="Gray mTop24">{_l('新密码')}</div>
         <Input.Password
           id="newInput"
+          autocomplete="new-password"
           value={newPassword}
           className="mTop10 mBottom10"
           placeholder={_l('新密码')}

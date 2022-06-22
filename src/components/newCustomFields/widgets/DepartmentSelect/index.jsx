@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import cx from 'classnames';
-import SelectUser from 'src/pages/Mobile/components/SelectUser';
+import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { browserIsMobile } from 'src/util';
 

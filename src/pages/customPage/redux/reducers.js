@@ -17,7 +17,7 @@ import {
   UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_COMPONENTS,
 } from './actionType';
-import { getDefaultLayout, getIndexById } from '../util';
+import { getDefaultLayout, getIndexById, enumWidgetType } from '../util';
 import maxBy from 'lodash/maxBy';
 
 const initialState = {
@@ -102,7 +102,29 @@ function copyWebLayout(components, layout) {
   return { ...layout, x: maxX + maxW };
 }
 function copyWidget(state, payload) {
-  const { web, ...rest } = payload;
+  const { web, button, ...rest } = payload;
+  let newButton = button;
+
+  if (rest.type === enumWidgetType.button) {
+    const { buttonList = [] } = button || {};
+    newButton = {
+      ...button,
+      buttonList: buttonList.map(item => {
+        const { config = {} } = item;
+        const btn = {
+          ...item,
+          btnId: null,
+          filterId: null,
+          id: uuidv4()
+        }
+        if (config.isFilter) {
+          btn.config = { ...config, isFilter: undefined }
+        }
+        return btn;
+      })
+    }
+  }
+
   return update(state, {
     modified: { $set: true },
     components: {
@@ -110,6 +132,7 @@ function copyWidget(state, payload) {
         {
           ...rest,
           uuid: uuidv4(),
+          button: newButton,
           web: update(web, {
             layout: {
               $apply: item => copyWebLayout(state.components, item),

@@ -10,7 +10,7 @@ import { Icon, Tooltip } from 'ming-ui';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import SelectIcon from 'worksheet/common/SelectIcon';
-import Statistics from 'worksheet/common/Statistics';
+import Statistics from 'statistics';
 import Discussion from 'worksheet/common/Discussion';
 import SearchInput from 'worksheet/components/SearchInput';
 import { emitter } from 'worksheet/util';
@@ -116,6 +116,7 @@ function SheetHeader(props) {
         refresh();
       }}
       clearSelect={clearSelect}
+      refresh={refresh}
       refreshWorksheetControls={refreshWorksheetControls}
     />
   );
@@ -335,6 +336,7 @@ function SheetHeader(props) {
             appId={appId}
             projectId={projectId}
             roleType={roleType}
+            isCharge={isCharge}
             onClose={() => setStatisticsVisible(false)}
           />
         )}

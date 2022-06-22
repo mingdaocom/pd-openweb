@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { getRequest } from 'src/util';
 import preall from 'src/common/preall';
-import ChartContent from 'src/pages/Mobile/CustomPage/ChartContent';
+import ChartContent from 'mobile/CustomPage/ChartContent';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';

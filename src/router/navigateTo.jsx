@@ -1,4 +1,5 @@
 ﻿import ReactDOM from 'react-dom';
+import redirect from 'src/common/redirect';
 import $ from 'jquery';
 
 export const urlStack = [];
@@ -68,7 +69,7 @@ export function clearZombie() {
 }
 
 /** 跳转到 url */
-export function navigateTo(url, isReplace = false) {
+export function navigateTo(url, isReplace = false, noRedirect = false) {
   url = (window.subPath || '') + url;
   clearZombie();
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
@@ -78,6 +79,11 @@ export function navigateTo(url, isReplace = false) {
     urlStack.splice(urlStack.length - 1, 1, String(url));
   } else {
     urlStack.push(String(url));
+  }
+  if (!noRedirect) {
+    if (redirect(url, navigateTo)) {
+      return;
+    }
   }
   if (historyObj) {
     if (isReplace) {

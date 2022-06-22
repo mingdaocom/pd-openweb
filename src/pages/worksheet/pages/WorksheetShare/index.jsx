@@ -67,6 +67,7 @@ class WorksheetSahre extends React.Component {
       querydata: {}, //公开查询的筛选数据
       rowIds: [],
       controlsId: [],
+      sheetSwitchPermit: [],
     };
     this.promiseShareInfo = null;
     this.promiseRowsData = null;
@@ -130,10 +131,13 @@ class WorksheetSahre extends React.Component {
         shareId: id,
       });
     }
-    this.promiseShareInfo.then((res = {}) => {
+    this.promiseShareInfo.then(async (res = {}) => {
       const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res;
       const { viewId = '', rowId = '', exported = false, shareAuthor } = res;
       shareAuthor && (window.shareAuthor = shareAuthor);
+      let sheetSwitchPermit = await sheetAjax.getSwitchPermit({
+        worksheetId: worksheetId,
+      });
       this.setState(
         {
           appId,
@@ -142,6 +146,7 @@ class WorksheetSahre extends React.Component {
           viewId,
           publicqueryRes: res,
           exported,
+          sheetSwitchPermit,
         },
         () => {
           if (!viewId && !appId) {
@@ -584,6 +589,7 @@ class WorksheetSahre extends React.Component {
       rowIds,
       controlsId,
       querydata = {},
+      sheetSwitchPermit = [],
     } = this.state;
     let { rowDetail } = this.state;
     const isListDetail = step === SHARE_TYPE.WORKSHEETDETAIL || step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL;
@@ -693,11 +699,13 @@ class WorksheetSahre extends React.Component {
         >
           {isListDetail ? (
             <WorksheetDetailShare
+              sheetSwitchPermit={sheetSwitchPermit}
               relationRowDetailResultCode={relationRowDetailResultCode}
               printId={printId}
               worksheetId={step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL ? nextWorksheetId : worksheetId}
               rowId={step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL ? nextRowId : rowId}
               viewId={step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL ? nextViewId : viewId}
+              viewIdForPermit={viewId} //功能开关权限根据主记录来走
               appId={appId}
               setStep={this.setStep}
               step={step}
@@ -751,6 +759,8 @@ class WorksheetSahre extends React.Component {
             />
           ) : (
             <WorksheetListShare
+              sheetSwitchPermit={sheetSwitchPermit}
+              viewIdForPermit={viewId}
               printId={printId}
               cardControls={step === SHARE_TYPE.WORKSHEETDNEXT ? rowRelationRowsData.cardControls : cardControls}
               viewSet={step === SHARE_TYPE.WORKSHEETDNEXT ? rowRelationRowsData.viewSet : viewSet}

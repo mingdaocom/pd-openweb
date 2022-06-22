@@ -270,6 +270,7 @@ export default class CloseNet extends Component {
                   <Input.Password
                     value={password}
                     disabled={disabled}
+                    autocomplete="new-password"
                     className="mTop10 passwordInput"
                     placeholder={_l('请输入你的登录密码')}
                     onChange={this.handleChange.bind(this)}

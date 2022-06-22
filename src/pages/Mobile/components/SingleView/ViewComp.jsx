@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { loadWorksheet } from 'src/pages/Mobile/RecordList/redux/actions';
+import { loadWorksheet, unshiftSheetRow } from 'mobile/RecordList/redux/actions';
+import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import View from 'src/pages/Mobile/RecordList/View';
+import View from 'mobile/RecordList/View';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { openAddRecord } from 'mobile/Record/addRecord';
 
 const Con = styled.div`
   width: 100%;
@@ -50,8 +52,23 @@ function ViewComp(props) {
                 className="addRecord Font20 Gray_9e"
                 onClick={() => {
                   const { appId, worksheetId } = worksheetInfo;
-                  const { viewId } = view;
-                  window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetId}/${viewId}`);
+                  openAddRecord({
+                    className: 'full',
+                    worksheetInfo,
+                    appId,
+                    worksheetId,
+                    viewId: view.viewId,
+                    addType: 2,
+                    entityName: worksheetInfo.entityName,
+                    onAdd: data => {
+                      if (view.viewType) {
+                        props.addNewRecord(data, view);
+                      } else {
+                        props.unshiftSheetRow(data);
+                      }
+                    },
+                  });
+
                 }}
               />
             )}
@@ -74,6 +91,8 @@ export default connect(
     bindActionCreators(
       {
         loadWorksheet,
+        unshiftSheetRow,
+        addNewRecord
       },
       dispatch,
     ),

@@ -92,7 +92,9 @@ module.exports = {
 任务 协作用户快速搜索
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
-  * @param {string} args.projectId 要搜索的网络Id
+  * @param {string} args.projectId 要搜索组织的网络Id
+  * @param {string} args.currentProjectId 当前组织的网络Id
+匹配到则返回当前组织的账户部门职位信息
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {array} args.filterAccountIds 过来哪些账号Id， 数组：[accountId1,accountId2]

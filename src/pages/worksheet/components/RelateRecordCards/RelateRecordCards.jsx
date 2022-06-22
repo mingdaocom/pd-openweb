@@ -9,6 +9,7 @@ import RecordCardListDialog from 'src/components/recordCardListDialog';
 import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
@@ -27,10 +28,9 @@ const Button = styled.div`
   display: inline-block;
   border-radius: 3px;
   cursor: pointer;
-  height: 32px;
-  line-height: 32px;
+  height: 36px;
+  line-height: 36px;
   padding: 0 16px;
-  margin-bottom: 10px;
   color: #2196f3;
   background-color: #f8f8f8;
   &:hover {
@@ -51,19 +51,31 @@ const Con = styled.div(({ isMobile, autoHeight, isCard }) =>
   `,
 );
 
-const ScanButton = styled.div`
-  line-height: 36px;
-  color: #2196f3;
-  .scanIcon {
-    position: relative;
-    top: 1px;
+const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
+  &.lineWrap {
+    color: #2196f3;
+    width: 100%;
+    .scanIcon {
+      color: #2196f3 !important;
+      margin-right: 5px;
+    }
+    .scanButton {
+      width: 100%;
+      margin-left: 0;
+    }
   }
-  .rightArrow {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  .scanButton {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0;
+    margin-left: 10px;
+    border-radius: 3px;
   }
 `;
+
 @autoSize
 export default class RelateRecordCards extends Component {
   static propTypes = {
@@ -251,6 +263,7 @@ export default class RelateRecordCards extends Component {
       advancedSetting,
     } = control;
     const { showAll, controls } = this.state;
+    const allowlink = (advancedSetting || {}).allowlink;
     const isMobile = browserIsMobile();
     const isCard =
       parseInt(advancedSetting.showtype, 10) === 1 ||
@@ -294,17 +307,18 @@ export default class RelateRecordCards extends Component {
                 controls={this.controls}
                 data={record}
                 cover={this.getCoverUrl(coverCid, record)}
+                allowlink={allowlink}
                 title={
                   record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)
                 }
                 onClick={
-                  (disabled && !recordId) || (control.isSubList && _.get(window, 'shareState.shareId'))
+                  (disabled && !recordId) ||
+                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
+                  allowlink === '0'
                     ? () => {}
                     : () => {
                         if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                           openRelateSheet('', record.wsid, record.rowid, viewId);
-                        } else if (isMobile || from === FROM.H5_ADD || from === FROM.H5_EDIT) {
-                          openRelateSheet(appId, dataSource, record.rowid, viewId);
                         } else {
                           this.setState({ previewRecord: { recordId: record.rowid } });
                         }
@@ -381,49 +395,141 @@ export default class RelateRecordCards extends Component {
     if (sheetTemplateLoading) {
       return null;
     }
+    const disabledManualWrite = onlyRelateByScanCode && advancedSetting.dismanual === '1';
+    const btnVisible = (!records.length || enumDefault === 2) && from !== FROM.SHARE && enumDefault2 !== 11 && (isCard ? (!disabledManualWrite) : true) && !disabled;
     const filterControls = getFilter({ control, formData });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
     const RecordCardListDialogComponent = isMobile ? MobileRecordCardListDialog : RecordCardListDialog;
 
     return (
-      <Con
-        className={cx(
-          'customFormControlBox flexRow relateRecordBtn',
-          { formBoxNoBorder: isCard },
-          { controlDisabled: disabled },
-        )}
-        isMobile={isMobile}
-        autoHeight={!!records.length}
-        isCard={isCard}
-        onClick={e => !disabled && !isCard && !onlyRelateByScanCode && this.handleClick(e)}
-      >
-        <div className="flex" style={{ minWidth: 0 }}>
-          {(!records.length || enumDefault === 2) &&
-            from !== FROM.SHARE &&
-            enumDefault2 !== 11 &&
-            !onlyRelateByScanCode &&
-            !disabled && (
-              <Fragment>
-                {isCard ? (
-                  <Button className="relateRecordBtn" onClick={this.handleClick}>
-                    <i className="icon icon-plus mRight5 Font16"></i>
-                    {sourceEntityName || ''}
-                  </Button>
-                ) : !records.length ? (
-                  <span className="Gray_bd">{_l('请选择')}</span>
-                ) : null}
-              </Fragment>
+      <Fragment>
+        <div className="flexRow valignWrapper mBottom10">
+          <Con
+            className={cx(
+              'customFormControlBox flexRow relateRecordBtn',
+              { formBoxNoBorder: isCard },
+              { controlDisabled: disabled || (btnVisible && !isCard && !records.length && disabledManualWrite) },
             )}
-          {onlyRelateByScanCode && !(isScanQR) && (
-            <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
-          )}
+            isMobile={isMobile}
+            autoHeight={!!records.length}
+            isCard={isCard}
+            onClick={e => !disabled && !isCard && !disabledManualWrite && this.handleClick(e)}
+          >
+            <div className="flex" style={{ minWidth: 0 }}>
+              {btnVisible && (
+                <Fragment>
+                  {isCard ? (
+                    <Button className="relateRecordBtn" onClick={this.handleClick}>
+                      <i className="icon icon-plus mRight5 Font16"></i>
+                      {sourceEntityName || ''}
+                    </Button>
+                  ) : !records.length ? (
+                    <span className="Gray_bd">
+                      {disabledManualWrite ? _l('扫码添加%0', sourceEntityName) : _l('选择%0', sourceEntityName)}
+                    </span>
+                  ) : null}
+                </Fragment>
+              )}
+              {disabledManualWrite && !isScanQR && (
+                <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
+              )}
+              {!isCard && this.renderRecordsCon()}
+              {from !== FROM.PUBLIC && !!previewRecord && (
+                isMobile ? (
+                  <MobileRecordInfoModal
+                    className="full"
+                    visible
+                    appId={appId}
+                    worksheetId={dataSource}
+                    viewId={viewId}
+                    rowId={previewRecord && previewRecord.recordId}
+                    onClose={() => {
+                      this.setState({ previewRecord: undefined });
+                      if (_.isFunction(control.refreshRecord)) {
+                        control.refreshRecord();
+                      }
+                    }}
+                  />
+                ) : (
+                  <RecordInfoWrapper
+                    visible
+                    appId={appId}
+                    viewId={viewId}
+                    from={1}
+                    hideRecordInfo={() => {
+                      this.setState({ previewRecord: undefined });
+                      if (_.isFunction(control.refreshRecord)) {
+                        control.refreshRecord();
+                      }
+                    }}
+                    recordId={previewRecord && previewRecord.recordId}
+                    worksheetId={dataSource}
+                  />
+                )
+              )}
+              {showAddRecord && (
+                <RecordCardListDialogComponent
+                  maxCount={MAX_COUNT}
+                  selectedCount={records.length}
+                  from={from}
+                  keyWords={this.state.mobileRecordkeyWords}
+                  control={control}
+                  allowNewRecord={editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !window.isPublicWorksheet}
+                  disabledManualWrite={disabledManualWrite}
+                  multiple={enumDefault === 2}
+                  coverCid={coverCid}
+                  filterRowIds={records.map(r => r.rowid).concat(recordId)}
+                  showControls={showControls}
+                  appId={appId}
+                  viewId={viewId}
+                  masterRecordRowId={recordId}
+                  relateSheetId={dataSource}
+                  parentWorksheetId={worksheetId}
+                  filterRelatesheetControlIds={[controlId]}
+                  defaultRelatedSheet={this.getDefaultRelateSheetValue()}
+                  controlId={controlId}
+                  visible={showAddRecord}
+                  onClose={() => this.setState({ showAddRecord: false, mobileRecordkeyWords: '' })}
+                  onOk={this.handleAdd}
+                  formData={formData}
+                />
+              )}
+              {showNewRecord && (
+                <NewRecordComponent
+                  showFillNext
+                  directAdd
+                  className="worksheetRelateNewRecord"
+                  appId={appId}
+                  viewId={viewId}
+                  worksheetId={dataSource}
+                  addType={2}
+                  entityName={sourceEntityName}
+                  filterRelateSheetIds={[dataSource]}
+                  filterRelatesheetControlIds={[controlId]}
+                  visible={showNewRecord}
+                  masterRecordRowId={recordId}
+                  hideNewRecord={() => {
+                    this.setState({ showNewRecord: false });
+                  }}
+                  defaultRelatedSheet={this.getDefaultRelateSheetValue()}
+                  onAdd={record => {
+                    this.handleAdd([record]);
+                  }}
+                />
+              )}
+            </div>
+            {!disabled && !isCard && !onlyRelateByScanCode && (
+              <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
+            )}
+          </Con>
           {(!records.length || enumDefault === 2) &&
             from !== FROM.SHARE &&
             enumDefault2 !== 11 &&
             onlyRelateByScanCode &&
             isScanQR &&
             !disabled && (
-              <RelateScanQRCode
+              <RelateScanQRCodeWrap
+                className={cx({ lineWrap: !btnVisible })}
                 projectId={projectId}
                 worksheetId={dataSource}
                 filterControls={filterControls}
@@ -434,84 +540,16 @@ export default class RelateRecordCards extends Component {
                   this.setState({ showAddRecord: true, mobileRecordkeyWords: keyWords });
                 }}
               >
-                <ScanButton>
-                  <i className="scanIcon icon icon-qr_code_19 mRight5 Font16"></i>
-                  {_l('扫码关联%0', sourceEntityName || '')}
-                  {!records.length && <i className="rightArrow icon icon-arrow-right-border Font16 Gray_bd"></i>}
-                </ScanButton>
-              </RelateScanQRCode>
+                <div className="scanButton">
+                  <i className="scanIcon icon icon-qr_code_19 Font20 Gray_75"></i>
+                  {!btnVisible && _l('扫码关联%0', sourceEntityName || '')}
+                  {/*!records.length && <i className="rightArrow icon icon-arrow-right-border Font16 Gray_bd"></i>*/}
+                </div>
+              </RelateScanQRCodeWrap>
             )}
-          {this.renderRecordsCon()}
-          {from !== FROM.PUBLIC && !!previewRecord && (
-            <RecordInfoWrapper
-              visible
-              appId={appId}
-              viewId={viewId}
-              from={1}
-              hideRecordInfo={() => {
-                this.setState({ previewRecord: undefined });
-                if (_.isFunction(control.refreshRecord)) {
-                  control.refreshRecord();
-                }
-              }}
-              recordId={previewRecord && previewRecord.recordId}
-              worksheetId={dataSource}
-            />
-          )}
-          {showAddRecord && (
-            <RecordCardListDialogComponent
-              maxCount={MAX_COUNT}
-              selectedCount={records.length}
-              from={from}
-              keyWords={this.state.mobileRecordkeyWords}
-              control={control}
-              allowNewRecord={editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !window.isPublicWorksheet}
-              multiple={enumDefault === 2}
-              coverCid={coverCid}
-              filterRowIds={records.map(r => r.rowid).concat(recordId)}
-              showControls={showControls}
-              appId={appId}
-              viewId={viewId}
-              masterRecordRowId={recordId}
-              relateSheetId={dataSource}
-              parentWorksheetId={worksheetId}
-              filterRelatesheetControlIds={[controlId]}
-              defaultRelatedSheet={this.getDefaultRelateSheetValue()}
-              controlId={controlId}
-              visible={showAddRecord}
-              onClose={() => this.setState({ showAddRecord: false, mobileRecordkeyWords: '' })}
-              onOk={this.handleAdd}
-              formData={formData}
-            />
-          )}
-          {showNewRecord && (
-            <NewRecordComponent
-              showFillNext
-              directAdd
-              className="worksheetRelateNewRecord"
-              appId={appId}
-              viewId={viewId}
-              worksheetId={dataSource}
-              addType={2}
-              entityName={sourceEntityName}
-              filterRelateSheetIds={[dataSource]}
-              filterRelatesheetControlIds={[controlId]}
-              visible={showNewRecord}
-              masterRecordRowId={recordId}
-              hideNewRecord={() => {
-                this.setState({ showNewRecord: false });
-              }}
-              defaultRelatedSheet={this.getDefaultRelateSheetValue()}
-              onAdd={record => {
-                this.handleAdd([record]);
-              }}
-            />
-          )}
         </div>
-        {!disabled && !isCard && !onlyRelateByScanCode && (
-          <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
-        )}
-      </Con>
+        {isCard && this.renderRecordsCon()}
+      </Fragment>
     );
   }
 }

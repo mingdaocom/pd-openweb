@@ -109,7 +109,7 @@ export default class PublishBtn extends Component {
         )}
         {dialogVisible && (
           <PublishErrorDialog
-            visible={dialogVisible}
+            visible
             onCancel={() => this.setState({ dialogVisible: false })}
             onOk={this.editFlow}
             info={publishData}

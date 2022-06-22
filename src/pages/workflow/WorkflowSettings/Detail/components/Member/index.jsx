@@ -92,6 +92,7 @@ export default class Member extends Component {
           appType={item.appType}
           actionId={item.actionId}
           nodeName={item.entityName}
+          controlId={item.roleId}
           controlName={item.roleName}
         />
         {(item.controlType === 26 ||

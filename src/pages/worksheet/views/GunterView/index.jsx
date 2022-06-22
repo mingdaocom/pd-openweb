@@ -93,9 +93,9 @@ export default class Gunter extends Component {
     }
   }
   render() {
-    const { view, loading, groupingVisible } = this.props;
+    const { view, loading, groupingVisible, layoutType } = this.props;
     const { directoryWidth, dragMaskVisible, maxWidth } = this.state;
-    const isMobile = browserIsMobile();
+    const isMobile = browserIsMobile() || layoutType === 'mobile';
 
     return (
       <div className={cx('gunterView flexRow', `gunterView-${view.viewId}`, { gunterViewLoading: loading })}>
@@ -121,7 +121,7 @@ export default class Gunter extends Component {
             <Drag left={directoryWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
           </Fragment>
         )}
-        <GunterChart />
+        <GunterChart isMobile={isMobile} />
         {!loading && !isMobile && <SelectionIndicator />}
       </div>
     );

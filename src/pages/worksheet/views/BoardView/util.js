@@ -69,6 +69,9 @@ export const dealBoardViewData = props => {
                   value: parsedRow[abstract],
                 })
               : '',
+            formData: controls.map(o => {
+              return { ...o, value: parsedRow[o.controlId] };
+            }),
           };
         } catch (error) {
           console.log(error);

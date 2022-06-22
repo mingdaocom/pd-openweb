@@ -9,11 +9,11 @@ import update from 'immutability-helper';
 import { connect } from 'react-redux';
 import * as boardActions from 'worksheet/redux/actions/boardView';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { RecordInfoModal } from 'mobile/Record';
 import { updateWorksheetRow } from 'src/api/worksheet';
 import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
 import { browserIsMobile } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
 import { getTargetName } from '../util';
 
 const RELATION_SHEET_TYPE = 29;
@@ -160,17 +160,12 @@ function SortableRecordItem(props) {
   const closeEdit = () => {
     setState({ isEditTitle: false });
   };
+  const isMobile = browserIsMobile();
 
   return (
     <div
       ref={drag}
       onClick={() => {
-        // h5跳转至详情页
-        if (browserIsMobile()) {
-          let url = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
-          navigateTo(url);
-          return;
-        }
         if (!recordInfoVisible) {
           showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
         }
@@ -222,64 +217,78 @@ function SortableRecordItem(props) {
         </Components.RecordPortal>
       )}
       {recordInfoVisible && (
-        <RecordInfoWrapper
-          showPrevNext
-          allowAdd={worksheetInfo.allowAdd}
-          sheetSwitchPermit={sheetSwitchPermit}
-          from={1}
-          visible
-          recordId={recordInfoRowId}
-          rules={worksheetInfo.rules}
-          projectId={worksheetInfo.projectId}
-          currentSheetRows={getCurrentSheetRows()}
-          worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}
-          hideRecordInfo={() => {
-            setState({ recordInfoVisible: false });
-          }}
-          hideRows={() => {
-            setState({ recordInfoVisible: false });
-          }}
-          updateRows={(ids, newItem, updateControls) => {
-            // 如果当前看板控件发生改变 则记录所属看板需要调整 需要传递target参数
-            const getPara = () => {
-              // 取当前的记录id， 因为记录详情弹层可以上下切换
-              const currentRowId = ids[0];
-              const prevRow = JSON.parse(rawRow);
-              let para = {
-                key: keyType,
-                rowId: currentRowId,
-                item: {
-                  ...newItem,
-                  ..._.pick(prevRow, ['allowdelete', 'allowedit']),
-                },
-                info: { type: list.type, viewControl },
+        isMobile ? (
+          <RecordInfoModal
+            className="full"
+            visible={recordInfoVisible}
+            appId={isRelationSheetType ? '' : appId}
+            worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}
+            viewId={isRelationSheetType ? _.get(selectControl, 'viewId') : viewId}
+            rowId={recordInfoRowId}
+            onClose={() => {
+              setState({ recordInfoVisible: false });
+            }}
+          />
+        ) : (
+          <RecordInfoWrapper
+            showPrevNext
+            allowAdd={worksheetInfo.allowAdd}
+            sheetSwitchPermit={sheetSwitchPermit}
+            from={1}
+            visible
+            recordId={recordInfoRowId}
+            rules={worksheetInfo.rules}
+            projectId={worksheetInfo.projectId}
+            currentSheetRows={getCurrentSheetRows()}
+            worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}
+            hideRecordInfo={() => {
+              setState({ recordInfoVisible: false });
+            }}
+            hideRows={() => {
+              setState({ recordInfoVisible: false });
+            }}
+            updateRows={(ids, newItem, updateControls) => {
+              // 如果当前看板控件发生改变 则记录所属看板需要调整 需要传递target参数
+              const getPara = () => {
+                // 取当前的记录id， 因为记录详情弹层可以上下切换
+                const currentRowId = ids[0];
+                const prevRow = JSON.parse(rawRow);
+                let para = {
+                  key: keyType,
+                  rowId: currentRowId,
+                  item: {
+                    ...newItem,
+                    ..._.pick(prevRow, ['allowdelete', 'allowedit']),
+                  },
+                  info: { type: list.type, viewControl },
+                };
+                // 如果看板控件没改变 无需传递target参数
+                if (updateControls[viewControl] !== undefined) {
+                  const target = updateControls[viewControl];
+                  const targetName = getTargetName(newItem[viewControl], selectControl, list);
+                  return { ...para, target, targetName };
+                }
+                return para;
               };
-              // 如果看板控件没改变 无需传递target参数
-              if (updateControls[viewControl] !== undefined) {
-                const target = updateControls[viewControl];
-                const targetName = getTargetName(newItem[viewControl], selectControl, list);
-                return { ...para, target, targetName };
+              // 多选作为看板更改多选字段 更新数据
+              if (list.type === 10) {
+                const { value } = _.find(data.fields, item => item.controlId === viewControl) || {};
+                const currentValue = updateControls[viewControl];
+                if (currentValue !== value) {
+                  updateMultiSelectBoard({ ...getPara(), prevValue: value, currentValue, selectControl });
+                  return;
+                }
               }
-              return para;
-            };
-            // 多选作为看板更改多选字段 更新数据
-            if (list.type === 10) {
-              const { value } = _.find(data.fields, item => item.controlId === viewControl) || {};
-              const currentValue = updateControls[viewControl];
-              if (currentValue !== value) {
-                updateMultiSelectBoard({ ...getPara(), prevValue: value, currentValue, selectControl });
-                return;
+              if (newItem) {
+                updateBoardViewRecord(getPara());
               }
-            }
-            if (newItem) {
-              updateBoardViewRecord(getPara());
-            }
-          }}
-          isCharge={isCharge}
-          appId={isRelationSheetType ? '' : appId}
-          viewId={isRelationSheetType ? _.get(selectControl, 'viewId') : viewId}
-          deleteRows={() => delBoardViewRecord({ key: keyType, rowId })}
-        />
+            }}
+            isCharge={isCharge}
+            appId={isRelationSheetType ? '' : appId}
+            viewId={isRelationSheetType ? _.get(selectControl, 'viewId') : viewId}
+            deleteRows={() => delBoardViewRecord({ key: keyType, rowId })}
+          />
+        )
       )}
     </div>
   );

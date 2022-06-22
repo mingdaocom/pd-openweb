@@ -3,8 +3,8 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { formatFiltersValue } from 'src/components/newCustomFields/tools/utils';
-import ChartCard from 'src/pages/worksheet/common/Statistics/Card';
-import MobileChartCard from 'src/pages/Mobile/CustomPage/ChartContent';
+import ChartCard from 'statistics/Card';
+import MobileChartCard from 'mobile/CustomPage/ChartContent';
 import { browserIsMobile } from 'src/util';
 
 const EmbedWrap = styled.div`
@@ -36,6 +36,8 @@ export default class Widgets extends Component {
     enumDefault: PropTypes.number,
   };
 
+  iframe = React.createRef();
+
   state = {
     value: '',
     needUpdate: '',
@@ -45,6 +47,9 @@ export default class Widgets extends Component {
     if (this.props.enumDefault === 1) {
       this.setValue();
       this.embedWatch = setInterval(this.setValue, 3000);
+    }
+    if (_.isFunction(this.props.addRefreshEvents)) {
+      this.props.addRefreshEvents(this.props.controlId, this.handleReloadIFrame.bind(this));
     }
   }
 
@@ -62,10 +67,23 @@ export default class Widgets extends Component {
 
   componentWillUnmount() {
     clearInterval(this.embedWatch);
+    if (_.isFunction(this.props.addRefreshEvents)) {
+      this.props.addRefreshEvents(this.props.controlId, undefined);
+    }
+  }
+
+  handleReloadIFrame() {
+    if (_.isFunction(_.get(this, 'iframe.current.contentDocument.location.reload'))) {
+      try {
+        this.iframe.current.contentDocument.location.reload();
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
 
   render() {
-    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId } = this.props;
+    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId, from = '' } = this.props;
     const { value, needUpdate } = this.state;
 
     const getContent = () => {
@@ -82,7 +100,13 @@ export default class Widgets extends Component {
       if (enumDefault === 1) {
         return (
           <div className="embedContainer">
-            <iframe className="overflowHidden Border0 TxtTop" width="100%" height="100%" src={value}></iframe>
+            <iframe
+              ref={this.iframe}
+              className="overflowHidden Border0 TxtTop"
+              width="100%"
+              height="100%"
+              src={value}
+            ></iframe>
           </div>
         );
       } else {
@@ -111,14 +135,16 @@ export default class Widgets extends Component {
 
     return (
       <EmbedWrap height={advancedSetting.height || 400}>
-        <div className="embedTitle">
-          <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
-          {advancedSetting.allowlink === '1' && enumDefault === 1 && (
-            <Tooltip text={<span>{_l('新页面打开')}</span>}>
-              <Icon className="Hand Font18" icon="launch" onClick={() => window.open(value)} />
-            </Tooltip>
-          )}
-        </div>
+        {from !== 'print' && (
+          <div className="embedTitle">
+            <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
+            {advancedSetting.allowlink === '1' && enumDefault === 1 && (
+              <Tooltip text={<span>{_l('新页面打开')}</span>}>
+                <Icon className="Hand Font18" icon="launch" onClick={() => window.open(value)} />
+              </Tooltip>
+            )}
+          </div>
+        )}
         {getContent()}
       </EmbedWrap>
     );

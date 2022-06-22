@@ -23,6 +23,7 @@ const optionTypeData = [
   { label: _l('关闭'), type: 3 },
   { label: _l('创建'), type: 1 },
   { label: _l('删除'), type: 4 },
+  { label: _l('恢复'), type: 8 },
 ];
 
 const optionTypeIcon = {
@@ -32,6 +33,7 @@ const optionTypeIcon = {
   4: 'icon-delete1',
   5: 'icon-cloud_download',
   6: 'icon-reply1',
+  8: 'icon-restart',
 };
 
 export default class AppLog extends React.Component {
@@ -262,6 +264,7 @@ export default class AppLog extends React.Component {
     return (
       <Fragment>
         {list.map(item => {
+          const isAppItem = !!item.appItem;
           const message = mdFunction.createLinksForMessage({
             message: item.message,
             rUserList: [item.operator],
@@ -272,10 +275,20 @@ export default class AppLog extends React.Component {
                 <span className="flexCenter">
                   <span className={cx('Font15 mRight10 mBottom2', optionTypeIcon[item.handleType])}></span>
                   <span dangerouslySetInnerHTML={{ __html: message }}></span>
+                  {isAppItem && (
+                    <span className="mLeft4">
+                      {String(item.appItem.type) === '0'
+                        ? _l('工作表 %0', item.appItem.name)
+                        : _l('自定义页面 %0', item.appItem.name)}
+                    </span>
+                  )}
                 </span>
                 <span>{item.createTime}</span>
               </div>
-              <div className="appLogListItemBottom mTop5">{this.getAppNames(item.appNames)}</div>
+              <div className="appLogListItemBottom mTop5">
+                {isAppItem && <span className="Gray_9e mRight8">{_l('所属应用')}</span>}
+                {this.getAppNames(item.appNames)}
+              </div>
             </div>
           );
         })}

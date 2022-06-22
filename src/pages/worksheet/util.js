@@ -9,6 +9,7 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { renderCellText } from 'worksheet/components/CellControls';
 import { getWorksheetInfo } from 'src/api/worksheet';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { head } from 'lodash';
@@ -496,7 +497,12 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
   const result = {};
   try {
     rows.forEach(async row => {
-      const rulesResult = checkRulesErrorOfRow({ from, rules, controls, row });
+      const rulesResult = checkRulesErrorOfRow({
+        from,
+        rules,
+        controls: controls.filter(c => _.find(showControls, id => id === c.controlId)),
+        row,
+      });
       const rulesErrors = rulesResult.errors;
       const controldata = rulesResult.formData.filter(
         c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
@@ -690,7 +696,10 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
             JSON.parse(control.value).map(r => _.pick(r, ['name', 'type', 'sid'])),
           );
         } catch (err) {}
-      } else if (control.type !== WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && typeof control.value === 'string') {
+      } else if (
+        control.type !== WIDGETS_TO_API_TYPE_ENUM.SUB_LIST &&
+        _.includes(['string', 'number'], typeof control.value)
+      ) {
         results[control.controlId] = control.value;
       }
     });
@@ -971,4 +980,20 @@ export function completeControls(controls) {
 
 export function getNewRecordPageUrl({ appId, worksheetId, viewId }) {
   return `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
+}
+
+export function handleSortRows(rows, control, isAsc) {
+  const controlValueType = getControlValueSortType(control);
+  if (_.isUndefined(isAsc)) {
+    return _.sortBy(rows, 'addTime');
+  }
+  let newRows = _.sortBy(rows, row =>
+    controlValueType === 'NUMBER'
+      ? parseFloat(row[control.controlId])
+      : renderCellText({ ...control, value: row[control.controlId] }),
+  );
+  if (!isAsc) {
+    newRows = newRows.reverse();
+  }
+  return newRows;
 }

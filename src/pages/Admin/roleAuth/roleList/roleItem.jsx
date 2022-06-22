@@ -70,7 +70,14 @@ class RoleItem extends React.Component {
               RoleController.removeRole({
                 projectId,
                 roleId: role.roleId,
-              }).then(cb);
+              }).then(res => {
+                const { message, deleteSuccess } = res;
+                if (deleteSuccess) {
+                  alert(_l('操作成功'));
+                } else {
+                  alert(message || _l('操作失败'), 2);
+                }
+              });
             },
           );
         };

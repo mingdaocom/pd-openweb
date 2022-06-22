@@ -36,7 +36,13 @@ export const showClear = (data = {}, dynamicValue) => {
   return false;
 };
 
-const isSingleRelate = control => control.type === 29 && control.enumDefault === 1;
+const isSingleRelate = (control, data = {}, worksheetId) => {
+  // 外部成员只能关联当前表
+  if (data.type === 26 && (data.advancedSetting || {}).usertype === '2') {
+    return control.type === 29 && control.enumDefault === 1 && control.dataSource === worksheetId;
+  }
+  return control.type === 29 && control.enumDefault === 1;
+};
 const isRelateMore = control => control.type === 29 && control.enumDefault === 2;
 
 //关联多条卡片、下拉框
@@ -70,8 +76,15 @@ export const isCustomOptions = (item = {}) => {
   return _.includes([9, 10, 11], item.type) && !item.dataSource;
 };
 
+// 同类型成员
+const isSameUser = (item = {}, usertype) => {
+  return usertype === '2'
+    ? (item.advancedSetting || {}).usertype === '2'
+    : (item.advancedSetting || {}).usertype !== '2';
+};
+
 // 根据类型筛选 可用的动态默认值类型
-const FILTER = {
+export const FILTER = {
   // 文本
   2: item =>
     (_.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId)) ||
@@ -121,14 +134,14 @@ const FILTER = {
 };
 
 // 关联多条----关联单条、多条（列表除外）
-export const filterControls = (data = {}, controls = []) => {
+export const filterControls = (data = {}, controls = [], worksheetId) => {
   return controls.filter(item =>
-    isRelateMore(data) ? isResultAsRelateMore(item) : isSingleRelate(item) || item.type === 35,
+    isRelateMore(data) ? isResultAsRelateMore(item) : isSingleRelate(item, data, worksheetId) || item.type === 35,
   );
 };
 
 export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false }) => {
-  const { type, enumDefault, dataSource } = data;
+  const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
   //文本字段值可选 关联记录自动编号，不能是当前表单
   if (_.includes([2], type) && isCurrent) {
@@ -149,7 +162,7 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
     return _.filter(controls, filterFn);
   }
   if (_.includes([26], type)) {
-    return _.filter(controls, item => filterFn(item, enumDefault) && (item.advancedSetting || {}).usertype !== '2');
+    return _.filter(controls, item => filterFn(item, enumDefault) && isSameUser(item, usertype));
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {

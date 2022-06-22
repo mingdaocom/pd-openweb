@@ -4,24 +4,24 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import styled from 'styled-components';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import * as sheetviewActions from 'src/pages/worksheet/redux/actions/sheetview.js';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
 import { Modal, Drawer } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
-import QuickFilter from 'src/pages/Mobile/RecordList/QuickFilter';
-import Search from 'src/pages/Mobile/RecordList/QuickFilter/Search';
+import QuickFilter from 'mobile/RecordList/QuickFilter';
+import Search from 'mobile/RecordList/QuickFilter/Search';
 import SheetRows, { WithoutRows } from '../../SheetRows';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
 import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
-import RecordAction from 'src/pages/Mobile/Record/RecordAction';
+import RecordAction from 'mobile/Record/RecordAction';
 import { startProcess } from 'src/pages/workflow/api/process';
 
 const SearchWrapper = styled.div`
-  background-color: #F2F2F3;
+  background-color: #f2f2f3;
 
   .filterStepListWrapper {
     -webkit-overflow-scrolling: touch;
@@ -33,7 +33,8 @@ const SearchWrapper = styled.div`
       overflow: hidden;
       -webkit-overflow-scrolling: touch;
     }
-    .am-drawer-overlay, .am-drawer-content {
+    .am-drawer-overlay,
+    .am-drawer-content {
       position: inherit;
     }
     &.am-drawer-open {
@@ -183,6 +184,7 @@ class SheetView extends Component {
   // 加载自定义按钮数据
   loadCustomBtns = paramsData => {
     const { view } = this.props;
+    this.setState({ customButtonLoading: true });
     worksheetAjax
       .getWorksheetBtns({
         ...formatParams(paramsData),
@@ -195,6 +197,7 @@ class SheetView extends Component {
               _.includes([CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY, CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM], item.clickType) ||
               (item.writeObject === 1 && item.writeType === 1),
           ),
+          customButtonLoading: false,
         });
       });
   };
@@ -443,11 +446,11 @@ class SheetView extends Component {
   };
   showRunInfo = flag => {
     this.setState({ runInfoVisible: flag });
-  }
+  };
   handleOpenDrawer = () => {
     const { filters, updateFilters } = this.props;
     updateFilters({ visible: !filters.visible });
-  }
+  };
   renderSidebar(view) {
     const { fastFilters = [] } = view;
     const { worksheetInfo } = this.props;
@@ -479,10 +482,10 @@ class SheetView extends Component {
       batchOptCheckedData,
       batchOptVisible,
       match,
-      mobileViewPermission,
+      sheetSwitchPermit,
     } = this.props;
     const { params } = match;
-    let { customBtns = [], showButtons, permission } = this.state;
+    let { customBtns = [], showButtons, customButtonLoading } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
     const viewFilters = view.fastFilters
       .map(filter => ({
@@ -494,6 +497,13 @@ class SheetView extends Component {
     const textFilters = viewFilters.filter(item => TextTypes.includes(item.dataType));
     const isFilter = quickFilter.filter(item => !TextTypes.includes(item.dataType)).length;
     let checkedCount = batchOptCheckedData.length;
+    const canDelete =
+      isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
+    const showCusTomBtn =
+      isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId) &&
+      !customButtonLoading &&
+      !_.isEmpty(customBtns) &&
+      !_.isEmpty(batchOptCheckedData);
     return (
       <Fragment>
         {batchOptVisible && (
@@ -511,7 +521,7 @@ class SheetView extends Component {
             <a onClick={this.selectedAll}>{_l('全选')}</a>
           </div>
         )}
-        <SearchWrapper className="flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
+        <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
           <Search textFilters={textFilters} />
           {!_.isEmpty(excludeTextFilter) && (
             <FilterWrapper>
@@ -533,28 +543,30 @@ class SheetView extends Component {
           </Drawer>
         </SearchWrapper>
         {this.renderContent()}
-        {batchOptVisible && (
+        {batchOptVisible && (canDelete || showCusTomBtn) && (
           <BatchOptBtn>
-            {mobileViewPermission && mobileViewPermission.canRemove && (
+            {canDelete && (
               <div
                 className={cx('deleteOpt flex', {
-                  disabledDel: _.isEmpty(batchOptCheckedData),
+                  disabledDel: !canDelete,
                 })}
-                onClick={_.isEmpty(batchOptCheckedData) ? () => {} : this.batchDelete}
+                onClick={!canDelete ? () => {} : this.batchDelete}
               >
                 <Icon icon="delete_12" className="mRight16" />
                 {_l('删除')}
               </div>
             )}
-            <div
-              className={cx('extraOpt flex', {
-                disabledExtra: _.isEmpty(customBtns) || _.isEmpty(batchOptCheckedData),
-              })}
-              onClick={_.isEmpty(customBtns) || _.isEmpty(batchOptCheckedData) ? () => {} : this.showCustomButtoms}
-            >
-              <Icon icon="custom_actions" className="mRight10 Font20 extraIcon" />
-              {_l('执行动作')}
-            </div>
+            {showCusTomBtn && (
+              <div
+                className={cx('extraOpt flex', {
+                  disabledExtra: !showCusTomBtn,
+                })}
+                onClick={!showCusTomBtn ? () => {} : this.showCustomButtoms}
+              >
+                <Icon icon="custom_actions" className="mRight10 Font20 extraIcon" />
+                {_l('执行动作')}
+              </div>
+            )}
           </BatchOptBtn>
         )}
         <RecordAction
@@ -598,7 +610,6 @@ export default connect(
     worksheetControls: state.mobile.worksheetControls,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
     navGroupFilters: state.sheet.navGroupFilters,
-    mobileViewPermission: state.mobile.mobileViewPermission,
   }),
   dispatch =>
     bindActionCreators(

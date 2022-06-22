@@ -1,110 +1,35 @@
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-// 筛选方式
+// 文本筛选方式
 const TEXT_TYPE = [
   { text: _l('精准搜索'), value: FILTER_CONDITION_TYPE.EQ },
   { text: _l('模糊搜索'), value: FILTER_CONDITION_TYPE.LIKE },
 ];
-export const TEXT = {
-  //文本
-  key: 'filterType',
-  types: TEXT_TYPE,
-  default: FILTER_CONDITION_TYPE.LIKE,
-  keys: [
-    1,
-    2, // 文本框
-    3,
-    4, // 电话号码
-    5, // 邮件地址
-    7, // 证件
-    32, // 文本组合
-    33, // 自动编号
-    // 31, //31数值计算
-    // 38, //公式 38日期计算
-  ],
-  txt: '筛选方式',
-};
-
-export const APPSCAN = {
-  //文本
-  key: 'allowscan',
-  default: '',
-  keys: TEXT.keys,
-};
+// 关联筛选方式
+const RELA_TYPE = [
+  { text: _l('等于'), value: FILTER_CONDITION_TYPE.RCEQ },
+  { text: _l('属于'), value: FILTER_CONDITION_TYPE.BETWEEN },
+];
+// 地区筛选方式
+const GROUP_TYPE = [
+  { text: _l('是'), value: FILTER_CONDITION_TYPE.EQ },
+  { text: _l('属于'), value: FILTER_CONDITION_TYPE.BETWEEN },
+];
+// 数值筛选方式
 const NUMBER_TYPE = [
   { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.BETWEEN },
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
 ];
-export const NUMBER = {
-  //数值
-  key: 'filterType',
-  default: FILTER_CONDITION_TYPE.BETWEEN,
-  types: NUMBER_TYPE,
-  keys: [
-    6, // 数值
-    8, // 金额
-    31, //31数值计算
-  ],
-  txt: '筛选方式',
-};
 // 数量
 const OPTIONS_TYPE = [
   { text: _l('单选'), value: 1 },
   { text: _l('多选'), value: 2 },
 ];
-export const OPTIONS = {
-  // OPTIONS: {
-  //选项
-  key: 'allowitem',
-  default: 1,
-  types: OPTIONS_TYPE,
-  keys: [
-    11, // 选项
-    10, // 多选
-    9, // 单选 平铺
-    // 36, // 检查框
-    29, // 关联表
-    26, // 成员
-    27, // 部门
-    19, // 地区 19'省23'省-市'24'省-市-县'
-    23, // 地区 19'省23'省-市'24'省-市-县'
-    24, // 地区 19'省23'省-市'24'省-市-县'
-  ],
-  txt: '允许选择数量',
-  // },
-};
 // 显示方式
 const SHOW_TYPE = [
   { text: _l('下拉框'), value: 2 },
   { text: _l('平铺'), value: 1 },
 ];
-export const SHOW = {
-  //选项
-  key: 'direction',
-  default: 2, //下拉框
-  types: SHOW_TYPE,
-  keys: [
-    11, // 选项
-    10, // 多选
-    9, // 单选 平铺
-  ],
-  txt: '显示方式',
-};
-export const SHOW_RELATE = {
-  //选项
-  key: 'direction',
-  default: 2, //下拉框
-  types: SHOW_TYPE.map(o => {
-    if (o.value === 1) {
-      return { ...o, txt: '（最多显示20个）' };
-    } else {
-      return o;
-    }
-  }),
-  keys: [
-    29, // 关联表
-  ],
-  txt: '显示方式',
-};
+//时间
 export const DATE_TYPE = [
   [{ text: _l('全选'), value: 'all' }],
   [
@@ -143,11 +68,85 @@ export const DATE_TYPE = [
     { text: _l('将来30天'), value: 33 },
   ],
 ];
+
+//筛选方式
+export const TEXT_FILTER_TYPE = {
+  //文本
+  key: 'filterType',
+  types: TEXT_TYPE,
+  default: FILTER_CONDITION_TYPE.LIKE,
+  keys: [
+    1,
+    2, // 文本框
+    3,
+    4, // 电话号码
+    5, // 邮件地址
+    7, // 证件
+    32, // 文本组合
+    33, // 自动编号
+    // 31, //31数值计算
+    // 38, //公式 38日期计算
+  ],
+  txt: '筛选方式',
+};
+// 筛选方式
+export const NUMBER_FILTER_TYPE = {
+  //数值
+  key: 'filterType',
+  default: FILTER_CONDITION_TYPE.BETWEEN,
+  types: NUMBER_TYPE,
+  keys: [
+    6, // 数值
+    8, // 金额
+    31, //31数值计算
+  ],
+  txt: '筛选方式',
+};
+//筛选方式
+export const RELA_FILTER_TYPE = {
+  key: 'filterType',
+  types: RELA_TYPE,
+  default: FILTER_CONDITION_TYPE.BETWEEN,
+  keys: [
+    35,
+  ],
+  txt: '筛选方式',
+};
+export const GROUP_FILTER_TYPE = {
+  key: 'filterType',
+  types: GROUP_TYPE,
+  default: FILTER_CONDITION_TYPE.BETWEEN,
+  keys: [
+    27, // 部门
+    19, // 地区 19'省23'省-市'24'省-市-县'
+    23, // 地区 19'省23'省-市'24'省-市-县'
+    24, // 地区 19'省23'省-市'24'省-市-县'
+  ],
+  txt: '筛选方式',
+};
+//显示方式
+export const SHOW_RELATE_TYPE = {
+  //选项
+  key: 'direction',
+  default: 2, //下拉框
+  types: SHOW_TYPE.map(o => {
+    if (o.value === 1) {
+      return { ...o, txt: '（最多显示20个）' };
+    } else {
+      return o;
+    }
+  }),
+  keys: [
+    29, // 关联表
+  ],
+  txt: '显示方式',
+};
 const list = _.flattenDeep(DATE_TYPE)
   .map(o => o.value)
   .filter(o => o !== 'all');
-export const TIME = {
-  // DATE: {
+
+//预设时间
+export const DATE_RANGE = {
   key: 'daterange',
   default: list, //全选
   types: DATE_TYPE,
@@ -156,10 +155,60 @@ export const TIME = {
     16, //日期时间
   ],
   txt: '预设时间',
-  // },
+};
+//App支持扫码查询
+export const APP_ALLOWSCAN = {
+  //文本
+  key: 'allowscan',
+  default: '',
+  keys: TEXT_FILTER_TYPE.keys,
+};
+//允许选择数量
+export const OPTIONS_ALLOWITEM = {
+  //选项
+  key: 'allowitem',
+  default: 1,
+  types: OPTIONS_TYPE,
+  keys: [
+    11, // 选项
+    10, // 多选
+    9, // 单选 平铺
+    // 36, // 检查框
+    29, // 关联表
+    26, // 成员
+    27, // 部门
+    19, // 地区 19'省23'省-市'24'省-市-县'
+    23, // 地区 19'省23'省-市'24'省-市-县'
+    24, // 地区 19'省23'省-市'24'省-市-县'
+    35, //级联选择
+  ],
+  txt: '允许选择数量',
+};
+//显示方式
+export const DIRECTION_TYPE = {
+  //选项
+  key: 'direction',
+  default: 2, //下拉框
+  types: SHOW_TYPE,
+  keys: [
+    11, // 选项
+    10, // 多选
+    9, // 单选 平铺
+  ],
+  txt: '显示方式',
 };
 
-export const FAST_FILTERS_WHITELIST = [TEXT, NUMBER, SHOW, SHOW_RELATE, TIME, OPTIONS, APPSCAN];
+export const FAST_FILTERS_WHITELIST = [
+  TEXT_FILTER_TYPE,
+  NUMBER_FILTER_TYPE,
+  DIRECTION_TYPE,
+  SHOW_RELATE_TYPE,
+  DATE_RANGE,
+  OPTIONS_ALLOWITEM,
+  APP_ALLOWSCAN,
+  RELA_FILTER_TYPE,
+  GROUP_FILTER_TYPE,
+];
 // 支持快速筛选的字段
 export const FASTFILTER_CONDITION_TYPE = [
   1, // 文本
@@ -198,7 +247,7 @@ export const FASTFILTER_CONDITION_TYPE = [
   // 41, // _l('富文本'),
   // 42, // _l('签名'),
   // 10010, // 备注
-  // 35, //级联选择
+  35, //级联选择
   // 34, //子表
 ];
 

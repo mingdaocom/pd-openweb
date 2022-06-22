@@ -13,6 +13,12 @@ function isDateStr(str) {
   return newDate(str).toString() !== 'Invalid Date';
 }
 
+function endTimeIsBeforeStartTime(start, end) {
+  start = dayjs(start).set('y', 2000).set('M', 1).set('D', 1);
+  end = dayjs(end).set('y', 2000).set('M', 1).set('D', 1);
+  return end.isBefore(start);
+}
+
 export const functions = {
   // 两个日期间的工作日
   NETWORKDAY: function (start, end, excludeDate = [], workDays = [1, 2, 3, 4, 5]) {
@@ -30,7 +36,10 @@ export const functions = {
     let result = dayjs(end).diff(dayjs(start), 'day') + 1;
     // TODO 处理工作日逻辑
     const startWeekDay = dayjs(start).day();
-    const endWeekDay = dayjs(end).day();
+    let endWeekDay = dayjs(end).day();
+    if (endTimeIsBeforeStartTime(start, end)) {
+      endWeekDay = dayjs(end).subtract(1, 'd').day();
+    }
     if (result > 7) {
       const startWorkDayLength = [...new Array(7 - startWeekDay)]
         .map((d, i) => startWeekDay + i)

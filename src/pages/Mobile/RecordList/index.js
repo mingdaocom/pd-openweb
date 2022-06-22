@@ -6,22 +6,29 @@ import { bindActionCreators } from 'redux';
 import { Icon, Button, WaterMark } from 'ming-ui';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
+import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import Back from '../components/Back';
 import AppPermissions from '../components/AppPermissions';
 import State from './State';
 import View from './View';
+import { RecordInfoModal } from 'mobile/Record';
 import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
-import FixedPage from 'src/pages/Mobile/App/FixedPage.jsx';
+import FixedPage from 'mobile/App/FixedPage.jsx';
+import { openAddRecord } from 'mobile/Record/addRecord';
 
 @withRouter
 @AppPermissions
 class RecordList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      previewRecordId: undefined,
+      tempViewIdForRecordInfo: undefined
+    }
   }
   componentDidMount() {
     this.props.changeMobileGroupFilters([]);
@@ -57,6 +64,12 @@ class RecordList extends Component {
   }
   componentWillUnmount() {
     this.props.emptySheetControls();
+  }
+  sheetViewOpenRecord = (recordId, viewId) => {
+    this.setState({
+      previewRecordId: recordId,
+      tempViewIdForRecordInfo: viewId
+    });
   }
   setCache = params => {
     const { worksheetId, viewId } = params;
@@ -125,6 +138,8 @@ class RecordList extends Component {
       : true;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
+    const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
+    const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
     return (
       <Fragment>
         <div className="flexColumn h100">
@@ -154,13 +169,23 @@ class RecordList extends Component {
                     (appNaviStyle === 2 && !_.isEmpty(view.navGroup) && view.navGroup.length)
                     ? { bottom: '78px' }
                     : { bottom: '130px' }
-                  : [1, 3, 4].includes(view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
+                  : [1, 3, 4].includes(view.viewType) ||
+                    (!_.isEmpty(view.navGroup) && view.navGroup.length) ||
+                    !(canDelete || showCusTomBtn)
                   ? { bottom: '20px' }
                   : { bottom: '78px' }
               }
               onClick={() => {
                 if (!isHideTabBar && location.href.includes('mobile/app')) {
-                  window.mobileNavigateTo('/mobile/appHome');
+                  let currentGroupInfo =
+                    localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+                  if (_.isEmpty(currentGroupInfo)) {
+                    window.mobileNavigateTo('/mobile/appHome');
+                  } else {
+                    window.mobileNavigateTo(
+                      `/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`,
+                    );
+                  }
                   localStorage.removeItem('currentNavWorksheetId');
                 } else {
                   window.mobileNavigateTo(`/mobile/app/${params.appId}`);
@@ -168,8 +193,11 @@ class RecordList extends Component {
               }}
             />
           )}
-          {view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
-            <div className="batchOperation" onClick={() => this.props.changeBatchOptVisible(true)}>
+          {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
+            <div
+              className={cx('batchOperation', { bottom70: appNaviStyle === 2 && location.href.includes('mobile/app') })}
+              onClick={() => this.props.changeBatchOptVisible(true)}
+            >
               <Icon icon={'task-complete'} className="Font24" />
             </div>
           )}
@@ -185,9 +213,23 @@ class RecordList extends Component {
                   mRight16: ([2, 5].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
                 })}
                 onClick={() => {
-                  window.mobileNavigateTo(
-                    `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
-                  );
+                  openAddRecord({
+                    className: 'full',
+                    worksheetInfo,
+                    appId: params.appId,
+                    worksheetId: worksheetInfo.worksheetId,
+                    viewId: view.viewId,
+                    addType: 2,
+                    entityName: worksheetInfo.entityName,
+                    openRecord: this.sheetViewOpenRecord,
+                    onAdd: data => {
+                      if (view.viewType) {
+                        this.props.addNewRecord(data, view);
+                      } else {
+                        this.props.unshiftSheetRow(data);
+                      }
+                    },
+                  });
                 }}
               >
                 <Icon icon="add" className="Font22 mRight5" />
@@ -196,6 +238,20 @@ class RecordList extends Component {
             </div>
           ) : null}
         </div>
+        <RecordInfoModal
+          className="full"
+          visible={!!this.state.previewRecordId}
+          appId={params.appId}
+          worksheetId={worksheetInfo.worksheetId}
+          viewId={this.state.tempViewIdForRecordInfo}
+          rowId={this.state.previewRecordId}
+          onClose={() => {
+            this.setState({
+              previewRecordId: undefined,
+              tempViewIdForRecordInfo: undefined
+            });
+          }}
+        />
       </Fragment>
     );
   }
@@ -251,16 +307,20 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, [
-        'updateBase',
-        'loadWorksheet',
-        'resetSheetView',
-        'emptySheetControls',
-        'emptySheetRows',
-        'updateFilters',
-        'changeMobileGroupFilters',
-        'changeBatchOptVisible',
-      ]),
+      {
+        ..._.pick(actions, [
+          'updateBase',
+          'loadWorksheet',
+          'unshiftSheetRow',
+          'resetSheetView',
+          'emptySheetControls',
+          'emptySheetRows',
+          'updateFilters',
+          'changeMobileGroupFilters',
+          'changeBatchOptVisible',
+        ]),
+        addNewRecord,
+      },
       dispatch,
     ),
 )(RecordList);

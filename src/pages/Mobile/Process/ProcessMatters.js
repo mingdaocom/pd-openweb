@@ -5,6 +5,7 @@ import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
 import Back from '../components/Back';
+import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
@@ -74,7 +75,8 @@ export default class ProcessMatters extends Component {
       topTab: tabs[0].tabs[0],
       searchValue: '',
       countData: {},
-      appCount: {}
+      appCount: {},
+      previewRecord: {}
     }
   }
   componentDidMount() {
@@ -173,13 +175,19 @@ export default class ProcessMatters extends Component {
     this.getTodoList();
   }
   handleApproveDone = ({ id }) => {
-    const { list, countData } = this.state;
+    const { list, countData, topTab } = this.state;
+    const countDataState = {
+      ...countData
+    }
+    if (topTab.id === 'waitingApproval') {
+      countDataState.waitingApproval = countData.waitingApproval - 1;
+    }
+    if (topTab.id === 'waitingWrite') {
+      countDataState.waitingWrite = countData.waitingWrite - 1;
+    }
     this.setState({
       list: list.filter(item => item.id !== id),
-      countData: {
-        ...countData,
-        waitingApproval: countData.waitingApproval - 1,
-      }
+      countData: countDataState
     });
   }
   renderCount(tab) {
@@ -269,7 +277,10 @@ export default class ProcessMatters extends Component {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
               }}
               onClick={() => {
-                this.props.history.push(`/mobile/processRecord/${item.id}/${item.workId}`);
+                this.setState({
+                  previewRecord: { instanceId: item.id, workId: item.workId }
+                });
+                // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
               onApproveDone={this.handleApproveDone}
             />
@@ -281,7 +292,7 @@ export default class ProcessMatters extends Component {
     );
   }
   render() {
-    const { bottomTab, topTab } = this.state;
+    const { bottomTab, topTab, previewRecord } = this.state;
     const currentTabs = bottomTab.tabs;
     return (
       <div className="processContent flexColumn h100">
@@ -316,6 +327,21 @@ export default class ProcessMatters extends Component {
         <Back
           onClick={() => {
             history.back();
+          }}
+        />
+        <ProcessRecordInfo
+          isModal
+          className="full"
+          visible={!_.isEmpty(previewRecord)}
+          instanceId={previewRecord.instanceId}
+          workId={previewRecord.workId}
+          onClose={(data) => {
+            if (data.id) {
+              this.handleApproveDone(data);
+            }
+            this.setState({
+              previewRecord: {}
+            });
           }}
         />
       </div>

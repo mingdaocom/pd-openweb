@@ -128,7 +128,7 @@ export const HomePageWrap = styled.div`
         text-align: center;
         height: 100%;
         padding-top: 20px;
-        margin-right: 5%;
+        margin-right: 10px;
         &:last-child {
           margin-right: 0;
         }

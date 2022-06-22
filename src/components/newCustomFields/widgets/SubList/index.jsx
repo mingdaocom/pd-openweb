@@ -8,6 +8,7 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { FROM } from '../../tools/config';
 import autobind from 'core-decorators/lib/autobind';
 import { browserIsMobile } from 'src/util';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 
 export default class SubList extends React.Component {
   static propTypes = {
@@ -36,9 +37,13 @@ export default class SubList extends React.Component {
     const controlPermission = controlState({ ...this.props }, this.props.from);
     const getWorksheetInfoPromise =
       this.props.from !== FROM.PUBLIC ? sheetAjax.getWorksheetInfo : publicWorksheetAjax.getWorksheetInfo;
-    getWorksheetInfoPromise({ worksheetId, getTemplate: true, getRules: true }).then(info => {
+    Promise.all([
+      getWorksheetInfoPromise({ worksheetId, getTemplate: true, getRules: true }),
+      sheetAjax.getQueryBySheetId({ worksheetId }),
+    ]).then(([info, queryRes]) => {
       this.setState({
         loading: false,
+        searchConfig: formatSearchConfigs(queryRes),
         controls: info.template.controls.map(c => ({
           ...c,
           controlPermissions:
@@ -97,7 +102,7 @@ export default class SubList extends React.Component {
     const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource } = this.props;
     const { controls, projectId, info } = this.state;
     const control = { ...this.props };
-    const { loading } = this.state;
+    const { loading, searchConfig } = this.state;
     return (
       <div
         className="mdsubList"
@@ -114,6 +119,7 @@ export default class SubList extends React.Component {
             control={control}
             controls={controls}
             recordId={recordId}
+            searchConfig={searchConfig || []}
             masterData={{
               worksheetId,
               formData: formData.map(c => _.pick(c, ['controlId', 'type', 'value', 'options'])).filter(c => !!c.value),

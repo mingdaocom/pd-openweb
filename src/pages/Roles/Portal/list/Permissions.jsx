@@ -8,6 +8,7 @@ import PorTalTable from './portalCon/PortalTable';
 import PortalBar from './portalCon/PortalBar';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { TEXTS } from 'src/pages/Roles/config.js';
+import CopyRoleDialog from '../components/CopyRoleDialog';
 
 const AutoSizePorTalTable = autoSize(PorTalTable);
 import { editDefaultExRole, removeExRole } from 'src/api/externalPortal';
@@ -57,6 +58,7 @@ function Permissions(props) {
   const { portal = {}, openPortalRoleSet, type, setPortalRoleList } = props;
   const { roleList = [] } = portal;
   const [selectedIds, setSelectedIds] = useState([]);
+  const [copyData, setCopyData] = useState(null);
   //controls 信息收集的配置项
   const [columns, setColumns] = useState([]);
   useEffect(() => {
@@ -126,6 +128,14 @@ function Permissions(props) {
                 }}
               >
                 {_l('角色设置')}
+              </div>
+              <div
+                className="copy InlineBlock Hand ThemeColor3 Bold mLeft25"
+                onClick={() => {
+                  setCopyData(data);
+                }}
+              >
+                {_l('复制')}
               </div>
               <div
                 className="reject InlineBlock Hand Red mLeft25"
@@ -199,6 +209,15 @@ function Permissions(props) {
         }}
         type={type}
       />
+      {!!copyData && (
+        <CopyRoleDialog
+          copyData={copyData}
+          setCopyData={setCopyData}
+          updataRoleData={data => {
+            props.getPortalRoleList(props.appId);
+          }}
+        />
+      )}
     </Wrap>
   );
 }

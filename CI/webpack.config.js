@@ -8,6 +8,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
 const config = require('./webpack.common.config');
 const isProduction = process.env.NODE_ENV === 'production';
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 
 function pathJoin(basedir, pathstr) {
   if (typeof pathstr === 'string') {
@@ -55,6 +56,9 @@ module.exports = {
     new InjectPlugin(function() {
       return `__webpack_public_path__ = window.__webpack_public_path__;`;
     }),
+    new MomentLocalesPlugin({
+      localesToKeep: ['es-us', 'zh-cn', 'zh-tw', 'ja'],
+    }),
   ].concat(
     isProduction
       ? [
@@ -89,7 +93,8 @@ module.exports = {
         },
         nodemodules: {
           name: 'nodemodules',
-          test: /[\\/]node_modules[\\/]/,
+          minChunks: isProduction ? 2 : 1,
+          test: /[\\/]node_modules[\\/](?!mathjs|react-handsontable|handsontable|hot-formula-parser)/,
         },
         default: false,
       },

@@ -1,4 +1,4 @@
-import { NODE_TYPE, APP_TYPE, ACTION_ID } from './enum';
+import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID } from './enum';
 
 /**
  * 遍历获取统计id
@@ -35,6 +35,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-hr_structure';
       } else if (appType === APP_TYPE.DEPARTMENT) {
         icon = 'icon-workflow';
+      } else if (actionId === TRIGGER_ID.DISCUSS) {
+        icon = 'icon-replyto';
       } else if (appType === APP_TYPE.EXTERNAL_USER) {
         icon = 'icon-language';
       } else if (appType === APP_TYPE.PBC) {
@@ -105,6 +107,12 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.PBC:
       icon = 'icon-pbc';
       break;
+    case NODE_TYPE.JSON_PARSE:
+      icon = 'icon-task_custom_polymer';
+      break;
+    case NODE_TYPE.AUTHENTICATION:
+      icon = 'icon-key1';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -135,9 +143,9 @@ export const getIcons = (type, appType, actionId) => {
 };
 
 /**
- * 返回对应的节点颜色
+ * 返回开始对应的节点颜色
  */
-export const getColor = appType => {
+export const getStartNodeColor = (appType, triggerId) => {
   switch (appType) {
     case APP_TYPE.SHEET:
       return 'BGYellow';
@@ -147,7 +155,9 @@ export const getColor = appType => {
       return 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
+      return 'BGGreen';
     case APP_TYPE.EXTERNAL_USER:
+      if (triggerId === TRIGGER_ID.DISCUSS) return 'BGBlue';
       return 'BGGreen';
     default:
       return 'BGBlue';
@@ -200,7 +210,10 @@ export const replaceField = (text, fieldMap, connector = '>') => {
   const reg = /\$(\w+-\w+)\$/;
   if (!reg.test(text)) return text;
   const handledText = text.replace(reg, ($0, $1) => {
-    const value = $1.split('-').map(v => fieldMap[v].name);
+    const value = $1
+      .split(/([a-zA-Z0-9#]{24,32})-/)
+      .filter(item => item)
+      .map(v => fieldMap[v].name);
     return ` (${value.join(connector)}) `;
   });
   return replaceField(handledText, fieldMap);

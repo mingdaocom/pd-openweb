@@ -17,6 +17,9 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const ModalWrap = styled(Modal)`
   height: 300px !important;
+  overflow: hidden;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
 `;
 const SignatureBox = styled.div`
   cursor: pointer;
@@ -275,7 +278,7 @@ export default class Signature extends Component {
           <span className="mLeft5">{_l('添加签名')}</span>
         </div>
 
-        <ModalWrap popup visible={popupVisible} animationType="slide-up" className="mobileNewRecordDialog">
+        <ModalWrap popup visible={popupVisible} animationType="slide-up">
           <div className="flexColumn leftAlign h100">
             <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
               <div className="Font18 Gray flex bold ellipsis">{_l('请在下方空白区域书写签名')}</div>

@@ -44,7 +44,7 @@ export default function (control, formData, { update, type } = {}) {
     } else if (typeof value === 'object') {
       value = JSON.stringify(value);
     }
-    return value;
+    return `(${value})`;
   });
   if (existDeletedControl || controlIsUndefined) {
     return {

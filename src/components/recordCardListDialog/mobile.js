@@ -25,6 +25,7 @@ export default class RecordCardListDialog extends Component {
     recordId: PropTypes.string, // 记录id
     controlId: PropTypes.string, // 他表字段id
     allowNewRecord: PropTypes.bool, // 允许新建记录
+    disabledManualWrite: PropTypes.bool, // 禁止手动输入
     coverCid: PropTypes.string, // 封面字段 id
     showControls: PropTypes.arrayOf(PropTypes.string), // 显示在卡片里的字段 id 数组
     filterRowIds: PropTypes.arrayOf(PropTypes.string), // 过滤的记录
@@ -38,6 +39,7 @@ export default class RecordCardListDialog extends Component {
   };
   static defaultProps = {
     allowNewRecord: true,
+    disabledManualWrite: false,
     filterRowIds: [],
     showControls: [],
     filterRelatesheetControlIds: [],
@@ -369,6 +371,7 @@ export default class RecordCardListDialog extends Component {
       visible,
       multiple,
       allowNewRecord,
+      disabledManualWrite,
       showControls,
       coverCid,
       onOk,
@@ -401,14 +404,14 @@ export default class RecordCardListDialog extends Component {
     };
     return (
       <ScrollView
-        className="recordCardList flex"
+        className="recordCardList mTop10 flex"
         onScrollEnd={() => {
           if (!loading && !loadouted) {
             this.loadNext();
           }
         }}
       >
-        {allowNewRecord ? (
+        {allowNewRecord && !disabledManualWrite ? (
           <WingBlank size="md">
             <div
               className="worksheetRecordCard allowNewRecordBtn valignWrapper flexRow"
@@ -488,12 +491,12 @@ export default class RecordCardListDialog extends Component {
     );
   }
   render() {
-    const { visible, onClose, multiple } = this.props;
+    const { visible, onClose, multiple, disabledManualWrite } = this.props;
     const { value, worksheet, selectedRecordIds } = this.state;
     return (
       <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
         <div className="flexColumn leftAlign mobileRecordCardListDialog h100">
-          {this.renderSearchWrapper()}
+          {!disabledManualWrite && this.renderSearchWrapper()}
           {this.renderContent()}
           <div className="btnsWrapper valignWrapper flexRow">
             <WingBlank className="flex" size="sm">

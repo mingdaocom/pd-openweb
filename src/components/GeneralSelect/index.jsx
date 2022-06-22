@@ -332,7 +332,7 @@ export default class GeneraSelect extends Component {
   }
 
   /** 请求联系人 */
-  userAction() {
+  userAction = () => {
     const userSettings = this.userSettings;
     const commonSettings = this.commonSettings;
     let tabItem = userSettings.defaultTabs.filter(tab => tab.id === this.state.selectedUserTabId)[0];
@@ -375,6 +375,9 @@ export default class GeneraSelect extends Component {
           reqData.pageIndex = 1;
           reqData.pageSize = 100;
           reqData.parentId = '';
+          reqData.onlyMyJoin = localStorage.getItem('isCheckedOnlyMyJoin')
+            ? JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin'))
+            : false;
         }
       } else if (tabItem.type == RenderTypes.GROUP_USER) {
         // 群组
@@ -393,6 +396,13 @@ export default class GeneraSelect extends Component {
       this.handlePromise(doAction(reqData)).then(data => {
         if (tabItem.type === RenderTypes.DEPARTMENT_USER) {
           data = this.getDepartmentUserTree(data);
+          if (
+            localStorage.getItem('isCheckedOnlyMyJoin') &&
+            JSON.parse(localStorage.getItem('isCheckedOnlyMyJoin')) &&
+            !this.state.keywords
+          ) {
+            this.setState({ defaultCheckedDepId: (!_.isEmpty(data) && data[0].departmentId) || null });
+          }
         } else if (tabItem.type === RenderTypes.GROUP_USER) {
           data = this.getGroupUserTree(data);
         }
@@ -431,7 +441,7 @@ export default class GeneraSelect extends Component {
         });
       });
     }
-  }
+  };
 
   /** 请求部门 */
   departmentAction() {
@@ -1206,6 +1216,8 @@ export default class GeneraSelect extends Component {
                   selectedData: this.state.selectedData.concat(data),
                 });
               }}
+              userAction={this.userAction}
+              defaultCheckedDepId={this.state.defaultCheckedDepId}
             />
           );
         }

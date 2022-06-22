@@ -6,20 +6,23 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { Flex, ActivityIndicator, WhiteSpace, WingBlank } from 'antd-mobile';
 import RecordCard from 'src/components/recordCard';
-import { WithoutRows } from 'src/pages/Mobile/RecordList/SheetRows';
+import { RecordInfoModal } from 'mobile/Record';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import './index.less';
 
 @withRouter
 class RelationList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      previewRecordId: undefined
+    }
   }
   componentDidMount() {
-    const { match, controlId, control, instanceId, workId } = this.props;
+    const { match, controlId, control, instanceId, workId, worksheetId, rowId } = this.props;
     const { params } = match;
     let newParams = null;
     if (instanceId && workId) {
-      const { rowId, worksheetId } = this.props;
       newParams = {
         instanceId,
         workId,
@@ -28,8 +31,13 @@ class RelationList extends Component {
         controlId,
       };
     } else {
+      const { viewId, appId } = this.props;
       newParams = {
         ...params,
+        viewId,
+        appId,
+        worksheetId,
+        rowId,
         controlId,
       };
     }
@@ -40,7 +48,7 @@ class RelationList extends Component {
     this.props.reset();
   }
   handleSelect = (record, selected) => {
-    const { controlId, rowInfo, relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
+    const { controlId, rowInfo, relationRow, actionParams, updateActionParams } = this.props;
     const { worksheet } = relationRow;
     const { isEdit, selectedRecordIds } = actionParams;
     const control = _.find(rowInfo.receiveControls, { controlId }) || {};
@@ -51,11 +59,9 @@ class RelationList extends Component {
           : selectedRecordIds.filter(id => id !== record.rowid),
       });
     } else {
-      const { isSubList, controlPermission } = permissionInfo;
-      this.props.history.push(
-        `${window.subPath || ''}/mobile/record/${worksheet.appId || null}/${worksheet.worksheetId}/${control.viewId ||
-          null}/${record.rowid}?isSubList=${isSubList}&editable=${controlPermission.editable}`,
-      );
+      this.setState({
+        previewRecordId: record.rowid
+      });
     }
   };
   renderRow = item => {
@@ -77,10 +83,9 @@ class RelationList extends Component {
     );
   };
   render() {
-    const { relationRow, relationRows, loadParams, actionParams } = this.props;
+    const { rowInfo, controlId, relationRow, relationRows, loadParams, actionParams, permissionInfo } = this.props;
     const { loading, pageIndex, isMore } = loadParams;
-    const { isEdit } = actionParams;
-
+    
     if (loading && pageIndex === 1) {
       return (
         <Flex justify="center" align="center" className="h100">
@@ -88,6 +93,11 @@ class RelationList extends Component {
         </Flex>
       );
     }
+
+    const { previewRecordId } = this.state;
+    const { isEdit } = actionParams;
+    const { worksheet } = relationRow;
+    const control = _.find(rowInfo.receiveControls, { controlId }) || {};
 
     return (
       <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
@@ -97,6 +107,21 @@ class RelationList extends Component {
             {relationRows.map(item => this.renderRow(item))}
             {isMore && <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>}
             <WhiteSpace />
+            <RecordInfoModal
+              className="full"
+              visible={!!previewRecordId}
+              appId={worksheet.appId}
+              worksheetId={worksheet.worksheetId}
+              viewId={control.viewId}
+              rowId={previewRecordId}
+              isSubList={_.get(permissionInfo, 'isSubList')}
+              editable={_.get(permissionInfo, 'controlPermission.editable')}
+              onClose={() => {
+                this.setState({
+                  previewRecordId: undefined
+                });
+              }}
+            />
           </Fragment>
         ) : (
           <div className="withoutRowsWrapper flexColumn valignWrapper h100">

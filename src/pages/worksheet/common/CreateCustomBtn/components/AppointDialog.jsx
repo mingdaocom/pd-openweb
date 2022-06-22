@@ -113,6 +113,7 @@ class AppointDialog extends React.Component {
         37, // 37: _l('汇总'),
         10010, // 备注
         45, // 嵌入
+        47, //条码
       ].indexOf(type) >= 0
     );
   };
@@ -187,10 +188,7 @@ class AppointDialog extends React.Component {
   };
 
   renderDefCom = (item, index, writeControls, data) => {
-    if (
-      !DEF_TYPES.concat(DEF_R_TYPES).includes(data.type) ||
-      (26 === data.type && data.advancedSetting.usertype === '2') //成员 外部用户字段 没有默认值
-    ) {
+    if (!DEF_TYPES.concat(DEF_R_TYPES).includes(data.type)) {
       return;
     }
     const { writeObject } = this.state;

@@ -8,7 +8,7 @@ import { message } from 'antd';
 import { Icon } from 'ming-ui';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import CustomRecordCard from 'src/pages/Mobile/RecordList/RecordCard';
+import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import process, { startProcess } from 'src/pages/workflow/api/process';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';

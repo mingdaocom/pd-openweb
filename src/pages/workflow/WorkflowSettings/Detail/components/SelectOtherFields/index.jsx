@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import flowNode from '../../../../api/flowNode';
 import ActionFields from '../ActionFields';
-import { CONTROLS_NAME } from '../../../enum';
+import { CONTROLS_NAME, APP_TYPE } from '../../../enum';
 import { MenuItem } from 'ming-ui';
 
 export default class SelectOtherFields extends Component {
@@ -78,7 +78,10 @@ export default class SelectOtherFields extends Component {
               type: o.type,
               value: o.controlId,
               field: CONTROLS_NAME[o.type],
-              text: o.controlName,
+              text:
+                obj.appType === APP_TYPE.WEBHOOK
+                  ? `[${o.enumDefault === 0 ? 'Body' : 'Header'}] ${o.controlName}`
+                  : o.controlName,
             };
           }),
         };

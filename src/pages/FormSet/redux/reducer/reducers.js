@@ -33,7 +33,7 @@ export function worksheetName(state = '', action) {
 }
 
 // 当前表信息
-export function worksheetInfo(state = [], action) {
+export function worksheetInfo(state = {}, action) {
   switch (action.type) {
     case 'WORKSHEET_INFO':
       return action.data;

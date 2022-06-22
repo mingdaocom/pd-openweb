@@ -38950,3 +38950,1135 @@ msgstr "Displayed as -- (continuous)"
 msgid "显示为 -- (中断)"
 msgstr "Displayed as -- (interrupt)"
 
+#: Disabled references:1
+msgid "流程待办"
+msgstr "Process to-do"
+
+#: Disabled references:1
+msgid "外部协作"
+msgstr "External Collaboration"
+
+#: Disabled references:1
+msgid "只看我加入的部门"
+msgstr "Only the department I joined"
+
+#: Disabled references:1
+msgid "执行自定义动作"
+msgstr "Execute custom actions"
+
+#: Disabled references:1
+msgid "提交表单"
+msgstr "Submit"
+
+#: Disabled references:1
+msgid "关闭弹层"
+msgstr "Close pop-up "
+
+#: Disabled references:1
+msgid "继续创建下一条"
+msgstr "Save & Add Next"
+
+#: Disabled references:1
+msgid "打开刚刚创建的记录"
+msgstr "Open the record just created"
+
+#: Disabled references:1
+msgid "应用分组"
+msgstr "Application Grouping"
+
+#: Disabled references:1
+msgid "分组应用列表"
+msgstr "List of grouped applications"
+
+#: Disabled references:1
+msgid "手机验证码登录"
+msgstr "Mobile Verification Code Login"
+
+#: Disabled references:1
+msgid "更多人数"
+msgstr "More people"
+
+#: Disabled references:1
+msgid "更新分组失败"
+msgstr "Failed to update group"
+
+#: Disabled references:1
+msgid "更新应用失败！"
+msgstr "Failed to update the app!"
+
+#: Disabled references:1
+msgid "删除应用失败！"
+msgstr "Failed to delete the application!"
+
+#: Disabled references:1
+msgid "设置失败！"
+msgstr "Setup failed!"
+
+#: Disabled references:1
+msgid "新建应用失败！"
+msgstr "New app creation failed!"
+
+#: Disabled references:1
+msgid "更新应用排序失败！"
+msgstr "Update app sorting failed!"
+
+#: Disabled references:1
+msgid "更新首页配置失败！"
+msgstr "Update home page configuration failed!"
+
+#: Disabled references:1
+msgid "协作"
+msgstr "Collaboration"
+
+#: Disabled references:1
+msgid "学习资源"
+msgstr "Learning Resources"
+
+#: Disabled references:1
+msgid "推广奖励"
+msgstr "Promotion Rewards"
+
+#: Disabled references:1
+msgid "集成中心"
+msgstr "Integration Center"
+
+#: Disabled references:1
+msgid "学习"
+msgstr "learn"
+
+#: Disabled references:1
+msgid "视频学习"
+msgstr "Video Course"
+
+#: Disabled references:1
+msgid "帮助文档"
+msgstr "Help Doc"
+
+#: Disabled references:1
+msgid "实践案例"
+msgstr "Cases"
+
+#: Disabled references:1
+msgid "应用为极其重要的数据，彻底删除应用数据时需要验证身份。彻底删除该数据后，将无法恢复。"
+msgstr "Applications are extremely important data, and identity verification is required for complete deletion of application data. After completely deleting this data, it will not be recoverable."
+
+#: Disabled references:1
+msgid "请输入密码确认删除"
+msgstr "Please enter your password to confirm deletion"
+
+#: Disabled references:1
+msgid "应用回收站"
+msgstr "Application Recycle Bin"
+
+#: Disabled references:1
+msgid "应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作"
+msgstr "All data under the application will be deleted. Please make sure that all application members no longer need this application before performing this operation"
+
+#: Disabled references:1
+msgid "设置提交表单的文案和操作"
+msgstr "Set the text and actions for form submission"
+
+#: Disabled references:1
+msgid "继续创建"
+msgstr "Continue to create"
+
+#: Disabled references:1
+msgid "修改按钮名称"
+msgstr "Modify button name"
+
+#: Disabled references:1
+msgid "提交后："
+msgstr "After submission."
+
+#: Disabled references:1
+msgid "视图："
+msgstr "Table view allows cells to be edited in-line, Kanban, Hierarchy, and Gallery views allow text  and check box to be modified directly on the card"
+
+#: Disabled references:1
+msgid "更多设置"
+msgstr "More settings"
+
+#: Disabled references:1
+msgid "显示“继续创建时，保留上次提交内容”选项"
+msgstr "Show the \"Keep last submission when continuing to create\" option"
+
+#: Disabled references:1
+msgid "启用后，当按钮的提交方式为“提交后继续创建下一条”时，可以在提交记录时选择自动填充上次提交的内容。适合需要连续填报相似数据时的场景"
+msgstr "When enabled, you can choose to automatically populate the last submission when submitting a record when the submission method of the button is \"Submit and continue to create the next entry\". Suitable for scenarios where similar data needs to be filled in successively"
+
+#: Disabled references:1
+msgid "需要先设置一个“提交后继续创建下一条”的按钮"
+msgstr "You need to set a \"Submit to continue creating the next entry\" button first"
+
+#: Disabled references:1
+msgid "搜索应用"
+msgstr "Search Application"
+
+#: Disabled references:1
+msgid "所有组织"
+msgstr "All organizations"
+
+#: Disabled references:1
+msgid "暂无与外部协作者的应用"
+msgstr "No application with external collaborators at this time"
+
+#: Disabled references:1
+msgid "您未拥有任何组织，创建或申请加入组织"
+msgstr "You do not own any organization, create or apply to join an organization"
+
+#: Disabled references:1
+msgid "切换组织"
+msgstr "Switching Organizations"
+
+#: Disabled references:1
+msgid "扫码关联"
+msgstr "Scan code association"
+
+#: Disabled references:1
+msgid "加入/创建组织"
+msgstr "Join / Create an Organization"
+
+#: Disabled references:1
+msgid "回到旧版"
+msgstr "Back to the old version"
+
+#: Disabled references:1
+msgid "体验新版"
+msgstr "Experience the new version"
+
+#: Disabled references:1
+msgid "应用项回收站"
+msgstr "Application Recycle Bin"
+
+#: Disabled references:1
+msgid "管理应用"
+msgstr "Manage Applications"
+
+#: Disabled references:1
+msgid "导入应用升级"
+msgstr "Import application upgrades"
+
+#: Disabled references:1
+msgid "创建应用备份"
+msgstr "Creating Application Backups"
+
+#: Disabled references:1
+msgid "从备份文件还原"
+msgstr "Restore from backup file"
+
+#: Disabled references:1
+msgid "按照原值导出"
+msgstr "Export by original value"
+
+#: Disabled references:1
+msgid "按显示单位导出"
+msgstr "Export by display unit"
+
+#: Disabled references:1
+msgid "条码"
+msgstr "Barcode"
+
+#: Disabled references:1
+msgid "普通数组"
+msgstr "Common arrays"
+
+#: Disabled references:1
+msgid "对象数组"
+msgstr "Object Arrays"
+
+#: Disabled references:1
+msgid "可将关联的数据源转成条形码或二维码显示"
+msgstr "Associated data sources can be converted to barcode or QR code display"
+
+#: Disabled references:1
+msgid "ID: %0"
+msgstr "ID: %0"
+
+#: Disabled references:1
+msgid "没有配置数据源"
+msgstr "No data source configured"
+
+#: Disabled references:1
+msgid "第%0页"
+msgstr "Page %0"
+
+#: Disabled references:1
+msgid "请在app中获取当前位置"
+msgstr "Please get the current location in the app"
+
+#: Disabled references:1
+msgid "应用、应用项、字段回收站，支持一键恢复/彻底删除回收站内数据"
+msgstr "Application, application item, field recycle bin, support one-click recovery/complete deletion of data in the recycle bin"
+
+#: Disabled references:1
+msgid "应用备份与还原"
+msgstr "Application Backup and Restore"
+
+#: Disabled references:1
+msgid "垂询我们"
+msgstr "Contact us"
+
+#: Disabled references:1
+msgid "星标分组"
+msgstr "Starred groups"
+
+#: Disabled references:1
+msgid "例：产品管理"
+msgstr "Example: Product Management"
+
+#: Disabled references:1
+msgid "编辑分组"
+msgstr "Editing group"
+
+#: Disabled references:1
+msgid "无分组，可从左侧列表创建"
+msgstr "No grouping, can be created from the list on the left"
+
+#: Disabled references:1
+msgid "设置分组"
+msgstr "Set up groups"
+
+#: Disabled references:1
+msgid "标星，显示在首页"
+msgstr "Marked with a star and displayed on the front page"
+
+#: Disabled references:1
+msgid "删除分组\"%0"
+msgstr "Delete group \"%0"
+
+#: Disabled references:1
+msgid "仅删除分组，分组下的应用不会被删除"
+msgstr "Delete only groups, applications under groups will not be deleted"
+
+#: Disabled references:1
+msgid "删除分组成功"
+msgstr "Delete group successfully"
+
+#: Disabled references:1
+msgid "删除分组失败"
+msgstr "Failed to delete group"
+
+#: Disabled references:1
+msgid "新建分组成功"
+msgstr "New group created successfully"
+
+#: Disabled references:1
+msgid "新建分组失败，分组名重复"
+msgstr "New group failed, duplicate group name"
+
+#: Disabled references:1
+msgid "新建分组失败，分组超上限"
+msgstr "New group creation failed, group over limit"
+
+#: Disabled references:1
+msgid "新建分组失败，无权限操作"
+msgstr "New group creation failed, no permission to operate"
+
+#: Disabled references:1
+msgid "新建分组失败"
+msgstr "New group creation failed"
+
+#: Disabled references:1
+msgid "更新成功"
+msgstr "Upgrade successful"
+
+#: Disabled references:1
+msgid "更新分组失败，分组名重复"
+msgstr "Update group failed, group name duplicated"
+
+#: Disabled references:1
+msgid "更新分组失败，分组超上限"
+msgstr "Update grouping failed, grouping exceeded limit"
+
+#: Disabled references:1
+msgid "更新分组失败，无权限操作"
+msgstr "Update group failed, no permission to operate"
+
+#: Disabled references:1
+msgid "仅看当前组织"
+msgstr "Just look at the current organization"
+
+#: Disabled references:1
+msgid "显示所有组织"
+msgstr "Show all organizations"
+
+#: Disabled references:1
+msgid "平铺排列"
+msgstr "Tiled arrangement"
+
+#: Disabled references:1
+msgid "以选项卡切换"
+msgstr "Switching by tab"
+
+#: Disabled references:1
+msgid "星标应用分组"
+msgstr "Starred application grouping"
+
+#: Disabled references:1
+msgid "显示外部协作"
+msgstr "Show external collaboration"
+
+#: Disabled references:1
+msgid "自定义显示"
+msgstr "Customized display"
+
+#: Disabled references:1
+msgid "注意：应用下所有配置和数据将被删除。"
+msgstr "Note: All configurations and data under the application will be deleted."
+
+#: Disabled references:1
+msgid "工作表 %0"
+msgstr "Worksheet %0"
+
+#: Disabled references:1
+msgid "自定义页面 %0"
+msgstr "Custom page %0"
+
+#: Disabled references:1
+msgid "所属应用"
+msgstr "Applications"
+
+#: Disabled references:1
+msgid "搜索人员"
+msgstr "Search people"
+
+#: Disabled references:1
+msgid "创建动态"
+msgstr "Create Dynamic"
+
+#: Disabled references:1
+msgid "至少选择一种登录方式"
+msgstr "Select at least one login method"
+
+#: Disabled references:1
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快读登录验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足"
+msgstr "Only check the WeChat login after the first time to scan the code requires the input of cell phone number and WeChat binding, subsequent can be individually WeChat scan code fast reading login verification code of 0.05 yuan per article, automatically deducted from the corporate account balance. To ensure that the business is not affected, please keep the enterprise account balance sufficient"
+
+#: Disabled references:1
+msgid "有讨论消息时（被提到、被回复）通知外部用户"
+msgstr "Notify external users when there is a discussion message (mentioned, replied to)"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核（通过/拒绝）"
+msgstr "Please fill in your organization abbreviation, website name, brand name, 2-8 Chinese characters carefully. If the signature does not meet the specification, it will be intercepted by the operator. This signature is applicable to external portal SMS scenarios: external portal user registration and login, inviting external user registration, external user audit (pass/reject)"
+
+#: Disabled references:1
+msgid "辅助线"
+msgstr "Auxiliary Lines"
+
+#: Disabled references:1
+msgid "单行显示"
+msgstr "Single line height"
+
+#: Disabled references:1
+msgid "加载中，请稍后"
+msgstr "Loading, please wait"
+
+#: Disabled references:1
+msgid "画布概览"
+msgstr "Canvas Overview"
+
+#: Disabled references:1
+msgid "发送 API 请求"
+msgstr "Sending API requests"
+
+#: Disabled references:1
+msgid "JSON 解析"
+msgstr "JSON parsing"
+
+#: Disabled references:1
+msgid "API 连接与认证"
+msgstr "API connectivity and authentication"
+
+#: Disabled references:1
+msgid "讨论通知触发"
+msgstr "Discussion notification trigger"
+
+#: Disabled references:1
+msgid "确定要删除此字段？"
+msgstr "Sure you want to delete this field?"
+
+#: Disabled references:1
+msgid "删除后对应表单数据也会被删除"
+msgstr "The corresponding form data will also be deleted after deletion"
+
+#: Disabled references:1
+msgid "回收站（字段）"
+msgstr "Recycle Bin (field)"
+
+#: Disabled references:1
+msgid "可恢复60天内删除的字段"
+msgstr "Recover fields deleted within 60 days"
+
+#: Disabled references:1
+msgid "字段名称/id/别名"
+msgstr "Field name/id/alias"
+
+#: Disabled references:1
+msgid "确定彻底删除这个字段？"
+msgstr "Sure to delete this field completely?"
+
+#: Disabled references:1
+msgid "彻底删除该数据后，将无法恢复。"
+msgstr "After completely deleting this data, it will not be recovered."
+
+#: Disabled references:1
+msgid "彻底删除成功"
+msgstr "Delete completely successfully"
+
+#: Disabled references:1
+msgid "没有找到符合条件的结果"
+msgstr "No results found matching the criteria"
+
+#: Disabled references:1
+msgid "回收站暂无内容"
+msgstr "No content in Recycle Bin"
+
+#: Disabled references:1
+msgid "条形码"
+msgstr "Bar code"
+
+#: Disabled references:1
+msgid "记录内部访问链接"
+msgstr "Logging internal access links"
+
+#: Disabled references:1
+msgid "编码方式：code128，仅支持数字、字母、符号，最大包含128个字符"
+msgstr "Encoding method: code128, only support numbers, letters, symbols, maximum contains 128 characters"
+
+#: Disabled references:1
+msgid "编码方式：QR-code，可支持汉字，最大包含150个字"
+msgstr "Encoding method: QR-code, can support Chinese characters, maximum contains 150 characters"
+
+#: Disabled references:1
+msgid "容错率"
+msgstr "Fault tolerance"
+
+#: Disabled references:1
+msgid "容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。"
+msgstr "Fault tolerance refers to the ability of a QR code to be scanned even after how much it has been obscured. The higher the error tolerance, the easier the QR code can be scanned, and the more complex the QR code image."
+
+#: Disabled references:1
+msgid "最大宽"
+msgstr "Maximum width"
+
+#: Disabled references:1
+msgid "当前位置周围"
+msgstr "Around the current location"
+
+#: Disabled references:1
+msgid "定位地图上的位置"
+msgstr "Locating a location on the map"
+
+#: Disabled references:1
+msgid "获取当前位置经纬度（仅app）"
+msgstr "Get the latitude and longitude of the current location (app only)"
+
+#: Disabled references:1
+msgid "通过手机gps获取经纬度获取定位，使用WGS84坐标系"
+msgstr "Get latitude and longitude by cell phone gps to get position, using WGS84 coordinate system"
+
+#: Disabled references:1
+msgid "限制选择范围"
+msgstr "Restrict the range of choices"
+
+#: Disabled references:1
+msgid "勾选后禁止PC端和移动端手动添加关联记录"
+msgstr "Check the box to disable the manual addition of association records on PC and mobile"
+
+#: Disabled references:1
+msgid "回收站（应用项）"
+msgstr "Recycle Bin (application item)"
+
+#: Disabled references:1
+msgid "应用项名称"
+msgstr "Application Item Name"
+
+#: Disabled references:1
+msgid "可恢复60天内删除的应用项"
+msgstr "Recovery of deleted application items within 60 days"
+
+#: Disabled references:1
+msgid "将彻底删除工作表\"%0"
+msgstr "will completely delete the worksheet \"%0"
+
+#: Disabled references:1
+msgid "彻底删除失败"
+msgstr "Failed to delete completely"
+
+#: Disabled references:1
+msgid "回收站（应用）"
+msgstr "Recycle Bin (Application)"
+
+#: Disabled references:1
+msgid "可恢复7天内删除的应用"
+msgstr "Recover applications deleted within 7 days"
+
+#: Disabled references:1
+msgid "将彻底删除应用 “%0”，请认证你的身份"
+msgstr "Will completely delete the application \"%0\", please authenticate your identity"
+
+#: Disabled references:1
+msgid "注意：自定义页面下所有配置和数据将被删除。"
+msgstr "Note: All configurations and data under custom pages will be deleted."
+
+#: Disabled references:1
+msgid "注意：工作表下所有配置和数据将被删除。"
+msgstr "Note: All configurations and data under the worksheet will be deleted."
+
+#: Disabled references:1
+msgid "我确认删除自定义页面和所有数据"
+msgstr "I confirm the deletion of custom pages and all data"
+
+#: Disabled references:1
+msgid "我确认删除工作表和所有数据"
+msgstr "I confirm the deletion of the worksheet and all data"
+
+#: Disabled references:1
+msgid "继续创建时，是否保留本次提交内容 ?"
+msgstr "Does the current submission remain when continuing to create ?"
+
+#: Disabled references:1
+msgid "不保留"
+msgstr "No reservations"
+
+#: Disabled references:1
+msgid "保留"
+msgstr "Reserved"
+
+#: Disabled references:1
+msgid "我确认删除页面和所有数据"
+msgstr "I confirm the deletion of the page and all data"
+
+#: Disabled references:1
+msgid "扫码添加%0"
+msgstr "Scan code to add %0"
+
+#: Disabled references:1
+msgid "人员组织接口"
+msgstr "People Organization Interface"
+
+#: Disabled references:1
+msgid "汇报关系接口"
+msgstr "Reporting relationship interface"
+
+#: Disabled references:1
+msgid "应用管理接口"
+msgstr "Application Management Interface"
+
+#: Disabled references:1
+msgid "审批接口（协作套件-人事）"
+msgstr "Approval Interface (Collaboration Suite - Personnel)"
+
+#: Disabled references:1
+msgid "编辑密钥"
+msgstr "Edit Key"
+
+#: Disabled references:1
+msgid "新建密钥"
+msgstr "New Key"
+
+#: Disabled references:1
+msgid "请选择该密钥授权的接口访问权限和管理应用的范围"
+msgstr "Please select the scope of interface access and management applications authorized by this key"
+
+#: Disabled references:1
+msgid "删除密钥"
+msgstr "Delete key"
+
+#: Disabled references:1
+msgid "删除密钥后，之前所有使用此密钥的服务都将停止，请谨慎操作"
+msgstr "After deleting the key, all previous services using this key will be stopped, so please operate with caution"
+
+#: Disabled references:1
+msgid "组织密钥是极为重要的凭证，需要你输入密码确认后才能查看"
+msgstr "The organization key is an extremely important credential that requires you to enter a password to confirm before you can view it"
+
+#: Disabled references:1
+msgid "Sign"
+msgstr "Sign"
+
+#: Disabled references:1
+msgid "人员组织接口；汇报关系接口"
+msgstr "People organization interface; reporting relationship interface"
+
+#: Disabled references:1
+msgid "导入部门"
+msgstr "Import Department"
+
+#: Disabled references:1
+msgid "导出部门"
+msgstr "Export department"
+
+#: Disabled references:1
+msgid "暂无部门，可 "
+msgstr "No department at the moment, can"
+
+#: Disabled references:1
+msgid "导入职位"
+msgstr "Imported positions"
+
+#: Disabled references:1
+msgid "导出职位"
+msgstr "Export Jobs"
+
+#: Disabled references:1
+msgid "暂无职位，可 "
+msgstr "No position available at the moment, can"
+
+#: Disabled references:1
+msgid "错误行"
+msgstr "Wrong line"
+
+#: Disabled references:1
+msgid "错误原因"
+msgstr "Reason for error"
+
+#: Disabled references:1
+msgid "导入部门模板"
+msgstr "Import Department Templates"
+
+#: Disabled references:1
+msgid "导入职位模板"
+msgstr "Import job templates"
+
+#: Disabled references:1
+msgid "成功导入%0条记录"
+msgstr "Successfully imported %0 records"
+
+#: Disabled references:1
+msgid "超出导入数量限制,单次导入上限1000行记录！"
+msgstr "Exceed the import limit, single import limit 1000 rows of records!"
+
+#: Disabled references:1
+msgid "导入文件列名有误，请检查，或从导入模版中重新下载！"
+msgstr "There is an error in the column name of the imported file, please check it, or re-download it from the import template!"
+
+#: Disabled references:1
+msgid "%0错误，请检查！"
+msgstr "%0 error, please check!"
+
+#: Disabled references:1
+msgid "请调整后，"
+msgstr "After adjustment, please"
+
+#: Disabled references:1
+msgid "错误信息"
+msgstr "Specific error message"
+
+#: Disabled references:1
+msgid "恒定线"
+msgstr "Constant Line"
+
+#: Disabled references:1
+msgid "最小值线"
+msgstr "Minimum value line"
+
+#: Disabled references:1
+msgid "最大值线"
+msgstr "Maximum value line"
+
+#: Disabled references:1
+msgid "平均线"
+msgstr "Average"
+
+#: Disabled references:1
+msgid "中值线"
+msgstr "Median "
+
+#: Disabled references:1
+msgid "百分位数线"
+msgstr "Percentile"
+
+#: Disabled references:1
+msgid "趋势线"
+msgstr "Trendline"
+
+#: Disabled references:1
+msgid "名称字符数量不能超过 12 个"
+msgstr "The number of name characters cannot exceed 12"
+
+#: Disabled references:1
+msgid "请输入固定值"
+msgstr "Please enter a fixed value"
+
+#: Disabled references:1
+msgid "左轴"
+msgstr "Left axis"
+
+#: Disabled references:1
+msgid "右轴"
+msgstr "Right axis"
+
+#: Disabled references:1
+msgid "参考字段"
+msgstr "Reference Fields"
+
+#: Disabled references:1
+msgid "当前字段已删除"
+msgstr "The current field has been deleted"
+
+#: Disabled references:1
+msgid "百分位数"
+msgstr "Percentile"
+
+#: Disabled references:1
+msgid "点线"
+msgstr "Dotted Line"
+
+#: Disabled references:1
+msgid "显示内容"
+msgstr "Display content"
+
+#: Disabled references:1
+msgid "添加辅助线"
+msgstr "Add auxiliary lines"
+
+#: Disabled references:1
+msgid "显示数据"
+msgstr "Display Data"
+
+#: Disabled references:1
+msgid "这一个旧的功能，目前已经被的辅助线功能所代替。新创建的图表已不再包含此配置。"
+msgstr "This old feature has now been replaced by the auxiliary line feature. This configuration is no longer included in newly created charts."
+
+#: Disabled references:1
+msgid "用户名、密码不能为空"
+msgstr "User name and password cannot be empty"
+
+#: Disabled references:1
+msgid "Access Token URL不能为空"
+msgstr "Access Token URL cannot be empty"
+
+#: Disabled references:1
+msgid "参数名不能为空"
+msgstr "The parameter name cannot be empty"
+
+#: Disabled references:1
+msgid "raw(JSON)不能为空"
+msgstr "raw(JSON) cannot be null"
+
+#: Disabled references:1
+msgid "采用此方式，本节点将返回计算后的 Basic Auth 参数供后续节点使用"
+msgstr "With this method, this node will return the calculated Basic Auth parameters for use by subsequent nodes"
+
+#: Disabled references:1
+msgid "采用此方式，本节点将返回获取到的 Access Token 参数"
+msgstr "With this method, this node will return the Access Token parameters obtained"
+
+#: Disabled references:1
+msgid "Access Token URL"
+msgstr "Access Token URL"
+
+#: Disabled references:1
+msgid "隐藏请求参数详情"
+msgstr "Hide request parameter details"
+
+#: Disabled references:1
+msgid "向 Access Token URL 发送请求并返回参数列表"
+msgstr "Sends a request to the Access Token URL and returns a list of parameters"
+
+#: Disabled references:1
+msgid "重新发送请求获取 Acess Token"
+msgstr "Resend request for Acess Token"
+
+#: Disabled references:1
+msgid "获取 Access Token"
+msgstr "Get Access Token"
+
+#: Disabled references:1
+msgid "Access Token 过期时间"
+msgstr "Access Token Expiration Time"
+
+#: Disabled references:1
+msgid "系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新"
+msgstr "The system will determine how often the Access Token will be automatically refreshed based on the length setting here, and a value of 0 will not automatically refresh the Access Token."
+
+#: Disabled references:1
+msgid "秒"
+msgstr "Second"
+
+#: Disabled references:1
+msgid "编辑 Access Token 测试数据"
+msgstr "Edit Access Token Test Data"
+
+#: Disabled references:1
+msgid "发送API请求数组"
+msgstr "Sending API request arrays"
+
+#: Disabled references:1
+msgid "JSON解析数组"
+msgstr "JSON Parsing Arrays"
+
+#: Disabled references:1
+msgid "选择发送API请求节点"
+msgstr "Select the node to send the API request"
+
+#: Disabled references:1
+msgid "选择JSON解析节点"
+msgstr "Select JSON parsing node"
+
+#: Disabled references:1
+msgid "对象"
+msgstr "Object"
+
+#: Disabled references:1
+msgid "必须先选择一个 JSON 对象"
+msgstr "You must first select a JSON object"
+
+#: Disabled references:1
+msgid "输出参数配置有误"
+msgstr "The output parameters are incorrectly configured"
+
+#: Disabled references:1
+msgid "JSON 解析器可以把 发送 API 请求 节点或者 代码块 节点中输出的 JSON 对象解析为后续节点可直接使用的变量和数组参数。"
+msgstr "The JSON parser can parse the JSON object output from the Send API Request node or the Code Block node into variables and array parameters that can be used directly by subsequent nodes."
+
+#: Disabled references:1
+msgid "获取 JSON 对象"
+msgstr "Get JSON objects"
+
+#: Disabled references:1
+msgid "定义输出参数"
+msgstr "Define output parameters"
+
+#: Disabled references:1
+msgid "+ 输出参数"
+msgstr "+ Output parameters"
+
+#: Disabled references:1
+msgid "没有可以用来解析的流程参数"
+msgstr "There are no process parameters that can be used to parse"
+
+#: Disabled references:1
+msgid "查看 JSON 解析结果"
+msgstr "View JSON parsing results"
+
+#: Disabled references:1
+msgid "复制节点 Path"
+msgstr "Copy Node Path"
+
+#: Disabled references:1
+msgid "复制数组 Path"
+msgstr "Copy array Path"
+
+#: Disabled references:1
+msgid "复制对象数组子节点 Path"
+msgstr "Copy object array child nodes Path"
+
+#: Disabled references:1
+msgid "生成参数"
+msgstr "Generate parameters"
+
+#: Disabled references:1
+msgid "我们根据获取的 JSON 为您解析了对应的 JSON Path，您也可以学习 JSON Path 的规则来更灵活的获取需要的数据"
+msgstr "We have parsed the JSON Path for you based on the obtained JSON, and you can learn the rules of JSON Path to get the data you need more flexibly"
+
+#: Disabled references:1
+msgid "从 JSON 解析结果中复制解析后的 JSON Path，填写到输出参数值中"
+msgstr "Copy the parsed JSON Path from the JSON parsing result and fill it into the output parameter value"
+
+#: Disabled references:1
+msgid "了解 JSON Path"
+msgstr "Understanding JSON Path"
+
+#: Disabled references:1
+msgid "请填写参数名称"
+msgstr "Please fill in the parameter name"
+
+#: Disabled references:1
+msgid "请填写 JSON Path 值"
+msgstr "Please fill in the JSON Path value"
+
+#: Disabled references:1
+msgid "共 %0 组数据，以下仅显示第 1 组参考值"
+msgstr "Total %0 sets of data, only the 1st set of reference values are shown below"
+
+#: Disabled references:1
+msgid "记录链接不能为空"
+msgstr "The record link cannot be empty"
+
+#: Disabled references:1
+msgid "必须选择一个目标工作表"
+msgstr "A target worksheet must be selected"
+
+#: Disabled references:1
+msgid "通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。"
+msgstr "By parsing the record links accessed by internal members or shared publicly to the outside world to obtain the corresponding record objects for use by other nodes in the process. Scenario for example: the warehouse administrator uses a scan gun on the PC side to scan the QR code of a product, writes the record link pointed to the text box, and parses the associated product by the workflow to realize automated in/out storage."
+
+#: Disabled references:1
+msgid "选择记录链接"
+msgstr "Select a record link"
+
+#: Disabled references:1
+msgid "当前流程节点中的文本类型字段，系统将根据此链接获取相应的记录，供流程中其他节点使用"
+msgstr "The text type field in the current process node, the system will get the corresponding record according to this link for other nodes in the process"
+
+#: Disabled references:1
+msgid "选择目标工作表"
+msgstr "Select target worksheet"
+
+#: Disabled references:1
+msgid "预计解析出的记录归属的工作表"
+msgstr "The worksheet to which the parsed records are expected to belong"
+
+#: Disabled references:1
+msgid "结束执行时间"
+msgstr "End execution time"
+
+#: Disabled references:1
+msgid "当到达此时间点后将停止循环"
+msgstr "The cycle will stop when this time point is reached"
+
+#: Disabled references:1
+msgid "讨论通知"
+msgstr "Discussion Notice"
+
+#: Disabled references:1
+msgid "当外部用户收到讨论通知时（被回复、被提到）触发"
+msgstr "Triggered when an external user receives a discussion notification (is replied to, is mentioned)"
+
+#: Disabled references:1
+msgid "结束执行时间不能小于开始执行时间"
+msgstr "The end execution time cannot be less than the start execution time"
+
+#: Disabled references:1
+msgid "结束执行时间不能晚于当前时间"
+msgstr "End execution time cannot be later than the current time"
+
+#: Disabled references:1
+msgid "生成初始七次的执行时间"
+msgstr "Generate the initial seven times of execution time"
+
+#: Disabled references:1
+msgid "当到达此时间点后，流程将会被自动关闭"
+msgstr "When this time point is reached, the process will be automatically closed"
+
+#: Disabled references:1
+msgid "API URL必填"
+msgstr "API URL required"
+
+#: Disabled references:1
+msgid "测试 API"
+msgstr "Test API"
+
+#: Disabled references:1
+msgid "请求时间 %0, 状态码 %1，耗时 %2 秒"
+msgstr "Request time %0, status code %1, elapsed time %2 seconds"
+
+#: Disabled references:1
+msgid "响应 Body"
+msgstr "Response Body"
+
+#: Disabled references:1
+msgid "响应 Header"
+msgstr "Response Header"
+
+#: Disabled references:1
+msgid "编辑 API 测试数据"
+msgstr "Editing API Test Data"
+
+#: Disabled references:1
+msgid "API URL （必填）"
+msgstr "API URL (required)"
+
+#: Disabled references:1
+msgid "未获取返回参数"
+msgstr "Return parameters not obtained"
+
+#: Disabled references:1
+msgid "Basic Auth 认证"
+msgstr "Basic Auth Certification"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证"
+msgstr "OAuth 2.0 Authentication"
+
+#: Disabled references:1
+msgid "从发送API请求数组获取数据"
+msgstr "Get data from the Send API Request array"
+
+#: Disabled references:1
+msgid "从JSON解析数组获取数据"
+msgstr "Get data from JSON parsed arrays"
+
+#: Disabled references:1
+msgid "从记录链接获得"
+msgstr "Obtained from the record link"
+
+#: Disabled references:1
+msgid "从记录链接获取"
+msgstr "Get from record link"
+
+#: Disabled references:1
+msgid "从存有记录链接的文本字段获取一条指定记录"
+msgstr "Get a specified record from a text field with a link to the record"
+
+#: Disabled references:1
+msgid "获取发送API请求、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "Get the JSON array object that sends API requests, code blocks, and encapsulates business process input nodes"
+
+#: Disabled references:1
+msgid "鉴权方式"
+msgstr "Authentication Method"
+
+#: Disabled references:1
+msgid "新建 Basic Auth 认证"
+msgstr "New Basic Auth Authentication"
+
+#: Disabled references:1
+msgid "使用固定用户名和密码的 Basic Auth 认证"
+msgstr "Basic Auth authentication with fixed username and password"
+
+#: Disabled references:1
+msgid "新建 OAuth 2.0 认证（客户端凭证 client credentials）"
+msgstr "New OAuth 2.0 authentication (client credentials)"
+
+#: Disabled references:1
+msgid "使用客户端 id 和客户端 secret 获取 Access Token"
+msgstr "Get Access Token using client id and client secret"
+
+#: Disabled references:1
+msgid "发送对象"
+msgstr "Send object"
+
+#: Disabled references:1
+msgid "向 API 发送自定义的Query Param、Header 和 Body 内容"
+msgstr "Send custom Query Param, Header and Body content to the API"
+
+#: Disabled references:1
+msgid "向 API 发送工作流节点中的数据对象"
+msgstr "Send data objects in the workflow node to the API"
+
+#: Disabled references:1
+msgid "解析链接"
+msgstr "Parse links"
+
+#: Disabled references:1
+msgid "记录Id"
+msgstr "Record ID"
+
+#: Disabled references:1
+msgid "用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过1024MB，最多支持2位小数，例如"
+msgstr "Used to limit the size of a single file, can be limited according to the desired file type. For example, ID photo within 1MB. The maximum cannot exceed 1024MB, and supports up to 2 decimal places, for example"
+
+#: Disabled references:1
+msgid "测试数据"
+msgstr "Test Data"
+
+#: Disabled references:1
+msgid "参数值"
+msgstr "Parameter Value"
+
+#: Disabled references:1
+msgid "请输入测试值"
+msgstr "Please enter the test value"
+
+#: Disabled references:1
+msgid "创建记录时，以选中列表作为默认值"
+msgstr "Checklist as default value when creating records"
+
+#: Disabled references:1
+msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
+msgstr "For example, if the product type (fresh food, side dish, beverage, etc.) is used as a filter list in the product table, if the beverage category is currently selected, the product type defaults to beverage when the record is created."
+

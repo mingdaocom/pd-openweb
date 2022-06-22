@@ -8,16 +8,24 @@ import { browserIsMobile } from 'src/util';
 
 function Location(props) {
   const { className, style, cell, editable, recordId, isediting, updateCell, onClick, updateEditingStatus } = props;
-  const { enumDefault2, advancedSetting } = cell;
+  const { enumDefault2, advancedSetting, strDefault } = cell;
+  const onlyCanAppUse = (strDefault || '00')[0] === '1';
   let { value } = cell;
   let locationData;
   try {
     locationData = JSON.parse(value);
   } catch (err) {}
+
+  const getLocationInfo = () => {
+    return locationData.title
+      ? `${locationData.title} ${locationData.address}`
+      : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
+  };
+
   return (
     <EditableCellCon
       onClick={onClick}
-      className={cx(className, { canedit: editable })}
+      className={cx(className, { canedit: editable && !onlyCanAppUse })}
       style={style}
       iconName="location"
       iconClassName="dateEditIcon"
@@ -26,10 +34,9 @@ function Location(props) {
     >
       <React.Fragment>
         {locationData && (
-          <span
-            className="worksheetCellPureString cellControl linelimit ellipsis"
-            title={`${locationData.title} ${locationData.address}`}
-          >{`${locationData.title} ${locationData.address}`}</span>
+          <span className="worksheetCellPureString cellControl linelimit ellipsis" title={getLocationInfo()}>
+            {getLocationInfo()}
+          </span>
         )}
         {isediting && (
           <MDMap

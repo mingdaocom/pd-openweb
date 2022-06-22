@@ -55,13 +55,11 @@ const SelectWrap = styled(Select)`
   }
 `;
 
-const isMobile = browserIsMobile();
-
 @connect(
   state => ({
     ..._.pick(state.sheet, ['base']),
     ..._.pick(state.sheet.gunterView, ['periodType']),
-    searchData: isMobile ? getSearchData(state.sheet) : null,
+    searchData: browserIsMobile() ? getSearchData(state.sheet) : {},
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -70,7 +68,7 @@ export default class ToolBar extends Component {
     super(props);
   }
   renderPeriodSelect() {
-    const { periodType, changeViewType } = this.props;
+    const { periodType, changeViewType, isMobile } = this.props;
     return (
       <SelectWrap
         className={cx({ mobile: isMobile })}
@@ -94,7 +92,7 @@ export default class ToolBar extends Component {
     );
   }
   render() {
-    const { searchData } = this.props;
+    const { searchData, isMobile } = this.props;
     return (
       <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper">
         {!isMobile && (

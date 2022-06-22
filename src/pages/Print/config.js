@@ -63,4 +63,4 @@ export const SYSTOPRINTTXT = {
   updateTime: _l('最近修改时间：'),
 };
 
-export const UNPRINTCONTROL = [43, 45]; //不支持打印的type 文本识别 43 45嵌入
+export const UNPRINTCONTROL = [43]; //不支持打印的type 文本识别 43

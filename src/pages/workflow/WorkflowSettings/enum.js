@@ -20,6 +20,8 @@ export const NODE_TYPE = {
   FILE: 18,
   TEMPLATE: 19,
   PBC: 20,
+  JSON_PARSE: 21,
+  AUTHENTICATION: 22,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -31,6 +33,7 @@ export const TRIGGER_ID = {
   DELETE: '3',
   ONLY_EDIT: '4',
   STOP: '105',
+  DISCUSS: '106',
 };
 
 export const ACTION_ID = {
@@ -52,14 +55,21 @@ export const ACTION_ID = {
   FROM_RECORD: '401',
   FROM_ADD: '402',
   FROM_ARRAY: '403',
-  FROM_CODE: '404',
+  FROM_CODE_ARRAY: '404',
   FROM_ARTIFICIAL: '405',
   WORKSHEET_FIND: '406',
   BATCH_FIND: '407',
   FROM_PBC_ARRAY: '408',
+  RECORD_LINK_FIND: '420',
   PBC: '500',
   PBC_INPUT: '501',
   PBC_OUT: '502',
+  JSON_PARSE: '510',
+  FROM_JSON_PARSE_ARRAY: '511',
+  NO_AUTH: '520',
+  BASIC_AUTH: '521',
+  AUTH_CODE: '522',
+  CREDENTIALS: '523',
 };
 
 export const APP_TYPE = {
@@ -75,10 +85,14 @@ export const APP_TYPE = {
   FILE: 14,
   SUB_PROCESS: 16,
   PBC: 17,
+  JSON_PARSE: 18,
   USER: 20,
   DEPARTMENT: 21,
   TEMPLATE: 22,
   EXTERNAL_USER: 23,
+  NO_AUTH: 30,
+  BASIC_AUTH: 31,
+  OAUTH2: 32,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -124,10 +138,14 @@ export const CONTROLS_NAME = {
   41: _l('富文本'),
   42: _l('签名'),
   43: _l('文字识别'),
+  45: _l('嵌入'),
+  47: _l('条码'),
   10000001: _l('节点设置人员'),
   10000002: _l('节点设置人员'),
   10000003: _l('数组'),
   10000004: _l('Row ID'),
+  10000007: _l('普通数组'),
+  10000008: _l('对象数组'),
 };
 
 export const CONDITION_TYPE = {
@@ -265,7 +283,7 @@ export const SUPPORT_HREF = {
   '7-406': 'https://help.mingdao.com/flow49.html',
   // 从多条数据节点获取一条指定记录
   '7-407': 'https://help.mingdao.com/flow49.html',
-  // Webhook
+  // 发送API请求
   8: 'https://help.mingdao.com/flow33.html',
   // 公式
   9: 'https://help.mingdao.com/flow27.html',
@@ -394,10 +412,21 @@ export const PUSH_LIST = [
 ];
 
 export const FIELD_TYPE_LIST = [
-  { text: _l('文本'), value: 2 },
-  { text: _l('数值'), value: 6 },
-  { text: _l('日期时间'), value: 16 },
-  { text: _l('人员'), value: 26 },
-  { text: _l('部门'), value: 27 },
-  { text: _l('数组'), value: 10000003 },
+  { text: _l('文本'), value: 2, en: 'string' },
+  { text: _l('数值'), value: 6, en: 'number' },
+  { text: _l('日期时间'), value: 16, en: 'date' },
+  { text: _l('人员'), value: 26, en: 'member' },
+  { text: _l('部门'), value: 27, en: 'department' },
+  { text: _l('数组'), value: 10000003, en: 'array' },
+  { text: _l('普通数组'), value: 10000007, en: 'array' },
+  { text: _l('对象数组'), value: 10000008, en: 'array[object]' },
+];
+
+export const METHODS_TYPE = [
+  { text: 'GET', value: 1 },
+  { text: 'POST', value: 2 },
+  { text: 'PUT', value: 3 },
+  { text: 'DELETE', value: 4 },
+  { text: 'HEAD', value: 5 },
+  { text: 'PATCH', value: 6 },
 ];

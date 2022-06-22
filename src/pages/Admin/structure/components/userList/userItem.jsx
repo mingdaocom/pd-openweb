@@ -522,12 +522,12 @@ class UserItem extends Component {
       columnsInfo = [],
     } = this.props;
     const { isMinSc } = this.state;
-    let { jobs = [], departments = [], department = '', job = '' } = user;
-    let departmentData = departments;
+    let { jobs, departments, departmentInfos, jobInfos, department = '', job = '' } = user;
+    let departmentData = departments || departmentInfos || [];
     if (typeCursor === 2) {
       departmentData = department;
     }
-    let jobData = jobs;
+    let jobData = jobs || jobInfos;
     if (typeCursor === 2) {
       jobData = job;
     }
@@ -595,7 +595,7 @@ class UserItem extends Component {
                 title={
                   typeCursor === 2
                     ? jobData
-                    : jobData.map((it, i) => {
+                    : (jobData || []).map((it, i) => {
                         if (jobData.length - 1 > i) {
                           return `${it.name || it.jobName};`;
                         }
@@ -605,7 +605,7 @@ class UserItem extends Component {
               >
                 {typeCursor === 2
                   ? jobData
-                  : jobData.map((it, i) => {
+                  : (jobData || []).map((it, i) => {
                       if (jobData.length - 1 > i) {
                         return `${it.name || it.jobName} ; `;
                       }
@@ -624,7 +624,7 @@ class UserItem extends Component {
                 title={
                   typeCursor === 2
                     ? departmentData
-                    : departmentData.map((it, i) => {
+                    : (departmentData || []).map((it, i) => {
                         if (departmentData.length - 1 > i) {
                           return `${it.name || it.departmentName};`;
                         }
@@ -634,7 +634,7 @@ class UserItem extends Component {
               >
                 {typeCursor === 2
                   ? departmentData
-                  : departmentData.map((it, i) => {
+                  : (departmentData || []).map((it, i) => {
                       if (departmentData.length - 1 > i) {
                         return `${it.name || it.departmentName} ; `;
                       }

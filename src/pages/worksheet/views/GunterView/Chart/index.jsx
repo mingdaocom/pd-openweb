@@ -11,7 +11,6 @@ import TimeDot from './components/TimeDot';
 import SpeedCreateTime from './components/SpeedCreateTime';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import Skeleton from 'src/router/Application/Skeleton';
-import { browserIsMobile } from 'src/util';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import './index.less';
 
@@ -30,9 +29,9 @@ export default class GunterChart extends Component {
       loading: false,
     };
     this.$ref = createRef(null);
-    this.isMobile = browserIsMobile();
   }
   componentDidMount() {
+    const { isMobile } = this.props;
     const isIPad = navigator.userAgent.toLocaleLowerCase().includes('ipad');
     const scroll = new IScroll(this.$ref.current, {
       scrollX: true,
@@ -43,7 +42,7 @@ export default class GunterChart extends Component {
       mouseWheel: true,
       bounce: false,
       momentum: false,
-      disablePointer: isIPad ? false : !this.isMobile,
+      disablePointer: isIPad ? false : !isMobile,
       interactiveScrollbars: true,
       probeType: 2,
     });
@@ -227,7 +226,7 @@ export default class GunterChart extends Component {
     );
   }
   render() {
-    const { base, gunterView } = this.props;
+    const { base, gunterView, isMobile } = this.props;
     const { loading, grouping, groupingVisible, chartScroll, groupingScroll } = gunterView;
     return (
       <div className="gunterChart flexColumn flex">
@@ -242,10 +241,10 @@ export default class GunterChart extends Component {
           {!loading && (
             <Fragment>
               <TimeDot />
-              <ToolBar />
+              <ToolBar isMobile={isMobile} />
             </Fragment>
           )}
-          {!this.isMobile && (
+          {!isMobile && (
             <div
               className={cx('gunterDivider valignWrapper pointer', { hideGrouping: !groupingVisible })}
               onClick={this.handleUpdateGroupingVisible}

@@ -4,7 +4,7 @@ import { Icon } from 'ming-ui';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
-import AttachmentFiles, { UploadFileWrapper } from 'src/pages/Mobile/Discuss/AttachmentFiles';
+import AttachmentFiles, { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
 import { getAttachmentToList } from 'src/api/attachment';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';

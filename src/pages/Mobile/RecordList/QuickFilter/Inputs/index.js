@@ -9,6 +9,7 @@ import CheckboxComp from './CheckboxComp';
 import Users from './Users';
 import Departments from './Departments';
 import Areas from './Areas';
+import Cascader from './Cascader';
 import { shape } from 'prop-types';
 
 export function conditionAdapter(condition) {
@@ -48,6 +49,10 @@ export const formatQuickFilter = filter => {
     // 地区
     if (_.includes([19, 23, 24], c.dataType)) {
       result.values = result.values.map(v => v.id);
+    }
+    // 级联选择
+    if (_.includes([35], c.dataType)) {
+      result.values = result.values.map(v => v.sid);
     }
     return result;
   });
@@ -105,6 +110,9 @@ export const AreasTypes = [
 ];
 mapToComp(AreasTypes, Areas);
 
+export const CascaderComp = [WIDGETS_TO_API_TYPE_ENUM.CASCADER];
+mapToComp(CascaderComp, Cascader);
+
 export function validate(condition) {
   let dataType = condition.dataType;
   if (
@@ -127,6 +135,7 @@ export function validate(condition) {
         WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
         WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
         WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
+        WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 级联选择
       ],
       dataType,
     )

@@ -34,6 +34,8 @@ const InputCon = styled(Input)`
 const RangeInputCon = styled.div`
   display: flex;
   width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   &:hover:not(:focus) {
     border-color: #ccc !important;
   }
@@ -47,6 +49,9 @@ const RangeInputCon = styled.div`
 
 const RangeInput = styled.div`
   flex: 1;
+  input {
+    border: none !important;
+  }
 `;
 
 const Splitter = styled.div`

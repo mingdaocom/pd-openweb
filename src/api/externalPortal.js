@@ -85,6 +85,18 @@ module.exports = {
      return $.api('ExternalPortal', 'GetDiscussConfig', args, options);
    },
   /**
+  * 创建 外部门户讨论工作流
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   createEPDiscussWorkFlow: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'CreateEPDiscussWorkFlow', args, options);
+   },
+  /**
   * 编辑 外部门户的启用状态
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId

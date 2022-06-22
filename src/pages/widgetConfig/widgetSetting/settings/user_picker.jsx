@@ -68,16 +68,6 @@ export default function UserPicker({ from, data, onChange, enableState }) {
     if (!usertype) {
       onChange(handleAdvancedSettingChange(data, { usertype: '1' }));
     }
-    if (usertype === '2') {
-      onChange(
-        handleAdvancedSettingChange(data, {
-          dynamicsrc: '',
-          defaultfunc: '',
-          defsource: '',
-          defaulttype: '',
-        }),
-      );
-    }
   }, [controlId]);
   return (
     <Fragment>
@@ -111,7 +101,17 @@ export default function UserPicker({ from, data, onChange, enableState }) {
                 size="middle"
                 checkedValue={usertype}
                 data={DISPLAY_TYPE_OPTIONS}
-                onChange={value => onChange(handleAdvancedSettingChange(data, { usertype: value }))}
+                onChange={value =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      usertype: value,
+                      dynamicsrc: '',
+                      defaultfunc: '',
+                      defsource: '',
+                      defaulttype: '',
+                    }),
+                  )
+                }
               />
             </SettingItem>
           )}
@@ -128,7 +128,7 @@ export default function UserPicker({ from, data, onChange, enableState }) {
             onChange={value =>
               onChange({
                 userPermission: value,
-                noticeItem: Number(_.includes([1, 2], value)),
+                noticeItem: Number(_.includes([2], value)),
               })
             }
           />

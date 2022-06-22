@@ -205,22 +205,24 @@ export const ROUTE_CONFIG = {
   myProcess: {
     path: '/myprocess/:type?/:secondType?',
     component: () => import('src/pages/workflow/MyProcess'),
-    title: _l('我的流程'),
+    title: _l('流程待办'),
   },
   gunterExport: {
     path: '/app/:appId/:worksheetId/:viewId/gunterExport',
     component: () => import('src/pages/worksheet/views/GunterView/components/GunterExport'),
     title: _l('正在导出，请稍候...'),
   },
-
   my: {
-    path: '/app/my',
-    component: () => import('src/pages/AppHomepage/MyApp'),
+    path: '/app/my/(group)?/:projectId?/:groupType?/:groupId?',
+    component: () =>
+      localStorage.getItem('oldHome') === '1'
+        ? import('src/pages/AppHomepage/MyApp')
+        : import('src/pages/AppHomepage/AppCenter'),
     title: _l('我的应用'),
   },
   lib: {
     path: '/app/lib/',
-    component: () => import('src/pages/AppHomepage/AppLib'),
+    component: () => import('src/pages/AppHomepage/AppCenter'),
     title: _l('应用库'),
   },
   app: {

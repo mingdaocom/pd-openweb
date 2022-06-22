@@ -66,6 +66,7 @@ const parseStaticValue = (item, staticValue) => {
     const value = safeParse(staticValue);
 
     if (value.accountId === 'user-self') {
+      if ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) return '';
       const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
       if (_.isEmpty(obj)) return '';
       return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
@@ -84,6 +85,14 @@ const parseStaticValue = (item, staticValue) => {
         name: JSON.parse(staticValue).name,
       },
     ]);
+  }
+  // 子表
+  if (item.type === 34) {
+    let parsedValue;
+    try {
+      parsedValue = JSON.parse(staticValue);
+      return JSON.stringify(parsedValue.map(r => ({ ...r, initRowIsCreate: false })));
+    } catch (err) {}
   }
 
   return staticValue;
@@ -279,7 +288,7 @@ const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId }) => {
 };
 
 // 处理公式
-const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
+const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0', isPercent) => {
   let columnIsUndefined;
 
   formulaStr = formulaStr
@@ -338,7 +347,9 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0') => {
   const result = parser.parse(expression);
   return columnIsUndefined
     ? { columnIsUndefined }
-    : { result: typeof result.result === 'number' ? parseFloat(result.result.toFixed(dot)) : null };
+    : {
+        result: typeof result.result === 'number' ? parseFloat(result.result.toFixed(isPercent ? dot + 2 : dot)) : null,
+      };
 };
 
 // 函数处理
@@ -552,9 +563,12 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         : formulaResult.result.format(dateColumnType === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
   } else if (currentItem.enumDefault === 3) {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
-    const today = moment().startOf(unit);
-    const time = moment(getTime(currentItem.sourceControlId, 'start')).startOf(unit);
-
+    let today = moment();
+    let time = moment(getTime(currentItem.sourceControlId, 'start'));
+    if (unit === 'd') {
+      today = today.startOf(unit);
+      time = time.startOf(unit);
+    }
     if (!today || !time) {
       return;
     }
@@ -562,9 +576,9 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       currentItem.advancedSetting.dateformulatype === '1' ||
       _.isUndefined(currentItem.advancedSetting.dateformulatype)
     ) {
-      value = String(Math.floor(moment(time).diff(today, unit, true)));
+      value = String(moment(time).diff(today, unit));
     } else {
-      value = String(Math.floor(moment(today).diff(time, unit, true)));
+      value = String(moment(today).diff(time, unit));
     }
   }
 
@@ -600,7 +614,7 @@ export const checkRequired = item => {
 
   if (
     item.required &&
-    ((!_.includes([6, 8], item.type) && !item.value) ||
+    ((item.type !== 6 ? !item.value : isNaN(parseFloat(item.value))) ||
       (_.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !JSON.parse(item.value).length) ||
       (item.type === 14 &&
@@ -778,7 +792,15 @@ export default class DataFormat {
 
     // 新建初始化
     if (isCreate) {
-      this.data.forEach(item => {
+      function isRelateRecordWithStaticValue(control) {
+        return (
+          control.type === 29 && (_.get(control, 'advancedSetting.defsource') || '').startsWith('[{"staticValue":')
+        );
+      }
+      const dataForInit = this.data
+        .filter(isRelateRecordWithStaticValue)
+        .concat(this.data.filter(c => !isRelateRecordWithStaticValue(c)));
+      dataForInit.forEach(item => {
         if (item.value) {
           this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
         } else if (item.advancedSetting && item.advancedSetting.defaultfunc && item.type !== 30) {
@@ -1027,6 +1049,7 @@ export default class DataFormat {
               currentItem.dataSource,
               currentItem.dot,
               currentItem.advancedSetting.nullzero,
+              currentItem.advancedSetting.numshow === '1',
             );
             value = formulaResult.error || formulaResult.columnIsUndefined ? '' : formulaResult.result;
           }
@@ -1048,6 +1071,7 @@ export default class DataFormat {
                   singleControl.dataSource,
                   singleControl.dot,
                   singleControl.advancedSetting.nullzero,
+                  currentItem.advancedSetting.numshow === '1',
                 );
                 if (formulaResult.columnIsUndefined) {
                   return '';
@@ -1698,7 +1722,7 @@ export default class DataFormat {
           } else {
             //子表和普通字段需判断映射字段存在与否
             const canMapConfigs = configs.filter(({ cid, subCid }) => {
-              return _.find(controls, c => c.controlId === subCid) && currentControl.type === 34
+              return (_.find(controls, c => c.controlId === subCid) || subCid === 'rowid') && currentControl.type === 34
                 ? _.find(currentControl.relationControls || [], re => re.controlId === cid)
                 : currentControl.controlId === cid;
             });
@@ -1717,8 +1741,23 @@ export default class DataFormat {
                     filterData.forEach(item => {
                       let row = {};
                       canMapConfigs.map(({ cid = '', subCid = '' }) => {
-                        if (_.find(currentControl.relationControls || [], re => re.controlId === cid)) {
-                          row[cid] = item[subCid];
+                        const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+                        if (controlVal) {
+                          if (subCid === 'rowid') {
+                            row[cid] =
+                              controlVal.type === 29
+                                ? JSON.stringify([
+                                    {
+                                      sourcevalue: JSON.stringify(item),
+                                      row: item,
+                                      type: 8,
+                                      sid: item.rowid,
+                                    },
+                                  ])
+                                : item.rowid;
+                            return;
+                          }
+                          row[cid] = item[subCid] || '';
                         }
                       });
                       //映射明细所有字段值不为空

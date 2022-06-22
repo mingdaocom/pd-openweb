@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Checkbox, Icon } from 'ming-ui';
 import flowNode from '../../../../api/flowNode';
 
-const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38];
+const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47];
 
 export default class WriteFields extends Component {
   static defaultProps = {
@@ -142,7 +142,7 @@ export default class WriteFields extends Component {
     return (
       <ul className={cx('mTop15', { flowDetailWriteControls: data.length })}>
         <li className="flexRow" style={{ background: '#f4f4f4' }}>
-          <div className="flex"></div>
+          <div className="flex" />
           <div className="mLeft16">
             {!_.includes(hideTypes, 1) && (
               <Checkbox
@@ -223,7 +223,7 @@ export default class WriteFields extends Component {
                 )}
               </div>
               <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                {showCard && !_.includes([14, 21, 40, 41, 42, 43], item.type) && (
+                {showCard && !_.includes([14, 21, 40, 41, 42, 43, 45, 47], item.type) && (
                   <Checkbox checked={item.showCard} onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)} />
                 )}
               </div>

@@ -27,6 +27,7 @@ const BtnsWrapper = styled(Flex)`
     align-items: center;
     justify-content: center;
     &, &::before, &-active::before {
+      color: #fff;
       font-size: 14px;
       border-radius: 50px !important;
     }
@@ -150,7 +151,8 @@ class RelationAction extends Component {
     const { showControls, coverCid } = actionParams;
     const { worksheet } = relationRow;
     const { rowId, controlId, worksheetId } = base;
-    const { isCreate, isSubList, activeRelateSheetControl } = permissionInfo;
+    const { isCreate, isSubList, activeRelateSheetControl, onlyRelateByScanCode } = permissionInfo;
+    const disabledManualWrite = onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
 
     let defaultRelatedSheetValue;
     try {
@@ -177,6 +179,7 @@ class RelationAction extends Component {
             formData={rowInfo.receiveControls}
             visible={showRelevanceRecord}
             allowNewRecord={isCreate}
+            disabledManualWrite={disabledManualWrite}
             coverCid={coverCid}
             keyWords={recordkeyWords}
             showControls={showControls}
@@ -247,8 +250,8 @@ class RelationAction extends Component {
       >
         <Button type="primary">
           <Fragment>
-            <Icon icon="add" className="Font20" />
-            {_l('扫码关联%0', worksheet.entityName || _l('记录'))}
+            <Icon icon="qr_code_19" className="Font20" />
+            {_l('扫码关联')}
           </Fragment>
         </Button>
       </RelateScanQRCode>
@@ -301,7 +304,8 @@ class RelationAction extends Component {
   }
   renderContent() {
     const { relationRows, permissionInfo } = this.props;
-    const { isCreate, isRelevance, hasEdit, onlyRelateByScanCode } = permissionInfo;
+    const { isCreate, isRelevance, hasEdit, onlyRelateByScanCode, activeRelateSheetControl } = permissionInfo;
+    const disabledManualWrite = onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
     return (
       <Fragment>
         {hasEdit && (
@@ -317,32 +321,33 @@ class RelationAction extends Component {
             </Button>
           </WingBlank>
         )}
-        {onlyRelateByScanCode ? (
-          <WingBlank size="sm" className="flex">{this.renderRelateScanQRCodeBtn()}</WingBlank>
-        ) : (
-          (isRelevance || isCreate) && (
-            <WingBlank size="sm" className="flex">
-              <Button
-                type="primary"
-                className="bold"
-                onClick={() => {
-                  if (isRelevance) {
-                    this.handleSetShowRelevanceRecord(true);
-                    return
-                  }
-                  if (isCreate) {
-                    this.setState({ showCreateRecord: true });
-                    return
-                  }
-                }}
-              >
-                <Fragment>
-                  <Icon icon="add" className="Font20" />
-                  {isRelevance ? _l('添加关联') : _l('新建关联')}
-                </Fragment>
-              </Button>
-            </WingBlank>
-          )
+        {(isRelevance || isCreate) && (
+          <Fragment>
+            {onlyRelateByScanCode && <WingBlank size="sm" className="flex">{this.renderRelateScanQRCodeBtn()}</WingBlank>}
+            {!disabledManualWrite && (
+              <WingBlank size="sm" className="flex">
+                <Button
+                  type="primary"
+                  className="bold"
+                  onClick={() => {
+                    if (isRelevance) {
+                      this.handleSetShowRelevanceRecord(true);
+                      return
+                    }
+                    if (isCreate) {
+                      this.setState({ showCreateRecord: true });
+                      return
+                    }
+                  }}
+                >
+                  <Fragment>
+                    <Icon icon="add" className="Font20" />
+                    {isRelevance ? _l('添加关联') : _l('新建关联')}
+                  </Fragment>
+                </Button>
+              </WingBlank>
+            )}
+          </Fragment>
         )}
       </Fragment>
     );

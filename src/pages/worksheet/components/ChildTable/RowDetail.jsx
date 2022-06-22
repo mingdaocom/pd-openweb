@@ -107,6 +107,7 @@ export default class RowDetail extends React.Component {
       handleUniqueValidate,
       appId,
       onRulesLoad,
+      searchConfig,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -126,11 +127,14 @@ export default class RowDetail extends React.Component {
           ignoreHideControl
           worksheetId={worksheetId}
           disabled={disabled}
+          searchConfig={searchConfig}
           columnNumber={1}
           from={2}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}
-          data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
+          data={formdata
+            .map(c => ({ ...c, advancedSetting: { ...c.advancedSetting, allowadd: '0' }, isSubList: true }))
+            .filter(c => c.type !== 34)}
           getMasterFormData={getMasterFormData}
           flag={flag}
           projectId={projectId}

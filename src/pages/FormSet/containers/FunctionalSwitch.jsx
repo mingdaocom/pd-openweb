@@ -9,7 +9,7 @@ import Range from '../components/functional/Range';
 import DeleDialog from '../components/DeleAutoIdDialog';
 import cx from 'classnames';
 const confirm = Dialog.confirm;
-import { listConfigStr, listPermit } from '../config';
+import { listConfigStr, listPermit, batch } from '../config';
 
 const tipStr = {
   10: _l('在工作表右上方显示的创建记录按钮。关闭后，则无法直接在工作表中创建记录，只能通过关联记录等其他位置创建'),
@@ -26,11 +26,11 @@ function FunctionalSwitch(props) {
   const { worksheetId, worksheetInfo } = formSet;
   const { views = [], projectId, appId } = worksheetInfo;
   const [show, setShow] = useState(false);
+  const [hideBatch, sethideBatch] = useState(false);
   const [closeAutoID, setCloseAutoID] = useState(!!worksheetInfo.closeAutoID);
   const [info, setInfo] = useState({
     loading: true,
     worksheetId,
-    // change: false,
     showDialog: false,
     showData: {},
     showLocation: {},
@@ -38,11 +38,31 @@ function FunctionalSwitch(props) {
   const [diaRang, setRang] = useState(false);
   useEffect(() => {
     if (!info.worksheetId) return;
-    getdata();
+    getSwitchData();
   }, [info.worksheetId]);
 
-  const getdata = () => {
-    sheetAjax.getSwitch({ worksheetId: info.worksheetId }).then(data => {
+  useEffect(() => {
+    sethideBatch(localStorage.getItem('batchIsOpen') === '1');
+  }, []);
+
+  const getSwitchData = () => {
+    sheetAjax.getSwitch({ worksheetId: info.worksheetId }).then(res => {
+      let data = res.filter(o => o.type !== 26); //批量复制暂时隐藏，7.4还没做
+      // //测试
+      // data.push(
+      //   ...[//25, 26, 27, 28,
+      //      29
+      //   ].map(o => {
+      //     return {
+      //       view: [],
+      //       state: true,
+      //       type: o,
+      //       roleType: 0,
+      //       viewIds: [],
+      //     };
+      //   }),
+      // );
+      // console.log(data);
       setInfo({
         ...info,
         loading: false,
@@ -54,24 +74,55 @@ function FunctionalSwitch(props) {
 
   const edit = props => {
     const { roleType, type, state, viewIds } = props;
-    sheetAjax.editSwitch({ worksheetId: info.worksheetId, roleType, type, state, viewIds }).then(data => {
-      if (data) {
-        let da = info.data.map(it => {
-          if (it.type === type) {
-            return props;
-          }
-          return it;
-        });
-        setInfo({
-          ...info,
-          data: da,
-          list: _.groupBy(da, m => Math.floor(m.type / 10)),
-          showData: props,
-        });
+    let switchList = [{ ...props }]; //非批量操作相关，直接操作
+    if ([...batch, 25].includes(type)) {
+      //批量操作相关数据处理
+      if (type === 25) {
+        //批量操作关闭，批量下的操作全部关闭
+        switchList.push(
+          ...info.data
+            .filter(o => batch.includes(o.type))
+            .map(o => {
+              return { ..._.pick(o, ['roleType', 'type', 'state', 'viewIds']), state: state };
+            }),
+        );
       } else {
-        alert(_l('修改失败，请稍后再试！'), 2);
+        let batchOther = info.data.filter(o => batch.includes(o.type) && type !== o.type);
+        switchList.push(...batchOther);
+        let batchNum = switchList.filter(item => item.state).length;
+        let noBatch = batchNum <= 0;
+        if (noBatch) {
+          //下面批量操作全部关闭，批量操作按钮也关闭
+          switchList.push(
+            ...info.data
+              .filter(o => o.type === 25)
+              .map(o => {
+                return { ..._.pick(o, ['roleType', 'type', 'state', 'viewIds']), state: false };
+              }),
+          );
+        }
       }
-    });
+    }
+    sheetAjax
+      .batchEditSwitch({
+        worksheetId: info.worksheetId,
+        switchList,
+      })
+      .then(data => {
+        if (data) {
+          let typeList = switchList.map(item => item.type);
+          let da = info.data.filter(o => !typeList.includes(o.type));
+          da.push(...switchList);
+          setInfo({
+            ...info,
+            data: da,
+            list: _.groupBy(da, m => Math.floor(m.type / 10)),
+            showData: props,
+          });
+        } else {
+          alert(_l('修改失败，请稍后再试！'), 2);
+        }
+      });
   };
   const strFn = key => {
     let str = '';
@@ -94,11 +145,14 @@ function FunctionalSwitch(props) {
 
   const strRight = (key, data) => {
     const { viewIds = [] } = data;
+    let len = viewIds.length;
+    let Ids = views.map(o => o.viewId);
+    let l = viewIds.filter(o => Ids.includes(o)).length;//有效的视图数量
     switch (key) {
       case '2':
-        return viewIds.length <= 0 ? _l('所有视图') : _l('%0个视图', viewIds.length);
+        return len <= 0 ? _l('所有视图') : _l('%0个视图', l);
       case '3':
-        return viewIds.length <= 0 ? _l('所有记录') : _l('%0个视图下的记录', viewIds.length);
+        return len <= 0 ? _l('所有记录') : _l('%0个视图下的记录', l);
     }
   };
 
@@ -115,7 +169,39 @@ function FunctionalSwitch(props) {
     });
     setRang(false);
   };
-
+  const renderSwitch = o => {
+    return (
+      <Switch
+        checked={o.state}
+        onClick={() => {
+          if (info.showDialog) {
+            //使用范围未关闭 不可点击其他开关的状态时
+            return;
+          }
+          if ([20, 30].includes(o.type) && o.state) {
+            return confirm({
+              title: <span className="Red">{_l('关闭%0', listConfigStr[o.type])}</span>,
+              description: _l('关闭后，已经分享的链接将会失效无法访问'),
+              onOk: () => {
+                edit({
+                  state: !o.state,
+                  type: o.type,
+                  roleType: o.roleType,
+                });
+              },
+            });
+          } else {
+            edit({
+              state: !o.state,
+              type: o.type,
+              roleType: o.roleType,
+            });
+          }
+        }}
+        className="mRight18"
+      />
+    );
+  };
   return (
     <React.Fragment>
       {info.loading ? (
@@ -131,49 +217,27 @@ function FunctionalSwitch(props) {
                 item = item.sort((prev, next) => {
                   return listPermit.indexOf(prev.type) - listPermit.indexOf(next.type);
                 });
+                let batchNum = info.data.filter(item => batch.includes(item.type) && item.state).length;
+                let noBatch = batchNum <= 0;
                 return (
                   <React.Fragment>
                     <h6 className="Font13 mTop24 Gray Bold">{strFn(key)}</h6>
                     <ul className="mTop12">
                       {item.map(o => {
-                        if (o.type === 31) {
+                        if (o.type === 31 || (batch.includes(o.type) && (noBatch || hideBatch))) {
+                          //排除复制,暂未上线
                           return '';
                         }
                         return (
                           <li className={cx({ current: (info.showData.type || '') === o.type, isOpen: o.state })}>
-                            {![12, 13, 34].includes(o.type) ? (
-                              <Switch
-                                checked={o.state}
-                                onClick={e => {
-                                  if (info.showDialog) {
-                                    //使用范围未关闭 不可点击其他开关的状态时
-                                    return;
-                                  }
-                                  if ([20, 30].includes(o.type) && o.state) {
-                                    return confirm({
-                                      title: <span className="Red">{_l('关闭%0', listConfigStr[o.type])}</span>,
-                                      description: _l('关闭后，已经分享的链接将会失效无法访问'),
-                                      onOk: () => {
-                                        edit({
-                                          state: !o.state,
-                                          type: o.type,
-                                          roleType: o.roleType,
-                                        });
-                                      },
-                                    });
-                                  } else {
-                                    edit({
-                                      state: !o.state,
-                                      type: o.type,
-                                      roleType: o.roleType,
-                                    });
-                                  }
-                                }}
-                                className="mRight18"
-                              />
+                            {/* 12, 13, 34不能关闭  batch内的操作左侧没有开关*/}
+                            {![12, 13, 34].concat(batch).includes(o.type) ? (
+                              renderSwitch(o)
                             ) : (
                               <div className="InlineBlock mRight18 nullBox"></div>
                             )}
+                            {/* batch内的操作 开关缩进 */}
+                            {batch.includes(o.type) && renderSwitch(o)}
                             <span
                               className="con"
                               onClick={e => {
@@ -197,6 +261,12 @@ function FunctionalSwitch(props) {
                               }}
                             >
                               {listConfigStr[o.type]}
+                              {/* 批量操作显示数量 */}
+                              {[25].includes(o.type) && !noBatch && (
+                                <span className="mLeft5 Gray_9e">
+                                  {batchNum}/{batch.length}
+                                </span>
+                              )}
                               {[10, 22, 33, 32].includes(o.type) && (
                                 <Tooltip popupPlacement="bottom" text={<span>{tipStr[o.type]}</span>}>
                                   <Icon icon="help" className="Font14 Gray_9e mLeft4" />
@@ -207,10 +277,23 @@ function FunctionalSwitch(props) {
                                   <Icon icon="visibility_off" className="" />
                                 </Tooltip>
                               )}
-                              {[12, 13, 20, 21, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36].includes(o.type) && o.state && (
-                                <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />
+                              {/* 批量操作下有开启的选项，否则隐藏 */}
+                              {[25].includes(o.type) && !noBatch && (
+                                <span
+                                  className="batchIsOpen Right Hand ThemeHoverColor3"
+                                  onClick={() => {
+                                    localStorage.setItem('batchIsOpen', hideBatch ? null : '1');
+                                    sethideBatch(!hideBatch);
+                                  }}
+                                >
+                                  {hideBatch ? _l('展开') : _l('收起')}
+                                </span>
                               )}
-                              {o.state && ![10, 11].includes(o.type) && (
+                              {/* 作用范围 */}
+                              {[...batch, 12, 13, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36].includes(o.type) &&
+                                o.state && <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />}
+                              {/* 10, 11, 25没有范围的操作 */}
+                              {o.state && ![10, 11, 25].includes(o.type) && (
                                 <span className="Gray_bd Right text">
                                   {key === '1'
                                     ? o.roleType === 100
@@ -228,7 +311,8 @@ function FunctionalSwitch(props) {
                 );
               })}
             </div>
-            {info.showDialog && ![10, 11].includes(info.showData.type || '') && (
+            {/* 10, 11,25 没有范围选择 */}
+            {info.showDialog && ![10, 11, 25].includes(info.showData.type || '') && (
               <Range
                 showDialog={info.showDialog}
                 hasViewRange={![12, 13].includes(info.showData.type || '')} //是否可选视图范围

@@ -86,9 +86,7 @@ export default function UserMenu(props) {
             className="ThemeBGColor3"
             id="userSetItem"
             onClick={() => {
-              projectLength === 1
-                ? navigateTo(`/admin/home/${md.global.Account.projects[0].projectId}`)
-                : null;
+              projectLength === 1 ? navigateTo(`/admin/home/${md.global.Account.projects[0].projectId}`) : null;
             }}
           >
             <Tooltip
@@ -140,24 +138,24 @@ export default function UserMenu(props) {
           </a>
         </li>
         <li className="ThemeBGColor3">
-          <Support className="support" type={2} href="https://help.mingdao.com" text={_l('使用帮助')} />
+          <Support className="support" type={2} href="https://help.mingdao.com" text={_l('帮助文档')} />
         </li>
         <li className="ThemeBGColor3">
           <a href="https://learn.mingdao.net" target="_blank">
             <span className="icon icon-sidebar_video_tutorial" />
-            {_l('视频教程')}
+            {_l('视频学习')}
           </a>
         </li>
         <li className="ThemeBGColor3">
-          <a href="http://blog.mingdao.com/" target="_blank">
-            <span className="icon icon-blogs" />
-            {_l('博客')}
+          <a href="https://www.theportal.cn/portal/app/68d26cff-addd-48ac-8158-af7aa193696f" target="_blank">
+            <span className="icon icon-military_tech" />
+            {_l('推广奖励')}
           </a>
         </li>
       </ul>
 
       {md.global.Config.IsLocal && !md.global.SysSettings.hideDownloadApp && (
-        <ul className="pTop5 pBottom5">
+        <ul className="userSetUL">
           <li className="ThemeBGColor3" data-tag="appInstallSetting">
             <a href="/appInstallSetting">
               <span className="icon icon-phonelink Font16" />
@@ -167,7 +165,7 @@ export default function UserMenu(props) {
         </ul>
       )}
 
-      <ul className="pTop5 pBottom5">
+      <ul className="userSetUL">
         <li className="ThemeBGColor3">
           <a onClick={logout} rel="external">
             <span className="icon icon-exit" />

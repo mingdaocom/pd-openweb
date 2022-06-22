@@ -126,6 +126,7 @@ export default ({
       <div className="mTop20">{_l('当前用户密码')}</div>
       <Input.Password
         className="boderRadAll_3 mTop10"
+        autocomplete="new-password"
         placeholder={_l('请输入密码确认授权')}
         onChange={e => setPassword(e.target.value)}
       />

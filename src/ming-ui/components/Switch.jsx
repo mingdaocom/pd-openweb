@@ -43,6 +43,8 @@ class Switch extends Component {
      * text
      */
     text: PropTypes.string,
+    size: PropTypes.string,
+    primaryColor: PropTypes.string,
   };
 
   static defaultProps = {
@@ -83,7 +85,7 @@ class Switch extends Component {
   }
 
   render() {
-    const { disabled, text, size } = this.props;
+    const { disabled, text, size, primaryColor } = this.props;
     const { checked } = this.state;
     return (
       <label
@@ -97,10 +99,12 @@ class Switch extends Component {
             'Switch--disabled': disabled,
           },
         )}
-        onClick={() => {
+        onClick={e => {
+          e.stopPropagation();
           this.handleClick();
         }}
         checked={this.state.checked}
+        style={primaryColor && { background: checked && primaryColor }}
       >
         <span className="txt ellipsis">{text}</span>
         <span className="dot" />

@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import { Modal } from 'antd-mobile';
 import { ScrollView, LoadDiv, Icon } from 'ming-ui';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { RecordInfoModal } from 'mobile/Record';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -21,7 +22,10 @@ const eventStr = {
 class ScheduleModal extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      previewRecordId: undefined,
+      wsid: undefined
+    };
   }
   componentDidMount() {
     window.localStorage.setItem('CalendarShowExternalTypeEvent', 'eventAll');
@@ -85,7 +89,7 @@ class ScheduleModal extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {} } = it;
-          const { rowid, stringColor = '' } = extendedProps;
+          const { rowid, wsid, stringColor = '' } = extendedProps;
           return (
             <div
               className="listItem"
@@ -93,12 +97,7 @@ class ScheduleModal extends Component {
               key={`${rowid}-${it.begin}`}
               enddate={it.enddate}
               onClick={() => {
-                const { base } = this.props;
-                const { appId, viewId } = base;
-                const { extendedProps = {} } = it;
-                const { wsid, rowid } = extendedProps;
-                let url = `/mobile/record/${appId}/${wsid}/${viewId}/${rowid}`;
-                window.mobileNavigateTo(url);
+                this.setState({ previewRecordId: rowid, wsid });
               }}
             >
               {<div className="colorLeft" style={{ backgroundColor: stringColor }}></div>}
@@ -175,83 +174,99 @@ class ScheduleModal extends Component {
     }
   };
   render() {
-    let { isSearch } = this.state;
-    const { visible, showschedule, calendarview = {}, getInitType } = this.props;
+    let { isSearch, previewRecordId, wsid } = this.state;
+    const { base, visible, showschedule, calendarview = {}, getInitType } = this.props;
     const { calenderEventList = {}, calendarLoading = false } = calendarview;
     const { keyWords, seachData = [] } = calenderEventList;
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
-      <Modal
-        popup
-        visible={visible}
-        onClose={showschedule}
-        animationType="slide-up"
-        className="mobileSchedulekModal"
-        title={
-          <div>
-            {_l('排期')}
-            <Icon icon="close" className="closeIcon" onClick={showschedule} />
-          </div>
-        }
-      >
-        <ul className="tab">
-          {tabList.map((it, i) => {
-            return (
-              <li
-                key={it.key}
-                className={cx('Hand', { current: it.key === typeEvent })}
-                onClick={() => {
-                  this.props.getEventScheduledData(it.key);
-                  window.localStorage.setItem('CalendarShowExternalTypeEvent', it.key);
+      <Fragment>
+        <Modal
+          popup
+          visible={visible}
+          onClose={showschedule}
+          animationType="slide-up"
+          className="mobileSchedulekModal"
+          title={
+            <div>
+              {_l('排期')}
+              <Icon icon="close" className="closeIcon" onClick={showschedule} />
+            </div>
+          }
+        >
+          <ul className="tab">
+            {tabList.map((it, i) => {
+              return (
+                <li
+                  key={it.key}
+                  className={cx('Hand', { current: it.key === typeEvent })}
+                  onClick={() => {
+                    this.props.getEventScheduledData(it.key);
+                    window.localStorage.setItem('CalendarShowExternalTypeEvent', it.key);
+                  }}
+                >
+                  {it.txt}
+                </li>
+              );
+            })}
+          </ul>
+          {eventData.length || seachData.length ? (
+            <div className="searchWrapper">
+              <Icon icon="search" className="searchIcon Font20" />
+              <input
+                type="text"
+                className="cursorText"
+                placeholder={_l('搜索%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}
+                onChange={event => {
+                  const searchValue = event.target.value;
+                  this.props.searchKeys(searchValue);
+                  if (!searchValue) {
+                    this.setState({ isSearch: false });
+                  }
                 }}
-              >
-                {it.txt}
-              </li>
-            );
-          })}
-        </ul>
-        {eventData.length || seachData.length ? (
-          <div className="searchWrapper">
-            <Icon icon="search" className="searchIcon Font20" />
-            <input
-              type="text"
-              className="cursorText"
-              placeholder={_l('搜索%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}
-              onChange={event => {
-                const searchValue = event.target.value;
-                this.props.searchKeys(searchValue);
-                if (!searchValue) {
-                  this.setState({ isSearch: false });
-                }
-              }}
-              onKeyUp={e => {
-                if (e.keyCode === 13) {
-                  const searchValue = e.target.value;
-                  this.props.searchEventArgs(searchValue, 1);
-                  $('.eventListBox .nano-content').scrollTop(0);
-                  this.setState({ isSearch: !!searchValue });
-                }
-              }}
-              value={keyWords}
-            />
-          </div>
-        ) : null}
-        {calendarLoading && <LoadDiv />}
-        {!isSearch && !calendarLoading && eventData && eventData.length > 0 && (
-          <ScrollView className="recordListBox" updateEvent={this.handleScroll}>
-            {this.renderListEvent()}
-          </ScrollView>
-        )}
-        {this.state.isSearch && !calendarLoading && (
-          <ScrollView className="recordListBox">
-            <div className="listContainer">{this.renderSearchData(seachData)}</div>
-          </ScrollView>
-        )}
-        {!isSearch && !calendarLoading && (!eventData || eventData.length <= 0) && (
-          <div className="noData">{_l('没有%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}</div>
-        )}
-      </Modal>
+                onKeyUp={e => {
+                  if (e.keyCode === 13) {
+                    const searchValue = e.target.value;
+                    this.props.searchEventArgs(searchValue, 1);
+                    $('.eventListBox .nano-content').scrollTop(0);
+                    this.setState({ isSearch: !!searchValue });
+                  }
+                }}
+                value={keyWords}
+              />
+            </div>
+          ) : null}
+          {calendarLoading && <LoadDiv />}
+          {!isSearch && !calendarLoading && eventData && eventData.length > 0 && (
+            <ScrollView className="recordListBox" updateEvent={this.handleScroll}>
+              {this.renderListEvent()}
+            </ScrollView>
+          )}
+          {this.state.isSearch && !calendarLoading && (
+            <ScrollView className="recordListBox">
+              <div className="listContainer">{this.renderSearchData(seachData)}</div>
+            </ScrollView>
+          )}
+          {!isSearch && !calendarLoading && (!eventData || eventData.length <= 0) && (
+            <div className="noData">{_l('没有%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}</div>
+          )}
+        </Modal>
+        <RecordInfoModal
+          className="full"
+          visible={!!previewRecordId}
+          appId={base.appId}
+          worksheetId={wsid}
+          viewId={base.viewId}
+          rowId={previewRecordId}
+          onClose={() => {
+            this.setState({
+              previewRecordId: undefined,
+              wsid: undefined
+            });
+          }}
+        />
+      </Fragment>
     );
   }
 }

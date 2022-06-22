@@ -19,6 +19,8 @@ import Push from './Push';
 import File from './File';
 import Template from './Template';
 import PBC from './PBC';
+import JSONParse from './JSONParse';
+import Authentication from './Authentication';
 import FindSystem from './FindSystem';
 
 export default {
@@ -42,6 +44,8 @@ export default {
   18: File,
   19: Template,
   20: PBC,
+  21: JSONParse,
+  22: Authentication,
   1000: FindSystem,
   1001: FindSystem,
 };

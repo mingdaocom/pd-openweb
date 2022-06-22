@@ -9,9 +9,12 @@ import Message from 'src/pages/account/components/message';
 import captcha from 'src/components/captcha';
 import SvgIcon from 'src/components/SvgIcon';
 import wxIcon from 'src/pages/account/img/weixinIcon.png';
+import { getRequest } from 'src/util/sso';
+
 const WrapTpLogin = styled.div`
   text-align: center;
-  .wxLogin {
+  .phoneLogin {
+    color: #2196f3;
   }
   .weixinIcon {
     vertical-align: middle;
@@ -82,7 +85,7 @@ const Wrap = styled.div`
     object-fit: contain;
   }
   border-radius: 4px;
-  padding: 64px 48px;
+  padding: 64px;
   box-sizing: border-box;
   width: 50%;
   max-width: 840px;
@@ -226,7 +229,7 @@ export default function Container(props) {
     appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
     isErrUrl,
     setAccountId,
-    loginMode,
+    loginMode = {},
     isWXOfficialExist,
     authorizerInfo,
     termsAndAgreementEnable, //开启了协议
@@ -234,17 +237,23 @@ export default function Container(props) {
     paramForPcWx,
     noticeScope = {},
   } = props;
-
+  // md.global.Config.IsLocal = true
+  let request = getRequest();
   const [hasRead, setHasRead] = useState(false); //是否同意
   const [loading, setLoading] = useState(true); //二维码获取
   const [sending, setSending] = useState(false); //点击登录
-  const [nextTp, setNextTp] = useState(false); //点击进入微信登录
+  const [isQrLogin, setIsQrLogin] = useState(
+    loginMode.weChat &&
+      isWXOfficialExist && //点击进入微信登录 手机和微信同时设置时，默认微信优先
+      !md.global.Config.IsLocal && //私有部署没有扫描登录
+      !request.mdAppId, //微信扫码登录流程回跳只进手机号验证码流程
+  );
   const [urlWX, setUrlWX] = useState(''); //微信二维码url
   let [scan, setCan] = useState(true); // 微信扫码有效期10分钟
   let [stateWX, setStateWX] = useState('');
 
   useEffect(() => {
-    !!paramForPcWx && setNextTp(false);
+    !!paramForPcWx && setIsQrLogin(false); //扫码完成，取得返回值，未绑定手机号，进入手机号验证流程
   }, [paramForPcWx]);
 
   const [paramLogin, setParam] = useState({
@@ -287,7 +296,7 @@ export default function Container(props) {
     if (!stateWX || !appId) {
       return;
     }
-    nextTp &&
+    isQrLogin &&
       scanTpLogin({
         state: stateWX,
         appId,
@@ -320,8 +329,8 @@ export default function Container(props) {
   );
 
   useEffect(() => {
-    nextTp && getScanUrl();
-  }, [nextTp]);
+    isQrLogin && getScanUrl();
+  }, [isQrLogin]);
 
   //确认逻辑
   const sendCode = () => {
@@ -484,17 +493,8 @@ export default function Container(props) {
               pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 5 - 32 } : {}
             }
           >
-            {nextTp ? (
+            {isQrLogin ? (
               <WropWXCon>
-                <div
-                  className="Font17 Hand back Gray_75"
-                  onClick={() => {
-                    setNextTp(false);
-                  }}
-                >
-                  <Icon icon="backspace mRight8" />
-                  {_l('返回')}
-                </div>
                 <div className="erweima">
                   {loading ? (
                     <LoadDiv style={{ margin: '120px 0 0 0' }} />
@@ -519,6 +519,19 @@ export default function Container(props) {
                   )}
                 </div>
                 <p className="Gray_75 TxtCenter Font14">{_l('扫描微信二维码，关注公众号')}</p>
+                {loginMode.phone && ( //配置了手机登录
+                  <WrapTpLogin>
+                    <div
+                      className="phoneLogin mTop32 Hand ThemeHoverColor3"
+                      onClick={() => {
+                        setIsQrLogin(false);
+                      }}
+                    >
+                      <Icon type="phone" className="Font20 TxtTop" />
+                      <span className="Font15 TxtTop InlineBlock LineHeight20">{_l('手机验证码登录')}</span>
+                    </div>
+                  </WrapTpLogin>
+                )}
               </WropWXCon>
             ) : (
               <React.Fragment>
@@ -526,7 +539,7 @@ export default function Container(props) {
                   <div
                     className="Font17 Hand back Gray_75"
                     onClick={() => {
-                      setNextTp(true);
+                      setIsQrLogin(true);
                       setParamForPcWx(null);
                     }}
                   >
@@ -609,16 +622,17 @@ export default function Container(props) {
                   }}
                 />
                 {loginMode.weChat &&
-                  isWXOfficialExist &&
-                  !browserIsMobile() &&
+                  isWXOfficialExist && //配置了微信扫码登录
+                  // !browserIsMobile() &&
                   !paramForPcWx &&
-                  !md.global.Config.IsLocal && ( //私有部署隐藏
+                  !md.global.Config.IsLocal && //私有部署隐藏二维码扫码登录
+                  !request.mdAppId && ( //微信扫码登录流程没有二维码扫码步骤
                     <WrapTpLogin>
-                      <div className="title Gray_9e mTop32">{_l('或')}</div>
+                      {/* <div className="title Gray_9e mTop32">{_l('或')}</div> */}
                       <div
-                        className="wxLogin mTop32 Hand"
+                        className="wxLogin mTop32 Hand Font15"
                         onClick={() => {
-                          setNextTp(true);
+                          setIsQrLogin(true);
                         }}
                       >
                         <i className="weixinIcon hvr-pop"></i> {_l('微信登录')}

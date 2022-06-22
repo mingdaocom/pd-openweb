@@ -23,8 +23,6 @@ const Item = styled.div(
     width: auto;
     max-width: ${maxWidth};
     .content {
-      max-width: calc(100% - 102px);
-      flex: none;
       width: auto;
     }
   }
@@ -34,7 +32,8 @@ const Item = styled.div(
 const Label = styled.div`
   font-size: 13px;
   color: #757575;
-  width: 92px;
+  max-width: 140px;
+  min-width: 60px;
   text-align: right;
   line-height: 1.2em;
   padding-top: 8.2px;
@@ -57,7 +56,7 @@ const Operate = styled.div`
     font-weight: 500;
   }
   &.operateIsNewLine {
-    padding-left: 86px;
+    padding-left: 54px;
   }
 `;
 
@@ -191,7 +190,9 @@ export default function Conditions(props) {
               : `${100 / colNum}%`
           }
         >
-          <Label className="label">{item.control.controlName}</Label>
+          <Label className="label ellipsis" title={item.control.controlName}>
+            {item.control.controlName}
+          </Label>
           <Content className="content">
             <FilterInput
               projectId={projectId}

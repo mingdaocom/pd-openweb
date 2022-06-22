@@ -8,7 +8,7 @@ import 'dialogSelectUser';
 const Con = styled.div`
   display: flex;
   align-items: center;
-  height: 32px;
+  min-height: 32px;
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
@@ -29,21 +29,27 @@ const UsersCon = styled.div`
   flex: 1;
   overflow: hidden;
   font-size: 13px;
-  height: 32px;
+  min-height: 32px;
   padding: 0 0 0 10px;
-`;
-
-const UsersText = styled.div`
-  font-size: 13px;
-  color: #333;
 `;
 
 const UserItem = styled.div`
   font-size: 13px;
+  display: inline-block;
   color: #333;
+  background: #e5e5e5;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  padding-right: 8px;
+  margin: 4px 6px 0 0;
   .userHead {
     display: inline-block !important;
-    margin-right: 8px;
+    margin-right: 6px;
+    vertical-align: top;
+    img {
+      vertical-align: unset;
+    }
   }
 `;
 
@@ -102,24 +108,27 @@ export default function Users(props) {
     >
       <UsersCon ref={conRef}>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
-        {values.length === 1 ? (
+        {values.map(user => (
           <UserItem className="ellipsis">
             <UserHead
               className="userHead"
               alwaysBindCard
               user={{
-                userHead: values[0].avatar,
-                accountId: values[0].accountId,
+                userHead: user.avatar,
+                accountId: user.accountId,
               }}
               size={24}
             />
-            {values[0].fullname}
+            {user.fullname}
+            <i
+              className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
+              onClick={e => {
+                e.stopPropagation();
+                onChange({ values: values.filter(v => v.accountId !== user.accountId) });
+              }}
+            />
           </UserItem>
-        ) : (
-          <UsersText className="ellipsis" title={values.map(user => user.fullname).join(', ')}>
-            {values.map(user => user.fullname).join(', ')}
-          </UsersText>
-        )}
+        ))}
       </UsersCon>
       <Icon className="icon icon-arrow-down-border downIcon" />
       {!!values.length && (

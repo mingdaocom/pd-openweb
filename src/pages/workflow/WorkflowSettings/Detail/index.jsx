@@ -30,7 +30,7 @@ class Detail extends Component {
   };
 
   render() {
-    const { selectNodeId, selectNodeType, isCopy, isRelease } = this.props;
+    const { selectNodeId, selectNodeType, isCopy, flowInfo } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
 
     // 分支
@@ -49,7 +49,7 @@ class Detail extends Component {
             className={cx(
               'workflowDetail flexColumn',
               { workflowDetailDisabled: isCopy },
-              { 'workflowDetailRelease pBottom20': isRelease },
+              { 'workflowDetailRelease pBottom20': !!flowInfo.parentId },
             )}
           >
             {this.renderContent()}

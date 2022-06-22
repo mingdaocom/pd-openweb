@@ -72,10 +72,14 @@ export default class CoverSetting extends React.Component {
     const { coverposition, opencover = '1' } = advancedSetting;
     const coverControls = filterAndFormatterControls({
       controls: coverColumns,
+      ////扫码|附件可作为封面
       filter:
         VIEW_DISPLAY_TYPE.gallery === String(viewType) //目前只有画廊视图支持嵌入字段(统计图不支持)作为封面
-          ? item => item.type === 14 || item.sourceControlType === 14 || (item.type === 45 && item.enumDefault === 1)
-          : item => item.type === 14 || item.sourceControlType === 14,
+          ? item =>
+              [14, 47].includes(item.type) ||
+              [14, 47].includes(item.sourceControlType) ||
+              (item.type === 45 && item.enumDefault === 1)
+          : item => [14, 47].includes(item.type) || [14, 47].includes(item.sourceControlType),
     });
     let coverValue =
       _.get(
@@ -83,24 +87,27 @@ export default class CoverSetting extends React.Component {
         'value',
       ) || 'notDisplay';
     let isDelete = false;
-    if (coverCid && !coverColumns.find(o => o.controlId === coverCid)) {
+    const coverControl = _.find(coverColumns, item => item.controlId === coverCid);
+    if (coverCid && !coverControl) {
       isDelete = true;
       coverValue = '';
     }
     // 画廊视图且封面为嵌入iframe(只支持上、填满)
-    const isGalleryIframe =
-      VIEW_DISPLAY_TYPE.gallery === String(viewType) &&
-      isIframeControl(_.find(coverColumns, item => item.controlId === coverCid));
+    const isGalleryIframe = VIEW_DISPLAY_TYPE.gallery === String(viewType) && isIframeControl(coverControl || {});
+    //扫码字段 只有完整显示
+    const isBarCode = (coverControl || {}).type === 47;
+    VIEW_DISPLAY_TYPE.gallery === String(viewType) && isIframeControl(coverControl || {});
     // 看板视图、表视图、层级视图封面设置项  默认右'0'
     // 画廊视图封面设置项 默认上'2'
     const coverPositiondata = coverposition || (VIEW_DISPLAY_TYPE.gallery === String(viewType) ? '0' : '2');
     // 显示位置为：左/右时，支持显示为圆形/正方形
-    const coverTypeData =
-      coverPositiondata !== '2'
-        ? COVER_DISPLAY_MODE
-        : isGalleryIframe
-        ? COVER_DISPLAY_MODE.filter(item => item.value === 0)
-        : COVER_DISPLAY_MODE.filter(item => item.value < 2);
+    const coverTypeData = isBarCode
+      ? COVER_DISPLAY_MODE.filter(item => item.value === 1) //扫码字段 只有完整显示
+      : coverPositiondata !== '2'
+      ? COVER_DISPLAY_MODE //显示位置为：左/右时，支持显示为圆形/正方形
+      : isGalleryIframe
+      ? COVER_DISPLAY_MODE.filter(item => item.value === 0) //画廊视图且封面为嵌入iframe(只支持上、填满)
+      : COVER_DISPLAY_MODE.filter(item => item.value < 2);
     return (
       <div className="mTop32">
         <div className="title Font13 bold">
@@ -128,9 +135,13 @@ export default class CoverSetting extends React.Component {
               border
               style={{ width: '100%' }}
               onChange={value => {
-                if (isIframeControl(_.find(coverColumns, item => item.controlId === value))) {
+                let coverControl = _.find(coverColumns, item => item.controlId === value) || {};
+                if (isIframeControl(coverControl)) {
                   handleChangePosition('2'); //上
                   handleChangeType(0); //填满
+                }
+                if ((coverControl || {}).type === 47) {
+                  handleChangeType(1); //完整显示
                 }
                 if (coverValue !== value || isDelete) {
                   handleChangeIsCover(value);

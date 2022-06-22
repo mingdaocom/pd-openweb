@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import discussionAjax from 'src/api/discussion';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import DiscussInfo from 'mobile/Discuss';
 
 const ChartCountWrap = styled.div`
   width: 60px;
@@ -23,11 +24,16 @@ export default class ChatCount extends Component {
     super(props);
     this.state = {
       discussionCount: 0,
+      visible: false
     };
   }
 
   componentDidMount() {
-   this.getDiscussionsCount();
+    const { autoOpenDiscuss } = this.props;
+    this.getDiscussionsCount();
+    if (autoOpenDiscuss) {
+      this.setState({ visible: true });
+    }
   }
 
   getDiscussionsCount = () => {
@@ -46,16 +52,45 @@ export default class ChatCount extends Component {
       .then(res => {
         this.setState({ discussionCount: res.data });
       });
-  };
+  }
 
   render() {
-    const { onClick = () => {} } = this.props;
-    const { discussionCount } = this.state;
+    const { appId, worksheetId, rowId, onClick = _.noop, autoOpenDiscuss } = this.props;
+    const { discussionCount, visible } = this.state;
     return (
-      <ChartCountWrap onClick={onClick}>
-        <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
-        <span>{discussionCount}</span>
-      </ChartCountWrap>
+      <Fragment>
+        <ChartCountWrap
+          onClick={() => {
+            this.setState({ visible: true });
+            onClick();
+          }}
+        >
+          <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
+          <span>{discussionCount}</span>
+        </ChartCountWrap>
+        <DiscussInfo
+          isModal
+          className="full"
+          visible={visible}
+          appId={appId}
+          worksheetId={worksheetId}
+          rowId={rowId}
+          onClose={() => {
+            this.setState({
+              visible: false
+            });
+            if (autoOpenDiscuss) {
+              window.mobileNavigateTo(location.pathname, true);
+            }
+          }}
+          onAddCount={() => {
+            this.setState({
+              discussionCount: discussionCount + 1
+            });
+          }}
+        >
+        </DiscussInfo>
+      </Fragment>
     );
   }
 }

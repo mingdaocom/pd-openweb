@@ -10,6 +10,7 @@ import DialogSettingInviteRules from 'src/pages/Admin/structure/modules/dialogSe
 import { updateType } from '../actions/current';
 import StructureContent from '../components/structureContent';
 import ImportAndExport from '../components/structureContent/ImportAndExport';
+import ImportDepAndPosition from '../components/structureContent/ImportDepAndPosition';
 
 class Root extends React.Component {
   constructor(props) {
@@ -36,7 +37,7 @@ class Root extends React.Component {
   };
 
   render() {
-    const { isShowExport } = this.props;
+    const { isShowExport, importExportType } = this.props;
     return (
       <Fragment>
         <div className="adminStructureBox">
@@ -74,7 +75,7 @@ class Root extends React.Component {
             </div>
           )}
 
-          {isShowExport && <ImportAndExport />}
+          {isShowExport && (importExportType ? <ImportDepAndPosition /> : <ImportAndExport />)}
         </div>
         {this.state.showDialogSettingInviteRules && (
           <DialogSettingInviteRules
@@ -91,10 +92,11 @@ class Root extends React.Component {
 const mapStateToProps = state => {
   const { current, entities } = state;
   const { projectId } = current;
-  const { isShowExport } = entities;
+  const { isShowExport, importExportType } = entities;
   return {
     projectId,
     isShowExport,
+    importExportType,
   };
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ScrollView, EditingBar } from 'ming-ui';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import {
   getSubListError,
@@ -15,7 +15,9 @@ import {
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import Share from 'src/pages/worksheet/components/Share';
+import { browserIsMobile } from 'src/util';
 import './NewRecord.less';
+import { BUTTON_ACTION_TYPE } from './NewRecord';
 
 const Con = styled.div`
   height: 100%;
@@ -44,8 +46,9 @@ function foucsInput(formcon) {
     $firstText.click();
   }
 }
-function NewReccordForm(props) {
+function NewRecordForm(props) {
   const {
+    loading,
     from,
     isCharge,
     notDialog,
@@ -60,15 +63,17 @@ function NewReccordForm(props) {
     defaultFormDataEditable,
     defaultFormData,
     writeControls,
-    registeFunc,
+    registerFunc,
     masterRecord,
     masterRecordRowId,
     shareVisible,
+    advancedSetting = {},
     setShareVisible = () => {},
     onSubmitBegin = () => {},
     onSubmitEnd = () => {},
     onAdd = () => {},
-    onError = () => {},
+    onCancel = () => {},
+    openRecord,
   } = props;
   const tempNewRecord = needCache && viewId && localStorage.getItem('tempNewRecord_' + viewId);
   const cache = useRef({});
@@ -76,7 +81,7 @@ function NewReccordForm(props) {
   const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
-  const [loading, setLoading] = useState(true);
+  const [formLoading, setFormLoading] = useState(true);
   const [restoreVisible, setRestoreVisible] = useState(!!tempNewRecord);
   const [relateRecordData, setRelateRecordData] = useState({});
   const [worksheetInfo, setWorksheetInfo] = useState(_.cloneDeep(props.worksheetInfo || {}));
@@ -88,32 +93,25 @@ function NewReccordForm(props) {
   const [requesting, setRequesting] = useState();
   useEffect(() => {
     async function load() {
-      let newWorksheetInfo = worksheetInfo;
-      if (_.isEmpty(worksheetInfo) || worksheetInfo.worksheetId !== worksheetId) {
-        newWorksheetInfo = await getWorksheetInfo({
-          handleDefault: true,
-          getTemplate: true,
-          getRules: true,
-          worksheetId,
-        });
-      }
       if (_.isEmpty(formdata)) {
+        setWorksheetInfo(props.worksheetInfo);
         const newFormdata = await getFormDataForNewRecord({
-          worksheetInfo: newWorksheetInfo,
+          worksheetInfo: props.worksheetInfo,
           defaultRelatedSheet,
           defaultFormData,
           defaultFormDataEditable,
           writeControls,
         });
-        setWorksheetInfo(newWorksheetInfo);
         setFormdata(newFormdata);
         setOriginFormdata(newFormdata);
-        setLoading(false);
+        setFormLoading(false);
       }
       setTimeout(() => foucsInput(formcon.current), 300);
     }
-    load();
-  }, []);
+    if (!loading) {
+      load();
+    }
+  }, [loading]);
   function newRecord(options = {}) {
     if (!customwidget.current) return;
     onSubmitBegin();
@@ -128,6 +126,7 @@ function NewReccordForm(props) {
     let hasError;
     isSubmitting.current = true;
     const subListControls = data.filter(item => item.type === 34);
+    const isMobile = browserIsMobile();
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({
@@ -186,14 +185,14 @@ function NewReccordForm(props) {
         return false;
       }
       setRequesting(true);
-      const { autoFill, continueAdd } = cache.current.newRecordOptions || {};
+      const { autoFill, actionType, continueAdd, isContinue } = cache.current.newRecordOptions || {};
       submitNewRecord({
         appId,
         projectId,
         viewId,
         worksheetId,
         formdata: data
-          .filter(c => !isRelateRecordTableControl(c))
+          .filter(c => (isMobile ? true : !isRelateRecordTableControl(c)))
           .concat(
             _.keys(relateRecordData)
               .map(key => ({
@@ -204,27 +203,51 @@ function NewReccordForm(props) {
               }))
               .filter(_.identity),
           ),
-        continueAdd,
         customwidget,
         setRequesting,
-        resetForm: ({ newControls } = {}) => {
-          isSubmitting.current = false;
-          if (!autoFill) {
-            setFormdata(originFormdata);
-            setRelateRecordData({});
+        onSubmitSuccess: ({ rowData, newControls }) => {
+          if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
+            alert('保存成功', 1, 1000);
+            isSubmitting.current = false;
+            if (!autoFill) {
+              setFormdata(originFormdata);
+              setRelateRecordData({});
+            }
+            if (newControls) {
+              setFormdata(
+                (autoFill ? formdata : originFormdata).map(c =>
+                  Object.assign(_.find(newControls, nc => nc.controlId === c.controlId) || c, { value: c.value }),
+                ),
+              );
+            }
+            setErrorVisible(false);
+            setRandom(Math.random().toString());
+            foucsInput(formcon.current);
+          } else {
+            onCancel();
+            if (actionType === BUTTON_ACTION_TYPE.OPEN_RECORD) {
+              const openViewId = _.get(
+                advancedSetting,
+                isContinue ? 'continueOpenRecordViewId' : 'submitOpenRecordViewId',
+              );
+              if (_.isFunction(openRecord)) {
+                openRecord(rowData.rowid, openViewId);
+              } else {
+                openRecordInfo({
+                  appId: appId,
+                  worksheetId: worksheetId,
+                  recordId: rowData.rowid,
+                  viewId: openViewId,
+                });
+              }
+            }
           }
-          if (newControls) {
-            setFormdata(formdata.map(c => _.find(newControls, nc => nc.controlId === c.controlId) || c));
-          }
-          setErrorVisible(false);
-          setRandom(Math.random().toString());
-          foucsInput(formcon.current);
-        },
-        onAdd: resData => {
           if (viewId) {
             removeFromLocal('tempNewRecord_' + viewId);
           }
-          onAdd(resData);
+          if (_.isFunction(onAdd)) {
+            onAdd(rowData);
+          }
         },
         ..._.pick(props, [
           'notDialog',
@@ -232,14 +255,13 @@ function NewReccordForm(props) {
           'customBtn',
           'masterRecord',
           'addType',
-          'onCancel',
           'onSubmitEnd',
           'updateWorksheetControls',
         ]),
       });
     }
   }
-  registeFunc({ newRecord });
+  registerFunc({ newRecord });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
   return (
@@ -294,7 +316,7 @@ function NewReccordForm(props) {
           <RecordForm
             from={2}
             type="new"
-            loading={loading}
+            loading={formLoading || loading}
             recordbase={{
               appId,
               worksheetId,
@@ -317,11 +339,14 @@ function NewReccordForm(props) {
                 return;
               }
               setFormdata([...data]);
-              if (needCache && viewId && !noSaveTemp) {
+              if (needCache && viewId && !noSaveTemp && cache.current.formUserChanged) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));
               }
             }}
             onSave={onSave}
+            onError={() => {
+              onSubmitEnd();
+            }}
             onRelateRecordsChange={(control, records) => {
               if (!customwidget.current) {
                 return;
@@ -343,6 +368,10 @@ function NewReccordForm(props) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(formdata, newRelateRecordData)));
               }
             }}
+            projectId={projectId || props.projectId}
+            onWidgetChange={() => {
+              cache.current.formUserChanged = true;
+            }}
           />
         </div>
       </RecordCon>
@@ -350,7 +379,7 @@ function NewReccordForm(props) {
   );
 }
 
-NewReccordForm.propTypes = {
+NewRecordForm.propTypes = {
   from: PropTypes.number,
   isCharge: PropTypes.bool,
   notDialog: PropTypes.bool,
@@ -365,8 +394,8 @@ NewReccordForm.propTypes = {
   defaultFormData: PropTypes.shape({}),
   defaultFormDataEditable: PropTypes.bool,
   writeControls: PropTypes.arrayOf(PropTypes.shape({})),
-  registeFunc: PropTypes.func,
+  registerFunc: PropTypes.func,
   onError: PropTypes.func,
 };
 
-export default NewReccordForm;
+export default NewRecordForm;

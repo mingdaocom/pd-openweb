@@ -98,7 +98,7 @@ export default class App extends Component {
     });
 
     // 绑定快捷操作
-    !md.global.Account.isPortal && this.bindMSTC();
+    !md.global.Account.isPortal && this.bindShortcut();
 
     if ((_.get(md, ['global', 'Account', 'projects']) || []).filter(item => item.licenseType === 1).length === 0) {
       if (!localStorage.getItem('supportTime')) {
@@ -136,41 +136,9 @@ export default class App extends Component {
   /**
    * 绑定快捷操作
    */
-  bindMSTC() {
-    const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
-    const taskVisible = !md.global.SysSettings.forbidSuites.includes('2');
-    const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
-    const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
+  bindShortcut() {
     const callDialog = _.debounce(which => {
       switch (which) {
-        case 115:
-          if (feedVisible) {
-            require(['s'], function (s) {
-              s();
-            });
-          }
-          break;
-        case 116:
-          if (taskVisible) {
-            require(['t'], function (t) {
-              t();
-            });
-          }
-          break;
-        case 99:
-          if (calendarVisible) {
-            require(['c'], function (c) {
-              c();
-            });
-          }
-          break;
-        case 117:
-          if (knowledgeVisible) {
-            require(['u'], function (u) {
-              u();
-            });
-          }
-          break;
         case 96:
           const { visible } = store.getState().chat;
           store.dispatch(actions.setVisible(!visible));
@@ -200,7 +168,7 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function (e) {
+    $(document).on('keypress', function(e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
@@ -216,6 +184,8 @@ export default class App extends Component {
       ? JSON.parse(localStorage.getItem('clientOpenList'))
       : [];
     let isContain = false;
+
+    if (url.indexOf('hr') > -1 || url.indexOf('dossier') > -1) return true;
 
     clientOpenList.forEach(item => {
       if (url.indexOf(item) > -1) {

@@ -1,5 +1,5 @@
 import React, { Component, createRef } from 'react';
-import { string, number, arrayOf, func } from 'prop-types';
+import { string, number, arrayOf, func, bool, shape } from 'prop-types';
 import cx from 'classnames';
 import { ScrollView, Icon } from 'ming-ui';
 import { Tabs } from 'antd';
@@ -17,9 +17,11 @@ export default class extends Component {
   static propTypes = {
     projectId: string,
     className: string,
+    style: shape({}),
     iconColor: string,
     icon: string,
     name: string,
+    hideInput: bool,
     // 索引，用作按顺序选颜色,若不传则默认选择第一个颜色
     index: number,
     // 选颜色的标题
@@ -55,8 +57,10 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    this.$nameRef.current.focus();
-    this.$nameRef.current.select();
+    if (this.$nameRef.current) {
+      this.$nameRef.current.focus();
+      this.$nameRef.current.select();
+    }
     this.getIcon();
   }
 
@@ -73,7 +77,7 @@ export default class extends Component {
 
   dataChange = () => {
     const { current } = this.$nameRef;
-    const { value = '' } = current;
+    const { value = '' } = current || {};
     const { icon, iconColor } = this.state;
     if (value) {
       this.props.onChange({ icon, iconColor, name: value.trim().slice(0, 50) });
@@ -107,7 +111,7 @@ export default class extends Component {
     }
   };
   renderIcons = () => {
-    const { colorList, index, iconColor = colorList[index % colorList.length], icon } = this.props;
+    const { colorList, index, iconColor = colorList[index % colorList.length], icon, hideCustom } = this.props;
     const { systemIcon, customIcon } = this.state;
     if (isEmpty(customIcon)) {
       return (
@@ -121,7 +125,8 @@ export default class extends Component {
                   key={fileName}
                   className={cx({ isCurrentIcon: isCurrent })}
                   style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                  onClick={() => this.handleClick({ icon: fileName, iconUrl })}>
+                  onClick={() => this.handleClick({ icon: fileName, iconUrl })}
+                >
                   <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
                 </li>
               );
@@ -143,7 +148,8 @@ export default class extends Component {
                     key={fileName}
                     className={cx({ isCurrentIcon: isCurrent })}
                     style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                    onClick={() => this.handleClick({ icon: fileName, iconUrl })}>
+                    onClick={() => this.handleClick({ icon: fileName, iconUrl })}
+                  >
                     <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
                   </li>
                 );
@@ -151,42 +157,56 @@ export default class extends Component {
             </ul>
           </div>
         </Tabs.TabPane>
-        <Tabs.TabPane tab={_l('自定义')} key="custom">
-          <div className="customIcon">
-            {/* <div className="title">{_l('自定义图标')}</div> */}
-            <ul className="iconsWrap">
-              {customIcon.map(({ iconUrl, fileName }) => {
-                let isCurrent = icon === fileName;
-                return (
-                  <li
-                    key={fileName}
-                    className={cx({ isCurrentIcon: isCurrent })}
-                    style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                    onClick={() => this.handleClick({ icon: fileName, iconUrl })}>
-                    <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </Tabs.TabPane>
+        {!hideCustom && (
+          <Tabs.TabPane tab={_l('自定义')} key="custom">
+            <div className="customIcon">
+              {/* <div className="title">{_l('自定义图标')}</div> */}
+              <ul className="iconsWrap">
+                {customIcon.map(({ iconUrl, fileName }) => {
+                  let isCurrent = icon === fileName;
+                  return (
+                    <li
+                      key={fileName}
+                      className={cx({ isCurrentIcon: isCurrent })}
+                      style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
+                      onClick={() => this.handleClick({ icon: fileName, iconUrl })}
+                    >
+                      <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </Tabs.TabPane>
+        )}
       </Tabs>
     );
   };
   render() {
-    const { className, colorList, index, iconColor = colorList[index % colorList.length], name, onClearIcon } = this.props;
+    const {
+      className,
+      style = {},
+      colorList,
+      index,
+      iconColor = colorList[index % colorList.length],
+      name,
+      hideInput,
+      onClearIcon,
+    } = this.props;
     return (
-      <div className={cx('selectIconWrap', className)}>
-        <div className="inputWrap">
-          <input
-            type="text"
-            ref={this.$nameRef}
-            defaultValue={name}
-            onFocus={this.handleFocus}
-            onChange={this.handleInput}
-            onKeyDown={this.handleKeydown}
-          />
-        </div>
+      <div className={cx('selectIconWrap', className)} style={style}>
+        {!hideInput && (
+          <div className="inputWrap">
+            <input
+              type="text"
+              ref={this.$nameRef}
+              defaultValue={name}
+              onFocus={this.handleFocus}
+              onChange={this.handleInput}
+              onKeyDown={this.handleKeydown}
+            />
+          </div>
+        )}
         {!!colorList.length && (
           <ul className="colorsWrap">
             {colorList.map(item => (
@@ -194,7 +214,8 @@ export default class extends Component {
                 key={item}
                 className={cx({ isCurrentColor: item === iconColor })}
                 style={{ backgroundColor: item }}
-                onClick={() => this.handleClick({ iconColor: item })}>
+                onClick={() => this.handleClick({ iconColor: item })}
+              >
                 {item === iconColor && <Icon icon="hr_ok" />}
               </li>
             ))}

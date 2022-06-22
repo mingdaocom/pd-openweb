@@ -205,7 +205,7 @@ export default class Message extends Component {
               defaultValue={data.messageTemplate.messageContent.replace(/\$\(.*?\)/g, '$-$')}
               readonly
               renderTag={(tag, options) => {
-                const ids = tag.split('-');
+                const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
                 const nodeObj = data.formulaMap[ids[0]] || {};
                 const controlObj = data.formulaMap[ids[1]] || {};
 
@@ -438,11 +438,11 @@ export default class Message extends Component {
         />
 
         <div className="Gray_75 mTop10">
-          {_l(
+          {/*_l(
             '已输入 %0 个字（含签名），按 %1 条计费',
             this.statisticalWordNumber(),
             Math.ceil(this.statisticalWordNumber() / 70),
-          )}
+          )*/}
         </div>
         <div className="mTop30">
           <span className="saveTplBtn ThemeBGColor3 ThemeHoverBGColor2" onClick={this.onSaveTemplate}>
@@ -568,7 +568,10 @@ export default class Message extends Component {
               this.tagtextarea = tagtextarea;
             }}
             renderTag={(tag, options) => {
-              const ids = (this.mapData[tag] || '').replace(/\$/g, '').split('-');
+              const ids = (this.mapData[tag] || '')
+                .replace(/\$/g, '')
+                .split(/([a-zA-Z0-9#]{24,32})-/)
+                .filter(item => item);
               const nodeObj = data.formulaMap[ids[0]] || {};
               const controlObj = data.formulaMap[ids[1]] || {};
 

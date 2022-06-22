@@ -4,14 +4,16 @@ import { Dropdown, Icon, Checkbox } from 'ming-ui';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import {
-  TEXT,
-  NUMBER,
-  SHOW,
-  TIME,
-  OPTIONS,
-  SHOW_RELATE,
+  TEXT_FILTER_TYPE,
+  NUMBER_FILTER_TYPE,
+  RELA_FILTER_TYPE,
+  GROUP_FILTER_TYPE,
+  DIRECTION_TYPE,
+  DATE_RANGE,
+  OPTIONS_ALLOWITEM,
+  SHOW_RELATE_TYPE,
+  APP_ALLOWSCAN,
   ADVANCEDSETTING_KEYS,
-  APPSCAN,
   FASTFILTER_CONDITION_TYPE,
   getSetDefault,
   getControlFormatType,
@@ -315,7 +317,7 @@ function Edit(params) {
 
   const renderListItem = data => {
     let daterange = getDaterange();
-    let isAllRange = daterange.length >= TIME.default.length;
+    let isAllRange = daterange.length >= DATE_RANGE.default.length;
     return data.map((item, index) => {
       if (_.isArray(item)) {
         return (
@@ -334,7 +336,7 @@ function Edit(params) {
               onClick={() => {
                 let newValue = daterange;
                 if (item.value === 'all') {
-                  newValue = !isAllRange ? TIME.default : [];
+                  newValue = !isAllRange ? DATE_RANGE.default : [];
                 } else {
                   if (newValue.includes(item.value)) {
                     newValue = newValue.filter(o => o !== item.value);
@@ -342,7 +344,7 @@ function Edit(params) {
                     newValue = newValue.concat(item.value);
                   }
                 }
-                updateViewSet({ [TIME.key]: JSON.stringify(newValue) });
+                updateViewSet({ [DATE_RANGE.key]: JSON.stringify(newValue) });
               }}
             />
           </React.Fragment>
@@ -352,11 +354,11 @@ function Edit(params) {
   };
   const renderTimeType = () => {
     let daterange = getDaterange();
-    let isAllRange = daterange.length >= TIME.default.length;
+    let isAllRange = daterange.length >= DATE_RANGE.default.length;
     return (
       <React.Fragment>
-        <div className="title">{TIME.txt}</div>
-        <DropdownWrapper className="w100 dropTimeWrap" downElement={<div>{renderListItem(TIME.types)}</div>}>
+        <div className="title">{DATE_RANGE.txt}</div>
+        <DropdownWrapper className="w100 dropTimeWrap" downElement={<div>{renderListItem(DATE_RANGE.types)}</div>}>
           <div className="Dropdown--input Dropdown--border mTop6">
             <div className="inputBox">
               <div className={cx('itemText', { Gray_bd: daterange.length <= 0 })}>
@@ -444,13 +446,18 @@ function Edit(params) {
             );
           }}
         />
-        {TEXT.keys.includes(dataType) && renderDrop(TEXT)}
-        {NUMBER.keys.includes(dataType) && renderDrop(NUMBER)}
-        {OPTIONS.keys.includes(dataType) && renderShowType(OPTIONS)}
-        {SHOW.keys.includes(dataType) && renderShowType(SHOW)}
-        {SHOW_RELATE.keys.includes(dataType) && renderShowType(SHOW_RELATE)}
-        {TIME.keys.includes(dataType) && renderTimeType()}
-        {APPSCAN.keys.includes(dataType) && renderAppScan()}
+        {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE].map(o => {
+          if (o.keys.includes(dataType)) {
+            return renderDrop(o);
+          }
+        })}
+        {[OPTIONS_ALLOWITEM, DIRECTION_TYPE, SHOW_RELATE_TYPE].map(o => {
+          if (o.keys.includes(dataType)) {
+            return renderShowType(o);
+          }
+        })}
+        {DATE_RANGE.keys.includes(dataType) && renderTimeType()}
+        {APP_ALLOWSCAN.keys.includes(dataType) && renderAppScan()}
       </div>
     </React.Fragment>
   );

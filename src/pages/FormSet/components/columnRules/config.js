@@ -92,6 +92,7 @@ export function getTextById(tree, controls = []) {
         currentArr.push({
           controlId,
           name: parentNode.controlName || getControlSpecialName(parentNode.type),
+          isDel: !parentNode.type,
         });
       } else {
         childControlIds.map(child => {
@@ -100,6 +101,7 @@ export function getTextById(tree, controls = []) {
           currentArr.push({
             controlId,
             childControlId: child,
+            isDel: !isDelete,
             name: isDelete
               ? _l('%0 / %1', parentNode.controlName, childNode.controlName || getControlSpecialName(childNode.type))
               : _l('字段已删除'),
@@ -116,7 +118,7 @@ export function getNewDropDownData(dropDownData = [], actionType) {
   // 公式 汇总 文本组合 自动编号 他表字段 分段 大写金额 备注 文本识别
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
-    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 10010);
+    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 10010);
     if (actionType === 5) {
       filterControls.push(43);
     }

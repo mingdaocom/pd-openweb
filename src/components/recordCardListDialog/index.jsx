@@ -164,7 +164,7 @@ export default class RecordCardListDialog extends Component {
           {
             ...f,
             values: (f.values || []).map(v => {
-              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
+              if (_.includes([WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, WIDGETS_TO_API_TYPE_ENUM.CASCADER], f.dataType)) {
                 return v.rowid;
               }
               if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Radio, Checkbox, Tooltip, Dialog } from 'ming-ui';
 import cx from 'classnames';
-// import { validateDomianName } from 'src/api/externalPortal';
+import { createEPDiscussWorkFlow } from 'src/api/externalPortal';
 import { getWeiXinBindingInfo } from 'src/api/project';
 import EditAgreementOrPrivacy from 'src/pages/Roles/Portal/components/EditAgreementOrPrivacy';
+// import process from 'src/pages/workflow/api/process';
+import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 
 const Wrap = styled.div`
   position: relative;
@@ -73,6 +76,18 @@ const Wrap = styled.div`
       }
     }
   }
+  .exAccountSendCon {
+    width: 100%;
+    height: 36px;
+    background: #f5f5f5;
+    border-radius: 3px;
+    border: 1px solid #dddddd;
+    padding: 0 16px;
+    line-height: 36px;
+    .editFlow {
+      color: #2196f3;
+    }
+  }
 `;
 export const SwitchStyle = styled.div`
   display: inline-block;
@@ -92,62 +107,95 @@ export const SwitchStyle = styled.div`
 const LOGIN_WAY = [_l('手机号'), _l('微信')];
 const DIS_SET = [_l('可见全部讨论'), _l('不可见内部讨论')];
 const ALLOW_TYPE = [_l('任何人'), _l('通过审核的用户'), _l('仅定向邀请的用户')]; //3,6,9
+let ajaxRequest = null;
 export default function BaseSet(props) {
-  let { portalSet = {}, onChangePortalSet, projectId } = props;
+  let { portalSet = {}, onChangePortalSet, projectId, appId } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
   // let { urlConfigure = {}, appId } = props;
   // let { portalSetModel = {} } = portalSet;
   const { loginMode = {}, noticeScope = {}, isFrontDomain } = portalSetModel; //isFrontDomain是否为前置域名
   // const { protocol = '', officialDomain = '' } = urlConfigure;
+  const [epDiscussWorkFlow, setEpDiscussWorkFlow] = useState(portalSet.epDiscussWorkFlow || {});
   const [isWXExist, setIsWXExist] = useState(portalSet.isWXExist);
   // const [domainName, setUrl] = useState(portalSetModel.domainName || '');
   const [weChat, setLoginWay] = useState(loginMode.weChat); //微信是否开启
   const [allowUserType, setAllowType] = useState(portalSetModel.allowUserType || 3); //允许的用户
   const [admin, setNotify] = useState(noticeScope.admin || false); //允许的用户
   const [exAccountSmsNotice, setExAccountSmsNotice] = useState(noticeScope.exAccountSmsNotice || false); //审核结果短信通知外部用户
-  const [loading, setLoading] = useState(true);
   const [authorizerInfo, setAuthorizerInfo] = useState(portalSet.authorizerInfo || {});
   const [customizeName, setcustomizeName] = useState(portalSetModel.customizeName);
-  const [type, setType] = useState();
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    let { portalSet = {} } = props;
-    let { portalSetModel = {} } = portalSet;
-    setPortalSetModel(portalSetModel);
-  }, [props]);
+  const [{ type, show, showWorkflowDialog, loading }, setCommonState] = useSetState({
+    loading: true,
+    type: null,
+    show: false,
+    showWorkflowDialog: false,
+  });
+  useEffect(
+    () => {
+      let { portalSet = {} } = props;
+      let { portalSetModel = {}, epDiscussWorkFlow = {} } = portalSet;
+      setPortalSetModel(portalSetModel);
+      setEpDiscussWorkFlow(epDiscussWorkFlow);
+    },
+    [props],
+  );
 
-  useEffect(() => {
-    let { portalSetModel = {} } = portalSet;
-    const { loginMode = {}, noticeScope = {} } = portalSetModel;
-    // setIsWXExist(portalSet.isWXExist);
-    // setUrl(portalSetModel.domainName || '');
-    setLoginWay(loginMode.weChat);
-    setAllowType(portalSetModel.allowUserType || 3);
-    setNotify(noticeScope.admin || false);
-    setExAccountSmsNotice(noticeScope.exAccountSmsNotice || false);
-    setcustomizeName(portalSetModel.customizeName);
-  }, [portalSet.portalSetModel]);
+  useEffect(
+    () => {
+      let { portalSetModel = {} } = portalSet;
+      const { loginMode = {}, noticeScope = {} } = portalSetModel;
+      // setIsWXExist(portalSet.isWXExist);
+      // setUrl(portalSetModel.domainName || '');
+      setLoginWay(loginMode.weChat);
+      setAllowType(portalSetModel.allowUserType || 3);
+      setNotify(noticeScope.admin || false);
+      setExAccountSmsNotice(noticeScope.exAccountSmsNotice || false);
+      setcustomizeName(portalSetModel.customizeName);
+    },
+    [portalSet.portalSetModel],
+  );
 
-  useEffect(() => {
-    if (weChat && !isWXExist && !authorizerInfo.appId) {
-      getWeiXinBindingInfo({ projectId: projectId }).then(res => {
-        setIsWXExist(res && res.length > 0);
-        setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
-        setLoading(false);
-        onChangePortalSet(
-          {
-            authorizerInfo: {
-              ...authorizerInfo,
-              ...(res && res.length > 0 ? res[0] : {}),
+  useEffect(
+    () => {
+      if (weChat && !isWXExist && !authorizerInfo.appId) {
+        getWeiXinBindingInfo({ projectId: projectId }).then(res => {
+          setIsWXExist(res && res.length > 0);
+          setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
+          setCommonState({ loading: false });
+          onChangePortalSet(
+            {
+              authorizerInfo: {
+                ...authorizerInfo,
+                ...(res && res.length > 0 ? res[0] : {}),
+              },
             },
-          },
-          false,
-        );
-      });
-    } else {
-      setLoading(false);
+            false,
+          );
+        });
+      } else {
+        setCommonState({ loading: false });
+      }
+    },
+    [weChat],
+  );
+  const createWorkFlow = callback => {
+    if (ajaxRequest) {
+      ajaxRequest.abort();
     }
-  }, [weChat]);
+    ajaxRequest = createEPDiscussWorkFlow({
+      appId,
+    });
+    ajaxRequest.then(res => {
+      onChangePortalSet({
+        portalSetModel: {
+          ...portalSetModel,
+          noticeScope: { ...noticeScope, discussionNotice: true },
+        },
+        epDiscussWorkFlow: res,
+      });
+      callback && callback(res);
+    });
+  };
   return (
     <Wrap>
       <div className="content">
@@ -221,25 +269,38 @@ export default function BaseSet(props) {
             setcustomizeName(e.target.value);
           }}
         />
-        <h6 className={cx('Font16 Gray Bold mBottom0 mTop16', { mTop24: isFrontDomain })}>{_l('登录/注册方式')}</h6>
+        <h6 className={cx('Font16 Gray Bold mBottom0 mTop16', { mTop24: isFrontDomain })}>{_l('登录方式')}</h6>
         <div className="">
           {LOGIN_WAY.map((o, i) => {
             return (
               <Checkbox
                 className="mTop15 InlineBlock mRight60"
                 text={o}
-                disabled={i === 0}
-                checked={i === 0 || weChat}
+                disabled={i === 0 && md.global.Config.IsLocal}
+                checked={(i === 0 && (_.get(loginMode, ['phone']) || md.global.Config.IsLocal)) || (i === 1 && weChat)}
                 onClick={checked => {
-                  if (i === 0) {
-                    return;
+                  let params = {};
+                  if (i === 0 && !md.global.Config.IsLocal) {
+                    if (!!_.get(loginMode, ['phone']) && !weChat) {
+                      return alert(_l('至少选择一种登录方式'));
+                    }
+                    params = {
+                      phone: !_.get(loginMode, ['phone']),
+                    };
+                  } else if (i === 1) {
+                    if (!_.get(loginMode, ['phone']) && !!weChat) {
+                      return alert(_l('至少选择一种登录方式'));
+                    }
+                    params = {
+                      weChat: !weChat,
+                    };
                   }
                   onChangePortalSet({
                     portalSetModel: {
                       ...portalSetModel,
                       loginMode: {
                         ...loginMode,
-                        weChat: !weChat,
+                        ...params,
                       },
                     },
                   });
@@ -266,6 +327,11 @@ export default function BaseSet(props) {
               )}
             </div>
           )}
+          <p className="Font12 Gray_9e mTop4">
+            {/*_l(
+              '只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快读登录验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足',
+            )*/}
+          </p>
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>
         <div className="mTop18">
@@ -294,10 +360,20 @@ export default function BaseSet(props) {
               icon={!!portalSetModel.allowExAccountDiscuss ? 'ic_toggle_on' : 'ic_toggle_off'}
               className="Font32 Hand"
               onClick={() => {
+                let data = {
+                  allowExAccountDiscuss: !portalSetModel.allowExAccountDiscuss,
+                };
+                if (portalSetModel.allowExAccountDiscuss) {
+                  //关闭外部门户讨论，同时关闭外部门户的消息通知
+                  data = {
+                    ...data,
+                    noticeScope: { ...noticeScope, discussionNotice: false },
+                  };
+                }
                 onChangePortalSet({
                   portalSetModel: {
                     ...portalSetModel,
-                    allowExAccountDiscuss: !portalSetModel.allowExAccountDiscuss,
+                    ...data,
                   },
                 });
               }}
@@ -340,7 +416,7 @@ export default function BaseSet(props) {
                               width: 480,
                               description:
                                 portalSetModel.exAccountDiscussEnum === 0 ? (
-                                  <div className='Font13'>
+                                  <div className="Font13">
                                     <div>
                                       1、
                                       {_l(
@@ -359,7 +435,7 @@ export default function BaseSet(props) {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className='Font13'>
+                                  <div className="Font13">
                                     <div>
                                       {_l('切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起')}
                                     </div>
@@ -418,8 +494,7 @@ export default function BaseSet(props) {
                   <span
                     className="ThemeColor3 Hand mRight10 mLeft10"
                     onClick={() => {
-                      setShow(true);
-                      setType(0);
+                      setCommonState({ type: 0, show: true });
                     }}
                   >
                     {_l('用户协议')}
@@ -428,8 +503,7 @@ export default function BaseSet(props) {
                   <span
                     className="ThemeColor3 Hand mLeft10"
                     onClick={() => {
-                      setShow(true);
-                      setType(1);
+                      setCommonState({ type: 1, show: true });
                     }}
                   >
                     {_l('隐私政策')}
@@ -460,7 +534,9 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('新用户注册、激活时通知管理员')}</div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('新用户注册、激活时通知管理员')}
+            </div>
           </SwitchStyle>
         </div>
         <div className="mTop16">
@@ -477,18 +553,79 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('审核结果短信通知外部用户')}</div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('审核结果短信通知外部用户')}
+            </div>
           </SwitchStyle>
         </div>
+        <div className="mTop16">
+          <SwitchStyle>
+            <Icon
+              icon={!!noticeScope.discussionNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
+              onClick={() => {
+                //开启
+                if (!noticeScope.discussionNotice && !epDiscussWorkFlow.workFlowId) {
+                  createWorkFlow();
+                } else {
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      noticeScope: { ...noticeScope, discussionNotice: !noticeScope.discussionNotice },
+                    },
+                  });
+                }
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('有讨论消息时（被提到、被回复）通知外部用户')}
+            </div>
+          </SwitchStyle>
+        </div>
+
+        {noticeScope.discussionNotice && (
+          <div className="exAccountSendCon flexRow">
+            {epDiscussWorkFlow.workFlowName && (
+              <span className="flex">
+                {epDiscussWorkFlow.workFlowName}
+                {!epDiscussWorkFlow.isEnable && <span className="Font13 mLeft5 Red">{_l('未启用')}</span>}
+              </span>
+            )}
+            <span
+              className="ThemHoverColor3 editFlow Hand"
+              onClick={() => {
+                if (!epDiscussWorkFlow.workFlowId) {
+                  createWorkFlow(() => {
+                    setCommonState({ showWorkflowDialog: true });
+                  });
+                } else {
+                  setCommonState({ showWorkflowDialog: true });
+                }
+              }}
+            >
+              {_l('编辑工作流')}
+            </span>
+          </div>
+        )}
       </div>
+      {showWorkflowDialog && (
+        <WorkflowDialog
+          flowId={epDiscussWorkFlow.workFlowId}
+          onBack={value => {
+            setCommonState({ showWorkflowDialog: false });
+            onChangePortalSet({
+              epDiscussWorkFlow: { ...epDiscussWorkFlow, isEnable: value },
+            });
+          }}
+        />
+      )}
       {show && (
         <EditAgreementOrPrivacy
           show={show}
           type={type}
           data={type === 1 ? portalSetModel.privacyTerms : portalSetModel.userAgreement}
           setShow={() => {
-            setShow(false);
-            setType(null);
+            setCommonState({ type: null, show: false });
           }}
           onChange={data => {
             let da = type === 1 ? { privacyTerms: data } : { userAgreement: data };

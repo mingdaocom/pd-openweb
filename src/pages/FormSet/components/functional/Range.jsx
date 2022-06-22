@@ -196,9 +196,8 @@ class Range extends React.Component {
                     >
                       <input
                         type="checkbox"
-                        className="viewInput"
+                        className="viewInput TxtMiddle"
                         checked={viewIds.includes(it.viewId)}
-                        className="TxtMiddle"
                       />
                       <span className="TxtMiddle">{it.name}</span>
                     </div>

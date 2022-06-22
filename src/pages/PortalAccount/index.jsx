@@ -44,7 +44,7 @@ function ContainerCon(props) {
   const [state, setState] = useState(''); //微信跳转回到登录需要带的信息
   const [account, setAccount] = useState('');
   const [accountId, setAccountId] = useState('');
-  const [paramForPcWx, setParamForPcWx] = useState();//pc端微信扫码后的返回值
+  const [paramForPcWx, setParamForPcWx] = useState();//pc端二维码扫码后的返回值
   const [appId, setAppId] = useState('');
   const [isWXOfficialExist, setIsWXOfficialExist] = useState(false);
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
@@ -117,7 +117,7 @@ function ContainerCon(props) {
       });
     } else {
       setLoading(false);
-      if (request.status && !mdAppId && decodeURIComponent(location.href).indexOf('/portal/') >= 0) {
+      if (request.status && !mdAppId) {
         //带了状态 但是没有返回 mdAppId
         setStatus(10000); //你访问的链接错误
       }
@@ -135,7 +135,7 @@ function ContainerCon(props) {
       request = paramForPcWx;
     }
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
-    if (href.indexOf('/portal/') >= 0 && !mdAppId) {
+    if (!mdAppId) {
       //从returnUrl里提取appid
       urlList.map(o => {
         if (href.indexOf(o) >= 0) {

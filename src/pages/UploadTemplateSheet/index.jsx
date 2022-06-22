@@ -4,7 +4,7 @@ import sheetAjax from 'src/api/worksheet';
 import { Icon, Support, Dialog } from 'ming-ui';
 import copy from 'copy-to-clipboard';
 import './index.less';
-let controlNo = [22, 10010, 43, 45]; //分段、备注、OCR、嵌入字段/
+let controlNo = [22, 10010, 43, 45, 47]; //分段、备注、OCR、嵌入字段,条码/
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
     super(props);

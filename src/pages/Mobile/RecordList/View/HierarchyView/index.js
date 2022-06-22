@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import HierarchyView from 'src/pages/worksheet/views/HierarchyView';
 import ViewErrorPage from '../components/ViewErrorPage'

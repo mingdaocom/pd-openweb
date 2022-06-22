@@ -311,17 +311,21 @@ class CreateIndex extends Component {
               return (
                 <div className="selectedRow" key={item.fieldId}>
                   {item.isSystem || item.isDelete ? (
-                    <Input
-                      value={
-                        item.isDelete
-                          ? _l('字段已删除')
-                          : _.get(getFieldObjById(item.fieldId), 'name')
-                          ? _.get(getFieldObjById(item.fieldId), 'name')
-                          : item.fieldId
-                      }
-                      disabled
-                      className="col1 mRight8"
-                    />
+                    <Tooltip title={(item.isDelete && `ID：${item.fieldId}`) || ''} placement="top" trigger={['hover']}>
+                      <span>
+                        <Input
+                          value={
+                            item.isDelete
+                              ? _l('字段已删除')
+                              : _.get(getFieldObjById(item.fieldId), 'name')
+                              ? _.get(getFieldObjById(item.fieldId), 'name')
+                              : item.fieldId
+                          }
+                          disabled
+                          className={cx('col1 mRight8', { Red: item.isDelete })}
+                        />
+                      </span>
+                    </Tooltip>
                   ) : (
                     <Select
                       placeholder={_l('请选择')}

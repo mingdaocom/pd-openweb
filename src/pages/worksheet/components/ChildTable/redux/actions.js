@@ -1,4 +1,4 @@
-import { getControlValueSortType } from 'worksheet/util';
+import { handleSortRows } from 'worksheet/util';
 import { getRowRelationRows } from 'src/api/worksheet';
 import { renderCellText } from 'worksheet/components/CellControls';
 
@@ -87,22 +87,6 @@ export const addRows = rows => ({ type: 'ADD_ROWS', rows });
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
     const { rows } = getState();
-    const controlValueType = getControlValueSortType(control);
-    if (_.isUndefined(isAsc)) {
-      dispatch({
-        type: 'INIT_ROWS',
-        rows: _.sortBy(rows, 'addTime'),
-      });
-      return;
-    }
-    let newRows = _.sortBy(rows, row =>
-      controlValueType === 'NUMBER'
-        ? parseFloat(row[control.controlId])
-        : renderCellText({ ...control, value: row[control.controlId] }),
-    );
-    if (!isAsc) {
-      newRows = newRows.reverse();
-    }
-    dispatch({ type: 'INIT_ROWS', rows: newRows });
+    dispatch({ type: 'INIT_ROWS', rows: handleSortRows(rows, control, isAsc) });
   };
 };

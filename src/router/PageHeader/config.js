@@ -1,11 +1,17 @@
 export const PAGE_HEADER_ROUTE_CONFIG = {
   my: {
-    path: '/app/my',
-    component: () => import('src/pages/PageHeader/AppManagementHeader'),
+    path: '/app/my/(group)?/:projectId?/:groupType?/:groupId?',
+    component: () =>
+      localStorage.getItem('oldHome') === '1'
+        ? import('src/pages/PageHeader/AppManagementHeader')
+        : import('src/pages/PageHeader/AppCenterHeader'),
   },
   lib: {
     path: '/app/lib',
-    component: () => import('src/pages/PageHeader/AppManagementHeader'),
+    component: () =>
+      localStorage.getItem('oldHome') === '1'
+        ? import('src/pages/PageHeader/AppManagementHeader')
+        : import('src/pages/PageHeader/AppCenterHeader'),
   },
   appPkg: {
     path: '/app/:appId/:groupId?/:worksheetId?/:viewId?',
@@ -106,6 +112,9 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
   app: {
     path: '/app/?',
     isExact: true,
-    component: () => import('src/pages/PageHeader/AppManagementHeader'),
+    component: () =>
+      localStorage.getItem('oldHome') === '1'
+        ? import('src/pages/PageHeader/AppManagementHeader')
+        : import('src/pages/PageHeader/AppCenterHeader'),
   },
 };

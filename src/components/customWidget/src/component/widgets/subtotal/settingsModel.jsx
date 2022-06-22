@@ -160,7 +160,7 @@ class SettingsModel extends React.Component {
     const relateSheetWidgets = _.flatten(editWidgets).filter(
       widget => widget.data.type === 29 && widget.data.enumDefault === 2,
     );
-    const selectedContorl = _.find(controls, control => control.controlId === data.sourceControlId);
+    const selectedControl = _.find(controls, control => control.controlId === data.sourceControlId);
     return (
       <div className="subTotalSetting">
         <div className="wsItem">
@@ -199,13 +199,13 @@ class SettingsModel extends React.Component {
               )}
               value={data.sourceControlId}
               onChange={value => {
-                const newSelectedContorl = _.find(controls, control => control.controlId === value);
+                const newSelectedControl = _.find(controls, control => control.controlId === value);
                 const changeedValue = {
                   sourceControlId: value,
                   enumDefault2: 6,
                 };
-                if (value && newSelectedContorl) {
-                  changeedValue.enumDefault = getTotalType(newSelectedContorl)[0].value;
+                if (value && newSelectedControl) {
+                  changeedValue.enumDefault = getTotalType(newSelectedControl)[0].value;
                 } else {
                   changeedValue.enumDefault = 0;
                 }
@@ -220,15 +220,15 @@ class SettingsModel extends React.Component {
             <div className="wsLf"></div>
             <Dropdown
               hint={_l('汇总方式')}
-              data={selectedContorl ? getTotalType(selectedContorl) : []}
+              data={selectedControl ? getTotalType(selectedControl) : []}
               value={data.enumDefault}
               onChange={value => {
                 const changeedValue = {
                   enumDefault: value,
                   enumDefault2: 6,
                 };
-                if ((selectedContorl.type === 15 || selectedContorl.type === 16) && (value === 2 || value === 3)) {
-                  changeedValue.enumDefault2 = selectedContorl.type;
+                if ((selectedControl.type === 15 || selectedControl.type === 16) && (value === 2 || value === 3)) {
+                  changeedValue.enumDefault2 = selectedControl.type;
                 }
                 this.handleChange(changeedValue);
               }}

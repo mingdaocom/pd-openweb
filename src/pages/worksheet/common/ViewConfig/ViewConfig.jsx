@@ -728,8 +728,9 @@ class ViewConfigCon extends Component {
   };
 
   renderControls = () => {
-    const { columns, view } = this.props;
-    const viewcontrols = view.controls.filter(id => _.find(columns, column => column.controlId === id));
+    const { columns, view = {} } = this.props;
+    const { controls = [] } = view;
+    const viewcontrols = controls.filter(id => _.find(columns, column => column.controlId === id));
     return (
       <div className="commonConfigItem">
         <div className="Gray_9e mTop8 mBottom4">{_l('设置此视图下的表单中需要对用户隐藏的字段')}</div>

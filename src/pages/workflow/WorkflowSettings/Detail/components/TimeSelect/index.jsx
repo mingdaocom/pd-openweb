@@ -9,6 +9,12 @@ export default class TimeSelect extends Component {
     dateNoTime: true,
   };
 
+  componentWillReceiveProps(nextProps, nextState) {
+    if (nextProps.data.number !== this.props.data.number && this.text) {
+      this.text.value = nextProps.data.number;
+    }
+  }
+
   /**
    * 修改类型
    */
@@ -42,13 +48,6 @@ export default class TimeSelect extends Component {
     if (isBlur) {
       this.props.updateSource({ number: num });
     }
-  }
-
-  /**
-   * 处理时间
-   */
-  handleTime(i) {
-    return (i < 10 ? '0' : '') + i;
   }
 
   render() {
@@ -137,7 +136,9 @@ export default class TimeSelect extends Component {
                 second: 0,
               }}
               onChange={(event, value) => {
-                updateSource({ time: this.handleTime(value.hour) + ':' + this.handleTime(value.minute) });
+                updateSource({
+                  time: value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
+                });
               }}
             />
             <div className="flex mLeft15">{_l('执行')}</div>

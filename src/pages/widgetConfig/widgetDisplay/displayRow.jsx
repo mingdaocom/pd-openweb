@@ -135,7 +135,12 @@ export default function DisplayRow(props) {
                 {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
               </span>
             </p>
-            {!isEmpty(widgets) && <Components.QuickArrange {...props} />}
+            {!isEmpty(widgets) && (
+              <div className='flexRow'>
+                <Components.QuickArrange {...props} />
+                <Components.FieldRecycleBin {...props} />
+              </div>
+            )}
           </header>
           {rowsContent}
         </ScrollView>

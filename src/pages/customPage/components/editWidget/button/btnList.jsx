@@ -12,7 +12,7 @@ const ButtonDisplayWrap = styled.div`
   flex-direction: column;
   width: 100%;
   min-height: 200px;
-  padding: 24px 0;
+  padding: 24px 20px;
   text-align: center;
   background-color: #fff;
   overflow: auto;
@@ -49,11 +49,17 @@ const BtnWrap = styled.div`
     transition: border 0.25s;
     border: 1px solid transparent;
     padding: 4px;
+    &.horizontal {
+      display: flex;
+      padding: 4px 20px;
+    }
     &:hover {
       border: 1px dashed #ddd;
+      border-radius: 3px;
     }
     &.active {
       border: 1px solid #2196f3;
+      border-radius: 3px;
     }
     &.error {
       border: 1px solid red;
@@ -107,7 +113,6 @@ const SortableButtonListWrap = styled.div`
 export default function BtnList({
   buttonList,
   errorBtns,
-  onSortEnd,
   count,
   style,
   config,
@@ -151,7 +156,7 @@ export default function BtnList({
                           error: errorBtns.includes(index),
                           adjustText: style === 3,
                           noMargin: btnType === 2,
-                          flexRow: direction === 2
+                          horizontal: btnType === 2 && direction === 2
                         })}
                       >
                         {btnType === 2 ? (

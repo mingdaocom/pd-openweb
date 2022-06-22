@@ -1,12 +1,12 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import { validate, TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
-import { conditionAdapter, formatQuickFilter } from 'src/pages/Mobile/RecordList/QuickFilter/Inputs';
+import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
 import './index.less';
 
 const SearchRowsWrapper = styled.div`

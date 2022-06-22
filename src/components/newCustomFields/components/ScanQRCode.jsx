@@ -248,7 +248,8 @@ export default class Widgets extends Component {
   clearQrcode() {
     if (this.html5QrCode) {
       const { isError } = this.state;
-      if (isError) {
+      const state = this.html5QrCode.getState();
+      if (isError || state === 1) {
         this.html5QrCode.clear();
       } else {
         this.html5QrCode.stop().then((ignore) => {

@@ -394,9 +394,11 @@ module.exports = {
   * 删除应用分组下项(工作表，自定义页面)
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.projectId 组织id
   * @param {string} args.appSectionId 应用分组id
   * @param {string} args.workSheetId id
   * @param {integer} args.type 类型 0=工作表，1=自定义页面
+  * @param {boolean} args.isPermanentlyDelete 是否永久删除 true-表示永久删除 false-表示到回收站
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -404,6 +406,36 @@ module.exports = {
    removeWorkSheetForApp: function (args, options = {}) {
      
      return $.api('AppManagement', 'RemoveWorkSheetForApp', args, options);
+   },
+  /**
+  * 分页获取应用项回收站列表
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id
+  * @param {string} args.keyword 关键字搜索
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppItemRecoveryList: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetAppItemRecoveryList', args, options);
+   },
+  /**
+  * 
+  * @param {Object} args 请求参数
+  * @param {string} args.id 应用项回收站记录id
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appItemRecovery: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'AppItemRecovery', args, options);
    },
   /**
   * 修改分组下实体名称和图标

@@ -429,7 +429,7 @@ export default class Portal extends Component {
               checked={totalCount > 0 && selectedColumnIds.length === totalCount}
               onClick={checked =>
                 this.setState({
-                  selectedColumnIds: checked ? [] : list.map(i => i.accountId),
+                  selectedColumnIds: checked ? [] : (list || []).map(i => i.accountId),
                 })
               }
             />

@@ -8,10 +8,13 @@ import {
   SelectNodeObject,
   FilterAndSort,
   FindResult,
+  CustomTextarea,
 } from '../components';
 import { CONTROLS_NAME, RELATION_TYPE, ACTION_ID } from '../../enum';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
+import cx from 'classnames';
+import _ from 'lodash';
 
 export default class Search extends Component {
   constructor(props) {
@@ -76,7 +79,27 @@ export default class Search extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, findFields, executeType, fields, selectNodeId, conditions, sorts, random } = data;
+    const { name, appId, findFields, executeType, fields, selectNodeId, conditions, sorts, random, link } = data;
+
+    if (data.actionId === ACTION_ID.WORKSHEET_FIND && !appId) {
+      alert(_l('必须先选择一个工作表'), 2);
+      return;
+    }
+
+    if (data.actionId === ACTION_ID.BATCH_FIND && !selectNodeId) {
+      alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
+    if (data.actionId === ACTION_ID.RECORD_LINK_FIND) {
+      if (!link.trim()) {
+        alert(_l('记录链接不能为空'), 2);
+        return;
+      } else if (!appId) {
+        alert(_l('必须选择一个目标工作表'), 2);
+        return;
+      }
+    }
 
     if (checkConditionsIsNull(conditions)) {
       alert(_l('筛选条件的判断值不能为空'), 2);
@@ -101,6 +124,7 @@ export default class Search extends Component {
         operateCondition: conditions,
         sorts,
         random,
+        link,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -119,12 +143,15 @@ export default class Search extends Component {
     return (
       <Fragment>
         <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
-          {_l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
+          {data.actionId === ACTION_ID.RECORD_LINK_FIND
+            ? _l(
+                '通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
+              )
+            : _l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
         </div>
 
-        {data.actionId === ACTION_ID.WORKSHEET_FIND ? (
-          this.renderWorksheet()
-        ) : (
+        {data.actionId === ACTION_ID.WORKSHEET_FIND && this.renderWorksheet()}
+        {data.actionId === ACTION_ID.BATCH_FIND && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择多条数据节点')}</div>
             <SelectNodeObject
@@ -139,6 +166,7 @@ export default class Search extends Component {
             )}
           </Fragment>
         )}
+        {data.actionId === ACTION_ID.RECORD_LINK_FIND && this.renderRecordLink()}
       </Fragment>
     );
   }
@@ -149,24 +177,6 @@ export default class Search extends Component {
   renderWorksheet() {
     const { data, cacheKey } = this.state;
     const singleItem = (data.findFields || []).length ? data.findFields[0] : { fieldId: '' };
-    const selectAppItem = data.appList.find(({ id }) => id === data.appId);
-    const appList = data.appList
-      .filter(item => !item.otherApkId)
-      .map(item => {
-        return {
-          text: item.name,
-          value: item.id,
-          className: item.id === data.appId ? 'ThemeColor3' : '',
-        };
-      });
-    const otherWorksheet = [
-      {
-        text: _l('其它应用下的工作表'),
-        value: 'other',
-        className: 'Gray_75',
-      },
-    ];
-
     const list = _.filter(
       data.controls,
       o => _.includes([2, 3, 4, 5, 6, 7, 8, 31, 32, 33], o.type) || (o.type === 37 && o.enumDefault2 === 6),
@@ -181,33 +191,7 @@ export default class Search extends Component {
     return (
       <Fragment>
         <div className="mTop20 bold">{_l('选择工作表')}</div>
-        <Dropdown
-          className="flowDropdown flowDropdownBorder mTop10"
-          data={[appList, this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet]}
-          value={data.appId}
-          renderTitle={
-            !data.appId
-              ? () => <span className="Gray_9e">{_l('请选择工作表')}</span>
-              : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
-              : () => (
-                  <Fragment>
-                    <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
-                  </Fragment>
-                )
-          }
-          border
-          openSearch
-          noData={_l('暂无工作表，请先在应用里创建')}
-          onChange={appId => {
-            if (appId === 'other') {
-              this.setState({ showOtherWorksheet: true });
-            } else {
-              this.getNodeDetail(this.props, { appId });
-            }
-          }}
-        />
+        {this.selectWorksheet()}
 
         {data.findFields.length ? (
           <Fragment>
@@ -298,6 +282,62 @@ export default class Search extends Component {
           </Fragment>
         )}
       </Fragment>
+    );
+  }
+
+  /**
+   * 选择工作表
+   */
+  selectWorksheet() {
+    const { data } = this.state;
+    const selectAppItem = data.appList.find(({ id }) => id === data.appId);
+    const appList = data.appList
+      .filter(item => !item.otherApkId)
+      .map(item => {
+        return {
+          text: item.name,
+          value: item.id,
+          className: item.id === data.appId ? 'ThemeColor3' : '',
+        };
+      });
+    const otherWorksheet = [
+      {
+        text: _l('其它应用下的工作表'),
+        value: 'other',
+        className: 'Gray_75',
+      },
+    ];
+
+    return (
+      <Dropdown
+        className={cx('flowDropdown mTop10', { flowDropdownBorder: data.actionId === ACTION_ID.WORKSHEET_FIND })}
+        data={[appList, this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet]}
+        value={data.appId}
+        renderTitle={
+          !data.appId
+            ? () => <span className="Gray_9e">{_l('请选择工作表')}</span>
+            : data.appId && !selectAppItem
+            ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+            : () => (
+                <Fragment>
+                  <span>{selectAppItem.name}</span>
+                  {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                </Fragment>
+              )
+        }
+        border
+        openSearch
+        noData={_l('暂无工作表，请先在应用里创建')}
+        onChange={appId => {
+          if (appId === 'other') {
+            this.setState({ showOtherWorksheet: true });
+          } else {
+            data.actionId === ACTION_ID.WORKSHEET_FIND
+              ? this.getNodeDetail(this.props, { appId })
+              : this.updateSource({ appId });
+          }
+        }}
+      />
     );
   }
 
@@ -409,6 +449,40 @@ export default class Search extends Component {
     );
   }
 
+  /**
+   * 渲染记录链接获取
+   */
+  renderRecordLink() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="mTop20 bold">{_l('选择记录链接')}</div>
+        <div className="Font13 Gray_9e mTop10">
+          {_l('当前流程节点中的文本类型字段，系统将根据此链接获取相应的记录，供流程中其他节点使用')}
+        </div>
+        <div className="mTop10">
+          <CustomTextarea
+            processId={this.props.processId}
+            selectNodeId={this.props.selectNodeId}
+            type={2}
+            height={0}
+            content={data.link}
+            formulaMap={data.formulaMap}
+            onChange={(err, value, obj) => this.updateSource({ link: value })}
+            updateSource={this.updateSource}
+          />
+        </div>
+
+        <div className="mTop20 bold">{_l('选择目标工作表')}</div>
+        <div className="Font13 Gray_9e mTop10">{_l('预计解析出的记录归属的工作表')}</div>
+        {this.selectWorksheet()}
+
+        <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />
+      </Fragment>
+    );
+  }
+
   render() {
     const { data, showOtherWorksheet } = this.state;
 
@@ -431,7 +505,13 @@ export default class Search extends Component {
           </ScrollView>
         </div>
         <DetailFooter
-          isCorrect={!!data.appId || !!data.selectNodeId}
+          isCorrect={
+            data.actionId === ACTION_ID.WORKSHEET_FIND
+              ? !!data.appId
+              : data.actionId === ACTION_ID.BATCH_FIND
+              ? !!data.selectNodeId
+              : !!data.appId && !!data.link.trim()
+          }
           onSave={this.onSave}
           closeDetail={this.props.closeDetail}
         />
@@ -442,9 +522,28 @@ export default class Search extends Component {
             selectedAppId={this.props.relationId}
             selectedWrorkesheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId) =>
-              this.getNodeDetail(this.props, { appId: selectedWrorkesheetId })
-            }
+            onOk={(selectedAppId, selectedWrorkesheetId, { workSheetName, appName }) => {
+              const isCurrentApp = this.props.relationId === selectedAppId;
+
+              if (data.actionId === ACTION_ID.WORKSHEET_FIND) {
+                this.getNodeDetail(this.props, { appId: selectedWrorkesheetId });
+              } else {
+                this.updateSource({
+                  appList: _.uniqBy(
+                    data.appList.concat([
+                      {
+                        id: selectedWrorkesheetId,
+                        name: workSheetName,
+                        otherApkId: isCurrentApp ? '' : selectedAppId,
+                        otherApkName: isCurrentApp ? '' : appName,
+                      },
+                    ]),
+                    'id',
+                  ),
+                  appId: selectedWrorkesheetId,
+                });
+              }
+            }}
             onHide={() => this.setState({ showOtherWorksheet: false })}
           />
         )}

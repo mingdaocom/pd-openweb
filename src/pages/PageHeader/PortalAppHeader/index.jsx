@@ -411,9 +411,6 @@ export default class PortalAppHeader extends Component {
   };
   //编辑详细资料
   handleUploadImg = () => {
-    if (browserIsMobile()) {
-      return;
-    }
     const options = {
       container: {
         content: '',
@@ -422,8 +419,7 @@ export default class PortalAppHeader extends Component {
         header: _l('上传头像'),
       },
       dialogBoxID: 'uploadAvatorDialogId',
-      width: '460px',
-      height: '365px',
+      width: browserIsMobile() ? '100%' : '460px',
     };
     const { currentData, avatar = '' } = this.state;
     ReactDom.render(
@@ -447,7 +443,9 @@ export default class PortalAppHeader extends Component {
             });
           }}
           avatar={avatar.split('imageView2')[0]}
-          closeDialog={() => {}}
+          closeDialog={() => {
+            $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
+          }}
         />
       </DialogLayer>,
       document.createElement('div'),
@@ -549,7 +547,9 @@ export default class PortalAppHeader extends Component {
             className={''}
             onClickAway={() => this.setState({ showUserInfo: false })}
             // 知识文件选择层 点击时不收起
-            onClickAwayExceptions={['#uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup']}
+            onClickAwayExceptions={[
+              '#uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask',
+            ]}
           >
             <CSSTransitionGroup
               component={'div'}
@@ -581,11 +581,9 @@ export default class PortalAppHeader extends Component {
                           src={(this.state.avatar || '').split('imageView2')[0]}
                           style={{ width: 56, height: 56, borderRadius: '50%' }}
                         />
-                        {!browserIsMobile() && (
-                          <div className="hoverAvatar">
-                            <span className="Font20 icon-upload_pictures"></span>
-                          </div>
-                        )}
+                        <div className="hoverAvatar">
+                          <span className="Font20 icon-upload_pictures"></span>
+                        </div>
                       </div>
                       <span className="userName flex mLeft20 Font17">
                         {(currentData.find(o => o.alias === 'name') || {}).value}

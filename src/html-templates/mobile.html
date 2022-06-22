@@ -39,6 +39,9 @@
                 window.subPath = '/portal';
             }
         </script>
-        <script src="webpack[index]?src/pages/Mobile/index.jsx"></script>
+        <script src="webpack[single]?src/pages/Mobile/index.jsx"></script>
+        <% for(var i = 0; i < bigChunkFiles.length; i++) {%>
+        <script async src="<%= publicPath + bigChunkFiles[i] %>"></script>
+        <% } %>
     </body>
 </html>

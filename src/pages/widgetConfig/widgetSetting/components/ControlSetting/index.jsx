@@ -34,10 +34,23 @@ const CASCADER_CONFIG = [
 
 export default function WidgetConfig(props) {
   const { from, data, onChange } = props;
-  const { type, enumDefault, advancedSetting = {} } = data;
-  const { allowadd, showxy, showtype, checktype } = getAdvanceSetting(data);
+  const { type, enumDefault, advancedSetting = {}, strDefault } = data;
+  const { allowadd, showxy, showtype, checktype, analysislink } = getAdvanceSetting(data);
 
   const getConfig = () => {
+    if (type === 2 || type === 32) {
+      return (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={analysislink === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
+          >
+            <span>{_l('解析链接')}</span>
+          </Checkbox>
+        </div>
+      );
+    }
     if ((type === 11 && showtype !== '2') || (type === 10 && checktype === '1')) {
       return (
         <div className="labelWrap">
@@ -68,6 +81,7 @@ export default function WidgetConfig(props) {
           <div className="labelWrap">
             <Checkbox
               checked={showxy === '1'}
+              disabled={(strDefault || '00')[0] === '1'}
               size={'small'}
               text={_l('显示经纬度')}
               onClick={checked => {

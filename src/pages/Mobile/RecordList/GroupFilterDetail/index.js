@@ -5,11 +5,13 @@ import * as actions from '../redux/actions';
 import { ActivityIndicator, Flex, Drawer } from 'antd-mobile';
 import View from '../View';
 import Back from '../../components/Back';
-import QuickFilter from 'src/pages/Mobile/RecordList/QuickFilter';
-import RecordAction from 'src/pages/Mobile/Record/RecordAction';
+import QuickFilter from 'mobile/RecordList/QuickFilter';
+import RecordAction from 'mobile/Record/RecordAction';
 import worksheetAjax from 'src/api/worksheet';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { openAddRecord } from 'src/pages/Mobile/Record/addRecord';
+import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import { Icon, Button } from 'ming-ui';
 import './index.less';
 
@@ -303,7 +305,8 @@ class GroupFilterDetail extends Component {
   };
   render() {
     const { params } = this.props.match;
-    const { viewId, txt } = params;
+    const { viewId, rowId } = params;
+    const txt = sessionStorage.getItem(`group-${rowId}`);
     let { navGroupFilters = [], showButtons, customBtns = [] } = this.state;
     const {
       views = [],
@@ -313,7 +316,6 @@ class GroupFilterDetail extends Component {
       batchOptVisible,
       batchOptCheckedData,
       appColor,
-      mobileViewPermission,
       base,
       sheetSwitchPermit,
     } = this.props;
@@ -325,6 +327,8 @@ class GroupFilterDetail extends Component {
         </Flex>
       );
     }
+    const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
+    const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
     return (
       <Drawer
         className="groupFilterDeatailDraer"
@@ -345,9 +349,22 @@ class GroupFilterDetail extends Component {
                   className="addRecordBtn flex valignWrapper"
                   style={{ backgroundColor: appColor }}
                   onClick={() => {
-                    window.mobileNavigateTo(
-                      `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
-                    );
+                    openAddRecord({
+                      className: 'full',
+                      worksheetInfo,
+                      appId: params.appId,
+                      worksheetId: worksheetInfo.worksheetId,
+                      viewId: view.viewId,
+                      addType: 2,
+                      entityName: worksheetInfo.entityName,
+                      onAdd: data => {
+                        if (view.viewType) {
+                          this.props.addNewRecord(data, view);
+                        } else {
+                          this.props.unshiftSheetRow(data);
+                        }
+                      },
+                    });
                   }}
                 >
                   <Icon icon="add" className="Font22" />
@@ -359,7 +376,7 @@ class GroupFilterDetail extends Component {
           {!batchOptVisible && (
             <Back
               style={{
-                bottom: view.viewType === 0 && mobileViewPermission && mobileViewPermission.canRemove ? '80px' : '20px',
+                bottom: view.viewType === 0 && (canDelete || showCusTomBtn) ? '80px' : '20px',
               }}
               onClick={() => {
                 this.props.changeMobielSheetLoading(true);
@@ -371,7 +388,7 @@ class GroupFilterDetail extends Component {
             />
           )}
 
-          {mobileViewPermission && mobileViewPermission.canRemove && !batchOptVisible && view.viewType === 0 && (
+          {(canDelete || showCusTomBtn) && !batchOptVisible && view.viewType === 0 && (
             <div
               className="batchOperation"
               onClick={() => {
@@ -424,7 +441,6 @@ export default connect(
       'sheetView',
       'batchOptVisible',
       'worksheetControls',
-      'mobileViewPermission',
       'appColor',
     ]),
     ..._.pick(state.sheet, ['views', 'controls', 'navGroupFilters']),
@@ -432,16 +448,20 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, [
-        'updateBase',
-        'loadWorksheet',
-        'changeMobileGroupFilters',
-        'changeMobielSheetLoading',
-        'updateFilters',
-        'changeBatchOptVisible',
-        'changeBatchOptData',
-        'fetchSheetRows',
-      ]),
+      {
+        ..._.pick(actions, [
+          'updateBase',
+          'loadWorksheet',
+          'unshiftSheetRow',
+          'changeMobileGroupFilters',
+          'changeMobielSheetLoading',
+          'updateFilters',
+          'changeBatchOptVisible',
+          'changeBatchOptData',
+          'fetchSheetRows',
+        ]),
+        addNewRecord,
+      },
       dispatch,
     ),
 )(GroupFilterDetail);

@@ -68,7 +68,7 @@ export default class AddApproveWay extends Component {
   };
 
   render() {
-    let { onCancel, onSubmit, ...props } = this.props;
+    let { onCancel, onSubmit } = this.props;
     let { otherActionVisible, selectedUser, action } = this.state;
     return (
       <Fragment>
@@ -100,10 +100,10 @@ export default class AddApproveWay extends Component {
         </Dialog>
         {otherActionVisible && (
           <OtherAction
+            {...this.props}
             selectedUser={selectedUser}
             action={action}
             onOk={this.onOk}
-            {...{ props }}
             onCancel={() => this.handleApproveVisible(false)}
           />
         )}

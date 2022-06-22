@@ -92,7 +92,7 @@ class ImportAndExport extends Component {
           <div>{_l('登录密码')}</div>
           <Input.Password
             value={password}
-            autoComplete="newpassord"
+            autocomplete="new-password"
             onChange={e => this.setState({ password: e.target.value })}
           />
         </Dialog>
@@ -155,7 +155,8 @@ class ImportAndExport extends Component {
     })
       .then(response => response.blob())
       .then(blob => {
-        const fileName = `${projectName}_员工信息表` + '.xlsx';
+        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        const fileName = `${projectName}_${date}` + '.xlsx';
         const link = document.createElement('a');
 
         link.href = window.URL.createObjectURL(blob);
@@ -201,22 +202,27 @@ class ImportAndExport extends Component {
       promiseRequest
         .then(result => {
           const { dowloadId, actionResult, failUsers } = result;
+          this.setState({ importFileLoading: false, resultDetail: result });
           if (actionResult === 1) {
             if (_.isEmpty(failUsers)) alert(_l('导入成功'));
             _this.setState({
-              resultDetail: result,
               importError: false,
               isShowFailList: dowloadId || actionResult === 0,
-              importFileLoading: false,
               fileName: '',
               fileUrl: '',
             });
+          } else if (actionResult === 0) {
+            alert(_l('导入失败'), 2);
+          } else if (actionResult === 2) {
+            alert(_l('验证码错误'), 3);
+          } else if (actionResult === 3) {
+            alert(_l('超出导入数量限制'), 3);
+          } else if (actionResult === 4) {
+            alert(_l('超出邀请数量限制'), 3);
           } else {
             _this.setState({
-              resultDetail: result,
               importError: true,
               isShowFailList: false,
-              importFileLoading: false,
             });
           }
         })
@@ -240,11 +246,7 @@ class ImportAndExport extends Component {
             <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
             <span className="Font17">{_l('导入模板')}</span>
           </div>
-          <a
-            className="Font16 downloadBtn"
-            href="/staticfiles/template/user.xlsx"
-            target="_blank"
-          >
+          <a className="Font16 downloadBtn" href="/staticfiles/template/user.xlsx" target="_blank">
             {_l('下载')}
           </a>
         </div>

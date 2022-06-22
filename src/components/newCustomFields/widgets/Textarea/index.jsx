@@ -70,6 +70,7 @@ export default class Widgets extends Component {
     let { hint } = this.props;
     const { isEditing } = this.state;
     const disabledInput = advancedSetting.dismanual === '1';
+    const isUnLink = advancedSetting.analysislink !== '1';
     const isSingleLine = enumDefault === 2;
     const isScanQR = getIsScanQR();
     const startTextScanCode = !disabled && isScanQR && strDefault.split('')[1] === '1';
@@ -98,7 +99,7 @@ export default class Widgets extends Component {
             }}
             onClick={this.joinTextareaEdit}
           >
-            {value ? <Linkify properties={{ target: '_blank' }}>{value}</Linkify> : hint}
+            {value ? isUnLink ? value : <Linkify properties={{ target: '_blank' }}>{value}</Linkify> : hint}
             {!disabled && !disabledInput && (
               <input type="text" className="smallInput" onFocus={() => this.setState({ isEditing: true })} />
             )}

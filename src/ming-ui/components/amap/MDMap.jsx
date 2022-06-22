@@ -231,7 +231,11 @@ export default class MDMap extends Component {
               <div
                 key={index}
                 className="MDMapList flexColumn"
-                onClick={() => this.geoLocation(item.location.lng, item.location.lat, item.address, item.name)}
+                onClick={() => {
+                  this._maphHandler.getAddress(item.location.lng, item.location.lat, address => {
+                    this.geoLocation(item.location.lng, item.location.lat, address || item.address, item.name);
+                  });
+                }}
               >
                 <div className="ellipsis bold Gray">{item.name}</div>
                 <div className="ellipsis Gray_9e">{item.address}</div>
@@ -249,7 +253,7 @@ export default class MDMap extends Component {
 
     if (isMobile) {
       return (
-        <Modal popup animationType="slide-up" className="mobileNewRecordDialog MDMap" visible>
+        <Modal popup animationType="slide-up" className="MDMap" style={{ height: '90%' }} visible>
           <div className="flexColumn leftAlign h100 relative">
             {this.renderOperatorIcon()}
             <div className="mBottom5" style={{ height: 250 }} ref={container => (this._mapContainer = container)} />

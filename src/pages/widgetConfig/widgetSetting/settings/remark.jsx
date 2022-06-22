@@ -4,6 +4,18 @@ import { RichText, Icon } from 'ming-ui';
 import RcDialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
+import styled from 'styled-components';
+import cx from 'classnames';
+const Wrap = styled.div`
+  .fieldEditorRemark.hasData {
+    .ck .ck-content {
+      border: 1px solid #dddddd !important;
+      &:hover {
+        border: 1px solid #2196f3 !important;
+      }
+    }
+  }
+`;
 export default function Remark({ data, onChange }) {
   const [show, setShow] = useState(false);
   const [top, setTop] = useState(0);
@@ -13,20 +25,21 @@ export default function Remark({ data, onChange }) {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('备注内容')}</div>
-        <div className="settingContent">
+        <Wrap className="settingContent">
           <RichText
             key={data.controlId}
-            className="fieldEditorRemark"
+            className={cx('fieldEditorRemark', { hasData: !!data.dataSource })}
             data={data.dataSource}
             disabled={true}
             minHeight={45}
+            maxHeight={500}
             placeholder={_l('点击设置备注')}
             onClickNull={e => {
               setShow(true);
             }}
             // onActualSave={value => onChange({ dataSource: value })}
           />
-        </div>
+        </Wrap>
         {show && (
           <RcDialog
             className="appIntroDialog"

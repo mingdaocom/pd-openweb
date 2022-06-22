@@ -209,7 +209,9 @@ export default class WorksheetTable extends PureComponent {
   componentWillReceiveProps(nextProps) {
     let data = typeof this.props.data === 'function' ? this.props.data() : this.props.data;
     let nextData = typeof nextProps.data === 'function' ? nextProps.data() : nextProps.data;
-    data = data.filter(r => r.rowid);
+    if (_.isArray(data)) {
+      data = data.filter(r => r.rowid);
+    }
     if (_.isArray(nextData)) {
       nextData = nextData.filter(r => r.rowid);
     }
@@ -555,6 +557,7 @@ export default class WorksheetTable extends PureComponent {
       width,
       height,
       rowCount,
+      allowlink,
       emptyIcon,
       emptyText,
       scrollBarHoverShow,
@@ -594,6 +597,7 @@ export default class WorksheetTable extends PureComponent {
         <MDTable
           id={id}
           loading={loading}
+          allowlink={allowlink}
           scrollBarHoverShow={scrollBarHoverShow}
           scrollBarInOut={scrollBarInOut}
           disableFrozen={disableFrozen}

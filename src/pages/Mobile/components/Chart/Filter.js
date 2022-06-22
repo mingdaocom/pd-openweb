@@ -3,7 +3,7 @@ import { Icon, Input } from 'ming-ui';
 import styled from 'styled-components';
 import { DatePicker } from 'antd-mobile';
 import cx from 'classnames';
-import { reportTypes } from 'src/pages/worksheet/common/Statistics/Charts/common';
+import { reportTypes } from 'statistics/Charts/common';
 import {
   dropdownScopeData,
   timeDataParticle,
@@ -11,7 +11,7 @@ import {
   dropdownDayData,
   isTimeControl,
   isPastAndFuture,
-} from 'src/pages/worksheet/common/Statistics/common';
+} from 'statistics/common';
 
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20];
 

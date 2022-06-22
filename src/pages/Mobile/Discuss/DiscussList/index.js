@@ -1,5 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
+import cx from 'classnames';
 import { List, Flex, ListView, ActivityIndicator, WhiteSpace, ActionSheet } from 'antd-mobile';
 import * as actions from '../redux/actions';
 import { Icon } from 'ming-ui';
@@ -47,11 +48,28 @@ class DiscussList extends Component {
   }
   openActionSheet(discussionId) {
     const { rowId, sheetDiscussions } = this.props;
-    const BUTTONS = [_l('删除评论'), _l('取消')];
+    const BUTTONS = [
+      { name: _l('删除评论'), class: 'Red', icon: 'delete2', iconClass: 'Font18' },
+    ];
     ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS,
-      cancelButtonIndex: BUTTONS.length - 1,
-      destructiveButtonIndex: BUTTONS.length - 2,
+      message: (
+        <div className="flexRow">
+          <span className="flex Font13 leftAlign">{_l('讨论')}</span>
+          <Icon
+            onClick={() => {
+              ActionSheet.close();
+            }}
+            icon="closeelement-bg-circle"
+            className="Font22 Gray_9e"
+          />
+        </div>
+      ),
+      options: BUTTONS.map(item => (
+        <div className={item.class}>
+          <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
+          <span className="Bold">{item.name}</span>
+        </div>
+      )),
     }, (buttonIndex) => {
       if (buttonIndex === 0) {
         this.props.dispatch(actions.removeSheetDiscussion(discussionId, rowId));
@@ -75,7 +93,7 @@ class DiscussList extends Component {
     return (
       <Item key={item.discussionId} align="top" thumb={item.createAccount.avatar} multipleLine>
         <Flex>
-          <div className="name">{item.createAccount.fullname}</div>
+          <div className="name Font15">{item.createAccount.fullname}</div>
           <div className="time">
             <div>{createTimeSpan(item.createTime)}</div>
             {item.createAccount.accountId === md.global.Account.accountId ? (
@@ -85,7 +103,7 @@ class DiscussList extends Component {
         </Flex>
         <Brief>
           <div
-            className="content"
+            className="content Font14 Gray"
             onClick={() => {
               this.props.onReply(item.discussionId, item.createAccount.fullname);
             }}
@@ -97,7 +115,7 @@ class DiscussList extends Component {
               rUserList={item.accountsInMessage}
               sourceType={item.sourceType}
             />
-            <Icon icon="h5_reply" className="Font20" />
+            <Icon icon="chat" className="Font20 Gray_9e" />
           </div>
         </Brief>
         {item.attachments.length ? (

@@ -3,6 +3,7 @@ import { string, arrayOf, shape, func } from 'prop-types';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import update from 'immutability-helper';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 export default class DateInput extends Component {
   static propTypes = {
@@ -35,35 +36,77 @@ export default class DateInput extends Component {
       this.props.onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
     }
   };
-  selectUser = () => {
-    const { data, dynamicValue } = this.props;
+  formatUsersId = (users = []) => {
+    return users.map(item => ({
+      cid: '',
+      rcid: '',
+      staticValue: JSON.stringify(_.pick(item, ['accountId', 'fullname', 'avatar'])),
+    }));
+  };
+  selectUser = event => {
+    const { data, dynamicValue, globalSheetInfo = {} } = this.props;
+    const tabType = getTabTypeBySelectUser(data);
     const unique = data.enumDefault === 0;
+    const filterAccountIds = dynamicValue
+      .filter(
+        item =>
+          item.staticValue &&
+          (JSON.parse(item.staticValue || '{}').accountId !== 'user-self' || item.cid !== 'user-self'),
+      )
+      .map(i => JSON.parse(i.staticValue || '{}').accountId);
+
+    const getUsers = usersId => {
+      // 人员去重
+      const getId = item => _.get(item, ['staticValue', 'accountId']);
+      const existUser = dynamicValue
+        .filter(item => item.staticValue)
+        .map(item => JSON.parse(item.staticValue || '{}').accountId);
+      return usersId.reduce((prev, curr) => {
+        return existUser.includes(getId(curr)) ? prev : prev.concat(curr);
+      }, dynamicValue);
+    };
+
+    if (tabType === 2) {
+      $(event.target).quickSelectUser({
+        showQuickInvite: false,
+        showMoreInvite: false,
+        isTask: false,
+        tabType,
+        appId: globalSheetInfo.appId,
+        filterWorksheetId: globalSheetInfo.worksheetId,
+        filterAccountIds,
+        minHeight: 400,
+        offset: {
+          top: 16,
+          left: 0,
+        },
+        zIndex: 10001,
+        SelectUserSettings: {
+          unique,
+          projectId: globalSheetInfo.projectId,
+          filterAccountIds,
+          callback: users => {
+            const usersId = this.formatUsersId(users);
+            this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
+          },
+        },
+        selectCb: users => {
+          const usersId = this.formatUsersId(users);
+          this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
+        },
+      });
+      return;
+    }
+
     import('dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
         showMoreInvite: false,
         title: _l('设置默认人员'),
         SelectUserSettings: {
           unique,
-          // ...settings,
           callback: users => {
-            const usersId = users.map(item => ({
-              cid: '',
-              rcid: '',
-              staticValue: _.pick(item, ['accountId', 'fullname', 'avatar']),
-            }));
-
-            const getUsers = () => {
-              // 人员去重
-              const getId = item => _.get(item, ['staticValue', 'accountId']);
-              const existUser = dynamicValue
-                .filter(item => item.staticValue)
-                .map(item => _.get(item, ['staticValue', 'accountId']));
-              return usersId.reduce((prev, curr) => {
-                return existUser.includes(getId(curr)) ? prev : prev.concat(curr);
-              }, dynamicValue);
-            };
-
-            this.props.onDynamicValueChange(unique ? usersId : getUsers());
+            const usersId = this.formatUsersId(users);
+            this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
           },
         },
       });
@@ -80,7 +123,12 @@ export default class DateInput extends Component {
         {defaultType ? (
           <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
         ) : (
-          <OtherFieldList {...this.props} removeItem={this.removeItem} onClick={this.selectUser} />
+          <OtherFieldList
+            ref={con => (this.userscon = con)}
+            {...this.props}
+            removeItem={this.removeItem}
+            onClick={this.selectUser}
+          />
         )}
         <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
       </DynamicValueInputWrap>

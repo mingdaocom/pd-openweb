@@ -1,5 +1,6 @@
 import React from 'react';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { getAdvanceSetting } from '../../../util/setting';
@@ -77,7 +78,7 @@ export default class FilterItemTexts extends React.Component {
       allControls.concat(globalSheetControls),
       filters,
       true,
-      controls,
+      controls.map(redefineComplexControl), // 日期公式等需转换type匹配
       sourceControlId,
     );
     return (

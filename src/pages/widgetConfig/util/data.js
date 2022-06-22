@@ -9,6 +9,7 @@ import { includes, get, isEmpty, omit, findIndex, filter } from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange } from './setting';
 import { getControlByControlId } from '.';
 import { ControlTag } from '../styled';
+import { Tooltip } from 'ming-ui';
 
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
@@ -305,9 +306,11 @@ export function genControlTag(allControls, id) {
   const invalid = isEmpty(control);
   const invalidError = control && control.type === 30 && (control.strDefault || '')[0] === '1';
   return (
-    <ControlTag className={cx({ invalid: invalid || invalidError })}>
-      {invalid ? _l('字段已删除') : invalidError ? _l('%0(无效类型)', control.controlName) : control.controlName}
-    </ControlTag>
+    <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={!invalid}>
+      <ControlTag className={cx({ invalid: invalid || invalidError, Hand: invalid })}>
+        {invalid ? _l('字段已删除') : invalidError ? _l('%0(无效类型)', control.controlName) : control.controlName}
+      </ControlTag>
+    </Tooltip>
   );
 }
 

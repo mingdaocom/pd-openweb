@@ -57,6 +57,11 @@ export default class Link extends Component {
     const { data, saveRequest } = this.state;
     const { name, selectNodeId, linkType, linkName, formProperties } = data;
 
+    if (!selectNodeId) {
+      alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
     if (saveRequest) {
       return;
     }

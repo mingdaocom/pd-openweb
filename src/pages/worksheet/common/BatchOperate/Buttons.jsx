@@ -45,9 +45,10 @@ function getButtonWidth({ icon, name }) {
   const div = document.createElement('div');
   div.style.visibility = 'hidden';
   div.style.display = 'inline-block';
-  div.innerHTML = `<div style="display: inline-block; margin: 0 12px;">${
-    icon ? `<span class="icon icon-${icon}" style="margin: 0 2px;font-size: 18px;"></span>` : ''
-  }<span  style="font-size: 13px;">${name}</span></div>`;
+  div.innerHTML = `<div style="display: inline-block; margin: 0 12px; white-space: nowrap;">
+    <span class="icon icon-${icon || 'custom_actions'}" style="margin: 0 2px;font-size: 18px;"></span>
+    <span  style="font-size: 13px;">${name}</span>
+  </div>`;
   document.body.appendChild(div);
   result = div.clientWidth;
   document.body.removeChild(div);

@@ -125,9 +125,20 @@ class LoginContainer extends React.Component {
   }
 
   loginCallback = (data, isMDLogin, callback, ignoreError) => {
+    if ([ActionResult.accountSuccess, ActionResult.needTwofactorVerifyCode].includes(data.accountResult)) {
+
+    }
+    if (data.accountResult === ActionResult.needTwofactorVerifyCode) {
+      //开启了两步验证
+      if (request.ReturnUrl) {
+        location.href = `/twofactor.htm?state=${data.state}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`;
+      } else {
+        location.href = `/twofactor.htm?state=${data.state}`;
+      }
+      return;
+    }
     if (data.accountResult === ActionResult.accountSuccess) {
       setPssId(data.sessionId);
-
       if (request.ReturnUrl) {
         location.replace(getDataByFilterXSS(request.ReturnUrl));
       } else {
@@ -223,9 +234,10 @@ class LoginContainer extends React.Component {
           })
           .then(data => {
             const { item1, item2 } = data;
-            const url = encodeURIComponent(pathname.replace(/^\//, ''));
+            const url = encodeURIComponent(pathname);
             // 钉钉
             if (item1 === 1) {
+              const url = encodeURIComponent(pathname.replace(/^\//, ''));
               location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
             }
             // 企业微信

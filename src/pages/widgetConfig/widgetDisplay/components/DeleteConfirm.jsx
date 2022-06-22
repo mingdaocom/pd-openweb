@@ -36,8 +36,8 @@ export default function DeleteConfirm({
   onVisibleChange,
   onOk,
   onCancel,
-  title = _l('确定要删除此控件'),
-  hint = _l('删除后对应表单数据也会被删除且无法恢复'),
+  title = <span className="Bold">{_l('确定要删除此字段？')}</span>,
+  hint = _l('删除后对应表单数据也会被删除'),
   cancelText = _l('取消'),
   okText = _l('删除'),
   footer,
@@ -66,7 +66,8 @@ export default function DeleteConfirm({
                   onClick={e => {
                     e.stopPropagation();
                     onCancel();
-                  }}>
+                  }}
+                >
                   {cancelText}
                 </div>
                 <Button
@@ -75,7 +76,8 @@ export default function DeleteConfirm({
                   onClick={e => {
                     e.stopPropagation();
                     onOk();
-                  }}>
+                  }}
+                >
                   {okText}
                 </Button>
               </div>
@@ -84,7 +86,8 @@ export default function DeleteConfirm({
         )
       }
       onCancel={onCancel}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </Trigger>
   );

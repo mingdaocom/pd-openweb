@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
-import Card from 'src/pages/worksheet/common/Statistics/Card';
+import Card from 'statistics/Card';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { getEnumType, parseLink } from '../../util';
@@ -37,6 +37,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     projectId,
     widget,
     editingWidget,
+    isCharge,
     ...rest
   } = props;
   const { type, param = [], value, needUpdate, button, name, config = {} } = widget;
@@ -65,6 +66,8 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           ref={$cardRef}
           needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
           needRefresh={!editable}
+          isCharge={isCharge}
+          appId={ids.appId}
           report={{ id: value, name }}
           sourceType={1}
           needUpdate={needUpdate}

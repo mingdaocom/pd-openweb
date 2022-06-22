@@ -11,6 +11,7 @@ const Con = styled.div`
   height: 28px;
   line-height: 28px;
   border-radius: 4px;
+  white-space: nowrap;
   &:hover {
     background: #f5f5f5;
   }

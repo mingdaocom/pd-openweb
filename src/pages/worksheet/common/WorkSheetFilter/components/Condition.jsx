@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import { Dropdown, Icon, Tooltip, Input } from 'ming-ui';
+import { Dropdown, Icon, Input } from 'ming-ui';
 import renderConditionValue from './contents';
 import { getConditionOverrideValue, getFilterTypes } from '../util';
 import { FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../enum';
-import { Select } from 'antd';
+import { Select, Tooltip } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import _ from 'lodash';
@@ -239,7 +239,14 @@ export default class Condition extends Component {
           ) : (
             <div className="deletedColumn">
               <i className="icon icon-info"></i>
-              {_l('该字段已删除')}
+              <Tooltip
+                overlayClassName="deleteHoverTips"
+                overlayInnerStyle={{ padding: '8px 10px' }}
+                title={<span>{_l('ID: %0', condition.controlId)}</span>}
+                placement="bottom"
+              >
+                <span className="Hand">{_l('该字段已删除')}</span>
+              </Tooltip>
               <span
                 className="deleteBtn ThemeHoverColor3"
                 onClick={() => {

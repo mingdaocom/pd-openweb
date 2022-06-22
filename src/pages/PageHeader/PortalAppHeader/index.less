@@ -32,3 +32,24 @@
     }
   }
 }
+
+@media screen and (max-width: 600px) {
+  #uploadAvatorDialogId {
+    top: 30px !important;
+    min-height: calc(~'100% - 30px') !important;
+    padding-bottom: 50px !important;
+    overflow: hidden;
+    bottom: 0px !important;
+    margin: 0px !important;
+    .konvajs-content {
+      width: 200px;
+      height: 200px;
+    }
+    canvas {
+      height: 200px;
+    }
+    .dialogCloseBtn {
+      display: none;
+    }
+  }
+}

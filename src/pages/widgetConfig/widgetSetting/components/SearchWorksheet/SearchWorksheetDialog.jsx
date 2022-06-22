@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Dropdown, Menu, MenuItem, LoadDiv } from 'ming-ui';
+import { Dialog, Dropdown, Menu, MenuItem, LoadDiv, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
@@ -18,6 +18,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 
 const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 36];
+const rowControl = [{ controlId: 'rowid', type: 2, controlName: _l('记录Id') }];
 
 const filterSys = (list = []) => {
   return list.filter(item => !_.includes(SYS, item.controlId));
@@ -119,12 +120,13 @@ export default class SearchWorksheetDialog extends Component {
   };
 
   handleSubmit = () => {
-    const { globalSheetInfo = {}, data = {}, onChange, onClose, updateQueryConfigs } = this.props;
+    const { globalSheetInfo = {}, from, subListSheetId, data = {}, onChange, onClose, updateQueryConfigs } = this.props;
     const { id = '', sheetId, sheetName, items = [], configs = [], controls = [], appName } = this.state;
-    const sourceType = globalSheetInfo.worksheetId === sheetId ? 1 : 2;
+    const worksheetId = from === 'subList' ? subListSheetId : globalSheetInfo.worksheetId;
+    const sourceType = from === 'subList' || worksheetId === sheetId ? 1 : 2;
     let params = {
       id: id && id.indexOf('new') > -1 ? '' : id,
-      worksheetId: globalSheetInfo.worksheetId,
+      worksheetId,
       controlId: data.controlId,
       sourceId: sheetId,
       sourceName: sheetName,
@@ -174,7 +176,7 @@ export default class SearchWorksheetDialog extends Component {
   renderMapping = () => {
     let { configs = [], controls = [], relationControls = [] } = this.state;
     const getCurrent = id => {
-      return _.find(controls, i => i.controlId === id) || {};
+      return _.find(rowControl.concat(controls), i => i.controlId === id) || {};
     };
     return (
       <React.Fragment>
@@ -190,14 +192,26 @@ export default class SearchWorksheetDialog extends Component {
           return (
             <div className="mappingItem">
               <div className="mappingControlName overflow_ellipsis">
-                {selectControl.controlName || <span className="Red">{_l('字段已删除')}</span>}
+                {selectControl.controlName || (
+                  <Tooltip text={<span>{_l('ID: %0', item.subCid)}</span>} popupPlacement="bottom">
+                    <span className="Red">{_l('字段已删除')}</span>
+                  </Tooltip>
+                )}
               </div>
               <span className="mLeft20 mRight20">{_l('写入')}</span>
               <Dropdown
                 className="mapppingDropdown"
                 border
                 isAppendToBody
-                placeholder={isDelete ? <span className="Red">{_l('字段已删除')}</span> : _l('选择当前子表字段')}
+                placeholder={
+                  isDelete ? (
+                    <Tooltip text={<span>{_l('ID: %0', item.cid)}</span>} popupPlacement="bottom">
+                      <span className="Red">{_l('字段已删除')}</span>
+                    </Tooltip>
+                  ) : (
+                    _l('选择当前子表字段')
+                  )
+                }
                 value={isDelete ? undefined : item.cid || undefined}
                 data={this.getDropData(subControls)}
                 onChange={controlId => {
@@ -242,12 +256,15 @@ export default class SearchWorksheetDialog extends Component {
       isSheetDelete,
     } = this.state;
     const {
+      from,
       onClose,
       data = {},
       globalSheetInfo = {},
       fromCondition, //筛选作用的控件
       allControls = [],
+      queryControls = [],
     } = this.props;
+    const totalControls = from === 'subList' ? queryControls : allControls;
     //普通字段
     const normalField = !_.includes([29, 34], data.type);
     //关联单条、多条（卡片、下拉框）
@@ -337,7 +354,7 @@ export default class SearchWorksheetDialog extends Component {
                                     this.setState(
                                       {
                                         sheetId: item.sheetId,
-                                        items: [],
+                                        items: item.sheetId === sheetId ? items : [],
                                         configs: [],
                                         showMenu: false,
                                       },
@@ -401,7 +418,7 @@ export default class SearchWorksheetDialog extends Component {
                     columns={controls}
                     conditions={items}
                     from={fromCondition}
-                    globalSheetControls={allControls}
+                    globalSheetControls={totalControls}
                     onConditionsChange={conditions => {
                       const newConditions = conditions.map(item => {
                         return item.isDynamicsource ? { ...item, values: [], value: '' } : item;
@@ -436,7 +453,18 @@ export default class SearchWorksheetDialog extends Component {
                         className="mLeft12 mRight12 Width250"
                         border
                         isAppendToBody
-                        placeholder={isDelete ? <span className="Red">{_l('字段已删除')}</span> : _l('选择查询表字段')}
+                        placeholder={
+                          isDelete ? (
+                            <Tooltip
+                              text={<span>{_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}</span>}
+                              popupPlacement="bottom"
+                            >
+                              <span className="Red">{_l('字段已删除')}</span>
+                            </Tooltip>
+                          ) : (
+                            _l('选择查询表字段')
+                          )
+                        }
                         disabled={!sheetId}
                         value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
                         data={this.getDropData(getControls({ data, controls, isCurrent: true, fromSearch: true }))}
@@ -469,7 +497,7 @@ export default class SearchWorksheetDialog extends Component {
                       popupStyle={{ width: 280 }}
                       popup={
                         <SelectControl
-                          list={selectControls}
+                          list={rowControl.concat(selectControls)}
                           onClick={item => {
                             this.setState({
                               configs: this.state.configs.concat([{ cid: '', subCid: item.controlId }]),
@@ -514,7 +542,7 @@ export default class SearchWorksheetDialog extends Component {
                         appId: data.appId,
                         appName: data.appName,
                         sheetId: data.sheetId,
-                        items: [],
+                        items: data.sheetId === sheetId ? items : [],
                         configs: [],
                       },
                       this.setControls,

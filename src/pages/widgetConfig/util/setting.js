@@ -179,6 +179,12 @@ export const getVerifyInfo = (data, { controls }) => {
       return { isValid: false, text: _l('没有配置映射字段') };
     }
   }
+  if (type === 47) {
+    const { enumDefault, enumDefault2, dataSource } = data;
+    if (((enumDefault === 1 || enumDefault2 === 3) && !dataSource) || (enumDefault === 2 && enumDefault2 === 0)) {
+      return { isValid: false, text: _l('没有配置数据源') };
+    }
+  }
   return { isValid };
 };
 
@@ -195,7 +201,7 @@ export const isAutoNumberSelectableControl = item => {
  */
 export const isExceedMaxControlLimit = (controls = []) => {
   const existedControls = controls.filter(item => !NO_CONTENT_CONTROL.includes(item.type)) || [];
-  if (existedControls.length > MAX_CONTROLS_COUNT) {
+  if (existedControls.length >= MAX_CONTROLS_COUNT) {
     alert(_l('表单中添加字段数量已达上限（%0个)', MAX_CONTROLS_COUNT));
     return true;
   }

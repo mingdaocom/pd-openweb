@@ -3,6 +3,7 @@ export function loading(state = true, action) {
     case 'WORKSHEET_UPDATE_LOADING':
       return action.loading;
     case 'WORKSHEET_INIT':
+    case 'WORKSHEET_INIT_FAIL':
       return false;
     case 'WORKSHEET_FETCH_START':
       return true;
@@ -12,11 +13,29 @@ export function loading(state = true, action) {
 }
 
 export function worksheetInfo(state = {}, action) {
+  let newState;
   switch (action.type) {
     case 'WORKSHEET_INIT':
       return action.value;
     case 'WORKSHEET_UPDATE_WORKSHEETINFO':
       return { ...state, ...action.info };
+    case 'WORKSHEET_UPDATE_SOME_CONTROLS':
+      try {
+        newState = {
+          ...state,
+          template: {
+            ...state.template,
+            controls: state.template.controls.map(c => {
+              const matchedControl = _.find(action.controls, { controlId: c.controlId });
+              return matchedControl ? { ...matchedControl, value: c.value } : c;
+            }),
+          },
+        };
+        return newState;
+      } catch (err) {
+        console.error(err);
+        return state;
+      }
     default:
       return state;
   }
@@ -25,6 +44,16 @@ export function worksheetInfo(state = {}, action) {
 export function sheetSwitchPermit(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_PERMISSION_INIT':
+      return action.value;
+    case 'WORKSHEET_FETCH_START':
+      return [];
+    default:
+      return state;
+  }
+}
+export function sheetSearchConfig(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_SEARCH_CONFIG_INIT':
       return action.value;
     case 'WORKSHEET_FETCH_START':
       return [];

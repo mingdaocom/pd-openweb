@@ -58,13 +58,9 @@ class Alias extends React.Component {
   }
 
   componentDidMount() {
-    const { formSet } = this.props;
-    const { worksheetInfo = [], worksheetId } = formSet;
-    const { template = [], projectId = '', appId = '' } = worksheetInfo;
-    const { controls = [] } = template;
-    this.setState({
-      controls: controls.filter(it => !SYS.includes(it.controlId)),
-    });
+    const { match, getWorksheetInfo } = this.props;
+    const { worksheetId } = match.params;
+    getWorksheetInfo(worksheetId);
   }
 
   componentWillReceiveProps(nextProps) {

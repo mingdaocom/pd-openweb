@@ -16,6 +16,7 @@ export default class UploadFile extends Component {
       runtimes: 'html5',
       max_file_count: 1,
       browse_button: _this.con,
+      drop_element: 'importExcelBox',
       multi_selection: false,
       max_file_size: '4mb',
       filters: [

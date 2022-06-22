@@ -139,7 +139,7 @@ const tags = [
           break;
       }
       return {
-        element: <span>@{name}</span>,
+        element: <a>@{name}</a>,
         length: name.length + 1,
       };
     },

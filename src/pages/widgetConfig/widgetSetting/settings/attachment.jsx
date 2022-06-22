@@ -41,8 +41,8 @@ const WATERMARK_TYPE = [
 ];
 
 export default function Attachment({ from, data, onChange }) {
-  const { enumDefault, enumDefault2, strDefault = '', advancedSetting = {} } = data;
-  const [disableAlbum, onlyAllowMobileInput] = strDefault.split('');
+  const { enumDefault, enumDefault2, strDefault, advancedSetting = {} } = data;
+  const [disableAlbum, onlyAllowMobileInput] = (strDefault || '00').split('');
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');
   const originWatermark = JSON.parse(advancedSetting.watermark || '[]');
   const [visible, setVisible] = useState(false);
@@ -55,6 +55,20 @@ export default function Attachment({ from, data, onChange }) {
   useEffect(() => {
     setWatermark(originWatermark);
   }, [data.controlId]);
+
+  useEffect(() => {
+    if (!_.includes([1, 2, 3], enumDefault2)) {
+      onChange({
+        ...handleAdvancedSettingChange(data, {
+          watermark: '',
+          compress: '0',
+          getsave: '0',
+          getinput: '0',
+        }),
+        strDefault: '',
+      });
+    }
+  }, [enumDefault2]);
 
   return (
     <Fragment>
@@ -136,7 +150,7 @@ export default function Attachment({ from, data, onChange }) {
                   size="small"
                   checked={onlyAllowMobileInput === '1'}
                   onClick={checked =>
-                    onChange({ strDefault: updateConfig({ config: strDefault, value: +!checked, index: 1 }) })
+                    onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 1 }) })
                   }
                   text={'禁止从桌面端输入'}
                 />
@@ -146,7 +160,7 @@ export default function Attachment({ from, data, onChange }) {
                   size="small"
                   checked={disableAlbum === '1'}
                   onClick={checked =>
-                    onChange({ strDefault: updateConfig({ config: strDefault, value: +!checked, index: 0 }) })
+                    onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 0 }) })
                   }
                   text={_l('禁用相册')}
                 />

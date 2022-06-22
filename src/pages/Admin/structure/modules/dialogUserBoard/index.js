@@ -3,6 +3,7 @@ var mdDialog = require('mdDialog').index;
 var userController = require('src/api/user');
 var importUserController = require('src/api/importUser');
 var Confirm = require('confirm');
+import ValidatePassword from '../validatePasswordDialog';
 import { getPssId } from 'src/util/pssId';
 import './style.less';
 
@@ -23,9 +24,12 @@ const exportUsers = (projectId, accountIds = []) => {
   })
     .then(response => response.blob())
     .then(blob => {
+      let date = moment(new Date()).format('YYYYMMDDHHmmss');
+      const fileName = `${date}` + '.xlsx';
       const link = document.createElement('a');
 
       link.href = window.URL.createObjectURL(blob);
+      link.download = fileName;
       link.click();
       window.URL.revokeObjectURL(link.href);
     });
@@ -76,7 +80,13 @@ UserBoard.prototype.exportDialog = function () {
             alert(_l('请选择要导出的用户'), 3);
             return false;
           }
-          exportUsers(options.projectId, options.selected);
+          const closeValidateDialog = ValidatePassword({
+            header: _l('请输入登录密码，以验证管理员身份'),
+            callback: () => {
+              exportUsers(options.projectId, options.selected);
+              closeValidateDialog.closeDialog();
+            },
+          });
         },
         noFn: function () {
           options.noFn.call(null);
@@ -94,7 +104,13 @@ UserBoard.prototype.exportDialog = function () {
         content: _l('确认要导出所有成员？'),
         yesText: _l('确认导出'),
         yesFn: function () {
-          exportUsers(options.projectId);
+          const closeValidateDialog = ValidatePassword({
+            header: _l('请输入登录密码，以验证管理员身份'),
+            callback: () => {
+              exportUsers(options.projectId, options.selected);
+              closeValidateDialog.closeDialog();
+            },
+          });
         },
       },
     });

@@ -79,6 +79,10 @@ class Tooltip extends Component {
      * 是否禁用
      */
     disable: PropTypes.bool,
+    /**
+     * 是否禁用动画
+     */
+    disableAnimation: PropTypes.bool,
   };
   static defaultProps = {
     action: ['hover'],
@@ -94,12 +98,20 @@ class Tooltip extends Component {
     return (
       <div className={cx('Tooltip-wrapper', tooltipClass)}>
         <div className="Tooltip-arrow" />
-        <div className="Tooltip-content" onScroll={(e) => { e.stopPropagation(); }}>{cloneElement(text)}</div>
+        <div
+          className="Tooltip-content"
+          onScroll={e => {
+            e.stopPropagation();
+          }}
+        >
+          {cloneElement(text)}
+        </div>
       </div>
     );
   }
   render() {
-    const { action, children, popupPlacement, themeColor, offset, overflow, popupVisible, disable } = this.props;
+    const { action, children, popupPlacement, themeColor, offset, overflow, popupVisible, disable, disableAnimation } =
+      this.props;
     const [adjustX, adjustY] = overflow;
 
     const props = Object.assign(
@@ -109,7 +121,7 @@ class Tooltip extends Component {
         prefixCls: 'Tooltip',
         action,
         popup: this.renderPopup(),
-        popupTransitionName: `Tooltip-move-${popupPlacement}`,
+        popupTransitionName: disableAnimation ? '' : `Tooltip-move-${popupPlacement}`,
         builtinPlacements,
         popupAlign: {
           offset,
@@ -119,7 +131,7 @@ class Tooltip extends Component {
           },
         },
       },
-      this.props
+      this.props,
     );
     if (disable) {
       props.popupVisible = false;

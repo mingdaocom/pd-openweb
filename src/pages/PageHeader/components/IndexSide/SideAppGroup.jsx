@@ -9,7 +9,7 @@ const TYPE_TO_TITLE = {
   markedApps: _l('星标应用'),
   aloneApps: _l('个人'),
   expireProject: _l('过期应用'),
-  externalApps: _l('外部应用'),
+  externalApps: _l('外部协作'),
 };
 
 export default class SideAppGroup extends Component {

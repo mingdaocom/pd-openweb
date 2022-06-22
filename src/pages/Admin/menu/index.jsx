@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { Tooltip } from 'ming-ui';
 import pathToRegexp from 'path-to-regexp';
+import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 import './index.less';
 
@@ -18,14 +19,14 @@ export default class AdminLeftMenu extends Component {
   componentDidMount() {
     const {
       match: {
-        params: { projectId }
+        params: { projectId },
       },
     } = this.props;
     md.global.Account.projects &&
       md.global.Account.projects.map(item => {
         if (item.projectId === projectId) {
           this.setState({
-            currentCompanyName: item.companyName
+            currentCompanyName: item.companyName,
           });
         }
       });
@@ -35,7 +36,7 @@ export default class AdminLeftMenu extends Component {
     const {
       location: { pathname },
       match: {
-        params: { projectId }
+        params: { projectId },
       },
     } = this.props;
     const isActive = () => {
@@ -46,14 +47,21 @@ export default class AdminLeftMenu extends Component {
     const path =
       route.path && route.path.indexOf(':projectId') === -1 ? compile({ 0: projectId }) : compile({ projectId });
     return (
-      <Tooltip disable={this.state.isExtend} popupPlacement="right" offset={[0, 0]} text={<span>{name}</span>} key={key}>
+      <Tooltip
+        disable={this.state.isExtend}
+        popupPlacement="right"
+        offset={[0, 0]}
+        text={<span>{name}</span>}
+        key={key}
+      >
         <li className="item">
           <NavLink
             id="linkAct"
             to={path}
             className={cx('ThemeHoverBGColor7', this.state.isExtend ? 'extendAct' : 'closeAct')}
             activeClassName="activeItem"
-            isActive={isActive}>
+            isActive={isActive}
+          >
             <i className={cx('Font20 color_c iconBox', icon)} />
             <div className="subName">{name}</div>
           </NavLink>
@@ -75,16 +83,25 @@ export default class AdminLeftMenu extends Component {
 
   render() {
     const { currentCompanyName, isExtend } = this.state;
-    const { menuList } = this.props
+    const { menuList, match } = this.props;
+    const { params } = match;
     return (
       <div id="menuList" className={cx(isExtend ? 'extendList' : 'closeList')}>
         <div className="ThemeBGColor9 h100 Relative menuContainer">
           <div className="title">
-            <div className="companyName">{currentCompanyName}</div>
+            <div
+              className="companyName Hand"
+              onClick={() => {
+                navigateTo(`/admin/home/${params.projectId}`);
+              }}
+            >
+              {currentCompanyName}
+            </div>
             <Tooltip
               popupPlacement="right"
               offset={[10, 0]}
-              text={<span>{isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}>
+              text={<span>{isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}
+            >
               <span
                 className={cx('Hand Font12 ThemeColor9 titleIconBox Block', isExtend ? 'icon-back-02' : 'icon-next-02')}
                 onClick={this.handleTransition.bind(this)}
@@ -95,7 +112,7 @@ export default class AdminLeftMenu extends Component {
             {menuList &&
               menuList.map((item, index) => {
                 return (
-                  <div key={index} className={cx({ 'Hidden': item.subMenuList&&!item.subMenuList.length})}>
+                  <div key={index} className={cx({ Hidden: item.subMenuList && !item.subMenuList.length })}>
                     <div className="Font12 mTop24 mBottom4 color_c pLeft20">
                       {!isExtend && item.title ? <span className="muneSplitLine"></span> : item.title}
                     </div>

@@ -2,14 +2,18 @@ import React, { Component, Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import GalleryView from 'src/pages/worksheet/views/GalleryView';
-import * as actions from 'src/pages/Mobile/RecordList/redux/actions';
+import * as actions from 'mobile/RecordList/redux/actions';
 import * as galleryActions from 'src/pages/worksheet/redux/actions/galleryview.js';
-import Search from 'src/pages/Mobile/RecordList/QuickFilter/Search';
+import Search from 'mobile/RecordList/QuickFilter/Search';
 import { getAdvanceSetting } from 'src/util';
 import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+
+const SearchWrapper = styled.div`
+  background-color: #f5f5f9;
+`;
 
 const FilterWrapper = styled.div`
   background-color: #fff;
@@ -63,7 +67,7 @@ class MobileGalleryView extends Component {
     const isFilter = quickFilter.filter(item => !TextTypes.includes(item.dataType)).length;
     return (
       <Fragment>
-        <div className="flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
+        <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
           <Search textFilters={textFilters} />
           {!_.isEmpty(excludeTextFilter) && (
             <FilterWrapper>
@@ -77,7 +81,7 @@ class MobileGalleryView extends Component {
               />
             </FilterWrapper>
           )}
-        </div>
+        </SearchWrapper>
         <GalleryView {...this.props} hasGroupFilter={hasGroupFilter} />
       </Fragment>
     );

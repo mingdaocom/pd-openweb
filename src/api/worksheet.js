@@ -1,5 +1,18 @@
 module.exports = {
   /**
+  * 修改打印空数据显影
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {boolean} args.showData 是否显影
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editShowData: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditShowData', args, options);
+   },
+  /**
   * 获取 工作表 索引字段配置
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表Id
@@ -110,6 +123,33 @@ module.exports = {
      return $.api('Worksheet', 'EditRowByLink', args, options);
    },
   /**
+  * 获取工作表创建记录表单提交设置信息
+  * @param {Object} args 请求参数
+  * @param {string} args.workSheetId 工作表Id
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFormSubmissionSettings: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetFormSubmissionSettings', args, options);
+   },
+  /**
+  * 更新工作表创建记录表单设置信息
+  * @param {Object} args 请求参数
+  * @param {string} args.workSheetId 工作表id
+  * @param {string} args.appId 应用id
+  * @param {object} args.advancedSetting 配置项数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFormSubmissionSettings: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'UpdateFormSubmissionSettings', args, options);
+   },
+  /**
   * 获取功能系统开关配置
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -136,6 +176,19 @@ module.exports = {
    editSwitch: function (args, options = {}) {
      
      return $.api('Worksheet', 'EditSwitch', args, options);
+   },
+  /**
+  * 更新系统配置开关（批量）
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {array} args.switchList
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchEditSwitch: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'BatchEditSwitch', args, options);
    },
   /**
   * 获取功能系统开关（包含管理员判断）
@@ -562,7 +615,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -582,7 +635,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -1583,6 +1636,8 @@ module.exports = {
   * @param {array} args.controls 控件集合
   * @param {string} args.appId 应用ID
   * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1600,6 +1655,8 @@ module.exports = {
   * @param {array} args.controls 控件集合
   * @param {string} args.appId 应用ID
   * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1616,7 +1673,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -1636,7 +1693,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -1657,6 +1714,8 @@ module.exports = {
   * @param {array} args.controls 控件集合
   * @param {string} args.appId 应用ID
   * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1688,6 +1747,8 @@ module.exports = {
   * @param {array} args.controls 控件集合
   * @param {string} args.appId 应用ID
   * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1704,7 +1765,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -1725,6 +1786,8 @@ module.exports = {
   * @param {array} args.controls 控件集合
   * @param {string} args.appId 应用ID
   * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1741,7 +1804,7 @@ module.exports = {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部
+  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -1752,6 +1815,25 @@ module.exports = {
    deleteWorksheetAutoID: function (args, options = {}) {
      
      return $.api('Worksheet', 'DeleteWorksheetAutoID', args, options);
+   },
+  /**
+  * 编辑控件状态
+  * @param {Object} args 请求参数
+  * @param {string} args.sourceId 兼容老数据
+  * @param {string} args.worksheetId WorksheetId
+  * @param {integer} args.version 版本号
+  * @param {array} args.controls 控件集合
+  * @param {string} args.appId 应用ID
+  * @param {string} args.controlId 控件ID
+  * @param {array} args.controlIds 控件IDs
+  * @param {integer} args.status 状态 1:恢复 999：彻底删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editControlsStatus: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditControlsStatus', args, options);
    },
   /**
   * 获取系统打印列表
@@ -1881,18 +1963,5 @@ module.exports = {
    deletePrint: function (args, options = {}) {
      
      return $.api('Worksheet', 'DeletePrint', args, options);
-   },
-  /**
-  * 修改打印空数据显影
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {boolean} args.showData 是否显影
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editShowData: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditShowData', args, options);
    },
 };

@@ -49,9 +49,15 @@
                 {{!user.fullname || ''}}
             </div>
             <div class="userCompany overflow_ellipsis Gray_bd Font12">
-                {{! user.job || user.profession ||''}}
-                {{=(user.job || user.profession) && user.companyName ? ' / ' : ''}}
-                {{! user.companyName || ''}}
+                {{? user.projectId && user.projectId && user.projectId === it.projectId }}
+                {{=(user.department ? user.department :  '')}}
+                {{=(user.department && user.job ? ' / ' : '')}}
+                {{!user.job}}
+                {{??}}
+                {{=(user.profession ? user.profession :  '')}}
+                {{=(user.profession && user.companyName ? ' / ' : '')}}
+                {{!user.companyName}}
+                {{?}}
             </div>
         </div>
         {{?}}

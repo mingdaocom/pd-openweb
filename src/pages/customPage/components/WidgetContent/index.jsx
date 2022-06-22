@@ -4,7 +4,7 @@ import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import styled from 'styled-components';
 import cx from 'classnames';
-import reportConfig from 'src/pages/worksheet/common/Statistics/api/reportConfig';
+import reportConfig from 'statistics/api/reportConfig';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -38,7 +38,7 @@ const LayoutContent = styled.div`
         border: none;
       }
     }
-    &.analysis {
+    &.analysis, &.embedUrl {
       overflow: visible;
     }
     &:hover {
@@ -129,6 +129,7 @@ function WidgetContent(props) {
     isFullscreen = false,
     adjustScreen,
     apk,
+    isCharge
   } = props;
   const [loading, setLoading] = useState(false);
   const [isEdit, setEdit] = useState(false);
@@ -291,6 +292,7 @@ function WidgetContent(props) {
                   widget={widget}
                   editingWidget={editingWidget}
                   ids={ids}
+                  isCharge={isCharge}
                   projectId={apk.projectId}
                   ref={el => {
                     displayRefs[index] = el;
@@ -325,6 +327,7 @@ export default errorBoundary(
     state => ({
       chatVisible: state.chat.visible,
       sheetListVisible: state.sheetList.isUnfold,
+      isCharge: state.sheet.isCharge
     }),
     dispatch => bindActionCreators(actions, dispatch),
   )(WidgetContent),

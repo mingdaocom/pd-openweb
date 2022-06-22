@@ -53,15 +53,15 @@ const Footer = styled.div`
   .cancelBtn:hover {
     color: #1e88e5;
   }
-  .disabledCofirmBtn {
+  .disabledConfirmBtn {
     color: #fff;
     background: #bdbdbd;
   }
-  .comfirmBtn {
+  .confirmBtn {
     background: #2196f3;
     cursor: pointer;
   }
-  .comfirmBtn:hover {
+  .confirmBtn:hover {
     background-color: #1565c0;
   }
 `;
@@ -69,8 +69,8 @@ const Footer = styled.div`
 export default function CreateBackupModal(props) {
   const { appId, projectId, appName, getList = () => {} } = props;
   const [validLimit, setValidLimit] = useState(0);
-  const [currentValid, setCcurrentValid] = useState(0);
-  const [countLoading, setCounLoading] = useState(true);
+  const [currentValid, setCurrentValid] = useState(0);
+  const [countLoading, setCountLoading] = useState(true);
   useEffect(() => {
     if (!appId) return;
     getBackupCount();
@@ -78,9 +78,9 @@ export default function CreateBackupModal(props) {
 
   const getBackupCount = () => {
     getValidBackupFileInfo({ appId, projectId }).then(res => {
-      setCounLoading(false);
+      setCountLoading(false);
       setValidLimit(res.validLimit);
-      setCcurrentValid(res.currentValid);
+      setCurrentValid(res.currentValid);
     });
   };
   const onOk = () => {
@@ -122,7 +122,7 @@ export default function CreateBackupModal(props) {
     <Dialog
       title={_l('确认备份“%0”应用？', appName)}
       visible={true}
-      widhth={580}
+      width={580}
       onCancel={() => props.closeDialog()}
       className="createIndexDialog"
       overlayClosable={false}
@@ -131,7 +131,7 @@ export default function CreateBackupModal(props) {
           <span className="cancelBtn" onClick={props.closeDialog}>
             {_l('取消')}
           </span>
-          <span className="comfirmBtn" onClick={onOk}>
+          <span className="confirmBtn" onClick={onOk}>
             {_l('确认')}
           </span>
         </Footer>

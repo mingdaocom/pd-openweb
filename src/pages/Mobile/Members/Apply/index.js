@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import Back from '../../components/Back';
 import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace, Modal } from 'antd-mobile';
-import { WithoutRows } from 'src/pages/Mobile/RecordList/SheetRows';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';

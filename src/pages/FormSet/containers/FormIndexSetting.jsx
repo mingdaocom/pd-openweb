@@ -181,7 +181,7 @@ const Con = styled.div`
 
 const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引') };
-const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30];
+const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47];
 
 function FormIndexSetting(props) {
   const { worksheetId, appId } = props;
@@ -344,54 +344,56 @@ function FormIndexSetting(props) {
                       ) : (
                         <span className="Bold"> {item.customeIndexName}</span>
                       )}
-                      {!isSpecial && (
+                      {
                         <Icon
                           icon="task-point-more"
                           className="moreActive Hand Font18 Gray_9e"
                           onClick={() => {
                             setShowMoreOption(true);
-                            setTemplateId(item.indexConfigId);
+                            setTemplateId(item.indexConfigId ? item.indexConfigId : item.systemIndexName);
                           }}
                         />
-                      )}
-                      {showMoreOption && templateId === item.indexConfigId && (
-                        <MoreOption
-                          disabledRename={item.isSystem}
-                          delTxt={_l('删除索引')}
-                          description={_l('确定删除索引吗？删除后将无法恢复')}
-                          showMoreOption={showMoreOption}
-                          onClickAwayExceptions={[]}
-                          onClickAway={() => {
-                            setShowMoreOption(false);
-                          }}
-                          setFn={data => {
-                            setIsRename(true);
-                            setShowMoreOption(false);
-                          }}
-                          deleteFn={data => {
-                            removeRowIndex({
-                              appId,
-                              worksheetId: item.worksheetId,
-                              indexConfigId: item.indexConfigId,
-                              isSystemIndex: item.isSystem,
-                              systemIndexName: item.systemIndexName,
-                            }).then(res => {
-                              if (res.responseEnum === 0) {
-                                alert(_l('删除成功'));
-                                getIndexesInfo();
-                              } else if (res.responseEnum === -1) {
-                                alert(_l('删除失败'));
-                              }
-                            });
-                          }}
-                        />
-                      )}
+                      }
+                      {showMoreOption &&
+                        (templateId === item.indexConfigId ||
+                          (item.isSystem && templateId === item.systemIndexName)) && (
+                          <MoreOption
+                            disabledRename={item.isSystem}
+                            delTxt={_l('删除索引')}
+                            description={_l('确定删除索引吗？删除后将无法恢复')}
+                            showMoreOption={showMoreOption}
+                            onClickAwayExceptions={[]}
+                            onClickAway={() => {
+                              setShowMoreOption(false);
+                            }}
+                            setFn={data => {
+                              setIsRename(true);
+                              setShowMoreOption(false);
+                            }}
+                            deleteFn={data => {
+                              removeRowIndex({
+                                appId,
+                                worksheetId: item.worksheetId,
+                                indexConfigId: item.indexConfigId,
+                                isSystemIndex: item.isSystem,
+                                systemIndexName: item.systemIndexName,
+                              }).then(res => {
+                                if (res.responseEnum === 0) {
+                                  alert(_l('删除成功'));
+                                  getIndexesInfo();
+                                } else if (res.responseEnum === -1) {
+                                  alert(_l('删除失败'));
+                                }
+                              });
+                            }}
+                          />
+                        )}
                     </div>
                     <div className="con">
                       <div className="content">
                         {(item.indexFields || []).map((it, i) => (
                           <div className="ruleItem" key={it.fieldId}>
-                            <span className={cx('filed', { Red: it.isDelete })}>
+                            <span className={cx('filed', { Red: it.isDelete && !item.isSystem })}>
                               {it.isDelete && !item.isSystem
                                 ? _l('字段已删除')
                                 : _.get(getFieldObjById(it.fieldId), 'name')
