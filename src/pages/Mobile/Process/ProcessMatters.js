@@ -1,9 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { Tabs, Flex } from 'antd-mobile';
-import Icon from 'ming-ui/components/Icon';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { Tabs, Flex, Checkbox, Toast, Modal } from 'antd-mobile';
+import { Icon, LoadDiv, ScrollView, Signature } from 'ming-ui';
 import Back from '../components/Back';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -12,6 +10,7 @@ import Card from './Card';
 import { getRequest } from 'src/util';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
+import 'mobile/ProcessRecord/OtherAction/index.less';
 
 const tabs = [{
   name: _l('待办'),
@@ -76,7 +75,10 @@ export default class ProcessMatters extends Component {
       searchValue: '',
       countData: {},
       appCount: {},
-      previewRecord: {}
+      previewRecord: {},
+      batchApproval: false,
+      approveCards: [],
+      approveType: null
     }
   }
   componentDidMount() {
@@ -190,6 +192,98 @@ export default class ProcessMatters extends Component {
       countData: countDataState
     });
   }
+  hanndleApprove = (type, batchType) => {
+    const { approveCards } = this.state;
+    const signatureCard = _.find(approveCards, { flowNode: { [batchType]: 1 } });
+    if (_.isEmpty(approveCards)) {
+      Toast.info(_l('请先勾选需要处理的审批'), 2);
+    }
+    if (signatureCard) {
+      this.setState({ approveType: type });
+    } else {
+      this.handleBatchApprove(null, type);
+    }
+  }
+  handleBatchApprove = (signature, approveType) => {
+    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
+    const { approveCards } = this.state;
+    const selects = approveCards.map(({ id, workId, flowNode }) => {
+      const data = { id, workId };
+      if (flowNode[batchType] === 1) {
+        return {
+          ...data,
+          signature,
+        };
+      } else {
+        return data;
+      }
+    });
+    instanceVersion.batch({
+      type: 4,
+      batchOperationType: approveType,
+      selects,
+    }).then(result => {
+      if (result) {
+        Toast.info(_l('操作成功'), 2);
+        this.setState({ batchApproval: false, approveCards: [] });
+        this.getTodoList();
+        this.getTodoCount();
+      }
+    });
+  }
+  renderSignatureDialog() {
+    const { approveCards, approveType } = this.state;
+    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
+    const signatureApproveCards = approveCards.filter(item => item.flowNode[batchType] === 1);
+    return (
+      <Modal
+        popup
+        visible={true}
+        onClose={() => {
+          this.setState({ approveType: null });
+        }}
+        animationType="slide-up"
+      >
+        <div className={cx('otherActionWrapper flexColumn')} style={{ height: 350 }}>
+          <div className="flex pAll10">
+            <div className="Gray_75 Font14 TxtLeft mBottom10">
+              {_l('包含需要%0个需要签名的审批事项', signatureApproveCards.length)}
+            </div>
+            <Signature
+              ref={signature => {
+                this.signature = signature;
+              }}
+            />
+          </div>
+          <div className="flexRow actionBtnWrapper">
+            <div
+              className="flex actionBtn"
+              onClick={() => {
+                this.setState({ approveType: null });
+              }}
+            >
+              {_l('取消')}
+            </div>
+            <div
+              className="flex actionBtn ok"
+              onClick={() => {
+                if (this.signature.checkContentIsEmpty()) {
+                  alert(_l('请填写签名', 2));
+                  return;
+                }
+                this.signature.saveSignature(signature => {
+                  this.handleBatchApprove(signature, this.state.approveType);
+                  this.setState({ approveType: null });
+                });
+              }}
+            >
+              {_l('通过')}
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
   renderCount(tab) {
     const { countData, appCount } = this.state;
     const { appId } = getRequest();
@@ -263,7 +357,7 @@ export default class ProcessMatters extends Component {
     );
   }
   renderContent() {
-    const { stateTab, list, loading, pageIndex, filter, bottomTab, topTab } = this.state;
+    const { stateTab, batchApproval, list, loading, pageIndex, filter, bottomTab, topTab, approveCards } = this.state;
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
@@ -273,6 +367,8 @@ export default class ProcessMatters extends Component {
               type={filter ? filter.type : null}
               time={createTimeSpan(item.workItem.receiveTime)}
               currentTab={topTab ? topTab.id : bottomTab.id}
+              approveChecked={!_.isEmpty(_.find(approveCards, { id: item.id }))}
+              batchApproval={batchApproval}
               renderBodyTitle={() => {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
               }}
@@ -283,6 +379,18 @@ export default class ProcessMatters extends Component {
                 // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
               onApproveDone={this.handleApproveDone}
+              onChangeApproveCards={(e) => {
+                const { checked } = e.target;
+                if (checked) {
+                  this.setState({
+                    approveCards: approveCards.concat(item)
+                  });
+                } else {
+                  this.setState({
+                    approveCards: approveCards.filter(n => n.id !== item.id),
+                  });
+                }
+              }}
             />
           </div>
         ))}
@@ -292,8 +400,9 @@ export default class ProcessMatters extends Component {
     );
   }
   render() {
-    const { bottomTab, topTab, previewRecord } = this.state;
+    const { batchApproval, list, countData, bottomTab, topTab, previewRecord, approveCards, approveType } = this.state;
     const currentTabs = bottomTab.tabs;
+    const allowApproveList = list.filter(c => ![-1, -2].includes(_.get(c, 'flowNode.batchType')));
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
@@ -307,7 +416,50 @@ export default class ProcessMatters extends Component {
                 <span>{tab.name} {this.renderCount(tab)}</span>
               )}>
             </Tabs>
+            {batchApproval && (
+              <div className="batchApprovalHeader valignWrapper Font16">
+                <div className="bold">
+                  {_l('待审批')}
+                  {countData.waitingApproval && `(${countData.waitingApproval})`}
+                </div>
+                <a onClick={() => { this.setState({ batchApproval: false, approveCards: [] }) }}>{_l('完成')}</a>
+              </div>
+            )}
           </div>
+          {batchApproval && (
+            <div className="batchApprovalFooter">
+              <div className="valignWrapper">
+                <Checkbox
+                  checked={allowApproveList.length && allowApproveList.length === approveCards.length}
+                  onChange={e => {
+                    const { checked } =  e.target;
+                    if (checked) {
+                      if (allowApproveList.length) {
+                        Toast.info(_l('全选%0条可批量审批的记录', allowApproveList.length), 2);
+                        this.setState({ approveCards: allowApproveList });
+                      } else {
+                        Toast.info(_l('没有允许批量审批的记录，请打开记录逐条审批'), 2);
+                      }
+                    } else {
+                      this.setState({ approveCards: [] });
+                    }
+                  }}
+                />
+                <div className="mLeft5">
+                  {_l('全选')}
+                  {approveCards.length ? (
+                    _l('（已选择%0/%1条）', approveCards.length, list.length)
+                  ) : (
+                    list.length !== countData.waitingApproval && _l('（已加载%0条）', list.length)
+                  )}
+                </div>
+              </div>
+              <div className="valignWrapper">
+                <div className="pass mRight30" onClick={() => { this.hanndleApprove(4, 'passBatchType') }}>{_l('通过')}</div>
+                <div className="overrule" onClick={() => { this.hanndleApprove(5, 'overruleBatchType') }}>{_l('否决')}</div>
+              </div>
+            </div>
+          )}
           {['processed', 'mySponsor'].includes(bottomTab.id) ? this.renderInput() : null}
           {this.renderContent()}
           <div className="processTabs bottomProcessTabs">
@@ -324,11 +476,25 @@ export default class ProcessMatters extends Component {
             </Tabs>
           </div>
         </div>
-        <Back
-          onClick={() => {
-            history.back();
-          }}
-        />
+        {!batchApproval && (
+          <Back
+            onClick={() => {
+              history.back();
+            }}
+          />
+        )}
+        {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
+          <Flex
+            justify="center"
+            align="center"
+            className="card processBatchOperation"
+            onClick={() => {
+              this.setState({ batchApproval: true });
+            }}
+          >
+            <Icon className="Font20 Gray_9e" icon="task-complete" />
+          </Flex>
+        )}
         <ProcessRecordInfo
           isModal
           className="full"
@@ -344,6 +510,7 @@ export default class ProcessMatters extends Component {
             });
           }}
         />
+        {approveType && this.renderSignatureDialog()}
       </div>
     );
   }

@@ -228,7 +228,7 @@ export default class Workwx extends React.Component {
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
-          {this.state.canEditInfo ? (
+          {this.state.canEditInfo && this.state.intergrationType !== 2 ? (
             <React.Fragment>
               <input
                 type="text"
@@ -338,48 +338,50 @@ export default class Workwx extends React.Component {
             )}
           </div>
         )}
-        {intergrationType !== 2 && (
-          <div className="stepItem Relative">
-            <h3 className="stepTitle Font16 Gray">{_l('2.对接信息录入')}</h3>
-            {!this.state.show2 && (
-              <div
-                className="showDiv flexRow valignWrapper"
-                onClick={() => {
-                  this.setState({
-                    show2: true,
-                  });
-                }}
+        <div className="stepItem Relative">
+          <h3 className="stepTitle Font16 Gray">{intergrationType === 2 ? _l('1.对接信息') : _l('2.对接信息录入')}</h3>
+          {!this.state.show2 && intergrationType !== 2 && (
+            <div
+              className="showDiv flexRow valignWrapper"
+              onClick={() => {
+                this.setState({
+                  show2: true,
+                });
+              }}
+            >
+              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+            </div>
+          )}
+          {((this.state.isHasInfo && this.state.show2) || intergrationType === 2) && (
+            <span className="Font13 Gray_75 Right closeDing">
+              <span
+                className="mLeft10 switchBtn tip-bottom-left"
+                data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
               >
-                <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
-              </div>
-            )}
-            {this.state.isHasInfo && this.state.show2 && (
-              <span className="Font13 Gray_75 Right closeDing">
-                <span
-                  className="mLeft10 switchBtn tip-bottom-left"
-                  data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
-                >
-                  <Switch
-                    checked={!this.state.isCloseDing}
-                    onClick={checked => {
-                      this.editDingStatus(checked ? 2 : 1);
-                    }}
-                  />
-                </span>
+                <Switch
+                  checked={!this.state.isCloseDing}
+                  onClick={checked => {
+                    this.editDingStatus(checked ? 2 : 1);
+                  }}
+                />
               </span>
-            )}
-            {!this.state.isCloseDing && this.state.show2 && (
-              <React.Fragment>
+            </span>
+          )}
+          {((!this.state.isCloseDing && this.state.show2) || intergrationType === 2) && (
+            <React.Fragment>
+              {intergrationType !== 2 && (
                 <p className="mTop16 Font14 Gray_75">
                   {_l('完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录')}
                 </p>
-                <div className="mTop25 infoList">
-                  <ul>
-                    <li>{this.inputRender('CorpId', 600, 1)}</li>
-                    <li className="mTop16">{this.inputRender('AgentId', 600, 2)}</li>
-                    <li className="mTop16">{this.inputRender('Secret', 600, 3, 4)}</li>
-                  </ul>
-                </div>
+              )}
+              <div className="mTop25 infoList">
+                <ul>
+                  <li>{this.inputRender('CorpId', 600, 1)}</li>
+                  <li className="mTop16">{this.inputRender('AgentId', 600, 2)}</li>
+                  <li className="mTop16">{this.inputRender('Secret', 600, 3, 4)}</li>
+                </ul>
+              </div>
+              {intergrationType !== 2 && (
                 <div className="TxtRight mTop30">
                   {!this.state.canEditInfo ? (
                     <Button
@@ -405,12 +407,12 @@ export default class Workwx extends React.Component {
                     </Button>
                   )}
                 </div>
-              </React.Fragment>
-            )}
-          </div>
-        )}
+              )}
+            </React.Fragment>
+          )}
+        </div>
         <div className="stepItem">
-          <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', intergrationType !== 2 ? '3.' : '')}</h3>
+          <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', intergrationType !== 2 ? '3.' : '2.')}</h3>
           <div className="mTop16 syncBox">
             <span className="Font14 syncTxt Gray_75">{_l('从企业微信通讯录同步到该系统')}</span>
             <Button
@@ -655,9 +657,9 @@ export default class Workwx extends React.Component {
                 this.stepRender()
               )}
             </Tabs.TabPane>
-            {this.state.status === 1 && (
+            {(this.state.status === 1 || intergrationType === 2) && (
               <Tabs.TabPane tab={_l('其他')} key="other">
-                {intergrationType !== 2 && (
+                {
                   <div className="stepItem flexRow valignWrapper">
                     <div className="flex">
                       <h3 className="stepTitle Font16 Gray mBottom24">{_l('企业微信扫码登陆')}</h3>
@@ -673,16 +675,18 @@ export default class Workwx extends React.Component {
                       <div className="mTop16 syncBox">
                         <span className="Font14 Gray_75">{_l('开启后，可使用企业微信扫一扫，直接登录')}</span>
                       </div>
-                      <Link
-                        to={`/wxappSyncCourse/${Config.projectId}#scanWorkwx`}
-                        target="_blank"
-                        className="mTop16 Font14 howApply"
-                      >
-                        {_l('如何实现企业微信扫码登陆？')}
-                      </Link>
+                      {intergrationType !== 2 && (
+                        <Link
+                          to={`/wxappSyncCourse/${Config.projectId}#scanWorkwx`}
+                          target="_blank"
+                          className="mTop16 Font14 howApply"
+                        >
+                          {_l('如何实现企业微信扫码登陆？')}
+                        </Link>
+                      )}
                     </div>
                   </div>
-                )}
+                }
                 {md.global.Config.IsLocal && (
                   <IntegrationSetPssword
                     password={this.state.password}

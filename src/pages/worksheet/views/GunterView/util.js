@@ -19,7 +19,7 @@ export const changeViewConfig = (value = PERIOD_TYPE.day, viewConfig) => {
  * 根据用户屏幕获取 periodCount
  */
 export const getPeriodCount = (type, minDayWidth, viewConfig) => {
-  const { onlyWorkDay, dayOff } = viewConfig;
+  const { onlyWorkDay, dayOff = [] } = viewConfig;
   const monthDay = 30;
   const monthWorkDay = monthDay - (dayOff.length * 4);
   const screenWidth = browserIsMobile() ? screen.width * 2 : screen.width;

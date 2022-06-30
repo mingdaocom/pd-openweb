@@ -23,7 +23,7 @@ export default ({
   const [isRetry, setRetry] = useState(false);
   const [versionDate, setVersion] = useState('');
   const [currentWorkflowId, setWorkflowId] = useState('');
-  const showRetry = (status === 3 && _.includes([20001, 20002], cause)) || status === 4;
+  const showRetry = (status === 3 && _.includes([20001, 20002], cause)) || (status === 4 && cause !== 7777);
   const showSuspend = status === 1;
 
   return (

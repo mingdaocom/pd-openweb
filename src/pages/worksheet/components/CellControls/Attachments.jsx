@@ -246,7 +246,7 @@ function HoverPreviewPanel(props, cb = () => {}) {
     image.src = imageUrl;
   }, []);
   function handleDelete() {
-    if (isSubList && /^o_/.test(attachment.fileID)) {
+    if (isSubList) {
       deleteLocalAttachment(attachment.fileID);
     } else {
       deleteAttachmentOfControl(
@@ -262,11 +262,7 @@ function HoverPreviewPanel(props, cb = () => {}) {
           if (err) {
             alert(_l('删除失败，请稍后重试'), 2);
           } else {
-            if (isSubList) {
-              deleteLocalAttachment(attachment.fileID);
-            } else {
-              onUpdate(data[controlId]);
-            }
+            onUpdate(data[controlId]);
           }
         },
       );

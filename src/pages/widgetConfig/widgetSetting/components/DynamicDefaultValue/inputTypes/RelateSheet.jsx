@@ -46,8 +46,9 @@ export default class RelateSheet extends Component {
     const multiple = data.enumDefault === 2;
     const filterRowIds = dynamicValue.reduce((total, item) => {
       if (!item.cid) {
-        return total.concat(this.getRowId(item.staticValue));
+        total = total.concat(this.getRowId(item.staticValue));
       }
+      return total;
     }, []);
     return (
       <DynamicValueInputWrap>
@@ -80,7 +81,8 @@ export default class RelateSheet extends Component {
                 };
               });
               if (multiple) {
-                onDynamicValueChange(dynamicValue.concat(newValue));
+                const filterDynamicValue = (dynamicValue || []).filter(i => i.staticValue);
+                onDynamicValueChange(filterDynamicValue.concat(newValue));
               } else {
                 onDynamicValueChange(newValue);
               }

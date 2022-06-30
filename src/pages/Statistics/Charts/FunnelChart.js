@@ -268,7 +268,7 @@ export default class extends Component {
   }
   render() {
     const { count, originalCount, dropdownVisible, offset } = this.state;
-    const { summary, displaySetup } = this.props.reportData;
+    const { summary, displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown

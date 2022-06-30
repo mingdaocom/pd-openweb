@@ -138,9 +138,15 @@ class CustomScore extends Component {
               className={cx('StarScore-item', {
                 mobileStyle: isMobile && !this.props.disabled,
               })}
-              onClick={event => this.onSelect(index + 1, event)}
-              onMouseEnter={event => this.onMouseEnter(index + 1, event)}
-              onMouseLeave={this.onMouseLeave}
+              {...(isMobile
+                ? {
+                    onTouchStart: event => this.onSelect(index + 1, event),
+                  }
+                : {
+                    onClick: event => this.onSelect(index + 1, event),
+                    onMouseEnter: event => this.onMouseEnter(index + 1, event),
+                    onMouseLeave: this.onMouseLeave,
+                  })}
             >
               <CustomScoreIcon color={score > 0 && index < score ? selectColor : '#bdbdbd'}>
                 <Tooltip text={<span>{tipText}</span>} {...tipProps} disable={this.props.disabled || hideTip}>

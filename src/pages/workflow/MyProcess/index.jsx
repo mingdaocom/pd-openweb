@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import { Dialog, Icon, Button, LoadDiv, ScrollView, Signature } from 'ming-ui';
-import { Tooltip } from 'antd';
+import { Tooltip, Checkbox } from 'antd';
 import Card from './Card';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
@@ -429,6 +429,7 @@ export default class MyProcess extends Component {
           <div
             className={cx('item', { active: stateTab === TABS.WAITING_APPROVE })}
             onClick={() => {
+              this.setState({ approveCards: [] });
               this.handleChangeTab(TABS.WAITING_APPROVE);
             }}
           >
@@ -515,7 +516,7 @@ export default class MyProcess extends Component {
     );
   }
   renderFilter() {
-    const { stateTab, visible, filter, approveCards } = this.state;
+    const { stateTab, visible, filter, approveCards, list } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
 
@@ -523,6 +524,7 @@ export default class MyProcess extends Component {
       const isApprove = TABS.WAITING_APPROVE === stateTab;
       const count = isApprove ? waitingApproval : waitingWrite;
       const { passVisible, rejectVisible } = this.state;
+      const allowApproveList = list.filter(c => ![-1, -2].includes(_.get(c, 'flowNode.batchType')));
       return (
         <div className={cx('filterWrapper', { hide: count <= 0 })}>
           <div className="valignWrapper flex">
@@ -537,7 +539,32 @@ export default class MyProcess extends Component {
           </div>
           {isApprove && (
             <div className="valignWrapper Font14">
-              {!_.isEmpty(approveCards) && <div className="bold mRight24">{_l('已选择%0项', approveCards.length)}</div>}
+              <div className="valignWrapper mTop2">
+                <Checkbox
+                  checked={allowApproveList.length && allowApproveList.length === approveCards.length}
+                  onChange={(e) => {
+                    const { checked } = e.target;
+                    if (checked) {
+                      if (allowApproveList.length) {
+                        alert(_l('全选%0条可批量审批的记录', allowApproveList.length));
+                        this.setState({ approveCards: allowApproveList });
+                      } else {
+                        alert(_l('没有允许批量审批的记录，请打开记录逐条审批'), 3);
+                      }
+                    } else {
+                      this.setState({ approveCards: [] });
+                    }
+                  }}
+                />
+                <div className="valignWrapper mLeft5 mRight5">
+                  {_l('全选')}
+                  {approveCards.length ? (
+                    _l('（已选择%0/%1条）', approveCards.length, list.length)
+                  ) : (
+                    list.length !== waitingApproval && _l('（已加载%0条）', list.length)
+                  )}
+                </div>
+              </div>
               <Tooltip
                 overlayClassName="myProcessApproveOverlay"
                 overlayStyle={{ width: 320, maxWidth: 320 }}
@@ -585,7 +612,7 @@ export default class MyProcess extends Component {
                   }
                 }}
               >
-                <div className={cx('passApprove bold pointer', { active: passVisible })}>{_l('通过审批')}</div>
+                <div className={cx('passApprove bold pointer', { active: passVisible })}>{_l('通过')}</div>
               </Tooltip>
               <Tooltip
                 overlayClassName="myProcessApproveOverlay"
@@ -634,7 +661,7 @@ export default class MyProcess extends Component {
                   }
                 }}
               >
-                <div className={cx('rejectApprove bold pointer', { active: rejectVisible })}>{_l('否决审批')}</div>
+                <div className={cx('rejectApprove bold pointer', { active: rejectVisible })}>{_l('否决')}</div>
               </Tooltip>
             </div>
           )}

@@ -177,12 +177,18 @@ export const filterFn = (filterData, originControl, data = []) => {
       //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
     } else if (
       _.includes([2, 6], filterType) &&
-      ((_.includes([5], conditionGroupType) && _.includes([9, 11], dataType)) || _.includes([6], conditionGroupType))
+      ((_.includes([5], conditionGroupType) && _.includes([9, 11, 27], dataType)) ||
+        _.includes([6], conditionGroupType))
     ) {
       const val = currentControl.value ? JSON.parse(currentControl.value) : currentControl.value;
       compareValues = typeof val === 'object' ? val : [currentControl.value];
     } else {
       compareValues = [currentControl.value];
+    }
+  } else {
+    // options类型
+    if (_.includes([26, 27, 48], control.type)) {
+      compareValues = compareValues.map(item => (item ? JSON.parse(item) : item));
     }
   }
 
@@ -222,11 +228,10 @@ export const filterFn = (filterData, originControl, data = []) => {
             return false;
           }
           let isEQ = false;
-          _.map(compareValues, it => {
+          _.map(compareValues, (it = {}) => {
             let user = JSON.parse(value);
             _.map(user, its => {
-              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : (it || {}).accountId;
-              if (its.accountId === id) {
+              if (its.accountId === (it.id || it.accountId)) {
                 isEQ = true;
               }
             });
@@ -252,10 +257,10 @@ export const filterFn = (filterData, originControl, data = []) => {
               return !!value;
             }
             let isEQ = false;
-            _.map(compareValues, it => {
+            _.map(compareValues, (it = {}) => {
               let valueN = JSON.parse(value);
               _.map(valueN, item => {
-                if (item.departmentId === JSON.parse(it || '{}').id) {
+                if ((it.departmentId || it.id) === item.departmentId) {
                   isEQ = true;
                 }
               });
@@ -351,11 +356,10 @@ export const filterFn = (filterData, originControl, data = []) => {
             return true;
           }
           let isInValue = true;
-          _.map(compareValues, it => {
+          _.map(compareValues, (it = {}) => {
             let user = JSON.parse(value);
             _.map(user, its => {
-              const id = typeof it === 'string' ? JSON.parse(it || '{}').id : (it || {}).accountId;
-              if (its.accountId === id) {
+              if (its.accountId === (it.id || it.accountId)) {
                 isInValue = false;
               }
             });
@@ -381,10 +385,10 @@ export const filterFn = (filterData, originControl, data = []) => {
               return !value;
             }
             let isNE = true;
-            _.map(compareValues, it => {
+            _.map(compareValues, (it = {}) => {
               let valueN = JSON.parse(value);
               _.map(valueN, item => {
-                if (item.departmentId === JSON.parse(it || '{}').id) {
+                if ((it.departmentId || it.id) === item.departmentId) {
                   isNE = false;
                 }
               });
@@ -641,6 +645,30 @@ export const filterFn = (filterData, originControl, data = []) => {
             return parseInt(id) !== parseInt(code);
             // 部门
           }
+        default:
+          return true;
+      }
+    // DATE_BETWEEN: 31, // 不在范围内
+    case FILTER_CONDITION_TYPE.DATE_BETWEEN:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          return moment(value).isBetween(
+            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
+            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
+            'second',
+          );
+        default:
+          return true;
+      }
+    //  DATE_NBETWEEN: 32, // 不在范围内
+    case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          return !moment(value).isBetween(
+            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
+            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
+            'second',
+          );
         default:
           return true;
       }

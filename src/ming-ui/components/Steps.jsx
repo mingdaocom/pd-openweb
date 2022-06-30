@@ -139,7 +139,7 @@ export default function Steps(props) {
     }
   }, [currentValue]);
 
-  const currentColor = enumDefault2 === 1 ? _.get(options[currentValue], 'color') || '#f1f1f1' : '#2196f3';
+  const currentColor = enumDefault2 === 1 ? _.get(filterOptions[currentValue], 'color') || '#f1f1f1' : '#2196f3';
 
   return (
     <Con
@@ -162,7 +162,7 @@ export default function Steps(props) {
             className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
             color={currentColor}
             style={{ left: `calc(${width}% - 7px)` }}
-            {...(showTip && !_.isUndefined(currentValue) ? { 'data-tip': _.get(options[currentValue], 'value') } : {})}
+            {...(showTip && !_.isUndefined(currentValue) ? { 'data-tip': _.get(filterOptions[currentValue], 'value') } : {})}
           />
         )}
       </Bar>

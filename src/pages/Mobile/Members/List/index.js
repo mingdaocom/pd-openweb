@@ -210,8 +210,8 @@ class MemberList extends Component {
                   projectId: detail.projectId,
                   appId: params.appId,
                   roleId: params.roleId,
-                  userIds: accountId ? [accountId] : undefined,
-                  departmentIds: departmentId ? [departmentId] : undefined,
+                  userIds: accountId ? [accountId] : [],
+                  departmentIds: departmentId ? [departmentId] : [],
                 }));
               },
             },

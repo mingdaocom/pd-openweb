@@ -872,16 +872,6 @@ export default class DataFormat {
         if (item.type === 31 && item.advancedSetting && item.advancedSetting.nullzero === '1') {
           this.updateDataSource({ controlId: item.controlId, value: item.value, isInit });
         }
-
-        // 嵌入iframe
-        if (item.type === 45) {
-          if (item.enumDefault === 1 && item.dataSource) {
-            this.updateDataSource({
-              controlId: item.controlId,
-              value: parseValueIframe(this.data, item, this.masterData, this.embedData),
-            });
-          }
-        }
       });
     }
 
@@ -912,6 +902,13 @@ export default class DataFormat {
       if (item.type === 10010) {
         item.disabled = true;
         item.value = item.dataSource;
+      }
+
+      // 嵌入iframe
+      if (item.type === 45) {
+        if (item.enumDefault === 1 && item.dataSource) {
+          item.value = parseValueIframe(this.data, item, this.masterData, this.embedData);
+        }
       }
 
       const { errorType, errorText } = onValidator(item, from, data, masterData);

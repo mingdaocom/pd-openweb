@@ -866,6 +866,7 @@ class RecordCalendar extends Component {
                 hour12: false,
               }}
               timeZone="local"
+              defaultTimedEventDuration={'00:00:01'}
               events={calendarFormatData}
               viewDidMount={info => {
                 this.calendarActionFn();

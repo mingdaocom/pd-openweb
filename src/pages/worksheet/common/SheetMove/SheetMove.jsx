@@ -139,6 +139,7 @@ export default class SheetMove extends Component {
             menuClass="sheetMoveApp"
             className={cx('flex', { empty: !appValue })}
             border
+            openSearch
             value={appValue}
             data={appList}
             onChange={value => {
@@ -153,6 +154,7 @@ export default class SheetMove extends Component {
             isAppendToBody
             className={cx('flex', { empty: !groupingValue })}
             border
+            openSearch
             value={groupingValue}
             data={grouping}
             onChange={value => {

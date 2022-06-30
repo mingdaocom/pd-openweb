@@ -209,12 +209,7 @@ export default class FilterItem extends Component {
                 });
               }}
             >
-              <i
-                className={cx(
-                  'icon',
-                  filter.type === FILTER_TYPE.PUBLIC ? 'icon-task_custom_person' : 'icon-group-members',
-                )}
-              ></i>
+              <i className={cx('icon', filter.type === FILTER_TYPE.PUBLIC ? 'icon-person' : 'icon-group-members')}></i>
               {filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选')}
             </NewMenuItem>
             <hr />

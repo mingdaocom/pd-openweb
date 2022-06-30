@@ -441,7 +441,7 @@ export default class extends Component {
   }
   render() {
     const { leftCount, originalLeftCount, rightCount, originalRightCount, dropdownVisible, offset } = this.state;
-    const { rightY, displaySetup, contrastMap, summary } = this.props.reportData;
+    const { rightY, summary = {} } = this.props.reportData;
     const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
     return (
       <div className="flex flexColumn chartWrapper">

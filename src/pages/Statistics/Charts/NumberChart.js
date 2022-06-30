@@ -68,7 +68,7 @@ export default class extends Component {
     }
   }
   render() {
-    const { contrastNumber, number, rangeType, rangeValue, displaySetup, yaxisList, style } = this.props.reportData;
+    const { contrastNumber, number, rangeType, rangeValue, displaySetup = {}, yaxisList, style } = this.props.reportData;
     const newContrastNumber = typeof contrastNumber === 'number' ? contrastNumber : 0;
     const percentage = ((number - newContrastNumber) / newContrastNumber) * 100;
     const positiveNumber = percentage >= 0;

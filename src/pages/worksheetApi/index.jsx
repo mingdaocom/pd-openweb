@@ -801,7 +801,7 @@ class WorksheetApi extends Component {
         <div className="flex worksheetApiContent1">
           <div className="Font22 bold">{item.name}</div>
           <div className="Font14 bold mTop20">
-            {_l('工作表别名')} ：{alias}
+            {_l('工作表别名')} ：{alias || ''}
             <span
               className="Hand Font13 mLeft20"
               style={{ color: '#2196F3' }}

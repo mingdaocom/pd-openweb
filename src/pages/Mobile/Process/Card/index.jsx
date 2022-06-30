@@ -1,5 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { Icon, Button } from 'ming-ui';
+import cx from 'classnames';
+import { Checkbox } from 'antd-mobile';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
@@ -187,11 +189,14 @@ export default class Card extends Component {
     );
   }
   renderInfo() {
-    const { currentTab, item } = this.props;
+    const { currentTab, item, batchApproval } = this.props;
     const { flowNode, flowNodeType, workItem } = item;
     const { passBatchType, overruleBatchType, btnMap } = flowNode;
     const { operationType } = workItem;
     if (currentTab === 'waitingApproval') {
+      if (batchApproval) {
+        return null;
+      }
       return (
         <div className="valignWrapper mLeft10 approveBtnWrapper">
           {passBatchType === -1 && (
@@ -318,13 +323,34 @@ export default class Card extends Component {
   }
   render() {
     const { otherActionVisible, action, instance } = this.state;
-    const { onClick } = this.props;
+    const { item, approveChecked, onClick, onChangeApproveCards, batchApproval } = this.props;
+    const { batchType } = item.flowNode || {};
+    const disabled = [-1, -2].includes(batchType);
     return (
       <Fragment>
-        <div className="mobileProcessCardWrapper" onClick={onClick}>
-          {this.renderHeader()}
-          {this.renderBody()}
-          {this.renderFooter()}
+        <div className={cx('mobileProcessCardWrapper flexRow', { batchApproval, approveChecked })}>
+          {batchApproval && (
+            <Checkbox
+              className="mRight5"
+              disabled={disabled}
+              checked={approveChecked}
+              onChange={onChangeApproveCards}
+            />
+          )}
+          <div
+            className="mobileProcessCardContent flexColumn flex"
+            onClick={() => {
+              if (batchApproval) {
+                !disabled && onChangeApproveCards({ target: { checked: !approveChecked } });
+              } else {
+                onClick();
+              }
+            }}
+          >
+            {this.renderHeader()}
+            {this.renderBody()}
+            {this.renderFooter()}
+          </div>
         </div>
         {otherActionVisible && (
           <OtherAction

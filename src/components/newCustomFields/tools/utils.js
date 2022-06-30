@@ -160,9 +160,7 @@ function formatRowToServer(row, controls = []) {
           }
         }
         return _.pick(
-          c.type === 14
-            ? { ...c, editType: 1, value: row[key] }
-            : formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }),
+          formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }),
           ['controlId', 'value', 'editType'],
         );
       }
@@ -214,7 +212,9 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
 
       (parsed.attachmentData || []).forEach(item => {
         item = Object.assign({}, item, { fileExt: item.ext }, { isEdit: true });
-
+        if (item.fileId && !item.fileID) {
+          item.fileID = item.fileId;
+        }
         if (item.refType || item.refId) {
           oldKnowledgeAtts.push(item);
         } else {
@@ -238,17 +238,17 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       try {
         parsedValue = JSON.parse(control.value);
         result.value = parsedValue.code;
-      } catch (err) {}
+      } catch (err) { }
       break;
     case 29:
       parsedValue = JSON.parse(control.value);
       result.value = _.isArray(parsedValue)
         ? JSON.stringify(
-            parsedValue.map(item => ({
-              name: item.name,
-              sid: item.sid,
-            })),
-          )
+          parsedValue.map(item => ({
+            name: item.name,
+            sid: item.sid,
+          })),
+        )
         : '';
       break;
     case 34: // 子表
@@ -304,7 +304,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
             result.value = JSON.stringify(
               rows.map(row => Object.keys(row).map(key => ({ controlId: key, value: row[key] }))),
             );
-          } catch (err) {}
+          } catch (err) { }
         }
       }
       break;

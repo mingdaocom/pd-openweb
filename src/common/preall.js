@@ -9,7 +9,7 @@ if (/theportal\.cn$/.test(location.host) && window.__api_server__ && window.__ap
   window.__api_server__.main = '/api/';
 }
 
-function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
+function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
   const urlObj = new URL(decodeURIComponent(location.href));
@@ -21,6 +21,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     args.token = urlparams.token;
   }
   parseShareId();
+  clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
   global.getGlobalMeta(args).then(data => {
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config;
@@ -52,9 +53,8 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
       (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !data['md.global'].Account.isPortal) ||
         (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
     ) {
-      location.href = `${
-        data['md.global'].Account.isPortal ? '' : window.subPath
-      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+      location.href = `${data['md.global'].Account.isPortal ? '' : window.subPath
+        }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
       return;
     }
 
@@ -153,4 +153,15 @@ function parseShareId() {
     window.shareState.isUpdateRecordShare = true;
     window.shareState.shareId = (location.pathname.match(/.*\/recordshare\/(\w{24})/) || '')[1];
   }
+}
+
+function clearLocalStorage() {
+  try {
+    Object.keys(localStorage)
+      .map(key => ({ key, size: Math.floor(new Blob([localStorage[key]]).size / 1024) }))
+      .filter(item => item.size > 200 || item.key.startsWith('_AMap_'))
+      .forEach(item => {
+        localStorage.removeItem(item.key);
+      });
+  } catch (err) { }
 }

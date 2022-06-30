@@ -183,17 +183,14 @@ class PrintForm extends React.Component {
       workId: workId,
     };
     let ajaxFn = printId ? sheetAjax.getPrint(sheetArgs) : sheetAjax.getPrintTemplate(sheetArgs);
-    let ajaxList = [ajaxFn];
-    const isUseRules = from === fromType.PRINT && params.type === typeForCon.NEW;
-    if (isUseRules) {
-      //系统打印 请求规则
-      ajaxList.push(
-        sheetAjax.getControlRules({
-          worksheetId,
-          type: 1, // 1字段显隐
-        }),
-      );
-    }
+    let ajaxList = [
+      ajaxFn,
+      sheetAjax.getControlRules({
+        //系统打印 请求规则
+        worksheetId,
+        type: 1, // 1字段显隐
+      }),
+    ];
     axios.all(ajaxList).then(resData => {
       const res = resData[0];
       if (res.resultCode === 4 && !(isDefault && from === fromType.FORMSET)) {
@@ -203,14 +200,12 @@ class PrintForm extends React.Component {
         });
         return;
       }
-      const rules = isUseRules ? resData[1] : [];
+      const rules = resData[1];
       //通过规则计算
-      let receiveControls = isUseRules
-        ? updateRulesData({
-            rules: rules,
-            data: res.receiveControls,
-          })
-        : res.receiveControls;
+      let receiveControls = updateRulesData({
+        rules: rules,
+        data: res.receiveControls,
+      });
       receiveControls = getControlsForPrint(receiveControls, res.relations);
       let dat = (res.receiveControls || []).filter(o => o.type !== 43); //去除 文本识别 43
       let attribute = dat.find(it => it.attribute === 1);

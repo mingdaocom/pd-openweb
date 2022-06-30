@@ -167,7 +167,21 @@ export class UploadFileWrapper extends Component {
         let type = filetype && JSON.parse(filetype).type;
         const accept = { 1: 'image/*', 2: 'video/*', 0: 'image/*,video/*' };
         const fileTypeObj = { 1: 'image/*', 2: 'image/*,video/*', 3: 'video/*', 4: 'video/*' };
+        const ua = window.navigator.userAgent.toLowerCase();
+        const isAndroid = ua.includes('android');
+        const isMiniprogram = ua.includes('miniprogram');
+        const equipment = type === 3 ? 'microphone' : type === 4 ? 'camcorder' : 'camera';
         if (ele) {
+          if (isAndroid && isMiniprogram) {
+            ele.removeAttribute('multiple');
+            if (disabledGallery) {
+              ele.setAttribute('accept','image/*');
+            } else {
+              ele.setAttribute('accept', accept[inputType]);
+              ele.setAttribute('capture', equipment);
+            }
+            return;
+          }
           if (inputType || disabledGallery) {
             ele.setAttribute('accept', accept[inputType]);
             ele.setAttribute('capture', 'camera');

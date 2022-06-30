@@ -374,7 +374,7 @@ export default class WebHook extends Component {
     const { data } = this.state;
     const { sendContent, headers, formControls, body } = data;
     const testArray = _.uniq(
-      (sendContent + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(/\$.*?\$/g) || [],
+      (sendContent + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(/\$[^ \r\n]+?\$/g) || [],
     );
 
     if (!testArray.length) {

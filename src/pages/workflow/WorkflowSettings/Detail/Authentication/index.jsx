@@ -465,7 +465,9 @@ export default class Authentication extends Component {
     const { data } = this.state;
     const { params, headers, formControls, body } = data.webHookNodes[this.testIndex];
     const testArray = _.uniq(
-      (JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(/\$.*?\$/g) || [],
+      (JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(
+        /\$[^ \r\n]+?\$/g,
+      ) || [],
     );
 
     if (!testArray.length) {

@@ -16,10 +16,10 @@ class CardInfo extends Component {
 
   hoverBg = () => {
     $('.showMorecards li').hover(
-      function () {
+      function() {
         $(this).addClass('ThemeBGColor4 White');
       },
-      function () {
+      function() {
         $(this).removeClass('ThemeBGColor4 White');
       },
     );
@@ -181,22 +181,27 @@ class CardInfo extends Component {
           <h5 className="Font16 Normal mp0">{_l('名片')}</h5>
           <div className="tabCardTitle">
             <ul className="BorderBottom borderColor_d8 clearfix">
-              {userInfo.userCards.map((item, index) => {
-                if (index < 3) {
-                  return (
-                    <li
-                      className={cx('Left LineHeight40 tabCardTitleLi', cadrIndex == index ? 'ThemeBorderColor3' : '')}
-                      title={item.companyName}
-                      key={index}
-                      onClick={() => this.selectCard(index)}
-                    >
-                      {item.companyName}
-                    </li>
-                  );
-                }
-              })}
+              {userInfo.userCards
+                .filter(item => item.companyName)
+                .map((item, index) => {
+                  if (index < 3) {
+                    return (
+                      <li
+                        className={cx(
+                          'Left LineHeight40 tabCardTitleLi',
+                          cadrIndex == index ? 'ThemeBorderColor3' : '',
+                        )}
+                        title={item.companyName}
+                        key={index}
+                        onClick={() => this.selectCard(index)}
+                      >
+                        {item.companyName}
+                      </li>
+                    );
+                  }
+                })}
 
-              {userInfo.userCards.length > 3 && (
+              {userInfo.userCards.filter(item => item.companyName).length > 3 && (
                 <div
                   className="Left LineHeight40 TxtCenter Hand showMorecards mLeft30 Relative"
                   onClick={this.showMoreCard}

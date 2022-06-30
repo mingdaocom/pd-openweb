@@ -44,7 +44,7 @@ class LoginContainer extends React.Component {
       text: '',
       logo: '',
       step: 0,
-      scanUrl: '',
+      intergrationScanEnabled: false,
       projectId: request.projectId,
       linkInvite: '',
       loginData: {
@@ -188,10 +188,6 @@ class LoginContainer extends React.Component {
         if (!data) {
           location.replace('/privateImageInstall.htm');
         } else {
-          const isMobile = browserIsMobile();
-          if (data.intergrationScanEnabled && !isMobile) {
-            this.getWorkWeiXinCorpInfoByApp(data.projectId);
-          }
           this.setState(
             {
               logo: data.logo,
@@ -202,6 +198,7 @@ class LoginContainer extends React.Component {
               logo: data.logo,
               linkInvite: '/linkInvite.htm?projectId=' + data.projectId,
               homeImage: data.homeImage,
+              intergrationScanEnabled: data.intergrationScanEnabled,
               hideRegister: data.hideRegister,
             },
             () => {
@@ -257,7 +254,8 @@ class LoginContainer extends React.Component {
     }
   };
 
-  getWorkWeiXinCorpInfoByApp = projectId => {
+  getWorkWeiXinCorpInfoByApp = () => {
+    const { projectId } = this.state;
     loginController
       .getWorkWeiXinCorpInfoByApp({
         projectId,
@@ -266,9 +264,7 @@ class LoginContainer extends React.Component {
         const { corpId, state, agentId, scanUrl } = result;
         const redirect_uri = encodeURIComponent(`${location.origin}/auth/workwx`);
         const url = `${scanUrl}/wwopen/sso/qrConnect?appid=${corpId}&agentid=${agentId}&redirect_uri=${redirect_uri}&state=${state}`;
-        this.setState({
-          scanUrl: url,
-        });
+        location.href = url;
       });
   };
 
@@ -311,17 +307,19 @@ class LoginContainer extends React.Component {
   };
 
   renderFooter = () => {
-    let { linkInvite, isNetwork, openLDAP, canLDAP, hideRegister, intergrationScanEnabled, scanUrl } = this.state;
+    let { linkInvite, isNetwork, openLDAP, canLDAP, hideRegister, intergrationScanEnabled } = this.state;
     const isBindAccount = !!request.unionId;
+    const isMobile = browserIsMobile();
+    const scanLoginEnabled = intergrationScanEnabled && !isMobile;
     return (
       <React.Fragment>
         {!isBindAccount && (
           <React.Fragment>
             <div className="tpLogin TxtCenter">
-              {(!isNetwork || canLDAP || !_.isEmpty(scanUrl)) && <div className="title">{_l('或')}</div>}
-              {!_.isEmpty(scanUrl) && (
+              {(!isNetwork || canLDAP || scanLoginEnabled) && <div className="title">{_l('或')}</div>}
+              {scanLoginEnabled && (
                 <div className="mBottom20">
-                  <a href={scanUrl} title={_l('企业微信登录')}>
+                  <a title={_l('企业微信登录')} onClick={this.getWorkWeiXinCorpInfoByApp}>
                     <i className="workWeixinIcon hvr-pop"></i>
                   </a>
                 </div>

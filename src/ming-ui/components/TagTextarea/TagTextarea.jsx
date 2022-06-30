@@ -255,7 +255,7 @@ export default class TagTextarea extends React.Component {
 /**
  * getRePosFromStr 正则匹配字段返回位置信息
  * */
-export function getRePosFromStr(text = '', re = /\$.+?\$/g) {
+export function getRePosFromStr(text = '', re = /\$[^ \r\n]+?\$/g) {
   const lines = text.split('\n');
   const positions = [];
   let m;

@@ -247,6 +247,24 @@ export function formatCondition(condition) {
   };
 }
 
+export function formatFilterValue(condition) {
+  return {
+    controlId: condition.controlId,
+    dataType: condition.dataType,
+    spliceType: condition.spliceType,
+    filterType: condition.filterType,
+    dateRange: condition.dateRange,
+    dateRangeType: condition.dateRangeType,
+    maxValue: condition.maxValue,
+    minValue: condition.minValue,
+    value: condition.value,
+    fullValues: condition.values,
+    values: condition.values,
+    dynamicSource: condition.dynamicSource || [],
+    isDynamicsource: condition.isDynamicsource,
+  };
+}
+
 //filters保存，关联values取id
 export function formatValues(items) {
   return items.map(item =>

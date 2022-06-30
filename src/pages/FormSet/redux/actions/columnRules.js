@@ -4,6 +4,7 @@ import {
   checkConditionCanSave,
   checkConditionError,
   formatValues,
+  formatFilterValue,
   filterDeleteOptions,
 } from '../../components/columnRules/config';
 /**
@@ -25,7 +26,16 @@ export function loadColumnRules({ worksheetId }) {
         });
         dispatch({
           type: 'COLUMNRULES_LIST', // 显示规则列表
-          data: data.map((item, index) => (item.name ? item : { ...item, name: _l('规则%0', index + 1) })),
+          data:
+            data.length > 0
+              ? data.map((item, index) => {
+                  return {
+                    ...item,
+                    name: item.name || _l('规则%0', index + 1),
+                    filters: (item.filters || []).map(i => formatFilterValue(i)),
+                  };
+                })
+              : [],
         });
         dispatch({
           type: 'DISPALY_RULES_LIST_NUM', // 取到的规则数（已保存的）

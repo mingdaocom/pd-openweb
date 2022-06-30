@@ -77,11 +77,14 @@ export default class Date extends React.Component {
 
   @autobind
   handleExit() {
-    const { updateEditingStatus } = this.props;
+    const { tableFromModule, updateCell, updateEditingStatus } = this.props;
     const { value, tempValue } = this.state;
     if (value !== tempValue) {
+      updateCell({
+        value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? tempValue : safeParse(tempValue).code,
+      });
       this.setState({
-        tempValue: value,
+        value: tempValue,
       });
     }
     updateEditingStatus(false);
@@ -101,17 +104,8 @@ export default class Date extends React.Component {
   }
 
   render() {
-    const {
-      className,
-      style,
-      needLineLimit,
-      cell,
-      popupContainer,
-      editable,
-      isediting,
-      updateEditingStatus,
-      onClick,
-    } = this.props;
+    const { className, style, needLineLimit, cell, popupContainer, editable, isediting, updateEditingStatus, onClick } =
+      this.props;
     const { value, tempValue } = this.state;
     const isMobile = browserIsMobile();
     const level = this.getAreaLevel(cell.type);
@@ -143,7 +137,8 @@ export default class Date extends React.Component {
           overflow: {
             adjustY: true,
           },
-        }}>
+        }}
+      >
         <EditableCellCon
           onClick={onClick}
           className={cx(className, { canedit: editable })}
@@ -152,7 +147,8 @@ export default class Date extends React.Component {
           iconName="text_map"
           iconClassName="dateEditIcon"
           isediting={isediting}
-          onIconClick={() => updateEditingStatus(true)}>
+          onIconClick={() => updateEditingStatus(true)}
+        >
           {!!tempValue && (
             <div className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}>
               {renderText({ ...cell, value: tempValue })}
