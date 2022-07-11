@@ -66,6 +66,7 @@ function Sheet(props) {
     activeViewStatus,
     isCharge,
     updateGroupFilter,
+    config = {},
     navGroupFilters = [],
     chartId,
     showControlIds,
@@ -114,7 +115,7 @@ function Sheet(props) {
   }, [view.viewId, worksheetId]);
 
   return (
-    <SheetContext.Provider base={basePara}>
+    <SheetContext.Provider base={basePara} value={{ config }}>
       <Con className="worksheetSheet">
         {type === 'common' && worksheetInfo.name && (
           <DocumentTitle

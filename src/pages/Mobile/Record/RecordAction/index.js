@@ -13,6 +13,7 @@ import process, { startProcess } from 'src/pages/workflow/api/process';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import homeAppAjax from 'src/api/homeApp';
+import { RecordInfoModal } from 'mobile/Record';
 import './index.less';
 
 let timeout = null;
@@ -44,6 +45,7 @@ class RecordAction extends Component {
       btnDisable: {},
       shareUrl: '',
       rowInfo: {},
+      previewRecord: {},
       percent: 0,
       num: 0,
     };
@@ -620,6 +622,11 @@ class RecordAction extends Component {
           hideNewRecord={() => {
             this.setState({ newRecordVisible: false });
           }}
+          openRecord={(rowId, viewId) => {
+            this.setState({
+              previewRecord: { rowId, viewId }
+            });
+          }}
           onAdd={this.handleAddRecordCallback}
         />
       )
@@ -748,6 +755,25 @@ class RecordAction extends Component {
       </Modal>
     );
   };
+  renderRecordInfo = () => {
+    const { appId, viewId } = this.props;
+    const { previewRecord } = this.state;
+    return (
+      <RecordInfoModal
+        className="full"
+        visible={!!previewRecord.rowId}
+        appId={appId}
+        worksheetId={this.btnAddRelateWorksheetId}
+        viewId={previewRecord.viewId}
+        rowId={previewRecord.rowId}
+        onClose={() => {
+          this.setState({
+            previewRecord: {}
+          });
+        }}
+      />
+    );
+  }
   render() {
     return (
       <div ref={this.recef}>
@@ -755,6 +781,7 @@ class RecordAction extends Component {
         {this.renderFillRecord()}
         {this.renderNewRecord()}
         {this.renderRunInfo()}
+        {this.renderRecordInfo()}
         {this.props.isMobileOperate && this.renderFailureRecord()}
       </div>
     );

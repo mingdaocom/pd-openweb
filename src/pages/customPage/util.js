@@ -26,7 +26,7 @@ export const getIndexById = ({ component, components }) => {
 export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type }) => {
   if (layoutType === 'web') {
     if (type === 'view') {
-      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 2 };
+      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 6 };
     } else {
       return { x: (components.length * 6) % 12, y: Infinity, w: 6, h: 6, minW: 2, minH: 2 };
     }

@@ -16,11 +16,9 @@ const {
 } = window.private;
 
 const Con = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: #f7f8fc;
-  padding: 14px 8px;
   transition: width 0.2s;
   width: 68px;
   &.isExpanded {
@@ -45,6 +43,13 @@ const Con = styled.div`
       justify-content: end;
     }
   }
+`;
+const Content = styled.div`
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
 `;
 
 const BaseEntry = styled.a`
@@ -257,11 +262,12 @@ export default function SideNav(props) {
 
   return (
     <Con className={cx({ isExpanded })}>
-      {myProcessVisible && (
-        <MyProcess countData={countData} onCancel={() => setMyProcessVisible(false)} updateCountData={setCountData} />
-      )}
-      {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
-      <ModuleEntries>
+      <Content>
+        {myProcessVisible && (
+          <MyProcess countData={countData} onCancel={() => setMyProcessVisible(false)} updateCountData={setCountData} />
+        )}
+        {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
+        <ModuleEntries>
         {moduleEntries
           .filter(
             o =>
@@ -285,9 +291,9 @@ export default function SideNav(props) {
                     : _.noop
                 }
               >
-                <i className={`entryIcon icon icon-${entry.icon}`} />
+                <i className={`entryIcon icon icon-${entry.icon}`}></i>
                 <span className="name">{entry.name}</span>
-                <span className="fullName">{entry.fullName || entry.name}</span>
+                <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
               </ModuleEntry>
             );
             if (entry.type === 'myProcess') {
@@ -337,9 +343,9 @@ export default function SideNav(props) {
             }
             return content;
           })}
-      </ModuleEntries>
-      <Spacer />
-      <ResourceEntries>
+        </ModuleEntries>
+        <Spacer />
+        <ResourceEntries>
         {resourceEntries
           .filter(o => !appSide[o.id])
           .concat(sourcesList)
@@ -360,7 +366,7 @@ export default function SideNav(props) {
               >
                 {entry.icon && <i className={`entryIcon icon icon-${entry.icon}`} style={{ color: entry.color }} />}
                 {entry.iconUrl && <SvgIcon size="18" fill={entry.color} url={entry.iconUrl} />}
-                <span className="fullName">{entry.name}</span>
+                <span className="fullName ellipsis">{entry.name}</span>
               </ResourceEntry>
             );
             if (entry.id === 'educate') {
@@ -388,17 +394,18 @@ export default function SideNav(props) {
             }
             return content;
           })}
-        <ResourceEntry
-          className="resourceEntry expandBtn"
-          onClick={() => {
-            setIsExpanded(!isExpanded);
-            localStorage.setItem('homeNavIsExpanded', !isExpanded ? '1' : '');
-          }}
-        >
-          <span className="fullName Font12 Gray_9e flex" style={{marginLeft: '25px' }}>{_l('v%0', md.global.Config.Version)}</span>
-          <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
-        </ResourceEntry>
-      </ResourceEntries>
+          <ResourceEntry
+            className="resourceEntry expandBtn"
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+              localStorage.setItem('homeNavIsExpanded', !isExpanded ? '1' : '');
+            }}
+          >
+            <span className="fullName Font12 Gray_9e flex" style={{marginLeft: '25px' }}>{_l('v%0', md.global.Config.Version)}</span>
+            <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`}></i>
+          </ResourceEntry>
+        </ResourceEntries>
+      </Content>
     </Con>
   );
 }

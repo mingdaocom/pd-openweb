@@ -133,7 +133,7 @@ export default class Options extends Component {
   }
   @autobind
   rendertSelect(TagComp) {
-    const { type, disabled, folded, control, projectId, onChange } = this.props;
+    const { type, disabled, folded, control, projectId, onChange, from } = this.props;
     const { seletedOptions } = this.state;
     if (disabled) {
       return <TagCon disabled={disabled} data={seletedOptions} onRemove={this.removeItem} />;
@@ -178,7 +178,7 @@ export default class Options extends Component {
             new DialogSelectGroups({
               projectId,
               isIncludeRoot: false,
-              showCurrentUserDept: true,
+              showCurrentUserDept: from !== 'rule',
               selectFn: data => {
                 if (!data.length) {
                   return;

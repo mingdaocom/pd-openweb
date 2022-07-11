@@ -205,14 +205,14 @@ export default class extends Component {
     this.scene && this.scene.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup, map } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup = {}, map } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup = {} } = this.props.reportData;
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag
     ) {
-      this.CountryLayerChart.destroy();
-      this.scene.destroy();
+      this.CountryLayerChart && this.CountryLayerChart.destroy();
+      this.scene && this.scene.destroy();
       const { scene, config, ChartComponent } = this.getChartConfig(nextProps);
       scene.on('loaded', () => {
         this.CountryLayerChart = new ChartComponent(scene, config);

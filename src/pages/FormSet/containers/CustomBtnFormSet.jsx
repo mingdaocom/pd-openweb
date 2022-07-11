@@ -62,10 +62,13 @@ function CustomBtnFormSet(props) {
   const [isEdit, setIsEdit] = useState();
   const [showMoreOption, setShowMoreOption] = useState();
   const [showDropOption, setShowDropOption] = useState();
-  useEffect(() => {
-    if (!worksheetId) return;
-    getdata();
-  }, [worksheetId]);
+  useEffect(
+    () => {
+      if (!worksheetId) return;
+      getdata();
+    },
+    [worksheetId],
+  );
   let ajaxFn = null;
   const getdata = () => {
     if (ajaxFn) {
@@ -83,11 +86,14 @@ function CustomBtnFormSet(props) {
     setBtnList(refreshBtnData(_.cloneDeep(btnList), btns, isAdd));
   };
 
-  useEffect(() => {
-    if (isRename) {
-      input.current.focus();
-    }
-  }, [isRename]);
+  useEffect(
+    () => {
+      if (isRename) {
+        input.current.focus();
+      }
+    },
+    [isRename],
+  );
   const optionWorksheetBtn = ({ btnId, appId, viewId, optionType, callback }) => {
     sheetAjax
       .optionWorksheetBtn({
@@ -150,7 +156,7 @@ function CustomBtnFormSet(props) {
                   return (
                     <div className={cx('templates')} key={it.btnId}>
                       <div className={cx('topBox')}>
-                        <div className="bg" style={{ background: it.color ? it.color : '#2196f3', opacity: 0.1 }}></div>
+                        <div className="bg" style={{ background: it.color ? it.color : '#2196f3', opacity: 0.1 }} />
                         <Icon
                           icon={it.icon || 'custom_actions'}
                           style={{ color: it.color ? it.color : '#2196f3' }}
@@ -375,6 +381,8 @@ function CustomBtnFormSet(props) {
                 '.ant-tree-select-dropdown',
                 '.ant-tooltip',
                 '.CodeMirror-hints',
+                '.ck',
+                '.ant-picker-dropdown',
               ]}
               onClickAway={() => setShowCreateCustomBtn(false)}
               isEdit={isEdit}
@@ -410,4 +418,7 @@ function CustomBtnFormSet(props) {
 const mapStateToProps = state => state.formSet;
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(CustomBtnFormSet);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(CustomBtnFormSet);

@@ -21,6 +21,7 @@ function start() {
           code,
         },
         async: true,
+        withCredentials: false,
         succees: result => {
           const { accountResult, sessionId } = result.data;
           if (accountResult === 1) {

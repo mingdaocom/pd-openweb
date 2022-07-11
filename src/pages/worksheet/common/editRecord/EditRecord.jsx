@@ -86,20 +86,35 @@ export default class EditRecord extends Component {
   customwidget = React.createRef();
 
   @autobind
-  selectOwner() {
+  selectOwner(e) {
     const _this = this;
-    $({}).dialogSelectUser({
-      title: _l('请选择'),
-      showMoreInvite: false,
-      SelectUserSettings: {
-        projectId: '',
+    const { appId, projectId } = this.props;
+    $(e.target)
+      .closest('.selectOwner')
+      .quickSelectUser({
+        projectId: projectId,
+        showQuickInvite: false,
+        showMoreInvite: false,
+        isTask: false,
+        tabType: 3,
+        appId,
         includeUndefinedAndMySelf: true,
-        unique: true,
-        callback: data => {
-          _this.setState({ ownerAccount: data[0], hasError: false });
+        offset: {
+          top: 2,
+          left: -68,
         },
-      },
-    });
+        zIndex: 10001,
+        SelectUserSettings: {
+          unique: true,
+          projectId: projectId,
+          callback(users) {
+            _this.setState({ ownerAccount: users[0], hasError: false });
+          },
+        },
+        selectCb(users) {
+          _this.setState({ ownerAccount: users[0], hasError: false });
+        },
+      });
   }
 
   @autobind

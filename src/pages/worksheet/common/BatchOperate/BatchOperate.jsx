@@ -289,8 +289,7 @@ class BatchOperate extends React.Component {
       // 二次确认
       Dialog.confirm({
         className: 'customButtonConfirm',
-        title: _l('执行批量操作“%0”', btn.name),
-        description: btn.confirmMsg,
+        title: btn.confirmMsg,
         okText: btn.sureName,
         cancelText: btn.cancelName,
         onOk: () => {

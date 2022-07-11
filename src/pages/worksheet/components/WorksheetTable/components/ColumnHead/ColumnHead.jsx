@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
+import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { hideColumn, clearHiddenColumn, frozenColumn, sortByControl } from 'worksheet/redux/actions/sheetview';
 import { Menu, MenuItem, Dialog } from 'ming-ui';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
@@ -17,6 +18,7 @@ import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import './ColumnHead.less';
 
 class ColumnHead extends Component {
+  static contextType = SheetContext;
   static propTypes = {
     rowIsSelected: PropTypes.bool,
     readonly: PropTypes.bool,
@@ -115,6 +117,7 @@ class ColumnHead extends Component {
       onBatchEdit,
       canBatchEdit = true,
     } = this.props;
+    const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
     let control = { ...this.props.control };
     const isShowOtherField = isOtherShowFeild(control);
     const itemType = this.getType(control);
@@ -194,7 +197,7 @@ class ColumnHead extends Component {
                 {_l('编辑选中记录')}
               </MenuItem>
             )}
-            {canFilter && !rowIsSelected && !isShowOtherField && (
+            {canFilter && !rowIsSelected && !isShowOtherField && !hideColumnFilter && (
               <MenuItem
                 onClick={() => {
                   emitter.emit('FILTER_ADD_FROM_COLUMNHEAD', control);

@@ -105,7 +105,7 @@ export default function WidgetIntro(props) {
 
   const isAllowSwitch = () => {
     if (type === 29 && from === 'subList') return false;
-    return _.includes([2, 9, 10, 11, 27, 29, 30, 37, 41], type);
+    return _.includes([2, 9, 10, 11, 27, 29, 37, 41], type);
   };
 
   const switchControl = getSwitchEnum();

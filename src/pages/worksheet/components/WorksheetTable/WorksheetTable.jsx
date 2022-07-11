@@ -223,10 +223,17 @@ export default class WorksheetTable extends PureComponent {
     }
     if (!_.isEqual(data, nextData)) {
       this.updatedRows = {};
-      if (this.state.rules && this.state.rules.length && nextData.length > data.length) {
+      if (
+        this.state.rules &&
+        this.state.rules.length &&
+        !_.isEqual(
+          nextData.map(c => c.rowid),
+          data.map(c => c.rowid),
+        )
+      ) {
         this.updateNewRowsFieldPermission({
           props: nextProps,
-          rows: _.difference(nextData, data, 'rowid'),
+          rows: _.differenceBy(nextData, data, 'rowid'),
         });
       }
     }

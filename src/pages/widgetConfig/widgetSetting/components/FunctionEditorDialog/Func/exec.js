@@ -55,6 +55,13 @@ export default function (control, formData, { update, type } = {}) {
   return (function () {
     try {
       let result;
+      const is_iOS = /iphone.*safari/.test(navigator.userAgent.toLowerCase());
+      if (is_iOS && fnType === 'javascript') {
+        // iOS15以下不支持web worker，改为直接运行
+        result = eval('function run() { ' + expression + ' } run()');
+        update(_.isUndefined(result) || _.isNaN(result) || _.isNull(result) ? '' : String(result));
+        return;
+      }
       if (type === 'lib') {
         result = eval(fnType === 'javascript' ? 'function run() { ' + expression + ' } run()' : expression);
       } else {

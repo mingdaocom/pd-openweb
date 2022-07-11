@@ -17,8 +17,8 @@ function Location(props) {
   } catch (err) {}
 
   const getLocationInfo = () => {
-    return locationData.title
-      ? `${locationData.title} ${locationData.address}`
+    return locationData.title || locationData.address
+      ? [locationData.title, locationData.address].filter(o => o).join(' ')
       : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
   };
 

@@ -174,7 +174,7 @@ class WorkSheet extends Component {
     );
   };
   renderRightComp = ({ id, appId, groupId, currentSheet }) => {
-    const { sheetList, isCharge, sheetListLoading, match, projectId } = this.props;
+    const { sheetList, isCharge, sheetListLoading, match } = this.props;
     const { type } = currentSheet;
     if (sheetListLoading) {
       return <LoadDiv size="big" className="mTop32" />;
@@ -199,7 +199,8 @@ class WorkSheet extends Component {
     );
   };
   render() {
-    let { visible, sheetList = [], pageId, match, projectId, isCharge } = this.props;
+    let { visible, sheetList = [], pageId, match, isCharge } = this.props;
+    const { projectId } = store.getState().appPkg;
     const { appId, groupId } = match.params;
     const id = this.getValidedWorksheetId();
     const currentSheet = _.find(sheetList, { workSheetId: id }) || {};
@@ -240,7 +241,6 @@ export default withRouter(
       sheetList: state.sheetList.data,
       isCharge: state.sheetList.isCharge,
       worksheetId: state.sheet.base.worksheetId,
-      projectId: state.sheet.worksheetInfo.projectId,
       ..._.pick(state.customPage, ['visible', 'pageId']),
     }),
     dispatch =>

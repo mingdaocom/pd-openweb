@@ -973,7 +973,7 @@ export default class DataFormat {
             }
 
             removeUniqueItem(controlId);
-            _.remove(this.errorItems, obj => obj.controlId === item.controlId);
+            _.remove(this.errorItems, obj => obj.controlId === item.controlId && !obj.errorMessage);
 
             const { errorType, errorText } = onValidator(item, this.from, this.data, this.masterData);
             if (errorType) {

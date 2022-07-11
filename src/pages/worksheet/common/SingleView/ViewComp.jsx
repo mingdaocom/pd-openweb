@@ -36,7 +36,7 @@ function ViewComp(props) {
     sheetFetchParams,
     sheetSwitchPermit,
     searchData,
-    maxCount
+    maxCount,
   } = props;
   const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -64,7 +64,15 @@ function ViewComp(props) {
         />
       )}
       <ViewCon className="SingleViewBody">
-        <Sheet type="single" chartId={chartId} showControlIds={showControlIds} showAsSheetView={showAsSheetView} />
+        <Sheet
+          type="single"
+          chartId={chartId}
+          showControlIds={showControlIds}
+          showAsSheetView={showAsSheetView}
+          config={{
+            hideColumnFilter: true,
+          }}
+        />
       </ViewCon>
     </Con>
   );

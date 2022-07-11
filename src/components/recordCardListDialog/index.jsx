@@ -200,16 +200,24 @@ export default class RecordCardListDialog extends Component {
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        this.setState({
-          list: _.uniqBy(
-            list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
-            'rowid',
-          ),
-          loading: false,
-          loadouted: res.data.length < pageSize,
-          controls: res.template ? res.template.controls : [],
-          worksheet: res.worksheet || {},
-        });
+        const filteredList = _.uniqBy(
+          list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
+          'rowid',
+        );
+        this.setState(
+          {
+            list: filteredList,
+            loading: false,
+            loadouted: res.data.length < pageSize,
+            controls: res.template ? res.template.controls : [],
+            worksheet: res.worksheet || {},
+          },
+          () => {
+            if (!this.state.loadouted && filteredList.length < 8) {
+              this.loadNext();
+            }
+          },
+        );
       } else {
         this.setState({
           loading: false,

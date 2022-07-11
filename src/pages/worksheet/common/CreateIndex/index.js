@@ -164,7 +164,7 @@ class CreateIndex extends Component {
       })),
       uniqueIndex: uniqueIndex || false, //  是否 唯一索引
       wildcardIndex: wildcardIndex || false, // 是否通配符文本索引
-      sparseIndex: isExistTestIndexFileds ? false : true, // 是否 稀疏索引
+      sparseIndex: false, // 是否 稀疏索引
       backgroundIndex: isExistTestIndexFileds ? false : true, // 是否 后台索引
     };
     if (isEdit) {

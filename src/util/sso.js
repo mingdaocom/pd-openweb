@@ -36,7 +36,7 @@ export const ajax = {
     if (window.md && window.md.global.Account && window.md.global.Account.accountId) {
       xhr.setRequestHeader('AccountId', md.global.Account.accountId);
     }
-    xhr.withCredentials = true;
+    xhr.withCredentials = 'withCredentials' in params ? params.withCredentials : true;
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
         var result = JSON.parse(xhr.responseText);

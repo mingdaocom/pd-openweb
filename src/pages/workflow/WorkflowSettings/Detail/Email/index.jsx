@@ -27,6 +27,7 @@ export default class Email extends Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.getNodeDetail(this.props);
   }
 
@@ -43,6 +44,10 @@ export default class Email extends Component {
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
     }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   /**
@@ -152,10 +157,7 @@ export default class Email extends Component {
         value: ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY,
       },
     ];
-    const contentTypes = [
-      { text: _l('纯文本'), value: 0 },
-      { text: _l('富文本（支持html样式）'), value: 1 },
-    ];
+    const contentTypes = [{ text: _l('纯文本'), value: 0 }, { text: _l('富文本（支持html样式）'), value: 1 }];
 
     return (
       <Fragment>
@@ -334,6 +336,8 @@ export default class Email extends Component {
                     ]}
                     data={item.fieldValue || ''}
                     onActualSave={value => {
+                      if (!this.mounted) return;
+
                       let newFields = [].concat(data.fields);
 
                       newFields[i].fieldValue = value;

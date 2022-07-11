@@ -92,7 +92,7 @@ class AppList extends Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('明道云PC端'));
+          const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'));
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },

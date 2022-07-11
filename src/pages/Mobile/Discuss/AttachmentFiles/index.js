@@ -175,10 +175,13 @@ export class UploadFileWrapper extends Component {
           if (isAndroid && isMiniprogram) {
             ele.removeAttribute('multiple');
             if (disabledGallery) {
-              ele.setAttribute('accept','image/*');
-            } else {
+              ele.setAttribute('accept', accept[inputType]);
+              ele.setAttribute('capture', 'camera');
+            } else if (type || inputType) {
               ele.setAttribute('accept', accept[inputType]);
               ele.setAttribute('capture', equipment);
+            } else {
+              ele.setAttribute('accept', 'image/*');
             }
             return;
           }

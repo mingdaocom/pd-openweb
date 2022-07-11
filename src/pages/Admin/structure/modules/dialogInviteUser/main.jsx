@@ -86,7 +86,7 @@ const checkFuncs = {
   },
 };
 
-const inviteCallback = (data, callback, copyText) => {
+const inviteCallback = (data, callback, copyText, isClear) => {
   const RESULTS = {
     FAILED: 0,
     SUCCESS: 1,
@@ -490,6 +490,7 @@ class Main extends Component {
                 }
               : this.props.closeDialog,
             copyText,
+            isClear,
           );
         })
         .always(() => {

@@ -33,7 +33,7 @@ export default function SheetField(props) {
     data,
     allControls,
     onChange,
-    status: { saveIndex },
+    status: { saveIndex, saved },
   } = props;
   const { controlId, dataSource, strDefault = '10' } = data;
 
@@ -57,7 +57,7 @@ export default function SheetField(props) {
 
   const getFieldsByControls = (controls = []) => {
     return resortControlByColRow(controls).filter(
-      ({ type, enumDefault }) => !_.includes(CAN_NOT_AS_OTHER_FIELD, type) || !(type === 38 && enumDefault === 3),
+      ({ type, enumDefault }) => !(_.includes(CAN_NOT_AS_OTHER_FIELD, type) || (type === 38 && enumDefault === 3)),
     );
   };
 
@@ -88,7 +88,7 @@ export default function SheetField(props) {
     const sheetDel = parsedDataSource && !sheetObj;
     const controlDel = data.sourceControlId && !controlObj;
     const oneDelete = sheetDel || controlDel;
-    const tempSaved = isSaved && parsedDataSource && data.sourceControlId;
+    const tempSaved = (saved || isSaved) && parsedDataSource && data.sourceControlId;
     setInfo({
       sheetDel,
       controlDel,

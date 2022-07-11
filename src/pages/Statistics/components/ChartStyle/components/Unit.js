@@ -62,6 +62,8 @@ class Unit extends Component {
       count = parseInt(value);
       count = isNaN(count) ? 0 : count;
       count = count > 9 ? 9 : count;
+    } else {
+      count = 0;
     }
 
     if (current.magnitude === 1) {

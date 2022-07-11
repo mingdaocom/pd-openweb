@@ -126,8 +126,8 @@ function CustomPageContent(props) {
     ids,
   } = props;
   const { workSheetId: pageId, workSheetName } = currentSheet;
-  const appName = props.appName || apk.appName;
-  const pageName = props.pageName || workSheetName;
+  const appName = props.appName || apk.appName || '';
+  const pageName = props.pageName || workSheetName || '';
   const ref = useRef(null);
   const [show, toggle] = useToggle(false);
 
@@ -180,8 +180,8 @@ function CustomPageContent(props) {
   };
 
   return (
-    <CustomPageContentWrap>
-      <DocumentTitle title={`${appName} - ${pageName}`} />
+    <CustomPageContentWrap className="CustomPageContentWrap">
+      {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
       <CustomPageHeader {...props} toggle={toggle} />
       <div ref={ref} className="content">
         {/* {isFullscreen && !_.isEmpty(ref.current) && (

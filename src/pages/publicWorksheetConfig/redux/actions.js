@@ -233,6 +233,7 @@ export function resetControls() {
                 !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
             ),
             shareId: data.shareId,
+            url: data.url,
             worksheetInfo: {
               themeIndex: data.themeColor,
               logoUrl: data.logo,

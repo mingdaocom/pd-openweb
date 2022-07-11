@@ -49,19 +49,21 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const [previewRecord, setPreviewRecord] = useState({});
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
+  const projectId = info.projectId || _.get(info, 'apk.projectId');
 
   async function runStartProcessByPBC(item, scanQRCodeResult) {
     const { id, processId, name, config } = item;
     const { inputs = [] } = config;
     const { accountId } = md.global.Account;
+    const appId = info.appId || _.get(info, 'apk.appId');
     let departments = [];
     const isRequestDepartments = _.find(inputs, { value: [{ cid: 'triggerDepartment' }] });
     if (isRequestDepartments) {
-      departments = await getDepartments(info.projectId, accountId);
+      departments = await getDepartments(projectId, accountId);
     }
     startProcessByPBC({
       pushUniqueId: md.global.Config.pushUniqueId,
-      appId: info.appId,
+      appId,
       triggerId: id,
       title: name,
       processId,
@@ -245,7 +247,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   return (
     <ButtonListWrap>
       <ButtonDisplay displayMode="display" layoutType={layoutType} onClick={handleClick} {...button} />
-      {includeScanQRCode && <ScanQRCode ref={scanQRCodeRef} projectId={info.projectId} onScanQRCodeResult={handleScanQRCodeResult} />}
+      {includeScanQRCode && <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />}
       {visible && (
         <NewRecordComponent
           visible
@@ -259,6 +261,14 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           worksheetId={worksheetId}
           viewId={viewId}
           writeControls={writeControls}
+          openRecord={isMobile ? (recordId, viewId) => {
+            setPreviewRecord({
+              appId,
+              worksheetId,
+              viewId,
+              rowId: recordId
+            });
+          } : undefined}
           hideNewRecord={() => setInfo({ visible: false })}
         />
       )}
@@ -282,5 +292,6 @@ export default connect(({ sheet, appPkg, customPage }) => ({
     ...sheet.base,
     projectId: appPkg.projectId,
     itemId: customPage.pageId,
+    apk: customPage.apk
   },
 }))(ButtonList);

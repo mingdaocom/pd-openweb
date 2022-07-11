@@ -88,9 +88,12 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
-  useEffect(() => {
-    setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
-  }, [activeBtnId, sheetButtons]);
+  useEffect(
+    () => {
+      setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
+    },
+    [activeBtnId, sheetButtons],
+  );
   return (
     <Con>
       <ViewItems
@@ -316,6 +319,8 @@ function ViewControl(props) {
             '.ant-modal-root',
             '.ant-tooltip',
             '.CodeMirror-hints',
+            '.ck',
+            '.ant-picker-dropdown',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}

@@ -444,7 +444,7 @@ export function getUnitOfDateFormula(unit) {
  */
 export function getControlValueSortType(control) {
   const controlType = control.sourceControlType || control.type;
-  if (controlType === 6 || controlType === 8 || controlType === 31) {
+  if (controlType === 6 || controlType === 8 || controlType === 31 || controlType === 36) {
     return 'NUMBER';
   } else {
     return 'STRING';

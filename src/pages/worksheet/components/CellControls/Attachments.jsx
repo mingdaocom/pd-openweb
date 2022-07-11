@@ -312,7 +312,7 @@ function Attachment(props) {
   } = props;
   const { attachment } = props;
   const [isPicture, setIsPicture] = useState(File.isPicture(attachment.ext));
-  const smallThumbnailUrl = attachment.previewUrl.replace(
+  const smallThumbnailUrl = (attachment.previewUrl || '').replace(
     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
     'imageView2/2/h/' + fileHeight,
   );

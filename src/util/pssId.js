@@ -7,6 +7,7 @@ export const setPssId = (id) => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     if (
       userAgent.includes('dingtalk') ||
+      userAgent.includes('miniprogram') ||
       location.href.indexOf('theportal.cn') > -1 ||
       location.href.indexOf('localhost') > -1
     ) {

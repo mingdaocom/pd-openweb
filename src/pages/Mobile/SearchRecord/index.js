@@ -6,6 +6,7 @@ import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import sheetApi from 'src/api/worksheet';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
 import { getDefaultCondition, formatConditionForSave } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getRequest } from 'src/util';
 import './index.less';
 
@@ -46,7 +47,7 @@ class Search extends Component {
       const [ sheet, filterData = {} ] = result;
       this.setState({
         sheetInfo: sheet,
-        filterControls: filterData.items || []
+        filterControls: formatValuesOfOriginConditions(filterData.items || [])
       });
       this.requestFilterRows();
     });

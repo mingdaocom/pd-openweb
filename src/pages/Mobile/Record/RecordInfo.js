@@ -23,6 +23,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import ChatCount from '../components/ChatCount';
 import './index.less';
 import { getDiscussConfig } from 'src/api/externalPortal';
+import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 
 const formatParams = params => {
   const { appId, viewId } = params;
@@ -51,6 +52,7 @@ class Record extends Component {
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
+    this.refreshEvents = {};
   }
   componentDidMount() {
     this.loadRow();
@@ -66,7 +68,7 @@ class Record extends Component {
   }
   loadRow = (props) => {
     const baseIds = this.getBaseIds();
-    const getRowByIdRequest = worksheetAjax.getRowByID({
+    const getRowByIdRequest = worksheetAjax.getRowDetail({
       ...baseIds,
       getType: 1,
       checkView: true,
@@ -75,19 +77,26 @@ class Record extends Component {
     const getWorksheetInfoRequest = worksheetAjax.getWorksheetInfo({
       getRules: true,
       getViews: true,
+      getTemplate: true,
       worksheetId: baseIds.worksheetId,
     });
     Promise.all([getRowByIdRequest, getWorksheetInfoRequest]).then(data => {
       const [rowResult, worksheetInfoResult] = data;
-      const { receiveControls, view } = rowResult;
+      const controls = _.get(worksheetInfoResult, 'template.controls') || [];
+      const viewControls = _.get(rowResult, 'view.controls') || [];
+      const rowData = safeParse(rowResult.rowData);
+      let receiveControls = controls.map(c => ({
+        ...c,
+        dataSource: c.dataSource || '',
+        value: rowData[c.controlId],
+        hidden: _.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId) || viewControls.includes(c.controlId),
+      }));
       this.formData = receiveControls;
-      const newReceiveControls = receiveControls.filter(
-        item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId),
-      );
+      rowResult.receiveControls = receiveControls;
       this.setState({
         random: Date.now(),
         sheetRow: rowResult,
-        originalData: rowResult.receiveControls,
+        originalData: this.formData,
         loading: false,
         abnormal: !_.isUndefined(rowResult.resultCode) && rowResult.resultCode !== 1,
         rules: worksheetInfoResult.rules,
@@ -163,6 +172,7 @@ class Record extends Component {
           });
           this.loadRow();
           this.loadCustomBtns();
+          this.refreshSubList(data, updateControlIds);
         } else {
           if (result.resultCode === 11) {
             if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
@@ -177,6 +187,15 @@ class Record extends Component {
         alert(_l('保存失败，请稍后重试'));
       });
   };
+  refreshSubList = (tempFormData, updateControlIds) => {
+    tempFormData
+      .filter(c => _.find(updateControlIds, id => c.controlId === id) && c.type === 34)
+      .forEach(c => {
+        if (_.isFunction(this.refreshEvents[c.controlId])) {
+          this.refreshEvents[c.controlId](null, { noLoading: true });
+        }
+      });
+  }
   handleScroll = event => {
     const { rowId } = this.getBaseIds();
     const { isModal, loadParams, updatePageIndex } = this.props;
@@ -390,6 +409,11 @@ class Record extends Component {
           from={6}
           flag={random.toString()}
           rules={rules}
+          controlProps={{
+            addRefreshEvents: (id, fn) => {
+              this.refreshEvents[id] = fn;
+            },
+          }}
           isWorksheetQuery={isWorksheetQuery}
           disabled={!isEdit}
           recordCreateTime={sheetRow.createTime}
