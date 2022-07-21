@@ -40,7 +40,7 @@ class StructureContent extends Component {
   loadData = pageIndex => {
     const { departmentId, typeCursor, projectId } = this.props;
     if (!!departmentId) {
-      this.props.loadAllUsers(departmentId, pageIndex);
+      this.props.loadUsers(departmentId, pageIndex);
     } else {
       switch (typeCursor) {
         case 0:

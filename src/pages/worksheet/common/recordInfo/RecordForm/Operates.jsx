@@ -170,6 +170,7 @@ export default class Operates extends Component {
           onUpdate={onUpdate}
           onDelete={onDelete}
           handleAddSheetRow={handleAddSheetRow}
+          hideRecordInfo={hideRecordInfo}
         />
       </React.Fragment>
     );

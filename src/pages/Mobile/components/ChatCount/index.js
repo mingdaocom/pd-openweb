@@ -55,7 +55,7 @@ export default class ChatCount extends Component {
   }
 
   render() {
-    const { appId, worksheetId, rowId, onClick = _.noop, autoOpenDiscuss } = this.props;
+    const { appId, worksheetId, rowId, viewId, onClick = _.noop, autoOpenDiscuss } = this.props;
     const { discussionCount, visible } = this.state;
     return (
       <Fragment>
@@ -75,6 +75,7 @@ export default class ChatCount extends Component {
           appId={appId}
           worksheetId={worksheetId}
           rowId={rowId}
+          viewId={viewId}
           onClose={() => {
             this.setState({
               visible: false

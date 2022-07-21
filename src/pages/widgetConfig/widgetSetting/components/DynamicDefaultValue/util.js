@@ -36,13 +36,8 @@ export const showClear = (data = {}, dynamicValue) => {
   return false;
 };
 
-const isSingleRelate = (control, data = {}, worksheetId) => {
-  // 外部成员只能关联当前表
-  if (data.type === 26 && (data.advancedSetting || {}).usertype === '2') {
-    return control.type === 29 && control.enumDefault === 1 && control.dataSource === worksheetId;
-  }
-  return control.type === 29 && control.enumDefault === 1;
-};
+const isSingleRelate = control => control.type === 29 && control.enumDefault === 1;
+
 const isRelateMore = control => control.type === 29 && control.enumDefault === 2;
 
 //关联多条卡片、下拉框
@@ -134,9 +129,9 @@ export const FILTER = {
 };
 
 // 关联多条----关联单条、多条（列表除外）
-export const filterControls = (data = {}, controls = [], worksheetId) => {
+export const filterControls = (data = {}, controls = []) => {
   return controls.filter(item =>
-    isRelateMore(data) ? isResultAsRelateMore(item) : isSingleRelate(item, data, worksheetId) || item.type === 35,
+    isRelateMore(data) ? isResultAsRelateMore(item) : isSingleRelate(item) || item.type === 35,
   );
 };
 

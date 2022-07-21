@@ -83,7 +83,7 @@ function Sheet(props) {
   );
   let { viewId } = props;
   const { loadWorksheet } = props;
-  const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+  const view = _.find(views, { viewId }) || (!viewId && !chartId && views[0]) || {};
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
   const basePara = {

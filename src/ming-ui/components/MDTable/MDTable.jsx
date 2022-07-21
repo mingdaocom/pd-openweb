@@ -269,10 +269,10 @@ export default class MDTable extends React.Component {
 
   @autobind
   handleCellEnter(e) {
-    const { onCellEnter = () => {}, allowlink } = this.props;
+    const { onCellEnter = () => {} } = this.props;
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
-    if (classMatch && this.mdtable && allowlink !== '0') {
+    if (classMatch && this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
       $(this.mdtable)
         .find('.' + classMatch[1])
@@ -486,6 +486,7 @@ export default class MDTable extends React.Component {
     const {
       loading,
       width,
+      allowlink,
       heightOffset,
       topFixed,
       scrollBarHoverShow,
@@ -564,7 +565,10 @@ export default class MDTable extends React.Component {
     ];
     return (
       <div
-        className={cx('mdTable', `id-${this.mdtabldId}-id`, className, { widthScroll: !!this.widthScroll })}
+        className={cx('mdTable', `id-${this.mdtabldId}-id`, className, {
+          widthScroll: !!this.widthScroll,
+          disableRowHoverBgColor: allowlink === '0',
+        })}
         ref={mdtable => (this.mdtable = mdtable)}
         style={
           responseHeight

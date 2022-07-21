@@ -41,6 +41,9 @@ const SearchWrapper = styled.div`
       z-index: 100;
       position: fixed;
     }
+    &.bottom50 {
+      bottom: 50px;
+    }
   }
 `;
 
@@ -483,7 +486,9 @@ class SheetView extends Component {
       batchOptVisible,
       match,
       sheetSwitchPermit,
+      appDetail,
     } = this.props;
+    const { detail } = appDetail;
     const { params } = match;
     let { customBtns = [], showButtons, customButtonLoading } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
@@ -533,7 +538,10 @@ class SheetView extends Component {
             </FilterWrapper>
           )}
           <Drawer
-            className={cx('filterStepListWrapper', { open: filters.visible })}
+            className={cx('filterStepListWrapper', {
+              open: filters.visible,
+              bottom50: detail.appNaviStyle === 2 && location.href.includes('mobile/app'),
+            })}
             position="right"
             sidebar={_.isEmpty(view) ? null : this.renderSidebar(view)}
             open={filters.visible}
@@ -608,6 +616,7 @@ export default connect(
     batchOptCheckedData: state.mobile.batchOptCheckedData,
     batchOptVisible: state.mobile.batchOptVisible,
     worksheetControls: state.mobile.worksheetControls,
+    appDetail: state.mobile.appDetail,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
     navGroupFilters: state.sheet.navGroupFilters,
   }),

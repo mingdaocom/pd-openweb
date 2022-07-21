@@ -136,15 +136,14 @@ export default function RecordOperate(props) {
     onUpdate = () => {},
     onRemoveRelation = () => {},
     onPopupVisibleChange = () => {},
+    hideRecordInfo = () => {},
   } = props;
   const showShare =
     _.includes(shows, 'share') &&
     isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
     !md.global.Account.isPortal;
   const showCopy =
-    _.includes(shows, 'copy') &&
-    allowCopy &&
-    isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId);
+    _.includes(shows, 'copy') && allowCopy && isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId);
   const showPrint = _.includes(shows, 'print');
   const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
   const showRemoveRelation = _.includes(shows, 'removeRelation');
@@ -438,7 +437,10 @@ export default function RecordOperate(props) {
             <MenuItemWrap
               className="openCustomWidget"
               icon={<Icon icon="settings" className="Font17 mLeft5" />}
-              onClick={() => handleCustomWidget(worksheetId)}
+              onClick={() => {
+                hideRecordInfo();
+                handleCustomWidget(worksheetId);
+              }}
             >
               {_l('编辑表单')}
             </MenuItemWrap>

@@ -35,13 +35,14 @@ export default class extends Component {
     const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
     const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+    const forwardAccountId = _.isArray(selectedUser) ? selectedUser.map(user => user.accountId).join(',') : selectedUser.accountId
 
     if (((passContent || overruleContent) && !content.trim()) || ((passSignature || overruleSignature) && !signature)) {
       alert(_l('请填写完整内容', 2));
       return;
     }
 
-    this.props.onAction(action, content, selectedUser.accountId, backFlowNode, signature ? JSON.parse(signature) : undefined);
+    this.props.onAction(action, content, forwardAccountId, backFlowNode, signature ? JSON.parse(signature) : undefined);
   }
   renderBackFlowNodes() {
     const { backFlowNode, backFlowNodes } = this.state;

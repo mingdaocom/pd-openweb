@@ -313,6 +313,16 @@ export const isUrlRequest = url => {
   return false;
 };
 
+export const downloadFile = url => {
+  if (window.isDingTalk) {
+    const { search } = new URL(decodeURIComponent(url));
+    const { validation } = getRequest(search);
+    return addToken(url, validation ? true : false);
+  } else {
+    return addToken(url);
+  }
+}
+
 /**
  * 下载地址和包含 md.global.Config.AjaxApiUrl 的 url 添加 token
  * @param {string} url

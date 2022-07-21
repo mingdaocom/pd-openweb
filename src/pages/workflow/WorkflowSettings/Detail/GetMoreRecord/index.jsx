@@ -236,10 +236,12 @@ export default class GetMoreRecord extends Component {
 
         <div className="Font14 Gray_75 workflowDetailDesc">
           {_l(
-            '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。',
+            '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
             workflowBatchGetDataLimitCount,
             workflowSubProcessDataLimitCount,
           )}
+          {data.actionId === ACTION_ID.FROM_RECORD &&
+            _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
         </div>
 
         {(!data.actionId ||

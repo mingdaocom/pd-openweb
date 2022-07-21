@@ -159,10 +159,11 @@ function formatRowToServer(row, controls = []) {
             console.log(err);
           }
         }
-        return _.pick(
-          formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }),
-          ['controlId', 'value', 'editType'],
-        );
+        return _.pick(formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }), [
+          'controlId',
+          'value',
+          'editType',
+        ]);
       }
     })
     .filter(c => c && c.controlId && !_.isUndefined(c.value));
@@ -238,17 +239,17 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       try {
         parsedValue = JSON.parse(control.value);
         result.value = parsedValue.code;
-      } catch (err) { }
+      } catch (err) {}
       break;
     case 29:
       parsedValue = JSON.parse(control.value);
       result.value = _.isArray(parsedValue)
         ? JSON.stringify(
-          parsedValue.map(item => ({
-            name: item.name,
-            sid: item.sid,
-          })),
-        )
+            parsedValue.map(item => ({
+              name: item.name,
+              sid: item.sid,
+            })),
+          )
         : '';
       break;
     case 34: // 子表
@@ -304,7 +305,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
             result.value = JSON.stringify(
               rows.map(row => Object.keys(row).map(key => ({ controlId: key, value: row[key] }))),
             );
-          } catch (err) { }
+          } catch (err) {}
         }
       }
       break;
@@ -512,7 +513,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+8526262\d{4}$|\+8526660\d{4}$|\+86146\d{8}$|\+86148\d{8}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
+  return /\+8526262\d{4}$|\+8526660\d{4}$|\+8527\d{7}$|\+861\d{10}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
     value || '',
   );
 };
@@ -565,7 +566,10 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
   const selectControl = _.find(data, i => i.controlId === dataSource);
   if (!(selectControl || {}).value) return '';
   if (enumDefault === 1) {
-    const repVal = String(selectControl.value).replace(/[\u4e00-\u9fa5]/g, '');
+    const repVal = String(selectControl.value).replace(
+      /[(\u4e00-\u9fa5)(\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3010|\u3011|\u007e)]+/g,
+      '',
+    );
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
   return String(selectControl.value).substr(0, 150);

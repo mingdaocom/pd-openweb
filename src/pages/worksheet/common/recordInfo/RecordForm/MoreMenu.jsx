@@ -16,6 +16,7 @@ export default function MoreMenu(props) {
     reloadRecord,
     onUpdate,
     handleAddSheetRow,
+    hideRecordInfo,
   } = props;
   const { from, isCharge, notDialog, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
   const { allowDelete, formData, projectId, allowAdd } = recordinfo;
@@ -44,6 +45,7 @@ export default function MoreMenu(props) {
       reloadRecord={reloadRecord}
       onUpdate={onUpdate}
       onCopySuccess={handleAddSheetRow}
+      hideRecordInfo={hideRecordInfo}
     >
       <IconBtn className="moreBtn Hand Gray_9e Font22 mLeft10">
         <Icon icon="task-point-more" className="ThemeHoverColor3" />

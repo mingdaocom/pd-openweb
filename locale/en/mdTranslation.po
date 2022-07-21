@@ -130,7 +130,7 @@ msgstr "My Apps"
 
 #: Disabled references:1
 msgid "应用库"
-msgstr "App Library"
+msgstr "Library"
 
 #: Disabled references:1
 msgid "应用"
@@ -8554,7 +8554,7 @@ msgstr "No records yet"
 
 #: Disabled references:1
 msgid "待办"
-msgstr "To-do List"
+msgstr "To-do"
 
 #: Disabled references:1
 msgid "待审批"

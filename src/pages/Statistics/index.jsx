@@ -165,13 +165,7 @@ export default class Statistics extends Component {
     }
   }
   renderStatistics() {
-    const { worksheetId } = this.props;
-    const props = {
-      worksheetId,
-      isFullScreen: true,
-      onClose: _.noop,
-    };
-    return <Statistics {...props} />;
+    return <Statistics {...this.props} isFullScreen={true} onClose={_.noop} />;
   }
   handleSortEnd({ oldIndex, newIndex }) {
     if (oldIndex === newIndex) return;

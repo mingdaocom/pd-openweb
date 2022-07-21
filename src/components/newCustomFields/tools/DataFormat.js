@@ -706,25 +706,30 @@ export const onValidator = (item, from, data, masterData) => {
 
         if (!value) {
           errorType = '';
-        } else if (min || max) {
-          const minDate = min
-            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
-            : '';
-          const maxDate = max
-            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
-            : '';
+        } else {
+          if (min || max) {
+            const minDate = min
+              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
+              : '';
+            const maxDate = max
+              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
+              : '';
 
-          if ((minDate && moment(value) < moment(minDate)) || (maxDate && moment(value) > moment(maxDate))) {
-            errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
-            errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate);
+            if ((minDate && moment(value) < moment(minDate)) || (maxDate && moment(value) > moment(maxDate))) {
+              errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
+              errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate);
+            }
           }
-        } else if (allowweek.indexOf(moment(value).day() === 0 ? '7' : moment(value).day()) === -1) {
-          errorType = FORM_ERROR_TYPE.DATE;
-        } else if (
-          compareWithTime(start, `${moment(value).hour()}:${moment(value).minute()}`, 'isAfter') ||
-          compareWithTime(end, `${moment(value).hour()}:${moment(value).minute()}`, 'isBefore')
-        ) {
-          errorType = FORM_ERROR_TYPE.DATE_TIME;
+          if (allowweek.indexOf(moment(value).day() === 0 ? '7' : moment(value).day()) === -1 && !errorType) {
+            errorType = FORM_ERROR_TYPE.DATE;
+          }
+          if (
+            !errorType &&
+            (compareWithTime(start, `${moment(value).hour()}:${moment(value).minute()}`, 'isAfter') ||
+              compareWithTime(end, `${moment(value).hour()}:${moment(value).minute()}`, 'isBefore'))
+          ) {
+            errorType = FORM_ERROR_TYPE.DATE_TIME;
+          }
         }
       }
     }

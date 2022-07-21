@@ -7,6 +7,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import ReacordItem from './RecordItem';
+import _ from 'lodash';
 
 export default class RelateRecordList extends React.PureComponent {
   static propTypes = {
@@ -127,7 +128,7 @@ export default class RelateRecordList extends React.PureComponent {
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        let newRecords = res.data;
+        let newRecords = res.data.filter(row => row.rowid !== recordId);
         this.setState({
           records: records.concat(newRecords),
           loading: false,

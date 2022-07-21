@@ -1,7 +1,7 @@
 import './css/mobileShare.less';
 import doT from 'dot';
 var qs = require('query-string');
-import { addToken, formatFileSize, getClassNameByExt } from 'src/util';
+import { downloadFile, formatFileSize, getClassNameByExt } from 'src/util';
 var mobileShareTpl = doT.template(require('./tpl/mobileShare.htm'));
 var { ATTACHMENT_TYPE } = require('src/components/shareAttachment/enum');
 var shareajax = require('src/api/share');
@@ -228,7 +228,7 @@ MobileSharePreview.prototype = {
           (MSP.attachmentType === ATTACHMENT_TYPE.KC && MSP.options.shareFolderId
             ? '&shareFolderId=' + MSP.options.shareFolderId
             : '');
-        window.open(addToken(url, !window.isDingTalk));
+        window.open(downloadFile(url));
       }
     });
     if (MSP.$filePreview[0] && RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext) > -1) {

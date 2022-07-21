@@ -7,7 +7,7 @@ import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import Config from '../../config';
 import mdFunction from 'mdFunction';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 import './index.less';
 
 const headerBarData = [
@@ -339,7 +339,7 @@ export default class AppLog extends React.Component {
                     className={cx(item.downLoadUrl ? 'ThemeColor3 ThemeHoverColor2 Hand' : 'Gray_9e')}
                     onClick={() => {
                       if (item.downLoadUrl) {
-                        window.open(addToken(item.downLoadUrl, !window.isDingTalk));
+                        window.open(downloadFile(item.downLoadUrl));
                       }
                     }}
                   >

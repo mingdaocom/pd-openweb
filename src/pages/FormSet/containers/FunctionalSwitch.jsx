@@ -147,7 +147,7 @@ function FunctionalSwitch(props) {
     const { viewIds = [] } = data;
     let len = viewIds.length;
     let Ids = views.map(o => o.viewId);
-    let l = viewIds.filter(o => Ids.includes(o)).length;//有效的视图数量
+    let l = viewIds.filter(o => Ids.includes(o)).length; //有效的视图数量
     switch (key) {
       case '2':
         return len <= 0 ? _l('所有视图') : _l('%0个视图', l);
@@ -261,6 +261,9 @@ function FunctionalSwitch(props) {
                               }}
                             >
                               {listConfigStr[o.type]}
+                              {o.type === 21 && (
+                                <span className="Gray_9e">（{_l('批量操作中的导出功能需额外设置')}）</span>
+                              )}
                               {/* 批量操作显示数量 */}
                               {[25].includes(o.type) && !noBatch && (
                                 <span className="mLeft5 Gray_9e">

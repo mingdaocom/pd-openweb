@@ -398,7 +398,7 @@ class TableView extends React.Component {
     const { allowAdd, worksheetId, projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
     const localLayoutUpdateTime = getLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId);
-    if (_.isEmpty(view)) {
+    if (_.isEmpty(view) && !this.chartId) {
       return <span />;
     }
     return (
@@ -492,6 +492,9 @@ class TableView extends React.Component {
     const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig } = this.props;
     const { projectId } = worksheetInfo;
     const asyncUpdateCell = (cid, newValue) => {
+      if (typeof newValue === 'object') {
+        return;
+      }
       updateControlOfRow(
         { recordId: row.rowid, cell: { controlId: cid, value: newValue } },
         {

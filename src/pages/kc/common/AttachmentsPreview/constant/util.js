@@ -2,7 +2,7 @@
 import { NODE_VIEW_TYPE } from '../../../constant/enum';
 import { isOffice } from '../../../utils';
 import { PREVIEW_TYPE } from './enum';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 
 function canEditFileName(attachment, options) {
   const { hideFunctions } = options;
@@ -142,12 +142,12 @@ export function getDownloadUrl(attachment, extra) {
         ? sourceNode.originalFilename
         : sourceNode.originalFilename + sourceNode.ext;
       const url = urlAddParams(viewUrl, { attname: encodeURIComponent(fileName) });
-      return viewUrl ? addToken(url, !window.isDingTalk) : url;
+      return viewUrl ? downloadFile(url) : url;
     } else if (canDownload(attachment)) {
-      return addToken(attachment.sourceNode.downloadUrl, !window.isDingTalk);
+      return downloadFile(attachment.sourceNode.downloadUrl);
     }
   }
-  return addToken(result, !window.isDingTalk);
+  return downloadFile(result);
 }
 
 /**

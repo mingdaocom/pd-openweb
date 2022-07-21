@@ -624,6 +624,7 @@ class Record extends Component {
                   exAccountDiscussEnum={exAccountDiscussEnum}
                   worksheetId={worksheetId}
                   rowId={rowId}
+                  viewId={viewId}
                   appId={appId || ''}
                   autoOpenDiscuss={!isModal && location.search.includes('viewDiscuss')}
                 />

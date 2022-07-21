@@ -15,7 +15,7 @@ import Sidebar from './Sidebar';
 import OtherAction from './OtherAction';
 import Operation from './Operation';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, getSubListError } from 'worksheet/util';
 import RecordAction from 'mobile/Record/RecordAction';
 import ChatCount from '../components/ChatCount';
 import { renderCellText } from 'worksheet/components/CellControls';
@@ -62,6 +62,7 @@ class ProcessRecord extends Component {
       isHasten: false,
       switchPermit: []
     };
+    this.cellObjs = {};
   }
   customwidget = React.createRef();
   recordRef = React.createRef();
@@ -160,34 +161,104 @@ class ProcessRecord extends Component {
     this.setState({
       open: !this.state.open,
     });
-  };
-  handleSave(fn) {
-    const { worksheetId, rowId, sheetRow, viewId, instance } = this.state;
-    const { flowNode } = instance;
-    const { ignoreRequired } = flowNode;
-    const { params } = this.props.match;
-    const { projectId, receiveControls } = sheetRow;
-    const { data, updateControlIds, hasError, hasRuleError } = this.customwidget.current.getSubmitData({
+  }
+  handleVerify = (fn) => {
+    const { viewId, instance } = this.state;
+    const { ignoreRequired } = _.get(instance, 'flowNode') || {};
+    let result = true;
+
+    let { data, updateControlIds, hasError, hasRuleError } = this.customwidget.current.getSubmitData({
       ignoreAlert: true,
     });
     const cells = data
       .filter(item => updateControlIds.indexOf(item.controlId) > -1 && item.type !== 30)
       .map(formatControlToServer);
 
+    const { cellObjs } = this;
+    const subListControls = data.filter(item => item.type === 34).filter(c => controlState(c).editable);
+    function getRows(controlId) {
+      try {
+        return cellObjs[controlId].cell.props.rows;
+      } catch (err) {
+        return [];
+      }
+    }
+    function getControls(controlId) {
+      try {
+        return cellObjs[controlId].cell.controls;
+      } catch (err) {
+        return;
+      }
+    }
+    if (subListControls.length) {
+      const errors = subListControls
+        .map(control => ({
+          id: control.controlId,
+          value: getSubListError(
+            {
+              rows: getRows(control.controlId),
+              rules: _.get(cellObjs || {}, `${control.controlId}.cell.props.rules`),
+            },
+            getControls(control.controlId) || control.relationControls,
+            control.showControls,
+            3,
+          ),
+        }))
+        .filter(c => !_.isEmpty(c.value));
+      if (errors.length) {
+        hasError = true;
+        errors.forEach(error => {
+          const errorSublist = cellObjs[error.id];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: !_.isEmpty(error.value),
+              cellErrors: error.value,
+            });
+          }
+        });
+      } else {
+        subListControls.forEach(control => {
+          const errorSublist = cellObjs[control.controlId];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: false,
+              cellErrors: {},
+            });
+          }
+        });
+      }
+      if (this.con.querySelector('.cellControlErrorTip')) {
+        hasError = true;
+      }
+    }
+
     if (hasError && !ignoreRequired) {
       alert(_l('请正确填写记录'), 3);
-      return;
+      result = false;
     }
 
     if (viewId && _.isEmpty(cells)) {
       this.setState({ isEdit: false, random: Date.now() });
-      return;
+      result = false;
     }
 
     if (hasRuleError) {
       fn && fn();
-      return;
+      result = false;
     }
+
+    return {
+      result,
+      cells,
+    };
+  }
+  handleSave(fn) {
+    const { worksheetId, rowId, sheetRow } = this.state;
+    const { params } = this.props.match;
+    const { projectId, receiveControls } = sheetRow;
+    const { result, cells } = this.handleVerify(fn);
+
+    if (!result) return;
 
     worksheetAjax
       .updateWorksheetRow({
@@ -248,10 +319,20 @@ class ProcessRecord extends Component {
       });
       return;
     }
-    this.setState({
-      action: id,
-      otherActionVisible: true,
-    });
+    if (ignoreRequired) {
+      this.setState({
+        action: id,
+        otherActionVisible: true,
+      });
+    } else {
+      const { result } = this.handleVerify();
+      if (result) {
+        this.setState({
+          action: id,
+          otherActionVisible: true,
+        });
+      }
+    }
   };
   handleAction = (action, content, forwardAccountId, backNodeId, signature) => {
     content = content.trim();
@@ -564,7 +645,7 @@ class ProcessRecord extends Component {
     const { type } = flowNode;
     return (
       <Fragment>
-        <div className="flex">
+        <div className="flex" ref={con => (this.con = con)}>
           <CustomFields
             from={6}
             flag={random.toString()}
@@ -576,6 +657,7 @@ class ProcessRecord extends Component {
             recordId={rowId}
             worksheetId={worksheetId}
             data={sheetRow.receiveControls}
+            registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
             onChange={() => {
               this.setState({ isEdit: true });
             }}
@@ -750,6 +832,7 @@ class ProcessRecord extends Component {
             worksheetId={worksheetId}
             rowId={rowId}
             appId={app.id}
+            viewId={viewId}
             onClick={() => {
               // console.log(`/mobile/discuss/${app.id}/${worksheetId}/null/${rowId}?processRecord`);
             }}

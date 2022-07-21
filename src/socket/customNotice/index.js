@@ -1,7 +1,7 @@
 import React from 'react';
 import { antNotification, Icon } from 'ming-ui';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 
 export default function customNotice() {
@@ -19,7 +19,7 @@ export default function customNotice() {
 
         if (href.indexOf('worksheetexcel') > -1) {
           const downloadUrl = `${__api_server__.main + href}`;
-          window.open(addToken(downloadUrl, !window.isDingTalk));
+          window.open(downloadFile(downloadUrl));
           return;
         }
 

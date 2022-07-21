@@ -9,7 +9,7 @@ import * as postController from 'src/api/post';
 import kcService from 'src/pages/kc/api/service';
 import { editLinkAttachment } from 'src/api/attachment';
 import { getFileExtends, isDocument, formatTime } from './utils';
-import { formatFileSize, isVideo, addToken, getClassNameByExt } from 'src/util';
+import { formatFileSize, isVideo, downloadFile, getClassNameByExt } from 'src/util';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -77,7 +77,7 @@ export default class FileComponent extends Component {
     if (!isDownload) {
       alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
     } else {
-      window.open(addToken(url, !window.isDingTalk));
+      window.open(downloadFile(url));
     }
   }
   onShare(isDownload, event) {

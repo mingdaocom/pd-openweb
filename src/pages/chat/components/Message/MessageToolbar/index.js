@@ -10,7 +10,7 @@ import * as cardSender from '../../../utils/cardSender';
 import { getCurrentTime } from '../../../utils';
 import previewAttachments from 'previewAttachments';
 import Dialog from 'ming-ui/components/Dialog';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 
 const confirm = Dialog.confirm;
 
@@ -213,7 +213,7 @@ export default class MessageToolbar extends Component {
     }
 
     if (downloadUrl) {
-      window.open(addToken(downloadUrl, !window.isDingTalk));
+      window.open(downloadFile(downloadUrl));
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
     }

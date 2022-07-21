@@ -283,9 +283,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                       pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
                         ? pictureAttachments[index].previewUrl.replace(
                             /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                            'imageView2/1/w/1200/q/90',
+                            'imageView2/2/w/1200/q/90',
                           )
-                        : `${pictureAttachments[index].previewUrl}&imageView2/1/w/1200/q/90`
+                        : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
                     }
                     alt=""
                   />

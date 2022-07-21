@@ -188,73 +188,75 @@ export default function RowHead(props) {
           )}
         </React.Fragment>
       )}
-      {hasBatch && !readonly && rowIndex === 0 && (
+      {!readonly && rowIndex === 0 && (
         <div className="topCheckbox">
           {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSehetLayout} />}
-          <div className="checkboxCon">
-            <Checkbox
-              size="small"
-              clearselected={!!(data.length && selectedIds.length && selectedIds.length !== data.length)}
-              disabled={!data.length}
-              checked={
-                canSelectAll && allWorksheetIsSelected
-                  ? !selectedIds.length
-                  : !!data.length && selectedIds.length === data.length
-              }
-              onClick={(checked, value, e) => {
-                e.stopPropagation();
-                handleCheckAll();
-              }}
-            />
-            {canSelectAll && (
-              <Trigger
-                popupVisible={selectAllPanelVisible}
-                onPopupVisibleChange={visible => {
-                  setSelectAllPanelVisible(visible);
+          {hasBatch && (
+            <div className="checkboxCon">
+              <Checkbox
+                size="small"
+                clearselected={!!(data.length && selectedIds.length && selectedIds.length !== data.length)}
+                disabled={!data.length}
+                checked={
+                  canSelectAll && allWorksheetIsSelected
+                    ? !selectedIds.length
+                    : !!data.length && selectedIds.length === data.length
+                }
+                onClick={(checked, value, e) => {
+                  e.stopPropagation();
+                  handleCheckAll();
                 }}
-                popupAlign={{
-                  points: ['tl', 'bl'],
-                  offset: [-32, 10],
-                }}
-                action={['click']}
-                popup={
-                  <Menu>
-                    <MenuItem
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleCheckAll(true);
-                        setSelectAllPanelVisible(false);
-                      }}
-                    >
-                      {_l('选择本页记录')}
-                    </MenuItem>
-                    <MenuItem
-                      onClick={e => {
-                        e.stopPropagation();
-                        setSelectAllPanelVisible(false);
-                        onSelectAllWorksheet(true);
-                      }}
-                    >
-                      {_l('选择所有记录')}
-                    </MenuItem>
-                    {(selectedIds.length || allWorksheetIsSelected) && (
+              />
+              {canSelectAll && (
+                <Trigger
+                  popupVisible={selectAllPanelVisible}
+                  onPopupVisibleChange={visible => {
+                    setSelectAllPanelVisible(visible);
+                  }}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    offset: [-32, 10],
+                  }}
+                  action={['click']}
+                  popup={
+                    <Menu>
+                      <MenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleCheckAll(true);
+                          setSelectAllPanelVisible(false);
+                        }}
+                      >
+                        {_l('选择本页记录')}
+                      </MenuItem>
                       <MenuItem
                         onClick={e => {
                           e.stopPropagation();
                           setSelectAllPanelVisible(false);
-                          onReverseSelect();
+                          onSelectAllWorksheet(true);
                         }}
                       >
-                        {_l('反选')}
+                        {_l('选择所有记录')}
                       </MenuItem>
-                    )}
-                  </Menu>
-                }
-              >
-                <i className="icon icon-expand_more Hand" style={{ position: 'absolute', top: 12, right: -17 }}></i>
-              </Trigger>
-            )}
-          </div>
+                      {(selectedIds.length || allWorksheetIsSelected) && (
+                        <MenuItem
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectAllPanelVisible(false);
+                            onReverseSelect();
+                          }}
+                        >
+                          {_l('反选')}
+                        </MenuItem>
+                      )}
+                    </Menu>
+                  }
+                >
+                  <i className="icon icon-expand_more Hand" style={{ position: 'absolute', top: 12, right: -17 }}></i>
+                </Trigger>
+              )}
+            </div>
+          )}
         </div>
       )}
     </Con>

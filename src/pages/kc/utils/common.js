@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 import qs from 'query-string';
 import kcService from '../api/service';
 import {
@@ -236,7 +236,7 @@ export function handleShareNode(item, updateKcNodeItem = () => {}) {
 function downloadOne(id, excludeIds) {
   const excludeNodeIds = excludeIds && excludeIds.length ? excludeIds.join(',') : '';
   const url = md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ id, excludeNodeIds });
-  window.open(addToken(url, !window.isDingTalk));
+  window.open(downloadFile(url));
 }
 
 function downloadAll(root, excludeIds) {
@@ -262,18 +262,18 @@ function downloadAll(root, excludeIds) {
   }
   const url =
     md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ rootType, rootId, fileName, excludeNodeIds });
-  window.open(addToken(url, !window.isDingTalk));
+  window.open(downloadFile(url));
 }
 
 function batchDownload(ids, folderId, fileName) {
   const url = md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ ids, folderId, fileName });
-  window.open(addToken(url, !window.isDingTalk));
+  window.open(downloadFile(url));
 }
 
 /** 单条下载 */
 export function handleDownloadOne(item, excludeIds) {
   if (item.viewType === NODE_VIEW_TYPE.LINK) {
-    window.open(addToken(item.downloadUrl, !window.isDingTalk));
+    window.open(downloadFile(item.downloadUrl));
     return;
   }
   if (item && item.id) {

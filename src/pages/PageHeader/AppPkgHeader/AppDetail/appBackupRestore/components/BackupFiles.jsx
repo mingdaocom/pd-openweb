@@ -8,7 +8,7 @@ import CreateAppBackupDialog from '../CreateAppBackupDialog';
 import HomeApiController from 'api/homeApp';
 import { getApps, deleteBackupFile, restore } from 'src/api/appManagement';
 import styled from 'styled-components';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 
 const EmptyStatusWrap = styled.div`
   width: 100%;
@@ -108,9 +108,8 @@ export default function BackupFiles(props) {
   // 下载备份
   const downloadBackup = item => {
     window.open(
-      addToken(
-        `${md.global.Config.AjaxApiUrl}Download/DownloadBackupFile?id=${item.id}&projectId=${projectId}&appId=${appId}`,
-        !window.isDingTalk,
+      downloadFile(
+        `${md.global.Config.AjaxApiUrl}Download/DownloadBackupFile?id=${item.id}&projectId=${projectId}&appId=${appId}`
       ),
     );
   };

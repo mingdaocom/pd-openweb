@@ -6,7 +6,7 @@ var FROM_TYPE = require('attachmentsPreview.enum').FROM_TYPE;
 var attachmentTpl = doT.template(require('./tpl/attachment.htm'));
 var picAttachmentTpl = doT.template(require('./tpl/picAttachment.htm'));
 var MAX_IMG_VIEW_SIZE = 20971520;
-import { cutStringWithHtml, formatFileSize, addToken, getClassNameByExt, htmlEncodeReg } from 'src/util';
+import { cutStringWithHtml, formatFileSize, downloadFile, getClassNameByExt, htmlEncodeReg } from 'src/util';
 
 import './css/attachmentPlayer.less';
 
@@ -167,7 +167,7 @@ var AttachmentPlayer = {
                     sizeStr: formatFileSize(attachment.filesize),
                     iconClassName: getClassNameByExt(attachment.ext),
                     downloadParams,
-                    downDocumentUrl: addToken(downDocumentUrl, !window.isDingTalk),
+                    downDocumentUrl: downloadFile(downDocumentUrl),
                   }),
                 )
               : picAttachmentTpl(
@@ -209,7 +209,7 @@ var AttachmentPlayer = {
                 iconClassName: iconClassName,
                 downloadParams,
                 isKcFolder: isKcFolder,
-                downDocumentUrl: addToken(downDocumentUrl, !window.isDingTalk),
+                downDocumentUrl: downloadFile(downDocumentUrl),
               }),
             );
           })
@@ -442,7 +442,7 @@ var AttachmentPlayer = {
             }
             break;
           case 2:
-            window.open(addToken(downloadUrl + (downloadParams ? '&' + downloadParams : ''), !window.isDingTalk));
+            window.open(downloadFile(downloadUrl + (downloadParams ? '&' + downloadParams : '')));
             break;
         }
         $('.attachmentsList .commonAttachment .operateList').addClass('hide');

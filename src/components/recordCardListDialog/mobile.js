@@ -55,7 +55,7 @@ export default class RecordCardListDialog extends Component {
       list: [],
       controls: [],
       sortControls: [],
-      selectedRecordIds: [],
+      selectedRecords: [],
       worksheet: {},
       pageIndex: 1,
       loadouted: false,
@@ -188,7 +188,7 @@ export default class RecordCardListDialog extends Component {
             () => {
               if (this.props.keyWords && res.data.length === 1) {
                 this.setState({
-                  selectedRecordIds: [res.data[0].rowid],
+                  selectedRecords: [res.data[0]],
                 });
               }
             },
@@ -235,12 +235,12 @@ export default class RecordCardListDialog extends Component {
   @autobind
   handleSelect(record, selected) {
     const { multiple, onOk, onClose } = this.props;
-    const { selectedRecordIds } = this.state;
+    const { selectedRecords } = this.state;
     if (multiple) {
       this.setState({
-        selectedRecordIds: selected
-          ? _.uniqBy(selectedRecordIds.concat(record.rowid))
-          : selectedRecordIds.filter(id => id !== record.rowid),
+        selectedRecords: selected
+          ? _.uniqBy(selectedRecords.concat(record))
+          : selectedRecords.filter(r => r.rowid !== record.rowid),
       });
     } else {
       onOk([record]);
@@ -250,8 +250,8 @@ export default class RecordCardListDialog extends Component {
   @autobind
   handleConfirm() {
     const { onOk, onClose } = this.props;
-    const { selectedRecordIds, list } = this.state;
-    onOk(list.filter(item => _.find(selectedRecordIds, id => id === item.rowid)));
+    const { selectedRecords, list } = this.state;
+    onOk(selectedRecords);
     onClose();
   }
   @autobind
@@ -383,7 +383,7 @@ export default class RecordCardListDialog extends Component {
       error,
       list,
       controls,
-      selectedRecordIds,
+      selectedRecords,
       keyWords,
       worksheet,
       worksheetInfo,
@@ -450,7 +450,7 @@ export default class RecordCardListDialog extends Component {
         />
         {list.length
           ? list.map((record, i) => {
-              const selected = !!_.find(selectedRecordIds, id => id === record.rowid);
+              const selected = !!_.find(selectedRecords, r => r.rowid === record.rowid);
               return (
                 <WingBlank key={i} size="md">
                   <RecordCard
@@ -492,7 +492,7 @@ export default class RecordCardListDialog extends Component {
   }
   render() {
     const { visible, onClose, multiple, disabledManualWrite } = this.props;
-    const { value, worksheet, selectedRecordIds } = this.state;
+    const { value, worksheet, selectedRecords } = this.state;
     return (
       <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
         <div className="flexColumn leftAlign mobileRecordCardListDialog h100">
@@ -509,10 +509,10 @@ export default class RecordCardListDialog extends Component {
                 <Button
                   className="bold"
                   type="primary"
-                  disabled={!selectedRecordIds.length}
+                  disabled={!selectedRecords.length}
                   onClick={this.handleConfirm}
                 >
-                  {multiple && selectedRecordIds.length ? _l('确定(%0)', selectedRecordIds.length) : _l('确定')}
+                  {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
                 </Button>
               </WingBlank>
             )}

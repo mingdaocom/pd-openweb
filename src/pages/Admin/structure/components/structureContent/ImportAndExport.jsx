@@ -86,7 +86,7 @@ class ImportAndExport extends Component {
             </div>
           }
           onCancel={() => {
-            this.setState({ showInputPassword: false });
+            this.setState({ showInputPassword: false, password: undefined });
           }}
         >
           <div>{_l('登录密码')}</div>
@@ -124,7 +124,7 @@ class ImportAndExport extends Component {
             projectId,
             orgnazation.map(item => item.departmentId),
           );
-          _this.setState({ showInputPassword: false });
+          _this.setState({ showInputPassword: false, password: undefined });
         } else {
           alert(errorMsg[res] || _l('操作失败'), 2);
         }

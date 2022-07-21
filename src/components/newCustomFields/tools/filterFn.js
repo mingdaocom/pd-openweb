@@ -28,6 +28,61 @@ const getTotalDataRange = () => {
     .map(i => i.value);
 };
 
+const dateFn = (dateRange, value, isEQ) => {
+  let result = true;
+  switch (dateRange) {
+    // { text: _l('本周'), value: 4 },
+    case 4:
+      result = moment(value).isSame(moment().startOf('week').format('YYYY-MM-DD'), 'week');
+      break;
+    // { text: _l('上周'), value: 5 },
+    case 5:
+      result = moment(value).isSame(moment().startOf('week').add(-1, 'week').format('YYYY-MM-DD'), 'week');
+      break;
+    // { text: _l('下周'), value: 6 },
+    case 6:
+      result = moment(value).isSame(moment().startOf('week').add(1, 'week').format('YYYY-MM-DD'), 'week');
+      break;
+    // { text: _l('本月'), value: 7 },
+    case 7:
+      result = moment(value).isSame(moment().startOf('month').format('YYYY-MM-DD'), 'month');
+      break;
+    // { text: _l('上个月'), value: 8 },
+    case 8:
+      result = moment(value).isSame(moment().startOf('month').add(-1, 'month').format('YYYY-MM-DD'), 'month');
+      break;
+    // { text: _l('下个月'), value: 9 },
+    case 9:
+      result = moment(value).isSame(moment().startOf('month').add(1, 'month').format('YYYY-MM-DD'), 'month');
+      break;
+    // { text: _l('本季度'), value: 12 },
+    case 12:
+      result = moment(value).isSame(moment().startOf('quarter').format('YYYY-MM-DD'), 'quarter');
+      break;
+    // { text: _l('上季度'), value: 13 },
+    case 13:
+      result = moment(value).isSame(moment().startOf('quarter').add(-1, 'quarter').format('YYYY-MM-DD'), 'quarter');
+      break;
+    // { text: _l('下季度'), value: 14 },
+    case 14:
+      result = moment(value).isSame(moment().startOf('quarter').add(-1, 'quarter').format('YYYY-MM-DD'), 'quarter');
+      break;
+    // { text: _l('今年'), value: 15 },
+    case 15:
+      result = moment(value).isSame(moment().startOf('year').format('YYYY-MM-DD'), 'year');
+      break;
+    // { text: _l('去年'), value: 16 },
+    case 16:
+      result = moment(value).isSame(moment().startOf('year').add(-1, 'year').format('YYYY-MM-DD'), 'year');
+      break;
+    // { text: _l('明年'), value: 17 },
+    case 17:
+      result = moment(value).isSame(moment().startOf('year').add(1, 'year').format('YYYY-MM-DD'), 'year');
+      break;
+  }
+  return isEQ ? result : !result;
+};
+
 const dayFn = (filterData = {}, value, isGT, type) => {
   let { dateRange, dynamicSource = [] } = filterData;
   if (dynamicSource.length > 0) {
@@ -745,6 +800,9 @@ export const filterFn = (filterData, originControl, data = []) => {
               (hasToday ? moment(value).isSameOrAfter(moment(), 'day') : moment(value).isAfter(moment(), 'day')) &&
               moment(value).isSameOrBefore(day, 'day')
             );
+            // 本周、本月、本季度、今年等等
+          } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
+            return dateFn(dateRange, value, true);
           }
           return moment(value).isSame(day, timeLevelDay);
         default:
@@ -767,6 +825,9 @@ export const filterFn = (filterData, originControl, data = []) => {
               (hasToday ? moment(value).isBefore(moment(), 'day') : moment(value).isSameOrBefore(moment(), 'day')) ||
               moment(value).isAfter(day, 'day')
             );
+            // 本周、本月、本季度、今年等等
+          } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
+            return dateFn(dateRange, value, false);
           }
           return !moment(value).isSame(day, timeLevelDay);
         default:

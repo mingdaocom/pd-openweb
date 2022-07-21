@@ -3,7 +3,7 @@ import DiscussInfo from './DiscussInfo';
 import { ModalWrap } from '../baseStyled';
 
 export default props => {
-  const { isModal, match, appId, worksheetId, rowId } = props;
+  const { isModal, match, appId, worksheetId, rowId, viewId } = props;
   const { className, visible, onClose, onAddCount = _.noop } = props;
 
   if (isModal) {
@@ -18,7 +18,7 @@ export default props => {
         {rowId && (
           <DiscussInfo
             isModal={true}
-            match={{params: { appId, worksheetId, rowId }}}
+            match={{params: { appId, worksheetId, rowId, viewId }}}
             onClose={onClose}
             onAddCount={onAddCount}
           />

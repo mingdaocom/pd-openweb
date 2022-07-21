@@ -1,5 +1,5 @@
 import { antNotification } from 'ming-ui';
-import { addToken } from 'src/util';
+import { downloadFile } from 'src/util';
 
 export default () => {
   IM.socket.on('report_export', ({ status, reportId, reportName, downloadUrl }) => {
@@ -30,7 +30,7 @@ export default () => {
       loading: status === 1,
       btnText: status === 2 ? _l('立即下载') : '',
       onBtnClick: () => {
-        window.open(addToken(downloadUrl, !window.isDingTalk));
+        window.open(downloadFile(downloadUrl));
         antNotification.close(reportId);
       }
     });

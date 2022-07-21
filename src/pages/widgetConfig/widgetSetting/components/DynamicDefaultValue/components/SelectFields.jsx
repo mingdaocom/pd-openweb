@@ -56,7 +56,7 @@ export default class SelectFields extends Component {
           ]
         : [{ id: 'current', name: _l('当前记录') }];
     // 关联多条----关联单条、多条（列表除外）
-    const filterSubListControls = filterControls(data, subListControls, globalSheetInfo.worksheetId);
+    const filterSubListControls = filterControls(data, subListControls);
     // 获取当前记录和关联表控件
     const sheetList = _.includes(['customCreate'], from)
       ? initSheetList

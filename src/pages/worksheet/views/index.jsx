@@ -79,7 +79,8 @@ function View(props) {
     'groupFilterWidth',
   ]);
 
-  if (_.isEmpty(view)) {
+  if (_.isEmpty(view) && !props.chartId) {
+    // 图表引用视图允许不存在 viewId
     activeViewStatus = -10000;
   }
 
