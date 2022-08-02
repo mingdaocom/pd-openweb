@@ -106,6 +106,7 @@
       .normalSelectedItem,
       .activeSelectedItem {
         max-width: calc(~'100% - 13px');
+        cursor: default;
       }
       .dropIcon {
         display: none;
@@ -125,7 +126,10 @@
         &:not(.active) .normalSelectedItem,
         .activeSelectedItem:not(.addBtn) {
           cursor: pointer;
-          background-color: #dfebfa;
+          &:hover {
+            color: #2196f3;
+            background-color: #dfebfa;
+          }
         }
       }
     }

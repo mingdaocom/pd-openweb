@@ -97,6 +97,8 @@ export default function (control, formData, { update, type } = {}) {
           } catch (err) {}
           break;
         case WIDGETS_TO_API_TYPE_ENUM.DATE:
+          result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD') : undefined;
+          break;
         case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
           result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD HH:mm:ss') : undefined;
           break;

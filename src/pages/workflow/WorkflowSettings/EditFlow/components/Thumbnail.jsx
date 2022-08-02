@@ -43,6 +43,8 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
   const [height, setHeight] = useState(0);
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
+  const [isRefreshThumbnail, setRefreshThumbnail] = useState(false);
+
   const getThumbnailWidthMessage = () => {
     const workflowContainer = document.getElementsByClassName('workflowEdit')[0];
     const container = document.getElementsByClassName('workflowEditContent')[0];
@@ -68,6 +70,24 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
       scrollLeft,
       scrollTop,
     };
+  };
+
+  const setThumbnailPosition = () => {
+    const { boxWidth, boxHeight, containerWidth, containerHeight, scrollLeft, scrollTop } = getThumbnailWidthMessage();
+
+    const width = (boxWidth / containerWidth) * thumbnailWidth;
+    const height = (boxHeight / containerHeight) * thumbnailHeight;
+
+    setWidth(width);
+    setHeight(height);
+    setLeft(thumbnailWidth - width === 0 ? 0 : ((thumbnailWidth - width) * scrollLeft) / (containerWidth - boxWidth));
+    setTop(
+      thumbnailHeight - height === 0 ? 0 : ((thumbnailHeight - height) * scrollTop) / (containerHeight - boxHeight),
+    );
+
+    if (dragElement.current) {
+      dragElement.current.style.transform = `translateX(0px) translateY(0px)`;
+    }
   };
 
   const setFlowViewPosition = (newLeft, newTop) => {
@@ -123,44 +143,36 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
 
   useEffect(
     () => {
-      domtoimage.toPng(document.getElementsByClassName('workflowEditContent')[0]).then(function(url) {
-        setImgUrl(url);
-      });
+      if (visible) {
+        if (isRefreshThumbnail) {
+          domtoimage.toPng(document.getElementsByClassName('workflowEditContent')[0]).then(function(url) {
+            setImgUrl(url);
+            setRefreshThumbnail(false);
+            setThumbnailPosition();
+          });
+        } else {
+          setThumbnailPosition();
+        }
+      }
+    },
+    [visible, isRefreshThumbnail],
+  );
+
+  useEffect(
+    () => {
+      setRefreshThumbnail(true);
     },
     [refreshThumbnail],
   );
 
   useEffect(
     () => {
-      if (!refreshPosition || !visible) return;
-
-      const {
-        boxWidth,
-        boxHeight,
-        containerWidth,
-        containerHeight,
-        scrollLeft,
-        scrollTop,
-      } = getThumbnailWidthMessage();
-
-      const width = (boxWidth / containerWidth) * thumbnailWidth;
-      const height = (boxHeight / containerHeight) * thumbnailHeight;
-
-      setWidth(width);
-      setHeight(height);
-      setLeft(thumbnailWidth - width === 0 ? 0 : ((thumbnailWidth - width) * scrollLeft) / (containerWidth - boxWidth));
-      setTop(
-        thumbnailHeight - height === 0 ? 0 : ((thumbnailHeight - height) * scrollTop) / (containerHeight - boxHeight),
-      );
-
-      if (dragElement.current) {
-        dragElement.current.style.transform = `translateX(0px) translateY(0px)`;
+      if (visible && refreshPosition) {
+        setThumbnailPosition();
       }
     },
-    [visible, refreshPosition],
+    [refreshPosition],
   );
-
-  if (!imgUrl) return null;
 
   return (
     <ReactCSSTransitionGroup

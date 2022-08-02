@@ -12,6 +12,7 @@ import {
   updateOptionsOfControls,
   isRelateRecordTableControl,
   replaceByIndex,
+  filterHidedSubList,
 } from 'worksheet/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import RecordInfoContext from './RecordInfoContext';
@@ -415,7 +416,7 @@ export default class RecordInfo extends Component {
     const { recordId, recordinfo } = this.state;
     let hasError;
     emitter.emit('SAVE_CANCEL_RECORD');
-    const subListControls = data.filter(item => item.type === 34).filter(c => controlState(c).editable);
+    const subListControls = filterHidedSubList(data, 3);
     function getRows(controlId) {
       try {
         return cellObjs[controlId].cell.props.rows;

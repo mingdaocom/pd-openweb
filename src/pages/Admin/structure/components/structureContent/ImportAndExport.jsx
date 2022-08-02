@@ -25,7 +25,7 @@ const ImportBtn = styled.div`
   margin: 44px auto 24px;
   text-align: center;
   width: 193px;
-  cursor: pointer;
+  cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
 `;
 
 const errorMsg = {
@@ -319,7 +319,7 @@ class ImportAndExport extends Component {
             {currentTab === 'import' && this.renderImport()}
             {currentTab === 'export' && this.renderExport()}
             {fileName ? (
-              <ImportBtn className="importBtn" onClick={this.importFile}>
+              <ImportBtn notAllowed={importFileLoading} onClick={importFileLoading ? () => {} : this.importFile}>
                 {importFileLoading ? _l('正在导入...') : _l('导入')}
               </ImportBtn>
             ) : (

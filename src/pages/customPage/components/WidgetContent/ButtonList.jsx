@@ -219,10 +219,8 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       }
       if (config.otherLink) {
         window.open(result);
-      } else {
-        showModal();
+        return;
       }
-      return;
     }
     // 文本，无处理
     if (config.text === 0) {

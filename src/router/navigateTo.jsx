@@ -1,6 +1,7 @@
 ﻿import ReactDOM from 'react-dom';
 import redirect from 'src/common/redirect';
 import $ from 'jquery';
+import { getAppFeaturesPath } from 'src/util';
 
 export const urlStack = [];
 export function urlStackBack(e) {
@@ -14,7 +15,7 @@ export function urlStackBack(e) {
   }
 }
 
-window.location.goto = function (url, isReplace = false) {
+window.location.goto = function(url, isReplace = false) {
   if (isReplace) {
     window.location.replace(url);
   } else {
@@ -71,6 +72,13 @@ export function clearZombie() {
 /** 跳转到 url */
 export function navigateTo(url, isReplace = false, noRedirect = false) {
   url = (window.subPath || '') + url;
+  // 隐藏功能项参数
+  const hideOptions = getAppFeaturesPath();
+
+  if (hideOptions) {
+    url = url + (url.indexOf('?') > -1 ? `&${hideOptions}` : `?${hideOptions}`);
+  }
+
   clearZombie();
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
     url = url + '#publicapp' + window.publicAppAuthorization;

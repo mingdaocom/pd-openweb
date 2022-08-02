@@ -845,7 +845,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           let isInValue = false;
           _.map(compareValues, it => {
             let itValue = dynamicSource.length > 0 ? JSON.parse(it || '[]')[0] || {} : JSON.parse(it || '{}');
-            let valueN = value ? JSON.parse(value) : '';
+            let valueN = value ? JSON.parse(value) : [];
             _.map(valueN, item => {
               let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
               if (curId === item.sid) {
@@ -865,8 +865,8 @@ export const filterFn = (filterData, originControl, data = []) => {
           let isInValue = true;
           _.map(compareValues, it => {
             let itValue = {};
-            itValue = dynamicSource.length > 0 ? JSON.parse(it || '[]')[0] : JSON.parse(it || '{}');
-            let valueN = value ? JSON.parse(value) : '';
+            itValue = dynamicSource.length > 0 ? JSON.parse(it || '[]')[0] || {} : JSON.parse(it || '{}');
+            let valueN = value ? JSON.parse(value) : [];
             _.map(valueN, item => {
               let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
               if (curId === item.sid) {

@@ -12,6 +12,7 @@ import {
   parseRecordTempValue,
   saveToLocal,
   removeFromLocal,
+  filterHidedSubList,
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import Share from 'src/pages/worksheet/components/Share';
@@ -125,7 +126,7 @@ function NewRecordForm(props) {
     }
     let hasError;
     isSubmitting.current = true;
-    const subListControls = data.filter(item => item.type === 34);
+    const subListControls = filterHidedSubList(data, 2);
     const isMobile = browserIsMobile();
     if (subListControls.length) {
       const errors = subListControls

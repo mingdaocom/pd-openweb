@@ -152,7 +152,6 @@ export default class SingleFilter extends Component {
             key={control.controlId}
             index={index}
             childIndex={childIndex}
-            sourceControlId={control.sourceControlId}
             condition={condition}
             conditionsLength={transConditions.length}
             conditionsChildLength={conditionItemArr.length}

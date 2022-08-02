@@ -130,6 +130,9 @@ const ImportWrap = styled.div`
         font-family: FZLanTingHeiS;
         font-weight: 600;
         color: #ffffff;
+        &.notAllowed {
+          cursor: not-allowed;
+        }
       }
       .colErrorInfo {
         display: flex;
@@ -351,7 +354,10 @@ class ImportDepAndPosition extends Component {
         <div className="serialTitle mTop32 mBottom14">{_l('2.上传完善后的表格')}</div>
         {this.renderUpload()}
         {fileName && (
-          <div className="importBtn Hand" onClick={this.importAction}>
+          <div
+            className={cx('importBtn', { notAllowed: importFileLoading, Hand: !importFileLoading })}
+            onClick={importFileLoading ? () => {} : this.importAction}
+          >
             {importFileLoading ? _l('正在导入...') : _l('导入')}
           </div>
         )}

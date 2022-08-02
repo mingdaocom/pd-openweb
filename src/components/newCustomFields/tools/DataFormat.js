@@ -1613,16 +1613,18 @@ export default class DataFormat {
   /**
    * 能否执行查询（条件字段、字段值存在&&当前变更字段有值）
    */
-  getSearchStatus = (filters = [], controls = [], control = {}) => {
+  getSearchStatus = (filters = [], controls = []) => {
     return _.every(filters, item => {
       // 固定值|字段值
       const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
       //筛选值字段
-      const fieldExit = _.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid'));
-      const fieldResult = fieldExit ? (control.controlId === fieldExit.controlId ? fieldExit.value : true) : false;
+      const fieldResult = (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {})
+        .value;
       //条件字段
       const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
-      return isDynamicValue ? fieldResult : conditionExit;
+      return isDynamicValue
+        ? fieldResult && fieldResult !== '[]' && fieldResult !== '{}' && fieldResult !== 0
+        : conditionExit;
     });
   };
 
@@ -1693,7 +1695,7 @@ export default class DataFormat {
         //当前配置查询的控件
         const currentControl = _.find(this.data, da => da.controlId === controlId);
         // 满足查询时机
-        const canSearch = this.getSearchStatus(items, controls, control);
+        const canSearch = this.getSearchStatus(items, controls);
         //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
         if (templates.length > 0 && controls.length > 0 && canSearch && currentControl) {
           //关联记录

@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var _ = require('lodash');
 var fs = require('fs');
 var notifier = require('node-notifier');
+const isProduction = process.env.NODE_ENV === 'production';
 var $ = require('gulp-load-plugins')();
 var webpack = require('webpack');
 var minimist = require('minimist');
@@ -120,6 +121,9 @@ var webpackTaskFactory = function webpackTaskFactory(webpackConfigArg, isWatch) 
     var webpackCompiler = webpack(webpackConfigArg);
     var compile = function webpackTaskFactoryCompile(err, stats) {
       webpackCompile(err, stats);
+      if (isProduction && stats.toJson().errors.length) {
+        process.exit();
+      }
       return callback();
     };
     if (isWatch) {

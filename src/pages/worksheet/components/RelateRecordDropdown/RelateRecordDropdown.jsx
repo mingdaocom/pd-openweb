@@ -510,7 +510,7 @@ export default class RelateRecordDropdown extends React.Component {
           active: listvisible || isediting,
           emptyRecord: !selected.length,
           readonly: disabled,
-          allowOpenRecord: allowOpenRecord && String(control.advancedSetting.showtype) === '3',
+          allowOpenRecord: allowOpenRecord,
           'customFormControlBox mobile': this.isMobile,
         })}
         ref={this.cell}

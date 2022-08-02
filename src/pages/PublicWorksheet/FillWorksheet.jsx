@@ -7,7 +7,7 @@ import captcha from 'src/components/captcha';
 import CustomFields from 'src/components/newCustomFields';
 import { Hr } from 'worksheet/components/Basics';
 import { addWorksheetRow } from './action';
-import { getSubListError } from 'worksheet/util';
+import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import './index.less';
 
 const ImgCon = styled.div`
@@ -92,7 +92,7 @@ export default class FillWorkseet extends React.Component {
     const { isPreview, publicWorksheetInfo = {}, onSubmit } = this.props;
     const { shareId, worksheetId, needCaptcha } = publicWorksheetInfo;
     let hasError;
-    const subListControls = data.filter(item => item.type === 34);
+    const subListControls = filterHidedSubList(data, 2);
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({

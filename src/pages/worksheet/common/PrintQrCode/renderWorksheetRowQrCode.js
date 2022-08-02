@@ -102,6 +102,10 @@ function genTextCanvas({
       ctx.fillText(t, isCenter ? width / 2 : 0, fontSize * lineHeight * i + 2);
     }
   });
+  if (_.isEmpty(texts)) {
+    // canvas 为空时 添加到 pdf 会报错
+    canvas.height = 1;
+  }
   return canvas;
 }
 function getQrDataurl(

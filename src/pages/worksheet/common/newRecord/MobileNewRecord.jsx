@@ -137,6 +137,7 @@ function NewRecord(props) {
     <NewRecordContent
       registerFunc={funcs => (newRecordContent.current = funcs)}
       {...rest}
+      advancedSetting={advancedSetting}
       continueCheck={false}
       showTitle={false}
       autoFill={autoFill}

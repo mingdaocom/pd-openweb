@@ -233,9 +233,9 @@ export const updateViewConfig = (view) => {
     const { base, views, gunterView, controls } = getState().sheet;
     const { advancedSetting, viewControl } = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const { unweekday, begindate, enddate, colorid, calendartype, milepost } = advancedSetting;
-    const titleControl = _.find(controls, { attribute: 1 });
-    const startControl = _.find(controls, { controlId: begindate });
-    const endControl = _.find(controls, { controlId: enddate });
+    const titleControl = _.find(controls, { attribute: 1 }) || {};
+    const startControl = _.find(controls, { controlId: begindate }) || {};
+    const endControl = _.find(controls, { controlId: enddate }) || {};
     const newConfig = {
       ...gunterView.viewConfig,
       periodType: calendartype ? Number(calendartype) : PERIOD_TYPE.day,

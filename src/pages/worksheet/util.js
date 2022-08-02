@@ -548,6 +548,10 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
   }
 }
 
+export const filterHidedSubList = (data = [], from) => {
+  return data.filter(item => item.type === 34 && controlState(item, from).visible && controlState(item, from).editable);
+};
+
 export function controlIsNumber({ type, sourceControlType, enumDefault, enumDefault2 }) {
   return (
     type === 6 ||

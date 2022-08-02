@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
 import { LoadDiv } from 'ming-ui';
-import { getSubListError } from 'worksheet/util';
+import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
@@ -152,7 +152,7 @@ class FillRecordControls extends React.Component {
     const newData = data.filter(item =>
       _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
     );
-    const subListControls = data.filter(item => item.type === 34);
+    const subListControls = filterHidedSubList(data, 3);
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({

@@ -138,13 +138,11 @@ export default class BuildAppNewRules extends Component {
       isLoading: false,
     };
   }
-  componentDidMount() {
-    this.geterwima();
-  }
 
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.status, nextProps.status)) {
       this.setState({ step: nextProps.status === 0 ? 2 : 1 });
+      nextProps.status !== 0 && this.geterwima();
     }
   }
 

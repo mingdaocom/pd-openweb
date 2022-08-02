@@ -411,7 +411,14 @@ class EditFlow extends Component {
           <span data-tip={_l('画布概览')}>
             <i
               className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
-              onClick={() => this.setState({ showThumbnail: !showThumbnail, refreshPosition: +new Date() })}
+              onClick={() => {
+                if (Object.keys(flowNodeMap).length > 500) {
+                  alert(_l('节点数量过多此功能不可用'), 2);
+                  return false;
+                }
+
+                this.setState({ showThumbnail: !showThumbnail, refreshPosition: +new Date() });
+              }}
             />
           </span>
           <span data-tip={_l('放大')}>
@@ -450,7 +457,9 @@ class EditFlow extends Component {
           onCancel={this.cancelCopy}
         />
 
-        <Thumbnail visible={showThumbnail} refreshPosition={refreshPosition} refreshThumbnail={refreshThumbnail} />
+        {Object.keys(flowNodeMap).length <= 500 && (
+          <Thumbnail visible={showThumbnail} refreshPosition={refreshPosition} refreshThumbnail={refreshThumbnail} />
+        )}
       </Fragment>
     );
   }

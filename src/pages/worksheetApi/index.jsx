@@ -30,6 +30,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import preall from 'src/common/preall';
 import SecretKey from './SecretKey';
 import styled from 'styled-components';
+import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 
 const Wrap = styled.div`
   input {
@@ -538,12 +539,6 @@ class WorksheetApi extends Component {
    */
   renderWorkflowInfo() {
     const { data = [], workflowInfo } = this.state;
-    const TYPE = {
-      2: _l('文本'),
-      6: _l('数值'),
-      10000003: _l('数组'),
-    };
-
     let inputExample = { appKey: data[0].appKey || 'APPKEY', sign: data[0].sign || 'SIGN' };
     let outputExample = {};
 
@@ -597,7 +592,7 @@ class WorksheetApi extends Component {
               <div key={o.controlId} className="flexRow worksheetApiLine flexRowHeight">
                 <div className="w32">{o.alias || o.controlName}</div>
                 <div className="mLeft30 w18">{o.required ? _l('是') : _l('否')}</div>
-                <div className="mLeft30 w14">{TYPE[o.type]}</div>
+                <div className="mLeft30 w14">{FIELD_TYPE_LIST.find(obj => obj.value === o.type).text}</div>
                 <div className="mLeft30 w36">{o.desc}</div>
               </div>
             );

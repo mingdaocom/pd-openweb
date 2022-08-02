@@ -53,6 +53,7 @@ const ViewWrap = styled.div`
     border: none !important;
   }
   &.hideAddRecord .addRecord,
+  &.hideAddRecord .addBoardRecord,
   &.hideSearchRecord .icon-search,
   &.hideSearchRecord .searchWrapper {
     display: none;

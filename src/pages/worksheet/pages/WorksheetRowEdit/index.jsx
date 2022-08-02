@@ -3,7 +3,7 @@ import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
 import styled from 'styled-components';
 import { LoadDiv, Button, Icon, ScrollView } from 'ming-ui';
-import { getSubListError } from 'worksheet/util';
+import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import './index.less';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
@@ -147,7 +147,7 @@ class WorksheetRowEdit extends Component {
     }
     let hasError;
     const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
-    const subListControls = data.filter(item => item.type === 34);
+    const subListControls = filterHidedSubList(data, 2);
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({
