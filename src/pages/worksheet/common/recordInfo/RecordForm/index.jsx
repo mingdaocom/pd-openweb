@@ -198,6 +198,13 @@ export default function RecordForm(props) {
   useEffect(() => {
     setRelateNumOfControl({});
   }, [recordId]);
+  useEffect(() => {
+    if (!loading && _.get(scrollRef, 'current.triggerNanoScroller')) {
+      setTimeout(() => {
+        scrollRef.current.triggerNanoScroller();
+      }, 200);
+    }
+  }, [loading]);
   function setSplit(value) {
     if (value) {
       localStorage.setItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);

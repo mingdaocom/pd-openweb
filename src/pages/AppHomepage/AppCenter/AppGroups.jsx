@@ -21,9 +21,7 @@ function filter(apps, keywords) {
     return apps;
   }
   return apps.filter(
-    app =>
-      new RegExp((keywords || '').trim().toUpperCase()).test(app.name) ||
-      new RegExp((keywords || '').trim().toUpperCase()).test((app.enName || '').toUpperCase()),
+    app => [app.enName, app.name].filter(_.identity).join('').toLowerCase().indexOf(keywords.trim().toLowerCase()) > -1,
   );
 }
 

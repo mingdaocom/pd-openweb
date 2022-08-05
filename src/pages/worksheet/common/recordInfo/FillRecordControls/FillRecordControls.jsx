@@ -148,7 +148,7 @@ class FillRecordControls extends React.Component {
                 ...control.value,
                 rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
               },
-              control.relationControls,
+              _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
               control.showControls,
               3,
             ),
