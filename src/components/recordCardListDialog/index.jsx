@@ -160,24 +160,17 @@ export default class RecordCardListDialog extends Component {
       sortControls,
       filterControls: filterControls || [],
       fastFilters: quickFilters.map(f =>
-        _.pick(
-          {
-            ...f,
-            values: (f.values || []).map(v => {
-              if (_.includes([WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, WIDGETS_TO_API_TYPE_ENUM.CASCADER], f.dataType)) {
-                return v.rowid;
-              }
-              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
-                return v.accountId;
-              }
-              if (f.dataType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
-                return v.departmentId;
-              }
-              return v;
-            }),
-          },
-          ['controlId', 'dataType', 'spliceType', 'filterType', 'dateRange', 'value', 'values', 'minValue', 'maxValue'],
-        ),
+        _.pick(f, [
+          'controlId',
+          'dataType',
+          'spliceType',
+          'filterType',
+          'dateRange',
+          'value',
+          'values',
+          'minValue',
+          'maxValue',
+        ]),
       ),
     };
     if (filterForControlSearch) {

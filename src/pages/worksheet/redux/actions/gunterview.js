@@ -48,20 +48,21 @@ const getExportPeriodList = (type, { startTime, endTime }, viewConfig) => {
 
 export const fetchRows = () => {
   return (dispatch, getState) => {
-    const { base, controls, views } = getState().sheet;
+    const { base, controls, views, filters } = getState().sheet;
     const { access_token } = getRequest();
     const headersConfig = {
       Authorization: `access_token ${access_token}`
     }
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
-    const selectControl = _.find(controls, item => item.controlId === view.viewControl);
+    const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
     sheetAjax.getFilterRows({
       appId: base.appId,
       viewId: base.viewId,
       worksheetId: base.worksheetId,
-      relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null
-    }, access_token ? { headersConfig } : {}).then(({data, count, resultCode}) => {
+      relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null,
+      ...filters,
+    }, access_token ? { headersConfig } : {}).then(({ data, count, resultCode }) => {
       const isLocalhost = location.href.includes('localhost');
       const isGunterExport = location.href.includes('gunterExport');
       setTimeout(() => {
@@ -149,7 +150,7 @@ export const updateGroupingVisible = () => {
   return (dispatch, getState) => {
     const { gunterView } = getState().sheet;
     const value = !gunterView.groupingVisible;
-    localStorage.setItem('gunterGroupingVisible', value);
+    safeLocalStorageSetItem('gunterGroupingVisible', value);
     dispatch({ type: 'CHANGE_GUNTER_GROUPING_VISIBLE', data: value });
   }
 }
@@ -210,7 +211,7 @@ export const updataPeriodType = (value, time) => {
     const { viewConfig } = gunterView;
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: value });
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(value, viewConfig) });
-    localStorage.setItem('gunterViewType', value);
+    safeLocalStorageSetItem('gunterViewType', value);
     let data = {};
     if (value === PERIOD_TYPE.day) {
       const { onlyWorkDay } = viewConfig;
@@ -314,12 +315,12 @@ export const addRecord = (cell, row) => {
       type: startControl.type,
       value: moment().format('YYYY-MM-DD'),
     }, {
-      controlId: endId,
-      controlName: endControl.controlName,
-      dot: endControl.dot,
-      type: endControl.type,
-      value: moment().format('YYYY-MM-DD'),
-    }];
+        controlId: endId,
+        controlName: endControl.controlName,
+        dot: endControl.dot,
+        type: endControl.type,
+        value: moment().format('YYYY-MM-DD'),
+      }];
 
     if (viewControl && row.groupId !== '-1') {
       const groupControl = _.find(controls, { controlId: viewControl });
@@ -498,7 +499,7 @@ export const updateRecordTime = (row, start, end) => {
       worksheetId: base.worksheetId,
       newOldControl: newOldControl
     }).then(({ data, resultCode }) => {
-      if (resultCode) {}
+      if (resultCode) { }
     });
   }
 }
@@ -704,7 +705,7 @@ export const updateGroupSubVisible = (id) => {
         const subVisible = !item.subVisible;
         const key = `gunter-sub-visible-${id}`;
         if (subVisible) {
-          localStorage.setItem(key, true);
+          safeLocalStorageSetItem(key, true);
         } else {
           localStorage.removeItem(key);
         }

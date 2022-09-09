@@ -8,6 +8,9 @@ export function calcDate(date, expression) {
   if (!date) {
     return { error: true };
   }
+  if (!/^[+-]/.test(expression)) {
+    expression = '+' + expression;
+  }
   try {
     let result = dayjs(date);
     const regexp = /([/+/-]){1}(\d+(\.\d+)?)+([YQMwdhms]){1}/g;
@@ -83,6 +86,13 @@ export function formatControlValue(cell) {
             return department;
           }
           return department.departmentName ? department.departmentName : _l('该部门已删除');
+        });
+      case 48: // ORG_ROLE 组织角色
+        return JSON.parse(cell.value).map((organization, index) => {
+          if (typeof organization === 'string') {
+            return organization;
+          }
+          return organization.organizeName ? organization.organizeName : _l('该组织已删除');
         });
       case 36: // SWITCH 检查框
         return value === '1' || value === 1;

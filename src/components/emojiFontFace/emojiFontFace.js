@@ -25,10 +25,10 @@ function isSupportEmoji() {
 function emojiFontFace(el) {
   if (isSupportEmoji()) return;
   try {
-    require(['!style-loader!css-loader!postcss-loader!./emojiFontFace.css'], function () {
+    require(['!style-loader!css-loader!./emojiFontFace.css'], function () {
       if (el) $(el).addClass('emojiFontFace');
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 module.exports = emojiFontFace;

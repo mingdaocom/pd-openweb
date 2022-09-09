@@ -37,6 +37,7 @@ rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
 rewrite (?i)^/recordshare /recordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
+rewrite (?i)^/analytics /analytics.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
@@ -58,6 +59,7 @@ rewrite (?i)^/resetPassword /resetPassword.html break;
 rewrite (?i)^/privateImageInstall /privateImageInstall.html break;
 
 # auth
+rewrite (?i)^/tpAuthApp /account-login-tpAuthApp.html break;
 rewrite (?i)^/tpauth /account-login-tpauth.html break;
 rewrite (?i)^/workwx /account-login-workwxAuth.html break;
 rewrite (?i)^/wxwork /wxwork.html break;
@@ -67,12 +69,12 @@ rewrite (?i)^/auth/feishu /auth-feishu.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
 rewrite (?i)^/sso/sso  /sso-sso.html break;
 rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
+rewrite (?i)^/terms /agreenOrPrivacy.html break;
+rewrite (?i)^/privacy /agreenOrPrivacy.html break;
 
 # 主站
 rewrite (?i)^/custom /index.html break;
 rewrite (?i)^/app /index.html break;
-rewrite (?i)^/custom /index.html break;
-rewrite (?i)^/portal/app /index.html break;
 rewrite (?i)^/feed /index.html break;
 rewrite (?i)^/personal /index.html break;
 rewrite (?i)^/privateDeployment /index.html break;
@@ -95,3 +97,6 @@ rewrite (?i)^/workflow /index.html break;
 rewrite (?i)^/myprocess /index.html break;
 rewrite (?i)^/gunterExport /index.html break;
 rewrite (?i)^/embed/view /index.html break;
+rewrite (?i)^/integration /index.html break;
+rewrite (?i)^/integrationConnect /index.html break;
+rewrite (?i)^/integrationApi /index.html break;

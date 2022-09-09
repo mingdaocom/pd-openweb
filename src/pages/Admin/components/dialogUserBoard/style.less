@@ -1,0 +1,98 @@
+.userBoard {
+  .tableBox {
+    height: 375px;
+    overflow: auto;
+    margin-right: -25px;
+    padding-right: 25px;
+  }
+  .usersTable {
+    table-layout: fixed;
+    th {
+      font-weight: normal;
+
+      padding: 10px 0;
+
+      text-align: left;
+
+      border-bottom: 1px solid #ccc;
+    }
+    .chargeIcon {
+      color: #f9ce1d;
+    }
+    .checkBox {
+      width: 30px;
+
+      text-align: right;
+    }
+    .Remind {
+      font-size: 12px;
+      line-height: 20px;
+
+      display: inline-block;
+
+      height: 20px;
+      margin-top: 2px;
+      padding: 0 5px;
+
+      cursor: pointer;
+
+      border-radius: 2px;
+    }
+    .userItem {
+      > td {
+        height: 60px;
+
+        vertical-align: middle;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+
+        vertical-align: middle;
+
+        border-radius: 50%;
+      }
+      .name,
+      .job,
+      .workSite,
+      .email,
+      .dept {
+        display: block;
+        overflow: hidden;
+
+        max-width: 100%;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .job {
+        color: #bdbdbd;
+      }
+      .cancelInvite:not(:hover) {
+        color: #ccc !important;
+      }
+    }
+  }
+}
+
+.passwordVerityWrap {
+  .inputWrap {
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    color: rgba(0, 0, 0, 0.85);
+    display: inline-block;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    font-size: 14px;
+    line-height: 1.5715;
+    min-width: 0;
+    padding: 4px 11px;
+    position: relative;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    width: 100%;
+  }
+}

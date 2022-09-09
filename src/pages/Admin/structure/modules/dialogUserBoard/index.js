@@ -1,4 +1,4 @@
-var doT = require('dot');
+﻿var doT = require('dot');
 var mdDialog = require('mdDialog').index;
 var userController = require('src/api/user');
 var importUserController = require('src/api/importUser');
@@ -9,6 +9,9 @@ import './style.less';
 
 const exportUsers = (projectId, accountIds = []) => {
   var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
+  let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
+  ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
+  : '';
 
   fetch(url, {
     method: 'POST',
@@ -25,7 +28,7 @@ const exportUsers = (projectId, accountIds = []) => {
     .then(response => response.blob())
     .then(blob => {
       let date = moment(new Date()).format('YYYYMMDDHHmmss');
-      const fileName = `${date}` + '.xlsx';
+      const fileName = `${projectName}_${_l('人员')}_${date}` + '.xlsx';
       const link = document.createElement('a');
 
       link.href = window.URL.createObjectURL(blob);
@@ -77,7 +80,7 @@ UserBoard.prototype.exportDialog = function () {
         noText: _l('重新选择'),
         yesFn: function () {
           if (!options.selected.length) {
-            alert(_l('请选择要导出的用户'), 3);
+            alert(_l('请选择要导出的用户'), 2);
             return false;
           }
           const closeValidateDialog = ValidatePassword({
@@ -331,7 +334,7 @@ UserBoard.prototype.adjustDialog = function () {
       noText: _l('重新选择'),
       yesFn: function () {
         if (!options.selected.length) {
-          alert(_l('请选择要调整的用户'), 3);
+          alert(_l('请选择要调整的用户'), 2);
           return false;
         }
         _this.adjustConfirm();

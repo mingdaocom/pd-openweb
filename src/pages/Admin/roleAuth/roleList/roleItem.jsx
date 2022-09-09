@@ -88,10 +88,12 @@ class RoleItem extends React.Component {
             projectId: projectId,
             roleId: role.roleId,
           }).then(function (data) {
-            if (data) {
+            if (data === 1) {
               _this.setState({ hasClick: true });
               alert(_l('申请成功'));
-            } else {
+            } else if (data === -1) {
+              alert(_l('不允许申请管理员'), 3);
+            } else if (data === 0) {
               alert(_l('申请失败'), 2);
             }
           });
@@ -103,7 +105,7 @@ class RoleItem extends React.Component {
         className={classNames('roleItem', { 'Gray_9 disabled': !isApply && role.noAuth })}
         onClick={() => {
           if (!isApply) {
-            navigateTo('/admin/rolelist/' + projectId + '/' + role.roleId);
+            navigateTo('/admin/sysroles/' + projectId + '/' + role.roleId);
           }
         }}
       >

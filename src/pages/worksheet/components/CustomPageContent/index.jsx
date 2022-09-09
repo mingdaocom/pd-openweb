@@ -39,7 +39,7 @@ const CustomPageContentWrap = styled.div`
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     z-index: 2;
     .customPageDesc {
-      margin: 0 4px;
+      padding: 0 4px;
     }
     .nameWrap {
       display: flex;

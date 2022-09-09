@@ -37,17 +37,17 @@ function saveLastPos(root, folder) {
     rootFolder: rootNode,
     node: folder
       ? {
-          id: folder.id,
-          parendId: folder.parendId,
-          name: folder.name,
-          projectId: folder.projectId,
-          position: folder.position,
-        }
+        id: folder.id,
+        parendId: folder.parendId,
+        name: folder.name,
+        projectId: folder.projectId,
+        position: folder.position,
+      }
       : rootNode,
   };
   console.log('uploadedPos -> ', uploadedPos);
-  localStorage.setItem('last_select_folder_pos_' + md.global.Account.accountId, JSON.stringify(uploadedPos));
-  localStorage.setItem('last_select_pos_' + md.global.Account.accountId, JSON.stringify(uploadedPos));
+  safeLocalStorageSetItem('last_select_folder_pos_' + md.global.Account.accountId, JSON.stringify(uploadedPos));
+  safeLocalStorageSetItem('last_select_pos_' + md.global.Account.accountId, JSON.stringify(uploadedPos));
 }
 
 /** 打开上传助手 */
@@ -165,10 +165,10 @@ export function handleAddLinkFile(args) {
       isEdit,
       data: isEdit
         ? {
-            id: item.id,
-            name: item.name,
-            originLinkUrl: item.originLinkUrl,
-          }
+          id: item.id,
+          name: item.name,
+          originLinkUrl: item.originLinkUrl,
+        }
         : undefined,
     });
   });
@@ -184,9 +184,9 @@ export function handleBatchDownload(args) {
     const excludeNodeIds =
       list.size !== selectedItems.size
         ? list
-            .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
-            .map(item => item.id)
-            .toArray()
+          .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
+          .map(item => item.id)
+          .toArray()
         : null;
     if (!_.isEmpty(folder)) {
       downloadOne(folderId, excludeNodeIds);
@@ -203,7 +203,7 @@ export function handleBatchDownload(args) {
 }
 
 /** 弹出分享节点层 */
-export function handleShareNode(item, updateKcNodeItem = () => {}) {
+export function handleShareNode(item, updateKcNodeItem = () => { }) {
   import('src/components/shareAttachment/shareAttachment').then(share => {
     window.shareDialogObject = share.default(
       {
@@ -333,17 +333,17 @@ export function handleRemoveNode(args) {
   const confirmMessage =
     nodeStatus === NODE_STATUS.RECYCLED
       ? '<span class="Font16"><span class="Bold">' +
-        _l('删除文件') +
-        '</span><div class="Font14 mTop10">' +
-        _l('文件的引用和分享链接也将失效，确认删除？') +
-        '</div><div class="Font14 mTop10 Gray_9">' +
-        _l('您可以在该文件夹对应的回收站内找回') +
-        '</div></span>'
+      _l('删除文件') +
+      '</span><div class="Font14 mTop10">' +
+      _l('文件的引用和分享链接也将失效，确认删除？') +
+      '</div><div class="Font14 mTop10 Gray_9">' +
+      _l('您可以在该文件夹对应的回收站内找回') +
+      '</div></span>'
       : '<span class="Font16"><span class="Bold">' +
-        _l('彻底删除文件') +
-        '</span><div class="Font14 mTop10">' +
-        _l('文件的引用和分享链接也将失效，确认删除？') +
-        '</div></span>';
+      _l('彻底删除文件') +
+      '</span><div class="Font14 mTop10">' +
+      _l('文件的引用和分享链接也将失效，确认删除？') +
+      '</div></span>';
   confirm('', confirmMessage, false, '', '', confirmTitle).then(() => {
     let message = '';
     const ids = selectedItems.map(item => item.id).toArray();
@@ -369,9 +369,9 @@ export function handleRemoveNode(args) {
         excludeNodeIds:
           list.size !== selectedItems.size
             ? list
-                .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
-                .map(item => item.id)
-                .toArray()
+              .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
+              .map(item => item.id)
+              .toArray()
             : null,
       });
     } else {
@@ -409,7 +409,7 @@ export function handleRemoveNode(args) {
  * [moveOrCopyClick 移动到...或复制到...通用]
  * @param  {[type]} type [移动：NODE_OPERATOR_TYPE.MOVE  复制：NODE_OPERATOR_TYPE.COPY]
  */
-export function handleMoveOrCopyClick(args, cb = () => {}) {
+export function handleMoveOrCopyClick(args, cb = () => { }) {
   const { type, rootId, folder, fromRoot } = args;
   const { selectedItems } = args;
   const selectedItemIds = selectedItems.map(item => item.id).toArray();
@@ -437,29 +437,29 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
       const rootNode =
         typeof fromRoot === 'object'
           ? {
-              id: fromRoot.id,
-              projectId: fromRoot.project ? fromRoot.project.projectId : '',
-              name: fromRoot.name,
-            }
+            id: fromRoot.id,
+            projectId: fromRoot.project ? fromRoot.project.projectId : '',
+            name: fromRoot.name,
+          }
           : {
-              id: null,
-              parentId: null,
-              name: _l('我的文件'),
-            };
+            id: null,
+            parentId: null,
+            name: _l('我的文件'),
+          };
       const appointFolder =
         typeof fromRoot === 'object' || fromRoot === 1
           ? {
-              rootFolder: rootNode,
-              node: folder
-                ? {
-                    id: folder.id,
-                    parendId: folder.parendId,
-                    name: folder.name,
-                    projectId: folder.projectId,
-                    position: folder.position,
-                  }
-                : rootNode,
-            }
+            rootFolder: rootNode,
+            node: folder
+              ? {
+                id: folder.id,
+                parendId: folder.parendId,
+                name: folder.name,
+                projectId: folder.projectId,
+                position: folder.position,
+              }
+              : rootNode,
+          }
           : undefined;
       folderDg({
         dialogTitle: type === NODE_OPERATOR_TYPE.MOVE ? _l('移动到') : _l('复制到'),
@@ -506,9 +506,9 @@ export function handleMoveOrCopy(options) {
       excludeNodeIds:
         list.size !== selectedItems.size
           ? list
-              .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
-              .map(item => item.id)
-              .toArray()
+            .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
+            .map(item => item.id)
+            .toArray()
           : null,
     };
     if (type === NODE_OPERATOR_TYPE.MOVE) {
@@ -553,10 +553,10 @@ export function handleMoveOrCopy(options) {
               (result.type === 1
                 ? 'my'
                 : result.type === 2
-                ? result.node.id
-                : result.node.rootId
-                ? result.node.position.slice(1)
-                : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+                  ? result.node.id
+                  : result.node.rootId
+                    ? result.node.position.slice(1)
+                    : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
             content: operationTips.text,
           });
         });
@@ -652,9 +652,9 @@ export function handleRestoreNode(args) {
         excludeNodeIds:
           list.size !== selectedItems.size
             ? list
-                .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
-                .map(item => item.id)
-                .toArray()
+              .filter(item => !selectedItems.some(selectedItem => selectedItem.id === item.id))
+              .map(item => item.id)
+              .toArray()
             : null,
       });
     } else {

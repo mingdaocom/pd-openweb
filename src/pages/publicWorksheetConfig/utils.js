@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 
@@ -15,11 +16,11 @@ export function getNewControlColRow(controls, halfOfNewControl = true) {
   };
 }
 
-const defaultHidedControlTypes = [26, 27, 21];
+const defaultHidedControlTypes = [26, 27, 21, 48];
 
 export function getDisabledControls(controls, systemRelatedIds = {}) {
   const defaultHided = controls
-    .filter(control => defaultHidedControlTypes.includes(control.type))
+    .filter(control => defaultHidedControlTypes.includes(control.type) || defaultHidedControlTypes.includes(control.sourceControlType))
     .map(control => control.controlId);
   const hidedWhenNew = controls
     .filter(control => (control.controlPermissions || '000')[2] === '0')
@@ -46,6 +47,12 @@ export function overridePos(controls = [], newPosControls = []) {
     _.assign({}, control, newPos[control.controlId] ? newPos[control.controlId] : { col: -1, row: -1 }),
   );
   newControls.forEach((control, index) => {
+    if (control.type === 34) {
+      const hiddenIds = control.relationControls.filter(c => _.includes(defaultHidedControlTypes, c.type)).map(c => c.controlId);
+      if (hiddenIds.length) {
+        control.showControls = control.showControls.filter(id => !_.includes(hiddenIds, id));
+      }
+    }
     if (control.col === -1 && control.row === -1) {
       newControls[index] = {
         ...control,

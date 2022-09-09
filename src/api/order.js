@@ -29,7 +29,7 @@ module.exports = {
   * @param {string} args.projectId 网络id
   * @param {integer} args.userNum 用户数量
   * @param {integer} args.years 年数
-  * @param {integer} args.versionId 付费版标识
+  * @param {string} args.versionId 付费版标识
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {boolean} args.unLimited 是否是无限包
   * @param {Object} options 配置参数
@@ -45,7 +45,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {integer} args.userNum 用户数量
   * @param {integer} args.years 购买年数
-  * @param {integer} args.versionId 付费版标识
+  * @param {string} args.versionId 付费版标识
   * @param {boolean} args.unLimited 是否是无限包
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -299,7 +299,7 @@ module.exports = {
   * 获取升级版本订单价格
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {integer} args.versionId 付费版标识
+  * @param {string} args.versionId 付费版标识
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -312,7 +312,7 @@ module.exports = {
   * 添加升级版本订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {integer} args.versionId 付费版标识
+  * @param {string} args.versionId 付费版标识
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

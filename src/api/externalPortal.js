@@ -1,18 +1,18 @@
 module.exports = {
   /**
-  * 根据域名获取门户配置
+  * 获取 登录地址
   * @param {Object} args 请求参数
-  * @param {string} args.domainName 域名
+  * @param {string} args.appId 应用Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getPortalSetByDomain: function (args, options = {}) {
+   getLoginUrl: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetPortalSetByDomain', args, options);
+     return $.api('ExternalPortal', 'GetLoginUrl', args, options);
    },
   /**
-  * 根据AppId获取门户配置
+  * 获取 门户配置
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
   * @param {Object} options 配置参数
@@ -22,6 +22,31 @@ module.exports = {
    getPortalSetByAppId: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'GetPortalSetByAppId', args, options);
+   },
+  /**
+  * 获取 门户应用ID
+  * @param {Object} args 请求参数
+  * @param {string} args.customeAddressSuffix 自定义地址后缀
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppIdByAddressSuffix: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetAppIdByAddressSuffix', args, options);
+   },
+  /**
+  * 自定义地址后缀 是否重复
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.customeAddressSuffix 自定义地址后缀
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCustomAddressSuffixIsRepeated: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetCustomAddressSuffixIsRepeated', args, options);
    },
   /**
   * 获取 用户协议
@@ -135,6 +160,19 @@ module.exports = {
    editPortalSet: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'EditPortalSet', args, options);
+   },
+  /**
+  * 编辑 门户自定义访问地址
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用 AppId
+  * @param {string} args.customAddressSuffix 自定义地址后缀
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editCustomAddressSuffix: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'EditCustomAddressSuffix', args, options);
    },
   /**
   * 发送 验证码（登录后）
@@ -475,6 +513,7 @@ module.exports = {
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -678,6 +717,19 @@ module.exports = {
      return $.api('ExternalPortal', 'SendVerifyCode', args, options);
    },
   /**
+  * 自动登录
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.autoLoginKey 自动密钥
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   autoLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'AutoLogin', args, options);
+   },
+  /**
   * 外部门户验证码登录与注册
   * @param {Object} args 请求参数
   * @param {string} args.account 账号
@@ -685,6 +737,7 @@ module.exports = {
   * @param {string} args.appId 应用ID
   * @param {string} args.state 微信登录成功之后返回的临时状态码
 用于反向存储微信相关信息，具备有效期
+  * @param {boolean} args.autoLogin 是否自动登录
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -702,6 +755,7 @@ module.exports = {
   * @param {string} args.state 验证码或者微信登录成功之后返回的临时状态码
 用于反向存储账户相关信息，具备有效期
   * @param {array} args.receiveControls 用户填写信息
+  * @param {boolean} args.autoLogin 是否自动登录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -759,6 +813,7 @@ module.exports = {
   * @param {string} args.state 二维码所需的临时状态码
 用于反向存储账户相关信息，具备有效期
   * @param {string} args.appId 应用ID
+  * @param {boolean} args.autoLogin 是否自动登录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

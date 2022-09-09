@@ -160,6 +160,7 @@ export default class Widgets extends Component {
       viewIdForPermit = '',
       enumDefault2,
       advancedSetting,
+      isSubList,
     } = this.props;
     let { disabled } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
@@ -192,9 +193,16 @@ export default class Widgets extends Component {
       knowledgeAtts = data.knowledgeAtts;
       attachmentData = data.attachmentData;
     }
-    
+
     // 已上传附件总数
     const originCount = (attachments || []).length + (knowledgeAtts || []).length + (attachmentData || []).length;
+
+    // 下载附件权限
+    const recordAttachmentSwitch =
+      !!viewIdForPermit || isSubList
+        ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
+        : true;
+    let hideDownload = !recordAttachmentSwitch;
 
     if (browserIsMobile()) {
       return (
@@ -207,6 +215,7 @@ export default class Widgets extends Component {
               from={from}
               width="49%"
               isRemove={!disabled}
+              hideDownload={hideDownload}
               attachments={attachmentData || []}
               onChange={res => {
                 this.filesChanged(res, 'attachmentData');
@@ -218,6 +227,7 @@ export default class Widgets extends Component {
               from={from}
               width="49%"
               isRemove={true}
+              hideDownload={hideDownload}
               attachments={attachments || []}
               onChange={res => {
                 this.filesChanged(res, 'attachments');
@@ -247,14 +257,8 @@ export default class Widgets extends Component {
         </div>
       );
     }
-    // 下载附件权限
-    const recordAttachmentSwitch = !!viewIdForPermit
-      ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
-      : true;
-    let hideDownload = !recordAttachmentSwitch;
 
     disabled = disabled || isOnlyAllowMobile;
-
 
     return (
       <div

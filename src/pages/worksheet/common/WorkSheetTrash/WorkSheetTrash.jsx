@@ -342,7 +342,7 @@ export default function WorkSheetTrash(props) {
                 isTrash
                 // canSelectAll
                 className={className}
-                style={{ ...style, width: 80 }}
+                style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
                 lineNumberBegin={lineNumberBegin}
                 selectedIds={selected}
                 onSelectAllWorksheet={() => {

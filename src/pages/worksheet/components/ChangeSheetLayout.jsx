@@ -79,7 +79,7 @@ export default function LayoutChangedIcon(props) {
           offset: [-13, 8],
         }}
       >
-        <i className="icon icon-save11"></i>
+        <i className="icon icon-save1"></i>
       </Trigger>
     </ChangeSheetLayout>
   );

@@ -11,13 +11,11 @@ import { getWorksheetsByAppId } from 'src/api/homeApp';
 import { getWorksheetInfo, saveQuery } from 'src/api/worksheet';
 import SelectControl from '../SelectControl';
 import { getControls } from '../DynamicDefaultValue/util';
-import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import '../DynamicDefaultValue/inputTypes/SubSheet/style.less';
 import cx from 'classnames';
 import _ from 'lodash';
 
-const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 36];
 const rowControl = [{ controlId: 'rowid', type: 2, controlName: _l('记录Id') }];
 
 const filterSys = (list = []) => {
@@ -115,10 +113,6 @@ export default class SearchWorksheetDialog extends Component {
     );
   };
 
-  getDropData = (list = []) => {
-    return list.map(({ controlId: value, controlName: text }) => ({ text, value }));
-  };
-
   handleSubmit = () => {
     const { globalSheetInfo = {}, from, subListSheetId, data = {}, onChange, onClose, updateQueryConfigs } = this.props;
     const { id = '', sheetId, sheetName, items = [], configs = [], controls = [], appName } = this.state;
@@ -160,65 +154,75 @@ export default class SearchWorksheetDialog extends Component {
     });
   }, 300);
 
-  getAvailableControls = (controls = [], control = {}, isRowId) => {
-    let filterControls = relateDy(control.type, controls, { ...control, containSelf: true }) || [];
-    if (isRowId) {
-      filterControls = filterControls.concat(
-        controls.filter(i => i.type === 29 && i.dataSource === this.state.sheetId),
+  // 获取子表下拉数据或查询表下拉数据
+  getDropData = (controls = [], control = {}, hasRowId) => {
+    let filterControls = getControls({ data: control, controls, isCurrent: true, fromSearch: true });
+    // 有记录id选项(同查询表的关联记录或者文本类控件)
+    if (hasRowId) {
+      if ((control.type === 29 && control.dataSource === this.state.sheetId) || _.includes([2, 32], control.type))
+        filterControls = rowControl.concat(filterControls);
+    }
+    return filterControls.map(({ controlId: value, controlName: text }) => ({ text, value }));
+  };
+
+  // 过滤已经选中的映射字段
+  filterSelectControls = (controls = []) => {
+    const { configs = [] } = this.state;
+    controls = controls.filter(co => {
+      return (
+        _.includes([2, 3, 4, 5, 6, 8, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||
+        (_.includes([9, 10, 11], co.type) && co.dataSource) ||
+        (co.type === 29 && (co.advancedSetting || {}).showtype !== '2')
       );
-    }
-    if (_.includes([36], control.type)) {
-      filterControls = getControls({ data: control, controls, isCurrent: true, fromSearch: true });
-    }
-    return filterControls;
+    });
+    return controls.filter(i => !_.includes(configs.map(x => x.cid) || [], i.controlId));
   };
 
   renderMapping = () => {
     let { configs = [], controls = [], relationControls = [] } = this.state;
-    const getCurrent = id => {
-      return _.find(rowControl.concat(controls), i => i.controlId === id) || {};
-    };
     return (
       <React.Fragment>
+        <div className="mappingItem mBottom0">
+          <div className="mappingTitle">{_l('子表')}</div>
+          <div className="mappingTitle">{_l('查询表字段')}</div>
+        </div>
         {configs.map((item, index) => {
-          //过滤已经映射过的字段
-          const filterIds = configs.filter(i => i.cid !== item.cid).map(x => x.cid);
-          const filterControls = relationControls.filter(re => !_.includes(filterIds || [], re.controlId));
-          //选择字段
-          const selectControl = getCurrent(item.subCid);
-          // 映射字段匹配筛选规则
-          const subControls = this.getAvailableControls(filterControls, selectControl, item.subCid === 'rowid');
-          const isDelete = item.cid && !_.find(subControls, subControl => subControl.controlId === item.cid);
+          //已选择的子表字段
+          const selectControl = _.find(relationControls, re => re.controlId === item.cid);
+          // 根据选中子表字段匹配默认值规则，筛选可匹配的查询表字段
+          const subControls = this.getDropData(controls, selectControl, true);
+          // 查询表字段已删除
+          const isDelete = item.subCid && !_.find(subControls, subControl => subControl.value === item.subCid);
           return (
             <div className="mappingItem">
               <div className="mappingControlName overflow_ellipsis">
-                {selectControl.controlName || (
-                  <Tooltip text={<span>{_l('ID: %0', item.subCid)}</span>} popupPlacement="bottom">
+                {_.get(selectControl, 'controlName') || (
+                  <Tooltip text={<span>{_l('ID: %0', item.cid)}</span>} popupPlacement="bottom">
                     <span className="Red">{_l('字段已删除')}</span>
                   </Tooltip>
                 )}
               </div>
-              <span className="mLeft20 mRight20">{_l('写入')}</span>
+              <span className="mLeft20 mRight20">=</span>
               <Dropdown
                 className="mapppingDropdown"
                 border
                 isAppendToBody
                 placeholder={
                   isDelete ? (
-                    <Tooltip text={<span>{_l('ID: %0', item.cid)}</span>} popupPlacement="bottom">
+                    <Tooltip text={<span>{_l('ID: %0', item.subCid)}</span>} popupPlacement="bottom">
                       <span className="Red">{_l('字段已删除')}</span>
                     </Tooltip>
                   ) : (
-                    _l('选择当前子表字段')
+                    _l('选择查询表字段')
                   )
                 }
-                value={isDelete ? undefined : item.cid || undefined}
-                data={this.getDropData(subControls)}
+                value={isDelete ? undefined : item.subCid || undefined}
+                data={subControls}
                 onChange={controlId => {
-                  const currentItem = _.find(subControls, subControl => subControl.controlId === controlId) || {};
+                  const currentItem = _.find(subControls, subControl => subControl.value === controlId) || {};
                   this.setState({
                     configs: configs.map((i, idx) =>
-                      idx === index ? Object.assign({}, i, { cid: currentItem.controlId }) : i,
+                      idx === index ? Object.assign({}, i, { subCid: currentItem.value }) : i,
                     ),
                   });
                 }}
@@ -249,6 +253,7 @@ export default class SearchWorksheetDialog extends Component {
       configs = [],
       sheetList = [],
       items = [],
+      relationControls = [],
       visible,
       showMenu,
       controlVisible,
@@ -279,13 +284,6 @@ export default class SearchWorksheetDialog extends Component {
       : relateField
       ? checkFilters
       : !sheetId || checkFilters || checkConfigs;
-
-    const selectControls = controls
-      .filter(({ type }) => _.includes(HAS_DYNAMIC_DEFAULT_VALUE_CONTROL, type))
-      .filter(({ controlId }) => {
-        const ids = configs.map(item => item.subCid);
-        return !ids.includes(controlId);
-      });
 
     const isDelete =
       _.get(configs[0] || {}, 'subCid') &&
@@ -467,7 +465,7 @@ export default class SearchWorksheetDialog extends Component {
                         }
                         disabled={!sheetId}
                         value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
-                        data={this.getDropData(getControls({ data, controls, isCurrent: true, fromSearch: true }))}
+                        data={this.getDropData(controls, data)}
                         onChange={controlId => this.setState({ configs: [{ cid: data.controlId, subCid: controlId }] })}
                       />
                       {_l('的值写入当前字段')}
@@ -497,10 +495,10 @@ export default class SearchWorksheetDialog extends Component {
                       popupStyle={{ width: 280 }}
                       popup={
                         <SelectControl
-                          list={rowControl.concat(selectControls)}
+                          list={this.filterSelectControls(relationControls)}
                           onClick={item => {
                             this.setState({
-                              configs: this.state.configs.concat([{ cid: '', subCid: item.controlId }]),
+                              configs: this.state.configs.concat([{ cid: item.controlId, subCid: '' }]),
                             });
                           }}
                         />
@@ -524,7 +522,7 @@ export default class SearchWorksheetDialog extends Component {
                           }}
                         >
                           <i className="icon icon-add"></i>
-                          {_l('选择查询表字段')}
+                          {_l('选择子表字段')}
                         </span>
                       </div>
                     </Trigger>

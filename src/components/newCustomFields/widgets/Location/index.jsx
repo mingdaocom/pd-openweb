@@ -73,7 +73,7 @@ export default class Widgets extends Component {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;
     const { visible } = this.state;
     const isMobile = browserIsMobile();
-    const onlyCanAppUse = (strDefault || '00')[0] === '1';
+    const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
     let location = null;
 
     if (value) {

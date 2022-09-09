@@ -270,6 +270,11 @@ export default class RecordGallery extends Component {
                 className="galleryItem"
                 style={isMobile ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
                 onClick={() => {
+                  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+                  if (isMingdao) {
+                    window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
+                    return;
+                  }
                   this.setState({ recordId: item.rowid, recordInfoVisible: true });
                 }}
               >

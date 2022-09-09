@@ -145,12 +145,6 @@ export default class OrgKey extends Component {
         <div className="toolItem">
           <div className="toolItemLabel">{_l('组织密钥')}</div>
           <div className="toolItemRight">
-            <div className="Gray_9e">
-              {_l('此密钥是用于访问明道云企业授权开放接口的凭证')}
-              <a href="https://www.showdoc.com.cn/mingdao" target="_blank" className="pLeft8">
-                {_l('查看文档')}
-              </a>
-            </div>
             <div
               className={cx('addbtn Hand mTop20', { disabled: dataSource.length >= 20 })}
               onClick={this.showCreateKeyDialog}

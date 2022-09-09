@@ -6,10 +6,6 @@ import MenuItem from 'ming-ui/components/MenuItem';
 import { navigateTo } from 'src/router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 
-const {
-  app: { addAppItem },
-} = window.private;
-
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建'), href: '/app/lib' },
   {
@@ -18,7 +14,7 @@ const ADD_APP_MODE = [
     text: _l('从应用库中安装'),
     href: '/app/lib',
   },
-].filter(item => !addAppItem[item.id]);
+];
 
 export default class AddAppItem extends Component {
   static propTypes = {
@@ -66,8 +62,6 @@ export default class AddAppItem extends Component {
     const { groupId } = this.props;
     const { addTypeVisible } = this.state;
 
-    if (addAppItem.addAppIcon) return null;
-
     return (
       <div className="addAppItemWrap">
         <div className="addAppItem" onClick={this.handleAddAppItemClick} />
@@ -79,7 +73,9 @@ export default class AddAppItem extends Component {
               this.setState({ addTypeVisible: false });
             }}
           >
-            {(groupId ? ADD_APP_MODE.filter(item => item.id === 'createFromEmpty') : ADD_APP_MODE).map(
+            {(groupId ? ADD_APP_MODE.filter(item => item.id === 'createFromEmpty') : ADD_APP_MODE).filter(data => {
+              return data.id === 'installFromLib' ? !md.global.SysSettings.hideTemplateLibrary : true;
+            }).map(
               ({ id, icon, text, href }) => (
                 <MenuItem
                   key={id}

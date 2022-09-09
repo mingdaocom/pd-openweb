@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { string, bool, element, arrayOf, number } from 'prop-types';
+import { string, bool, element, arrayOf, shape, number } from 'prop-types';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 import { updateBase } from 'worksheet/redux/actions';
@@ -17,6 +17,7 @@ function SingleView(props, ref) {
     showControlIds,
     headerLeft,
     headerRight,
+    filtersGroup,
   } = props;
   const store = useMemo(configureStore, []);
   useEffect(() => {
@@ -46,6 +47,7 @@ function SingleView(props, ref) {
         showControlIds={showControlIds}
         headerLeft={headerLeft}
         headerRight={headerRight}
+        filtersGroup={filtersGroup}
       />
     </Provider>
   );
@@ -62,6 +64,7 @@ SingleView.propTypes = {
   maxCount: number,
   appId: string,
   showControlIds: arrayOf(string),
+  filtersGroup: arrayOf(shape({})),
   worksheetId: string,
   viewId: string,
   chartId: string,

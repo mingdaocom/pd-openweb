@@ -7,6 +7,7 @@ const Con = styled.div`
   height: 100%;
   padding: 20px 32px;
   .workSheetRecordInfo {
+    overflow: hidden;
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;

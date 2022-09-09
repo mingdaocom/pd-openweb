@@ -1,8 +1,10 @@
-import React, { Fragment, Component, forwardRef, useMemo } from 'react';
+import React, { Fragment, Component, forwardRef, useMemo, useEffect } from 'react';
 import AppPermissions from '../components/AppPermissions';
 import RecordInfo from './RecordInfo';
 import styled from 'styled-components';
+import cx from 'classnames';
 import { Modal } from 'antd-mobile';
+import TouchHandler from 'mobile/components/TouchHandler';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 
@@ -11,7 +13,6 @@ const ModalWrap = styled(Modal)`
   overflow: hidden;
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
-
   .am-modal-body {
     text-align: left;
   }
@@ -25,27 +26,32 @@ const ModalWrap = styled(Modal)`
 export default AppPermissions(RecordInfo);
 
 export const RecordInfoModal = forwardRef((props, ref) => {
-  const { rowId, appId, worksheetId, viewId } = props;
+  const { rowId, appId, worksheetId, viewId, sheetSwitchPermit } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
+
+  if (!visible) return null;
 
   return (
     <ModalWrap
       popup
-      animationType="slide-up"
-      className={className}
+      transitionName="noTransition"
+      className={cx('RecordInfoModal', className)}
       onClose={onClose}
       visible={visible}
     >
       {rowId && (
-        <Provider store={store}>
-          <RecordInfo
-            isModal={true}
-            ids={{ appId, worksheetId, viewId, rowId }}
-            match={{params: {}}}
-            onClose={onClose}
-          />
-        </Provider>
+        <TouchHandler onClose={onClose} touchClassName=".RecordInfoModal">
+          <Provider store={store}>
+            <RecordInfo
+              isModal={true}
+              ids={{ appId, worksheetId, viewId, rowId }}
+              match={{params: {}}}
+              sheetSwitchPermit={sheetSwitchPermit}
+              onClose={onClose}
+            />
+          </Provider>
+        </TouchHandler>
       )}
     </ModalWrap>
   );

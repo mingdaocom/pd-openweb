@@ -8,6 +8,7 @@ import CustomFields from 'src/components/newCustomFields';
 import { Hr } from 'worksheet/components/Basics';
 import { addWorksheetRow } from './action';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
+import { checkMobileVerify } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
 
 const ImgCon = styled.div`
@@ -90,7 +91,7 @@ export default class FillWorkseet extends React.Component {
     }
     if (!this.customwidget.current) return;
     const { isPreview, publicWorksheetInfo = {}, onSubmit } = this.props;
-    const { shareId, worksheetId, needCaptcha } = publicWorksheetInfo;
+    const { shareId, worksheetId, needCaptcha, smsVerificationFiled, smsVerification } = publicWorksheetInfo;
     let hasError;
     const subListControls = filterHidedSubList(data, 2);
     if (subListControls.length) {
@@ -155,6 +156,16 @@ export default class FillWorkseet extends React.Component {
         return;
       }
       this.issubmitting = true;
+      let params = res
+        ? {
+            ticket: res.ticket,
+            randStr: res.randstr,
+            captchaType: md.staticglobal.getCaptchaType(),
+          }
+        : {};
+      if (smsVerification && checkMobileVerify(data, smsVerificationFiled)) {
+        params.verifyCode = this.customwidget.current.state.verifyCode;
+      }
       addWorksheetRow(
         {
           shareId,
@@ -166,13 +177,7 @@ export default class FillWorkseet extends React.Component {
               this.customwidget.current.uniqueErrorUpdate(badData);
             }
           },
-          params: res
-            ? {
-                ticket: res.ticket,
-                randStr: res.randstr,
-                captchaType: md.staticglobal.getCaptchaType(),
-              }
-            : {},
+          params,
         },
         (err, data) => {
           this.issubmitting = false;
@@ -190,7 +195,7 @@ export default class FillWorkseet extends React.Component {
             return;
           }
           // 添加成功
-          localStorage.setItem('publicWorksheetLastSubmit_' + publicWorksheetInfo.shareId, new Date().toISOString());
+          safeLocalStorageSetItem('publicWorksheetLastSubmit_' + publicWorksheetInfo.shareId, new Date().toISOString());
           window.onbeforeunload = null;
           this.setState({
             submitLoading: false,
@@ -208,7 +213,7 @@ export default class FillWorkseet extends React.Component {
     } else {
       if (needCaptcha) {
         if (md.staticglobal.getCaptchaType() === 1) {
-          captcha(submit);
+          captcha(submit, () => submit({}));
         } else {
           new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit).show();
         }
@@ -221,7 +226,18 @@ export default class FillWorkseet extends React.Component {
   render() {
     const { loading, publicWorksheetInfo = {}, rules } = this.props;
     const { submitLoading, formData, showError } = this.state;
-    const { name, desc, worksheetId, logoUrl, submitBtnName, isWorksheetQuery } = publicWorksheetInfo;
+    const {
+      name,
+      desc,
+      worksheetId,
+      logoUrl,
+      submitBtnName,
+      isWorksheetQuery,
+      smsVerificationFiled,
+      smsVerification,
+      appId,
+      projectId,
+    } = publicWorksheetInfo;
     return (
       <React.Fragment>
         {submitLoading && <LoadMask />}
@@ -247,9 +263,13 @@ export default class FillWorkseet extends React.Component {
               rules={rules}
               ref={this.customwidget}
               data={formData}
+              appId={appId}
+              projectId={projectId}
               from={4}
               worksheetId={worksheetId}
               isWorksheetQuery={isWorksheetQuery}
+              smsVerificationFiled={smsVerificationFiled}
+              smsVerification={smsVerification}
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
               onChange={(data, id) => {

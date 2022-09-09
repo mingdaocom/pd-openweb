@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
@@ -9,6 +9,8 @@ import ChartFilter from '../components/Chart/Filter';
 import ChartSort from '../components/Chart/Sort';
 import { fillValueMap, version } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import { connect } from 'react-redux';
+import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
 
 const ModalContent = styled.div`
   background-color: #fff;
@@ -63,7 +65,8 @@ const HorizontalChartContent = styled.div`
 `;
 
 function ChartContent(props) {
-  const { reportId, name, accessToken, filters, pageComponents } = props;
+  const { widget, reportId, name, accessToken, filters = [], pageComponents } = props;
+  const objectId = _.get(widget, 'config.objectId');
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
@@ -75,11 +78,27 @@ function ChartContent(props) {
     shareAuthor,
     access_token: accessToken,
   };
+  const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
+  const request = useRef(null);
+
+  useEffect(() => {
+    if (Object.keys(props.filtersGroup).length) {
+      handleReportRequest();
+    }
+  }, [props.filtersGroup]);
+
+  useEffect(() => {
+    handleReportRequest();
+  }, [reportId]);
+
   const handleReportRequest = param => {
     let requestParam = {
       reportId,
       version,
-      filters: (filters && filters.length) ? [filters] : undefined
+      filters: [
+        filters.length ? filters : undefined,
+        filtersGroup.length ? filtersGroup : undefined
+      ].filter(_ => _)
     };
     if (param) {
       Object.assign(
@@ -95,9 +114,11 @@ function ChartContent(props) {
       );
     }
     setLoading(true);
-    report
-      .getData(requestParam, (shareAuthor || accessToken) ? { headersConfig } : {})
-      .then(data => {
+    if (request.current && request.current.state() === 'pending' && request.current.abort) {
+      request.current.abort();
+    }
+    request.current = report.getData(requestParam, (shareAuthor || accessToken) ? { headersConfig } : { fireImmediately: true });
+    request.current.then(data => {
         data.reportId = reportId;
         const result = fillValueMap(data);
         setData(result);
@@ -105,8 +126,8 @@ function ChartContent(props) {
         if (_.isEmpty(defaultData)) {
           setDefaultData(data);
         }
-      })
-      .always(() => setLoading(false));
+        setLoading(false);
+      });
   }
 
   const handleNextReportRequest = (reportId, param) => {
@@ -187,10 +208,6 @@ function ChartContent(props) {
 
   const isMobileChartPage = location.href.includes('mobileChart');
 
-  useEffect(() => {
-    handleReportRequest();
-  }, [reportId]);
-
   return (
     <Fragment>
       <Chart
@@ -255,4 +272,15 @@ function ChartContent(props) {
   );
 }
 
+ChartContent.defaultProps = {
+  filtersGroup: []
+}
+
+export const StateChartContent = connect(
+  state => ({
+    filtersGroup: state.mobile.filtersGroup
+  })
+)(ChartContent);
+
 export default ChartContent;
+

@@ -60,7 +60,7 @@ class ChatPanelSession extends Component {
   handleSetInfoVisible(visible) {
     const { isGroup } = this.props.session;
     if (isGroup) {
-      visible ? localStorage.removeItem('chatInfoHidden') : localStorage.setItem('chatInfoHidden', true);
+      visible ? localStorage.removeItem('chatInfoHidden') : safeLocalStorageSetItem('chatInfoHidden', true);
     }
     this.setState({
       infoVisible: visible,
@@ -129,7 +129,7 @@ class ChatPanelSession extends Component {
   updateValue(value) {
     const { session, isWindow } = this.props;
     const { id } = session;
-    value ? localStorage.setItem(`textareaValue${id}`, value) : localStorage.removeItem(`textareaValue${id}`);
+    value ? safeLocalStorageSetItem(`textareaValue${id}`, value) : localStorage.removeItem(`textareaValue${id}`);
     this.setState({
       value,
     });
@@ -172,7 +172,7 @@ class ChatPanelSession extends Component {
           footer: <div className="ThemeColor3" style={{ cursor: 'pointer' }} onClick={() => { location.reload() }}>{_l('刷新')}</div>,
         }
         notification.open({
-          content: <NotificationContent {...props}/>,
+          content: <NotificationContent {...props} />,
           key: 'connectedError',
           duration: null,
         });
@@ -340,7 +340,7 @@ class ChatPanelSession extends Component {
           <div className="ChatPanel-sessionWrapper">
             <MessageView session={session} />
             <div className="ChatPanel-textarea">
-              <div className={cx('sessionTextarea', {disable: !isContact})}>
+              <div className={cx('sessionTextarea', { disable: !isContact })}>
                 {isContact ? null : <div className="mask"></div>}
                 <CardToolbar session={session} onSendCardMsg={this.handleSendCardMsg.bind(this)} />
                 <Textarea
@@ -364,7 +364,7 @@ class ChatPanelSession extends Component {
                   onShake={this.handleShake.bind(this)}
                 />
               </div>
-              <MessageSendText value={value} onSendMsg={this.handleSendMsg.bind(this)}/>
+              <MessageSendText value={value} onSendMsg={this.handleSendMsg.bind(this)} />
             </div>
           </div>
           <ChatPanelSessionInfo session={session} searchText={searchText} isOpenFile={isOpenFile} infoVisible={infoVisible} />

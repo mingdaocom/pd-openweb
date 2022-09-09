@@ -19,7 +19,7 @@ function pathJoin(basedir, pathstr) {
 module.exports = {
   pathJoin,
   entry: {
-    globals: ['src/common/global', 'src/common/privatization'],
+    globals: ['src/common/global'],
     vendors: (isProduction
       ? ['src/library/jquery/1.8.3/jquery', 'src/library/lodash/lodash.min', 'src/library/moment/moment.min']
       : ['src/library/jquery/1.8.3/jquery-debug', 'src/library/lodash/lodash', 'src/library/moment/moment']
@@ -77,7 +77,6 @@ module.exports = {
       createCalendar: 'src/components/createCalendar/createCalendar.js',
       createShare: 'src/components/createShare/createShare.js',
       animatePopup: 'src/components/animatePopup/animatePopup.js',
-      editor: 'src/components/editor/editor.js',
       mdAutocomplete: 'src/components/mdAutocomplete/mdAutocomplete.js',
       mdBusinessCard: 'src/components/mdBusinessCard/mdBusinessCard.js',
       reactMdBusinessCard: 'src/components/mdBusinessCard/reactMdBusinessCard',
@@ -112,20 +111,16 @@ module.exports = {
     (isProduction
       ? []
       : [
-          {
-            loader: 'style-loader',
-          },
-        ]
+        {
+          loader: 'style-loader',
+        },
+      ]
     ).concat([
       {
         loader: 'css-loader',
         options: isModule
           ? { sourceMap: true, module: true, localIdentName: '[name]__[local]___[hash:base64:5]' }
           : { sourceMap: true },
-      },
-      {
-        loader: 'postcss-loader',
-        options: { sourceMap: true },
       },
       {
         loader: 'less-loader',

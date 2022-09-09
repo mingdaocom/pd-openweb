@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
-import { getEnumType } from 'src/pages/customPage/util';
 import PreviewContent from './PreviewContent';
-import ChartContent from './ChartContent';
-import { View } from 'src/pages/customPage/components/editWidget/view/Preview.jsx';
+import { StateChartContent } from './ChartContent';
+import ViewContent from './ViewContent';
+import Filter from './FilterContent';
 import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
@@ -16,8 +16,13 @@ const WidgetContent = styled.div`
   &.button {
     display: flex;
   }
-  &.mobileEmbedUrl, &.mobileView {
+  &.mobileEmbedUrl, &.mobileView, &.mobileFilter {
     padding: 0 !important;
+  }
+  &.mobileFilter {
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
   }
   img {
     max-width: 100%;
@@ -30,9 +35,8 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk, pageComponents } = props;
+  const { ids, widget, apk, pageComponents, componentType } = props;
   const { type, value, name, button, param = [], config = {} } = widget;
-  const componentType = getEnumType(type);
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
     if (componentType === 'richText')
@@ -51,10 +55,24 @@ function WidgetDisplay(props) {
           addRecord={data => {}}
         />
       );
-    if (componentType === 'analysis') return <ChartContent pageComponents={pageComponents.filter(p => p.type === 1)} reportId={value} name={name} />;
+    if (componentType === 'analysis') {
+      return (
+        <StateChartContent
+          widget={widget}
+          reportId={value}
+          name={name}
+          pageComponents={pageComponents.filter(p => p.type === 1)}
+        />
+      )
+    };
     if (componentType === 'view') {
       return (
-        <View appId={ids.appId} setting={widget} />
+        <ViewContent appId={ids.appId} setting={widget} />
+      );
+    }
+    if (componentType === 'filter') {
+      return (
+        <Filter ids={ids} apk={apk} widget={widget} />
       );
     }
   };

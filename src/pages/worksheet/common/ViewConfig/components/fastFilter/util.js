@@ -107,9 +107,7 @@ export const RELA_FILTER_TYPE = {
   key: 'filterType',
   types: RELA_TYPE,
   default: FILTER_CONDITION_TYPE.BETWEEN,
-  keys: [
-    35,
-  ],
+  keys: [35],
   txt: '筛选方式',
 };
 export const GROUP_FILTER_TYPE = {
@@ -177,6 +175,7 @@ export const OPTIONS_ALLOWITEM = {
     29, // 关联表
     26, // 成员
     27, // 部门
+    48, // 组织角色
     19, // 地区 19'省23'省-市'24'省-市-县'
     23, // 地区 19'省23'省-市'24'省-市-县'
     24, // 地区 19'省23'省-市'24'省-市-县'
@@ -249,6 +248,9 @@ export const FASTFILTER_CONDITION_TYPE = [
   // 10010, // 备注
   35, //级联选择
   // 34, //子表
+  46, //时间
+  48, // 组织角色
+  50, // API 查询
 ];
 
 export const ADVANCEDSETTING_KEYS = ['allowscan', 'daterange', 'allowitem', 'direction'];
@@ -262,6 +264,9 @@ export const getControlFormatType = (control = {}) => {
       if ([0, 6, 8].includes(control.enumDefault2)) type = control.enumDefault2;
       if ([15, 16].includes(control.enumDefault2)) type = control.enumDefault2;
     }
+  }
+  if ([50].includes(type)) {
+    return 2;
   }
   return type;
 };

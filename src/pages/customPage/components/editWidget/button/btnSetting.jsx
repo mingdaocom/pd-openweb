@@ -49,6 +49,9 @@ const BtnSettingWrap = styled.div`
     .ant-radio-group, .ant-space {
       width: 100%;
     }
+    .ant-space {
+      gap: 0 !important;
+    }
     .ant-space-item {
       padding: 7px 10px;
       margin-bottom: 0 !important;
@@ -764,7 +767,7 @@ function BtnSetting(props) {
           </div>
         </div>
       )}
-      <div className="settingsBox">
+      <div className="settingsBox Relative">
         {displayType === 'setting' ? (
           <Fragment>
             <BtnName

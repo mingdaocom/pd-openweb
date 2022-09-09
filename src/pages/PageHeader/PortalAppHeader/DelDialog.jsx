@@ -36,9 +36,10 @@ export default function DelDialog(props) {
                 if (res.actionResult === 1) {
                   window.currentLeave = true;
                   removePssId();
+                  window.localStorage.removeItem(`PortalLoginInfo-${appId}`); //删除自动登录的key
                   window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
                   const url = `${location.origin}${window.subPath || ''}/app/${appId}`;
-                  location.href = url; // 跳转到登录
+                  location.href = props.url || url; // 跳转到登录
                 } else {
                   if (res.actionResult == ActionResult.noEfficacyVerifyCode) {
                     alert(_l('验证码已经失效，请重新发送'), 3);

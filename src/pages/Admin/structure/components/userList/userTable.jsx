@@ -8,6 +8,7 @@ import { LoadDiv, Icon, Checkbox, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import classNames from 'classnames';
 import { updateUserOpList, removeUserFromSet, addUserToSet, updateSelectAll } from '../../actions/current';
+import cx from 'classnames';
 import './userItem.less';
 
 const clearActiveDialog = props => {
@@ -84,7 +85,7 @@ class UserTable extends React.Component {
     } else {
       copyColumnsInfo = columnsInfo.map(item => ({ ...item, checked: true }));
     }
-    localStorage.setItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   handleSingleColumn = (checked, value) => {
@@ -97,7 +98,7 @@ class UserTable extends React.Component {
       }
       return item;
     });
-    localStorage.setItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   renderShowColumns = () => {
@@ -182,7 +183,7 @@ class UserTable extends React.Component {
     return (
       <thead>
         <tr>
-          {
+          {typeCursor === 0 && (
             <th
               className={classNames('checkBox', {
                 showCheckBox: isCheck || selectCount > 0,
@@ -219,9 +220,12 @@ class UserTable extends React.Component {
                 dispatch(updateSelectAll(true))
               }} /> */}
             </th>
-          }
+          )}
           {this.isHideCurrentColumn('name') && (
-            <th className="TxtLeft nameTh" style={{ width: setWidth ? 200 : 'unset' }}>
+            <th
+              className={cx('TxtLeft nameTh', { left0: typeCursor !== 0 })}
+              style={{ width: setWidth ? 200 : 'unset' }}
+            >
               {_l('姓名')}
             </th>
           )}

@@ -384,11 +384,7 @@ export default ({
               return (
                 <Fragment key={item.id}>
                   {renderDeadlineContent(item)}
-                  <Member
-                    type={selectNodeType}
-                    accounts={item.accounts}
-                    updateSource={accounts => changeAction(item.id, accounts)}
-                  />
+                  <Member accounts={item.accounts} updateSource={accounts => changeAction(item.id, accounts)} />
                   <div
                     className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
                     onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}

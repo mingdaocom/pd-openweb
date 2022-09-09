@@ -2,6 +2,8 @@
 import worksheetAjax from 'src/api/worksheet';
 import reportConfigAjax from '../api/reportConfig';
 import reportRequestAjax from '../api/report';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+
 import {
   initConfigDetail,
   fillValueMap,
@@ -11,9 +13,9 @@ import {
   isTimeControl,
   isNumberControl,
   isXAxisControl,
-  timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
-  filterDisableParticleSizeTypes
+  filterDisableParticleSizeTypes,
+  filterTimeParticleSizeDropdownData
 } from '../common';
 import { reportTypes } from 'statistics/Charts/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
@@ -97,7 +99,7 @@ let reportRequest = null;
 export const getReportData = () => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
-    const { permissions, report, settingVisible, sheetVisible, filters } = base;
+    const { permissions, report, settingVisible, sheetVisible, filters, filtersGroup } = base;
     const data = getNewReport(getState().statistics);
     const success = (result) => {
       const data = fillValueMap(result);
@@ -179,6 +181,9 @@ export const getReportData = () => {
       if (!_.isEmpty(filter.filterControls)) {
         params.filters.push(filter.filterControls);
       }
+      if (!_.isEmpty(filtersGroup)) {
+        params.filters.push(filtersGroup);
+      }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
           particleSizeType,
@@ -206,7 +211,7 @@ export const getReportData = () => {
 export const getTableData = () => {
   return (dispatch, getState) => {
     const { base, reportData } = getState().statistics;
-    const { report, match, settingVisible, activeData, filters } = base;
+    const { report, match, settingVisible, activeData, filters, filtersGroup } = base;
     const data = getNewReport(getState().statistics);
 
     dispatch({
@@ -252,6 +257,9 @@ export const getTableData = () => {
       if (!_.isEmpty(filter.filterControls)) {
         params.filters.push(filter.filterControls);
       }
+      if (!_.isEmpty(filtersGroup)) {
+        params.filters.push(filtersGroup);
+      }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
           particleSizeType,
@@ -280,8 +288,8 @@ export const getTableData = () => {
 export const getReportSingleCacheId = (data) => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
-    const { report, sheetId, filters = [] } = base;
-    const { viewId, filterControls = [] } = currentReport.filter || {};
+    const { report, sheetId, filters = [], filtersGroup = [] } = base;
+    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue } = currentReport.filter || {};
     const { drillParticleSizeType } = currentReport.country || {};
     const { isPersonal, match, contrastType } = data;
 
@@ -299,7 +307,10 @@ export const getReportSingleCacheId = (data) => {
       reportId: report.id,
       particleSizeType: drillParticleSizeType,
       appId: sheetId,
-      filters: [[...filters], [...filterControls]].filter(_ => _.length)
+      filters: [[...filters], [...filterControls], [...filtersGroup]].filter(_ => _.length),
+      filterRangeId,
+      rangeType,
+      rangeValue
     }, {
       fireImmediately: true
     }).then(result => {
@@ -667,6 +678,8 @@ export const addXaxes = (control, isRequest = true) => {
     const { xaxes, displaySetup } = currentReport;
     const isTime = isTimeControl(control.type);
     const isArea = isAreaControl(control.type);
+    const showtype = _.get(control, 'advancedSetting.showtype');
+
     const data = {
       xaxes: {
         ...xaxes,
@@ -684,6 +697,15 @@ export const addXaxes = (control, isRequest = true) => {
           title: control.controlName,
         }
       }
+    }
+    if (isTime && showtype === '4') {
+      data.xaxes.particleSizeType = 3;
+    }
+    if (isTime && showtype === '5') {
+      data.xaxes.particleSizeType = 5;
+    }
+    if (control.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
+      data.xaxes.particleSizeType = 6;
     }
     if (isArea) {
       data.country = {
@@ -804,12 +826,24 @@ export const changeSplit = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { sorts, split } = currentReport;
+    const showtype = _.get(split, 'advancedSetting.showtype');
     const deleteId = split.controlId ? (split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId) : null;
     const param = {
       splitId: null,
       split: {
         ...split,
         ...data
+      }
+    }
+    if (data.controlId) {
+      param.split.controlId = data.controlId;
+      param.split.controlName = data.controlName;
+      param.split.controlType = data.type;
+      const isTime = isTimeControl(data.type);
+      if (data.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
+        param.split.particleSizeType = 11;
+      } else {
+        param.split.particleSizeType = 10;
       }
     }
     if (deleteId) {
@@ -911,6 +945,7 @@ export const addLines = (data, isRequest = true) => {
     const { lines, columns } = pivotTable;
     const isTime = isTimeControl(data.type);
     const isArea = isAreaControl(data.type);
+    const showtype = _.get(data, 'advancedSetting.showtype');
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
@@ -918,7 +953,7 @@ export const addLines = (data, isRequest = true) => {
     }
     if (isTime || isArea) {
       const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
-      const dropdownData = isTime ? timeParticleSizeDropdownData : areaParticleSizeDropdownData;
+      const dropdownData = isTime ? filterTimeParticleSizeDropdownData(showtype, data.type) : areaParticleSizeDropdownData;
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
       const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
       if (allowTypes.length) {
@@ -967,6 +1002,7 @@ export const addColumns = (data, isRequest = true) => {
     const { lines, columns } = pivotTable;
     const isTime = isTimeControl(data.type);
     const isArea = isAreaControl(data.type);
+    const showtype = _.get(data, 'advancedSetting.showtype');
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
@@ -974,7 +1010,7 @@ export const addColumns = (data, isRequest = true) => {
     }
     if (isTime || isArea) {
       const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
-      const dropdownData = isTime ? timeParticleSizeDropdownData : areaParticleSizeDropdownData;
+      const dropdownData = isTime ? filterTimeParticleSizeDropdownData(showtype, data.type) : areaParticleSizeDropdownData;
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
       const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
       if (allowTypes.length) {

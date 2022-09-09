@@ -602,6 +602,12 @@ body .Hidden {
 .mBottom12 {
   margin-bottom: 12px !important;
 }
+.mBottom13 {
+  margin-bottom: 13px !important;
+}
+.mBottom14 {
+  margin-bottom: 14px !important;
+}
 .mBottom15 {
   margin-bottom: 15px !important;
 }
@@ -1021,6 +1027,9 @@ body .Hidden {
 }
 .minHeight30 {
   min-height: 30px !important;
+}
+.minHeight36 {
+  min-height: 36px !important;
 }
 .minHeight50 {
   min-height: 50px !important;

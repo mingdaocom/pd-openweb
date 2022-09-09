@@ -365,8 +365,8 @@ export const formatNewSession = message => {
     message.value = message.isGroup
       ? message.to
       : md.global.Account.accountId === message.from
-      ? message.to
-      : message.from;
+        ? message.to
+        : message.from;
     message.logo = message.isGroup ? message.avatar : message.logo;
     message.type = message.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     message.time = message.time ? message.time : getCurrentTime();
@@ -382,14 +382,14 @@ export const formatNewSession = message => {
 /**
  * 获取UUID
  */
-export const getUUID = (function() {
+export const getUUID = (function () {
   function id() {
     return Math.floor((1 + Math.random()) * 0x10000)
       .toString(16)
       .substring(1);
   }
 
-  return function() {
+  return function () {
     return id() + id() + '-' + id() + '-' + id() + '-' + id() + '-' + id() + id() + id();
   };
 })();
@@ -530,7 +530,7 @@ export const formatFileSize = (size = 0) => {
  */
 export const shake = id => {
   const el = $(`#ChatPanel-${id}`).find('.ChatPanel-sessionList');
-  el.addClass('ChatPanel-shake').on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function() {
+  el.addClass('ChatPanel-shake').on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
     $(this).removeClass('ChatPanel-shake');
   });
 };
@@ -561,7 +561,7 @@ export const highlightMessage = id => {
  */
 const highlight = el => {
   const className = navigator.userAgent.indexOf('Firefox') > 0 ? 'highlight' : 'highlight';
-  el.addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function() {
+  el.addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
     $(this).removeClass(className);
   });
 };
@@ -601,6 +601,7 @@ export const sessionListScrollTop = () => {
  */
 let flashTitleInterval = null;
 export const flashTitle = () => {
+  if (!window.isOpenMessageTwinkle) return;
   if (flashTitleInterval) return;
   flashTitleInterval = window.setInterval(() => {
     let _title = window.document.title;
@@ -629,6 +630,7 @@ export const removeFlashTitle = (value, sessionList) => {
  * 新消息的语音提示
  */
 export const playReceiveAudio = () => {
+  if (!window.isOpenMessageSound) return;
   if (Modernizr.audio) {
     document.getElementById('wcSound').play();
   } else {
@@ -654,7 +656,7 @@ export const windowOpen = (id, name, isGroup) => {
  */
 export const chatWindow = {
   set(id) {
-    localStorage.setItem(`chat_window_${id}`, true);
+    safeLocalStorageSetItem(`chat_window_${id}`, true);
   },
   remove(id) {
     localStorage.removeItem(`chat_window_${id}`);
@@ -694,7 +696,7 @@ export const recordCursortPosition = id => {
  * 获取 inbox 的 value
  * @param {*} type
  */
-export const getInboxId = function(type) {
+export const getInboxId = function (type) {
   switch (type * 1) {
     case Constant.SESSIONTYPE_SYSTEM:
       return 'system';
@@ -742,7 +744,7 @@ export const setVisible = () => {
   } else if (value === 'false') {
     return false;
   } else {
-    localStorage.setItem('chatList_isUp', false);
+    safeLocalStorageSetItem('chatList_isUp', false);
     return false;
   }
 };

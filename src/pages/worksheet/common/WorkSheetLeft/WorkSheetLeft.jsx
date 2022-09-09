@@ -198,7 +198,7 @@ class WorkSheetLeft extends Component {
       alert(_l('请填写名称'));
       return;
     }
-    onCreateItem({ type, name: name.slice(0, 25), icon: type === 0 ? '1_worksheet' : '1_0_home' });
+    onCreateItem({ type, name: name.slice(0, 25) });
     this.setState({ createType: '' });
   };
   getAlign = () => {
@@ -219,7 +219,7 @@ class WorkSheetLeft extends Component {
             this.switchCreateType('worksheet');
           }}
         >
-          <i className="icon-view  Font16"></i>
+          <i className="icon-table  Font18"></i>
           <span className="mLeft5">{_l('工作表')}</span>
         </MenuItem>
         <MenuItem
@@ -227,7 +227,7 @@ class WorkSheetLeft extends Component {
             this.switchCreateType('customPage');
           }}
         >
-          <i className="icon-home_dashboard  Font18"></i>
+          <i className="icon-dashboard  Font18"></i>
           <span className="mLeft5">{_l('自定义页面')}</span>
         </MenuItem>
       </Menu>

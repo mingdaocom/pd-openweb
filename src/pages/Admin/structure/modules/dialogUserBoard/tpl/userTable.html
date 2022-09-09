@@ -77,7 +77,7 @@
             </tr>
         </table>
     </td>
-    <td><span class="dept">{{! user.department || ''}}</span></td>
+    <td><span class="dept" title="{{! (user.departmentInfos||[]).map(v=>v.departmentName).join(';') || ''}}" >{{! (user.departmentInfos||[]).map(v=>v.departmentName).join(';') || ''}}</span></td>
     <td>
         <div class="workSite" title="{{!user.workSite || '' }}">{{!user.workSite || '' }}</div>
     </td>

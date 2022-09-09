@@ -16,7 +16,8 @@ import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { RecordInfoModal } from 'mobile/Record';
 import { genUrl } from '../../util';
 import { connect } from 'react-redux';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, mdAppResponse } from 'src/util';
+import { getRequest } from 'src/util';
 
 const ButtonListWrap = styled.div`
   width: 100%;
@@ -49,6 +50,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const [previewRecord, setPreviewRecord] = useState({});
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
+  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   const projectId = info.projectId || _.get(info, 'apk.projectId');
 
   async function runStartProcessByPBC(item, scanQRCodeResult) {
@@ -56,13 +58,14 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     const { inputs = [] } = config;
     const { accountId } = md.global.Account;
     const appId = info.appId || _.get(info, 'apk.appId');
+    const { pushUniqueId } = getRequest();
     let departments = [];
     const isRequestDepartments = _.find(inputs, { value: [{ cid: 'triggerDepartment' }] });
     if (isRequestDepartments) {
       departments = await getDepartments(projectId, accountId);
     }
     startProcessByPBC({
-      pushUniqueId: md.global.Config.pushUniqueId,
+      pushUniqueId: isMingdao ? (pushUniqueId || md.global.Config.pushUniqueId) : md.global.Config.pushUniqueId,
       appId,
       triggerId: id,
       title: name,
@@ -102,10 +105,11 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       }
     });
   }
+
   async function handleClick(item) {
     if (editable) return;
     const { param, action, value, viewId, openMode = 1, name } = item;
-    const isOpenNewWindow = openMode === 2;
+    const isOpenNewWindow = isMingdao ? false : openMode === 2;
 
     if (isPublicShare && action !== 4) {
       alert(_l('无权操作'), 3);
@@ -114,7 +118,12 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (action === 1 && value) {
       const { btnId } = item;
       const { appId } = await getAppSimpleInfo({ workSheetId: value });
-      const param = { visible: true, value, viewId, appId, name }
+      const param = { visible: true, value, viewId, appId, name };
+      if (isMingdao) {
+        const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
+        window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
+        return;
+      }
       if (btnId) {
         const { writeControls } = await getWorksheetBtnByID({ appId, worksheetId: value, btnId });
         setInfo({ ...param, writeControls });
@@ -155,7 +164,14 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       window.open(url, '_blank', 'width=800px,height=600px,left=200px,top=200px');
     }
     if (action === 5) {
-      if (isMobile) {
+      if (isMingdao) {
+        mdAppResponse({ type: 'scan' }).then(data => {
+          const { value } = data;
+          if (value) {
+            handleScanQRCodeResult(value, item);
+          }
+        });
+      } else if (isMobile) {
         setCurrentScanBtn(item);
         scanQRCodeRef.current.handleScanCode();
       } else {
@@ -192,8 +208,9 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     }
   }
 
-  async function handleScanQRCodeResult(result) {
-    const { config, value, viewId } = currentScanBtn;
+  async function handleScanQRCodeResult(result, appCurrentScanBtn) {
+    const scanBtn = appCurrentScanBtn || currentScanBtn;
+    const { config = {}, value, viewId } = scanBtn;
     const showModal = () => {
       Modal.alert(<div className="WordBreak">{result}</div>, '', [
         { text: _l('复制'), onPress: () => {
@@ -211,14 +228,22 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         const shareData = await getShareInfoByShareId({ shareId });
         Toast.hide();
         if (shareData.rowId) {
-          setPreviewRecord(shareData);
+          if (isMingdao) {
+            window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
+          } else {
+            setPreviewRecord(shareData);
+          }
         } else {
           window.open(result);
         }
         return;
       }
       if (config.otherLink) {
-        window.open(result);
+        if (isMingdao) {
+          window.location.href = result;
+        } else {
+          window.open(result);
+        }
         return;
       }
     }
@@ -230,13 +255,13 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (config.text === 1 && value && viewId) {
       const { isFilter } = config;
       const { appId } = await getAppSimpleInfo({ workSheetId: value });
-      const filterId = isFilter && currentScanBtn.filterId ? currentScanBtn.filterId : '';
-      const searchId = currentScanBtn.searchId ? currentScanBtn.searchId : '';
-      window.mobileNavigateTo(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${result}&filterId=${filterId}&searchId=${searchId}`);
+      const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
+      const searchId = scanBtn.searchId ? scanBtn.searchId : '';
+      window.mobileNavigateTo(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`);
     }
     // 文本，调用业务流程
     if (config.text === 2) {
-      runStartProcessByPBC(currentScanBtn, result);
+      runStartProcessByPBC(scanBtn, result);
     }
   }
 

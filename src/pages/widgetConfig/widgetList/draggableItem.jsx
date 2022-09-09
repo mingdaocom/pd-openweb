@@ -5,11 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
 import { DEFAULT_DATA } from '../config/widget';
 import { enumWidgetType } from '../util';
+import { buriedUpgradeVersionDialog } from 'src/util';
 
-export default function DraggableItem({ activeWidget, item, addWidget }) {
-  const { widgetName, icon, enumType } = item;
+export default function DraggableItem({ activeWidget, item, addWidget, globalSheetInfo }) {
+  const { widgetName, icon, enumType, featureType } = item;
 
   const handleAdd = para => {
+    if (featureType === '2') {
+      buriedUpgradeVersionDialog(globalSheetInfo.projectId, item.featureId);
+      return;
+    }
     const data = {
       ...DEFAULT_DATA[enumType],
       type: enumWidgetType[enumType],

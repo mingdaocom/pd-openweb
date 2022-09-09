@@ -76,7 +76,7 @@ const Wrap = styled.div`
   }
 `;
 const WrapCon = styled.div`
-  background: #f5f5f5;
+  background: #fff;
   position: absolute;
   bottom: 0;
   padding: 16px 24px;
@@ -114,6 +114,13 @@ const WrapCon = styled.div`
     margin-left: 16px;
     padding: 0 32px;
     width: auto;
+  }
+  .closePortal {
+    line-height: 36px;
+    color: #9e9e9e;
+    &:hover {
+      color: #f44336;
+    }
   }
 `;
 const SETTYPE = [_l('基础设置'), _l('信息收集'), _l('自定义登录界面'), _l('消息设置')];
@@ -170,6 +177,18 @@ class PortalSetting extends React.Component {
     } else {
       callback && callback();
     }
+  };
+
+  closePortal = () => {
+    return Dialog.confirm({
+      title: _l('关闭后所有人将不能再访问门户'),
+      okText: _l('关闭门户'),
+      width: 480,
+      onOk: () => {
+        this.props.closePortal();
+      },
+      buttonType: 'danger',
+    });
   };
 
   editPortal = () => {
@@ -348,6 +367,9 @@ class PortalSetting extends React.Component {
                 }}
               >
                 {_l('取消')}
+              </span>
+              <span className="closePortal Hand Right Bold" onClick={this.closePortal}>
+                {_l('关闭门户')}
               </span>
             </WrapCon>
             <div className="cover"></div>

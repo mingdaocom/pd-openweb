@@ -175,10 +175,10 @@ export default class File extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-print"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -186,11 +186,7 @@ export default class File extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter
-          isCorrect={!!data.selectNodeId && !!data.appId}
-          onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
-        />
+        <DetailFooter {...this.props} isCorrect={!!data.selectNodeId && !!data.appId} onSave={this.onSave} />
       </Fragment>
     );
   }

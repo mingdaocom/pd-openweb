@@ -1,13 +1,9 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { createApp } from 'api/homeApp';
 import { navigateTo } from 'router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import bgPng from '../assets/welcome.png';
-
-const {
-  app: { addAppItem },
-} = window.private;
 
 const FullCon = styled.div`
   flex: 1;
@@ -61,6 +57,8 @@ const FullCon = styled.div`
 
 export default function NoProjectsStatus(props) {
   const { projectId } = props;
+  const project = _.find(md.global.Account.projects, { projectId });
+  const canCreate = !_.get(project, 'cannotCreateApp');
   const INTRO_CONFIG = [
     {
       type: 'create',
@@ -78,50 +76,56 @@ export default function NoProjectsStatus(props) {
       href: `/app/lib?projectId=${projectId}`,
       key: 'installFromLib',
     },
-  ].filter(item => !addAppItem[item.key]);
+  ].filter(data => {
+    return data.key === 'installFromLib' ? !md.global.SysSettings.hideTemplateLibrary : true;
+  });
   return (
     <FullCon>
       <div className="welcomeImg">
         <img src={bgPng} />
       </div>
       <h2>{_l('欢迎使用')}</h2>
-      <p className="Font17">{_l('现在，从创建一个应用开始吧')}</p>
-      <div className="introWrap">
-        {INTRO_CONFIG.map(({ type, icon, iconColor, title, desc, href }) => (
-          <div
-            className="introItem"
-            onClick={() => {
-              if (type === 'create') {
-                createApp({
-                  projectId,
-                  name: _l('未命名应用'),
-                  icon: '0_lego',
-                  iconColor: COLORS[_.random(0, COLORS.length - 1)],
-                  permissionType: 200,
-                }).then(res => {
-                  navigateTo(`/app/${res.id}`);
-                });
-                return;
-              }
-              if (type === 'solution') {
-                navigateTo(href, '__blank');
-                return;
-              }
+      {canCreate && (
+        <Fragment>
+          <p className="Font17">{_l('现在，从创建一个应用开始吧')}</p>
+          <div className="introWrap">
+            {INTRO_CONFIG.map(({ type, icon, iconColor, title, desc, href }) => (
+              <div
+                className="introItem"
+                onClick={() => {
+                  if (type === 'create') {
+                    createApp({
+                      projectId,
+                      name: _l('未命名应用'),
+                      icon: '0_lego',
+                      iconColor: COLORS[_.random(0, COLORS.length - 1)],
+                      permissionType: 200,
+                    }).then(res => {
+                      navigateTo(`/app/${res.id}`);
+                    });
+                    return;
+                  }
+                  if (type === 'solution') {
+                    navigateTo(href, '__blank');
+                    return;
+                  }
 
-              navigateTo(href);
-            }}
-          >
-            <div className="iconWrap">
-              <i className={`icon-${icon}`} style={{ color: iconColor }} />
-            </div>
-            <div className="title">
-              {title}
-              {type === 'solution' && <i className="icon-launch Font12" style={{ verticalAlign: 'super' }} />}
-            </div>
-            <div className="desc">{desc}</div>
+                  navigateTo(href);
+                }}
+              >
+                <div className="iconWrap">
+                  <i className={`icon-${icon}`} style={{ color: iconColor }} />
+                </div>
+                <div className="title">
+                  {title}
+                  {type === 'solution' && <i className="icon-launch Font12" style={{ verticalAlign: 'super' }} />}
+                </div>
+                <div className="desc">{desc}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </Fragment>
+      )}
     </FullCon>
   );
 }

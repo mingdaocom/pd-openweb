@@ -1,5 +1,17 @@
 module.exports = {
   /**
+  * 删除打印模板
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deletePrint: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'DeletePrint', args, options);
+   },
+  /**
   * 修改打印空数据显影
   * @param {Object} args 请求参数
   * @param {string} args.id
@@ -441,6 +453,93 @@ module.exports = {
      return $.api('Worksheet', 'DeleteQuery', args, options);
    },
   /**
+  * 保存筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveFiltersGroup: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'SaveFiltersGroup', args, options);
+   },
+  /**
+  * 获取筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFiltersGroupByIds: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetFiltersGroupByIds', args, options);
+   },
+  /**
+  * 删除筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteFiltersGroupByIds: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'DeleteFiltersGroupByIds', args, options);
+   },
+  /**
+  * 执行api查询
+  * @param {Object} args 请求参数
+  * @param {object} args.data 执行api查询数据
+  * @param {string} args.projectId 组织id
+  * @param {string} args.workSheetId 工作表id
+  * @param {string} args.controlId 控件id
+  * @param {string} args.apiTemplateId api模板id
+  * @param {string} args.apkId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   excuteApiQuery: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'ExcuteApiQuery', args, options);
+   },
+  /**
+  * 获取api模板消息信息
+  * @param {Object} args 请求参数
+  * @param {string} args.apiTemplateId api模板id
+  * @param {integer} args.type 是否为请求参数模板 1-请求模板 2-响应模板 不传-请求响应
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getApiControlDetail: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetApiControlDetail', args, options);
+   },
+  /**
   * 获取视图字段查看编辑权限
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -799,6 +898,7 @@ module.exports = {
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
+  * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -824,6 +924,7 @@ module.exports = {
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
+  * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -956,6 +1057,33 @@ module.exports = {
      return $.api('Worksheet', 'RefreshSummary', args, options);
    },
   /**
+  * 批量刷新行记录
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {} args.cells 要修改的cell（只能批量修改单个列）
+  * @param {string} args.viewId 视图Id
+  * @param {array} args.rowIds 行id
+  * @param {string} args.appId 应用Id
+  * @param {boolean} args.isAll 是否全部
+  * @param {array} args.excludeRowIds 需要排除的rowIds
+  * @param {array} args.filterControls 筛选条件
+  * @param {string} args.keyWords 搜索关键字
+  * @param {array} args.fastFilters 快递筛选
+  * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {string} args.btnId 自定义按钮ID
+  * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
+  * @param {string} args.btnRowId 点击按钮对应的行记录ID
+  * @param {string} args.pushUniqueId 推送ID
+  * @param {array} args.controls 批量编辑
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   refreshWorksheetRows: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'RefreshWorksheetRows', args, options);
+   },
+  /**
   * 删除行
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -1015,6 +1143,7 @@ module.exports = {
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -1058,6 +1187,7 @@ module.exports = {
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -1100,6 +1230,7 @@ module.exports = {
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -1951,17 +2082,5 @@ module.exports = {
    editPrintRange: function (args, options = {}) {
      
      return $.api('Worksheet', 'EditPrintRange', args, options);
-   },
-  /**
-  * 删除打印模板
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deletePrint: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'DeletePrint', args, options);
    },
 };

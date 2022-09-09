@@ -14,6 +14,8 @@ import WorksheetContent from './WorksheetContent';
 import DateContent from './DateContent';
 import PBCContent from './PBCContent';
 import DiscussContent from './DiscussContent';
+import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 const START_NODE_EXECUTE_DATE_TYPE = 16;
 
@@ -23,7 +25,6 @@ export default class Start extends Component {
     this.state = {
       data: {},
       saveRequest: false,
-      errorItems: [],
     };
   }
 
@@ -46,17 +47,20 @@ export default class Start extends Component {
    * 获取动作详情
    */
   getNodeDetail = (appId, fields) => {
-    const { processId, selectNodeId, selectNodeType, flowInfo } = this.props;
+    const { processId, selectNodeId, selectNodeType, flowInfo, isIntegration } = this.props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields })
+      .getNodeDetail(
+        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields },
+        { isIntegration },
+      )
       .then(result => {
         if (result.appType === APP_TYPE.LOOP && !result.executeTime) {
           result.executeTime = moment().format('YYYY-MM-DD 08:00');
         }
 
         if (result.appType === APP_TYPE.PBC && !flowInfo.child && !result.controls.length) {
-          result.controls = [{ type: 2, controlName: '', required: false, desc: '' }];
+          result.controls = [{ controlId: uuidv4(), controlName: '', type: 2, alias: '', required: false, desc: '' }];
         }
 
         this.setState({ data: result });
@@ -76,7 +80,7 @@ export default class Start extends Component {
    */
   onSave = ({ close = true, isUpdate = undefined } = {}) => {
     const { flowInfo } = this.props;
-    const { data, saveRequest, errorItems } = this.state;
+    const { data, saveRequest } = this.state;
     // 处理按时间触发时间日期
     const isDateField =
       _.get(_.find(data.controls, ({ controlId }) => controlId === _.get(data, 'assignFieldId')), 'type') ===
@@ -136,12 +140,7 @@ export default class Start extends Component {
         return;
       }
 
-      if (appType === APP_TYPE.PBC) {
-        if (errorItems.filter(item => item).length) {
-          alert(_l('有参数配置错误'), 2);
-          return;
-        }
-
+      if (_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER], appType)) {
         if (controls.filter(item => !item.controlName).length) {
           alert(_l('名称不能为空'), 2);
           return;
@@ -167,36 +166,39 @@ export default class Start extends Component {
     }
 
     flowNode
-      .saveNode({
-        appId,
-        appType,
-        assignFieldId,
-        assignFieldIds,
-        processId: this.props.processId,
-        nodeId: this.props.selectNodeId,
-        flowNodeType: this.props.selectNodeType,
-        operateCondition,
-        triggerId,
-        name: name.trim(),
-        executeTimeType,
-        number,
-        unit,
-        time,
-        executeTime,
-        executeEndTime,
-        endTime,
-        repeatType,
-        interval,
-        frequency,
-        weekDays,
-        config,
-        isUpdate,
-        controls: controls.map(o => {
-          return Object.assign(o, { workflowRequired: o.required });
-        }),
-        returnJson,
-        returns: returns.filter(o => !!o.name),
-      })
+      .saveNode(
+        {
+          appId,
+          appType,
+          assignFieldId,
+          assignFieldIds,
+          processId: this.props.processId,
+          nodeId: this.props.selectNodeId,
+          flowNodeType: this.props.selectNodeType,
+          operateCondition,
+          triggerId,
+          name: name.trim(),
+          executeTimeType,
+          number,
+          unit,
+          time,
+          executeTime,
+          executeEndTime,
+          endTime,
+          repeatType,
+          interval,
+          frequency,
+          weekDays,
+          config,
+          isUpdate,
+          controls: controls.map(o => {
+            return Object.assign(o, { workflowRequired: o.required });
+          }),
+          returnJson,
+          returns: returns.filter(o => !!o.name),
+        },
+        { isIntegration: this.props.isIntegration },
+      )
       .then(result => {
         this.props.updateNodeData(result);
         close && this.props.closeDetail();
@@ -297,7 +299,7 @@ export default class Start extends Component {
 
   render() {
     const { processId, selectNodeId, flowInfo } = this.props;
-    const { data, errorItems } = this.state;
+    const { data } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -306,10 +308,10 @@ export default class Start extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon={flowInfo.child ? 'icon-subprocess' : getIcons(data.typeId, data.appType, data.triggerId)}
           bg={flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(data.appType, data.triggerId)}
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex">
@@ -348,6 +350,7 @@ export default class Start extends Component {
                 )}
                 {data.appType === APP_TYPE.WEBHOOK && (
                   <WebhookContent
+                    {...this.props}
                     data={data}
                     processId={processId}
                     selectNodeId={selectNodeId}
@@ -365,13 +368,8 @@ export default class Start extends Component {
                       renderConditionBtn={this.renderConditionBtn}
                     />
                   )}
-                {data.appType === APP_TYPE.PBC && (
-                  <PBCContent
-                    data={data}
-                    updateSource={this.updateSource}
-                    errorItems={errorItems}
-                    setErrorItems={setErrorItems => this.setState({ setErrorItems })}
-                  />
+                {_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER], data.appType) && (
+                  <PBCContent {...this.props} data={data} updateSource={this.updateSource} />
                 )}
                 {data.triggerId === TRIGGER_ID.DISCUSS && <DiscussContent data={data} />}
               </Fragment>
@@ -379,6 +377,7 @@ export default class Start extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             flowInfo.child ||
             (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE], data.appType) && data.appId) ||
@@ -391,6 +390,7 @@ export default class Start extends Component {
                 APP_TYPE.CUSTOM_ACTION,
                 APP_TYPE.EXTERNAL_USER,
                 APP_TYPE.PBC,
+                APP_TYPE.PARAMETER,
               ],
               data.appType,
             )
@@ -402,7 +402,6 @@ export default class Start extends Component {
               this.onSave();
             }
           }}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

@@ -42,13 +42,18 @@ const RecordItemWrap = styled.div`
     }
   }
   .abstractWrap {
-    padding: 10px 14px;
-    max-height: 72px;
+    margin: 10px 14px 3px;
+    max-height: 59px;
     overflow: hidden;
     color: #757575;
     text-overflow: ellipsis;
-    word-break: break-all;
     white-space: break-spaces;
+    word-break: break-all;
+    display: -webkit-box;
+    /*! autoprefixer: off */
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical;
+    /* autoprefixer: on */
     &.galleryViewAbstract {
       height: 72px;
     }

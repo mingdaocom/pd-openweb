@@ -164,6 +164,12 @@ export function submitNewRecord(props) {
   }
   addWorksheetRowApi(args)
     .then(res => {
+      if (res.resultCode === 1 && !res.data) {
+        alert(_l('记录添加失败'), 3);
+        onSubmitEnd();
+        setRequesting(false);
+        return;
+      }
       if (res.resultCode === 1) {
         let newControls;
         let newOptionControls = updateOptionsOfControls(formdata, res.data);

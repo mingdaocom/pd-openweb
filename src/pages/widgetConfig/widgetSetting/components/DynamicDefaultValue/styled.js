@@ -13,6 +13,12 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
   .CodeMirror-code {
     line-height: 28px;
   }
+  .CodeMirror-placeholder {
+    color: #ccc !important;
+    font-size: 14px !important;
+    line-height: 27px !important;
+    margin-left: 3px !important;
+  }
   .tagInputarea {
     .tagInputareaIuput {
       border-radius: 3px 0 0 3px;
@@ -122,6 +128,16 @@ export const OtherFieldWrap = styled(FlexCenter)`
   i {
     margin-left: 6px;
     color: rgba(51, 51, 51, 0.2);
+  }
+  &.isGreenTag {
+    background: #d8f2d9;
+    border-color: #9dd59f;
+    color: #307433;
+    .searchIcon {
+      margin-left: 0px;
+      margin-right: 6px;
+      color: #307433;
+    }
   }
 `;
 
@@ -290,6 +306,13 @@ export const SearchWorksheetWrap = styled.div`
       background: #f4f4f4;
       border-radius: 3px;
       padding: 0 14px;
+    }
+    .mappingTitle {
+      flex: 1;
+      color: #757575;
+      &:last-child {
+        padding-left: 40px;
+      }
     }
     .mapppingDropdown {
       flex: 1;

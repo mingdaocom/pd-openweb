@@ -395,7 +395,7 @@ class CreateCustomBtnCon extends React.Component {
               </span>
               {writeType === 1 &&
                 dataControls.length > 0 &&
-                writeControls.map(item => {
+                writeControls.map((item, i) => {
                   const writeControlsData = _.find(dataControls, items => items.controlId === item.controlId);
                   if (!writeControlsData) {
                     return '';
@@ -406,7 +406,7 @@ class CreateCustomBtnCon extends React.Component {
                         <span className="Bold">
                           {controlName || (writeControlsData.type === 22 ? _l('分段') : _l('备注'))}
                         </span>
-                        、
+                        {writeControls.length > i + 1 ? '、' : ''}
                       </React.Fragment>
                     );
                   }

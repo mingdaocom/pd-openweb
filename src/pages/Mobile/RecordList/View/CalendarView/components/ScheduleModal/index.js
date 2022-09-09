@@ -28,7 +28,7 @@ class ScheduleModal extends Component {
     };
   }
   componentDidMount() {
-    window.localStorage.setItem('CalendarShowExternalTypeEvent', 'eventAll');
+    safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventAll');
   }
   renderListEvent = () => {
     const { calendarview, getInitType } = this.props;
@@ -97,6 +97,12 @@ class ScheduleModal extends Component {
               key={`${rowid}-${it.begin}`}
               enddate={it.enddate}
               onClick={() => {
+                const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+                if (isMingdao) {
+                  const { base } = this.props;
+                  window.location.href = `/mobile/record/${base.appId}/${wsid}/${base.viewId}/${rowid}`;
+                  return;
+                }
                 this.setState({ previewRecordId: rowid, wsid });
               }}
             >
@@ -203,7 +209,7 @@ class ScheduleModal extends Component {
                   className={cx('Hand', { current: it.key === typeEvent })}
                   onClick={() => {
                     this.props.getEventScheduledData(it.key);
-                    window.localStorage.setItem('CalendarShowExternalTypeEvent', it.key);
+                    safeLocalStorageSetItem('CalendarShowExternalTypeEvent', it.key);
                   }}
                 >
                   {it.txt}

@@ -13,6 +13,7 @@ const CompConfig = {
   14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
+  46: DateVerify,
 };
 
 const SETTING_TO_TEXT = {

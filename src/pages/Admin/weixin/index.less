@@ -89,6 +89,22 @@
           color: #333;
         }
       }
+      .bindBtn {
+        width: 143px;
+        height: 43px;
+        background: #2196f3;
+        border-radius: 32px;
+        cursor: pointer;
+        line-height: 43px;
+        text-align: center;
+        color: #fff;
+        font-size: 17px;
+        font-weight: bold;
+        margin: 60px auto 10px;
+        &:hover {
+          background-color: rgba(33, 150, 243, 0.8);
+        }
+      }
     }
     .wechatSuccessContent {
       font-size: 13px;
@@ -107,6 +123,33 @@
         .wechatSuccessValue {
         }
       }
+    }
+  }
+  .weixin-info-row {
+    display: flex;
+    align-items: center;
+    padding: 30px 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eaeaea;
+    &.Hidden {
+      display: none !important;
+    }
+    .weixin-info-tag {
+      display: inline-block;
+      height: 20px;
+      line-height: 20px;
+      width: 53px;
+      margin: 0 14px;
+      text-align: center;
+      font-size: 12px;
+      background: rgba(71, 177, 75, 0.08);
+      color: #47b14b;
+      border-radius: 10px;
+    }
+    .weixin-info-row-label {
+      display: inline-block;
+      width: 175px;
+      color: #757575;
     }
   }
 }
@@ -140,5 +183,12 @@
         }
       }
     }
+  }
+}
+.weixinFuncInfoDialog {
+  height: 400px !important;
+  ul > li {
+    list-style-type: disc;
+    margin-left: 20px;
   }
 }

@@ -52,7 +52,7 @@ module.exports = function (entryType) {
         'src/library/moment/locale/zh-cn',
         'src/library/moment/locale/zh-tw',
       ]),
-      globals: ['src/common/global', 'src/common/privatization'],
+      globals: ['src/common/global'],
       ...singleEntryList,
     },
     optimization: {

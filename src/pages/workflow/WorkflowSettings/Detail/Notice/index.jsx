@@ -166,7 +166,7 @@ export default class Notice extends Component {
         </div>
         <div className="Font13 Gray_9e mTop10">{_l('将通过系统消息发送')}</div>
 
-        <Member type={NODE_TYPE.NOTICE} accounts={data.accounts} updateSource={this.updateSource} />
+        <Member accounts={data.accounts} updateSource={this.updateSource} />
 
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
@@ -291,10 +291,10 @@ export default class Notice extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_notice"
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -303,13 +303,13 @@ export default class Notice extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             !!(data.sendContent || '').trim() &&
             !!data.accounts.length &&
             (!data.isSendRecord || (data.isSendRecord && data.selectNodeId))
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

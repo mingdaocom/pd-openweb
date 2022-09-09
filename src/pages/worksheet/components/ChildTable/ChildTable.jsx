@@ -13,7 +13,7 @@ import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { WORKSHEETTABLE_FROM_MODULE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { WORKSHEETTABLE_FROM_MODULE, SYSTEM_CONTROLS, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import {
   sortControlByIds,
   replaceByIndex,
@@ -33,6 +33,7 @@ import RowDetailMobile from './RowDetailMobileModal';
 import * as actions from './redux/actions';
 import _ from 'lodash';
 
+const isMobile = browserIsMobile();
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
@@ -137,7 +138,9 @@ class ChildTable extends React.Component {
       });
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'clearAndSet') {
       this.handleClearAndSetRows(
-        nextControl.value.rows.map(row => this.newRow(row, { isCreate: true, isQueryWorksheetFill: true })),
+        nextControl.value.rows.map(row =>
+          this.newRow(row, { isCreate: true, isDefaultValue: nextControl.value.isDefault, isQueryWorksheetFill: true }),
+        ),
       );
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'append') {
       addRows(nextControl.value.rows.map(this.newRow));
@@ -211,7 +214,8 @@ class ChildTable extends React.Component {
       controlssorts = JSON.parse(advancedSetting.controlssorts);
     } catch (err) {}
     let result = sortControlByIds(newControls || controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(
-      control => {
+      c => {
+        const control = { ...c };
         const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
         if (resetedControl) {
           control.required = resetedControl.required;
@@ -328,6 +332,7 @@ class ChildTable extends React.Component {
   getShowColumns() {
     const { control } = this.props;
     const { controls } = this.state;
+    const hiddenTypes = window.isPublicWorksheet ? [48] : [];
     return !controls.length
       ? [{}]
       : controls
@@ -335,7 +340,8 @@ class ChildTable extends React.Component {
             c =>
               _.find(control.showControls, scid => scid === c.controlId) &&
               controlState(c).visible &&
-              !isRelateRecordTableControl(c),
+              !isRelateRecordTableControl(c) &&
+              !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
           )
           .map(c => _.assign({}, c));
   }
@@ -375,7 +381,7 @@ class ChildTable extends React.Component {
   }
 
   rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
-    const { masterData, projectId, recordId, searchConfig } = this.props;
+    const { masterData, projectId, recordId, searchConfig, rules = [] } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
       this.handleUpdateCell(
         {
@@ -394,13 +400,20 @@ class ChildTable extends React.Component {
       );
     };
     const formdata = new DataFormat({
-      data: this.state.controls.map(c => ({
-        ...c,
-        isQueryWorksheetFill,
-        value: (row || {})[c.controlId] || (isCreate || !row ? c.value : undefined),
-      })),
+      data: this.state.controls.map(c => {
+        let controlValue = (row || {})[c.controlId];
+        if (_.isUndefined(controlValue) && (isCreate || !row)) {
+          controlValue = c.value;
+        }
+        return {
+          ...c,
+          isQueryWorksheetFill,
+          value: controlValue,
+        };
+      }),
       isCreate: isCreate || !row,
       from: FROM.NEWRECORD,
+      rules,
       searchConfig,
       projectId,
       masterData,
@@ -429,11 +442,15 @@ class ChildTable extends React.Component {
   }
 
   updateSheetRow(row) {
-    this.worksheettable.current.table.updateSheetRow({
-      ...row,
-      allowedit: true,
-      allowedelete: true,
-    });
+    if (isMobile) {
+      this.handleRowDetailSave(row);
+    } else {
+      this.worksheettable.current.table.updateSheetRow({
+        ...row,
+        allowedit: true,
+        allowedelete: true,
+      });
+    }
   }
 
   @autobind
@@ -465,7 +482,6 @@ class ChildTable extends React.Component {
     const { addRows, entityName } = this.props;
     const { controls } = this.state;
     const control = batchAddControls[0];
-    const isMobile = browserIsMobile();
     if (!control) {
       return;
     }
@@ -664,6 +680,7 @@ class ChildTable extends React.Component {
       rules,
       appId,
       searchConfig,
+      sheetSwitchPermit,
     } = this.props;
     const { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
     const {
@@ -684,7 +701,6 @@ class ChildTable extends React.Component {
     const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const controlPermission = controlState(control, from);
     const disabled = !controlPermission.editable || control.disabled;
-    const isMobile = browserIsMobile();
     const noColumns = !controls.length;
     const columns = this.getShowColumns();
     const disabledNew = tableRows.length === maxCount || noColumns || disabled || !allowadd;
@@ -730,6 +746,7 @@ class ChildTable extends React.Component {
               sheetColumnWidths={{ ...sheetColumnWidths, ...tempSheetColumnWidths }}
               updateEditingControls={this.updateEditingControls}
               rowHeadWidth={75}
+              sheetSwitchPermit={sheetSwitchPermit}
               masterFormData={() => this.props.masterData.formData}
               masterData={() => this.props.masterData}
               getRowsCache={() => this.rowsCache}
@@ -821,6 +838,7 @@ class ChildTable extends React.Component {
         )}
         {isMobile && !loading && (
           <MobileTable
+            sheetSwitchPermit={sheetSwitchPermit}
             allowcancel={allowcancel}
             allowadd={allowadd}
             disabled={disabled}
@@ -891,6 +909,7 @@ class ChildTable extends React.Component {
             projectId={projectId}
             appId={appId}
             searchConfig={searchConfig}
+            sheetSwitchPermit={sheetSwitchPermit}
             controlName={control.controlName}
             title={
               previewRowIndex > -1 ? `${control.controlName}#${previewRowIndex + 1}` : _l('创建%0', control.controlName)

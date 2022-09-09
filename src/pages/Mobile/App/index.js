@@ -105,7 +105,7 @@ class App extends Component {
     const { params } = this.props.match;
     const { appSectionId } = item;
     this.navigateTo(`/mobile/app/${params.appId}/${appSectionId}/${item.workSheetId}`);
-    localStorage.setItem('currentNavWorksheetId', item.workSheetId);
+    safeLocalStorageSetItem('currentNavWorksheetId', item.workSheetId);
   };
 
   renderList(data) {
@@ -324,13 +324,13 @@ class App extends Component {
     appSection = isAuthorityApp
       ? appSection
       : appSection
-          .map(item => {
-            return {
-              ...item,
-              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
-            };
-          })
-          .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
+        .map(item => {
+          return {
+            ...item,
+            workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+          };
+        })
+        .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
     const { isHideTabBar, hideSheetVisible } = this.state;
     const { params } = match;
     const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(
@@ -356,9 +356,9 @@ class App extends Component {
             ) : (
               <div className="appSectionCon flex">
                 {status === 5 ||
-                (detail.permissionType === ROLE_TYPES.MEMBER &&
-                  appSection.length <= 1 &&
-                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
+                  (detail.permissionType === ROLE_TYPES.MEMBER &&
+                    appSection.length <= 1 &&
+                    (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
                   // 应用无权限||成员身份 且 无任何数据
                   <AppPermissionsInfo appStatus={5} appId={params.appId} />
                 ) : appSection.length <= 1 &&
@@ -386,7 +386,7 @@ class App extends Component {
                             if (checked) {
                               localStorage.removeItem(`hideSheetVisible-${params.appId}`);
                             } else {
-                              localStorage.setItem(`hideSheetVisible-${params.appId}`, true);
+                              safeLocalStorageSetItem(`hideSheetVisible-${params.appId}`, true);
                             }
                           }}
                         />
@@ -404,20 +404,20 @@ class App extends Component {
             detail.appNaviStyle !== 2 &&
             !fixed) ||
             (fixed && isAuthorityApp)) && (
-            <Back
-              style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
-              className="low"
-              onClick={() => {
-                let currentGroupInfo =
-                  localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
-                if (_.isEmpty(currentGroupInfo)) {
-                  this.navigateTo('/mobile/appHome');
-                } else {
-                  history.back();
-                }
-              }}
-            />
-          )}
+              <Back
+                style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
+                className="low"
+                onClick={() => {
+                  let currentGroupInfo =
+                    localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+                  if (_.isEmpty(currentGroupInfo)) {
+                    this.navigateTo('/mobile/appHome');
+                  } else {
+                    history.back();
+                  }
+                }}
+              />
+            )}
           {!this.props.isQuitSuccess && this.renderModal()}
         </Fragment>
       );

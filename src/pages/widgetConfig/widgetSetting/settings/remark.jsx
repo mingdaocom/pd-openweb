@@ -37,7 +37,6 @@ export default function Remark({ data, onChange }) {
             onClickNull={e => {
               setShow(true);
             }}
-            // onActualSave={value => onChange({ dataSource: value })}
           />
         </Wrap>
         {show && (
@@ -60,6 +59,7 @@ export default function Remark({ data, onChange }) {
               description={data.dataSource}
               permissionType={100} //可编辑的权限
               isEditing={true}
+              cacheKey={'remarkDes'}
               changeSetting={setHasChange}
               onSave={value => {
                 onChange({ dataSource: !value ? (hasChange ? value : data.dataSource) : value });

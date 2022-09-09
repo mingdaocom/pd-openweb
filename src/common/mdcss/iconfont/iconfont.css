@@ -1,11 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.eot?t=1653026283959'); /* IE9 */
-  src: url('iconfont.eot?t=1653026283959#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('iconfont.woff2?t=1653026283959') format('woff2'),
-       url('iconfont.woff?t=1653026283959') format('woff'),
-       url('iconfont.ttf?t=1653026283959') format('truetype'),
-       url('iconfont.svg?t=1653026283959#MD_Icon') format('svg');
+  src: url('iconfont.woff2?t=1661937158988') format('woff2'),
+       url('iconfont.woff?t=1661937158988') format('woff'),
+       url('iconfont.ttf?t=1661937158988') format('truetype');
 }
 
 .MD_Icon {
@@ -14,6 +11,66 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-flow:before {
+  content: "\e658";
+}
+
+.icon-person_off_a:before {
+  content: "\e85d";
+}
+
+.icon-brand:before {
+  content: "\e692";
+}
+
+.icon-upload1:before {
+  content: "\e847";
+}
+
+.icon-switch_camera:before {
+  content: "\e62f";
+}
+
+.icon-arrow:before {
+  content: "\eaa7";
+}
+
+.icon-configure:before {
+  content: "\e8ed";
+}
+
+.icon-api:before {
+  content: "\e9d6";
+}
+
+.icon-connect:before {
+  content: "\e9df";
+}
+
+.icon-inquire:before {
+  content: "\eaa6";
+}
+
+.icon-dashboard:before {
+  content: "\e655";
+}
+
+.icon-external_users_01:before {
+  content: "\e656";
+}
+
+.icon-role:before {
+  content: "\e657";
+}
+
+.icon-view_eye:before {
+  content: "\e654";
+}
+
+.icon-recycle:before {
+  content: "\ecc4";
 }
 
 .icon-auto_awesome:before {
@@ -196,10 +253,6 @@
   content: "\eca9";
 }
 
-.icon-stats_table_chart:before {
-  content: "\ebed";
-}
-
 .icon-tune1:before {
   content: "\e625";
 }
@@ -270,10 +323,6 @@
 
 .icon-parameter:before {
   content: "\eca1";
-}
-
-.icon-save11:before {
-  content: "\eca0";
 }
 
 .icon-person_search:before {
@@ -484,10 +533,6 @@
   content: "\ec89";
 }
 
-.icon-equalizer1:before {
-  content: "\ec8a";
-}
-
 .icon-view_quilt:before {
   content: "\ec8b";
 }
@@ -572,10 +617,6 @@
   content: "\ebf5";
 }
 
-.icon-add_a_photo:before {
-  content: "\ebf6";
-}
-
 .icon-add_circle_outline:before {
   content: "\ebf8";
 }
@@ -610,10 +651,6 @@
 
 .icon-bookmark1:before {
   content: "\ec00";
-}
-
-.icon-backspace1:before {
-  content: "\ec01";
 }
 
 .icon-bookmark_outline:before {
@@ -736,10 +773,6 @@
   content: "\ec1f";
 }
 
-.icon-devices:before {
-  content: "\ec20";
-}
-
 .icon-error1:before {
   content: "\ec21";
 }
@@ -784,14 +817,6 @@
   content: "\ec2b";
 }
 
-.icon-folder1:before {
-  content: "\ec2c";
-}
-
-.icon-folder_special:before {
-  content: "\ec2d";
-}
-
 .icon-fullscreen_exit:before {
   content: "\ec2e";
 }
@@ -824,10 +849,6 @@
   content: "\ec35";
 }
 
-.icon-help_outline1:before {
-  content: "\ec36";
-}
-
 .icon-info1:before {
   content: "\ec37";
 }
@@ -852,16 +873,8 @@
   content: "\ec3c";
 }
 
-.icon-insert_photo:before {
-  content: "\ec3d";
-}
-
 .icon-launch:before {
   content: "\ec3e";
-}
-
-.icon-label_outline:before {
-  content: "\ec3f";
 }
 
 .icon-keyboard:before {
@@ -908,7 +921,7 @@
   content: "\ec4a";
 }
 
-.icon-more_horiz1:before {
+.icon-more_horiz:before {
   content: "\ec4b";
 }
 
@@ -1044,7 +1057,7 @@
   content: "\ec6d";
 }
 
-.icon-group1:before {
+.icon-group:before {
   content: "\ec6e";
 }
 
@@ -1204,10 +1217,6 @@
   content: "\e9ab";
 }
 
-.icon-task-anchor-taskname:before {
-  content: "\eaab";
-}
-
 .icon-workflow_write:before {
   content: "\ebab";
 }
@@ -1252,10 +1261,6 @@
   content: "\e9ae";
 }
 
-.icon-task-collapse-all:before {
-  content: "\eaae";
-}
-
 .icon-to1:before {
   content: "\ebae";
 }
@@ -1266,10 +1271,6 @@
 
 .icon-navigate_next:before {
   content: "\e9af";
-}
-
-.icon-tryadvanced:before {
-  content: "\ebaf";
 }
 
 .icon-delete:before {
@@ -1294,10 +1295,6 @@
 
 .icon-mytasktoday:before {
   content: "\e9b1";
-}
-
-.icon-task-collapse:before {
-  content: "\eab1";
 }
 
 .icon-screen_4:before {
@@ -1326,10 +1323,6 @@
 
 .icon-location:before {
   content: "\e9b3";
-}
-
-.icon-task-allComplete:before {
-  content: "\eab3";
 }
 
 .icon-workflow_other:before {
@@ -1440,10 +1433,6 @@
   content: "\eaba";
 }
 
-.icon-task-hide-alreadcomplete:before {
-  content: "\ebba";
-}
-
 .icon-done_2:before {
   content: "\e8bb";
 }
@@ -1534,10 +1523,6 @@
 
 .icon-task-status-extended:before {
   content: "\eac0";
-}
-
-.icon-topbar_workflow:before {
-  content: "\ebc0";
 }
 
 .icon-download:before {
@@ -1634,10 +1619,6 @@
 
 .icon-drag_content_config2:before {
   content: "\e8c7";
-}
-
-.icon-more_horiz:before {
-  content: "\e9c7";
 }
 
 .icon-personalDataCommunication:before {
@@ -1740,10 +1721,6 @@
   content: "\eacd";
 }
 
-.icon-totask:before {
-  content: "\ebcd";
-}
-
 .icon-drop_down_menu:before {
   content: "\e8ce";
 }
@@ -1766,10 +1743,6 @@
 
 .icon-Objects:before {
   content: "\e9cf";
-}
-
-.icon-task-tree:before {
-  content: "\eacf";
 }
 
 .icon-worksheet_polyline:before {
@@ -1820,10 +1793,6 @@
   content: "\ead2";
 }
 
-.icon-task-lightning:before {
-  content: "\ebd2";
-}
-
 .icon-draft-box:before {
   content: "\e8d3";
 }
@@ -1868,10 +1837,6 @@
   content: "\ebd5";
 }
 
-.icon-organizational_structure:before {
-  content: "\e9d6";
-}
-
 .icon-text_map:before {
   content: "\ead6";
 }
@@ -1886,10 +1851,6 @@
 
 .icon-network-circle:before {
   content: "\e9d7";
-}
-
-.icon-taskNullFilter:before {
-  content: "\ead7";
 }
 
 .icon-worksheet_transverse:before {
@@ -1932,10 +1893,6 @@
   content: "\e9da";
 }
 
-.icon-taskQuickCreate:before {
-  content: "\eada";
-}
-
 .icon-project_hr:before {
   content: "\ebda";
 }
@@ -1946,10 +1903,6 @@
 
 .icon-outil_capture:before {
   content: "\e9db";
-}
-
-.icon-taskNullSearch:before {
-  content: "\eadb";
 }
 
 .icon-sp_local_gas_station_white:before {
@@ -2006,10 +1959,6 @@
 
 .icon-Empty:before {
   content: "\e8df";
-}
-
-.icon-recycle:before {
-  content: "\e9df";
 }
 
 .icon-to-chat-circle:before {
@@ -2078,10 +2027,6 @@
 
 .icon-task_custom_polymer:before {
   content: "\eae3";
-}
-
-.icon-xls:before {
-  content: "\ebe3";
 }
 
 .icon-empty_member:before {
@@ -2180,10 +2125,6 @@
   content: "\e9ea";
 }
 
-.icon-task-funnel:before {
-  content: "\eaea";
-}
-
 .icon-error:before {
   content: "\e8eb";
 }
@@ -2206,10 +2147,6 @@
 
 .icon-task_custom_looks_6:before {
   content: "\eaec";
-}
-
-.icon-equalizer:before {
-  content: "\e8ed";
 }
 
 .icon-newwaytowork:before {
@@ -2456,10 +2393,6 @@
   content: "\e9ff";
 }
 
-.icon-task-folder:before {
-  content: "\eaff";
-}
-
 .icon-add-files:before {
   content: "\e800";
 }
@@ -2486,10 +2419,6 @@
 
 .icon-profile:before {
   content: "\ea01";
-}
-
-.icon-task-fullscreen:before {
-  content: "\eb01";
 }
 
 .icon-add-member22:before {
@@ -2556,20 +2485,12 @@
   content: "\eb05";
 }
 
-.icon-add-task-calander:before {
-  content: "\e806";
-}
-
 .icon-follow:before {
   content: "\e906";
 }
 
 .icon-sp_headset_mic_white:before {
   content: "\ea06";
-}
-
-.icon-task-foldernew:before {
-  content: "\eb06";
 }
 
 .icon-addmamagehandle:before {
@@ -2604,10 +2525,6 @@
   content: "\eb08";
 }
 
-.icon-add-member:before {
-  content: "\e809";
-}
-
 .icon-food:before {
   content: "\e909";
 }
@@ -2618,10 +2535,6 @@
 
 .icon-screen_8:before {
   content: "\eb09";
-}
-
-.icon-addtask:before {
-  content: "\e80a";
 }
 
 .icon-folder-private:before {
@@ -2652,10 +2565,6 @@
   content: "\eb0b";
 }
 
-.icon-addqa:before {
-  content: "\e80c";
-}
-
 .icon-folder:before {
   content: "\e90c";
 }
@@ -2678,10 +2587,6 @@
 
 .icon-project-add:before {
   content: "\ea0d";
-}
-
-.icon-task-title:before {
-  content: "\eb0d";
 }
 
 .icon-admin-flag:before {
@@ -2710,10 +2615,6 @@
 
 .icon-project_trending_up:before {
   content: "\ea0f";
-}
-
-.icon-task-sum:before {
-  content: "\eb0f";
 }
 
 .icon-all-network:before {
@@ -2820,14 +2721,6 @@
   content: "\e916";
 }
 
-.icon-project-circle:before {
-  content: "\ea16";
-}
-
-.icon-task-model-four:before {
-  content: "\eb16";
-}
-
 .icon-admin-tool:before {
   content: "\e817";
 }
@@ -2846,10 +2739,6 @@
 
 .icon-addto-folder:before {
   content: "\e818";
-}
-
-.icon-gift:before {
-  content: "\e918";
 }
 
 .icon-project-management:before {
@@ -2892,10 +2781,6 @@
   content: "\eb1a";
 }
 
-.icon-apple-1:before {
-  content: "\e81b";
-}
-
 .icon-group-members:before {
   content: "\e91b";
 }
@@ -2922,10 +2807,6 @@
 
 .icon-sp_newspaper_white:before {
   content: "\eb1c";
-}
-
-.icon-android2:before {
-  content: "\e81d";
 }
 
 .icon-group-announcement:before {
@@ -2996,10 +2877,6 @@
   content: "\eb21";
 }
 
-.icon-animal:before {
-  content: "\e822";
-}
-
 .icon-h5_reply:before {
   content: "\e922";
 }
@@ -3016,10 +2893,6 @@
   content: "\e823";
 }
 
-.icon-group:before {
-  content: "\e923";
-}
-
 .icon-limit-visitors:before {
   content: "\ea23";
 }
@@ -3034,10 +2907,6 @@
 
 .icon-h5_search:before {
   content: "\e924";
-}
-
-.icon-sms:before {
-  content: "\ea24";
 }
 
 .icon-task_custom_phone_android1:before {
@@ -3176,10 +3045,6 @@
   content: "\e82d";
 }
 
-.icon-hiddenDynamics:before {
-  content: "\e92d";
-}
-
 .icon-sp_class_white:before {
   content: "\ea2d";
 }
@@ -3240,10 +3105,6 @@
   content: "\e831";
 }
 
-.icon-historyRecord:before {
-  content: "\e931";
-}
-
 .icon-sp_compact2_white:before {
   content: "\ea31";
 }
@@ -3252,20 +3113,8 @@
   content: "\eb31";
 }
 
-.icon-appmarket:before {
-  content: "\e832";
-}
-
-.icon-home-post:before {
-  content: "\e932";
-}
-
 .icon-sp_pin_drop_white:before {
   content: "\ea32";
-}
-
-.icon-widget_hr_empty:before {
-  content: "\eb32";
 }
 
 .icon-back-02:before {
@@ -3278,10 +3127,6 @@
 
 .icon-smilingFace:before {
   content: "\ea33";
-}
-
-.icon-salary:before {
-  content: "\eb33";
 }
 
 .icon-arrow-down-border:before {
@@ -3298,14 +3143,6 @@
 
 .icon-widget_examine_empty:before {
   content: "\eb34";
-}
-
-.icon-back_to_the_top:before {
-  content: "\e835";
-}
-
-.icon-home-admin:before {
-  content: "\e935";
 }
 
 .icon-sp_pregnant_woman_white:before {
@@ -3368,10 +3205,6 @@
   content: "\e839";
 }
 
-.icon-home-collect:before {
-  content: "\e939";
-}
-
 .icon-sp_restaurant_menu_white:before {
   content: "\ea39";
 }
@@ -3382,10 +3215,6 @@
 
 .icon-advanced:before {
   content: "\e83a";
-}
-
-.icon-home:before {
-  content: "\e93a";
 }
 
 .icon-sp_shopping_cart_white:before {
@@ -3504,10 +3333,6 @@
   content: "\ea41";
 }
 
-.icon-uploadpic:before {
-  content: "\eb41";
-}
-
 .icon-bear:before {
   content: "\e842";
 }
@@ -3526,10 +3351,6 @@
 
 .icon-book:before {
   content: "\e843";
-}
-
-.icon-hr_department:before {
-  content: "\e943";
 }
 
 .icon-task_custom_amount_money_capital:before {
@@ -3588,10 +3409,6 @@
   content: "\eb46";
 }
 
-.icon-beta:before {
-  content: "\e847";
-}
-
 .icon-hr_message_reminder:before {
   content: "\e947";
 }
@@ -3630,10 +3447,6 @@
 
 .icon-task_custom_btn_unfold:before {
   content: "\ea49";
-}
-
-.icon-widget_task_empty:before {
-  content: "\eb49";
 }
 
 .icon-bug:before {
@@ -3696,10 +3509,6 @@
   content: "\ea4d";
 }
 
-.icon-view-rotate:before {
-  content: "\eb4d";
-}
-
 .icon-calendar-check:before {
   content: "\e84e";
 }
@@ -3710,10 +3519,6 @@
 
 .icon-task_custom_date_range:before {
   content: "\ea4e";
-}
-
-.icon-task_add-022:before {
-  content: "\eb4e";
 }
 
 .icon-cake:before {
@@ -3742,10 +3547,6 @@
 
 .icon-task_set_administrator:before {
   content: "\ea50";
-}
-
-.icon-task-border-add:before {
-  content: "\eb50";
 }
 
 .icon-calendar-nocheck:before {
@@ -3856,10 +3657,6 @@
   content: "\ea57";
 }
 
-.icon-task-tree-subCount:before {
-  content: "\eb57";
-}
-
 .icon-calendar:before {
   content: "\e858";
 }
@@ -3940,10 +3737,6 @@
   content: "\eb5c";
 }
 
-.icon-cannotView:before {
-  content: "\e85d";
-}
-
 .icon-ic_textsms_black:before {
   content: "\e95d";
 }
@@ -3978,14 +3771,6 @@
 
 .icon-start_time:before {
   content: "\ea5f";
-}
-
-.icon-task-tree-createSubTask:before {
-  content: "\eb5f";
-}
-
-.icon-bestanswer:before {
-  content: "\e860";
 }
 
 .icon-ic_refresh_black:before {
@@ -4024,10 +3809,6 @@
   content: "\e962";
 }
 
-.icon-task-enternew:before {
-  content: "\ea62";
-}
-
 .icon-task_custom_form1:before {
   content: "\eb62";
 }
@@ -4038,10 +3819,6 @@
 
 .icon-ic-head:before {
   content: "\e963";
-}
-
-.icon-task-create-time:before {
-  content: "\ea63";
 }
 
 .icon-workflow_new:before {
@@ -4104,14 +3881,6 @@
   content: "\e967";
 }
 
-.icon-task-exit:before {
-  content: "\ea67";
-}
-
-.icon-user_department:before {
-  content: "\eb67";
-}
-
 .icon-calendar-abstract:before {
   content: "\e868";
 }
@@ -4128,16 +3897,8 @@
   content: "\eb68";
 }
 
-.icon-chat-medal:before {
-  content: "\e869";
-}
-
 .icon-in:before {
   content: "\e969";
-}
-
-.icon-task-expansion-all:before {
-  content: "\ea69";
 }
 
 .icon-workflow_ea:before {
@@ -4182,10 +3943,6 @@
 
 .icon-ic-statistics:before {
   content: "\e96c";
-}
-
-.icon-task-expansion:before {
-  content: "\ea6c";
 }
 
 .icon-task-star2:before {
@@ -4292,10 +4049,6 @@
   content: "\e873";
 }
 
-.icon-inbox-task:before {
-  content: "\e973";
-}
-
 .icon-send_8:before {
   content: "\ea73";
 }
@@ -4358,14 +4111,6 @@
 
 .icon-inbox-sysmessage:before {
   content: "\e977";
-}
-
-.icon-secretary:before {
-  content: "\ea77";
-}
-
-.icon-Smileys:before {
-  content: "\eb77";
 }
 
 .icon-clear_1:before {
@@ -4434,10 +4179,6 @@
 
 .icon-clean_all:before {
   content: "\e87c";
-}
-
-.icon-invite-calander:before {
-  content: "\e97c";
 }
 
 .icon-post-circle-o:before {
@@ -4556,14 +4297,6 @@
   content: "\eb83";
 }
 
-.icon-completetask:before {
-  content: "\e884";
-}
-
-.icon-invite-network:before {
-  content: "\e984";
-}
-
 .icon-post-circle:before {
   content: "\ea84";
 }
@@ -4644,20 +4377,8 @@
   content: "\e989";
 }
 
-.icon-task-new-fullscreen1:before {
-  content: "\ea89";
-}
-
 .icon-worksheet_fall:before {
   content: "\eb89";
-}
-
-.icon-calendar-message-clock:before {
-  content: "\e88a";
-}
-
-.icon-kc-new:before {
-  content: "\e98a";
 }
 
 .icon-task-new-exit:before {
@@ -4688,32 +4409,12 @@
   content: "\e88c";
 }
 
-.icon-join:before {
-  content: "\e98c";
-}
-
-.icon-task-project:before {
-  content: "\ea8c";
-}
-
-.icon-task-later2:before {
-  content: "\eb8c";
-}
-
 .icon-chat_retract:before {
   content: "\e88d";
 }
 
-.icon-kc:before {
-  content: "\e98d";
-}
-
 .icon-task-responsible:before {
   content: "\ea8d";
-}
-
-.icon-turnRight:before {
-  content: "\eb8d";
 }
 
 .icon-credit-card:before {
@@ -4728,20 +4429,12 @@
   content: "\ea8e";
 }
 
-.icon-worksheet_from:before {
-  content: "\eb8e";
-}
-
 .icon-custom_-page_delete:before {
   content: "\e88f";
 }
 
 .icon-kc-view:before {
   content: "\e98f";
-}
-
-.icon-task-null-folder:before {
-  content: "\ea8f";
 }
 
 .icon-worksheet_filter:before {
@@ -4768,20 +4461,12 @@
   content: "\e991";
 }
 
-.icon-task-show-list:before {
-  content: "\ea91";
-}
-
 .icon-task-label:before {
   content: "\eb91";
 }
 
 .icon-calendar-annex:before {
   content: "\e892";
-}
-
-.icon-keyoutline:before {
-  content: "\e992";
 }
 
 .icon-task-select-other:before {
@@ -4832,10 +4517,6 @@
   content: "\e995";
 }
 
-.icon-task-stage2:before {
-  content: "\ea95";
-}
-
 .icon-task-soon:before {
   content: "\eb95";
 }
@@ -4846,10 +4527,6 @@
 
 .icon-knowledge-log:before {
   content: "\e996";
-}
-
-.icon-task-show-stage:before {
-  content: "\ea96";
 }
 
 .icon-workflow_under_review:before {
@@ -4868,24 +4545,12 @@
   content: "\ea97";
 }
 
-.icon-task-print:before {
-  content: "\eb97";
-}
-
 .icon-custom_add_circle:before {
   content: "\e898";
 }
 
 .icon-knowledge-upload:before {
   content: "\e998";
-}
-
-.icon-task-star-circle:before {
-  content: "\ea98";
-}
-
-.icon-task-soon2:before {
-  content: "\eb98";
 }
 
 .icon-chat-vip:before {
@@ -4896,28 +4561,12 @@
   content: "\e999";
 }
 
-.icon-mapping:before {
-  content: "\ea99";
-}
-
-.icon-workflow_hide1:before {
-  content: "\eb99";
-}
-
 .icon-custom_featured_play_list:before {
   content: "\e89a";
 }
 
-.icon-knowledge-circle:before {
-  content: "\e99a";
-}
-
 .icon-maximizing_a2:before {
   content: "\ea9a";
-}
-
-.icon-user_company:before {
-  content: "\eb9a";
 }
 
 .icon-custom_chrome_reader_mode:before {
@@ -4948,20 +4597,12 @@
   content: "\ea9c";
 }
 
-.icon-to-qq-circle:before {
-  content: "\eb9c";
-}
-
 .icon-custom_grid_on:before {
   content: "\e89d";
 }
 
 .icon-knowledge-open:before {
   content: "\e99d";
-}
-
-.icon-project2:before {
-  content: "\ea9d";
 }
 
 .icon-task-new-copy:before {
@@ -5000,16 +4641,8 @@
   content: "\eb9f";
 }
 
-.icon-create_enterprise:before {
-  content: "\e8a0";
-}
-
 .icon-knowledge1:before {
   content: "\e9a0";
-}
-
-.icon-project-success:before {
-  content: "\eaa0";
 }
 
 .icon-workflow_notice:before {
@@ -5024,20 +4657,8 @@
   content: "\e9a1";
 }
 
-.icon-school-bag:before {
-  content: "\eaa1";
-}
-
-.icon-video:before {
-  content: "\eba1";
-}
-
 .icon-cancel:before {
   content: "\e8a2";
-}
-
-.icon-lib-arrow-right:before {
-  content: "\e9a2";
 }
 
 .icon-qr_code_19:before {
@@ -5054,10 +4675,6 @@
 
 .icon-limit-othermember:before {
   content: "\e9a3";
-}
-
-.icon-qa:before {
-  content: "\eaa3";
 }
 
 .icon-workflow_update:before {
@@ -5104,10 +4721,6 @@
   content: "\e9a6";
 }
 
-.icon-scope:before {
-  content: "\eaa6";
-}
-
 .icon-task_add-02:before {
   content: "\eba6";
 }
@@ -5118,13 +4731,5 @@
 
 .icon-minus:before {
   content: "\e9a7";
-}
-
-.icon-score-down2:before {
-  content: "\eaa7";
-}
-
-.icon-vote:before {
-  content: "\eba7";
 }
 

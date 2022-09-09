@@ -269,7 +269,7 @@ class External extends Component {
                         onClick={() => {
                           this.props.getEventScheduledData(it.key);
                           $('.eventListBox .nano-content').scrollTop(0);
-                          window.localStorage.setItem('CalendarShowExternalTypeEvent', it.key);
+                          safeLocalStorageSetItem('CalendarShowExternalTypeEvent', it.key);
                         }}
                       >
                         {it.txt}

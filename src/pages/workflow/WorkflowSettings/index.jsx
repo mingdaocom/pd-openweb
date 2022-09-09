@@ -80,7 +80,7 @@ class WorkflowSettings extends Component {
           </div>
           <div className="flowEmptyWrap flex">
             <div className="flowEmptyPic flowEmptyPic-lock" />
-            <div className="Gray_9e Font14 mTop20">{_l('您无权访问此工作流')}</div>
+            <div className="Gray_9e Font14 mTop20">{_l('您无权访问或已删除')}</div>
           </div>
         </div>
       );

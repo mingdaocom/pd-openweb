@@ -231,3 +231,19 @@ export const getCalendartypeData = () => {
   }
   return CalendartypeData;
 };
+
+export const isIllegal = item => {
+  return ['5', '4'].includes(_.get(item, ['advancedSetting', 'showtype']));
+};
+
+export const isIllegalFormat = (calendarInfo = []) => {
+  let isErr = false;
+  calendarInfo.map(o => {
+    [o.endData, o.startData].map(item => {
+      if (isIllegal(item)) {
+        isErr = true;
+      }
+    });
+  });
+  return isErr;
+};

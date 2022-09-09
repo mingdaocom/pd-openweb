@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect } from 'react';
-import { Checkbox, Switch as SwitchComponent, RadioGroup } from 'ming-ui';
+import React, { useEffect } from 'react';
+import { Checkbox, Switch as SwitchComponent, RadioGroup, Tooltip } from 'ming-ui';
 import { getAdvanceSetting, getSwitchItemNames } from '../../util';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
@@ -18,6 +18,13 @@ const Con = styled.div`
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+  .Checkbox {
+    display: flex;
+    white-space: normal !important;
+    .Checkbox-box {
+      flex-shrink: 0;
     }
   }
 `;
@@ -58,5 +65,9 @@ export default function Switch({ data }) {
     );
   }
 
-  return <Checkbox checked={isChecked} />;
+  return (
+    <Con>
+      <Checkbox checked={isChecked}>{data.hint || ''}</Checkbox>
+    </Con>
+  );
 }

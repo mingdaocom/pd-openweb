@@ -61,8 +61,9 @@ export default class UserDetail extends React.Component {
     API.fetchUserDetail(accountId).then(
       data => {
         if (data) {
+          data.userCards = (_.get(data, 'userCards') || []).filter(item => item.companyName);
           const { userCards } = data;
-          const hasProjects = userCards && userCards.length;
+          const hasProjects = userCards.length;
           this.setState({
             ...defaultState,
             // assign default state

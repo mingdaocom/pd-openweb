@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 var isBetween = require('dayjs/plugin/isBetween');
+var customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
 import _ from 'lodash';
 import { calcDate } from 'worksheet/util-purejs';
@@ -11,6 +13,13 @@ function newDate(dateStr) {
 
 function isDateStr(str) {
   return newDate(str).toString() !== 'Invalid Date';
+}
+function checkIsTime(str) {
+  return /^\w\w:\w\w:\w\w$/.test(str);
+}
+
+function completeTime(str) {
+  return checkIsTime(str) ? dayjs(str, 'HH:mm:ss').format() : str;
 }
 
 function endTimeIsBeforeStartTime(start, end) {
@@ -72,12 +81,12 @@ export const functions = {
   },
   // 返回分钟数
   MINUTE: function (dateStr) {
-    const minute = newDate(dateStr).getMinutes();
+    const minute = newDate(completeTime(dateStr)).getMinutes();
     return _.isNumber(minute) && !_.isNaN(minute) ? minute : undefined;
   },
   // 返回小时数
   HOUR: function (dateStr) {
-    const hour = newDate(dateStr).getHours();
+    const hour = newDate(completeTime(dateStr)).getHours();
     return _.isNumber(hour) && !_.isNaN(hour) ? hour : undefined;
   },
   // 返回星期数
@@ -107,11 +116,20 @@ export const functions = {
   },
   // 为日期加减时间
   DATEADD: function (date, expression, format = 1) {
+    expression = expression.replace(/\+\(undefined\)/g, '');
+    expression = expression.replace(/\w\w:\w\w:\w\w/g, timeStr => {
+      const [h, m, s] = dayjs(timeStr, 'HH:mm:ss').format('HH:mm:ss').split(':').map(Number);
+      return `${h}h+${m}m+${s}s`;
+    });
+    const isTime = checkIsTime(date);
+    date = completeTime(date);
     const { result } = calcDate(date, expression);
-    return result && result.format(format === 1 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+    return result && result.format(isTime ? 'HH:mm:ss' : format === 1 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
   },
   // 两个日期间的时长
   DATEIF: function (begin, end, type = 1, unit = 'd') {
+    begin = completeTime(begin);
+    end = completeTime(end);
     if (!isDateStr(begin)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
@@ -555,7 +573,7 @@ const functionDetailsMap = {
     name: _l('返回分钟数'),
     type: 'date',
     title: _l('返回时间中的分钟数，返回值范围在 0 - 59 之间'),
-    des: _l(`<bb>MINUTE(日期时间)</bb><br/>
+    des: _l(`<bb>MINUTE(日期时间/时间)</bb><br/>
         <b>示例：=MINUTE('2021-5-1 11:59') ，结果：59</b><br/>
         返回 2021-5-1 11:59 的分钟数
         `),
@@ -564,7 +582,7 @@ const functionDetailsMap = {
     name: _l('返回小时数'),
     type: 'date',
     title: _l('返回时间中的小时数，返回值范围在 0 - 23 之间'),
-    des: _l(`<bb>HOUR(日期时间)</bb><br/>
+    des: _l(`<bb>HOUR(日期时间/时间)</bb><br/>
         <b>示例：=HOUR('2021-5-1 11:59') ，结果：11</b><br/>
         返回 2021-5-1 11:59 的小时数`),
   },
@@ -604,18 +622,18 @@ const functionDetailsMap = {
   DATEADD: {
     name: _l('为日期加减时间'),
     type: 'date',
-    title: _l('对某个日期（时间）添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间'),
+    title: _l('对某个日期添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间'),
     des: _l(`<bb>DATEADD(初始日期,计算式,[输出格式])</bb></br>
-        <li>计算式：'+'或'-'代表添加或减去；时间段的单位，'Y'代表年、'M'代表月、'd'代表天、'h'代表小时、'm'代表分钟</li>
+        <li>计算式：'+'或'-'代表添加或减去；时间段的单位，'Y'代表年、'M'代表月、'd'代表天、'h'代表小时、'm'代表分钟；也可以添加或减去一个时间字段</li>
         <li>[输出格式]：1代表日期格式，2代表日期时间格式；如果不指定这个参数，则默认是类型1</li>
         <b>示例：=DATEADD('2008-11-11 12:23','+8h',2) ，结果：2008-11-11 20:23</b></br>
         求 2008-11-11 12:23 8小时后的时间点，结果保持日期时间格式`),
   },
   DATEIF: {
-    name: _l('两个日期间的时长'),
+    name: _l('时长'),
     type: 'date',
-    title: _l('计算两个日期间的时长，并精确到年、月、天、小时或分'),
-    des: _l(`<bb>DATEIF(开始日期,结束日期,格式化方式,[输出单位])</bb></br>
+    title: _l('计算两个日期/时间之间的时长，并精确到年、月、天、小时或分'),
+    des: _l(`<bb>DATEIF(开始,结束,格式化方式,[输出单位])</bb></br>
         <li>格式化方式：1-开始日期00:00结束日期00:00，2-开始日期00:00结束日期24:00</li>
         <li>输出单位：'Y'-年；'M'-月；'d'-天；'h'-小时；'m'-分钟；如果不指定这个参数，则默认为'd'</li>
         <b>示例：=DATEIF('2021-3-8','2021-3-14',2,'d') ，结果：7天</b></br>
@@ -1147,11 +1165,13 @@ export function checkTypeSupportForFunction(control) {
       WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机 4
       WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期 15
       WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期 16
+      WIDGETS_TO_API_TYPE_ENUM.TIME, // 时间 46
       WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选 9
       WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选 10
       WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉 11
       WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员 26
       WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门 27
+      WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色 48
       WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 省 19
       WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
       WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24

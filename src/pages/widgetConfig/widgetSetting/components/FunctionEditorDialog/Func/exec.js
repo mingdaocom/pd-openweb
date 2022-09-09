@@ -4,6 +4,49 @@ import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
 
+function replaceControlIdToValue(expression, formData, inString) {
+  expression = expression.replace(/\$(.+?)\$/g, matched => {
+    const controlId = matched.match(/\$(.+?)\$/)[1];
+    const control = _.find(formData, obj => obj.controlId === controlId);
+    if (!control) {
+      return;
+    }
+    let value = formatControlValue(control);
+    if (typeof value === 'string' && !inString) {
+      value = `'${value.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'`;
+    } else if (typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
+    return typeof value === 'string' ? value : `(${value})`;
+  });
+  return expression;
+}
+
+function formatFunctionResult(controlType, value) {
+  let result = value;
+  switch (controlType) {
+    case WIDGETS_TO_API_TYPE_ENUM.TEXT:
+      result = _.isUndefined(result) ? '' : result;
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
+      result = String(result).toLowerCase() === 'true' ? 1 : 0;
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
+    case WIDGETS_TO_API_TYPE_ENUM.MONEY:
+      try {
+        result = result.match(/[\d\.]+/)[0];
+      } catch (err) {}
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.DATE:
+      result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD') : undefined;
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
+      result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD HH:mm:ss') : undefined;
+      break;
+  }
+  return result;
+}
+
 export default function (control, formData, { update, type } = {}) {
   const run = functions;
   let expressionData = {};
@@ -15,7 +58,7 @@ export default function (control, formData, { update, type } = {}) {
   if (!expression) {
     throw new Error('expression is undefined');
   }
-  let existDeletedControl, controlIsUndefined, existUndefinedFunction;
+  let existDeletedControl, existUndefinedFunction;
   expression = expression.replace(/([A-Z]+)(?=\()/g, name => {
     if (run[name]) {
       return 'run.' + name;
@@ -31,22 +74,19 @@ export default function (control, formData, { update, type } = {}) {
       expression,
     };
   }
-  expression = expression.replace(/\$(.+?)\$/g, matched => {
-    const controlId = matched.match(/\$(.+?)\$/)[1];
-    const control = _.find(formData, obj => obj.controlId === controlId);
-    if (!control) {
-      existDeletedControl = true;
-      return;
-    }
-    let value = formatControlValue(control);
-    if (typeof value === 'string') {
-      value = `'${value.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'`;
-    } else if (typeof value === 'object') {
-      value = JSON.stringify(value);
-    }
-    return `(${value})`;
-  });
-  if (existDeletedControl || controlIsUndefined) {
+  // TODO 作用不明 先注释
+  // let matched;
+  // const re = /['"][^'"]+['"]/g;
+  // while ((matched = re.exec(expression)) !== null) {
+  //   const matchStart = matched.index;
+  //   const matchEnd = matched.index + matched[0].length;
+  //   expression =
+  //     expression.slice(0, matchStart) +
+  //     replaceControlIdToValue(expression.slice(matchStart, matchEnd), formData, true) +
+  //     expression.slice(matchEnd);
+  // }
+  expression = replaceControlIdToValue(expression, formData);
+  if (!expression || existDeletedControl) {
     return {
       error: 'EXIST_UNDEFINED_CONTROL_OR_VALUE',
       expression,
@@ -55,7 +95,7 @@ export default function (control, formData, { update, type } = {}) {
   return (function () {
     try {
       let result;
-      const is_iOS = /iphone.*safari/.test(navigator.userAgent.toLowerCase());
+      const is_iOS = /iphone/.test(navigator.userAgent.toLowerCase());
       if (is_iOS && fnType === 'javascript') {
         // iOS15以下不支持web worker，改为直接运行
         result = eval('function run() { ' + expression + ' } run()');
@@ -72,7 +112,11 @@ export default function (control, formData, { update, type } = {}) {
             expression,
             (err, value) => {
               if (!err) {
-                update(_.isUndefined(value) || _.isNaN(value) || _.isNull(value) ? '' : String(value));
+                update(
+                  _.isUndefined(value) || _.isNaN(value) || _.isNull(value)
+                    ? ''
+                    : String(formatFunctionResult(control.type, value)),
+                );
               } else {
                 console.log(err);
               }
@@ -83,26 +127,7 @@ export default function (control, formData, { update, type } = {}) {
           result = eval(expression);
         }
       }
-      switch (control.type) {
-        case WIDGETS_TO_API_TYPE_ENUM.TEXT:
-          result = _.isUndefined(result) ? '' : result;
-          break;
-        case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
-          result = String(result).toLowerCase() === 'true' ? 1 : 0;
-          break;
-        case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
-        case WIDGETS_TO_API_TYPE_ENUM.MONEY:
-          try {
-            result = result.match(/[\d\.]+/)[0];
-          } catch (err) {}
-          break;
-        case WIDGETS_TO_API_TYPE_ENUM.DATE:
-          result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD') : undefined;
-          break;
-        case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-          result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD HH:mm:ss') : undefined;
-          break;
-      }
+      result = formatFunctionResult(control.type, result);
       if (_.isNaN(result)) {
         result = undefined;
       }

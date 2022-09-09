@@ -71,7 +71,7 @@ const FilterTextWrap = styled.div`
 export default class FilterItemTexts extends React.Component {
   render() {
     let { data, allControls, controls, editFn, loading = true, globalSheetControls = [] } = this.props;
-    const filters = getAdvanceSetting(data, 'filters');
+    const filters = this.props.filters || getAdvanceSetting(data, 'filters');
     if (isEmpty(filters)) return null;
     const { sourceControlId } = data;
     const filterItemTexts = filterData(

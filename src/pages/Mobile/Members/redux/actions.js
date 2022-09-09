@@ -12,7 +12,7 @@ export const getMembers = (
     // 申请状况
     ajaxRequest.getAppApplyInfo({ appId }).then(),
     // 获取成员是否可角色见列表状态
-    window.isPublicApp ? undefined : ajaxRequest.getMemberStatus({ appId }).then(),
+    window.isPublicApp ? undefined : ajaxRequest.getAppRoleSetting({ appId }).then(),
   ]).then(
     result => {
       const [detail, list, applyList, rolesVisibleConfig] = result;
@@ -42,7 +42,7 @@ export const getMembers = (
           detail,
           listData,
           applyList,
-          rolesVisibleConfig,
+          rolesVisibleConfig: rolesVisibleConfig.appSettingsEnum,
         },
       });
       dispatch({ type: 'MOBILE_FETCH_MEMBER_SUCCESS' });

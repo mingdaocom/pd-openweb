@@ -4,28 +4,25 @@ import { Icon, LoadDiv, Support } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { showEditFn, getRulesAll, deleteRules, saveFn } from '../actions/action';
 import { Prompt } from 'react-router';
-import { getProjectLicenseSupportInfo } from 'src/api/project';
 import './index.less';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
+import UpgradeVersion from '../../components/UpgradeVersion';
 import cx from 'classnames';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
 let rulesType = ['hiddeRules', 'refuseExternalDepRules', 'refuseUserRules'];
+const FEATURE_ID = 6;
+
 class ContactsHidden extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      licenseType: null,
-      loadingProject: true,
-      isFree: false,
-    };
+    this.state = {};
   }
 
   componentDidMount() {
     const { projectId, dispatch } = this.props;
 
     dispatch(getRulesAll(projectId));
-    this.expireDialogFn();
   }
 
   renderList = (/* type*/) => {
@@ -43,7 +40,7 @@ class ContactsHidden extends React.Component {
                   {user.targetType === 20 ? (
                     <React.Fragment>
                       <span className="depIcon">
-                        <Icon className="department Hand" icon="topbar_workflow" />
+                        <Icon className="department Hand" icon="department" />
                       </span>
                       <span className="fullname">{user.targetName}</span>
                     </React.Fragment>
@@ -111,18 +108,7 @@ class ContactsHidden extends React.Component {
         <span
           className="addBtn Font13 Hand mTop24"
           onClick={e => {
-            if (this.state.loadingProject) {
-              return;
-            }
-            if (this.state.licenseType === 3) {
-              dispatch(showEditFn(true, type));
-            } else {
-              upgradeVersionDialog({
-                projectId,
-                explainText: _l('请升级至付费版解锁开启'),
-                isFree: this.state.isFree,
-              });
-            }
+            dispatch(showEditFn(true, type));
           }}
         >
           <Icon className="Font16 mRight5" icon="add" />
@@ -153,25 +139,6 @@ class ContactsHidden extends React.Component {
     }
   };
 
-  expireDialogFn = () => {
-    const { projectId } = this.props;
-    getProjectLicenseSupportInfo({
-      projectId: projectId,
-    }).then(data => {
-      this.setState(
-        {
-          licenseType: data.currentLicense.version ? data.currentLicense.version.versionId : null,
-          isFree: data.licenseType === 0,
-        },
-        () => {
-          this.setState({
-            loadingProject: false,
-          });
-        },
-      );
-    });
-  };
-
   errorCallback = errorIds => {
     this.setState({ errorIds });
   };
@@ -188,7 +155,15 @@ class ContactsHidden extends React.Component {
       ruleId,
       isSaveing,
     } = this.props;
-    if (loading || this.state.loadingProject) return <LoadDiv className="mTop10" />;
+    if (loading) return <LoadDiv className="mTop10" />;
+    const featureType = getFeatureStatus(projectId, FEATURE_ID);
+    if (featureType === '2') {
+      return <UpgradeVersion projectId={projectId} featureId={FEATURE_ID} />;
+    }
+    if (this.state.pageLoading) {
+      return <LoadDiv className="mTop80" />;
+    }
+
     return (
       <div className="contactsHiddenBox">
         {showEdit ? (
@@ -245,12 +220,7 @@ class ContactsHidden extends React.Component {
           <div className="con">
             <div className="headerCon">
               <h5 className="Font17">{_l('通讯录隔离')}</h5>
-              <Support
-                className="forHelp"
-                type={2}
-                href="https://help.mingdao.com/geli.html"
-                text={_l('帮助')}
-              />
+              <Support className="forHelp" type={2} href="https://help.mingdao.com/geli.html" text={_l('帮助')} />
             </div>
             <div className="conBox">
               <div className="">{this.renderCon(2)}</div>

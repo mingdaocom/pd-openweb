@@ -2,6 +2,7 @@ import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../.
 import { RELATION_TYPE_NAME } from './enum';
 import { accMul } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 
 export default function renderText(cell, options = {}) {
   try {
@@ -40,6 +41,8 @@ export default function renderText(cell, options = {}) {
       case 25: // MONEY_CN 大写金额
       case 33: // AUTOID 自动编号
       case 37: // SUBTOTAL 汇总 TODO
+      case 49: // API 查询
+      case 50: // API 查询
         return cell.enumDefault === 0 || cell.enumDefault === 2 ? (value || '').replace(/\r\n|\n/g, ' ') : value;
       case 3: // PHONE_NUMBER 手机号码
         return cell.enumDefault === 1 ? value.replace(/\+86/, '') : value;
@@ -84,11 +87,15 @@ export default function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           return '';
         }
-        return cell.type === 15
-          ? moment(cell.value).format('YYYY-MM-DD')
-          : moment(cell.value).format(
-              _.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm',
-            );
+        const showFormat = getShowFormat(cell);
+        return moment(cell.value).format(
+          _.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : showFormat,
+        );
+      case 46: // TIME 时间
+        if (_.isEmpty(value)) {
+          return '';
+        }
+        return moment(cell.value, 'HH:mm:ss').format(cell.unit === '6' ? 'HH:mm:ss' : 'HH:mm');
       case 38: // 日期公式
         if (_.isEmpty(value)) {
           return '';
@@ -223,6 +230,15 @@ export default function renderText(cell, options = {}) {
       // case 43: // CASCADER 多级下拉
       case 32: // CONCATENATE 文本组合
         return cell.value;
+      case 48: // ORGROLE_PICKER 组织角色
+        try {
+          parsedData = JSON.parse(cell.value);
+        } catch (err) {
+          return '';
+        }
+        return parsedData
+          .map((organize, index) => (organize.organizeName ? organize.organizeName : _l('该组织角色已删除')))
+          .join('、');
       default:
         return '';
     }

@@ -24,7 +24,7 @@
     &::before {
       content: ' ';
       width: 1px;
-      height: calc(~'100% - 36px');
+      height: calc(~'100% - 42px');
       border: 1px solid #e5e5e5;
       position: absolute;
       top: 20px;
@@ -33,6 +33,16 @@
     }
     .startCom {
       position: relative;
+      .err,
+      .txtCon {
+        position: absolute;
+        left: 45px;
+        top: 10px;
+        background: #fff;
+        z-index: 0;
+        overflow: hidden;
+        max-width: calc(~'100% - 70px');
+      }
       .itemText {
         padding-left: 20px;
       }
@@ -59,14 +69,19 @@
       }
       .txt {
         margin-left: 28px;
+        margin-top: 7px;
       }
       .dropCon {
-        width: calc(~'100% - 90px');
+        width: calc(~'100% - 36px');
         max-width: 270px;
         height: 36px;
         background: #ffffff;
         border-radius: 3px;
         margin-left: 36px;
+        .ant-select-selection-item {
+          opacity: 0;
+          z-index: 1;
+        }
         &.isDelete {
           .ant-select-selector {
             border: 1px solid #f44336;
@@ -113,18 +128,18 @@
     transition: none;
   }
   .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    background-color: #2196f3!important;
-    color: #fff!important;
+    background-color: #2196f3 !important;
+    color: #fff !important;
     .icon {
       color: #fff !important;
     }
   }
   .addControl,
   .addControl.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    color: #2196f3 ;
-    background-color: #fff ;
+    color: #2196f3;
+    background-color: #fff;
     .icon {
-      color: #2196f3 ;
+      color: #2196f3;
     }
   }
 }

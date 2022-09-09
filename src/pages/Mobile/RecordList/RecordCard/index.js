@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
+import { Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
 import CellControl from 'src/pages/worksheet/components/CellControls';
@@ -149,7 +149,39 @@ export default class RecordCard extends Component {
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     return (
       <div className="controlWrapper" key={id}>
-        {nameVisible && <div className="controlName ellipsis Gray_9e">{visibleControl.controlName}</div>}
+        {(nameVisible || visibleControl.desc) && (
+          <div className="controlName ellipsis Gray_9e">
+            {visibleControl.desc ? (
+              <Tooltip
+                text={
+                  <span
+                    className="Block"
+                    style={{
+                      maxWidth: 230,
+                      maxHeight: 200,
+                      overflowY: 'auto',
+                      color: '#fff',
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {visibleControl.desc}
+                  </span>
+                }
+                action={['click']}
+                popupPlacement={'topLeft'}
+                offset={[-12, 0]}
+              >
+                <i
+                  className="icon-workflow_error descBoxInfo pointer Font16 Gray_9e mRight5"
+                  onClick={e => e.stopPropagation()}
+                />
+              </Tooltip>
+            ) : (
+              ''
+            )}
+            {nameVisible ? visibleControl.controlName : ''}
+          </div>
+        )}
         <div className="controlContent ellipsis">
           {data[visibleControl.controlId] ? (
             <CellControl
@@ -167,10 +199,12 @@ export default class RecordCard extends Component {
   }
   renderContent() {
     const { view, data, controls, allowAdd } = this.props;
-    const { advancedSetting, coverCid, displayControls, showControlName } = view;
+    const { advancedSetting, coverCid, showControlName } = view;
+    let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
     const { checked } = this.state;
     const appshowtype = advancedSetting.appshowtype || '0';
+    const displayControls = view.displayControls.filter(id => id !== titleControl.controlId);
     return (
       <div className="recordCardContent flex">
         <div className="flexRow valignWrapper mBottom5">

@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { LoadDiv, Icon, Checkbox } from 'ming-ui';
 import { sendVerifyCode, login, getTpLoginScanUrl, scanTpLogin } from 'src/api/externalPortal';
-import { statusList, accountResultAction } from './util';
+import { statusList, accountResultAction, setAutoLoginKey } from './util';
 import Message from 'src/pages/account/components/message';
 import captcha from 'src/components/captcha';
 import SvgIcon from 'src/components/SvgIcon';
@@ -236,10 +236,11 @@ export default function Container(props) {
     setParamForPcWx,
     paramForPcWx,
     noticeScope = {},
+    isAutoLogin,
+    setAutoLogin,
   } = props;
   // md.global.Config.IsLocal = true
   let request = getRequest();
-  const [hasRead, setHasRead] = useState(false); //是否同意
   const [loading, setLoading] = useState(true); //二维码获取
   const [sending, setSending] = useState(false); //点击登录
   const [isQrLogin, setIsQrLogin] = useState(
@@ -300,7 +301,9 @@ export default function Container(props) {
       scanTpLogin({
         state: stateWX,
         appId,
+        autoLogin: isAutoLogin, //自动登录的参数
       }).then(res => {
+        setAutoLoginKey({ ...res, appId });
         const { accountResult, sessionId, state, accountId } = res;
         //31过期， 30未扫码，可继续轮询
         if (accountResult === 31) {
@@ -389,8 +392,10 @@ export default function Container(props) {
       randStr: randstr,
       appId, //应用ID
       state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
+      autoLogin: isAutoLogin,
     }).then(res => {
-      const { accountResult, sessionId, accountId, appId, projectId, state } = res;
+      setAutoLoginKey({ ...res, appId });
+      const { accountResult, sessionId, accountId, projectId, state } = res;
       setState(res.state);
       accountId && setAccountId(accountId);
       setAccount(dialCode + emailOrTel);
@@ -519,6 +524,15 @@ export default function Container(props) {
                   )}
                 </div>
                 <p className="Gray_75 TxtCenter Font14">{_l('扫描微信二维码，关注公众号')}</p>
+                <div
+                  className="mTop24 flexRow alignItemsCenter Hand justifyContentCenter"
+                  onClick={() => {
+                    setAutoLogin(!isAutoLogin);
+                  }}
+                >
+                  <Checkbox checked={isAutoLogin} className="" name="" />
+                  <span className="Gray_9e">{_l('7天内免登录')}</span>
+                </div>
                 {loginMode.phone && ( //配置了手机登录
                   <WrapTpLogin>
                     <div
@@ -567,18 +581,34 @@ export default function Container(props) {
                   nextHtml={isValid => {
                     return (
                       <React.Fragment>
+                        {!paramForPcWx && (
+                          <div
+                            className="mTop12 flexRow alignItemsCenter Hand"
+                            onClick={() => {
+                              setAutoLogin(!isAutoLogin);
+                            }}
+                          >
+                            <Checkbox checked={isAutoLogin} className="" name="" />
+                            <span className="Gray_9e">{_l('7天内免登录')}</span>
+                          </div>
+                        )}
+                        <div
+                          className={cx('loginBtn mTop32 TxtCenter Hand', {
+                            sending: sending,
+                          })}
+                          onClick={() => {
+                            if (isValid()) {
+                              sendCode();
+                            }
+                          }}
+                        >
+                          {paramForPcWx ? _l('绑定并登录/注册') : allowUserType === 9 ? _l('登录') : _l('登录/注册')}
+                          {sending ? '...' : ''}
+                        </div>
                         {termsAndAgreementEnable && (
-                          <div className=" mTop16">
-                            <Checkbox
-                              checked={hasRead}
-                              className="InlineBlock"
-                              onClick={() => {
-                                setHasRead(!hasRead);
-                              }}
-                              name={''}
-                            />
-                            <div className="InlineBlock mLeft5 TxtTop LineHeight22">
-                              {_l('我已阅读并同意')}
+                          <div className=" mTop12">
+                            <div className="InlineBlock Gray_9e mLeft5 TxtTop LineHeight22">
+                              {_l('点登陆即代表同意')}
                               <span
                                 className="ThemeColor3 Hand mRight5 mLeft5"
                                 onClick={() => {
@@ -599,23 +629,6 @@ export default function Container(props) {
                             </div>
                           </div>
                         )}
-                        <div
-                          className={cx('loginBtn mTop32 TxtCenter Hand', {
-                            sending: sending,
-                            disable: !!termsAndAgreementEnable && !hasRead,
-                          })}
-                          onClick={() => {
-                            if (!!termsAndAgreementEnable && !hasRead) {
-                              return;
-                            }
-                            if (isValid()) {
-                              sendCode();
-                            }
-                          }}
-                        >
-                          {paramForPcWx ? _l('绑定并登录/注册') : allowUserType === 9 ? _l('登录') : _l('登录/注册')}
-                          {sending ? '...' : ''}
-                        </div>
                         <p className="txt mTop30 TxtCenter Gray">{allowUserType === 9 && _l('本应用不开放注册')}</p>
                       </React.Fragment>
                     );

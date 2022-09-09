@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import CityPicker from 'ming-ui/components/CityPicker';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
+import selectOrgRole from 'src/components/DialogSelectOrgRole/selectOrgRole';
 import TagCon from './TagCon';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 
@@ -40,7 +41,7 @@ export default class Options extends Component {
     values = values || [];
     if (_.includes([19, 23, 24], control.type)) {
       return values.map(value => JSON.parse(value));
-    } else if (control.type === 27) {
+    } else if (control.type === 27 || control.type === 48) {
       return values.map(value => JSON.parse(value));
     } else if (control.type === 28) {
       return values
@@ -78,7 +79,7 @@ export default class Options extends Component {
   addItem(item) {
     this.setState(
       {
-        seletedOptions: this.state.seletedOptions.concat(item),
+        seletedOptions: _.uniqBy(this.state.seletedOptions.concat(item), 'id'),
       },
       () => {
         this.props.onChange({
@@ -175,7 +176,7 @@ export default class Options extends Component {
         <div
           className="filterSelectDepartment"
           onClick={() => {
-            new DialogSelectGroups({
+            const D = new DialogSelectGroups({
               projectId,
               isIncludeRoot: false,
               showCurrentUserDept: from !== 'rule',
@@ -191,6 +192,31 @@ export default class Options extends Component {
                   id: (data[0] || {}).departmentId,
                   name: (data[0] || {}).departmentName,
                 });
+              },
+            });
+          }}
+        >
+          <TagCon data={seletedOptions} onRemove={this.removeItem} />
+        </div>
+      );
+    } else if (control.type === 48) {
+      return (
+        <div
+          className="filterSelectDepartment"
+          onClick={() => {
+            selectOrgRole({
+              projectId,
+              unique: false,
+              onSave: data => {
+                if (!data.length) {
+                  return;
+                }
+                this.addItem(
+                  data.map(item => ({
+                    id: item.organizeId,
+                    name: item.organizeName,
+                  })),
+                );
               },
             });
           }}

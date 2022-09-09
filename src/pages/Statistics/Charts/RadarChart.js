@@ -26,6 +26,7 @@ const formatChartData = (data, yaxisList) => {
           groupKey: element.originalKey,
           value: target[0].v,
           name,
+          originalId: item.originalX || name
         });
       }
     });
@@ -78,7 +79,7 @@ export default class extends Component {
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
     const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.name) : currentData.name
+      [xaxes.cid]: isNumber ? Number(currentData.originalId) : currentData.originalId
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
@@ -187,6 +188,7 @@ export default class extends Component {
             position,
             flipPage: true,
             itemHeight: 20,
+            radio: { style: { r: 6 } },
           }
         : false,
       point: displaySetup.showNumber
@@ -231,7 +233,7 @@ export default class extends Component {
                   const { xaxes, split } = this.props.reportData;
                   const isNumber = isFormatNumber(xaxes.controlType);
                   const param = {
-                    [xaxes.cid]: isNumber ? Number(item.name) : item.name
+                    [xaxes.cid]: isNumber ? Number(item.originalId) : item.originalId
                   }
                   if (split.controlId) {
                     param[split.controlId] = item.groupKey;

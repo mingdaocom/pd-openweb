@@ -1,10 +1,18 @@
 import React, { setState, useState } from 'react';
 import styled from 'styled-components';
 import { Dropdown, MdAntDateRangePicker } from 'ming-ui';
+import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import cx from 'classnames';
 import { func, shape, string } from 'prop-types';
+import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { DATE_OPTIONS } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
+function getPicker(type) {
+  return {
+    4: 'month',
+    5: 'year',
+  }[type];
+}
 const Con = styled.div`
   position: relative;
   display: flex;
@@ -13,6 +21,18 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
+  .customAntPicker {
+    box-shadow: none;
+    border: none;
+
+    border-radius: 4px;
+    .ant-picker-clear {
+      display: none;
+    }
+    .ant-picker-input input {
+      font-size: 13px;
+    }
+  }
   &:hover:not(.active) {
     border-color: #ccc;
   }
@@ -76,19 +96,39 @@ const Icon = styled.i`
 `;
 
 export default function DateTime(props) {
-  const { control, dateRange, minValue, maxValue, advancedSetting = {}, onChange = () => {} } = props;
+  const {
+    appendToBody,
+    control,
+    dateRange,
+    value,
+    minValue,
+    maxValue,
+    advancedSetting = {},
+    onChange = () => {},
+  } = props;
+  let dateOptions = DATE_OPTIONS;
   const [active, setActive] = useState();
+  const showType = _.get(control, 'advancedSetting.showtype');
   let allowedDateRange = [];
   try {
     allowedDateRange = JSON.parse(advancedSetting.daterange);
   } catch (err) {}
   const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
-  let timeFormat;
-  let dateFormat = 'YYYY-MM-DD';
-  if (control.type === 16) {
-    timeFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'HH:mm:ss' : 'HH:mm';
-    dateFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm';
+  if (_.includes(['ctime', 'utime'], control.controlId)) {
+    control.advancedSetting = { showtype: '6' };
+  }
+  const showValueFormat = getShowFormat(control);
+  const valueFormat = getDatePickerConfigs(control).formatMode;
+  const timeFormat = showValueFormat.split(' ')[1];
+  if (_.includes(['4', '5'], showType)) {
+    dateOptions = dateOptions
+      .map(options =>
+        options.filter(o =>
+          _.includes(showType === '5' ? [15, 16, 17, 18] : [7, 8, 9, 12, 13, 14, 15, 16, 17, 18], o.value),
+        ),
+      )
+      .filter(options => options.length);
   }
   return (
     <Con className={cx({ active })}>
@@ -96,27 +136,30 @@ export default function DateTime(props) {
         {showDatePicker ? (
           <RangePickerCon>
             <MdAntDateRangePicker
-              defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+              className="customAntPicker"
+              value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
               showTime={timeFormat ? { format: timeFormat } : false}
-              format={dateFormat}
+              picker={getPicker(showType)}
+              format={showValueFormat}
               onChange={moments => {
-                if (!_.isArray(moments)) {
-                  return;
+                if (!moments || !_.isArray(moments)) {
+                  moments = [];
                 }
                 onChange({
                   dateRange: 18,
                   filterType: 31,
-                  minValue: moments[0].format(dateFormat),
-                  maxValue: moments[1].format(dateFormat),
+                  minValue: moments[0] && moments[0].format(valueFormat),
+                  maxValue: moments[1] && moments[1].format(valueFormat),
                 });
               }}
             />
           </RangePickerCon>
         ) : (
           <Dropdown
+            isAppendToBody={appendToBody}
             value={dateRange}
-            data={DATE_OPTIONS.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))}
-            menuStyle={{ width: '100%' }}
+            data={dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))}
+            menuStyle={appendToBody ? {} : { width: '100%' }}
             onChange={newValue => {
               const change = { filterType: 17, dateRange: newValue, minValue: undefined, maxValue: undefined };
               onChange(change);

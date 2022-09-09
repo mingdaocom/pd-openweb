@@ -12,7 +12,7 @@ module.exports = {
      return $.api('ProjectSetting', 'GetProjectIdentity', args, options);
    },
   /**
-  * 界面定制
+  * 界面定制（人事审批打印功能有调用这个接口，所以不能限制管理员权限）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -22,6 +22,18 @@ module.exports = {
    getSysColor: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'GetSysColor', args, options);
+   },
+  /**
+  * 获取 是否允许申请后台组织管理员权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAllowApplyManageRole: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetAllowApplyManageRole', args, options);
    },
   /**
   * 二级域名
@@ -96,7 +108,7 @@ module.exports = {
      return $.api('ProjectSetting', 'GetEnabledWatermark', args, options);
    },
   /**
-  * 获取 是否开启水印
+  * 获取 是否只允许管理员创建应用
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -108,7 +120,7 @@ module.exports = {
      return $.api('ProjectSetting', 'GetOnlyManagerCreateApp', args, options);
    },
   /**
-  * 获取 是否只允许管理员创建应用
+  * 获取 是否自动订购工作流升级包
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -336,6 +348,19 @@ module.exports = {
    setAutoPurchaseWorkflowExtPack: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'SetAutoPurchaseWorkflowExtPack', args, options);
+   },
+  /**
+  * 设置 是否允许申请后台组织管理员权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.allowApplyManageRole 是否允许申请管理员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setAllowApplyManageRole: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'SetAllowApplyManageRole', args, options);
    },
   /**
   * 设置二级域名

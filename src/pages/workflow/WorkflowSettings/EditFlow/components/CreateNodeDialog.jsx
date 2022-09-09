@@ -4,8 +4,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Dialog, Radio, ScrollView, Support, Icon } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
-import { upgradeVersionDialog } from 'src/util';
-import { getProjectLicenseInfo } from 'src/api/project';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -118,7 +117,7 @@ export default class CreateNodeDialog extends Component {
                   type: 13,
                   appType: 1,
                   name: _l('从对象数组获取数据'),
-                  describe: _l('获取发送API请求、代码块、封装业务流程输入节点的JSON数组对象'),
+                  describe: _l('获取发送API请求、调用已集成API、代码块、封装业务流程输入节点的JSON数组对象'),
                 },
               ],
             },
@@ -156,6 +155,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 17,
+              featureId: 14,
               name: _l('界面推送'),
               iconColor: '#2196f3',
               iconName: 'icon-notifications_11',
@@ -244,6 +244,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 18,
+              featureId: 13,
               name: _l('获取记录打印文件'),
               appType: 14,
               iconColor: '#4C7D9E',
@@ -263,6 +264,14 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#4C7D9E',
               iconName: 'icon-pbc',
             },
+            {
+              type: 25,
+              featureId: 4,
+              name: _l('调用已集成 API'),
+              appType: 42,
+              iconColor: '#4C7D9E',
+              iconName: 'icon-api',
+            },
           ],
         },
         {
@@ -270,27 +279,12 @@ export default class CreateNodeDialog extends Component {
           name: '开发者',
           items: [
             {
-              type: 22,
+              type: 24,
+              featureId: 4,
               name: _l('API 连接与认证'),
+              appType: 41,
               iconColor: '#4C7D9E',
-              iconName: 'icon-key1',
-              typeText: _l('鉴权方式'),
-              secondList: [
-                {
-                  type: 22,
-                  appType: 31,
-                  name: _l('新建 Basic Auth 认证'),
-                  actionId: '521',
-                  describe: _l('使用固定用户名和密码的 Basic Auth 认证'),
-                },
-                {
-                  type: 22,
-                  appType: 32,
-                  name: _l('新建 OAuth 2.0 认证（客户端凭证 client credentials）'),
-                  actionId: '523',
-                  describe: _l('使用客户端 id 和客户端 secret 获取 Access Token'),
-                },
-              ],
+              iconName: 'icon-connect',
             },
             {
               type: 8,
@@ -315,6 +309,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 14,
+              featureId: 8,
               name: _l('代码块'),
               iconColor: '#4C7D9E',
               iconName: 'icon-url',
@@ -497,19 +492,12 @@ export default class CreateNodeDialog extends Component {
     if (!_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], props.flowInfo.startAppType) || props.flowInfo.child) {
       this.state.list.forEach(o => {
         console.log(o.items);
-        _.remove(o.items, item => item.type === 17 || (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')));
-      });
-    }
-
-    const {
-      admin: {
-        adminLeftMenu: { weixin },
-      },
-    } = window.private;
-
-    if (weixin) {
-      this.state.list.forEach(o => {
-        _.remove(o.items, item => item.type === 19);
+        _.remove(
+          o.items,
+          item =>
+            item.type === 17 ||
+            (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')),
+        );
       });
     }
 
@@ -522,6 +510,20 @@ export default class CreateNodeDialog extends Component {
         _.remove(o.items, item => item.type === 5);
       });
     }
+
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送
+    [
+      { featureId: 4, type: [24, 25] },
+      { featureId: 8, type: [14] },
+      { featureId: 13, type: [18] },
+      { featureId: 14, type: [17] },
+    ].forEach(obj => {
+      if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
+        this.state.list.forEach(o => {
+          _.remove(o.items, item => _.includes(obj.type, item.type));
+        });
+      }
+    });
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -541,7 +543,7 @@ export default class CreateNodeDialog extends Component {
    * 内容
    */
   renderContent() {
-    const { isLast, nodeType, actionId, flowNodeMap, nodeId } = this.props;
+    const { isLast, nodeType, actionId, flowNodeMap, nodeId, flowInfo } = this.props;
     const {
       list,
       selectItem,
@@ -610,7 +612,10 @@ export default class CreateNodeDialog extends Component {
                   const newFold = Object.assign({}, foldFeatures, { [data.id]: !foldFeatures[data.id] });
 
                   this.setState({ foldFeatures: newFold });
-                  localStorage.setItem(`workflowFoldFeatures-${md.global.Account.accountId}`, JSON.stringify(newFold));
+                  safeLocalStorageSetItem(
+                    `workflowFoldFeatures-${md.global.Account.accountId}`,
+                    JSON.stringify(newFold),
+                  );
                 }}
               >
                 <Icon
@@ -744,9 +749,16 @@ export default class CreateNodeDialog extends Component {
    */
   createNodeClick(item) {
     const { nodeId, isLast, flowInfo, flowNodeMap } = this.props;
+    const { selectItem } = this.state;
+    const featureId = selectItem && selectItem.featureId ? selectItem.featureId : item.featureId;
+    const featureType = getFeatureStatus(flowInfo.companyId, featureId);
 
     // 二级创建
     if (item.secondList) {
+      if (_.includes([14], item.type) && featureType === '2') {
+        buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
+        return;
+      }
       this.setState({ selectItem: item, selectSecond: true });
       return;
     }
@@ -760,31 +772,20 @@ export default class CreateNodeDialog extends Component {
       (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== ACTION_ID.PBC_OUT
     ) {
       this.setState({ selectItem: item, showBranchDialog: true });
+    } else if (_.includes([14, 17, 18], item.type) && featureType === '2') {
+      // 代码块、界面推送、Word打印模板
+      buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
+    } else if (_.includes([24, 25], item.type) && featureType === '2') {
+      // API连接与认证、调用已集成的API
+      buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else {
-      const currentProject = _.find(md.global.Account.projects || [], o => o.projectId === flowInfo.companyId) || {};
-      const callback = ({ version, licenseType }) => {
-        // 代码块、界面推送 Word打印模板
-        if (_.includes([14, 17, 18], item.type) && (licenseType === 0 || version.versionId === 1)) {
-          upgradeVersionDialog({ projectId: flowInfo.companyId, isFree: licenseType === 0 });
-        } else {
-          this.addFlowNode({
-            actionId: item.actionId,
-            appType: item.appType,
-            name: item.name,
-            prveId: nodeId,
-            typeId: item.type,
-          });
-        }
-      };
-
-      // 外协
-      if (_.isEmpty(currentProject)) {
-        getProjectLicenseInfo({ projectId: flowInfo.companyId }).then(data => {
-          callback(data);
-        });
-      } else {
-        callback(currentProject);
-      }
+      this.addFlowNode({
+        actionId: item.actionId,
+        appType: item.appType,
+        name: item.name,
+        prveId: nodeId,
+        typeId: item.type,
+      });
     }
   }
 

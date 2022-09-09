@@ -62,7 +62,7 @@ export default class SelectUserDropDown extends Component {
    * 头部
    */
   header() {
-    const { specialType, disabledNodeRole, onlyNodeRole } = this.props;
+    const { specialType, disabledNodeRole, onlyNodeRole, from } = this.props;
 
     return (
       <ul className="flowDetailUserList">
@@ -81,21 +81,23 @@ export default class SelectUserDropDown extends Component {
                 />
               </div>
             )}
-            <MenuItem icon={<i className="icon-workflow_contacts" />} onClick={this.addMembers}>
+            <MenuItem icon={<i className="icon-account_circle" />} onClick={this.addMembers}>
               {_l('通讯录')}
             </MenuItem>
-            <MenuItem icon={<i className="icon-invite_members" />} onClick={this.addDepartment}>
-              {_l('部门')}
-            </MenuItem>
-            <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
-              {_l('职位')}
-            </MenuItem>
-            <MenuItem
-              icon={<i className="icon-workflow_role" />}
-              onClick={() => this.setState({ showSelectAppUserDialog: true })}
-            >
-              {_l('应用角色')}
-            </MenuItem>
+            <React.Fragment>
+              <MenuItem icon={<i className="icon-department" />} onClick={this.addDepartment}>
+                {_l('部门')}
+              </MenuItem>
+              <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
+                {_l('职位')}
+              </MenuItem>
+              <MenuItem
+                icon={<i className="icon-group-members" />}
+                onClick={() => this.setState({ showSelectAppUserDialog: true })}
+              >
+                {_l('应用角色')}
+              </MenuItem>
+            </React.Fragment>
           </Fragment>
         )}
 

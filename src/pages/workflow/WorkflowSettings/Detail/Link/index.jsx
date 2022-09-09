@@ -199,10 +199,10 @@ export default class Link extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-link2"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -210,11 +210,7 @@ export default class Link extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter
-          isCorrect={!!data.appId || !!data.selectNodeId}
-          onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
-        />
+        <DetailFooter {...this.props} isCorrect={!!data.appId || !!data.selectNodeId} onSave={this.onSave} />
       </Fragment>
     );
   }

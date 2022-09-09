@@ -10,7 +10,8 @@ import { COVER_DISPLAY_MODE, updateViewAdvancedSetting, ViewSettingWrap } from '
 import Abstract from './components/Abstract';
 import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
-import { find } from 'lodash';
+import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
@@ -33,11 +34,25 @@ const SelectValue = styled(DisplayControlOption)`
   }
 `;
 
+const Wrap = styled.div`
+  .Dropdown {
+    .Dropdown--input {
+      padding: 0 5px 0 12px !important;
+    }
+  }
+`;
 export default class CardAppearance extends Component {
   static propTypes = {};
   static defaultProps = {};
+  constructor(props) {
+    super(props);
+    this.state = {
+      relateControls: [],
+    };
+  }
+
   render() {
-    const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId } = this.props;
+    const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId, columns } = this.props;
     const allCanSelectFieldsInBoardControls = filterAndFormatterControls({
       controls: worksheetControls,
       formatter: ({ controlName, controlId, type }) => ({
@@ -47,17 +62,18 @@ export default class CardAppearance extends Component {
       }),
     });
     const { viewControl, childType, viewType, advancedSetting } = view;
-    const { hidenone = '0' } = getAdvanceSetting(view);
+    const viewControlData = worksheetControls.find(o => o.controlId === viewControl) || {};
+    const { hidenone = '0', navshow = [26].includes(viewControlData.type) ? '1' : '0' } = getAdvanceSetting(view);
     const isBoardView = String(viewType) === '1';
     const isHierarchyView = String(viewType) === '2';
     const isGallery = String(viewType) === '3';
     const isMultiHierarchyView = isHierarchyView && String(childType) === '2';
-
-    const isShowDisplayConfig = () => {
-      // 人员看板不显示此配置
-      const { type } = find(worksheetControls, item => item.controlId === viewControl) || {};
-      return type !== 26;
-    };
+    let navfilters = getAdvanceSetting(view).navfilters;
+    // const isShowDisplayConfig = () => {
+    //   // 人员看板不显示此配置
+    //   const { type } = find(worksheetControls, item => item.controlId === viewControl) || {};
+    //   return type !== 26;
+    // };
 
     const getViewSelectFields = () => {
       if (viewControl === 'create') {
@@ -82,7 +98,7 @@ export default class CardAppearance extends Component {
           <Fragment>
             <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
-              {isBoardView && isShowDisplayConfig() && (
+              {/* {isBoardView && isShowDisplayConfig() && (
                 <div className="configSwitch">
                   <div className="switchText InlineBlock Normal Gray_9e">{_l('隐藏无数据看板')}</div>
                   <Icon
@@ -98,7 +114,7 @@ export default class CardAppearance extends Component {
                     }}
                   />
                 </div>
-              )}
+              )} */}
             </div>
             <div className="settingContent">
               <Dropdown
@@ -119,13 +135,64 @@ export default class CardAppearance extends Component {
                   if (viewControl === value) {
                     return;
                   }
-                  updateCurrentView({ ...view, appId, viewControl: value, editAttrs: ['viewControl'] });
+                  const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                  updateCurrentView({
+                    ...view,
+                    appId,
+                    viewControl: value,
+                    advancedSetting: updateViewAdvancedSetting(view, {
+                      navshow: [26].includes(viewControlData.type) ? '1' : '0',
+                      navfilters: JSON.stringify([]),
+                    }),
+                    editAttrs: ['viewControl', 'advancedSetting'],
+                  });
                 }}
                 border
                 style={{ width: '100%' }}
                 placeholder={_l('请选择')}
               />
             </div>
+            {isBoardView && (
+              <Wrap>
+                <NavShow
+                  params={{
+                    types: NAVSHOW_TYPE.filter(o =>
+                      viewControlData.type === 29
+                        ? true //关联记录 4项
+                        : [9, 10, 11, 28].includes(viewControlData.type) // 排除筛选
+                        ? o.value !== '3'
+                        : [26].includes(viewControlData.type) //分组字段为人员时，显示设置只有 显示有数据的项，显示指定项
+                        ? ['1', '2'].includes(o.value)
+                        : true,
+                    ),
+                    txt: _l('显示项'),
+                  }}
+                  value={navshow}
+                  onChange={newValue => {
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: updateViewAdvancedSetting(view, { ...newValue }),
+                      editAttrs: ['advancedSetting'],
+                    });
+                  }}
+                  navfilters={navfilters}
+                  filterInfo={{
+                    allControls: worksheetControls,
+                    globalSheetInfo: _.pick(currentSheetInfo, [
+                      'appId',
+                      'groupId',
+                      'name',
+                      'projectId',
+                      'roleType',
+                      'worksheetId',
+                    ]),
+                    columns,
+                    viewControl,
+                  }}
+                />
+              </Wrap>
+            )}
             <div
               className="line mTop32 mBottom32"
               style={{

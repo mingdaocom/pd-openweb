@@ -4,7 +4,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import ChartDialog from '../ChartDialog';
 import login from 'src/api/login';
-import report from '../api/report';
+import reportApi from '../api/report';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
@@ -40,12 +40,11 @@ class Card extends Component {
     this.isPublicShare = location.href.includes('public/page') || window.shareAuthor;
   }
   componentDidMount() {
-    const { id } = this.props.report;
-    this.getData(id);
+    this.getData(this.props);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.needUpdate !== this.props.needUpdate) {
-      this.getData(nextProps.report.id);
+    if (nextProps.needUpdate !== this.props.needUpdate || !_.isEqual(nextProps.filtersGroup, this.props.filtersGroup)) {
+      this.getData(nextProps);
     }
   }
   componentWillUnmount = () => {
@@ -58,7 +57,7 @@ class Card extends Component {
     const { refreshReportInterval } = md.global.SysSettings;
     if (!needRefresh) return;
     this.timer = setInterval(() => {
-      this.getData(report.id);
+      this.getData(this.props);
       if (isCheckLogin) {
         isCheckLogin = false;
         login.checkLogin({}).then(data => {
@@ -73,20 +72,20 @@ class Card extends Component {
       this.request.abort();
     }
   }
-  getData = (reportId, reload = false) => {
-    const { filters } = this.props;
+  getData = (props, reload = false) => {
+    const { report, filters, filtersGroup } = props;
     const shareAuthor = window.shareAuthor;
     const headersConfig = {
       shareAuthor,
     };
     this.setState({ loading: true });
     this.abortRequest();
-    this.request = report.getData(
+    this.request = reportApi.getData(
       {
-        reportId,
+        reportId: report.id,
         version: '6.5',
         reload,
-        filters: filters ? [filters] : undefined
+        filters: [filters, filtersGroup].filter(_ => _)
       },
       {
         fireImmediately: true,
@@ -116,7 +115,7 @@ class Card extends Component {
     const { appId, filter, style } = reportData;
     const viewDataType = style ? (style.viewDataType || 1) : 1;
     if (viewDataType === 2 && filter.viewId && ![VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(filter.viewType.toString())) {
-      report.getReportSingleCacheId({
+      reportApi.getReportSingleCacheId({
         ...data,
         isPersonal: true,
         reportId: id
@@ -192,7 +191,7 @@ class Card extends Component {
   }
   render() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
-    const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, className, onRemove, isCharge } = this.props;
+    const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge } = this.props;
     const permissions = ownerId || _.includes([1, 2], roleType);
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
@@ -229,11 +228,11 @@ class Card extends Component {
                   });
                 }}
               >
-                <Icon icon="stats_table_chart" />
+                <Icon icon="table" />
               </span>
             )}
             {needRefresh && !!reportData.status && (
-              <span onClick={() => this.getData(report.id, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
+              <span onClick={() => this.getData(this.props, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
                 <Icon icon="rotate" />
               </span>
             )}
@@ -262,7 +261,8 @@ class Card extends Component {
                 isMove={permissions}
                 onRemove={permissions && sourceType !== 1 ? onRemove : null}
                 exportData={{
-                  filters
+                  filters,
+                  filtersGroup
                 }}
                 report={{
                   id: report.id,
@@ -315,7 +315,10 @@ class Card extends Component {
                 });
               }
               if (isRequest) {
-                this.getData(reportId);
+                this.getData({
+                  ...this.props,
+                  report: { id: reportId },
+                });
               }
             }}
             onRemove={onRemove}

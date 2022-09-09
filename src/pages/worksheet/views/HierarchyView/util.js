@@ -84,9 +84,9 @@ export const dealHierarchyData = (
     formData,
     abstractValue: abstract
       ? renderCellText({
-          ...(worksheetControls.find(it => it.controlId === abstract) || {}),
-          value: item[abstract],
-        })
+        ...(worksheetControls.find(it => it.controlId === abstract) || {}),
+        value: item[abstract],
+      })
       : '',
   };
   // }
@@ -116,6 +116,6 @@ export const hierarchyViewCanSelectFields = ({ controls, worksheetId }) => {
     }),
   });
 };
-export const setItem = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+export const setItem = (key, value) => safeLocalStorageSetItem(key, JSON.stringify(value));
 export const getItem = key => JSON.parse(localStorage.getItem(key));
 export const dropItem = key => localStorage.removeItem(key);

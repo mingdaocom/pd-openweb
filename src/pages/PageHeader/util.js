@@ -41,7 +41,7 @@ export const compareProps = (current = {}, next = {}, props = Object.keys(curren
 };
 
 export const getItem = key => JSON.parse(localStorage.getItem(key));
-export const setItem = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+export const setItem = (key, value) => safeLocalStorageSetItem(key, JSON.stringify(value));
 
 // 应用的状态
 export const getAppStatusText = ({ isGoodsStatus, isNew, fixed }) => {

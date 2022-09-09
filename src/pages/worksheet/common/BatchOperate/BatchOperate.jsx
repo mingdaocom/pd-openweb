@@ -9,17 +9,18 @@ import { Tooltip, Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
 import { startProcess } from 'src/pages/workflow/api/process';
 import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows } from 'src/api/worksheet';
-import { getProjectLicenseInfo } from 'src/api/project';
 import { getPrintList } from 'src/api/worksheet';
 import { add } from 'src/api/webCache';
 import { editRecord } from 'worksheet/common/editRecord';
+import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrCode } from 'worksheet/common/PrintQrCode';
 import { exportSheet } from 'worksheet/common/ExportSheet';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
+import SubButton from './SubButton';
 import Buttons from './Buttons';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -64,7 +65,6 @@ class BatchOperate extends React.Component {
       printListLoading: false,
       tempList: [],
       isNo: null, // 是否没有有批量打印权限
-      isFree: false,
     };
   }
 
@@ -98,49 +98,7 @@ class BatchOperate extends React.Component {
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
-    if (!_.isEqual(this.props.worksheetInfo, nextProps.worksheetInfo) && !!nextProps.worksheetInfo.projectId) {
-      this.projectLicenseInfo(nextProps);
-    }
   }
-
-  projectLicenseInfo = props => {
-    const { worksheetInfo } = props;
-    const { projectId } = worksheetInfo;
-    if (!projectId) {
-      this.setState({
-        isNo: true,
-      });
-      return;
-    }
-    let projects = md.global.Account.projects.filter(it => it.projectId === projectId);
-    if (projects.length <= 0) {
-      // 外部协作
-      getProjectLicenseInfo({
-        projectId: projectId,
-      }).then(data => {
-        let { version = [], licenseType } = data;
-        let { versionId } = version;
-        this.setState({
-          /**
-           * licenseType
-           * 0: 过期
-           * 1: 正式版
-           * 2: 体验版
-           */
-          // 只有旗舰版/专业版可用
-          isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-          isFree: licenseType === 0,
-        });
-      });
-    } else {
-      let { version = [], licenseType } = projects[0];
-      let { versionId } = version;
-      this.setState({
-        isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-        isFree: licenseType === 0,
-      });
-    }
-  };
 
   loadCustomButtons(rowId) {
     const { appId, worksheetId, viewId } = this.props;
@@ -212,7 +170,7 @@ class BatchOperate extends React.Component {
     `;
     const NoticeHeader = (
       <Notice>
-        <i className={'icon icon-Import-failure'}></i>
+        <i className={'icon icon-Import-failure'} />
         {_l('批量操作')}
         {_l('“')}
         <span className="btnName ellipsis">{btn.name}</span>
@@ -360,10 +318,7 @@ class BatchOperate extends React.Component {
       if (allWorksheetIsSelected) {
         reload();
       } else {
-        updateRows(
-          rowIds,
-          [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
-        );
+        updateRows(rowIds, [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })));
       }
       getWorksheetSheetViewSummary();
     });
@@ -391,6 +346,7 @@ class BatchOperate extends React.Component {
     if (allWorksheetIsSelected || (tempList.length <= 0 && !IsQrCodeSwitch)) {
       return '';
     }
+    const featureType = getFeatureStatus(projectId, 20);
     if (!printListLoading) {
       if (tempList.length <= 0) {
         return IsQrCodeSwitch ? (
@@ -448,52 +404,53 @@ class BatchOperate extends React.Component {
                     {_l('打印二维码')}
                   </MenuItem>
                 )}
-                <div
-                  className={cx('printList', {
-                    noBorder: !IsQrCodeSwitch,
-                  })}
-                >
-                  {tempList.map(it => (
-                    <MenuItem
-                      className=""
-                      onClick={evt => {
-                        const { isNo, isFree } = this.state;
-                        if (isNo) {
-                          upgradeVersionDialog({
-                            projectId,
-                            explainText: _l('Word批量打印是高级功能，请升级至付费版解锁开启'),
-                            isFree,
-                          });
-                        } else {
-                          let printId = it.id;
-                          let printData = {
-                            printId,
-                            isDefault: false, // word模板
-                            worksheetId,
-                            projectId,
-                            rowId: selectedRowIds.join(','),
-                            getType: 1,
-                            viewId,
-                            appId,
-                            name: it.name,
-                            isBatch: true,
-                          };
-                          let printKey = Math.random().toString(36).substring(2);
-                          add({
-                            key: `${printKey}`,
-                            value: JSON.stringify(printData),
-                          });
-                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
-                          this.setState({
-                            printListExpanded: false,
-                          });
-                        }
-                      }}
-                    >
-                      <span title={it.name}>{it.name}</span>
-                    </MenuItem>
-                  ))}
-                </div>
+                {featureType && (
+                  <div
+                    className={cx('printList', {
+                      noBorder: !IsQrCodeSwitch,
+                    })}
+                  >
+                    {tempList.map(it => (
+                      <MenuItem
+                        className=""
+                        onClick={evt => {
+                          if (featureType === '2') {
+                            buriedUpgradeVersionDialog(projectId, 20);
+                          } else {
+                            let printId = it.id;
+                            let printData = {
+                              printId,
+                              isDefault: false, // word模板
+                              worksheetId,
+                              projectId,
+                              rowId: selectedRowIds.join(','),
+                              getType: 1,
+                              viewId,
+                              appId,
+                              name: it.name,
+                              isBatch: true,
+                            };
+                            let printKey = Math.random()
+                              .toString(36)
+                              .substring(2);
+                            add({
+                              key: `${printKey}`,
+                              value: JSON.stringify(printData),
+                            });
+                            window.open(
+                              `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`,
+                            );
+                            this.setState({
+                              printListExpanded: false,
+                            });
+                          }
+                        }}
+                      >
+                        <span title={it.name}>{it.name}</span>
+                      </MenuItem>
+                    ))}
+                  </div>
+                )}
               </Menu>
             )}
           </div>
@@ -748,7 +705,10 @@ class BatchOperate extends React.Component {
                       description:
                         selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount
                           ? _l('60天内可在 回收站 内找回已删除%0，无编辑权限的数据无法删除。', entityName)
-                          : _l('批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录', md.global.SysSettings.worktableBatchOperateDataLimitCount),
+                          : _l(
+                              '批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录',
+                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                            ),
                       onOk: handleDelete,
                     };
                     if (isCharge && selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount) {
@@ -760,7 +720,7 @@ class BatchOperate extends React.Component {
                           clickOmitText: false,
                           title: (
                             <div className="Bold">
-                              <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
+                              <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }} />
                               {_l('彻底删除所有%0行记录', selectedLength)}
                             </div>
                           ),
@@ -771,7 +731,7 @@ class BatchOperate extends React.Component {
                               </span>
                               {_l(
                                 '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作',
-                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                                md.global.SysSettings.worktableBatchOperateDataLimitCount,
                               )}
                               {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
                             </div>
@@ -783,7 +743,7 @@ class BatchOperate extends React.Component {
                       };
                       configOptions.cancelText = (
                         <CancelTextContent>
-                          <i className="icon icon-error"></i>
+                          <i className="icon icon-error" />
                           {_l('彻底删除所有数据', selectedLength)}
                         </CancelTextContent>
                       );
@@ -792,6 +752,7 @@ class BatchOperate extends React.Component {
                   }}
                 />
               )}
+
               <div className="flex">
                 {showCusTomBtn && (
                   <Buttons
@@ -819,6 +780,43 @@ class BatchOperate extends React.Component {
                   }}
                 />
               </Tooltip>
+              {isCharge && (
+                <SubButton
+                  className="mTop4"
+                  list={[
+                    {
+                      text: _l('校准数据'),
+                      icon: 'Empty_nokey',
+                      onClick: () => {
+                        if (window.isPublicApp) {
+                          alert(_l('预览模式下，不能操作'), 3);
+                          return;
+                        }
+                        refreshRecord({
+                          controls,
+                          appId,
+                          viewId,
+                          projectId,
+                          view,
+                          worksheetId,
+                          searchArgs: filters,
+                          quickFilter,
+                          navGroupFilters,
+                          allWorksheetIsSelected,
+                          updateRows,
+                          getWorksheetSheetViewSummary,
+                          reloadWorksheet: reload,
+                          selectedRows,
+                          worksheetInfo: worksheetInfo,
+                          clearSelect,
+                        });
+                      },
+                    },
+                  ]}
+                >
+                  <i className="icon icon-more_horiz  Gray_9e Font18 pointer ThemeHoverColor3  mRight12" />
+                </SubButton>
+              )}
             </div>
           </div>
         )}

@@ -104,7 +104,7 @@ class WorkSheet extends Component {
         );
         storage.lastWorksheetId = '';
         storage.lastViewId = '';
-        localStorage.setItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
+        safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
       }
       return;
     }
@@ -123,7 +123,7 @@ class WorkSheet extends Component {
     storage.lastWorksheetId = worksheetId;
     storage.lastViewId = viewId;
 
-    localStorage.setItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
+    safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
   }
   getValidedWorksheetId(props) {
     const { match, sheetList, isCharge } = props || this.props;
@@ -143,12 +143,12 @@ class WorkSheet extends Component {
     const { match, addWorkSheet, updatePageInfo, updateEditPageVisible } = this.props;
     const { appId, groupId, viewId } = match.params;
     const { iconColor, projectId } = store.getState().appPkg;
-    const { type, name, icon } = obj;
+    const { type, name } = obj;
     this.pending = true;
     const enumType = type === 'worksheet' ? 0 : 1;
 
     const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${
-      type === 'customPage' ? '1_0_home' : '1_worksheet'
+      type === 'customPage' ? 'dashboard' : 'table'
     }.svg`;
 
     addWorkSheet(
@@ -157,14 +157,13 @@ class WorkSheet extends Component {
         appSectionId: groupId,
         name,
         iconColor,
-        icon,
         projectId,
         iconUrl,
         type: enumType,
       },
       res => {
-        const { pageId } = res;
         this.pending = false;
+        const { pageId } = res;
         if (type === 'customPage') {
           navigateTo(`/app/${appId}/${groupId}/${pageId}`);
           updatePageInfo({ pageName: name, pageId });

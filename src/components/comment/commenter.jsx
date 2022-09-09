@@ -118,7 +118,7 @@ class Commenter extends React.Component {
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
         } else {
-          window.localStorage.setItem('commenter-' + comp.props.storageId, text);
+          safeLocalStorageSetItem('commenter-' + comp.props.storageId, text);
         }
       });
     }
@@ -126,7 +126,7 @@ class Commenter extends React.Component {
     // @
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
-      localStorage.setItem('atData', JSON.stringify(this.props.atData || []));
+      safeLocalStorageSetItem('atData', JSON.stringify(this.props.atData || []));
       $textarea.mentionsInput(
         Object.assign(
           {
@@ -186,7 +186,7 @@ class Commenter extends React.Component {
       !_.isEqual(this.props.atData, nextProps.atData) &&
       nextProps.forReacordDiscussion
     ) {
-      localStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
+      safeLocalStorageSetItem('atData', JSON.stringify(nextProps.atData || []));
     }
   }
 
@@ -333,7 +333,7 @@ class Commenter extends React.Component {
             knowledgeAtts: JSON.stringify(kcAttachmentData),
             appId,
             extendsId,
-            entityType: forReacordDiscussion && entityType === 2 ? 2 : 0,//后端接口只区分0 2
+            entityType: forReacordDiscussion && entityType === 2 ? 2 : 0, //后端接口只区分0 2
           })
           .then(
             res => {

@@ -39,7 +39,7 @@ export default class AppStatusComp extends Component {
     if (!text) return null;
     return (
       <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile })}>
-        {text}{' '}
+        {text}
       </AppStatus>
     );
   }

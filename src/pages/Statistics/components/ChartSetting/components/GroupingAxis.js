@@ -2,16 +2,21 @@ import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
     areaParticleSizeDropdownData,
     timeParticleSizeDropdownData,
     isNumberControl,
     isTimeControl,
     isAreaControl,
-    filterDisableParticleSizeTypes
+    filterDisableParticleSizeTypes,
+    timeDataParticle,
+    filterTimeData,
+    timeGatherParticle
 } from 'statistics/common';
 
 const timeGather = timeParticleSizeDropdownData.filter(item => [5, 8, 9, 10, 11].includes(item.value));
+const timeParticle = timeGatherParticle.filter(item => [11, 12, 14].includes(item.value))
 
 export default class GroupingAxis extends Component {
   constructor(props) {
@@ -36,6 +41,7 @@ export default class GroupingAxis extends Component {
       this.props.onChangeCurrentReport({
         controlId: data.controlId,
         particleSizeType: (isTime || isArea) ? allowTypes[0] : 0,
+        ...data
       });
     }
   }
@@ -52,12 +58,14 @@ export default class GroupingAxis extends Component {
       particleSizeType: value
     });
   }
-  renderTimeOverlay() {
+  renderTimeOverlay(axis) {
     const { split, disableParticleSizeTypes } = this.props;
+    const showtype = _.get(axis, 'advancedSetting.showtype');
     const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(split.controlId, disableParticleSizeTypes);
+    const timeDataList = split.controlType === WIDGETS_TO_API_TYPE_ENUM.TIME ? timeParticle : timeGather;
     return (
       <Menu className="chartControlMenu chartMenu">
-        {timeGather.map(item => (
+        {timeDataList.map(item => (
           <Menu.Item
             className="valignWrapper"
             disabled={item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
@@ -107,7 +115,7 @@ export default class GroupingAxis extends Component {
           <span className="Gray flex ellipsis">
             {axis.controlName}
             {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
-            {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
+            {isArea && ` (${_.get(_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }), 'text')})`}
           </span>
         ) : (
           control.strDefault === '10' ? (
@@ -123,12 +131,12 @@ export default class GroupingAxis extends Component {
           )
         )}
         {isTime && (
-          <Dropdown overlay={this.renderTimeOverlay()} trigger={['click']}>
+          <Dropdown overlay={this.renderTimeOverlay(axis)} trigger={['click']} placement="bottomRight">
             <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
         {isArea && (
-          <Dropdown overlay={this.renderAreaOverlay()} trigger={['click']}>
+          <Dropdown overlay={this.renderAreaOverlay(axis)} trigger={['click']} placement="bottomRight">
             <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}

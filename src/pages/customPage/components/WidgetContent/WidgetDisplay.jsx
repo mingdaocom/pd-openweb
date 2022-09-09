@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
-import Card from 'statistics/Card';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { getEnumType, parseLink } from '../../util';
+import ChartDisplay from './ChartDisplay';
+import ViewDisplay from './ViewDisplay';
 import ButtonList from './ButtonList';
 import PreviewWraper from '../previewContent';
-import { View } from '../editWidget/view/Preview';
 import { RichText } from 'ming-ui';
+import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
+import MobileFilter from 'src/pages/Mobile/CustomPage/FilterContent';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -62,7 +64,8 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     }
     if (componentType === 'analysis') {
       return (
-        <Card
+        <ChartDisplay
+          widget={widget}
           ref={$cardRef}
           needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
           needRefresh={!editable}
@@ -79,7 +82,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     if (componentType === 'view') {
       return (
         editingWidget.viewId !== widget.viewId && (
-          <View
+          <ViewDisplay
             layoutType={layoutType}
             className={cx({ disableSingleView: editable })}
             appId={ids.appId}
@@ -89,6 +92,26 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
       );
     }
   };
+  if (componentType === 'filter') {
+    if (layoutType === 'mobile') {
+      return (
+        <MobileFilter
+          ids={ids}
+          widget={widget}
+          className={cx({ disableFiltersGroup: editable })}
+        />
+      );
+    } else {
+      return (
+        <FiltersGroupPreview
+          className={cx({ disableFiltersGroup: editable })}
+          appId={ids.appId}
+          projectId={projectId}
+          widget={widget}
+        />
+      );
+    }
+  }
   return (
     <WidgetContent className={componentType} ref={ref}>
       {renderContent()}

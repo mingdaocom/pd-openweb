@@ -154,7 +154,7 @@ export default function MdModal(props) {
         {allowScale && (
           <ModalButton
             onClick={() => {
-              localStorage.setItem('NEW_RECORD_IS_LARGE', !isLarge);
+              safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
               setIsLarge(!isLarge);
             }}
           >

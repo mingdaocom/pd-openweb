@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Textarea from 'ming-ui/components/Textarea';
-import Button from 'ming-ui/components/Button';
-import sheetAjax from 'src/api/worksheet';
+import { Icon } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import RcDialog from 'rc-dialog';
+import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 
 export default class SheetDesc extends Component {
   constructor(props) {
@@ -13,44 +14,70 @@ export default class SheetDesc extends Component {
       desc,
     }
   }
-  handleSave() {
-    const desc = this.state.desc.trim();
-    this.props.onSave(desc);
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.desc !== this.props.desc) {
+      this.setState({ desc: nextProps.desc });
+    }
+  }
+  handleSave = () => {
+    const value = this.state.desc || '';
+    const desc = value.trim();
     if (desc !== this.props.desc) {
-      sheetAjax
-        .updateWorksheetDec({
-          worksheetId: this.props.worksheetId,
+      const { worksheetId } = this.props;
+      if (worksheetId) {
+        sheetApi.updateWorksheetDec({
+          worksheetId,
           dec: desc,
-        })
-        .then((data) => {
+        }).then((data) => {
+          this.props.onSave(desc);
           alert(_l('修改成功'));
-        })
-        .fail((err) => {
-          alert(_l('修改工作表描述失败'), 2);
+        }).fail((err) => {
+          alert(_l('修改描述失败'), 2);
         });
+      } else {
+        this.props.onSave(desc);
+      }
     }
   }
   render() {
+    const { worksheetId, title, visible, onClose, isEditing } = this.props;
     const { desc } = this.state;
     return (
-      <div className="WhiteBG z-depth-2 boderRadAll_4" style={{width: 250, padding: 12}}>
-        <Textarea
-          autoFocus
-          className="Font13"
-          maxHeight={300}
-          placeholder={_l('添加工作表描述')}
-          value={desc}
-          onChange={(value) => {
-            this.setState({
-              desc: value.slice(0, 300),
-            })
+      <RcDialog
+        className="appIntroDialog"
+        wrapClassName="appIntroDialogWrapCenter"
+        visible={visible}
+        onClose={onClose}
+        animation="zoom"
+        style={{ width: '800px' }}
+        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+        bodyStyle={{ minHeight: '480px', padding: 0 }}
+        maskAnimation="fade"
+        mousePosition={{ x: 139, y: 23 }}
+        closeIcon={<Icon icon="close" />}
+      >
+        <EditAppIntro
+          title={title}
+          cacheKey={worksheetId ? 'sheetIntroDescription' : 'pageIntroDescription'}
+          description={desc}
+          permissionType={100}
+          // isEditing={!desc}
+          isEditing={isEditing}
+          changeSetting={() => {}}
+          onSave={value => {
+            if (value === null) {
+              onClose();
+            } else {
+              this.setState({
+                desc: value
+              }, this.handleSave);
+            }
+          }}
+          onCancel={() => {
+            onClose();
           }}
         />
-        <div className="TxtRight pTop10">
-          <Button type="link" size="tiny" onClick={this.props.onClose}>{_l('取消')}</Button>
-          <Button type="primary" size="tiny" onClick={this.handleSave.bind(this)}>{_l('保存')}</Button>
-        </div>
-      </div>
+      </RcDialog>
     );
   }
 }

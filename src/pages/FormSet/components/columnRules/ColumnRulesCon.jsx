@@ -293,7 +293,7 @@ class ColumnRulesCon extends React.Component {
         </div>
         <Drawer
           className="columnRulesDrawerContainer"
-          width={480}
+          width={640}
           title={<span>{editingId.indexOf('new_') >= 0 ? _l('新建规则') : _l('编辑规则')}</span>}
           placement="right"
           onClose={() => clearColumnRules()}

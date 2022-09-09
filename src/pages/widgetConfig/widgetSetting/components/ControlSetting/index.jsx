@@ -6,6 +6,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/se
 import TelConfig from './TelConfig';
 import UserConfig from './UserConfig';
 import DateConfig from './DateConfig';
+import TimeConfig from './TimeConfig';
 import ScoreConfig from './ScoreConfig';
 
 const TYPE_TO_COMP = {
@@ -14,6 +15,7 @@ const TYPE_TO_COMP = {
   16: DateConfig,
   26: UserConfig,
   28: ScoreConfig,
+  46: TimeConfig,
 };
 
 const CASCADER_CONFIG = [
@@ -35,7 +37,7 @@ const CASCADER_CONFIG = [
 export default function WidgetConfig(props) {
   const { from, data, onChange } = props;
   const { type, enumDefault, advancedSetting = {}, strDefault } = data;
-  const { allowadd, showxy, showtype, checktype, analysislink } = getAdvanceSetting(data);
+  const { allowadd, showxy, showtype, checktype, analysislink, uselast } = getAdvanceSetting(data);
 
   const getConfig = () => {
     if (type === 2 || type === 32) {
@@ -109,6 +111,19 @@ export default function WidgetConfig(props) {
           </Checkbox>
         </div>
       ));
+    }
+    if (type === 42) {
+      return (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={uselast === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { uselast: String(+!checked) }))}
+          >
+            <span>{_l('允许使用上次的签名')}</span>
+          </Checkbox>
+        </div>
+      );
     }
 
     const Comp = TYPE_TO_COMP[type];

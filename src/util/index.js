@@ -9,7 +9,7 @@ import { LIGHT_COLOR, PUBLIC_KEY, APPLICATION_ICON } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import { getUploadToken, getFileUploadToken } from 'src/api/qiniu';
-const {dialog: {netState: {buyBtn}}} = window.private;
+import { getProjectLicenseInfo } from 'src/api/project';
 
 export const emitter = new EventEmitter();
 
@@ -86,7 +86,7 @@ export const exportAll = r => {
 
 export const setItem = (key, value) => {
   if (!key || !value) return;
-  localStorage.setItem(key, JSON.stringify(value));
+  safeLocalStorageSetItem(key, JSON.stringify(value));
 };
 
 export const getItem = key => {
@@ -96,22 +96,6 @@ export const getItem = key => {
   } catch (error) {
     console.log(error);
   }
-};
-
-export const upgradeVersionDialog = options => {
-  Dialog.confirm({
-    className: options.className ? options.className : 'upgradeVersionDialogBtn',
-    title: '',
-    description: (
-      <div className="netStateWrap">
-        <div className="imgWrap" />
-        <div className="hint">{options.hint || _l('当前版本无法使用此功能')}</div>
-        <div className="explain">{options.explainText || _l('请升级至付费版解锁开启')}</div>
-      </div>
-    ),
-    noFooter: buyBtn,
-    removeCancelBtn: true,
-  });
 };
 
 export const formatNumberFromInput = value => {
@@ -315,13 +299,13 @@ export const isUrlRequest = url => {
 
 export const downloadFile = url => {
   if (window.isDingTalk) {
-    const { search } = new URL(decodeURIComponent(url));
-    const { validation } = getRequest(search);
+    const [path, search] = decodeURIComponent(url).split('?');
+    const { validation } = qs.parse(search);
     return addToken(url, validation ? true : false);
   } else {
     return addToken(url);
   }
-}
+};
 
 /**
  * 下载地址和包含 md.global.Config.AjaxApiUrl 的 url 添加 token
@@ -352,7 +336,8 @@ export const browserIsMobile = () => {
   const bIsAndroid = sUserAgent.match(/android/i) == 'android';
   const bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
   const bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
-  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM;
+  const bIsApp = sUserAgent.match(/mingdao application/i) == 'mingdao application';
+  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM || bIsApp;
 
   if (sUserAgent.includes('dingtalk')) {
     // 钉钉设备针对侧边栏打开判断为 mobile 环境
@@ -509,7 +494,7 @@ export const htmlEncodeReg = str => {
   const encodeHTMLRules = { '&': '&#38;', '<': '&lt;', '>': '&gt;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
   const matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
   return str
-    ? str.toString().replace(matchHTML, function (m) {
+    ? str.toString().replace(matchHTML, function(m) {
         return encodeHTMLRules[m] || m;
       })
     : '';
@@ -535,7 +520,7 @@ export const htmlDecodeReg = str => {
   };
   const matchHTML = /&#(38|60|62|34|39|47);|&(amp|lt|gt|quot);/g;
   return str
-    ? str.toString().replace(matchHTML, function (m) {
+    ? str.toString().replace(matchHTML, function(m) {
         return decodeHTMLRules[m] || m;
       })
     : '';
@@ -739,7 +724,9 @@ export function getColorCountByBg(backgroundColor) {
     ',' +
     parseInt('0x' + backgroundColor.slice(5, 7)) +
     ')';
-  const RgbValueArry = RgbValue.replace('rgb(', '').replace(')', '').split(',');
+  const RgbValueArry = RgbValue.replace('rgb(', '')
+    .replace(')', '')
+    .split(',');
   return RgbValueArry[0] * 0.299 + RgbValueArry[1] * 0.587 + RgbValueArry[2] * 0.114;
 }
 
@@ -754,4 +741,126 @@ export function replaceNotNumber(value) {
     .replace('.', '$#$')
     .replace(/\./g, '')
     .replace('$#$', '.');
+}
+
+/**
+ * 调用 app 内的方式
+ */
+export function mdAppResponse(param) {
+  const ua = navigator.userAgent;
+  const isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+  return new Promise((resolve, reject) => {
+    // 注册监听
+    window.MD_APP_RESPONSE = base64 => {
+      const decodedData = window.atob(base64);
+      resolve(JSON.parse(decodeURIComponent(escape(decodedData))));
+    };
+    // 触发监听的回调函数
+    const string = JSON.stringify(param);
+    const base64 = window.btoa(string);
+    if (isIOS) {
+      window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
+    } else {
+      window.Android.MD_APP_REQUEST(base64);
+    }
+  });
+}
+
+/**
+ * 升级版本dialog
+ */
+export const upgradeVersionDialog = options => {
+  const hint = options.hint || _l('当前版本无法使用此功能');
+  const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
+
+  if (options.dialogType === 'content') {
+    return (
+      <div>
+        <div className="netStateWrap">
+          <div className="imgWrap" />
+          <div className="hint">{hint}</div>
+          {(!md.global.Config.IsLocal || options.explainText) && <div className="explain">{explainText}</div>}
+        </div>
+      </div>
+    );
+  }
+  Dialog.confirm({
+    className: options.className ? options.className : 'upgradeVersionDialogBtn',
+    title: '',
+    description: (
+      <div className="netStateWrap">
+        <div className="imgWrap" />
+        <div className="hint">{hint}</div>
+        {(!md.global.Config.IsLocal || options.explainText) && <div className="explain">{explainText}</div>}
+      </div>
+    ),
+    noFooter: true,
+  });
+};
+
+/**
+ * 获取网络信息
+ */
+const getSyncLicenseInfo = projectId => {
+  const { projects = [], externalProjects = [] } = md.global.Account;
+  let projectInfo = _.find(projects.concat(externalProjects), o => o.projectId === projectId) || {};
+
+  if (_.isEmpty(projectInfo)) {
+    getProjectLicenseInfo({ projectId }, { ajaxOptions: { async: false } }).then(res => {
+      projectInfo = { ...res, projectId };
+      md.global.Account.externalProjects = (md.global.Account.externalProjects || []).concat(projectInfo);
+    });
+  }
+
+  return projectInfo;
+};
+
+/**
+ *  获取功能状态 1: 正常 2: 升级
+ */
+export function getFeatureStatus(projectId, featureId) {
+  if (!/^[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12}$/.test(projectId)) return;
+
+  const { Versions = [] } = md.global || {};
+  const { version = { versionIdV2: '-1' } } = getSyncLicenseInfo(projectId);
+  const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === version.versionIdV2) || {};
+
+  return (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type;
+}
+
+/**
+ * 功能埋点授权显示升级版本内容dialogType： dialog弹层（默认） content 页面
+ */
+export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
+  const { Versions = [] } = md.global || {};
+  const { licenseType } = getSyncLicenseInfo(projectId);
+  let upgradeName;
+
+  if (!md.global.Config.IsLocal) {
+    const getFeatureType = versionIdV2 => {
+      const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
+
+      return {
+        versionName: versionInfo.Name,
+        type: (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type,
+      };
+    };
+    upgradeName = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(item => item.type === '1')[0]
+      .versionName;
+  }
+
+  if (dialogType === 'content') {
+    return upgradeVersionDialog({
+      projectId,
+      isFree: licenseType === 0,
+      explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
+      dialogType,
+    });
+  } else {
+    upgradeVersionDialog({
+      projectId,
+      isFree: licenseType === 0,
+      explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
+    });
+  }
 }

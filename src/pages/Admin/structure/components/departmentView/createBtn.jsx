@@ -96,13 +96,14 @@ class CreateBtn extends Component {
     const { newDepartments, dispatch } = this.props;
     return (
       <span
-        className="Hand mLeft24 mRight24 ThemeColor3 creatDepartment pTop16 pBottom16 pRight7"
+        className="Hand mLeft24 mRight24 ThemeColor3 creatDepartment pBottom16 pRight7"
         style={{
           borderTop: '1px solid #EAEAEA',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingRight: '3px',
+          paddingTop: '24px',
         }}
       >
         <span className="creatDepartmentTxt" onClick={this.handleClick}>
@@ -130,7 +131,7 @@ class CreateBtn extends Component {
             </Menu>
           }
         >
-          <Icon icon="moreop" className="Gray_9e Hand Font15" style={{ height: '12px' }} />
+          <Icon icon="moreop" className="Gray_9e Hand Font20 iconHover" />
         </Dropdown>
       </span>
     );

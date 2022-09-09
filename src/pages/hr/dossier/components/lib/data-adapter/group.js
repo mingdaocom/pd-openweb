@@ -71,7 +71,7 @@ class GroupAdapter {
           name: group.name,
           data: FormAdapter.convert(group.controls, 0, configs),
           repeat: false,
-          disabled: group.type === 0, // 明道云登录凭证 禁止编辑
+          disabled: group.type === 0, // 登录凭证 禁止编辑
         };
       }
 

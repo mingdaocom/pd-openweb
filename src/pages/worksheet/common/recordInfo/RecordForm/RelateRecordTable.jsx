@@ -335,7 +335,6 @@ export default function RelateRecordTable(props) {
           recordIds: [deleteRecordId],
         });
         loadRows();
-        setRelateNumOfControl(v => v - 1);
         if (!slient) {
           alert(_l('取消关联成功！'));
         }
@@ -399,7 +398,7 @@ export default function RelateRecordTable(props) {
     });
   }, []);
   useEffect(() => {
-    if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD'], lastAction)) {
+    if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
       if (isNewRecord) {
         onRelateRecordsChange(records);
       } else {
@@ -604,6 +603,7 @@ export default function RelateRecordTable(props) {
               .map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
             projectId: worksheetOfControl.projectId,
             searchConfig: sheetSearchConfig,
+            rules: worksheetOfControl.rules || [],
             onAsyncChange: changes => {
               let needUpdateCells = [];
               if (!_.isEmpty(changes.controlIds)) {

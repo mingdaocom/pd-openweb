@@ -214,7 +214,7 @@ export default function GroupItem(props) {
                   }
                 >
                   <MoreBtnCon>
-                    <i className="icon icon-more_horiz1 Font18 Gray_9e Hand"></i>
+                    <i className="icon icon-more_horiz Font18 Gray_9e Hand"></i>
                   </MoreBtnCon>
                 </Trigger>
               )}

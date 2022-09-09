@@ -135,7 +135,7 @@ class ProjectCard extends Component {
           <div
             className="flex"
             onClick={() =>
-              item.userStatus === common.USER_STATUS.UNAUDITED ? () => {} : this.props.checkCurrentProject(item)
+              item.userStatus === common.USER_STATUS.UNAUDITED ? () => { } : this.props.checkCurrentProject(item)
             }
           >
             <div className="Font18">
@@ -147,7 +147,7 @@ class ProjectCard extends Component {
               </Radio>
             </div>
             <div className="Font12 Gray_75 mTop15 mBottom20">
-              {_l('组织ID %0', item.projectCode)} {_l('(可用于邀请其他人加入该网络)')}
+              {_l('组织门牌号 %0', item.projectCode)} {_l('(可用于邀请其他人加入该网络)')}
             </div>
             {item.userStatus !== common.USER_STATUS.UNAUDITED && (
               <div>
@@ -205,7 +205,7 @@ class Enterprise extends Component {
       });
   }
   checkCurrentProject = item => {
-    localStorage.setItem('currentProjectId', item.projectId);
+    safeLocalStorageSetItem('currentProjectId', item.projectId);
     this.setState({ checkedProjectId: item.projectId });
   };
   renderNoProject = () => {

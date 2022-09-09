@@ -56,7 +56,6 @@ class CalendarFooter extends Component {
         <span className={`${prefixCls}-timepicker-title`}>{locale.lang.timepicker}</span>
         <TimePicker
           {...props}
-          showSecond={false}
           popupParentNode={props.popupParentNode}
           onChange={val => props.onSelect(val)}
           className={`${prefixCls}-timepicker-btn`}
@@ -76,7 +75,7 @@ class CalendarFooter extends Component {
         <div className={`${prefixCls}-footer-back`}>
           <Icon
             icon="cancel"
-            onClick={(event) => {
+            onClick={event => {
               this.back();
             }}
           />

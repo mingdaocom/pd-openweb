@@ -98,7 +98,7 @@ export default function RelateRecord(props) {
         {...control}
         advancedSetting={{}}
         controls={relationControls}
-        selected={!values}
+        selected={values}
         showCoverAndControls={true}
         popupContainer={() => document.body}
         multiple={isMultiple}

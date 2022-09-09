@@ -397,7 +397,7 @@ class ViewConfigCon extends Component {
     const { columns, view } = this.props;
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45], c.type),
+      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
     );
     // 画廊视图封面需要嵌入字段，其他配置过滤
     const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);

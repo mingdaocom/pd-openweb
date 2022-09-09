@@ -43,7 +43,7 @@ export const FLOW_FAIL_REASON = {
 
   20001: _l('动作节点执行失败'),
   20002: _l('查找节点无数据'),
-  20003: _l('短信发送需要组织id'),
+  20003: _l('短信发送需要组织门牌号'),
   20004: _l('短信模板没有通过审核'),
   20005: _l('短信或邮件没有账号'),
   20006: _l('批量创建来源数据太多'),
@@ -119,6 +119,9 @@ export const NODE_TYPE = {
   20: { type: 'pbc', text: _l('封装业务流程(PBP)') },
   21: { type: 'jsonParse', text: _l('JSON 解析') },
   22: { type: 'auth', text: _l('API 连接与认证') },
+  23: { type: 'parameter', text: _l('连接参数') },
+  24: { type: 'apiPackage', text: _l('API 连接与认证') },
+  25: { type: 'api', text: _l('调用已集成 API') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -153,7 +156,7 @@ export const COUNTER_TYPE = {
 export const NODE_ICON = {
   start: {
     icon: {
-      1: 'worksheet',
+      1: 'table',
       5: 'hr_surplus',
       6: 'hr_time',
       7: 'workflow_webhook',
@@ -295,6 +298,21 @@ export const NODE_ICON = {
   auth: {
     icon: 'key1',
     text: _l('API 连接与认证'),
+    bgColor: '#4c7d9e',
+  },
+  parameter: {
+    icon: 'input',
+    text: _l('连接参数'),
+    bgColor: '#4c7d9e',
+  },
+  apiPackage: {
+    icon: 'connect',
+    text: _l('API 连接与认证'),
+    bgColor: '#4c7d9e',
+  },
+  api: {
+    icon: 'api',
+    text: _l('调用已集成 API'),
     bgColor: '#4c7d9e',
   },
   singleInfo: {

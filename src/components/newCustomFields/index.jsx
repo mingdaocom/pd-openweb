@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Modal } from 'antd-mobile';
 import { Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import { checkFieldUnique } from 'src/api/worksheet';
@@ -10,12 +10,14 @@ import './style.less';
 import widgets from './widgets';
 import RelateRecordMuster from './components/RelateRecordMuster';
 import WidgetsDesc from './components/WidgetsDesc';
+import WidgetsVerifyCode from './components/WidgetsVerifyCode';
 import { convertControl, controlState } from './tools/utils';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 export default class CustomFields extends Component {
   static propTypes = {
@@ -64,7 +66,11 @@ export default class CustomFields extends Component {
       rulesLoading: !props.disableRules && !props.rules,
       searchConfig: props.searchConfig || [],
       loadingItems: {},
+      verifyCode: '', // 验证码
+      refreshId: '',
     };
+
+    this.controlRefs = {};
   }
 
   componentWillMount() {
@@ -120,7 +126,9 @@ export default class CustomFields extends Component {
    * 初始化数据
    */
   initSource(data, disabled, { setStateCb = () => {} } = {}) {
-    const { projectId, initSource, recordId, recordCreateTime, from, onFormDataReady, masterRecordRowId } = this.props;
+    const { projectId, initSource, recordId, recordCreateTime, from, onFormDataReady, masterRecordRowId, ignoreLock } =
+      this.props;
+    const { rules = [] } = this.state;
 
     this.dataFormat = new DataFormat({
       projectId,
@@ -129,6 +137,8 @@ export default class CustomFields extends Component {
       disabled,
       recordCreateTime,
       masterRecordRowId,
+      ignoreLock,
+      rules,
       from,
       embedData: {
         ..._.pick(this.props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
@@ -189,8 +199,8 @@ export default class CustomFields extends Component {
       from: this.props.from,
       updateControlIds: this.dataFormat.getUpdateRuleControlIds(),
       ignoreHideControl,
-      checkRuleValidator: (controlId, errorType, errorMessage) => {
-        this.dataFormat.setErrorControl(controlId, errorType, errorMessage, isInit);
+      checkRuleValidator: (controlId, errorType, errorMessage, ruleId) => {
+        this.dataFormat.setErrorControl(controlId, errorType, errorMessage, ruleId, isInit);
       },
     });
   }
@@ -269,7 +279,7 @@ export default class CustomFields extends Component {
         recordId
           ? !(
               isRelateRecordTableControl(item) &&
-              (_.includes([FROM.SHARE, FROM.H5_EDIT, FROM.WORKFLOW], from) || isMobile)
+              (_.includes([FROM.SHARE, FROM.H5_EDIT, FROM.WORKFLOW, FROM.CUSTOM_BUTTON], from) || isMobile)
             )
           : true,
       )
@@ -288,7 +298,10 @@ export default class CustomFields extends Component {
         formList.push(
           <div
             className="customFormItem"
-            style={{ width: isFull ? '100%' : `${(item.size / 12) * 100}%` }}
+            style={{
+              width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
+              display: item.type === 49 && this.props.disabled ? 'none' : 'block',
+            }}
             key={`item-${item.row}-${item.col}`}
           >
             {item.type === 22 && _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
@@ -297,8 +310,11 @@ export default class CustomFields extends Component {
               </div>
             )}
 
-            {!_.includes([10010, 45], item.type) && this.getControlLabel(item)}
-            <div className="customFormItemControl">{this.getWidgets(Object.assign({}, item, controlProps))}</div>
+            {!_.includes([45], item.type) && this.getControlLabel(item)}
+            <div className="customFormItemControl">
+              {this.getWidgets(Object.assign({}, item, controlProps))}
+              {this.renderVerifyCode(item)}
+            </div>
 
             {item.type === 22 && !_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
               <div className="customFormLine" style={{ background: '#ccc', margin: 0 }} />
@@ -311,6 +327,32 @@ export default class CustomFields extends Component {
       });
 
     return formList;
+  }
+
+  /**
+   * 渲染短信验证码
+   */
+  renderVerifyCode(item) {
+    const { controlId, type } = item;
+    const { smsVerificationFiled, smsVerification } = this.props;
+
+    if (
+      window.isPublicWorksheet &&
+      smsVerification &&
+      type === 3 &&
+      smsVerificationFiled === controlId &&
+      controlState(item, 4).editable
+    ) {
+      return (
+        <WidgetsVerifyCode
+          {...item}
+          verifyCode={this.state.verifyCode}
+          worksheetId={this.props.worksheetId}
+          handleChange={verifyCode => this.setState({ verifyCode })}
+        />
+      );
+    }
+    return null;
   }
 
   /**
@@ -345,6 +387,67 @@ export default class CustomFields extends Component {
   };
 
   /**
+   * 组件onChange方法
+   */
+  handleChange = (value, cid, item) => {
+    const { onWidgetChange = () => {} } = this.props;
+    const { uniqueErrorItems } = this.state;
+
+    if (!_.get(value, 'rows')) {
+      onWidgetChange();
+    }
+    if (item.value !== value || cid !== item.controlId) {
+      this.dataFormat.updateDataSource({
+        controlId: cid,
+        value,
+        removeUniqueItem: id => {
+          _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
+        },
+        searchByChange: true,
+      });
+      this.setState({ renderData: this.getFilterDataByRule() }, () =>
+        this.setErrorItemsByRule(cid, { ...item, value }),
+      );
+
+      const ids = this.dataFormat.getUpdateControlIds();
+      if (ids.length) {
+        this.props.onChange(this.dataFormat.getDataSource(), ids);
+        this.changeStatus = true;
+      }
+    }
+  };
+
+  /**
+   * 刷新按钮
+   */
+  renderRefreshBtn(item) {
+    const { worksheetId, recordId } = this.props;
+    const { refreshId } = this.state;
+    return (
+      <Fragment>
+        {!!recordId && _.includes([30, 31, 32, 37, 38], item.type) ? (
+          <span
+            data-tip={refreshId === item.controlId ? _l('刷新中...') : _l('刷新')}
+            className="tip-top Font14 mLeft5 Gray_9e ThemeHoverColor3 pointer RefreshBtn"
+            onClick={() => {
+              if (refreshId) return;
+
+              this.setState({ refreshId: item.controlId });
+
+              sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(data => {
+                this.handleChange(data, item.controlId, item);
+                this.setState({ refreshId: '' });
+              });
+            }}
+          >
+            <i className={cx('icon-workflow_cycle', { isLoading: refreshId === item.controlId })} />
+          </span>
+        ) : null}
+      </Fragment>
+    );
+  }
+
+  /**
    * 控件label
    */
   getControlLabel(item) {
@@ -353,6 +456,9 @@ export default class CustomFields extends Component {
     const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
     const errorText = currentErrorItem.errorText || '';
     const isEditable = controlState(item, from).editable;
+    const showTitle = _.includes([22, 10010], item.type)
+      ? (item.advancedSetting || {}).hidetitle !== '1' && item.controlName
+      : (item.advancedSetting || {}).hidetitle !== '1';
     let errorMessage = '';
 
     if (currentErrorItem.showError && isEditable) {
@@ -361,6 +467,59 @@ export default class CustomFields extends Component {
       } else {
         errorMessage = errorText || currentErrorItem.errorMessage;
       }
+    }
+    if (browserIsMobile() && !showTitle) {
+      return (
+        <Fragment>
+          {!item.showTitle && item.required && !item.disabled && isEditable && (
+            <span
+              style={{
+                margin: item.desc && !_.includes([FROM.H5_ADD], from) ? '0px 0px 0px -8px' : '0px 0px 0px -13px',
+                top: item.desc && !_.includes([FROM.H5_ADD], from) ? '9px' : '15px',
+                color: '#f44336',
+                position: 'absolute',
+              }}
+            >
+              *
+            </span>
+          )}
+          {item.desc && !_.includes([FROM.H5_ADD], from) && (
+            <Tooltip
+              text={
+                <span
+                  className="Block"
+                  style={{
+                    maxWidth: 230,
+                    maxHeight: 200,
+                    overflowY: 'auto',
+                    color: '#fff',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {item.desc}
+                </span>
+              }
+              action={['click']}
+              popupPlacement={'topLeft'}
+              offset={[-12, 0]}
+            >
+              <i className="icon-workflow_error pointer Font16 Gray_9e mBottom10" />
+            </Tooltip>
+          )}
+          {!item.showTitle && errorMessage && (
+            <div className="customFormErrorMessage">
+              <span>
+                {errorMessage}
+                <i
+                  className="icon-close mLeft6 Bold delIcon"
+                  onClick={() => this.updateErrorState(false, item.controlId)}
+                />
+              </span>
+              <i className="customFormErrorArrow" />
+            </div>
+          )}
+        </Fragment>
+      );
     }
 
     return (
@@ -392,11 +551,13 @@ export default class CustomFields extends Component {
             </div>
           )}
 
-          <div title={item.controlName}>
+          <div title={item.controlName} className={cx({ hideTitleLabel: !showTitle })}>
             {item.controlName}
             {this.renderCount(item)}
           </div>
-          {_.includes([FROM.RECORDINFO, FROM.H5_EDIT, FROM.WORKFLOW], from) && this.renderDesc(item)}
+          {_.includes([FROM.RECORDINFO, FROM.H5_EDIT, FROM.WORKFLOW, FROM.CUSTOM_BUTTON], from) &&
+            this.renderDesc(item)}
+          {this.renderRefreshBtn(item)}
           <div className={cx('mLeft6', { Hidden: !loadingItems[item.controlId] })}>
             <i className="icon-loading_button customFormItemLoading Gray_9e" />
           </div>
@@ -515,9 +676,7 @@ export default class CustomFields extends Component {
       systemControlData,
       popupContainer,
       getMasterFormData,
-      onWidgetChange = () => {},
     } = this.props;
-    const { uniqueErrorItems } = this.state;
 
     // 他表字段
     if (convertControl(item.type) === 'SHEET_FIELD') {
@@ -545,7 +704,7 @@ export default class CustomFields extends Component {
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
-        (_.includes([21, 26, 27, 29], item.type) &&
+        (_.includes([21, 26, 27, 29, 48], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
     ) {
@@ -573,28 +732,7 @@ export default class CustomFields extends Component {
           viewIdForPermit={viewId}
           initSource={initSource}
           onChange={(value, cid = controlId) => {
-            if (!_.get(value, 'rows')) {
-              onWidgetChange();
-            }
-            if (item.value !== value) {
-              this.dataFormat.updateDataSource({
-                controlId: cid,
-                value,
-                removeUniqueItem: id => {
-                  _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
-                },
-                searchByChange: true,
-              });
-              this.setState({ renderData: this.getFilterDataByRule() }, () =>
-                this.setErrorItemsByRule(cid, { ...item, value }),
-              );
-
-              const ids = this.dataFormat.getUpdateControlIds();
-              if (ids.length) {
-                this.props.onChange(this.dataFormat.getDataSource(), ids);
-                this.changeStatus = true;
-              }
-            }
+            this.handleChange(value, cid, item);
           }}
           onBlur={originValue => {
             const newValue = `${item.value}` ? `${item.value}`.trim() : '';
@@ -606,7 +744,11 @@ export default class CustomFields extends Component {
             }
           }}
           openRelateSheet={openRelateSheet}
-          registerCell={cell => registerCell({ item, cell })}
+          registerCell={cell => {
+            this.controlRefs[controlId] = cell;
+            registerCell({ item, cell });
+          }}
+          getControlRef={key => this.controlRefs[key]}
           formData={this.dataFormat
             .getDataSource()
             .concat(systemControlData || [])

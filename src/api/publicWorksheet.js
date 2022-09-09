@@ -35,6 +35,9 @@ module.exports = {
   * @param {string} args.extendSourceId 扩展来源控件id
   * @param {array} args.extends 扩展来源信息（微博，微信等）
   * @param {boolean} args.needCaptcha 是否启用验证码
+  * @param {boolean} args.smsVerification 短信验证 需要短信验证-true 不需要短信验证-false
+  * @param {string} args.smsVerificationFiled 选择的手机号验证的字段
+  * @param {string} args.smsSignature 短信签名
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -81,6 +84,18 @@ module.exports = {
      return $.api('PublicWorksheet', 'Reset', args, options);
    },
   /**
+  * 根据工作表ID获取公开查询
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPublicQuery: function (args, options = {}) {
+     
+     return $.api('PublicWorksheet', 'GetPublicQuery', args, options);
+   },
+  /**
   * 获取表单信息
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -93,6 +108,35 @@ module.exports = {
      return $.api('PublicWorksheet', 'GetPublicWorksheetInfo', args, options);
    },
   /**
+  * 编辑公开查询状态
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {} args.visibleType 分享链接状态  1=关闭 2=公开
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPublicQueryState: function (args, options = {}) {
+     
+     return $.api('PublicWorksheet', 'EditPublicQueryState', args, options);
+   },
+  /**
+  * 编辑公开查询配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {array} args.queryControlIds
+  * @param {string} args.title
+  * @param {boolean} args.exported 是否导出excel
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPublicQuery: function (args, options = {}) {
+     
+     return $.api('PublicWorksheet', 'EditPublicQuery', args, options);
+   },
+  /**
   * 获取关联记录
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -100,6 +144,7 @@ module.exports = {
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -180,6 +225,7 @@ module.exports = {
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
+  * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -192,19 +238,7 @@ module.exports = {
      return $.api('PublicWorksheet', 'AddRow', args, options);
    },
   /**
-  * 工作表id获取公开查询
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getPublicQuery: function (args, options = {}) {
-     
-     return $.api('PublicWorksheet', 'GetPublicQuery', args, options);
-   },
-  /**
-  * queryId获取公开查询
+  * 获取公开查询信息
   * @param {Object} args 请求参数
   * @param {string} args.queryId
   * @param {Object} options 配置参数
@@ -216,42 +250,14 @@ module.exports = {
      return $.api('PublicWorksheet', 'GetPublicQueryById', args, options);
    },
   /**
-  * 编辑公开查询状态
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {} args.visibleType 分享链接状态  1=关闭 2=公开
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPublicQueryState: function (args, options = {}) {
-     
-     return $.api('PublicWorksheet', 'EditPublicQueryState', args, options);
-   },
-  /**
-  * 编辑公开查询配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId
-  * @param {string} args.viewId
-  * @param {array} args.queryControlIds
-  * @param {string} args.title
-  * @param {boolean} args.exported 是否导出excel
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPublicQuery: function (args, options = {}) {
-     
-     return $.api('PublicWorksheet', 'EditPublicQuery', args, options);
-   },
-  /**
-  * 搜索
+  * 公开查询搜索
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
   * @param {array} args.fastFilters 快速筛选
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
   * @param {array} args.sortControls 排序列
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
@@ -285,5 +291,21 @@ module.exports = {
    query: function (args, options = {}) {
      
      return $.api('PublicWorksheet', 'Query', args, options);
+   },
+  /**
+  * 公开查询发送验证码短信
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号手机号
+  * @param {string} args.worksheetId 工作表ID
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   sendVerifyCode: function (args, options = {}) {
+     
+     return $.api('PublicWorksheet', 'SendVerifyCode', args, options);
    },
 };

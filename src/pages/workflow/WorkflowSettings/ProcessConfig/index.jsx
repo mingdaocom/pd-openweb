@@ -189,10 +189,10 @@ class ProcessConfig extends Component {
 
         <div className="processConfigLine" />
         <div className="bold Font16 mTop20">{_l('系统错误通知')}</div>
-        <div className="Gray_75 mTop5">{_l('如果因系统错误导致流程终止，以下人员将会收到通知')}</div>
+        <div className="Gray_75 mTop5 mBottom8">{_l('如果因系统错误导致流程终止，以下人员将会收到通知')}</div>
 
         <Member
-          type={NODE_TYPE.MESSAGE}
+          isSingle
           accounts={data.errorNotifiers}
           updateSource={({ accounts }) => this.updateSource({ errorNotifiers: accounts })}
         />
@@ -330,7 +330,7 @@ class ProcessConfig extends Component {
 
     return (
       <Fragment>
-        <div className="bold Font16 mTop20">{_l('工作流撤回')}</div>
+        <div className="bold Font16 mTop20">{_l('触发者操作')}</div>
         <div className="mTop15">
           <Checkbox
             className="InlineFlex TxtTop"

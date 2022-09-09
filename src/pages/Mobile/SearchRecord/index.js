@@ -5,7 +5,11 @@ import { Flex, ActivityIndicator, WhiteSpace, ListView, WingBlank } from 'antd-m
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import sheetApi from 'src/api/worksheet';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
-import { getDefaultCondition, formatConditionForSave } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import {
+  getDefaultCondition,
+  formatConditionForSave,
+  redefineComplexControl,
+} from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getRequest } from 'src/util';
 import './index.less';
@@ -25,29 +29,33 @@ class Search extends Component {
       dataSource,
       isMore: true,
       loading: true,
-      pageIndex: 1
+      pageIndex: 1,
     };
   }
   componentDidMount() {
     const { params } = this.props.match;
     const { filterId } = getRequest();
 
-    const requestSheet = sheetApi.getWorksheetInfo({
-      appId: params.appId,
-      worksheetId: params.worksheetId,
-      getTemplate: true,
-      getViews: true,
-    }).then();
+    const requestSheet = sheetApi
+      .getWorksheetInfo({
+        appId: params.appId,
+        worksheetId: params.worksheetId,
+        getTemplate: true,
+        getViews: true,
+      })
+      .then();
 
-    const requestFilters = filterId ? sheetApi.getWorksheetFilterById({
-      filterId
-    }) : undefined;
+    const requestFilters = filterId
+      ? sheetApi.getWorksheetFilterById({
+          filterId,
+        })
+      : undefined;
 
     Promise.all([requestSheet, requestFilters]).then(result => {
-      const [ sheet, filterData = {} ] = result;
+      const [sheet, filterData = {}] = result;
       this.setState({
         sheetInfo: sheet,
-        filterControls: formatValuesOfOriginConditions(filterData.items || [])
+        filterControls: formatValuesOfOriginConditions(filterData.items || []),
       });
       this.requestFilterRows();
     });
@@ -57,54 +65,65 @@ class Search extends Component {
     const { loading, isMore, pageIndex, filterControls, sheetInfo } = this.state;
     const controls = _.get(sheetInfo, ['template', 'controls']) || [];
     const { keyWords, searchId } = getRequest();
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
     this.setState({
-      loading: true
+      loading: true,
     });
 
     const searchControl = _.find(controls, { controlId: searchId });
     let searchFilter = null;
 
     if (searchControl) {
-      const data = getDefaultCondition(searchControl);
-      searchFilter = formatConditionForSave({
-        ...data,
-        type: 2,
-        values: [keyWords]
-      }, 1);
+      const data = getDefaultCondition(redefineComplexControl(searchControl));
+      searchFilter = formatConditionForSave(
+        {
+          ...data,
+          type: 2,
+          values: [keyWords],
+        },
+        1,
+      );
     }
 
-    sheetApi.getFilterRows({
-      appId: params.appId,
-      worksheetId: params.worksheetId,
-      searchType: 1,
-      pageSize,
-      pageIndex,
-      status: 1,
-      viewId: params.viewId,
-      keyWords: searchId ? undefined : keyWords,
-      filterControls: searchFilter ? filterControls.concat(searchFilter) : filterControls
-    }).then(({ data }) => {
-      const { rows } = this.state;
-      const newRows = rows.concat(data);
-      if (newRows.length === 1) {
-        window.mobileNavigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${newRows[0].rowid}`, true);
-      }
-      this.setState({
-        rows: newRows,
-        isMore: data.length === pageSize,
-        pageIndex: pageIndex + 1,
-        loading: false,
-        dataSource: this.state.dataSource.cloneWithRows(newRows),
+    sheetApi
+      .getFilterRows({
+        appId: params.appId,
+        worksheetId: params.worksheetId,
+        searchType: 1,
+        pageSize,
+        pageIndex,
+        status: 1,
+        viewId: params.viewId,
+        keyWords: searchId ? undefined : keyWords,
+        filterControls: searchFilter ? filterControls.concat(searchFilter) : filterControls,
+      })
+      .then(({ data }) => {
+        const { rows } = this.state;
+        const newRows = rows.concat(data);
+        if (newRows.length === 1) {
+          const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${newRows[0].rowid}`;
+          if (isMingdao) {
+            location.href = url;
+          } else {
+            window.mobileNavigateTo(url, true);
+          }
+        }
+        this.setState({
+          rows: newRows,
+          isMore: data.length === pageSize,
+          pageIndex: pageIndex + 1,
+          loading: false,
+          dataSource: this.state.dataSource.cloneWithRows(newRows),
+        });
       });
-    });
-  }
+  };
   handleEndReached = () => {
     const { loading, isMore } = this.state;
     if (!loading && isMore) {
       this.requestFilterRows();
     }
-  }
+  };
   renderRow = item => {
     const { match } = this.props;
     const { params } = match;
@@ -128,46 +147,50 @@ class Search extends Component {
           controls={worksheetControls}
           allowAdd={sheetInfo.allowAdd}
           onClick={() => {
-            window.mobileNavigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`);
+            window.mobileNavigateTo(
+              `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`,
+            );
           }}
         />
       </WingBlank>
     );
-  }
+  };
   render() {
     const { loading, isMore, rows, dataSource } = this.state;
     return (
       <div className="searchRecordWrapper flexColumn h100">
         <div className="flex">
-          {
-            loading && _.isEmpty(rows) ? (
-              <Flex justify="center" align="center" className="h100">
-                <ActivityIndicator size="large" />
-              </Flex>
-            ) : (
-              <Fragment>
-                {rows.length ? (
-                  <ListView
-                    className="searchSheetRowsWrapper h100"
-                    dataSource={dataSource}
-                    renderHeader={() => ( <Fragment /> )}
-                    renderFooter={() => (
-                      isMore ? <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex> : <Fragment />
-                    )}
-                    pageSize={10}
-                    scrollRenderAheadDistance={500}
-                    onEndReached={this.handleEndReached}
-                    onEndReachedThreshold={10}
-                    renderRow={this.renderRow}
-                  />
-                ) : (
-                  <div className="h100">
-                    <WithoutSearchRows text={_l('没有搜索结果')}/>
-                  </div>
-                )}
-              </Fragment>
-            )
-          }
+          {loading && _.isEmpty(rows) ? (
+            <Flex justify="center" align="center" className="h100">
+              <ActivityIndicator size="large" />
+            </Flex>
+          ) : (
+            <Fragment>
+              {rows.length ? (
+                <ListView
+                  className="searchSheetRowsWrapper h100"
+                  dataSource={dataSource}
+                  renderHeader={() => <Fragment />}
+                  renderFooter={() =>
+                    isMore ? (
+                      <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>
+                    ) : (
+                      <Fragment />
+                    )
+                  }
+                  pageSize={10}
+                  scrollRenderAheadDistance={500}
+                  onEndReached={this.handleEndReached}
+                  onEndReachedThreshold={10}
+                  renderRow={this.renderRow}
+                />
+              ) : (
+                <div className="h100">
+                  <WithoutSearchRows text={_l('没有搜索结果')} />
+                </div>
+              )}
+            </Fragment>
+          )}
         </div>
       </div>
     );
@@ -175,4 +198,3 @@ class Search extends Component {
 }
 
 export default Search;
-

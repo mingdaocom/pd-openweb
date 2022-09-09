@@ -174,7 +174,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                   controlId: uuidv4(),
                 };
                 // 子表表单不允许再添加子表、分段、文本识别、嵌入
-                if (_.includes([22, 34, 43, 45, 47], type)) return null;
+                if (_.includes([22, 34, 43, 45, 47, 49], type)) return null;
                 return (
                   <MenuItem
                     key={type}

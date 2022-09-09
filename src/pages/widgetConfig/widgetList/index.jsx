@@ -10,7 +10,8 @@ import ListItemLayer from './ListItemLayer';
 import { insertControlInSameLine } from '../util/drag';
 import { adjustControlSize } from '../util';
 import { getPathById, isHaveGap } from '../util/widgets';
-import { head, isEmpty, last } from 'lodash';
+import { head, isEmpty, includes, find } from 'lodash';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 
 const WidgetList = styled.div`
   width: 300px;
@@ -87,7 +88,7 @@ export default function List(props) {
     };
   });
 
-  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget } = props;
+  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = props;
 
   // 如果新增控件在可视区外则滚动至可视区内
   const scrollToVisibleRange = data => {
@@ -111,6 +112,12 @@ export default function List(props) {
 
   const handleAdd = (data, para) => {
     const { mode, path, location, rowIndex } = para;
+    const featureType = getFeatureStatus(globalSheetInfo.projectId, data.featureId);
+    if (_.includes([49, 50], data.type) && featureType === '2') {
+      buriedUpgradeVersionDialog(globalSheetInfo.projectId, data.featureId);
+      return;
+    }
+
     if (isExceedMaxControlLimit(allControls)) {
       alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'));
       return;
@@ -185,14 +192,19 @@ export default function List(props) {
               <div key={group} className="group">
                 <div className="title">{title}</div>
                 <ul>
-                  {_.keys(widgets).map(key => (
-                    <DraggableItem
-                      key={key}
-                      item={{ ...widgets[key], enumType: key }}
-                      addWidget={handleAdd}
-                      {...props}
-                    />
-                  ))}
+                  {_.keys(widgets).map(key => {
+                    const featureType = getFeatureStatus(globalSheetInfo.projectId, widgets[key]['featureId']);
+                    if (_.includes(['SEARCH_BTN', 'SEARCH'], key) && !featureType) return;
+
+                    return (
+                      <DraggableItem
+                        key={key}
+                        item={{ ...widgets[key], enumType: key, featureType }}
+                        addWidget={handleAdd}
+                        {...props}
+                      />
+                    );
+                  })}
                 </ul>
               </div>
             );

@@ -6,7 +6,7 @@ import CreateOrEditDialog from '../modules/CreateOrEditDialog';
 import MergeDialog from '../modules/MergeDialog';
 import EditMemberDialog from '../modules/EditMemberDialog';
 import Config from '../../config';
-import Empty from 'src/pages/Admin/common/TableEmpty'
+import Empty from 'src/pages/Admin/common/TableEmpty';
 import './index.less';
 
 export default class WorkPlace extends Component {
@@ -21,6 +21,8 @@ export default class WorkPlace extends Component {
       memberVisible: false,
       workSiteName: '',
       workSiteId: '',
+      pageIndex: 1,
+      pageSize: 50,
     };
     this.columns = [
       {
@@ -48,7 +50,7 @@ export default class WorkPlace extends Component {
               <button
                 type="button"
                 className="ming Button Button--link ThemeColor3 mLeft24 mRight24 adminHoverColor"
-                onClick={this.showMemberDialog.bind(this, record.workSiteId)}
+                onClick={this.showMemberDialog.bind(this, record)}
               >
                 {_l('添加成员')}
               </button>
@@ -71,16 +73,20 @@ export default class WorkPlace extends Component {
   }
 
   getData() {
+    let { pageIndex, pageSize } = this.state;
     this.setState({ loading: true });
     const reqData = {
       projectId: Config.projectId,
       keywords: this.state.keywords,
+      pageIndex,
+      pageSize,
     };
     workSiteController.getWorkSites(reqData).then(data => {
       if (data) {
         this.setState({
           data: data.list,
           loading: false,
+          allCount: data.allCount,
         });
       } else {
         alert(_l('加载失败'), 3);
@@ -144,10 +150,11 @@ export default class WorkPlace extends Component {
     }
   }
 
-  showMemberDialog(workSiteId) {
+  showMemberDialog(record) {
     this.setState({
       memberVisible: true,
-      workSiteId,
+      workSiteId: record.workSiteId,
+      userCount: record.userCount,
     });
   }
 
@@ -203,6 +210,10 @@ export default class WorkPlace extends Component {
       workSiteName,
       mergeVisible,
       memberVisible,
+      userCount = 0,
+      pageSize,
+      pageIndex = 1,
+      allCount = 0,
     } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -210,9 +221,9 @@ export default class WorkPlace extends Component {
     };
     const detail = {
       icon: 'icon-map',
-      desc: _l('无工作地点')
-    }
-    const WorkPlaceEmpty = () => <Empty detail={detail} />
+      desc: _l('无工作地点'),
+    };
+    const WorkPlaceEmpty = () => <Empty detail={detail} />;
     return (
       <div className="system-set-box">
         <div className="system-set-header">
@@ -243,6 +254,7 @@ export default class WorkPlace extends Component {
             <EditMemberDialog
               visible={memberVisible}
               workSiteId={workSiteId}
+              userCount={userCount}
               projectId={Config.projectId}
               closeMenberDialog={this.closeMenberDialog.bind(this)}
               getData={this.getData.bind(this)}
@@ -310,8 +322,31 @@ export default class WorkPlace extends Component {
                     rowKey={record => record.workSiteId}
                     columns={this.columns}
                     dataSource={data}
-                    pagination={false}
-                    scroll={{ y: 'calc(100vh - 272px)' }}
+                    pagination={
+                      allCount > pageSize
+                        ? {
+                            position: ['bottomCenters'],
+                            pageSize,
+                            total: allCount,
+                            current: pageIndex,
+                            onChange: pageIndex => {
+                              this.setState({ pageIndex }, () => {
+                                this.getData();
+                              });
+                            },
+                            itemRender: (current, type, originalElement) => {
+                              if (type === 'prev') {
+                                return <a className="page">{_l('上一页')}</a>;
+                              }
+                              if (type === 'next') {
+                                return <a className="page">{_l('下一页')}</a>;
+                              }
+                              return originalElement;
+                            },
+                          }
+                        : false
+                    }
+                    scroll={{ y: 'calc(100vh - 345px)' }}
                   />
                 </Spin>
               </ConfigProvider>

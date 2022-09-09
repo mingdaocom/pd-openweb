@@ -79,6 +79,9 @@ const Wrap = styled.div`
         font-size: 13px;
         font-size: 13px;
       }
+      .ant-radio-input {
+        display: none !important;
+      }
       .active {
         .inputBox {
           border: 1px solid #2196f3;
@@ -355,10 +358,22 @@ function Edit(params) {
   const renderTimeType = () => {
     let daterange = getDaterange();
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
+    let dateRanges = DATE_RANGE.types;
+    const activeControl = worksheetControls.find(item => item.controlId === control.controlId);
+    const showType = _.get(activeControl, 'advancedSetting.showtype');
+    if (_.includes(['4', '5'], showType)) {
+      dateRanges = dateRanges
+        .map(options =>
+          options.filter(o =>
+            _.includes(showType === '5' ? [15, 16, 17, 18] : [7, 8, 9, 12, 13, 14, 15, 16, 17, 18], o.value),
+          ),
+        )
+        .filter(options => options.length);
+    }
     return (
       <React.Fragment>
         <div className="title">{DATE_RANGE.txt}</div>
-        <DropdownWrapper className="w100 dropTimeWrap" downElement={<div>{renderListItem(DATE_RANGE.types)}</div>}>
+        <DropdownWrapper className="w100 dropTimeWrap" downElement={<div>{renderListItem(dateRanges)}</div>}>
           <div className="Dropdown--input Dropdown--border mTop6">
             <div className="inputBox">
               <div className={cx('itemText', { Gray_bd: daterange.length <= 0 })}>

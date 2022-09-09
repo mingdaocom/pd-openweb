@@ -42,7 +42,8 @@ export default function AttachmentConfig({ data = {}, onChange, attr }) {
     const parsedValue = parseFloat(value);
     if (!value) return 1;
     const fixedValue = Number(parsedValue).toFixed(0);
-    return Math.max(1, Math.min(maxNum, fixedValue));
+    const compareData = data.type === 50 ? fixedValue : Math.min(maxNum, fixedValue);
+    return Math.max(1, compareData);
   };
 
   const handleChange = event => {
@@ -56,7 +57,8 @@ export default function AttachmentConfig({ data = {}, onChange, attr }) {
   };
 
   const addNumber = () => {
-    onChange(handleAdvancedSettingChange(data, { [attr]: Math.min(maxNum, maxcount + 1) }));
+    const compareData = data.type === 50 ? maxcount + 1 : Math.min(maxNum, maxcount + 1);
+    onChange(handleAdvancedSettingChange(data, { [attr]: compareData }));
   };
 
   const reduceNumber = () => {

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { accMul } from 'src/util';
+import { accMul, accDiv } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -45,7 +45,7 @@ export default class Widgets extends Component {
     this.number.value = value;
 
     if (advancedSetting.numshow === '1' && !isNaN(parseFloat(value))) {
-      value = parseFloat(value) / 100;
+      value = accDiv(parseFloat(value), 100);
     }
 
     this.props.onChange(value);

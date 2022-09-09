@@ -76,6 +76,8 @@ module.exports = {
   * @param {string} args.projectId 网络Id
   * @param {string} args.workSiteId 工作地点Id
   * @param {string} args.keywords 关键词
+  * @param {integer} args.pageIndex 分页码
+  * @param {integer} args.pageSize 页大小
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -118,10 +118,10 @@ export default class Write extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_write"
           bg="BGSkyBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -139,7 +139,7 @@ export default class Write extends Component {
 
               <div className="Font13 mTop25 bold">{_l('指定填写对象')}</div>
               {(data.accounts || []).length ? (
-                <Member type={NODE_TYPE.WRITE} accounts={data.accounts} updateSource={this.updateSource} />
+                <Member accounts={data.accounts} updateSource={this.updateSource} />
               ) : (
                 <div
                   className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
@@ -223,7 +223,7 @@ export default class Write extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect={data.selectNodeId} onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect={data.selectNodeId} onSave={this.onSave} />
       </Fragment>
     );
   }

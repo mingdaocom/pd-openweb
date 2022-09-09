@@ -34,20 +34,20 @@ export const QUICK_ENTRY_CONFIG = [
     explain: _l('可以上传组织 logo'),
     action: 'completeInfo',
   },
-  {
-    icon: 'laptop_mac',
-    color: '#2196f3',
-    title: _l('客户端安装'),
-    explain: _l('为成员安装客户端'),
-    action: 'installDesktop',
-  },
-  {
-    icon: 'task_custom_phone_android',
-    color: '#1FCB80',
-    title: _l('App 安装'),
-    explain: _l('为成员安装 App'),
-    action: 'installApp',
-  },
+  // {
+  //   icon: 'laptop_mac',
+  //   color: '#2196f3',
+  //   title: _l('客户端安装'),
+  //   explain: _l('为成员安装客户端'),
+  //   action: 'installDesktop',
+  // },
+  // {
+  //   icon: 'task_custom_phone_android',
+  //   color: '#1FCB80',
+  //   title: _l('App 安装'),
+  //   explain: _l('为成员安装 App'),
+  //   action: 'installApp',
+  // },
 ];
 
 export const USER_COUNT = [
@@ -65,6 +65,14 @@ export const ITEM_COUNT = [
 ];
 
 export const UPLOAD_COUNT = [
+  {
+    key: 'effectiveApkStorageCount',
+    limit: 'limitApkStorageCount',
+    text: _l('应用附件上传量'),
+    unit: _l('（年）'),
+    link: 'app',
+    click: 'storage',
+  },
   {
     key: 'useExecCount',
     limit: 'limitExecCount',

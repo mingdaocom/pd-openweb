@@ -53,7 +53,7 @@ export default class NewRecordLand extends Component {
       <div className={cx('newRecordLand')} style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1200px' } : {}}>
         <ScaleButton
           onClick={() => {
-            localStorage.setItem('NEW_RECORD_IS_LARGE', !isLarge);
+            safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
             this.setState({ isLarge: !isLarge });
           }}
         >

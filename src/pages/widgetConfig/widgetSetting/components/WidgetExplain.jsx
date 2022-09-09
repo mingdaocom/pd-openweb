@@ -5,10 +5,11 @@ import { SettingItem } from '../../styled';
 
 export default ({ data, onChange }) => {
   const { hint } = data;
+  const text = data.type === 49 ? _l('按钮名称') : _l('引导文字');
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('引导文字')}</div>
-      <Input placeholder={_l('请填写引导文字')} value={hint} onChange={e => onChange({ hint: e.target.value })} />
+      <div className="settingItemTitle">{text}</div>
+      <Input placeholder={_l('请填写%0', text)} value={hint} onChange={e => onChange({ hint: e.target.value })} />
     </SettingItem>
   );
 };

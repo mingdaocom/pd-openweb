@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import Dialog from 'rc-dialog';
 import styled from 'styled-components';
-import { Icon, Button } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { ConfigProvider, Button, Tooltip } from 'antd';
 import 'rc-dialog/assets/index.css';
 import { Header, EditWidgetContent } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
+import { v4 as uuidv4 } from 'uuid';
 
 const Wrap = styled.div`
   background-color: #eee;
@@ -29,6 +31,9 @@ export default function View(props) {
       const { _workSheetName, _viewName } = config;
       config.name = `${config._workSheetName} (${config._viewName})`;
     }
+    if (_.isEmpty(config.objectId)) {
+      config.objectId = uuidv4();
+    }
     delete config._workSheetName;
     delete config._viewName;
     onEdit(setting);
@@ -41,11 +46,19 @@ export default function View(props) {
       className="editWidgetDialogWrap"
       visible
       onClose={onClose}
-      closeIcon={<Icon icon="close ThemeHoverColor3" />}
     >
       <Header>
         <div className="typeName">{_l('视图')}</div>
-        <Button className="saveBtn" onClick={handleSave}>{_l('保存')}</Button>
+        <div className="flexRow valignWrapper">
+          <ConfigProvider autoInsertSpaceInButton={false}>
+            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+              {_l('保存')}
+            </Button>
+          </ConfigProvider>
+          <Tooltip title={_l('关闭')} placement="bottom">
+            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+          </Tooltip>
+        </div>
       </Header>
       <EditWidgetContent>
         <Wrap>

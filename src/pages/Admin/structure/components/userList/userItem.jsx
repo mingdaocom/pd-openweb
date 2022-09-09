@@ -142,9 +142,11 @@ class OpList extends Component {
                 >
                   {_l('编辑')}
                 </li>
-                <li className="opItem" onClick={handleResetPasswordClick}>
-                  {_l('重置密码')}
-                </li>
+                {!md.global.Config.IsPlatformLocal && (
+                  <li className="opItem" onClick={handleResetPasswordClick}>
+                    {_l('重置密码')}
+                  </li>
+                )}
                 {departmentId && !isChargeUser && (
                   <li
                     className="opItem"
@@ -538,9 +540,19 @@ class UserItem extends Component {
       }
     });
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
+    let departmentTitle = _.isArray(departmentData)
+      ? departmentData
+          .map((it, i) => {
+            if (departmentData.length - 1 > i) {
+              return `${it.name || it.departmentName} ; `;
+            }
+            return `${it.name || it.departmentName}`;
+          })
+          .join('')
+      : departmentData;
     return (
       <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
-        {
+        {typeCursor === 0 && (
           <td
             className={classNames('checkBox', {
               showCheckBox: isChecked,
@@ -559,14 +571,14 @@ class UserItem extends Component {
               }}
             />
           </td>
-        }
+        )}
         {isHideCurrentColumn('name') && (
-          <td className="nameTh" style={{ width: setWidth ? 200 : 'unset' }}>
+          <td className={cx('nameTh', { left0: typeCursor !== 0 })} style={{ width: setWidth ? 200 : 'unset' }}>
             <div className="flexRow">
               <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
               <a
                 href={'/user_' + user.accountId}
-                className="Gray overflow_ellipsis mLeft10 LineHeight32"
+                className="overflow_ellipsis mLeft10 LineHeight32"
                 title={user.fullname}
               >
                 {user.fullname}
@@ -619,19 +631,7 @@ class UserItem extends Component {
         {isHideCurrentColumn('department') && (
           <td className="departmentTh">
             {
-              <div
-                className="WordBreak overflow_ellipsis"
-                title={
-                  typeCursor === 2
-                    ? departmentData
-                    : (departmentData || []).map((it, i) => {
-                        if (departmentData.length - 1 > i) {
-                          return `${it.name || it.departmentName};`;
-                        }
-                        return `${it.name || it.departmentName}`;
-                      })
-                }
-              >
+              <div className="WordBreak overflow_ellipsis" title={departmentTitle}>
                 {typeCursor === 2
                   ? departmentData
                   : (departmentData || []).map((it, i) => {
@@ -681,13 +681,15 @@ class UserItem extends Component {
         <td className="actTh">
           <Dropdown
             overlayClassName="dropDownOptBox"
+            trigger={['click']}
+            placement="bottomLeft"
             overlay={
               <OpList
                 {...this.props}
                 onClickAway={clearActiveDialog(this.props)}
                 handleRemoveUserClick={this.handleRemoveUserClick}
                 handleEditUserClick={this.handleEditUserClick}
-            handleResetPasswordClick={this.handleResetPasswordClick}
+                handleResetPasswordClick={this.handleResetPasswordClick}
                 handleApprovalClick={this.handleApprovalClick}
                 handleRefuseClick={this.handleRefuseClick}
                 setAndCancelCharge={this.setAndCancelCharge}
@@ -697,15 +699,12 @@ class UserItem extends Component {
                     showDialogApproval: false,
                   });
                 }}
-                placement="bottomRight"
               />
             }
           >
-            <Tooltip text={<span>{_l('更多操作')}</span>} popupPlacement="top">
-              <span className="tip-top Hand" onClick={this.handleOpBtnClick}>
-                <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
-              </span>
-            </Tooltip>
+            <span className="tip-top Hand" onClick={this.handleOpBtnClick}>
+              <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
+            </span>
           </Dropdown>
 
           {this.renderEditInfo()}

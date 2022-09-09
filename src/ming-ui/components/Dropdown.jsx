@@ -299,11 +299,7 @@ class Dropdown extends Component {
     const { keywords } = this.state;
     const text = typeof item.text === 'string' ? item.text : item.searchText || '';
 
-    return (
-      String(text)
-        .toLowerCase()
-        .indexOf(keywords.toLowerCase()) > -1
-    );
+    return String(text).toLowerCase().indexOf(keywords.toLowerCase()) > -1;
   }
 
   checkIsNull(item) {
@@ -482,10 +478,10 @@ class Dropdown extends Component {
           <span className="Dropdown--placeholder Gray_bd ellipsis InlineBlock">{placeholder}</span>
         )}
         {cancelAble && value != undefined ? (
-          <span className="actionIcon Hand mLeft8">
+          <Fragment>
             <Icon
               icon="cancel1"
-              className="Gray_9e clearIcon"
+              className="Gray_9e mLeft8 clearIcon"
               onClick={e => {
                 e.stopPropagation();
                 if (value != undefined) {
@@ -505,8 +501,8 @@ class Dropdown extends Component {
                 }
               }}
             />
-            <Icon icon="arrow-down-border" className="Gray_9e dropArrow" />
-          </span>
+            <Icon icon="arrow-down-border" className="Gray_9e mLeft8 dropArrow" />
+          </Fragment>
         ) : (
           <Icon icon="arrow-down-border" className="mLeft8 Gray_9e" />
         )}

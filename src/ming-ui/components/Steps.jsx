@@ -9,13 +9,18 @@ const isMobile = browserIsMobile();
 const Con = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+`;
+
+const VerticalCon = styled.div`
+  flex: 1;
   padding-top: 7px;
   padding-left: 7px;
   padding-right: 7px;
   padding-bottom: 7px;
-  box-sizing: border-box;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
 `;
 
@@ -106,6 +111,9 @@ const ScaleBox = styled.div`
   }
 `;
 
+const SelectedOption = styled.span`
+  ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
+`;
 export default function Steps(props) {
   const {
     className,
@@ -115,11 +123,13 @@ export default function Steps(props) {
     disabled,
     showTip = true,
     showScaleText = true,
+    showSelected = false,
     tipDirection,
     from,
     onChange = _.noop,
   } = props;
   const barRef = useRef();
+  const selectedOption = _.find(options, i => i.key === value);
   const filterOptions = options.filter(i => !i.isDeleted);
   const getCurrent = value => {
     return _.findIndex(filterOptions, i => i.key === value);
@@ -155,82 +165,87 @@ export default function Steps(props) {
             }
       }
     >
-      <Bar ref={barRef}>
-        <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
-        {(!disabled || from === 'recordInfo') && (
-          <Drag
-            className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
-            color={currentColor}
-            style={{ left: `calc(${width}% - 7px)` }}
-            {...(showTip && !_.isUndefined(currentValue) ? { 'data-tip': _.get(filterOptions[currentValue], 'value') } : {})}
-          />
-        )}
-      </Bar>
-      <ScaleBox
-        total={(100 / (filterOptions.length - 1)) * filterOptions.length}
-        disabled={disabled}
-        onClick={e => {
-          if (disabled) return;
-          const { left, width } = barRef.current.getBoundingClientRect();
-          const index = Math.ceil((e.clientX - left) / (width / (filterOptions.length - 1)));
-          const tempVal = (filterOptions[index] || {}).key || '';
-          if (tempVal) {
-            setCurrentValue(index);
-            onChange(tempVal);
-          }
-        }}
-      >
-        <div
-          className="pointContent"
-          onMouseEnter={() => {
+      <VerticalCon>
+        <Bar ref={barRef}>
+          <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
+          {(!disabled || from === 'recordInfo') && (
+            <Drag
+              className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
+              color={currentColor}
+              style={{ left: `calc(${width}% - 7px)` }}
+              {...(showTip && !_.isUndefined(currentValue)
+                ? { 'data-tip': _.get(filterOptions[currentValue], 'value') }
+                : {})}
+            />
+          )}
+        </Bar>
+        <ScaleBox
+          total={(100 / (filterOptions.length - 1)) * filterOptions.length}
+          disabled={disabled}
+          onClick={e => {
             if (disabled) return;
-            barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.08)');
-          }}
-          onMouseLeave={() => {
-            if (disabled) return;
-            barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.06)');
+            const { left, width } = barRef.current.getBoundingClientRect();
+            const index = Math.ceil((e.clientX - left) / (width / (filterOptions.length - 1)));
+            const tempVal = (filterOptions[index] || {}).key || '';
+            if (tempVal) {
+              setCurrentValue(index);
+              onChange(tempVal);
+            }
           }}
         >
-          {filterOptions.map((option, index) => {
-            return (
-              <div className="pointItem">
-                <Tooltip
-                  text={<span>{option.value}</span>}
-                  popupPlacement={tipDirection || 'top'}
-                  disable={from === 'recordInfo' && disabled ? true : !showTip}
-                >
-                  <ScalePoint
-                    key={option.key}
-                    color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
-                    onClick={
-                      disabled
-                        ? _.noop
-                        : e => {
-                            e.stopPropagation();
-                            setCurrentValue(getCurrent(option.key));
-                            onChange(option.key);
-                          }
-                    }
-                  />
-                </Tooltip>
-              </div>
-            );
-          })}
-        </div>
-        {showScaleText && (
-          <div className="scaleContent">
+          <div
+            className="pointContent"
+            onMouseEnter={() => {
+              if (disabled) return;
+              barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.08)');
+            }}
+            onMouseLeave={() => {
+              if (disabled) return;
+              barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.06)');
+            }}
+          >
             {filterOptions.map((option, index) => {
               return (
-                <span className="contentItem">
-                  <span style={{ color: index <= currentValue ? '#333' : '#9e9e9e' }} className="scaleText">
-                    {option.value}
-                  </span>
-                </span>
+                <div className="pointItem">
+                  <Tooltip
+                    text={<span>{option.value}</span>}
+                    popupPlacement={tipDirection || 'top'}
+                    disable={from === 'recordInfo' && disabled ? true : !showTip}
+                  >
+                    <ScalePoint
+                      key={option.key}
+                      color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
+                      onClick={
+                        disabled
+                          ? _.noop
+                          : e => {
+                              e.stopPropagation();
+                              setCurrentValue(getCurrent(option.key));
+                              onChange(option.key);
+                            }
+                      }
+                    />
+                  </Tooltip>
+                </div>
               );
             })}
           </div>
-        )}
-      </ScaleBox>
+          {showScaleText && (
+            <div className="scaleContent">
+              {filterOptions.map((option, index) => {
+                return (
+                  <span className="contentItem">
+                    <span style={{ color: index <= currentValue ? '#333' : '#9e9e9e' }} className="scaleText">
+                      {option.value}
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </ScaleBox>
+      </VerticalCon>
+      {showSelected && selectedOption && <SelectedOption>{selectedOption.value}</SelectedOption>}
     </Con>
   );
 }

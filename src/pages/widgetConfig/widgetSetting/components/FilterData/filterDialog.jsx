@@ -29,7 +29,7 @@ export default function FilterDialog(props) {
   } = props;
 
   const { sourceControlId, type } = data;
-  const [filters, setFilters] = useState(getAdvanceSetting(data, 'filters'));
+  const [filters, setFilters] = useState(props.filters || getAdvanceSetting(data, 'filters'));
 
   const relateSheetList = filterControlsFromAll(
     allControls,
@@ -44,6 +44,7 @@ export default function FilterDialog(props) {
       okText={_l('确定')}
       cancelText={_l('取消')}
       className="filterDialog"
+      overlayClosable={props.overlayClosable}
       onCancel={onClose}
       onOk={() => {
         let data = [];
@@ -53,8 +54,10 @@ export default function FilterDialog(props) {
 
           const conditionGroupKey = getTypeKey(redefineComplexControl(control).type);
           const conditionGroupType = (CONTROL_FILTER_WHITELIST[conditionGroupKey] || {}).value;
+          const dataRangeInfo = fromCondition === 'subTotal' && conditionGroupKey === 'DATE' ? { dateRange: 18 } : {};
           let initialDynamicSource = {
             ...item,
+            ...dataRangeInfo,
             conditionGroupType,
             type: item.filterType,
             values: [],
@@ -66,6 +69,7 @@ export default function FilterDialog(props) {
           };
           let initialSource = {
             ...item,
+            ...dataRangeInfo,
             conditionGroupType,
             type: item.filterType,
             dynamicSource: [],

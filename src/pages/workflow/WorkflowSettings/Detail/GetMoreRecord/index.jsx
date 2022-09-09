@@ -1,11 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, FilterAndSort, SpecificFieldsValue } from '../components';
+import {
+  DetailHeader,
+  DetailFooter,
+  SelectNodeObject,
+  FilterAndSort,
+  SpecificFieldsValue,
+  FindMode,
+} from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
+import _ from 'lodash';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -63,7 +71,7 @@ export default class GetMoreRecord extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue } = data;
+    const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue, execute } = data;
 
     if (actionId === ACTION_ID.FROM_WORKSHEET && !appId) {
       alert(_l('必须选择工作表'), 2);
@@ -75,6 +83,7 @@ export default class GetMoreRecord extends Component {
         [
           ACTION_ID.FROM_RECORD,
           ACTION_ID.FROM_ARRAY,
+          ACTION_ID.FROM_API_ARRAY,
           ACTION_ID.FROM_CODE_ARRAY,
           ACTION_ID.FROM_PBC_ARRAY,
           ACTION_ID.FROM_JSON_PARSE_ARRAY,
@@ -123,6 +132,7 @@ export default class GetMoreRecord extends Component {
         selectNodeId,
         sorts,
         numberFieldValue,
+        execute,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -227,6 +237,7 @@ export default class GetMoreRecord extends Component {
           !_.includes(
             [
               ACTION_ID.FROM_ARRAY,
+              ACTION_ID.FROM_API_ARRAY,
               ACTION_ID.FROM_CODE_ARRAY,
               ACTION_ID.FROM_PBC_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
@@ -248,6 +259,7 @@ export default class GetMoreRecord extends Component {
           _.includes(
             [
               ACTION_ID.FROM_ARRAY,
+              ACTION_ID.FROM_API_ARRAY,
               ACTION_ID.FROM_CODE_ARRAY,
               ACTION_ID.FROM_PBC_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
@@ -260,7 +272,13 @@ export default class GetMoreRecord extends Component {
         {data.actionId === ACTION_ID.FROM_RECORD && this.renderRecord()}
         {data.actionId === ACTION_ID.FROM_ADD && this.renderAdd()}
         {_.includes(
-          [ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE_ARRAY, ACTION_ID.FROM_PBC_ARRAY, ACTION_ID.FROM_JSON_PARSE_ARRAY],
+          [
+            ACTION_ID.FROM_ARRAY,
+            ACTION_ID.FROM_API_ARRAY,
+            ACTION_ID.FROM_CODE_ARRAY,
+            ACTION_ID.FROM_PBC_ARRAY,
+            ACTION_ID.FROM_JSON_PARSE_ARRAY,
+          ],
           data.actionId,
         ) && this.renderArray()}
         {data.actionId === ACTION_ID.FROM_ARTIFICIAL && this.renderArtificial()}
@@ -281,6 +299,10 @@ export default class GetMoreRecord extends Component {
             </div>
           </Fragment>
         )}
+
+        {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId) && (
+          <FindMode execute={data.execute} onChange={execute => this.updateSource({ execute })} />
+        )}
       </div>
     );
   }
@@ -293,6 +315,7 @@ export default class GetMoreRecord extends Component {
     const { data, noAction } = this.state;
     const list = [
       { text: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
+      { text: _l('调用已集成API数组'), value: ACTION_ID.FROM_API_ARRAY },
       { text: _l('代码块数组'), value: ACTION_ID.FROM_CODE_ARRAY },
       { text: _l('业务流程数组'), value: ACTION_ID.FROM_PBC_ARRAY },
       { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
@@ -507,6 +530,7 @@ export default class GetMoreRecord extends Component {
     }));
     const ArrayTitle = {
       [ACTION_ID.FROM_ARRAY]: _l('选择发送API请求节点'),
+      [ACTION_ID.FROM_API_ARRAY]: _l('选择API节点'),
       [ACTION_ID.FROM_CODE_ARRAY]: _l('选择代码块节点'),
       [ACTION_ID.FROM_PBC_ARRAY]: _l('选择业务流程节点'),
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('选择JSON解析节点'),
@@ -614,22 +638,24 @@ export default class GetMoreRecord extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-transport"
           bg="BGYellow"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
           <ScrollView>{this.renderContent()}</ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             (data.actionId === ACTION_ID.FROM_WORKSHEET && data.appId) ||
             (_.includes(
               [
                 ACTION_ID.FROM_RECORD,
                 ACTION_ID.FROM_ARRAY,
+                ACTION_ID.FROM_API_ARRAY,
                 ACTION_ID.FROM_CODE_ARRAY,
                 ACTION_ID.FROM_PBC_ARRAY,
                 ACTION_ID.FROM_JSON_PARSE_ARRAY,
@@ -641,7 +667,6 @@ export default class GetMoreRecord extends Component {
             (_.includes([ACTION_ID.FROM_ADD, ACTION_ID.FROM_ARTIFICIAL], data.actionId) && data.selectNodeId)
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
 
         {showOtherWorksheet && (

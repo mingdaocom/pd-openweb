@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import common from '../../common';
 import account from 'src/api/account';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, Dialog } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ValidPassword from './ValidPassword';
 import ExitDialog from './ExitDialog';
@@ -207,20 +207,46 @@ export default class EnterpriseCard extends Component {
     return listInfo.join(' ; ');
   }
 
+  // 取消申请
+  cancelApplication = card => {
+    Dialog.confirm({
+      title: _l('取消申请'),
+      onOk: () => {
+        account.revokedJoinProject({ projectId: card.projectId }).then(res => {
+          this.props.getData();
+          if (res) {
+            alert(_l('取消成功'));
+          } else {
+            alert(_l('取消失败'));
+          }
+        });
+      },
+    });
+  };
+
   //操作行为
   renderOption(type) {
     const { card } = this.props;
     switch (type) {
       case 'open':
-        return (
-          <span className="openNowBtn" onClick={() => this.handleOpenCard(card)}>
-            {_l('购买')}
-          </span>
-        );
+        if (!md.global.Config.IsLocal) {
+          return (
+            <span className="openNowBtn" onClick={() => this.handleOpenCard(card)}>
+              {_l('购买')}
+            </span>
+          );
+        } else {
+          return;
+        }
       case 'review':
         return (
-          <span className="ThemeColor3 Hover_49 Hand" onClick={() => this.handleReview(card)}>
-            {_l('待审核')}
+          <span>
+            <span className="ThemeColor3 Hover_49 Hand" onClick={() => this.handleReview(card)}>
+              {_l('待审核')}
+            </span>
+            <span className="cancelApplication Hover_49 Hand mLeft24" onClick={() => this.cancelApplication(card)}>
+              {_l('取消申请')}
+            </span>
           </span>
         );
       case 'default':
@@ -244,7 +270,7 @@ export default class EnterpriseCard extends Component {
         projectId: card.projectId,
         msgType: 1,
       })
-      .then(function(result) {
+      .then(function (result) {
         if (result) {
           alert(_l('已提醒管理员审核'));
         } else {
@@ -280,7 +306,7 @@ export default class EnterpriseCard extends Component {
                   data-clipboard-text={card.projectCode}
                   onSuccess={this.handleCopyTextSuccess.bind(this)}
                 >
-                  <span className="childTag">{_l('组织ID：%0', card.projectCode)}</span>
+                  <span className="childTag">{_l('组织门牌号：%0', card.projectCode)}</span>
                   <span className="icon-content-copy Font12 mLeft5 childTag"></span>
                 </ClipboardButton>
               </div>

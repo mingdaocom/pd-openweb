@@ -100,14 +100,19 @@ export const FORM_ERROR_TYPE_TEXT = {
     if (max && stringSize > +max) return _l('最多输入%0个字', max);
   },
   CUSTOM: ({ advancedSetting }) => JSON.parse(advancedSetting.regex).err,
-  DATE_TIME_RANGE: (value, min, max) => {
+  DATE_TIME_RANGE: (value, min, max, isTime) => {
+    function computerValue(val) {
+      const mode = isTime ? 'HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
+      return moment(val, mode);
+    }
     if (max === min) return _l('请填写%0', min);
     if (max && min) {
-      if (moment(value) > moment(max) || moment(value) < moment(min)) return _l('请填写%0 ~ %1范围内的时间', min, max);
+      if (computerValue(value) > computerValue(max) || computerValue(value) < computerValue(min))
+        return _l('请填写%0 ~ %1范围内的时间', min, max);
       return;
     }
-    if (min && moment(value) < moment(min)) return _l('时间不能早于%0', min);
-    if (max && moment(value) > moment(max)) return _l('时间不能晚于%0', max);
+    if (min && computerValue(value) < computerValue(min)) return _l('时间不能早于%0', min);
+    if (max && computerValue(value) > computerValue(max)) return _l('时间不能晚于%0', max);
   },
 };
 
@@ -120,6 +125,7 @@ export const FROM = {
   H5_ADD: 5,
   H5_EDIT: 6,
   WORKFLOW: 7, // 工作流
+  CUSTOM_BUTTON: 8, // 自定义动作
 };
 
 export const TIME_UNIT = {
@@ -131,4 +137,4 @@ export const TIME_UNIT = {
 };
 
 //非文本类控件
-export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36];
+export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 45, 47, 48];

@@ -57,6 +57,15 @@ export const quickFilter = (state = [], action) => {
   }
 };
 
+export const sheetFiltersGroup = (state = [], action) => {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_FILTERS_GROUP':
+      return [...action.filter];
+    default:
+      return state;
+  }
+};
+
 export const sheetView = (
   state = {
     pageIndex: 1,
@@ -118,7 +127,7 @@ export const worksheetControls = (state = [], action) => {
   }
 };
 
-export const sheetRowLoading = (state = true, action) => {
+export const sheetRowLoading = (state = false, action) => {
   switch (action.type) {
     case 'MOBILE_FETCH_SHEETROW_START':
       return true;

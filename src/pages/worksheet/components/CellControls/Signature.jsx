@@ -99,7 +99,7 @@ export default class Date extends React.Component {
   }
 
   render() {
-    const { from, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
+    const { from, cell, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
       this.props;
     const { value } = this.state;
     if (from === FROM.CARD) {
@@ -109,9 +109,10 @@ export default class Date extends React.Component {
       <SignatureComp
         onlySignature
         isEdit
+        advancedSetting={cell.advancedSetting}
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
         popupAlign={{
-          offset: [0, 2],
+          offset: [1, 2],
           points: ['tl', 'bl'],
           overflow: { adjustX: true, adjustY: true },
         }}

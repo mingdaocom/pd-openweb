@@ -14,7 +14,7 @@ import renderText from './renderText';
 import { browserIsMobile, accMul } from 'src/util';
 
 const InputCon = styled.div`
-  box-sizing: border-box;
+  box-sizing: border-box
   padding: 0 6px;
   height: 34px;
   textarea {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
@@ -8,6 +8,8 @@ import {
   areaParticleSizeDropdownData,
   timeDataParticle,
   timeGatherParticle,
+  filterTimeData,
+  filterTimeGatherParticle,
   isXAxisControl,
   isAreaControl,
   isTimeControl,
@@ -138,14 +140,16 @@ export default class XAxis extends Component {
       />
     );
   }
-  renderOverlay() {
+  renderOverlay(axis) {
     const { disableParticleSizeTypes } = this.props;
     const { xaxes, reportType } = this.props.currentReport;
     const isOption = isOptionControl(xaxes.controlType);
     const isTime = isTimeControl(xaxes.controlType);
     const isArea = reportType !== reportTypes.CountryLayer && isAreaControl(xaxes.controlType);
-    const timeData = (isTime ? xaxes.controlType === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
-    const isLineChart = reportType === reportTypes.LineChart
+    const isLineChart = reportType === reportTypes.LineChart;
+    const showtype = _.get(axis, 'advancedSetting.showtype');
+    const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: xaxes.controlType }) : [];
+    const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: xaxes.controlType });
 
     if (!isLineChart && xaxes.emptyType === 3) {
       xaxes.emptyType = 2;
@@ -163,7 +167,7 @@ export default class XAxis extends Component {
         {isTime && (
           <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
             <Menu.ItemGroup title={_l('时间')}>
-              {timeData.map(item => (
+              {timeDataList.map(item => (
                 <Menu.Item
                   className="valignWrapper"
                   disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
@@ -178,23 +182,27 @@ export default class XAxis extends Component {
                 </Menu.Item>
               ))}
             </Menu.ItemGroup>
-            <Menu.Divider />
-            <Menu.ItemGroup title={_l('集合')}>
-              {timeGatherParticle.map(item => (
-                <Menu.Item
-                  className="valignWrapper"
-                  disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
-                  style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
-                  key={item.value}
-                  onClick={() => {
-                    this.handleUpdateTimeParticleSizeType(item.value);
-                  }}
-                >
-                  <div className="flex">{item.text}</div>
-                  <div className="Gray_75 Font12">{item.getTime()}</div>
-                </Menu.Item>
-              ))}
-            </Menu.ItemGroup>
+            {!!timeGatherParticleList.length && (
+              <Fragment>
+                <Menu.Divider />
+                <Menu.ItemGroup title={_l('集合')}>
+                  {timeGatherParticleList.map(item => (
+                    <Menu.Item
+                      className="valignWrapper"
+                      disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                      style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                      key={item.value}
+                      onClick={() => {
+                        this.handleUpdateTimeParticleSizeType(item.value);
+                      }}
+                    >
+                      <div className="flex">{item.text}</div>
+                      <div className="Gray_75 Font12">{item.getTime()}</div>
+                    </Menu.Item>
+                  ))}
+                </Menu.ItemGroup>
+              </Fragment>
+            )}
           </Menu.SubMenu>
         )}
         {isArea && (
@@ -284,7 +292,7 @@ export default class XAxis extends Component {
             </Tooltip>
           )
         )}
-        <Dropdown overlay={this.renderOverlay()} trigger={['click']}>
+        <Dropdown overlay={this.renderOverlay(axis)} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />

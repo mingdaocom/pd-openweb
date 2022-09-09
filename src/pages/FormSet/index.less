@@ -346,6 +346,12 @@
           }
           .ant-drawer-header {
             border-bottom: none;
+            .ant-drawer-header-title {
+              flex-direction: row-reverse;
+            }
+            .ant-drawer-close {
+              margin-right: 0 !important;
+            }
             .ant-drawer-title {
               font-size: 17px;
               font-weight: bold;
@@ -715,5 +721,32 @@
 .formSetWorksheet {
   .selectUserBox {
     width: 250px;
+  }
+}
+
+.addConditionTrigger {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  width: 160px;
+  border-radius: 2px;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
+  background: #fff;
+  color: #333;
+  font-weight: normal;
+  margin-bottom: 10px;
+  div {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 36px;
+    padding: 0 15px;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+  &.rc-trigger-popup-hidden {
+    display: none !important;
   }
 }

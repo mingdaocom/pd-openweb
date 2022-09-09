@@ -25,7 +25,7 @@ export const getTaskStorage = (key) => {
 
 // 写入storage
 export const setTaskStorage = (key, data) => {
-  window.localStorage.setItem(md.global.Account.accountId + key, JSON.stringify(data));
+  safeLocalStorageSetItem(md.global.Account.accountId + key, JSON.stringify(data));
 };
 
 // 获取任务状态

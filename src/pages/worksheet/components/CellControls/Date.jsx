@@ -43,9 +43,14 @@ export default class Date extends React.Component {
 
   @autobind
   handleChange(value) {
-    const { cell, updateCell, updateEditingStatus, onValidate } = this.props;
+    const { tableFromModule, updateCell, updateEditingStatus, onValidate } = this.props;
     const error = !onValidate(value);
     if (error) {
+      if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+        this.setState({
+          value,
+        });
+      }
       return;
     }
     updateCell({
@@ -77,6 +82,7 @@ export default class Date extends React.Component {
       rowIndex,
       error,
       updateEditingStatus,
+      updateCell,
       onClick,
     } = this.props;
     const { value } = this.state;
@@ -126,12 +132,22 @@ export default class Date extends React.Component {
               '.ant-picker-dropdown',
               '.cellControlDatePicker',
             ]}
-            onClickAway={() => updateEditingStatus(false)}
+            onClickAway={() => {
+              updateEditingStatus(false);
+              if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+                if (cell.value !== value) {
+                  updateCell({
+                    value,
+                  });
+                }
+              }
+            }}
           >
             <div className={cx('cellControlDatePicker', className)} style={style}>
               <div className="cellControlDatePickerCon">
                 <DatePicker
                   {...cell}
+                  {...(tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? { value } : {})}
                   formData={formdata()}
                   masterData={masterData()}
                   dropdownClassName="scrollInTable"

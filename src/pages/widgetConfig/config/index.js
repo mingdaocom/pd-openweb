@@ -51,8 +51,9 @@ export const OPTION_COLORS_LIST_HOVER = [
   22：分段
   34: 子表
   45: 嵌入
+  49: 查询按钮
 */
-export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 42, 43, 45, 47];
+export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 42, 43, 45, 47, 49];
 
 /**
  * 不需要设置只读的控件
@@ -66,7 +67,7 @@ export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 
  * 45: 嵌入
  * 47: 条码
  */
-export const NOT_NEED_SET_READONLY_CONTROL = [22, 25, 30, 31, 32, 33, 37, 38, 45, 47, 10010];
+export const NOT_NEED_SET_READONLY_CONTROL = [22, 25, 30, 31, 32, 33, 37, 38, 43, 45, 47, 10010];
 
 /**
  * 无内容控件: 备注、分段,
@@ -81,7 +82,7 @@ export const NO_CONTENT_CONTROL = [10010, 22];
  * 36: 开关
  */
 
-export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35];
+export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35, 49, 50];
 
 /**
  * 没有自定义配置的控件
@@ -93,38 +94,41 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35];
  */
 export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 41, 42];
 
-export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36];
+export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48];
 
 // 无描述控件
 export const NO_DES_WIDGET = [22, 10010];
 
 // 无验证
-export const NO_VERIFY_WIDGET = [6, 14, 21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 45, 47, 10010];
+export const NO_VERIFY_WIDGET = [6, 14, 21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 45, 47, 49, 10010];
 /**
  * 无属性验证控件
  */
 export const NO_PERMISSION_WIDGET = [39];
 
+// 有提示文案的控件
+export const HAS_WARNING_CONTROL = [30, 31, 32, 37, 38];
+
 // 不能作为文本组合的字段类型
-export const CAN_NOT_AS_TEXT_GROUP = [14, 21, 22, 34, 36, 41, 42, 43, 45, 47, 10010];
+export const CAN_NOT_AS_TEXT_GROUP = [14, 21, 22, 34, 36, 41, 42, 43, 45, 47, 49, 10010];
 
 // 不能被他表字段引用的控件
-export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 35, 38, 43, 45, 47, 10010];
+export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 35, 38, 43, 45, 47, 49, 10010];
 
 // 需要单独显示样式的控件
 export const NEED_SPECIAL_DISPLAY_CONTROLS = [
-  2, 6, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 35, 36, 38, 40, 41, 42, 43, 47, 10010,
+  2, 6, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 35, 36, 38, 40, 41, 42, 43, 47, 48, 49, 10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [2, 3, 15, 16, 26, 28, 32, 35, 40];
+export const HAVE_CONFIG_CONTROL = [2, 3, 15, 16, 26, 28, 32, 35, 40, 42, 46];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [14, 21, 22, 34, 41, 10010];
 
 export const NOT_NEED_DELETE_CONFIRM = [22, 25, 30, 31, 32, 37, 38, 43, 10010];
 
 // 没有宽度设置的控件
-export const NOT_HAVE_WIDTH_CONFIG = [43];
+export const NOT_HAVE_WIDTH_CONFIG = [43, 49];
 
 export const MAX_CONTROLS_COUNT = 2000;
 
-export const HAVE_CONFIG_SUB_LIST = [2, 3, 15, 16, 28, 32, 35];
+export const HAVE_CONFIG_SUB_LIST = [2, 3, 15, 16, 28, 32, 35, 46];

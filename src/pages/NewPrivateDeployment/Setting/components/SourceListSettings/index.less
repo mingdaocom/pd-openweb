@@ -1,0 +1,62 @@
+
+.sourcesItemStyle() {
+  width: 100%;
+  padding-bottom: 25px;
+  .title {
+    color: #000;
+    font-size: 14px;
+  }
+  & > div {
+    flex: 1;
+  }
+  .showItem {
+    text-indent: 30px;
+  }
+  .url {
+    flex: 3;
+  }
+  .edit {
+    color: #1890ff;
+  }
+}
+
+.sourceListContent {
+  padding-top: 20px;
+
+  .titleWrapper {
+    font-size: 14px;
+    margin: 20px 0;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #eaeaea;
+  }
+  .titleWrapper, .sourcesItem {
+    .sourcesItemStyle;
+  }
+}
+
+.sourcesSortableCard {
+  .sourcesItemStyle;
+}
+
+.createSourcesDialog {
+  .sourcesColor {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 10px;
+    cursor: pointer;
+    justify-content: center;
+  }
+  .sourcesIconWrapper {
+    flex-wrap: wrap;
+  }
+  .sourcesIcon {
+    width: 30px;
+    height: 30px;
+    margin: 0 10px 10px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

@@ -8,34 +8,12 @@ import {
   SpecificFieldsValue,
   SelectNodeObject,
   SelectOtherPBCDialog,
+  ProcessParameters,
 } from '../components';
-import { CONTROLS_NAME, ACTION_ID } from '../../enum';
-import { v4 as uuidv4 } from 'uuid';
-import styled from 'styled-components';
-
-const ErrorTips = styled.div`
-  position: absolute;
-  bottom: 25px;
-  transform: translateY(-7px);
-  z-index: 1;
-  left: 0;
-  border-radius: 3px;
-  color: #fff;
-  padding: 5px 12px;
-  white-space: nowrap;
-  background: #f44336;
-  font-size: 12px;
-  .errorArrow {
-    position: absolute;
-    transform: translateY(-5px);
-    z-index: 1;
-    left: 12px;
-    background: transparent;
-    border: 6px solid transparent;
-    border-top-color: #f44336;
-    bottom: -17px;
-  }
-`;
+import { ACTION_ID, FIELD_TYPE_LIST } from '../../enum';
+import { v4 as uuidv4, validate } from 'uuid';
+import cx from 'classnames';
+import _ from 'lodash';
 
 export default class PBC extends Component {
   constructor(props) {
@@ -43,7 +21,6 @@ export default class PBC extends Component {
     this.state = {
       data: {},
       saveRequest: false,
-      errorItems: [],
       execCountType: 1,
       showOtherPBC: false,
     };
@@ -83,7 +60,23 @@ export default class PBC extends Component {
         result.name = result.appList.find(item => item.id === appId).name;
       }
 
-      this.setState({ data: result, errorItems: [], execCountType: result.selectNodeId ? 2 : 1 });
+      if (result.subProcessVariables.length) {
+        result.subProcessVariables
+          .filter(item => item.dataSource)
+          .forEach(item => {
+            const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
+
+            if (_.includes([10000007, 10000008], parentNode.type)) {
+              result.fields.forEach(o => {
+                if (o.fieldId === item.controlId) {
+                  o.dataSource = parentNode.controlId;
+                }
+              });
+            }
+          });
+      }
+
+      this.setState({ data: result, execCountType: result.selectNodeId ? 2 : 1 });
     });
   }
 
@@ -91,7 +84,19 @@ export default class PBC extends Component {
    * 更新data数据
    */
   updateSource = (obj, callback = () => {}) => {
+    const { data } = this.state;
+
     this.props.haveChange(true);
+
+    // 对象数组选择其他字段值
+    if (data.actionId === ACTION_ID.PBC_OUT && obj.fields) {
+      obj.fields
+        .filter(item => item.type === 10000008 && item.fieldValueId)
+        .forEach(item => {
+          _.remove(obj.fields, o => o.dataSource === item.fieldId);
+        });
+    }
+
     this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
   };
 
@@ -99,9 +104,11 @@ export default class PBC extends Component {
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest, errorItems } = this.state;
-    const { appId, name, fields, executeType, number, selectNodeId, nextExecute, subProcessVariables } = data;
+    const { data, saveRequest } = this.state;
+    const { appId, name, fields, executeType, number, selectNodeId, nextExecute } = data;
+    const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
+    let hasError = 0;
 
     if (!appId && !isPBCOut) {
       alert(_l('请选择业务流程'), 2);
@@ -110,11 +117,6 @@ export default class PBC extends Component {
 
     // PBC 输出参数
     if (isPBCOut) {
-      if (errorItems.filter(item => item).length) {
-        alert(_l('有参数配置错误'), 2);
-        return;
-      }
-
       if (fields.filter(item => !item.fieldName).length) {
         alert(_l('参数名称不能为空'), 2);
         return;
@@ -127,14 +129,19 @@ export default class PBC extends Component {
     }
 
     // 验证必填项
-    let hasError = 0;
-    fields.forEach(item => {
-      if (
-        ((subProcessVariables || []).find(o => o.controlId === item.controlId) || {}).require &&
-        !item.fieldValue &&
-        !item.fieldValueId
-      ) {
-        hasError++;
+    subProcessVariables.forEach(item => {
+      if (item.type === 10000008 && (fields.find(o => o.fieldId === item.controlId) || {}).nodeId) {
+        _.remove(subProcessVariables, o => o.dataSource === item.controlId);
+      }
+    });
+
+    subProcessVariables.forEach(item => {
+      if (item.required) {
+        fields.forEach(o => {
+          if (item.controlId === o.fieldId && !o.nodeId && !o.fieldValue && !o.fieldValueId) {
+            hasError++;
+          }
+        });
       }
     });
 
@@ -172,109 +179,16 @@ export default class PBC extends Component {
    * 渲染PBC输出节点
    */
   renderExportContent() {
-    const { data, errorItems } = this.state;
+    const { data } = this.state;
 
     return (
       <Fragment>
         <div className="bold">{_l('输出参数')}</div>
 
-        {data.fields.map((item, index) => {
-          return (
-            <Fragment key={index}>
-              <div className="mTop8 flexRow relative alignItemsCenter">
-                <input
-                  type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop8"
-                  style={{ width: 190 }}
-                  placeholder={_l('名称')}
-                  value={item.fieldName}
-                  maxLength={64}
-                  onChange={e => {
-                    const value = e.target.value;
-
-                    if (value) {
-                      if (data.fields.filter((o, i) => value.trim() === o.fieldName && i !== index).length === 1) {
-                        errorItems[index] = 1;
-                      } else {
-                        errorItems[index] = '';
-                      }
-                    } else {
-                      errorItems[index] = '';
-                    }
-
-                    this.updateExportFields('fieldName', value, index);
-
-                    data.fields.forEach((element, i) => {
-                      if (i !== index && !_.find(data.fields, (o, j) => o.fieldName === element.fieldName && i !== j)) {
-                        errorItems[i] = '';
-                      }
-                    });
-                    this.setState({ errorItems });
-                  }}
-                  onBlur={e => this.updateExportFields('fieldName', e.target.value.trim(), index)}
-                />
-                <div className="flex mLeft10">
-                  <SingleControlValue
-                    companyId={this.props.companyId}
-                    processId={this.props.processId}
-                    selectNodeId={this.props.selectNodeId}
-                    controls={data.fields}
-                    formulaMap={data.formulaMap}
-                    fields={data.fields}
-                    updateSource={this.updateSource}
-                    item={item}
-                    i={index}
-                  />
-                </div>
-                <i
-                  className="icon-delete2 Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
-                  onClick={() => {
-                    let fields = [].concat(data.fields);
-
-                    _.remove(fields, (o, i) => i === index);
-                    _.remove(errorItems, (o, i) => i === index);
-
-                    fields.forEach((element, i) => {
-                      if (!_.find(fields, (o, j) => o.fieldName === element.fieldName && i !== j)) {
-                        errorItems[i] = '';
-                      }
-                    });
-
-                    this.setState({ errorItems });
-                    this.updateSource({ fields });
-                  }}
-                />
-                {errorItems[index] && (
-                  <ErrorTips>
-                    {_l('名称不允许重复')}
-                    <i className="errorArrow" />
-                  </ErrorTips>
-                )}
-              </div>
-              <div className="mTop10 flexRow alignItemsCenter">
-                <input
-                  type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
-                  placeholder={_l('说明')}
-                  value={item.desc}
-                  onChange={evt => this.updateExportFields('desc', evt.target.value, index)}
-                  onBlur={evt => this.updateExportFields('desc', evt.target.value.trim(), index)}
-                />
-              </div>
-            </Fragment>
-          );
-        })}
+        {this.renderList(data.fields.filter(o => !o.dataSource))}
 
         <div className="addActionBtn mTop25">
-          <span
-            className="ThemeBorderColor3"
-            onClick={() => {
-              const fields = [].concat(data.fields);
-
-              fields.push({ fieldName: '', desc: '', type: 2, fieldId: uuidv4() });
-              this.updateSource({ fields });
-            }}
-          >
+          <span className="ThemeBorderColor3" onClick={this.addParameters}>
             <i className="icon-add Font16" />
             {_l('添加参数')}
           </span>
@@ -284,13 +198,185 @@ export default class PBC extends Component {
   }
 
   /**
+   * 渲染输出参数列表
+   */
+  renderList = source => {
+    const { data } = this.state;
+
+    return source.map(item => {
+      const parentNode = item.dataSource ? _.find(data.fields, o => o.fieldId === item.dataSource) : {};
+
+      if (parentNode.type === 10000007) return null;
+
+      return (
+        <Fragment key={item.fieldId}>
+          <div className={cx('mTop8 flexRow relative alignItemsCenter', { pLeft20: item.dataSource })}>
+            <input
+              type="text"
+              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop8"
+              style={{ width: 150 }}
+              placeholder={_l('参数名')}
+              value={item.fieldName}
+              maxLength={64}
+              onChange={e => this.updateExportFields('fieldName', e.target.value, item)}
+              onBlur={e => this.updateExportFields('fieldName', e.target.value.trim(), item, true)}
+            />
+
+            <Dropdown
+              className="flowDropdown mLeft10 mTop8"
+              style={{ width: 120 }}
+              data={FIELD_TYPE_LIST.filter(
+                o =>
+                  !_.includes([14, 10000003], o.value) &&
+                  (!item.dataSource || (item.dataSource && o.value !== 10000008)),
+              )}
+              value={item.type}
+              renderTitle={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
+              border
+              disabled={!validate(item.fieldId)}
+              onChange={type => {
+                this.updateExportFields('type', type, item);
+              }}
+            />
+
+            <div className="flex mLeft10" style={{ minWidth: 0 }}>
+              <SingleControlValue
+                companyId={this.props.companyId}
+                processId={this.props.processId}
+                selectNodeId={this.props.selectNodeId}
+                sourceNodeId={item.dataSource ? parentNode.nodeId : ''}
+                controls={data.fields.map(o => {
+                  if (o.type === 10000008) {
+                    o.controlId = o.fieldId;
+                    o.flowNodeAppDtos = data.batchNodes;
+                  }
+                  return o;
+                })}
+                formulaMap={data.formulaMap}
+                fields={data.fields}
+                updateSource={this.updateSource}
+                item={item}
+                i={_.findIndex(data.fields, o => o.fieldId === item.fieldId)}
+              />
+            </div>
+            <i
+              className="icon-delete2 Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
+              onClick={() => {
+                let fields = [].concat(data.fields);
+
+                _.remove(fields, o => o.fieldId === item.fieldId);
+                this.updateSource({ fields });
+              }}
+            />
+            <i
+              className="icon-add Font20 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
+              style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
+              onClick={() => this.addParameters(item)}
+            />
+          </div>
+          <div className={cx('mTop10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
+            <input
+              type="text"
+              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+              style={{ width: 150 }}
+              placeholder={_l('别名')}
+              value={item.alias}
+              onChange={e => this.updateExportFields('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), item)}
+              onBlur={e => {
+                let value = e.target.value.trim();
+
+                if (value && !/^[a-zA-Z]{1}/.test(value)) {
+                  value = 'pbp' + value;
+                }
+
+                this.updateExportFields('alias', value, item, true);
+              }}
+            />
+            <input
+              type="text"
+              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mLeft10"
+              placeholder={_l('说明')}
+              value={item.desc}
+              onChange={evt => this.updateExportFields('desc', evt.target.value, item)}
+              onBlur={evt => this.updateExportFields('desc', evt.target.value.trim(), item)}
+            />
+          </div>
+          {this.renderList(data.fields.filter(o => o.dataSource === item.fieldId))}
+        </Fragment>
+      );
+    });
+  };
+
+  /**
+   * 默认参数
+   */
+  getDefaultParameters = () => {
+    return { fieldName: '', desc: '', type: 2, fieldId: uuidv4(), alias: '' };
+  };
+
+  /**
    * 更新输出PBC字段的值
    */
-  updateExportFields = (key, value, index) => {
+  updateExportFields = (action, value, { fieldId, type, dataSource }, isBlur) => {
     const { data } = this.state;
-    let fields = [].concat(data.fields);
+    const fields = _.cloneDeep(data.fields);
 
-    fields[index][key] = value;
+    fields.forEach(item => {
+      if (item.fieldId === fieldId) {
+        item[action] =
+          isBlur &&
+          _.includes(['fieldName', 'alias'], action) &&
+          !!fields
+            .filter(o => o.dataSource === dataSource)
+            .find(o => value && o[action] === value && o.fieldId !== fieldId)
+            ? value +
+              Math.floor(Math.random() * 10000)
+                .toString()
+                .padStart(4, '0')
+            : value;
+      }
+    });
+
+    // 数组调整类型
+    if (action === 'type' && _.includes([10000007, 10000008], type)) {
+      _.remove(fields, o => o.dataSource === fieldId);
+    }
+
+    // 普通数组
+    if (action === 'type' && value === 10000007) {
+      fields.push(Object.assign({}, this.getDefaultParameters(), { fieldName: 'string', dataSource: fieldId }));
+    }
+
+    this.updateSource({ fields });
+  };
+
+  /**
+   * 添加输出参数
+   */
+  addParameters = ({ type, dataSource, fieldId }) => {
+    const { data } = this.state;
+    const fields = _.cloneDeep(data.fields);
+    let index = 0;
+
+    fields.forEach((item, i) => {
+      if (item.fieldId === fieldId) {
+        index = i;
+      }
+    });
+
+    if (!fieldId) {
+      index = fields.length - 1;
+    }
+
+    if (type === 10000008 || dataSource) {
+      fields.splice(
+        index + 1,
+        0,
+        Object.assign({}, this.getDefaultParameters(), { dataSource: dataSource || fieldId }),
+      );
+    } else {
+      fields.splice(index + 1, 0, this.getDefaultParameters());
+    }
 
     this.updateSource({ fields });
   };
@@ -370,7 +456,7 @@ export default class PBC extends Component {
 
             <div className="mTop20 bold">{_l('传递参数')}</div>
             <div className="mTop5 Gray_9e">{_l('向业务流程的输入参数传递初始值，供其执行时使用')}</div>
-            {this.renderParameterFiled()}
+            <ProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
         )}
       </Fragment>
@@ -476,42 +562,6 @@ export default class PBC extends Component {
     );
   }
 
-  /**
-   * 渲染参数字段
-   */
-  renderParameterFiled() {
-    const { data } = this.state;
-
-    return data.fields.map((item, i) => {
-      const singleObj = _.find(data.subProcessVariables, obj => obj.controlId === item.fieldId) || {};
-      const { controlName, sourceEntityName } = singleObj;
-
-      return (
-        <div key={item.fieldId} className="relative">
-          <div className="mTop15 ellipsis Font13">
-            <span className="Gray_9e mRight5">[{CONTROLS_NAME[singleObj.type]}]</span>
-            {controlName}
-            {singleObj.required && <span className="mLeft5 red">*</span>}
-            {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
-          </div>
-          <SingleControlValue
-            companyId={this.props.companyId}
-            processId={this.props.processId}
-            selectNodeId={this.props.selectNodeId}
-            sourceNodeId={data.selectNodeId}
-            controls={data.subProcessVariables}
-            formulaMap={data.formulaMap}
-            fields={data.fields}
-            updateSource={this.updateSource}
-            item={item}
-            i={i}
-          />
-          {singleObj.desc && <div className="mTop5 Gray_9e">{singleObj.desc}</div>}
-        </div>
-      );
-    });
-  }
-
   render() {
     const { data, showOtherPBC } = this.state;
     const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
@@ -523,10 +573,10 @@ export default class PBC extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-pbc"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -534,7 +584,7 @@ export default class PBC extends Component {
             <div className="workflowDetailBox">{isPBCOut ? this.renderExportContent() : this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect={!!data.appId || isPBCOut} onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect={!!data.appId || isPBCOut} onSave={this.onSave} />
 
         {showOtherPBC && (
           <SelectOtherPBCDialog

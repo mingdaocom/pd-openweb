@@ -7,27 +7,62 @@ import ErrorDialog from './ErrorDialog';
 import { antNotification } from 'ming-ui';
 
 export const wsexcelSocketInit = () => {
-  IM.socket.on('wsexcel', ({ worksheetName, accountIds, successCount, errorCount, id, wsServiceErrorCount }) => {
-    if (_.includes(accountIds, md.global.Account.accountId)) {
-      const sCount = successCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
-      const eCount = errorCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
+  IM.socket.on(
+    'wsexcel',
+    ({
+      accountIds,
+      addCount,
+      errorCount,
+      repeatCount,
+      skipCount,
+      updateCount,
+      id,
+      wsServiceErrorCount,
+      repeated,
+      isErrorMsg,
+    }) => {
+      if (_.includes(accountIds, md.global.Account.accountId)) {
+        const formatNum = num => {
+          return num.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
+        };
+        const aCount = addCount;
+        const eCount = errorCount;
+        const rCount = repeatCount;
+        const sCount = skipCount;
+        const uCount = updateCount;
+        const title = () => {
+          const txt1 = [
+            repeated !== 3 ? _l('新增%0行', formatNum(aCount)) : '',
+            uCount || repeated === 3 ? _l('更新%0行', formatNum(uCount)) : '',
+            eCount ? _l('其中%0行错误', formatNum(eCount)) : '',
+          ]
+            .filter(o => o)
+            .join(', ');
+          const txt2 =
+            sCount && rCount && sCount - rCount
+              ? '；' +
+                _l('跳过%0行（%1行重复，%2行错误）', formatNum(sCount), formatNum(rCount), formatNum(sCount - rCount))
+              : sCount && rCount
+              ? '；' + _l('跳过%0行重复', formatNum(sCount))
+              : sCount
+              ? '；' + _l('跳过%0行错误', formatNum(sCount))
+              : '';
 
-      antNotification.close(id);
-      antNotification.success({
-        message: _l('导入完成'),
-        description:
-          wsServiceErrorCount > 0
-            ? _l('导入完成，有部分数据未被导入,请删除重复值后重试')
-            : errorCount > 0
-            ? _l('“%0”导入 %1 行数据，%2 行错误', worksheetName, sCount, eCount)
-            : _l('“%0”导入 %1 行数据', worksheetName, sCount),
-        btnText: errorCount > 0 ? _l('查看错误报告') : '',
-        onBtnClick: () => {
-          new ErrorDialog({ fileKey: id });
-        },
-      });
-    }
-  });
+          return txt1 + txt2;
+        };
+
+        antNotification.close(id);
+        antNotification.success({
+          message: _l('导入完成'),
+          description: wsServiceErrorCount > 0 ? _l('导入完成，有部分数据未被导入,请删除重复值后重试') : title(),
+          btnText: isErrorMsg ? _l('查看错误报告') : '',
+          onBtnClick: () => {
+            new ErrorDialog({ fileKey: id });
+          },
+        });
+      }
+    },
+  );
 };
 
 export default class ImportDataFromExcel extends Component {

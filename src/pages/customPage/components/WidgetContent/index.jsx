@@ -16,6 +16,7 @@ import { getEnumType, getDefaultLayout, reportCountLimit } from '../../util';
 import Tools from './Tools';
 import WidthProvider from './widthProvider';
 import { COLUMN_HEIGHT } from '../../config';
+import { v4 as uuidv4 } from 'uuid';
 
 const AutoWidthGridLayout = WidthProvider(GridLayout);
 
@@ -32,17 +33,28 @@ const LayoutContent = styled.div`
     background-color: #fff;
     border-radius: 3px;
     overflow: auto;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     &.richText {
       .editorNull {
         border: none;
       }
     }
     &.analysis, &.embedUrl {
-      overflow: visible;
+      // overflow: visible;
+    }
+    &.filter {
+      justify-content: center;
+      padding: 0 10px;
+    }
+    &.filter.mobile {
+      background-color: transparent;
+      box-shadow: none;
+      +span.react-resizable-handle {
+        display: none;
+      }
     }
     &:hover {
-      box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.25);
+      // box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.20);
     }
     &.haveTitle {
       height: calc(100% - 40px);
@@ -182,7 +194,15 @@ function WidgetContent(props) {
           if (loading) return;
           reportConfig
             .copyReport({ reportId: widget.value, sourceType: 1 })
-            .then(data => copyWidget({ ..._.omit(widget, ['id', 'uuid']), value: data.reportId, layoutType }))
+            .then(data => copyWidget({
+              ..._.omit(widget, ['id', 'uuid']),
+              value: data.reportId,
+              layoutType,
+              sourceValue: widget.value,
+              config: {
+                objectId: uuidv4()
+              }
+            }))
             .always(() => setLoading(false));
         } else {
           copyWidget({ ..._.omit(widget, ['id', 'uuid']), layoutType });
@@ -268,7 +288,7 @@ function WidgetContent(props) {
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && (
-                <div className="componentTitle overflow_ellipsis disableDrag" title={title}>
+                <div className="componentTitle overflow_ellipsis disableDrag bold" title={title}>
                   {editable || isEdit ? (
                     <input
                       ref={$input}
@@ -283,7 +303,7 @@ function WidgetContent(props) {
                 </div>
               )}
               <div
-                className={cx('widgetContent', enumType, {
+                className={cx('widgetContent', enumType, layoutType, {
                   haveTitle: titleVisible,
                   iframeNoneEvent: enumType === 'embedUrl' && editable,
                 })}

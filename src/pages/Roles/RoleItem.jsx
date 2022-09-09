@@ -28,6 +28,7 @@ export default class RoleItem extends PureComponent {
     transferApp: PropTypes.func,
     copyRole: PropTypes.func,
     addJobToRole: PropTypes.func,
+    addOrgRole: PropTypes.func,
     addDepartmentToRole: PropTypes.func,
     addUserToRole: PropTypes.func,
     removeUserFromRole: PropTypes.func,
@@ -40,8 +41,10 @@ export default class RoleItem extends PureComponent {
   state = {
     selectUserIds: [],
     selectDepIds: [],
+    selectDepTreeIds: [],
     selectJobIds: [],
     dialogType: '',
+    projectOrganizeIds: [],
   };
 
   componentWillReceiveProps(nextProps) {
@@ -50,12 +53,14 @@ export default class RoleItem extends PureComponent {
         selectUserIds: [],
         selectDepIds: [],
         selectJobIds: [],
+        selectDepTreeIds: [],
+        projectOrganizeIds: [],
       });
     }
   }
 
   renderDialog() {
-    const { dialogType, selectUserIds, selectDepIds, selectJobIds } = this.state;
+    const { dialogType, selectUserIds, selectDepIds, selectDepTreeIds, selectJobIds, projectOrganizeIds } = this.state;
     const { roles, removeUserFromRole, moveUser, deleteRole, exitRole } = this.props;
     if (dialogType) {
       return (
@@ -65,12 +70,25 @@ export default class RoleItem extends PureComponent {
           onOk={roleId => {
             let promise;
             if (dialogType === TYPES.REMOVE_USER) {
-              promise = removeUserFromRole(selectUserIds, selectDepIds, selectJobIds);
+              promise = removeUserFromRole(
+                selectUserIds,
+                selectDepIds,
+                selectDepTreeIds,
+                selectJobIds,
+                projectOrganizeIds,
+              );
             } else if (dialogType === TYPES.DELETE || dialogType === TYPES.DELETE_WITH_USER) {
               promise = deleteRole(roleId);
               return promise;
             } else if (dialogType === TYPES.MOVE_USER) {
-              promise = moveUser(roleId, selectUserIds, selectDepIds, selectJobIds);
+              promise = moveUser(
+                roleId,
+                selectUserIds,
+                selectDepIds,
+                selectDepTreeIds,
+                selectJobIds,
+                projectOrganizeIds,
+              );
             } else if (dialogType === TYPES.EXIT) {
               promise = exitRole();
             }
@@ -82,6 +100,8 @@ export default class RoleItem extends PureComponent {
                 selectUserIds: [],
                 selectDepIds: [],
                 selectJobIds: [],
+                selectDepTreeIds: [],
+                projectOrganizeIds: [],
               });
             });
           }}
@@ -96,16 +116,30 @@ export default class RoleItem extends PureComponent {
   }
 
   renderDesc() {
-    const { selectUserIds, selectDepIds, selectJobIds } = this.state;
+    const { selectUserIds, selectDepIds, selectDepTreeIds, selectJobIds, projectOrganizeIds } = this.state;
     const {
       role: { description, permissionWay },
       collapse,
     } = this.props;
 
-    if (!collapse && (selectUserIds.length || selectDepIds.length || selectJobIds.length)) {
+    if (
+      !collapse &&
+      (selectUserIds.length ||
+        selectDepIds.length ||
+        selectDepTreeIds.length ||
+        selectJobIds.length ||
+        projectOrganizeIds.length)
+    ) {
       return (
         <div className="mTop6 Gray_75">
-          {_l('已选择%0个用户', selectUserIds.length + selectDepIds.length + selectJobIds.length)}
+          {_l(
+            '已选择%0个用户',
+            selectUserIds.length +
+              selectDepIds.length +
+              selectDepTreeIds.length +
+              selectJobIds.length +
+              projectOrganizeIds.length,
+          )}
           <span
             className="Hand ThemeColor3 ThemeHoverColor2 mRight24 mLeft15"
             onClick={e => {
@@ -113,6 +147,9 @@ export default class RoleItem extends PureComponent {
                 selectUserIds: [],
                 selectDepIds: [],
                 selectJobIds: [],
+                selectDepTreeIds: [],
+                projectOrganizeIds: [],
+                projectOrganizeIds: [],
               });
               e.stopPropagation();
             }}
@@ -166,7 +203,7 @@ export default class RoleItem extends PureComponent {
       copyRole,
       onSelectRole,
       projectId,
-      role: { users, departmentsInfos, jobInfos = [], roleType },
+      role: { users, departmentsInfos, departmentTreesInfos = [], jobInfos = [], roleType },
     } = this.props;
     const isExist = !!_.find(users, ({ accountId }) => accountId === md.global.Account.accountId);
 
@@ -232,7 +269,7 @@ export default class RoleItem extends PureComponent {
                   <MenuItem
                     className={styles.danger}
                     onClick={() => {
-                      if (users.length + departmentsInfos.length + jobInfos.length) {
+                      if (users.length + departmentsInfos.length + departmentTreesInfos.length + jobInfos.length) {
                         this.setState({ dialogType: TYPES.DELETE_WITH_USER });
                       } else {
                         this.setState({ dialogType: TYPES.DELETE });
@@ -252,7 +289,7 @@ export default class RoleItem extends PureComponent {
 
   renderHeader(isInCurrentRole) {
     const {
-      role: { name, users, departmentsInfos, jobInfos = [] },
+      role: { name, users, departmentsInfos, departmentTreesInfos = [], jobInfos = [], projectOrganizeInfos = [] },
       collapse,
       onClickRole,
       disabled,
@@ -274,15 +311,28 @@ export default class RoleItem extends PureComponent {
           <div>
             <span className="Font16 TxtMiddle bold mRight12">{name}</span>
             {isInCurrentRole && <span className={styles.roleTag + ' TxtMiddle mRight12'}>{_l('我的角色')}</span>}
+            {projectOrganizeInfos.length > 0 && (
+              <span className="Gray_9e TxtMiddle">{_l('%0 个组织角色', projectOrganizeInfos.length)}</span>
+            )}
+            {projectOrganizeInfos.length > 0 &&
+              (jobInfos.length > 0 ||
+                departmentsInfos.length > 0 ||
+                departmentTreesInfos.length > 0 ||
+                users.length > 0) && <span className="Gray_9e TxtMiddle">、</span>}
             {jobInfos.length > 0 && <span className="Gray_9e TxtMiddle">{_l('%0 个职位', jobInfos.length)}</span>}
-            {jobInfos.length > 0 && (departmentsInfos.length > 0 || users.length > 0) && (
+            {jobInfos.length > 0 &&
+              (departmentsInfos.length > 0 || departmentTreesInfos.length > 0 || users.length > 0) && (
+                <span className="Gray_9e TxtMiddle">、</span>
+              )}
+
+            {(departmentsInfos.length > 0 || departmentTreesInfos.length > 0) && (
+              <span className="Gray_9e TxtMiddle">
+                {_l('%0 个部门', departmentsInfos.length + departmentTreesInfos.length)}
+              </span>
+            )}
+            {(departmentsInfos.length > 0 || departmentTreesInfos.length > 0) && users.length > 0 && (
               <span className="Gray_9e TxtMiddle">、</span>
             )}
-
-            {departmentsInfos.length > 0 && (
-              <span className="Gray_9e TxtMiddle">{_l('%0 个部门', departmentsInfos.length)}</span>
-            )}
-            {departmentsInfos.length > 0 && users.length > 0 && <span className="Gray_9e TxtMiddle">、</span>}
 
             {users.length > 0 && <span className="Gray_9e TxtMiddle">{_l('%0 个人', users.length)}</span>}
           </div>
@@ -310,17 +360,24 @@ export default class RoleItem extends PureComponent {
       projectId,
       isUserAdmin,
       collapse,
-      role: { users, departmentsInfos, jobInfos = [] },
+      role: { users, departmentsInfos, jobInfos = [], departmentTreesInfos = [], projectOrganizeInfos = [] },
       addJobToRole,
+      addOrgRole,
       addDepartmentToRole,
       addUserToRole,
     } = this.props;
-
     if (collapse) return <Fragment />;
 
     return (
       <Fragment>
-        {users && departmentsInfos && jobInfos && users.length + departmentsInfos.length + jobInfos.length > 0 ? (
+        {users &&
+        (departmentsInfos || departmentTreesInfos) &&
+        jobInfos &&
+        users.length +
+          (departmentsInfos.length || departmentTreesInfos.length) +
+          jobInfos.length +
+          projectOrganizeInfos.length >
+          0 ? (
           <ScrollView className={styles.roleMemberListWrapper}>
             <div className={styles.roleMemberList}>
               {_.map(
@@ -333,7 +390,11 @@ export default class RoleItem extends PureComponent {
                 user => this.renderUserItem(user),
               )}
 
+              {_.map(projectOrganizeInfos, item => this.renderOrgRoleItem(item))}
+
               {_.map(jobInfos, item => this.renderJobItem(item))}
+
+              {_.map(departmentTreesInfos, item => this.renderDepartmentItem(item, true))}
 
               {_.map(
                 departmentsInfos.filter(o => o.departmentId.indexOf('orgs_') === -1),
@@ -355,19 +416,24 @@ export default class RoleItem extends PureComponent {
         {isUserAdmin ? (
           <div className="TxtRight pTop20 pBottom20 pRight24 pLeft24">
             {!!projectId && !_.isEmpty(getCurrentProject(projectId)) && (
-              <Button type="ghost" radius onClick={addJobToRole} className="pLeft10 pRight10">
-                {_l('添加职位')}
+              <Button type="ghostgray" radius onClick={addDepartmentToRole} className="pLeft20 pRight20 ">
+                <Icon icon="plus" className="LineHeight36" /> {_l('部门')}
               </Button>
             )}
-
             {!!projectId && !_.isEmpty(getCurrentProject(projectId)) && (
-              <Button type="ghost" radius onClick={addDepartmentToRole} className="pLeft10 pRight10 mLeft10">
-                {_l('添加部门')}
+              <Button type="ghostgray" radius onClick={addOrgRole} className="pLeft10 pRight10 mLeft10">
+                <Icon icon="plus" className="LineHeight36" /> {_l('组织角色')}
+              </Button>
+            )}
+            {!!projectId && !_.isEmpty(getCurrentProject(projectId)) && (
+              <Button type="ghostgray" radius onClick={addJobToRole} className="pLeft10 pRight10 mLeft10">
+                <Icon icon="plus" className="LineHeight36" /> {_l('职位')}
               </Button>
             )}
 
             <Button type="primary" radius onClick={addUserToRole} className="pLeft10 pRight10 mLeft10">
-              {_l('添加人员')}
+              <Icon icon="plus" className="LineHeight36" />
+              {_l('人员')}
             </Button>
           </div>
         ) : null}
@@ -450,7 +516,7 @@ export default class RoleItem extends PureComponent {
           <div className={styles.memberInfo}>
             <div className={styles.memberName}>{item.jobName}</div>
             <span className={styles.memberTag}>
-              <span className={styles.ownerTag}>{_l('职位')}</span>
+              <span className={styles.tag}>{_l('职位')}</span>
             </span>
           </div>
           {isUserAdmin && this.renderSelect(isSelected)}
@@ -458,18 +524,16 @@ export default class RoleItem extends PureComponent {
       </div>
     );
   }
-
-  renderDepartmentItem(item) {
+  renderOrgRoleItem(item) {
     const { isUserAdmin } = this.props;
-    const { selectDepIds } = this.state;
-    const isAllProject = item.departmentId.indexOf('orgs_') > -1;
-    const isSelected = selectDepIds.indexOf(item.departmentId) !== -1;
+    const { projectOrganizeIds } = this.state;
+    const isSelected = projectOrganizeIds.indexOf(item.projectOrganizeId) !== -1;
     const clickHandler = isUserAdmin
       ? () => {
           this.setState({
-            selectDepIds: isSelected
-              ? _.filter(selectDepIds, id => id !== item.departmentId)
-              : selectDepIds.concat(item.departmentId),
+            projectOrganizeIds: isSelected
+              ? _.filter(projectOrganizeIds, id => id !== item.projectOrganizeId)
+              : projectOrganizeIds.concat(item.projectOrganizeId),
           });
         }
       : undefined;
@@ -478,8 +542,8 @@ export default class RoleItem extends PureComponent {
       <div
         className={styles.roleMemberWrapper}
         onClick={clickHandler}
-        key={item.departmentId}
-        title={item.departmentName}
+        key={item.projectOrganizeId}
+        title={item.projectOrganizeName}
       >
         <div
           className={cx(styles.roleMember, {
@@ -487,17 +551,64 @@ export default class RoleItem extends PureComponent {
             [styles.canSelect]: isUserAdmin,
           })}
         >
-          <div className={styles.iconBG} style={{ background: isAllProject ? '#2196f3' : '#eaeaea' }}>
+          <div className={styles.iconBG} style={{ backgroundColor: '#FFAD00' }}>
+            <Icon icon="user" className="White Font24" />
+          </div>
+          <div className={styles.memberInfo}>
+            <div className={styles.memberName}>{item.projectOrganizeName}</div>
+            <span className={styles.memberTag}>
+              <span className={styles.tag}>{_l('组织角色')}</span>
+            </span>
+          </div>
+          {isUserAdmin && this.renderSelect(isSelected)}
+        </div>
+      </div>
+    );
+  }
+
+  renderDepartmentItem(item = {}, isTree) {
+    const { isUserAdmin } = this.props;
+    const { selectDepIds, selectDepTreeIds } = this.state;
+    let departmentName = isTree ? item.departmentTreeName : item.departmentName;
+    let departmentId = isTree ? item.departmentTreeId : item.departmentId;
+    const isAllProject = departmentId.indexOf('orgs_') > -1;
+    const isSelected = isTree
+      ? selectDepTreeIds.indexOf(departmentId) !== -1
+      : selectDepIds.indexOf(departmentId) !== -1;
+    const clickHandler = isUserAdmin
+      ? () => {
+          isTree
+            ? this.setState({
+                selectDepTreeIds: isSelected
+                  ? _.filter(selectDepTreeIds, id => id !== departmentId)
+                  : selectDepTreeIds.concat(departmentId),
+              })
+            : this.setState({
+                selectDepIds: isSelected
+                  ? _.filter(selectDepIds, id => id !== departmentId)
+                  : selectDepIds.concat(departmentId),
+              });
+        }
+      : undefined;
+    return (
+      <div className={styles.roleMemberWrapper} onClick={clickHandler} key={departmentId} title={departmentName}>
+        <div
+          className={cx(styles.roleMember, {
+            [styles.selected]: isSelected,
+            [styles.canSelect]: isUserAdmin,
+          })}
+        >
+          <div className={styles.iconBG} style={{ background: isAllProject || isTree ? '#2196f3' : '#eaeaea' }}>
             <Icon
-              icon={isAllProject ? 'business' : 'group'}
-              className={cx('Font24', isAllProject ? 'White' : 'Gray_9e')}
+              icon={isAllProject ? 'business' : 'department1'}
+              className={cx('Font24', isAllProject || isTree ? 'White' : 'Gray_9e')}
             />
           </div>
           <div className={styles.memberInfo}>
-            <div className={styles.memberName}>{item.departmentName}</div>
+            <div className={styles.memberName}>{departmentName}</div>
             {!isAllProject && (
               <span className={styles.memberTag}>
-                <span className={styles.ownerTag}>{_l('部门')}</span>
+                <span className={styles.tag}>{!isTree ? _l('仅当前部门') : _l('部门')}</span>
               </span>
             )}
           </div>

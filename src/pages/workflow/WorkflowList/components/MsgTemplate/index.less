@@ -1,7 +1,29 @@
 .workflowMsgTemplateDialog {
   width: 720px !important;
-  min-height: 636px;
+  height: 80% !important;
+  .mui-dialog-body {
+    overflow: hidden !important;
+    ul{
+      height: 100%;
+    }
+  }
+  .templateTitle {
+    justify-content: space-between;
+    .actBox {
+      .del {
+        margin-right: 24px;
+        padding: 6px 18px;
+        border: 1px solid #eaeaea;
+        &:hover {
+          color: #fff;
+          background: #2196f3;
+          border: 1px solid #2196f3;
+        }
+      }
+    }
+  }
   .workflowMsgTemplateScrollView {
+    height: calc(~'100% - 40px');
     .nano-content {
       right: -10px !important;
     }
@@ -21,6 +43,7 @@
       flex-wrap: wrap;
       color: #000;
       padding-left: 12px;
+      overflow: hidden;
     }
     .status {
       width: 120px;
@@ -28,6 +51,9 @@
     }
     .msgTemplateCreateTime {
       width: 180px;
+      &.theneColor {
+        color: #2196f3;
+      }
     }
   }
   .workflowMsgTemplateEmpty {

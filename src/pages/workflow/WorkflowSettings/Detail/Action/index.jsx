@@ -317,10 +317,10 @@ export default class Action extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon={this.getIcon(data)}
           bg={bgClassName}
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -365,6 +365,7 @@ export default class Action extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             (data.actionId === ACTION_ID.ADD && data.appId) ||
             ((data.actionId === ACTION_ID.EDIT ||
@@ -374,7 +375,6 @@ export default class Action extends Component {
             data.appType === APP_TYPE.PROCESS
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

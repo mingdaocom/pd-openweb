@@ -19,7 +19,14 @@ import { updateWorksheetRow } from 'src/api/worksheet';
 import External from './External';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
-import { getHoverColor, isTimeStyle, isEmojiCharacter, getShowExternalData, getCalendartypeData } from './util';
+import {
+  getHoverColor,
+  isTimeStyle,
+  isEmojiCharacter,
+  getShowExternalData,
+  getCalendartypeData,
+  isIllegalFormat,
+} from './util';
 import { isLightColor } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
@@ -181,7 +188,7 @@ class RecordCalendar extends Component {
       let view = this.calendarComponentRef.current.getApi().view;
       let data = getCalendartypeData();
       data[`${worksheetId}-${viewId}`] = view.type;
-      window.localStorage.setItem('CalendarViewType', JSON.stringify(data));
+      safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
     }
   }
 
@@ -653,7 +660,8 @@ class RecordCalendar extends Component {
           ? 'timeGridDay'
           : 'dayGridDay'
         : '';
-    if (isHaveSelectControl) {
+
+    if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
       return (
         <Wrap>
           <SelectField
@@ -727,7 +735,7 @@ class RecordCalendar extends Component {
                 } else {
                   showExternalData = showExternalData.filter(o => o !== `${worksheetId}-${viewId}`);
                 }
-                window.localStorage.setItem('CalendarShowExternal', JSON.stringify(showExternalData));
+                safeLocalStorageSetItem('CalendarShowExternal', JSON.stringify(showExternalData));
                 this.setState(
                   {
                     showExternal: !this.state.showExternal,

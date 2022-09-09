@@ -3,36 +3,31 @@ import './index.less';
 import account from 'src/api/account';
 import accountSetting from 'src/api/accountSetting';
 import accountGuideController from 'src/api/accountGuide';
+import wxController from 'src/api/weixin';
 import DialogLayer from 'mdDialog';
 import ReactDom from 'react-dom';
 import bindAccount from '../bindAccount/bindAccount';
 import unBindAccount from '../bindAccount/unBindAccount';
-import { Checkbox, Select } from 'antd';
-import { LoadDiv, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Select, Switch } from 'antd';
+import { LoadDiv, Tooltip, Dialog } from 'ming-ui';
 import EditPassword from './EditPassword';
 import InitPasswordDialog from '../bindAccount/initPasswordDialog/index';
 import cx from 'classnames';
 import captcha from 'src/components/captcha';
 import common from '../common';
-import ValidatePassword from '../bindAccount/validatePasswordDialog';
-import { encrypt } from 'src/util';
-
-const {
-  personal: {
-    accountPassword: { accountBind, privacySetting, qqOrWeixin },
-  },
-} = window.private;
 
 let accountList = [
   { key: 'weiXinBind', icon: 'icon-wechat', color: 'weiBindColor', label: _l('微信') },
   { key: 'qqBind', icon: 'icon-qq', color: 'qqBindColor', label: _l('QQ') },
   { key: 'workBind', color: 'workBindColor', needHide: true },
-].filter(it => (qqOrWeixin ? !_.includes(['weiXinBind', 'qqBind'], it.key) : true));
+];
 
 const tipsConfig = {
   mobilePhone: _l(
     '绑定手机号作为你的登录账号。同时也是管理个人账户和使用系统服务的重要依据。为便于您以后的操作及账户安全，请您尽快绑定。',
   ),
+  isTwoauthentication: _l('两步验证是在输入账号密码后，额外增加一道安全屏障（手机短信或邮箱验证码），保障您的帐号安全'),
+  openWeixinLogin: _l('开启后，登录系统会收到微信通知'),
 };
 
 const TPType = {
@@ -79,6 +74,9 @@ export default class AccountChart extends React.Component {
       isPrivateEmail: false,
       needInit: false, //是否需要初始化
       showWarn: true,
+      isTwoauthentication: false,
+      wxQRCodeLoading: true,
+      openWeixinLogin: false,
     };
   }
 
@@ -101,7 +99,10 @@ export default class AccountChart extends React.Component {
         joinFriendMode: info.joinFriendMode,
         isPrivateMobile: info.isPrivateMobile,
         isPrivateEmail: info.isPrivateEmail,
+        isTwoauthentication: info.isTwoauthentication,
+        isHasWeixin: info.isHasWeixin,
         loading: false,
+        openWeixinLogin: info.openWeixinLogin,
       });
     });
   }
@@ -183,7 +184,7 @@ export default class AccountChart extends React.Component {
     bindAccount.bindAccountEmailMobile({
       isUpdateEmail: type === 'email',
       accountTitle: type === 'email' ? _l('绑定邮箱') : _l('绑定手机号码'),
-      callback: function() {
+      callback: function () {
         location.reload();
       },
     });
@@ -198,7 +199,7 @@ export default class AccountChart extends React.Component {
     }
     unBindAccount.init({
       isUnBindEmail: type === 'email',
-      callback: function() {
+      callback: function () {
         location.reload();
       },
     });
@@ -209,7 +210,7 @@ export default class AccountChart extends React.Component {
     bindAccount.bindAccountEmailMobile({
       isUpdateEmail: type === 'email',
       accountTitle: type === 'email' ? _l('修改邮箱') : _l('修改手机号码'),
-      callback: function() {
+      callback: function () {
         location.reload();
       },
     });
@@ -325,7 +326,7 @@ export default class AccountChart extends React.Component {
   //验证邮箱
   handleReviewEmail() {
     var throttled = _.throttle(
-      function(res) {
+      function (res) {
         if (res.ret === 0) {
           account
             .sendProjectBindEmail({
@@ -333,7 +334,7 @@ export default class AccountChart extends React.Component {
               randStr: res.randstr,
               captchaType: md.staticglobal.getCaptchaType(),
             })
-            .then(function(data) {
+            .then(function (data) {
               if (data) {
                 alert(_l('发送成功'));
               } else {
@@ -384,13 +385,10 @@ export default class AccountChart extends React.Component {
     return (
       <div className={cx('initPasswordWarning', { Hidden: !(needInit && showWarn) })}>
         <span className="warnColor">
-          <span className="icon-error1 Font16 mRight8 TxtMiddle"></span>
+          <span className="icon-error1 Font16 mRight8 TxtMiddle" />
           <span>{_l('建议您绑定手机号，绑定后可以直接在官网和 App 登录')}</span>
         </span>
-        <span
-          className="icon-clear Font16 ThemeHoverColor3 Hand"
-          onClick={() => this.setState({ showWarn: false })}
-        ></span>
+        <span className="icon-clear Font16 ThemeHoverColor3 Hand" onClick={() => this.setState({ showWarn: false })} />
       </div>
     );
   }
@@ -398,7 +396,7 @@ export default class AccountChart extends React.Component {
   renderTips = key => {
     return (
       <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
-        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15"></span>
+        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15" />
       </Tooltip>
     );
   };
@@ -414,8 +412,140 @@ export default class AccountChart extends React.Component {
     );
   };
 
+  openVerify = checked => {
+    if (!checked) {
+      const colseValidateDialog = ValidatePassword({
+        header: _l('关闭两步验证'),
+        callback: () =>
+          this.sureSettings('isTwoauthentication', false, () => {
+            this.setState({ isTwoauthentication: false }, () => colseValidateDialog.closeDialog());
+          }),
+      });
+      return;
+    }
+
+    const { mobilePhone, email, isVerify } = this.state;
+    const options = {
+      container: {
+        content: '',
+        yesText: null,
+        noText: null,
+        header: _l('是否开启两步验证？'),
+      },
+      dialogBoxID: 'stepsVerifyDialogId',
+      width: '480px',
+    };
+    ReactDom.render(
+      <DialogLayer {...options}>
+        <StepsVerifyDialog
+          mobilePhone={mobilePhone}
+          email={email}
+          isVerify={isVerify}
+          onOk={password => {
+            const _this = this;
+            var throttled = function (res) {
+              if (res.ret !== 0) {
+                return;
+              }
+
+              account
+                .checkAccount({
+                  password: encrypt(password),
+                  ticket: res.ticket,
+                  randStr: res.randstr,
+                  captchaType: md.staticglobal.getCaptchaType(),
+                })
+                .then(data => {
+                  if (data === 1) {
+                    _this.sureSettings('isTwoauthentication', true, () => {
+                      _this.setState({ isTwoauthentication: true }, () =>
+                        $('#stepsVerifyDialogId_container,#stepsVerifyDialogId_mask').remove(),
+                      );
+                    });
+                  } else if (data === 6) {
+                    alert(_l('密码错误'), 2);
+                  } else if (data === 8) {
+                    alert(_l('验证码错误'), 2);
+                  } else {
+                    alert(_l('操作失败'), 2);
+                  }
+                });
+            };
+
+            if (md.staticglobal.getCaptchaType() === 1) {
+              new captcha(throttled);
+            } else {
+              new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
+            }
+          }}
+        />
+      </DialogLayer>,
+      document.createElement('div'),
+    );
+  };
+
+  checkIsBindWX = () => {
+    wxController.checkWeiXinServiceNumberBind().then(res => {
+      if (!res) {
+        alert(_l('您的帐号还未绑定微信，请扫描二维码'), 3);
+      } else {
+        alert(_l('您的帐号已绑定微信，赶快去开启微信登录提醒吧'));
+      }
+    });
+  };
+
+  openWeixinLoginDialog = () => {
+    const { wxQRCode, openWXRemindDialog, wxQRCodeLoading } = this.state;
+    return (
+      <Dialog
+        className="loginMessageDialog"
+        title={_l('登录通知')}
+        visible={openWXRemindDialog}
+        footer={null}
+        onCancel={() => this.setState({ openWXRemindDialog: false })}
+      >
+        <div className="weixinImg">
+          {wxQRCodeLoading ? <LoadDiv className="mTop80" /> : <img className="w100 h100" src={wxQRCode} />}
+        </div>
+        <div className="mTop8 mBottom24 Font17">{_l('使用微信扫码绑定账号，开启登录微信提醒')}</div>
+        <Button type="primary" onClick={this.checkIsBindWX}>
+          {_l('我已经绑定了微信账号')}
+        </Button>
+      </Dialog>
+    );
+  };
+
+  openopenWeixinLogin = openWeixinLogin => {
+    if (!this.state.isHasWeixin) {
+      wxController
+        .getWeiXinServiceNumberQRCode()
+        .then(res => {
+          this.setState({ openWXRemindDialog: true, wxQRCode: res, wxQRCodeLoading: false });
+        })
+        .fail(err => {
+          this.setState({ openWXRemindDialog: true });
+        });
+    } else {
+      this.sureSettings('openWeixinLogin', openWeixinLogin ? 1 : 0, () => {
+        // 开启微信登录提醒
+        this.setState({
+          openWeixinLogin,
+        });
+      });
+    }
+  };
+
   render() {
-    const { email, mobilePhone, loading, isVerify, needInit, workBind = {} } = this.state;
+    const {
+      email,
+      mobilePhone,
+      loading,
+      isVerify,
+      needInit,
+      workBind = {},
+      isTwoauthentication,
+      openWeixinLogin,
+    } = this.state;
     const mobilePhoneWarnLight = md.global.Account.guideSettings.accountMobilePhone && !mobilePhone;
     const emailWarnLight = md.global.Account.guideSettings.accountEmail && (!email || !isVerify);
 
@@ -439,7 +569,7 @@ export default class AccountChart extends React.Component {
           <span>
             <span className="Gray Relative">
               {mobilePhone || _l('未绑定')}
-              {mobilePhoneWarnLight && <span className="warnLight warnLightMEPosition warnLightPhone"></span>}
+              {mobilePhoneWarnLight && <span className="warnLight warnLightMEPosition warnLightPhone" />}
             </span>
             {mobilePhone ? (
               <Fragment>
@@ -484,7 +614,7 @@ export default class AccountChart extends React.Component {
                   ) : (
                     _l('未绑定')
                   )}
-                  {emailWarnLight ? <span className="warnLight warnLightMEPosition warnLightEmail"></span> : null}
+                  {emailWarnLight ? <span className="warnLight warnLightMEPosition warnLightEmail" /> : null}
                 </span>
                 {email ? (
                   <Fragment>
@@ -521,14 +651,14 @@ export default class AccountChart extends React.Component {
           </Fragment>
         )}
 
-        {accountBind ? null : (
+        {!md.global.Config.IsLocal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">{_l('账号绑定')}</div>
             {accountList.map(({ key, label, color, icon, needHide = false }, index) => {
               const data = this.state[key] || {};
               return (
                 <span className={cx({ mLeft80: index, Hidden: needHide && !data.isBind })}>
-                  <span className={cx('Font16', icon, data.isBind ? color : 'Gray_9e')}></span>
+                  <span className={cx('Font16', icon, data.isBind ? color : 'Gray_9e')} />
                   <span className="Gray mLeft12">{label}</span>
                   {data.isBind && <span className="mLeft8 Gray_9e">{_l('已绑定：%0', data.nickName)}</span>}
                   {!needHide && (
@@ -542,12 +672,28 @@ export default class AccountChart extends React.Component {
           </div>
         )}
 
-        {privacySetting ? null : (
-          <Fragment>
-            <div className="Font17 Bold Gray mBottom40 mTop15">{_l('隐私')}</div>
-            {this.joinFriend()}
-          </Fragment>
+        {!md.global.Config.IsLocal && (
+          <div className="accountRowItem">
+            <div className="accountLabel Gray_75">
+              {_l('两步验证')}
+              {this.renderTips('isTwoauthentication')}
+            </div>
+            <Switch checked={isTwoauthentication} onClick={this.openVerify} />
+          </div>
         )}
+        {!md.global.Config.IsLocal && (
+          <div className="accountRowItem">
+            <div className="accountLabel Gray_75">
+              {_l('微信通知')}
+              {this.renderTips('openWeixinLogin')}
+            </div>
+            <Switch checked={this.state.openWeixinLogin} onClick={this.openopenWeixinLogin} />
+          </div>
+        )}
+
+        <div className="Font17 Bold Gray mBottom40 mTop20">{_l('隐私')}</div>
+        {this.joinFriend()}
+        {this.openWeixinLoginDialog()}
       </div>
     );
   }

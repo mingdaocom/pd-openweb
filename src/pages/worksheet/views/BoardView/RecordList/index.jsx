@@ -209,7 +209,9 @@ export default function Board(props) {
           {loading && <LoadDiv />}
         </div>
       </ScrollView>
-      {!isMobile && isShowAddRecord() && <AddRecord className="addBoardRecord" noItem={!list.data.length} onAddRecord={handleAddRecord} />}
+      {!isMobile && isShowAddRecord() && (
+        <AddRecord className="addBoardRecord" noItem={!list.data.length} onAddRecord={handleAddRecord} />
+      )}
       {createRecordVisible && (
         <NewRecord
           visible

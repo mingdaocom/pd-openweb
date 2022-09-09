@@ -21,6 +21,20 @@ const ErrorWrap = styled.div`
   }
 `;
 
+const formatsToSupport = [
+  Html5QrcodeSupportedFormats.QR_CODE,
+  Html5QrcodeSupportedFormats.CODE_39,
+  Html5QrcodeSupportedFormats.CODE_93,
+  Html5QrcodeSupportedFormats.CODE_128,
+  Html5QrcodeSupportedFormats.EAN_8,
+  Html5QrcodeSupportedFormats.EAN_13,
+  Html5QrcodeSupportedFormats.UPC_A,
+  Html5QrcodeSupportedFormats.UPC_E,
+  Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
+  Html5QrcodeSupportedFormats.ITF,
+  Html5QrcodeSupportedFormats.RSS_14,
+  Html5QrcodeSupportedFormats.RSS_EXPANDED
+];
 
 const bindWeiXin = () => {
   return new Promise((reslove, reject) => {
@@ -113,7 +127,10 @@ export default class Widgets extends Component {
     super(props);
     this.state = {
       visible: false,
-      isError: false
+      isError: false,
+      devices: [],
+      cameraId: null,
+      resetCameraLoading: false
     }
     this.id = Date.now();
     this.html5QrCode = null;
@@ -121,15 +138,19 @@ export default class Widgets extends Component {
   componentDidMount() {
     if (isDing && !window.dd) {
       $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
+      return;
     }
     if (isWeLink && !window.HWH5) {
       $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
+      return;
     }
     if (isWx && !window.wx) {
       $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
+      return;
     }
     if (isWxWork && !window.wx) {
       $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
+      return;
     }
   }
   componentWillUnmount() {
@@ -200,7 +221,14 @@ export default class Widgets extends Component {
       visible: true
     }, () => {
       setTimeout(() => {
-        this.renderQrcode();
+        const { devices } = this.state;
+        if (devices.length) {
+          this.initQrcode();
+        } else {
+          this.getCameras().then(() => {
+            this.initQrcode();
+          });
+        }
       }, 300);
     });
   }
@@ -217,29 +245,58 @@ export default class Widgets extends Component {
       this.props.onScanQRCodeResult(decodedText);
     }
   }
-  renderQrcode() {
+  handleChangeCamera = () => {
+    const { cameraId, devices, resetCameraLoading } = this.state;
+    const index = _.findIndex(devices, { id: cameraId });
+    const nextCameraId = index === -1 ? devices[0].id : (devices[index + 1] || devices[0]).id;
+    
+    if (resetCameraLoading) return;
+
+    this.setState({ resetCameraLoading: true });
+    this.setState({
+      cameraId: nextCameraId
+    }, () => {
+      this.html5QrCode.stop().then((ignore) => {
+        this.startQrcode();
+        this.setState({ resetCameraLoading: false });
+        const currentCamera = _.find(devices, { id: nextCameraId });
+        if (currentCamera) {
+          Toast.info(_l('切换至 %0', currentCamera.label), 2);
+        }
+      });
+    });
+  }
+  getCameras() {
+    return new Promise((reslove, reject) => {
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+          this.setState({ devices }, reslove);
+        }
+      });
+    });
+  }
+  initQrcode() {
+    this.html5QrCode = new Html5Qrcode(`qrcodeWrapper-${this.id}`, { formatsToSupport });
+    this.startQrcode();
+  }
+  startQrcode() {
     const config = {
       fps: 10,
-      qrbox: { width: 250, height: 250 }
+      qrbox: function(viewfinderWidth, viewfinderHeight) {
+        var n = viewfinderWidth > viewfinderHeight ? viewfinderHeight : viewfinderWidth;
+        var ratio = Math.floor(.8 * n);
+        return ratio < 250 ? n < 250 ? { width: n, height: n } : { width: 250, height: 250 } : { width: ratio, height: ratio }
+      }
     };
-    const formatsToSupport = [
-      Html5QrcodeSupportedFormats.QR_CODE,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.CODE_93,
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
-      Html5QrcodeSupportedFormats.ITF,
-      Html5QrcodeSupportedFormats.RSS_14,
-      Html5QrcodeSupportedFormats.RSS_EXPANDED
-    ];
-    this.html5QrCode = new Html5Qrcode(`qrcodeWrapper-${this.id}`, { formatsToSupport });
-    this.html5QrCode
-    .start({ facingMode: 'environment' }, config, this.handleScanSuccess)
-    .catch((eror) => {
+    const { cameraId } = this.state;
+    const defaultCameraConfig = {
+      facingMode: 'environment'
+    };
+    const selectCameraConfig = {
+      deviceId: { exact: cameraId }
+    };
+    const cameraConfig = cameraId ? selectCameraConfig : defaultCameraConfig;
+    this.html5QrCode.start(cameraConfig, config, this.handleScanSuccess).catch((eror) => {
       this.setState({
         isError: true
       });
@@ -257,11 +314,12 @@ export default class Widgets extends Component {
           this.html5QrCode = null;
         }).catch((err) => {});
       }
+      this.setState({ cameraId: null });
     }
     this.setState({ isError: false });
   }
   render() {
-    const { visible, isError } = this.state;
+    const { visible, isError, devices } = this.state;
     const { className, children } = this.props;
     return (
       <Fragment>
@@ -284,6 +342,11 @@ export default class Widgets extends Component {
                 </ErrorWrap>
               ) : (
                 <div id={`qrcodeWrapper-${this.id}`} className="qrcodeWrapper flex"></div>
+              )}
+              {!isError && (
+                <div className="Absolute" style={{ left: '5%', top: '5%' }} onClick={this.handleChangeCamera}>
+                  <Icon className="Font28 White" icon="switch_camera" />
+                </div>
               )}
               <div className="Absolute" style={{ right: '5%', top: '5%' }} onClick={this.handleClose}>
                 <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="closeelement-bg-circle" />

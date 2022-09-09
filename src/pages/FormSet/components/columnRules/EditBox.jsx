@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Icon, ScrollView } from 'ming-ui';
-import { Select } from 'antd';
+import { Select, Tooltip } from 'antd';
 import * as actions from '../../redux/actions/action';
 import * as columnRules from '../../redux/actions/columnRules';
 import SingleFilter from './singleFilter/SingleFilter';
@@ -10,12 +10,14 @@ import ActionDropDown from './actionDropdown/ActionDropDown';
 import handleSetMsg from './errorMsgDialog/ErrorMsg';
 import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable } from './config';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
 
 class EditBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       name: '',
+      visible: false,
     };
   }
 
@@ -49,12 +51,14 @@ class EditBox extends React.Component {
       ruleError = {},
       updateFilterError,
       editingId,
+      appId,
     } = this.props;
     return (
       <div className="conditionContainer">
         <div className="Font14 Bold">{_l('当满足以下条件时')}</div>
         <SingleFilter
           projectId={projectId}
+          appId={appId}
           columns={worksheetControls}
           filters={selectRules.filters}
           editingId={editingId}
@@ -70,6 +74,7 @@ class EditBox extends React.Component {
 
   renderAction = () => {
     const { selectRules = {}, updateAction, worksheetControls, ruleError = {}, updateActionError } = this.props;
+    const { visible } = this.state;
     let { ruleItems = [] } = selectRules;
     let listData;
 
@@ -80,7 +85,7 @@ class EditBox extends React.Component {
     ) {
       listData = actionsListData;
     } else {
-      listData = actionsListData.filter(it => _.includes([1, 2, 3, 4, 5, 6], it.value));
+      listData = actionsListData.filter(it => _.includes([1, 2, 3, 4, 5, 6, 7], it.value));
     }
 
     return (
@@ -163,10 +168,41 @@ class EditBox extends React.Component {
             </div>
           );
         })}
-        <div className="addCondition" onClick={() => updateAction(ruleItems.concat(originActionItem), true)}>
-          <Icon icon="plus" className="mRight8" />
-          {_l('添加动作')}
-        </div>
+        <Trigger
+          popupVisible={visible}
+          onPopupVisibleChange={visible => {
+            this.setState({ visible });
+          }}
+          popupClassName="addConditionTrigger"
+          action={['click']}
+          mouseEnterDelay={0.1}
+          popupAlign={{ points: ['tl', 'bl'], offset: [0, 4] }}
+          popup={() => (
+            <Fragment>
+              {listData.map(i => (
+                <div onClick={() => updateAction(ruleItems.concat({ ...originActionItem, type: i.value }), true)}>
+                  {i.label}
+                  {i.value === 7 && (
+                    <Tooltip
+                      placement="bottom"
+                      title={_l(
+                        '锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写',
+                      )}
+                    >
+                      <i className="icon-info_outline Gray_9e Font16"></i>
+                    </Tooltip>
+                  )}
+                </div>
+              ))}
+            </Fragment>
+          )}
+          getPopupContainer={() => this.addAction}
+        >
+          <div className="addCondition" ref={con => (this.addAction = con)}>
+            <Icon icon="plus" className="mRight8" />
+            {_l('添加动作')}
+          </div>
+        </Trigger>
       </div>
     );
   };
@@ -199,6 +235,7 @@ const mapStateToProps = state => ({
   columnRulesListData: state.formSet.columnRulesListData,
   selectRules: state.formSet.selectRules,
   projectId: state.formSet.worksheetInfo.projectId,
+  appId: state.formSet.worksheetInfo.appId,
   ruleError: state.formSet.ruleError,
   editingId: state.formSet.editingId,
 });

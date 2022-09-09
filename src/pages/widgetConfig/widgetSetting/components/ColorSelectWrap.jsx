@@ -105,7 +105,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
                     newCustomColor = newCustomColor.slice(0, customMax);
                     setCustomColor(newCustomColor);
                     setAddColor('');
-                    window.localStorage.setItem('customColor', JSON.stringify(newCustomColor));
+                    safeLocalStorageSetItem('customColor', JSON.stringify(newCustomColor));
                   }
                 }}
               />

@@ -96,8 +96,8 @@ export default class SpecificFieldsValue extends Component {
         <DateTime
           selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
           timePicker={!!timePicker}
+          allowClear={false}
           onOk={e => updateSource({ fieldValue: e.format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD') })}
-          onClear={() => updateSource({ fieldValue: '' })}
         >
           {data.fieldValue ? (
             moment(data.fieldValue).format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')

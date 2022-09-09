@@ -13,7 +13,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   count: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/count';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/count';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processcount', args, $.extend(base, options));
   },
@@ -34,7 +34,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessByCompanyId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getProcessByCompanyId';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessByCompanyId';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processgetProcessByCompanyId', args, $.extend(base, options));
   },
@@ -48,7 +48,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessRole: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getProcessRole';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessRole';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processgetProcessRole', args, $.extend(base, options));
   },
@@ -61,7 +61,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessUseCount: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getProcessUseCount';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessUseCount';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processgetProcessUseCount', args, $.extend(base, options));
   },
@@ -75,9 +75,22 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   list: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/list';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/list';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processlist', args, $.extend(base, options));
+  },
+  /**
+   * 批量设置(暂停 恢复)流程
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {流程暂停开启关闭} {hours:暂停多少小时(integer),processId:流程id(string),processIds:批量操作 流程ids(array),waiting:开启还是关闭 默认true开启暂停(boolean),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  batch: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/process/batch';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processbatch', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按网络获取流程堆积量
@@ -88,7 +101,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getDifferenceByCompanyId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceByCompanyId';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceByCompanyId';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processgetDifferenceByCompanyId', args, $.extend(base, options));
   },
@@ -101,7 +114,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getDifferenceByProcessId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceByProcessId';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceByProcessId';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1processgetDifferenceByProcessId', args, $.extend(base, options));
   },
@@ -114,7 +127,7 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getDifferenceProcessList: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getDifferenceProcessList';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceProcessList';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1processgetDifferenceProcessList', JSON.stringify(args), $.extend(base, options));
   },
@@ -127,20 +140,46 @@ var processVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getHistoryDifferenceByCompanyId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/getHistoryDifferenceByCompanyId';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/getHistoryDifferenceByCompanyId';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1processgetHistoryDifferenceByCompanyId', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 同步所有应用 所有执行数
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestProcessDifference} {companyId:网络id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),sorter:排序 正序{'difference':'ascend'} 倒序{'difference':'descend'}(object),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  init: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/process/init';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processinit', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 重置排队计数
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {流程暂停开启关闭} {hours:暂停多少小时(integer),processId:流程id(string),processIds:批量操作 流程ids(array),waiting:开启还是关闭 默认true开启暂停(boolean),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  reset: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/process/reset';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1processreset', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 设置暂停流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {流程暂停开启关闭} {hours:暂停多少小时(integer),processId:流程id(string),waiting:开启还是关闭 默认true开启暂停(boolean),}*request
+   * @param {流程暂停开启关闭} {hours:暂停多少小时(integer),processId:流程id(string),processIds:批量操作 流程ids(array),waiting:开启还是关闭 默认true开启暂停(boolean),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   updateWaiting: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/process/updateWaiting';
+    base.ajaxOptions.url = base.server(options) + '/v1/process/updateWaiting';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
   },

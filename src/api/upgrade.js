@@ -60,7 +60,7 @@ module.exports = {
   * 获取订单合同信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {integer} args.versionId 版本
+  * @param {string} args.versionId 版本
   * @param {integer} args.userNum 用户数
   * @param {integer} args.years 年数
   * @param {boolean} args.unLimited 是否无限人数

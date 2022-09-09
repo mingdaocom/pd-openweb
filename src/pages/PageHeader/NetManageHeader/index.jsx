@@ -1,7 +1,25 @@
 import React, { Component } from 'react';
 import CommonUserHandle from '../components/CommonUserHandle';
+import styled from 'styled-components';
+import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
-import SideLayer from '../components/SideLayer';
+
+const HomeEntry = styled.div`
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  border: 1px solid #eaeaea;
+  margin: 0 12px 0 16px;
+  color: #9e9e9e;
+  text-align: center;
+  line-height: 29px;
+  cursor: pointer;
+  &:hover {
+    border-color: #ddd;
+    color: #2196f3;
+  }
+`;
 
 const MODULE_TO_TEXT = {
   account: _l('个人账户'),
@@ -13,7 +31,7 @@ const MODULE_TO_TEXT = {
 };
 
 const PAGE_HEADER_ROUTE = {
-  systemSetting: ['/privateDeployment', '/appInstallSetting'],
+  systemSetting: ['/privateDeployment/:routeType?', '/appInstallSetting'],
   account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
   group: ['/group/groupValidate'],
@@ -43,7 +61,9 @@ export default class NetManageHeader extends Component {
     return (
       <div className="netManageHeaderWrap">
         <div className="netManageLogo">
-          <SideLayer />
+          <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/app/my')}>
+            <i className="icon-home_page Font18"></i>
+          </HomeEntry>
           {text && <div className="netManageTitle">{text}</div>}
         </div>
         <CommonUserHandle />

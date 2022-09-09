@@ -7,7 +7,7 @@ import { MDTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { controlIsNumber, checkRulesErrorOfRowControl } from 'worksheet/util';
 import { getControlRules } from 'src/api/worksheet';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
+import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -124,8 +124,13 @@ export default class WorksheetTable extends PureComponent {
 
   updateControlByRulesOfRow(row, controls, rules) {
     const formData = updateRulesData({ rules, data: controls.map(c => ({ ...c, value: row[c.controlId] })) });
+    const isLock = checkRuleLocked(rules, formData);
     const rowControlStates = {};
     formData.forEach((item, index) => {
+      if (isLock) {
+        rowControlStates[index] = (item.fieldPermission[0] || '1') + '0' + (item.fieldPermission[2] || '1');
+        return;
+      }
       const control = _.find(controls, { controlId: item.controlId });
       if (control && item.fieldPermission && item.fieldPermission !== control.fieldPermission) {
         rowControlStates[index] = item.fieldPermission;
@@ -176,7 +181,12 @@ export default class WorksheetTable extends PureComponent {
         rules,
         data: controls.map(c => ({ ...c, value: row[c.controlId] })),
       });
+      const isLock = !isSubList && checkRuleLocked(rules, formData);
       formData.forEach((item, index) => {
+        if (isLock) {
+          rowControlStates[index] = (item.fieldPermission[0] || '1') + '0' + (item.fieldPermission[2] || '1');
+          return;
+        }
         const control = _.find(controls, { controlId: item.controlId });
         if (control && item.fieldPermission && item.fieldPermission !== control.fieldPermission) {
           rowControlStates[index] = item.fieldPermission;
@@ -215,7 +225,11 @@ export default class WorksheetTable extends PureComponent {
     if (_.isArray(nextData)) {
       nextData = nextData.filter(r => r.rowid);
     }
-    if (nextProps.width !== this.props.width || !_.isEqual(nextProps.columns, this.props.columns)) {
+    if (
+      nextProps.width !== this.props.width ||
+      !_.isEqual(nextProps.columns, this.props.columns) ||
+      nextProps.responseHeight !== this.props.responseHeight
+    ) {
       this.columns = this.getColumns(nextProps);
     }
     if (!_.isEqual(this.props.editingControls, nextProps.editingControls)) {
@@ -260,11 +274,11 @@ export default class WorksheetTable extends PureComponent {
   }
 
   getAverageWidth(props) {
-    const { height, responseHeight, rowHeadWidth, renderRowHead, showSummary, rowHeight } = props || this.props;
+    const { height, rowHeight, showSummary, responseHeight, rowHeadWidth, renderRowHead } = props || this.props;
     let { width } = props || this.props;
     const { sheetColumnWidths = {} } = this.state;
-    const heightScroll = rowHeight * this.rowCount > height - 34 - (showSummary ? 34 : 0);
-    if (heightScroll && !responseHeight) {
+    const verticalIsScroll = rowHeight * this.getRowCount(props) > height - 34 - (showSummary ? 34 : 0);
+    if (verticalIsScroll && !responseHeight) {
       width = width - this.scrollbarWidth;
     }
     const rowHeadIsNumber = (this.columns[0] && this.columns[0].controlId === 'number') || renderRowHead;
@@ -304,8 +318,8 @@ export default class WorksheetTable extends PureComponent {
     return newColumns;
   }
 
-  get rowCount() {
-    const { showSummary, rowHeight, height, keyWords, noRenderEmpty, noFillRows } = this.props;
+  getRowCount(props) {
+    const { showSummary, rowHeight, height, keyWords, noRenderEmpty, noFillRows } = props || this.props;
     if (!_.isUndefined(this.props.rowCount)) {
       return this.props.rowCount;
     }
@@ -451,8 +465,8 @@ export default class WorksheetTable extends PureComponent {
         fixedRow: rowIndex === 0,
         alignRight: controlIsNumber(control),
         highlight:
-          sheetViewHighlightRows[row.rowid] ||
-          (!_.isUndefined(window[`sheettablehighlightrow${id}`]) && window[`sheettablehighlightrow${id}`] === rowIndex),
+          !_.isUndefined(window[`sheettablehighlightrow${id}`]) && window[`sheettablehighlightrow${id}`] === rowIndex,
+        highlightFromProps: sheetViewHighlightRows[row.rowid],
       },
     );
     const cellstyle = {
@@ -619,7 +633,7 @@ export default class WorksheetTable extends PureComponent {
           rowHeight={rowHeight}
           scrollbarWidth={this.scrollbarWidth}
           columnCount={this.columns.length}
-          rowCount={this.rowCount}
+          rowCount={this.getRowCount()}
           fixedColumnCount={disableFrozen ? 1 : this.fixedColumnCount}
           renderCell={this.renderCell}
           onCellEnter={onCellEnter}

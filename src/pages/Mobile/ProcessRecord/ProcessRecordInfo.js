@@ -757,7 +757,7 @@ class ProcessRecord extends Component {
               <span>{name}</span>
             </div>
           </div>
-          <Icon icon="workflow" className="Font20 mRight10" onClick={this.handleOpenChange} />
+          <Icon icon="flow" className="Font20 mRight10" onClick={this.handleOpenChange} />
           {isModal && <Icon icon="closeelement-bg-circle" className="Font20 " onClick={onClose} />}
         </div>
       </div>

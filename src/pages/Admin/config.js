@@ -27,12 +27,12 @@ Config.templates = {
     '</div>',
 };
 
-Config.getParams = function () {
+Config.getParams = function() {
   const reqArray = location.pathname.split('/');
   const controlIndex = $.inArray('admin', reqArray);
   let arr = [];
 
-  reqArray.forEach(function (item, index) {
+  reqArray.forEach(function(item, index) {
     if (index >= controlIndex) {
       arr.push(item);
     }
@@ -42,20 +42,20 @@ Config.getParams = function () {
   Config.projectId = Config.params[2];
 };
 
-Config.getProjectInfo = function () {
+Config.getProjectInfo = function() {
   if (!Config.project || (Config.project && Config.project.projectId !== Config.projectId)) {
-    Config.project = _.find(md.global.Account.projects, function (item) {
+    Config.project = _.find(md.global.Account.projects, function(item) {
       return item.projectId == Config.projectId;
     });
   }
   return Config.project || {};
 };
 
-Config.setPageTitle = function (prefix) {
+Config.setPageTitle = function(prefix) {
   document.title = Config.getTitle(prefix);
 };
 
-Config.getTitle = function (prefix) {
+Config.getTitle = function(prefix) {
   const project = Config.getProjectInfo();
   const companyName = htmlEncodeReg((project && project.companyName) || '');
   return [_l('组织管理'), prefix, companyName].join(' - ');
@@ -75,17 +75,11 @@ Config.EVENTS = {
   transitionEnd: transEndEventName,
 };
 
-Config.abortRequest = function (request) {
+Config.abortRequest = function(request) {
   if (request && typeof request.state === 'function' && request.state() === 'pending' && request.abort) {
     request.abort();
   }
 };
-
-Config.WELINK_WHITELIST = [
-  'dc925d34-ec3c-4e14-99ba-7951c5359391',
-  'fe288386-3d26-4eab-b5d2-51eeab82a7f9',
-  '8e11c841-9cd6-49a3-b581-6880c363f061',
-];
 
 Config.AUTHORITY_DICT = {
   PROJECT_ADMIN: 'PROJECT_ADMIN',

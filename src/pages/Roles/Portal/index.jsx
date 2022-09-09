@@ -11,6 +11,7 @@ import cx from 'classnames';
 import { getPortalSet } from 'src/api/externalPortal';
 import RoleSetting from 'src/pages/Roles/RoleSetting';
 import PortalSetting from 'src/pages/Roles/Portal/setting';
+import EditPortalUrlDialog from './components/EditPortalUrlDialog';
 const WrapCon = styled.div`
   overflow: auto;
 `;
@@ -25,8 +26,11 @@ const WrapTop = styled.div`
   .wrapCon {
     background: #ffffff;
     border-radius: 5px;
-    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.08);
     padding: 20px 24px;
+    &.urlWrap {
+      padding: 15px 24px;
+    }
   }
   &.tableCon {
     .wrapCon {
@@ -128,6 +132,7 @@ function Portal(props) {
   const { portal = {}, changePageIndex, portalName = '', appDetail, appId, closePortal, getCount } = props;
   const [showPortalSetting, setShowPortalSetting] = useState(false);
   const [show, setShow] = useState(false);
+  const [showEditUrl, setShowEditUrl] = useState(false);
   const [portalSet, setPortalSet] = useState({});
   const { roleList = [], list = [], commonCount = 0, unApproveCount = 0 } = portal;
   const [roleId, setRoleId] = useState('');
@@ -136,11 +141,14 @@ function Portal(props) {
   const [version, setControlVersion] = useState();
 
   useEffect(() => {
+    fetch();
+  }, []);
+  const fetch = () => {
     fetchPorBaseInfo();
     //获取外部门户的角色信息
     reloadPortalRoleList();
     getCount(appId);
-  }, []);
+  };
   useEffect(() => {
     const listType = _.get(props, ['match', 'params', 'listType']);
     if (listType) {
@@ -169,29 +177,39 @@ function Portal(props) {
     <WrapCon>
       <Wrap>
         <WrapTop>
-          <div className="wrapCon">
-            <h6>{portalName}</h6>
+          <div className="wrapCon urlWrap">
+            {/* <h6>{portalName}</h6> */}
             <div className="urlSet">
               <ShareUrl
                 className="mainShareUrl"
                 copyShowText
                 theme="light"
                 url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
-                customBtns={[]}
+                editUrl={() => {
+                  setShowEditUrl(true);
+                }}
+                editTip={_l('自定义域名')}
+                customBtns={[
+                  {
+                    tip: _l('打开'),
+                    icon: 'launch',
+                    onClick: () => window.open(_.get(portalSet, ['portalSetModel', 'portalUrl'])),
+                  },
+                ]}
                 copyTip={_l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')}
               />
               <span className="setBtn Hand mLeft24" onClick={() => setShowPortalSetting(true)}>
                 {_l('门户设置')}
               </span>
             </div>
-            <SwitchStyle className="mTop12 Hand InlineBlock" onClick={closePortal}>
+            {/* <SwitchStyle className="mTop12 Hand InlineBlock" onClick={closePortal}>
               <Icon icon={true ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font24 " />
               <div className="switchText mLeft8 InlineBlock Gray">{_l('启用')}</div>
             </SwitchStyle>
             <span className="InlineBlock mLeft24">
               {PORTALTYPE_CONFIG[(baseSetResult.allowUserType || 3) / 3 - 1]}
               {(baseSetResult.loginMode || {}).weChat ? _l('登录方式为手机号、微信扫码') : _l('登录方式为手机号')}
-            </span>
+            </span> */}
           </div>
         </WrapTop>
         <WrapTop className={cx('tableCon', { isStatistics: tableType === 3 })}>
@@ -230,7 +248,6 @@ function Portal(props) {
               }}
               type={tableType}
               roleList={roleList}
-              onOk={() => {}}
               onChangePortalVersion={version => {
                 setPortalSet({ ...portalSet, controlTemplate: { ...portalSet.controlTemplate, version } });
                 setControlVersion(version);
@@ -248,6 +265,7 @@ function Portal(props) {
             callback={() => {
               fetchPorBaseInfo();
             }}
+            closePortal={closePortal}
             onChangePortal={data => {
               setPortalSet(data);
               setBaseSetResult(data.portalSetModel);
@@ -264,6 +282,24 @@ function Portal(props) {
             isForPortal={true}
             editCallback={reloadPortalRoleList}
             closePanel={() => setShow(false)}
+          />
+        )}
+        {showEditUrl && (
+          <EditPortalUrlDialog
+            show={showEditUrl}
+            appId={appId}
+            urlPre={baseSetResult.domainName}
+            urlSuffix={baseSetResult.customeAddressSuffix}
+            onOk={(customeAddressSuffix, url) => {
+              if (customeAddressSuffix !== baseSetResult.customeAddressSuffix) {
+                setPortalSet({ ...portalSet, portalSetModel: { ...portalSet.portalSetModel, portalUrl: url } });
+                setBaseSetResult({ ...baseSetResult, customeAddressSuffix: customeAddressSuffix });
+              }
+              setShowEditUrl(false);
+            }}
+            onCancel={() => {
+              setShowEditUrl(false);
+            }}
           />
         )}
       </Wrap>

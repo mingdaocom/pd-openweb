@@ -30,10 +30,11 @@ import AllOptionList from './AllOptionList';
 import AppNavStyle from './AppNavStyle';
 import AppFixStatus from './AppFixStatus';
 import './index.less';
-import { upgradeVersionDialog, getAppFeaturesVisible } from 'src/util';
+import { getAppFeaturesVisible, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import EditPublishSetDialog from './EditpublishSet';
 import CreateAppBackupDialog from './appBackupRestore/CreateAppBackupDialog';
 import ManageBackupFilesDialog from './appBackupRestore/ManageBackupFilesDialog';
+import AppAnalytics from 'src/pages/Admin/useAnalytics/components/AppAnalytics';
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -64,6 +65,7 @@ export default class AppInfo extends Component {
       appConfigVisible: false,
       modifyAppIconAndNameVisible: false,
       editAppIntroVisible: false,
+      isEditing: false,
       editAppFixStatusVisible: false,
       exportAppVisible: false,
       isShowAppIntroFirst: !_.includes(openedApps, appId),
@@ -76,6 +78,7 @@ export default class AppInfo extends Component {
       createBackupVisisble: false,
       manageBackupFilesVisible: false,
       noUseBackupRestore: false,
+      appAnalyticsVisible: false,
     };
   }
 
@@ -169,7 +172,7 @@ export default class AppInfo extends Component {
   };
 
   handleAppConfigClick = type => {
-    this.setState({ appConfigVisible: false, [type]: true });
+    this.setState({ appConfigVisible: false, [type]: true, isEditing: true });
   };
 
   handleAppIconAndNameChange = obj => {
@@ -240,7 +243,15 @@ export default class AppInfo extends Component {
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
     const { projectId } = this.state.data;
-
+    if (rest.featureId) {
+      const featureType = getFeatureStatus(projectId, rest.featureId);
+      if (!featureType) return;
+    }
+    if (
+      _.includes(['createBackup', 'restore', 'export', 'appItemTrash'], type) &&
+      !getFeatureStatus(projectId, rest.featureId)
+    )
+      return;
     if (!projectId && _.includes(['ding', 'weixin', 'worksheetapi'], type)) {
       return '';
     } else {
@@ -323,7 +334,7 @@ export default class AppInfo extends Component {
   renderMenuHtml = ({ type, icon, text, action, subMenuList = [], ...rest }) => {
     const { appId } = this.ids;
     const { projectId } = this.state.data;
-    const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+    const featureType = getFeatureStatus(projectId, rest.featureId);
 
     return (
       <MenuItem
@@ -334,14 +345,18 @@ export default class AppInfo extends Component {
           e.stopPropagation();
 
           if (
-            (type === 'createBackup' || type === 'restore') &&
-            (licenseType === 0 || (version && version.versionId === 1))
+            _.includes(
+              ['createBackup', 'restore', 'export', 'appItemTrash', 'appAnalytics', 'appItemTrash', 'worksheetapi'],
+              type,
+            ) &&
+            getFeatureStatus(projectId, rest.featureId) === '2'
           ) {
-            upgradeVersionDialog({
-              projectId,
-              isFree: licenseType === 0,
-              explainText: _l('应用备份还原是一个高级功能，请升级至专业版解锁开启'),
-            });
+            buriedUpgradeVersionDialog(projectId, rest.featureId);
+            return;
+          }
+
+          if (type === 'appAnalytics') {
+            window.open(`/analytics/${projectId}/${appId}`, '__blank');
             return;
           }
 
@@ -351,14 +366,6 @@ export default class AppInfo extends Component {
           }
 
           if (type === 'worksheetapi') {
-            if (licenseType === 0) {
-              upgradeVersionDialog({
-                projectId,
-                explainText: _l('请升级至付费版解锁开启'),
-                isFree: true,
-              });
-              return;
-            }
             window.open(`/worksheetapi/${appId}`);
             return;
           }
@@ -368,13 +375,7 @@ export default class AppInfo extends Component {
             return;
           }
           if (type === 'appItemTrash') {
-            if (licenseType === 0) {
-              this.setState({ appConfigVisible: false });
-              upgradeVersionDialog({ projectId, isFree: true, explainText: _l('请升级到标准版本或以上版本') });
-            } else {
-              this.setState({ appItemTrashVisible: true, appConfigVisible: false });
-            }
-            return;
+            this.setState({ appItemTrashVisible: true, appConfigVisible: false });
           }
 
           this.handleAppConfigClick(action);
@@ -382,7 +383,7 @@ export default class AppInfo extends Component {
         {...rest}
       >
         <span>{text}</span>
-        {type === 'appItemTrash' && licenseType === 0 && (
+        {type === 'appItemTrash' && featureType === '2' && (
           <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
         )}
         {type === 'editAppNavStyle' && <Icon className="rightArrow Font20" icon="navigate_next" />}
@@ -403,6 +404,7 @@ export default class AppInfo extends Component {
       indexSideVisible,
       appConfigVisible,
       editAppIntroVisible,
+      isEditing,
       editAppFixStatusVisible,
       optionListVisible,
       exportAppVisible,
@@ -416,6 +418,7 @@ export default class AppInfo extends Component {
       manageBackupFilesVisible,
       isAutofucus,
       appItemTrashVisible,
+      appAnalyticsVisible,
     } = this.state;
     const {
       id: appId,
@@ -507,7 +510,7 @@ export default class AppInfo extends Component {
               data-tip={_l('应用说明')}
               onClick={e => {
                 mousePosition = { x: e.pageX, y: e.pageY };
-                this.setState({ editAppIntroVisible: true });
+                this.setState({ editAppIntroVisible: true, isEditing: false });
               }}
             >
               <Icon className="appIntroIcon Font16" icon="info" />
@@ -539,15 +542,20 @@ export default class AppInfo extends Component {
           animation="zoom"
           style={{ width: '800px' }}
           maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-          bodyStyle={{ minHeight: '480px', padding: 0 }}
+          bodyStyle={{ padding: 0 }}
           maskAnimation="fade"
           mousePosition={mousePosition}
           closeIcon={<Icon icon="close" />}
         >
           <EditAppIntro
+            cacheKey="appIntroDescription"
             description={description}
             permissionType={permissionType}
-            isEditing={!description && isAuthorityApp}
+            // isEditing={!description && isAuthorityApp}
+            isEditing={isEditing}
+            changeEditState={isEditing => {
+              this.setState({ isEditing });
+            }}
             changeSetting={() => {
               this.setState({
                 hasChange: true,
@@ -558,6 +566,7 @@ export default class AppInfo extends Component {
               this.setState({
                 hasChange: false,
               });
+              this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false });
             }}
             onCancel={() =>
               this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })
@@ -583,7 +592,11 @@ export default class AppInfo extends Component {
           onClose={() => this.switchVisible({ optionListVisible: false })}
           placement="right"
         >
-          <AllOptionList visible={optionListVisible} {...getIds(props)} />
+          <AllOptionList
+            {...getIds(props)}
+            visible={optionListVisible}
+            onClose={() => this.switchVisible({ optionListVisible: false })}
+          />
         </Drawer>
 
         <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>
@@ -688,6 +701,16 @@ export default class AppInfo extends Component {
             appId={appId}
             projectId={projectId}
             onCancel={() => this.setState({ appItemTrashVisible: false })}
+          />
+        )}
+
+        {appAnalyticsVisible && (
+          <AppAnalytics
+            currentAppInfo={{ appId, name, iconColor, iconUrl }}
+            projectId={projectId}
+            onCancel={() => {
+              this.setState({ appAnalyticsVisible: false });
+            }}
           />
         )}
       </div>

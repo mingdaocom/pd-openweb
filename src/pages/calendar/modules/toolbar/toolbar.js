@@ -151,7 +151,7 @@ Toolbar.Event = function () {
                 categorysArray.push($(this).attr('catid'));
               }
             });
-            window.localStorage.setItem('categorys', categorysArray);
+            safeLocalStorageSetItem('categorys', categorysArray);
             Toolbar.Comm.settings.categorys = categorysArray;
           }
 
@@ -228,9 +228,9 @@ Toolbar.Event = function () {
       }
     });
 
-    window.localStorage.setItem('isWorkCalendar', Toolbar.Comm.settings.isWorkCalendar);
-    window.localStorage.setItem('isTaskCalendar', Toolbar.Comm.settings.isTaskCalendar);
-    window.localStorage.setItem('categorys', Toolbar.Comm.settings.categorys.join(','));
+    safeLocalStorageSetItem('isWorkCalendar', Toolbar.Comm.settings.isWorkCalendar);
+    safeLocalStorageSetItem('isTaskCalendar', Toolbar.Comm.settings.isTaskCalendar);
+    safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys.join(','));
 
     Toolbar.Calendar.rememberClickRefresh();
   });
@@ -262,7 +262,7 @@ Toolbar.Event = function () {
       $filterTaskType.attr('data-tasktype', taskType).find('.filterTaskTypeName').html(taskTypeName);
 
       Toolbar.Comm.settings.filterTaskType = taskType;
-      window.localStorage.setItem('filterTaskType', taskType);
+      safeLocalStorageSetItem('filterTaskType', taskType);
 
       Toolbar.Calendar.rememberClickRefresh();
     }
@@ -293,7 +293,7 @@ Toolbar.Event = function () {
           filterAccountIds: [md.global.Account.accountId],
           filterAll: true,
           projectCallback: function (projectId) {
-            localStorage.setItem('calendarLastPId', projectId);
+            safeLocalStorageSetItem('calendarLastPId', projectId);
           },
           callback: function (users) {
             var userCount = users.length;
@@ -304,7 +304,7 @@ Toolbar.Event = function () {
                 user = users[i];
                 if (user.accountId && $.inArray(user.accountId, Toolbar.Comm.settings.otherUsers) < 0) {
                   Toolbar.Comm.settings.otherUsers.push(user.accountId);
-                  window.localStorage.setItem(
+                  safeLocalStorageSetItem(
                     'otherUsers' + md.global.Account.accountId,
                     Toolbar.Comm.settings.otherUsers.join(','),
                   );
@@ -342,7 +342,7 @@ Toolbar.Event = function () {
     }
 
     $this.removeClass('icon-calendar-check icon-calendar-nocheck').addClass(className);
-    window.localStorage.setItem('otherUsers' + md.global.Account.accountId, Toolbar.Comm.settings.otherUsers.join(','));
+    safeLocalStorageSetItem('otherUsers' + md.global.Account.accountId, Toolbar.Comm.settings.otherUsers.join(','));
     Toolbar.Calendar.rememberClickRefresh();
   });
 
@@ -352,7 +352,7 @@ Toolbar.Event = function () {
     var accountId = $(this).closest('.addOtherUser').attr('data-id');
 
     Toolbar.Comm.settings.otherUsers.splice($.inArray(accountId, Toolbar.Comm.settings.otherUsers), 1);
-    window.localStorage.setItem('otherUsers' + md.global.Account.accountId, Toolbar.Comm.settings.otherUsers.join(','));
+    safeLocalStorageSetItem('otherUsers' + md.global.Account.accountId, Toolbar.Comm.settings.otherUsers.join(','));
 
     $(this).closest('.addOtherUser').remove();
 
@@ -593,7 +593,7 @@ Toolbar.Method = {
                 _.remove(Toolbar.settings.oldCategoryList, obj => obj.catID == catId);
                 if (Toolbar.Comm.settings.categorys.length) {
                   Toolbar.Comm.settings.categorys.splice($.inArray(catId, Toolbar.Comm.settings.categorys), 1);
-                  window.localStorage.setItem('categorys', Toolbar.Comm.settings.categorys);
+                  safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys);
                 }
                 $('.calendarTypeList li[catid=' + catId + ']').remove();
                 _this.parent().remove();
@@ -636,7 +636,7 @@ Toolbar.Method = {
               }
             }
           }
-          window.localStorage.setItem('categorys', Toolbar.Comm.settings.categorys);
+          safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys);
           Toolbar.Calendar.rememberClickRefresh();
 
           newCategoryList.colorClass = Toolbar.Method.colorClass;
@@ -922,11 +922,11 @@ Toolbar.Export = {
 
     // 处理冲突日程跳转处理
     if (Toolbar.Comm.getQueryString('view') == 'agendaWeek') {
-      window.localStorage.setItem('lastView', 'agendaWeek');
+      safeLocalStorageSetItem('lastView', 'agendaWeek');
       Toolbar.Comm.settings.date = Toolbar.Comm.getQueryString('date');
       Toolbar.Comm.settings.otherUsers = [md.global.Account.accountId];
       Toolbar.Comm.settings.otherUsers.push(Toolbar.Comm.getQueryString('userID'));
-      window.localStorage.setItem(
+      safeLocalStorageSetItem(
         'otherUsers' + md.global.Account.accountId,
         Toolbar.Comm.settings.otherUsers.join(','),
       );

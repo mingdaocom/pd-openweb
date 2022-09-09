@@ -53,7 +53,7 @@ export default class WriteFields extends Component {
       _.includes(READ_TYPE.concat(readonlyControlTypes), item.type) ||
       item.type > 10000 ||
       (item.type === 29 && item.showType === '2') ||
-      (item.type === 43 && type === 'REQUIRED')
+      (_.includes([43, 49, 50], item.type) && type === 'REQUIRED')
     ) {
       return true;
     }
@@ -223,7 +223,7 @@ export default class WriteFields extends Component {
                 )}
               </div>
               <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                {showCard && !_.includes([14, 21, 40, 41, 42, 43, 45, 47], item.type) && (
+                {showCard && !_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49, 50], item.type) && (
                   <Checkbox checked={item.showCard} onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)} />
                 )}
               </div>

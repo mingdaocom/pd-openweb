@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
+import Components from '../components';
 
 const DEPARTMENT_TYPES = [
   {
@@ -14,7 +15,8 @@ const DEPARTMENT_TYPES = [
   },
 ];
 
-export default function Department({ data, onChange }) {
+export default function Department(props) {
+  const { data, from, onChange } = props;
   const { enumDefault } = data;
   return (
     <Fragment>
@@ -25,16 +27,12 @@ export default function Department({ data, onChange }) {
           data={DEPARTMENT_TYPES}
           onChange={type => {
             if (type !== enumDefault) {
-              onChange(
-                handleAdvancedSettingChange(
-                  { ...data, enumDefault: type },
-                  { defsource: '' },
-                ),
-              );
+              onChange(handleAdvancedSettingChange({ ...data, enumDefault: type }, { defsource: '' }));
             }
           }}
         />
       </SettingItem>
+      {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
     </Fragment>
   );
 }

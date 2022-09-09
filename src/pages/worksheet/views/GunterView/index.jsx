@@ -37,9 +37,9 @@ export default class Gunter extends Component {
     super(props);
     const gunterDirectoryWidth = localStorage.getItem('gunterDirectoryWidth');
     this.state = {
-      directoryWidth: isGunterExport ? 570 : (gunterDirectoryWidth ? Number(gunterDirectoryWidth) : 210),
+      directoryWidth: isGunterExport ? 570 : gunterDirectoryWidth ? Number(gunterDirectoryWidth) : 210,
       dragMaskVisible: false,
-      maxWidth: 0
+      maxWidth: 0,
     };
   }
   componentDidMount() {
@@ -60,14 +60,18 @@ export default class Gunter extends Component {
 
     const viewEl = document.querySelector(`.gunterView-${view.viewId}`);
     this.setState({
-      maxWidth: viewEl ? (60 / 100) * viewEl.offsetWidth : 0
+      maxWidth: viewEl ? (60 / 100) * viewEl.offsetWidth : 0,
     });
   }
   componentWillUnmount() {
     this.props.destroyGunterView();
   }
   componentWillReceiveProps({ view }) {
-    if (view.viewId !== this.props.view.viewId) {
+    if (
+      view.viewId !== this.props.view.viewId ||
+      view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow || //显示项设置 更新数据
+      view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters
+    ) {
       this.props.resetLoadGunterView();
     }
     if (view.advancedSetting.calendartype !== this.props.view.advancedSetting.calendartype) {
@@ -109,7 +113,7 @@ export default class Gunter extends Component {
                 onChange={value => {
                   const { chartScroll, groupingScroll } = this.props;
                   this.setState({ dragMaskVisible: false, directoryWidth: value });
-                  localStorage.setItem('gunterDirectoryWidth', value);
+                  safeLocalStorageSetItem('gunterDirectoryWidth', value);
                   chartScroll.refresh();
                   chartScroll._execEvent('scroll');
                   groupingScroll.refresh();

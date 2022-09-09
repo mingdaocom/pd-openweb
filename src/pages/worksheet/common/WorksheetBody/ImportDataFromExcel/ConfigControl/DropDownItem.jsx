@@ -61,8 +61,8 @@ export default class DropDownItem extends Component {
                 {value ? this.getTextByValue('previewContent', value) : ''}
               </span>
             </span>
-            <span className="icon-arrow Right">
-              <i className="icon-arrow-down-border Gray_9e" />
+            <span className="Right mLeft10 mRight10">
+              <i className="icon-arrow-down-border Gray_9e Font14" />
             </span>
           </span>
         </div>

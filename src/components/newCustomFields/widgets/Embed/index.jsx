@@ -21,6 +21,7 @@ const EmbedWrap = styled.div`
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
+    min-height: 18px;
     i {
       color: #9e9e9e;
       &:hover {
@@ -137,7 +138,9 @@ export default class Widgets extends Component {
       <EmbedWrap height={advancedSetting.height || 400}>
         {from !== 'print' && (
           <div className="embedTitle">
-            <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
+            {advancedSetting.hidetitle !== '1' && (
+              <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
+            )}
             {advancedSetting.allowlink === '1' && enumDefault === 1 && (
               <Tooltip text={<span>{_l('新页面打开')}</span>}>
                 <Icon className="Hand Font18" icon="launch" onClick={() => window.open(value)} />

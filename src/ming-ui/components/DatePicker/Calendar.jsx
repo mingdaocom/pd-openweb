@@ -299,7 +299,7 @@ class Calendar extends Component {
 
   render() {
     const props = this.props;
-    const { locale, prefixCls, timePicker, disabledDate } = props;
+    const { locale, prefixCls, timePicker, disabledDate, showMinute = true, showSecond = false } = props;
     const state = this.state;
     const { value, selectedValue } = state;
 
@@ -371,6 +371,8 @@ class Calendar extends Component {
             }}
             timePicker={timePicker}
             selectedValue={selectedValue}
+            showMinute={showMinute}
+            showSecond={showSecond}
             value={value}
             onOk={this.onOk}
             allowClear={props.allowClear}

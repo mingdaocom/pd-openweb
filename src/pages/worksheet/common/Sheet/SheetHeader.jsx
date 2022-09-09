@@ -4,9 +4,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
+import { Popover } from 'antd';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, RichText } from 'ming-ui';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import SelectIcon from 'worksheet/common/SelectIcon';
@@ -29,7 +29,6 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { BatchOperate } from 'worksheet/common';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
-import filterXSS from 'xss';
 
 const Con = styled.div`
   display: flex;
@@ -83,6 +82,7 @@ function SheetHeader(props) {
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
   const [editNameVisible, setEditNameVisible] = useState();
+  const [descIsEditing, setDescIsEditing] = useState(false);
   const sheet = _.find(sheetList.filter(_.identity), s => s.workSheetId === worksheetId) || {};
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
@@ -133,7 +133,7 @@ function SheetHeader(props) {
               <i
                 className={cx('icon Font12', isUnfold ? 'icon-back-02' : 'icon-next-02')}
                 onClick={() => {
-                  localStorage.setItem('sheetListIsUnfold', !isUnfold);
+                  safeLocalStorageSetItem('sheetListIsUnfold', !isUnfold);
                   if (isUnfold) {
                     updateSheetListIsUnfold(false);
                   } else {
@@ -146,52 +146,46 @@ function SheetHeader(props) {
           <span className="title ellipsis Font17 Gray Bold" title={name || ''}>
             {name || ''}
           </span>
-          <Trigger
-            action={['click']}
-            popup={
-              <SheetDesc
-                worksheetId={worksheetId}
-                desc={desc}
-                onClose={() => {
-                  setSheetDescVisible(false);
-                }}
-                onSave={value => {
-                  setSheetDescVisible(false);
-                  updateWorksheetInfo({ desc: value });
+          {desc ? (
+            <Popover
+              arrowPointAtCenter={true}
+              title={null}
+              placement="bottomLeft"
+              overlayClassName="sheetDescPopoverOverlay"
+              content={
+                <div className="popoverContent">
+                  <RichText data={desc || ''} disabled={true} />
+                </div>
+              }
+            >
+              <Icon
+                icon="knowledge-message"
+                className="Hand sheetDesc"
+                onClick={() => {
+                  if (isCharge) {
+                    setDescIsEditing(false);
+                    setSheetDescVisible(true);
+                  }
                 }}
               />
-            }
-            popupVisible={sheetDescVisible}
-            onPopupVisibleChange={visible => {
-              if (isCharge) {
-                setSheetDescVisible(visible);
-              }
+            </Popover>
+          ) : (
+            <span className="InlineBlock" />
+          )}
+          <SheetDesc
+            title={_l('工作表说明')}
+            visible={sheetDescVisible}
+            worksheetId={worksheetId}
+            isEditing={descIsEditing}
+            desc={desc || ''}
+            onClose={() => {
+              setSheetDescVisible(false);
             }}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 20],
-              overflow: { adjustX: true, adjustY: true },
+            onSave={value => {
+              setSheetDescVisible(false);
+              updateWorksheetInfo({ desc: value });
             }}
-          >
-            {desc ? (
-              <Tooltip
-                disable={sheetDescVisible}
-                tooltipClass="sheetDescTooltip"
-                popupPlacement="bottom"
-                text={
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />'),
-                    }}
-                  />
-                }
-              >
-                <Icon icon="knowledge-message" className="Hand sheetDesc" />
-              </Tooltip>
-            ) : (
-              <span className="InlineBlock" />
-            )}
-          </Trigger>
+          />
           {(isCharge || (isOpenPermit(permitList.importSwitch, sheetSwitchPermit) && allowAdd)) && (
             <SheetMoreOperate
               isCharge={isCharge}
@@ -202,7 +196,10 @@ function SheetHeader(props) {
               controls={controls}
               sheetSwitchPermit={sheetSwitchPermit}
               // funcs
-              setSheetDescVisible={setSheetDescVisible}
+              setSheetDescVisible={(value) => {
+                setDescIsEditing(true);
+                setSheetDescVisible(value);
+              }}
               setEditNameVisible={setEditNameVisible}
               updateWorksheetInfo={updateWorksheetInfo}
               reloadWorksheet={() => refreshSheet(view)}

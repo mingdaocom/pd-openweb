@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, Fragment } from 'react';
+import React, { useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
@@ -8,10 +8,6 @@ import { ScrollView, Menu, MenuItem } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import CommonUserHandle from '../components/CommonUserHandle';
-
-const {
-  personal: { menuLeft },
-} = window.private;
 
 const Con = styled.div`
   display: flex;
@@ -46,22 +42,13 @@ const Flex = styled.div`
   flex: 1;
 `;
 
-const OldVersionEntry = styled.div`
-  cursor: pointer;
-  height: 28px;
-  line-height: 28px;
-  padding: 0 6px;
-  border-radius: 28px;
-  color: #757575;
-`;
-
 const AdminEntry = styled(VerticalMiddle)`
   cursor: pointer;
   height: 32px;
   line-height: 32px;
   padding: 0 12px 0 14px;
   border-radius: 32px;
-  border: 1px solid #eaeaea;
+  border: 1px solid #ddd;
   color: #333;
   margin: 0px 10px 0px 20px;
   .icon {
@@ -148,7 +135,7 @@ function AppCenterHeader(props) {
             setPopupVisible(false);
             setCurrentProject(project);
             if (project.projectId !== 'external') {
-              localStorage.setItem('currentProjectId', project.projectId);
+              safeLocalStorageSetItem('currentProjectId', project.projectId);
             }
             emitter.emit('CHANGE_CURRENT_PROJECT', project);
           }}
@@ -174,37 +161,34 @@ function AppCenterHeader(props) {
           popup={
             <ProjectsMenuCon>
               {menuContent}
-              {!menuLeft.enterprise && (
-                <Fragment>
-                  <Hr />
-                  <Trigger
-                    action={['hover']}
-                    popupAlign={{
-                      points: ['bl', 'br'],
-                      offset: [2, 5],
-                    }}
-                    popup={
-                      <Menu className="Relative">
-                        <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=add')}>
-                          {_l('加入组织')}
-                        </NewMenuItem>
-                        {/* <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
+
+              <Hr />
+              <Trigger
+                action={['hover']}
+                popupAlign={{
+                  points: ['bl', 'br'],
+                  offset: [2, 5],
+                }}
+                popup={
+                  <Menu className="Relative">
+                    <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=add')}>
+                      {_l('加入组织')}
+                    </NewMenuItem>
+                    {/* <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
                           {_l('创建组织')}
                         </NewMenuItem> */}
-                      </Menu>
-                    }
-                    getPopupContainer={() => createRef.current}
-                    destroyPopupOnHide
-                  >
-                    <div ref={createRef}>
-                      <NewMenuItem className="ThemeColor3">
-                        <i className="icon icon-add ThemeColor3 Font16 mRight6" />
-                        <span className="Font15">{_l('加入组织')}</span>
-                      </NewMenuItem>
-                    </div>
-                  </Trigger>
-                </Fragment>
-              )}
+                  </Menu>
+                }
+                getPopupContainer={() => createRef.current}
+                destroyPopupOnHide
+              >
+                <div ref={createRef}>
+                  <NewMenuItem className="ThemeColor3">
+                    <i className="icon icon-add ThemeColor3 Font16 mRight6" />
+                    <span className="Font15">{_l('加入组织')}</span>
+                  </NewMenuItem>
+                </div>
+              </Trigger>
             </ProjectsMenuCon>
           }
           onPopupVisibleChange={setPopupVisible}
@@ -216,14 +200,6 @@ function AppCenterHeader(props) {
         </Trigger>
       )}
       <Flex />
-      <OldVersionEntry
-        onClick={() => {
-          localStorage.setItem('oldHome', '1');
-          location.reload();
-        }}
-      >
-        {_l('回到旧版')}
-      </OldVersionEntry>
       {currentProject && currentProject.isProjectAdmin && (
         <AdminEntry onClick={() => navigateTo(`/admin/home/${currentProject.projectId}`)}>
           <i className="icon icon-business" />

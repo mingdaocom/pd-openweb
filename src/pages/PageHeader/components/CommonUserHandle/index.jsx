@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { string } from 'prop-types';
 import { Icon, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
@@ -9,14 +9,7 @@ import AddMenu from '../AddMenu';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import './index.less';
-import cx from 'classnames';
 import { getAppFeaturesVisible } from 'src/util';
-
-const {
-  app: {
-    commonUserHandle: { help },
-  },
-} = window.private;
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -70,7 +63,7 @@ export default class CommonUserHandle extends Component {
             </div>
           </Tooltip>
         )}
-        {type !== 'appPkg' && (
+        {!['appPkg'].includes(type) && (
           <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('搜索')}>
             <Icon icon="search" />
           </BtnCon>
@@ -84,6 +77,7 @@ export default class CommonUserHandle extends Component {
           <MyProcessEntry
             type={type}
             countData={countData}
+            className={md.global.SysSettings.hideHelpTip ? 'mRight20' : ''}
             onClick={() => {
               this.setState({ myProcessVisible: true });
             }}
@@ -92,7 +86,7 @@ export default class CommonUserHandle extends Component {
             }}
           />
         ) : null}
-        {type !== 'appPkg' && !help && (
+        {/*type !== 'appPkg' && !md.global.SysSettings.hideHelpTip && (
           <BtnCon
             className={`mRight16 ${type === 'native' ? 'mLeft10' : ''}`}
             data-tip={_l('帮助')}
@@ -100,16 +94,16 @@ export default class CommonUserHandle extends Component {
           >
             <Icon icon="workflow_help" />
           </BtnCon>
-        )}
-        {type === 'appPkg' && !help && (
+        )*/}
+        {/*type === 'appPkg' && !md.global.SysSettings.hideHelpTip && (
           <div
             className="workflowHelpIconWrap pointer"
             data-tip={_l('帮助')}
             onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
           >
-            <Icon icon="workflow_help" className="helpIcon Font18" />
+            <Icon icon="workflow_help" className="helpIcon Font20" />
           </div>
-        )}
+        )*/}
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}

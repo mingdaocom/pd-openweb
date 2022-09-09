@@ -67,9 +67,9 @@ export default function NumberInput(props) {
         />
       ) : (
         <Input
-          autoFocus
           value={value}
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
+          placeholder={_l('请输入数值')}
           onBlur={() => {
             if (value) {
               const dealValue = value === '-' ? '' : parseFloat(value);

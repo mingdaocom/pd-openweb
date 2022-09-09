@@ -60,11 +60,16 @@ class SheetRows extends Component {
           batchOptCheckedData={batchOptCheckedData}
           changeBatchOptData={this.props.changeBatchOptData}
           onClick={() => {
+            const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+            if (isMingdao) {
+              const { appId, worksheetId, viewId } = this.props;
+              window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`;
+              return;
+            }
             if (!window.mobileNavigateTo) return;
             this.setState({
               previewRecordId: item.rowid
             });
-            // console.log(`/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`)
           }}
         />
       </WingBlank>
@@ -72,7 +77,7 @@ class SheetRows extends Component {
   }
   render() {
     const { dataSource, previewRecordId } = this.state;
-    const { currentSheetRows, sheetRowLoading, sheetView, base, view } = this.props;
+    const { currentSheetRows, sheetRowLoading, sheetView, base, view, sheetSwitchPermit } = this.props;
     return (
       <Fragment>
         <ListView
@@ -108,6 +113,7 @@ class SheetRows extends Component {
           worksheetId={base.worksheetId}
           viewId={base.viewId || view.viewId}
           rowId={previewRecordId}
+          sheetSwitchPermit={sheetSwitchPermit}
           onClose={() => {
             this.setState({
               previewRecordId: undefined
@@ -149,6 +155,7 @@ export default connect(
     sheetView: state.mobile.sheetView,
     batchOptVisible: state.mobile.batchOptVisible,
     batchOptCheckedData: state.mobile.batchOptCheckedData,
+    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
   }),
   dispatch =>
     bindActionCreators(

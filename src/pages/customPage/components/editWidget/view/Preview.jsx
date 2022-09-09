@@ -19,7 +19,7 @@ const Wrap = styled.div`
 
   .SingleViewWrap {
     border-radius: 4px;
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     background-color: #fff;
   }
@@ -60,6 +60,7 @@ const ViewWrap = styled.div`
   }
   &.disableSingleView {
     .SingleViewHeader,
+    .SingleViewBody .searchWrapper,
     .worksheetSheet .quickFilterWrap,
     .worksheetSheet .groupFilterWrap,
     .worksheetSheet .mdTableContent,
@@ -87,11 +88,14 @@ const isMobile = browserIsMobile();
 const isPublicShare = location.href.includes('public/page');
 
 const navigateToView = (workSheetId, viewId) => {
+  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   homeAppApi.getAppSimpleInfo({
     workSheetId
   }).then(data => {
     const { appId, appSectionId } = data;
-    if (isMobile) {
+    if (isMingdao) {
+      window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
+    } else if (isMobile) {
       window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
     } else {
       navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
@@ -100,7 +104,7 @@ const navigateToView = (workSheetId, viewId) => {
 }
 
 export function View(props) {
-  const { appId, setting, className, layoutType } = props;
+  const { appId, setting, className, layoutType, filtersGroup = [] } = props;
   const { value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
@@ -108,7 +112,7 @@ export function View(props) {
   if (isPublicShare) {
     return (
       <EmptyView className="SingleViewWrap valignWrapper emptyView">
-        <div className="Font15 Gray_9e">{_l('无权查看')}</div>
+        <div className="Font15 Gray_9e">{_l('暂不支持显示视图组件')}</div>
       </EmptyView>
     );
   }
@@ -132,6 +136,7 @@ export function View(props) {
         worksheetId={value}
         viewId={viewId}
         maxCount={config.maxCount}
+        filtersGroup={filtersGroup}
         headerLeft={(
           <span
             className={cx('SingleViewName Font15 bold Gray flex ellipsis', { pointer: config.openView })}

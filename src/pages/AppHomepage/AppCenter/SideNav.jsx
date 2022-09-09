@@ -3,17 +3,20 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Tooltip } from 'ming-ui';
-import { NATIVE_APP_ITEM } from 'src/pages/AppHomepage/MyApp/config';
-import ThirdApp from 'src/pages/AppHomepage/MyApp/MyAppSide/ThirdApp';
+import ThirdApp from './components/ThirdApp';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import PopupLinks from './components/PopupLinks';
 import privateSource from 'src/api/privateSource';
 import SvgIcon from 'src/components/SvgIcon';
 
-const {
-  app: { appSide, appManagementHeader },
-} = window.private;
+const NATIVE_APP_ITEM = [
+  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
+  { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
+  { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
+  { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc', key: 4 },
+  { id: 'hr', icon: 'hr_home', text: _l('人事'), color: '#607D8B', href: '/hr', key: 5, openInNew: true },
+];
 
 const Con = styled.div`
   overflow-y: auto;
@@ -170,29 +173,14 @@ const moduleEntries = [
 
 const resourceEntries = [
   {
-    id: 'educate',
-    icon: 'school',
-    color: '#4CAF50',
-    name: _l('学习资源'),
+    icon: 'hub',
+    openInCurrent: true,
+    id: 'integration',
+    color: '#9D27B0',
+    name: _l('集成中心'),
+    type: 'integration',
+    href: '/integration',
   },
-  {
-    id: 'recommend',
-    icon: 'military_tech',
-    color: '#f89802',
-    name: _l('推广奖励'),
-    href: 'https://www.theportal.cn/portal/app/68d26cff-addd-48ac-8158-af7aa193696f',
-  },
-  {
-    id: 'thirdPartyApp',
-    icon: 'sidebar_connection_application',
-    color: '#e91d63',
-    name: _l('第三方应用'),
-  },
-  // {
-  //   icon: 'hub',
-  //   color: '#8B47FF',
-  //   name: _l('集成中心'),
-  // },
 ];
 
 const educateEntries = [
@@ -237,13 +225,18 @@ const educateEntries = [
 ];
 
 export default function SideNav(props) {
-  const { active, currentProject } = props;
+  const { active, currentProject = {} } = props;
   const [isExpanded, setIsExpanded] = useState(localStorage.getItem('homeNavIsExpanded') === '1');
   const [countData, setCountData] = useState();
   const [myProcessVisible, setMyProcessVisible] = useState();
   const [thirdPartyAppVisible, setThirdPartyAppVisible] = useState();
   const [sourcesList, setSourcesList] = useState([]);
-
+  const { projectId } = currentProject;
+  const cooperationItems = NATIVE_APP_ITEM.filter(
+    item =>
+      !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+      (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
+  );
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
       const list = result.map(item => {
@@ -268,91 +261,79 @@ export default function SideNav(props) {
         )}
         {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
         <ModuleEntries>
-        {moduleEntries
-          .filter(
-            o =>
-              !appManagementHeader[o.type] &&
-              !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
-              !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary),
-          )
-          .map((entry, i) => {
-            const content = (
-              <ModuleEntry
-                key={i}
-                className={cx('moduleEntry', { active: active === entry.type, isExpanded })}
-                href={entry.href}
-                onClick={
-                  !entry.href
-                    ? e => {
-                        if (entry.type === 'myProcess') {
-                          setMyProcessVisible(true);
-                        }
-                      }
-                    : _.noop
-                }
-              >
-                <i className={`entryIcon icon icon-${entry.icon}`}></i>
-                <span className="name">{entry.name}</span>
-                <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
-              </ModuleEntry>
-            );
-            if (entry.type === 'myProcess') {
-              return (
-                <MyProcessEntry
-                  countData={countData}
-                  updateCountData={setCountData}
-                  renderContent={count => (
-                    <ProcessEntry isExpanded={isExpanded}>
-                      {content}
-                      {!!count && (
-                        <span
-                          className={cx('count', { isExpanded, outed: String(count) === '99+' })}
-                          onClick={() => {
+          {(!cooperationItems.length ? moduleEntries.filter(m => m.type !== 'cooperation') : moduleEntries)
+            .filter(
+              o =>
+                !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
+                !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary),
+            )
+            .map((entry, i) => {
+              const content = (
+                <ModuleEntry
+                  key={i}
+                  className={cx('moduleEntry', { active: active === entry.type, isExpanded })}
+                  href={entry.href}
+                  onClick={
+                    !entry.href
+                      ? e => {
+                          if (entry.type === 'myProcess') {
                             setMyProcessVisible(true);
-                          }}
-                        >
-                          {count}
-                        </span>
-                      )}
-                    </ProcessEntry>
-                  )}
-                />
-              );
-            }
-            if (entry.type === 'cooperation') {
-              return (
-                <Trigger
-                  action={['hover']}
-                  popupAlign={{
-                    points: ['tl', 'tr'],
-                    offset: [12, -4],
-                  }}
-                  popup={
-                    <PopupLinks
-                      items={NATIVE_APP_ITEM.filter(
-                        item =>
-                          !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
-                          (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
-                      )}
-                    />
+                          }
+                        }
+                      : _.noop
                   }
                 >
-                  {content}
-                </Trigger>
+                  <i className={`entryIcon icon icon-${entry.icon}`} />
+                  <span className="name">{entry.name}</span>
+                  <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
+                </ModuleEntry>
               );
-            }
-            return content;
-          })}
+              if (entry.type === 'myProcess') {
+                return (
+                  <MyProcessEntry
+                    countData={countData}
+                    updateCountData={setCountData}
+                    renderContent={count => (
+                      <ProcessEntry isExpanded={isExpanded}>
+                        {content}
+                        {!!count && (
+                          <span
+                            className={cx('count', { isExpanded, outed: String(count) === '99+' })}
+                            onClick={() => {
+                              setMyProcessVisible(true);
+                            }}
+                          >
+                            {count}
+                          </span>
+                        )}
+                      </ProcessEntry>
+                    )}
+                  />
+                );
+              }
+              if (entry.type === 'cooperation') {
+                return (
+                  <Trigger
+                    action={['hover']}
+                    popupAlign={{
+                      points: ['tl', 'tr'],
+                      offset: [12, -4],
+                    }}
+                    popup={<PopupLinks items={cooperationItems} />}
+                  >
+                    {content}
+                  </Trigger>
+                );
+              }
+              return content;
+            })}
         </ModuleEntries>
         <Spacer />
         <ResourceEntries>
-        {resourceEntries
-          .filter(o => !appSide[o.id])
-          .concat(sourcesList)
-          .map((entry, index) => {
+          {resourceEntries.concat(sourcesList).map((entry, index) => {
             const content = (
               <ResourceEntry
-                {...(entry.href ? { target: '_blank' } : {})}
+                {...(entry.href && !entry.openInCurrent ? { target: '_blank' } : {})}
                 className="resourceEntry"
                 key={index}
                 href={entry.href}
@@ -385,7 +366,7 @@ export default function SideNav(props) {
                 </Trigger>
               );
             }
-            if (!isExpanded && _.includes(['recommend', 'thirdPartyApp'], entry.id)) {
+            if (!isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id)) {
               return (
                 <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
                   {content}
@@ -398,11 +379,13 @@ export default function SideNav(props) {
             className="resourceEntry expandBtn"
             onClick={() => {
               setIsExpanded(!isExpanded);
-              localStorage.setItem('homeNavIsExpanded', !isExpanded ? '1' : '');
+              safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
             }}
           >
-            <span className="fullName Font12 Gray_9e flex" style={{marginLeft: '25px' }}>{_l('v%0', md.global.Config.Version)}</span>
-            <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`}></i>
+            <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
+              {_l('v%0', md.global.Config.Version)}
+            </span>
+            <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
           </ResourceEntry>
         </ResourceEntries>
       </Content>

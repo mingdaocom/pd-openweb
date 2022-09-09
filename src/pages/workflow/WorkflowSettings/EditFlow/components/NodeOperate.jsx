@@ -254,7 +254,7 @@ export default class NodeOperate extends Component {
           popupAlign={{ points: ['tr', 'br'] }}
           onPopupVisibleChange={showOperate => this.setState({ showOperate })}
         >
-          <Box className="Font18 pointer icon-more_horiz1" isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM} />
+          <Box className="Font18 pointer icon-more_horiz" isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM} />
         </Trigger>
       </span>
     );

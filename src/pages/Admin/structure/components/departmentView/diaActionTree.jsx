@@ -5,7 +5,6 @@ import {
   loadUsers,
   getFullTree,
   deleteDepartment,
-  loadDepartments,
   loadAllUsers,
   editDepartment,
 } from '../../actions/entities';

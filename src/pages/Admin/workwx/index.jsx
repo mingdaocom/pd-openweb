@@ -10,7 +10,11 @@ import Dialog from 'ming-ui/components/Dialog';
 import { navigateTo } from 'src/router/navigateTo';
 import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
+import UpgradeVersion from '../components/UpgradeVersion';
+import { getFeatureStatus } from 'src/util';
 import './style.less';
+
+const FEATURE_ID = 19;
 
 export default class Workwx extends React.Component {
   constructor(props) {
@@ -524,27 +528,6 @@ export default class Workwx extends React.Component {
       }
     });
   };
-  // 免费版显示付费升级
-  renderUpgrade = () => {
-    return (
-      <div className="upgradePage flexColumn">
-        <div className="netStateWrap">
-          <div className="imgWrap" />
-          <div className="hint">{_l('当前版本无法使用此功能')}</div>
-          <div className="explain">{_l('请升级到标准版本或以上版本')}</div>
-        </div>
-        {/*<Button
-          type="primary"
-          className="payUpgradeBtn"
-          onClick={() => {
-            navigateTo(`/upgrade/choose?projectId=${Config.projectId}`);
-          }}
-        >
-          {_l('立即购买')}
-        </Button>*/}
-      </div>
-    );
-  };
   changeTab = key => {
     if (key === 'other') {
       this.getInitialPassword();
@@ -564,8 +547,9 @@ export default class Workwx extends React.Component {
   };
   render() {
     let { isPassApply, intergrationType } = this.state;
-    if (Config.project.licenseType === 0) {
-      return this.renderUpgrade();
+    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    if (featureType === '2') {
+      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;

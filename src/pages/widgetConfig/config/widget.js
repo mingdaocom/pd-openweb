@@ -60,7 +60,11 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   SIGNATURE: 42,
   OCR: 43,
   EMBED: 45,
+  TIME: 46,
   BAR_CODE: 47,
+  ORG_ROLE: 48,
+  SEARCH_BTN: 49,
+  SEARCH: 50,
   REMARK: 10010,
 };
 
@@ -295,6 +299,28 @@ export const DEFAULT_CONFIG = {
     icon: 'a-barcode',
     intro: _l('可将关联的数据源转成条形码或二维码显示'),
   },
+  TIME: {
+    icon: 'access_time',
+    widgetName: _l('时间'),
+    intro: _l('可设为小时分钟秒'),
+    moreIntroLink: 'https://help.mingdao.com/sheet2.html#时间',
+  },
+  ORG_ROLE: {
+    icon: 'user',
+    widgetName: _l('组织角色'),
+    intro: _l('选择组织中的角色，支持配置选择的组织角色的权限。'),
+    moreIntroLink: 'https://help.mingdao.com/sheet42.html',
+  },
+  SEARCH_BTN: {
+    icon: 'api',
+    widgetName: _l('API查询'),
+    featureId: 5,
+  },
+  SEARCH: {
+    icon: 'api',
+    widgetName: _l('API查询'),
+    featureId: 5,
+  },
 };
 
 export const DEFAULT_DATA = {
@@ -368,6 +394,7 @@ export const DEFAULT_DATA = {
     enumDefault2: 1,
     advancedSetting: {
       direction: '0',
+      checktype: '0',
     },
   },
   DROP_DOWN: {
@@ -375,6 +402,9 @@ export const DEFAULT_DATA = {
     controlName: _l('单选'),
     size: 6,
     enumDefault2: 1,
+    advancedSetting: {
+      showtype: '0',
+    },
   },
   ATTACHMENT: {
     controlName: _l('附件'),
@@ -384,11 +414,17 @@ export const DEFAULT_DATA = {
     controlName: _l('日期'),
     size: 6,
     hint: _l('请选择日期'),
+    advancedSetting: {
+      showtype: '3',
+    },
   },
   DATE_TIME: {
     controlName: _l('日期'),
     size: 6,
     hint: _l('请选择日期'),
+    advancedSetting: {
+      showtype: '1',
+    },
   },
   AREA_PROVINCE: {
     controlName: _l('地区'),
@@ -400,8 +436,11 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
   },
   SPLIT_LINE: {
-    controlName: _l(''),
+    controlName: _l('分割线'),
     size: 12,
+    advancedSetting: {
+      hidetitle: '1',
+    },
   },
   AREA_CITY: {
     controlName: _l('地区'),
@@ -427,6 +466,7 @@ export const DEFAULT_DATA = {
     controlName: _l('部门'),
     size: 6,
     enumDefault: 0,
+    userPermission: 1,
   },
   SCORE: {
     controlName: _l('等级'),
@@ -517,6 +557,9 @@ export const DEFAULT_DATA = {
   SIGNATURE: {
     controlName: _l('签名'),
     size: 6,
+    advancedSetting: {
+      uselast: '1',
+    },
   },
   CASCADER: {
     controlName: _l('级联选择'),
@@ -524,7 +567,10 @@ export const DEFAULT_DATA = {
   },
   REMARK: {
     size: 12,
-    controlName: _l(''),
+    controlName: _l('备注'),
+    advancedSetting: {
+      hidetitle: '1',
+    },
   },
   OCR: {
     size: 6,
@@ -546,6 +592,27 @@ export const DEFAULT_DATA = {
     advancedSetting: {
       width: 160,
     },
+  },
+  TIME: {
+    size: 6,
+    controlName: _l('时间'),
+    unit: '1',
+  },
+  ORG_ROLE: {
+    controlName: _l('组织角色'),
+    size: 6,
+    enumDefault: 0,
+    userPermission: 1,
+  },
+  SEARCH_BTN: {
+    controlName: _l('API查询'),
+    size: 6,
+    enumDefault: 0,
+    hint: _l('查询'),
+  },
+  SEARCH: {
+    controlName: _l('API查询'),
+    size: 6,
   },
 };
 
@@ -596,15 +663,16 @@ export const COMMON_USE_WIDGETS = pick(DEFAULT_CONFIG, [
   'MONEY',
   'EMAIL',
   'DATE',
-  // 'DATE_TIME_RANGE',
+  'TIME',
   'MOBILE_PHONE',
+  'AREA_COUNTY',
+  // 'DATE_TIME_RANGE',
   'DROP_DOWN',
   'MULTI_SELECT',
   'USER_PICKER',
+  'DEPARTMENT',
+  'ORG_ROLE',
   'ATTACHMENT',
-  'AREA_COUNTY',
-  'LOCATION',
-  'BAR_CODE',
 ]);
 
 export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
@@ -615,9 +683,11 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
   'AUTO_ID',
   'RICH_TEXT',
   'CRED',
-  'DEPARTMENT',
+  'LOCATION',
   'SIGNATURE',
   'OCR',
+  'SEARCH_BTN',
+  'BAR_CODE',
 ]);
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, ['RELATE_SHEET', 'SUB_LIST', 'CASCADER', 'SHEET_FIELD', 'SUBTOTAL']);

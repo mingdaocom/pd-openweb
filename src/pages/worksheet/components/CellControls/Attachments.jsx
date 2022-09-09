@@ -491,6 +491,7 @@ export default function cellAttachments(props) {
   if (isediting) {
     const popContent = (
       <UploadFilesTrigger
+        originCount={attachments.length}
         advancedSetting={advancedSetting}
         id={cell.controlId + rest.recordId}
         projectId={projectId}

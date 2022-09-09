@@ -163,7 +163,7 @@ export default function yAxisPanelGenerator(props) {
     <Fragment>
       <Collapse.Panel
         key="yAxis"
-        header={isDualAxes ? _l('左Y轴') : isVertical ? _l('X轴') : _l('Y轴')}
+        header={isDualAxes ? _l('Y轴') : isVertical ? _l('X轴') : _l('Y轴')}
         className={cx({ yAxisCollapsible: !switchChecked })}
         {...collapseProps}
         extra={
@@ -206,7 +206,7 @@ export default function yAxisPanelGenerator(props) {
       {isDualAxes && (
         <Collapse.Panel
           key="rightyAxis"
-          header={_l('右Y轴')}
+          header={_l('辅助Y轴')}
           className={cx({ yAxisCollapsible: !rightYSwitchChecked })}
           {...collapseProps}
           extra={

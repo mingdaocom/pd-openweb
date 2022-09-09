@@ -90,6 +90,7 @@ export default class Item extends Component {
                         viewControls: [],
                         viewType: VIEW_DISPLAY_TYPE[viewType],
                         filters: item.filters, // formatValuesOfOriginConditions(item.filters),
+                        advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow']), //更换视图类型，把分组清空
                       }),
                     );
                   }

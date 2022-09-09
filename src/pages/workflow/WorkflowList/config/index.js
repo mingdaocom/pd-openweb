@@ -56,7 +56,7 @@ export const FLOW_TYPE_NULL = {
 
 export const START_APP_TYPE = {
   1: {
-    iconName: 'worksheet',
+    iconName: 'table',
     iconColor: '#ffa340',
     text: _l('工作表事件'),
   },

@@ -25,23 +25,9 @@ export default class RecordWrapper extends Component {
     }
     const { row, base, worksheetInfo } = this.props;
     const { appId, worksheetId } = worksheetInfo;
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.indexOf('mingdao') >= 0) {
-      const data = {
-        appId,
-        worksheetId,
-        viewId: base.viewId,
-        rowId: row.rowid
-      }
-      if (_.get(window, ['webkit', 'messageHandlers', 'openSheetRow', 'postMessage'])) {
-        window.webkit.messageHandlers.openSheetRow.postMessage(data);
-        return;
-      }
-      if (_.get(window, ['Android', 'openSheetRow'])) {
-        const str = JSON.stringify(data);
-        window.Android.openSheetRow(str);
-        return;
-      }
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+    if (isMingdao) {
+      window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
     } else {
       this.setState({
         recordInfoVisible: true

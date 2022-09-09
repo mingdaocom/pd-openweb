@@ -41,7 +41,10 @@ class FeedLeftNav extends React.Component {
     const storedFoldedProjectsStr = localStorage.getItem('foldedProjects_' + md.global.Account.accountId + '_feed');
     if (storedFoldedProjectsStr) {
       foldedProjects = Immutable.Set(
-        _.union(storedFoldedProjectsStr.split(','), md.global.Account.projects.filter(project => project.licenseType === 0).map(project => project.projectId))
+        _.union(
+          storedFoldedProjectsStr.split(','),
+          md.global.Account.projects.filter(project => project.licenseType === 0).map(project => project.projectId),
+        ),
       );
     } else if (storedFoldedProjectsStr === '') {
       foldedProjects = Immutable.Set();
@@ -73,14 +76,18 @@ class FeedLeftNav extends React.Component {
 
   componentDidMount() {
     const foldedProjects = this.state.foldedProjects.toArray();
-    if (foldedProjects.indexOf('') > -1 && md.global.Account.projects.map(ele => ele.projectId).every(project => foldedProjects.indexOf(project) > -1)) return;
+    if (
+      foldedProjects.indexOf('') > -1 &&
+      md.global.Account.projects.map(ele => ele.projectId).every(project => foldedProjects.indexOf(project) > -1)
+    )
+      return;
 
     if (this.props.defaultGroups && this.props.defaultGroups.size) return;
     groupController
       .getGroupsNameAndIsVerified({
         excludeProjectIds: this.state.foldedProjects.size ? this.state.foldedProjects.join(',') : undefined,
       })
-      .then((result) => {
+      .then(result => {
         this.setState({
           groups: Immutable.List(result.list),
           loadingProjects: Immutable.Set(),
@@ -104,10 +111,10 @@ class FeedLeftNav extends React.Component {
       this.locatedDefaultGroup = true;
     }
     const key = 'foldedProjects_' + md.global.Account.accountId + '_feed';
-    localStorage.setItem(key, this.state.foldedProjects.join(','));
+    safeLocalStorageSetItem(key, this.state.foldedProjects.join(','));
   }
 
-  getCreateGroupIcon = (projectId) => {
+  getCreateGroupIcon = projectId => {
     return (
       <div className="right panelIcon Hand ThemeColor9 ThemeHoverColor10" onClick={e => this.createGroup(e, projectId)}>
         +
@@ -135,10 +142,12 @@ class FeedLeftNav extends React.Component {
         .value()
         .join(',');
     }
-    return groupController.getGroupsNameAndIsVerified(query).then((result) => {
+    return groupController.getGroupsNameAndIsVerified(query).then(result => {
       const groups = result.list;
       this.setState({
-        groups: this.state.groups.filter(existGroup => !_.some(groups, group => group.groupId === existGroup.groupId)).concat(groups),
+        groups: this.state.groups
+          .filter(existGroup => !_.some(groups, group => group.groupId === existGroup.groupId))
+          .concat(groups),
         loadingProjects: this.state.loadingProjects.delete(projectId),
       });
     });
@@ -147,7 +156,7 @@ class FeedLeftNav extends React.Component {
   createGroup = (e, projectId) => {
     e.preventDefault();
     e.stopPropagation();
-    require(['src/components/group/create/creatGroup'], (CreatGroup) => {
+    require(['src/components/group/create/creatGroup'], CreatGroup => {
       CreatGroup.createInit({
         projectId,
         callback(group) {
@@ -157,7 +166,7 @@ class FeedLeftNav extends React.Component {
     });
   };
 
-  toggleFoldProject = (projectId) => {
+  toggleFoldProject = projectId => {
     if (this.state.foldedProjects.includes(projectId)) {
       this.fetchGroupsByProjectId(projectId, true);
     } else {
@@ -186,7 +195,9 @@ class FeedLeftNav extends React.Component {
           folded: isFolded,
           hide: this.state.noneProjects,
           ThemeBGColor8:
-            this.props.options.projectId === projectId && !this.props.options.groupId && this.props.options.listType === postEnum.LIST_TYPE.project,
+            this.props.options.projectId === projectId &&
+            !this.props.options.groupId &&
+            this.props.options.listType === postEnum.LIST_TYPE.project,
         })}
         onClick={() => navigateTo(`/feed?projectId=${projectId}`)}
       >
@@ -203,7 +214,7 @@ class FeedLeftNav extends React.Component {
         ) : (
           <span
             className="ThemeColor8 slide"
-            onClick={(evt) => {
+            onClick={evt => {
               evt.stopPropagation();
               this.toggleFoldProject(projectId);
             }}
@@ -216,9 +227,7 @@ class FeedLeftNav extends React.Component {
     );
     const groupListComp =
       !isFolded &&
-      (isLoading ? (
-        undefined
-      ) : (
+      (isLoading ? undefined : (
         <List
           className={cx('avatarList', {
             expire: project && project.licenseType === 0,
@@ -255,18 +264,20 @@ class FeedLeftNav extends React.Component {
                 projectId
                   ? []
                   : [
-                    <Item
+                      <Item
                         key="myself"
                         onClick={() => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.myself}`)}
                         className={cx({
                           ThemeHoverBGColor7: true,
-                          ThemeBGColor8: this.props.options.listType === postEnum.LIST_TYPE.myself && this.props.options.projectId === projectId,
+                          ThemeBGColor8:
+                            this.props.options.listType === postEnum.LIST_TYPE.myself &&
+                            this.props.options.projectId === projectId,
                           folded: isFolded,
                         })}
                       >
-                      <span className="ThemeColor10">{_l('我自己')}</span>
-                    </Item>,
-                    ]
+                        <span className="ThemeColor10">{_l('我自己')}</span>
+                      </Item>,
+                    ],
               )
               .value()
           )}
@@ -285,15 +296,15 @@ class FeedLeftNav extends React.Component {
       <MDLeftNav className="feedLeftNav ThemeBGColor9">
         <MDLeftNavSearch
           value={this.state.searchAllKeywords}
-          onChange={(evt) => {
+          onChange={evt => {
             this.setState({ searchAllKeywords: evt.target.value });
           }}
-          onSearch={(keywords) => {
+          onSearch={keywords => {
             this.props.dispatch(searchAll(keywords));
           }}
         />
-          <List className="iconList feedFixedList">
-            <Item
+        <List className="iconList feedFixedList">
+          <Item
             icon={<Icon icon="mingdao LineHeight40" />}
             onClick={() => navigateTo('/feed')}
             className={cx('LineHeight40', {
@@ -321,19 +332,22 @@ class FeedLeftNav extends React.Component {
                 />
               )}
             </span>
-            </Item>
-              <Item
+          </Item>
+          <Item
             icon={<Icon icon="charger LineHeight40" />}
-            onClick={() => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.user}&accountId=${md.global.Account.accountId}`)}
+            onClick={() =>
+              navigateTo(`/feed?listType=${postEnum.LIST_TYPE.user}&accountId=${md.global.Account.accountId}`)
+            }
             className={cx('LineHeight40', {
               ThemeBGColor8:
-                (this.props.options.listType === postEnum.LIST_TYPE.user || this.props.options.listType === postEnum.LIST_TYPE.ireply) &&
+                (this.props.options.listType === postEnum.LIST_TYPE.user ||
+                  this.props.options.listType === postEnum.LIST_TYPE.ireply) &&
                 this.props.options.accountId === md.global.Account.accountId,
             })}
           >
             <span className="itemContent ThemeColor10">{_l('我的动态')}</span>
-              </Item>
-                <Item
+          </Item>
+          <Item
             icon={<Icon icon="task-star LineHeight40" />}
             className={cx('LineHeight40', {
               ThemeBGColor8: this.props.options.listType === postEnum.LIST_TYPE.fav,
@@ -341,28 +355,28 @@ class FeedLeftNav extends React.Component {
             onClick={() => navigateTo(`/feed?listType=${postEnum.LIST_TYPE.fav}`)}
           >
             <span className="ThemeColor10">{_l('星标动态')}</span>
-                </Item>
-          </List>
-            <Splitter className="ThemeBorderColor7" />
-              <div className="clearfix panelHead">
-                <div className="left panelTitle ThemeColor8">{_l('群组')}</div>
-                  <div className="right panelIcon Hand ThemeColor9 ThemeHoverColor10" onClick={e => this.createGroup(e)}>
+          </Item>
+        </List>
+        <Splitter className="ThemeBorderColor7" />
+        <div className="clearfix panelHead">
+          <div className="left panelTitle ThemeColor8">{_l('群组')}</div>
+          <div className="right panelIcon Hand ThemeColor9 ThemeHoverColor10" onClick={e => this.createGroup(e)}>
             +
           </div>
-              </div>
-                <ScrollView className="groupListContainer flex" disableParentScroll>
-                  {_(md.global.Account.projects)
+        </div>
+        <ScrollView className="groupListContainer flex" disableParentScroll>
+          {_(md.global.Account.projects)
             .map(p => p.projectId)
             .push('')
             .map((projectId, i) => this.renderProjectGroups(projectId, i))
             .value()}
-                </ScrollView>
+        </ScrollView>
       </MDLeftNav>
     );
   }
 }
 
-module.exports = connect((state) => {
+module.exports = connect(state => {
   const { options } = state.post;
   return { options };
 })(FeedLeftNav);

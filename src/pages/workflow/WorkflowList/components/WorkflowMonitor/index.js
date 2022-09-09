@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Select, Input, Dropdown } from 'antd';
-import { Link } from 'react-router-dom';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Select, Input, Dropdown, Button } from 'antd';
+import { Icon, LoadDiv, Checkbox, Tooltip, Dialog } from 'ming-ui';
 import { Line } from '@antv/g2plot';
-import flowMonitor from '../../../api/flowMonitor';
+import flowMonitor from 'src/pages/workflow/api/processVersion.js';
+import appManagement from 'src/api/appManagement';
+import { navigateTo } from 'src/router/navigateTo';
 import { START_APP_TYPE } from '../../config';
 import CountDown from './CountDown';
 import cx from 'classnames';
@@ -29,9 +30,9 @@ const dateList = [
 ];
 
 const justifyInfoData = [
-  { type: 'difference', name: _l('当前累计排队'), tableHeaderName: _l('排队') },
-  { type: 'producer', name: _l('新增'), tableHeaderName: _l('新增') },
-  { type: 'consumer', name: _l('消费'), tableHeaderName: _l('消费') },
+  { type: 'difference', name: _l('当前累计排队'), tableHeaderName: _l('当前排队') },
+  { type: 'producer', name: _l('新增'), tableHeaderName: _l('本月新增') },
+  { type: 'consumer', name: _l('消费'), tableHeaderName: _l('本月消费') },
 ];
 
 export default class WorkflowMonitor extends Component {
@@ -48,7 +49,14 @@ export default class WorkflowMonitor extends Component {
       pageIndex: 1,
       sorter: {},
       loading: false,
-      isMore: true,
+      isMore: false,
+      checkAdmin: {
+        appId: '',
+        post: false,
+        visible: false,
+        title: '',
+        workflowId: '',
+      },
     };
     this.lineChart = null;
   }
@@ -58,21 +66,29 @@ export default class WorkflowMonitor extends Component {
     this.getRealTimeData();
     this.getFlowList();
   }
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.dateNow, nextProps.dateNow)) {
+      this.getChartData();
+      this.getRealTimeData();
+      this.getFlowList(true);
+    }
+  }
 
   // 获取实时数据
   getRealTimeData = () => {
     const { projectId } = this.props.match.params;
+    this.setState({ loading: true });
     flowMonitor
       .getDifferenceByCompanyId({
         companyId: projectId,
       })
       .then(res => {
-        this.setState({ realTimeData: res });
+        this.setState({ realTimeData: res, loading: false });
       });
   };
 
   //  获取流程列表
-  getFlowList = () => {
+  getFlowList = isRefresh => {
     this.setState({ loading: true });
     let { pageIndex, keyword = undefined, sorter } = this.state;
     const { projectId } = this.props.match.params;
@@ -84,21 +100,20 @@ export default class WorkflowMonitor extends Component {
         },
       }) ||
       {};
-
     flowMonitor
       .getDifferenceProcessList({
         companyId: projectId,
-        pageIndex,
-        pageSize: 50,
+        pageIndex: isRefresh ? 1 : pageIndex,
+        pageSize: isRefresh ? pageIndex * 50 : 50,
         keyword,
         ...extraParams,
       })
       .then(res => {
-        let detailList = pageIndex == 1 ? res : this.state.detailList.concat(res);
+        let detailList = pageIndex == 1 || isRefresh ? res : this.state.detailList.concat(res);
         this.setState({
           loading: false,
           detailList,
-          isMore: res.length >= 50,
+          isMore: res.length,
         });
       });
   };
@@ -163,6 +178,7 @@ export default class WorkflowMonitor extends Component {
 
   getChartData = () => {
     const { projectId } = this.props.match.params;
+    this.setState({ loading: true });
     flowMonitor
       .getHistoryDifferenceByCompanyId({
         companyId: projectId,
@@ -171,6 +187,7 @@ export default class WorkflowMonitor extends Component {
       })
       .then(res => {
         this.dealChartData(res);
+        this.setState({ loading: false });
       });
   };
 
@@ -338,7 +355,6 @@ export default class WorkflowMonitor extends Component {
 
   scrollLoadData = _.throttle(() => {
     let { loading, isMore, pageIndex } = this.state;
-
     if (
       this.monitorContainer &&
       this.monitorContainer.clientHeight + this.monitorContainer.scrollTop + 50 >= this.monitorContainer.scrollHeight &&
@@ -376,7 +392,7 @@ export default class WorkflowMonitor extends Component {
   };
 
   renderListContent = () => {
-    let { detailList, loading, pageIndex } = this.state;
+    let { detailList, loading, pageIndex, checkedIds = [] } = this.state;
     if (loading && pageIndex === 1 && _.isEmpty(detailList)) {
       return <LoadDiv className="mTop15" size="small" />;
     }
@@ -394,20 +410,48 @@ export default class WorkflowMonitor extends Component {
     return (
       <Fragment>
         {detailList.map((item, index) => {
-          const { id, name, difference, producer, consumer, hours, waiting, child, startAppType, enabled, dueDate } =
-            item;
+          const {
+            id,
+            name,
+            difference,
+            producer,
+            consumer,
+            hours,
+            waiting,
+            child,
+            startAppType,
+            enabled,
+            dueDate,
+            app,
+          } = item;
           return (
-            <div className="row flexRow" key={`${id}-${index}`}>
+            <div className={cx('row flexRow', { checked: _.includes(checkedIds, item.id) })} key={`${id}-${index}`}>
               <div className="cloumnItem flex flexRow pLeft10">
                 <div
-                  className={cx('iconWrap mRight7', { unable: !enabled })}
+                  className={cx('iconWrap', { unable: !enabled })}
                   style={{ backgroundColor: (START_APP_TYPE[child ? 'subprocess' : startAppType] || {}).iconColor }}
                 >
                   <Icon icon={(START_APP_TYPE[item.child ? 'subprocess' : startAppType] || {}).iconName} />
                 </div>
-                <Link to={`/workflowedit/${item.id}`} className="flowName Hand">
-                  {name}
-                </Link>
+                <Checkbox
+                  className="checkFlow"
+                  checked={_.includes(checkedIds, item.id)}
+                  onClick={checked => {
+                    if (!checked) {
+                      let copyCheckedIds = [...checkedIds];
+                      copyCheckedIds.push(item.id);
+                      this.setState({ checkedIds: copyCheckedIds });
+                    } else {
+                      this.setState({ checkedIds: checkedIds.filter(it => it !== item.id) });
+                    }
+                  }}
+                />
+                <div className="flexColumn flowInfo">
+                  <div className="flowName Hand" onClick={() => this.checkIsAppAdmin(app.id, item.id, item.name)}>
+                    {name}
+                  </div>
+                  <div className="Gray_9e Font12">{app.name}</div>
+                </div>
               </div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(difference)}</div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(producer)}</div>
@@ -432,7 +476,7 @@ export default class WorkflowMonitor extends Component {
                 )}
               </div>
               <div className="cloumnItem columnWidth80">
-                {waiting ? (
+                {waiting && !_.includes(checkedIds, item.id) && (
                   <a
                     onClick={() => {
                       this.clickWaitConsume(item);
@@ -441,9 +485,8 @@ export default class WorkflowMonitor extends Component {
                   >
                     {_l('恢复')}
                   </a>
-                ) : (
-                  this.renderChangeDate(item)
                 )}
+                {!waiting && !_.includes(checkedIds, item.id) && this.renderChangeDate(item)}
               </div>
             </div>
           );
@@ -464,7 +507,7 @@ export default class WorkflowMonitor extends Component {
         },
         pageIndex: 1,
       },
-      this.getFlowList,
+      this.getFlowList(),
     );
   };
 
@@ -477,11 +520,11 @@ export default class WorkflowMonitor extends Component {
   };
 
   renderJustifyInfo = ({ type, name }) => {
-    let { realTimeData = {} } = this.state;
+    let { realTimeData = {}, loading } = this.state;
     return (
       <div className="infoBox flex">
         <div className="description">{name}</div>
-        <div className="countValue">{formatter(realTimeData[type]) || '-'}</div>
+        <div className="countValue">{(!loading && formatter(realTimeData[type])) || '-'}</div>
         {type !== 'difference' && <div className="inTime">{_l('5分钟内')}</div>}
       </div>
     );
@@ -504,12 +547,112 @@ export default class WorkflowMonitor extends Component {
       </div>
     );
   };
-  render() {
-    let { showDate } = this.state;
+  // 批量设置（暂停、恢复）流程
+  batchPauseRecover = (isPause, hours) => {
+    const { checkedIds = [], detailList } = this.state;
+    const { projectId } = this.props.match.params;
+    flowMonitor
+      .batch({
+        hours,
+        processIds: checkedIds,
+        waiting: isPause ? true : false,
+        companyId: projectId,
+      })
+      .then(res => {
+        if (res) {
+          let copyDetailList = [];
+          if (isPause) {
+            copyDetailList = detailList.map(item => {
+              if (_.includes(checkedIds, item.id)) {
+                return {
+                  ...item,
+                  hours,
+                  waiting: true,
+                  dueDate: moment()
+                    .add(hours * 60 + 1, 'm')
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                };
+              }
+              return item;
+            });
+          } else {
+            copyDetailList = detailList.map(item => {
+              if (_.includes(checkedIds, item.id)) {
+                return { ...item, waiting: false };
+              }
+              return item;
+            });
+          }
+          alert(_l('操作成功'));
+          this.setState({ checkedIds: [], detailList: copyDetailList });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      });
+  };
+  // 批量重新排队计数
+  resetQueue = () => {
+    const { checkedIds = [] } = this.state;
+    const { projectId } = this.props.match.params;
+    flowMonitor
+      .reset({
+        processIds: checkedIds,
+        companyId: projectId,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          this.setState({ checkedIds: [] });
+          this.getFlowList(true);
+        } else {
+          alert(_l('操作失败'));
+        }
+      });
+  };
+  checkIsAppAdmin(appId, id, name) {
+    const opts = post => {
+      return {
+        appId,
+        post,
+        visible: true,
+        title: name,
+        workflowId: id,
+      };
+    };
+    this.setState({ checkAdmin: opts(true) }, () => {
+      appManagement
+        .checkAppAdminForUser({
+          appId,
+        })
+        .then(result => {
+          if (result) {
+            navigateTo(`/workflowedit/${id}`);
+          } else {
+            this.setState({ checkAdmin: opts(false) });
+          }
+        });
+    });
+  }
+  addRoleMemberForAppAdmin = () => {
+    const {
+      checkAdmin: { appId, workflowId },
+    } = this.state;
 
+    appManagement
+      .addRoleMemberForAppAdmin({
+        appId,
+      })
+      .then(result => {
+        if (result) {
+          navigateTo(`/workflowedit/${workflowId}`);
+        }
+      });
+  };
+  render() {
+    let { showDate, checkedIds = [], loading, checkAdmin } = this.state;
     return (
       <div
-        className="monitorContainer flex"
+        className="monitorContainer flex Relative"
         ref={node => (this.monitorContainer = node)}
         onScroll={this.scrollLoadData}
       >
@@ -527,7 +670,49 @@ export default class WorkflowMonitor extends Component {
         </div>
         <div className="chartBox" ref={node => (this.chantRef = node)} />
         <div className="flexRow spaceBetween">
-          <div className="subTitle">{_l('执行详情')}</div>
+          {_.isEmpty(checkedIds) ? (
+            <div className="subTitle">{_l('执行详情')}</div>
+          ) : (
+            <div>
+              <span className="Gray Bold mRight16">{_l('已选择%0条流程', checkedIds.length)}</span>
+              <Dropdown
+                trigger={['click']}
+                placement="bottomLeft"
+                overlay={
+                  <div className="runoOperateBox">
+                    {runDateList.map(v => (
+                      <div
+                        className="runDateItem Font13"
+                        key={v.value}
+                        onClick={() => this.batchPauseRecover(true, v.value)}
+                      >
+                        {v.label}
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
+                <Button type="ghostgray" className="mRight10">
+                  {_l('暂停')}
+                </Button>
+              </Dropdown>
+              <Button type="ghostgray" className="mRight10" onClick={() => this.batchPauseRecover(false)}>
+                {_l('恢复')}
+              </Button>
+              <Button type="ghostgray" onClick={this.resetQueue}>
+                {_l('重置排队计数')}
+                <Tooltip
+                  text={
+                    <span>
+                      {_l('将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0')}
+                    </span>
+                  }
+                >
+                  <Icon icon="info_outline" className="mLeft8 Gray_9d" />
+                </Tooltip>
+              </Button>
+            </div>
+          )}
           <Input
             allowClear
             placeholder={_l('流程名称')}
@@ -546,6 +731,17 @@ export default class WorkflowMonitor extends Component {
           </div>
           <div className="detailListBody">{this.renderListContent()}</div>
         </div>
+
+        <Dialog
+          visible={checkAdmin.visible}
+          className={cx({ checkAdminDialog: checkAdmin.post })}
+          title={_l('管理工作流“%0”', checkAdmin.title)}
+          description={_l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限')}
+          cancelText=""
+          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
+          onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
+          onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
+        />
       </div>
     );
   }

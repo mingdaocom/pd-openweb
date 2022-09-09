@@ -2,7 +2,7 @@ export const ACTION_TYPES = {
   0: {
     id: 'default',
     icon: {
-      1: 'worksheet',
+      1: 'table',
       5: 'hr_surplus',
       6: 'hr_time',
       7: 'workflow_webhook',

@@ -53,10 +53,6 @@
           &.fixedDropdownSelected {
             cursor: pointer;
             font-weight: normal;
-            .icon-arrow {
-              font-size: 14px;
-              margin: 10px;
-            }
           }
           .dropDownLabel {
             display: inline-block;
@@ -85,10 +81,17 @@
   .repeatConfigError {
     color: #F83333;
   }
+  .errorSkipDialog {
+    position: absolute;
+    top: inherit !important;
+    bottom: 0 !important;
+    width: 440px;
+    padding: 16px;
+  }
 }
 
 .excelControlDropDownList{
-  max-height: 500px;
+  max-height: 220px;
   overflow-y: auto;
   &::-webkit-scrollbar {
     background: #fff !important;

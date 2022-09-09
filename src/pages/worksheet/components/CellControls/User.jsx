@@ -125,7 +125,7 @@ export default class User extends React.Component {
       } else {
         let newData = [];
         try {
-          newData = _.uniqBy(value.concat(data), 'accountId');
+          newData = _.uniqBy(this.state.value.concat(data), 'accountId');
         } catch (err) {}
         this.setState(
           {
@@ -160,6 +160,7 @@ export default class User extends React.Component {
         left: 40,
       },
       zIndex: 10001,
+      isDynamic: cell.enumDefault === 1,
       SelectUserSettings: {
         unique: cell.enumDefault === 0,
         projectId: projectId,

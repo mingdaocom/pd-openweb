@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Dropdown, Input, Checkbox, MdAntDatePicker, MdAntDateRangePicker } from 'ming-ui';
+import { Dropdown, Input, Checkbox, MdAntDateRangePicker } from 'ming-ui';
+import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { FILTER_CONDITION_TYPE, DATE_OPTIONS } from '../../enum';
-import { formatDateValue } from '../../util';
+import _ from 'lodash';
 
+function getPicker(type) {
+  return {
+    4: 'month',
+    5: 'year',
+  }[type];
+}
 export default class Date extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
@@ -32,11 +40,37 @@ export default class Date extends Component {
       onChange,
       from = '',
     } = this.props;
-    let timeFormat;
-    let dateFormat = 'YYYY-MM-DD';
-    if (control.type === 16 && !(type === FILTER_CONDITION_TYPE.DATEENUM || type === FILTER_CONDITION_TYPE.NDATEENUM)) {
-      timeFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'HH:mm:ss' : 'HH:mm';
-      dateFormat = _.includes(['ctime', 'utime'], control.controlId) ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm';
+    let dateOptions = DATE_OPTIONS;
+    if (
+      dateRange === 18 &&
+      _.includes(
+        [
+          FILTER_CONDITION_TYPE.DATEENUM,
+          FILTER_CONDITION_TYPE.NDATEENUM,
+          FILTER_CONDITION_TYPE.DATE_EQ,
+          FILTER_CONDITION_TYPE.DATE_NE,
+        ],
+        type,
+      ) &&
+      (_.includes(['1', '2'], _.get(control, 'advancedSetting.showtype')) ||
+        _.includes(['ctime', 'utime'], control.controlId))
+    ) {
+      control.type = 15;
+      control.advancedSetting = { showtype: '3' };
+    }
+    const showValueFormat = getShowFormat(control);
+    const timeFormat = showValueFormat.split(' ')[1];
+    const valueFormat = getDatePickerConfigs(control).formatMode;
+    const showType = String(_.get(control, 'advancedSetting.showtype'));
+    // 5: 年 4: 年月
+    if (_.includes(['4', '5'], showType)) {
+      dateOptions = dateOptions
+        .map(options =>
+          options.filter(o =>
+            _.includes(showType === '5' ? [15, 16, 17, 18] : [7, 8, 9, 12, 13, 14, 15, 16, 17, 18], o.value),
+          ),
+        )
+        .filter(options => options.length);
     }
     return (
       <div className="worksheetFilterDateCondition">
@@ -46,14 +80,15 @@ export default class Date extends Component {
               disabled={disabled}
               defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
               showTime={timeFormat ? { format: timeFormat } : false}
-              format={dateFormat}
+              picker={getPicker(showType)}
+              format={showValueFormat}
               onChange={(moments, times) => {
-                if (!_.isArray(moments)) {
-                  return;
+                if (!moments || !_.isArray(moments)) {
+                  moments = [];
                 }
                 onChange({
-                  minValue: moments[0].format(dateFormat),
-                  maxValue: moments[1].format(dateFormat),
+                  minValue: moments[0] && moments[0].format(valueFormat),
+                  maxValue: moments[1] && moments[1].format(valueFormat),
                 });
               }}
             />
@@ -64,19 +99,12 @@ export default class Date extends Component {
               <div className="dateType dateInputCon">
                 <Dropdown
                   disabled={disabled}
+                  data={dateOptions}
                   defaultValue={dateRange}
-                  data={DATE_OPTIONS}
                   isAppendToBody
                   menuStyle={{ width: 220 }}
                   onChange={newDateRange => {
                     let changes = { value: undefined, values: [] };
-                    if (newDateRange === 18) {
-                      changes = {
-                        value: moment(
-                          type === FILTER_CONDITION_TYPE.DATE_GT ? moment().endOf('day') : moment().startOf('day'),
-                        ).format('YYYY-MM-DD HH:mm:ss'),
-                      };
-                    }
                     if (newDateRange === 10 || newDateRange === 11) {
                       changes = {
                         value: 1,
@@ -109,20 +137,17 @@ export default class Date extends Component {
             )}
             {dateRange === 18 && (
               <div className="customDate dateInputCon mTop10">
-                <MdAntDatePicker
-                  disabled={disabled}
-                  defaultValue={moment(value)}
-                  showTime={timeFormat ? { format: timeFormat } : false}
-                  format={dateFormat}
+                <DatePicker
+                  {...control}
+                  value={value && moment(value)}
+                  dropdownClassName="scrollInTable"
                   onChange={date => {
-                    if (!date) {
-                      return;
-                    }
-                    if (timeFormat) {
-                      onChange({ value: date.format('YYYY-MM-DD HH:mm:ss') });
-                    } else {
-                      onChange({ value: formatDateValue({ type, value: date }) });
-                    }
+                    onChange({
+                      value: date ? moment(date).format(valueFormat) : undefined,
+                    });
+                  }}
+                  compProps={{
+                    placeholder: _l('请选择'),
                   }}
                 />
               </div>

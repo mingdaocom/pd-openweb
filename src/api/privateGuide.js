@@ -52,7 +52,31 @@ module.exports = {
      return $.api('PrivateGuide', 'GetServerInfo', args, options);
    },
   /**
-  * 获取技术支持时间信息
+  * 获取当前授权信息
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPlatformLicenseInfo: function (args, options = {}) {
+     
+     return $.api('PrivateGuide', 'GetPlatformLicenseInfo', args, options);
+   },
+  /**
+  * 获取授权日志
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 页大小
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPlatformLicenseLogs: function (args, options = {}) {
+     
+     return $.api('PrivateGuide', 'GetPlatformLicenseLogs', args, options);
+   },
+  /**
+  * 获取升级服务到期时间
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -124,7 +148,7 @@ module.exports = {
      return $.api('PrivateGuide', 'AddAdmin', args, options);
    },
   /**
-  * 创建网络
+  * 创建组织
   * @param {Object} args 请求参数
   * @param {string} args.name 网络名称
   * @param {Object} options 配置参数

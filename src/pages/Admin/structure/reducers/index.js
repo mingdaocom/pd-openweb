@@ -3,7 +3,6 @@ import current from './current';
 import entities from './entities';
 import pagination from './pagination';
 import search from './search';
-import jobs from './jobs';
 
 // root reducer
 export default combineReducers({
@@ -11,5 +10,4 @@ export default combineReducers({
   entities,
   pagination,
   search,
-  jobs,
 });

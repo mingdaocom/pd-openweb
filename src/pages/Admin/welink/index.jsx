@@ -10,7 +10,11 @@ import Dialog from 'ming-ui/components/Dialog';
 import { map } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import clientIdImg from './img/client_id.png';
+import UpgradeVersion from '../components/UpgradeVersion';
+import { getFeatureStatus } from 'src/util';
 import './style.less';
+
+const FEATURE_ID = 18;
 
 export default class Workwx extends React.Component {
   constructor(props) {
@@ -242,9 +246,7 @@ export default class Workwx extends React.Component {
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
-                {_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}
-              </p>
+              <p className="mTop16 Font14 Gray_75">{_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
               <Link to={`/welinkSyncCourse/${Config.projectId}`} target="_blank" className="mTop16 Font14 howApply">
                 {_l('如何获取对接信息？')}
               </Link>
@@ -429,6 +431,10 @@ export default class Workwx extends React.Component {
   };
 
   render() {
+    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    if (featureType === '2') {
+      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
+    }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }

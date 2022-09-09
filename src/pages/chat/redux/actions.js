@@ -12,7 +12,7 @@ import _ from 'lodash';
 export const setSessionList = (result) => {
   return {
     type: 'SET_SESSION_LIST',
-    result:  utils.sortSession(utils.formatSessionList(result)),
+    result: utils.sortSession(utils.formatSessionList(result)),
   };
 };
 
@@ -496,7 +496,7 @@ export const clearAllUnread = () => (dispatch, getState) => {
 export const clearNotification = (message) => (dispatch, getState) => {
   const { sessionList } = getState().chat;
   const { type } = message;
-  dispatch(updateSessionList({ id: type, clearCount: 0}));
+  dispatch(updateSessionList({ id: type, clearCount: 0 }));
   utils.removeFlashTitle(type, sessionList);
 }
 
@@ -523,10 +523,10 @@ export const setVisible = (visible) => {
   const $ChatPanel = $('.ChatPanel-wrapper');
   if (visible) {
     $ChatPanel.removeClass('ChatPanel-up');
-    localStorage.setItem('chatList_isUp', true);
+    safeLocalStorageSetItem('chatList_isUp', true);
   } else {
     $ChatPanel.addClass('ChatPanel-up');
-    localStorage.setItem('chatList_isUp', false);
+    safeLocalStorageSetItem('chatList_isUp', false);
   }
   return {
     type: 'SET_VISIBLE',
@@ -574,7 +574,7 @@ export const addCurrentSession = (result) => (dispatch, getState) => {
     dispatch(removeCurrentSession(id));
     dispatch(removeMessages(id));
   }
-  const session = _.filter(sessionList, {value: result.id})[0];
+  const session = _.filter(sessionList, { value: result.id })[0];
   const isTop = session.top_info ? session.top_info.isTop : false;
   result.isTop = isTop;
   if ('isSession' in session) {
@@ -762,7 +762,7 @@ export const updateMember = (groupId, count) => (dispatch, getState) => {
  * 获取聊天的消息列表
  * @param {*} result
  */
-export const setMessage = (id, result) => (dispatch, getState) =>  {
+export const setMessage = (id, result) => (dispatch, getState) => {
   const { messages } = getState().chat;
   dispatch({
     type: messages[id] ? 'ADD_PAGE_MESSAGE' : 'SET_MESSAGE',
@@ -1053,7 +1053,7 @@ export const updateWithdrawMessage = (id, newMessage) => (dispatch, getState) =>
 export const receiveMessage = (id, message) => (dispatch, getState) => {
   const { messages } = getState().chat;
   const currentMessage = messages[id];
-  const unnecessary = _.findIndex(currentMessage, {id: message.id}) === -1 ? false : true;
+  const unnecessary = _.findIndex(currentMessage, { id: message.id }) === -1 ? false : true;
   if (currentMessage && !unnecessary) {
     message = utils.formatNewMessage(message, currentMessage[currentMessage.length - 1]);
     const isGroup = 'groupname' in message;
@@ -1508,12 +1508,12 @@ export const refresh = () => (dispatch, getState) => {
       });
       dispatch(setSessionList(res));
       const newCurrentSessionList = currentSessionList.filter(item => item.id === id)[0];
-      if (!newCurrentSessionList) {return}
+      if (!newCurrentSessionList) { return }
       const { isGroup } = newCurrentSessionList;
       ajax.getMessage({
-          id,
-          type: isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
-        })
+        id,
+        type: isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
+      })
         .done((res) => {
           res = $.isArray(res) ? res.reverse() : [];
           const newMessages = {
@@ -1529,19 +1529,19 @@ export const refresh = () => (dispatch, getState) => {
           });
         });
     } else {
-        dispatch(setSessionList(res));
-        dispatch({
-          type: 'UPDATE_CURRENT_SESSION',
-          result: [],
-        });
-        dispatch({
-          type: 'SET_CURRENT_SESSION',
-          result: {},
-        });
-        dispatch({
-          type: 'UPDATE_MESSAGE',
-          result: {},
-        });
-      }
-    });
+      dispatch(setSessionList(res));
+      dispatch({
+        type: 'UPDATE_CURRENT_SESSION',
+        result: [],
+      });
+      dispatch({
+        type: 'SET_CURRENT_SESSION',
+        result: {},
+      });
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        result: {},
+      });
+    }
+  });
 };

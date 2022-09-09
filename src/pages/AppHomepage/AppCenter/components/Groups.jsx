@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import { navigateTo } from 'router/navigateTo';
 import { editGroupSort } from 'src/api/homeApp';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import GroupsSkeleton from './GroupsSkeleton';
 import EditGroup from './EditGroup';
@@ -158,12 +158,13 @@ export default function Groups(props) {
     ...item,
     groups: _.sortBy(item.groups, g => (sorts[item.type] || []).indexOf(g.id)),
   }));
+  const featureType = getFeatureStatus(projectId, 16);
   const expandBtn = (
     <BaseBtnCon
       className={isFolded ? 'mLeft16' : ''}
       onClick={() => {
         setIsFolded(!isFolded);
-        localStorage.setItem('homeGroupsIsFolded', !isFolded ? '1' : '');
+        safeLocalStorageSetItem('homeGroupsIsFolded', !isFolded ? '1' : '');
       }}
     >
       <i
@@ -225,23 +226,25 @@ export default function Groups(props) {
                 navigateTo('/app/my');
               }}
             />
-            <GroupItem
-              itemType="static"
-              fontIcon="knowledge-recycle"
-              name={
-                <span>
-                  {_l('回收站')}
-                  {isFree && <i className="upgradeIcon icon-auto_awesome"></i>}
-                </span>
-              }
-              onClick={() => {
-                if (isFree) {
-                  upgradeVersionDialog({ projectId, isFree: true, explainText: _l('请升级到标准版本或以上版本') });
-                } else {
-                  setTrashVisible(true);
+            {featureType && (
+              <GroupItem
+                itemType="static"
+                fontIcon="knowledge-recycle"
+                name={
+                  <span>
+                    {_l('回收站')}
+                    {isFree && <i className="upgradeIcon icon-auto_awesome"></i>}
+                  </span>
                 }
-              }}
-            />
+                onClick={() => {
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(projectId, 16);
+                  } else {
+                    setTrashVisible(true);
+                  }
+                }}
+              />
+            )}
             <VerticalMiddle className="header mTop20">
               <span className="Font15">{_l('分组')}</span>
               <BaseBtnCon className="mRight5" onClick={() => setAddGroupVisible(true)}>

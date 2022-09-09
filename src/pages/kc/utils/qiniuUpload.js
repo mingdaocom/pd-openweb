@@ -174,7 +174,7 @@ function createUploader(option) {
       if (file.size && !native.size) {
         file.notExists = true;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const fileExt = `.${File.GetExt(file.name)}`;
 
@@ -272,7 +272,7 @@ function createUploader(option) {
         url: option.url.replace(/(\/)$/, '') + '/mkblk/' + leftSize,
       });
     }
-    localStorage.setItem(
+    safeLocalStorageSetItem(
       file.name,
       JSON.stringify({
         ctx: file.ctx,

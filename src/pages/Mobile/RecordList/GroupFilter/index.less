@@ -114,4 +114,41 @@
       }
     }
   }
+  .groupFilterDrawer {
+    -webkit-overflow-scrolling: touch;
+    position: inherit;
+    > .am-drawer-sidebar {
+      width: 100%;
+      z-index: 100;
+      background-color: #fff;
+      overflow: hidden;
+      -webkit-overflow-scrolling: touch;
+      transition: transform 0.1s ease-out, -webkit-transform 0.1s ease-out;
+    }
+    .am-drawer-overlay,
+    .am-drawer-content {
+      position: inherit;
+    }
+    &.am-drawer-open {
+      z-index: 100;
+      position: fixed;
+    }
+  }
+  .groupDetailBox {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .groupTitle {
+      height: 40px;
+      line-height: 40px;
+      font-size: 18px;
+      font-weight: 600;
+      padding-left: 12px;
+    }
+    .groupDetailCon {
+      flex: 1;
+      background-color: #f2f2f2;
+    }
+  }
 }

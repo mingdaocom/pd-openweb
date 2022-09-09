@@ -5,7 +5,7 @@ import { CommonDisplay } from '../../styled';
 const InfoWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
-  .btn {
+  .ocrBtn {
     display: flex;
     align-items: center;
     line-height: 36px;
@@ -14,12 +14,12 @@ const InfoWrap = styled.div`
     border: 1px solid #e0e0e0;
     text-align: center;
     background-color: #fff;
-    color: #2196f3;
     font-weight: 500;
     width: 100%;
     max-width: 320px;
     justify-content: center;
     i {
+      color: #9e9e9e;
       margin-right: 6px;
     }
   }
@@ -33,7 +33,7 @@ export default function OcrDisplay({ data }) {
   return enumDefault ? (
     <InfoWrap>
       {displayText && (
-        <div className="btn overflow_ellipsis">
+        <div className="ocrBtn overflow_ellipsis">
           <i className={`icon-${icon} Font20`}></i>
           {_l('识别%0', displayText)}
         </div>

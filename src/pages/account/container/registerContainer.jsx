@@ -380,7 +380,16 @@ export default class Container extends React.Component {
                       {_l('忘记密码？')}
                     </a>
                   ) : (
-                    <span></span>
+                    <span>
+                      {_l('点注册即代表同意')}
+                      <a target="_blank" className="terms Hand" href="/terms">
+                        {_l('《服务协议》')}
+                      </a>
+                      {_l('和')}
+                      <a target="_blank" className="terms Hand" href="/privacy">
+                        {_l('《隐私政策》')}
+                      </a>
+                    </span>
                   )}
                 </p>
                 <span

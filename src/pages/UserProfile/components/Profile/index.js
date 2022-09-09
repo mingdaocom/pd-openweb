@@ -2,10 +2,7 @@
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Info from '../Info/UserInfo';
 import UserFeed from 'src/pages/feed/components/app/userFeed';
-import BadgedInfo from '../Info/BadgedInfo';
 import './index.less';
-
-const {personal: {personalInfo: {personalEmblem}}} = window.private
 
 class UserProfile extends Component {
   renderFeed() {
@@ -22,18 +19,11 @@ class UserProfile extends Component {
   }
 
   render() {
-    const { isLoading, isTask, userInfo, isMe, getAccountId } = this.props;
+    const { isLoading } = this.props;
     return (
       <div className="clearfix">
-        <div className="main_Left Left">
-          <div className="clearfix Relative">{isLoading ? <LoadDiv size="small" /> : <Info {...this.props} />}</div>
-          {this.renderFeed()}
-        </div>
-        {isLoading ? null : (
-          <div className="main_Right Right">
-            {isTask ? <BadgedInfo {...{ userInfo, isMe }} getAccountId={() => getAccountId()}/> : null}
-          </div>
-        )}
+        <div className="clearfix Relative">{isLoading ? <LoadDiv size="small" /> : <Info {...this.props} />}</div>
+        {this.renderFeed()}
       </div>
     );
   }

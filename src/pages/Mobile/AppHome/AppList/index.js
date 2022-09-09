@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, LoadDiv } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
-import AppStatus from 'src/pages/AppHomepage/MyApp/MyAppGroup/AppStatus';
+import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { getGroup } from 'src/api/homeApp';
 import { getRandomString, getProject } from 'src/util';
 import Back from '../../components/Back';

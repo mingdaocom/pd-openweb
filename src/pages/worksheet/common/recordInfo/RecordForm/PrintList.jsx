@@ -7,8 +7,7 @@ import { MenuItem, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import { getPrintList } from 'src/api/worksheet';
 import { add } from 'src/api/webCache';
-import { upgradeVersionDialog } from 'src/util';
-import { getProjectLicenseInfo } from 'src/api/project';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 const MenuItemWrap = styled(MenuItem)`
@@ -26,6 +25,9 @@ const MenuItemWrap = styled(MenuItem)`
     }
   }
 `;
+
+const FEATURE_ID = 20;
+
 export default class PrintList extends Component {
   static propTypes = {
     viewId: PropTypes.string,
@@ -44,13 +46,11 @@ export default class PrintList extends Component {
     this.state = {
       showPrintGroup: false,
       tempList: [],
-      isNo: false,
-      isFree: false,
     };
   }
 
   componentDidMount() {
-    const { viewId, worksheetId, projectId } = this.props;
+    const { viewId, worksheetId } = this.props;
     if (worksheetId) {
       getPrintList({
         worksheetId,
@@ -58,14 +58,7 @@ export default class PrintList extends Component {
       }).then(tempList => {
         let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
         this.setState({ tempList: list, tempListLoaded: true });
-        this.projectLicenseInfo(projectId);
       });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.projectId != this.props.projectId && nextProps.projectId) {
-      this.projectLicenseInfo(nextProps.projectId);
     }
   }
 
@@ -99,52 +92,6 @@ export default class PrintList extends Component {
     });
   }
 
-  projectLicenseInfo = projectId => {
-    const { tempList } = this.state;
-    // 有word模版数据 请求权限
-    if (!(tempList.length > 0 && tempList.filter(it => it.type === 2).length > 0)) {
-      return;
-    }
-    if (!projectId) {
-      this.setState({
-        isNo: true,
-      });
-      return;
-    } else {
-      this.setState({
-        isNo: false,
-      });
-    }
-    let projects = (_.get(md, ['global', 'Account', 'projects']) || []).filter(it => it.projectId === projectId);
-    if (projects.length <= 0) {
-      // 外部协作
-      getProjectLicenseInfo({
-        projectId: projectId,
-      }).then(data => {
-        let { version = [], licenseType } = data;
-        let { versionId } = version;
-        this.setState({
-          /**
-           * licenseType
-           * 0: 过期
-           * 1: 正式版
-           * 2: 体验版
-           */
-          // 只有旗舰版/专业版可用
-          isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-          isFree: licenseType === 0,
-        });
-      });
-    } else {
-      let { version = [], licenseType } = projects[0];
-      let { versionId } = version;
-      this.setState({
-        isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-        isFree: licenseType === 0,
-      });
-    }
-  };
-
   render() {
     const {
       viewId,
@@ -156,8 +103,9 @@ export default class PrintList extends Component {
       sheetSwitchPermit,
       onItemClick = () => {},
     } = this.props;
-    const { tempList, showPrintGroup, isNo, isFree } = this.state;
+    const { tempList, showPrintGroup } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
+    const featureType = getFeatureStatus(projectId, FEATURE_ID);
     if (tempList.length <= 0) {
       return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) ? (
         <MenuItemWrap
@@ -187,7 +135,7 @@ export default class PrintList extends Component {
           popup={
             <div className="">
               {/* 打印模板 */}
-              {tempList.length > 0 && (
+              {tempList.length > 0 && featureType && (
                 <div
                   className={cx('tempList', {
                     noDefaultPrint: !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
@@ -203,16 +151,12 @@ export default class PrintList extends Component {
                             alert(_l('预览模式下，不能操作'), 3);
                             return;
                           }
-                          let printId = it.id;
-                          let isDefault = it.type === 0;
-                          if (isNo && !isDefault) {
-                            upgradeVersionDialog({
-                              projectId,
-                              explainText: _l('Word批量打印是高级功能，请升级至付费版解锁开启'),
-                              isFree,
-                            });
+                          if (featureType === '2') {
+                            buriedUpgradeVersionDialog(projectId, FEATURE_ID);
                             return;
                           }
+                          let printId = it.id;
+                          let isDefault = it.type === 0;
                           let printData = {
                             printId,
                             isDefault, // 系统打印模板

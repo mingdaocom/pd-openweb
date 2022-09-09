@@ -5,12 +5,15 @@ import Number from './Number';
 import RelateRecord from './RelateRecord';
 import Options from './Options';
 import DateTime from './DateTime';
+import Time from './Time';
 import CheckboxComp from './CheckboxComp';
 import Users from './Users';
 import Departments from './Departments';
 import Areas from './Areas';
 import Cascader from './Cascader';
+import OrgRole from './OrgRole';
 import { shape } from 'prop-types';
+import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
 
 export function conditionAdapter(condition) {
   if (
@@ -30,31 +33,10 @@ export function conditionAdapter(condition) {
 
 export const formatQuickFilter = filter => {
   return filter.map(c => {
-    let result = { ...c };
-    if (c.values) {
-      result.values = result.values.filter(_.identity);
-    }
-    // 关联记录
-    if (c.dataType === 29) {
-      result.values = result.values.map(v => v.rowid);
-    }
-    // 人员
-    if (c.dataType === 26) {
-      result.values = result.values.map(v => v.accountId);
-    }
-    // 部门
-    if (c.dataType === 27) {
-      result.values = result.values.map(v => v.departmentId);
-    }
-    // 地区
-    if (_.includes([19, 23, 24], c.dataType)) {
-      result.values = result.values.map(v => v.id);
-    }
-    // 级联选择
-    if (_.includes([35], c.dataType)) {
-      result.values = result.values.map(v => v.sid);
-    }
-    return result;
+    return {
+      ...c,
+      values: formatFilterValuesToServer(c.dataType, c.values)
+    };
   });
 };
 
@@ -93,6 +75,11 @@ export const DateTimeTypes = [
 ];
 mapToComp(DateTimeTypes, DateTime);
 
+export const TimeTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.TIME, //  时间
+];
+mapToComp(TimeTypes, Time);
+
 export const UsersTypes = [
   WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
 ];
@@ -112,6 +99,9 @@ mapToComp(AreasTypes, Areas);
 
 export const CascaderComp = [WIDGETS_TO_API_TYPE_ENUM.CASCADER];
 mapToComp(CascaderComp, Cascader);
+
+export const OrgRoleTypes = [WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE];
+mapToComp(OrgRoleTypes, OrgRole);
 
 export function validate(condition) {
   let dataType = condition.dataType;
@@ -172,6 +162,7 @@ export function validate(condition) {
       [
         WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期
         WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间
+        WIDGETS_TO_API_TYPE_ENUM.TIME, // 时间
       ],
       dataType,
     )

@@ -255,6 +255,7 @@ class EditFlow extends Component {
     return getSameLevelIds(data, firstId).map((id, i) => {
       const props = {
         key: id,
+        companyId: flowInfo.companyId,
         processId: this.props.workflowDetail.id,
         item: data[id],
         disabled,
@@ -374,7 +375,7 @@ class EditFlow extends Component {
     const startNodeError =
       (flowNodeMap[startEventId] || {}).appId &&
       !(flowNodeMap[startEventId] || {}).appName &&
-      flowNodeMap[startEventId].appType !== APP_TYPE.PBC;
+      !_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER], flowNodeMap[startEventId].appType);
 
     return (
       <Fragment>
@@ -395,7 +396,7 @@ class EditFlow extends Component {
           </div>
         </div>
 
-        <Detail {...detailProps} />
+        <Detail {...detailProps} isIntegration={location.href.indexOf('integration') > -1} />
         <CreateNodeDialog
           flowInfo={flowInfo}
           flowNodeMap={flowNodeMap}

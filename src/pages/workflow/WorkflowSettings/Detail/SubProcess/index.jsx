@@ -197,7 +197,7 @@ export default class SubProcess extends Component {
             </div>
             <div className="mTop15">
               <Checkbox
-                className="InlineFlex"
+                className="InlineFlex TxtTop"
                 text={_l('子流程执行完毕后，再开始下一个节点')}
                 checked={data.nextExecute}
                 onClick={checked => this.updateSource({ nextExecute: !checked })}
@@ -295,10 +295,10 @@ export default class SubProcess extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-subprocess"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -306,7 +306,7 @@ export default class SubProcess extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect={data.selectNodeId} onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect={data.selectNodeId} onSave={this.onSave} />
       </Fragment>
     );
   }

@@ -13,7 +13,8 @@ function SingleView(props, ref) {
     maxCount,
     showHeader,
     headerLeft,
-    headerRight
+    headerRight,
+    filtersGroup
   } = props;
 
   const store = useMemo(configureStore, []);
@@ -40,6 +41,7 @@ function SingleView(props, ref) {
         showHeader={showHeader}
         headerLeft={headerLeft}
         headerRight={headerRight}
+        filtersGroup={filtersGroup}
       />
     </Provider>
   );

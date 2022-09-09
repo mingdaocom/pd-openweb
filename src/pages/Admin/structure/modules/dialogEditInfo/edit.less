@@ -75,7 +75,7 @@
         border: 1px solid #dddddd;
 
         .isTopIcon {
-          background: #2196F3;
+          background: #2196f3;
           color: #fff;
           font-size: 13px;
           line-height: 13px;
@@ -205,6 +205,28 @@
   }
 
   .Button {
-    border-radius: 32px;
+    height: 36px;
+    line-height: 34px;
+    padding: 0 24px;
+    border-radius: 3px;
+    min-width: none;
+    &.Button--link {
+      color: #333;
+      border: 1px solid #eaeaea;
+    }
+    &.Button--link:hover {
+      cursor: pointer;
+      background-color: #eaeaea;
+    }
+    &.Button--primary {
+      border: 1px solid #2196f3;
+      background-color: #2196f3;
+      color: #fff;
+    }
+    &.Button--primary:hover {
+      border: 1px solid #1565c0;
+      background-color: #1565c0;
+      color: #fff;
+    }
   }
 }

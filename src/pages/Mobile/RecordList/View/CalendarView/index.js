@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import CalendarView from 'src/pages/worksheet/views/CalendarView';
+import { isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import ScheduleModal from './components/ScheduleModal';
 import ViewErrorPage from '../components/ViewErrorPage';
 import * as calendarActions from 'src/pages/worksheet/redux/actions/calendarview';
@@ -19,9 +20,9 @@ class MobileCalendarView extends Component {
       previewRecordId: undefined
     };
   }
-  componentDidMount() {}
+  componentDidMount() { }
   showschedule = () => {
-    window.localStorage.setItem('CalendarShowExternalTypeEvent', 'eventAll');
+    safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventAll');
     this.setState({ scheduleVisible: !this.state.scheduleVisible });
     this.props.fetchExternal();
   };
@@ -83,6 +84,12 @@ class MobileCalendarView extends Component {
       eventClick: eventInfo => {
         if (calendarType === '2') {
           const { extendedProps } = eventInfo.event._def;
+          const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+          if (isMingdao) {
+            const { base } = this.props;
+            window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId}/${extendedProps.rowid}`;
+            return;
+          }
           this.setState({ previewRecordId: extendedProps.rowid });
         } else {
           const { range = {} } = eventInfo.event._instance;
@@ -90,11 +97,11 @@ class MobileCalendarView extends Component {
           this.props.mobileIsShowMoreClick(true);
         }
       },
-      eventMouseEnter: () => {},
-      eventMouseLeave: () => {},
+      eventMouseEnter: () => { },
+      eventMouseLeave: () => { },
     };
     // 视图配置错误
-    if (isHaveSelectControl) {
+    if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
       return <ViewErrorPage icon="event" viewName={_l('日历视图')} color="#f64082" />;
     }
     return (

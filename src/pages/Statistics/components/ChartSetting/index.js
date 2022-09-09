@@ -154,7 +154,7 @@ export default class ChartSetting extends Component {
           )
         }
         <YAxis
-          name={isDualAxes ? _l('数值(左Y轴)') : y}
+          name={isDualAxes ? _l('数值(Y轴)') : y}
           split={currentReport.split}
           yaxisList={currentReport.yaxisList}
           currentReport={currentReport}
@@ -167,7 +167,7 @@ export default class ChartSetting extends Component {
         {
           isDualAxes && (
             <YAxis
-              name={_l('数值(右Y轴)')}
+              name={_l('数值(辅助Y轴)')}
               split={rightY.split}
               yaxisList={rightY.yaxisList}
               currentReport={currentReport}
@@ -182,7 +182,7 @@ export default class ChartSetting extends Component {
         {
           [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (
             <GroupingAxis
-              name={isDualAxes ? _l('分组(左Y轴)') : _l('分组')}
+              name={isDualAxes ? _l('分组(Y轴)') : _l('分组')}
               split={currentReport.split}
               yaxisList={currentReport.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
@@ -195,7 +195,7 @@ export default class ChartSetting extends Component {
         {
           isDualAxes && (
             <GroupingAxis
-              name={_l('分组(右Y轴)')}
+              name={_l('分组(辅助Y轴)')}
               split={currentReport.rightY.split}
               yaxisList={currentReport.rightY.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}

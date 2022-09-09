@@ -23,7 +23,7 @@ export default function VerifyPasswordConfirm(props) {
   const { width = 480, title, description, passwordPlaceHolder = _l('请输入密码'), onOk = () => {}, onCancel } = props;
   const passwordRef = useRef();
   function handleConfirm() {
-    const password = passwordRef.current.state.value;
+    const password = passwordRef.current.input.value;
     if (!password) {
       alert(_l('请输入密码'), 3);
       return;

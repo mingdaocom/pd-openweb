@@ -7,12 +7,12 @@ import 'dialogSelectUser';
 import DialogSelectDept from 'dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
-import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST } from '../../../enum';
+import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
 import { getConditionList, getConditionNumber } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
-import { Tooltip } from 'antd';
+import { Tooltip, TimePicker } from 'antd';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
@@ -146,6 +146,7 @@ export default class TriggerCondition extends Component {
     }
 
     const showType = _.get(single || {}, 'advancedSetting.showtype');
+    const unit = _.get(single || {}, 'unit');
 
     if (item.filedId) {
       conditionData = getConditionList(item.filedTypeId, item.enumDefault).ids.map((id, index) => {
@@ -207,7 +208,7 @@ export default class TriggerCondition extends Component {
           />
         </div>
         <div className="mTop10 relative flexRow">
-          {this.renderItemValue(item, controlNumber, i, j)}
+          {this.renderItemValue(item, controlNumber, i, j, showType, unit)}
           {(item.conditionId === '1' ||
             item.conditionId === '3' ||
             item.conditionId === '5' ||
@@ -404,7 +405,7 @@ export default class TriggerCondition extends Component {
   /**
    * 渲染单个条件的值
    */
-  renderItemValue(item, controlNumber = 0, i, j) {
+  renderItemValue(item, controlNumber = 0, i, j, showType, unit) {
     const { isNodeHeader } = this.props;
 
     if (_.isEmpty(item)) {
@@ -543,7 +544,7 @@ export default class TriggerCondition extends Component {
                   isSingle: _.includes(['9', '10'], item.conditionId) && _.includes([9, 11], filedTypeId),
                 })
               }
-              renderTitle={() => this.renderDropdownTagList(conditionValues, i, j, filedTypeId, enumDefault)}
+              renderTitle={() => this.renderDropdownTagList(conditionValues, i, j)}
             />
           )}
 
@@ -554,15 +555,17 @@ export default class TriggerCondition extends Component {
 
     // 日期 || 日期时间
     if (filedTypeId === 15 || filedTypeId === 16) {
+      const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const dateList = [];
       const showTimePicker = filedTypeId === 16 && !_.includes(['9', '10'], item.conditionId);
-      const timeMode = _.includes(['ctime', 'utime'], filedId) ? 'second' : 'minute';
-      const formatString =
-        timeMode === 'second' && showTimePicker
-          ? 'YYYY-MM-DD HH:mm:ss'
-          : showTimePicker
-          ? 'YYYY-MM-DD HH:mm'
-          : 'YYYY-MM-DD';
+      const timeMode =
+        _.includes(['ctime', 'utime'], filedId) || showType === '6' ? 'second' : showType === '2' ? 'hour' : 'minute';
+      let formatString = timeMode === 'second' ? 'YYYY-MM-DD HH:mm:ss' : FORMAT_TEXT[showType] || 'YYYY-MM-DD HH:mm:ss';
+
+      // 不显示时间的时候去除 时分秒
+      if (!showTimePicker) {
+        formatString = formatString.split(' ')[0];
+      }
 
       DATE_LIST.forEach((item, i) => {
         if (i % 3 === 0) {
@@ -572,7 +575,17 @@ export default class TriggerCondition extends Component {
         }
       });
 
-      if (_.includes(['9', '10', '17', '18', '39', '41'], item.conditionId)) {
+      // 显示类型是年月
+      if (showType === '4') {
+        _.remove(dateList, (o, index) => _.includes([0, 1], index));
+      }
+
+      // 显示类型是年
+      if (showType === '5') {
+        _.remove(dateList, (o, index) => _.includes([0, 1, 2, 3], index));
+      }
+
+      if (_.includes(['9', '10', '17', '18', '39', '40', '41', '42'], item.conditionId)) {
         return (
           <div className="flex">
             <div className="flexRow relative">
@@ -584,6 +597,11 @@ export default class TriggerCondition extends Component {
                   data={dateList}
                   value={conditionValues[0] && conditionValues[0].type ? conditionValues[0].type : undefined}
                   border
+                  renderTitle={
+                    !conditionValues[0] || !conditionValues[0].type
+                      ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                      : () => <span>{DATE_LIST.find(o => o.value === conditionValues[0].type).text}</span>
+                  }
                   onChange={type =>
                     this.updateConditionDateValue({
                       type,
@@ -603,10 +621,11 @@ export default class TriggerCondition extends Component {
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
                   }
+                  mode={mode[showType]}
                   timePicker={showTimePicker}
                   timeMode={timeMode}
+                  allowClear={false}
                   onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
-                  onClear={() => this.updateConditionDateValue({ value: '', i, j })}
                 >
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
@@ -630,10 +649,11 @@ export default class TriggerCondition extends Component {
                   selectedValue={
                     conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value) : null
                   }
+                  mode={mode[showType]}
                   timePicker={showTimePicker}
                   timeMode={timeMode}
+                  allowClear={false}
                   onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j })}
-                  onClear={() => this.updateConditionDateValue({ value: '', i, j })}
                 >
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
@@ -656,10 +676,11 @@ export default class TriggerCondition extends Component {
                     selectedValue={
                       conditionValues[1] && conditionValues[1].value ? moment(conditionValues[1].value) : null
                     }
+                    mode={mode[showType]}
                     timePicker={showTimePicker}
                     timeMode={timeMode}
+                    allowClear={false}
                     onOk={e => this.updateConditionDateValue({ value: e.format(formatString), i, j, second: true })}
-                    onClear={() => this.updateConditionDateValue({ value: '', i, j, second: true })}
                   >
                     {conditionValues[1] && conditionValues[1].value
                       ? moment(conditionValues[1].value).format(formatString)
@@ -683,7 +704,11 @@ export default class TriggerCondition extends Component {
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
-            <div className="flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius">
+            <div
+              className={cx('flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius', {
+                pTop2: conditionValues.length,
+              })}
+            >
               <CityPicker
                 level={level}
                 callback={citys => {
@@ -731,14 +756,16 @@ export default class TriggerCondition extends Component {
     }
 
     // 人员 || 部门
-    if (filedTypeId === 26 || filedTypeId === 10000001 || filedTypeId === 27) {
+    if (filedTypeId === 26 || filedTypeId === 27 || filedTypeId === 10000001) {
       return (
         <div className="flex relative flexRow">
           {conditionValues[0] && conditionValues[0].controlId ? (
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
             <div
-              className="flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius"
+              className={cx('flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius', {
+                pTop2: conditionValues.length,
+              })}
               onClick={evt => {
                 if (_.includes([26, 10000001], filedTypeId)) {
                   this.selectUser(
@@ -791,6 +818,70 @@ export default class TriggerCondition extends Component {
         </div>
       );
     }
+
+    // 时间
+    if (filedTypeId === 46) {
+      const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+
+      return (
+        <div className="flex">
+          <div className="flexRow relative">
+            {conditionValues[0] && conditionValues[0].controlId ? (
+              this.renderSelectFieldsValue(conditionValues[0], i, j)
+            ) : (
+              <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+                <TimePicker
+                  className="triggerConditionTime"
+                  showNow={false}
+                  bordered={false}
+                  allowClear={false}
+                  suffixIcon={<i className="icon-access_time Font14 Gray_9e" />}
+                  inputReadOnly
+                  placeholder=""
+                  format={timeFormat}
+                  value={
+                    conditionValues[0] && conditionValues[0].value ? moment(conditionValues[0].value, timeFormat) : null
+                  }
+                  onChange={(time, timeString) => this.updateConditionDateValue({ value: timeString, i, j })}
+                />
+              </div>
+            )}
+            {this.renderOtherFields(item, i, j)}
+            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_9e LineHeight36">{_l('至')}</div>}
+          </div>
+
+          {controlNumber > 1 && (
+            <div className="mTop10 flexRow relative">
+              {conditionValues[1] && conditionValues[1].controlId ? (
+                this.renderSelectFieldsValue(conditionValues[1], i, j, true)
+              ) : (
+                <div className="flex triggerConditionNum triggerConditionDate ThemeBorderColor3 clearBorderRadius">
+                  <TimePicker
+                    className="triggerConditionTime"
+                    showNow={false}
+                    bordered={false}
+                    allowClear={false}
+                    suffixIcon={<i className="icon-access_time Font14 Gray_9e" />}
+                    inputReadOnly
+                    placeholder=""
+                    format={timeFormat}
+                    value={
+                      conditionValues[1] && conditionValues[1].value
+                        ? moment(conditionValues[1].value, timeFormat)
+                        : null
+                    }
+                    onChange={(time, timeString) =>
+                      this.updateConditionDateValue({ value: timeString, i, j, second: true })
+                    }
+                  />
+                </div>
+              )}
+              {this.renderOtherFields(item, i, j, true)}
+            </div>
+          )}
+        </div>
+      );
+    }
   }
 
   /**
@@ -822,7 +913,7 @@ export default class TriggerCondition extends Component {
   /**
    * 渲染标签式下拉选择
    */
-  renderDropdownTagList(conditionValues, i, j, filedTypeId, enumDefault) {
+  renderDropdownTagList(conditionValues, i, j) {
     return (
       <div className="flex triggerConditionNum triggerConditionDropdown">
         {!conditionValues.length ? (

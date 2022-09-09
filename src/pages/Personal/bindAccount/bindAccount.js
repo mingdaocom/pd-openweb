@@ -20,7 +20,7 @@ BindAccount.options = {
   iti: '',
 };
 // 绑定（邮箱、手机）
-BindAccount.bindAccountEmailMobile = function(opts) {
+BindAccount.bindAccountEmailMobile = function (opts) {
   // type, accountTitle
   BindAccount.options = $.extend(BindAccount.options, opts);
   var accountTitleString = '';
@@ -55,8 +55,8 @@ BindAccount.bindAccountEmailMobile = function(opts) {
       yesText: '',
     },
     drag: false,
-    callback: function() {},
-    readyFn: function() {
+    callback: function () { },
+    readyFn: function () {
       var $updateAccountDialog = $('#bindAccountDialog');
       var $txtLoginPassword = $updateAccountDialog.find('.txtLoginPassword');
       var $btnPasswordValidate = $updateAccountDialog.find('.btnPasswordValidate');
@@ -66,17 +66,17 @@ BindAccount.bindAccountEmailMobile = function(opts) {
   });
 };
 // 验证账号相应密码
-BindAccount.bindValidatePasswordEvent = function($txtLoginPassword, $btnPasswordValidate) {
+BindAccount.bindValidatePasswordEvent = function ($txtLoginPassword, $btnPasswordValidate) {
   // 密码禁止粘贴
-  $txtLoginPassword.bind('cut copy paste', function(e) {
+  $txtLoginPassword.bind('cut copy paste', function (e) {
     alert(_l('禁止粘贴'), 3);
     e.preventDefault();
   });
   var $updateAccountDialog = $('#bindAccountDialog');
   //  点击下一步
-  $btnPasswordValidate.off('click').on('click', function() {
-    BindAccount.validateBindAccount(this, $txtLoginPassword, function(data) {
-      $updateAccountDialog.find('.step1').hide(0, function() {
+  $btnPasswordValidate.off('click').on('click', function () {
+    BindAccount.validateBindAccount(this, $txtLoginPassword, function (data) {
+      $updateAccountDialog.find('.step1').hide(0, function () {
         $updateAccountDialog.find('.step2').show();
         BindAccount.bindUpdateAccountStep2Event(data);
       });
@@ -84,7 +84,7 @@ BindAccount.bindValidatePasswordEvent = function($txtLoginPassword, $btnPassword
   });
   //  键入enter下一步
   $txtLoginPassword.on({
-    keypress: function(event) {
+    keypress: function (event) {
       if (event.keyCode === 13) {
         $btnPasswordValidate.click();
       }
@@ -92,7 +92,7 @@ BindAccount.bindValidatePasswordEvent = function($txtLoginPassword, $btnPassword
   });
 };
 // 验证新的账号（手机或邮箱）
-BindAccount.bindUpdateAccountStep2Event = function(data) {
+BindAccount.bindUpdateAccountStep2Event = function (data) {
   var $updateAccountDialog = $('#bindAccountDialog');
   var $step2 = $updateAccountDialog.find('.step2');
   if (!BindAccount.options.isUpdateEmail) {
@@ -133,30 +133,30 @@ BindAccount.bindUpdateAccountStep2Event = function(data) {
   $('.stepName td:eq(1)').addClass('stepTitleChecked');
   // 发送验证码到手机或邮箱
   const $btnVerifyCode = $step2.find('.btnVerifyCode');
-  $step2.find('.btnVerifyCode').on('click', function() {
+  $step2.find('.btnVerifyCode').on('click', function () {
     BindAccount.sendChangeAccountVerifyCode(this);
   });
 
   // 确认--发送验证码验证--绑定帐号
   var $btnUpdateAccount = $step2.find('.btnUpdateAccount');
-  $btnUpdateAccount.on('click', function() {
+  $btnUpdateAccount.on('click', function () {
     BindAccount.updateAccount(this);
   });
   // 点击enter验证码
-  $step2.find('.inputBox').on('keyup', function(event) {
+  $step2.find('.inputBox').on('keyup', function (event) {
     if (event.keyCode === 13) {
       $btnUpdateAccount.click();
     }
   });
 };
 // 发送更新帐号验证码到手机或邮箱
-BindAccount.sendChangeAccountVerifyCode = function(obj) {
+BindAccount.sendChangeAccountVerifyCode = function (obj) {
   var accountInfo = BindAccount.accountVerifyCodeValidate();
   if (!accountInfo) {
     return false;
   }
 
-  var callback = function(res) {
+  var callback = function (res) {
     if (res.ret !== 0) {
       return;
     }
@@ -177,7 +177,7 @@ BindAccount.sendChangeAccountVerifyCode = function(obj) {
         randStr: res.randstr,
         captchaType: md.staticglobal.getCaptchaType(),
       })
-      .then(function(data) {
+      .then(function (data) {
         if (data === 1) {
           alert(_l('验证码发送成功'), 1);
           BindAccount.countdown(obj);
@@ -219,7 +219,7 @@ BindAccount.sendChangeAccountVerifyCode = function(obj) {
   }
 };
 // 更新绑定帐号
-BindAccount.updateAccount = function(obj) {
+BindAccount.updateAccount = function (obj) {
   var accountInfo = BindAccount.accountVerifyCodeValidate();
   if (!accountInfo) {
     return false;
@@ -246,14 +246,14 @@ BindAccount.updateAccount = function(obj) {
       account: accountInfo,
       verifyCode: code,
     })
-    .then(function(data) {
+    .then(function (data) {
       var accountTypeDesc = BindAccount.options.isUpdateEmail ? _l('邮箱') : _l('手机号');
       $(obj)
       .val(_l('确认'))
       .attr('disabled', false);
       if (data) {
         var $accountElement = BindAccount.getAccountElement();
-      
+
         var actionResult = BindAccount.options.actionResult;
         if (data === 1) {
           BindAccount.options.bindAccountDialog.closeDialog();
@@ -267,9 +267,9 @@ BindAccount.updateAccount = function(obj) {
             ((RegExp.isEmail(loginName) && BindAccount.options.isUpdateEmail) ||
               (!RegExp.isEmail(loginName) && !BindAccount.options.isUpdateEmail))
           ) {
-            window.localStorage.setItem('LoginName', accountInfo);
+            safeLocalStorageSetItem('LoginName', accountInfo);
           }
-          setTimeout(function() {
+          setTimeout(function () {
             BindAccount.options.callback();
           }, 2000);
         } else if (data === 8) {
@@ -288,8 +288,8 @@ BindAccount.updateAccount = function(obj) {
     .fail();
 };
 //  验证登录密码
-BindAccount.validateBindAccount = function(obj, $txtLoginPassword, callback) {
-  var throttled = function(res) {
+BindAccount.validateBindAccount = function (obj, $txtLoginPassword, callback) {
+  var throttled = function (res) {
     if (res.ret !== 0) {
       return;
     }
@@ -306,7 +306,7 @@ BindAccount.validateBindAccount = function(obj, $txtLoginPassword, callback) {
         captchaType: md.staticglobal.getCaptchaType(),
         password: encrypt(password),
       })
-      .then(function(data) {
+      .then(function (data) {
         if (data) {
           $(obj)
             .val(_l('下一步'))
@@ -334,7 +334,7 @@ BindAccount.validateBindAccount = function(obj, $txtLoginPassword, callback) {
   }
 };
 // 向手机或邮箱发送验证码
-BindAccount.accountVerifyCodeValidate = function() {
+BindAccount.accountVerifyCodeValidate = function () {
   var $updateAccountDialog = $('#bindAccountDialog');
   var $step2 = $updateAccountDialog.find('.step2');
 
@@ -364,7 +364,7 @@ BindAccount.accountVerifyCodeValidate = function() {
   }
   return accountInfo;
 };
-BindAccount.getAccountElement = function() {
+BindAccount.getAccountElement = function () {
   var $account = null;
   var $updateAccountDialog = $('#bindAccountDialog');
   var $step2 = $updateAccountDialog.find('.step2');
@@ -376,9 +376,9 @@ BindAccount.getAccountElement = function() {
   return $account;
 };
 // 验证码倒计时
-BindAccount.countdown = function(obj) {
+BindAccount.countdown = function (obj) {
   var seconds = 30;
-  BindAccount.options.verifyCodeTimer = setInterval(function() {
+  BindAccount.options.verifyCodeTimer = setInterval(function () {
     if (seconds <= 0) {
       $(obj)
         .val(_l('重新发送验证码'))

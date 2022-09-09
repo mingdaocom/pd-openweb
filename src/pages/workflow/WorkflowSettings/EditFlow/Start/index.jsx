@@ -24,6 +24,7 @@ export default class Start extends Component {
         18: _l('JSON 解析'),
         20: _l('人员信息'),
         21: _l('部门信息'),
+        42: _l('API数组'),
         405: _l('人工节点'),
       };
       return (

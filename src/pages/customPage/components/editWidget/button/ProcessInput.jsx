@@ -97,6 +97,7 @@ export default function ProcessInput(props) {
         <Dropdown
           trigger={'click'}
           placement={'bottomRight'}
+          getPopupContainer={() => document.querySelector('.customPageButtonWrap .settingsBox')}
           overlay={
             <div style={{ width: '302px' }}>
               <Menu style={{ position: 'inherit' }}>

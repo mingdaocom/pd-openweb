@@ -4,11 +4,12 @@ import { autobind } from 'core-decorators';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Dropdown } from 'ming-ui';
+import { Icon, Dropdown, Tooltip, Support } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import _, { includes } from 'lodash';
 
 const ConditionsWrap = styled.div`
   .operateBtn {
@@ -25,6 +26,10 @@ const ConditionsWrap = styled.div`
     &.disabled {
       color: #ddd !important;
     }
+  }
+  .tipsIcon {
+    left: -20px;
+    line-height: 36px;
   }
 `;
 
@@ -145,17 +150,24 @@ export default class SortConditions extends React.Component {
     const sortConditionControls = sortConditions
       .map(c => _.find(columns, column => column.controlId === c.controlId))
       .filter(_.identity);
-    const optionCondition = _.find(sortConditionControls, scc => scc.type === 9 || scc.type === 11 || scc.type === 10);
+    const optionCondition = _.find(
+      sortConditionControls,
+      scc =>
+        ([9, 10, 11].includes(scc.type) && !scc.strDefault) || //选项字段只有当strDefault值不为空（等于index）的时候才允许多个排序
+        ([9, 10, 11].includes(scc.sourceControlType) && scc.type === 30), //他表字段，是不能多个字段排序的，他表字段只能按照原来的方式排序
+    );
     const userCondition = _.find(sortConditionControls, scc => scc.type === 26);
     const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
     const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
     return filterOnlyShowField(columns)
-      .filter(o => ![42, 47].includes(o.type)) //排除签名字段 扫码
+      .filter(o => ![42, 47, 49].includes(o.type)) //排除签名字段 扫码 接口查询按钮
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&
-          (!(existControls.length && _.find([9, 11, 10, 26, 27], type => c.type === type)) ||
-            (control && _.find([9, 11, 10, 26, 27], type => control.type === type))),
+          (!(
+            existControls.length && _.find([9, 11, 10, 26, 27], type => [c.type, c.sourceControlType].includes(type))
+          ) ||
+            (control && _.find([9, 11, 10, 26, 27], type => [control.type, control.sourceControlType].includes(type)))),
       )
       .map(c => ({
         text: c.controlName,
@@ -178,8 +190,29 @@ export default class SortConditions extends React.Component {
       const canDelete = !(index === 0 && sortConditions.length === 1);
       const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
       const control = _.find(columns, i => i.controlId === condition.controlId);
+      let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
       return (
-        <div className="flexRow mTop5" key={condition.controlId}>
+        <div className="flexRow mTop5 Relative" key={condition.controlId}>
+          {[9, 10, 11].includes(controlType) && (
+            <Tooltip
+              popupPlacement={'bottom'}
+              text={
+                <span>
+                  {_l(
+                    '按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。',
+                  )}
+                  <Support
+                    className="InlineBlock"
+                    type={3}
+                    href="https://help.mingdao.com/sheet43.html"
+                    text={_l('点击了解更多')}
+                  />
+                </span>
+              }
+            >
+              <i className="icon-info1 tipsIcon Font16 Absolute Gray_9e" />
+            </Tooltip>
+          )}
           <Dropdown
             border
             isAppendToBody

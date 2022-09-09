@@ -132,7 +132,7 @@ export default class SingleFilter extends Component {
     this.props.updateFilterError(index);
   }
   renderConditions() {
-    const { projectId, filterError = {} } = this.props;
+    const { projectId, filterError = {}, appId } = this.props;
     const { transConditions = [] } = this.state;
     return transConditions.map((itemConditions = [], index) => {
       let conditionItemArr = (formatOriginFilterValue({ items: itemConditions }) || {}).conditions;
@@ -149,6 +149,7 @@ export default class SingleFilter extends Component {
         return (
           <Condition
             projectId={projectId}
+            appId={appId}
             key={control.controlId}
             index={index}
             childIndex={childIndex}

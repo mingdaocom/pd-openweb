@@ -7,10 +7,11 @@ import Qr from './pages/Qr';
 import SliderDemo from './pages/SliderDemo';
 import Trash from './pages/Trash';
 import Playground from './pages/Playground';
+import QuickFilterComp from './pages/QuickFilterComp';
 
 const Con = styled.div`
   background: #fff;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 `;
@@ -25,6 +26,7 @@ export default function Demo(props) {
         <Route path="/demo/slider" component={SliderDemo} />
         <Route path="/demo/trash" component={Trash} />
         <Route path="/demo/play" component={Playground} />
+        <Route path="/demo/filter" component={QuickFilterComp} />
         <Route path="*" component={() => <span>hello</span>} />
       </Switch>
     </Con>

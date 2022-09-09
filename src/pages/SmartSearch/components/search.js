@@ -45,7 +45,7 @@ Search.init = function () {
     if (splitContent.length < keyStrW.length) {
       keyStrW = splitContent + '...';
     }
-    $('.search_header .searchKeyword').html(keyStrW);
+    $('.search_header .searchKeyword').text(keyStrW);
     if (searchType) {
       Search.options.searchType = searchType;
       Search.options.pageIndex = 1;
@@ -177,14 +177,14 @@ Search.setHeader = function () {
     if (splitContent.length < keyStrW.length) {
       keyStrW = splitContent + '...';
     }
-    $('.search_header .searchKeyword').html(keyStrW);
+    $('.search_header .searchKeyword').text(keyStrW);
   } else {
     keyStrW = Search.options.keywords;
     splitContent = keyStrW.substr(0, 18);
     if (splitContent.length < keyStrW.length) {
       keyStrW = splitContent + '...';
     }
-    $('.search_header .searchKeyword').html(keyStrW);
+    $('.search_header .searchKeyword').text(keyStrW);
   }
   $('.mianSearchContentBox').scrollTop(0);
   var searchUrl = $.trim($('#keywords').val());
@@ -221,11 +221,7 @@ Search.bindEvent = function () {
       }
     })
     .keydown(function (e) {
-      Search.options.keywords = $.trim(
-        $('#keywords')
-          .val()
-          .replace(/\<|\>|\*/g, ''),
-      );
+      Search.options.keywords = $.trim(decodeURIComponent($('#keywords').val()))
       var key = window.event ? e.keyCode : e.which;
       if (key === 13) {
         var keyStrW = $.trim($('#keywords').val());
@@ -233,7 +229,7 @@ Search.bindEvent = function () {
         if (splitContent.length < keyStrW.length) {
           keyStrW = splitContent + '...';
         }
-        $('.search_header .searchKeyword').html(keyStrW);
+        $('.search_header .searchKeyword').text(keyStrW);
         Search.setHeader();
         Search.doAdvancedSearch();
       }
@@ -572,7 +568,7 @@ Search.kcnodeHtml = function (data, reg) {
 };
 Search.doAdvancedSearch = function () {
   $('#divPager').hide();
-  var tempKeywords = $.trim(($('#keywords').val() || '').replace(/\<|\>|\*/g, ''));
+  var tempKeywords = $.trim((decodeURIComponent($('#keywords').val())  || ''));
   if (tempKeywords != _l('搜索关键字...') && tempKeywords.length > 0) {
     Search.options.keywords = tempKeywords;
     Search.options.pageIndex = 1;

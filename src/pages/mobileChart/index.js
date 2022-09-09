@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { getRequest } from 'src/util';
+import { getRequest, mdAppResponse } from 'src/util';
 import preall from 'src/common/preall';
 import ChartContent from 'mobile/CustomPage/ChartContent';
 import { Flex, ActivityIndicator } from 'antd-mobile';
@@ -22,13 +22,6 @@ const LayoutContent = styled.div`
   background-color: #fff;
 `;
 
-function isIOS() {
-  var ua = navigator.userAgent.toLocaleLowerCase();
-  var u = navigator.userAgent;
-  var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // ios终端
-  return isIOS;
-}
-
 const { reportId, access_token, getFilters } = getRequest();
 
 class MobileChart extends React.Component {
@@ -41,23 +34,13 @@ class MobileChart extends React.Component {
   }
   componentDidMount() {
     if (getFilters === 'true') {
-      // 注册监听
-      window.MD_APP_RESPONSE = (base64) => {
-        const decodedData = window.atob(base64);
-        const { value } = JSON.parse(decodeURIComponent(escape(decodedData)));
+      mdAppResponse({ type: 'getFilters' }).then(data => {
+        const { value } = data;
         this.setState({
           loading: false,
           filters: _.isArray(value) && value.length ? value : []
         });
-      }
-      // 触发监听的回调函数
-      const string = JSON.stringify({ type: 'getFilters' });
-      const base64 = window.btoa(string);
-      if (isIOS()) {
-        window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
-      } else {
-        window.Android.MD_APP_REQUEST(base64);
-      }
+      });
     } else {
       this.setState({
         loading: false

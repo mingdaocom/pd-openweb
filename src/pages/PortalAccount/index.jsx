@@ -9,8 +9,16 @@ import TPAuth from './tpAuth';
 import Info from './Info';
 import { LoadDiv } from 'ming-ui';
 import { getRequest } from 'src/util/sso';
-import { statusList, urlList } from './util';
-import { getPortalSetByDomain, getTpLoginUrlInfo, getPortalSetByAppId } from 'src/api/externalPortal';
+import {
+  statusList,
+  urlList,
+  getSuffix,
+  accountResultAction,
+  setAutoLoginKey,
+  getCurrentAppId,
+  getCurrentId,
+} from './util';
+import { getTpLoginUrlInfo, getPortalSetByAppId, autoLogin } from 'src/api/externalPortal';
 import preall from 'src/common/preall';
 const Wrap = styled.div`
   display: flex;
@@ -44,11 +52,13 @@ function ContainerCon(props) {
   const [state, setState] = useState(''); //微信跳转回到登录需要带的信息
   const [account, setAccount] = useState('');
   const [accountId, setAccountId] = useState('');
-  const [paramForPcWx, setParamForPcWx] = useState();//pc端二维码扫码后的返回值
+  const [paramForPcWx, setParamForPcWx] = useState(); //pc端二维码扫码后的返回值
   const [appId, setAppId] = useState('');
   const [isWXOfficialExist, setIsWXOfficialExist] = useState(false);
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
+  const [isAutoLogin, setAutoLogin] = useState(false); //是否自动登录
+  const [currentAppId, setCurrentAppId] = useState('');
   const isWeiXin = () => {
     var ua = window.navigator.userAgent.toLowerCase();
     if (ua.match(/MicroMessenger/i) == 'micromessenger') {
@@ -59,20 +69,50 @@ function ContainerCon(props) {
   };
 
   useEffect(() => {
-    if (window.location.pathname.indexOf('wxauth') >= 0) {
-      //微信登录的流程
-      setIsTpauth(true);
-      setLoading(false);
-    } else {
-      //手机验证码登录流程
-      getUrlData();
-    }
+    getCurrentId(id => {
+      setCurrentAppId(id);
+    });
   }, []);
+
+  useEffect(() => {
+    currentAppId &&
+      onAutoLogin(() => {
+        if (window.location.pathname.indexOf('wxauth') >= 0) {
+          //微信登录的流程
+          setIsTpauth(true);
+          setLoading(false);
+        } else {
+          //手机验证码登录流程
+          getUrlData();
+        }
+      });
+  }, [currentAppId]);
 
   useEffect(() => {
     //手机验证码登录流程
     !!paramForPcWx && getUrlData();
   }, [paramForPcWx]);
+
+  //自动登录
+  const onAutoLogin = cb => {
+    const autoLoginKey = window.localStorage.getItem(`PortalLoginInfo-${currentAppId}`) || '';
+    if (!!autoLoginKey) {
+      autoLogin({
+        appId: currentAppId,
+        autoLoginKey,
+      }).then(res => {
+        const { accountResult } = res;
+        setAutoLoginKey({ ...res, appId: currentAppId });
+        if (accountResult === 1) {
+          accountResultAction({ ...res, appId: currentAppId });
+        } else {
+          cb();
+        }
+      });
+    } else {
+      cb();
+    }
+  };
 
   const getUrlData = () => {
     let request = getRequest();
@@ -129,7 +169,6 @@ function ContainerCon(props) {
   const getBaseInfo = ({ cb }) => {
     let domainName = '';
     let ajaxPromise = '';
-    let href = decodeURIComponent(location.href);
     let request = getRequest();
     if (!!paramForPcWx) {
       request = paramForPcWx;
@@ -137,26 +176,19 @@ function ContainerCon(props) {
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
     if (!mdAppId) {
       //从returnUrl里提取appid
-      urlList.map(o => {
-        if (href.indexOf(o) >= 0) {
-          domainName = href.substr(href.indexOf(o) + o.length, 36);
-        }
-      });
+      domainName = currentAppId;
+      if (!domainName) {
+        setStatus(10000);
+        setLoading(false);
+        return false;
+      }
       setAppId(domainName);
       ajaxPromise = getPortalSetByAppId({ appId: domainName });
     } else {
       accountId && setAccountId(accountId);
-      if (mdAppId) {
-        domainName = mdAppId;
-        setAppId(domainName);
-        ajaxPromise = getPortalSetByAppId({ appId: domainName });
-      } else {
-        let domainNames = location.host.split('.');
-        domainName = location.host.split(
-          '.' + domainNames[domainNames.length - 2] + '.' + domainNames[domainNames.length - 1],
-        )[0];
-        ajaxPromise = getPortalSetByDomain({ domainName: domainName });
-      }
+      domainName = mdAppId;
+      setAppId(domainName);
+      ajaxPromise = getPortalSetByAppId({ appId: domainName });
     }
     if (!domainName) {
       setStatus(10000);
@@ -221,6 +253,7 @@ function ContainerCon(props) {
         <Info
           {...props}
           status={status}
+          isAutoLogin={isAutoLogin}
           accountId={accountId}
           setStatus={setStatus}
           {...baseSetInfo}
@@ -234,6 +267,8 @@ function ContainerCon(props) {
         <Container
           {...props}
           state={state}
+          isAutoLogin={isAutoLogin}
+          setAutoLogin={setAutoLogin}
           status={status}
           setStatus={setStatus}
           setAccountId={setAccountId}

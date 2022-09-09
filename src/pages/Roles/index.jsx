@@ -16,6 +16,7 @@ import Trigger from 'rc-trigger';
 import openImg from './img/open.gif';
 import { editExPortalEnable, getPortalEnableState } from 'src/api/externalPortal';
 import RoleCon from './RoleCon';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const Wrap = styled.div`
   flex: 1;
@@ -117,7 +118,6 @@ const WrapPop = styled.div`
   }
 `;
 
-const { admin: { adminLeftMenu: { portal } }} = window.private;
 class AppRole extends PureComponent {
   state = {
     applyList: undefined,
@@ -231,6 +231,8 @@ class AppRole extends PureComponent {
     if (loading) {
       return <LoadDiv />;
     }
+    const featureType = getFeatureStatus(projectId, 11);
+
     return (
       <WaterMark projectId={projectId}>
         <div className={styles.roleWrapper}>
@@ -242,6 +244,7 @@ class AppRole extends PureComponent {
             {isAdmin && isOpenPortal && (
               <Wrap className="editTypeTab">
                 {[0, 1].map(o => {
+                  if (o === 1 && !featureType) return;
                   return (
                     <span
                       className={cx('editTypeTabLi Hand', { current: editType === o })}
@@ -250,6 +253,10 @@ class AppRole extends PureComponent {
                           return;
                         }
                         if (o === 1) {
+                          if (featureType === '2') {
+                            buriedUpgradeVersionDialog(projectId, 11);
+                            return;
+                          }
                           navigateTo(`/app/${appId}/role/external`);
                           //获取外部门户的角色信息
                         } else {
@@ -266,7 +273,7 @@ class AppRole extends PureComponent {
                 })}
               </Wrap>
             )}
-            {isAdmin && !isOpenPortal && (
+            {isAdmin && !isOpenPortal && featureType && (
               <Trigger
                 action={['click']}
                 popup={
@@ -282,6 +289,10 @@ class AppRole extends PureComponent {
                       <div
                         className={cx('btn InlineBlock', { disable: openLoading })}
                         onClick={() => {
+                          if (featureType === '2') {
+                            buriedUpgradeVersionDialog(projectId, 11);
+                            return;
+                          }
                           if (openLoading) {
                             return;
                           }
@@ -320,7 +331,7 @@ class AppRole extends PureComponent {
                 }}
               >
                 <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
-                  <Icon className="Font20 Hand mLeft10 mRight6 set " icon="language" />
+                  <Icon className="Font20 Hand mLeft10 mRight6 set " icon="external_users_01" />
                   {openLoading ? _l('开启中...') : _l('启用外部门户')}
                 </WrapOpenPortalBtn>
               </Trigger>

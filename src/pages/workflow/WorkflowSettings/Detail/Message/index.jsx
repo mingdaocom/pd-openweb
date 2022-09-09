@@ -127,7 +127,7 @@ export default class Message extends Component {
       <Fragment>
         <div className="mTop20 bold">{_l('发送给')}</div>
 
-        <Member type={NODE_TYPE.MESSAGE} accounts={data.accounts} updateSource={this.updateSource} />
+        <Member accounts={data.accounts} updateSource={this.updateSource} />
 
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
@@ -472,9 +472,9 @@ export default class Message extends Component {
    */
   statisticalWordNumber() {
     const { sign, messageContent } = this.state;
-    const tagSize = (messageContent.match(/\$.*?\$/g) || []).length * 8;
+    const tagSize = (messageContent.match(/\$[^ \r\n]+?\$/g) || []).length * 8;
 
-    return sign.length + messageContent.replace(/\$.*?\$/g, '').length + tagSize;
+    return sign.length + messageContent.replace(/\$[^ \r\n]+?\$/g, '').length + tagSize;
   }
 
   /**
@@ -688,7 +688,7 @@ export default class Message extends Component {
     let { cacheTemplateContent } = this.state;
     const messageTemplate = _.cloneDeep(this.state.data.messageTemplate);
 
-    (cacheTemplateContent.match(/\$.*?\$/g) || []).forEach(item => {
+    (cacheTemplateContent.match(/\$[^ \r\n]+?\$/g) || []).forEach(item => {
       cacheTemplateContent = cacheTemplateContent.replace(item, this.mapData[item.replace(/\$/g, '')]);
     });
 
@@ -707,10 +707,10 @@ export default class Message extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_sms"
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -724,9 +724,9 @@ export default class Message extends Component {
         </div>
         {!addNewTemplate && !showSetTemplate && (
           <DetailFooter
+            {...this.props}
             isCorrect={data.accounts.length && data.messageTemplate.id}
             onSave={this.onSave}
-            closeDetail={this.props.closeDetail}
           />
         )}
       </Fragment>

@@ -99,7 +99,8 @@ export default class SubList extends React.Component {
   }
 
   render() {
-    const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource } = this.props;
+    const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource, sheetSwitchPermit } =
+      this.props;
     const { controls, projectId, info } = this.state;
     const control = { ...this.props };
     const { loading, searchConfig } = this.state;
@@ -120,6 +121,7 @@ export default class SubList extends React.Component {
             controls={controls}
             recordId={recordId}
             searchConfig={searchConfig || []}
+            sheetSwitchPermit={sheetSwitchPermit}
             masterData={{
               worksheetId,
               formData: formData.map(c => _.pick(c, ['controlId', 'type', 'value', 'options'])).filter(c => !!c.value),

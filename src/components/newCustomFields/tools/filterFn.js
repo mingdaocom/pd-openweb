@@ -11,6 +11,35 @@ import { onValidator } from './DataFormat';
 import { controlState } from './utils';
 import { FORM_ERROR_TYPE } from './config';
 import { accDiv } from 'src/util';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import _ from 'lodash';
+
+const TIME_OPTIONS = {
+  1: 'year ',
+  2: 'month',
+  3: 'day',
+  4: 'hour',
+  5: 'minute',
+  6: 'second',
+};
+
+const TIME_MODE_OPTIONS = {
+  YYYY: 1,
+  'YYYY-MM': 2,
+  'YYYY-MM-DD': 3,
+  'YYYY-MM-DD HH': 4,
+  'YYYY-MM-DD HH:mm': 5,
+  'YYYY-MM-DD HH:mm:ss': 6,
+  'HH:mm': 5,
+  'HH:mm:ss': 6,
+};
+
+// 时间格式化数值
+const formatTimeValue = (value, mode) => {
+  return moment(value).year()
+    ? moment(moment(value).format(mode), mode).format(`YYYY-MM-DD ${mode}`)
+    : moment(value, mode).format(`YYYY-MM-DD ${mode}`);
+};
 
 const getValueByDateRange = dateRange => {
   let value;
@@ -22,10 +51,24 @@ const getValueByDateRange = dateRange => {
   return value;
 };
 
-const getTotalDataRange = () => {
-  return _.flattenDeep(DATE_OPTIONS)
-    .filter(o => o.value !== 18)
-    .map(i => i.value);
+// 时间字段根据显示格式处理数据
+const getFormatMode = (control = {}, currentControl, type) => {
+  let mode = '';
+  let curMode = '';
+  if (type === 10) {
+    if (currentControl) {
+      curMode = _.includes([15, 16], currentControl.type)
+        ? (getDatePickerConfigs(currentControl) || {}).formatMode
+        : control.unit === '1'
+        ? 'HH:mm'
+        : 'HH:mm:ss';
+    }
+    mode = control.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+  } else {
+    mode = (getDatePickerConfigs(control) || {}).formatMode;
+    curMode = (getDatePickerConfigs(currentControl) || {}).formatMode;
+  }
+  return TIME_MODE_OPTIONS[mode] <= TIME_MODE_OPTIONS[curMode] ? mode : curMode;
 };
 
 const dateFn = (dateRange, value, isEQ) => {
@@ -195,6 +238,9 @@ export const filterFn = (filterData, originControl, data = []) => {
   //比较字段值
   let compareValues = filterData.values || [];
   let compareValue = filterData.value || '';
+  // 时间比较精度
+  let formatMode = '';
+  let timeLevel = '';
   //条件字段值
   let { value = '', advancedSetting = {} } = control;
   //手机号默认去除区号
@@ -213,8 +259,6 @@ export const filterFn = (filterData, originControl, data = []) => {
   const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
   const conditionGroupType = conditionGroup.value;
   const { showtype } = advancedSetting; // 1 卡片 2 列表 3 下拉
-  // 特定时间按天比较
-  const timeLevelDay = !dynamicSource.length && _.includes(getTotalDataRange(), dateRange) ? 'day' : 'second';
   let currentControl = {};
   //是否多选
   if (dynamicSource.length > 0) {
@@ -225,14 +269,16 @@ export const filterFn = (filterData, originControl, data = []) => {
     //日期是、日期不是 && DATE
     if (
       (_.includes([2, 6, 14, 16], filterType) && _.includes([2], conditionGroupType)) ||
-      (_.includes([13, 15, 33, 35], filterType) && _.includes([2, 4], conditionGroupType)) ||
-      (_.includes([17, 18], filterType) && _.includes([4], conditionGroupType))
+      (_.includes([13, 15], filterType) && _.includes([2], conditionGroupType))
     ) {
+      compareValue = currentControl.value;
+      // 日期或时间字段根据显示格式处理数据
+    } else if (_.includes([17, 18, 33, 34, 35, 36], filterType) && _.includes([4, 10], conditionGroupType)) {
       compareValue = currentControl.value;
       //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
     } else if (
       _.includes([2, 6], filterType) &&
-      ((_.includes([5], conditionGroupType) && _.includes([9, 11, 27], dataType)) ||
+      ((_.includes([5], conditionGroupType) && _.includes([9, 11, 27, 48], dataType)) ||
         _.includes([6], conditionGroupType))
     ) {
       const val = currentControl.value ? JSON.parse(currentControl.value) : currentControl.value;
@@ -245,6 +291,12 @@ export const filterFn = (filterData, originControl, data = []) => {
     if (_.includes([26, 27, 48], control.type)) {
       compareValues = compareValues.map(item => (item ? JSON.parse(item) : item));
     }
+  }
+
+  // 时间类显示类型
+  if ((_.includes[(15, 16, 46)], control.type)) {
+    formatMode = getFormatMode(control, currentControl, conditionGroupType);
+    timeLevel = TIME_OPTIONS[TIME_MODE_OPTIONS[formatMode]];
   }
 
   // value精度处理(公式、汇总计算)
@@ -316,6 +368,21 @@ export const filterFn = (filterData, originControl, data = []) => {
               let valueN = JSON.parse(value);
               _.map(valueN, item => {
                 if ((it.departmentId || it.id) === item.departmentId) {
+                  isEQ = true;
+                }
+              });
+            });
+            return isEQ;
+            // 组织角色
+          } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
+            if (!value) {
+              return !!value;
+            }
+            let isEQ = false;
+            _.map(compareValues, (it = {}) => {
+              let valueN = JSON.parse(value);
+              _.map(valueN, item => {
+                if ((it.organizeId || it.id) === item.organizeId) {
                   isEQ = true;
                 }
               });
@@ -450,6 +517,21 @@ export const filterFn = (filterData, originControl, data = []) => {
             });
             return isNE;
             // 等级
+          } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
+            if (!value) {
+              return !value;
+            }
+            let isNE = true;
+            _.map(compareValues, (it = {}) => {
+              let valueN = JSON.parse(value);
+              _.map(valueN, item => {
+                if ((it.organizeId || it.id) === item.organizeId) {
+                  isNE = false;
+                }
+              });
+            });
+            return isNE;
+            // 等级
           } else if (dataType === API_ENUM_TO_TYPE.SCORE) {
             return !_.includes(compareValues, value.toString());
           } else if (
@@ -491,6 +573,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.ISNULL:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
+        case CONTROL_FILTER_WHITELIST.TIME.value:
         case CONTROL_FILTER_WHITELIST.TEXT.value:
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return !value;
@@ -565,6 +648,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.HASVALUE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
+        case CONTROL_FILTER_WHITELIST.TIME.value:
         case CONTROL_FILTER_WHITELIST.TEXT.value:
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return !!value;
@@ -640,7 +724,9 @@ export const filterFn = (filterData, originControl, data = []) => {
           return true;
       }
     //   BETWEEN: 11, // 在范围内
+    // DATE_BETWEEN: 31, // 在范围内
     case FILTER_CONDITION_TYPE.BETWEEN:
+    case FILTER_CONDITION_TYPE.DATE_BETWEEN:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return (
@@ -648,11 +734,21 @@ export const filterFn = (filterData, originControl, data = []) => {
             parseFloat(value || 0) >= parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
-          return moment(value).isBetween(
-            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
-            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
-            'second',
-          );
+          return value
+            ? moment(value).isBetween(
+                moment(filterData.minValue).format(formatMode),
+                moment(filterData.maxValue).format(formatMode),
+                timeLevel,
+              )
+            : false;
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return value
+            ? moment(value, formatMode).isBetween(
+                moment(filterData.minValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
+                moment(filterData.maxValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
+                timeLevel,
+              )
+            : false;
         case CONTROL_FILTER_WHITELIST.OPTIONS.value:
           if (
             (dataType === API_ENUM_TO_TYPE.AREA_INPUT_19 ||
@@ -672,7 +768,9 @@ export const filterFn = (filterData, originControl, data = []) => {
           return true;
       }
     //   NBETWEEN: 12, // 不在范围内
+    //   DATE_NBETWEEN 32 //不在范围内
     case FILTER_CONDITION_TYPE.NBETWEEN:
+    case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return (
@@ -680,11 +778,21 @@ export const filterFn = (filterData, originControl, data = []) => {
             parseFloat(value || 0) < parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
-          return !moment(value).isBetween(
-            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
-            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
-            'second',
-          );
+          return value
+            ? !moment(value).isBetween(
+                moment(filterData.minValue).format(formatMode),
+                moment(filterData.maxValue).format(formatMode),
+                timeLevel,
+              )
+            : false;
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return value
+            ? !moment(value, formatMode).isBetween(
+                moment(filterData.minValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
+                moment(filterData.maxValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
+                timeLevel,
+              )
+            : false;
         case CONTROL_FILTER_WHITELIST.OPTIONS.value:
           if (
             (dataType === API_ENUM_TO_TYPE.AREA_INPUT_19 ||
@@ -703,90 +811,85 @@ export const filterFn = (filterData, originControl, data = []) => {
         default:
           return true;
       }
-    // DATE_BETWEEN: 31, // 不在范围内
-    case FILTER_CONDITION_TYPE.DATE_BETWEEN:
-      switch (conditionGroupType) {
-        case CONTROL_FILTER_WHITELIST.DATE.value:
-          return moment(value).isBetween(
-            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
-            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
-            'second',
-          );
-        default:
-          return true;
-      }
-    //  DATE_NBETWEEN: 32, // 不在范围内
-    case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
-      switch (conditionGroupType) {
-        case CONTROL_FILTER_WHITELIST.DATE.value:
-          return !moment(value).isBetween(
-            moment(filterData.minValue).format('YYYY-MM-DD HH:mm'),
-            moment(filterData.maxValue).format('YYYY-MM-DD HH:mm'),
-            'second',
-          );
-        default:
-          return true;
-      }
     //   GT: 13, // > 晚于
+    //   DATE_GT: 33, // > 晚于
     case FILTER_CONDITION_TYPE.GT:
+    case FILTER_CONDITION_TYPE.DATE_GT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return parseFloat(value || 0) > parseFloat(compareValue || 0);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
-          return moment(value).isAfter(day, timeLevelDay);
-        default:
-          return true;
-      }
-    //   DATE_GT: 33, // > 晚于
-    case FILTER_CONDITION_TYPE.DATE_GT:
-      switch (conditionGroupType) {
-        case CONTROL_FILTER_WHITELIST.DATE.value:
-          let day = dayFn(filterData, compareValue, false, currentControl.type);
-          return moment(value).isAfter(day, timeLevelDay);
+          return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isAfter(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value, formatMode).isAfter(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
     //   GTE: 14, // >=
+    //   DATE_GTE: 34, // >= 晚于等于
     case FILTER_CONDITION_TYPE.GTE:
+    case FILTER_CONDITION_TYPE.DATE_GTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return parseFloat(value || 0) >= parseFloat(compareValue || 0);
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          let day = dayFn(filterData, compareValue, false, currentControl.type);
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value).isSameOrAfter(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value, formatMode).isSameOrAfter(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
     //   LT: 15, // < 早于
+    //   DATE_LT: 35, // < 早于
     case FILTER_CONDITION_TYPE.LT:
+    case FILTER_CONDITION_TYPE.DATE_LT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return parseFloat(value || 0) < parseFloat(compareValue || 0);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, true, currentControl.type);
-          return moment(value).isBefore(day, timeLevelDay);
-        default:
-          return true;
-      }
-    //   DATE_LT: 35, // < 早于
-    case FILTER_CONDITION_TYPE.DATE_LT:
-      switch (conditionGroupType) {
-        case CONTROL_FILTER_WHITELIST.DATE.value:
-          let day = dayFn(filterData, compareValue, true, currentControl.type);
-          return moment(value).isBefore(day, timeLevelDay);
+          return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isBefore(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value, formatMode).isBefore(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
     //   LTE: 16, // <=
+    //   DATE_LTE: 36, // <= 早于等于
     case FILTER_CONDITION_TYPE.LTE:
+    case FILTER_CONDITION_TYPE.DATE_GTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           return parseFloat(value || 0) <= parseFloat(compareValue || 0);
+        case CONTROL_FILTER_WHITELIST.DATE.value:
+          let day = dayFn(filterData, compareValue, false, currentControl.type);
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value).isSameOrBefore(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value, formatMode).isSameOrBefore(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
     //   DATEENUM: 17, // 日期是
+    //   DATE_EQ: 37, // 日期是
     case FILTER_CONDITION_TYPE.DATEENUM:
+    case FILTER_CONDITION_TYPE.DATE_EQ:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
+          if (!value || (!!dynamicSource.length && !compareValue)) return false;
           let day = dayFn(filterData, compareValue, true, currentControl.type);
           //过去 | 将来
           const hasToday = _.includes(filterData.values || [], 'today');
@@ -804,14 +907,21 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
             return dateFn(dateRange, value, true);
           }
-          return moment(value).isSame(day, timeLevelDay);
+          return moment(value).isSame(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : moment(value, formatMode).isSame(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
     //   NDATEENUM: 18, // 日期不是
+    //   DATE_NE: 38,  // 日期不是
     case FILTER_CONDITION_TYPE.NDATEENUM:
+    case FILTER_CONDITION_TYPE.DATE_NE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.DATE.value:
+          if (!value || (!!dynamicSource.length && !compareValue)) return false;
           let day = dayFn(filterData, compareValue, true, currentControl.type);
           //过去 | 将来
           const hasToday = _.includes(filterData.values || [], 'today');
@@ -829,14 +939,14 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
             return dateFn(dateRange, value, false);
           }
-          return !moment(value).isSame(day, timeLevelDay);
+          return !moment(value).isSame(day, timeLevel);
+        case CONTROL_FILTER_WHITELIST.TIME.value:
+          return !value || (!!dynamicSource.length && !compareValue)
+            ? false
+            : !moment(value, formatMode).isSame(formatTimeValue(compareValue, formatMode), timeLevel);
         default:
           return true;
       }
-    //   SELF: 21, // 本人
-    //   SELFANDSUB: 22, // 本人和下属
-    //   SUB: 23, // 下属
-
     //   RCEQ: 24, // 关联表 (单条) 级联选择  =>是
     case FILTER_CONDITION_TYPE.RCEQ:
       switch (conditionGroupType) {
@@ -984,6 +1094,24 @@ export const checkAllValueAvailable = (rules = [], data = [], from) => {
   return errors;
 };
 
+//判断所有业务规则是否有锁定状态
+export const checkRuleLocked = (rules = [], data = [], from) => {
+  let isLocked = false;
+  const filterRules = getAvailableFilters(rules, data);
+  if (filterRules && filterRules.length > 0) {
+    filterRules.forEach(rule => {
+      if (isLocked) return;
+      rule.ruleItems.map(item => {
+        if (item.type === 7) {
+          const { isAvailable } = checkValueAvailable(rule, data, from);
+          isAvailable && (isLocked = true);
+        }
+      });
+    });
+  }
+  return isLocked;
+};
+
 const replaceStr = (str, index, value) => {
   return str.substring(0, index) + value + str.substring(index + 1);
 };
@@ -1026,10 +1154,6 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
         checkRuleValidator(it.controlId, errorType, errorText);
       }
     }
-  }
-  //锁定
-  if (_.includes(attrs, 7)) {
-    disabled = true;
   }
   //解锁
   if (_.includes(attrs, 8)) {
@@ -1176,23 +1300,21 @@ export const updateRulesData = ({
           const { filterControlIds = [], availableControlIds = [] } = checkValueAvailable(rule, formatData, from);
           if (_.includes([6], type)) {
             //过滤已经塞进去的错误
-            filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, ''));
+            filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule.ruleId));
             availableControlIds.map(controlId => {
               if (!relateRuleType['errorMsg'][controlId]) {
                 //错误提示(checkAllUpdate为true全操作，否则操作变更的字段updateControlIds)
                 if (checkAllUpdate || (updateControlIds.length > 0 && _.includes(updateControlIds, controlId))) {
                   pushType('errorMsg', controlId, message);
+                  if (_.find(formatData, fo => fo.controlId === controlId)) {
+                    const errorMsg = relateRuleType['errorMsg'][controlId] || '';
+                    checkRuleValidator(controlId, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule.ruleId);
+                  }
                 }
               }
             });
           }
         });
-      });
-      formatData.forEach(it => {
-        const errorMsg = relateRuleType['errorMsg'][it.controlId] || '';
-        if (errorMsg) {
-          checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0]);
-        }
       });
     }
   }

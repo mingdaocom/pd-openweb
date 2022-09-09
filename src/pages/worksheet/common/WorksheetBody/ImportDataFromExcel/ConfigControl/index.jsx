@@ -2,12 +2,37 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
-import { Button, Checkbox, Dropdown, LoadDiv, Dialog, ScrollView, Tooltip, Icon } from 'ming-ui';
+import { Button, Checkbox, Dropdown, LoadDiv, Dialog, ScrollView, Tooltip, Icon, Menu } from 'ming-ui';
 import './index.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import DropDownItem from './DropDownItem';
 
-const allowConfigControlTypes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 41];
+const allowConfigControlTypes = [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  14,
+  15,
+  16,
+  19,
+  23,
+  24,
+  26,
+  27,
+  28,
+  29,
+  33,
+  41,
+  46,
+  48,
+];
 const recordObj = {
   text: '记录ID',
   value: 'rowid',
@@ -55,9 +80,10 @@ export default class ConfigControl extends Component {
         handleEnum: 1, // 处理方式： 1=跳过 2=新增
       },
       relateSource: {},
-      edited: false, //不允许非管理员修改配置
-      showStar: null, //依据字段无映射时星号
-
+      edited: true, // 不允许非管理员修改配置
+      showStar: null, // 依据字段无映射时星号
+      errorSkip: [], // 跳过错误数据
+      showErrorSkip: false,
       // 用户匹配字段
       userControls: [
         {
@@ -283,8 +309,6 @@ export default class ConfigControl extends Component {
     this.hasRecordId = _.find(selectRow.cells, rowItem => rowItem.value === recordObj.text) || {};
     fieldsList.push(recordObj);
 
-    // 获取先前保存的导入配置
-    let configObjState = {};
     const configData = await $.ajax({
       type: 'GET',
       url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetConfig`,
@@ -295,17 +319,24 @@ export default class ConfigControl extends Component {
         accountId: md.global.Account.accountId,
       },
     });
+
+    // 获取先前保存的导入配置
+    let configObjState = {
+      errorSkip: configData.data.errorSkip,
+    };
+
     if (configData.resultCode === 1) {
       let { tigger, edited, repeatConfig, configs } = configData.data;
       repeatConfig = repeatConfig ? repeatConfig : {};
       const currentRepeatItem = _.find(data.template.controls, item => item.controlId === repeatConfig.controlId) || {};
 
-      configObjState = {
+      configObjState = Object.assign({}, configObjState, {
         tigger,
         repeatRecord: repeatConfig.controlId ? true : false,
         edited,
         showStar: repeatConfig.controlId || null,
-      };
+      });
+
       controlMapping.forEach(item => {
         const editItem = _.find(configs, configItem => configItem.controlId === item.ControlId) || {};
         if (editItem.controlId) {
@@ -517,7 +548,7 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls } = this.state;
+    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, errorSkip } = this.state;
 
     let cellConfigs = controlMapping.map(item => {
       if (_.find(userControls, i => i.value === item.accountMatchId)) {
@@ -559,6 +590,7 @@ export default class ConfigControl extends Component {
         randomKey: fileKey,
         repeatConfig: repeatRecord ? repeatConfig : null,
         tigger,
+        errorSkip,
       }),
       beforeSend: xhr => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -599,6 +631,7 @@ export default class ConfigControl extends Component {
           repeatConfig,
           tigger,
           repeatRecord,
+          errorSkip,
         } = this.state;
         const configsFilter = [];
         for (const controlItem of worksheetControls || []) {
@@ -633,6 +666,7 @@ export default class ConfigControl extends Component {
             edited,
             configs: configsFilter,
             accountId: md.global.Account.accountId,
+            errorSkip,
           }),
           dataType: 'JSON',
           contentType: 'application/json',
@@ -651,110 +685,214 @@ export default class ConfigControl extends Component {
    */
   renderFooter() {
     const { onPrevious, isCharge } = this.props;
-    const { repeatRecord, tigger, repeatConfig, fieldsList, controlMapping, edited } = this.state;
+    const {
+      repeatRecord,
+      tigger,
+      repeatConfig,
+      fieldsList,
+      controlMapping,
+      edited,
+      errorSkip,
+      showErrorSkip,
+    } = this.state;
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
+    const skipSize = errorSkip.filter(item => item.value).length;
     const list = [
       { text: _l('跳过'), value: 1 },
       { text: _l('覆盖'), value: 2 },
       { text: _l('仅更新，不新增记录'), value: 3 },
     ];
+    const ERROR_SKIP = {
+      1: { text: _l('必填'), desc: _l('为空') },
+      2: { text: _l('数值'), desc: _l('格式错误') },
+      3: { text: _l('金额'), desc: _l('格式错误') },
+      4: { text: _l('邮箱'), desc: _l('格式错误') },
+      5: { text: _l('地区'), desc: _l('未匹配到') },
+      6: { text: _l('选项'), desc: _l('未匹配到') },
+      7: { text: _l('人员'), desc: _l('未匹配或匹配到多个') },
+      8: { text: _l('关联记录'), desc: _l('未匹配或匹配到多个') },
+    };
     return (
-      <div className="mTop16">
-        <div className="flexRow LineHeight36">
-          {!tigger && !isCharge && edited ? null : (
-            <Checkbox
-              className="mRight25"
-              text={_l('导入触发工作流')}
-              disabled={!isCharge && edited}
-              checked={tigger}
-              onClick={checked => this.setState({ tigger: !checked })}
-            />
-          )}
-
-          {!repeatRecord && !isCharge && edited ? null : (
-            <Checkbox
-              text={_l('识别重复记录')}
-              checked={repeatRecord}
-              disabled={!isCharge && edited}
-              onClick={checked => {
-                if (fieldsList.length) {
-                  this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlId : null });
-                } else {
-                  alert(_l('不存在有效的依据字段'), 2);
-                }
-              }}
-            />
-          )}
-
-          {repeatRecord && (
-            <Fragment>
-              <Dropdown
-                className="mLeft8 repeatConfigDropdown"
-                data={list}
-                value={repeatConfig.handleEnum}
+      <div className="flexRow mTop16">
+        <div>
+          <div className="flexRow minHeight36" style={{ alignItems: 'center' }}>
+            {!repeatRecord && !isCharge && edited ? null : (
+              <Checkbox
+                text={_l('识别重复记录')}
+                checked={repeatRecord}
                 disabled={!isCharge && edited}
-                border
-                onChange={handleEnum =>
-                  this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
-                }
-              />
-              <div className="mLeft8 Gray">{_l('依据字段')}</div>
-              <Dropdown
-                className="mLeft8 repeatConfigDropdown"
-                data={fieldsList}
-                disabled={!isCharge && edited}
-                placeholder={_l('请选择')}
-                value={repeatConfig.controlId}
-                renderTitle={
-                  !repeatConfig.controlId
-                    ? () => <span className="Gray_9e">{_l('请选择')}</span>
-                    : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
-                    ? () => <span className="repeatConfigError">{_l('已删除')}</span>
-                    : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
-                }
-                border
-                onChange={controlId => {
-                  this.setState({
-                    repeatConfig: Object.assign({}, repeatConfig, {
-                      controlId,
-                      controlName: fieldsList.find(item => item.value === controlId).text,
-                    }),
-                    showStar: controlId,
-                  });
+                onClick={checked => {
+                  if (fieldsList.length) {
+                    this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlId : null });
+                  } else {
+                    alert(_l('不存在有效的依据字段'), 2);
+                  }
                 }}
               />
-              <Tooltip
-                text={
-                  <span>
-                    {_l(
-                      '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选',
+            )}
+
+            {repeatRecord && (
+              <Fragment>
+                <Dropdown
+                  className="mLeft8 repeatConfigDropdown"
+                  data={list}
+                  value={repeatConfig.handleEnum}
+                  disabled={!isCharge && edited}
+                  border
+                  onChange={handleEnum =>
+                    this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
+                  }
+                />
+                <div className="mLeft8 Gray">{_l('依据字段')}</div>
+                <Dropdown
+                  className="mLeft8 repeatConfigDropdown"
+                  data={fieldsList}
+                  disabled={!isCharge && edited}
+                  placeholder={_l('请选择')}
+                  value={repeatConfig.controlId}
+                  renderTitle={
+                    !repeatConfig.controlId
+                      ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                      : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
+                      ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                      : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
+                  }
+                  border
+                  onChange={controlId => {
+                    this.setState({
+                      repeatConfig: Object.assign({}, repeatConfig, {
+                        controlId,
+                        controlName: fieldsList.find(item => item.value === controlId).text,
+                      }),
+                      showStar: controlId,
+                    });
+                  }}
+                />
+                <Tooltip
+                  text={
+                    <span>
+                      {_l(
+                        '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选',
+                      )}
+                    </span>
+                  }
+                >
+                  <i className="icon-workflow_help Gray_9e Font16 mLeft8 LineHeight36" />
+                </Tooltip>
+              </Fragment>
+            )}
+          </div>
+          <div className="flexRow minHeight36" style={{ alignItems: 'center' }}>
+            {!skipSize && !isCharge && edited ? null : (
+              <Fragment>
+                <Checkbox
+                  text={_l('跳过错误数据')}
+                  disabled={!isCharge && edited}
+                  checked={!!skipSize}
+                  onClick={checked =>
+                    this.setState({
+                      errorSkip: errorSkip.map(item => {
+                        item.value = !checked;
+
+                        return item;
+                      }),
+                    })
+                  }
+                />
+                <Tooltip
+                  text={
+                    <span>
+                      {_l('未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。')}
+                    </span>
+                  }
+                >
+                  <i className="icon-workflow_help Gray_9e Font16 mLeft5" />
+                </Tooltip>
+                {!!skipSize && (
+                  <div
+                    className="mLeft5 relative ThemeColor3 ThemeHoverColor2 pointer"
+                    onClick={() => (isCharge || !edited) && this.setState({ showErrorSkip: true })}
+                  >
+                    {skipSize === errorSkip.length ? _l('全部') : `(${skipSize}/${errorSkip.length})`}
+                    {showErrorSkip && (
+                      <Menu className="errorSkipDialog" onClickAway={() => this.setState({ showErrorSkip: false })}>
+                        <div className="Font14 bold">{_l('设置')}</div>
+                        <div className="mTop5">{_l('当数据中存在以下所选错误时，将放弃此行数据导入')}</div>
+                        <div className="flexRow mTop10" style={{ alignItems: 'center' }}>
+                          <Checkbox
+                            text={_l('全选') + `（${skipSize}/${errorSkip.length}）`}
+                            checked={!!skipSize}
+                            clearselected={!!skipSize && skipSize !== errorSkip.length}
+                            onClick={checked =>
+                              this.setState({
+                                errorSkip: errorSkip.map(item => {
+                                  item.value = !checked;
+
+                                  return item;
+                                }),
+                              })
+                            }
+                          />
+                        </div>
+                        {errorSkip.map(o => (
+                          <div key={o.key} className="flexRow mTop10" style={{ alignItems: 'center' }}>
+                            <Checkbox
+                              text={ERROR_SKIP[o.key].text}
+                              checked={o.value}
+                              onClick={checked =>
+                                this.setState({
+                                  errorSkip: errorSkip.map(item => {
+                                    if (item.key === o.key) {
+                                      item.value = !checked;
+                                    }
+
+                                    return item;
+                                  }),
+                                })
+                              }
+                            />
+                            <div className="mLeft20 Gray_9e">{ERROR_SKIP[o.key].desc}</div>
+                          </div>
+                        ))}
+                      </Menu>
                     )}
-                  </span>
-                }
-              >
-                <i className="icon-workflow_help Gray_9e Font16 mLeft8 LineHeight36" />
-              </Tooltip>
-            </Fragment>
-          )}
+                  </div>
+                )}
+              </Fragment>
+            )}
+            {!tigger && !isCharge && edited ? null : (
+              <Checkbox
+                className="mLeft20"
+                text={_l('导入触发工作流')}
+                disabled={!isCharge && edited}
+                checked={tigger}
+                onClick={checked => this.setState({ tigger: !checked })}
+              />
+            )}
+
+            {isCharge && (
+              <span className="Hand ThemeColor3 Hover_49 mLeft20" onClick={() => this.saveConfig()}>
+                {_l('保存导入配置')}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flexRow mTop12" style={{ alignItems: 'center' }}>
-          {isCharge && (
-            <span className="Hand ThemeColor3 Hover_49" onClick={() => this.saveConfig()}>
-              {_l('保存导入配置')}
-            </span>
-          )}
+        <div className="flex" />
+        <div className="flexColumn">
           <div className="flex" />
-          <Button className="mRight16" size="medium" type="secondary" onClick={onPrevious}>
-            {_l('上一步')}
-          </Button>
-          <Button
-            size="medium"
-            disabled={!controlMappingFilter.length}
-            onClick={() => this.beginImport(controlMappingFilter)}
-          >
-            {_l('开始导入')}
-          </Button>
+          <div className="flexRow">
+            <Button className="mRight16" size="medium" type="secondary" onClick={onPrevious}>
+              {_l('上一步')}
+            </Button>
+            <Button
+              size="medium"
+              disabled={!controlMappingFilter.length}
+              onClick={() => this.beginImport(controlMappingFilter)}
+            >
+              {_l('开始导入')}
+            </Button>
+          </div>
         </div>
       </div>
     );

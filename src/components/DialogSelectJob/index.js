@@ -104,11 +104,15 @@ class DialogSelectJob extends Component {
 
   renderResult() {
     const { selectData } = this.state;
+    const { isAppRole } = this.props;
 
     return selectData.map((item, i) => {
       return (
         <div className="GSelect-result-subItem" key={`subItem-${i}`}>
-          <div className="GSelect-result-subItem__avatar">
+          <div
+            className="GSelect-result-subItem__avatar"
+            style={isAppRole ? { background: 'unset', color: '#9e9e9e' } : {}}
+          >
             <i className="icon-limit-principal" />
           </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.jobName}</div>
@@ -119,7 +123,7 @@ class DialogSelectJob extends Component {
   }
 
   render() {
-    const { onClose, projectId, onSave } = this.props;
+    const { onClose, projectId, onSave, showCompanyName } = this.props;
     const { keywords, selectData } = this.state;
 
     return (
@@ -154,9 +158,11 @@ class DialogSelectJob extends Component {
               onClick={() => this.setState({ keywords: '' })}
             />
           </div>
-          <div className="mTop12 Font13 overflow_ellipsis">
-            {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
-          </div>
+          {showCompanyName && (
+            <div className="mTop12 Font13 overflow_ellipsis">
+              {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
+            </div>
+          )}
           <div className="selectJobContent">{this.renderContent()}</div>
           <div className="GSelect-result-box">{this.renderResult()}</div>
         </div>

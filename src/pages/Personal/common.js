@@ -1,10 +1,7 @@
 var Common = {};
 var qs = require('query-string');
-const {
-  personal: { menuLeft },
-} = window.private;
 
-Common.url = function (params) {
+Common.url = function(params) {
   return location.pathname + '?' + qs.stringify(params);
 };
 
@@ -22,7 +19,7 @@ Common.MENULEFT = [
     component: () => import('./enterprise'),
   },
   {
-    title: _l('账户隐私'),
+    title: _l('账户与安全'),
     icon: 'icon-lock',
     typetag: ['account', 'management'],
     component: () => import('./accountPassword'),
@@ -33,7 +30,7 @@ Common.MENULEFT = [
     typetag: ['system'],
     component: () => import('./systemSettings'),
   },
-].filter(item => !item.typetag.some(type => menuLeft[type]));
+];
 
 Common.PROJECT_STATUS_TYPES_LABLE = {
   // 免费

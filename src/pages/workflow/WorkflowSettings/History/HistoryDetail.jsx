@@ -44,9 +44,11 @@ export default class HistoryDetail extends Component {
   getData = () => {
     const { id } = this.props;
     id &&
-      api.getHistoryDetail({ instanceId: id }).then(data => {
-        this.setState({ data });
-      });
+      api
+        .getHistoryDetail({ instanceId: id }, { isIntegration: location.href.indexOf('integration') > -1 })
+        .then(data => {
+          this.setState({ data });
+        });
   };
 
   getProcessPublish = () => {

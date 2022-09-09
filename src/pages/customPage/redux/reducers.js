@@ -16,6 +16,7 @@ import {
   UPDATE_WIDGET_VISIBLE,
   UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_COMPONENTS,
+  UPDATE_FILTERS_GROUP,
 } from './actionType';
 import { getDefaultLayout, getIndexById, enumWidgetType } from '../util';
 import maxBy from 'lodash/maxBy';
@@ -32,6 +33,7 @@ const initialState = {
   pageName: '',
   apk: {},
   components: [],
+  filtersGroup: {}
 };
 
 function updateLayout(state, payload) {
@@ -172,13 +174,13 @@ export default function customPage(state = initialState, action) {
               ...payload,
               uuid: uuidv4(),
               web: {
-                title: _l(''),
+                title: '',
                 titleVisible: false,
                 visible: true,
                 layout: getDefaultLayout({ components: state.components, layoutType: 'web', type: payload.type }),
               },
               mobile: {
-                title: _l(''),
+                title: '',
                 titleVisible: false,
                 visible: true,
                 layout: null,
@@ -235,7 +237,15 @@ export default function customPage(state = initialState, action) {
           },
         },
       });
-
+    case UPDATE_FILTERS_GROUP:
+      const { value, filters } = payload;
+      return {
+        ...state,
+        filtersGroup: {
+          ...state.filtersGroup,
+          [value]: filters
+        }
+      }
     default:
       return state;
   }

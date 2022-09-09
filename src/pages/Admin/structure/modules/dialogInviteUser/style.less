@@ -47,6 +47,9 @@
       input.formControl:-ms-input-placeholder {
         color: #bdbdbd;
       }
+      input:focus::-webkit-contacts-auto-fill-button{
+        opacity: 0;
+      }
 
       span.formControl {
         width: auto !important;
@@ -213,13 +216,46 @@
   }
 
   .btnGroups {
-    margin: 25px 0;
+    margin: 25px 0 20px;
     text-align: right;
     font-size: 14px;
-
-    .btnBootstrap {
-      padding: 5px 10px;
-
+    span,
+    a {
+      display: inline-block;
+      height: 36px;
+      line-height: 34px;
+      padding: 0 24px;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+    .cancelBtn {
+      border: 1px solid #eaeaea;
+      width: unset;
+    }
+    .cancelBtn:hover {
+      cursor: pointer;
+      background-color: #eaeaea;
+    }
+    .addContinueBtn {
+      border: 1px solid #2196f3;
+      color: #2196f3;
+    }
+    .addContinueBtn:hover {
+      border: 1px solid #1565c0;
+      color: #1565c0;
+    }
+    .addBtn {
+      border: 1px solid #2196f3;
+      background-color: #2196f3;
+      color: #fff;
+    }
+    .addBtn:hover {
+      border: 1px solid #1565c0;
+      background-color: #1565c0;
+      color: #fff;
+    }
+    .addContinueBtn,
+    .addBtn {
       &[disabled] {
         cursor: not-allowed;
       }

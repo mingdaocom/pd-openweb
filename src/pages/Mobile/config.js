@@ -80,7 +80,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       title: _l('成员列表'),
     },
     changeRole: {
-      path: '/mobile/changeRole/:projectId/:appId/:roleId/:accountId?/:departmentId?',
+      path: '/mobile/changeRole/:projectId/:appId/:roleId/:accountId?/:departmentId?/:departmentTreeId?/:projectOrganizeId?/:jobId?',
       component: () => import('mobile/Members/ChangeRole'),
       title: _l('更换角色'),
     },
@@ -128,11 +128,6 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       path: '/mobile/searchRecord/:appId/:worksheetId/:viewId',
       component: () => import('mobile/SearchRecord'),
       title: _l('搜索'),
-    },
-    groupFilterDetail: {
-      path: '/mobile/groupFilterDetail/:appId/:worksheetId/:viewId/:rowId',
-      component: () => import('mobile/RecordList/GroupFilterDetail'),
-      title: _l('筛选分组'),
     },
   },
   window.subPath,

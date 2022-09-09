@@ -16,6 +16,7 @@ export default function AppList(props) {
     <Con className="myAppGroupDetail">
       <SortableAppList
         {...props}
+        disabled={projectId === 'external'}
         newAppItemId={newAppItemId}
         projectId={projectId}
         items={apps}

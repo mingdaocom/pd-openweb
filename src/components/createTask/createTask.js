@@ -162,7 +162,7 @@ $.extend(CreateTask.prototype, {
             .val(txt);
         },
         width: 570,
-        callback: function () {},
+        callback: function () { },
       };
 
       // 创建弹出层
@@ -747,7 +747,7 @@ $.extend(CreateTask.prototype, {
           },
         },
         publicMethods: {
-          setProps() {},
+          setProps() { },
           submit(selectedValue) {
             let [start, end] = selectedValue;
             start = start ? start.format('YYYY-MM-DD HH:00') : '';
@@ -1000,7 +1000,7 @@ CreateTask.Motheds = {
       })
       .then(function (source) {
         if (source.status) {
-          window.localStorage.setItem('lastProjectId', settings.ProjectID);
+          safeLocalStorageSetItem('lastProjectId', settings.ProjectID);
 
           source.data.taskName = source.data.name;
           source.data.star = false;

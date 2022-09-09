@@ -57,7 +57,7 @@ export default class Cascader extends Component {
       visible: false,
       value: props.value && props.value !== '[]' ? (safeParse(props.value)[0] || {}).name : undefined,
       operatePath: [],
-      selectedId: props.value && props.value !== '[]' ? (safeParse(props.value)[0] || {}).sid : '',
+      selectedId: props.value && props.value !== '[]' ? (safeParse(props.value)[0] || {}).rowid : '',
       selectItem: {},
       layersName: null,
       options: null,
@@ -197,10 +197,10 @@ export default class Cascader extends Component {
       onChange({
         values: isMultiple
           ? _.uniqBy(
-              [...values, { sid: id, name: value, sourcevalue: this.cacheData.find(item => item.rowid === id) }],
-              'sid',
+              [...values, { rowid: id, name: value, sourcevalue: this.cacheData.find(item => item.rowid === id) }],
+              'rowid',
             )
-          : [{ sid: id, name: value, sourcevalue: this.cacheData.find(item => item.rowid === id) }],
+          : [{ rowid: id, name: value, sourcevalue: this.cacheData.find(item => item.rowid === id) }],
       });
     this.setState({
       value,
@@ -208,7 +208,7 @@ export default class Cascader extends Component {
   };
   deleteCurrentSelected = item => {
     const { values, onChange = () => {} } = this.props;
-    onChange({ values: values.filter(v => v.sid !== item.sid) });
+    onChange({ values: values.filter(v => v.rowid !== item.rowid) });
   };
   getH5Options() {
     const { options = [], operatePath = [] } = this.state;

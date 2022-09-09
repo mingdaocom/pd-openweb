@@ -32,7 +32,7 @@ export default ({
     <Fragment>
       <div className="flowDetailStartHeader flexColumn BGYellow">
         <div className="flowDetailStartIcon flexRow">
-          <i className="icon-worksheet Font40 yellow" />
+          <i className="icon-table Font40 yellow" />
         </div>
         <div className="Font16 mTop10">{_l('工作表')}</div>
       </div>

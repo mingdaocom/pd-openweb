@@ -11,8 +11,8 @@
 }
 
 .appIntroDialog {
-  min-height: 480px !important;
-
+  max-height: 100%;
+  margin: 0;
   .rc-dialog-close {
     top: -2px !important;
     right: -30px !important;
@@ -28,9 +28,10 @@
       font-size: 18px;
     }
   }
-
+  .rc-dialog-content {
+    height: 100%;
+  }
   .rc-dialog-body {
-    min-height: 400px;
     padding: 6px;
   }
 
@@ -65,7 +66,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 0;
+  /*padding: 32px 0;*/
   overflow: hidden;
 }
 
@@ -195,3 +196,16 @@
     color: #fff;
   }
 }
+
+.sheetDescPopoverOverlay {
+  .ant-popover-inner-content {
+    padding: 10px 5px 10px 10px;
+  }
+  .popoverContent {
+    width: 625px;
+    min-height: 120px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+}
+

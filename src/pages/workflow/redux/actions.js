@@ -4,9 +4,7 @@ import process from '../api/process';
 // 获取工作流基础信息
 export const getFlowInfo = processId => (dispatch, getState) => {
   process
-    .getProcessPublish({
-      processId,
-    })
+    .getProcessPublish({ processId }, { isIntegration: location.href.indexOf('integration') > -1 })
     .then(result => {
       dispatch({
         type: 'GET_FLOW_INFO',
@@ -48,16 +46,12 @@ export const updatePublishState = obj => (dispatch, getState) => {
 
 // 获取工作流配置详情
 export const getProcessById = processId => (dispatch, getState) => {
-  flowNode
-    .get({
-      processId,
-    })
-    .then(result => {
-      dispatch({
-        type: 'GET_PROCESS_INFO',
-        data: result,
-      });
+  flowNode.get({ processId }, { isIntegration: location.href.indexOf('integration') > -1 }).then(result => {
+    dispatch({
+      type: 'GET_PROCESS_INFO',
+      data: result,
     });
+  });
 };
 
 // 清除工作流数据

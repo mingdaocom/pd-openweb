@@ -5,7 +5,7 @@ import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import update from 'immutability-helper';
-import { includes, get, isEmpty, omit, findIndex, filter } from 'lodash';
+import _, { includes, get, isEmpty, omit, findIndex, filter, find } from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange } from './setting';
 import { getControlByControlId } from '.';
 import { ControlTag } from '../styled';
@@ -120,8 +120,8 @@ export function dealUserId(data, dataType) {
       update(setting, {
         $apply: item => {
           const { staticValue } = item;
-          if (typeof staticValue === 'string' && staticValue) {
-            const accountId = JSON.parse(staticValue || '{}')[dataType];
+          if (staticValue && typeof staticValue === 'string') {
+            const accountId = safeParse(staticValue || '{}')[dataType];
             return { ...item, staticValue: accountId };
           }
           if (staticValue[dataType]) return { ...item, staticValue: staticValue[dataType] };
@@ -141,20 +141,23 @@ export function dealUserId(data, dataType) {
 }
 
 /**
+ * 处理 成员 部门 地区 他表字段 级联 组织角色 这几个类型的字段 values 处理成 [id, id]
+ */
+export function handleCondition(condition) {
+  if (_.includes([19, 23, 24, 26, 27, 29, 35, 48], condition.dataType) && condition.values) {
+    return {
+      ...condition,
+      values: condition.values.map(value => safeParse(value || '{}').id),
+    };
+  } else {
+    return condition;
+  }
+}
+/**
  * 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 级联 这几个类型的字段 values 处理成 [id, id]
  */
 export function handleFilters(data) {
   const filters = getAdvanceSetting(data, 'filters');
-  function handleCondition(condition) {
-    if (_.includes([19, 23, 24, 26, 27, 29, 35], condition.dataType) && condition.values) {
-      return {
-        ...condition,
-        values: condition.values.map(value => JSON.parse(value || '{}').id),
-      };
-    } else {
-      return condition;
-    }
-  }
   try {
     const filtersValue = filters.map(handleCondition);
     return handleAdvancedSettingChange(data, { filters: JSON.stringify(filtersValue) });
@@ -204,7 +207,7 @@ export const getFormulaControls = (controls, data) => {
       }
     }
     return (
-      includes([6, 8, 28, 31], type) ||
+      includes([6, 8, 28, 31, 46], type) ||
       // 赋分值选项
       (includes([9, 10, 11], type) && enumDefault === 1) ||
       (type === 38 && includes([1], enumDefault)) ||
@@ -355,9 +358,14 @@ export const formatControlsData = (controls = []) => {
       return dealUserId(data, 'accountId');
     }
 
-    // 用户id替换
+    // 部门id替换
     if (type === 27) {
       return dealUserId(data, 'departmentId');
+    }
+
+    // 组织角色id替换
+    if (type === 48) {
+      return dealUserId(data, 'organizeId');
     }
 
     if (type === 29) {
@@ -423,4 +431,43 @@ export const formatControlsData = (controls = []) => {
 
     return data;
   });
+};
+
+// 处理查询输入参数层级关系
+export const dealRequestControls = (controls, needChild) => {
+  if (!(controls && controls.length)) return [];
+  let newControls = [];
+
+  // 查询过滤无效数据(附件不支持)
+  const filterControls = controls
+    .filter(i => !_.includes([14], i.type))
+    .filter(i => {
+      const hasFind = _.find(controls, o => i.dataSource === o.controlId);
+      return i.dataSource ? hasFind && hasFind.type !== 10000007 : true;
+    })
+    .map(item => {
+      const childControl = _.find(controls, o => o.dataSource === item.controlId);
+      if (item.type === 10000007 && childControl) {
+        return { ...item, originType: childControl.type };
+      }
+      return item;
+    });
+
+  if (needChild) {
+    filterControls.forEach(item => {
+      if (item.dataSource) {
+        const parentIndex = findIndex(newControls, i => i.controlId === item.dataSource);
+        if (parentIndex > -1) {
+          const parentControl = newControls[parentIndex];
+          newControls[parentIndex] = { ...parentControl, child: (parentControl.child || []).concat(item) };
+        } else {
+          newControls.push({ ...find(controls, i => i.controlId === item.dataSource), child: [item] });
+        }
+      } else {
+        newControls.push(item);
+      }
+    });
+  }
+
+  return needChild ? newControls : filterControls;
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-export default function(Comp, props) {
+export default function (Comp, props) {
   const div = document.createElement('div');
   document.body.appendChild(div);
   function destory() {
@@ -10,7 +10,7 @@ export default function(Comp, props) {
   }
   ReactDOM.render(
     <Comp
-      visible
+      {...(props.visibleName ? { [props.visibleName]: true } : { visible: true })}
       onClose={destory}
       onCancel={destory}
       {...(props.closeFnName ? { [props.closeFnName]: destory } : {})}

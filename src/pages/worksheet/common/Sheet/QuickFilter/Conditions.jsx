@@ -2,23 +2,39 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
+import { Button } from 'ming-ui';
 import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import FilterInput, { validate, TextTypes, NumberTypes } from './Inputs';
-import { Button } from 'ming-ui';
+import { formatFilterValuesToServer } from './';
 
 const Con = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex: 1;
-  padding: 0 10px 0 20px;
+  padding: ${({ isConfigMode }) => (isConfigMode ? '0 10px' : '0 10px 0 20px')};
 `;
 
 const Item = styled.div(
-  ({ maxWidth }) => `
+  ({ maxWidth, isConfigMode, isLastLine, highlight }) => `
   display: flex;
-  margin-bottom: 8px;
+  margin-bottom: ${isLastLine ? 0 : 8}px;
   width: ${maxWidth};
+  ${
+    isConfigMode
+      ? `
+    cursor: pointer;
+    padding: 10px 0;
+    margin-bottom: 0px;
+    box-sizing: border-box;
+    border: 1px solid ${highlight ? '#2196f3' : 'transparent'};
+    > * {
+      pointer-events: none;
+      user-select: none;
+    }
+  `
+      : ''
+  }
   &.isFirstFullLine {
     width: auto;
     max-width: ${maxWidth};
@@ -44,6 +60,7 @@ const Content = styled.div`
   flex: 1;
   width: 0;
   margin: 0 10px;
+  min-height: 34px;
 `;
 
 const Operate = styled.div`
@@ -52,6 +69,18 @@ const Operate = styled.div`
   text-align: left;
   margin-bottom: 12px;
   margin-left: 16px;
+  ${({ isConfigMode }) =>
+    isConfigMode
+      ? `
+      padding: 10px 0;
+      `
+      : ''}
+  ${({ isFilterComp }) =>
+    isFilterComp
+      ? `
+          margin-bottom: 0px;
+          `
+      : ''}
   .Button {
     font-weight: 500;
   }
@@ -102,6 +131,10 @@ function conditionAdapter(condition) {
 
 export default function Conditions(props) {
   const {
+    from,
+    isConfigMode,
+    isFilterComp,
+    activeFilterId,
     projectId,
     appId,
     queryText,
@@ -117,6 +150,7 @@ export default function Conditions(props) {
     filters = [],
     updateQuickFilter,
     resetQuickFilter,
+    onFilterClick,
   } = props;
   const [values, setValues] = useState({});
   const didMount = useRef();
@@ -129,8 +163,8 @@ export default function Conditions(props) {
     () =>
       filters
         .map(filter => {
-          const controlObj = _.find(controls, c => c.controlId === filter.controlId);
-          const newControl = controlObj && turnControl(controlObj);
+          const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
+          const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
           return {
             ...filter,
             dataType: newControl ? newControl.type : filter.dataType,
@@ -138,7 +172,7 @@ export default function Conditions(props) {
           };
         })
         .filter(c => c.control),
-    [JSON.stringify(filters)],
+    [JSON.stringify(filters), JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options'])))],
   );
   function update(newValues) {
     didMount.current = true;
@@ -153,13 +187,17 @@ export default function Conditions(props) {
       .filter(validate)
       .map(conditionAdapter);
     if (quickFilter.length) {
+      const formattedFilter = quickFilter.map(c => ({
+        ...c,
+        values: formatFilterValuesToServer(c.dataType, c.values),
+      }));
       if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType)) {
-        debounceUpdateQuickFilter.current(quickFilter, view);
+        debounceUpdateQuickFilter.current(formattedFilter, view);
       } else {
-        updateQuickFilter(quickFilter, view);
+        updateQuickFilter(formattedFilter, view);
       }
     } else {
-      resetQuickFilter(view);
+      updateQuickFilter([], view);
     }
   }
   useEffect(() => {
@@ -173,13 +211,25 @@ export default function Conditions(props) {
   }, [JSON.stringify(filters)]);
   useEffect(() => {
     didMount.current = true;
+    if (from === 'filterComp' && !isConfigMode) {
+      update();
+    }
   }, []);
   return (
-    <Con className={cx('quickFilterWrap', className)}>
+    <Con className={className} isConfigMode={isConfigMode}>
       {items.map((item, i) => (
         <Item
+          isConfigMode={isConfigMode}
+          isLastLine={
+            isFilterComp &&
+            Math.ceil((i + 1) / colNum) === Math.ceil((items.length + (showQueryBtn || showExpand ? 1 : 0)) / colNum)
+          }
+          highlight={activeFilterId === item.fid}
           key={i}
-          className={'conditionItem ' + (i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : '')}
+          className={cx(
+            'conditionItem ' + (i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : ''),
+            item.className,
+          )}
           maxWidth={
             isFullLine(item)
               ? i === 0 && firstIsFullLine && !fullShow
@@ -189,12 +239,14 @@ export default function Conditions(props) {
                 : '100%'
               : `${100 / colNum}%`
           }
+          onClick={isConfigMode ? () => onFilterClick(item.fid, item) : _.noop}
         >
           <Label className="label ellipsis" title={item.control.controlName}>
-            {item.control.controlName}
+            {item.control.controlName || _l('未命名')}
           </Label>
           <Content className="content">
             <FilterInput
+              appendToBody={isFilterComp}
               projectId={projectId}
               appId={appId}
               {...item}
@@ -217,7 +269,11 @@ export default function Conditions(props) {
         </Item>
       ))}
       {(showQueryBtn || showExpand) && (
-        <Operate className={cx('buttons', operateIsNewLine ? 'operateIsNewLine' : '')}>
+        <Operate
+          className={cx('buttons', operateIsNewLine ? 'operateIsNewLine' : '')}
+          isConfigMode={isConfigMode}
+          isFilterComp={isFilterComp}
+        >
           {showQueryBtn && (
             <Button type="primary" className="mRight10" size="mdnormal" onClick={() => update()}>
               {queryText || _l('查询')}
@@ -240,7 +296,7 @@ export default function Conditions(props) {
               showQueryBtn={showQueryBtn}
               onClick={() => {
                 setFullShow(!fullShow);
-                localStorage.setItem('QUICK_FILTER_FULL_SHOW', !fullShow);
+                safeLocalStorageSetItem('QUICK_FILTER_FULL_SHOW', !fullShow);
               }}
             >
               <Motion
@@ -266,6 +322,8 @@ export default function Conditions(props) {
 }
 
 Conditions.propTypes = {
+  isConfigMode: bool,
+  isFilterComp: bool,
   projectId: string,
   className: string,
   queryText: string,

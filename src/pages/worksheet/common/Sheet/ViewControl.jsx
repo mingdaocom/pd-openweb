@@ -231,6 +231,7 @@ function ViewControl(props) {
           worksheetId={worksheetId}
           worksheetControls={controls}
           onClickAwayExceptions={[
+            '.ant-select-dropdown',
             '.ChooseWidgetDialogWrap',
             '.dropConOption',
             '.dropdownTrigger',
@@ -263,6 +264,7 @@ function ViewControl(props) {
             '.ant-tooltip',
             '.deleteHoverTips',
             '.CodeMirror-hints',
+            '.Tooltip-wrapper',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {

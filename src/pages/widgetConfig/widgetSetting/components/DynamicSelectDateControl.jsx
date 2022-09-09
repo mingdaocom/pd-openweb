@@ -51,19 +51,20 @@ const DateInfoWrap = styled.div`
   }
 `;
 
-export default function DynamicSelectDateControl({ value, onChange, allControls }) {
+export default function DynamicSelectDateControl({ value, onChange, allControls, disableTimeControl = false }) {
   const [{ dateControlVisible }, setVisible] = useSetState({
     dateControlVisible: false,
   });
   const availableControls = allControls.concat(SYSTEM_DATE_CONTROL);
+  const types = disableTimeControl ? [15, 16] : [15, 16, 46];
   const filteredControls = _.filter(
     availableControls,
     item =>
-      includes([15, 16], item.type) ||
+      includes(types, item.type) ||
       // 汇总日期
-      includes([15, 16], item.enumDefault2) ||
+      includes(types, item.enumDefault2) ||
       // 关联记录和他表字段为日期
-      (includes([29, 30], item.type) && includes([15, 16], item.sourceControlType)),
+      (includes([29, 30], item.type) && includes(types, item.sourceControlType)),
   );
 
   const isSelectPlainTime = !value || /(\/|:)/.test(value);

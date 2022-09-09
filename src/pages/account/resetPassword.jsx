@@ -248,6 +248,9 @@ class ResetPassword extends React.Component {
     return (
       <div className="loginBox">
         <div className="loginContainer">
+          <div className="titleHeader">
+            <img src={md.global.SysSettings.brandLogoUrl} height={40} />
+          </div>
           {this.renderCon()}
           {this.showLangChang()}
         </div>

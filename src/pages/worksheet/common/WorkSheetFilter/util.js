@@ -49,7 +49,7 @@ export function formatValues(controlType, filterType, values = []) {
     ) {
       return values;
     }
-    if (_.includes([26, 27, 19, 23, 24, 29, 35], controlType)) {
+    if (_.includes([26, 27, 19, 23, 24, 29, 35, 48], controlType)) {
       return values.map(value => safeParse(value).id).filter(_.identity);
     }
   } catch (err) {}
@@ -149,6 +149,7 @@ export function checkConditionAvailable(condition) {
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       return true;
     case CONTROL_FILTER_WHITELIST.DATE.value:
+    case CONTROL_FILTER_WHITELIST.TIME.value:
       if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return !_.isUndefined(minValue) && !_.isUndefined(maxValue);
       } else {
@@ -228,8 +229,9 @@ export function compareControlType(widget, type) {
   return false;
 }
 
-export function getFilterTypes(type, control = {}, conditionType, from) {
+export function getFilterTypes(control = {}, conditionType, from) {
   let types = [];
+  const { type } = control;
   const typeKey = getTypeKey(type);
   if (_.includes([19, 23, 24], type)) {
     return [
@@ -296,6 +298,25 @@ export function getFilterTypes(type, control = {}, conditionType, from) {
       text: getFilterTypeLabel(typeKey, filterType, control),
     }));
   }
+  if (_.includes([15, 16], type)) {
+    let typeEnums = [
+      ...(type === 15
+        ? [FILTER_CONDITION_TYPE.DATEENUM, FILTER_CONDITION_TYPE.NDATEENUM]
+        : [FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE]),
+      FILTER_CONDITION_TYPE.DATE_LT,
+      FILTER_CONDITION_TYPE.DATE_GT,
+      FILTER_CONDITION_TYPE.DATE_LTE,
+      FILTER_CONDITION_TYPE.DATE_GTE,
+      FILTER_CONDITION_TYPE.DATE_BETWEEN,
+      FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+      FILTER_CONDITION_TYPE.ISNULL,
+      FILTER_CONDITION_TYPE.HASVALUE,
+    ];
+    return typeEnums.map(filterType => ({
+      value: filterType,
+      text: getFilterTypeLabel(typeKey, filterType, control),
+    }));
+  }
   if (typeKey) {
     types = CONTROL_FILTER_WHITELIST[typeKey].types.map(filterType => ({
       value: filterType,
@@ -318,14 +339,11 @@ export function getDefaultCondition(control) {
     type:
       conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value
         ? FILTER_CONDITION_TYPE.HASVALUE
-        : getFilterTypes(control.type)[0].value,
+        : getFilterTypes(control)[0].value,
   };
   if (conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value && control.type === 36) {
     baseCondition.type = FILTER_CONDITION_TYPE.EQ;
     baseCondition.value = 1;
-  }
-  if (conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value) {
-    baseCondition.dateRange = 1;
   }
   return baseCondition;
 }
@@ -349,6 +367,9 @@ export function redefineComplexControl(contorl) {
   }
   if (contorl.type === 38) {
     return { ...contorl, ...{ type: contorl.enumDefault === 2 ? 15 : 6, originType: contorl.type } };
+  }
+  if (contorl.type === 50) {
+    return { ...contorl, ...{ type: 2, originType: contorl.type } };
   }
   return { ...contorl };
 }
@@ -551,6 +572,9 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.GROUP_PICKER:
       // 部门
       return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.GROUP_PICKER);
+    // 组织角色
+    case API_ENUM_TO_TYPE.ORG_ROLE:
+      return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.ORG_ROLE);
     // 地区，检查框，附件
     case API_ENUM_TO_TYPE.AREA_INPUT_24:
     case API_ENUM_TO_TYPE.AREA_INPUT_19:
@@ -740,6 +764,13 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     try {
       const groups = JSON.parse(value);
       condition.values = groups.map(group => group.departmentId);
+    } catch (err) {
+      condition.values = [];
+    }
+  } else if (dataType === 48) {
+    try {
+      const groups = JSON.parse(value);
+      condition.values = groups.map(group => group.organizeId);
     } catch (err) {
       condition.values = [];
     }

@@ -1,0 +1,67 @@
+﻿<div class="buySuccess card pAll20 pBottom30">
+    <div class="okTitle TxtCenter mTop30">
+        <span class="okIcon borderBox TxtMiddle">
+            <span class="icon-ok"></span>
+        </span>
+        <h3 class="InlineBlock Font40 mLeft10 Normal LineHeight80 buyNow TxtMiddle">{{= _l('支付成功') }}</h3>
+        <p class="Font14 LineHeight30">
+            {{ var ORDERTYPE = it.ORDERTYPE; }}
+            {{? it.data.orderType === ORDERTYPE.NEW ||
+                it.data.orderType === ORDERTYPE.AGAINFIRST ||
+                it.data.orderType === ORDERTYPE.UPGRADE }}
+                {{= _l('感谢您开通%0，现在可以开始使用啦', it.data.version.name) }}
+            {{?? it.data.orderType === ORDERTYPE.AGAINOTHER }}
+                {{= _l('为了不影响您正常使用，请去续费外部用户') }}
+            {{?? it.data.orderType === ORDERTYPE.RECHARGE }}
+                {{= _l('感谢您购买充值包，现在可以开始使用啦') }}
+            {{?? it.data.orderType === ORDERTYPE.ADDPERSON }}
+                {{= _l('感谢您购买用户增补包，现在可以开始使用啦') }}
+            {{?? it.data.orderType === ORDERTYPE.ONEDAY }}
+                {{= _l('感谢您成功续费一天%0，现在可以开始使用啦', it.data.version.name) }}
+            {{?}}
+        </p>
+        <div class="clearfix"></div>
+        {{? it.data.orderType === ORDERTYPE.AGAINOTHER }}
+            <a href="/admin/expansionservice/{{=it.data.projectId}}/portalupgrade" class="goMDBtn btnBootstrap btnBootstrap-primary btnBootstrap-small mTop30 Font14">{{= _l('去续费外部用户')}}</a>
+        {{??}}
+            <a href="/admin/home/{{=it.data.projectId}}" class="goMDBtn btnBootstrap btnBootstrap-primary btnBootstrap-small mTop30 Font14">{{= _l('进入组织')}}</a>
+        {{?}}
+    </div>
+    <div class="BorderTop borderColor_c clear overflowHidden mTop30 w100"></div>
+    <div class="orderList mTop20">
+        <ul>
+
+            {{? it.data.orderType === ORDERTYPE.NEW ||
+                it.data.orderType === ORDERTYPE.AGAINFIRST ||
+                it.data.orderType === ORDERTYPE.AGAINOTHER ||
+                it.data.orderType === ORDERTYPE.ADDPERSON ||
+                it.data.orderType === ORDERTYPE.UPGRADE
+            }}
+            <li class="LineHeight30 Font14">
+                <span class="orderListTitle InlineBlock">{{=_l('购买人数')}}</span>
+                <span class="mLeft20 userCount">{{=it.data.unLimited ? _l('不限人数') : _l('%0人', it.data.totalUserCount)}}</span>
+            </li>
+            {{?}}
+
+            {{? it.data.orderType === ORDERTYPE.NEW ||
+                it.data.orderType === ORDERTYPE.AGAINFIRST ||
+                it.data.orderType === ORDERTYPE.AGAINOTHER ||
+                it.data.orderType === ORDERTYPE.ONEDAY ||
+                it.data.orderType === ORDERTYPE.UPGRADE
+            }}
+            <li class="LineHeight30 Font14">
+                <span class="orderListTitle InlineBlock">{{=_l('购买时限')}}</span>
+                <span class="mLeft20 dataRange">
+                    {{= moment(it.data.startDate).format("YYYY.MM.DD")}} {{= _l('至')}} {{= moment(it.data.endDate).format("YYYY.MM.DD")}}
+                </span>
+            </li>
+            {{?}}
+
+            <li class="LineHeight30 Font14">
+                <span class="orderListTitle InlineBlock">{{=_l('支付金额')}}</span>
+                {{= _l('%0元(人民币)', '<span class="mLeft20 amount">' + it.data.totalPrice + '</span>') }}
+            </li>
+        </ul>
+    </div>
+    <p class="LineHeight30 Gray_8 pTop20 clear">{{= _l('如需发票，请拨打 %0 联系顾问，为您开具发票；您也可以前往组织管理 - > 账务中心，进行申请', md.global.Config.ServiceTel) }}</p>
+</div>

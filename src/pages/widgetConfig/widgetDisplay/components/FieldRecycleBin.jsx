@@ -5,7 +5,7 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import SearchInput from 'worksheet/components/SearchInput';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
@@ -237,6 +237,7 @@ export default class FieldRecycleBin extends Component {
         _.find(md.global.Account.projects, item => item.projectId === projectId),
         'licenseType',
       ) === 0;
+    const featureType = getFeatureStatus(projectId, 16);
     return (
       <Fragment>
         <Dialog
@@ -250,24 +251,22 @@ export default class FieldRecycleBin extends Component {
           <div className="FieldRecycleBinContent">{this.renderContent()}</div>
         </Dialog>
 
-        <div
-          className="fieldRecycleBinText"
-          onClick={() => {
-            if (isFree) {
-              upgradeVersionDialog({
-                projectId,
-                explainText: _l('请升级到标准版本或以上版本'),
-                isFree,
-              });
-              return;
-            }
-            this.setState({ visible: true }, this.getRecycleList);
-          }}
-        >
-          <Icon icon="recycle" />
-          <div className="recycle">{_l('回收站')}</div>
-          {isFree && <Icon icon="auto_awesome" className="freeIcon" />}
-        </div>
+        {featureType && (
+          <div
+            className="fieldRecycleBinText"
+            onClick={() => {
+              if (featureType === '2') {
+                buriedUpgradeVersionDialog(projectId, 16);
+                return;
+              }
+              this.setState({ visible: true }, this.getRecycleList);
+            }}
+          >
+            <Icon icon="recycle" />
+            <div className="recycle">{_l('回收站')}</div>
+            {isFree && <Icon icon="auto_awesome" className="freeIcon" />}
+          </div>
+        )}
       </Fragment>
     );
   }

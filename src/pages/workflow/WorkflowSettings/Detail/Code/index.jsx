@@ -193,10 +193,10 @@ export default class Code extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-url"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -250,7 +250,7 @@ export default class Code extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect={!!data.code} onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect={!!data.code} onSave={this.onSave} />
 
         {isFullCode && (
           <Dialog

@@ -92,7 +92,7 @@ function QuickFilter(props) {
   useEffect(() => {
     setValues({});
   }, [view.viewId]);
-
+  // console.log('filters', filters);
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
       <div className="header flexRow valignWrapper">
@@ -106,6 +106,7 @@ function QuickFilter(props) {
             {...values[i]}
             projectId={props.projectId}
             appId={props.appId}
+            worksheetId={props.worksheetId}
             onChange={(change = {}) => {
               store.current.activeType = item.control.type;
               const newValues = { ...values, [i]: { ...values[i], ...change } };

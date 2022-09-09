@@ -35,10 +35,6 @@ const columns = [
     },
   },
   {
-    title: _l('登录时间'),
-    dataIndex: 'date',
-  },
-  {
     title: _l('登录方式'),
     dataIndex: 'loginVenue',
     render: (text, record) => {
@@ -47,7 +43,19 @@ const columns = [
     },
   },
   {
-    title: _l('IP地址'),
+    title: _l('登录时间'),
+    dataIndex: 'date',
+  },
+  {
+    title: _l('登录地'),
+    dataIndex: 'geoCity',
+    render: (t, record) => {
+      let { log = {} } = record;
+      return <div>{log.geoCity || ''}</div>;
+    },
+  },
+  {
+    title: _l('IP'),
     dataIndex: 'ip',
     render: (text, record) => {
       let { log = {} } = record;
@@ -312,7 +320,7 @@ export default class LoginLog extends Component {
             <span className="tipInfo">
               {_l('保留最近6个月的登录日志')}
               <Tooltip
-                title={_l('可查看2021年12月功能发布后的日志；导出上限10万条，超出限制可以先筛选，再分次导出。')}
+                title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}
                 placement="bottom"
               >
                 <Icon icon="info" className="Font14 mLeft5 infoIcon" />

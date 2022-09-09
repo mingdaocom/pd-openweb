@@ -13,6 +13,8 @@ import {
   areaParticleSizeDropdownData,
   timeDataParticle,
   timeGatherParticle,
+  filterTimeData,
+  filterTimeGatherParticle,
   isNumberControl,
   isTimeControl,
   isAreaControl,
@@ -56,8 +58,11 @@ const renderOverlay = ({
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
   const isRelate = axis.type === 29;
-  const timeData = (isTime ? axis.type === 16 ? timeDataParticle : timeDataParticle.filter(item => ![6, 7].includes(item.value)) : []);
   const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(axis.controlId, disableParticleSizeTypes);
+  const showtype = _.get(axis, 'advancedSetting.showtype');
+  const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: axis.type }) : [];
+  const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: axis.type });
+
   return (
     <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
       <Menu.Item
@@ -94,7 +99,7 @@ const renderOverlay = ({
       {isTime && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
           <Menu.ItemGroup title={_l('时间')}>
-            {timeData.map(item => (
+            {timeDataList.map(item => (
               <Menu.Item
                 className="valignWrapper"
                 disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
@@ -112,26 +117,30 @@ const renderOverlay = ({
               </Menu.Item>
             ))}
           </Menu.ItemGroup>
-          <Menu.Divider />
-          <Menu.ItemGroup title={_l('集合')}>
-            {timeGatherParticle.map(item => (
-              <Menu.Item
-                className="valignWrapper"
-                disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-                style={{
-                  width: 200,
-                  color: item.value === particleSizeType ? '#1e88e5' : null,
-                }}
-                key={item.value}
-                onClick={() => {
-                  onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
-                }}
-              >
-                <div className="flex">{item.text}</div>
-                <div className="Gray_75 Font12">{item.getTime()}</div>
-              </Menu.Item>
-            ))}
-          </Menu.ItemGroup>
+          {!!timeGatherParticleList.length && (
+            <Fragment>
+              <Menu.Divider />
+              <Menu.ItemGroup title={_l('集合')}>
+                {timeGatherParticleList.map(item => (
+                  <Menu.Item
+                    className="valignWrapper"
+                    disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
+                    style={{
+                      width: 200,
+                      color: item.value === particleSizeType ? '#1e88e5' : null,
+                    }}
+                    key={item.value}
+                    onClick={() => {
+                      onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
+                    }}
+                  >
+                    <div className="flex">{item.text}</div>
+                    <div className="Gray_75 Font12">{item.getTime()}</div>
+                  </Menu.Item>
+                ))}
+              </Menu.ItemGroup>
+            </Fragment>
+          )}
         </Menu.SubMenu>
       )}
       {isArea && (
@@ -211,7 +220,7 @@ const SortableItem = SortableElement(props => {
             </Tooltip>
           )
         )}
-        <Dropdown trigger={['click']} overlay={renderOverlay(overlayProps)}>
+        <Dropdown trigger={['click']} overlay={renderOverlay(overlayProps)} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon

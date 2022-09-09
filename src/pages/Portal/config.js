@@ -31,6 +31,15 @@ export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes(
       component: () => import('src/router/Application'),
       title: _l('应用'),
     },
+    worksheet: {
+      path: '/worksheet/:worksheetId',
+      component: () => import('src/router/Application'),
+      title: _l('应用'),
+    },
+    default: {
+      path: '/*',
+      component: () => import('src/pages/Portal/PortalErr'),
+    }
   },
   window.subPath,
 );

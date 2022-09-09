@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import styled from 'styled-components';
@@ -6,7 +6,7 @@ import update from 'immutability-helper';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import ClipboardButton from 'react-clipboard.js';
-import { Dialog, Tabs, Radio, Switch, Dropdown, Button, RichText } from 'ming-ui';
+import { Dialog, Tabs, Radio, Switch, Dropdown, Button, RichText, Tooltip } from 'ming-ui';
 import * as actions from '../redux/actions';
 import { Hr, H1, H3, Tip75, Tipbd, TipBlock } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
@@ -38,16 +38,6 @@ const Wow = styled.div`
 const SmallSwitch = styled(Switch)`
   transform: scale(0.7) translate(-6px, -3px);
   margin-left: -4px;
-`;
-const HelpTip = styled.span`
-  margin-left: 10px;
-  .icon {
-    font-size: 16px;
-    color: #9e9e9e;
-  }
-  &:after {
-    white-space: pre;
-  }
 `;
 
 const DEFAULT_TEXT = {
@@ -85,8 +75,11 @@ class PublicConfig extends React.Component {
         'systemControlId',
         'receipt',
         'needCaptcha',
+        'smsVerificationFiled',
         'extendSourceId',
+        'smsVerification',
       ]),
+      smsSignature: settings.smsSignature,
     };
   }
 
@@ -119,6 +112,9 @@ class PublicConfig extends React.Component {
       extendSourceId,
       sourceKeys,
       needCaptcha,
+      smsVerification,
+      smsVerificationFiled,
+      smsSignature,
     } = this.state;
     const { updateSettings, hideControl, onClose } = this.props;
     const changesIds = this.getChangedIds();
@@ -134,6 +130,9 @@ class PublicConfig extends React.Component {
       receipt,
       extendSourceId,
       needCaptcha,
+      smsVerification,
+      smsVerificationFiled,
+      smsSignature,
       extends: sourceKeys,
     });
   }
@@ -237,6 +236,46 @@ class PublicConfig extends React.Component {
       });
   }
 
+  getMobileControls = () => {
+    const { originalControls = [] } = this.props;
+    return originalControls
+      .filter(i => i.type === 3)
+      .map(({ controlName: text, controlId: value }) => ({ value, text }));
+  };
+
+  isMobileControlDelete = () => {
+    const { smsVerificationFiled } = this.state;
+    if (!smsVerificationFiled) return null;
+    const selectControl = _.find(this.props.originalControls || [], i => i.controlId === smsVerificationFiled);
+    return selectControl ? (selectControl.type === 3 ? null : selectControl) : { controlName: _l('字段已删除') };
+  };
+
+  editSmsSignature = () => {
+    const { smsSignature } = this.state;
+    Dialog.confirm({
+      title: <span className="Font16 Bold">{_l('自定义验证码签名')}</span>,
+      width: 480,
+      description: (
+        <Fragment>
+          <div className="Gray_9e Font12 mBottom20">
+            <div className="mTop8 ">
+              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截')}
+            </div>
+          </div>
+          <input
+            maxLength={8}
+            className="ming Input w100"
+            defaultValue={smsSignature}
+            ref={con => (this.$input = con)}
+          />
+        </Fragment>
+      ),
+      onOk: () => {
+        this.handleChange('smsSignature', this.$input.value || smsSignature);
+      },
+    });
+  };
+
   render() {
     const { onClose, shareUrl } = this.props;
     const {
@@ -249,12 +288,16 @@ class PublicConfig extends React.Component {
       activeSourceKey,
       isEditing,
       needCaptcha,
+      smsVerification,
+      smsVerificationFiled,
+      smsSignature,
     } = this.state;
     const tabs = [
       { text: _l('链接设置'), value: 1 },
       { text: _l('来源参数'), value: 2 },
       { text: _l('嵌入HTML'), value: 3 },
     ];
+    const isDelete = this.isMobileControlDelete();
     return (
       <Dialog
         className="publicConfigSettingDiaLog"
@@ -306,6 +349,53 @@ class PublicConfig extends React.Component {
               />
             ))}
             <H3>{_l('提交验证')}</H3>
+            <div className="mBottom10">
+              <div>
+                <SmallSwitch
+                  checked={smsVerification}
+                  onClick={checked => this.handleChange('smsVerification', !checked)}
+                />
+                {_l('手机号短信验证')}
+                <Tooltip
+                  popupPlacement="bottom"
+                  text={
+                    <span>
+                      {_l(
+                        '对填写的手机号字段进行短信验证，以确保为本人有效手机号。',
+                      )}
+                    </span>
+                  }
+                >
+                  <i className="icon icon-help Font16 Gray_9e mLeft10"></i>
+                </Tooltip>
+              </div>
+              {smsVerification && (
+                <div className="codeContent">
+                  <Dropdown
+                    border
+                    isAppendToBody
+                    className={cx({ deleteCode: isDelete })}
+                    value={smsVerificationFiled}
+                    data={this.getMobileControls()}
+                    onChange={value => {
+                      this.handleChange('smsVerificationFiled', value);
+                    }}
+                    {...(isDelete
+                      ? {
+                          renderError: () => <span className="Red">{(isDelete || {}).controlName}</span>,
+                        }
+                      : {})}
+                  />
+                  <span className="mLeft20">
+                    <span className="Gray_9e">{_l('短信签名：')}</span>
+                    <span>{_l('【%0】', smsSignature)}</span>
+                    <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.editSmsSignature}>
+                      {_l('修改')}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
             <div>
               <SmallSwitch
                 checked={needCaptcha}
@@ -313,10 +403,13 @@ class PublicConfig extends React.Component {
                   this.handleChange('needCaptcha', !needCaptcha);
                 }}
               />
-              {_l('表单提交前填写验证码')}
-              <HelpTip data-tip={_l('打开后，填写者在提交数据前需要输入验证码，用于防止恶意或重复数据提交。')}>
-                <i className="icon icon-help"></i>
-              </HelpTip>
+              {_l('表单提交前进行图形验证')}
+              <Tooltip
+                popupPlacement="bottom"
+                text={<span>{_l('打开后，填写者在提交数据前需要输入验证码，用于防止恶意或重复数据提交。')}</span>}
+              >
+                <i className="icon icon-help Font16 Gray_9e mLeft10"></i>
+              </Tooltip>
             </div>
             <H3>{_l('表单填写成功回执')}</H3>
             <RichText

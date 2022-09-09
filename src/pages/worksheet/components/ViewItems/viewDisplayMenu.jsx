@@ -17,7 +17,7 @@ export default class ViewDisplayMenu extends Component {
         {VIEW_TYPE_ICON.map(({ icon, text, id, color }) => (
           <Menu.Item key={id} className="viewTypeItem" onClick={() => onClick(id)}>
             <Icon style={{ color, fontSize: '18px' }} icon={icon} />
-            <span>{text}</span>
+            <span className='viewName'>{text}</span>
           </Menu.Item>
         ))}
       </Menu>

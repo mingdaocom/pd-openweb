@@ -108,6 +108,7 @@ export default class RowDetail extends React.Component {
       appId,
       onRulesLoad,
       searchConfig,
+      sheetSwitchPermit,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -128,6 +129,7 @@ export default class RowDetail extends React.Component {
           worksheetId={worksheetId}
           disabled={disabled}
           searchConfig={searchConfig}
+          sheetSwitchPermit={sheetSwitchPermit}
           columnNumber={1}
           from={2}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}

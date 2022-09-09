@@ -93,7 +93,7 @@ export default function Departments(props) {
             </BaseSelectedItem>
           ))}
       </DepartmentsCon>
-      <Icon className="icon icon-workflow downIcon" />
+      <Icon className="icon icon-department downIcon" />
       {!!values.length && (
         <Icon
           className="icon icon-cancel clearIcon"

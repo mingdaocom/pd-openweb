@@ -72,13 +72,13 @@ function getStorageKey() {
 
 // 存进缓存
 export const saveToStorage = function (data) {
-  // window.localStorage.setItem(getStorageKey(), JSON.stringify(data));
+  // safeLocalStorageSetItem(getStorageKey(), JSON.stringify(data));
   config[getStorageKey()] = JSON.stringify(data);
 };
 
 // 清楚缓存
 export const clearStorage = function () {
-  // window.localStorage.setItem(getStorageKey(), '');
+  // safeLocalStorageSetItem(getStorageKey(), '');
   config[getStorageKey()] = '';
 };
 
@@ -1328,10 +1328,10 @@ export function createWorksheetColumnTag(id, options) {
     node.classList.add('onlytag');
   }
   node.innerHTML = widget ? `
-    <div class="columnName">${ widget.data.controlName }</div>
-    <div class="columnValue"><div class="ellipsis">${ value }</div></div>
+    <div class="columnName">${widget.data.controlName}</div>
+    <div class="columnValue"><div class="ellipsis">${value}</div></div>
   ` : `
-    <div class="columnName">${ _l('该字段已删除') }</div>
+    <div class="columnName">${_l('该字段已删除')}</div>
   `;
   return node;
 }

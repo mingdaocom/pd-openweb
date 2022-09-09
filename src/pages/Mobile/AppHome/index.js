@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import webCache from 'src/api/webCache';
 import TabBar from '../components/TabBar';
-import AppStatus from 'src/pages/AppHomepage/MyApp/MyAppGroup/AppStatus';
+import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
@@ -18,10 +18,6 @@ import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import { getRandomString, getProject } from 'src/util';
 import styled from 'styled-components';
-
-const {
-  app: { addAppItem },
-} = window.private;
 
 const GroupIcon = styled(SvgIcon)`
   font-size: 0px;
@@ -287,7 +283,7 @@ class AppHome extends React.Component {
           className="myAppItem mTop24"
           onClick={e => {
             localStorage.removeItem('currentNavWorksheetId');
-            localStorage.setItem('currentGroupInfo', JSON.stringify({}));
+            safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({}));
             data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);
           }}
         >
@@ -387,7 +383,6 @@ class AppHome extends React.Component {
               return this.renderItem(item);
             })}
             {(type === 'apps' || type === 'markedGroup') &&
-              !addAppItem.addAppIcon &&
               !(_.find(md.global.Account.projects, item => item.projectId === data.projectId) || {}).cannotCreateApp &&
               this.renderItem({
                 id: 'add',

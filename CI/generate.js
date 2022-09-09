@@ -73,6 +73,7 @@ function generate() {
       if (!isProduction) {
         apiMap.workflow = '/workflow_api';
         apiMap.report = '/report_api';
+        apiMap.integration = '/integration_api';
       }
       html = ejs.compile(html)({
         apiServer: JSON.stringify(apiMap),

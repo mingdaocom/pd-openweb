@@ -205,7 +205,7 @@ export default class Card extends Component {
               type="ghostgray"
               size="small"
             >
-              {_l('待办')}
+              {_l('办理')}
             </Button>
           )}
           {passBatchType !== -1 && (

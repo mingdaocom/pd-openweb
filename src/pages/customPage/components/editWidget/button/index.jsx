@@ -5,7 +5,8 @@ import update from 'immutability-helper';
 import Dialog from 'rc-dialog';
 import 'rc-dialog/assets/index.css';
 import { v4 as uuidv4 } from 'uuid';
-import { Icon, Button } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { ConfigProvider, Button, Tooltip } from 'antd';
 import BtnGroupSetting from './btnGroupSetting';
 import BtnList from './btnList';
 import BtnSetting from './btnSetting';
@@ -81,6 +82,7 @@ export default function Btn(props) {
         isNewBtn: true
       }
     }
+    setIndex(buttonList.length);
     setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
   };
 
@@ -135,10 +137,20 @@ export default function Btn(props) {
       className="editWidgetDialogWrap"
       visible
       onClose={onClose}
-      closeIcon={<Icon icon="close Font24 ThemeHoverColor3" />}>
+      closeIcon={<Icon icon="close Font24 ThemeHoverColor3" />}
+    >
       <Header>
         <div className="typeName">{_l('按钮')}</div>
-        <Button className="saveBtn" onClick={handleSave}>{_l('保存')}</Button>
+        <div className="flexRow valignWrapper">
+          <ConfigProvider autoInsertSpaceInButton={false}>
+            <Button block className="save" shape="round" type="primary" onClick={handleSave}>
+              {_l('保存')}
+            </Button>
+          </ConfigProvider>
+          <Tooltip title={_l('关闭')} placement="bottom">
+            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+          </Tooltip>
+        </div>
       </Header>
       <EditWidgetContent>
         <BtnWrap>

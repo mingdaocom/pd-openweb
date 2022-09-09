@@ -49,7 +49,7 @@
                 {{!user.fullname || ''}}
             </div>
             <div class="userCompany overflow_ellipsis Gray_bd Font12">
-                {{? user.projectId && user.projectId && user.projectId === it.projectId }}
+                {{?( user.projectId && user.projectId && user.projectId === it.projectId) || it.isSameProject }}
                 {{=(user.department ? user.department :  '')}}
                 {{=(user.department && user.job ? ' / ' : '')}}
                 {{!user.job}}

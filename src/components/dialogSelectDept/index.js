@@ -62,15 +62,31 @@ class DialogSelectDept extends React.Component {
 
   selectFn() {
     const { selectedDepartment } = this.state;
+    const { checkIncludeChilren } = this.props; //是否选择包含子集
+
     const selectFn = this.props.selectFn;
     selectFn.call(
       null,
-      _.map(selectedDepartment, dept => ({
-        departmentId: dept.departmentId,
-        departmentName: dept.departmentName,
-        haveSubDepartment: dept.haveSubDepartment,
-        userCount: dept.userCount,
-      })),
+      _.map(
+        selectedDepartment.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1),
+        dept => ({
+          departmentId: dept.departmentId,
+          departmentName: dept.departmentName,
+          haveSubDepartment: dept.haveSubDepartment,
+          userCount: dept.userCount,
+        }),
+      ),
+      checkIncludeChilren
+        ? _.map(
+            selectedDepartment.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0),
+            dept => ({
+              departmentId: dept.departmentId,
+              departmentName: dept.departmentName,
+              haveSubDepartment: dept.haveSubDepartment,
+              userCount: dept.userCount,
+            }),
+          )
+        : null,
     );
   }
 
@@ -107,6 +123,7 @@ class DialogSelectDept extends React.Component {
   }
 
   fetchData() {
+    const { isAnalysis } = this.props;
     this.setState({ loading: true });
     const isAdmin = location.href.indexOf('admin') > -1;
     if (this.promise && this.promise.state() === 'pending') {
@@ -118,19 +135,25 @@ class DialogSelectDept extends React.Component {
     } else {
       getTree = this.getDepartmentTree.bind(this);
     }
+    let searchParam = isAnalysis ? { keyword: this.state.keywords } : { keywords: this.state.keywords };
     let param = {
-      keywords: this.state.keywords,
       projectId: this.props.projectId,
       returnCount: this.props.returnCount,
+      ...searchParam,
     };
     let usePageDepartment = !this.state.keywords;
     param = usePageDepartment
       ? { ...param, pageIndex: this.state.rootPageIndex, pageSize: this.state.pageSize }
       : param;
-    this.promise = departmentController[isAdmin ? 'searchProjectDepartment2' : 'searchDepartment2'](param)
+    this.promise = departmentController[
+      isAnalysis ? 'pagedDepartmentTrees' : isAdmin ? 'searchProjectDepartment2' : 'searchDepartment2'
+    ](param)
       .done(data => {
         let showProjectAll = true;
-        if (!isAdmin) {
+        if (isAnalysis) {
+          showProjectAll = true;
+          data = data;
+        } else if (!isAdmin) {
           showProjectAll = !data.item1;
           data = data.item2;
         }
@@ -211,7 +234,11 @@ class DialogSelectDept extends React.Component {
               };
 
         departmentController[
-          location.href.indexOf('admin') > -1 ? 'pagedSubDepartments' : 'getProjectSubDepartmentByDepartmentId'
+          this.props.isAnalysis
+            ? 'pagedDepartmentTrees'
+            : location.href.indexOf('admin') > -1
+            ? 'pagedSubDepartments'
+            : 'getProjectSubDepartmentByDepartmentId'
         ](param).then(data => {
           localStorage.removeItem('parentId');
           department.subDepartments =
@@ -260,8 +287,34 @@ class DialogSelectDept extends React.Component {
     }
   };
 
-  toggle(department) {
+  getParentId = (list, id) => {
+    for (let i in list) {
+      if (list[i].departmentId == id) {
+        return [list[i]];
+      }
+      if (list[i].subDepartments) {
+        let node = this.getParentId(list[i].subDepartments, id);
+        if (node !== undefined) {
+          return node.concat(list[i]);
+        }
+      }
+    }
+  };
+
+  toggle(department, notIncludeChilren) {
     const { selectedDepartment } = this.state;
+    const { checkIncludeChilren } = this.props; //是否选择包含子集
+    department = checkIncludeChilren
+      ? {
+          ...department,
+          checkIncludeChilren:
+            notIncludeChilren === true
+              ? false
+              : department.checkIncludeChilren === undefined
+              ? true
+              : department.checkIncludeChilren,
+        }
+      : department;
     if (selectedDepartment.filter(dept => dept.departmentId === department.departmentId).length) {
       if (this.props.unique) {
         this.setState({
@@ -278,10 +331,47 @@ class DialogSelectDept extends React.Component {
           selectedDepartment: [department],
         });
       } else {
+        let selectedDepartments = _.cloneDeep(selectedDepartment);
+        if (checkIncludeChilren) {
+          if (department.departmentId === 'orgs_' + this.state.project.projectId) {
+            //选中的是组织
+            selectedDepartments = [];
+          } else {
+            let list = this.getParentId(this.state.list, department.departmentId) || [];
+            list = list.map(it => it.departmentId);
+            selectedDepartment.map(o => {
+              let l = this.getParentId(this.state.list, o.departmentId);
+              l = l.map(it => it.departmentId);
+              if (l.includes(department.departmentId)) {
+                selectedDepartments = selectedDepartments.filter(it => it.departmentId !== o.departmentId);
+              }
+            });
+          }
+        }
         this.setState({
-          selectedDepartment: selectedDepartment.concat([department]),
+          selectedDepartment: selectedDepartments.concat([department]),
         });
       }
+    }
+  }
+
+  onChangeSelectedOnly(department) {
+    const { selectedDepartment } = this.state;
+    if (selectedDepartment.filter(dept => dept.departmentId === department.departmentId).length) {
+      this.setState({
+        selectedDepartment: selectedDepartment.map(o => {
+          if (department.departmentId === o.departmentId) {
+            return {
+              ...o,
+              checkIncludeChilren: false,
+            };
+          } else {
+            return o;
+          }
+        }),
+      });
+    } else {
+      this.toggle(department, true);
     }
   }
 
@@ -309,6 +399,9 @@ class DialogSelectDept extends React.Component {
         showUserCount: false,
         unique: this.props.unique,
         departmentMoreIds,
+        checkIncludeChilren: this.props.checkIncludeChilren,
+        treeData: list,
+        onChangeSelectedOnly: this.onChangeSelectedOnly.bind(this),
       };
       let usePageDepartment = !this.state.keywords;
 
@@ -349,8 +442,12 @@ class DialogSelectDept extends React.Component {
       let name = null;
       let deleteFn = () => {};
       avatar = (
-        <div className="GSelect-result-subItem__avatar">
-          <i className="icon-organizational_structure" />
+        <div
+          className={cx('GSelect-result-subItem__avatar', {
+            'GSelect-result-subItem__avatar__onlySelf': this.props.checkIncludeChilren && !item.checkIncludeChilren,
+          })}
+        >
+          <i className="icon-department1" />
         </div>
       );
       id = item.departmentId;
@@ -443,19 +540,19 @@ class DialogSelectDept extends React.Component {
                   <Radio
                     className="GSelect-department--checkbox mRight0"
                     checked={this.getCurrentAllDeptChecked()}
-                    text={_l('全组织')}
+                    text={this.state.project.companyName || _l('全组织')}
                   />
                 ) : (
                   <Checkbox
                     className="GSelect-department--checkbox"
                     checked={this.getCurrentAllDeptChecked()}
-                    text={_l('全组织')}
+                    text={this.state.project.companyName || _l('全组织')}
                   />
                 )}
               </div>
             )}
             {(() => {
-              if (!this.state.project) return null;
+              if (!this.state.project || (this.props.allProject && showProjectAll)) return null;
               if (!this.props.includeProject)
                 return <div className="mTop12 Font13 overflow_ellipsis">{this.state.project.companyName}</div>;
               return (
@@ -516,6 +613,7 @@ module.exports = function (opts) {
     unique: true,
     showCreateBtn: true,
     includeProject: false,
+    checkIncludeChilren: false,
     allProject: false,
     selectFn: function (depts) {
       // console.log(depts);
@@ -547,6 +645,8 @@ module.exports = function (opts) {
     includeProject: options.includeProject,
     showCurrentUserDept: options.showCurrentUserDept,
     allProject: options.allProject,
+    checkIncludeChilren: options.checkIncludeChilren,
+    isAnalysis: options.isAnalysis,
   };
 
   ReactDOM.render(<DialogSelectDept {...listProps} {...{ dialogProps }} />, document.createElement('div'));

@@ -148,7 +148,7 @@ class SearchBox extends Component {
       ) : null;
     return (
       <div className="searchContainer Relative" ref={box => (this.box = box)}>
-        <span className="icon-search btnSearch ThemeColor9" title={_l('搜索')} />
+        <span className="icon-search btnSearch Gray_75" title={_l('搜索')} />
         <input
           defaultValue={searchValue}
           ref={input => (this.input = input)}

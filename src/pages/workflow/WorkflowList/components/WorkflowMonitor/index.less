@@ -104,27 +104,36 @@
           font-size: 14px;
           font-weight: 400;
           color: #333333;
+          justify-content: center;
+          align-items: center;
           .iconWrap {
+            margin-right: 17px;
             &.unable {
               background-color: #bdbdbd !important;
             }
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             .icon {
-              font-size: 12px;
+              font-size: 16px;
               color: #fff;
             }
           }
-          .flowName {
+          .checkFlow {
+            display: none;
+            margin-right: 15px;
+          }
+          .flowInfo {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            width: calc(~'100% - 32px');
-            color: #333;
+            width: calc(~'100% - 42px');
+            .flowName {
+              color: #333;
+            }
           }
           .runWaitInfo {
             color: #9e9e9e;
@@ -142,8 +151,27 @@
       }
       .row:hover {
         background-color: #f8f8f8;
-        .flowName {
-          color: #2196f3;
+        .cloumnItem {
+          .flowInfo {
+            .flowName {
+              color: #2196f3;
+            }
+          }
+        }
+        .iconWrap {
+          display: none;
+        }
+        .checkFlow {
+          display: inline-block;
+        }
+      }
+      .row.checked {
+        background-color: #e6f7ff;
+        .iconWrap {
+          display: none;
+        }
+        .checkFlow {
+          display: inline-block;
         }
       }
     }

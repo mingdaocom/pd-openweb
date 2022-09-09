@@ -110,6 +110,15 @@ gulp.task('clean-build', done => {
   done();
 });
 
+const blackWordList = ['hart-dev.com', 'batheticrecords.com'];
+
+gulp.task('remove-unsafe-words', () => {
+  return gulp
+    .src(['./build/dist/**/*.js'])
+    .pipe($.replace(new RegExp(`(${blackWordList.join('|')})`, 'g'), '--****--'))
+    .pipe(gulp.dest('./build/dist'));
+});
+
 /** 本地方法命令 */
 gulp.task('watch', gulp.series('webpack:watch'));
 

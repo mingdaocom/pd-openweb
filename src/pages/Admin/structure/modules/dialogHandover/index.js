@@ -1,6 +1,5 @@
 import React, { Fragment, Component } from 'react';
 import ReactDom from 'react-dom';
-import Confirm from 'confirm';
 import { Dialog, Radio } from 'ming-ui';
 import userController from 'src/api/user';
 import transferController from 'src/api/transfer';
@@ -28,13 +27,12 @@ class InvoiceSetting extends Component {
   }
 
   init() {
-    const { accountId, projectId, success } = this.props;
-    Confirm(
-      {
-        title: '',
-        content: _l('是否确认将该员工移除？'),
-      },
-      () => {
+    const { accountId, projectId, success, user } = this.props;
+    Dialog.confirm({
+      title: '',
+      description: _l('是否确认将该员工【%0】移除？', user.fullname),
+      buttonType: 'danger',
+      onOk: () => {
         userController
           .removeUser({
             accountId,
@@ -52,7 +50,7 @@ class InvoiceSetting extends Component {
             }
           });
       },
-    );
+    });
   }
 
   fail(msg) {

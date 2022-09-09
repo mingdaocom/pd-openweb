@@ -84,6 +84,7 @@ export default function OptionsSteps(props) {
     <Steps
       tipDirection={rowIndex === 1 ? 'bottom' : undefined}
       disabled={!editable || !isediting}
+      showSelected={!isediting && rowHeight < 50}
       showTip={isediting}
       showScaleText={isediting || rowHeight > 50}
       value={JSON.parse(value || '[]')[0]}

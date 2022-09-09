@@ -6,7 +6,7 @@ import { string, func } from 'prop-types';
  * 适用于弹窗中的信息展示
  */
 
-export default (WrapComponent) => {
+export default WrapComponent => {
   return class DialogInfoDisplay extends Component {
     static propTypes = {
       companyId: string,
@@ -35,12 +35,12 @@ export default (WrapComponent) => {
      */
     getData = () => {
       const { companyId, api } = this.props;
-      let { data, pageIndex, pageSize, haveMoreData } = this.state;
-      const para = { companyId, pageIndex, pageSize };
+      let { data, pageIndex, pageSize, haveMoreData, isAsc, sortId } = this.state;
+      const para = { companyId, pageIndex, pageSize, isAsc, sortId };
       if (haveMoreData && !this.pending) {
-        api(para).then((res) => {
+        api(para).then(res => {
           this.pending = false;
-          data = data.concat(res);
+          data = pageIndex === 1 ? res : data.concat(res);
           this.setState({
             data,
             pageIndex: pageIndex + 1,
@@ -64,9 +64,48 @@ export default (WrapComponent) => {
       }
     };
 
+    handleSorter = params => {
+      const { pageIndex, isAsc, sortId } = params;
+      this.setState(
+        {
+          pageIndex,
+          isAsc,
+          sortId,
+        },
+        () => {
+          this.getData();
+          this.pending = false;
+        },
+      );
+    };
+
+    handleDelete = messageTemplateIds => {
+      const { deleteSMSTemplate } = this.props;
+      let { data = [] } = this.state;
+      deleteSMSTemplate({
+        messageTemplateIds,
+      }).then(res => {
+        if (res) {
+          let result = data.filter(item => !_.includes(messageTemplateIds, item.id));
+          this.setState({ data: result });
+          alert(_l('删除成功'));
+        } else {
+          alert(_l('删除失败'), 2);
+        }
+      });
+    };
+
     render() {
       const { data } = this.state;
-      return <WrapComponent data={data} handleScroll={_.debounce(this.handleScroll)} {...this.props} />;
+      return (
+        <WrapComponent
+          data={data}
+          handleScroll={_.debounce(this.handleScroll)}
+          handleSorter={this.handleSorter}
+          handleDelete={this.handleDelete}
+          {...this.props}
+        />
+      );
     }
   };
 };

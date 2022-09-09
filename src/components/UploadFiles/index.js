@@ -16,11 +16,10 @@ import {
   checkAccountUploadLimit,
   openMdDialog,
   findIsId,
-  openNetStateDialog,
   checkFileAvailable,
 } from './utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
-import { formatFileSize, getToken } from 'src/util';
+import { formatFileSize, getToken, upgradeVersionDialog } from 'src/util';
 import plupload from 'plupload';
 
 export const errorCode = {
@@ -207,6 +206,8 @@ export default class UploadFiles extends Component {
     let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
     const isPublic = from === FROM.PUBLIC || from === FROM.WORKFLOW || window.isPublicWorksheet;
 
+    const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
+
     $(nativeFile).plupload({
       drop_element: dropPasteElement,
       paste_element: dropPasteElement,
@@ -244,6 +245,42 @@ export default class UploadFiles extends Component {
             return false;
           }
 
+
+          //判断应用上传量是否达到上限
+          if (projectId && !window.isPublicApp && !window.isPublicWorksheet) {
+            const params = { projectId, fromType: 9 };
+            checkAccountUploadLimit(filesSize, params).then(available => {
+              if (!available) {
+                upgradeVersionDialog({
+                  projectId,
+                  isFree: licenseType === 0,
+                  hint: _l('应用附件上传量已到最大值'),
+                  okText: _l('购买上传量扩展包'),
+                  onOk: () => navigateTo(`/admin/expansionservice/${projectId}/storage`),
+                });
+                // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
+                _this.setState({
+                  temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
+                });
+                _this.onRemoveAll(uploader);
+                return false;
+              }
+            });
+          } else if (!isPublic && !noTotal && !window.isPublicApp) {
+            // 判断个人上传流量是否达到上限
+            checkAccountUploadLimit(filesSize).then(available => {
+              if (!available) {
+                openMdDialog();
+                // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
+                _this.setState({
+                  temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
+                });
+                _this.onRemoveAll(uploader);
+                return false;
+              }
+            });
+          }
+
           // 判断上传文件的格式
           if (isValid(files)) {
             alert(_l('含有不支持格式的文件'), 3);
@@ -251,9 +288,8 @@ export default class UploadFiles extends Component {
             return false;
           }
 
-          const temporaryDataLength = _this.state.temporaryData.filter(
-            attachment => attachment.fileExt !== '.url',
-          ).length;
+          const temporaryDataLength = _this.state.temporaryData.filter(attachment => attachment.fileExt !== '.url')
+            .length;
           const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
           const currentFileLength = temporaryDataLength + filesLength;
 
@@ -318,7 +354,12 @@ export default class UploadFiles extends Component {
           uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+            file.name.indexOf('.') > -1
+              ? file.name
+                  .split('.')
+                  .slice(0, -1)
+                  .join('.')
+              : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
         },
@@ -341,7 +382,8 @@ export default class UploadFiles extends Component {
           // 上传完成，取消进度条
           const newTemporaryData = _this.state.temporaryData.map(item => {
             if (file.id == item.id && 'progress' in item) {
-              item = formatResponseData(file, decodeURIComponent(response.response));
+              item = formatResponseData(file, response.response);
+              item.originalFileName = decodeURIComponent(item.originalFileName);
               delete item.progress;
               delete item.base;
             }

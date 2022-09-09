@@ -107,6 +107,7 @@ export default class Condition extends Component {
       sourceControlId = '',
       conditionError,
       addCondition,
+      appId,
     } = this.props;
     //是否有固定值、动态值,没有过滤选项
     const isStaticValue = _.includes([FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE], condition.type);
@@ -122,7 +123,7 @@ export default class Condition extends Component {
       conditionTypeListDataFilter = conditionTypeListDataFilter.filter(item => item.value === 2);
     }
 
-    let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type, 'rule');
+    let conditionFilterTypes = getFilterTypes(control, condition.type, 'rule');
     if (control) {
       if (
         control.type === 29 &&
@@ -205,6 +206,7 @@ export default class Condition extends Component {
                           currentColumns, // 当前表控件list
                           relateSheetList,
                           projectId,
+                          appId,
                           sourceControlId,
                           from: 'rule',
                           conditionType: condition.controlType,

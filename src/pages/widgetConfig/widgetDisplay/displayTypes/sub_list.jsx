@@ -56,6 +56,7 @@ export default function SubList({ data }) {
                         <td key={controlId} style={{ width: `${widths[index]}px` }}>
                           {(type === 34 ||
                             type === 45 ||
+                            type === 49 ||
                             (type === 29 && String(enumDefault) === '2' && advancedSetting.showtype === '2')) && (
                             <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
                           )}

@@ -30,6 +30,9 @@ import MobilePhone from './MobilePhone';
 import Cascader from './Cascader';
 import NumberSlider from './NumberSlider';
 import BarCode from './BarCode';
+import Time from './Time';
+import OrgRole from './OrgRole';
+import Search from './Search';
 
 import './CellControls.less';
 
@@ -131,6 +134,8 @@ export default class CellControl extends React.Component {
 
   haveEdittingStatus(cell) {
     return !(
+      cell.type === 31 ||
+      cell.type === 38 ||
       cell.type === 32 ||
       cell.type === 33 ||
       cell.type === 21 ||
@@ -164,13 +169,17 @@ export default class CellControl extends React.Component {
 
   @autobind
   onValidate(value) {
-    const { cell, row, checkRulesErrorOfControl, formdata } = this.props;
+    const { cell, row, checkRulesErrorOfControl, formdata, clearCellError } = this.props;
     const errorType = this.validate({ ...cell, value }, row);
     let errorText;
-    if (_.includes([15, 16], cell.type)) {
+    if (_.includes([15, 16], cell.type) && errorType && errorType !== 'REQUIRED') {
       errorText = onValidator(cell, undefined, _.isFunction(formdata) ? formdata() : formdata).errorText;
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
+    }
+    if (_.includes([15, 16], cell.type) && !errorText) {
+      clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
+      $('.mdTableErrorTip').remove();
     }
     const error = checkRulesErrorOfControl(cell, { ...row, [cell.controlId]: value });
     if (error) {
@@ -306,6 +315,7 @@ export default class CellControl extends React.Component {
       appId,
       allowlink,
       disableDownload,
+      updateCell,
     } = this.props;
     const { isediting } = this.state;
     const error = this.error;
@@ -383,6 +393,7 @@ export default class CellControl extends React.Component {
       viewId,
       appId,
       updateCell: this.handleUpdateCell,
+      updateControlValue: updateCell,
       onClick: this.clickHandle,
       updateEditingStatus: this.handleUpdateEditing,
       clearError: () => this.setState({ error: null }),
@@ -459,8 +470,17 @@ export default class CellControl extends React.Component {
     if (cell.type === 40) {
       return <Location {...props} />;
     }
+    if (cell.type === 46) {
+      return <Time {...props} />;
+    }
     if (cell.type === 47) {
       return <BarCode {...props} />;
+    }
+    if (cell.type === 48) {
+      return <OrgRole {...props} />;
+    }
+    if (cell.type === 49 || cell.type === 50) {
+      return <Search {...props} />;
     }
     return <div className={className} onClick={this.props.onClick} style={style} />;
   }

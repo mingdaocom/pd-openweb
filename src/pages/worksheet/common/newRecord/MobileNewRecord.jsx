@@ -2,10 +2,11 @@ import React, { Fragment, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Modal, WingBlank, Button, ActionSheet } from 'antd-mobile';
+import { Flex, Modal, WingBlank, Button, ActionSheet } from 'antd-mobile';
 import { ScrollView, LoadDiv } from 'ming-ui';
 import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
+import TouchHandler from 'mobile/components/TouchHandler';
 
 const ModalWrap = styled(Modal)`
   height: 95%;
@@ -71,6 +72,36 @@ const LoadingMask = styled.div`
   }
 `;
 
+export function MobileRecordRecoverConfirm(props) {
+  const { title, cancelText, updateText, visible, onCancel, onUpdate } = props;
+  return (
+    <ModalWrap popup animationType="slide-up" onClose={onCancel} visible={visible} style={{ height: 130 }}>
+      <div className="flexColumn h100">
+        <Flex align="center" className="Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">{title}</Flex>
+        <BtnsWrap className="footerBox valignWrapper flexRow" style={{ border: 'none' }}>
+          <WingBlank className="flex" size="sm">
+            <Button
+              className="Font13 bold Gray_75"
+              onClick={onCancel}
+            >
+              {cancelText}
+            </Button>
+          </WingBlank>
+          <WingBlank className="flex" size="sm">
+            <Button
+              className="Font13 bold"
+              type="primary"
+              onClick={onUpdate}
+            >
+              {updateText}
+            </Button>
+          </WingBlank>
+        </BtnsWrap>
+      </div>
+    </ModalWrap>
+  );
+}
+
 function NewRecord(props) {
   const { visible, className, hideNewRecord = _.noop, notDialog, advancedSetting = {}, ...rest } = props;
   const newRecordContent = useRef(null);
@@ -93,7 +124,7 @@ function NewRecord(props) {
       options: [],
       message: (
         <Fragment>
-          <div className="Font17 Gray bold mBottom5 TxtLeft">{_l('继续创建时，是否保留本次提交内容 ?')}</div>
+          <div className="Font17 Gray bold pTop10 mBottom32 TxtLeft">{_l('继续创建时，是否保留本次提交内容 ?')}</div>
           <BtnsWrap className="valignWrapper flexRow confirm">
             <WingBlank className="flex" size="sm">
               <Button
@@ -237,8 +268,16 @@ function NewRecord(props) {
     return contentWrap;
   } else {
     return (
-      <ModalWrap popup animationType="slide-up" className={className} onClose={hideNewRecord} visible={visible}>
-        {contentWrap}
+      <ModalWrap
+        popup
+        animationType="slide-up"
+        className={cx('MobileNewRecordModal', className)}
+        onClose={hideNewRecord}
+        visible={visible}
+      >
+        <TouchHandler onClose={hideNewRecord} touchClassName=".MobileNewRecordModal">
+          {contentWrap}
+        </TouchHandler>
       </ModalWrap>
     );
   }

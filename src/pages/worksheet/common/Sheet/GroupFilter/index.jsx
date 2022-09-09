@@ -7,6 +7,8 @@ import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { updateGroupFilter, getNavGroupCount } from 'worksheet/redux/actions';
+import { getAdvanceSetting } from 'src/util';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
 
 const Con = styled.div(
   ({ width }) => `
@@ -164,7 +166,14 @@ function GroupFilter(props) {
   }, [navGroup, navGroup.controlId, navGroup.viewId, navGroup.isAsc]);
   useEffect(() => {
     isOpenGroup && fetch();
-  }, [navGroup.controlId, navGroup.viewId, navGroup.isAsc, isOpenGroup]);
+  }, [
+    navGroup.controlId,
+    navGroup.viewId,
+    navGroup.isAsc,
+    isOpenGroup,
+    getAdvanceSetting(view).navfilters,
+    getAdvanceSetting(view).navshow,
+  ]);
   useEffect(() => {
     isOpenGroup && getNavGroupCount();
   }, [filters, quickFilter, isOpenGroup]);
@@ -209,13 +218,25 @@ function GroupFilter(props) {
   };
   const fetch = () => {
     const { controlId } = navGroup;
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     setOpenKeys([]);
     if (!controlId) {
       setGroupFilterData([]);
       return;
     } else {
-      setLoading(true);
-      setData();
+      try {
+        navfilters = JSON.parse(navfilters);
+      } catch (error) {
+        navfilters = [];
+      }
+      if (navshow === '2' && navfilters.length <= 0) {
+        //设置了显示项=显示指定项 且 未指定 按空处理
+        setLoading(false);
+        setGroupFilterData([]);
+      } else {
+        setLoading(true);
+        setData();
+      }
     }
   };
 
@@ -291,7 +312,19 @@ function GroupFilter(props) {
             appId,
             searchType: 1,
             getType: !viewId ? 7 : 10,
+            viewId: viewId || soucre.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
           };
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    try {
+      navfilters = JSON.parse(navfilters);
+    } catch (error) {
+      navfilters = [];
+    }
+    if (soucre.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
+      /// 显示 符合筛选条件的处理
+      let filterControls = navfilters.map(handleCondition);
+      param = { ...param, filterControls };
+    }
     ajaxFn = sheetAjax.getFilterRows({
       worksheetId,
       viewId,
@@ -307,7 +340,10 @@ function GroupFilter(props) {
         //视图删除的情况下，显示成为选中视图的状态
         fetchData({ worksheetId, viewId: '', rowId, cb });
       } else {
-        const { data = [] } = result;
+        let { data = [] } = result;
+        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+          data = data.filter(o => navfilters.map(value => safeParse(value).id).includes(o.rowid));
+        }
         const controls = _.get(result, ['template', 'controls']) || [];
         const control = controls.find(item => item.attribute === 1);
         ajaxFn = '';
@@ -346,11 +382,15 @@ function GroupFilter(props) {
     setLoading(false);
     cb && cb();
   };
-  const renderTree = (data, level) => {
+  const renderTree = (data, level, str) => {
     return data.map(d => {
       let hasChildren = !d.isLeaf;
       let isClose = hasChildren && !openKeys.includes(d.value);
       let count = Number((navGroupCounts.find(o => o.key === (!d.value ? 'all' : d.value)) || {}).count || 0);
+      const soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+      const { advancedSetting, type } = soucre;
+      const { allpath = '0' } = advancedSetting;
+      const nStr = allpath === '1' && type === 35 ? (!!str ? str + '/' : '') + d.txt : d.txt; //级联选项控件，结果显示层级路径
       return (
         <React.Fragment>
           <li
@@ -362,7 +402,7 @@ function GroupFilter(props) {
             style={{ paddingLeft: (!level ? 0 : 18 * level) + 6 }}
             onClick={() => {
               updateFilter(d.value);
-              setNavName(d.txt);
+              setNavName(nStr);
             }}
           >
             <div className={cx('gListDiv', { hasCount: count > 0 })}>
@@ -395,7 +435,7 @@ function GroupFilter(props) {
               {count > 0 && <span className="count">{count}</span>}
             </div>
           </li>
-          {hasChildren && d.children && !isClose && renderTree(d.children, !!level ? level + 1 : 1)}
+          {hasChildren && d.children && !isClose && renderTree(d.children, !!level ? level + 1 : 1, nStr)}
         </React.Fragment>
       );
     });
@@ -435,6 +475,16 @@ function GroupFilter(props) {
       : navGroupData;
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
     let isOption = [9, 10, 11].includes(soucre.type); //是否选项
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    try {
+      navfilters = JSON.parse(navfilters);
+    } catch (error) {
+      navfilters = [];
+    }
+    if (isOption && navfilters.length > 0 && navshow === '2') {
+      // 显示 指定项
+      navData = navData.filter(o => navfilters.includes(o.value) || !o.value);
+    }
     return (
       <ScrollView className="flex">
         <div className={cx('groupWrap', { isTree: isSoucreTree() })}>
@@ -450,6 +500,10 @@ function GroupFilter(props) {
                       }
                     : {};
                 let count = Number((navGroupCounts.find(d => d.key === (!o.value ? 'all' : o.value)) || {}).count || 0);
+                // 显示有数据的项
+                if (navshow === '1' && count <= 0) {
+                  return;
+                }
                 return (
                   <li
                     className={cx('gList Hand', {

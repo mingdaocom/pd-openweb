@@ -172,7 +172,7 @@ class RegisterContainer extends React.Component {
     // 注册来源
     var s = request.s || '';
     if (s) {
-      window.localStorage.setItem('RegFrom', s);
+      safeLocalStorageSetItem('RegFrom', s);
     }
 
     // 绑定微信帐号
@@ -469,6 +469,9 @@ class RegisterContainer extends React.Component {
     return (
       <div className="registerBox">
         <div className="registerContainer">
+          <div className="titleHeader">
+            <img src={md.global.SysSettings.brandLogoUrl} height={40} />
+          </div>
           {this.renderCon()}
           {this.showLangChang()}
         </div>

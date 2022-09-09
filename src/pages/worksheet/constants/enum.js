@@ -244,3 +244,10 @@ export const SYSTEM_CONTROLS = [
 ];
 
 export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 45, 47];
+
+export const SHEET_VIEW_HIDDEN_TYPES = [
+  10010, // REMARK 备注
+  22, // SPLIT_LINE 分段
+  43, // OCR
+  49, // SEARCH_BTN 查询按钮
+];

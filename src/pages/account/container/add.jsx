@@ -62,9 +62,9 @@ export default class Add extends React.Component {
           if (data.joinProjectResult === 2) {
             str = _l('请等待管理员审批');
           } else if (data.joinProjectResult === 3) {
-            str = _l('您的申请已提交，请等待管理员审批');
+            str = _l('您已是该组织成员');
           } else if (data.joinProjectResult === 4) {
-            str = _l('该组织ID不存在');
+            str = _l('该组织门牌号不存在');
           } else if (data.joinProjectResult === 5) {
             str = _l('你加入的组织用户额度不足，请联系该组织管理员');
           } else if (data.joinProjectResult === 6) {
@@ -153,8 +153,8 @@ export default class Add extends React.Component {
             {_l('返回')}
           </span>
         )}
-        <div className="title mTop24 Font20">{_l('请填写组织ID')}</div>
-        <p className="mTop10 Gray_9e Font15">{_l('组织ID可以通过管理员获取')}</p>
+        <div className="title mTop24 Font20">{_l('请填写组织门牌号')}</div>
+        <p className="mTop10 Gray_9e Font15">{_l('组织门牌号可以通过管理员获取')}</p>
         {this.renderCon()}
         <span
           className="btnForRegister Hand mTop40"
@@ -163,7 +163,7 @@ export default class Add extends React.Component {
               return;
             }
             if (!regcode) {
-              this.setWarnningText(_l('请填写组织ID'));
+              this.setWarnningText(_l('请填写组织门牌号'));
               return;
             }
             let callback = (res = {}) => {

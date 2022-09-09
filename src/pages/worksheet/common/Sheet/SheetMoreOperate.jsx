@@ -16,6 +16,7 @@ export default function SheetMoreOperate(props) {
   const { name, projectId, worksheetId, allowAdd, entityName, btnName } = worksheetInfo;
   const [menuVisible, setMenuVisible] = useState();
   const autoNumberControls = _.filter(controls, item => item.type === 33);
+
   return (
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
       <Icon className="Gray_9d Font20" icon="more_horiz" />

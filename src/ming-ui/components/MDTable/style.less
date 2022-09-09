@@ -52,12 +52,13 @@
     .ghostAngle {
       display: none;
     }
+    &.highlightFromProps,
     &.highlight {
       background-color: #f5fbff !important;
       // background-color: rgb(209, 237, 255) !important; // 颜色深 开发测试用
     }
     &:not(.isediting):not(.highlight).hover {
-      background-color: #fafafa;
+      background-color: #fafafa !important;
       .hoverShow {
         display: inline-block;
       }

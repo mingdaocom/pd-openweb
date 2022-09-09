@@ -355,6 +355,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.parentId
+  * @param {string} args.keyword 关键字搜索
   * @param {boolean} args.onlyMyJoin 仅看我加入的部门
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize

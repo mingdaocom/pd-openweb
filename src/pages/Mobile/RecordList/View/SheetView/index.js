@@ -73,6 +73,9 @@ const BatchOptBtn = styled.div`
   font-size: 15px;
   border-radius: 8px 8px 0 0;
   z-index: 1;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   .deleteOpt {
     color: #f44336;
   }
@@ -117,11 +120,11 @@ class SheetView extends Component {
     this.state = {};
   }
   componentDidMount() {
-    this.loadCustomBtns(this.props.match.params);
+    this.loadCustomBtns(this.props);
   }
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.match.params, nextProps.match.params)) {
-      this.loadCustomBtns(nextProps.match.params);
+    if (!_.isEqual(this.props.viewId, nextProps.viewId)) {
+      this.loadCustomBtns(nextProps);
     }
   }
   componentWillUnmount() {
@@ -185,13 +188,12 @@ class SheetView extends Component {
     );
   }
   // 加载自定义按钮数据
-  loadCustomBtns = paramsData => {
-    const { view } = this.props;
+  loadCustomBtns = (props = this.props) => {
+    const { appId, worksheetId, viewId } = props;
     this.setState({ customButtonLoading: true });
     worksheetAjax
       .getWorksheetBtns({
-        ...formatParams(paramsData),
-        viewId: formatParams(paramsData).viewId ? formatParams(paramsData).viewId : view.viewId,
+        appId, worksheetId, viewId
       })
       .then(data => {
         this.setState({
@@ -226,7 +228,7 @@ class SheetView extends Component {
       navGroupFilters,
       currentSheetRows = [],
     } = this.props;
-    const { appId, worksheetId, viewId } = this.props.match.params || {};
+    const { appId, worksheetId, viewId } = this.props;
     const { allWorksheetIsSelected } = sheetViewConfig;
     const hasAuthRowIds = currentSheetRows
       .filter(item => _.includes(batchOptCheckedData, item.rowid))
@@ -487,6 +489,9 @@ class SheetView extends Component {
       match,
       sheetSwitchPermit,
       appDetail,
+      appId,
+      worksheetId,
+      viewId,
     } = this.props;
     const { detail } = appDetail;
     const { params } = match;
@@ -579,7 +584,9 @@ class SheetView extends Component {
         )}
         <RecordAction
           recordActionVisible={showButtons}
-          {...formatParams(params)}
+          appId={appId}
+          worksheetId={worksheetId}
+          viewId={viewId}
           customBtns={customBtns}
           worksheetInfo={worksheetInfo}
           loadRow={() => {}}

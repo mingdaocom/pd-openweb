@@ -131,7 +131,7 @@ function BoardView(props) {
 
   useEffect(() => {
     initBoardViewData();
-  }, [viewId, view.viewControl]);
+  }, [viewId, view.viewControl, view.advancedSetting.navshow, view.advancedSetting.navfilters]);
 
   const handleSelectField = obj => {
     if (!isCharge) return;
@@ -206,7 +206,8 @@ function BoardView(props) {
     }
 
     const renderBoard = () => {
-      return every(viewData, item => isEmpty(item.rows)) ? (
+      //显示指定项 不做空数据的判断
+      return every(viewData, item => isEmpty(item.rows)) && view.advancedSetting.navshow !== '2' ? (
         <ViewEmpty filters={filters} viewFilter={view.filters || []} />
       ) : (
         (viewData || []).map((board, index) => {

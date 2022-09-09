@@ -40,6 +40,8 @@ export default class SelectUser extends Component {
       onlyJoinDepartmentChecked: false,
       depPageIndex: 1,
       isMoreDep: true,
+      rootData: [],
+      treeData: [],
     };
   }
   componentDidMount() {
@@ -176,18 +178,24 @@ export default class SelectUser extends Component {
         this.setState({
           loading: false,
           departments: result,
+          rootData: result,
         });
       });
   };
   handleSelectSubDepartment = (department, index) => {
     const { departmentId } = department;
-    const { projectId } = this.props;
-    const { departmentPath, loading } = this.state;
-
+    const { projectId, selectDepartmentType } = this.props;
+    const { departmentPath, loading, selectedUsers, rootData = [], treeData = [] } = this.state;
     if (index) {
-      this.setState({ departmentPath: departmentPath.slice(0, index), loading: true });
+      this.setState({
+        departmentPath: departmentPath.slice(0, index),
+        loading: true,
+      });
     } else {
-      this.setState({ departmentPath: departmentPath.concat(department), loading: true });
+      this.setState({
+        departmentPath: departmentPath.concat(department),
+        loading: true,
+      });
     }
 
     departmentAjax
@@ -197,10 +205,56 @@ export default class SelectUser extends Component {
       })
       .then(result => {
         this.setState({
-          departments: result,
+          departments: result.map(item => ({
+            ...item,
+            disabledSubDepartment:
+              (selectDepartmentType === 'all' &&
+                _.findIndex(selectedUsers, item => item.departmentId === departmentId) > -1) ||
+              department.disabledSubDepartment,
+          })),
           loading: false,
+          treeData: _.isEmpty(treeData)
+            ? this.getTreeData(rootData, departmentId, result)
+            : this.getTreeData(treeData, departmentId, result),
         });
       });
+  };
+  getTreeData = (list, departmentId, subDepartments) => {
+    return list.map(item => {
+      if (item.departmentId === departmentId) {
+        return { ...item, subDepartments };
+      }
+      if (item.subDepartments && item.subDepartments.length) {
+        return { ...item, subDepartments: this.getTreeData(item.subDepartments, departmentId, subDepartments) };
+      }
+      return item;
+    });
+  };
+  getChildren = (data = [], currentId) => {
+    let arr = [],
+      result = [];
+    const func = (data, id) => {
+      data.find(item => {
+        if (item.subDepartments && item.subDepartments.length) {
+          func(item.subDepartments, id);
+        }
+        if (item.departmentId === id) {
+          return (arr = item.subDepartments);
+        }
+      });
+    };
+    func(data, currentId);
+    const flatTree = data => {
+      data.forEach(item => {
+        if (item.subDepartments && item.subDepartments.length) {
+          flatTree(item.subDepartments);
+        }
+        delete item.subDepartments;
+        result.push(item);
+      });
+    };
+    arr && flatTree(arr);
+    return _.isArray(result) && !_.isEmpty(result) ? result.map(item => item.departmentId) : [];
   };
   requestGetDepartmentUsers = () => {
     const { department } = this.state;
@@ -296,7 +350,7 @@ export default class SelectUser extends Component {
 
   renderSelected() {
     const { selectedUsers } = this.state;
-    const { type } = this.props;
+    const { type, selectDepartmentType } = this.props;
     const name = type === 'user' ? 'fullname' : 'departmentName';
     const id = type === 'user' ? 'accountId' : 'departmentId';
     return (
@@ -305,6 +359,7 @@ export default class SelectUser extends Component {
           {selectedUsers.map(item => (
             <span className="selectedItem" key={item[id]}>
               <span>{item[name]}</span>
+              {selectDepartmentType === 'all' && <Icon icon="workflow" className="Gray_9e mLeft5" />}
               <Icon
                 icon="close"
                 className="Gray_9e Font15"
@@ -331,8 +386,9 @@ export default class SelectUser extends Component {
       loading,
       departmentPath,
       onlyJoinDepartmentChecked,
+      selectedAllUsers = [],
     } = this.state;
-    const { type } = this.props;
+    const { type, selectDepartmentType } = this.props;
     if (departmentVisible) {
       return (
         <List
@@ -379,7 +435,7 @@ export default class SelectUser extends Component {
                   className={cx({ avtive: departmentPath.length })}
                   onClick={() => {
                     if (!departmentPath.length) return;
-                    this.setState({ departmentPath: [] });
+                    this.setState({ departmentPath: [], selectedAllUsers: [...selectedAllUsers, ...departmentPath] });
                     this.requestSearchDepartment();
                   }}
                 >
@@ -468,33 +524,44 @@ export default class SelectUser extends Component {
                           onClick={event => {
                             const { selectedUsers } = this.state;
                             const { onlyOne } = this.props;
+                            if (item.disabledSubDepartment) return;
                             const isSelected = selectedUsers.filter(
                               department => department.departmentId === item.departmentId,
                             ).length;
+                            let children = this.getChildren(this.state.treeData, item.departmentId);
+                            let temp = selectedUsers.filter(it => !_.includes(children, it.departmentId));
                             if (onlyOne) {
                               this.setState({
                                 selectedUsers: isSelected ? [] : [item],
+                                selectedAllUsers: isSelected ? [] : [item],
                               });
                               return;
                             }
                             if (isSelected) {
                               this.setState({
-                                selectedUsers: selectedUsers.filter(
+                                selectedUsers: temp.filter(department => department.departmentId != item.departmentId),
+                                selectedAllUsers: temp.filter(
                                   department => department.departmentId != item.departmentId,
                                 ),
                               });
                             } else {
                               this.setState({
-                                selectedUsers: selectedUsers.concat(item),
+                                selectedUsers: temp.concat(item),
+                                selectedAllUsers: temp.concat(item),
                               });
                             }
                           }}
                         >
                           <Checkbox
-                            checked={isChecked(
-                              item.departmentId,
-                              this.state.selectedUsers.map(item => item.departmentId),
-                            )}
+                            checked={
+                              item.disabledSubDepartment
+                                ? true
+                                : isChecked(
+                                    item.departmentId,
+                                    this.state.selectedUsers.map(item => item.departmentId),
+                                  )
+                            }
+                            disabled={item.disabledSubDepartment}
                           />
                           <div className="groupWrapper">
                             <Icon icon="group" className="Font22 White" />

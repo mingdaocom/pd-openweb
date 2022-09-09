@@ -145,15 +145,9 @@ export default class Widgets extends Component {
         showSearch
         allowClear={checkIds.length > 0}
         listHeight={320}
-        value={
-          checkIds.length ? (
-            <Fragment>
-              {checkedItems.map((item, index) => this.renderTitle(item, index !== checkedItems.length - 1))}
-            </Fragment>
-          ) : (
-            <span className="Gray_bd customAntSelectPlaceHolder">{_l('请选择')}</span>
-          )
-        }
+        optionLabelProp="label"
+        value={checkIds}
+        placeholder={_l('请选择')}
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
         filterOption={() => true}
         notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
@@ -177,13 +171,15 @@ export default class Widgets extends Component {
         )}
 
         {noDelOptions.map((item, i) => {
+          const labelNode = this.renderList(item);
           return (
             <Select.Option
               value={item.key}
               key={i}
               className={cx({ 'ant-select-item-option-selected': _.includes(checkIds, item.key) })}
+              label={labelNode}
             >
-              {this.renderList(item)}
+              {labelNode}
             </Select.Option>
           );
         })}

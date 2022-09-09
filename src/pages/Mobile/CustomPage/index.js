@@ -10,8 +10,11 @@ import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
 import WidgetDisplay from './WidgetDisplay';
+import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
 import 'react-grid-layout/css/styles.css';
+
+const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
 const getLayout = components =>
   components.map((item = {}, index) => {
@@ -36,6 +39,11 @@ const LayoutContent = styled.div`
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
     &.haveTitle {
       height: calc(100% - 40px);
+    }
+    &.filter {
+      overflow: inherit;
+      box-shadow: none;
+      background-color: transparent;
     }
   }
   .componentTitle {
@@ -102,7 +110,7 @@ export default class CustomPage extends Component {
               .slice(0, 4);
             navSheetList.forEach(item => {
               if (item.workSheetId === params.worksheetId) {
-                localStorage.setItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
+                safeLocalStorageSetItem(`currentNavWorksheetInfo-${params.worksheetId}`, JSON.stringify(result));
               }
             });
           }
@@ -152,14 +160,16 @@ export default class CustomPage extends Component {
         layout={layout}
       >
         {pageComponents.map((widget, index) => {
-          const { id } = widget;
+          const { id, type } = widget;
           const { title, titleVisible } = widget.mobile;
+          const componentType = getEnumType(type);
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
-              <div className={cx('widgetContent', { haveTitle: titleVisible })}>
+              <div className={cx('widgetContent', componentType, { haveTitle: titleVisible })}>
                 <WidgetDisplay
                   pageComponents={pageComponents}
+                  componentType={componentType}
                   widget={widget}
                   apk={apk}
                   ids={{
@@ -182,7 +192,7 @@ export default class CustomPage extends Component {
       <ScrollView className="h100 w100 GrayBG">
         <DocumentTitle title={pageTitle || pagName || _l('自定义页面')} />
         {loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()}
-        {!location.href.includes('mobile/app') && (
+        {!(location.href.includes('mobile/app') || isMingdao) && (
           <Back
             className="low"
             onClick={() => {

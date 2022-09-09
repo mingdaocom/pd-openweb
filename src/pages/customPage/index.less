@@ -1,9 +1,26 @@
+
+.customPageButtonWrap, .customPageViewWrap, .customPageFilterWrap {
+  z-index: 999;
+}
+
+.selectOptionWrapper {
+  padding: 7px 12px 7px 20px;
+  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: unset;
+    color: #fff;
+    background-color: #2196F3;
+    .icon {
+      color: #fff !important;
+    }
+  }
+}
+
 .editWidgetDialogWrap {
   &.rc-dialog {
     width: auto;
     box-sizing: border-box;
     height: 100%;
-    padding: 30px 60px;
+    padding: 32px 32px 0;
     margin: 0;
   }
   .rc-dialog-body {
@@ -24,9 +41,17 @@
     overflow: hidden;
   }
   .rc-dialog-close {
-    z-index: 2;
+    display: none;
+  }
+  .icon-close:hover {
+    color: #2196F3 !important;
+  }
+  button.save {
+    font-weight: bold;
+    width: 72px !important;
   }
 }
+
 .customPageWrap,
 .customPageContent {
   .react-grid-item.react-grid-placeholder {

@@ -1,7 +1,7 @@
 .flowDetailMembers {
   font-size: 12px;
   > li {
-    &:first-child {
+    &:first-child:not(.inlineFlexRow) {
       margin-top: 12px;
     }
     line-height: normal;
@@ -10,6 +10,19 @@
     position: relative;
     &:hover {
       .flowDetailMemberDel {
+        display: block;
+      }
+    }
+    &.inlineFlexRow {
+      margin-right: 10px;
+      vertical-align: top;
+      .flowDetailMemberBox {
+        padding-right: 24px;
+      }
+      .flowDetailMemberDel {
+        position: absolute;
+        top: 7px;
+        right: 7px;
         display: block;
       }
     }
@@ -33,6 +46,9 @@
     }
     .violet {
       background: #7e57c2;
+    }
+    .bd {
+      background: #bdbdbd;
     }
     .flowDetailMemberBox {
       border: 1px solid #ddd;
@@ -60,7 +76,7 @@
       box-sizing: initial;
     }
     .flowDetailMemberDel {
-      color: #ddd;
+      color: #bdbdbd;
       cursor: pointer;
       display: none;
       &:hover {

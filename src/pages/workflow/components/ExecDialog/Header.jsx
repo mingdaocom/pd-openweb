@@ -64,7 +64,7 @@ export default class Header extends Component {
     }
 
     if (action === 'print') {
-      window.localStorage.setItem('plus_projectId', projectId);
+      safeLocalStorageSetItem('plus_projectId', projectId);
       let printId = '';
       let isDefault = true;
       let printData = {
@@ -79,9 +79,7 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random()
-        .toString(36)
-        .substring(2);
+      let printKey = Math.random().toString(36).substring(2);
       add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -357,7 +355,7 @@ export default class Header extends Component {
                       ),
                   )}
 
-                  <MenuItem onClick={() => window.open(`/app/${app.id}/workflow/record/${id}/${workId}`)}>
+                  <MenuItem onClick={() => window.open(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)}>
                     <Icon icon="launch" />
                     <span className="actionText">{_l('新页面打开')}</span>
                   </MenuItem>

@@ -45,11 +45,11 @@ const getTotalType = control => {
   // 汇总选择汇总字段
   if (control.type === 37) {
     if (includes([0, 6, 8], control.enumDefault2)) return NUMBER_TYPE;
-    if (includes([15, 16], control.enumDefault2)) return DATE_TYPE;
+    if (includes([15, 16, 46], control.enumDefault2)) return DATE_TYPE;
   }
   const type = control.type === 30 ? control.sourceControlType : control.type;
   if (includes([6, 8, 31, 28], type)) return NUMBER_TYPE;
-  if (includes([15, 16], type)) return DATE_TYPE;
+  if (includes([15, 16, 46], type)) return DATE_TYPE;
   return COMMON_TYPE;
 };
 
@@ -147,10 +147,10 @@ export default function Subtotal(props) {
   // 是否显示单位及小数点配置
   const isShowUnitConfig = () => {
     // 如果是日期格式汇总 不显示
-    if ([2, 3].includes(enumDefault) && [15, 16].includes(enumDefault2)) return false;
+    if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(enumDefault2)) return false;
     // 选择日期汇总字段
     if (selectedControl.type === 37) {
-      if ([2, 3].includes(enumDefault) && [15, 16].includes(selectedControl.enumDefault2)) return false;
+      if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(selectedControl.enumDefault2)) return false;
     }
     return true;
   };
@@ -230,7 +230,7 @@ export default function Subtotal(props) {
                   // 如果选择的是时间类型的汇总控件 则将enumDefault2设为时间类型
                   if (
                     selectedControl.type === 37 &&
-                    _.includes([15, 16], selectedControl.enumDefault2) &&
+                    _.includes([15, 16, 46], selectedControl.enumDefault2) &&
                     _.includes([2, 3], value)
                   ) {
                     onChange({ ...nextData, enumDefault2: selectedControl.enumDefault2 });
@@ -242,7 +242,7 @@ export default function Subtotal(props) {
                     return;
                   }
 
-                  if (_.includes([2, 3], value) && _.includes([15, 16], selectedControl.type)) {
+                  if (_.includes([2, 3], value) && _.includes([15, 16, 46], selectedControl.type)) {
                     onChange({ ...nextData, enumDefault2: selectedControl.type });
                   } else {
                     onChange(nextData);
@@ -278,16 +278,6 @@ export default function Subtotal(props) {
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/sheet19.html"
                 onChange={({ filters }) => {
-                  filters = filters.map(it => {
-                    // 汇总字段 dateRange特殊处理 汇总筛选 日期字段 只有指定时间
-                    return it.dateRange === 1
-                      ? {
-                          ...it,
-                          dateRange: 18,
-                          value: !it.value ? moment().format('YYYY-MM-DD') : it.value,
-                        }
-                      : it;
-                  });
                   filtersCache.current = filters;
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
                   setVisible(false);

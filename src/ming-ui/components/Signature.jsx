@@ -5,6 +5,7 @@ import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
 import { getToken } from 'src/util';
 import { Base64 } from 'js-base64';
+import { getSign, editSign } from 'src/api/accountSetting';
 
 const SignatureBox = styled.div`
   width: 100%;
@@ -13,6 +14,14 @@ const SignatureBox = styled.div`
     height: 200px;
     border-radius: 4px;
     background: #f5f5f5;
+    vertical-align: top;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
   }
   .flexRow {
     align-items: center;
@@ -22,6 +31,8 @@ const SignatureBox = styled.div`
 export default class Signature extends Component {
   state = {
     isEdit: false,
+    signature: '',
+    key: '',
   };
 
   isComplete = true;
@@ -49,14 +60,27 @@ export default class Signature extends Component {
 
   clear = () => {
     this.signaturePad.clear();
-    this.setState({ isEdit: false });
+    this.setState({ isEdit: false, signature: '', key: '' }, () => {
+      setTimeout(() => {
+        this.initCanvas();
+      }, 100);
+    });
   };
 
   checkContentIsEmpty() {
-    return !this.state.isEdit;
+    const { isEdit, signature } = this.state;
+
+    return !isEdit && !signature;
   }
 
   saveSignature = (callback = () => {}) => {
+    const { signature, key } = this.state;
+
+    if (signature) {
+      callback({ bucket: 4, key: key });
+      return;
+    }
+
     if (!this.isComplete) return;
 
     this.isComplete = false;
@@ -76,22 +100,43 @@ export default class Signature extends Component {
           .then(({ data }) => {
             const { key = '' } = data || {};
 
-            callback({ bucket: 4, key: key });
+            editSign({ bucket: 4, key: key });
+            callback({ bucket: 4, key });
             this.isComplete = true;
           });
       }
     });
   };
 
+  getSignature = () => {
+    getSign().then(res => {
+      if (!res.url) return alert(_l('暂无签名记录'));
+      this.setState({ isEdit: false, signature: res.url, key: res.key });
+    });
+  };
+
   render() {
-    const { isEdit } = this.state;
+    const { isEdit, signature } = this.state;
 
     return (
       <SignatureBox>
-        <canvas id="signatureCanvas" className="signatureCanvas"></canvas>
-        <div className="flexRow mTop5" style={{ minHeight: 20 }}>
+        {signature ? (
+          <div className="signatureCanvas">
+            <img src={signature} className="w100 h100" />
+          </div>
+        ) : (
+          <canvas id="signatureCanvas" className="signatureCanvas" />
+        )}
+
+        <div className="flexRow mTop10" style={{ minHeight: 20 }}>
+          {!md.global.Account.isPortal && (
+            <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.getSignature}>
+              {_l('使用上次签名')}
+            </span>
+          )}
+
           <div className="flex" />
-          {isEdit && (
+          {(isEdit || !!signature) && (
             <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.clear}>
               <Icon icon="e-signature" className="Font16 mRight5" />
               {_l('重新签名')}

@@ -48,10 +48,10 @@ export default class CountDown extends Component {
       return _l('%0天%1时%2分', d, h, m);
     } else if (h > 0 && !m) {
       return _l('%0小时', h);
-    } else if (h > 0) {
+    } else if (h > 0 && m > 0) {
       return _l(`%0小时%1分钟`, h, m);
     } else if (m > 0) {
-      return _l(`%0分钟`, h);
+      return _l(`%0分钟`, m);
     } else if (s < 0) {
       return;
     } else {

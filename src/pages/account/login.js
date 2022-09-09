@@ -70,7 +70,7 @@ class LoginContainer extends React.Component {
         },
       },
       isFrequentLoginError: false, // 是否需要验证登录
-      homeImage: '',
+      homeImage: ''
     };
   }
 
@@ -93,7 +93,9 @@ class LoginContainer extends React.Component {
       loginType = 0,
     } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
     if (request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) {
-      this.setState({ loading: false });
+      if (location.href.indexOf('network') < 0) {//network =>getProjectBaseInfo 获取信息后 更新loading
+        this.setState({ loading: false });
+      }
     } else {
       let param = { loginType, accountId, encryptPassword };
       if (loginType === 1) {
@@ -126,7 +128,6 @@ class LoginContainer extends React.Component {
 
   loginCallback = (data, isMDLogin, callback, ignoreError) => {
     if ([ActionResult.accountSuccess, ActionResult.needTwofactorVerifyCode].includes(data.accountResult)) {
-
     }
     if (data.accountResult === ActionResult.needTwofactorVerifyCode) {
       //开启了两步验证
@@ -185,7 +186,7 @@ class LoginContainer extends React.Component {
         projectId: request.projectId || '',
       })
       .then(data => {
-        if (!data) {
+        if (!data || !data.companyName) {
           location.replace('/privateImageInstall.htm');
         } else {
           this.setState(
@@ -196,10 +197,11 @@ class LoginContainer extends React.Component {
               projectId: data.projectId,
               text: data.companyName,
               logo: data.logo,
-              linkInvite: '/linkInvite.htm?projectId=' + data.projectId,
+              linkInvite: data.projectId ? '/linkInvite.htm?projectId=' + data.projectId : '',
               homeImage: data.homeImage,
               intergrationScanEnabled: data.intergrationScanEnabled,
               hideRegister: data.hideRegister,
+              loading: false
             },
             () => {
               document.title = data.companyName;
@@ -393,6 +395,11 @@ class LoginContainer extends React.Component {
             {this.showLangChang()}
           </div>
           <ChangeLang />
+          {md.global.Config.IsPlatformLocal && md.global.Config.IsCobranding && (
+            <div className={cx('powered w100 flexRow valignWrapper Font12', this.state.homeImage ? 'White' : 'Gray_9e', { linearGradientBg: this.state.homeImage })}>
+              <span className="pointer info mTop10" onClick={() => window.open('https://www.mingdao.com')}>{_l('基于明道云应用平台内核')}</span>
+            </div>
+          )}
         </div>
       );
     }

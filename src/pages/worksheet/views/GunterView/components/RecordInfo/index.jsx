@@ -7,7 +7,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import { formatRecordTime, fillRecordTimeBlockColor } from 'src/pages/worksheet/views/GunterView/util';
 import { browserIsMobile } from 'src/util';
 
-const isobile = browserIsMobile();
+const isMobile = browserIsMobile();
 
 @connect(
   state => ({
@@ -32,7 +32,7 @@ export default class RecordInfo extends Component {
   }
   render() {
     const { row, isCharge, base, controls, worksheetInfo, sheetSwitchPermit, viewConfig, onClose } = this.props;
-    if (isobile) {
+    if (isMobile) {
       return (
         <RecordInfoModal
           className="full"

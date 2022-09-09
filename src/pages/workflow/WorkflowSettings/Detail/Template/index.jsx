@@ -162,12 +162,7 @@ export default class Template extends Component {
             <i className="Font16 icon-info" />
           </span>
         </div>
-        <Member
-          type={NODE_TYPE.MESSAGE}
-          accounts={data.accounts}
-          removeOrganization={true}
-          updateSource={this.updateSource}
-        />
+        <Member accounts={data.accounts} removeOrganization={true} updateSource={this.updateSource} />
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -365,10 +360,10 @@ export default class Template extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-wechat"
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -380,11 +375,7 @@ export default class Template extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter
-          isCorrect={data.accounts.length && data.appId}
-          onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
-        />
+        <DetailFooter {...this.props} isCorrect={data.accounts.length && data.appId} onSave={this.onSave} />
       </Fragment>
     );
   }

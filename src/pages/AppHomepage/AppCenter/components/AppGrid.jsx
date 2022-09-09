@@ -117,7 +117,7 @@ function MarkedGroupTile(props) {
     safeParse(localStorage.getItem(`home_fold_${md.global.Account.accountId}`) || '{}'),
   );
   useEffect(() => {
-    localStorage.setItem(
+    safeLocalStorageSetItem(
       `home_fold_${md.global.Account.accountId}`,
       JSON.stringify(
         _.pickBy(
@@ -266,10 +266,10 @@ export default function AppGrid(props) {
     console.log(e);
   }
   useEffect(() => {
-    localStorage.setItem(`home_fold_${md.global.Account.accountId}`, JSON.stringify(foldedMap));
+    safeLocalStorageSetItem(`home_fold_${md.global.Account.accountId}`, JSON.stringify(foldedMap));
   }, [foldedMap]);
   useEffect(() => {
-    localStorage.setItem(`home_show_type_${md.global.Account.accountId}`, showType);
+    safeLocalStorageSetItem(`home_show_type_${md.global.Account.accountId}`, showType);
   }, [showType]);
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

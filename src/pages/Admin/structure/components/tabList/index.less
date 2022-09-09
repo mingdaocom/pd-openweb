@@ -1,6 +1,6 @@
 .departmentTop {
   margin-right: 24px;
-  padding: 10px 0;
+  padding: 24px 0 10px;
   ul {
     li {
       line-height: 36px;
@@ -36,80 +36,6 @@
         border-radius: 19px;
         margin-left: 8px;
         padding: 0 6px;
-      }
-    }
-  }
-}
-.jobListBox {
-  padding: 10px 0;
-  margin-right: 0px;
-  width: 100%;
-  padding: 10px 8px 0 0;
-  box-sizing: border-box;
-  flex: 1;
-  overflow: hidden;
-  .createPosition {
-    display: flex;
-    justify-content: space-between;
-    padding-right: 16px;
-  }
-  .jobItem {
-    line-height: 36px;
-    cursor: pointer;
-    padding-left: 24px;
-
-    .jobNameLi {
-      display: inline-block;
-      width: calc(~'100% - 30px');
-      line-height: 36px;
-      vertical-align: middle;
-    }
-
-    &.current {
-      &:hover {
-        background: #dbeeff 0% 0% no-repeat padding-box;
-        border-radius: 0px 16px 16px 0px;
-      }
-
-      background: #dbeeff 0% 0% no-repeat padding-box;
-      border-radius: 0px 16px 16px 0px;
-      color: #2196f3 !important;
-      .listName {
-        color: #2196f3 !important;
-      }
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.04) 0% 0% no-repeat padding-box;
-      border-radius: 0px 16px 16px 0px;
-    }
-
-    span.listName {
-      margin-left: 8px;
-    }
-
-    .editIcon {
-      margin: 10px 10px 10px 0;
-      display: none;
-      &:hover {
-        color: #2196f3 !important;
-      }
-    }
-    &.current,
-    &:hover {
-      .editIcon {
-        display: inline-block;
-      }
-      .jobNameLi {
-        width: calc(~'100% - 52px');
-      }
-    }
-  }
-  .jobListUl {
-    &.nano {
-      height: calc(~'100vh - 300px');
-      .nano-content {
-        right: 0 !important;
       }
     }
   }

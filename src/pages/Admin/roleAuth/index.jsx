@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Route } from 'react-router-dom';
 
-import { Button, Icon } from 'ming-ui';
+import { Button, Icon, Checkbox } from 'ming-ui';
 import Link from 'src/router/Link.jsx';
 
 import RoleAuthCommon from './common/common';
@@ -12,8 +12,9 @@ import RoleLog from './roleLog';
 
 import CreateRole from './createEditRole';
 import ApplyRole from './applyForRole';
-import Config from '../config'
+import Config from '../config';
 import { navigateTo } from 'src/router/navigateTo';
+import { setAllowApplyManageRole, getAllowApplyManageRole } from 'src/api/projectSetting';
 
 import './common/style.less';
 
@@ -24,7 +25,8 @@ export default class RoleAuth extends React.Component {
 
     showCreateRole: false,
     showApplyForRole: false,
-    detailTitle: ''
+    detailTitle: '',
+    allowApplyManage: false,
   };
 
   componentWillMount() {
@@ -39,6 +41,7 @@ export default class RoleAuth extends React.Component {
         isSuperAdmin,
       });
     });
+    this.getAllowApplyManageRole(params);
   }
 
   getCount() {
@@ -52,8 +55,14 @@ export default class RoleAuth extends React.Component {
     });
   }
 
+  getAllowApplyManageRole = params => {
+    getAllowApplyManageRole({ projectId: params.projectId }).then(res => {
+      this.setState({ allowApplyManage: res });
+    });
+  };
+
   setDetailTitle(detailTitle) {
-    this.setState({ detailTitle })
+    this.setState({ detailTitle });
   }
 
   renderMenu() {
@@ -61,33 +70,34 @@ export default class RoleAuth extends React.Component {
       match: { params },
     } = this.props;
     const projectId = params.projectId;
-    const roleId = params.roleId
-    const { count } = this.state;
+    const roleId = params.roleId;
+    const { count, allowApplyManage } = this.state;
     const routeList = [
       {
-        routeType: 'rolelist',
-        tabName: _l('权限管理'),
-        pageTitle: _l('权限管理'),
+        routeType: 'sysroles',
+        tabName: _l('管理配置角色'),
+        pageTitle: _l('管理员'),
       },
       {
         routeType: 'rolelog',
         tabName: _l('日志'),
-        pageTitle: _l('权限管理'),
+        pageTitle: _l('管理员'),
       },
     ];
 
-    if(roleId) {
+    if (roleId) {
       return (
         <div className="roleAuthHeader">
           <div className="detailTitle">
             <Icon
               icon="backspace"
               className="Hand mRight18 TxtMiddle Font24 adminHeaderIconColor"
-              onClick={() => navigateTo('/admin/rolelist/' + projectId)}></Icon>
+              onClick={() => navigateTo('/admin/sysroles/' + projectId)}
+            ></Icon>
             <span className="Font17 Bold">{this.state.detailTitle}</span>
           </div>
         </div>
-      )
+      );
     }
 
     return (
@@ -111,17 +121,38 @@ export default class RoleAuth extends React.Component {
           })}
         </ul>
         <Route
-          path={'/admin/rolelist/:projectId'}
+          path={'/admin/sysroles/:projectId'}
           render={({ match }) => {
             if (!this.state.isSuperAdmin) return null;
             return (
-              <div className="roleListAction">
+              <div className="roleListAction flexRow">
+                <Checkbox
+                  className="mRight40 lineHeight36 "
+                  checked={allowApplyManage}
+                  onClick={val => {
+                    this.setState({ allowApplyManage: !val }, () => {
+                      setAllowApplyManageRole({
+                        projectId,
+                        allowApplyManageRole: !val,
+                      }).then(res => {
+                        if (res) {
+                          alert(_l('设置成功'));
+                        } else {
+                          alert(_l('设置失败'), 2);
+                        }
+                      });
+                    });
+                  }}
+                >
+                  {_l('允许申请管理员')}
+                </Checkbox>
                 <Button
                   type="link"
                   className="roleApplyRecord"
                   onClick={e => {
                     this.setState({ showApplyForRole: true });
-                  }}>
+                  }}
+                >
                   {_l('申请角色请求')}
                   {count ? <span className="applyRecordCount">{count}</span> : null}
                 </Button>
@@ -132,7 +163,8 @@ export default class RoleAuth extends React.Component {
                     className="ming Button Button--primary roleCreateBtn"
                     onClick={e => {
                       this.setState({ showCreateRole: true });
-                    }}>
+                    }}
+                  >
                     {_l('创建角色权限')}
                   </button>
                 )}
@@ -186,7 +218,7 @@ export default class RoleAuth extends React.Component {
         {this.renderMenu()}
         <div className="roleAuthContent">
           <Route
-            path={'/admin/rolelist/:projectId'}
+            path={'/admin/sysroles/:projectId'}
             exact
             render={({ match: { params } }) => {
               return (
@@ -200,10 +232,10 @@ export default class RoleAuth extends React.Component {
             }}
           />
           <Route
-            path={'/admin/rolelist/:projectId/:roleId'}
+            path={'/admin/sysroles/:projectId/:roleId'}
             exact
             render={({ match: { params } }) => {
-              return <RoleDetail {...params} setDetailTitle={this.setDetailTitle.bind(this)}/>;
+              return <RoleDetail {...params} setDetailTitle={this.setDetailTitle.bind(this)} />;
             }}
           />
           <Route

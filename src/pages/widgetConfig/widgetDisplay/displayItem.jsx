@@ -93,6 +93,9 @@ const DisplayItemWrap = styled.div`
         font-size: 15px;
         font-weight: bold;
       }
+      &.minHeight18 {
+        min-height: 18px;
+      }
     }
     .desc {
       color: #9e9e9e;

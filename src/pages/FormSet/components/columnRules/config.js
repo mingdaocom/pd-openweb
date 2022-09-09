@@ -12,6 +12,7 @@ import {
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 
 //初始规则数据
 export const originRuleItem = {
@@ -41,8 +42,8 @@ export const actionsListData = [
   { value: 4, label: _l('只读') },
   { value: 5, label: _l('必填') },
   { value: 6, label: _l('提示错误') },
-  { value: 7, label: _l('锁定当前记录') },
-  { value: 8, label: _l('解锁当前记录') },
+  { value: 7, label: _l('锁定记录') },
+  { value: 8, label: _l('解锁记录') },
 ];
 
 //获取规则名字段长度
@@ -120,7 +121,7 @@ export function getNewDropDownData(dropDownData = [], actionType) {
   if (_.includes([3, 4, 5], actionType)) {
     filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 10010);
     if (actionType === 5) {
-      filterControls.push(43);
+      filterControls.push(43, 49);
     }
   }
 
@@ -145,14 +146,18 @@ export function getNewDropDownData(dropDownData = [], actionType) {
 export const filterUnAvailable = (controlConfig = {}, worksheetControls = []) => {
   const { controls = [] } = controlConfig;
   const dropDownData = getNewDropDownData(worksheetControls, controlConfig.type);
-  controlConfig.controls = controls.filter(item => {
-    if (item.childControlIds && item.childControlIds.length > 0) {
-      const { relationControls = [] } = _.find(dropDownData, i => i.controlId === item.controlId) || {};
-      item.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
+  let newControls = [];
+  controls.map(item => {
+    let newItem = { ...item };
+    if (_.find(dropDownData, da => da.controlId === item.controlId)) {
+      if (item.childControlIds && item.childControlIds.length > 0) {
+        const { relationControls = [] } = _.find(dropDownData, i => i.controlId === item.controlId) || {};
+        newItem.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
+      }
+      newControls.push(item);
     }
-    return _.find(dropDownData, da => da.controlId === item.controlId) && (item.childControlIds || []).length > 0;
   });
-  return controlConfig;
+  return { ...controlConfig, controls: newControls };
 };
 
 //根据actionValue获取label
@@ -176,7 +181,16 @@ export function checkConditionCanSave(filters = []) {
 //判断条件是否填写
 export function checkConditionError(condition) {
   const control = formatCondition(condition) || {};
-  const { value, values, dataType, dynamicSource = [], isDynamicsource = false, minValue, maxValue } = control;
+  const {
+    value,
+    values,
+    dataType,
+    dynamicSource = [],
+    isDynamicsource = false,
+    minValue,
+    maxValue,
+    dateRange,
+  } = control;
   const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(dataType)] || {}).value;
   const type = condition.filterType;
   //动态参数输入框
@@ -202,12 +216,24 @@ export function checkConditionError(condition) {
       } else {
         return !value ? 'numberConditionErrorBorder' : '';
       }
+    case CONTROL_FILTER_WHITELIST.DATE.value:
+      if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN || dateRange)
+        return '';
+      return !value ? 'dateConditionErrorBorder' : '';
+    case CONTROL_FILTER_WHITELIST.TIME.value:
+      if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
+        if (!minValue || !maxValue) {
+          return 'timeRangeConditionErrorBorder';
+        }
+      } else {
+        return !value ? 'timeConditionErrorBorder' : '';
+      }
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
     case CONTROL_FILTER_WHITELIST.USERS.value:
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
     case CONTROL_FILTER_WHITELIST.CASCADER.value:
       if (values && !values.length) {
-        if (_.includes([27, 19, 23, 24], dataType)) {
+        if (_.includes([27, 19, 23, 24, 48], dataType)) {
           return 'optionConditionErrorBorder';
         } else if (_.includes([26], dataType)) {
           return 'userConditionErrorBorder';
@@ -233,7 +259,7 @@ export function formatCondition(condition) {
     dateRangeType: condition.dateRangeType,
     fullValues: fullValues,
     values:
-      _.includes([26, 27, 29, 19, 23, 24, 35], condition.controlType || condition.dataType) &&
+      _.includes([26, 27, 29, 19, 23, 24, 35, 48], condition.controlType || condition.dataType) &&
       fullValues &&
       fullValues.length > 0
         ? condition.fullValues
@@ -268,8 +294,8 @@ export function formatFilterValue(condition) {
 //filters保存，关联values取id
 export function formatValues(items) {
   return items.map(item =>
-    _.includes([26, 27, 29, 19, 23, 24, 35], item.dataType)
-      ? { ...item, values: item.values.map(val => (typeof val === 'string' ? JSON.parse(val).id : val)) }
+    _.includes([26, 27, 29, 19, 23, 24, 35, 48], item.dataType)
+      ? { ...item, values: item.values.map(val => (typeof val === 'string' ? safeParse(val).id : val)) }
       : item,
   );
 }
@@ -300,22 +326,31 @@ export const filterText = (key, filterData, control) => {
       }
     case CONTROL_FILTER_WHITELIST.DATE.value:
       const { dateRange, value } = filterData;
+      const { formatMode } = getDatePickerConfigs(control);
       if (!!filterData.minValue && !!filterData.maxValue) {
-        return `${moment(filterData.minValue).format('YYYY-MM-DD')} - ${moment(filterData.maxValue).format(
-          'YYYY-MM-DD',
-        )}`;
+        return `${moment(filterData.minValue).format(formatMode)} - ${moment(filterData.maxValue).format(formatMode)}`;
       } else if (dateRange === 10) {
         return _l('过去%0天', value);
       } else if (dateRange === 11) {
         return _l('将来%0天', value);
       } else if (dateRange === 18) {
-        return moment(value).format('YYYY-MM-DD');
-      } else if (dateRange === 0) {
+        return moment(value).format(formatMode);
+      } else if (!dateRange) {
         return '';
       } else {
         return _.filter(_.flatten(DATE_OPTIONS), {
           value: filterData.dateRange,
         })[0].text;
+      }
+    case CONTROL_FILTER_WHITELIST.TIME.value:
+      const formatStr = control.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+      if (!!filterData.minValue && !!filterData.maxValue) {
+        return `${moment(filterData.minValue, formatStr).format(formatStr)} - ${moment(
+          filterData.maxValue,
+          formatStr,
+        ).format(formatStr)}`;
+      } else {
+        return filterData.value ? moment(filterData.value, formatStr).format(formatStr) : '';
       }
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       const selectKey = filterType === FILTER_CONDITION_TYPE.EQ ? '1' : '0';
@@ -329,6 +364,7 @@ export const filterText = (key, filterData, control) => {
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
       if (
         filterData.dataType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||
+        filterData.dataType === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE ||
         _.includes(
           [API_ENUM_TO_TYPE.AREA_INPUT_24, API_ENUM_TO_TYPE.AREA_INPUT_19, API_ENUM_TO_TYPE.AREA_INPUT_23], //AREA_INPUT
           filterData.dataType,
@@ -336,7 +372,7 @@ export const filterText = (key, filterData, control) => {
       ) {
         return (filterData.values || [])
           .map(item => {
-            const user = JSON.parse(item || '{}');
+            const user = safeParse(item || '{}');
             return user.name;
           })
           .join(',');
@@ -370,14 +406,14 @@ export const filterText = (key, filterData, control) => {
       }
       return filterData.values
         .map(item => {
-          const user = JSON.parse(item || '{}');
+          const user = safeParse(item || '{}');
           return user.name;
         })
         .join(',');
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
     case CONTROL_FILTER_WHITELIST.CASCADER.value:
       const { values = [] } = filterData;
-      return values.map(item => JSON.parse(item || '{}').name).join(',');
+      return values.map(item => safeParse(item || '{}').name).join(',');
     default:
       return _.isEmpty(filterData.values) ? '' : filterData.values.join(',');
   }
@@ -439,7 +475,7 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       dataList.push({
         id: item.controlId,
         name: isSetting || control.controlName ? control.controlName : control.data.controlName,
-        type: _.find(getFilterTypes(item.dataType, control), { value: item.filterType }),
+        type: _.find(getFilterTypes(control), { value: item.filterType }),
         spliceType: item.spliceType,
         value,
       });

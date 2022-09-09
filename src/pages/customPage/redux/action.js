@@ -13,6 +13,7 @@ import {
   UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_COMPONENTS,
   ADD_RECORD,
+  UPDATE_FILTERS_GROUP
 } from './actionType';
 import sheetAjax from 'src/api/worksheet';
 
@@ -43,3 +44,6 @@ export const insertTitle = genAction(INSET_TITLE);
 export const updateModified = genAction(UPDATE_MODIFIED);
 
 export const updateComponents = genAction(UPDATE_COMPONENTS);
+
+export const updateFiltersGroup = genAction(UPDATE_FILTERS_GROUP);
+

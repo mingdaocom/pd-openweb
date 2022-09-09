@@ -16,6 +16,7 @@ import {
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import Share from 'src/pages/worksheet/components/Share';
+import { MobileRecordRecoverConfirm } from './MobileNewRecord';
 import { browserIsMobile } from 'src/util';
 import './NewRecord.less';
 import { BUTTON_ACTION_TYPE } from './NewRecord';
@@ -92,6 +93,7 @@ function NewRecordForm(props) {
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
+  const isMobile = browserIsMobile();
   useEffect(() => {
     async function load() {
       if (_.isEmpty(formdata)) {
@@ -265,35 +267,48 @@ function NewRecordForm(props) {
   registerFunc({ newRecord });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
+  const onTempNewRecordUpdate = () => {
+    setRestoreVisible(false);
+    if (viewId) {
+      const parsedData = parseRecordTempValue(tempNewRecord, formdata);
+      setRandom(Math.random().toString());
+      setFormdata(parsedData.formdata);
+      setRelateRecordData(parsedData.relateRecordData);
+      removeFromLocal('tempNewRecord', viewId);
+    }
+  }
+  const onTempNewRecordCancel = () => {
+    setRestoreVisible(false);
+    if (viewId) {
+      removeFromLocal('tempNewRecord', viewId);
+    }
+  }
   return (
     <Con>
       {tempNewRecord && (
-        <EditingBarCon>
-          <EditingBar
+        isMobile ? (
+          <MobileRecordRecoverConfirm
             visible={restoreVisible}
-            defaultTop={-140}
-            visibleTop={8}
             title={_l('有上次未提交的内容，是否恢复？')}
             updateText={_l('恢复')}
             cancelText={_l('丢弃')}
-            onUpdate={() => {
-              setRestoreVisible(false);
-              if (viewId) {
-                const parsedData = parseRecordTempValue(tempNewRecord, formdata);
-                setRandom(Math.random().toString());
-                setFormdata(parsedData.formdata);
-                setRelateRecordData(parsedData.relateRecordData);
-                removeFromLocal('tempNewRecord', viewId);
-              }
-            }}
-            onCancel={() => {
-              setRestoreVisible(false);
-              if (viewId) {
-                removeFromLocal('tempNewRecord', viewId);
-              }
-            }}
+            onUpdate={onTempNewRecordUpdate}
+            onCancel={onTempNewRecordCancel}
           />
-        </EditingBarCon>
+        ) : (
+          <EditingBarCon>
+            <EditingBar
+              visible={restoreVisible}
+              defaultTop={-140}
+              visibleTop={8}
+              title={_l('有上次未提交的内容，是否恢复？')}
+              updateText={_l('恢复')}
+              cancelText={_l('丢弃')}
+              onUpdate={onTempNewRecordUpdate}
+              onCancel={onTempNewRecordCancel}
+            />
+          </EditingBarCon>
+        )
       )}
       <RecordCon>
         {!window.isPublicApp && shareVisible && (

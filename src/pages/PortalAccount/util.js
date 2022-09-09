@@ -1,5 +1,6 @@
 import { setPssId } from 'src/util/pssId';
 import { getRequest, browserIsMobile } from 'src/util';
+import { getAppIdByAddressSuffix } from 'src/api/externalPortal';
 
 export const urlList = [
   'app/',
@@ -14,18 +15,66 @@ export const urlList = [
   'printForm/',
 ];
 
+export const getSuffix = url => {
+  let addressSuffix = decodeURIComponent(url)
+    .replace(/http(s)?:\/\/([^/]+)\//i, '')
+    .split(/portal\/(.*)/)
+    .filter(o => o)[0];
+  return addressSuffix;
+};
+
+export const toApp = appId => {
+  //手机端来源
+  if (browserIsMobile()) {
+    window.location.replace(`${window.subPath || ''}/mobile/app/${appId}`);
+  } else {
+    window.location.replace(`${window.subPath || ''}/app/${appId}`); //进入应用
+  }
+};
+
+export const getCurrentAppId = async () => {
+  const request = getRequest();
+  const { ReturnUrl = '' } = request;
+  let href = decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href);
+  let currentAppId = ''
+  urlList.map(o => {
+    if (href.indexOf(o) >= 0) {
+      currentAppId = href.substr(href.indexOf(o) + o.length, 36);
+    }
+  });
+  currentAppId = !currentAppId
+    ? await getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) })
+    : currentAppId;
+  return currentAppId;
+};
+
+export const getCurrentId = (cb) => {
+  const request = getRequest();
+  const { ReturnUrl = '', mdAppId = '' } = request;
+  if (!!mdAppId) {
+    cb(mdAppId)
+    return
+  }
+  let href = decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href);
+  let currentAppId = ''
+  urlList.map(o => {
+    if (href.indexOf(o) >= 0) {
+      currentAppId = href.substr(href.indexOf(o) + o.length, 36);
+    }
+  });
+  if (!currentAppId) {
+    getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) }).then(res => {
+      cb(res)
+    })
+  } else {
+    cb(currentAppId)
+  }
+};
+
 export const goApp = (sessionId, appId) => {
   setPssId(sessionId);
   const request = getRequest();
   const { ReturnUrl = '' } = request;
-  const toApp = () => {
-    //手机端来源
-    if (browserIsMobile()) {
-      window.location.replace(`${window.subPath || ''}/mobile/app/${appId}`);
-    } else {
-      window.location.replace(`${window.subPath || ''}/app/${appId}`); //进入应用
-    }
-  };
   if (ReturnUrl) {
     let domainName = '';
     let href = decodeURIComponent(ReturnUrl);
@@ -37,10 +86,19 @@ export const goApp = (sessionId, appId) => {
     if (domainName) {
       window.location.replace(ReturnUrl);
     } else {
-      toApp();
+      toApp(appId);
     }
   } else {
-    toApp();
+    toApp(appId);
+  }
+};
+export const setAutoLoginKey = res => {
+  const { appId, autoLoginKey } = res;
+  if (!autoLoginKey) {
+    window.localStorage.removeItem(`PortalLoginInfo-${appId}`); //删除自动登录的key
+  } else {
+    // 本地存key和APPID
+    safeLocalStorageSetItem(`PortalLoginInfo-${appId}`, autoLoginKey);
   }
 };
 

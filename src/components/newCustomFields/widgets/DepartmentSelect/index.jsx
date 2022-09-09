@@ -81,7 +81,9 @@ export default class Widgets extends Component {
         {value.map((item, index) => {
           return (
             <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>
-              <i className="Font14 Gray_9e mLeft8 icon-workflow" />
+              <div className="departWrap" style={{ backgroundColor: '#2196f3' }}>
+                <i className="Font16 icon-department" />
+              </div>
 
               <span className="ellipsis mLeft5" style={{ maxWidth: 200 }}>
                 {item.departmentName}

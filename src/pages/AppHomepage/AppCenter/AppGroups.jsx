@@ -71,7 +71,7 @@ function AppGroups(props) {
   if (!(groupsLoading || appsLoading) && noApps && !projectId) {
     return <NoProjectsStatus />;
   }
-  if (!(groupsLoading || appsLoading) && noApps && projectId) {
+  if (!(groupsLoading || appsLoading) && noApps && projectId && projectId !== 'external') {
     return <CreateFirstApp projectId={projectId} />;
   }
   return (

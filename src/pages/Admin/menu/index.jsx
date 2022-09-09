@@ -3,6 +3,7 @@ import { NavLink, withRouter } from 'react-router-dom';
 import { Tooltip } from 'ming-ui';
 import pathToRegexp from 'path-to-regexp';
 import { navigateTo } from 'src/router/navigateTo';
+import { getFeatureStatus } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 
@@ -32,13 +33,15 @@ export default class AdminLeftMenu extends Component {
       });
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes }, key) => {
+  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key }, index) => {
     const {
       location: { pathname },
       match: {
         params: { projectId },
       },
     } = this.props;
+    if (key === 'billinfo' && !md.global.Config.IsPlatformLocal) return;
+    if (key === 'workwxapp' && md.global.Config.IsPlatformLocal) return;
     const isActive = () => {
       return _.some(routes, route => pathToRegexp(route.path).test(pathname));
     };
@@ -46,13 +49,15 @@ export default class AdminLeftMenu extends Component {
     const compile = pathToRegexp.compile(menuPath || route.path);
     const path =
       route.path && route.path.indexOf(':projectId') === -1 ? compile({ 0: projectId }) : compile({ projectId });
+    let featureType = getFeatureStatus(projectId, featureId);
+    if (_.includes(['workwxapp', 'ding', 'welink', 'feishu', 'analytics', 'contactsHidden'], key) && !featureType) return;
     return (
       <Tooltip
         disable={this.state.isExtend}
         popupPlacement="right"
         offset={[0, 0]}
         text={<span>{name}</span>}
-        key={key}
+        key={index}
       >
         <li className="item">
           <NavLink
@@ -76,7 +81,7 @@ export default class AdminLeftMenu extends Component {
         isExtend: !this.state.isExtend,
       },
       () => {
-        localStorage.setItem('adminList_isUp', this.state.isExtend);
+        safeLocalStorageSetItem('adminList_isUp', this.state.isExtend);
       },
     );
   }

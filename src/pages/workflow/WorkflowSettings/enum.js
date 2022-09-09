@@ -22,6 +22,9 @@ export const NODE_TYPE = {
   PBC: 20,
   JSON_PARSE: 21,
   AUTHENTICATION: 22,
+  PARAMETER: 23,
+  API_PACKAGE: 24,
+  API: 25,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -60,6 +63,7 @@ export const ACTION_ID = {
   WORKSHEET_FIND: '406',
   BATCH_FIND: '407',
   FROM_PBC_ARRAY: '408',
+  FROM_API_ARRAY: '409',
   RECORD_LINK_FIND: '420',
   PBC: '500',
   PBC_INPUT: '501',
@@ -93,6 +97,9 @@ export const APP_TYPE = {
   NO_AUTH: 30,
   BASIC_AUTH: 31,
   OAUTH2: 32,
+  PARAMETER: 40,
+  API_PACKAGE: 41,
+  API: 42,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -137,9 +144,13 @@ export const CONTROLS_NAME = {
   40: _l('定位'),
   41: _l('富文本'),
   42: _l('签名'),
-  43: _l('文字识别'),
+  43: _l('文本识别'),
   45: _l('嵌入'),
+  46: _l('时间'),
   47: _l('条码'),
+  48: _l('组织角色'),
+  49: _l('接口查询'),
+  50: _l('接口查询'),
   10000001: _l('节点设置人员'),
   10000002: _l('节点设置人员'),
   10000003: _l('数组'),
@@ -196,7 +207,9 @@ export const CONDITION_TYPE = {
   37: _l('在范围内'),
   38: _l('不在范围内'),
   39: _l('晚于'),
+  40: _l('晚于等于'),
   41: _l('早于'),
+  42: _l('早于等于'),
 };
 
 export const USER_TYPE = {
@@ -417,6 +430,7 @@ export const FIELD_TYPE_LIST = [
   { text: _l('日期时间'), value: 16, en: 'date' },
   { text: _l('人员'), value: 26, en: 'member' },
   { text: _l('部门'), value: 27, en: 'department' },
+  { text: _l('附件'), value: 14, en: 'attachment' },
   { text: _l('数组'), value: 10000003, en: 'array' },
   { text: _l('普通数组'), value: 10000007, en: 'array' },
   { text: _l('对象数组'), value: 10000008, en: 'array[object]' },
@@ -430,3 +444,12 @@ export const METHODS_TYPE = [
   { text: 'HEAD', value: 5 },
   { text: 'PATCH', value: 6 },
 ];
+
+export const FORMAT_TEXT = {
+  1: 'YYYY-MM-DD HH:mm',
+  2: 'YYYY-MM-DD HH',
+  3: 'YYYY-MM-DD',
+  4: 'YYYY-MM',
+  5: 'YYYY',
+  6: 'YYYY-MM-DD HH:mm',
+};

@@ -27,7 +27,7 @@ const CommonEmpty = (
     <Empty detail={detail} />
   </div>
 );
-const { admin: {adminLeftMenu}} = window.private
+
 export default class AdminEntryPoint extends PureComponent {
   state = {
     isLoading: true,
@@ -37,7 +37,7 @@ export default class AdminEntryPoint extends PureComponent {
 
   componentWillMount() {
     if (_.isNull(localStorage.getItem('adminList_isUp'))) {
-      localStorage.setItem('adminList_isUp', true);
+      safeLocalStorageSetItem('adminList_isUp', true);
     }
   }
 
@@ -84,7 +84,6 @@ export default class AdminEntryPoint extends PureComponent {
       authority.map(item => {
         cur = cur.concat(permissionObj[item] || []);
       });
-      cur = cur.filter(item => !adminLeftMenu[item])
       return cur;
     }
   }
@@ -145,6 +144,8 @@ export default class AdminEntryPoint extends PureComponent {
 
   render() {
     const { authority = [], isLoading, routeKeys } = this.state;
+    let { isSuperAdmin } = md.global.Account.projects.find(item => item.projectId === Config.projectId) || {};
+
     if (isLoading) {
       return <LoadDiv className="mTop10" />;
     }
@@ -156,7 +157,10 @@ export default class AdminEntryPoint extends PureComponent {
     //  是否有管理员基本权限
     if (authority.indexOf(AUTHORITY_DICT.HAS_PERMISSIONS) === -1 && location.href.indexOf('admin/apply') === -1) {
       navigateTo('/admin/apply/' + Config.projectId);
-    } else if (location.href.indexOf('admin/index') > -1) {
+    } else if (
+      location.href.indexOf('admin/index') > -1 ||
+      (isSuperAdmin && location.href.indexOf('admin/apply') > -1)
+    ) {
       navigateTo('/admin/home/' + Config.projectId);
     } else if (this.getCurrentAuth(routeKeys) && !location.href.includes('admin/apply')) {
       navigateTo('/admin/' + routeKeys[0] + '/' + Config.projectId);

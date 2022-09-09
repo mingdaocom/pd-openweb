@@ -211,7 +211,7 @@ class FillRecordControls extends React.Component {
     );
   };
   render() {
-    const { recordId, worksheetId, projectId, hideDialog, title } = this.props;
+    const { appId, recordId, worksheetId, projectId, hideDialog, title } = this.props;
     const { submitLoading, formData, showError } = this.state;
     return (
       <Con>
@@ -233,6 +233,7 @@ class FillRecordControls extends React.Component {
               recordId={recordId}
               from={3}
               projectId={projectId}
+              appId={appId}
               worksheetId={worksheetId}
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}

@@ -183,7 +183,7 @@ class Approval extends React.Component {
               <span className="formLabel mTop5">{_l('手机')}</span>
               <div className="formControl Gray_75">{mobilePhone}</div>
             </div>
-            <div className="formGroup">
+            <div className="formGroup mBottom24">
               <span className="formLabel">{_l('部门')}</span>
               {departmentInfos.map((item, i) => {
                 return (

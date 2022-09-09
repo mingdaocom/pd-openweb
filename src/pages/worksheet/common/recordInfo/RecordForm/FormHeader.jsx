@@ -7,7 +7,7 @@ import { handleChangeOwner, updateRecordOwner } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 export default function FormHeader(props) {
-  const { recordbase, recordinfo, view = {}, updateRecordDialogOwner, sheetSwitchPermit = {}, viewId } = props;
+  const { isLock, recordbase, recordinfo, view = {}, updateRecordDialogOwner, sheetSwitchPermit = {}, viewId } = props;
   const { isCharge, worksheetId, recordId, recordTitle, isSmall } = recordbase;
   const {
     allowEdit,
@@ -27,7 +27,7 @@ export default function FormHeader(props) {
     !_.isEmpty(ownerAccount) &&
     !_.find(view.controls, controlId => controlId === 'ownerid') &&
     (controlState(ownerControl).visible || ownerControl.controlId === 'ownerid');
-  const ownerEditable = allowEdit && ownerControl && controlState(ownerControl).editable;
+  const ownerEditable = allowEdit && ownerControl && controlState(ownerControl).editable && !isLock;
   let isOpenLogs = true;
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     isOpenLogs = false;

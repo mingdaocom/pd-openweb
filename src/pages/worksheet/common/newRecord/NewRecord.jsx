@@ -33,7 +33,7 @@ function NewRecord(props) {
   const continueAddVisible = showContinueAdd && advancedSetting.continueBtnVisible;
   useEffect(() => {
     if (autoFill) {
-      localStorage.setItem('new_record_autofill', '1');
+      safeLocalStorageSetItem('new_record_autofill', '1');
     } else {
       localStorage.removeItem('new_record_autofill');
     }

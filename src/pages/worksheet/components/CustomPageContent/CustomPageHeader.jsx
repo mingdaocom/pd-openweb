@@ -1,18 +1,18 @@
 import React, { useState, useRef, Fragment } from 'react';
 import { string } from 'prop-types';
-import { Tooltip, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip, Icon, LoadDiv, RichText } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import update from 'immutability-helper';
 import { updatePage } from 'statistics/api/custom';
+import { Popover } from 'antd';
 import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
-import PageDesc from './PageDesc';
+import SheetDesc from 'worksheet/common/SheetDesc';
 import Share from 'src/pages/worksheet/components/Share';
 import { pick } from 'lodash';
-import filterXSS from 'xss';
 import { createFontLink, exportImage } from 'src/pages/customPage/util';
 import { saveAs } from 'file-saver';
 import SvgIcon from 'src/components/SvgIcon';
@@ -47,6 +47,7 @@ export default function CustomPageHeader(props) {
 
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [descIsEditing, setDescIsEditing] = useState(false);
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
@@ -77,6 +78,7 @@ export default function CustomPageHeader(props) {
         break;
       case 'editName':
       case 'editIntro':
+        setDescIsEditing(true);
         updateVisible(update(visible, { [`${type}Visible`]: { $set: true }, popupVisible: { $set: false } }));
         break;
       case 'adjustScreen':
@@ -158,21 +160,28 @@ export default function CustomPageHeader(props) {
             <span className="pageName Font17">{name}</span>
           )}
           {desc && !isPublicShare && (
-            <Tooltip
-              disable={editIntroVisible}
-              onClick={() => (isCharge ? handleVisibleChange(true, 'editIntroVisible') : _.noop)}
-              tooltipClass="sheetDescTooltip"
-              popupPlacement="bottom"
-              text={
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: filterXSS(desc, { stripIgnoreTag: true }).replace(/\n/g, '<br />'),
-                  }}
-                />
-              }
+            <Popover
+              arrowPointAtCenter={true}
+              title={null}
+              placement="bottomLeft"
+              overlayClassName="sheetDescPopoverOverlay"
+              content={(
+                <div className="popoverContent">
+                  <RichText data={desc || ''} disabled={true} />
+                </div>
+              )}
             >
-              <Icon icon="knowledge-message Font18 Gray_9" className="Hand customPageDesc" />
-            </Tooltip>
+              <Icon
+                icon="knowledge-message Font18 Gray_9"
+                className="Hand customPageDesc"
+                onClick={() => {
+                  if (isCharge) {
+                    setDescIsEditing(false);
+                    handleVisibleChange(true, 'editIntroVisible');
+                  }
+                }}
+              />
+            </Popover>
           )}
           {isCharge && (
             <Trigger
@@ -217,16 +226,19 @@ export default function CustomPageHeader(props) {
           </Tooltip>
         )}
       </header>
-      {editIntroVisible && (
-        <PageDesc
-          desc={desc}
-          onOk={value => {
-            handleUpdatePage({ desc: value });
-            handleVisibleChange(false, 'editIntroVisible');
-          }}
-          onCancel={() => handleVisibleChange(false, 'editIntroVisible')}
-        />
-      )}
+      <SheetDesc
+        title={_l('自定义页面说明')}
+        visible={editIntroVisible}
+        desc={desc || ''}
+        isEditing={descIsEditing}
+        onClose={() => {
+          handleVisibleChange(false, 'editIntroVisible')
+        }}
+        onSave={value => {
+          handleUpdatePage({ desc: value });
+          handleVisibleChange(false, 'editIntroVisible');
+        }}
+      />
       {editNameVisible && (
         <SelectIcon
           {...rest}

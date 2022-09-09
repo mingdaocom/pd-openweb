@@ -14,7 +14,6 @@ import {
 } from '../../actions/entities';
 import { updateCursor, updateTypeCursor, removeCursor, emptyUserSet } from '../../actions/current';
 import userBoard from '../../modules/dialogUserBoard';
-import JopList from './jobList';
 import cx from 'classnames';
 import { batchResetPassword } from 'src/api/user';
 import RoleController from 'src/api/role';
@@ -220,7 +219,6 @@ class UserList extends Component {
       allCount,
       pageIndex,
       isSearch,
-      typeNum = 0,
       projectId,
       departmentId,
       typeCursor = 0,
@@ -230,102 +228,66 @@ class UserList extends Component {
       pageSize,
       isSelectAll,
     } = this.props;
-    const { batchResetPasswordVisible, password } = this.state;
-    const { SysSettings = {} } = global;
-    const { passwordRegexTip, passwordRegex } = SysSettings;
-    if (typeNum === 0) {
-      //部门成员
-      return (
-        <div className={cx('departmentInfo', { approvalUser: typeCursor === 3 })}>
-          <div className="userList">
-            {!isSearch && (selectedAccountIds.length > 0 || isSelectAll) && typeCursor !== 2 && typeCursor !== 3 ? (
-              <div className="Font15 departmentTitle">{this.renderUserTableWithNum()}</div>
-            ) : (
-              ''
-            )}
-            {typeCursor === 2 || typeCursor === 3 || (!isSearch && selectedAccountIds.length <= 0 && !isSelectAll) ? (
-              <div className="Font15 departmentTitle">
-                <span className="departmentNameValue" title={!!departmentId && departmentName}>
-                  {!!departmentId && departmentName}
-                </span>
-                {(typeCursor === 0 || typeCursor === 1) && !departmentId && _l('全组织')}
-                {/* {typeCursor === 1 && _l('未分配部门')} */}
-                {typeCursor === 2 && _l('未激活')}
-                {typeCursor === 3 && _l('待审核')}
-                {this.renderUserCount()}
-                {(typeCursor === 0 || typeCursor === 1) && !departmentId && (
-                  <Checkbox
-                    ref="example"
-                    className="InlineBlock Gray_9e Font12 departmentName TxtMiddle LineHeight24 bgColorHover noDepartment"
-                    defaultChecked={typeCursor === 1}
-                    // id="1"
-                    onClick={(checked, id) => {
-                      dispatch(updateCursor(''));
-                      if (checked) {
-                        dispatch(updateTypeCursor(1));
-                        dispatch(loadUsers('', 1));
-                      } else {
-                        dispatch(updateTypeCursor(0));
-                        dispatch(loadAllUsers(projectId, 1));
-                      }
-                    }}
-                  >
-                    {_l('暂无部门')}
-                  </Checkbox>
-                )}
-                {/* {this.renderSettingBtn()} */}
-              </div>
-            ) : (
-              ''
-            )}
-            <div className="departmentContent" onScroll={this.scroll} ref={node => (this.tableContainer = node)}>
-              {this.renderUserTable()}
+    return (
+      <div className={cx('departmentInfo', { approvalUser: typeCursor === 3 })}>
+        <div className="userList">
+          {!isSearch && (selectedAccountIds.length > 0 || isSelectAll) && typeCursor !== 2 && typeCursor !== 3 ? (
+            <div className="Font15 departmentTitle">{this.renderUserTableWithNum()}</div>
+          ) : (
+            ''
+          )}
+          {typeCursor === 2 || typeCursor === 3 || (!isSearch && selectedAccountIds.length <= 0 && !isSelectAll) ? (
+            <div className="Font15 departmentTitle">
+              <span className="departmentNameValue" title={!!departmentId && departmentName}>
+                {!!departmentId && departmentName}
+              </span>
+              {(typeCursor === 0 || typeCursor === 1) && !departmentId && _l('全组织')}
+              {/* {typeCursor === 1 && _l('未分配部门')} */}
+              {typeCursor === 2 && _l('未激活')}
+              {typeCursor === 3 && _l('待审核')}
+              {this.renderUserCount()}
+              {(typeCursor === 0 || typeCursor === 1) && !departmentId && (
+                <Checkbox
+                  ref="example"
+                  className="InlineBlock Gray_9e Font12 departmentName TxtMiddle LineHeight24 bgColorHover noDepartment"
+                  defaultChecked={typeCursor === 1}
+                  // id="1"
+                  onClick={(checked, id) => {
+                    dispatch(updateCursor(''));
+                    if (checked) {
+                      dispatch(updateTypeCursor(1));
+                      dispatch(loadUsers('', 1));
+                    } else {
+                      dispatch(updateTypeCursor(0));
+                      dispatch(loadAllUsers(projectId, 1));
+                    }
+                  }}
+                >
+                  {_l('暂无部门')}
+                </Checkbox>
+              )}
+              {/* {this.renderSettingBtn()} */}
             </div>
-            {allCount > pageSize && (
-              <div className="pagination">
-                <Pagination
-                  total={allCount}
-                  itemRender={this.itemRender}
-                  onChange={this.changPage}
-                  current={pageIndex}
-                  pageSize={pageSize || 50}
-                />
-              </div>
-            )}
+          ) : (
+            ''
+          )}
+          <div className="departmentContent" onScroll={this.scroll} ref={node => (this.tableContainer = node)}>
+            {this.renderUserTable()}
           </div>
-          <Dialog
-            title={_l('重置%0个用户密码', selectedAccountIds.length)}
-            okText={_l('保存')}
-            cancelText={_l('取消')}
-            visible={batchResetPasswordVisible}
-            onCancel={() => {
-              this.setState({ batchResetPasswordVisible: false });
-              dispatch(emptyUserSet());
-            }}
-            onOk={this.resetPassword}
-          >
-            <div className="Font15 Gray mTop20 mBottom10">{_l('请输入新密码')}</div>
-            <Input
-              className="w100"
-              type="password"
-              value={password}
-              autoComplete="new-password"
-              placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-              onChange={value => {
-                this.setState({ password: value });
-              }}
-            />
-          </Dialog>
+          {allCount > pageSize && (
+            <div className="pagination">
+              <Pagination
+                total={allCount}
+                itemRender={this.itemRender}
+                onChange={this.changPage}
+                current={pageIndex}
+                pageSize={pageSize || 50}
+              />
+            </div>
+          )}
         </div>
-      );
-    } else {
-      //职位成员
-      return (
-        <div className="jopInfo">
-          <JopList />
-        </div>
-      );
-    }
+      </div>
+    );
   }
 }
 

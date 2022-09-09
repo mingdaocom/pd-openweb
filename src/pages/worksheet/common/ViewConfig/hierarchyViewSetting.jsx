@@ -240,7 +240,7 @@ export default function HierarchyViewSetting(props) {
   const renderRelate = () => {
     if (controlLoading) return <LoadDiv />;
     return availableControls.length > 0 ? (
-      <Menu>
+      <Menu style={{ maxHeight: 300, overflowY: 'auto' }}>
         {availableControls.map(item => {
           const { controlId, controlName } = item;
           return (

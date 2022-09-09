@@ -1,0 +1,99 @@
+.DialogMappingConfig {
+  height: 800px !important;
+  &.mappingHeight {
+    height: 410px !important;
+  }
+  .mappingHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    &.mTop44 {
+      margin-top: 44px !important;
+    }
+  }
+  .mappingConfigControlBox {
+    overflow: auto;
+    height: 100%;
+    .nano-content {
+      right: -15px !important;
+      padding-right: 6px !important;
+    }
+    .nano-pane {
+      right: -20px !important;
+    }
+    .controlSeparate {
+      width: 57px;
+      justify-content: center;
+      display: flex;
+      padding-top: 9px;
+      transform: rotate(180deg);
+    }
+
+    .mappingItemBox {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .controlBox {
+      .sourceControls {
+        .controlItem {
+          border-radius: 3px;
+          background: #f8f8f8;
+          height: 36px;
+          line-height: 36px;
+          padding: 0 12px;
+          box-sizing: border-box;
+          align-items: center;
+          &.childPadding {
+            margin-left: 25px;
+          }
+        }
+      }
+      .mappingControl {
+        flex: 1;
+        .Dropdown {
+          width: 100%;
+          margin-top: 10px;
+        }
+        .ant-dropdown-trigger {
+          &[disabled] {
+            background-color: #f8f8f8 !important;
+            border-color: #e0e0e0 !important;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+}
+
+.mappingMenuClass {
+  .Item-content {
+    .itemText {
+      padding-left: 16px;
+    }
+  }
+  li.MenuItem.title {
+    &:not(:first-child) {
+      border-top: 1px solid #eaeaea;
+    }
+    padding-top: 5px !important;
+    height: auto !important;
+    div {
+      font-weight: bold;
+      color: #333 !important;
+    }
+  }
+}
+
+.mappingNoDataBox {
+  .noDataContent {
+    margin-top: 25px;
+    height: 240px;
+    background: #f8f8f8;
+    line-height: 240px;
+    text-align: center;
+    font-size: 14px;
+    color: #9e9e9e;
+  }
+}

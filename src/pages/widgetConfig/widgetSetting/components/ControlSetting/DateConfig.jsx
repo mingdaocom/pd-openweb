@@ -2,8 +2,10 @@ import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import { Dropdown, Tooltip } from 'antd';
+import { Dropdown as MingDropdown } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
+import { DATE_SHOW_TYPES } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 import DateInput from '../DynamicDefaultValue/inputTypes/DateInput.jsx';
@@ -22,6 +24,25 @@ const IntervalWrap = styled(DropdownContent)`
     padding: 0 16px;
   }
 `;
+
+function ShowFormat(props) {
+  const { data, onChange } = props;
+  const { showformat = '0' } = getAdvanceSetting(data);
+  const showFormatOptions = DATE_SHOW_TYPES.map(item => {
+    return { ...item, text: item.text + ` (${moment().format(item.format)}) ` };
+  });
+  return (
+    <div className="mBottom10">
+      <div className="mBottom8">{_l('显示格式')}</div>
+      <MingDropdown
+        border
+        value={showformat}
+        data={showFormatOptions}
+        onChange={value => onChange(handleAdvancedSettingChange(data, { showformat: value }))}
+      />
+    </div>
+  );
+}
 
 function StartEndTime(props) {
   const { data, onChange, allControls } = props;
@@ -81,15 +102,21 @@ export default function DateConfig(props) {
   const [{ timeIntervalVisible }, setVisible] = useSetState({ timeIntervalVisible: false });
 
   if (type === 15) {
-    return <StartEndTime {...props} />;
+    return (
+      <Fragment>
+        <ShowFormat {...props} />
+        <StartEndTime {...props} />
+      </Fragment>
+    );
   }
   if (type === 16) {
     return (
       <Fragment>
+        <ShowFormat {...props} />
         <div className="labelWrap">
           <Checkbox
             size="small"
-            checked={timeinterval}
+            checked={!!timeinterval}
             onClick={checked => onChange(handleAdvancedSettingChange(data, { timeinterval: checked ? '' : '1' }))}
           >
             <span>{_l('预设分钟间隔')}</span>

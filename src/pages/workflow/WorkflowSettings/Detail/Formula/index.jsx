@@ -13,6 +13,7 @@ import {
   DetailFooter,
   CustomTextarea,
   SelectNodeObject,
+  FindMode,
 } from '../components';
 import { ACTION_ID } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
@@ -90,6 +91,7 @@ export default class Formula extends Component {
       endTime,
       outUnit,
       selectNodeId,
+      execute,
     } = data;
 
     // 日期/时间
@@ -146,6 +148,7 @@ export default class Formula extends Component {
         endTime,
         outUnit,
         selectNodeId,
+        execute,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -316,8 +319,8 @@ export default class Formula extends Component {
               selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
               timePicker
               timeMode="minute"
+              allowClear={false}
               onOk={e => callback({ fieldValue: e.format('YYYY-MM-DD HH:mm') })}
-              onClear={() => callback({ fieldValue: '' })}
             >
               {data.fieldValue ? (
                 moment(data.fieldValue).format('YYYY-MM-DD HH:mm')
@@ -613,10 +616,10 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_function"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -627,10 +630,13 @@ export default class Formula extends Component {
               {data.actionId === ACTION_ID.DATE_DIFF_FORMULA && this.renderDateDiffContent()}
               {data.actionId === ACTION_ID.TOTAL_STATISTICS && this.renderTotalStatisticsContent()}
               {data.actionId === ACTION_ID.FUNCTION_CALCULATION && this.renderFunctionExecContent()}
+
+              <FindMode isFormula execute={data.execute} onChange={execute => this.updateSource({ execute })} />
             </div>
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             (data.actionId === ACTION_ID.NUMBER_FORMULA && data.formulaValue) ||
             (data.actionId === ACTION_ID.DATE_FORMULA &&
@@ -642,7 +648,6 @@ export default class Formula extends Component {
             (data.actionId === ACTION_ID.FUNCTION_CALCULATION && data.formulaValue)
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

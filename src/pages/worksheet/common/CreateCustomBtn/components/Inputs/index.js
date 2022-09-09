@@ -129,7 +129,7 @@ export default function Input(props) {
     <DynamicDefaultValue
       {..._.pick(props, ['allControls', 'globalSheetInfo', 'onChange', 'titleControl'])}
       data={{ ...props.data, advancedSetting: getAdvancedSetting() }}
-      from="customCreate"
+      from={1}
       writeObject={props.writeObject}
     />
   );

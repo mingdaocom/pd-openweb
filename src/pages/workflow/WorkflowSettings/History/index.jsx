@@ -72,7 +72,7 @@ class History extends Component {
     this.setState({ requestPending: true });
 
     api
-      .getHistoryList(para)
+      .getHistoryList(para, { isIntegration: location.href.indexOf('integration') > -1 })
       .then(res => {
         this.setState({
           data: pageIndex === 1 ? res : this.state.data.concat(res),

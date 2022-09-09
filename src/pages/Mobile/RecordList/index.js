@@ -73,7 +73,7 @@ class RecordList extends Component {
   }
   setCache = params => {
     const { worksheetId, viewId } = params;
-    localStorage.setItem(`mobileViewSheet-${worksheetId}`, viewId);
+    safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, viewId);
   }
   handleChangeView = view => {
     const { match, now } = this.props;
@@ -132,9 +132,9 @@ class RecordList extends Component {
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
     const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
       ? viewControl === 'create' ||
-        (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
-        !_.isEmpty(viewControls) ||
-        !(!calendarcids[0].begin || isDelete)
+      (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
+      !_.isEmpty(viewControls) ||
+      !(!calendarcids[0].begin || isDelete)
       : true;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
@@ -154,13 +154,13 @@ class RecordList extends Component {
                   this.setCache({ viewId: view.viewId, worksheetId: params.worksheetId });
                   this.handleChangeView(view);
                   this.props.changeMobileGroupFilters([]);
-                  localStorage.setItem(`mobileViewSheet-${view.viewId}`, view.viewType);
+                  safeLocalStorageSetItem(`mobileViewSheet-${view.viewId}`, view.viewType);
                 }}
                 renderTab={tab => <span className="ellipsis">{tab.name}</span>}
               ></Tabs>
             </div>
           )}
-          <View view={view} key={worksheetInfo.worksheetId} />
+          <View view={view} key={worksheetInfo.worksheetId} routerParams={params} />
           {!batchOptVisible && (!md.global.Account.isPortal || (md.global.Account.isPortal && appNaviStyle !== 2)) && (
             <Back
               style={
@@ -172,8 +172,8 @@ class RecordList extends Component {
                   : [1, 3, 4].includes(view.viewType) ||
                     (!_.isEmpty(view.navGroup) && view.navGroup.length) ||
                     !(canDelete || showCusTomBtn)
-                  ? { bottom: '20px' }
-                  : { bottom: '78px' }
+                    ? { bottom: '20px' }
+                    : { bottom: '78px' }
               }
               onClick={() => {
                 if (!isHideTabBar && location.href.includes('mobile/app')) {
@@ -202,9 +202,9 @@ class RecordList extends Component {
             </div>
           )}
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-          worksheetInfo.allowAdd &&
-          isHaveSelectControl &&
-          !batchOptVisible ? (
+            worksheetInfo.allowAdd &&
+            isHaveSelectControl &&
+            !batchOptVisible ? (
             <div className="addRecordItemWrapper">
               <Button
                 style={{ backgroundColor: appColor }}
@@ -221,6 +221,7 @@ class RecordList extends Component {
                     viewId: view.viewId,
                     addType: 2,
                     entityName: worksheetInfo.entityName,
+                    needCache: true,
                     openRecord: this.sheetViewOpenRecord,
                     onAdd: data => {
                       if (view.viewType) {

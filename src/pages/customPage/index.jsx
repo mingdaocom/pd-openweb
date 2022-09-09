@@ -12,10 +12,11 @@ import ConfigHeader from './ConfigHeader';
 import WebLayout from './webLayout';
 import * as actions from './redux/action';
 import { updateSheetList } from 'src/pages/worksheet/redux/actions/sheetList';
-import { enumWidgetType, reorderComponents } from './util';
+import { enumWidgetType, reorderComponents, fillObjectId } from './util';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
 import './index.less';
 
 const TYPE_TO_COMP = {
@@ -66,6 +67,7 @@ export default class CustomPage extends Component {
     customApi
       .getPage({ appId: pageId })
       .then(({ components, apk, version }) => {
+        components = fillObjectId(components);
         updatePageInfo({
           components,
           pageId,
@@ -308,19 +310,88 @@ export default class CustomPage extends Component {
       }
     });
   }
+  // 保存筛选组件
+  fillFilterComponent = components => {
+    return new Promise((resolve, reject) => {
+      const { ids } = this.props;
+      const filterComponent = components.filter(c => c.type === enumWidgetType.filter).filter(c => c.filter);
+      if (filterComponent.length) {
+        const saveFilterRequest = filterComponent.map(item => {
+          const { filter = {} } = item;
+          const { filters = [] } = filter;
+          return sheetApi.saveFiltersGroup({
+            ...filter,
+            appId: ids.appId,
+            pageId: ids.pageId,
+            filters: filters.map(item => {
+              return {
+                ...item,
+                values: formatFilterValuesToServer(item.dataType, item.values),
+                control: undefined,
+              }
+            })
+          });
+        });
+        Promise.all(saveFilterRequest).then(data => {
+          const filterIds = filterComponent.map((component, index) => {
+            return {
+              id: component.id || component.uuid,
+              filtersGroupId: data[index].filtersGroupId
+            }
+          });
+          const newComponents = components.map(component => {
+            if (component.type === enumWidgetType.filter && !component.value) {
+              return {
+                ...component,
+                filter: undefined,
+                value: _.find(filterIds, { id: component.id || component.uuid }).filtersGroupId
+              }
+            } else {
+              return component;
+            }
+          });
+          resolve(newComponents);
+        });
+      } else {
+        resolve(components);
+      }
+    });
+  }
 
-  // 保存前处理数据,title处理掉空白字符，type转换为后端需要的数字
-  dealComponents = components =>
-    components.map(item =>
-      _.omit(
-        update(item, {
-          web: { title: { $apply: value => value.trim() } },
-          mobile: { title: { $apply: value => value.trim() } },
-          type: { $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]) },
-        }),
-        'uuid',
-      ),
-    )
+  // 删除筛选组件
+  removeFiltersGroup = () => {
+    const { ids, components } = this.props;
+    const filters = this.$originComponents.filter(c => c.type === enumWidgetType.filter && c.value);
+    const getFilter = components => {
+      return components.filter(c => c.type === enumWidgetType.filter && c.value);
+    }
+    const originFilters = getFilter(this.$originComponents);
+    const newFilters = getFilter(components);
+    const deleteFilters = originFilters.filter(f => !_.find(newFilters, { value: f.value }) );
+    const removeFilterRequest = deleteFilters.map(item => {
+      return sheetApi.deleteFiltersGroupByIds({
+        appId: ids.appId,
+        filtersGroupIds: [item.value],
+      });
+    });
+    Promise.all(removeFilterRequest).then(data => {});
+  }
+
+  // 保存前处理数据，title处理掉空白字符，type转换为后端需要的数字
+  dealComponents = components => {
+    return components.map(item => {
+      return update(item, {
+        web: { title: { $apply: value => value.trim() } },
+        mobile: { title: { $apply: value => value.trim() } },
+        type: { $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]) },
+      });
+    });
+  }
+
+  // 清除 uuid
+  dealComponentUUId = components => {
+    return components.map(item => _.omit(item, 'uuid'));
+  }
 
   @autobind
   async handleSave() {
@@ -332,6 +403,8 @@ export default class CustomPage extends Component {
 
     newComponents = await this.fillBtnData(newComponents);
     newComponents = await this.fillFilterData(newComponents);
+    newComponents = await this.fillFilterComponent(newComponents);
+    newComponents = this.dealComponentUUId(newComponents);
 
     customApi
       .savePage({
@@ -343,6 +416,7 @@ export default class CustomPage extends Component {
         if (_.isNumber(version)) {
           this.removeWorksheetBtn();
           this.removeFilterId();
+          this.removeFiltersGroup();
           this.$originComponents = components;
           updatePageInfo({ components, pageId, version, modified: false });
           alert(_l('保存成功'));

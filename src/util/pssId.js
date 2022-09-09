@@ -2,10 +2,11 @@
  * 设置 md_pss_id
  * @param {string} id
  */
-export const setPssId = (id) => {
+export const setPssId = (id, verification = false) => {
   if (id) {
     const userAgent = window.navigator.userAgent.toLowerCase();
     if (
+      verification ||
       userAgent.includes('dingtalk') ||
       userAgent.includes('miniprogram') ||
       location.href.indexOf('theportal.cn') > -1 ||
@@ -14,7 +15,7 @@ export const setPssId = (id) => {
       window.setCookie('md_pss_id', id);
     }
 
-    window.top !== window.self && window.localStorage.setItem('md_pss_id', id);
+    window.top !== window.self && safeLocalStorageSetItem('md_pss_id', id);
   }
 };
 

@@ -40,15 +40,21 @@ export default function SideContent(props) {
         temp[key].forEach(item => {
           item.projectApps = (item.projectApps || []).filter(
             app =>
-              new RegExp((value || '').trim().toUpperCase()).test(app.name) ||
-              new RegExp((value || '').trim().toUpperCase()).test((app.enName || '').toUpperCase()),
+              [app.enName, app.name]
+                .filter(_.identity)
+                .join('')
+                .toLowerCase()
+                .indexOf((value || '').trim().toLowerCase()) > -1,
           );
         });
       } else {
         temp[key] = (temp[key] || []).filter(
           app =>
-            new RegExp((value || '').trim().toUpperCase()).test(app.name) ||
-            new RegExp((value || '').trim().toUpperCase()).test((app.enName || '').toUpperCase()),
+            [app.enName, app.name]
+              .filter(_.identity)
+              .join('')
+              .toLowerCase()
+              .indexOf((value || '').trim().toLowerCase()) > -1,
         );
       }
     });

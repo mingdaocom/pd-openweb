@@ -293,8 +293,12 @@ export default class MyProcess extends Component {
       this.updateCountData(countData);
     });
   };
-  handleScrollEnd = () => {
-    this.getTodoList();
+  handleScroll = (e, values) => {
+    const { position, maximum } = values;
+    const value = maximum - position;
+    if (value <= 20) {
+      this.getTodoList();
+    }
   };
   handleAlreadyRead = item => {
     instanceVersion
@@ -785,7 +789,7 @@ export default class MyProcess extends Component {
     }
 
     return (
-      <ScrollView onScrollEnd={this.handleScrollEnd} className="flex">
+      <ScrollView updateEvent={this.handleScroll} className="flex">
         <div className="content">
           {list.map(item => (
             <Card

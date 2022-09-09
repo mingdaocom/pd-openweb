@@ -541,21 +541,71 @@ class WorksheetApi extends Component {
     const { data = [], workflowInfo } = this.state;
     let inputExample = { appKey: data[0].appKey || 'APPKEY', sign: data[0].sign || 'SIGN' };
     let outputExample = {};
+    const renderInputs = source => {
+      return source.map(o => {
+        if (o.dataSource && _.find(workflowInfo.inputs, item => item.controlId === o.dataSource).type === 10000007) {
+          return null;
+        }
+
+        return (
+          <Fragment>
+            <div key={o.controlId} className="flexRow worksheetApiLine flexRowHeight">
+              <div className="w32">
+                {o.dataSource && <span className="pLeft20" />}
+                {o.alias || o.controlName}
+              </div>
+              <div className="mLeft30 w18">{o.required ? _l('是') : _l('否')}</div>
+              <div className="mLeft30 w14">{FIELD_TYPE_LIST.find(obj => obj.value === o.type).text}</div>
+              <div className="mLeft30 w36">{o.desc}</div>
+            </div>
+            {renderInputs(workflowInfo.inputs.filter(item => item.dataSource === o.controlId))}
+          </Fragment>
+        );
+      });
+    };
+    const renderOutputs = source => {
+      return source.map(o => {
+        if (o.dataSource && _.find(workflowInfo.outputs, item => item.controlId === o.dataSource).type === 10000007) {
+          return null;
+        }
+
+        return (
+          <Fragment>
+            <div key={o.controlId} className="flexRow worksheetApiLine flexRowHeight">
+              <div className="w32">
+                {o.dataSource && <span className="pLeft20" />}
+                {o.alias || o.controlName}
+              </div>
+              <div className="mLeft30 w36">{o.desc}</div>
+            </div>
+            {renderOutputs(workflowInfo.outputs.filter(item => item.dataSource === o.controlId))}
+          </Fragment>
+        );
+      });
+    };
 
     if (_.isEmpty(workflowInfo)) return null;
 
     if (workflowInfo.outType === 1) {
       inputExample['callbackURL'] = '';
     }
-    workflowInfo.inputs.forEach(item => {
-      inputExample[item.alias || item.controlName] =
-        item.value && item.type === 10000003 ? JSON.parse(item.value) : item.value || '';
-    });
+    workflowInfo.inputs
+      .filter(item => !item.dataSource)
+      .forEach(item => {
+        inputExample[item.alias || item.controlName] =
+          item.value && _.includes([10000003, 10000007, 10000008], item.type)
+            ? JSON.parse(item.value)
+            : item.value || '';
+      });
 
-    workflowInfo.outputs.forEach(item => {
-      outputExample[item.alias || item.controlName] =
-        item.value && item.type === 10000003 ? JSON.parse(item.value) : item.value || '';
-    });
+    workflowInfo.outputs
+      .filter(item => !item.dataSource)
+      .forEach(item => {
+        outputExample[item.alias || item.controlName] =
+          item.value && _.includes([10000003, 10000007, 10000008], item.type)
+            ? JSON.parse(item.value)
+            : item.value || '';
+      });
 
     return (
       <Fragment>
@@ -587,17 +637,7 @@ class WorksheetApi extends Component {
               <div className="mLeft30 w36">{_l('用于接受流程执行完毕输出的参数')}</div>
             </div>
           )}
-          {workflowInfo.inputs.map(o => {
-            return (
-              <div key={o.controlId} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w32">{o.alias || o.controlName}</div>
-                <div className="mLeft30 w18">{o.required ? _l('是') : _l('否')}</div>
-                <div className="mLeft30 w14">{FIELD_TYPE_LIST.find(obj => obj.value === o.type).text}</div>
-                <div className="mLeft30 w36">{o.desc}</div>
-              </div>
-            );
-          })}
-
+          {renderInputs(workflowInfo.inputs.filter(o => !o.dataSource))}
           <div className="Font17 bold mTop30">{_l('响应参数')}</div>
           <div className="bold mTop10">
             {workflowInfo.outType === 1
@@ -608,14 +648,7 @@ class WorksheetApi extends Component {
             <div className="w32">{_l('参数')}</div>
             <div className="mLeft30 w36">{_l('说明')}</div>
           </div>
-          {workflowInfo.outputs.map(o => {
-            return (
-              <div key={o.controlId} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w32">{o.controlName}</div>
-                <div className="mLeft30 w36">{o.desc}</div>
-              </div>
-            );
-          })}
+          {renderOutputs(workflowInfo.outputs.filter(o => !o.dataSource))}
         </div>
         {this.renderRightContent({ data: inputExample, outputData: outputExample })}
       </Fragment>
@@ -791,12 +824,14 @@ class WorksheetApi extends Component {
    */
   renderTable(item, i) {
     const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias } = this.state;
+
     return (
       <Fragment>
         <div className="flex worksheetApiContent1">
           <div className="Font22 bold">{item.name}</div>
           <div className="Font14 bold mTop20">
-            {_l('工作表别名')} ：{alias || ''}
+            <span className="mRight20 Gray_75">{_l('工作表ID：') + item.worksheetId}</span>
+            <span className="Gray_75">{_l('工作表别名：') + (alias || '')}</span>
             <span
               className="Hand Font13 mLeft20"
               style={{ color: '#2196F3' }}
@@ -824,7 +859,7 @@ class WorksheetApi extends Component {
             </span>
           </div>
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
-            <div className="w22">{_l('控件ID')}</div>
+            <div className="w22">{_l('字段ID')}</div>
             <div className="mLeft30 w18">{_l('字段名称')}</div>
             <div className="mLeft30 w14">{_l('类型')}</div>
             <div className="mLeft30 w14">{_l('控件类型编号')}</div>
@@ -833,15 +868,13 @@ class WorksheetApi extends Component {
           {item.controls.map((o, i) => {
             return (
               <div key={`${o.controlId}-${i}`} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w22">{o.controlId}</div>
+                <div className="w22">
+                  {o.controlId} {o.alias && <div>({o.alias})</div>}
+                </div>
                 <div className="mLeft30 w18">{o.controlName}</div>
                 <div className="mLeft30 w14">{o.type}</div>
                 <div className="mLeft30 w14">
-                  {_.get(
-                    _.find(numberTypeList, numberType => (numberType.alias || numberType.controlId) === o.controlId) ||
-                      {},
-                    'type',
-                  )}
+                  {_.get(_.find(numberTypeList, numberType => numberType.controlId === o.controlId) || {}, 'type')}
                 </div>
                 <div className="mLeft30 w32">{o.desc}</div>
               </div>
@@ -941,7 +974,7 @@ class WorksheetApi extends Component {
                 </div>
                 <div className="mLeft30 w8 Relative">
                   <Icon
-                    icon="more_horiz1"
+                    icon="more_horiz"
                     className="Font18 Hand Relative"
                     onClick={() => {
                       this.setState({ showMoreOption: true, appKey: o.appKey });
@@ -1188,7 +1221,12 @@ class WorksheetApi extends Component {
       controlId,
       value,
     };
-    if (_.get(_.find(numberTypeList, item => (item.alias || item.controlId) === controlId), 'type') === 14) {
+    if (
+      _.get(
+        _.find(numberTypeList, item => item.controlId === controlId),
+        'type',
+      ) === 14
+    ) {
       list['editType'] = _l('数据更新类型，0=覆盖，1=新增（默认0:覆盖，新建记录可不传该参数）');
       list['valueType'] = _l(
         '提交值类型，1=外部文件链接，2=文件流字节编码 base64格式 字符串 (默认1,为1时 外部链接放在value参数中，为2时 文件流base64信息放在controlFiles参数中 )',
@@ -1204,7 +1242,10 @@ class WorksheetApi extends Component {
     if (
       _.includes(
         [9, 10, 11],
-        _.get(_.find(numberTypeList, item => (item.alias || item.controlId) === controlId), 'type'),
+        _.get(
+          _.find(numberTypeList, item => item.controlId === controlId),
+          'type',
+        ),
       )
     ) {
       list['valueType'] = _l(
@@ -1382,9 +1423,7 @@ class WorksheetApi extends Component {
 
     $('.nano-content .worksheetApiLi').map((index, el) => {
       heightArr.push({
-        id: $(el)
-          .attr('id')
-          .replace('-content', ''),
+        id: $(el).attr('id').replace('-content', ''),
         h: $(el).height(),
       });
     });

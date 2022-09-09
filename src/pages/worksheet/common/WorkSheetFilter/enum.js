@@ -40,115 +40,11 @@ export const FILTER_CONDITION_TYPE = {
   DATE_GTE: 34, // DateGte | >=
   DATE_LT: 35, // DateLt | <
   DATE_LTE: 36, // DateLte | <=
-  NORMALUSER: 41, //NORMALUSER | 是常规用户
-  PORTALUSER: 42, //PORTALUSER | 是外部门户用户
+  DATE_EQ: 37, //  | 日期是(到秒)
+  DATE_NE: 38, //  | 日期不是（到秒）
+  NORMALUSER: 41, // NORMALUSER | 是常规用户
+  PORTALUSER: 42, // PORTALUSER | 是外部门户用户
 };
-
-function getControlConditionTypes(control) {
-  switch (control.type) {
-    // 文本类型
-    case WIDGETS_TO_API_TYPE_ENUM.TEXT:
-    case WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE:
-    case WIDGETS_TO_API_TYPE_ENUM.EMAIL:
-    case WIDGETS_TO_API_TYPE_ENUM.CRED:
-    case WIDGETS_TO_API_TYPE_ENUM.CONCATENATE:
-    case WIDGETS_TO_API_TYPE_ENUM.AUTO_ID:
-      return [
-        FILTER_CONDITION_TYPE.LIKE,
-        FILTER_CONDITION_TYPE.NCONTAIN,
-        FILTER_CONDITION_TYPE.EQ,
-        FILTER_CONDITION_TYPE.NE,
-        FILTER_CONDITION_TYPE.START,
-        FILTER_CONDITION_TYPE.END,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 数值类型
-    case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
-    case WIDGETS_TO_API_TYPE_ENUM.MONEY:
-    case WIDGETS_TO_API_TYPE_ENUM.MONEY_CN:
-    case WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER:
-    case WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL:
-      return [
-        FILTER_CONDITION_TYPE.BETWEEN,
-        FILTER_CONDITION_TYPE.EQ,
-        FILTER_CONDITION_TYPE.NE,
-        FILTER_CONDITION_TYPE.GT,
-        FILTER_CONDITION_TYPE.LT,
-        FILTER_CONDITION_TYPE.GTE,
-        FILTER_CONDITION_TYPE.LTE,
-        FILTER_CONDITION_TYPE.NBETWEEN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 空不空类型
-    case WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT:
-    case WIDGETS_TO_API_TYPE_ENUM.RELATION:
-    case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
-    case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE:
-    case WIDGETS_TO_API_TYPE_ENUM.LOCATION:
-      return [FILTER_CONDITION_TYPE.HASVALUE, FILTER_CONDITION_TYPE.ISNULL];
-    // 日期类型
-    case WIDGETS_TO_API_TYPE_ENUM.DATE:
-    case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-      return [
-        FILTER_CONDITION_TYPE.DATEENUM,
-        FILTER_CONDITION_TYPE.NDATEENUM,
-        FILTER_CONDITION_TYPE.LT,
-        FILTER_CONDITION_TYPE.GT,
-        FILTER_CONDITION_TYPE.BETWEEN,
-        FILTER_CONDITION_TYPE.NBETWEEN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 选项类型
-    case WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN:
-    case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT:
-    case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU:
-    case WIDGETS_TO_API_TYPE_ENUM.SCORE:
-    case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT:
-    case WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY:
-      return [
-        FILTER_CONDITION_TYPE.EQ,
-        FILTER_CONDITION_TYPE.NE,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 成员类型
-    case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER:
-      return [
-        FILTER_CONDITION_TYPE.EQ,
-        FILTER_CONDITION_TYPE.NE,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 关联记录类型
-    case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET:
-      return [
-        FILTER_CONDITION_TYPE.RCEQ,
-        FILTER_CONDITION_TYPE.RCNE,
-        FILTER_CONDITION_TYPE.LIKE,
-        FILTER_CONDITION_TYPE.NCONTAIN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 级联类型
-    case WIDGETS_TO_API_TYPE_ENUM.CASCADER:
-      return [
-        FILTER_CONDITION_TYPE.RCEQ,
-        FILTER_CONDITION_TYPE.RCNE,
-        FILTER_CONDITION_TYPE.BETWEEN,
-        FILTER_CONDITION_TYPE.NBETWEEN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
-    // 子表类型
-    case WIDGETS_TO_API_TYPE_ENUM.SUB_LIST:
-      return [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE];
-    default:
-      return;
-  }
-}
 
 export const CONTROL_FILTER_WHITELIST = {
   TEXT: {
@@ -213,6 +109,8 @@ export const CONTROL_FILTER_WHITELIST = {
       FILTER_CONDITION_TYPE.NDATEENUM,
       FILTER_CONDITION_TYPE.DATE_LT,
       FILTER_CONDITION_TYPE.DATE_GT,
+      FILTER_CONDITION_TYPE.DATE_LTE,
+      FILTER_CONDITION_TYPE.DATE_GTE,
       FILTER_CONDITION_TYPE.DATE_BETWEEN,
       FILTER_CONDITION_TYPE.DATE_NBETWEEN,
       FILTER_CONDITION_TYPE.ISNULL,
@@ -237,6 +135,7 @@ export const CONTROL_FILTER_WHITELIST = {
       9, // 单选 平铺
       28, // 等级
       27, // 部门
+      48, // 角色权限
       11, // 单选下拉菜单
       19, // 地区选择
       23, // 地区选择
@@ -291,6 +190,24 @@ export const CONTROL_FILTER_WHITELIST = {
       34, // 子表
     ],
   },
+  TIME: {
+    value: 10,
+    types: [
+      FILTER_CONDITION_TYPE.DATEENUM,
+      FILTER_CONDITION_TYPE.NDATEENUM,
+      FILTER_CONDITION_TYPE.DATE_LT,
+      FILTER_CONDITION_TYPE.DATE_GT,
+      FILTER_CONDITION_TYPE.DATE_LTE,
+      FILTER_CONDITION_TYPE.DATE_GTE,
+      FILTER_CONDITION_TYPE.DATE_BETWEEN,
+      FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+      FILTER_CONDITION_TYPE.ISNULL,
+      FILTER_CONDITION_TYPE.HASVALUE,
+    ],
+    keys: [
+      46, // 时间字段
+    ],
+  },
 };
 
 export const API_ENUM_TO_TYPE = {
@@ -335,6 +252,7 @@ export const API_ENUM_TO_TYPE = {
   SUBLIST: 34, //子表
   EMBED: 45, // 嵌入
   BARCODE: 47, //条码
+  ORG_ROLE: 48, //组织角色
 };
 
 export function getFilterTypeLabel(typeKey, type, control, controlType) {
@@ -346,6 +264,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isOptionsMultiple = controlType === API_ENUM_TO_TYPE.OPTIONS_10;
   const isDepartment = control && control.type === 27;
   const isDepartmentMultiple = control && control.type === 27 && control.enumDefault === 1;
+  const isOrgRole = control && control.type === 48 && control.enumDefault === 1;
   const isUser = control && control.type === 26;
   const isArea = control && _.includes([19, 23, 24], control.type);
   switch (type) {
@@ -354,7 +273,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       if (isRelateRecord) return _l('标题包含');
       return _l('包含');
     case FILTER_CONDITION_TYPE.EQ:
-      if (isOptionsMultiple || isDepartmentMultiple || isUser) return _l('包含');
+      if (isOptionsMultiple || isDepartmentMultiple || isOrgRole || isUser) return _l('包含');
       if (isNumber) return '=';
       return _l('是');
     case FILTER_CONDITION_TYPE.START:
@@ -366,7 +285,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       if (isRelateRecord) return _l('标题不包含');
       return _l('不包含');
     case FILTER_CONDITION_TYPE.NE:
-      if (isOptionsMultiple || isDepartmentMultiple || isUser) return _l('不包含');
+      if (isOptionsMultiple || isDepartmentMultiple || isOrgRole || isUser) return _l('不包含');
       if (isNumber) return '≠';
       return _l('不是');
     case FILTER_CONDITION_TYPE.ISNULL:
@@ -389,9 +308,15 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       return '<';
     case FILTER_CONDITION_TYPE.LTE:
       return '≤';
+    case FILTER_CONDITION_TYPE.DATE_LTE:
+      return _l('早于等于');
+    case FILTER_CONDITION_TYPE.DATE_GTE:
+      return _l('晚于等于');
     case FILTER_CONDITION_TYPE.DATEENUM:
+    case FILTER_CONDITION_TYPE.DATE_EQ:
       return _l('是'); // TIME日期时间
     case FILTER_CONDITION_TYPE.NDATEENUM:
+    case FILTER_CONDITION_TYPE.DATE_NE:
       return _l('不是'); // TIME日期时间
     case FILTER_CONDITION_TYPE.SELF:
       return _l('本人');

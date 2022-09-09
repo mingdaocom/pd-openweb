@@ -177,7 +177,7 @@ export default class Email extends Component {
         />
 
         <div className="mTop20 bold">{_l('收件人')}</div>
-        <Member type={NODE_TYPE.MESSAGE} accounts={data.accounts} updateSource={this.updateSource} />
+        <Member accounts={data.accounts} updateSource={this.updateSource} />
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -202,7 +202,6 @@ export default class Email extends Component {
           <Fragment>
             <div className="mTop20 bold">{_l('抄送人')}</div>
             <Member
-              type={NODE_TYPE.MESSAGE}
               accounts={data.ccAccounts}
               updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
             />
@@ -418,10 +417,10 @@ export default class Email extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_email"
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -429,7 +428,7 @@ export default class Email extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect={!!data.accounts.length} onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect={!!data.accounts.length} onSave={this.onSave} />
       </Fragment>
     );
   }

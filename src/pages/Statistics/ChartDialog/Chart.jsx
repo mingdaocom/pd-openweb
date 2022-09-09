@@ -14,7 +14,8 @@ import { browserIsMobile } from 'src/util';
 
 const isMobile = browserIsMobile();
 
-const VerticalDrag = styled.div(({ value }) => `
+const VerticalDrag = styled.div(
+  ({ value }) => `
   position: absolute;
   z-index: 2;
   top: ${value}px;
@@ -25,9 +26,11 @@ const VerticalDrag = styled.div(({ value }) => `
   &:hover {
     background-color: #ddd;
   }
-`);
+`,
+);
 
-const HorizontalDrag = styled.div(({ value }) => `
+const HorizontalDrag = styled.div(
+  ({ value }) => `
   position: absolute;
   z-index: 2;
   left: ${value}px;
@@ -38,11 +41,12 @@ const HorizontalDrag = styled.div(({ value }) => `
   &:hover {
     background-color: #ddd;
   }
-`);
+`,
+);
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['loading', 'currentReport', 'worksheetInfo', 'reportData', 'base', 'direction'])
+    ..._.pick(state.statistics, ['loading', 'currentReport', 'worksheetInfo', 'reportData', 'base', 'direction']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -54,18 +58,15 @@ export default class Chart extends Component {
       max: 0,
       dragValue: 0,
       sheetSize: 0,
-      dragMaskVisible: false
-    }
+      dragMaskVisible: false,
+    };
     this.$chartRef = createRef(null);
   }
   componentDidMount() {
     this.changeDragValue(this.props.direction);
   }
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.scopeVisible !== this.props.scopeVisible ||
-      nextProps.direction !== this.props.direction
-    ) {
+    if (nextProps.scopeVisible !== this.props.scopeVisible || nextProps.direction !== this.props.direction) {
       setTimeout(() => {
         this.changeDragValue(nextProps.direction);
       }, 0);
@@ -77,8 +78,8 @@ export default class Chart extends Component {
     const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
     const storeSheetSize = Number(localStorage.getItem(`${direction}ChartSheetSheetSize`) || 0);
     this.setState({
-      dragValue: storeDragValue ? storeDragValue : (value / 2),
-      sheetSize: storeSheetSize ? storeSheetSize : (value / 2),
+      dragValue: storeDragValue ? storeDragValue : value / 2,
+      sheetSize: storeSheetSize ? storeSheetSize : value / 2,
       min: (20 / 100) * value,
       max: (80 / 100) * value,
     });
@@ -95,44 +96,40 @@ export default class Chart extends Component {
     const props = {
       isViewOriginalData: !settingVisible && !isMobile && !isPublicShareChart && !isPublicSharePage,
       requestOriginalData,
-    }
+    };
 
     if ([reportTypes.PivotTable].includes(reportType)) {
       const { data, columns, ylist, lines, valueMap } = reportData;
-      return (
-        _.isEmpty(data.data) ? (
-          <WithoutData />
-        ) : (
-          <Chart
-            {...props}
-            reportData={{
-              ...currentReport,
-              data,
-              columns,
-              ylist,
-              lines: currentReport.pivotTable ? _.merge(lines, currentReport.pivotTable.lines) : lines,
-              valueMap,
-            }}
-          />
-        )
+      return _.isEmpty(data.data) ? (
+        <WithoutData />
+      ) : (
+        <Chart
+          {...props}
+          reportData={{
+            ...currentReport,
+            data,
+            columns,
+            ylist,
+            lines: currentReport.pivotTable ? _.merge(lines, currentReport.pivotTable.lines) : lines,
+            valueMap,
+          }}
+        />
       );
     }
     if (reportTypes.CountryLayer === reportType) {
       const { map, country, summary } = reportData;
-      return (
-        map.length ? (
-          <Chart
-            {...props}
-            reportData={{
-              ...currentReport,
-              map,
-              country,
-              summary: settingVisible ? currentReport.summary : summary,
-            }}
-          />
-        ) : (
-          <WithoutData />
-        )
+      return map.length ? (
+        <Chart
+          {...props}
+          reportData={{
+            ...currentReport,
+            map,
+            country,
+            summary: settingVisible ? currentReport.summary : summary,
+          }}
+        />
+      ) : (
+        <WithoutData />
       );
     }
     if (
@@ -145,40 +142,36 @@ export default class Chart extends Component {
       ].includes(reportType)
     ) {
       const { map, contrastMap, summary, rightY = {} } = reportData;
-      return (
-        map.length || contrastMap.length ? (
-          <Chart
-            {...props}
-            reportData={{
-              ...currentReport,
-              map,
-              contrastMap,
-              summary: settingVisible ? currentReport.summary : summary,
-              rightY: settingVisible ? currentReport.rightY : rightY,
-              reportId
-            }}
-          />
-        ) : (
-          <WithoutData />
-        )
+      return map.length || contrastMap.length ? (
+        <Chart
+          {...props}
+          reportData={{
+            ...currentReport,
+            map,
+            contrastMap,
+            summary: settingVisible ? currentReport.summary : summary,
+            rightY: settingVisible ? currentReport.rightY : rightY,
+            reportId,
+          }}
+        />
+      ) : (
+        <WithoutData />
       );
     }
     if ([reportTypes.PieChart].includes(reportType)) {
       const { aggregations = [], summary } = reportData;
-      return (
-        aggregations.filter(item => item.v).length ? (
-          <Chart
-            {...props}
-            reportData={{
-              ...currentReport,
-              aggregations,
-              summary: settingVisible ? currentReport.summary : summary,
-              reportId
-            }}
-          />
-        ) : (
-          <WithoutData />
-        )
+      return aggregations.filter(item => item.v).length ? (
+        <Chart
+          {...props}
+          reportData={{
+            ...currentReport,
+            aggregations,
+            summary: settingVisible ? currentReport.summary : summary,
+            reportId,
+          }}
+        />
+      ) : (
+        <WithoutData />
       );
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
@@ -186,12 +179,7 @@ export default class Chart extends Component {
         ...reportData,
         yaxisList: currentReport.yaxisList,
       };
-      return (
-        <Chart
-          {...props}
-          reportData={params}
-        />
-      );
+      return <Chart {...props} reportData={params} />;
     }
   }
   render() {
@@ -203,7 +191,7 @@ export default class Chart extends Component {
       reportData,
       currentReport,
       changeSheetVisible,
-      renderHeaderDisplaySetup
+      renderHeaderDisplaySetup,
     } = this.props;
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
@@ -211,21 +199,20 @@ export default class Chart extends Component {
     const { dragValue, dragMaskVisible, min, max, sheetSize } = this.state;
     return (
       <div
-        className={cx('chartBody Relative flex', { 'flexColumn': direction === 'vertical', 'flexRow': direction === 'horizontal' })}
+        className={cx('chartBody Relative flex', {
+          flexColumn: direction === 'vertical',
+          flexRow: direction === 'horizontal',
+        })}
         ref={this.$chartRef}
       >
         <div className={cx('chart flexColumn', direction)}>
           {reportData.status ? renderHeaderDisplaySetup() : null}
           {loading ? (
             <Loading />
+          ) : reportData.status ? (
+            <Fragment>{this.renderChart()}</Fragment>
           ) : (
-            reportData.status ? (
-              <Fragment>
-                {this.renderChart()}
-              </Fragment>
-            ) : (
-              <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} />
-            )
+            <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} />
           )}
         </div>
         {sheetVisible && (
@@ -236,16 +223,16 @@ export default class Chart extends Component {
                 value={dragValue}
                 min={min}
                 max={max}
-                onChange={(value) => {
+                onChange={value => {
                   const { offsetHeight, offsetWidth } = this.$chartRef.current;
                   const size = (direction === 'vertical' ? offsetHeight : offsetWidth) - value;
                   this.setState({
                     dragMaskVisible: false,
                     dragValue: value,
-                    sheetSize: size
+                    sheetSize: size,
                   });
-                  localStorage.setItem(`${direction}ChartSheetDragValue`, value);
-                  localStorage.setItem(`${direction}ChartSheetSheetSize`, size);
+                  safeLocalStorageSetItem(`${direction}ChartSheetDragValue`, value);
+                  safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, size);
                 }}
               />
             )}
@@ -261,8 +248,12 @@ export default class Chart extends Component {
                 changeSheetVisible(false);
               }}
             />
-            {direction === 'vertical' && <VerticalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })}/>}
-            {direction === 'horizontal' && <HorizontalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })}/>}
+            {direction === 'vertical' && (
+              <VerticalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
+            )}
+            {direction === 'horizontal' && (
+              <HorizontalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
+            )}
           </Fragment>
         )}
       </div>

@@ -173,10 +173,10 @@ export default class Delay extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_delayed"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -187,6 +187,7 @@ export default class Delay extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             !(
               (data.actionId === '300' && !data.fieldValue && !data.fieldNodeId) ||
@@ -200,7 +201,6 @@ export default class Delay extends Component {
             )
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

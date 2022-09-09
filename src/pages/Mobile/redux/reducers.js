@@ -9,6 +9,7 @@ import * as RecordListReducers from 'mobile/RecordList/redux/reducers';
 import * as SearchRecordReducers from 'mobile/SearchRecord/redux/reducers';
 import * as DiscussReducers from 'mobile/Discuss/redux/reducers';
 import * as RelationRowReducers from 'mobile/RelationRow/redux/reducers';
+import * as CustomPageReducers from 'mobile/CustomPage/redux/reducers';
 
 
 export default combineReducers({
@@ -22,4 +23,5 @@ export default combineReducers({
   ...SearchRecordReducers,
   ...DiscussReducers,
   ...RelationRowReducers,
+  ...CustomPageReducers
 });

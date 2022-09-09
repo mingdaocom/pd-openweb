@@ -7,6 +7,9 @@ import { formListTop, formListBottom } from './form.config.js';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
 import ViewKeyDialog from './ViewKey';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+
+const FEATURE_ID = 15;
 
 const headerTitle = {
   index: _l('其他'),
@@ -292,33 +295,46 @@ export default class OtherTool extends Component {
 
   renderIndex() {
     const { effective } = this.state;
+    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     return (
       <Fragment>
-        <div className="toolItem">
-          <div className="toolItemLabel">{_l('LDAP用户目录')}</div>
-          <div className="toolItemRight">
-            <div>
-              <Switch
-                checked={effective}
-                onClick={() => {
-                  this.enableForm('effective');
-                }}
-              />
-              <button
-                type="button"
-                className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
-                  hidden: !effective,
-                })}
-                onClick={this.toggleComp.bind(this, 'effective')}
-              >
-                {_l('设置')}
-              </button>
-            </div>
-            <div className="toolItemDescribe">
-              {_l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）')}
+        {featureType && (
+          <div className="toolItem">
+            <div className="toolItemLabel">{_l('LDAP用户目录')}</div>
+            <div className="toolItemRight">
+              <div>
+                <Switch
+                  checked={effective}
+                  onClick={() => {
+                    if (featureType === '2') {
+                      buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID);
+                      return;
+                    }
+                    this.enableForm('effective');
+                  }}
+                />
+                <button
+                  type="button"
+                  className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
+                    hidden: !effective,
+                  })}
+                  onClick={() => {
+                    if (featureType === '2') {
+                      buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID);
+                      return;
+                    }
+                    this.toggleComp('effective');
+                  }}
+                >
+                  {_l('设置')}
+                </button>
+              </div>
+              <div className="toolItemDescribe">
+                {_l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）')}
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <div className="toolItem">
           <div className="toolItemLabel">{_l('组织密钥')}</div>
           <div className="toolItemRight">

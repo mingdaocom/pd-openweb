@@ -23,6 +23,7 @@ TPAuth.options = {
     state: '',
     tpType: '',
     returnUrl: '',
+    autoLogin: false,
   },
   tpTypes: {
     weixin: 1,
@@ -61,6 +62,7 @@ TPAuth.init = function() {
     TPAuth.options.tpParams.state = state;
     TPAuth.options.tpParams.tpType = tpType;
     TPAuth.options.tpParams.returnUrl = request.ReturnUrl || request.returnUrl || '';
+    TPAuth.options.tpParams.autoLogin = request.autoLogin || false;
     TPAuth.login();
   } else {
     window.location.href = '/login.htm';
@@ -137,7 +139,7 @@ TPAuth.login = function() {
       } else {
         var actionResult = TPAuth.options.actionResult;
         if (data.accountResult === actionResult.accountSuccess) {
-            setPssId(data.sessionId);
+            setPssId(data.sessionId, TPAuth.options.tpParams.autoLogin);
           // 登录成功
           if (data.isLoginState) {
             $('.shade').hide();

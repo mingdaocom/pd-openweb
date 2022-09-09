@@ -14,7 +14,11 @@ const options = [
   { text: _l('部门'), value: 1 },
   { text: _l('职位'), value: 2 },
   { text: _l('工作地点'), value: 3 },
-  { text: _l('密码'), value: 4, className: md.global.Config.IsLocal ? 'show' : 'hide' },
+  {
+    text: _l('密码'),
+    value: 4,
+    className: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'show' : 'hide',
+  },
 ];
 const checkedOptions = [
   { label: _l('短信'), value: 1 },
@@ -88,7 +92,6 @@ export default class DialogBatchEdit extends Component {
   submit = () => {
     const { projectId, selectedAccountIds } = this.props;
     let { departmentInfos = [], jobInfos = [], workSiteId = '', filedValue } = this.state;
-
     if (filedValue === 1) {
       let departmentIds = departmentInfos.map(item => item.departmentId);
       updateDepartmentForUsers({

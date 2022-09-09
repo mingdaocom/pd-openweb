@@ -27,10 +27,17 @@
     margin: 0 24px;
     align-items: center;
     border-bottom: 1px solid #eaeaea;
+    .chartIcon {
+      visibility: hidden;
+    }
     &:hover {
       background: #f8f8f8;
       .del {
         visibility: visible;
+      }
+      .chartIcon {
+        visibility: visible;
+        color: #2196f3;
       }
     }
     &.manageListHeader {
@@ -56,6 +63,9 @@
     }
     .w20 {
       width: 20px;
+    }
+    .w50 {
+      width: 50px;
     }
     .iconWrap {
       &.unable {
@@ -196,7 +206,7 @@
 }
 
 .applicationBetaIcon1 {
-  color: #FAB023;
+  color: #fab023;
   font-size: 10px;
 }
 

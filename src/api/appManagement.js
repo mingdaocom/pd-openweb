@@ -40,6 +40,8 @@ module.exports = {
   * @param {string} args.roleId 角色id
   * @param {array} args.userIds 用户
   * @param {array} args.departmentIds 部门
+  * @param {array} args.departmentTreeIds 部门树
+  * @param {array} args.projectOrganizeIds 网络角色
   * @param {array} args.jobIds 职位ids
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -58,6 +60,8 @@ module.exports = {
   * @param {array} args.userIds 用户
   * @param {array} args.departmentIds 部门
   * @param {array} args.jobIds 职位
+  * @param {array} args.departmentTreeIds 部门树
+  * @param {array} args.projectOrganizeIds 网络角色
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -118,6 +122,8 @@ module.exports = {
   * @param {array} args.departmentIds 部门id集合
   * @param {array} args.jobIds 职位id集合
   * @param {string} args.projectId 网络id
+  * @param {array} args.departmentTreeIds 部门树
+  * @param {array} args.projectOrganizeIds 网络角色
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -156,6 +162,19 @@ module.exports = {
      return $.api('AppManagement', 'UpdateMemberStatus', args, options);
    },
   /**
+  * 更新 应用角色通知
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用 Id
+  * @param {boolean} args.notify 通知
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateAppRoleNotify: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'UpdateAppRoleNotify', args, options);
+   },
+  /**
   * 复制角色
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -183,16 +202,16 @@ module.exports = {
      return $.api('AppManagement', 'SortRoles', args, options);
    },
   /**
-  * 获取成员是否可角色见列表状态
+  * 获取 应用角色设置
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getMemberStatus: function (args, options = {}) {
+   getAppRoleSetting: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetMemberStatus', args, options);
+     return $.api('AppManagement', 'GetAppRoleSetting', args, options);
    },
   /**
   * 获取应用下所用角色基本信息（不含具体权限）
@@ -929,5 +948,60 @@ module.exports = {
    restore: function (args, options = {}) {
      
      return $.api('AppManagement', 'Restore', args, options);
+   },
+  /**
+  * 使用情况统计分析
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.departmentId 部门id
+  * @param {boolean} args.depFlag true表示仅当强部门，false表示部门树
+  * @param {string} args.appId 应用id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   allUsageOverviewStatistics: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'AllUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 应用汇总概览
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.keyWord 关键字搜索
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.sortFiled 排序字段
+  * @param {boolean} args.sorted 排序方式 true--asc false--desc
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appUsageOverviewStatistics: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'AppUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 不同维度使用情况统计(按应用，按成员)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.dimension 维度 1-应用 2-用户
+  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
+  * @param {boolean} args.sorted 排序方式
+  * @param {string} args.keyword 关键词查询
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   usageStatisticsForDimension: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'UsageStatisticsForDimension', args, options);
    },
 };

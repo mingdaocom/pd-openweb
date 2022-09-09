@@ -59,6 +59,7 @@ module.exports = {
   * @param {string} args.state 验证码或者微信登录成功之后返回的临时状态码
 用于反向存储账户相关信息，具备有效期
   * @param {array} args.receiveControls 用户填写信息
+  * @param {boolean} args.autoLogin 是否自动登录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

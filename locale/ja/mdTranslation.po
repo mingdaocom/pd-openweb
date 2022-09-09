@@ -40082,3 +40082,2035 @@ msgstr "レコード作成時にチェックリストをデフォルト値とし
 msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
 msgstr "例えば、商品テーブルのフィルターリストとして商品タイプ（生鮮食品、総菜、飲料など）を使用する場合、現在飲料カテゴリが選択されていると、レコード作成時の商品タイプは飲料がデフォルトとなる。"
 
+#: Disabled references:1
+msgid "选择组织角色"
+msgstr "組織的な役割を選択する"
+
+#: Disabled references:1
+msgid "搜索组织角色"
+msgstr "組織の役割を検索する"
+
+#: Disabled references:1
+msgid "仅当前部门"
+msgstr "現在の部門のみ"
+
+#: Disabled references:1
+msgid "快递单号查询"
+msgstr "クーリエ番号検索"
+
+#: Disabled references:1
+msgid "企业名称模糊搜索"
+msgstr "企業名あいまい検索"
+
+#: Disabled references:1
+msgid "未来7日天气查询"
+msgstr "7日先までの天気予報照会"
+
+#: Disabled references:1
+msgid "企业工商信息搜索"
+msgstr "企業ビジネス情報検索"
+
+#: Disabled references:1
+msgid "商品条码查询"
+msgstr "製品バーコード検索"
+
+#: Disabled references:1
+msgid "人脸身份核验"
+msgstr "顔認証"
+
+#: Disabled references:1
+msgid "更多…"
+msgstr "更に多いです"
+
+#: Disabled references:1
+msgid "安装明道云预集成的API，或自定义添加"
+msgstr "Mindo Cloud の事前統合された API のインストール、またはカスタム API の追加"
+
+#: Disabled references:1
+msgid "去集成中心安装"
+msgstr "Integration Centreにアクセスしてインストールします。"
+
+#: Disabled references:1
+msgid "去集成中心添加"
+msgstr "Integration Centreにアクセスして"
+
+#: Disabled references:1
+msgid "暂无可用API"
+msgstr "現在、APIは提供されていません"
+
+#: Disabled references:1
+msgid "搜索API名称"
+msgstr "検索API名"
+
+#: Disabled references:1
+msgid "暂无签名记录"
+msgstr "今回、サインは記録されていません"
+
+#: Disabled references:1
+msgid "使用上次签名"
+msgstr "最後のサインを使用する"
+
+#: Disabled references:1
+msgid "组织角色"
+msgstr "組織的な役割"
+
+#: Disabled references:1
+msgid "使用分析"
+msgstr "使用状況分析"
+
+#: Disabled references:1
+msgid "视图分享"
+msgstr "ビュー共有"
+
+#: Disabled references:1
+msgid "视图导出"
+msgstr "エクスポートを見る"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "ワークシートレコード共有リンクを送信"
+
+#: Disabled references:1
+msgid "附件下载"
+msgstr "添付ファイルダウンロード"
+
+#: Disabled references:1
+msgid "记录日志"
+msgstr "ログを記録する"
+
+#: Disabled references:1
+msgid "7天内免登录"
+msgstr "7日間ログイン不可"
+
+#: Disabled references:1
+msgid "点登陆即代表同意"
+msgstr "ログインボタンをクリックすることで、以下の内容に同意したものとみなされます。"
+
+#: Disabled references:1
+msgid "手机验证码错误"
+msgstr "モバイル認証コードエラー"
+
+#: Disabled references:1
+msgid "手机验证码过期或失效"
+msgstr "有効期限が切れているか、無効なモバイル認証コード"
+
+#: Disabled references:1
+msgid "开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。"
+msgstr "オンにすると、ユーザーが追加、削除、または役割を変更されたときに通知されます。オフにすると、これらのアクションは通知されません。"
+
+#: Disabled references:1
+msgid "发送通知"
+msgstr "通知送信成功"
+
+#: Disabled references:1
+msgid "允许查看"
+msgstr "記録の閲覧を可能にする"
+
+#: Disabled references:1
+msgid "%0 个组织角色"
+msgstr "0 組織的な役割"
+
+#: Disabled references:1
+msgid "筛选组件"
+msgstr "フィルタリングコンポーネント"
+
+#: Disabled references:1
+msgid "连接与认证"
+msgstr "コネクティビティと認証"
+
+#: Disabled references:1
+msgid "API"
+msgstr "APIの説明"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证）"
+msgstr "OAuth 2.0認証(クライアント認証)"
+
+#: Disabled references:1
+msgid "无需认证"
+msgstr "アクレディテーション不要"
+
+#: Disabled references:1
+msgid "该组织已删除"
+msgstr "この組織は削除されました"
+
+#: Disabled references:1
+msgid "字段ID"
+msgstr "フィールドID/フィールドエイリアス"
+
+#: Disabled references:1
+msgid "网络id"
+msgstr "ネットワークID"
+
+#: Disabled references:1
+msgid "应用id"
+msgstr "アプリケーションID"
+
+#: Disabled references:1
+msgid "图标地址"
+msgstr "アイコンアドレス"
+
+#: Disabled references:1
+msgid "应用描述"
+msgstr "c. アプリケーション名（アプリケーション名と統一することを推奨）、アプリケーションの説明、アプリケーションアイコンを記入する。"
+
+#: Disabled references:1
+msgid "应用分组id"
+msgstr "アプリケーショングループID"
+
+#: Disabled references:1
+msgid "分组名称"
+msgstr "サブグループ名"
+
+#: Disabled references:1
+msgid "分组下应用项id"
+msgstr "グループ化されたアプリケーションのアイテムID"
+
+#: Disabled references:1
+msgid "应用项图标地址"
+msgstr "アプリケーションアイコンのアドレス"
+
+#: Disabled references:1
+msgid "角色类型"
+msgstr "キャラクタータイプ"
+
+#: Disabled references:1
+msgid "账号Id"
+msgstr "オペレーターのアカウントID"
+
+#: Disabled references:1
+msgid "用户头像链接"
+msgstr "ユーザーアバターリンク"
+
+#: Disabled references:1
+msgid "部门Id"
+msgstr "部門IDコレクション"
+
+#: Disabled references:1
+msgid "职位Id"
+msgstr "ジョブIDコレクション"
+
+#: Disabled references:1
+msgid "选项id"
+msgstr "オプションID"
+
+#: Disabled references:1
+msgid "工作表ID："
+msgstr "シートID"
+
+#: Disabled references:1
+msgid "工作表别名："
+msgstr "ワークシートの別名。"
+
+#: Disabled references:1
+msgid "切换至 %0"
+msgstr "0に切り替わる"
+
+#: Disabled references:1
+msgid "请正确填写手机号"
+msgstr "携帯電話番号を正しくご記入ください"
+
+#: Disabled references:1
+msgid "图形验证码失败"
+msgstr "グラフィカルなCAPTCHAの失敗"
+
+#: Disabled references:1
+msgid "该手机号发送过于频繁"
+msgstr "この携帯電話番号は頻繁に送信される"
+
+#: Disabled references:1
+msgid "短信余额不足，请联系表单发布者"
+msgstr "SMSの残高が少ない場合は、フォーム発行元にご連絡ください。"
+
+#: Disabled references:1
+msgid "组织门牌号不能为空"
+msgstr "組織ドア番号を空にすることはできません"
+
+#: Disabled references:1
+msgid "MM月"
+msgstr "MM 月 DD 日 (ddd)"
+
+#: Disabled references:1
+msgid "DD日"
+msgstr "MM 月 DD 日 (ddd)"
+
+#: Disabled references:1
+msgid "无权限，请联系管理员"
+msgstr "許可されていません。管理者に連絡してください"
+
+#: Disabled references:1
+msgid "管理配置角色"
+msgstr "コンフィギュレーションロールの管理"
+
+#: Disabled references:1
+msgid "允许申请管理员"
+msgstr "管理者申請許可"
+
+#: Disabled references:1
+msgid "角色存在成员，无法删除"
+msgstr "ロールはメンバーとして存在し、削除できない"
+
+#: Disabled references:1
+msgid "创建角色"
+msgstr "ロールパーミッションの作成"
+
+#: Disabled references:1
+msgid "导入角色"
+msgstr "役割の紹介"
+
+#: Disabled references:1
+msgid "导出角色"
+msgstr "ロールのエクスポート"
+
+#: Disabled references:1
+msgid "确定要删除此角色？"
+msgstr "本当にこの役割を削除しますか？"
+
+#: Disabled references:1
+msgid "删除后无法恢复"
+msgstr "削除後、復元不可"
+
+#: Disabled references:1
+msgid "暂无角色，可"
+msgstr "現在、役割はありません。"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色"
+msgstr "アプリケーションで直接役割を選択した後、メンバーの属性（技術、生産、販売など）に応じて役割を作成することが可能"
+
+#: Disabled references:1
+msgid "总览"
+msgstr "全体概要"
+
+#: Disabled references:1
+msgid "按应用"
+msgstr "アプリケーション別"
+
+#: Disabled references:1
+msgid "按成员"
+msgstr "会員別"
+
+#: Disabled references:1
+msgid "请升级到专业版本或以上版本"
+msgstr "Pro版以上にアップグレードしてください"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据（保留最近一年的分析日志）"
+msgstr "0時点の最新データ（過去1年分の解析ログを保持）"
+
+#: Disabled references:1
+msgid "最近90天"
+msgstr "過去90日間"
+
+#: Disabled references:1
+msgid "最近1年"
+msgstr "過去1年間"
+
+#: Disabled references:1
+msgid "1.对接信息"
+msgstr "1.ドッキング情報"
+
+#: Disabled references:1
+msgid "批量操作中的导出功能需额外设置"
+msgstr "バッチ処理でのエクスポート機能には、追加の設定が必要です"
+
+#: Disabled references:1
+msgid "组织门牌号 %0"
+msgstr "組織的なドア番号 %0"
+
+#: Disabled references:1
+msgid "全选%0条可批量审批的记录"
+msgstr "一括承認可能なすべての %0 レコードを選択します。"
+
+#: Disabled references:1
+msgid "没有允许批量审批的记录，请打开记录逐条审批"
+msgstr "一括承認できるレコードがないので、1つずつ承認用のレコードを開いてください"
+
+#: Disabled references:1
+msgid "（已选择%0/%1条）"
+msgstr "すべて選択 (%0/%1 アイテム選択)"
+
+#: Disabled references:1
+msgid "（已加载%0条）"
+msgstr "(ロードされた %0 の記事)"
+
+#: Disabled references:1
+msgid "您的帐号还未绑定微信，请扫描二维码"
+msgstr "お客様のアカウントはまだWeChatに接続されていませんので、QRコードをスキャンしてください。"
+
+#: Disabled references:1
+msgid "登录通知"
+msgstr "ログイン通知"
+
+#: Disabled references:1
+msgid "使用微信扫码绑定账号，开启登录微信提醒"
+msgstr "WeChatを使ってコードをスキャンし、アカウントをバインドして、ログインWeChatのアラートをオンにします。"
+
+#: Disabled references:1
+msgid "新消息通知"
+msgstr "新着ニュースのお知らせ"
+
+#: Disabled references:1
+msgid "当有新消息时以何种方式提醒"
+msgstr "新着メッセージがあったときに通知する方法"
+
+#: Disabled references:1
+msgid "通知音"
+msgstr "通知音"
+
+#: Disabled references:1
+msgid "浏览器标签闪烁"
+msgstr "ブラウザのタブのちらつき"
+
+#: Disabled references:1
+msgid "Y轴(%0)"
+msgstr "左Y軸(%0)"
+
+#: Disabled references:1
+msgid "辅助Y轴(折线图)"
+msgstr "補助Y軸(折れ線グラフ)"
+
+#: Disabled references:1
+msgid "该组织门牌号不存在"
+msgstr "組織のドアナンバーが存在しない"
+
+#: Disabled references:1
+msgid "请填写组织门牌号"
+msgstr "組織のドアナンバーを記入してください"
+
+#: Disabled references:1
+msgid "组织门牌号可以通过管理员获取"
+msgstr "組織のドア番号は、管理者を通じて入手することができます。"
+
+#: Disabled references:1
+msgid "没有组织门牌号？"
+msgstr "整理されたドアナンバーはない？"
+
+#: Disabled references:1
+msgid "API 名称"
+msgstr "API名"
+
+#: Disabled references:1
+msgid "服务价格"
+msgstr "サービス価格"
+
+#: Disabled references:1
+msgid "无相关数据"
+msgstr "該当するデータはありません。"
+
+#: Disabled references:1
+msgid "选择授权应用"
+msgstr "オーソライズされたアプリケーションを選択する"
+
+#: Disabled references:1
+msgid "搜索应用/拥有者"
+msgstr "アプリケーション/所有者の検索"
+
+#: Disabled references:1
+msgid "无匹配的结果，换一个关键词试试吧"
+msgstr "一致する結果がありません、別のキーワードを試してください"
+
+#: Disabled references:1
+msgid "已选择 %0 应用"
+msgstr "選択された %0 アプリケーション"
+
+#: Disabled references:1
+msgid "安装"
+msgstr "クライアントインストール"
+
+#: Disabled references:1
+msgid "%0 次安装·包含 %1 API"
+msgstr "%0 サブインストール - %1 API が含まれます。"
+
+#: Disabled references:1
+msgid "可用返回参数"
+msgstr "使用可能なリターンパラメータ"
+
+#: Disabled references:1
+msgid "Basic Auth 参数"
+msgstr "基本的な認証パラメータ"
+
+#: Disabled references:1
+msgid "已获取"
+msgstr "取得済み"
+
+#: Disabled references:1
+msgid "未获取"
+msgstr "使用不可"
+
+#: Disabled references:1
+msgid "过期时间"
+msgstr "有効期限"
+
+#: Disabled references:1
+msgid "开始配置"
+msgstr "スタートコンフィグレーション"
+
+#: Disabled references:1
+msgid "修改配置"
+msgstr "コンフィギュレーションを変更する"
+
+#: Disabled references:1
+msgid "Basic Auth 鉴权认证"
+msgstr "Basic Auth認証"
+
+#: Disabled references:1
+msgid "OAuth 鉴权认证"
+msgstr "OAuth認証"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时采用的鉴权认证方式"
+msgstr "APIリクエストの送信時に使用する認証方法の設定"
+
+#: Disabled references:1
+msgid "连接参数"
+msgstr "接続パラメータ"
+
+#: Disabled references:1
+msgid "用于配置鉴权时使用，设置为隐藏后，查看时该参数值将以掩码代替"
+msgstr "認証を設定する際に使用する。hiddenに設定すると、このパラメータの値は、表示時にマスクに置き換えられる"
+
+#: Disabled references:1
+msgid "保存并继续"
+msgstr "保存して続行"
+
+#: Disabled references:1
+msgid "由"
+msgstr "%0 - %1 からコピーされました。"
+
+#: Disabled references:1
+msgid "提供 API 连接模板"
+msgstr "API接続テンプレートの提供"
+
+#: Disabled references:1
+msgid "请升级标准版本或以上版本"
+msgstr "通常版以上にアップグレードしてください"
+
+#: Disabled references:1
+msgid "立即安装"
+msgstr "今すぐインストール"
+
+#: Disabled references:1
+msgid "请选择API （%0/%1）"
+msgstr "APIを選択してください (%0/%1)"
+
+#: Disabled references:1
+msgid "所有 API 都已安装"
+msgstr "すべてのAPIがインストールされている"
+
+#: Disabled references:1
+msgid "申请上架到API 库"
+msgstr "APIライブラリに適用する"
+
+#: Disabled references:1
+msgid "共 %0 个API，已选择 %1 个"
+msgstr "合計 %0 API、%1 が選択されました。"
+
+#: Disabled references:1
+msgid "请填入正确的API文档地址"
+msgstr "正しいAPIドキュメントアドレスをご記入ください。"
+
+#: Disabled references:1
+msgid "已申请，请等待审核"
+msgstr "申請中、審査待ち"
+
+#: Disabled references:1
+msgid "申请上架新版本"
+msgstr "新バージョンをシェルフに申請する"
+
+#: Disabled references:1
+msgid "申请上架"
+msgstr "棚に貼る"
+
+#: Disabled references:1
+msgid "上架 API 量"
+msgstr "アップロードされたAPI量"
+
+#: Disabled references:1
+msgid "安装量"
+msgstr "インストールされたボリューム"
+
+#: Disabled references:1
+msgid "上架时间"
+msgstr "保存期間"
+
+#: Disabled references:1
+msgid "以企业组织身份"
+msgstr "企業組織として"
+
+#: Disabled references:1
+msgid "以个人身份"
+msgstr "個人的な立場で"
+
+#: Disabled references:1
+msgid "请选择要上架的 API"
+msgstr "掲載するAPIを選択してください"
+
+#: Disabled references:1
+msgid "上传logo"
+msgstr "ロゴのアップロード"
+
+#: Disabled references:1
+msgid "基础信息设置"
+msgstr "基本情報の設定"
+
+#: Disabled references:1
+msgid "连接logo"
+msgstr "ロゴをつなぐ"
+
+#: Disabled references:1
+msgid "支持png ,jpg格式图片，不小于80*80px"
+msgstr "png、jpgフォーマットの画像に対応、80*80px以下は不可。"
+
+#: Disabled references:1
+msgid "连接名称"
+msgstr "接続名"
+
+#: Disabled references:1
+msgid "例如：订单查询、物流查询"
+msgstr "例：注文に関する問い合わせ、物流に関する問い合わせなど"
+
+#: Disabled references:1
+msgid "发布失败，请完善API信息"
+msgstr "投稿に失敗しました。API情報を入力してください。"
+
+#: Disabled references:1
+msgid "复制“%0”"
+msgstr "0 を %1 にコピーします。"
+
+#: Disabled references:1
+msgid "删除“%0”"
+msgstr "一括削除 %0"
+
+#: Disabled references:1
+msgid "注意：当前API正在被组织内引用"
+msgstr "注：現在のAPIは、組織内で参照されています"
+
+#: Disabled references:1
+msgid "查看引用"
+msgstr "見積書を見る"
+
+#: Disabled references:1
+msgid "请务必确认引用位置不再需要此API，再执行此操作"
+msgstr "この操作を行う前に、参照先でAPIが不要になったことを確認してください。"
+
+#: Disabled references:1
+msgid "API 删除后将不可恢复，确认删除吗？"
+msgstr "削除するとAPIが復旧しない、削除の確認は？"
+
+#: Disabled references:1
+msgid "最近操作"
+msgstr "最近の事業内容"
+
+#: Disabled references:1
+msgid "安装于"
+msgstr "インストールされている"
+
+#: Disabled references:1
+msgid "更新于"
+msgstr "で更新しました。"
+
+#: Disabled references:1
+msgid "创建于"
+msgstr "で作成されました。"
+
+#: Disabled references:1
+msgid "请从"
+msgstr "表示するフィールドを右から選択してください。"
+
+#: Disabled references:1
+msgid "安装或创建 API"
+msgstr "APIをインストールまたは作成する"
+
+#: Disabled references:1
+msgid "管理第三方 API ，在工作表或工作流中调用"
+msgstr "ワークシートやワークフローで呼び出すサードパーティ製APIの管理"
+
+#: Disabled references:1
+msgid "搜索 API"
+msgstr "検索API"
+
+#: Disabled references:1
+msgid "添加连接"
+msgstr "接続を追加する"
+
+#: Disabled references:1
+msgid "我的连接"
+msgstr "私のコネクション"
+
+#: Disabled references:1
+msgid "连接第三方 API 并保存鉴权认证，在工作表或工作流中调用"
+msgstr "サードパーティーのAPIに接続し、フォレンジック認証を保存してワークシートやワークフローで呼び出すことが可能"
+
+#: Disabled references:1
+msgid "搜索连接"
+msgstr "検索リンク"
+
+#: Disabled references:1
+msgid "自定义连接"
+msgstr "カスタマイズされた接続"
+
+#: Disabled references:1
+msgid "组织应用管理员可管理组织下所有API连接"
+msgstr "組織のアプリケーション管理者は、組織下のすべてのAPI接続を管理することができます"
+
+#: Disabled references:1
+msgid "API 库"
+msgstr "APIライブラリ"
+
+#: Disabled references:1
+msgid "暂无相关数据"
+msgstr "関連するデータはありません"
+
+#: Disabled references:1
+msgid "API数量"
+msgstr "API数"
+
+#: Disabled references:1
+msgid "授权应用"
+msgstr "認可されたアプリケーション"
+
+#: Disabled references:1
+msgid "暂无可用连接，请先创建 API 连接"
+msgstr "接続ができません。まずAPI接続を作成してください。"
+
+#: Disabled references:1
+msgid "创建自定义连接"
+msgstr "カスタムコネクションの作成"
+
+#: Disabled references:1
+msgid "API 集成"
+msgstr "APIインテグレーション"
+
+#: Disabled references:1
+msgid "人员、部门、组织角色、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。"
+msgstr "人、部門、組織の役割、フリーリンク、拡張値のテキストフィールドは、公開フォームでは使用できず、元のフォーム内の上記のフィールドは自動的に非表示になります。"
+
+#: Disabled references:1
+msgid "自定义验证码签名"
+msgstr "カスタマイズされたCaptchaの署名"
+
+#: Disabled references:1
+msgid "自定义签名仅支持国内号码，国际号码验证短信固定使用 【明道云】 短信签名"
+msgstr "カスタマイズ署名は国内番号のみ対応、国際番号は[MingDaoCloud]SMS署名を使用して固定されます。"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截"
+msgstr "組織の略称、ウェブサイト名、ブランド名、漢字2～8文字を丁寧に記入してください。署名が仕様を満たしていない場合、オペレータによってブロックされます。"
+
+#: Disabled references:1
+msgid "手机号短信验证"
+msgstr "携帯電話番号のSMS認証"
+
+#: Disabled references:1
+msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。验证码短信0.05元每条，从账户余额扣费，余额不足时无法获取验证码。"
+msgstr "記入された携帯電話番号の欄をSMSで確認し、お客様の有効な携帯電話番号であることを確認します。認証コードSMSは1回0.05ドルで、口座残高から差し引かれます。残高不足の場合は認証コードを取得することはできません。"
+
+#: Disabled references:1
+msgid "【%0】"
+msgstr "(%0)"
+
+#: Disabled references:1
+msgid "表单提交前进行图形验证"
+msgstr "フォーム送信前のグラフィカルなバリデーション"
+
+#: Disabled references:1
+msgid "接口查询"
+msgstr "インターフェイスクエリ"
+
+#: Disabled references:1
+msgid "晚于等于"
+msgstr "以降"
+
+#: Disabled references:1
+msgid "早于等于"
+msgstr "同等以前"
+
+#: Disabled references:1
+msgid "勾选框"
+msgstr "チェックボックス"
+
+#: Disabled references:1
+msgid "ISO"
+msgstr "国際標準化機構"
+
+#: Disabled references:1
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: Disabled references:1
+msgid "中国"
+msgstr "中国"
+
+#: Disabled references:1
+msgid "US"
+msgstr "米国"
+
+#: Disabled references:1
+msgid "M/D/YYYY"
+msgstr "月/日/年/年"
+
+#: Disabled references:1
+msgid "EU"
+msgstr "EU"
+
+#: Disabled references:1
+msgid "D/M/YYYY"
+msgstr "D/M/YYYYY"
+
+#: Disabled references:1
+msgid "可输入1～10的数值"
+msgstr "1から10までの値を入力可能"
+
+#: Disabled references:1
+msgid "可设为小时分钟秒"
+msgstr "時分秒の設定も可能"
+
+#: Disabled references:1
+msgid "选择组织中的角色，支持配置选择的组织角色的权限。"
+msgstr "組織内の役割を選択することで、選択した組織内の役割に対する権限の設定がサポートされます。"
+
+#: Disabled references:1
+msgid "API查询"
+msgstr "APIに関するお問い合わせ"
+
+#: Disabled references:1
+msgid "分割线"
+msgstr "ディバイディングライン"
+
+#: Disabled references:1
+msgid "没有选择查询模版"
+msgstr "検索テンプレートが選択されていない"
+
+#: Disabled references:1
+msgid "有必填项未配置"
+msgstr "設定されていない必須項目がある"
+
+#: Disabled references:1
+msgid "您不是该组织成员，无法获取其组织角色列表，请联系组织管理员"
+msgstr "組織のメンバーではなく、組織の役割のリストにアクセスできない場合は、組織の管理者にお問い合わせください。"
+
+#: Disabled references:1
+msgid "模版为空或已删除"
+msgstr "ステンシルは空か削除されています"
+
+#: Disabled references:1
+msgid "下拉框的必填映射项未配置(选项列表，选项名)"
+msgstr "ドロップダウンボックスに必要なマッピング項目が設定されていない（選択肢のリスト、選択肢の名前）"
+
+#: Disabled references:1
+msgid "最少输入%0个关键字"
+msgstr "最低%0キーワードを入力"
+
+#: Disabled references:1
+msgid "没有返回结果"
+msgstr "結果が返されない"
+
+#: Disabled references:1
+msgid "请在下方空白区域横向书写签名"
+msgstr "下の空欄に横書きでサインをご記入ください。"
+
+#: Disabled references:1
+msgid "请选择时间"
+msgstr "期間を選択してください"
+
+#: Disabled references:1
+msgid "平台使用情况概览"
+msgstr "プラットフォーム利用の概要"
+
+#: Disabled references:1
+msgid "API集成"
+msgstr "APIインテグレーション"
+
+#: Disabled references:1
+msgid "接口查询字段"
+msgstr "インターフェースクエリフィールド"
+
+#: Disabled references:1
+msgid "调用已集成API节点"
+msgstr "統合APIノードの呼び出し"
+
+#: Disabled references:1
+msgid "导入%0模板"
+msgstr "0 個のテンプレートをインポートしています。"
+
+#: Disabled references:1
+msgid "导入错误，请检查！"
+msgstr "インポートエラーです、ご確認ください"
+
+#: Disabled references:1
+msgid "导入%0"
+msgstr "0 アプリケーションのインポートに成功しました: %1。"
+
+#: Disabled references:1
+msgid "移出成员"
+msgstr "メンバーの解任"
+
+#: Disabled references:1
+msgid "不允许申请管理员"
+msgstr "管理者用アプリケーションは不可"
+
+#: Disabled references:1
+msgid "该角色名称已存在"
+msgstr "このキャラクター名はすでに存在しています"
+
+#: Disabled references:1
+msgid "新建角色"
+msgstr "新しいキャラクターを作成する"
+
+#: Disabled references:1
+msgid "请填写角色名称"
+msgstr "役名をご記入ください。"
+
+#: Disabled references:1
+msgid "当前组织角色无成员"
+msgstr "現在の組織で役割を担っているメンバーはいない"
+
+#: Disabled references:1
+msgid "组织门牌号"
+msgstr "組織的なドア番号"
+
+#: Disabled references:1
+msgid "成员可输入组织门牌号加入组织"
+msgstr "組織のドアナンバーを入力することで、メンバーは組織に参加することができます"
+
+#: Disabled references:1
+msgid "您已关闭搜索组织门牌号加入"
+msgstr "参加する組織のドア番号の検索を終了しました。"
+
+#: Disabled references:1
+msgid "组织编号(ID)"
+msgstr "組織番号（ID）"
+
+#: Disabled references:1
+msgid "职位列表"
+msgstr "求人情報"
+
+#: Disabled references:1
+msgid "登录地"
+msgstr "ログイン場所"
+
+#: Disabled references:1
+msgid "IP"
+msgstr "IP"
+
+#: Disabled references:1
+msgid "导出上限10万条，超出限制可以先筛选，再分次导出。"
+msgstr "エクスポートの上限は10万件で、それを超えるとまずフィルターをかけてから、段階的にエクスポートすることができます。"
+
+#: Disabled references:1
+msgid "暂无外部协作者的应用"
+msgstr "現在、外部協力者の募集は行っていない"
+
+#: Disabled references:1
+msgid "锁定记录"
+msgstr "レコードのロック"
+
+#: Disabled references:1
+msgid "解锁记录"
+msgstr "レコードのロック解除"
+
+#: Disabled references:1
+msgid "锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写"
+msgstr "ロック状態は、レコードが保存された後に有効になります。ロックされたレコードは、ユーザーが直接編集することはできませんが、カスタムアクションやワークフローで入力することは可能です。"
+
+#: Disabled references:1
+msgid "已筛%0项"
+msgstr "スクリーニングされた %0 アイテム"
+
+#: Disabled references:1
+msgid "添加组织角色"
+msgstr "組織的な役割の追加"
+
+#: Disabled references:1
+msgid "仅选择当前部门"
+msgstr "現在の部門のみを選択"
+
+#: Disabled references:1
+msgid "选择当前部门下所有子部门"
+msgstr "現在の部門の下にあるすべてのサブ部門を選択する"
+
+#: Disabled references:1
+msgid "组织门牌号：%0"
+msgstr "組織のドア番号: %0"
+
+#: Disabled references:1
+msgid "至少包含4位字母或数字"
+msgstr "4文字以上または数字が含まれる"
+
+#: Disabled references:1
+msgid "只能输入数字、字母、中划线"
+msgstr "入力できるのは数字、文字、アンダースコアのみです。"
+
+#: Disabled references:1
+msgid "不能以中划线开头或结束"
+msgstr "アンダーラインで開始または終了することはできません"
+
+#: Disabled references:1
+msgid "此名称已被占用"
+msgstr "この名前はすでに占有されています"
+
+#: Disabled references:1
+msgid "此名称和系统地址冲突，请重新输入"
+msgstr "この名前はシステムアドレスと矛盾しています、再入力してください"
+
+#: Disabled references:1
+msgid "请正确输入后缀"
+msgstr "サフィックスを正しく入力してください"
+
+#: Disabled references:1
+msgid "可定义域名后缀，支持输入字母、数字、中划线"
+msgstr "ドメイン名のサフィックスを定義することができ、文字、数字、アンダースコアの入力に対応しています。"
+
+#: Disabled references:1
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
+msgstr "唯一のコードをスキャンする最初の時間後にWeChatのログインボックスをチェックし、あなたの携帯電話番号とWeChatのバインディングを入力する必要があり、その後のWeChatはすぐにログインするために単独でコードをスキャンすることができます。"
+
+#: Disabled references:1
+msgid "验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。"
+msgstr "モバイル認証コードでログインする場合、ユーザーは認証コード1つにつき0.05ドルを請求され、法人アカウントの残高から自動的に差し引かれます。お客様のビジネスに影響を与えないために、法人口座の残高を完全に維持してください"
+
+#: Disabled references:1
+msgid "关闭后所有人将不能再访问门户"
+msgstr "ポータルサイトは閉鎖後、すべての人がアクセスできなくなります"
+
+#: Disabled references:1
+msgid "关闭门户"
+msgstr "ポータルを閉じる"
+
+#: Disabled references:1
+msgid "数值(辅助Y轴)"
+msgstr "数値(補助Y軸)"
+
+#: Disabled references:1
+msgid "分组(Y轴)"
+msgstr "グループ化（左Y軸）"
+
+#: Disabled references:1
+msgid "分组(辅助Y轴)"
+msgstr "グループ化（補助Y軸）"
+
+#: Disabled references:1
+msgid "辅助Y轴"
+msgstr "補助Y軸"
+
+#: Disabled references:1
+msgid "输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值"
+msgstr "入力パラメータは、ワークシートやワークフローでAPIクエリを使用する際に使用され、動的な値を渡すことができます。"
+
+#: Disabled references:1
+msgid "暂无引用"
+msgstr "引用元不明"
+
+#: Disabled references:1
+msgid "上架时间：%0"
+msgstr "保存期間: %0"
+
+#: Disabled references:1
+msgid "引用量"
+msgstr "引用量"
+
+#: Disabled references:1
+msgid "本组织"
+msgstr "組織のメンバーが閲覧できるようにする"
+
+#: Disabled references:1
+msgid "被以下工作流引用"
+msgstr "以下のワークフローで参照されています。"
+
+#: Disabled references:1
+msgid "节点：%0"
+msgstr "ノード: %0"
+
+#: Disabled references:1
+msgid "被以下工作表引用"
+msgstr "以下のワークシートで参照されています。"
+
+#: Disabled references:1
+msgid "字段：%0"
+msgstr "フィールド： %0"
+
+#: Disabled references:1
+msgid "耗时"
+msgstr "時間がかかる"
+
+#: Disabled references:1
+msgid "暂无 API 请求记录"
+msgstr "APIリクエストの記録はありません"
+
+#: Disabled references:1
+msgid "查看所有引用此 API 发送的请求日志"
+msgstr "このAPIで送信されたすべてのリクエストのログを表示する"
+
+#: Disabled references:1
+msgid "%0 个API"
+msgstr "0個のAPI"
+
+#: Disabled references:1
+msgid "已授权给 %0 个应用"
+msgstr "ライセンスは %0 のアプリケーションに適用されます。"
+
+#: Disabled references:1
+msgid "API 请求参数"
+msgstr "APIリクエストパラメータ"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数"
+msgstr "APIリクエストの送信に必要なQuery Param、Header、Bodyなどのリクエストパラメーターを設定します。"
+
+#: Disabled references:1
+msgid "在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用"
+msgstr "出力パラメータの値は、ワークシートフィールドにバインドしたり、APIクエリ中にワークフローノードから参照したりすることができる"
+
+#: Disabled references:1
+msgid "API设置"
+msgstr "API設定"
+
+#: Disabled references:1
+msgid "请求日志"
+msgstr "リクエストログ"
+
+#: Disabled references:1
+msgid "未命名 API"
+msgstr "無名API"
+
+#: Disabled references:1
+msgid "API建议命名为动作+名词，如：获取订单列表、删除订单"
+msgstr "API名は、アクション＋名詞とすることが推奨される（例：注文リスト取得、注文削除"
+
+#: Disabled references:1
+msgid "添加API标题"
+msgstr "APIタイトルの追加"
+
+#: Disabled references:1
+msgid "未命名API"
+msgstr "無名API"
+
+#: Disabled references:1
+msgid "添加说明…"
+msgstr "メモを追加する"
+
+#: Disabled references:1
+msgid "发布 API"
+msgstr "リリースAPI"
+
+#: Disabled references:1
+msgid "更新失败"
+msgstr "アップデートに失敗"
+
+#: Disabled references:1
+msgid "暂无 API 可用，请先创建新的第三方 API"
+msgstr "APIは利用できません。まず、サードパーティーのAPIを新規に作成してください。"
+
+#: Disabled references:1
+msgid "添加 API"
+msgstr "APIを追加する"
+
+#: Disabled references:1
+msgid "创建 API"
+msgstr "APIを作成する"
+
+#: Disabled references:1
+msgid "排序出错，请稍后再试"
+msgstr "ソートエラー、後でもう一度試してください"
+
+#: Disabled references:1
+msgid "无授权应用"
+msgstr "非正規アプリケーション"
+
+#: Disabled references:1
+msgid "API 调用失败时发送错误消息通知给拥有者"
+msgstr "API呼び出しに失敗した場合、オーナーにエラーメッセージを送信する機能"
+
+#: Disabled references:1
+msgid "将 API 授权给"
+msgstr "にAPIをライセンスする。"
+
+#: Disabled references:1
+msgid "连接设置"
+msgstr "接続設定"
+
+#: Disabled references:1
+msgid "API 管理"
+msgstr "APIマネジメント"
+
+#: Disabled references:1
+msgid "授权到应用"
+msgstr "ライセンシングからアプリケーションまで"
+
+#: Disabled references:1
+msgid "你暂时没有权限查看该连接！"
+msgstr "現在、この接続を表示する許可を持っていません。"
+
+#: Disabled references:1
+msgid "未命名连接"
+msgstr "無名接続"
+
+#: Disabled references:1
+msgid "已申请上架，请等待审核"
+msgstr "シェルビングの申し込みが完了しました、審査をお待ちください"
+
+#: Disabled references:1
+msgid "申请失败，请稍后再试"
+msgstr "アプリケーションに失敗しました。後でもう一度お試しください。"
+
+#: Disabled references:1
+msgid "有API被引用，请删除引用后重试"
+msgstr "APIリファレンスがあります。リファレンスを削除して再度お試しください。"
+
+#: Disabled references:1
+msgid "添加连接说明"
+msgstr "接続方法の追加"
+
+#: Disabled references:1
+msgid "申请上架到API库"
+msgstr "APIライブラリに適用する"
+
+#: Disabled references:1
+msgid "删除后将不可恢复，确认删除吗？"
+msgstr "削除すると復元できないので、削除を確認しますか？"
+
+#: Disabled references:1
+msgid "请选择鉴权方式"
+msgstr "認証方式を選択してください"
+
+#: Disabled references:1
+msgid "节点数量过多此功能不可用"
+msgstr "ノード数が多すぎる場合、この機能は使用できません"
+
+#: Disabled references:1
+msgid "短信发送需要组织门牌号"
+msgstr "テキストメッセージは、ドア番号の整理が必要"
+
+#: Disabled references:1
+msgid "配置错误"
+msgstr "パラメータの設定に誤りがあります"
+
+#: Disabled references:1
+msgid "请求异常"
+msgstr "リクエストの例外"
+
+#: Disabled references:1
+msgid "调用已集成 API"
+msgstr "統合APIを呼び出す"
+
+#: Disabled references:1
+msgid "触发者操作"
+msgstr "トリガー操作"
+
+#: Disabled references:1
+msgid "选择 API 连接与认证"
+msgstr "API接続と認証の選択"
+
+#: Disabled references:1
+msgid "搜索 API 连接"
+msgstr "検索API接続"
+
+#: Disabled references:1
+msgid "添加新连接"
+msgstr "新しい接続を追加する"
+
+#: Disabled references:1
+msgid "暂无 API 连接可用，请先到集成中心创建新的 API 连接与认证"
+msgstr "API接続が利用できないため、まずIntegration Centreで新しいAPI接続と認証を作成してください"
+
+#: Disabled references:1
+msgid "去集成中心创建"
+msgstr "Integration Centreで"
+
+#: Disabled references:1
+msgid "勾选后，在表单中隐藏字段名称"
+msgstr "チェックした場合、フォームのフィールド名を非表示にします"
+
+#: Disabled references:1
+msgid "加入的%0允许查看记录"
+msgstr "追加された%0は、レコードの閲覧を可能にします"
+
+#: Disabled references:1
+msgid "加入的%0允许编辑、删除记录"
+msgstr "追加された%0は、レコードの編集と削除を可能にする"
+
+#: Disabled references:1
+msgid "仅用于存储数据"
+msgstr "データ保存用のみ"
+
+#: Disabled references:1
+msgid "加入的%0不授予任何权限"
+msgstr "追加された %0 はいかなる権限も付与していません。"
+
+#: Disabled references:1
+msgid "当工作表记录超过10w行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。"
+msgstr "ワークシートのレコードが10w行を超える場合、ワークシートのパフォーマンスを確保するために設定を変更した後、履歴データをリフレッシュしません。それでも履歴データの更新が必要な場合は、手動で更新してください。"
+
+#: Disabled references:1
+msgid "年-月"
+msgstr "年-月"
+
+#: Disabled references:1
+msgid "年-月-日"
+msgstr "年-月-日"
+
+#: Disabled references:1
+msgid "年-月-日 时"
+msgstr "年-月-日 時"
+
+#: Disabled references:1
+msgid "年-月-日 时:分"
+msgstr "年-月-日 時：分"
+
+#: Disabled references:1
+msgid "年-月-日 时:分:秒"
+msgstr "年-月-日 時:分:秒"
+
+#: Disabled references:1
+msgid "时分"
+msgstr "時、分"
+
+#: Disabled references:1
+msgid "时分秒"
+msgstr "時、分、秒"
+
+#: Disabled references:1
+msgid "搜索下拉框"
+msgstr "検索ドロップダウン・ボックス"
+
+#: Disabled references:1
+msgid "按钮搜索"
+msgstr "ボタン検索"
+
+#: Disabled references:1
+msgid "实时搜索"
+msgstr "リアルタイム検索"
+
+#: Disabled references:1
+msgid "无需点击按钮，在输入的同时执行请求。当查询付费API时会产生更多额外费用"
+msgstr "ボタンをクリックする必要がなく、入力した通りにリクエストが実行されます。有償APIを問い合わせる場合、さらに追加コストが発生する"
+
+#: Disabled references:1
+msgid "搜索关键字"
+msgstr "検索キーワード..."
+
+#: Disabled references:1
+msgid "在点击按钮时请求并获取返回参数"
+msgstr "ボタンクリック時にパラメータを要求し、取得する"
+
+#: Disabled references:1
+msgid "在激活下拉框时请求，将返回的多条数据列表作为下拉菜单的选项进行选择"
+msgstr "ドロップダウンボックスの起動時に、ドロップダウンメニューのオプションとして返される複数のデータのリストを選択するように要求する。"
+
+#: Disabled references:1
+msgid "最少字数"
+msgstr "最小ワード数"
+
+#: Disabled references:1
+msgid "当输入满足了最小字数后才会发起请求。当API的搜索参数有字数限制时可以设置此配置"
+msgstr "入力によって最小ワード数を満たした場合のみ、リクエストが開始されます。この設定は、APIの検索パラメータに単語制限がある場合に設定することができます。"
+
+#: Disabled references:1
+msgid "预加载选项"
+msgstr "プリロードオプション"
+
+#: Disabled references:1
+msgid "勾选后，在激活搜索下拉框时先进行一次请求，此时向接口传入的搜索参数为空，并将返回结果作为预设的选项以供选择。当API的搜索参数支持传空时，可以勾许此项。"
+msgstr "チェックを入れると、まず検索ドロップダウン・ボックスがアクティブになったときにリクエストが行われ、その時点でインターフェースに渡される検索パラメーターは空になり、結果はあらかじめ定義されたオプションから選択する形で返されます。API の検索パラメータが null を渡すことをサポートしている場合、このチェックボックスをオンにすることができます。"
+
+#: Disabled references:1
+msgid "在搜索前先进行一次请求"
+msgstr "検索する前にリクエストする"
+
+#: Disabled references:1
+msgid "输入检查内容"
+msgstr "チェックを入力する"
+
+#: Disabled references:1
+msgid "时:分"
+msgstr "時間：分"
+
+#: Disabled references:1
+msgid "时:分:秒"
+msgstr "時：分：秒"
+
+#: Disabled references:1
+msgid "校准数据"
+msgstr "校正データ"
+
+#: Disabled references:1
+msgid "刷新为其他字段的值"
+msgstr "他のフィールドの値にリフレッシュする"
+
+#: Disabled references:1
+msgid "刷新数据"
+msgstr "リフレッシュデータ"
+
+#: Disabled references:1
+msgid "此操作仅管理员可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。"
+msgstr "この操作は、管理者のみが行うことができます。1回の操作で最大10w行のデータをリフレッシュでき、バックグラウンドが非同期に完了すると通知が送信されます。"
+
+#: Disabled references:1
+msgid "%0个小时"
+msgstr "0％である"
+
+#: Disabled references:1
+msgid "当前工作表没有可以校准的字段。"
+msgstr "現在のワークシートには、キャリブレーション可能なフィールドがありません。"
+
+#: Disabled references:1
+msgid "当前没有需要校准的字段。"
+msgstr "現在、キャリブレーションが必要なフィールドはありません。"
+
+#: Disabled references:1
+msgid "刷新字段值"
+msgstr "フィールドの値を更新する"
+
+#: Disabled references:1
+msgid "刷新选项排序"
+msgstr "リフレッシュオプションのソート"
+
+#: Disabled references:1
+msgid "刷新为"
+msgstr "にリフレッシュしてください。"
+
+#: Disabled references:1
+msgid "的值"
+msgstr "テキストなどの型の値を数値に変換する。"
+
+#: Disabled references:1
+msgid "修改描述失败"
+msgstr "説明文の修正に失敗しました"
+
+#: Disabled references:1
+msgid "工作表说明"
+msgstr "ワークシートの編集方法"
+
+#: Disabled references:1
+msgid "显示项"
+msgstr "表示項目"
+
+#: Disabled references:1
+msgid "自定义页面说明"
+msgstr "カスタムページの説明"
+
+#: Disabled references:1
+msgid "该组织角色已删除"
+msgstr "この組織の役割は削除されました"
+
+#: Disabled references:1
+msgid "超出导入数量限制"
+msgstr "輸入制限を超える"
+
+#: Disabled references:1
+msgid "超出邀请数量限制"
+msgstr "招待枠の超過"
+
+#: Disabled references:1
+msgid "可直接输入创建新的职位"
+msgstr "ダイレクトエントリーで新規作成"
+
+#: Disabled references:1
+msgid "创建新职位：%0"
+msgstr "新規ジョブの作成: %0"
+
+#: Disabled references:1
+msgid "是否确认将该员工【%0】移除？"
+msgstr "従業員 [%0] が削除されることは確定していますか？"
+
+#: Disabled references:1
+msgid "开启后允许通过搜索组织门牌号到组织"
+msgstr "組織のドア番号を検索してアクセスできるようにすることが可能"
+
+#: Disabled references:1
+msgid "暂无职位，可"
+msgstr "現在、募集中のポジションはありません。"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建职位，如，技术、生产、销售设置后应用和工作流可以直接选择职位"
+msgstr "技術、生産、販売など、メンバーの属性に応じたポジションを作成し、設定後にアプリケーションやワークフローで直接ポジションを選択することが可能"
+
+#: Disabled references:1
+msgid "汇总概览"
+msgstr "概要"
+
+#: Disabled references:1
+msgid "使用情况"
+msgstr "使用方法"
+
+#: Disabled references:1
+msgid "记录创建次数"
+msgstr "レコード作成数"
+
+#: Disabled references:1
+msgid "记录创建人数"
+msgstr "作成した人数を記録する"
+
+#: Disabled references:1
+msgid "访问次数"
+msgstr "訪問回数"
+
+#: Disabled references:1
+msgid "访问人数"
+msgstr "来場者数"
+
+#: Disabled references:1
+msgid "工作流执行数"
+msgstr "ワークフロー実行番号アップグレードパッケージ"
+
+#: Disabled references:1
+msgid "附件上传量"
+msgstr "アプリケーションの添付ファイルのアップロード"
+
+#: Disabled references:1
+msgid "没有搜索到"
+msgstr "\" の検索はできません。"
+
+#: Disabled references:1
+msgid "此列表仅显示产生过数据的成员"
+msgstr "このリストには、データを生成したメンバーのみが表示されます。"
+
+#: Disabled references:1
+msgid "行记录数"
+msgstr "記録された行数"
+
+#: Disabled references:1
+msgid " 次"
+msgstr " 倍"
+
+#: Disabled references:1
+msgid " 条"
+msgstr " 記事"
+
+#: Disabled references:1
+msgid "用户数"
+msgstr "ユーザー数"
+
+#: Disabled references:1
+msgid "统计仅包含组织内用户，不包含外部用户"
+msgstr "統計に含まれるのは組織内のユーザーだけで、外部のユーザーは含まれない"
+
+#: Disabled references:1
+msgid "应用访问量"
+msgstr "アプリケーション訪問"
+
+#: Disabled references:1
+msgid "应用访问量统计仅包含组织内用户，不包含外部门户"
+msgstr "アプリケーションのアクセス統計には、組織内のユーザーのみが含まれ、外部のポータルサイトは含まれない"
+
+#: Disabled references:1
+msgid "记录创建量"
+msgstr "記録作成"
+
+#: Disabled references:1
+msgid "筛选条件“按部门”不生效"
+msgstr "フィルタ条件「部門別」が無効です。"
+
+#: Disabled references:1
+msgid "在输入或提交记录时校验并提示错误，错误时不允许提交"
+msgstr "レコードの入力または送信時にエラーをチェックし、プロンプトを表示し、エラーでの送信を許可しない。"
+
+#: Disabled references:1
+msgid "按工作表字段配置显示"
+msgstr "ワークシートフィールドで表示を設定する"
+
+#: Disabled references:1
+msgid "暂无数据，选项需要用同一个选项集的字段"
+msgstr "データはありません。オプションは同じオプションセットのフィールドを使用する必要があります。"
+
+#: Disabled references:1
+msgid "暂无数据，关联记录需要使用同关联表的字段"
+msgstr "データがない、リンクレコードは同じリンクテーブルのフィールドを使用する必要がある"
+
+#: Disabled references:1
+msgid "请选择筛选字段"
+msgstr "フィルタフィールドを選択してください"
+
+#: Disabled references:1
+msgid "选择筛选对象的数据源表中的字段进行筛选"
+msgstr "フィルタオブジェクトのデータソーステーブルで、フィルタリングするフィールドを選択します。"
+
+#: Disabled references:1
+msgid "选择了来源于多个工作表数据的组件，请选择同类型字段以进行合并筛选"
+msgstr "複数のワークシートから派生したコンポーネントを選択した場合、マージフィルタリングに同じタイプのフィールドを選択してください。"
+
+#: Disabled references:1
+msgid "筛选排序"
+msgstr "フィルターソート"
+
+#: Disabled references:1
+msgid "此对象的数据源工作表已更改，无法筛选。请删除后重新添加"
+msgstr "このオブジェクトのデータソースワークシートは変更されたため、フィルタリングできません。削除して再追加してください"
+
+#: Disabled references:1
+msgid "该筛选对象已删除"
+msgstr "このフィルターは削除されました"
+
+#: Disabled references:1
+msgid "筛选对象"
+msgstr "選別対象物"
+
+#: Disabled references:1
+msgid "勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。"
+msgstr "チェックを入れると、コンポーネント内のフィルターは同じフィルターオブジェクトを使用し、チェックを外すと、各フィルターに個別のフィルターオブジェクトを設定することができます。"
+
+#: Disabled references:1
+msgid "作为全局配置"
+msgstr "グローバルコンフィギュレーションとして"
+
+#: Disabled references:1
+msgid "选择统计图表或视图组件"
+msgstr "統計図表やビューコンポーネントを選択します。"
+
+#: Disabled references:1
+msgid "组件"
+msgstr "URI コンポーネントエンコーディング"
+
+#: Disabled references:1
+msgid "暂不支持显示筛选组件"
+msgstr "フィルター部品の表示は現時点ではサポートされていません。"
+
+#: Disabled references:1
+msgid "启用筛选按钮"
+msgstr "フィルター有効化ボタン"
+
+#: Disabled references:1
+msgid "选择下方预览卡片中的筛选器进行设置"
+msgstr "下のプレビューカードでフィルターを選択し、設定する"
+
+#: Disabled references:1
+msgid "将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。"
+msgstr "現在選択されているフィルタオブジェクトをコンポーネント全体に使用し、他のフィルタのオブジェクトはリセットされます。"
+
+#: Disabled references:1
+msgid "至少保留一个筛选器"
+msgstr "最低でも1枚のフィルターを保管する"
+
+#: Disabled references:1
+msgid "设置筛选器"
+msgstr "フィルター設定"
+
+#: Disabled references:1
+msgid "筛选器名称"
+msgstr "フィルターの名称を入力してください"
+
+#: Disabled references:1
+msgid "请配置筛选对象"
+msgstr "フィルタの設定をしてください"
+
+#: Disabled references:1
+msgid "选择筛选方式"
+msgstr "スクリーニング方法の選択"
+
+#: Disabled references:1
+msgid "对本页进行搜索"
+msgstr "このページを検索する"
+
+#: Disabled references:1
+msgid "暂不支持显示视图组件"
+msgstr "ディスプレイビューコンポーネントは、現時点ではサポートされていません"
+
+#: Disabled references:1
+msgid "您确认删除模板?"
+msgstr "本当にテンプレートを削除するのですか？"
+
+#: Disabled references:1
+msgid "删除后，工作流中新添加的短信节点将不能在选到此模板，之前已使用此模板的节点不受影响"
+msgstr "削除後、ワークフローに新たに追加されたSMSノードがこのテンプレートを選択できなくなりますが、以前にこのテンプレートを使用していたノードは影響を受けません"
+
+#: Disabled references:1
+msgid "已选择%0个模板"
+msgstr "%0 テンプレートが選択されました"
+
+#: Disabled references:1
+msgid "当前排队"
+msgstr "現在のキュー"
+
+#: Disabled references:1
+msgid "本月新增"
+msgstr "今月の新商品"
+
+#: Disabled references:1
+msgid "本月消费"
+msgstr "今月の支出"
+
+#: Disabled references:1
+msgid "已选择%0条流程"
+msgstr "選択された %0 プロセス"
+
+#: Disabled references:1
+msgid "重置排队计数"
+msgstr "キューカウントのリセット"
+
+#: Disabled references:1
+msgid "将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0"
+msgstr "選択したプロセスのキューカウントを0にリセットします。長時間の監視では、不正確なカウントが発生することがありますが、この操作で0にリセットできます"
+
+#: Disabled references:1
+msgid "当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，按照字段配置的排序规则返回第一条数据"
+msgstr "複数のデータが見つかった場合、以下のソートルールに従って最初のデータが取得されます。ルールが設定されていない場合は、フィールドで設定されたソートルールに従って最初のデータが返される。"
+
+#: Disabled references:1
+msgid "请选择 API 连接与认证"
+msgstr "API接続と認証を選択してください"
+
+#: Disabled references:1
+msgid "API 接与认证已删除"
+msgstr "APIアクセスおよび認証の削除"
+
+#: Disabled references:1
+msgid "变更连接与认证"
+msgstr "接続・認証の変更"
+
+#: Disabled references:1
+msgid "请选择 API 模板"
+msgstr "APIテンプレートを選択してください"
+
+#: Disabled references:1
+msgid "API已删除"
+msgstr "APIを削除"
+
+#: Disabled references:1
+msgid "变更API"
+msgstr "APIを変更する"
+
+#: Disabled references:1
+msgid "将返回计算后的 Basic Auth 参数供 API 请求参数使用"
+msgstr "算出されたBasic Authパラメータは、APIリクエストパラメータで使用するために返されます。"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证 client credentials）"
+msgstr "OAuth 2.0認証(クライアント認証)"
+
+#: Disabled references:1
+msgid "将返回获取到的 Access Token 值供 API 请求参数使用"
+msgstr "取得したAccess Tokenの値は、APIリクエストのパラメータとして使用するために返されます。"
+
+#: Disabled references:1
+msgid "显示请求参数详情"
+msgstr "リクエストパラメーターの詳細を表示する"
+
+#: Disabled references:1
+msgid "附件总大小不超过50M"
+msgstr "添付ファイルの合計サイズが50Mを超えないこと。"
+
+#: Disabled references:1
+msgid "注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。"
+msgstr "注：この方法は、最大1000件の関連レコードを取得できます。もっと多くのデータを取得する必要がある場合は、「ワークシートからレコードを取得」方法を使用してください。"
+
+#: Disabled references:1
+msgid "调用已集成API数组"
+msgstr "統合APIの配列の呼び出し"
+
+#: Disabled references:1
+msgid "选择API节点"
+msgstr "APIノードの選択"
+
+#: Disabled references:1
+msgid "API数组"
+msgstr "API 配列"
+
+#: Disabled references:1
+msgid "此模式下允许发送10M以内附件"
+msgstr "このモードでは、最大10Mの添付ファイルを送信することができます。"
+
+#: Disabled references:1
+msgid "调用API"
+msgstr "APIを呼び出す"
+
+#: Disabled references:1
+msgid "API 连接与认证已错误"
+msgstr "APIの接続と認証が正しくありません"
+
+#: Disabled references:1
+msgid "从API数组获取数据"
+msgstr "API配列からのデータ取得"
+
+#: Disabled references:1
+msgid "获取发送API请求、调用已集成API、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "APIリクエストの送信、統合APIの呼び出し、コードブロック、ビジネスプロセス入力ノードのカプセル化を行うJSON配列オブジェクトを取得します。"
+
+#: Disabled references:1
+msgid "请升级至标准版本或以上版本"
+msgstr "通常版以上にアップグレードしてください"
+
+#: Disabled references:1
+msgid "将所选的数据写入表单字段"
+msgstr "選択したデータをフォームフィールドに書き込む"
+
+#: Disabled references:1
+msgid "将其他返回数据写入表单字段"
+msgstr "フォームフィールドに他のリターンデータを書き込む"
+
+#: Disabled references:1
+msgid "映射规则"
+msgstr "マッピングルール"
+
+#: Disabled references:1
+msgid "请选择子表"
+msgstr "サブテーブルを選択してください"
+
+#: Disabled references:1
+msgid "请选择子表中的字段"
+msgstr "サブテーブルのフィールドを選択してください"
+
+#: Disabled references:1
+msgid "选择文本，或子表字段"
+msgstr "テキスト、またはサブテーブルフィールドを選択する"
+
+#: Disabled references:1
+msgid "没有返回参数, 请检查模版配置"
+msgstr "パラメータが返されません、テンプレートの設定を確認してください"
+
+#: Disabled references:1
+msgid "建立映射"
+msgstr "マッピングが作成されていない場合は、番号付けのルールに従って自動的に生成されます"
+
+#: Disabled references:1
+msgid "选项列表"
+msgstr "オプション一覧"
+
+#: Disabled references:1
+msgid "请选择返回参数中的多条数据对象"
+msgstr "リターンパラメータで複数のデータオブジェクトを選択してください"
+
+#: Disabled references:1
+msgid "选项名"
+msgstr "オプション名"
+
+#: Disabled references:1
+msgid "选择作为选项名的参数"
+msgstr "オプション名としてパラメータを選択する"
+
+#: Disabled references:1
+msgid "附加显示信息"
+msgstr "追加表示情報"
+
+#: Disabled references:1
+msgid "可多选，用于辅助用户选择"
+msgstr "ユーザーの選択を助けるマルチセレクター"
+
+#: Disabled references:1
+msgid "将返回数据作为下拉框选项"
+msgstr "データをドロップダウン・ボックス・オプションとして返す"
+
+#: Disabled references:1
+msgid "将返回数据写入表单字段"
+msgstr "フォームフィールドにリターンデータを書き込む"
+
+#: Disabled references:1
+msgid "模版已删除"
+msgstr "テンプレートを削除しました"
+
+#: Disabled references:1
+msgid "调用已集成API"
+msgstr "統合APIを呼び出す"
+
+#: Disabled references:1
+msgid "此刻"
+msgstr "このとき"
+
+#: Disabled references:1
+msgid "搜索内容"
+msgstr "検索内容"
+
+#: Disabled references:1
+msgid "当前用户的组织角色"
+msgstr "現在のユーザーの組織的な役割"
+
+#: Disabled references:1
+msgid "显示格式"
+msgstr "表示形式"
+
+#: Disabled references:1
+msgid "起始时间"
+msgstr "開始時間"
+
+#: Disabled references:1
+msgid "允许使用上次的签名"
+msgstr "最後の署名の使用を許可する"
+
+#: Disabled references:1
+msgid "查询表字段"
+msgstr "ルックアップテーブルのフィールドを選択する"
+
+#: Disabled references:1
+msgid "选择子表字段"
+msgstr "サブテーブルのフィールドを選択する"
+
+#: Disabled references:1
+msgid "暂未添加快速筛选"
+msgstr "クイックフィルター未対応"
+
+#: Disabled references:1
+msgid "按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。"
+msgstr "オプションは、録音時に記憶されているオプション番号順に並んでいます。オプション注文が変更されるたびに、履歴データのオプション番号をリフレッシュして注文を較正する必要があります。"
+
+#: Disabled references:1
+msgid "点击了解更多"
+msgstr "クリックすると詳細が表示されます。"
+
+#: Disabled references:1
+msgid "新增%0行"
+msgstr "0 行を追加します。"
+
+#: Disabled references:1
+msgid "更新%0行"
+msgstr "更新 %0 行"
+
+#: Disabled references:1
+msgid "其中%0行错误"
+msgstr "ここで %0 行エラー"
+
+#: Disabled references:1
+msgid "跳过%0行（%1行重复，%2行错误）"
+msgstr "行 %0 をスキップします (行 %1 の重複、行 %2 のエラー)。"
+
+#: Disabled references:1
+msgid "跳过%0行重复"
+msgstr "スキップ %0 行繰り返し"
+
+#: Disabled references:1
+msgid "跳过%0行错误"
+msgstr "スキップ %0 ラインエラー"
+
+#: Disabled references:1
+msgid "直接获取"
+msgstr "直接アクセス"
+
+#: Disabled references:1
+msgid "执行到本节点时获取，并保存当时的数据供流程中的其他节点使用"
+msgstr "実行がこのノードに到達した時点でデータを取得し、プロセスの他のノードで使用するために保存される"
+
+#: Disabled references:1
+msgid "每次使用时动态获取"
+msgstr "使用するたびに動的に取得"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点数据时，重新获取最新的数据"
+msgstr "他のノードがこのノードのデータを使用するたびに、最新のデータを取得する"
+
+#: Disabled references:1
+msgid "直接计算"
+msgstr "直接計算"
+
+#: Disabled references:1
+msgid "执行到本节点时开始计算，并保存当时的运算结果供流程中的其他节点使用"
+msgstr "このノードで計算が開始され、結果はプロセスの他のノードで使用するために保存される"
+
+#: Disabled references:1
+msgid "每次使用时动态计算"
+msgstr "使用ごとの動的計算"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点的运算结果时，重新进行最新的计算"
+msgstr "他のノードがこのノードの計算結果を使用するたびに、最新の計算を再実行する"
+
+#: Disabled references:1
+msgid "运算方式"
+msgstr "算出方法"
+
+#: Disabled references:1
+msgid "部分附件上传失败，总大小超过50MB"
+msgstr "一部の添付ファイルのアップロードに失敗し、合計サイズが50MBを超えた"
+
+#: Disabled references:1
+msgid "选择附件"
+msgstr "添付ファイルを選択"
+
+#: Disabled references:1
+msgid "请输入日期"
+msgstr "日付を入力してください"
+
+#: Disabled references:1
+msgid "请输入人员"
+msgstr "人物を入力してください"
+
+#: Disabled references:1
+msgid "请输入部门"
+msgstr "部署名を入力してください"
+
+#: Disabled references:1
+msgid "选择子表或关联记录"
+msgstr "サブテーブルまたは関連レコードを選択する"
+
+#: Disabled references:1
+msgid "子表 “%0”"
+msgstr "サブテーブル \"%0\""
+
+#: Disabled references:1
+msgid "如：A,B,C"
+msgstr "例：A,B,C"
+
+#: Disabled references:1
+msgid "对某个日期添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间"
+msgstr "ある日付にある期間を加算／減算し、計算結果を1、2、日付と時刻に書式設定することができる"
+
+#: Disabled references:1
+msgid "计算两个日期/时间之间的时长，并精确到年、月、天、小时或分"
+msgstr "2つの日付/時刻の間の期間を年、月、日、時、分単位で計算する"
+
+#: Disabled references:1
+msgid "不支持使用年、年月的字段类型"
+msgstr "年、月、年を使用するフィールドタイプはサポートされていません。"
+
+#: Disabled references:1
+msgid "显示有数据的项"
+msgstr "データを含む項目を表示する"
+
+#: Disabled references:1
+msgid "显示指定项"
+msgstr "指定した項目を表示する"
+
+#: Disabled references:1
+msgid "显示满足筛选条件的项"
+msgstr "フィルタリング条件を満たす項目を表示する"
+
+#: Disabled references:1
+msgid "选中%0个"
+msgstr "チェックした %0"
+
+#: Disabled references:1
+msgid "该角色已存在"
+msgstr "この役割はすでに存在しています"
+
+#: Disabled references:1
+msgid "格式错误"
+msgstr "携帯電話番号の形式が違う"
+
+#: Disabled references:1
+msgid "未匹配到"
+msgstr "にマッチしていない。"
+
+#: Disabled references:1
+msgid "未匹配或匹配到多个"
+msgstr "一致しない、または複数一致"
+
+#: Disabled references:1
+msgid "跳过错误数据"
+msgstr "不正なデータをスキップする"
+
+#: Disabled references:1
+msgid "未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。"
+msgstr "チェックを外すと、不正なデータの場合、不正なフィールドのみスキップされ、他のフィールドはそのままインポートされます。チェックすると、データ行全体がスキップされます。"
+
+#: Disabled references:1
+msgid "当数据中存在以下所选错误时，将放弃此行数据导入"
+msgstr "以下の選択されたエラーがデータ内に存在する場合、データのインポートは破棄されます。"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据"
+msgstr "%0までの最新データ"
+
+#: Disabled references:1
+msgid "保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能"
+msgstr "過去1年間の使用分析データを保持し、分析がオンになった翌日に使用データを分析するために使用します。この機能を使用できるのは、適切なバージョンをオープンしている場合のみです"
+
+#: Disabled references:1
+msgid "浏览器新消息通知"
+msgstr "ブラウザの新しいメッセージ通知"
+
+#: Disabled references:1
+msgid "没有输入参数的 API 请直接保存完成配置"
+msgstr "入力パラメータのないAPIは、完了した構成を直接保存してください"
+
+#: Disabled references:1
+msgid "添加检查项字段"
+msgstr "検査項目フィールドの追加"
+

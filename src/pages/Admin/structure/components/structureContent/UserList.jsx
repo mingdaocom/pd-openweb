@@ -354,7 +354,7 @@ class UserList extends Component {
       }
       return item;
     });
-    localStorage.setItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   handleOpBtnClick = accountId => {
@@ -417,7 +417,7 @@ class UserList extends Component {
     } else {
       copyColumnsInfo = columnsInfo.map(item => ({ ...item, checked: true }));
     }
-    localStorage.setItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
+    safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
   changeCheckedData = selectedAccountIds => {

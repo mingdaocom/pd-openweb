@@ -41,8 +41,10 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-language';
       } else if (appType === APP_TYPE.PBC) {
         icon = 'icon-pbc';
+      } else if (appType === APP_TYPE.PARAMETER) {
+        icon = 'icon-parameter';
       } else {
-        icon = 'icon-worksheet';
+        icon = 'icon-table';
       }
       break;
     case NODE_TYPE.WRITE:
@@ -112,6 +114,15 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.AUTHENTICATION:
       icon = 'icon-key1';
+      break;
+    case NODE_TYPE.PARAMETER:
+      icon = 'icon-input';
+      break;
+    case NODE_TYPE.API_PACKAGE:
+      icon = 'icon-connect';
+      break;
+    case NODE_TYPE.API:
+      icon = 'icon-api';
       break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
@@ -224,7 +235,7 @@ export const replaceField = (text, fieldMap, connector = '>') => {
  */
 export const checkJSON = value => {
   try {
-    JSON.parse((value || '').replace(/\$.*?\$/g, 1));
+    JSON.parse((value || '').replace(/\$[^ \r\n]+?\$/g, 1));
     return true;
   } catch (e) {
     return false;
@@ -269,7 +280,8 @@ export const getConditionList = (type, enumDefault) => {
       break;
     case 15:
     case 16:
-      list = { ids: ['9', '10', '41', '39', '37', '38', '8', '7'], defaultConditionId: '9' };
+    case 46:
+      list = { ids: ['9', '10', '41', '42', '39', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       break;
     case 19:
     case 23:
@@ -308,7 +320,7 @@ export const getConditionList = (type, enumDefault) => {
       if (enumDefault === 1) {
         list = { ids: ['9', '10', '11', '12', '13', '14', '15', '16', '8', '7'], defaultConditionId: '9' };
       } else {
-        list = { ids: ['9', '10', '41', '39', '37', '38', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '41', '42', '39', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
       break;
   }
@@ -342,7 +354,9 @@ export const getConditionNumber = id => {
     case '35':
     case '36':
     case '39':
+    case '40':
     case '41':
+    case '42':
       count = 1;
       break;
     case '7':
@@ -362,4 +376,32 @@ export const getConditionNumber = id => {
   }
 
   return count;
+};
+
+/**
+ * 参数名重复验证
+ */
+export const parameterNameValidation = ({ list, key, value, uniqueKey, uniqueValue, errors, verifyFormat = false }) => {
+  if (value) {
+    if (verifyFormat && !/^[a-zA-Z]{1}\w*$/.test(value.trim())) {
+      errors[uniqueValue] = 1; // 格式不正确
+    } else if (list.filter((o, i) => o[key] === value.trim() && o[uniqueKey] !== uniqueValue).length > 0) {
+      errors[uniqueValue] = 2; // 重复
+    } else {
+      errors[uniqueValue] = '';
+    }
+  } else {
+    errors[uniqueValue] = '';
+  }
+
+  list.forEach(element => {
+    if (
+      element[uniqueKey] !== uniqueValue &&
+      !_.find(list, o => o[key] === element[key] && o[uniqueKey] !== element[uniqueKey])
+    ) {
+      errors[element.controlId] = '';
+    }
+  });
+
+  return errors;
 };

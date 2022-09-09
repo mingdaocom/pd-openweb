@@ -1,11 +1,9 @@
 import kcCtrl from 'src/api/kc';
-import qiniuCtrl from 'src/api/qiniu';
 import { Dialog } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import React from 'react';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { formatFileSize } from 'src/util';
-const {dialog: {netState: {buyBtn}}} = window.private;
 
 export const QiniuUpload = {
   Tokens: {
@@ -244,63 +242,6 @@ export const findIndex = (res, id) => {
 export const checkAccountUploadLimit = (size, params = {}) => {
   return kcCtrl.getUsage(params).then(function(usage) {
     return usage.used + size < usage.total;
-  });
-};
-
-const VERSION = {
-  // 免费
-  0: '免费版',
-  // 正式版
-  1: {
-    0: '单应用版',
-    1: '标准版',
-    2: '专业版',
-    3: '旗舰版',
-  },
-  // 试用
-  2: '专业版',
-};
-
-const VERSION_STORAGE = {
-  // 免费
-  0: '2',
-  // 正式版
-  1: {
-    0: '25',
-    1: '50',
-    2: '150',
-    3: '300',
-  },
-  // 试用
-  2: '150',
-};
-
-export const openNetStateDialog = projectId => {
-  const { version = {}, licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
-
-  const displayObj = key => {
-    const data = key === 'version' ? VERSION : VERSION_STORAGE;
-    return licenseType === 1 ? data[licenseType][version.versionId] : data[licenseType];
-  };
-  Dialog.confirm({
-    className: 'upgradeVersionDialogBtn',
-    title: '',
-    description: (
-      <div className="netStateWrap">
-        <div className="imgWrap" />
-        <div className="hint">{_l('应用附件上传量已到最大值')}</div>
-        {typeof licenseType === 'number' && (
-          <div className="explain">{_l('%0每年最多 %1G，请升级以继续', displayObj('version'), displayObj)}</div>
-        )}
-      </div>
-    ),
-    noFooter: buyBtn,
-    okText: typeof licenseType !== 'number' ? '' : licenseType ? _l('购买上传量扩展包') : _l('立即购买'),
-    onOk: () =>
-      licenseType
-        ? navigateTo(`/admin/expansionservice/${projectId}/storage`)
-        : navigateTo(`/upgrade/choose?projectId=${projectId}`),
-    removeCancelBtn: true,
   });
 };
 

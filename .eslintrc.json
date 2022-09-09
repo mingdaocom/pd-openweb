@@ -38,7 +38,8 @@
     "getNavigatorLang": true,
     "safeParse": true,
     "safeParseArray": true,
-    "vm": true
+    "vm": true,
+    "safeLocalStorageSetItem": true
   },
   "parser": "babel-eslint",
   "plugins": [

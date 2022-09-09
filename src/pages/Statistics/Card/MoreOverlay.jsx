@@ -22,7 +22,7 @@ export default class MoreOverlay extends Component {
   }
   handleExportExcel = (exportType) => {
     const { report, worksheetId, exportData } = this.props;
-    const { filters = [], sorts, filterControls, filterRangeId, rangeType, rangeValue, particleSizeType } = exportData;
+    const { filters = [], filtersGroup = [], sorts, filterControls, filterRangeId, rangeType, rangeValue, particleSizeType } = exportData;
     reportApi
       .export({
         exportType,
@@ -33,7 +33,7 @@ export default class MoreOverlay extends Component {
         rangeType,
         rangeValue,
         sorts,
-        filters: [filters, filterControls].filter(n => !_.isEmpty(n))
+        filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n))
       })
       .then(result => {
         if (!result) {

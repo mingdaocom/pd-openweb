@@ -2,9 +2,8 @@ import React, { Fragment, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import cx from 'classnames';
-import { Checkbox } from 'ming-ui';
 import { DropdownContent } from '../../../widgetConfig/styled';
-import { Dropdown, Input } from 'antd';
+import { Checkbox, Dropdown, Input } from 'antd';
 const SELECTABLE_FIELD = [
   {
     title: _l('当前用户信息'),
@@ -20,7 +19,7 @@ const SELECTABLE_FIELD = [
     title: _l('系统信息'),
     type: 'sys',
     fields: [
-      { text: _l('组织ID'), value: 'projectId' },
+      { text: _l('组织门牌号'), value: 'projectId' },
       { text: _l('应用ID'), value: 'appId' },
       { text: _l('分组ID'), value: 'groupId' },
       { text: _l('应用项ID'), value: 'itemId' },
@@ -37,7 +36,9 @@ const LinkParaWrap = styled.div`
     margin-top: 16px;
   }
   input {
-    height: 36px;
+    font-size: 13px;
+    height: 32px;
+    border-radius: 3px;
   }
   .valueWrap {
     flex: 1;
@@ -45,13 +46,16 @@ const LinkParaWrap = styled.div`
     .icon-workflow_other {
       color: #9e9e9e !important;
     }
+    input {
+      border-radius: 3px 0 0 3px !important;
+    }
   }
   .paraItem {
     margin-top: 12px;
     .selectField {
       flex-shrink: 0;
-      width: 36px;
-      line-height: 34px;
+      width: 32px;
+      line-height: 30px;
       border: 1px solid #d9d9d9;
       border-left: none;
       text-align: center;
@@ -88,6 +92,9 @@ const LinkParaWrap = styled.div`
     &:hover {
       color: #757575;
     }
+  }
+  .ant-checkbox-input {
+    position: absolute;
   }
 `;
 function ParaItem({ deleteItem, item, updateItem }) {
@@ -163,13 +170,14 @@ export default function LinkPara(props) {
   return (
     <LinkParaWrap>
       <Checkbox
-        size="small"
         checked={paras.length > 0}
-        text={_l('对链接目标传参')}
-        onClick={checked => {
-          setParas(checked ? [] : [DEFAULT_PARA_ITEM]);
+        onChange={e => {
+          const { checked } = e.target;
+          setParas(!checked ? [] : [DEFAULT_PARA_ITEM]);
         }}
-      />
+      >
+        {_l('对链接目标传参')}
+      </Checkbox>
 
       {paras.length > 0 && (
         <div className="paraListWrap">
@@ -194,32 +202,38 @@ export default function LinkPara(props) {
       {showActionBar && (
         <div className="pTop16 pBottom16">
           <Checkbox
-            size="small"
             checked={reload && newTab}
-            text={_l('显示操作栏')}
-            onClick={checked => {
-              setConfig({ reload: !checked, newTab: !checked });
+            onChange={e => {
+              const { checked } = e.target;
+              setConfig({ reload: checked, newTab: checked });
             }}
-          />
+          >
+            {_l('显示操作栏')}
+          </Checkbox>
           {(reload || newTab) && (
             <div className="pTop8 pLeft24">
-              <Checkbox
-                size="small"
-                className="mBottom8"
-                checked={reload}
-                text={_l('刷新')}
-                onClick={checked => {
-                  setConfig({ newTab, reload: !checked });
-                }}
-              />
-              <Checkbox
-                size="small"
-                checked={newTab}
-                text={_l('新页面打开')}
-                onClick={checked => {
-                  setConfig({ reload, newTab: !checked });
-                }}
-              />
+              <div className="mBottom8">
+                <Checkbox
+                  checked={reload}
+                  onChange={e => {
+                    const { checked } = e.target;
+                    setConfig({ newTab, reload: checked });
+                  }}
+                >
+                  {_l('刷新')}
+                </Checkbox>
+              </div>
+              <div>
+                <Checkbox
+                  checked={newTab}
+                  onChange={e => {
+                    const { checked } = e.target;
+                    setConfig({ reload, newTab: checked });
+                  }}
+                >
+                  {_l('新页面打开')}
+                </Checkbox>
+              </div>
             </div>
           )}
         </div>

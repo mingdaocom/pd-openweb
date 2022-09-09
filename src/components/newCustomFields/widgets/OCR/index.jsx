@@ -73,7 +73,7 @@ export default class Widgets extends Component {
 
     return (
       <QiniuUpload
-        className="customFormControlBox customFormControlOCR ThemeColor3"
+        className="customFormControlBox customFormControlOCR"
         ref={file => {
           this.file = file;
         }}
@@ -96,7 +96,7 @@ export default class Widgets extends Component {
           </span>
         ) : (
           <Fragment>
-            <Icon icon={TYPES[enumDefault].icon} className="Font20 mRight5" />
+            <Icon icon={TYPES[enumDefault].icon} className="Font20 mRight5 Gray_9e" />
             <span style={{ fontWeight: 500 }}>{TYPES[enumDefault].text}</span>
           </Fragment>
         )}

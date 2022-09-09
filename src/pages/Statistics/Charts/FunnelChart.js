@@ -214,6 +214,7 @@ export default class extends Component {
             position: position == 'top-left' ? 'top' : position,
             flipPage: true,
             itemHeight: 20,
+            radio: { style: { r: 6 } },
           }
         : false,
       conversionTag: displaySetup.showNumber

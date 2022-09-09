@@ -115,7 +115,7 @@ class RoleDetail extends React.Component {
       this.state;
     const isHrVisible = md.global.Account.projects.find(o => o.projectId === projectId).isHrVisible;
 
-    const path = isApply ? '/admin/index/' + projectId : '/admin/rolelist/' + projectId;
+    const path = isApply ? '/admin/index/' + projectId : '/admin/sysroles/' + projectId;
     return (
       <div className="roleAuthDetailContainer">
         <div className="clearfix pTop20 pBottom20">
@@ -130,9 +130,11 @@ class RoleDetail extends React.Component {
                     projectId: projectId,
                     roleId,
                   }).then(function (data) {
-                    if (data) {
+                    if (data === 1) {
                       alert(_l('申请成功'));
-                    } else {
+                    } else if (data === -1) {
+                      alert(_l('不允许申请管理员'), 3);
+                    } else if (data === 0) {
                       alert(_l('申请失败'), 2);
                     }
                   });
@@ -164,7 +166,7 @@ class RoleDetail extends React.Component {
                           } else {
                             alert(message || _l('操作失败'), 2);
                           }
-                          navigateTo('/admin/rolelist/' + projectId);
+                          navigateTo('/admin/sysroles/' + projectId);
                         });
                       },
                     );

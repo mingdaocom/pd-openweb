@@ -442,7 +442,7 @@ class DepartmentTree extends React.Component {
       );
     }
     return (
-      <div className="departmentTreeBox box-sizing pBottom20">
+      <div className="departmentTreeBox">
         <DirectoryTree
           onExpand={this.onExpand}
           selectedKeys={selectedKeys}

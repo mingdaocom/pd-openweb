@@ -15,7 +15,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import cx from 'classnames';
 import UserInfoDialog from 'src/pages/Roles/Portal/components/UserInfoDialog';
 import './index.less';
-import { getDetail, saveUserDetail } from 'src/api/externalPortal';
+import { getDetail, saveUserDetail, getLoginUrl } from 'src/api/externalPortal';
 import { browserIsMobile } from 'src/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { getIds } from 'src/pages/PageHeader/util';
@@ -296,6 +296,7 @@ export default class PortalAppHeader extends Component {
       showDelDialog: false,
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+      url: '',
     };
     if (!browserIsMobile()) {
       const { groupId, worksheetId } = getIds(props) || {};
@@ -346,8 +347,12 @@ export default class PortalAppHeader extends Component {
 
   getInfo = () => {
     const { name, syncAppDetail } = this.props;
+    const appId = this.props.appId || this.props.match.params.appId;
+    if (!appId) {
+      return;
+    }
     if (!name) {
-      api.getAppDetail({ appId: this.props.appId || this.props.match.params.appId }, { silent: true }).then(data => {
+      api.getAppDetail({ appId }, { silent: true }).then(data => {
         this.setState({
           iconUrl: data.iconUrl,
           name: data.name,
@@ -373,7 +378,14 @@ export default class PortalAppHeader extends Component {
         this.buildFavicon(data);
       });
     }
-    api.getAppInfo({ appId: this.props.appId || this.props.match.params.appId }).then(data => {
+    getLoginUrl({
+      appId,
+    }).then(res => {
+      this.setState({
+        url: res,
+      });
+    });
+    api.getAppInfo({ appId }).then(data => {
       this.props.updateAppGroup(data);
       const { appSectionDetail = [] } = data;
       this.setState({
@@ -382,7 +394,7 @@ export default class PortalAppHeader extends Component {
     });
     getDetail({
       exAccountId: md.global.Account.accountId,
-      appId: this.props.appId || this.props.match.params.appId,
+      appId,
     }).then(res => {
       const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
       this.setState(
@@ -402,10 +414,13 @@ export default class PortalAppHeader extends Component {
     login.loginOut().then(data => {
       if (data) {
         removePssId();
-        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+        //删除自动登录的key
         const appId = this.props.appId || this.props.match.params.appId;
-        const url = `${location.origin}${window.subPath || ''}/app/${appId}`;
-        location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(url)}`; // 跳转到登录
+        window.localStorage.removeItem(`PortalLoginInfo-${appId}`);
+        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+        // const appId = this.props.appId || this.props.match.params.appId;
+        // const url = `${location.origin}${window.subPath || ''}/app/${appId}`;
+        location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(this.state.url)}`; // 跳转到登录
       }
     });
   };
@@ -617,6 +632,7 @@ export default class PortalAppHeader extends Component {
                     <h6 className={cx('Font16', { mTop32: !isMobile, mTop24: isMobile })}>{_l('我的信息')}</h6>
                     <div className="infoBox">
                       {info
+                        .filter(o => o.fieldPermission[2] !== '1') //不收集的信息，用户个人信息不显示
                         .sort((a, b) => {
                           return a.row - b.row;
                         })
@@ -675,7 +691,10 @@ export default class PortalAppHeader extends Component {
             classNames={browserIsMobile() ? 'forMobilePortal' : ''}
             show={showUserInfoDialog}
             currentData={currentData
-              .filter(o => !['avatar', 'firstLoginTime', 'roleid', 'status'].includes(o.alias))
+              .filter(
+                o =>
+                  !['avatar', 'firstLoginTime', 'roleid', 'status'].includes(o.alias) && o.fieldPermission[2] !== '1', //不收集的信息，用户个人信息不显示
+              )
               .map(o => {
                 if (['portal_mobile'].includes(o.controlId)) {
                   return { ...o, disabled: true };
@@ -712,8 +731,9 @@ export default class PortalAppHeader extends Component {
           />
         )}
         {showDelDialog && (
-          //更换手机号
+          //注销
           <DelDialog
+            url={this.state.url}
             appId={this.props.appId || this.props.match.params.appId}
             classNames={browserIsMobile() ? 'forMobilePortal' : ''}
             show={showDelDialog}

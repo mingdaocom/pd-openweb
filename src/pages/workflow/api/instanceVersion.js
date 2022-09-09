@@ -12,7 +12,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   batch: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/batch';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/batch';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1instancebatch', JSON.stringify(args), $.extend(base, options));
   },
@@ -25,7 +25,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   endInstance: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/endInstance';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/endInstance';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1instanceendInstance', args, $.extend(base, options));
   },
@@ -39,7 +39,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   get: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/get';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/get';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1instanceget', args, $.extend(base, options));
   },
@@ -51,7 +51,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getTodoCount: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/getTodoCount';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoCount';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1instancegetTodoCount', args, $.extend(base, options));
   },
@@ -64,7 +64,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getTodoList: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/getTodoList';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoList';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1instancegetTodoList', JSON.stringify(args), $.extend(base, options));
   },
@@ -77,7 +77,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getTodoListFilter: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/getTodoListFilter';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoListFilter';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1instancegetTodoListFilter', JSON.stringify(args), $.extend(base, options));
   },
@@ -91,7 +91,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getWorkItem: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/getWorkItem';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/getWorkItem';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1instancegetWorkItem', args, $.extend(base, options));
   },
@@ -104,7 +104,7 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   resetInstance: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/v1/instance/resetInstance';
+    base.ajaxOptions.url = base.server(options) + '/v1/instance/resetInstance';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'v1instanceresetInstance', args, $.extend(base, options));
   },

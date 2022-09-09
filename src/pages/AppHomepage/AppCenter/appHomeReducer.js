@@ -103,9 +103,9 @@ export function reducer(state, action = {}) {
         activeGroupApps: action.apps,
         apps: state.apps.length
           ? state.apps.map(app => ({
-              ...app,
-              ...(_.find(action.apps, { id: app.id }) || {}),
-            }))
+            ...app,
+            ...(_.find(action.apps, { id: app.id }) || {}),
+          }))
           : action.apps,
       };
     case 'UPDATE_APP':
@@ -301,7 +301,7 @@ export class CreateActions {
     });
   }
   loadGroup({ activeGroupId, activeGroupType, projectId }) {
-    localStorage.setItem(
+    safeLocalStorageSetItem(
       `latest_group_${md.global.Account.accountId}`,
       JSON.stringify({
         groupId: activeGroupId,
@@ -326,7 +326,7 @@ export class CreateActions {
       });
     });
   }
-  addGroup({ projectId, name, icon, groupType, cb = () => {} }) {
+  addGroup({ projectId, name, icon, groupType, cb = () => { } }) {
     addGroup({ projectId, name, icon, groupType })
       .then(({ id, status }) => {
         if (status === 1) {
@@ -347,7 +347,7 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  editGroup({ id, projectId, name, icon, groupType, cb = () => {} }) {
+  editGroup({ id, projectId, name, icon, groupType, cb = () => { } }) {
     editGroup({ id, projectId, name, icon, groupType })
       .then(status => {
         cb(status);
@@ -366,7 +366,7 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  deleteGroup({ id, projectId, groupType, cb = () => {} }) {
+  deleteGroup({ id, projectId, groupType, cb = () => { } }) {
     deleteGroup({ id, projectId, groupType })
       .then(() => {
         cb();
@@ -377,7 +377,7 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  markGroup({ id, isMarked, groupType, projectId, cb = () => {} }) {
+  markGroup({ id, isMarked, groupType, projectId, cb = () => { } }) {
     markedGroup({
       id,
       isMarked,
@@ -515,8 +515,8 @@ export class CreateActions {
         });
         cb(data.id);
       })
-      .fail(() => {
-        alert(_l('新建应用失败！'), 2);
+      .fail(err => {
+        !md.global.Config.IsLocal && alert(_l('新建应用失败！'), 2);
       });
   }
   updateAppSort({ sortType, appIds, projectId, groupId }) {

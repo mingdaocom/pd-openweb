@@ -1,8 +1,12 @@
 export const permissionObj = {
-  // 组织管理('首页'， ‘人员与部门’， ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
+  // 组织管理('首页'， ‘人员与部门’，'组织角色', ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
   PROJECT_ADMIN: [
     'home',
+    'upgradeservice',
+    'waitingpay',
+    'expansionservice',
     'structure',
+    'roles',
     'approve',
     'reportrelation',
     'groups',
@@ -11,15 +15,17 @@ export const permissionObj = {
     'transfer',
     'resignlist',
     'sysinfo',
-    'rolelist',
+    'billinfo',
+    'valueaddservice',
+    'sysroles',
     'rolelog',
-    'announcement',
-    'thirdapp',
+    'systools',
     'ldap',
     'weixin',
+    'thirdapp',
   ],
-  // 应用管理('应用‘，’工作流‘)
-  APK_ADMIN: ['app', 'workflows'],
+  // 应用管理('应用‘，’工作流‘，‘使用分析’)
+  APK_ADMIN: ['app', 'workflows', 'analytics'],
   // 钉钉
   HAS_DING: ['ding'],
   // 微信集成
@@ -36,13 +42,25 @@ export const menuList = [
     title: '',
     subMenuList: [
       {
-        icon: 'icon-home_page',
-        name: _l('首页'),
+        icon: 'icon-company',
+        name: _l('基本信息'),
         key: 'home',
         routes: [
           {
             path: '/admin/home/:projectId',
             component: () => import('./homePage/index.jsx'),
+          },
+          {
+            path: '/admin/upgradeservice/(.*)',
+            component: () => import('./billCenter/upgradeService'),
+          },
+          {
+            path: '/admin/waitingpay/(.*)/(.*)',
+            component: () => import('./billCenter/waitingPay'),
+          },
+          {
+            path: '/admin/expansionservice/(.*)',
+            component: () => import('./billCenter/expansionService'),
           },
         ],
       },
@@ -64,6 +82,17 @@ export const menuList = [
           {
             path: '/admin/approve/(.*)',
             component: () => import('./structure'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-user',
+        name: _l('组织角色'),
+        key: 'roles',
+        routes: [
+          {
+            path: '/admin/roles/:projectId',
+            component: () => import('./roleManage'),
           },
         ],
       },
@@ -90,7 +119,7 @@ export const menuList = [
         ],
       },
       {
-        icon: 'icon-public',
+        icon: 'icon-external_users_01',
         name: _l('外部门户'),
         key: 'portal',
         menuPath: '/admin/portal/:projectId',
@@ -103,8 +132,9 @@ export const menuList = [
         ],
       },
       {
-        icon: 'icon-portrait',
+        icon: 'icon-person_off_a',
         name: _l('通讯录隔离'),
+        featureId: 6,
         key: 'contactsHidden',
         routes: [
           {
@@ -132,7 +162,7 @@ export const menuList = [
     title: _l('组织'),
     subMenuList: [
       {
-        icon: 'icon-business',
+        icon: 'icon-draft-box',
         name: _l('组织信息'),
         key: 'sysinfo',
         routes: [
@@ -143,13 +173,28 @@ export const menuList = [
         ],
       },
       {
-        icon: 'icon-admin_panel_settings',
-        name: _l('权限管理'),
-        key: 'rolelist',
-        menuPath: '/admin/rolelist/:projectId',
+        icon: 'icon-account_balance_wallet',
+        name: _l('账务'),
+        key: 'billinfo',
         routes: [
           {
-            path: '/admin/(rolelist|rolelog)/:projectId/:roleId?',
+            path: '/admin/billinfo/(.*)',
+            component: () => import('./billCenter/billInfo'),
+          },
+          {
+            path: '/admin/valueaddservice/(.*)',
+            component: () => import('./billCenter/valueAddService'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-admin_panel_settings',
+        name: _l('管理员'),
+        key: 'sysroles',
+        menuPath: '/admin/sysroles/:projectId',
+        routes: [
+          {
+            path: '/admin/(sysroles|rolelog)/:projectId/:roleId?',
             component: () => import('./roleAuth/index'),
           },
         ],
@@ -157,10 +202,10 @@ export const menuList = [
       {
         icon: 'icon-build',
         name: _l('管理工具'),
-        key: 'announcement',
+        key: 'systools',
         routes: [
           {
-            path: '/admin/announcement/(.*)',
+            path: '/admin/systools/(.*)',
             component: () => import('./tools'),
           },
         ],
@@ -185,13 +230,25 @@ export const menuList = [
         ],
       },
       {
-        icon: 'icon-department',
+        icon: 'icon-workflow',
         name: _l('工作流'),
         key: 'workflows',
         routes: [
           {
             path: '/admin/workflows/:projectId',
             component: () => import('src/pages/workflow/WorkflowList/AdminWorkflowList'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-poll',
+        name: _l('使用分析'),
+        featureId: 17,
+        key: 'analytics',
+        routes: [
+          {
+            path: '/admin/analytics/:projectId',
+            component: () => import('./useAnalytics'),
           },
         ],
       },
@@ -204,6 +261,7 @@ export const menuList = [
       {
         icon: 'icon-wechat_work',
         name: _l('企业微信'),
+        featureId: 19,
         key: 'workwxapp',
         routes: [
           {
@@ -215,6 +273,7 @@ export const menuList = [
       {
         icon: 'icon-dingtalk',
         name: _l('钉钉'),
+        featureId: 10,
         key: 'ding',
         routes: [
           {
@@ -226,6 +285,7 @@ export const menuList = [
       {
         icon: 'icon-welink',
         name: _l('Welink'),
+        featureId: 18,
         key: 'welink',
         menuPath: '/admin/welink/:projectId',
         routes: [
@@ -238,6 +298,7 @@ export const menuList = [
       {
         icon: 'icon-feishu',
         name: _l('飞书'),
+        featureId: 12,
         key: 'feishu',
         menuPath: '/admin/feishu/:projectId',
         routes: [

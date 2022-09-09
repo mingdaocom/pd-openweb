@@ -123,7 +123,7 @@ export default class ChartStyle extends Component {
                     );
                   }}
                 >
-                  {_l('左Y轴')}
+                  {_l('Y轴')}
                 </Checkbox>
               ) : null
             }
@@ -167,7 +167,7 @@ export default class ChartStyle extends Component {
                       );
                     }}
                   >
-                    {_l('右Y轴')}
+                    {_l('辅助Y轴')}
                   </Checkbox>
                 ) : null
               }

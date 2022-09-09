@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { LoadDiv } from 'ming-ui';
 import { getUserCollect, infoLogin } from 'src/api/externalPortal';
-import { goApp, accountResultAction } from './util';
+import { goApp, accountResultAction, setAutoLoginKey } from './util';
 import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
 
@@ -101,6 +101,7 @@ export default function Info(props) {
     setStatus,
     appColor = '#00bcd4',
     appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
+    isAutoLogin,
   } = props;
   const [sending, setSending] = useState(false); //点击
   const [cells, setCells] = useState([]);
@@ -171,7 +172,9 @@ export default function Info(props) {
               infoLogin({
                 state,
                 receiveControls: data.map(formatControlToServer),
+                autoLogin: isAutoLogin,
               }).then(res => {
+                setAutoLoginKey({ ...res, appId });
                 // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
                 const { accountResult, sessionId, accountId, projectId } = res;
                 if (statusList.includes(accountResult)) {

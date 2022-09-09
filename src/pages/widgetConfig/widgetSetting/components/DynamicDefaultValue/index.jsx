@@ -20,6 +20,10 @@ const {
   ScoreInput,
   AreaInput,
   SwitchInput,
+  TimeInput,
+  RoleInput,
+  ArrayInput,
+  ObjectInput,
 } = Components;
 
 const TYPE_TO_COMP = {
@@ -36,6 +40,10 @@ const TYPE_TO_COMP = {
   area: AreaInput,
   subList: SubSheet,
   switch: SwitchInput,
+  time: TimeInput,
+  role: RoleInput,
+  array: ArrayInput,
+  array_object: ObjectInput,
 };
 
 export default function DynamicDefaultValue(props) {

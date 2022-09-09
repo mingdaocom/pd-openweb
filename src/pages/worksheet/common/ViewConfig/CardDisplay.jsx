@@ -86,7 +86,6 @@ export default function CardDisplay(props) {
             coverCid: value === 'notDisplay' ? '' : value,
           })
         }
-        fromRelative={true} // 关联表的相关设置
         // 显示位置
         handleChangePosition={(value, coverTypeValue) => {
           handleDisplayChange(

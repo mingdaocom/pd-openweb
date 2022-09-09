@@ -4,6 +4,7 @@ import { shape, number, func } from 'prop-types';
 import moment from 'moment';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
+import { getDatePickerConfigs, getAdvanceSetting } from '../../../../util/setting';
 
 export default class DateInput extends Component {
   static propTypes = {
@@ -26,14 +27,27 @@ export default class DateInput extends Component {
   }
   state = {
     datePickerVisible: false,
+    defValue: '',
   };
+
+  componentDidMount() {
+    const { data } = this.props;
+    const defSource = getAdvanceSetting(data, 'defsource');
+    const { staticValue, cid = '' } = defSource[0] || {};
+    if (!cid && staticValue && staticValue !== '2') {
+      this.setState({
+        defValue: moment(staticValue),
+      });
+    }
+  }
 
   handleClick = () => {
     this.setState({ datePickerVisible: true });
   };
-  handleAssignTimeChange = date => {
+  handleAssignTimeChange = (date, formatMode) => {
     const { data } = this.props;
-    const time = data.type === 16 ? moment(date).format('YYYY-MM-DD HH:mm') : moment(date).format('YYYY-MM-DD');
+    const time = moment(date.format(formatMode)).format(data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD');
+    this.setState({ defValue: moment(time) });
     const newValue = [{ rcid: '', cid: '', staticValue: time, time }];
     this.props.onDynamicValueChange(newValue);
   };
@@ -50,29 +64,32 @@ export default class DateInput extends Component {
 
   render() {
     const { data, defaultType } = this.props;
-    const { datePickerVisible } = this.state;
+    const { datePickerVisible, defValue } = this.state;
+    const dateProps = getDatePickerConfigs(data);
+    const formatMode = dateProps.formatMode;
     return (
       <Fragment>
         <DynamicValueInputWrap>
           {defaultType ? (
             <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
           ) : (
-            <OtherFieldList {...this.props} onClick={this.handleClick} />
+            <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />
           )}
           <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
         </DynamicValueInputWrap>
         {datePickerVisible && (
           <DatePicker
+            value={defValue || moment()}
             className="datePicker"
             onClickAwayExceptions={['.TimePicker-panel']}
             onClickAway={() => this.setState({ datePickerVisible: false })}
             style={{ margin: '0', width: '100%' }}
-            mode={data.type === 16 ? 'datetime' : 'date'}
-            onChange={this.handleAssignTimeChange}
-            onSelect={this.handleAssignTimeChange}
+            {..._.pick(dateProps, ['mode', 'showMinute', 'showSecond'])}
+            onChange={time => this.handleAssignTimeChange(time, formatMode)}
+            onSelect={time => this.handleAssignTimeChange(time, formatMode)}
             onClear={this.clearTime}
             onOk={time => {
-              this.handleAssignTimeChange(time);
+              this.handleAssignTimeChange(time, formatMode);
               this.setState({ datePickerVisible: false });
             }}
           />

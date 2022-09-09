@@ -35,4 +35,28 @@ module.exports = {
      
      return $.api('AccountSetting', 'EditAccountSettingItems', args, options);
    },
+  /**
+  * 获取签名
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSign: function (args, options = {}) {
+     
+     return $.api('AccountSetting', 'GetSign', args, options);
+   },
+  /**
+  * 修改签名
+  * @param {Object} args 请求参数
+  * @param {integer} args.bucket
+  * @param {string} args.key key(文件路径，不带域名)
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editSign: function (args, options = {}) {
+     
+     return $.api('AccountSetting', 'EditSign', args, options);
+   },
 };

@@ -8,6 +8,7 @@ import {
   TriggerCondition,
   SelectNodeObject,
   FindResult,
+  FindMode,
 } from '../components';
 import { APP_TYPE, ACTION_ID, NODE_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';
@@ -306,10 +307,10 @@ export default class FindSystem extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon={getIcons(selectNodeType, data.appType)}
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -318,12 +319,12 @@ export default class FindSystem extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], data.actionId) ||
             (!!data.selectNodeId && !!data.fields.length)
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

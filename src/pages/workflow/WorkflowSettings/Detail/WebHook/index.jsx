@@ -11,17 +11,6 @@ import {
   TestParameter,
 } from '../components';
 import { APP_TYPE, METHODS_TYPE } from '../../enum';
-import styled from 'styled-components';
-
-const Input = styled.input`
-  height: 36px;
-  border-radius: 3px;
-  padding: 0 12px;
-  border: 1px solid #ddd;
-  &:focus {
-    border-color: #2196f3;
-  }
-`;
 
 export default class WebHook extends Component {
   constructor(props) {
@@ -32,6 +21,7 @@ export default class WebHook extends Component {
       sendRequest: false,
       showTestDialog: false,
       testArray: [],
+      fileArray: [],
     };
   }
 
@@ -58,25 +48,27 @@ export default class WebHook extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      if (!result.headers.length) {
-        result.headers.push({
-          name: '',
-          value: '',
-        });
-      }
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .then(result => {
+        if (!result.headers.length) {
+          result.headers.push({
+            name: '',
+            value: '',
+          });
+        }
 
-      if (!result.formControls.length) {
-        result.formControls.push({
-          name: '',
-          value: '',
-        });
-      }
+        if (!result.formControls.length) {
+          result.formControls.push({
+            name: '',
+            value: '',
+          });
+        }
 
-      this.setState({ data: result });
-    });
+        this.setState({ data: result });
+      });
   }
 
   /**
@@ -145,23 +137,26 @@ export default class WebHook extends Component {
     }
 
     flowNode
-      .saveNode({
-        processId: this.props.processId,
-        nodeId: this.props.selectNodeId,
-        flowNodeType: this.props.selectNodeType,
-        name: name.trim(),
-        selectNodeId,
-        sendContent: sendContent.trim(),
-        body,
-        headers: headers.filter(item => item.name),
-        method,
-        contentType,
-        formControls: formControls.filter(item => item.name),
-        settings: {
-          openSSL: settings.openSSL,
+      .saveNode(
+        {
+          processId: this.props.processId,
+          nodeId: this.props.selectNodeId,
+          flowNodeType: this.props.selectNodeType,
+          name: name.trim(),
+          selectNodeId,
+          sendContent: sendContent.trim(),
+          body,
+          headers: headers.filter(item => item.name),
+          method,
+          contentType,
+          formControls: formControls.filter(item => item.name),
+          settings: {
+            openSSL: settings.openSSL,
+          },
+          testMap,
         },
-        testMap,
-      })
+        { isIntegration: this.props.isIntegration },
+      )
       .then(result => {
         this.props.updateNodeData(result);
         this.props.closeDetail();
@@ -206,32 +201,12 @@ export default class WebHook extends Component {
    * 渲染自定义数据
    */
   renderCustomSource() {
-    const { data, showTestDialog, testArray } = this.state;
+    const { data, showTestDialog, testArray, fileArray } = this.state;
 
     return (
       <Fragment>
-        <div className="Font13 flexRow">
-          <div className="flex bold">{_l('请选择请求方式')}</div>
-          <Checkbox
-            className="flexRow"
-            text={_l('开启SSL证书验证')}
-            checked={data.settings.openSSL}
-            onClick={checked =>
-              this.updateSource({ settings: Object.assign({}, data.settings, { openSSL: !checked }) })
-            }
-          />
-        </div>
-        <Dropdown
-          className="flowDropdown flowDropdownBorder mTop10"
-          data={METHODS_TYPE}
-          value={data.method}
-          border
-          onChange={method => this.updateSource({ method, body: _.includes([1, 5], method) ? '' : data.body })}
-        />
-
         {this.renderUrl()}
         {this.renderHeaders()}
-
         {!_.includes([1, 4, 5], data.method) && this.renderBody()}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
@@ -260,6 +235,7 @@ export default class WebHook extends Component {
             onOk={this.send}
             onClose={() => this.setState({ showTestDialog: false })}
             testArray={testArray}
+            fileArray={fileArray}
             formulaMap={data.formulaMap}
             testMap={data.testMap}
           />
@@ -273,7 +249,11 @@ export default class WebHook extends Component {
    */
   renderBody() {
     const { data } = this.state;
-    const contentTypes = [{ text: 'key-value pairs', value: 1 }, { text: 'raw (application/json)', value: 2 }];
+    const contentTypes = [
+      { text: 'form-data', value: 4 },
+      { text: 'x-www-form-urlencoded', value: 1 },
+      { text: 'raw', value: 2 },
+    ];
 
     return (
       <Fragment>
@@ -281,34 +261,54 @@ export default class WebHook extends Component {
         <div className="flexRow mTop15">
           {contentTypes.map((item, i) => {
             return (
-              <div className="flex" key={i}>
+              <div className="flex alignItemsCenter flexRow minHeight30" key={i}>
                 <Radio
                   text={item.text}
-                  checked={data.contentType === item.value}
+                  checked={data.contentType === item.value || (data.contentType === 3 && item.value === 2)}
                   onClick={() =>
-                    this.updateSource({ contentType: item.value, body: '', formControls: [{ name: '', value: '' }] })
+                    this.updateSource({
+                      contentType: item.value,
+                      body: '',
+                      formControls: [Object.assign({ name: '', value: '' }, item.value === 4 ? { type: 2 } : {})],
+                    })
                   }
                 />
+                {item.value === 2 && _.includes([2, 3], data.contentType) && (
+                  <Dropdown
+                    style={{ marginLeft: -15 }}
+                    data={[{ text: 'Text', value: 3 }, { text: 'JSON', value: 2 }]}
+                    value={data.contentType}
+                    onChange={value => this.updateSource({ contentType: value })}
+                  />
+                )}
               </div>
             );
           })}
         </div>
 
-        {data.contentType === 1 ? (
+        {data.contentType === 4 && <div className="Gray_9e mTop5">{_l('此模式下允许发送10M以内附件')}</div>}
+
+        {_.includes([1, 4], data.contentType) && (
           <KeyPairs
             key={this.props.selectNodeId}
             processId={this.props.processId}
             selectNodeId={this.props.selectNodeId}
+            isIntegration={this.props.isIntegration}
             source={data.formControls}
             sourceKey="formControls"
+            showType={data.contentType === 4}
             formulaMap={data.formulaMap}
+            btnText={data.contentType === 4 ? '+ Form' : '+ key-value pairs'}
             updateSource={this.updateSource}
           />
-        ) : (
+        )}
+
+        {_.includes([2, 3], data.contentType) && (
           <CustomTextarea
             className="minH100"
             processId={this.props.processId}
             selectNodeId={this.props.selectNodeId}
+            isIntegration={this.props.isIntegration}
             type={2}
             content={data.body}
             formulaMap={data.formulaMap}
@@ -325,21 +325,45 @@ export default class WebHook extends Component {
    */
   renderUrl() {
     const { data } = this.state;
+
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('API URL （必填）')}</div>
-        <div className="mTop15 Gray_9e">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')}</div>
+        <div className="Font13 bold">{_l('API URL （必填）')}</div>
+        <div className="mTop10 Gray_9e flexRow">
+          <div className="flex">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')} </div>
+          <Checkbox
+            className="flexRow"
+            text={_l('开启SSL证书验证')}
+            checked={data.settings.openSSL}
+            onClick={checked =>
+              this.updateSource({ settings: Object.assign({}, data.settings, { openSSL: !checked }) })
+            }
+          />
+        </div>
 
-        <CustomTextarea
-          processId={this.props.processId}
-          selectNodeId={this.props.selectNodeId}
-          type={2}
-          height={0}
-          content={data.sendContent}
-          formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
-          updateSource={this.updateSource}
-        />
+        <div className="flexRow">
+          <Dropdown
+            className="flowDropdown mTop10 mRight10"
+            style={{ width: 120 }}
+            data={METHODS_TYPE}
+            value={data.method}
+            border
+            onChange={method => this.updateSource({ method, body: _.includes([1, 5], method) ? '' : data.body })}
+          />
+          <div className="flex" style={{ minWidth: 0 }}>
+            <CustomTextarea
+              processId={this.props.processId}
+              selectNodeId={this.props.selectNodeId}
+              isIntegration={this.props.isIntegration}
+              type={2}
+              height={0}
+              content={data.sendContent}
+              formulaMap={data.formulaMap}
+              onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
+              updateSource={this.updateSource}
+            />
+          </div>
+        </div>
       </Fragment>
     );
   }
@@ -357,6 +381,7 @@ export default class WebHook extends Component {
           key={this.props.selectNodeId}
           processId={this.props.processId}
           selectNodeId={this.props.selectNodeId}
+          isIntegration={this.props.isIntegration}
           source={data.headers}
           sourceKey="headers"
           formulaMap={data.formulaMap}
@@ -374,15 +399,24 @@ export default class WebHook extends Component {
     const { data } = this.state;
     const { sendContent, headers, formControls, body } = data;
     const testArray = _.uniq(
-      (sendContent + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(/\$[^ \r\n]+?\$/g) || [],
+      (
+        sendContent +
+        JSON.stringify(headers) +
+        JSON.stringify(formControls.filter(item => item.type !== 14)) +
+        body
+      ).match(/\$[^ \r\n]+?\$/g) || [],
+    );
+    const fileArray = _.uniq(
+      JSON.stringify(formControls.filter(item => item.type === 14)).match(/\$[^ \r\n]+?\$/g) || [],
     );
 
-    if (!testArray.length) {
+    if (!(testArray.length + fileArray.length)) {
       this.send();
     } else {
       this.setState({
         showTestDialog: true,
         testArray,
+        fileArray,
       });
     }
   };
@@ -391,7 +425,7 @@ export default class WebHook extends Component {
    * 发送
    */
   send = (testMap = {}) => {
-    const { processId, selectNodeId } = this.props;
+    const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
     const { headers, body, sendContent, method, formControls, contentType, settings } = data;
 
@@ -407,17 +441,20 @@ export default class WebHook extends Component {
     }
 
     flowNode
-      .webHookTestRequest({
-        processId,
-        nodeId: selectNodeId,
-        method,
-        url: this.formatParameters(sendContent, testMap),
-        headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
-        body: this.formatParameters(body, testMap),
-        formControls: formControls.filter(item => item.name),
-        contentType,
-        settings,
-      })
+      .webHookTestRequest(
+        {
+          processId,
+          nodeId: selectNodeId,
+          method,
+          url: this.formatParameters(sendContent, testMap),
+          headers: this.formatParameters(headers.filter(item => item.name), testMap, true),
+          body: this.formatParameters(body, testMap),
+          formControls: this.formatParameters(formControls.filter(item => item.name), testMap, true),
+          contentType,
+          settings,
+        },
+        { isIntegration },
+      )
       .then(result => {
         if (result.status === 1) {
           this.updateSource({
@@ -441,10 +478,21 @@ export default class WebHook extends Component {
   /**
    * 格式化参数
    */
-  formatParameters = (source, testMap) => {
-    (source.match(/\$.*?\$/g) || []).forEach(key => {
-      source = source.replace(key, testMap[key] || '');
-    });
+  formatParameters = (source, testMap, isArray) => {
+    if (isArray) {
+      source = _.cloneDeep(source);
+      source.map(item => {
+        (item.value.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
+          item.value = item.value.replace(key, testMap[item.type === 14 ? `${key}14` : key] || '');
+        });
+
+        return item;
+      });
+    } else {
+      (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
+        source = source.replace(key, testMap[key] || '');
+      });
+    }
 
     return source;
   };
@@ -459,10 +507,10 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_webhook"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -474,12 +522,12 @@ export default class WebHook extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             ((data.appType === APP_TYPE.SHEET && data.selectNodeId) || data.appType === APP_TYPE.WEBHOOK) &&
             data.sendContent
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

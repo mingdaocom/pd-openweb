@@ -9,10 +9,7 @@ import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSiz
 import moment from 'moment';
 import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
-import { Support, Tooltip } from 'ming-ui';
-
-const { admin: {homePage, adminLeftMenu: { billinfo, portal } }} = window.private
-const {upgrade, computeMethod, recharge, extendWorkflow, renewBtn, userBuy, versionName, delayTrial, quickEntry} = homePage
+import { Support, Tooltip, Icon } from 'ming-ui';
 
 export default function HomePage({ match, location: routerLocation }) {
   const { projectId } = _.get(match, 'params');
@@ -55,6 +52,7 @@ export default function HomePage({ match, location: routerLocation }) {
             elementId: 'projectInviteUser',
             sourceId: projectId,
             fromType: 4,
+            defaultShowMoreInvite: true,
             SelectUserSettings: {
               callback: function (users) {
                 require(['src/components/common/inviteMember/inviteMember'], function (Invite) {
@@ -81,7 +79,7 @@ export default function HomePage({ match, location: routerLocation }) {
         location.assign(`/admin/structure/${projectId}/importusers`);
         break;
       case 'settingAdmin':
-        location.assign(`/admin/rolelist/${projectId}`);
+        location.assign(`/admin/sysroles/${projectId}`);
         break;
       case 'completeInfo':
         location.assign(`/admin/sysinfo/${projectId}`);
@@ -108,14 +106,14 @@ export default function HomePage({ match, location: routerLocation }) {
       location.assign(`/upgrade/choose?projectId=${projectId}`);
     }
     if (type === 'toast') {
-      alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3)
+      alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
     }
   };
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, startDate, version = {} } = currentLicense;
   const { version: nextVersion, startDate: nextStartDate, endDate: nextEndDate } = nextLicense;
+  const versionIdV2 = parseInt(version.versionIdV2);
 
-  const isTeam = data.licenseType === 1 && version.versionId === 1;
   const getValue = value => (loading ? '-' : value);
 
   const getCountText = (key, limit) => {
@@ -148,22 +146,22 @@ export default function HomePage({ match, location: routerLocation }) {
   };
   const getLicenseOperation = () => {
     // 如果是旗舰版 或者是已购买的试用版 不显示
-    if (version.versionId === 3 || (isTrial && !_.isEmpty(nextLicense))) return null;
+    if (versionIdV2 === 3 || (isTrial && !_.isEmpty(nextLicense))) return null;
     if (isTrial) {
       return (
         <div
-          className={cx("delayTrial", {Hidden: delayTrial})}
+          className="delayTrial"
           onClick={() => {
             setVisible(true);
           }}
         >
-          <i className="icon-box_trial"></i>
+          <i className="icon-box_trial" />
           <span>{_l('延长试用')}</span>
         </div>
       );
     }
     return (
-      <div className={cx('upgrade pointer', { Hidden: upgrade || loading })} onClick={() => handleClick('upgrade')}>
+      <div className={cx('upgrade pointer', { Hidden: loading })} onClick={() => handleClick('upgrade')}>
         {_l('升级')}
       </div>
     );
@@ -183,13 +181,17 @@ export default function HomePage({ match, location: routerLocation }) {
       <div className="infoWrap">
         <div className="infoBox">
           <div className="userInfo userInfoWrap">
-            <div className="title">{_l('人员与部门')}</div>
+            <div className="title bold">{_l('成员')}</div>
             <div className="content">
-              <div className={cx("computeMethod Hover_49", { Hidden: computeMethod})}>
-                <Support type={3} href="https://help.mingdao.com/Prices4.html" text={_l('计算方法')} />
-              </div>
+              {/*<div className="computeMethod">
+                <Support
+                  type={3}
+                  href="https://help.mingdao.com/Prices4.html"
+                  text={<span className="Gray_9e Hover_21">{_l('计算方法')}</span>}
+                />
+              </div>*/}
               <ul>
-                {USER_COUNT.filter(item => item.key !== 'effectiveExternalUserCount' || !portal).map(({ key, text, link }) => (
+                {USER_COUNT.map(({ key, text, link }) => (
                   <li
                     className="pointer"
                     key={key}
@@ -197,33 +199,86 @@ export default function HomePage({ match, location: routerLocation }) {
                   >
                     <div className="name">{text}</div>
                     <div className="count">{formatValue(getValue(data[key] || 0))}</div>
-                    {!isTrial && key === 'effectiveUserCount' && (
-                      <div className="limitUser">{_l('最大上限 %0 人', getValue(data.limitUserCount || 0))}</div>
+                    { key === 'effectiveUserCount' && (
+                      <Fragment onClick={e => e.stopPropagation()}>
+                        <div className="limitUser">
+                          {_l('上限 %0 人', getValue(data.limitUserCount || 0))}
+                          {/* {!isFree && !loading && (
+                            <span
+                              className="ThemeColor3 hoverColor mLeft10 "
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleClick('user');
+                              }}
+                            >
+                              {_l('扩充')}
+                            </span>
+                          )} */}
+                        </div>
+                      </Fragment>
                     )}
                     {key === 'effectiveExternalUserCount' && (
-                      <div className="limitUser">{_l('最大上限 %0 人', getValue(data.limitExternalUserCount || 0))}</div>
+                      <Fragment>
+                        <div className="limitUser">
+                          {_l('上限 %0 人', getValue(data.limitExternalUserCount || 0))}
+                        </div>
+                        {/* {!isFree && !isTrial && !loading && (
+                          <div>
+                            {data.allowUpgradeExternalPortal && (
+                              <Fragment>
+                                <span
+                                  className="ThemeColor3 hoverColor"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    handleClick('portalupgrade');
+                                  }}
+                                >
+                                  {_l('续费')}
+                                </span>
+                                <span className="mLeft6 mRight6">{_l('或')}</span>
+                              </Fragment>
+                            )}
+                            <span
+                              className="ThemeColor3 hoverColor"
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleClick('portaluser');
+                              }}
+                            >
+                              {_l('扩充')}
+                            </span>
+                          </div>
+                        )} */}
+                      </Fragment>
                     )}
                   </li>
                 ))}
               </ul>
+              <div className="inviteUserWrap">
+                <div className="inviteUserBox">
+                  <div className="inviteUser" onClick={() => handleActionClick('addPerson')}>
+                    {_l('邀请成员')}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div className="infoBox pRight0">
           <div className="financeInfo">
-            <div className="title">{_l('账务')}</div>
+            <div className="title bold">{_l('版本')}</div>
             <div className="content">
               {isTrial && (
                 <div className="trialInfo">
-                  <i className="icon-watch_latersvg_22"></i>
+                  <i className="icon-watch_latersvg_22" />
                   {_l('试用还剩 %0 天', getValue(expireDays || 0))}
                 </div>
               )}
               <div className="licenseInfoWrap">
                 <div className="licenseInfo">
-                  <div className="licenseFlag"></div>
-                  <div className={cx("licenseType", {Hidden: versionName})}>{getValue(version.name || '免费版')}</div>
-                  {isTrial && <span>{_l('试用')}</span>}
+                  <div className="licenseFlag" />
+                  <div className="licenseType Font15">{getValue(version.name || '免费版')}</div>
+                  {isTrial && <span>{_l('-试用')}</span>}
                   {isFree ? null : (
                     <Fragment>
                       <div className="expireDays">
@@ -234,14 +289,14 @@ export default function HomePage({ match, location: routerLocation }) {
                       <div className="expireDate">
                         {_l('%0到期', getValue(moment(endDate).format('YYYY年MM月DD日')))}
                       </div>
-                      {getLicenseOperation()}
+                      {/* {getLicenseOperation()} */}
                     </Fragment>
                   )}
                 </div>
                 {!_.isEmpty(nextLicense) && (
                   <div className="nextLicenseInfo">
-                    <div className="licenseFlag"></div>
-                    <div className="licenseType">{nextVersion.name}</div>
+                    <div className="licenseFlag" />
+                    <div className="licenseType Font15">{nextVersion.name}</div>
                     <div className="expireDate">
                       {_l(
                         '%0 ~ %1',
@@ -253,16 +308,16 @@ export default function HomePage({ match, location: routerLocation }) {
                 )}
                 {getOperation()}
               </div>
-              <div className={cx("accountInfo", {Hidden: billinfo})}>
-                <i className="icon-sp_account_balance_wallet_white"></i>
+              {md.global.Config.IsPlatformLocal && <div className="accountInfo">
+                <i className="icon-sp_account_balance_wallet_white" />
                 <span>{_l('当前账户余额 (￥)')}</span>
                 <span className="balance">{getValue(data.balance || 0).toLocaleString()}</span>
-              </div>
-              {!isFree && (
-                <div className={cx("recharge", {Hidden: recharge})} onClick={() => handleClick('recharge')}>
+              </div>}
+              {/* {!isFree && (
+                <div className="recharge" onClick={() => handleClick('recharge')}>
                   {_l('充值')}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -270,21 +325,38 @@ export default function HomePage({ match, location: routerLocation }) {
       <div className="infoWrap infoWrapCopy">
         <div className="infoBox">
           <div className="userInfo">
-            <div className="title">{_l('用量统计')}</div>
+            <div className="title overflowHidden">
+              <span className="Left bold">{_l('使用')}</span>
+              <span
+                className="Right Hand Font14 Gray_75"
+                onClick={() => {
+                  location.assign(`/admin/analytics/${projectId}`);
+                }}
+              >
+                {_l('查看详情')}
+                <Icon icon="arrow-right-border" className="mLeft6" />
+              </span>
+            </div>
             <div className="content">
               <ul>
                 {ITEM_COUNT.map(({ key, text, link }) => (
-                  <li key={key} className="pointer" onClick={() => linkHref(link)}>
+                  <li
+                    key={key}
+                    className={cx('useAnalysis', {
+                      useAnalysisHover: key === 'effectiveApkCount' || key === 'useProcessCount',
+                    })}
+                    onClick={() => (key === 'effectiveApkCount' || key === 'useProcessCount') && linkHref(link)}
+                  >
                     <div className="name">
                       {text}
                       {key === 'effectiveWorksheetRowCount' && (
                         <Tooltip popupPlacement="top" text={<span>{_l('所有工作表行记录总数（包含关闭应用）')}</span>}>
-                          <span className="icon-help1 Font13 mLeft8 Gray_9e"></span>
+                          <span className="icon-help1 Font13 mLeft8 Gray_9e" />
                         </Tooltip>
                       )}
                     </div>
                     <div className="count">{getTotalCount(getValue(data[key] || 0))}</div>
-                    {key === 'effectiveWorksheetCount' && (isFree || isTeam) && (
+                    {key === 'effectiveWorksheetCount' && isFree && (
                       <div className="limitUser">{_l('上限 100 个')}</div>
                     )}
                     {key === 'effectiveWorksheetRowCount' && isFree && (
@@ -300,7 +372,9 @@ export default function HomePage({ match, location: routerLocation }) {
           <div className="userInfo">
             <div className="content">
               <ul>
-                {UPLOAD_COUNT.map(({ key, limit, text, link, click, unit }) => (
+                {UPLOAD_COUNT.filter(item =>
+                  md.global.Config.IsPlatformLocal ? item : item.key === 'useExecCount',
+                ).map(({ key, limit, text, link, click, unit }) => (
                   <li className="pLeft10 pRight10 Hand" onClick={() => linkHref(link)}>
                     <div className="workflowTitle">
                       {text}
@@ -310,7 +384,7 @@ export default function HomePage({ match, location: routerLocation }) {
                           popupPlacement="top"
                           text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
                         >
-                          <span className="icon-help1 Font13 Gray_9e"></span>
+                          <span className="icon-help1 Font13 Gray_9e" />
                         </Tooltip>
                       )}
                     </div>
@@ -328,7 +402,7 @@ export default function HomePage({ match, location: routerLocation }) {
                     />
                     <div className="useCount pointer">
                       {getCountText(key, limit)}
-                      {!isTrial &&!extendWorkflow && !isFree ? (
+                      {/* {!isTrial && !isFree ? (
                         <span
                           className="dilatation"
                           onClick={e => {
@@ -339,7 +413,7 @@ export default function HomePage({ match, location: routerLocation }) {
                         >
                           {_l('扩容')}
                         </span>
-                      ) : null}
+                      ) : null} */}
                     </div>
                   </li>
                 ))}
@@ -348,12 +422,12 @@ export default function HomePage({ match, location: routerLocation }) {
           </div>
         </div>
       </div>
-      <div className={cx("quickEntry", {Hidden: quickEntry})}>
-        <div className="title">{_l('快捷入口')}</div>
+      <div className="quickEntry">
+        <div className="title bold">{_l('快捷入口')}</div>
         <div className="content">
           <ul>
             {QUICK_ENTRY_CONFIG.map(({ icon, color, title, explain, action }) => (
-              <li key={action} onClick={() => handleActionClick(action)} className={cx({Hidden: homePage[action]})}>
+              <li key={action} onClick={() => handleActionClick(action)}>
                 <div className="wrap">
                   <div className="iconWrap" style={{ backgroundColor: color }}>
                     <i className={`icon-${icon}`} />
@@ -392,7 +466,7 @@ export default function HomePage({ match, location: routerLocation }) {
                 </div>
                 <div className={cx('symbolWrap', { activeSymbolWrap: data.invitedUserCount >= inviteCount })}>
                   <div className="iconWrap">
-                    <i className="icon-ok"></i>
+                    <i className="icon-ok" />
                   </div>
                 </div>
                 <span className="Font12 Gray_75">{_l('邀请%0位用户', inviteCount)}</span>

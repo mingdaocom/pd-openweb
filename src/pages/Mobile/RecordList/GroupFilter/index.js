@@ -1,16 +1,41 @@
 import React, { useEffect, useState, useRef } from 'react';
 import sheetAjax from 'src/api/worksheet';
-import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, Input, ScrollView, LoadDiv, Button } from 'ming-ui';
 import { Breadcrumb } from 'antd';
+import { Drawer } from 'antd-mobile';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { RecordInfoModal } from 'mobile/Record';
+import { openAddRecord } from 'mobile/Record/addRecord';
+import { isOpenPermit } from 'src/pages/FormSet/util';
+import { permitList } from 'src/pages/FormSet/config';
+import SheetView from '../View/SheetView';
+import GalleryView from '../View/GalleryView';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 
+const { sheet, gallery } = VIEW_DISPLAY_TYPE;
+const TYPE_TO_COMP = {
+  [sheet]: SheetView,
+  [gallery]: GalleryView,
+};
+
 let ajaxFn = null;
 const GroupFilter = props => {
-  const { views = [], base = {}, controls = [], navGroupCounts } = props;
+  const {
+    views = [],
+    base = {},
+    controls = [],
+    navGroupCounts,
+    isCharge,
+    sheetSwitchPermit,
+    batchOptVisible,
+    worksheetInfo,
+    appColor,
+    mobileNavGroupFilters,
+  } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
@@ -22,9 +47,19 @@ const GroupFilter = props => {
   const [breadNavHeight, setBreadMavHeight] = useState();
   const [loading, setLoading] = useState(true);
   const [searchRecordList, setSearchRecordList] = useState([]);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [currentGroup, setCurrentGroup] = useState({});
   let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
   let isOption = [9, 10, 11].includes(soucre.type); //是否选项
   const breadNavBar = useRef();
+  const Component = TYPE_TO_COMP[String(view.viewType)];
+  const viewProps = {
+    ...base,
+    isCharge,
+    view,
+  };
+  const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
+  const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
@@ -42,6 +77,7 @@ const GroupFilter = props => {
     const { controlId } = navGroup;
     if (!controlId) {
       setGroupFilterData([]);
+      setRenderData([]);
       return;
     } else {
       setLoading(true);
@@ -92,7 +128,19 @@ const GroupFilter = props => {
         : {
             appId,
             searchType: 1,
+            getType: !viewId ? 7 : 10,
           };
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    try {
+      navfilters = JSON.parse(navfilters);
+    } catch (error) {
+      navfilters = [];
+    }
+    if (soucre.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
+      /// 显示 符合筛选条件的处理
+      let filterControls = navfilters.map(handleCondition);
+      param = { ...param, filterControls };
+    }
     ajaxFn = sheetAjax.getFilterRows({
       worksheetId,
       viewId,
@@ -108,7 +156,10 @@ const GroupFilter = props => {
         //视图删除的情况下，显示成为选中视图的状态
         fetchData({ worksheetId, viewId: '', rowId, cb });
       } else {
-        const { data = [] } = result;
+        let { data = [] } = result;
+        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+          data = data.filter(o => navfilters.includes(o.rowid));
+        }
         const controls = _.get(result, ['template', 'controls']) || [];
         const control = controls.find(item => item.attribute === 1);
         ajaxFn = '';
@@ -193,18 +244,30 @@ const GroupFilter = props => {
     }
   };
   const toList = item => {
-    props.changeMobielSheetLoading(true);
-    let rowId = item.value ? item.value : 'all';
-    let path = (item.path && JSON.parse(item.path)) || [];
-    let txt = item.txt instanceof Array ? path[path.length - 1] : item.txt;
-    let url = `/mobile/groupFilterDetail/${appId}/${base.worksheetId}/${viewId}/${rowId}`;
-    sessionStorage.setItem(`group-${rowId}`, txt);
-    localStorage.setItem('groupFilterDetailUrl', url);
-    window.mobileNavigateTo && window.mobileNavigateTo(url);
+    setDrawerVisible(true);
+    setCurrentGroup(item);
+    let obj = _.omit(navGroup, ['isAsc']);
+    let navGroupFilters = [
+      {
+        ...obj,
+        values: [item.value],
+        dataType: soucre.type,
+        filterType: soucre.type === 29 || soucre.type === 35 ? 24 : 2,
+        navNames: [item.txt],
+      },
+    ];
+    if (!item.value) {
+      props.changeMobileGroupFilters([]);
+      props.fetchSheetRows();
+    } else {
+      props.changeMobileGroupFilters(navGroupFilters);
+      props.fetchSheetRows({ navGroupFilters });
+    }
   };
   const renderContent = data => {
     return data.map(item => {
       let count = Number((navGroupCounts.find(o => o.key === (!item.value ? 'all' : item.value)) || {}).count || 0);
+      let { navshow } = getAdvanceSetting(view);
       let hasChildren = !item.isLeaf;
       if (isSoucreTree()) {
         return (
@@ -232,6 +295,10 @@ const GroupFilter = props => {
           </React.Fragment>
         );
       } else {
+        // 显示有数据的项
+        if (navshow === '1' && count <= 0) {
+          return;
+        }
         return (
           <React.Fragment key={item.value}>
             <div className="flexRow" onClick={() => toList(item)}>
@@ -306,6 +373,16 @@ const GroupFilter = props => {
       : !keywords && navGroupData && currentNodeId
       ? renderData
       : [{ txt: _l('全部'), value: '', isLeaf: true }].concat(renderData);
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    try {
+      navfilters = JSON.parse(navfilters);
+    } catch (error) {
+      navfilters = [];
+    }
+    if (isOption && navfilters.length > 0 && navshow === '2') {
+      // 显示 指定项
+      tempData = tempData.filter(o => navfilters.includes(o.value) || !o.value);
+    }
     return (
       <ScrollView style={{ maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` }}>
         {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
@@ -356,6 +433,24 @@ const GroupFilter = props => {
         setSearchRecordList(data);
       });
   };
+  const handleOpenDrawer = () => {
+    setDrawerVisible(!drawerVisible);
+  };
+  const getDefaultValueInCreate = () => {
+    let data = mobileNavGroupFilters[0];
+    if ([9, 10, 11].includes(data.dataType)) {
+      return { [data.controlId]: JSON.stringify([data.values[0]]) };
+    } else if ([29, 35]) {
+      return {
+        [data.controlId]: JSON.stringify([
+          {
+            sid: data.values[0],
+            name: data.navNames[0] || '',
+          },
+        ]),
+      };
+    }
+  };
   return (
     <div className="groupFilterContainer">
       <div className="searchBar flexRow">
@@ -384,6 +479,74 @@ const GroupFilter = props => {
           setPreviewRecordId(undefined);
         }}
       />
+      <Drawer
+        className={cx('groupFilterDrawer')}
+        position="right"
+        sidebar={
+          <div className="groupDetailBox">
+            {!batchOptVisible && (
+              <div
+                className="groupTitle"
+                onClick={() => {
+                  setDrawerVisible(false);
+                }}
+              >
+                <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
+                <span>{currentGroup.txt}</span>
+              </div>
+            )}
+            <div className="groupDetailCon">
+              <Component {...viewProps} />
+              {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+              worksheetInfo.allowAdd &&
+              !batchOptVisible ? (
+                <div className="addRecordItemWrapper">
+                  <Button
+                    style={{ backgroundColor: appColor }}
+                    className={cx('addRecordBtn flex valignWrapper', {})}
+                    onClick={() => {
+                      let defaultFormData = getDefaultValueInCreate();
+                      let param = {
+                        defaultFormData,
+                        defaultFormDataEditable: true,
+                      };
+                      openAddRecord({
+                        ...param,
+                        className: 'full',
+                        worksheetInfo,
+                        appId,
+                        worksheetId: worksheetInfo.worksheetId,
+                        viewId: view.viewId,
+                        addType: 2,
+                        entityName: worksheetInfo.entityName,
+                        onAdd: data => {
+                          if (view.viewType) {
+                            props.addNewRecord(data, view);
+                          } else {
+                            props.unshiftSheetRow(data);
+                          }
+                        },
+                      });
+                    }}
+                  >
+                    <Icon icon="add" className="Font22 mRight5" />
+                    {worksheetInfo.entityName}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+            {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && (
+              <div className="batchOperation" onClick={() => props.changeBatchOptVisible(true)}>
+                <Icon icon={'task-complete'} className="Font24" />
+              </div>
+            )}
+          </div>
+        }
+        open={drawerVisible}
+        onOpenChange={handleOpenDrawer}
+      >
+        <React.Fragment />
+      </Drawer>
     </div>
   );
 };

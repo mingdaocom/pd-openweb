@@ -41,7 +41,7 @@ class AppGroupList extends Component {
               <div
                 className={cx('groupItemName flex', { currentGroupLast: index === data.length - 1 })}
                 onClick={() => {
-                  localStorage.setItem('currentGroupInfo', JSON.stringify({ id: item.id, groupType: item.groupType }));
+                  safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({ id: item.id, groupType: item.groupType }));
                   window.mobileNavigateTo(`/mobile/groupAppList/${item.id}/${item.groupType}`);
                 }}
               >

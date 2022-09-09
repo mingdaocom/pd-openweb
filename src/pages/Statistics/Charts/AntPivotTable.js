@@ -250,10 +250,10 @@ const mergeLinesCell = (data, lines, valueMap) => {
       if (_.isObject(n)) {
         return {
           ...n,
-          value: valueMap[item.key] ? (valueMap[item.key][n.value] || ' ') : n.value
+          value: valueMap[item.key] ? (valueMap[item.key][n.value] || _l('空')) : n.value
         }
       } else {
-        return valueMap[item.key] ? (valueMap[item.key][n] || ' ') : n;
+        return valueMap[item.key] ? (valueMap[item.key][n] || _l('空')) : n;
       }
     });
     if (control.controlType === 29) {
@@ -335,7 +335,7 @@ export default class extends Component {
     
     columns = _.cloneDeep(columns);
 
-    if (columns.length && yaxisList.length === 1) {
+    if (columns.length && lines.length && yaxisList.length === 1) {
       columns.pop();
     }
 
@@ -406,9 +406,9 @@ export default class extends Component {
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
       if (_.isObject(data)) {
-        return valueMap[id] ? valueMap[id][data.value] || ' ' : data.value;
+        return valueMap[id] ? valueMap[id][data.value] || _l('空') : data.value;
       } else {
-        return valueMap[id] ? valueMap[id][data] || ' ' : data;
+        return valueMap[id] ? valueMap[id][data] || _l('空') : data;
       }
     }
 

@@ -56,13 +56,16 @@ import Button from 'ming-ui/components/Button';
 import { DataRangeTypes, RenderTypes, ChooseType, UserTabsId } from './constant';
 import NoData from './NoData';
 
-const DefaultUserTabs = projectId => {
+const DefaultUserTabs = (projectId, isChat) => {
   const href = location.href;
   const isNetwork =
+    !isChat &&
     href.indexOf('admin') > -1 &&
     href.indexOf('admin/structure') === -1 &&
     href.indexOf('admin/approve') === -1 &&
     href.indexOf('admin/home') === -1 &&
+    href.indexOf('admin/analytics') === -1 &&
+    href.indexOf('privateDeployment/admin') === -1 &&
     !!projectId;
 
   return [
@@ -228,8 +231,8 @@ export default class GeneraSelect extends Component {
     };
     const defaultUserSettings = {
       _id: 0, // index for defaultTabs
-      defaultTabs: DefaultUserTabs(props.commonSettings.projectId),
-      defaultTabsFilter: function (tabs) {
+      defaultTabs: DefaultUserTabs(props.commonSettings.projectId, props.isChat),
+      defaultTabsFilter: function(tabs) {
         return tabs;
       },
       showTabs: ['conactUser', 'department', 'group', 'subordinateUser'],
@@ -272,7 +275,7 @@ export default class GeneraSelect extends Component {
 
     if (userSettings.defaultTabsFilter) {
       userSettings.defaultTabs = [].concat(
-        userSettings.defaultTabsFilter(DefaultUserTabs(this.commonSettings.projectId)),
+        userSettings.defaultTabsFilter(DefaultUserTabs(this.commonSettings.projectId, props.isChat)),
       );
     }
     // 新添加的tab
@@ -1035,7 +1038,7 @@ export default class GeneraSelect extends Component {
               };
             }),
           );
-          selectedData = _.uniqBy(_arr, function ({ type, data: { accountId } }) {
+          selectedData = _.uniqBy(_arr, function({ type, data: { accountId } }) {
             return type === ChooseType.USER && accountId;
           });
         }
@@ -1320,7 +1323,7 @@ export default class GeneraSelect extends Component {
         case ChooseType.DEPARTMENT:
           avatar = (
             <div className="GSelect-result-subItem__avatar">
-              <i className="icon-organizational_structure" />
+              <i className="icon-department" />
             </div>
           );
           id = item.data.departmentId;

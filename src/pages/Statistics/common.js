@@ -38,7 +38,7 @@ export const chartNav = [
   {
     name: _l('透视表'),
     type: reportTypes.PivotTable,
-    icon: 'stats_table_chart',
+    icon: 'table',
   },
   {
     name: _l('数值图'),
@@ -48,7 +48,7 @@ export const chartNav = [
   {
     name: _l('行政区划'),
     type: reportTypes.CountryLayer,
-    icon: 'stats_district_chart',
+    icon: 'map',
   },
 ];
 
@@ -332,7 +332,11 @@ export function getSortData(type) {
         value: ascendingValue,
       },
     ];
-  } else if (type === WIDGETS_TO_API_TYPE_ENUM.DATE || type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME) {
+  } else if (
+    type === WIDGETS_TO_API_TYPE_ENUM.DATE ||
+    type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME ||
+    type === WIDGETS_TO_API_TYPE_ENUM.TIME
+  ) {
     return [
       {
         text: _l('从早到晚'),
@@ -349,7 +353,10 @@ export function getSortData(type) {
     type === WIDGETS_TO_API_TYPE_ENUM.AUTO_ID ||
     type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||
     type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER ||
-    type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET
+    type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET ||
+    type === WIDGETS_TO_API_TYPE_ENUM.SEARCH_BTN ||
+    type === WIDGETS_TO_API_TYPE_ENUM.SEARCH ||
+    type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE
   ) {
     return [
       {
@@ -650,9 +657,9 @@ export const isPastAndFuture = value => {
 export const isTimeControl = (value, controls = []) => {
   const data = _.find(controls, { controlId: value });
   if (_.isEmpty(data)) {
-    return value === WIDGETS_TO_API_TYPE_ENUM.DATE || value === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME;
+    return value === WIDGETS_TO_API_TYPE_ENUM.DATE || value === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME || value === WIDGETS_TO_API_TYPE_ENUM.TIME;
   } else {
-    return data.type === WIDGETS_TO_API_TYPE_ENUM.DATE || data.type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME;
+    return data.type === WIDGETS_TO_API_TYPE_ENUM.DATE || data.type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME || data.type === WIDGETS_TO_API_TYPE_ENUM.TIME;
   }
 };
 
@@ -865,7 +872,7 @@ export const fillValueMap = result => {
     result.contrastMap.forEach(control => {
       control.value.forEach(item => {
         item.originalX = item.x;
-        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
       });
       return control;
     });
@@ -886,7 +893,7 @@ export const fillValueMap = result => {
       control.key = _.isEmpty(rightSplitIdValueMap) ? control.key : rightSplitIdValueMap[control.key] || control.key;
       control.value.forEach(item => {
         item.originalX = item.x;
-        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
       });
       return control;
     });
@@ -897,7 +904,7 @@ export const fillValueMap = result => {
     control.key = _.isEmpty(splitIdValueMap) ? control.key : splitIdValueMap[control.key] || control.key;
     control.value.forEach(item => {
       item.originalX = item.x;
-      item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+      item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
     });
     return control;
   });
@@ -1035,8 +1042,32 @@ export const timeDataParticle = [
   { text: _l('周'), value: 2, getTime: () => moment().format('YYYY[W]WW') },
   { text: _l('日'), value: 1, getTime: () => moment().format('YYYY/MM/DD') },
   { text: _l('时'), value: 6, getTime: () => moment().format('YYYY/MM/DD HH') + _l('时')  },
-  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') }
+  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') },
+  { text: _l('秒'), value: 13, getTime: () => moment().format('YYYY/MM/DD HH:mm:ss') },
 ];
+
+/**
+ * 过滤时间粒度
+ */
+export const filterTimeData = (data, { showtype, controlType }) => {
+  let timeDataParticle = [];
+  if (controlType === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME) {
+    timeDataParticle = data.filter(item => ![13].includes(item.value));
+  } else if (controlType === WIDGETS_TO_API_TYPE_ENUM.TIME) {
+    timeDataParticle = data.filter(item => [6, 7, 13].includes(item.value));
+  } else {
+    timeDataParticle = data.filter(item => ![6, 7, 13].includes(item.value));
+  }
+  // 年
+  if (showtype === '5') {
+    return timeDataParticle.filter(item => [5].includes(item.value));
+  }
+  // 年-月
+  if (showtype === '4') {
+    return timeDataParticle.filter(item => [3, 4, 5].includes(item.value));
+  }
+  return timeDataParticle;
+}
 
 /**
  * 集合粒度
@@ -1045,8 +1076,32 @@ export const timeGatherParticle = [
   { text: _l('季'), value: 8, getTime: () => moment().format('[Q]Q') },
   { text: _l('月'), value: 9, getTime: () => moment().format('MM') },
   { text: _l('日'), value: 10, getTime: () => moment().format('DD') },
-  { text: _l('时'), value: 11, getTime: () => moment().format('HH') }
+  { text: _l('时'), value: 11, getTime: () => moment().format('HH') },
+  { text: _l('分'), value: 12, getTime: () => moment().format('mm') },
+  { text: _l('秒'), value: 14, getTime: () => moment().format('ss') },
 ];
+
+/**
+ * 过滤集合粒度
+ */
+export const filterTimeGatherParticle = (data, { showtype, controlType }) => {
+  let timeGatherParticle = [];
+  if (controlType === WIDGETS_TO_API_TYPE_ENUM.TIME) {
+    timeGatherParticle = data.filter(item => [11, 12, 14].includes(item.value));
+  } else {
+    timeGatherParticle = data.filter(item => ![12, 14].includes(item.value));
+  }
+  // 年
+  if (showtype === '5') {
+    return [];
+  }
+  // 年-月
+  if (showtype === '4') {
+    return timeGatherParticle.filter(item => ![10, 11].includes(item.value));
+  }
+  return timeGatherParticle;
+}
+
 
 /**
  * 时间控件的粒度
@@ -1055,6 +1110,10 @@ export const timeParticleSizeDropdownData = [
   ...timeDataParticle,
   ...timeGatherParticle
 ];
+
+export const filterTimeParticleSizeDropdownData = (showtype, controlType) => {
+  return filterTimeData(timeDataParticle, { showtype, controlType }).concat(filterTimeGatherParticle(timeGatherParticle, { showtype, controlType }));
+}
 
 
 /**

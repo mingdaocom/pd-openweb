@@ -17,13 +17,13 @@ export default class MessageSendText extends Component {
       type: newType,
     });
     config.inputMode = newType;
-    window.localStorage.setItem('im_input_mode', newType);
+    safeLocalStorageSetItem('im_input_mode', newType);
   }
   render() {
     const { type } = this.state;
     const { value } = this.props;
     return (
-      <div className="chatPanel-message-send-text" style={{visibility: value ? 'initial': 'hidden'}}>
+      <div className="chatPanel-message-send-text" style={{ visibility: value ? 'initial' : 'hidden' }}>
         <div data-tip={_l('点击切换输入方式')} className="tip-top" onClick={this.handleSwitchSendWay.bind(this)}>
           {type === Constant.INPUT_MODE_CTRLENTER ? _l('Enter换行，') : _l('Ctrl+Enter换行，')}
         </div>

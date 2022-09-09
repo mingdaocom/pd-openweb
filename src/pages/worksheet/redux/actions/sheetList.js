@@ -240,7 +240,7 @@ export function addWorkSheet(args, cb) {
     appManagementAjax
       .addWorkSheet({
         ...args,
-        icon: type === 0 ? '1_worksheet' : '1_0_home',
+        icon: type === 0 ? 'table' : 'dashboard',
       })
       .then(result => {
         const { pageId, workSheetId, templateId } = result;

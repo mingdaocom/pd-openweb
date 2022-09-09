@@ -56,7 +56,6 @@ class View extends Component {
   }
   render() {
     const { view, viewResultCode, base, isCharge } = this.props;
-
     if (viewResultCode !== 1) {
       return <State resultCode={viewResultCode} type="view" />;
     }
@@ -71,11 +70,9 @@ class View extends Component {
       isCharge,
       view,
     };
-
     let hasGroupFilter =
       !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType)); // 是否存在分组列表
-    let routerInfo = window.location.pathname.includes('groupFilterDetail');
-    if (hasGroupFilter && !routerInfo) {
+    if (hasGroupFilter) {
       return (
         <GroupFilter
           {...this.props}
@@ -94,10 +91,19 @@ class View extends Component {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['base', 'isCharge', 'worksheetInfo', 'viewResultCode', 'mobileNavGroupFilters']),
+    ..._.pick(state.mobile, [
+      'base',
+      'isCharge',
+      'worksheetInfo',
+      'viewResultCode',
+      'mobileNavGroupFilters',
+      'batchOptVisible',
+      'appColor',
+    ]),
     controls: state.sheet.controls,
     views: state.sheet.views,
     ...state.sheet,
+    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
   }),
   dispatch =>
     bindActionCreators(
@@ -107,6 +113,11 @@ export default connect(
           'getNavGroupCount',
           'changeMobielSheetLoading',
           'updateMobileViewPermission',
+          'addNewRecord',
+          'openNewRecord',
+          'changeBatchOptVisible',
+          'changeMobileGroupFilters',
+          'unshiftSheetRow',
         ]),
       },
       dispatch,

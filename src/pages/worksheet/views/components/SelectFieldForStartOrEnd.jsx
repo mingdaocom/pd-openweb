@@ -6,7 +6,8 @@ import { getAdvanceSetting } from 'src/util';
 import { getTimeControls } from '../CalendarView/util';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import { isTimeStyle, isIllegalFormat, isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
+
 const BtnForSure = styled.div`
    {
     padding: 0 32px;
@@ -77,12 +78,21 @@ export default function SelectFieldForStartOrEnd(props) {
           : begindateOrFirst
           ? timeControls[0] || {}
           : {};
-      end = ids.length > 0 && ids[0].end ? props.controls.find((it, i) => it.controlId === ids[0].endnd) || {} : {};
+      end = ids.length > 0 && ids[0].end ? props.controls.find((it, i) => it.controlId === ids[0].end) || {} : {};
     }
+    let listData = ids.map(o => {
+      return {
+        startData: props.controls.find(it => it.controlId === o.begin) || {},
+        endData: props.controls.find(it => it.controlId === o.end) || {},
+      };
+    });
     let isErr =
       !start.controlId || //是否已选择开始时间
       (mustEnd && !end.controlId) || //是否必须有开始和结束时间
-      (mustSameType && isTimeStyle(start) !== isTimeStyle(end)); //是否必须同类型
+      (mustSameType && isTimeStyle(start) !== isTimeStyle(end)) || //是否必须同类型
+      (isCalendarcids && isIllegalFormat(listData)) ||
+      (!isCalendarcids && isIllegal(start)) ||
+      isIllegal(end);
     setIsUnAb(isErr);
   }, [begindate, enddate, calendarcids]);
   const handleChangeFn = obj => {

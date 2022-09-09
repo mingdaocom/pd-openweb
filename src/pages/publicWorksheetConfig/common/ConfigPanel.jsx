@@ -117,7 +117,7 @@ class ConfigPanel extends React.Component {
             </span>
           </div>
           <Tip9e className="tip mBottom10">
-            {_l('人员、部门、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。')}
+            {_l('人员、部门、组织角色、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。')}
           </Tip9e>
           {!hidedControls.length && !disabledControls.length && (
             <TipBlock> {_l('点击右侧表单中字段上的隐藏按钮，被隐藏的字段将放置在这里')} </TipBlock>

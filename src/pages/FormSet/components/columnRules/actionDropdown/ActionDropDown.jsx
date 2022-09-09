@@ -271,7 +271,7 @@ export default class DropDownItem extends Component {
           <span className="dropDownLabel">
             {values.length ? this.getTextByValue() : <span className="Gray_9e LineHeight34">{_l('选择字段')}</span>}
           </span>
-          <span className="icon-arrow">
+          <span className="iconArrow">
             <i className="icon-arrow-down-border Gray_9e" />
           </span>
         </div>

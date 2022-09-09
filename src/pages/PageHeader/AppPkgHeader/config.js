@@ -1,7 +1,3 @@
-const {
-  app: { appInfo },
-} = window.private;
-
 export const ADD_GROUP_ID = '@ADD/GROUP';
 
 export const APP_GROUP_CONFIG = [
@@ -45,13 +41,13 @@ export const APP_CONFIG = {
       text: _l('添加到企业微信'),
       action: 'goWeixinCourse',
     },
-  //  {
-  //     type: 'quit',
-  //     icon: 'exit',
-  //     text: _l('退出应用'),
-  //     action: 'quitAppConfirmVisible',
-  //   },
-    ],
+    //  {
+    //     type: 'quit',
+    //     icon: 'exit',
+    //     text: _l('退出应用'),
+    //     action: 'quitAppConfirmVisible',
+    //   },
+  ],
   // ADMIN
   100: [
     {
@@ -66,19 +62,26 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    {
+      type: 'appAnalytics',
+      icon: 'poll',
+      text: _l('使用分析'),
+      action: 'appAnalyticsVisible',
+      featureId: 17,
+    },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
-    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',
       icon: 'custom_widgets',
       text: _l('管理应用'),
       subMenuList: [
         { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible', featureId: 2 },
         // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
-        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
-        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble', featureId: 1 },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible', featureId: 1 },
       ],
     },
     {
@@ -92,8 +95,9 @@ export const APP_CONFIG = {
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
+      featureId: 21,
     },
-  ].filter(item => !appInfo[item.type]),
+  ],
   // OWNER
   200: [
     {
@@ -108,19 +112,26 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    {
+      type: 'appAnalytics',
+      icon: 'poll',
+      text: _l('使用分析'),
+      action: 'appAnalyticsVisible',
+      featureId: 17,
+    },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
-    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',
       icon: 'custom_widgets',
       text: _l('管理应用'),
       subMenuList: [
         { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible', featureId: 2 },
         // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
-        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
-        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble', featureId: 1 },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible', featureId: 1 },
         {
           type: 'del',
           icon: 'delete2',
@@ -141,8 +152,9 @@ export const APP_CONFIG = {
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
+      featureId: 21,
     },
-  ].filter(item => !appInfo[item.type]),
+  ],
   300: [
     {
       type: 'modify',
@@ -156,19 +168,26 @@ export const APP_CONFIG = {
       text: _l('编辑应用说明'),
       action: 'editAppIntroVisible',
     },
+    {
+      type: 'appAnalytics',
+      icon: 'poll',
+      text: _l('使用分析'),
+      action: 'appAnalyticsVisible',
+      featureId: 17,
+    },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
-    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站') },
+    { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',
       icon: 'custom_widgets',
       text: _l('管理应用'),
       subMenuList: [
         { type: 'copy', icon: 'content-copy', text: _l('复制应用'), action: 'copyAppVisible' },
-        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible' },
+        { type: 'export', icon: 'cloud_download', text: _l('导出应用'), action: 'exportAppVisible', featureId: 2 },
         // { type: 'importAppUpgrade', icon: 'cloud_upload', text: _l('导入应用升级') },
-        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble' },
-        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible' },
+        { type: 'createBackup', icon: 'knowledgeMessage', text: _l('创建应用备份'), action: 'createBackupVisisble', featureId: 1 },
+        { type: 'restore', icon: 'turnLeft', text: _l('从备份文件还原'), action: 'manageBackupFilesVisible', featureId: 1 },
       ],
     },
     {
@@ -182,8 +201,9 @@ export const APP_CONFIG = {
       icon: 'worksheet_API',
       text: _l('API开发文档'),
       action: 'goWorksheetapi',
+      featureId: 21,
     },
-  ].filter(item => !appInfo[item.type]),
+  ],
 };
 
 export const DEFAULT_CREATE = '@DEFAULT/CREATE';

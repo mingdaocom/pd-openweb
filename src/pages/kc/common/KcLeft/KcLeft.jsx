@@ -123,7 +123,7 @@ class KcLeft extends Component {
     );
   }
   componentDidUpdate(prevProps, prevState) {
-    window.localStorage.setItem(
+    safeLocalStorageSetItem(
       'foldedProjects_' + md.global.Account.accountId + '_kc',
       this.state.foldedProjects.join(','),
     );

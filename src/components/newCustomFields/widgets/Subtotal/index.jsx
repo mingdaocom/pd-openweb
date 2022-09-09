@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Tooltip, Support } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 
@@ -20,10 +19,6 @@ const Tips = styled.div`
       margin-left: 0 !important;
     }
   }
-`;
-const RefreshBtn = styled.i`
-  display: block;
-  ${({ isLoading }) => (isLoading ? `animation:rotate 2s linear infinite;color:#2196f3;` : '')};
 `;
 const Box = styled.div`
   &.customFormSubtotal {
@@ -52,29 +47,8 @@ export default class Widgets extends Component {
     enumDefault2: PropTypes.number,
   };
 
-  state = {
-    loading: false,
-  };
-
-  onRefresh = () => {
-    const { onChange, worksheetId, recordId, controlId } = this.props;
-    const { loading } = this.state;
-
-    if (loading) return;
-
-    this.setState({ loading: true });
-
-    setTimeout(() => {
-      sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId }).then(data => {
-        this.setState({ loading: false });
-        onChange(data);
-      });
-    }, 1000);
-  };
-
   render() {
-    const { value, dot, unit, advancedSetting = {}, recordId, enumDefault2 } = this.props;
-    const { loading } = this.state;
+    const { value, dot, unit, advancedSetting = {}, enumDefault2 } = this.props;
     let content = value;
 
     if (content === 'max') {
@@ -131,18 +105,7 @@ export default class Widgets extends Component {
     }
 
     return (
-      <Box className="customFormControlBox customFormTextareaBox customFormReadonly customFormSubtotal">
-        {content}
-        {!!recordId && (
-          <span
-            data-tip={loading ? _l('刷新中...') : _l('刷新')}
-            className="tip-top Font14 mLeft5 Gray_9e ThemeHoverColor3 pointer"
-            onClick={this.onRefresh}
-          >
-            <RefreshBtn className="icon-workflow_cycle" isLoading={loading} />
-          </span>
-        )}
-      </Box>
+      <Box className="customFormControlBox customFormTextareaBox customFormReadonly customFormSubtotal">{content}</Box>
     );
   }
 }

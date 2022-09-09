@@ -211,6 +211,7 @@ export default class ChartSheet extends Component {
       ) : (
         <SingleView
           showAsSheetView
+          filtersGroup={[]}
           showHeader={true}
           appId={base.apkId}
           worksheetId={worksheetInfo.worksheetId}

@@ -12,9 +12,9 @@ JqueryWrapper(MultipleDropdown, {
   name: 'reactMultipleDropdown',
 });
 
-const { AUTHORITY_DICT, WELINK_WHITELIST } = Config;
+const { AUTHORITY_DICT } = Config;
 
-AdminCommon.init = function () {
+AdminCommon.init = function() {
   Config.getParams();
   Config.project = {};
 
@@ -35,7 +35,7 @@ AdminCommon.init = function () {
   }
 };
 
-AdminCommon.getProjectPermissionsByUser = function () {
+AdminCommon.getProjectPermissionsByUser = function() {
   return RoleController.getProjectPermissionsByUser({
     projectId: Config.projectId,
   }).then(data => {
@@ -53,8 +53,14 @@ AdminCommon.getProjectPermissionsByUser = function () {
     if (data.isProjectAdmin) {
       res.push(AUTHORITY_DICT.PROJECT_ADMIN);
       // 各种集成权限
-      if (data.projectIntergrationType === 0) {
-        res.push(AUTHORITY_DICT.HAS_DING, AUTHORITY_DICT.HAS_WORKWX, AUTHORITY_DICT.HAS_WELINK, AUTHORITY_DICT.HAS_FEISHU);
+      if (data.projectIntergrationType === 0 || data.projectIntergrationType === 100) {
+        let temp = [
+          AUTHORITY_DICT.HAS_DING,
+          AUTHORITY_DICT.HAS_WORKWX,
+          AUTHORITY_DICT.HAS_WELINK,
+          AUTHORITY_DICT.HAS_FEISHU,
+        ];
+        res.push(...temp);
       }
       if (data.projectIntergrationType === 1) {
         res.push(AUTHORITY_DICT.HAS_DING);
@@ -74,17 +80,11 @@ AdminCommon.getProjectPermissionsByUser = function () {
       res.push(AUTHORITY_DICT.APK_ADMIN);
     }
 
-    //免费网路白名单（钉钉、welink、微信）
-    if (Config.project.licenseType === 0) {
-      res.push(AUTHORITY_DICT.HAS_DING, AUTHORITY_DICT.HAS_WORKWX, AUTHORITY_DICT.HAS_FEISHU);
-      const freeList = [AUTHORITY_DICT.HAS_WELINK];
-      res = _.difference(res, freeList);
-    }
     return res;
   });
 };
 
-AdminCommon.initProjectSelect = function () {
+AdminCommon.initProjectSelect = function() {
   var currentCompanyName;
   var dataArr = [];
   var $adminProjects = $('#adminProjects');
@@ -93,7 +93,7 @@ AdminCommon.initProjectSelect = function () {
   }
   $adminProjects.data('bind', true);
   if (md.global.Account.projects) {
-    dataArr = $.map(md.global.Account.projects, function (item) {
+    dataArr = $.map(md.global.Account.projects, function(item) {
       if (item.projectId === Config.projectId) {
         currentCompanyName = item.companyName;
       }
@@ -110,18 +110,18 @@ AdminCommon.initProjectSelect = function () {
     wordLength: 100,
     maxWidth: 230,
     fontSize: 14,
-    onChange: function (value, text) {
+    onChange: function(value, text) {
       if (value === Config.projectId) {
         return;
       }
-      require(['mdFunction'], function (Function) {
+      require(['mdFunction'], function(Function) {
         Function.expireDialogAsync(value).then(
-          function () {
+          function() {
             const params = Config.params.concat();
             params[2] = value;
             navigateTo('/' + params.join('/'));
           },
-          function () {
+          function() {
             $adminProjects.MDSelect('setValue', Config.projectId, currentCompanyName);
           },
         );

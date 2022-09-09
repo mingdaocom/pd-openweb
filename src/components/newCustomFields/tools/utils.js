@@ -2,8 +2,9 @@ import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes } from 'src/util';
+import { getStringBytes, accMul } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 
 export const convertControl = type => {
   switch (type) {
@@ -104,8 +105,16 @@ export const convertControl = type => {
       return 'OCR'; // 文字识别
     case 45:
       return 'Embed'; // 嵌入
+    case 46:
+      return 'Time'; // 时间
     case 47:
       return 'BarCode'; // 嵌入
+    case 48:
+      return 'OrgRole'; // 组织角色
+    case 49:
+      return 'Search'; // api查询--按钮
+    case 50:
+      return 'Search'; // api查询--下拉框
   }
 };
 
@@ -336,6 +345,9 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType)
  * @param  {} data 控件所在记录数据[可选]
  */
 export function getTitleTextFromRelateControl(control = {}, data) {
+  if (data.name) {
+    return data.name;
+  }
   return getTitleTextFromControls(control.relationControls, data, control.sourceControlType);
 }
 
@@ -391,6 +403,7 @@ const FILTER_TYPE = {
   27: 'departmentId',
   29: 'sid',
   35: 'sid',
+  48: 'organizeId',
 };
 
 export const formatFiltersValue = (filters = [], data = [], recordId) => {
@@ -418,7 +431,7 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
         }
         //日期特殊处理
         if (
-          _.includes([15, 16], currentControl.type) ||
+          _.includes([15, 16, 46], currentControl.type) ||
           (currentControl.type === 38 && currentControl.enumDefault === 2)
         ) {
           item.dateRange = 18;
@@ -430,8 +443,8 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           item.values = JSON.parse(currentControl.value) || [];
           return;
         }
-        //人员、部门、关联表
-        if (_.includes([26, 27, 29, 35], currentControl.type)) {
+        //人员、部门、关联表、组织角色
+        if (_.includes([26, 27, 29, 35, 48], currentControl.type)) {
           item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
           return;
         }
@@ -454,7 +467,7 @@ export const getCurrentValue = (item, data, control) => {
     //当前控件文本
     case 2:
       if (_.includes([6, 31, 37], item.type) && item.advancedSetting && item.advancedSetting.numshow === '1' && data) {
-        data = parseFloat(data) * 100;
+        data = accMul(parseFloat(data), 100);
       }
       switch (item.type) {
         //用户
@@ -466,6 +479,11 @@ export const getCurrentValue = (item, data, control) => {
         case 27:
           return JSON.parse(data || '[]')
             .map(item => item.departmentName)
+            .join('、');
+        //组织角色
+        case 48:
+          return JSON.parse(data || '[]')
+            .map(item => item.organizeName)
             .join('、');
         //地区
         case 19:
@@ -481,6 +499,10 @@ export const getCurrentValue = (item, data, control) => {
             .filter(item => _.includes(ids, item.key) && !item.isDeleted)
             .map(i => i.value)
             .join('、');
+        case 15:
+        case 16:
+          const showFormat = getShowFormat(item);
+          return data ? moment(data).format(showFormat) : '';
         //关联记录单条
         case 29:
           const formatData = JSON.parse(data || '[]')[0] || {};
@@ -489,6 +511,8 @@ export const getCurrentValue = (item, data, control) => {
         case 31:
           const dot = item.dot || 0;
           return Number(data || 0).toFixed(dot);
+        case 46:
+          return data ? moment(data, 'HH:mm:ss').format(item.unit === '6' ? 'HH:mm:ss' : 'HH:mm') : '';
         default:
           return data;
       }
@@ -513,7 +537,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+8526262\d{4}$|\+8526660\d{4}$|\+8527\d{7}$|\+861\d{10}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
+  return /\+8526262\d{4}$|\+8526660\d{4}$|\+8527\d{7}$|\+8529\d{7}$|\+861\d{10}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
     value || '',
   );
 };
@@ -572,5 +596,18 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
     );
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
-  return String(selectControl.value).substr(0, 150);
+  return String(selectControl.value).substr(0, 300);
+};
+
+// 是否需要校验短信验证码
+export const checkMobileVerify = (data, smsVerificationFiled) => {
+  if (!smsVerificationFiled) return false;
+  const selectControl = _.find(data, i => i.controlId === smsVerificationFiled);
+  if (!selectControl) return false;
+  // 手机号是否是电话 | 手机号只读 ｜ 手机号隐藏
+  if (selectControl.type !== 3) return false;
+  if (!controlState(selectControl, FROM.PUBLIC).editable || !controlState(selectControl, FROM.PUBLIC).visible)
+    return false;
+  if (!selectControl.value) return false;
+  return true;
 };

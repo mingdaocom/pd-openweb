@@ -160,7 +160,7 @@ export default class Condition extends Component {
       isSheetFieldError,
       conditionItemForDynamicStyle,
     } = this.props;
-    let conditionFilterTypes = getFilterTypes(condition.controlType, control, condition.type);
+    let conditionFilterTypes = getFilterTypes(control, condition.type);
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
         conditionFilterTypes = conditionFilterTypes.filter(

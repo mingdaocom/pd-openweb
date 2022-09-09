@@ -25,7 +25,7 @@ const DisplaySetup = ({
         ) && settingVisible && (
           <Fragment>
             <HeaderDisplaySetup
-              title={isDualAxes ? _l('左Y轴(%0)', _.find(chartNav, { type: yreportType || 1 }).name) : null}
+              title={isDualAxes ? _l('Y轴(%0)', _.find(chartNav, { type: yreportType || 1 }).name) : null}
               displaySetup={displaySetup}
               mapKeys={Object.keys(reportData.map || [])}
               reportType={isDualAxes ? yreportType : reportData.reportType}
@@ -54,7 +54,7 @@ const DisplaySetup = ({
             />
             {currentReport.rightY && currentReport.rightY.display && (
               <HeaderDisplaySetup
-                title={_l('右Y轴(折线图)')}
+                title={_l('辅助Y轴(折线图)')}
                 displaySetup={currentReport.rightY.display}
                 mapKeys={Object.keys(reportData.contrastMap || [])}
                 reportType={currentReport.rightY.reportType}

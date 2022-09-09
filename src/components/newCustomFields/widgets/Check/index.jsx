@@ -18,7 +18,7 @@ export default class Widgets extends Component {
   };
 
   renderContent = () => {
-    const { disabled, value, advancedSetting = {} } = this.props;
+    const { disabled, value, advancedSetting = {}, hint = '' } = this.props;
     const itemnames = getSwitchItemNames(this.props);
 
     const isChecked = value === 1 || value === '1';
@@ -34,7 +34,9 @@ export default class Widgets extends Component {
             onClick={this.onChange}
             className={cx({ mobileFormSwitchDisabled: disabled })}
           />
-          {text && <span className={cx('mLeft6 flex overflow_ellipsis', { LineHeight24: browserIsMobile() })}>{text}</span>}
+          {text && (
+            <span className={cx('mLeft6 flex overflow_ellipsis', { LineHeight24: browserIsMobile() })}>{text}</span>
+          )}
         </div>
       );
     }
@@ -59,7 +61,11 @@ export default class Widgets extends Component {
       );
     }
 
-    return <Checkbox className="customFormCheck" disabled={disabled} checked={isChecked} onClick={this.onChange} />;
+    return (
+      <Checkbox className="customFormCheck" disabled={disabled} checked={isChecked} onClick={this.onChange}>
+        {hint}
+      </Checkbox>
+    );
   };
 
   render() {

@@ -10,6 +10,7 @@ export default class CustomTextarea extends Component {
     processId: PropTypes.string,
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
+    isIntegration: PropTypes.bool,
     type: PropTypes.number,
     height: PropTypes.number,
     content: PropTypes.string,
@@ -27,6 +28,7 @@ export default class CustomTextarea extends Component {
     onFocus: () => {},
     operatorsSetMargin: false,
     sourceAppId: '',
+    isIntegration: false,
     className: '',
   };
 
@@ -52,6 +54,7 @@ export default class CustomTextarea extends Component {
       processId,
       selectNodeId,
       sourceAppId,
+      isIntegration,
       type,
       height,
       content,
@@ -101,6 +104,7 @@ export default class CustomTextarea extends Component {
           processId={processId}
           selectNodeId={selectNodeId}
           sourceAppId={sourceAppId}
+          isIntegration={isIntegration}
           handleFieldClick={obj => {
             const newFormulaMap = _.cloneDeep(formulaMap);
             newFormulaMap[obj.nodeId] = {

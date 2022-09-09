@@ -4,12 +4,16 @@
   box-sizing: border-box;
   height: 36px;
   line-height: 36px;
-  padding: 0px 16px;
+  padding: 0px 15px;
   margin: 0 !important;
   &:hover {
-    i {
+    background-color: #2196f3;
+    i, .ant-menu-title-content {
       color: #fff;
     }
+  }
+  .ant-menu-title-content {
+    margin: 0;
   }
   i {
     font-size: 17px;
@@ -64,6 +68,9 @@
     margin: 6px 0;
   }
   .ant-menu-submenu {
+    .ant-menu-title-content {
+      margin: 0 !important;
+    }
     .ant-menu-submenu-title {
       display: flex;
       align-items: center;

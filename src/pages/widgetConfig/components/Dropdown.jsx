@@ -4,7 +4,17 @@ import cx from 'classnames';
 import { DropdownOverlay, DropdownPlaceholder } from '../styled';
 
 export default function DropdownWrapper(props) {
-  const { searchable, data = [], trigger = ['click'], value, placeholder, renderDisplay, onChange, ...rest } = props;
+  const {
+    searchable,
+    data = [],
+    trigger = ['click'],
+    value,
+    placeholder,
+    renderDisplay,
+    isCheckMode,
+    onChange,
+    ...rest
+  } = props;
   const [searchValue, setValue] = useState('');
   const filterData = searchValue ? data.filter(item => item.text.includes(searchValue)) : data;
   const renderPlaceholder = () => {
@@ -20,6 +30,14 @@ export default function DropdownWrapper(props) {
         <Fragment>
           <div className="text">{text}</div>
           {icon && <i className={`icon-${icon} Font16`}></i>}
+        </Fragment>
+      );
+    }
+    if (isCheckMode) {
+      return (
+        <Fragment>
+          <div className="text">{text}</div>
+          {icon && _.includes(value || [], item.value) && <i className={`icon-${icon} Font16`}></i>}
         </Fragment>
       );
     }
@@ -56,7 +74,8 @@ export default function DropdownWrapper(props) {
                   <div
                     {..._.pick(item, ['style'])}
                     className={`${item.className || 'item'}`}
-                    onClick={() => onChange(item.value)}>
+                    onClick={() => onChange(item.value)}
+                  >
                     {getItem(item)}
                   </div>
                 );
@@ -66,7 +85,8 @@ export default function DropdownWrapper(props) {
             )}
           </div>
         </DropdownOverlay>
-      }>
+      }
+    >
       <DropdownPlaceholder>
         {renderPlaceholder()}
         <i className="icon-arrow-down-border Font14 Gray_9e"></i>

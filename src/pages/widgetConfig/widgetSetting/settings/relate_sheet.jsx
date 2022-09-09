@@ -89,7 +89,7 @@ export default function RelateSheet(props) {
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
 
   const isListDisplay = String(showtype) === '2';
-  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45, 47], item.type));
+  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45, 47, 49], item.type));
   const titleControl = _.find(filterControls, item => item.attribute === 1);
 
   useEffect(() => {
@@ -211,7 +211,7 @@ export default function RelateSheet(props) {
               nextData = {
                 ...nextData,
                 required: false,
-                advancedSetting: Object.assign(nextData.advancedSetting, { defsource: '' }),
+                advancedSetting: Object.assign(nextData.advancedSetting, { defsource: '', hidetitle: '0' }),
               };
             }
             onChange(nextData);

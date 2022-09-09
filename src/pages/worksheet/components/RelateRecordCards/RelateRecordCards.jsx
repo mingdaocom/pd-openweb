@@ -396,7 +396,12 @@ export default class RelateRecordCards extends Component {
       return null;
     }
     const disabledManualWrite = onlyRelateByScanCode && advancedSetting.dismanual === '1';
-    const btnVisible = (!records.length || enumDefault === 2) && from !== FROM.SHARE && enumDefault2 !== 11 && (isCard ? (!disabledManualWrite) : true) && !disabled;
+    const btnVisible =
+      (!records.length || enumDefault === 2) &&
+      from !== FROM.SHARE &&
+      enumDefault2 !== 11 &&
+      (isCard ? !disabledManualWrite : true) &&
+      !disabled;
     const filterControls = getFilter({ control, formData });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
     const RecordCardListDialogComponent = isMobile ? MobileRecordCardListDialog : RecordCardListDialog;
@@ -434,8 +439,9 @@ export default class RelateRecordCards extends Component {
                 <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
               )}
               {!isCard && this.renderRecordsCon()}
-              {from !== FROM.PUBLIC && !!previewRecord && (
-                isMobile ? (
+              {from !== FROM.PUBLIC &&
+                !!previewRecord &&
+                (isMobile ? (
                   <MobileRecordInfoModal
                     className="full"
                     visible
@@ -465,8 +471,7 @@ export default class RelateRecordCards extends Component {
                     recordId={previewRecord && previewRecord.recordId}
                     worksheetId={dataSource}
                   />
-                )
-              )}
+                ))}
               {showAddRecord && (
                 <RecordCardListDialogComponent
                   maxCount={MAX_COUNT}
@@ -500,7 +505,6 @@ export default class RelateRecordCards extends Component {
                   directAdd
                   className="worksheetRelateNewRecord"
                   appId={appId}
-                  viewId={viewId}
                   worksheetId={dataSource}
                   addType={2}
                   entityName={sourceEntityName}

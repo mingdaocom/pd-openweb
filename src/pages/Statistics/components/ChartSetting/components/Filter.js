@@ -83,7 +83,7 @@ export default class Filter extends Component {
     const { currentReport, projectId, axisControls, worksheetInfo, filterItem } = this.props;
     return (
       <div className="mBottom20">
-        <div className="Bold mBottom12">{_l('筛选')}</div>
+        <div className="Bold mBottom12 Font13">{_l('筛选')}</div>
         <div className="SingleFilterWrapper">
           <SingleFilter
             ref={singleFilter => {

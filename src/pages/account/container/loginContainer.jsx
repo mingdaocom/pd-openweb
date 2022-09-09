@@ -38,9 +38,9 @@ export default class Container extends React.Component {
     const { emailOrTel, password, fullName, isCheck, dialCode } = loginData;
     let account = !openLDAP ? emailOrTel : fullName;
     if (!openLDAP) {
-      window.localStorage.setItem('LoginName', emailOrTel);
+      safeLocalStorageSetItem('LoginName', emailOrTel);
     } else {
-      window.localStorage.setItem('LoginLDAPName', fullName);
+      safeLocalStorageSetItem('LoginLDAPName', fullName);
     }
     var params = {
       password: encrypt(password),
@@ -57,7 +57,7 @@ export default class Container extends React.Component {
     let cb = data => {
       const { accountResult, loginType, state } = data;
       if (isCheck && [ActionResult.accountSuccess, ActionResult.needTwofactorVerifyCode].includes(accountResult)) {
-        window.localStorage.setItem(
+        safeLocalStorageSetItem(
           'LoginCheckList',
           JSON.stringify({
             accountId: data.accountId,

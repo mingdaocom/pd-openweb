@@ -31,7 +31,7 @@ DialogInviteUser.prototype.init = function () {
       options.callback.call(null);
     },
     readyFn: function () {
-      let renderFn = (data) => {
+      let renderFn = data => {
         render($('.dialogInviteUser .app')[0], {
           projectId: options.projectId,
           jobInfos: options.jobInfos,
@@ -43,8 +43,8 @@ DialogInviteUser.prototype.init = function () {
             _this.dialog.dialogCenter();
           },
         });
-      }
-      renderFn()
+      };
+      renderFn();
     },
   });
 };

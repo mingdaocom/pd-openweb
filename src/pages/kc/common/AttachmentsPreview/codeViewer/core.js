@@ -1,7 +1,10 @@
 const xss = require('xss');
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
 
 function warpCode(content) {
-  return filerXss(`<pre class="hljs"><code>${content}</code></pre>`);
+  return filerXss(`<pre class="mdcode"><code class="language-">${content}</code></pre>`);
 }
 
 function filerXss(str) {
@@ -19,14 +22,7 @@ export function renderCode(src, cb = () => {}) {
   fetch(src)
     .then(res => res.text())
     .then(text => {
-      if (new Blob([text]).size < 100 * 1024) {
-        import('highlight.js').then(hljs => {
-          import('highlight.js/styles/agate.css');
-          cb(null, warpCode(hljs.highlightAuto(text).value));
-        });
-      } else {
-        cb(null, warpCode(text));
-      }
+      cb(null, warpCode(highlight(text, languages.js)));
     })
     .catch(cb);
 }
@@ -40,20 +36,9 @@ export function renderMarkdown(src, cb = () => {}) {
           const Remarkable = require('remarkable');
           const replaceEntities = require('remarkable/lib/common/utils').replaceEntities;
           const escapeHtml = require('remarkable/lib/common/utils').escapeHtml;
-          const hljs = require('highlight.js');
-          import('highlight.js/styles/agate.css');
-          require('./codeViewer.less');
           const md = new Remarkable({
             highlight(str, lang) {
-              if (lang && hljs.getLanguage(lang)) {
-                try {
-                  return hljs.highlight(lang, str).value;
-                } catch (err) {}
-              }
-              try {
-                return hljs.highlightAuto(str).value;
-              } catch (err) {}
-              return '';
+              return `<div class="mdcode"><code class="language-">${highlight(str, languages.js)}</code></div>`;
             },
           });
           md.renderer.rules.link_open = function (tokens, idx /* , options, env */) {

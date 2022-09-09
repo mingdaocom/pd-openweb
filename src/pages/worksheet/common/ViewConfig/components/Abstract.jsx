@@ -11,8 +11,11 @@ export default class Abstract extends React.Component {
     const { worksheetControls = [], advancedSetting = {}, handleChange } = this.props;
     const { abstract } = advancedSetting;
     let abstractControls = filterAndFormatterControls({
-      // 排除系统字段
-      controls: worksheetControls.filter(item => !SYS.includes(item.controlId)),
+      controls: worksheetControls.filter(
+        item =>
+          !SYS.includes(item.controlId) && // 排除系统字段
+          !(_.includes([48], item.sourceControlType) && item.type === 30), //排除他表字段 组织角色控件
+      ),
       filter: item => _.includes(AS_ABSTRACT_CONTROL, item.type),
     });
     abstractControls = abstractControls.map(it => {

@@ -186,7 +186,7 @@ export default function CalendarSet(props) {
                   let type = getCalendarViewType(String(i), startData);
                   let data = getCalendartypeData();
                   data[`${worksheetId}-${viewId}`] = type;
-                  window.localStorage.setItem('CalendarViewType', JSON.stringify(data));
+                  safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
                 }}
               >
                 {it}
@@ -199,7 +199,9 @@ export default function CalendarSet(props) {
       <TimeDropdownChoose>
         <Select
           className={cx('timeDropdown', {})}
-          value={<span className="Gray">{weekObj[Number(weekbegin) - 1]}</span>}
+          value={[weekbegin]}
+          optionLabelProp="label"
+          placeholder={_l('请选择')}
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
           dropdownClassName="dropConOption"
           onChange={value => {
@@ -220,7 +222,7 @@ export default function CalendarSet(props) {
             // .filter(o => unweekday.indexOf(o.value) < 0)
             .map((item, i) => {
               return (
-                <Select.Option value={item.value} key={i}>
+                <Select.Option value={item.value + ''} key={i} label={item.text}>
                   {item.text}
                 </Select.Option>
               );

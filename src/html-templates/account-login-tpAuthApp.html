@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no, viewport-fit=cover" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>登录中</title>
+    <script src="/src/library/jquery/1.8.3/jquery.js"></script>
+  </head>
+  <body>
+    <script>
+        var __api_server__ = <%- apiServer %>;
+        const getRequest = () => {
+        const encodeUrl = new URL(location.href.replace('#', encodeURIComponent('#')));
+        const search = encodeUrl.search.replace('?', '');
+        let theRequest = new Object();
+        let strs = search.split('&');
+        for (let i = 0; i < strs.length; i++) {
+            let result = strs[i].split('=');
+            theRequest[result[0]] = decodeURIComponent(result[1]);
+        }
+        return theRequest;
+        };
+        const request = getRequest();
+        const getGlobalMeta = cb => {
+            $.ajax({
+                url: __api_server__.main + 'Global/GetGlobalMeta',
+                type: 'POST',
+                data: JSON.stringify({}),
+                dataType: 'JSON',
+                contentType: 'application/json',
+            }).done(res => {
+                const data = res.data;
+                const ApiUrl = data['md.global'].Config.ApiUrl
+                cb(ApiUrl);
+            })
+        };
+        getGlobalMeta((ApiUrl) => {
+            $.ajax({
+                url: ApiUrl  + "/oauth2/h5login",
+                type: 'POST',
+                data: JSON.stringify(request),
+                dataType: 'JSON',
+                contentType: 'application/json',
+            }).done(res => {
+                const ua = navigator.userAgent;
+                const isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+                const string = JSON.stringify(res);
+                const base64 = window.btoa(string);
+                if (isIOS) {
+                window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
+                } else {
+                window.Android.MD_APP_REQUEST(base64);
+                }
+            })
+        })
+    </script>
+  </body>
+</html>

@@ -78,15 +78,24 @@ const StickyBar = styled.div`
     transform: translateY(0px);
   }
 `;
+
+function getTopHeight() {
+  let height = Number(localStorage.getItem('recordinfoSplitHeight'));
+  if (height > window.innerHeight - 140) {
+    height = window.innerHeight - 140;
+  }
+  return height;
+}
 export default function RecordForm(props) {
   const {
     formWidth,
-    ignoreHeader,
+    ignoreLock,
     type = 'edit',
     loading,
     from,
     formFlag,
     abnormal,
+    isLock,
     recordbase,
     controlProps = {},
     recordinfo = {},
@@ -171,7 +180,7 @@ export default function RecordForm(props) {
     Boolean(localStorage.getItem('recordinfoSplitHeight')) && recordId && relateRecordTableControls.length,
   );
   const [formHeight, setFormHeight] = useState(0);
-  const [topHeight, setTopHeight] = useState(Number(localStorage.getItem('recordinfoSplitHeight')));
+  const [topHeight, setTopHeight] = useState(getTopHeight());
   const [dragVisible, setDragVisible] = useState();
   const [navScrollLeft, setNavScrollLeft] = useState(0);
   const [relateNumOfControl, setRelateNumOfControl] = useState({});
@@ -207,7 +216,7 @@ export default function RecordForm(props) {
   }, [loading]);
   function setSplit(value) {
     if (value) {
-      localStorage.setItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
+      safeLocalStorageSetItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
     } else {
       localStorage.removeItem('recordinfoSplitHeight');
     }
@@ -261,7 +270,7 @@ export default function RecordForm(props) {
               min={formHeight * 0.2}
               max={formHeight * 0.8}
               onChange={value => {
-                localStorage.setItem('recordinfoSplitHeight', value);
+                safeLocalStorageSetItem('recordinfoSplitHeight', value);
                 setTopHeight(value);
                 setDragVisible(false);
               }}
@@ -297,6 +306,7 @@ export default function RecordForm(props) {
               {type === 'edit' && !isSubList && (
                 <FormHeader
                   view={view}
+                  isLock={isLock}
                   recordbase={recordbase}
                   recordinfo={recordinfo}
                   updateRecordDialogOwner={updateRecordDialogOwner}
@@ -306,6 +316,7 @@ export default function RecordForm(props) {
               )}
               <div className={cx('recordInfoFormContent', { noAuth: !allowEdit })}>
                 <CustomFields
+                  ignoreLock={ignoreLock}
                   forceFull={formWidth < 500 ? 1 : undefined}
                   ref={customwidget}
                   from={recordId ? 3 : isMobile ? 5 : 2}
@@ -358,9 +369,7 @@ export default function RecordForm(props) {
                   sheetSwitchPermit={sheetSwitchPermit}
                   addRefreshEvents={addRefreshEvents}
                   setRelateNumOfControl={(value, controlId, updatedControl) => {
-                    const num = _.isFunction(value)
-                      ? value(relateNumOfControl[controlId] || updatedControl.value || 0)
-                      : value;
+                    const num = value;
                     const changes = { [controlId]: num };
                     setRelateNumOfControl({ ...relateNumOfControl, ...changes });
                     updateRows(

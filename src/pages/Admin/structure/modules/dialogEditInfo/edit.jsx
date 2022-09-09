@@ -1,16 +1,20 @@
 import React, { forwardRef } from 'react';
 import './edit.less';
 import { Dialog, LoadDiv, Icon } from 'ming-ui';
+import { Select } from 'antd';
 import userController from 'src/api/user';
 import Act from '../dialogInviteUser/act';
 import DialogSelectDept from 'dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
-import cx from 'classnames';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import RegExp from 'src/util/expression';
+import { getJobs, addJob } from 'src/api/job';
+import cx from 'classnames';
+import { checkSensitive } from 'src/api/fixedData.js';
 
+const { Option } = Select;
 const configs = [
   { key: 'fullname', label: _l('姓名'), isRequired: true },
   { key: 'mobilePhone', label: _l('手机号') },
@@ -95,6 +99,9 @@ class EditInfo extends React.Component {
       jobs: [],
       isLoading: true,
       workSiteId: '',
+      jobIds: [],
+      jobList: [],
+      keywords: '',
       errors: {},
     };
     this.handleFieldBlur = this.handleFieldBlur.bind(this);
@@ -103,6 +110,7 @@ class EditInfo extends React.Component {
   }
 
   componentDidMount() {
+    this.getJobList();
     this.getUserData();
     this.itiFn();
   }
@@ -141,52 +149,47 @@ class EditInfo extends React.Component {
         projectId: this.props.projectId,
         setAcountPravite: false,
       })
-      .then(
-        data => {
-          let { user = {}, workSites = [], jobs = [] } = data;
-          this.setState(
-            {
-              isLoading: false,
-              fullname: user.fullname || '',
-              mobilePhone: user.mobilePhone || '',
-              email: user.email || '',
-              companyName: user.companyName || '',
-              departmentInfos: user.departmentInfos || [], //部门信息
-              jobInfos: user.jobInfos || [], //职位信息
-              jobNumber: user.jobNumber || '',
-              contactPhone: user.contactPhone || '',
-              workSiteId: user.workSiteId,
-              jobs: jobs || [],
-              // idAct: user.departmentInfos && user.departmentInfos.length > 0 ? user.departmentInfos[0].departmentId : ''
-            },
-            () => {
-              let list = [];
-              if (workSites.length > 0) {
-                list = JSON.parse(
-                  JSON.stringify(workSites)
-                    .replace(/workSiteId/g, 'id')
-                    .replace(/workSiteName/g, 'name'),
-                );
-              }
-              $(this.workSiteInput).MDSelect({
-                defualtSelectedValue: this.state.workSiteId,
-                dataArr: list,
-                showType: 4,
-                defaultOptionText: _l('请选择'),
-                onChange: value => {
-                  this.setState({
-                    workSiteId: value,
-                  });
-                },
-              });
-            },
-          );
-        },
-        () => {
-          // dfd.reject();
-        },
-      );
-    // return dfd.promise();
+      .then(data => {
+        let { user = {}, workSites = [], jobs = [] } = data;
+        this.setState(
+          {
+            isLoading: false,
+            fullname: user.fullname || '',
+            mobilePhone: user.mobilePhone || '',
+            email: user.email || '',
+            companyName: user.companyName || '',
+            departmentInfos: user.departmentInfos || [], //部门信息
+            jobInfos: user.jobInfos || [], //职位信息
+            jobNumber: user.jobNumber || '',
+            contactPhone: user.contactPhone || '',
+            workSiteId: user.workSiteId,
+            jobs: jobs || [],
+            jobIds: (user.jobInfos || []).map(item => item.jobId),
+            // idAct: user.departmentInfos && user.departmentInfos.length > 0 ? user.departmentInfos[0].departmentId : ''
+          },
+          () => {
+            let list = [];
+            if (workSites.length > 0) {
+              list = JSON.parse(
+                JSON.stringify(workSites)
+                  .replace(/workSiteId/g, 'id')
+                  .replace(/workSiteName/g, 'name'),
+              );
+            }
+            $(this.workSiteInput).MDSelect({
+              defualtSelectedValue: this.state.workSiteId,
+              dataArr: list,
+              showType: 4,
+              defaultOptionText: _l('请选择'),
+              onChange: value => {
+                this.setState({
+                  workSiteId: value,
+                });
+              },
+            });
+          },
+        );
+      });
   };
 
   clearError(field) {
@@ -224,7 +227,101 @@ class EditInfo extends React.Component {
     };
   }
 
+  getJobList = jobName => {
+    const { projectId } = this.props;
+    const { keywords } = this.state;
+    if (this.ajaxRequest) {
+      this.ajaxRequest.abort();
+    }
+    this.ajaxRequest = getJobs({
+      projectId,
+      keywords,
+      pageIndex: 1,
+      pageSize: 1000,
+    });
+    this.ajaxRequest.then(res => {
+      console.log(res, 'res');
+      let newJobInfo = jobName && _.find(res.list, item => item.jobName === jobName);
+      let jobIds = jobName && newJobInfo ? [newJobInfo.jobId] : [];
+      this.setState(
+        {
+          jobList: res.list,
+          jobIds: [...this.state.jobIds, ...jobIds],
+        },
+        () => {
+          console.log(this.state.jobList, 'jobListjobListjobListjobList');
+        },
+      );
+    });
+  };
+  handleAddJob = jobName => {
+    const { projectId } = this.props;
+    addJob({
+      projectId,
+      jobName,
+    }).then(res => {
+      if (res) {
+        alert(_l('创建成功'));
+        this.getJobList(jobName);
+      } else {
+        alert(_l('创建失败'), 2);
+      }
+    });
+  };
+  onBlur = e => {
+    let { contactPhone } = this.state;
+    let tel = e && e.target && e.target.value;
+    if (!tel) return;
+    if (!RegExp.isTel(tel) && !RegExp.isMobile(tel)) {
+      this.setState({ contactPhoneError: true });
+    } else {
+      this.setState({ contactPhoneError: false });
+    }
+  };
+
   saveFn = fn => {
+    if (md.global.Config.IsPlatformLocal) {
+      Promise.all([
+        checkSensitive({ content: this.state.companyName }),
+        checkSensitive({ content: this.state.jobNumber }),
+      ]).then(results => {
+        if (!results.find(result => result)) {
+          userController
+            .updateUserCard({
+              projectId: this.props.projectId,
+              accountId: this.props.accountId,
+              companyName: this.state.companyName,
+              jobIds: this.state.jobIds,
+              departmentIds: this.state.departmentInfos.map(it => it.departmentId),
+              jobNumber: this.state.jobNumber,
+              contactPhone: this.state.contactPhone,
+              workSiteId: this.state.workSiteId,
+            })
+            .then(
+              function (result) {
+                if (result === 1) {
+                  fn({
+                    showDialog: false,
+                    isOk: true,
+                  });
+                  alert(_l('修改成功'), 1);
+                } else {
+                  alert(_l('保存失败'), 2);
+                }
+              },
+              function () {
+                alert(_l('保存失败'), 2);
+              },
+            )
+            .always(function () {
+              // _this.dialog.enable();
+            });
+        } else {
+          alert(_l('输入内容包含敏感词，请重新填写'), 3);
+        }
+      });
+      return;
+    }
     if (!(this.state.email || this.state.mobilePhone)) {
       alert(_l('请输入手机号或邮箱'), 3);
       return false;
@@ -237,10 +334,8 @@ class EditInfo extends React.Component {
         projectId: this.props.projectId,
         accountId: this.props.accountId,
         companyName: this.state.companyName,
-        // departmentInfos: this.state.departmentInfos,
         jobIds: this.state.jobInfos.map(it => it.jobId),
         departmentIds: this.state.departmentInfos.map(it => it.departmentId),
-        // jobInfos: this.state.jobInfos,
         jobNumber: this.state.jobNumber,
         contactPhone: this.state.contactPhone,
         workSiteId: this.state.workSiteId,
@@ -251,7 +346,6 @@ class EditInfo extends React.Component {
       .then(
         function (result) {
           if (result === 1) {
-            // options.callback.call(null, userObj);
             fn({
               showDialog: false,
               isOk: true,
@@ -264,11 +358,7 @@ class EditInfo extends React.Component {
         function () {
           alert(_l('保存失败'), 2);
         },
-      )
-      .always(function () {
-        // _this.dialog.enable();
-      });
-    return false;
+      );
   };
 
   // 添加部门
@@ -318,15 +408,35 @@ class EditInfo extends React.Component {
   };
 
   render() {
-    const { departmentInfos, jobInfos, jobs, jobNumber, contactPhone, isLoading, contactPhoneError, errors } =
-      this.state;
+    const {
+      departmentInfos,
+      jobInfos,
+      jobs,
+      jobNumber,
+      contactPhone,
+      isLoading,
+      contactPhoneError,
+      errors,
+      jobList = [],
+      jobIds = [],
+      keywords = '',
+    } = this.state;
+    let jobResult = [...jobList];
+
+    if (keywords) {
+      jobResult = jobResult.filter(item => item.jobName.indexOf(keywords) > -1);
+    }
+    jobIds.forEach(item => {
+      if ((item || '').toString().indexOf('add_') > -1) {
+        jobResult.push({ jobId: '', jobName: item.split('add_')[1] });
+      }
+    });
     return (
       <Dialog
         title={_l('编辑员工名片')}
         okText={_l('保存')}
         cancelText={_l('取消')}
         className="dialogSetEdit"
-        // size={'large'}
         onCancel={() => {
           this.props.setValue({
             showDialog: false,
@@ -340,6 +450,176 @@ class EditInfo extends React.Component {
       >
         {isLoading ? (
           <LoadDiv />
+        ) : md.global.Config.IsPlatformLocal ? (
+          <div className="formTable">
+            <div className="formGroup">
+              <span className="formLabel mTop5">{_l('姓名')}</span>
+              <div className="formControl">{this.state.fullname}</div>
+            </div>
+            <div className="formGroup">
+              <span className="formLabel">{_l('部门')}</span>
+              {departmentInfos.map((item, i) => {
+                return (
+                  <span className="itemSpan mAll5">
+                    {item.departmentName}
+                    {i === 0 && <span className="isTopIcon">主</span>}
+                    <div className="moreOption">
+                      <Icon
+                        className="Font14 Hand Gray_bd"
+                        icon="moreop"
+                        onClick={e => {
+                          this.setState(
+                            {
+                              isShowAct: !this.state.isShowAct,
+                            },
+                            () => {
+                              if (this.state.isShowAct) {
+                                this.setState({
+                                  idAct: item.departmentId,
+                                });
+                              }
+                            },
+                          );
+                        }}
+                      />
+                      {this.state.isShowAct && this.state.idAct === item.departmentId && (
+                        <Act
+                          onClickAwayExceptions={[]}
+                          onClickAway={() =>
+                            this.setState({
+                              isShowAct: false,
+                              idAct: '',
+                            })
+                          }
+                          isPosition={false}
+                          isTop={i === 0}
+                          deleteFn={() => {
+                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId) || [];
+                            this.setState({
+                              isShowAct: false,
+                              idAct: '',
+                              departmentInfos: list,
+                            });
+                          }}
+                          setToTop={() => {
+                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                            let data = departmentInfos.find(it => it.departmentId === item.departmentId);
+                            list.unshift(data);
+                            this.setState({
+                              isShowAct: false,
+                              idAct: '',
+                              departmentInfos: list,
+                            });
+                          }}
+                          isShowAct={this.state.isShowAct}
+                        />
+                      )}
+                    </div>
+                  </span>
+                );
+              })}
+              <Icon
+                className="Font26 Hand Gray_9e mAll5 TxtMiddle"
+                icon="task_add-02"
+                onClick={e => this.dialogSelectDeptFn(e)}
+              />
+            </div>
+            <div className="formGroup">
+              <span className="formLabel mTop5">{_l('职位')}</span>
+              <Select
+                ref={select => {
+                  this.select = select;
+                }}
+                className="w100 jobSelect"
+                dropdownClassName="dropJobList"
+                showSearch
+                allowClear={jobIds.length > 0}
+                listHeight={285}
+                optionLabelProp="label"
+                value={!_.isEmpty(jobResult) ? jobIds : []}
+                placeholder="请选择"
+                suffixIcon={<Icon icon="arrow-down-border Font14" />}
+                filterOption={() => true}
+                notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的职位')}</span>}
+                onSearch={keywords =>
+                  this.setState({ keywords, jobIds: jobIds.filter(item => item.indexOf('add_') === -1) })
+                }
+                onDropdownVisibleChange={open => {
+                  this.setState({ keywords: '' });
+                  !open && this.select.blur();
+                }}
+                mode="multiple"
+                onChange={jobIds => {
+                  let newJob = jobIds.find(item => item.indexOf('add_') > -1);
+                  if (newJob) {
+                    let jobName = newJob.split('add_')[1];
+                    this.setState({ keywords: '' }, () => {
+                      this.handleAddJob(jobName);
+                    });
+                  } else {
+                    this.setState({ jobIds, keywords: '' });
+                  }
+                }}
+              >
+                {!!keywords && _.isEmpty(jobList) && (
+                  <Option disabled>
+                    <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的职位')}</span>
+                  </Option>
+                )}
+                {jobResult.map(item => (
+                  <Option key={item.jobId} value={item.jobId} label={item.jobName}>
+                    {item.jobName}
+                  </Option>
+                ))}
+
+                {keywords && !jobResult.find(item => item.jobName === keywords) && (
+                  <Option value={`add_${keywords}`} label={keywords}>
+                    <span>{_l('创建新职位：%0', keywords)}</span>
+                  </Option>
+                )}
+              </Select>
+            </div>
+            <div className="formGroup">
+              <span className="formLabel mTop5">{_l('工作地点')}</span>
+              <div className="formControl">
+                <div className="workSiteBox">
+                  <input type="hidden" ref={input => (this.workSiteInput = input)} />
+                </div>
+              </div>
+            </div>
+            <div className="formGroup">
+              <span className="formLabel mTop5">{_l('工号')}</span>
+              <div className="formControl">
+                <input
+                  value={jobNumber}
+                  placeholder={_l('')}
+                  onChange={e => {
+                    this.setState({
+                      jobNumber: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+            </div>
+            <div className="formGroup">
+              <span className="formLabel">{_l('工作电话')}</span>
+              <div className="formControl">
+                <input
+                  value={contactPhone}
+                  maxLength="32"
+                  placeholder={_l('')}
+                  onBlur={this.onBlur}
+                  className={cx({ error: contactPhoneError })}
+                  onChange={e => {
+                    this.setState({
+                      contactPhone: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+              {contactPhoneError && <span className="Block Red LineHeight25">{_l('工作电话格式不正确')}</span>}
+            </div>
+          </div>
         ) : (
           <div className="formTable">
             {configs.map(con => {
@@ -502,38 +782,11 @@ class EditInfo extends React.Component {
                   );
                 })}
                 <span className="jobChooseIcon Relative">
-                  {/* <Icon className="Font26 Hand Gray_9e mAll5 TxtMiddle" icon="task_add-02" onClick={(e) => {
-                  this.setState({
-                    isShowJobList: !this.state.isShowJobList
-                  })
-                }} /> */}
                   <Icon
                     className="Font26 Hand Gray_9e mAll5 TxtMiddle"
                     icon="task_add-02"
                     onClick={e => this.dialogSelectJobFn(e)}
                   />
-                  {/* {jobs.length <= 0 && <React.Fragment>
-                  <Icon className="Font26 Hand Gray_9e mAll5 TxtMiddle Red" icon="task-folder-message" />
-                  <span className='Red'>{_l('尚未配置职位')}</span>
-                   <span className='Gray_75'>{_l('前往创建')}</span>
-                </React.Fragment>} */}
-                  {/* {this.state.isShowJobList && <JobDia
-                  onClickAway={() => this.setState({
-                    isShowJobList: false,
-                  })}
-                  jobs={jobs} isShowJobList={this.state.isShowJobList} setValue={(it) => {
-                    let list = this.state.jobInfos.filter(item => item.jobId === it.jobId)
-                    if (list && list.length > 0) {
-                      this.setState({
-                        isShowJobList: false,
-                      })
-                    } else {
-                      this.setState({
-                        jobInfos: this.state.jobInfos.concat(it),
-                        isShowJobList: false,
-                      })
-                    }
-                  }} />} */}
                 </span>
               </div>
             </div>

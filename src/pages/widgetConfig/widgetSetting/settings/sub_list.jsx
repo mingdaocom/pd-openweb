@@ -91,7 +91,7 @@ export default function SubListSetting(props) {
     if ((window.subListSheetConfig[dataSource] || {}).saveIndex === saveIndex) {
       return;
     }
-    if (saveIndex) {
+    if (saveIndex && dataSource && !dataSource.includes('-')) {
       setLoading(true);
       getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
         .then(res => {
@@ -146,6 +146,12 @@ export default function SubListSetting(props) {
     setSubQueryConfigs(newQueryConfigs);
   };
 
+  const filterRelationControls = info => {
+    return _.get(info, ['template', 'controls']).filter(
+      item => item.controlId !== 'ownerid' && !_.includes([45, 47, 49], item.type),
+    );
+  };
+
   useEffect(() => {
     if (!dataSource) return;
     // 从空白创建的子表
@@ -160,7 +166,7 @@ export default function SubListSetting(props) {
     setLoading(true);
     getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
       .then(res => {
-        const controls = _.get(res, ['template', 'controls']).filter(item => item.controlId !== 'ownerid');
+        const controls = filterRelationControls(res);
         const defaultShowControls = getDefaultShowControls(controls);
         setInfo(res);
         window.subListSheetConfig[dataSource] = {
@@ -170,8 +176,10 @@ export default function SubListSetting(props) {
           sheetInfo: res,
         };
         setMode(res.type === 2 ? 'new' : 'relate');
+        let oriShowControls = isEmpty(showControls) ? defaultShowControls : showControls;
         let nextData = {
-          showControls: isEmpty(showControls) ? defaultShowControls : showControls,
+          showControls:
+            res.type === 2 ? oriShowControls.filter(i => !_.includes(['caid', 'utime', 'ctime'], i)) : oriShowControls,
         };
         // if ([0, 1].includes(res.type)) {
         nextData = { ...nextData, relationControls: dealControlData(controls) };
@@ -259,7 +267,7 @@ export default function SubListSetting(props) {
         </Fragment>
       );
     }
-    const sortedControls = resortControlByColRow(relationControls).filter(i => !_.includes([45, 47], i.type));
+    const sortedControls = resortControlByColRow(dealControlData(filterRelationControls(sheetInfo)));
     return (
       <Fragment>
         <div className="settingItemTitle">{_l('显示字段')}</div>

@@ -75,6 +75,7 @@ export default class Widgets extends Component {
             left: 0,
           },
           zIndex: 10001,
+          isDynamic: enumDefault === 1,
           SelectUserSettings: {
             unique: enumDefault === 0,
             projectId: projectId,

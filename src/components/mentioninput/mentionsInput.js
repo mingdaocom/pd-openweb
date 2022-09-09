@@ -516,12 +516,12 @@ Modified by Kenneth Auchenberg
         if (results.isNewAccount) {
           $noData.append(
             '<div class="invite"><i class="icon-invite"></i><p>' +
-              _l('您还没有一起协作的小伙伴，') +
-              '<br/><span class="ThemeColor3 Hand">' +
-              _l('邀请更多的同事') +
-              ' </span>' +
-              _l('加入吧！') +
-              ' </p></div>',
+            _l('您还没有一起协作的小伙伴，') +
+            '<br/><span class="ThemeColor3 Hand">' +
+            _l('邀请更多的同事') +
+            ' </span>' +
+            _l('加入吧！') +
+            ' </p></div>',
           );
         } else if (currentDataQuery === '') {
           var strNoOne = _l('输入姓名或群组名，提醒TA查看');
@@ -532,12 +532,12 @@ Modified by Kenneth Auchenberg
           } else {
             $noData.append(
               '<div class="invite"><i class="icon-invite"></i><p>' +
-                _l('没有找到，') +
-                '<span class="ThemeColor3 Hand">' +
-                _l('邀请更多的同事') +
-                ' </span>' +
-                _l('加入吧！') +
-                ' </p></div>',
+              _l('没有找到，') +
+              '<span class="ThemeColor3 Hand">' +
+              _l('邀请更多的同事') +
+              ' </span>' +
+              _l('加入吧！') +
+              ' </p></div>',
             );
           }
         }
@@ -838,7 +838,7 @@ Modified by Kenneth Auchenberg
         messageText: elmInputBox.data('messageText'),
         mentionsCollection: mentionsCollection,
       };
-      localStorage.setItem(key, JSON.stringify(data));
+      safeLocalStorageSetItem(key, JSON.stringify(data));
     }
 
     function restoreData(callback) {

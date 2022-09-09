@@ -1,7 +1,7 @@
 .departmentTreeBox {
+  overflow: hidden;
+  margin-right: 10px;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
   .moreListIcon {
     display: inline-block;
     width: 24px;
@@ -26,7 +26,6 @@
 
   .ant-tree-list-scrollbar {
     width: 6px !important;
-    display: block !important;
     .ant-tree-list-scrollbar-thumb {
       background: rgba(187, 187, 187, 0.8) !important;
     }
@@ -60,6 +59,9 @@
     .departmentName {
       color: #2196f3 !important;
     }
+    .ant-tree-draggable-icon {
+      display: none !important;
+    }
   }
 
   .ant-tree.ant-tree-directory .ant-tree-treenode {
@@ -86,6 +88,9 @@
           display: block;
         }
       }
+    }
+    .ant-tree-draggable-icon {
+      display: none !important;
     }
   }
 

@@ -5,10 +5,6 @@ import { Icon } from 'ming-ui';
 import './index.less';
 import 'mobile/MyHome/index.less';
 
-const {
-  app: { appManagementHeader },
-} = window.private;
-
 @withRouter
 export default class TabBar extends Component {
   constructor(props) {

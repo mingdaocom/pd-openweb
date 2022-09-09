@@ -5,6 +5,7 @@ import { autobind } from 'core-decorators';
 import CodeMirror from 'codemirror';
 import cx from 'classnames';
 import 'codemirror/lib/codemirror.css';
+import 'codemirror/addon/display/placeholder';
 import { MODE } from './enum';
 import './TagTextarea.less';
 
@@ -48,7 +49,7 @@ export default class TagTextarea extends React.Component {
   }
 
   componentDidMount() {
-    const { defaultValue, height, onFocus, onBlur, getRef, readonly, noCursor } = this.props;
+    const { defaultValue, height, onFocus, onBlur, getRef, readonly, noCursor, placeholder } = this.props;
     getRef(this);
     if (this.cmcon) {
       this.cmObj = CodeMirror(this.cmcon, {
@@ -56,6 +57,7 @@ export default class TagTextarea extends React.Component {
         mode: null,
         lineWrapping: true,
         cursorHeight: noCursor || readonly ? 0 : 1,
+        placeholder: placeholder || null,
       });
       if (height) {
         this.cmObj.setSize('100%', typeof height === 'number' ? `${height}px` : height);

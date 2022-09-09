@@ -7,12 +7,12 @@ var process = {
    * 创建流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {增加流程} {companyId:公司ID(string),explain:说明(string),name:流程名称(string),relationId:关联关系(string),relationType:关联的类型(integer),startEventAppType:发起节点app类型：1：从工作表触发 5:循环触发 6:按日期表触发(integer),}*addProcess
+   * @param {增加流程} {companyId:公司ID(string),explain:说明(string),iconColor:图标颜色(string),iconName:图标名称(string),name:流程名称(string),relationId:关联关系(string),relationType:关联的类型(integer),startEventAppType:发起节点app类型：1：从工作表触发 5:循环触发 6:按日期表触发(integer),}*addProcess
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   addProcess: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/add';
+    base.ajaxOptions.url = base.server(options) + '/process/add';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processadd', JSON.stringify(args), $.extend(base, options));
   },
@@ -25,7 +25,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   closeStorePush: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/closeStorePush';
+    base.ajaxOptions.url = base.server(options) + '/process/closeStorePush';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processcloseStorePush', args, $.extend(base, options));
   },
@@ -40,7 +40,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   copyProcess: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/copyProcess';
+    base.ajaxOptions.url = base.server(options) + '/process/copyProcess';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processcopyProcess', JSON.stringify(args), $.extend(base, options));
   },
@@ -53,7 +53,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   deleteProcess: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/deleteProcess';
+    base.ajaxOptions.url = base.server(options) + '/process/deleteProcess';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processdeleteProcess', JSON.stringify(args), $.extend(base, options));
   },
@@ -68,7 +68,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getHistory: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getHistory';
+    base.ajaxOptions.url = base.server(options) + '/process/getHistory';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetHistory', args, $.extend(base, options));
   },
@@ -81,7 +81,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessApiInfo: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessApiInfo';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessApiInfo';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessApiInfo', args, $.extend(base, options));
   },
@@ -96,7 +96,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessByControlId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessByControlId';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessByControlId';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessByControlId', args, $.extend(base, options));
   },
@@ -109,7 +109,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessById: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessById';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessById';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessById', args, $.extend(base, options));
   },
@@ -123,7 +123,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessByTriggerId: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessByTriggerId';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessByTriggerId';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessByTriggerId', args, $.extend(base, options));
   },
@@ -136,7 +136,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessConfig: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessConfig';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessConfig';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessConfig', args, $.extend(base, options));
   },
@@ -149,7 +149,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessListApi: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessListApi';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessListApi';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessListApi', args, $.extend(base, options));
   },
@@ -157,12 +157,13 @@ var process = {
    * 获取版本发布的信息
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {string} [args.processId] *流程id
+   * @param {string} [args.instanceId] 流程实例id
+   * @param {string} [args.processId] 流程id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getProcessPublish: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getProcessPublish';
+    base.ajaxOptions.url = base.server(options) + '/process/getProcessPublish';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetProcessPublish', args, $.extend(base, options));
   },
@@ -175,7 +176,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getStore: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getStore';
+    base.ajaxOptions.url = base.server(options) + '/process/getStore';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetStore', args, $.extend(base, options));
   },
@@ -188,7 +189,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getTriggerProcessList: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/getTriggerProcessList';
+    base.ajaxOptions.url = base.server(options) + '/process/getTriggerProcessList';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgetTriggerProcessList', args, $.extend(base, options));
   },
@@ -201,7 +202,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   goBack: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/goBack';
+    base.ajaxOptions.url = base.server(options) + '/process/goBack';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processgoBack', args, $.extend(base, options));
   },
@@ -215,7 +216,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   publish: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/publish';
+    base.ajaxOptions.url = base.server(options) + '/process/publish';
     base.ajaxOptions.type = 'GET';
     return $.api(controllerName, 'processpublish', args, $.extend(base, options));
   },
@@ -228,12 +229,12 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   saveProcessConfig: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/saveProcessConfig';
+    base.ajaxOptions.url = base.server(options) + '/process/saveProcessConfig';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processsaveProcessConfig', JSON.stringify(args), $.extend(base, options));
   },
   /**
-   * 触发流程
+   * 工作表按钮触发流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
    * @param {RequestStartProcess} {appId:表id(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*startProcess
@@ -241,7 +242,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   startProcess: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/startProcess';
+    base.ajaxOptions.url = base.server(options) + '/process/startProcess';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processstartProcess', JSON.stringify(args), $.extend(base, options));
   },
@@ -254,7 +255,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   startProcessById: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/startProcessById';
+    base.ajaxOptions.url = base.server(options) + '/process/startProcessById';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processstartProcessById', JSON.stringify(args), $.extend(base, options));
   },
@@ -267,7 +268,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   startProcessByPBC: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/startProcessByPBC';
+    base.ajaxOptions.url = base.server(options) + '/process/startProcessByPBC';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processstartProcessByPBC', JSON.stringify(args), $.extend(base, options));
   },
@@ -280,7 +281,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   updateProcess: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/update';
+    base.ajaxOptions.url = base.server(options) + '/process/update';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processupdate', JSON.stringify(args), $.extend(base, options));
   },
@@ -296,7 +297,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   updateOwner: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/updateOwner';
+    base.ajaxOptions.url = base.server(options) + '/process/updateOwner';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processupdateOwner', JSON.stringify(args), $.extend(base, options));
   },
@@ -309,7 +310,7 @@ var process = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   updateUseStatus: function(args, options) {
-    base.ajaxOptions.url = base.server() + '/process/updateUseStatus';
+    base.ajaxOptions.url = base.server(options) + '/process/updateUseStatus';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'processupdateUseStatus', JSON.stringify(args), $.extend(base, options));
   },

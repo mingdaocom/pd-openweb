@@ -10,9 +10,6 @@ import { getProject } from 'src/util';
 const { Item } = List;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 const isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-const {
-  app: { commonUserHandle },
-} = window.private;
 
 class MyHome extends Component {
   constructor(props) {
@@ -57,7 +54,7 @@ class MyHome extends Component {
             >
               {_l('切换组织')}
             </Item>
-            {commonUserHandle.help || md.global.Config.IsLocal || isWxWork || isDingTalk ? null : (
+            {md.global.Config.IsLocal || isWxWork || isDingTalk ? null : (
               <Fragment>
                 <Item
                   thumb={<Icon icon="workflow_help" className="Font26" />}

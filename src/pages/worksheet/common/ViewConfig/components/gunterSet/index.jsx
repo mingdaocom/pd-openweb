@@ -4,6 +4,8 @@ import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig
 import { Checkbox } from 'ming-ui';
 import Color from '../Color';
 import DropDownSet from '../DropDownSet';
+import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 let obj = [
   { txt: _l('日'), key: '0' },
   { txt: _l('周'), key: '1' },
@@ -17,7 +19,6 @@ import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
 import { getGunterViewType } from 'src/pages/worksheet/views/GunterView/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
-
 const GunterTypeChoose = styled.div`
   ul > li {
     margin-top: 10px;
@@ -86,9 +87,9 @@ const ShowChoose = styled.div`
   }
 `;
 export default function GunterSet(props) {
-  const { appId, view, updateCurrentView, worksheetControls = [] } = props;
+  const { appId, view, updateCurrentView, worksheetControls = [], columns, currentSheetInfo } = props;
   const { advancedSetting = {}, viewControl = '' } = view;
-  const { calendartype = '0', unweekday = '', milepost, colorid } = advancedSetting;
+  const { calendartype = '0', unweekday = '', milepost, colorid, navshow = '0', navfilters = '[]' } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
   let [timeControls, setTimeControls] = useState(
     worksheetControls.filter(
@@ -181,7 +182,11 @@ export default function GunterSet(props) {
             ...view,
             appId,
             viewControl: value,
-            editAttrs: ['viewControl'],
+            advancedSetting: updateViewAdvancedSetting(view, {
+              navshow: '0',
+              navfilters: JSON.stringify([]),
+            }),
+            editAttrs: ['viewControl', 'advancedSetting'],
           });
         }}
         setDataId={viewControl}
@@ -192,6 +197,42 @@ export default function GunterSet(props) {
         title={_l('分组')}
         txt={_l('选择一个单选项或关联记录单条字段，记录将以选中项作为分组在显示左侧')}
         // notFoundContent={}
+      />
+      <NavShow
+        params={{
+          types: NAVSHOW_TYPE.filter(o => {
+            //选项作为分组，分组没有筛选
+            if ([9, 10, 11].includes((worksheetControls.find(it => it.controlId === viewControl) || {}).type)) {
+              return o.value !== '3';
+            } else {
+              return true;
+            }
+          }),
+          txt: _l('显示项'),
+        }}
+        value={navshow}
+        onChange={newValue => {
+          updateCurrentView({
+            ...view,
+            appId,
+            advancedSetting: updateViewAdvancedSetting(view, { ...newValue }),
+            editAttrs: ['advancedSetting'],
+          });
+        }}
+        navfilters={navfilters}
+        filterInfo={{
+          allControls: worksheetControls,
+          globalSheetInfo: _.pick(currentSheetInfo, [
+            'appId',
+            'groupId',
+            'name',
+            'projectId',
+            'roleType',
+            'worksheetId',
+          ]),
+          columns,
+          viewControl,
+        }}
       />
       <Color
         {...props}

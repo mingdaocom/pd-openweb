@@ -8,9 +8,9 @@ DetailFooter.propTypes = {
   closeDetail: func,
 };
 
-export default function DetailFooter({ isCorrect, onSave, closeDetail }) {
+export default function DetailFooter({ isCorrect, onSave, closeDetail, isIntegration }) {
   return (
-    <div className="workflowDetailFooter flexRow">
+    <div className={cx('workflowDetailFooter flexRow', { workflowDetailFooterWhile: isIntegration })}>
       <span
         className={cx('footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2 mRight10', { Alpha5: !isCorrect })}
         onClick={onSave}

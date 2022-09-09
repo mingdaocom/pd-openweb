@@ -285,7 +285,7 @@ function FunctionalSwitch(props) {
                                 <span
                                   className="batchIsOpen Right Hand ThemeHoverColor3"
                                   onClick={() => {
-                                    localStorage.setItem('batchIsOpen', hideBatch ? null : '1');
+                                    safeLocalStorageSetItem('batchIsOpen', hideBatch ? null : '1');
                                     sethideBatch(!hideBatch);
                                   }}
                                 >

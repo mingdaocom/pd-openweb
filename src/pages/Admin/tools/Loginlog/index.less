@@ -131,8 +131,11 @@
           }
           th:nth-child(2),
           th:nth-child(3),
+          th:nth-child(5) {
+            width: 200px;
+          }
           th:nth-child(4) {
-            width: 240px;
+            width: 150px;
           }
         }
       }
@@ -140,13 +143,21 @@
         tr {
           td:nth-child(2),
           td:nth-child(3),
+          td:nth-child(5) {
+            width: 200px;
+          }
           td:nth-child(4) {
-            width: 240px;
+            width: 150px;
           }
         }
       }
       .ant-empty-normal {
         display: none;
+      }
+      .ant-table-thead
+        > tr
+        > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan]):before {
+        width: 0px !important;
       }
     }
     .emptyBox {

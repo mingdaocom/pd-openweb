@@ -14,9 +14,7 @@ class ErrorDialog extends Component {
     super(props);
     this.state = {
       complete: false,
-      successCount: 0,
-      errorCount: 0,
-      excelLogs: [],
+      data: {},
     };
   }
 
@@ -37,17 +35,45 @@ class ErrorDialog extends Component {
       success: result => {
         this.setState({
           complete: true,
-          errorCount: result.data.errorCount,
-          successCount: result.data.successCount,
-          excelLogs: result.data.excelLogs,
+          data: result.data,
         });
       },
     });
   }
 
+  renderTitle = () => {
+    const { data } = this.state;
+    const { addCount, errorCount, repeatCount, skipCount, updateCount, repeated } = data;
+    const formatNum = num => {
+      return num.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
+    };
+    const aCount = addCount;
+    const eCount = errorCount;
+    const rCount = repeatCount;
+    const sCount = skipCount;
+    const uCount = updateCount;
+    const txt1 = [
+      repeated !== 3 ? _l('新增%0行', formatNum(aCount)) : '',
+      uCount || repeated === 3 ? _l('更新%0行', formatNum(uCount)) : '',
+      eCount ? _l('其中%0行错误', formatNum(eCount)) : '',
+    ]
+      .filter(o => o)
+      .join(', ');
+    const txt2 =
+      sCount && rCount && sCount - rCount
+        ? '；' + _l('跳过%0行（%1行重复，%2行错误）', formatNum(sCount), formatNum(rCount), formatNum(sCount - rCount))
+        : sCount && rCount
+        ? '；' + _l('跳过%0行重复', formatNum(sCount))
+        : sCount
+        ? '；' + _l('跳过%0行错误', formatNum(sCount))
+        : '';
+
+    return txt1 + txt2;
+  };
+
   render() {
     const { fileKey } = this.props;
-    const { complete, successCount, errorCount, excelLogs } = this.state;
+    const { complete, data } = this.state;
 
     if (!complete) return null;
 
@@ -62,13 +88,7 @@ class ErrorDialog extends Component {
       >
         <div className="flexColumn h100">
           <div className="flexRow">
-            <div>
-              {_l(
-                '导入 %0 行数据，%1 行错误',
-                successCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,'),
-                errorCount.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,'),
-              )}
-            </div>
+            <div>{this.renderTitle()}</div>
             <div
               className="successText"
               data-tip={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
@@ -85,7 +105,7 @@ class ErrorDialog extends Component {
             </a>
           </div>
           <ScrollView className="importErrorBox flex mTop15">
-            {excelLogs.map((item, index) => {
+            {data.excelLogs.map((item, index) => {
               return (
                 <div key={index} className="mBottom10 pLeft12 pRight12">
                   <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'Gray_9e')}>

@@ -100,7 +100,7 @@ class Record extends Component {
         loading: false,
         abnormal: !_.isUndefined(rowResult.resultCode) && rowResult.resultCode !== 1,
         rules: worksheetInfoResult.rules,
-        isWorksheetQuery: worksheetInfoResult.isWorksheetQuery 
+        isWorksheetQuery: worksheetInfoResult.isWorksheetQuery
       });
     });
   }
@@ -399,12 +399,14 @@ class Record extends Component {
   }
   renderCustomFields() {
     const baseIds = this.getBaseIds();
+    const { sheetSwitchPermit } = this.props;
     const { sheetRow, isEdit, random, rules, isWorksheetQuery } = this.state;
     return (
       <div className="flex customFieldsWrapper">
         <CustomFields
           projectId={sheetRow.projectId}
           appId={baseIds.appId || ''}
+          viewId={baseIds.viewId || ''}
           ref={this.customwidget}
           from={6}
           flag={random.toString()}
@@ -424,6 +426,7 @@ class Record extends Component {
             const result = item.type === 29 && (item.advancedSetting || {}).showtype === '2';
             return isEdit ? !result : item.type !== 43;
           })}
+          sheetSwitchPermit={sheetSwitchPermit}
           onSave={this.onSave}
         />
       </div>
@@ -492,12 +495,13 @@ class Record extends Component {
   renderContent() {
     const { sheetRow, isEdit, random, currentTab, rules } = this.state;
     const { relationRow, isModal, onClose } = this.props;
+    const viewHideControls = _.get(sheetRow, 'view.controls') || [];
     const titleControl = _.find(this.formData || [], control => control.attribute === 1);
     const defaultTitle = _l('未命名');
     const recordTitle = titleControl ? renderCellText(titleControl) || defaultTitle : defaultTitle;
     const recordMuster = _.sortBy(
       updateRulesData({ rules: rules, data: sheetRow.receiveControls }).filter(
-        control => isRelateRecordTableControl(control) && controlState(control, 6).visible,
+        control => isRelateRecordTableControl(control) && controlState(control, 6).visible && !viewHideControls.includes(control.controlId),
       ),
       'row',
     );

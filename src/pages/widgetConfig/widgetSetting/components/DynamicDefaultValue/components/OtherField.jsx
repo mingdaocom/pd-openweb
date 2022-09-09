@@ -4,7 +4,7 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import { getControlType, getControls } from '../util';
 import { OtherFieldWrap } from '../styled';
-import { SYSTEM_FIELD_TO_TEXT, USER_LIST, SYSTEM_LIST, CURRENT_TYPES } from '../config';
+import { SYSTEM_FIELD_TO_TEXT, USER_LIST, SYSTEM_LIST, CURRENT_TYPES, CUR_SEARCH_TYPES } from '../config';
 
 export default function OtherField(props) {
   const {
@@ -27,6 +27,7 @@ export default function OtherField(props) {
 
   const getFieldName = (controls, fieldId) => {
     if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
+    if (fieldId === 'search-keyword') return CUR_SEARCH_TYPES[0].text;
     if (
       _.includes(
         [
@@ -92,7 +93,7 @@ export default function OtherField(props) {
   const isFieldDeleteFn = (item, controls = []) => {
     const { cid, rcid } = item;
     const isFieldNotInControls = (controls, cid) => {
-      if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], cid)) return false;
+      if (_.includes(['ctime', 'utime', 'ownerid', 'caid', 'search-keyword'], cid)) return false;
       if (
         _.includes(
           [
@@ -131,9 +132,13 @@ export default function OtherField(props) {
   const isText = getControlType(data) === 'text' || data.type === 45;
   const { fieldName, recordName } = getFieldNameById(item, controls);
   const isFieldDelete = isFieldDeleteFn(item, controls);
+  const isGreenTag = item.cid === 'search-keyword' && !item.staticValue;
   return (
-    <OtherFieldWrap className={cx(className, { pointer: !isText, haveCloseIcon: !isText, deleted: isFieldDelete })}>
+    <OtherFieldWrap
+      className={cx(className, { pointer: !isText, haveCloseIcon: !isText, deleted: isFieldDelete, isGreenTag })}
+    >
       <span className="overflow_ellipsis">
+        {isGreenTag && <i className="icon-search searchIcon"></i>}
         <span>{fieldName}</span>
         {recordName && <span className="recordName">{recordName}</span>}
       </span>

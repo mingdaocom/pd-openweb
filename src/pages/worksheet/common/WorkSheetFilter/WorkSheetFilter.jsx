@@ -416,7 +416,6 @@ export default class WorkSheetFilter extends Component {
       () => {
         if (
           condition.conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value ||
-          condition.conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ||
           condition.controlType === 29 ||
           condition.conditionGroupType === CONTROL_FILTER_WHITELIST.SUBLIST.value
         ) {

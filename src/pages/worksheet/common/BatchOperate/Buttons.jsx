@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { arrayOf, number, string, func, shape, bool } from 'prop-types';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
@@ -71,6 +71,7 @@ function Buttons(props) {
     handleUpdateWorksheetRow,
     onUpdateRow,
   } = props;
+  const [popupVisible, setPopupVisible] = useState(false);
   const sumWidth = _.sum(buttons.map(getButtonWidth));
   let buttonShowNum = 1;
   if (sumWidth < width) {
@@ -112,6 +113,7 @@ function Buttons(props) {
       />
       {buttonShowNum < buttons.length && (
         <Trigger
+          popupVisible={popupVisible}
           zIndex={1000}
           action={['click']}
           popupAlign={{
@@ -121,8 +123,28 @@ function Buttons(props) {
             },
           }}
           destroyPopupOnHide
+          onPopupVisibleChange={() => setPopupVisible(true)}
           popup={
-            <Menu style={{ position: 'relative' }}>
+            <Menu
+              style={{ position: 'relative' }}
+              onClickAway={() => setPopupVisible(false)}
+              onClickAwayExceptions={[
+                '.mdDialog',
+                '.mui-dialog-container',
+                '.dropdownTrigger',
+                '.addFilterPopup',
+                '.filterControlOptionsList',
+                '.mui-datetimepicker',
+                '.mui-datetimerangepicker',
+                '.selectUserBox',
+                '.CityPicker',
+                '.worksheetFilterOperateList',
+                '.ant-select-dropdown',
+                '.ant-picker-dropdown',
+                '.rc-trigger-popup',
+                '#dialogSelectDept_container',
+              ]}
+            >
               <CustomButtons
                 hideDisabled
                 isBatchOperate

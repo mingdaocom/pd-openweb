@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
-import { isString, includes, get, isEmpty, isArray, head, find } from 'lodash';
+import _, { isString, includes, get, isEmpty, isArray, head, find } from 'lodash';
 import { Parser } from 'hot-formula-parser';
-import { DISPLAY_TYPE } from '../config/setting';
+import { DISPLAY_TYPE, DATE_SHOW_TYPES } from '../config/setting';
 import { v4 as uuidv4 } from 'uuid';
 import { isFullLineControl, getRowById } from './widgets';
 import { getControlByControlId } from '.';
@@ -139,7 +139,7 @@ export const isValidConfig = data => {
 
 // 获取校验信息
 export const getVerifyInfo = (data, { controls }) => {
-  const { type, dataSource, enumDefault, sourceControlId } = data;
+  const { type, dataSource, enumDefault, sourceControlId, advancedSetting = {} } = data;
   let isValid = true;
   if (type === 30) {
     if (!sourceControlId) {
@@ -185,12 +185,20 @@ export const getVerifyInfo = (data, { controls }) => {
       return { isValid: false, text: _l('没有配置数据源') };
     }
   }
+  if (includes([49, 50], type)) {
+    if (!dataSource) {
+      return { isValid: false, text: _l('没有选择查询模版') };
+    }
+    if (type === 50 && (!advancedSetting.itemsource || !advancedSetting.itemtitle)) {
+      return { isValid: false, text: _l('有必填项未配置') };
+    }
+  }
   return { isValid };
 };
 
 // 自动编号可选控件
 export const isAutoNumberSelectableControl = item => {
-  const types = [2, 9, 10, 11, 15, 16, 19, 23, 24, 33];
+  const types = [2, 9, 10, 11, 15, 16, 19, 23, 24, 33, 46];
   return types.includes(item.type);
 };
 
@@ -255,4 +263,70 @@ export const parseOptionValue = value => {
 export const getSortControls = (data, controls) => {
   const sorts = getControlsSorts(data, controls);
   return sorts.map(id => find(controls, item => item.controlId === id));
+};
+
+export const getDatePickerConfigs = data => {
+  const showType = getAdvanceSetting(data, 'showtype');
+
+  switch (showType) {
+    // 年月日时分
+    case 1:
+      return {
+        mode: 'datetime',
+        formatMode: 'YYYY-MM-DD HH:mm',
+      };
+    // 年月日时
+    case 2:
+      return {
+        mode: 'datetime',
+        formatMode: 'YYYY-MM-DD HH',
+        showMinute: false,
+      };
+    // 年月日
+    case 3:
+      return {
+        mode: 'date',
+        formatMode: 'YYYY-MM-DD',
+      };
+    // 年月
+    case 4:
+      return {
+        mode: 'month',
+        formatMode: 'YYYY-MM',
+      };
+    // 年
+    case 5:
+      return {
+        mode: 'year',
+        formatMode: 'YYYY',
+      };
+    // 年月日时分秒
+    case 6:
+      return {
+        mode: 'datetime',
+        formatMode: 'YYYY-MM-DD HH:mm:ss',
+        showSecond: true,
+      };
+    default:
+      return data.type === 16
+        ? { mode: 'datetime', formatMode: 'YYYY-MM-DD HH:mm' }
+        : { mode: 'date', formatMode: 'YYYY-MM-DD' };
+  }
+};
+
+export const getShowFormat = data => {
+  const { formatMode, mode } = getDatePickerConfigs(data);
+  const { advancedSetting: { showformat = '0' } = {} } = data;
+  const showType = _.get(
+    _.find(DATE_SHOW_TYPES, i => i.value === showformat),
+    'format',
+  );
+  if (mode === 'year') {
+    return showformat === '1' ? _l('YYYY年') : formatMode;
+  }
+  // 年月需要特殊处理
+  if (mode === 'month') {
+    return showformat === '1' ? _l('YYYY年M月') : _.includes(['2', '3'], showformat) ? 'M/YYYY' : formatMode;
+  }
+  return formatMode.replace('YYYY-MM-DD', showType);
 };

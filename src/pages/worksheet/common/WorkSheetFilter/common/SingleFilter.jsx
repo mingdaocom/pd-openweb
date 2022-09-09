@@ -109,7 +109,7 @@ export default class SingleFilter extends Component {
       dateRange: condition.dateRange,
       dateRangeType: condition.dateRangeType,
       values:
-        feOnly && _.includes([26, 27, 29, 19, 23, 24, 35], condition.controlType)
+        feOnly && _.includes([26, 27, 29, 19, 23, 24, 35, 48], condition.controlType)
           ? condition.fullValues
           : condition.values,
       maxValue: condition.maxValue,

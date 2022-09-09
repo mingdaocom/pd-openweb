@@ -5,8 +5,6 @@ import cx from 'classnames';
 import UploadFile from './UploadFile';
 import styled from 'styled-components';
 import { updateShowExport, updateImportExportResult, updateImportType, loadDepartments } from '../../actions/entities';
-import { loadJobList } from '../../actions/jobs';
-import jobController from 'src/api/job';
 import departmentController from 'src/api/department';
 import Config from '../../../config';
 import captcha from 'src/components/captcha';
@@ -307,13 +305,7 @@ class ImportDepAndPosition extends Component {
         { dataIndex: 'rowNum', title: _l('错误行'), width: 100 },
         { dataIndex: 'failReason', title: _l('错误原因') },
       ],
-      dataSource: [
-        { rowNum: '23', jobName: '产品<开发部', errorResason: '包含非法符号' },
-        { rowNum: '45、47、48', jobName: '安全部', errorResason: '组织名称重复' },
-        { rowNum: '23', jobName: '产品<开发部', errorResason: '包含非法符号' },
-        { rowNum: '23', jobName: '产品<开发部', errorResason: '包含非法符号' },
-        { rowNum: '23', jobName: '产品<开发部', errorResason: '包含非法符号' },
-      ],
+      dataSource: [],
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -343,8 +335,8 @@ class ImportDepAndPosition extends Component {
             className="Font16 downloadBtn"
             href={
               importExportType === 'importDepartment'
-                ? '/staticfiles/template/部门导入模板.xlsx'
-                : '/staticfiles/template/职位导入模板.xlsx'
+                ? '/staticfiles/template/departmentImport.xlsx'
+                : '/staticfiles/template/positionImport.xlsx'
             }
             target="_blank"
           >
@@ -391,12 +383,9 @@ class ImportDepAndPosition extends Component {
         randstr: rsp.randstr,
         captchaType: md.staticglobal.getCaptchaType(),
       };
-      let promiseRequest =
-        importExportType === 'importDepartment'
-          ? departmentController.importDepartmentList(requestData)
-          : jobController.importJobList(requestData);
 
-      promiseRequest
+      departmentController
+        .importDepartmentList(requestData)
         .then(result => {
           const { actionResult, failes } = result;
           if (actionResult === 1 || actionResult === 6) {
@@ -410,8 +399,6 @@ class ImportDepAndPosition extends Component {
             }
             if (importExportType === 'importDepartment') {
               this.props.loadDepartments('', 1);
-            } else {
-              this.props.loadJobList(Config.projectId);
             }
             _this.setState({
               importFileLoading: false,
@@ -537,5 +524,5 @@ export default connect(
       importExportResult,
     };
   },
-  { updateShowExport, updateImportExportResult, updateImportType, loadJobList, loadDepartments },
+  { updateShowExport, updateImportExportResult, updateImportType, loadDepartments },
 )(ImportDepAndPosition);

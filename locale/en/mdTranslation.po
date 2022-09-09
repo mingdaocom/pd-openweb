@@ -40082,3 +40082,2035 @@ msgstr "Checklist as default value when creating records"
 msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
 msgstr "For example, if the product type (fresh food, side dish, beverage, etc.) is used as a filter list in the product table, if the beverage category is currently selected, the product type defaults to beverage when the record is created."
 
+#: Disabled references:1
+msgid "选择组织角色"
+msgstr "Select Organizational Roles"
+
+#: Disabled references:1
+msgid "搜索组织角色"
+msgstr "Search Organizational Roles"
+
+#: Disabled references:1
+msgid "仅当前部门"
+msgstr "Current department only"
+
+#: Disabled references:1
+msgid "快递单号查询"
+msgstr "Express delivery number inquiry"
+
+#: Disabled references:1
+msgid "企业名称模糊搜索"
+msgstr "Enterprise name fuzzy search"
+
+#: Disabled references:1
+msgid "未来7日天气查询"
+msgstr "Weather in the next 7 days"
+
+#: Disabled references:1
+msgid "企业工商信息搜索"
+msgstr "Enterprise Business Information Search"
+
+#: Disabled references:1
+msgid "商品条码查询"
+msgstr "Commodity Barcode Search"
+
+#: Disabled references:1
+msgid "人脸身份核验"
+msgstr "Face identity verification"
+
+#: Disabled references:1
+msgid "更多…"
+msgstr "More…"
+
+#: Disabled references:1
+msgid "安装明道云预集成的API，或自定义添加"
+msgstr "Install Mindo Cloud pre-integrated APIs or add custom ones"
+
+#: Disabled references:1
+msgid "去集成中心安装"
+msgstr "Go to Integration Center to install"
+
+#: Disabled references:1
+msgid "去集成中心添加"
+msgstr "Go to Integration Center to add"
+
+#: Disabled references:1
+msgid "暂无可用API"
+msgstr "No API available at this time"
+
+#: Disabled references:1
+msgid "搜索API名称"
+msgstr "Search API Name"
+
+#: Disabled references:1
+msgid "暂无签名记录"
+msgstr "No signature record at this time"
+
+#: Disabled references:1
+msgid "使用上次签名"
+msgstr "Use last signature"
+
+#: Disabled references:1
+msgid "组织角色"
+msgstr "Organizational Roles"
+
+#: Disabled references:1
+msgid "使用分析"
+msgstr "Usage Analysis"
+
+#: Disabled references:1
+msgid "视图分享"
+msgstr "View Sharing"
+
+#: Disabled references:1
+msgid "视图导出"
+msgstr "View Export"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "Record Sharing"
+
+#: Disabled references:1
+msgid "附件下载"
+msgstr "Attachment Download"
+
+#: Disabled references:1
+msgid "记录日志"
+msgstr "Record Log"
+
+#: Disabled references:1
+msgid "7天内免登录"
+msgstr "No login for 7 days"
+
+#: Disabled references:1
+msgid "点登陆即代表同意"
+msgstr "By clicking on the login button, you agree to"
+
+#: Disabled references:1
+msgid "手机验证码错误"
+msgstr "verification number error in mobile phone"
+
+#: Disabled references:1
+msgid "手机验证码过期或失效"
+msgstr "Cell phone verification code expired or invalid"
+
+#: Disabled references:1
+msgid "开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。"
+msgstr "When enabled, users will be notified when they are added, removed, or change their roles. When disabled, users will not be notified of the above actions."
+
+#: Disabled references:1
+msgid "发送通知"
+msgstr "Send notification"
+
+#: Disabled references:1
+msgid "允许查看"
+msgstr "Allow View"
+
+#: Disabled references:1
+msgid "%0 个组织角色"
+msgstr "%0 organizational roles"
+
+#: Disabled references:1
+msgid "筛选组件"
+msgstr "Filtering components"
+
+#: Disabled references:1
+msgid "连接与认证"
+msgstr "Connectivity and Authentication"
+
+#: Disabled references:1
+msgid "API"
+msgstr "API"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证）"
+msgstr "OAuth 2.0 authentication (client credentials)"
+
+#: Disabled references:1
+msgid "无需认证"
+msgstr "No authentication required"
+
+#: Disabled references:1
+msgid "该组织已删除"
+msgstr "This organization has been deleted"
+
+#: Disabled references:1
+msgid "字段ID"
+msgstr "Field ID"
+
+#: Disabled references:1
+msgid "网络id"
+msgstr "Network id"
+
+#: Disabled references:1
+msgid "应用id"
+msgstr "Application id"
+
+#: Disabled references:1
+msgid "图标地址"
+msgstr "Icon Address"
+
+#: Disabled references:1
+msgid "应用描述"
+msgstr "Application Description"
+
+#: Disabled references:1
+msgid "应用分组id"
+msgstr "Application grouping id"
+
+#: Disabled references:1
+msgid "分组名称"
+msgstr "Group name"
+
+#: Disabled references:1
+msgid "分组下应用项id"
+msgstr "Application item id under group"
+
+#: Disabled references:1
+msgid "应用项图标地址"
+msgstr "Application Icon Address"
+
+#: Disabled references:1
+msgid "角色类型"
+msgstr "Character Type"
+
+#: Disabled references:1
+msgid "账号Id"
+msgstr "Account Id"
+
+#: Disabled references:1
+msgid "用户头像链接"
+msgstr "User avatar link"
+
+#: Disabled references:1
+msgid "部门Id"
+msgstr "Department Id"
+
+#: Disabled references:1
+msgid "职位Id"
+msgstr "Job Id"
+
+#: Disabled references:1
+msgid "选项id"
+msgstr "Option id"
+
+#: Disabled references:1
+msgid "工作表ID："
+msgstr "Worksheet ID."
+
+#: Disabled references:1
+msgid "工作表别名："
+msgstr "Worksheet alias."
+
+#: Disabled references:1
+msgid "切换至 %0"
+msgstr "Switch to %0"
+
+#: Disabled references:1
+msgid "请正确填写手机号"
+msgstr "Please fill in the correct cell phone number"
+
+#: Disabled references:1
+msgid "图形验证码失败"
+msgstr "Graphical CAPTCHA failure"
+
+#: Disabled references:1
+msgid "该手机号发送过于频繁"
+msgstr "The phone number sends too often"
+
+#: Disabled references:1
+msgid "短信余额不足，请联系表单发布者"
+msgstr "SMS balance is low, please contact the form publisher"
+
+#: Disabled references:1
+msgid "组织门牌号不能为空"
+msgstr "Organizational door number cannot be empty"
+
+#: Disabled references:1
+msgid "MM月"
+msgstr "MM Month"
+
+#: Disabled references:1
+msgid "DD日"
+msgstr "DDay"
+
+#: Disabled references:1
+msgid "无权限，请联系管理员"
+msgstr "No permission, please contact the administrator"
+
+#: Disabled references:1
+msgid "管理配置角色"
+msgstr "Manage configuration roles"
+
+#: Disabled references:1
+msgid "允许申请管理员"
+msgstr "Permission to apply for administrator"
+
+#: Disabled references:1
+msgid "角色存在成员，无法删除"
+msgstr "Role exists for members and cannot be deleted"
+
+#: Disabled references:1
+msgid "创建角色"
+msgstr "Character Creation"
+
+#: Disabled references:1
+msgid "导入角色"
+msgstr "Introduction to the role"
+
+#: Disabled references:1
+msgid "导出角色"
+msgstr "Exporting roles"
+
+#: Disabled references:1
+msgid "确定要删除此角色？"
+msgstr "Sure you want to delete this role?"
+
+#: Disabled references:1
+msgid "删除后无法恢复"
+msgstr "Unrecoverable after deletion"
+
+#: Disabled references:1
+msgid "暂无角色，可"
+msgstr "No role at the moment, can"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色"
+msgstr "You can create roles based on member attributes, such as, technical, production, sales settings after the application can directly select the role"
+
+#: Disabled references:1
+msgid "总览"
+msgstr "Overview"
+
+#: Disabled references:1
+msgid "按应用"
+msgstr "By Application"
+
+#: Disabled references:1
+msgid "按成员"
+msgstr "By Member"
+
+#: Disabled references:1
+msgid "请升级到专业版本或以上版本"
+msgstr "Please upgrade to Pro version or above"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据（保留最近一年的分析日志）"
+msgstr "Latest data as of %0 (keep analysis logs for the last year)"
+
+#: Disabled references:1
+msgid "最近90天"
+msgstr "Last 90 days"
+
+#: Disabled references:1
+msgid "最近1年"
+msgstr "Last 1 year"
+
+#: Disabled references:1
+msgid "1.对接信息"
+msgstr "1.Docking Information"
+
+#: Disabled references:1
+msgid "批量操作中的导出功能需额外设置"
+msgstr "Additional settings are required for the export function in batch operations"
+
+#: Disabled references:1
+msgid "组织门牌号 %0"
+msgstr "Organizational door number %0"
+
+#: Disabled references:1
+msgid "全选%0条可批量审批的记录"
+msgstr "Select all %0 records that can be batch approved"
+
+#: Disabled references:1
+msgid "没有允许批量审批的记录，请打开记录逐条审批"
+msgstr "There is no record that allows batch approval, please open the record to approve one by one"
+
+#: Disabled references:1
+msgid "（已选择%0/%1条）"
+msgstr "(%0/%1 bars have been selected)"
+
+#: Disabled references:1
+msgid "（已加载%0条）"
+msgstr "(Loaded %0 articles)"
+
+#: Disabled references:1
+msgid "您的帐号还未绑定微信，请扫描二维码"
+msgstr "Your account is not yet bound to WeChat, please scan the QR code"
+
+#: Disabled references:1
+msgid "登录通知"
+msgstr "Login Notification"
+
+#: Disabled references:1
+msgid "使用微信扫码绑定账号，开启登录微信提醒"
+msgstr "Use WeChat to scan the code to bind the account and turn on the login WeChat alert"
+
+#: Disabled references:1
+msgid "新消息通知"
+msgstr "Notification of new news"
+
+#: Disabled references:1
+msgid "当有新消息时以何种方式提醒"
+msgstr "How to be alerted when there is a new message"
+
+#: Disabled references:1
+msgid "通知音"
+msgstr "Notification Tone"
+
+#: Disabled references:1
+msgid "浏览器标签闪烁"
+msgstr "Browser tab flicker"
+
+#: Disabled references:1
+msgid "Y轴(%0)"
+msgstr "Y-axis (%0)"
+
+#: Disabled references:1
+msgid "辅助Y轴(折线图)"
+msgstr "Auxiliary Y-axis (line graph)"
+
+#: Disabled references:1
+msgid "该组织门牌号不存在"
+msgstr "The organization door number does not exist"
+
+#: Disabled references:1
+msgid "请填写组织门牌号"
+msgstr "Please fill in the organization door number"
+
+#: Disabled references:1
+msgid "组织门牌号可以通过管理员获取"
+msgstr "Organizational door numbers can be obtained through the administrator"
+
+#: Disabled references:1
+msgid "没有组织门牌号？"
+msgstr "No organizational door number?"
+
+#: Disabled references:1
+msgid "API 名称"
+msgstr "API Name"
+
+#: Disabled references:1
+msgid "服务价格"
+msgstr "Service Price"
+
+#: Disabled references:1
+msgid "无相关数据"
+msgstr "No relevant data"
+
+#: Disabled references:1
+msgid "选择授权应用"
+msgstr "Select the authorized application"
+
+#: Disabled references:1
+msgid "搜索应用/拥有者"
+msgstr "Search for applications/owners"
+
+#: Disabled references:1
+msgid "无匹配的结果，换一个关键词试试吧"
+msgstr "No matching results, try a different keyword"
+
+#: Disabled references:1
+msgid "已选择 %0 应用"
+msgstr "Selected %0 Application"
+
+#: Disabled references:1
+msgid "安装"
+msgstr "Installation"
+
+#: Disabled references:1
+msgid "%0 次安装·包含 %1 API"
+msgstr "%0 Sub-installation - includes %1 API"
+
+#: Disabled references:1
+msgid "可用返回参数"
+msgstr "Available return parameters"
+
+#: Disabled references:1
+msgid "Basic Auth 参数"
+msgstr "Basic Auth Parameters"
+
+#: Disabled references:1
+msgid "已获取"
+msgstr "Acquired"
+
+#: Disabled references:1
+msgid "未获取"
+msgstr "Not acquired"
+
+#: Disabled references:1
+msgid "过期时间"
+msgstr "Expiration time"
+
+#: Disabled references:1
+msgid "开始配置"
+msgstr "Start configuration"
+
+#: Disabled references:1
+msgid "修改配置"
+msgstr "Edit Configure"
+
+#: Disabled references:1
+msgid "Basic Auth 鉴权认证"
+msgstr "Basic Auth Authentication"
+
+#: Disabled references:1
+msgid "OAuth 鉴权认证"
+msgstr "OAuth Authentication"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时采用的鉴权认证方式"
+msgstr "Configure the authentication method to be used when sending API requests"
+
+#: Disabled references:1
+msgid "连接参数"
+msgstr "Connection parameters"
+
+#: Disabled references:1
+msgid "用于配置鉴权时使用，设置为隐藏后，查看时该参数值将以掩码代替"
+msgstr "Used when configuring authentication, after setting to hidden, the value of this parameter will be replaced by mask when viewing"
+
+#: Disabled references:1
+msgid "保存并继续"
+msgstr "Save and Continue"
+
+#: Disabled references:1
+msgid "由"
+msgstr "Free Link …"
+
+#: Disabled references:1
+msgid "提供 API 连接模板"
+msgstr "Provide API connection templates"
+
+#: Disabled references:1
+msgid "请升级标准版本或以上版本"
+msgstr "Please upgrade to the standard version or above"
+
+#: Disabled references:1
+msgid "立即安装"
+msgstr "Install Now"
+
+#: Disabled references:1
+msgid "请选择API （%0/%1）"
+msgstr "Please select API (%0/%1)"
+
+#: Disabled references:1
+msgid "所有 API 都已安装"
+msgstr "All APIs are installed"
+
+#: Disabled references:1
+msgid "申请上架到API 库"
+msgstr "Apply to the API library"
+
+#: Disabled references:1
+msgid "共 %0 个API，已选择 %1 个"
+msgstr "Total %0 APIs, %1 selected"
+
+#: Disabled references:1
+msgid "请填入正确的API文档地址"
+msgstr "Please fill in the correct API documentation address"
+
+#: Disabled references:1
+msgid "已申请，请等待审核"
+msgstr "Already applied, please wait for review"
+
+#: Disabled references:1
+msgid "申请上架新版本"
+msgstr "Apply for the new version on the shelf"
+
+#: Disabled references:1
+msgid "申请上架"
+msgstr "Apply to the shelf"
+
+#: Disabled references:1
+msgid "上架 API 量"
+msgstr "Uploaded API volume"
+
+#: Disabled references:1
+msgid "安装量"
+msgstr "Installation volume"
+
+#: Disabled references:1
+msgid "上架时间"
+msgstr "Time on Store Shelves"
+
+#: Disabled references:1
+msgid "以企业组织身份"
+msgstr "As a business organization"
+
+#: Disabled references:1
+msgid "以个人身份"
+msgstr "In a personal capacity"
+
+#: Disabled references:1
+msgid "请选择要上架的 API"
+msgstr "Please select the API to be shelved"
+
+#: Disabled references:1
+msgid "上传logo"
+msgstr "Upload logo"
+
+#: Disabled references:1
+msgid "基础信息设置"
+msgstr "Basic information settings"
+
+#: Disabled references:1
+msgid "连接logo"
+msgstr "Connecting logos"
+
+#: Disabled references:1
+msgid "支持png ,jpg格式图片，不小于80*80px"
+msgstr "Support png ,jpg format pictures, not less than 80*80px"
+
+#: Disabled references:1
+msgid "连接名称"
+msgstr "Connection Name"
+
+#: Disabled references:1
+msgid "例如：订单查询、物流查询"
+msgstr "For example: order inquiry, logistics inquiry"
+
+#: Disabled references:1
+msgid "发布失败，请完善API信息"
+msgstr "Posting failed, please improve the API information"
+
+#: Disabled references:1
+msgid "复制“%0”"
+msgstr "Copy \"%0\""
+
+#: Disabled references:1
+msgid "删除“%0”"
+msgstr "Batch delete %0"
+
+#: Disabled references:1
+msgid "注意：当前API正在被组织内引用"
+msgstr "Note: The current API is being referenced within the organization"
+
+#: Disabled references:1
+msgid "查看引用"
+msgstr "View Citation"
+
+#: Disabled references:1
+msgid "请务必确认引用位置不再需要此API，再执行此操作"
+msgstr "Please make sure that this API is no longer needed at the referenced location before performing this operation"
+
+#: Disabled references:1
+msgid "API 删除后将不可恢复，确认删除吗？"
+msgstr "API will not be recovered after deletion, confirm deletion?"
+
+#: Disabled references:1
+msgid "最近操作"
+msgstr "Recent Operations"
+
+#: Disabled references:1
+msgid "安装于"
+msgstr "Installed in"
+
+#: Disabled references:1
+msgid "更新于"
+msgstr "Updated"
+
+#: Disabled references:1
+msgid "创建于"
+msgstr "Create"
+
+#: Disabled references:1
+msgid "请从"
+msgstr "Please start with"
+
+#: Disabled references:1
+msgid "安装或创建 API"
+msgstr "Install or create an API"
+
+#: Disabled references:1
+msgid "管理第三方 API ，在工作表或工作流中调用"
+msgstr "Manage third-party APIs to be called in worksheets or workflows"
+
+#: Disabled references:1
+msgid "搜索 API"
+msgstr "Search API"
+
+#: Disabled references:1
+msgid "添加连接"
+msgstr "Add connection"
+
+#: Disabled references:1
+msgid "我的连接"
+msgstr "My Connection"
+
+#: Disabled references:1
+msgid "连接第三方 API 并保存鉴权认证，在工作表或工作流中调用"
+msgstr "Connect to third-party APIs and save forensic authentication to be called in a worksheet or workflow"
+
+#: Disabled references:1
+msgid "搜索连接"
+msgstr "Search Links"
+
+#: Disabled references:1
+msgid "自定义连接"
+msgstr "Custom Connections"
+
+#: Disabled references:1
+msgid "组织应用管理员可管理组织下所有API连接"
+msgstr "Organizational application administrators can manage all API connections under the organization"
+
+#: Disabled references:1
+msgid "API 库"
+msgstr "API Libraries"
+
+#: Disabled references:1
+msgid "暂无相关数据"
+msgstr "No relevant data available"
+
+#: Disabled references:1
+msgid "API数量"
+msgstr "Number of APIs"
+
+#: Disabled references:1
+msgid "授权应用"
+msgstr "Authorized Applications"
+
+#: Disabled references:1
+msgid "暂无可用连接，请先创建 API 连接"
+msgstr "No connection is available, please create an API connection first"
+
+#: Disabled references:1
+msgid "创建自定义连接"
+msgstr "Create custom connections"
+
+#: Disabled references:1
+msgid "API 集成"
+msgstr "API Integration"
+
+#: Disabled references:1
+msgid "人员、部门、组织角色、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。"
+msgstr "Text fields for people, departments, organization roles, free links, and extended values cannot be used in public forms, and the above fields within the original form will be automatically hidden."
+
+#: Disabled references:1
+msgid "自定义验证码签名"
+msgstr "Customized Captcha signature"
+
+#: Disabled references:1
+msgid "自定义签名仅支持国内号码，国际号码验证短信固定使用 【明道云】 短信签名"
+msgstr "Custom signature only supports domestic numbers, international number verification SMS fixed use 【Mingdao Cloud】 SMS signature"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截"
+msgstr "Please fill in your organization abbreviation, website name, brand name, 2-8 Chinese characters carefully. If the signature does not meet the specification, it will be intercepted by the operator"
+
+#: Disabled references:1
+msgid "手机号短信验证"
+msgstr "Cell phone number SMS verification"
+
+#: Disabled references:1
+msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。验证码短信0.05元每条，从账户余额扣费，余额不足时无法获取验证码。"
+msgstr "SMS verification of the completed cell phone number field to ensure that it is my valid cell phone number. The verification code SMS 0.05 yuan each, deducted from the account balance, the verification code cannot be obtained when the balance is insufficient."
+
+#: Disabled references:1
+msgid "【%0】"
+msgstr "%0 …"
+
+#: Disabled references:1
+msgid "表单提交前进行图形验证"
+msgstr "Graphical validation before form submission"
+
+#: Disabled references:1
+msgid "接口查询"
+msgstr "Interface Query"
+
+#: Disabled references:1
+msgid "晚于等于"
+msgstr "Later than or equal to"
+
+#: Disabled references:1
+msgid "早于等于"
+msgstr "Earlier than equal to"
+
+#: Disabled references:1
+msgid "勾选框"
+msgstr "Check box"
+
+#: Disabled references:1
+msgid "ISO"
+msgstr "ISO"
+
+#: Disabled references:1
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: Disabled references:1
+msgid "中国"
+msgstr "China"
+
+#: Disabled references:1
+msgid "US"
+msgstr "US"
+
+#: Disabled references:1
+msgid "M/D/YYYY"
+msgstr "M/D/YYYY"
+
+#: Disabled references:1
+msgid "EU"
+msgstr "EU"
+
+#: Disabled references:1
+msgid "D/M/YYYY"
+msgstr "D/M/YYYY"
+
+#: Disabled references:1
+msgid "可输入1～10的数值"
+msgstr "Values from 1 to 10 can be entered"
+
+#: Disabled references:1
+msgid "可设为小时分钟秒"
+msgstr "Can be set to hours minutes seconds"
+
+#: Disabled references:1
+msgid "选择组织中的角色，支持配置选择的组织角色的权限。"
+msgstr "Selecting roles in the organization supports configuring the permissions for the selected organizational roles."
+
+#: Disabled references:1
+msgid "API查询"
+msgstr "API Query"
+
+#: Disabled references:1
+msgid "分割线"
+msgstr "Dấu phân tách"
+
+#: Disabled references:1
+msgid "没有选择查询模版"
+msgstr "No query template selected"
+
+#: Disabled references:1
+msgid "有必填项未配置"
+msgstr "There are required fields not configured"
+
+#: Disabled references:1
+msgid "您不是该组织成员，无法获取其组织角色列表，请联系组织管理员"
+msgstr "You are not a member of the organization and cannot access its list of organizational roles, please contact the organization administrator"
+
+#: Disabled references:1
+msgid "模版为空或已删除"
+msgstr "Template is empty or deleted"
+
+#: Disabled references:1
+msgid "下拉框的必填映射项未配置(选项列表，选项名)"
+msgstr "Required mapping items for drop-down boxes are not configured (list of options, option name)"
+
+#: Disabled references:1
+msgid "最少输入%0个关键字"
+msgstr "Minimum %0 keywords"
+
+#: Disabled references:1
+msgid "没有返回结果"
+msgstr "No results returned"
+
+#: Disabled references:1
+msgid "请在下方空白区域横向书写签名"
+msgstr "Please write your signature horizontally in the blank area below"
+
+#: Disabled references:1
+msgid "请选择时间"
+msgstr "Please select a time"
+
+#: Disabled references:1
+msgid "平台使用情况概览"
+msgstr "Platform Usage Overview"
+
+#: Disabled references:1
+msgid "API集成"
+msgstr "API Integration"
+
+#: Disabled references:1
+msgid "接口查询字段"
+msgstr "Query Fields"
+
+#: Disabled references:1
+msgid "调用已集成API节点"
+msgstr "Calling integrated API"
+
+#: Disabled references:1
+msgid "导入%0模板"
+msgstr "Import %0 template"
+
+#: Disabled references:1
+msgid "导入错误，请检查！"
+msgstr "Import error, please check!"
+
+#: Disabled references:1
+msgid "导入%0"
+msgstr "Import %0"
+
+#: Disabled references:1
+msgid "移出成员"
+msgstr "Removal of members"
+
+#: Disabled references:1
+msgid "不允许申请管理员"
+msgstr "Not allowed to apply for administrator"
+
+#: Disabled references:1
+msgid "该角色名称已存在"
+msgstr "This character name already exists"
+
+#: Disabled references:1
+msgid "新建角色"
+msgstr "New Role"
+
+#: Disabled references:1
+msgid "请填写角色名称"
+msgstr "Please fill in the role name"
+
+#: Disabled references:1
+msgid "当前组织角色无成员"
+msgstr "No members in current organization role"
+
+#: Disabled references:1
+msgid "组织门牌号"
+msgstr "Organizational door number"
+
+#: Disabled references:1
+msgid "成员可输入组织门牌号加入组织"
+msgstr "Members can join the organization by entering the organization's door number"
+
+#: Disabled references:1
+msgid "您已关闭搜索组织门牌号加入"
+msgstr "You have closed the search organization door number to join"
+
+#: Disabled references:1
+msgid "组织编号(ID)"
+msgstr "Organization number (ID)"
+
+#: Disabled references:1
+msgid "职位列表"
+msgstr "Job Listings"
+
+#: Disabled references:1
+msgid "登录地"
+msgstr "Login Location"
+
+#: Disabled references:1
+msgid "IP"
+msgstr "IP"
+
+#: Disabled references:1
+msgid "导出上限10万条，超出限制可以先筛选，再分次导出。"
+msgstr "Export limit of 100,000 items, beyond the limit can be filtered first, and then exported in stages."
+
+#: Disabled references:1
+msgid "暂无外部协作者的应用"
+msgstr "No external collaborators for the application at this time"
+
+#: Disabled references:1
+msgid "锁定记录"
+msgstr "Locking records"
+
+#: Disabled references:1
+msgid "解锁记录"
+msgstr "Unlock Record"
+
+#: Disabled references:1
+msgid "锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写"
+msgstr "Locked status takes effect after the record is saved. Locked records do not allow direct user editing, but can be filled in via custom actions and workflows"
+
+#: Disabled references:1
+msgid "已筛%0项"
+msgstr "Screened %0 items"
+
+#: Disabled references:1
+msgid "添加组织角色"
+msgstr "Adding Organizational Roles"
+
+#: Disabled references:1
+msgid "仅选择当前部门"
+msgstr "Select only the current department"
+
+#: Disabled references:1
+msgid "选择当前部门下所有子部门"
+msgstr "Select all sub-departments under the current department"
+
+#: Disabled references:1
+msgid "组织门牌号：%0"
+msgstr "Organizational Gate Number: %0"
+
+#: Disabled references:1
+msgid "至少包含4位字母或数字"
+msgstr "Contains at least 4 letters or digits"
+
+#: Disabled references:1
+msgid "只能输入数字、字母、中划线"
+msgstr "Only numbers, letters, and underscores can be entered"
+
+#: Disabled references:1
+msgid "不能以中划线开头或结束"
+msgstr "Cannot begin or end with an underscore"
+
+#: Disabled references:1
+msgid "此名称已被占用"
+msgstr "This name is already occupied"
+
+#: Disabled references:1
+msgid "此名称和系统地址冲突，请重新输入"
+msgstr "This name conflicts with the system address, please re-enter"
+
+#: Disabled references:1
+msgid "请正确输入后缀"
+msgstr "Please enter the suffix correctly"
+
+#: Disabled references:1
+msgid "可定义域名后缀，支持输入字母、数字、中划线"
+msgstr "Domain name suffix can be defined, support input letters, numbers, underscore"
+
+#: Disabled references:1
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
+msgstr "Only check the WeChat login after the first sweep code need to enter the cell phone number and WeChat binding, the subsequent can be individually WeChat sweep code fast login."
+
+#: Disabled references:1
+msgid "验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。"
+msgstr "The verification code is $0.05 per entry and is automatically deducted from the corporate account balance. To ensure that your business is not affected, please keep your corporate account balance sufficient."
+
+#: Disabled references:1
+msgid "关闭后所有人将不能再访问门户"
+msgstr "The portal will no longer be accessible to everyone after closing"
+
+#: Disabled references:1
+msgid "关闭门户"
+msgstr "Close the portal"
+
+#: Disabled references:1
+msgid "数值(辅助Y轴)"
+msgstr "Numerical value (auxiliary Y-axis)"
+
+#: Disabled references:1
+msgid "分组(Y轴)"
+msgstr "Grouping (Y-axis)"
+
+#: Disabled references:1
+msgid "分组(辅助Y轴)"
+msgstr "Grouping (auxiliary Y-axis)"
+
+#: Disabled references:1
+msgid "辅助Y轴"
+msgstr "Auxiliary Y-axis"
+
+#: Disabled references:1
+msgid "输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值"
+msgstr "Input parameters can be passed in as dynamic values when using API queries in worksheets or workflows"
+
+#: Disabled references:1
+msgid "暂无引用"
+msgstr "No citation"
+
+#: Disabled references:1
+msgid "上架时间：%0"
+msgstr "Listed on: %0"
+
+#: Disabled references:1
+msgid "引用量"
+msgstr "Citation volume"
+
+#: Disabled references:1
+msgid "本组织"
+msgstr "The Organization"
+
+#: Disabled references:1
+msgid "被以下工作流引用"
+msgstr "Referenced by the following workflows"
+
+#: Disabled references:1
+msgid "节点：%0"
+msgstr "Node: %0"
+
+#: Disabled references:1
+msgid "被以下工作表引用"
+msgstr "Referenced by the following worksheets"
+
+#: Disabled references:1
+msgid "字段：%0"
+msgstr "Field: %0"
+
+#: Disabled references:1
+msgid "耗时"
+msgstr "Time consuming"
+
+#: Disabled references:1
+msgid "暂无 API 请求记录"
+msgstr "No API request records"
+
+#: Disabled references:1
+msgid "查看所有引用此 API 发送的请求日志"
+msgstr "View the log of all requests sent with this API"
+
+#: Disabled references:1
+msgid "%0 个API"
+msgstr "%0 APIs"
+
+#: Disabled references:1
+msgid "已授权给 %0 个应用"
+msgstr "Licensed to %0 applications"
+
+#: Disabled references:1
+msgid "API 请求参数"
+msgstr "API Request Parameters"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数"
+msgstr "Configure the Query Param, Header, Body and other request parameters needed to send API requests"
+
+#: Disabled references:1
+msgid "在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用"
+msgstr "The value of the output parameter can be bound to a worksheet field or referenced by a workflow node during an API query"
+
+#: Disabled references:1
+msgid "API设置"
+msgstr "API Settings"
+
+#: Disabled references:1
+msgid "请求日志"
+msgstr "Request Log"
+
+#: Disabled references:1
+msgid "未命名 API"
+msgstr "Unnamed API"
+
+#: Disabled references:1
+msgid "API建议命名为动作+名词，如：获取订单列表、删除订单"
+msgstr "API suggests naming the action + noun, such as: get order list, delete order"
+
+#: Disabled references:1
+msgid "添加API标题"
+msgstr "Add API Title"
+
+#: Disabled references:1
+msgid "未命名API"
+msgstr "Unnamed API"
+
+#: Disabled references:1
+msgid "添加说明…"
+msgstr "Add a note..."
+
+#: Disabled references:1
+msgid "发布 API"
+msgstr "Release API"
+
+#: Disabled references:1
+msgid "更新失败"
+msgstr "Update Failed"
+
+#: Disabled references:1
+msgid "暂无 API 可用，请先创建新的第三方 API"
+msgstr "No API is available, please create a new third-party API first"
+
+#: Disabled references:1
+msgid "添加 API"
+msgstr "Add API"
+
+#: Disabled references:1
+msgid "创建 API"
+msgstr "Create API"
+
+#: Disabled references:1
+msgid "排序出错，请稍后再试"
+msgstr "Sorting error, please try again later"
+
+#: Disabled references:1
+msgid "无授权应用"
+msgstr "Unlicensed applications"
+
+#: Disabled references:1
+msgid "API 调用失败时发送错误消息通知给拥有者"
+msgstr "Send error message notification to the owner when the API call fails"
+
+#: Disabled references:1
+msgid "将 API 授权给"
+msgstr "License the API to the"
+
+#: Disabled references:1
+msgid "连接设置"
+msgstr "Connection settings"
+
+#: Disabled references:1
+msgid "API 管理"
+msgstr "API Management"
+
+#: Disabled references:1
+msgid "授权到应用"
+msgstr "Licensing to Applications"
+
+#: Disabled references:1
+msgid "你暂时没有权限查看该连接！"
+msgstr "You do not have permission to view this connection at this time!"
+
+#: Disabled references:1
+msgid "未命名连接"
+msgstr "Unnamed connection"
+
+#: Disabled references:1
+msgid "已申请上架，请等待审核"
+msgstr "Have applied for the shelves, please wait for the review"
+
+#: Disabled references:1
+msgid "申请失败，请稍后再试"
+msgstr "Application failed, please try again later"
+
+#: Disabled references:1
+msgid "有API被引用，请删除引用后重试"
+msgstr "There is an API reference, please remove the reference and try again"
+
+#: Disabled references:1
+msgid "添加连接说明"
+msgstr "Add connection instructions"
+
+#: Disabled references:1
+msgid "申请上架到API库"
+msgstr "Apply to the API library"
+
+#: Disabled references:1
+msgid "删除后将不可恢复，确认删除吗？"
+msgstr "After deletion, it will be unrecoverable. Confirm deletion?"
+
+#: Disabled references:1
+msgid "请选择鉴权方式"
+msgstr "Please select the authentication method"
+
+#: Disabled references:1
+msgid "节点数量过多此功能不可用"
+msgstr "This function is not available for too many nodes"
+
+#: Disabled references:1
+msgid "短信发送需要组织门牌号"
+msgstr "SMS sending need to organize the door number"
+
+#: Disabled references:1
+msgid "配置错误"
+msgstr "Configuration error"
+
+#: Disabled references:1
+msgid "请求异常"
+msgstr "Request Exception"
+
+#: Disabled references:1
+msgid "调用已集成 API"
+msgstr "Calling the integrated API"
+
+#: Disabled references:1
+msgid "触发者操作"
+msgstr "Trigger operation"
+
+#: Disabled references:1
+msgid "选择 API 连接与认证"
+msgstr "Select API Connection and Authentication"
+
+#: Disabled references:1
+msgid "搜索 API 连接"
+msgstr "Search API Connections"
+
+#: Disabled references:1
+msgid "添加新连接"
+msgstr "Add a new connection"
+
+#: Disabled references:1
+msgid "暂无 API 连接可用，请先到集成中心创建新的 API 连接与认证"
+msgstr "No API connection is available, please go to the Integration Center to create a new API connection and authentication first"
+
+#: Disabled references:1
+msgid "去集成中心创建"
+msgstr "Go to Integration Center to create"
+
+#: Disabled references:1
+msgid "勾选后，在表单中隐藏字段名称"
+msgstr "When checked, hide the field name in the form"
+
+#: Disabled references:1
+msgid "加入的%0允许查看记录"
+msgstr "The %0 added allows viewing of records"
+
+#: Disabled references:1
+msgid "加入的%0允许编辑、删除记录"
+msgstr "The %0 added allows editing and deleting records"
+
+#: Disabled references:1
+msgid "仅用于存储数据"
+msgstr "For data storage only"
+
+#: Disabled references:1
+msgid "加入的%0不授予任何权限"
+msgstr "The %0 added does not grant any privileges"
+
+#: Disabled references:1
+msgid "当工作表记录超过10w行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。"
+msgstr "When the worksheet record exceeds 10w rows, the history data will not be refreshed after the configuration is modified to ensure the performance of the worksheet. If you still need to update the history data, please refresh it manually."
+
+#: Disabled references:1
+msgid "年-月"
+msgstr "Year-Month"
+
+#: Disabled references:1
+msgid "年-月-日"
+msgstr "Year-Month-Day"
+
+#: Disabled references:1
+msgid "年-月-日 时"
+msgstr "Year-Month-Day Hour"
+
+#: Disabled references:1
+msgid "年-月-日 时:分"
+msgstr "Year-Month-Day Hour:Minute"
+
+#: Disabled references:1
+msgid "年-月-日 时:分:秒"
+msgstr "Year-Month-Day Hour:Minute:Second"
+
+#: Disabled references:1
+msgid "时分"
+msgstr "Hours, Minutes"
+
+#: Disabled references:1
+msgid "时分秒"
+msgstr "Hours, Minutes, Seconds"
+
+#: Disabled references:1
+msgid "搜索下拉框"
+msgstr "Search drop-down box"
+
+#: Disabled references:1
+msgid "按钮搜索"
+msgstr "Button Search"
+
+#: Disabled references:1
+msgid "实时搜索"
+msgstr "Real-time search"
+
+#: Disabled references:1
+msgid "无需点击按钮，在输入的同时执行请求。当查询付费API时会产生更多额外费用"
+msgstr "Execute requests while typing without clicking buttons. Additional costs are incurred when querying paid APIs"
+
+#: Disabled references:1
+msgid "搜索关键字"
+msgstr "Search with keywords"
+
+#: Disabled references:1
+msgid "在点击按钮时请求并获取返回参数"
+msgstr "Request and get return parameters on button click"
+
+#: Disabled references:1
+msgid "在激活下拉框时请求，将返回的多条数据列表作为下拉菜单的选项进行选择"
+msgstr "Request when activating a drop-down box to select the returned list of multiple data as options for the drop-down menu"
+
+#: Disabled references:1
+msgid "最少字数"
+msgstr "Minimum number of words"
+
+#: Disabled references:1
+msgid "当输入满足了最小字数后才会发起请求。当API的搜索参数有字数限制时可以设置此配置"
+msgstr "The request will be initiated only when the input meets the minimum number of words. This configuration can be set when the search parameter of the API has a word limit"
+
+#: Disabled references:1
+msgid "预加载选项"
+msgstr "Pre-loading options"
+
+#: Disabled references:1
+msgid "勾选后，在激活搜索下拉框时先进行一次请求，此时向接口传入的搜索参数为空，并将返回结果作为预设的选项以供选择。当API的搜索参数支持传空时，可以勾许此项。"
+msgstr "When checked, a request is made first when the search drop-down box is activated, at which point the search parameters passed to the interface are empty and the results are returned as a pre-defined option to choose from. This can be checked when the API's search parameters support passing null."
+
+#: Disabled references:1
+msgid "在搜索前先进行一次请求"
+msgstr "Make a request before searching"
+
+#: Disabled references:1
+msgid "输入检查内容"
+msgstr "Input check content"
+
+#: Disabled references:1
+msgid "时:分"
+msgstr "Time:min"
+
+#: Disabled references:1
+msgid "时:分:秒"
+msgstr "Hours:Minutes:Seconds"
+
+#: Disabled references:1
+msgid "校准数据"
+msgstr "Calibration Data"
+
+#: Disabled references:1
+msgid "刷新为其他字段的值"
+msgstr "Refresh to the value of another field"
+
+#: Disabled references:1
+msgid "刷新数据"
+msgstr "Refresh data"
+
+#: Disabled references:1
+msgid "此操作仅管理员可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。"
+msgstr "This operation can only be performed by the administrator. Up to 10w rows of data can be refreshed in a single operation, and a notification will be sent after the background asynchronous completion."
+
+#: Disabled references:1
+msgid "%0个小时"
+msgstr "%0 hours"
+
+#: Disabled references:1
+msgid "当前工作表没有可以校准的字段。"
+msgstr "The current worksheet has no fields that can be calibrated."
+
+#: Disabled references:1
+msgid "当前没有需要校准的字段。"
+msgstr "There are currently no fields that need to be calibrated."
+
+#: Disabled references:1
+msgid "刷新字段值"
+msgstr "Refresh field values"
+
+#: Disabled references:1
+msgid "刷新选项排序"
+msgstr "Refresh option sorting"
+
+#: Disabled references:1
+msgid "刷新为"
+msgstr "Refresh to"
+
+#: Disabled references:1
+msgid "的值"
+msgstr "Use the value from the node at the flow"
+
+#: Disabled references:1
+msgid "修改描述失败"
+msgstr "Failed to modify description"
+
+#: Disabled references:1
+msgid "工作表说明"
+msgstr "Worksheet Description"
+
+#: Disabled references:1
+msgid "显示项"
+msgstr "Display items"
+
+#: Disabled references:1
+msgid "自定义页面说明"
+msgstr "Custom page description"
+
+#: Disabled references:1
+msgid "该组织角色已删除"
+msgstr "This organization role has been deleted"
+
+#: Disabled references:1
+msgid "超出导入数量限制"
+msgstr "Exceed the import limit"
+
+#: Disabled references:1
+msgid "超出邀请数量限制"
+msgstr "Exceed the invitation limit"
+
+#: Disabled references:1
+msgid "可直接输入创建新的职位"
+msgstr "You can directly enter to create a new job"
+
+#: Disabled references:1
+msgid "创建新职位：%0"
+msgstr "Create new job: %0"
+
+#: Disabled references:1
+msgid "是否确认将该员工【%0】移除？"
+msgstr "Is it confirmed that the employee [%0] is removed?"
+
+#: Disabled references:1
+msgid "开启后允许通过搜索组织门牌号到组织"
+msgstr "Enabled to allow search by organization door number to organization"
+
+#: Disabled references:1
+msgid "暂无职位，可"
+msgstr "No position available at the moment, can"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建职位，如，技术、生产、销售设置后应用和工作流可以直接选择职位"
+msgstr "Positions can be created based on member attributes, e.g., technical, production, sales settings after application and workflow can directly select positions"
+
+#: Disabled references:1
+msgid "汇总概览"
+msgstr "Aggregate Overview"
+
+#: Disabled references:1
+msgid "使用情况"
+msgstr "Usage"
+
+#: Disabled references:1
+msgid "记录创建次数"
+msgstr "Record creation times"
+
+#: Disabled references:1
+msgid "记录创建人数"
+msgstr "Record the number of people created"
+
+#: Disabled references:1
+msgid "访问次数"
+msgstr "Number of visits"
+
+#: Disabled references:1
+msgid "访问人数"
+msgstr "Number of visitors"
+
+#: Disabled references:1
+msgid "工作流执行数"
+msgstr "Number of workflow executions"
+
+#: Disabled references:1
+msgid "附件上传量"
+msgstr "Attachment uploads"
+
+#: Disabled references:1
+msgid "没有搜索到"
+msgstr "No related Workflow had been found"
+
+#: Disabled references:1
+msgid "此列表仅显示产生过数据的成员"
+msgstr "This list shows only those members that have generated data"
+
+#: Disabled references:1
+msgid "行记录数"
+msgstr "Number of line records"
+
+#: Disabled references:1
+msgid " 次"
+msgstr "or again"
+
+#: Disabled references:1
+msgid " 条"
+msgstr "Single row"
+
+#: Disabled references:1
+msgid "用户数"
+msgstr "Users"
+
+#: Disabled references:1
+msgid "统计仅包含组织内用户，不包含外部用户"
+msgstr "Statistics include only users within the organization, not external users"
+
+#: Disabled references:1
+msgid "应用访问量"
+msgstr "Application Visits"
+
+#: Disabled references:1
+msgid "应用访问量统计仅包含组织内用户，不包含外部门户"
+msgstr "Application access statistics include only users within the organization, not external portals"
+
+#: Disabled references:1
+msgid "记录创建量"
+msgstr "Record creation volume"
+
+#: Disabled references:1
+msgid "筛选条件“按部门”不生效"
+msgstr "The filter condition \"by department\" is not valid"
+
+#: Disabled references:1
+msgid "在输入或提交记录时校验并提示错误，错误时不允许提交"
+msgstr "Checks and prompts for errors when entering or submitting records, and does not allow submission on errors"
+
+#: Disabled references:1
+msgid "按工作表字段配置显示"
+msgstr "Configure display by worksheet field"
+
+#: Disabled references:1
+msgid "暂无数据，选项需要用同一个选项集的字段"
+msgstr "No data available, options need to use the same option set of fields"
+
+#: Disabled references:1
+msgid "暂无数据，关联记录需要使用同关联表的字段"
+msgstr "No data, the associated records need to use the same fields as the associated table"
+
+#: Disabled references:1
+msgid "请选择筛选字段"
+msgstr "Please select a filter field"
+
+#: Disabled references:1
+msgid "选择筛选对象的数据源表中的字段进行筛选"
+msgstr "Select the fields in the data source table of the filter object to filter"
+
+#: Disabled references:1
+msgid "选择了来源于多个工作表数据的组件，请选择同类型字段以进行合并筛选"
+msgstr "For components that are selected from multiple worksheet data, select the same type of field for merge filtering"
+
+#: Disabled references:1
+msgid "筛选排序"
+msgstr "Filter Sort"
+
+#: Disabled references:1
+msgid "此对象的数据源工作表已更改，无法筛选。请删除后重新添加"
+msgstr "The data source worksheet for this object has been changed and cannot be filtered. Please delete and re-add"
+
+#: Disabled references:1
+msgid "该筛选对象已删除"
+msgstr "This filter has been deleted"
+
+#: Disabled references:1
+msgid "筛选对象"
+msgstr "Screening objects"
+
+#: Disabled references:1
+msgid "勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。"
+msgstr "When checked, filters within a component use the same filter object; when unchecked, you can set a separate filter object for each filter."
+
+#: Disabled references:1
+msgid "作为全局配置"
+msgstr "As a global configuration"
+
+#: Disabled references:1
+msgid "选择统计图表或视图组件"
+msgstr "Select a statistical chart or view component"
+
+#: Disabled references:1
+msgid "组件"
+msgstr "Components"
+
+#: Disabled references:1
+msgid "暂不支持显示筛选组件"
+msgstr "The display of filter components is not supported at this time"
+
+#: Disabled references:1
+msgid "启用筛选按钮"
+msgstr "Enable filter button"
+
+#: Disabled references:1
+msgid "选择下方预览卡片中的筛选器进行设置"
+msgstr "Select the filter in the preview card below to set"
+
+#: Disabled references:1
+msgid "将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。"
+msgstr "Use the currently selected filter object for the whole component, and the objects of other filters will be reset."
+
+#: Disabled references:1
+msgid "至少保留一个筛选器"
+msgstr "Keep at least one filter"
+
+#: Disabled references:1
+msgid "设置筛选器"
+msgstr "Set filters"
+
+#: Disabled references:1
+msgid "筛选器名称"
+msgstr "Filter Name"
+
+#: Disabled references:1
+msgid "请配置筛选对象"
+msgstr "Please configure the filter object"
+
+#: Disabled references:1
+msgid "选择筛选方式"
+msgstr "Select filtering method"
+
+#: Disabled references:1
+msgid "对本页进行搜索"
+msgstr "Search this page"
+
+#: Disabled references:1
+msgid "暂不支持显示视图组件"
+msgstr "The display view component is not supported at this time"
+
+#: Disabled references:1
+msgid "您确认删除模板?"
+msgstr "Are you sure you want to delete the template?"
+
+#: Disabled references:1
+msgid "删除后，工作流中新添加的短信节点将不能在选到此模板，之前已使用此模板的节点不受影响"
+msgstr "After deletion, the newly added SMS nodes in the workflow will not be able to select this template, and the nodes that have used this template before will not be affected"
+
+#: Disabled references:1
+msgid "已选择%0个模板"
+msgstr "Selected %0 templates"
+
+#: Disabled references:1
+msgid "当前排队"
+msgstr "Current queue"
+
+#: Disabled references:1
+msgid "本月新增"
+msgstr "New this month"
+
+#: Disabled references:1
+msgid "本月消费"
+msgstr "Consumption this month"
+
+#: Disabled references:1
+msgid "已选择%0条流程"
+msgstr "Selected %0 processes"
+
+#: Disabled references:1
+msgid "重置排队计数"
+msgstr "Reset queue count"
+
+#: Disabled references:1
+msgid "将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0"
+msgstr "Reset the queue count of the selected process to 0. This operation can be used to reset the count to 0 in case of occasional inaccurate counting during long-term operation monitoring."
+
+#: Disabled references:1
+msgid "当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，按照字段配置的排序规则返回第一条数据"
+msgstr "When multiple data are found, the first data will be obtained according to the following sorting rules. If no rule is set, the first data is returned according to the sorting rule configured in the field"
+
+#: Disabled references:1
+msgid "请选择 API 连接与认证"
+msgstr "Please select API Connection and Authentication"
+
+#: Disabled references:1
+msgid "API 接与认证已删除"
+msgstr "API access and authentication removed"
+
+#: Disabled references:1
+msgid "变更连接与认证"
+msgstr "Change of connection and certification"
+
+#: Disabled references:1
+msgid "请选择 API 模板"
+msgstr "Please select an API template"
+
+#: Disabled references:1
+msgid "API已删除"
+msgstr "API has been removed"
+
+#: Disabled references:1
+msgid "变更API"
+msgstr "Changing the API"
+
+#: Disabled references:1
+msgid "将返回计算后的 Basic Auth 参数供 API 请求参数使用"
+msgstr "The calculated Basic Auth parameters will be returned for use in the API request parameters"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证 client credentials）"
+msgstr "OAuth 2.0 authentication (client credentials)"
+
+#: Disabled references:1
+msgid "将返回获取到的 Access Token 值供 API 请求参数使用"
+msgstr "The Access Token value obtained will be returned for use in the API request parameters"
+
+#: Disabled references:1
+msgid "显示请求参数详情"
+msgstr "Show request parameter details"
+
+#: Disabled references:1
+msgid "附件总大小不超过50M"
+msgstr "Total size of attachments should not exceed 50M"
+
+#: Disabled references:1
+msgid "注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。"
+msgstr "Note: This method can get up to 1000 related records, if you need to get more data, please use the \"Get records from worksheet\" method."
+
+#: Disabled references:1
+msgid "调用已集成API数组"
+msgstr "Calling the integrated API array"
+
+#: Disabled references:1
+msgid "选择API节点"
+msgstr "Select API node"
+
+#: Disabled references:1
+msgid "API数组"
+msgstr "API Arrays"
+
+#: Disabled references:1
+msgid "此模式下允许发送10M以内附件"
+msgstr "This mode allows attachments of up to 10M to be sent"
+
+#: Disabled references:1
+msgid "调用API"
+msgstr "Calling the API"
+
+#: Disabled references:1
+msgid "API 连接与认证已错误"
+msgstr "API connection and authentication has been incorrect"
+
+#: Disabled references:1
+msgid "从API数组获取数据"
+msgstr "Getting data from API arrays"
+
+#: Disabled references:1
+msgid "获取发送API请求、调用已集成API、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "Get JSON array objects that send API requests, call integrated APIs, code blocks, and encapsulate business process input nodes"
+
+#: Disabled references:1
+msgid "请升级至标准版本或以上版本"
+msgstr "Please upgrade to the standard version or above"
+
+#: Disabled references:1
+msgid "将所选的数据写入表单字段"
+msgstr "Write the selected data to the form field"
+
+#: Disabled references:1
+msgid "将其他返回数据写入表单字段"
+msgstr "Writing other return data to form fields"
+
+#: Disabled references:1
+msgid "映射规则"
+msgstr "Mapping Rules"
+
+#: Disabled references:1
+msgid "请选择子表"
+msgstr "Please select sub-table"
+
+#: Disabled references:1
+msgid "请选择子表中的字段"
+msgstr "Please select the fields in the sub-table"
+
+#: Disabled references:1
+msgid "选择文本，或子表字段"
+msgstr "Select text, or sub-table fields"
+
+#: Disabled references:1
+msgid "没有返回参数, 请检查模版配置"
+msgstr "No parameters returned, please check the template configuration"
+
+#: Disabled references:1
+msgid "建立映射"
+msgstr "Create Mapping"
+
+#: Disabled references:1
+msgid "选项列表"
+msgstr "List of options"
+
+#: Disabled references:1
+msgid "请选择返回参数中的多条数据对象"
+msgstr "Please select multiple data objects in the return parameter"
+
+#: Disabled references:1
+msgid "选项名"
+msgstr "Option Name"
+
+#: Disabled references:1
+msgid "选择作为选项名的参数"
+msgstr "Select the parameter as the option name"
+
+#: Disabled references:1
+msgid "附加显示信息"
+msgstr "Additional display information"
+
+#: Disabled references:1
+msgid "可多选，用于辅助用户选择"
+msgstr "Multi-selectable, to assist the user in selection"
+
+#: Disabled references:1
+msgid "将返回数据作为下拉框选项"
+msgstr "Return data as drop-down box option"
+
+#: Disabled references:1
+msgid "将返回数据写入表单字段"
+msgstr "Write the return data to the form field"
+
+#: Disabled references:1
+msgid "模版已删除"
+msgstr "Template removed"
+
+#: Disabled references:1
+msgid "调用已集成API"
+msgstr "Calling the integrated API"
+
+#: Disabled references:1
+msgid "此刻"
+msgstr "At this moment"
+
+#: Disabled references:1
+msgid "搜索内容"
+msgstr "Search Content"
+
+#: Disabled references:1
+msgid "当前用户的组织角色"
+msgstr "Current user's organizational role"
+
+#: Disabled references:1
+msgid "显示格式"
+msgstr "Display Format"
+
+#: Disabled references:1
+msgid "起始时间"
+msgstr "Start time"
+
+#: Disabled references:1
+msgid "允许使用上次的签名"
+msgstr "Allow the use of the last signature"
+
+#: Disabled references:1
+msgid "查询表字段"
+msgstr "Query Table Fields"
+
+#: Disabled references:1
+msgid "选择子表字段"
+msgstr "Select subform field"
+
+#: Disabled references:1
+msgid "暂未添加快速筛选"
+msgstr "Not yet added quick filter"
+
+#: Disabled references:1
+msgid "按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。"
+msgstr "Sort by the option sequence number stored at the time of recording. When each time the option order is modified, the option number of the historical data needs to be refreshed to calibrate the order."
+
+#: Disabled references:1
+msgid "点击了解更多"
+msgstr "Click to learn more"
+
+#: Disabled references:1
+msgid "新增%0行"
+msgstr "Add %0 lines"
+
+#: Disabled references:1
+msgid "更新%0行"
+msgstr "Update %0 lines"
+
+#: Disabled references:1
+msgid "其中%0行错误"
+msgstr "where %0 line error"
+
+#: Disabled references:1
+msgid "跳过%0行（%1行重复，%2行错误）"
+msgstr "Skip %0 line (%1 line duplicate, %2 line error)"
+
+#: Disabled references:1
+msgid "跳过%0行重复"
+msgstr "Skip %0 line repetition"
+
+#: Disabled references:1
+msgid "跳过%0行错误"
+msgstr "Skip %0 line error"
+
+#: Disabled references:1
+msgid "直接获取"
+msgstr "Direct access"
+
+#: Disabled references:1
+msgid "执行到本节点时获取，并保存当时的数据供流程中的其他节点使用"
+msgstr "Get when execution reaches this node and save the data at that time for use by other nodes in the process"
+
+#: Disabled references:1
+msgid "每次使用时动态获取"
+msgstr "Dynamically acquired each time it is used"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点数据时，重新获取最新的数据"
+msgstr "Retrieve the latest data every time another node uses the data of this node"
+
+#: Disabled references:1
+msgid "直接计算"
+msgstr "Direct calculation"
+
+#: Disabled references:1
+msgid "执行到本节点时开始计算，并保存当时的运算结果供流程中的其他节点使用"
+msgstr "The calculation starts when the execution reaches this node and the result is saved for other nodes in the process"
+
+#: Disabled references:1
+msgid "每次使用时动态计算"
+msgstr "Dynamic calculation per use"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点的运算结果时，重新进行最新的计算"
+msgstr "Re-run the latest computation every time another node uses the result of this node"
+
+#: Disabled references:1
+msgid "运算方式"
+msgstr "Operation method"
+
+#: Disabled references:1
+msgid "部分附件上传失败，总大小超过50MB"
+msgstr "Some attachments failed to upload, total size exceeded 50MB"
+
+#: Disabled references:1
+msgid "选择附件"
+msgstr "Select Attachment"
+
+#: Disabled references:1
+msgid "请输入日期"
+msgstr "Please enter the date"
+
+#: Disabled references:1
+msgid "请输入人员"
+msgstr "Please enter the person"
+
+#: Disabled references:1
+msgid "请输入部门"
+msgstr "Please enter the department"
+
+#: Disabled references:1
+msgid "选择子表或关联记录"
+msgstr "Select sub-tables or associated records"
+
+#: Disabled references:1
+msgid "子表 “%0”"
+msgstr "Sub-table \"%0\""
+
+#: Disabled references:1
+msgid "如：A,B,C"
+msgstr "For example: A,B,C"
+
+#: Disabled references:1
+msgid "对某个日期添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间"
+msgstr "Add/subtract a certain time period to a date, and then set the format of the calculation result, 1 for the date and 2 for the date and time"
+
+#: Disabled references:1
+msgid "计算两个日期/时间之间的时长，并精确到年、月、天、小时或分"
+msgstr "Calculate the length of time between two dates/times to the year, month, day, hour or minute"
+
+#: Disabled references:1
+msgid "不支持使用年、年月的字段类型"
+msgstr "Field types that use year, year and month are not supported"
+
+#: Disabled references:1
+msgid "显示有数据的项"
+msgstr "Show items with data"
+
+#: Disabled references:1
+msgid "显示指定项"
+msgstr "Display the specified item"
+
+#: Disabled references:1
+msgid "显示满足筛选条件的项"
+msgstr "Show items that meet the filter criteria"
+
+#: Disabled references:1
+msgid "选中%0个"
+msgstr "%0 selected"
+
+#: Disabled references:1
+msgid "该角色已存在"
+msgstr "This role already exists"
+
+#: Disabled references:1
+msgid "格式错误"
+msgstr "Format is wrong"
+
+#: Disabled references:1
+msgid "未匹配到"
+msgstr "Not matched to"
+
+#: Disabled references:1
+msgid "未匹配或匹配到多个"
+msgstr "No match or multiple matches"
+
+#: Disabled references:1
+msgid "跳过错误数据"
+msgstr "Skipped Error Data"
+
+#: Disabled references:1
+msgid "未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。"
+msgstr "When unchecked, for incorrect data only the incorrect fields are skipped, other fields are still imported. When checked, the entire row of data will be skipped."
+
+#: Disabled references:1
+msgid "当数据中存在以下所选错误时，将放弃此行数据导入"
+msgstr "When the following selected errors exist in the data, this row of data import will be discarded"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据"
+msgstr "Latest data as of %0"
+
+#: Disabled references:1
+msgid "保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能"
+msgstr "Retain the usage analysis data of the last year. Usage data will be analyzed the next day after this function goes live, and only in the corresponding version can you use this function"
+
+#: Disabled references:1
+msgid "浏览器新消息通知"
+msgstr "Browser new message notification"
+
+#: Disabled references:1
+msgid "没有输入参数的 API 请直接保存完成配置"
+msgstr "You can save the configuration directly if your API does not contain input parameters"
+
+#: Disabled references:1
+msgid "添加检查项字段"
+msgstr "Add checkbox"
+

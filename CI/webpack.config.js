@@ -24,16 +24,12 @@ function pathJoin(basedir, pathstr) {
   }
 }
 
-const POSTCSS_LOADER = {
-  loader: 'postcss-loader',
-};
 
 const generateCssLoader = (isModule = false) => [
   {
     loader: 'css-loader',
     options: isModule ? { module: true, localIdentName: '[local]___[hash:base64:5]' } : undefined,
   },
-  POSTCSS_LOADER,
 ];
 
 const CSS_LOADERS = generateCssLoader();
@@ -103,98 +99,94 @@ module.exports = {
   module: {
     rules: (isProduction
       ? [
-          {
-            test: /\.css$/,
-            use: [MiniCssExtractPlugin.loader].concat(CSS_LOADERS),
-          },
-          {
-            test: /\.less$/,
-            oneOf: [
-              {
-                resourceQuery: /^\?module$/,
-                use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader(true)),
-              },
-              {
-                use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader()),
-              },
-            ],
-          },
-          {
-            test: /\.(woff2)(\?[^?]*)?$/,
-            use: {
-              loader: 'url-loader',
-              options: {
-                name: 'static/[name].[hash].[ext]',
-                limit: 100000,
-              },
+        {
+          test: /\.css$/,
+          use: [MiniCssExtractPlugin.loader].concat(CSS_LOADERS),
+        },
+        {
+          test: /\.less$/,
+          oneOf: [
+            {
+              resourceQuery: /^\?module$/,
+              use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader(true)),
+            },
+            {
+              use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader()),
+            },
+          ],
+        },
+        {
+          test: /\.(woff2)(\?[^?]*)?$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              name: 'static/[name].[hash].[ext]',
+              limit: 100000,
             },
           },
-          {
-            test: /\.(gif|jpg|png|svg)(\?[^?]*)?$/,
-            use: {
-              loader: 'url-loader',
-              options: {
-                name: 'static/[name].[hash].[ext]',
-                limit: 20000,
-              },
+        },
+        {
+          test: /\.(gif|jpg|png|svg)(\?[^?]*)?$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              name: 'static/[name].[hash].[ext]',
+              limit: 20000,
             },
           },
-          {
-            test: /\.(woff|eot|ttf)(\?[^?]*)?$/,
-            use: {
-              loader: 'url-loader',
-              options: {
-                name: 'static/[name].[hash].[ext]',
-                limit: 1,
-              },
+        },
+        {
+          test: /\.(woff|eot|ttf)(\?[^?]*)?$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              name: 'static/[name].[hash].[ext]',
+              limit: 1,
             },
           },
-        ]
+        },
+      ]
       : [
-          {
-            test: /\.(gif|jpg|png|svg|woff|woff2|eot|ttf)(\?[^?]*)?$/,
-            use: {
-              loader: 'url-loader',
-              options: {
-                name: 'static/[name].[hash].[ext]',
-                limit: 1000000,
-              },
+        {
+          test: /\.(gif|jpg|png|svg|woff|woff2|eot|ttf)(\?[^?]*)?$/,
+          use: {
+            loader: 'url-loader',
+            options: {
+              name: 'static/[name].[hash].[ext]',
+              limit: 1000000,
             },
           },
-          {
-            test: /\.css$/,
-            use: [
-              {
-                loader: 'style-loader',
-              },
-              {
-                loader: 'css-loader',
-                options: { sourceMap: true },
-              },
-              {
-                loader: 'postcss-loader',
-                options: { sourceMap: true },
-              },
-            ],
-          },
-          {
-            test: /\.less$/,
-            oneOf: [
-              {
-                resourceQuery: /^\?module$/,
-                use: config.generateLessLoader(true),
-              },
-              {
-                use: config.generateLessLoader(),
-              },
-            ],
-          },
-          {
-            test: /\.js$/,
-            enforce: 'pre',
-            use: ['source-map-loader'],
-          },
-        ]
+        },
+        {
+          test: /\.css$/,
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: { sourceMap: true },
+            },
+          ],
+        },
+        {
+          test: /\.less$/,
+          oneOf: [
+            {
+              resourceQuery: /^\?module$/,
+              use: config.generateLessLoader(true),
+            },
+            {
+              use: config.generateLessLoader(),
+            },
+          ],
+        },
+        {
+          test: /\.js$/,
+          enforce: 'pre',
+          use: ['source-map-loader'],
+        },
+      ]
     ).concat([
       {
         test: /\.js$/,

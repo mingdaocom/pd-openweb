@@ -14,6 +14,7 @@ import {
   replaceByIndex,
   filterHidedSubList,
 } from 'worksheet/util';
+import { checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import RecordInfoContext from './RecordInfoContext';
 import { loadRecord, updateRecord, deleteRecord, RecordApi } from './crtl';
@@ -140,6 +141,9 @@ export default class RecordInfo extends Component {
 
   getPortalDiscussSet = async nextProps => {
     const { appId } = nextProps;
+    if (!appId) {
+      return {};
+    }
     return getDiscussConfig({ appId });
   };
 
@@ -211,12 +215,15 @@ export default class RecordInfo extends Component {
         getRules: !rules,
         controls,
       });
-      const portalDiscussSet =
-        (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
-        !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)
-          ? //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
-            {}
-          : await this.getPortalDiscussSet(data);
+      let portalDiscussSet = {};
+      try {
+        portalDiscussSet =
+          (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
+          !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)
+            ? //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
+              {}
+            : await this.getPortalDiscussSet(data);
+      } catch (e) {}
       // 设置隐藏字段的 hidden 属性
       data.formData = data.formData.map(c => ({
         ...c,
@@ -251,6 +258,7 @@ export default class RecordInfo extends Component {
         loading: false,
         refreshBtnNeedLoading: false,
       });
+      this.updateLockStatus(data.formData);
     } catch (err) {
       console.error(err);
       this.setState({
@@ -549,12 +557,21 @@ export default class RecordInfo extends Component {
             recordinfo: { ...recordinfo, formData: newFormData },
             updateControlIds: [],
           });
+          this.updateLockStatus(newFormData);
           if (_.isFunction(this.refreshEvents.loadcustombtns)) {
             this.refreshEvents.loadcustombtns();
           }
         }
       },
     );
+  }
+
+  updateLockStatus(formData) {
+    const { from } = this.props;
+    const { recordinfo } = this.state;
+    this.setState({
+      isLock: checkRuleLocked(recordinfo.rules, formData || recordinfo.formData, from),
+    });
   }
 
   @autobind
@@ -658,6 +675,7 @@ export default class RecordInfo extends Component {
     }
     const {
       loading,
+      isLock,
       submitLoading,
       formWidth,
       refreshBtnNeedLoading,
@@ -752,7 +770,7 @@ export default class RecordInfo extends Component {
                 reloadRecord={this.handleRefresh}
                 onSideIconClick={() => {
                   if (from !== RECORD_INFO_FROM.WORKFLOW) {
-                    localStorage.setItem('recordInfoSideVisible', sideVisible ? '' : 'true');
+                    safeLocalStorageSetItem('recordInfoSideVisible', sideVisible ? '' : 'true');
                   }
                   this.setState({ sideVisible: !sideVisible });
                 }}
@@ -792,14 +810,16 @@ export default class RecordInfo extends Component {
                   min={400}
                   max={width - 423}
                   onChange={value => {
-                    localStorage.setItem('RECORD_INFO_FORM_WIDTH', value);
+                    safeLocalStorageSetItem('RECORD_INFO_FORM_WIDTH', value);
                     this.setState({ dragMaskVisible: false, formWidth: value });
                   }}
                 />
               )}
               <RecordForm
                 ignoreHeader={from === RECORD_INFO_FROM.WORKFLOW && header && viewId}
+                ignoreLock={from === RECORD_INFO_FROM.WORKFLOW}
                 from={from}
+                isLock={isLock}
                 formWidth={sideVisible ? formWidth : width}
                 loading={loading}
                 recordbase={recordbase}
@@ -833,7 +853,11 @@ export default class RecordInfo extends Component {
                   if (!this.recordform) {
                     return;
                   }
-                  if (typeof num === 'number' && num >= 0) {
+                  const needUpdateControl = _.find(tempFormData, { controlId });
+                  if (needUpdateControl && needUpdateControl.value == num) {
+                    return;
+                  }
+                  if (typeof num === 'number' && num >= 0 && this.recordform.current.dataFormat) {
                     this.recordform.current.dataFormat.updateDataSource({
                       controlId,
                       value: String(num),

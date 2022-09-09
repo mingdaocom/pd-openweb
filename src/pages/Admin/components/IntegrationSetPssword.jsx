@@ -66,7 +66,7 @@ export default class IntegrationSetPssword extends Component {
   changeInitialPassword = password => {
     Ajax.editIntergrationAccountInitializeInfo({
       projectId: Config.projectId,
-      password: encrypt(password),
+      password: password ? encrypt(password) : '',
     }).then(res => {
       if (this.state.isSetPassword) {
         if (res) {

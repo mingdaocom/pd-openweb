@@ -140,7 +140,7 @@ Calendar.Method = {
         } else {
           var taskID = event.eventID;
           $fcTitle.prepend(
-            '<span class="icon-calendartask" data-endtime="'+ moment(event.end._i).format('HH:mm') +'" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>'
+            '<span class="icon-calendartask" data-endtime="' + moment(event.end._i).format('HH:mm') + '" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>'
           );
           $(element)
             .find('.fc-resizer')
@@ -309,7 +309,7 @@ Calendar.Method = {
 
         if ($(this).hasClass('fc-list-button')) {
           // 点击的是列表选项
-          window.localStorage.setItem('lastView', 'list');
+          safeLocalStorageSetItem('lastView', 'list');
         } else {
           // 点击的不是列表选项
           $('#calendar').fullCalendar('render');
@@ -324,17 +324,17 @@ Calendar.Method = {
 
         if ($(this).hasClass('fc-agendaDay-button')) {
           $('#calendar').fullCalendar('changeView', 'agendaDay');
-          window.localStorage.setItem('lastView', 'agendaDay');
+          safeLocalStorageSetItem('lastView', 'agendaDay');
         }
 
         if ($(this).hasClass('fc-agendaWeek-button')) {
           $('#calendar').fullCalendar('changeView', 'agendaWeek');
-          window.localStorage.setItem('lastView', 'agendaWeek');
+          safeLocalStorageSetItem('lastView', 'agendaWeek');
         }
 
         if ($(this).hasClass('fc-month-button')) {
           $('#calendar').fullCalendar('changeView', 'month');
-          window.localStorage.setItem('lastView', 'month');
+          safeLocalStorageSetItem('lastView', 'month');
         }
 
         $(this)
@@ -527,7 +527,7 @@ Calendar.Method = {
     } else {
       if (['agendaDay', 'agendaWeek', 'month'].indexOf(lastView) == -1) {
         lastView = 'agendaDay';
-        window.localStorage.setItem('lastView', 'agendaDay');
+        safeLocalStorageSetItem('lastView', 'agendaDay');
       }
 
       parameter.currentView = lastView;
@@ -555,13 +555,13 @@ Calendar.Method = {
 
       $('.fc-toolbar .fc-left h2').append(
         ' <span class="fewWeeks">' +
-          _l(
-            '第%0周',
-            $('#calendar')
-              .fullCalendar('getDate')
-              .weeks()
-          ) +
-          '</span>'
+        _l(
+          '第%0周',
+          $('#calendar')
+            .fullCalendar('getDate')
+            .weeks()
+        ) +
+        '</span>'
       );
     }
 

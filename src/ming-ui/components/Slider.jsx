@@ -293,7 +293,7 @@ export default function Slider(props) {
     const v = getDefaultValue(showAsPercent ? fixedByStep(props.value * 100) : props.value);
     setValue(v);
     if (document.activeElement !== inputRef.current) {
-      setValueForInput(v || '');
+      setValueForInput(_.isUndefined(v) ? '' : v);
     }
   }, [props.value]);
   return (

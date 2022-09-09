@@ -8,7 +8,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import { emitter, sortControlByIds, getLRUWorksheetConfig } from 'worksheet/util';
 import { getRowDetail } from 'worksheet/api';
 import { editRecord } from 'worksheet/common/editRecord';
-import { ROW_HEIGHT } from 'worksheet/constants/enum';
+import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import Skeleton from 'src/router/Application/Skeleton';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
@@ -227,9 +227,7 @@ class TableView extends React.Component {
       .map(c => ({ ...c }))
       .filter(
         control =>
-          control.type !== 43 &&
-          control.type !== 22 &&
-          control.type !== 10010 &&
+          !_.includes(SHEET_VIEW_HIDDEN_TYPES, control.type) &&
           !_.find(sheetHiddenColumns.concat(view.controls), cid => cid === control.controlId) &&
           controlState(control).visible,
       );
@@ -291,6 +289,22 @@ class TableView extends React.Component {
 
   get rowHeadOnlyNum() {
     return !!this.chartId;
+  }
+
+  get highLightRows() {
+    try {
+      const rows = _.get(this.props, 'sheetViewData.rows');
+      const { allWorksheetIsSelected, sheetSelectedRows } = this.props.sheetViewConfig || {};
+      return [
+        {},
+        ...(allWorksheetIsSelected
+          ? rows.filter(row => !_.find(sheetSelectedRows, r => r.rowid === row.rowid)).map(row => row.rowid)
+          : sheetSelectedRows.map(row => row.rowid)),
+      ].reduce((a, b) => ({ ...a, [b]: true }));
+    } catch (err) {
+      console.error(err);
+      return {};
+    }
   }
 
   @autobind
@@ -490,7 +504,7 @@ class TableView extends React.Component {
 
   asyncUpdate(row, cell, options) {
     const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig } = this.props;
-    const { projectId } = worksheetInfo;
+    const { projectId, rules = [] } = worksheetInfo;
     const asyncUpdateCell = (cid, newValue) => {
       if (typeof newValue === 'object') {
         return;
@@ -507,6 +521,7 @@ class TableView extends React.Component {
     const dataFormat = new DataFormat({
       data: controls.filter(c => c.advancedSetting).map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
       projectId,
+      rules,
       // masterData,
       searchConfig: sheetSearchConfig,
       onAsyncChange: changes => {
@@ -642,6 +657,7 @@ class TableView extends React.Component {
             appId={appId}
             rules={rules}
             worksheetId={worksheetId}
+            sheetViewHighlightRows={this.highLightRows}
             lineeditable={isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId)}
             fixedColumnCount={fixedColumnCount}
             sheetColumnWidths={sheetColumnWidths}

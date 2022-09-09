@@ -259,7 +259,7 @@ export default class StepItem extends Component {
 
     value = renderToString(<Linkify properties={{ target: '_blank' }}>{value}</Linkify>);
 
-    (value.match(/\$.*?\$/g) || []).forEach((item, index) => {
+    (value.match(/\$[^ \r\n]+?\$/g) || []).forEach((item, index) => {
       value = value.replace(item, links[index]);
     });
 

@@ -120,7 +120,9 @@ export function compareType(type, cellControl) {
  * 字段是否支持排序
  */
 export function fieldCanSort(type, control = {}) {
-  const canSortTypes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42];
+  const canSortTypes = [
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42, 46, 48, 50,
+  ];
   if (control.type === 30 && control.strDefault === '10') {
     return false;
   }
@@ -359,7 +361,7 @@ export function saveLRUWorksheetConfig(key, id, value) {
   if (Object.keys(newData).length > maxSaveNum) {
     delete newData[Object.keys(newData).pop];
   }
-  localStorage.setItem(key, JSON.stringify(newData));
+  safeLocalStorageSetItem(key, JSON.stringify(newData));
 }
 
 /** LRU 存储 */
@@ -371,7 +373,7 @@ export function clearLRUWorksheetConfig(key, id) {
     } catch (err) {}
   }
   delete data[id];
-  localStorage.setItem(key, JSON.stringify(data));
+  safeLocalStorageSetItem(key, JSON.stringify(data));
 }
 /** LRU 读取 */
 export function getLRUWorksheetConfig(key, id) {
@@ -760,14 +762,14 @@ export function saveToLocal(key, id, value, max = 5) {
     savedIds = savedIds.slice(1);
   }
   try {
-    localStorage.setItem(key, JSON.stringify(savedIds));
-    localStorage.setItem(`${key}_${id}`, value);
+    safeLocalStorageSetItem(key, JSON.stringify(savedIds));
+    safeLocalStorageSetItem(`${key}_${id}`, value);
   } catch (err) {
     Object.keys(localStorage)
       .filter(k => k.startsWith(key))
       .forEach(k => localStorage.removeItem(k));
-    localStorage.setItem(key, JSON.stringify(savedIds));
-    localStorage.setItem(`${key}_${id}`, value);
+    safeLocalStorageSetItem(key, JSON.stringify(savedIds));
+    safeLocalStorageSetItem(`${key}_${id}`, value);
   }
 }
 
@@ -780,7 +782,7 @@ export function removeFromLocal(key, id) {
     } catch (err) {}
   }
   if (savedIds && savedIds.length) {
-    localStorage.setItem(key, JSON.stringify(savedIds));
+    safeLocalStorageSetItem(key, JSON.stringify(savedIds));
   } else {
     localStorage.removeItem(key);
   }
@@ -854,7 +856,7 @@ export function getDefaultValueOfControl(control) {
     case WIDGETS_TO_API_TYPE_ENUM.MONEY: // 金额 8
       return 1;
     case WIDGETS_TO_API_TYPE_ENUM.EMAIL: // 邮箱 5
-      return 'a@b.com';
+      return 'a#b.com'.replace('#', '@');
     case WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE: // 手机 4
       return '+8618799999999';
     case WIDGETS_TO_API_TYPE_ENUM.DATE: // 日期 15

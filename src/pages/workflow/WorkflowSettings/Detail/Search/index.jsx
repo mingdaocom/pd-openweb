@@ -62,6 +62,11 @@ export default class Search extends Component {
       })
       .then(result => {
         result.fields = _.filter(result.fields, o => !_.includes([31, 32, 33], o.type));
+
+        if (obj.appId && result.findFields.length) {
+          result.findFields = [];
+        }
+
         this.setState({ data: result, cacheKey: +new Date() });
       });
   }
@@ -493,10 +498,10 @@ export default class Search extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-search"
           bg="BGYellow"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -505,6 +510,7 @@ export default class Search extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             data.actionId === ACTION_ID.WORKSHEET_FIND
               ? !!data.appId
@@ -513,7 +519,6 @@ export default class Search extends Component {
               : !!data.appId && !!data.link.trim()
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
         {showOtherWorksheet && (
           <SelectOtherWorksheetDialog

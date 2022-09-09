@@ -548,7 +548,7 @@ Emotion.prototype.parse = function (str) {
   emotionData.forEach(function (item, index) {
     item.content.forEach(function (emotion, index2) {
       var reg = new RegExp('\\[' + emotion.key + '\\]', 'gi');
-      if (str.search(reg) > -1) {
+      if (emotion.key && str.search(reg) > -1) {
         // 对于熊表情，将静态的转化成动态的
         if (emotionData[index].tab.name === _l('笨笨熊')) {
           emotion.img = emotion.img.replace('.png', '.gif');

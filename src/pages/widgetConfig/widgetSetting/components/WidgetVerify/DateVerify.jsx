@@ -62,7 +62,8 @@ const WEEKDAYS = {
 
 export default function DateVerify({ data, onChange }) {
   const { type } = data;
-  const { allowweek = '', allowtime = '' } = getAdvanceSetting(data);
+  const { allowweek = '', allowtime = '', showtype } = getAdvanceSetting(data);
+  const needHide = _.includes(['4', '5'], showtype);
   const [originStart, originEnd] = allowtime.split('-');
   const [{ weekVisible, startTimeVisible, endTimeVisible }, setVisible] = useSetState({
     weekVisible: false,
@@ -123,53 +124,61 @@ export default function DateVerify({ data, onChange }) {
   }, [type]);
   return (
     <Fragment>
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          checked={allowweek}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))}
-        >
-          <span>{_l('允许选择的星期')}</span>
-        </Checkbox>
-      </div>
-      {allowweek && (
-        <Dropdown
-          trigger={['click']}
-          visible={weekVisible}
-          onVisibleChange={visible => setVisible({ weekVisible: visible })}
-          overlay={
-            <WeekWrap onClick={e => e.stopPropagation()}>
-              {keys(WEEKDAYS).map((key, index) => (
-                <div key={key} className="weekItem">
-                  <Checkbox
-                    checked={includes(allowweek, key)}
-                    onClick={checked =>
-                      onChange(
-                        handleAdvancedSettingChange(data, {
-                          allowweek: handleWeekChange(key),
-                        }),
-                      )
-                    }
-                  >
-                    {WEEKDAYS[key]}
-                  </Checkbox>
-                </div>
-              ))}
-            </WeekWrap>
-          }
-        >
-          <DropdownPlaceholder className={cx({ active: weekVisible })} style={{ marginBottom: '12px' }} color="#333">
-            {allowweek.length === 7
-              ? _l('每天')
-              : allowweek
-                  .split('')
-                  .map(key => WEEKDAYS[key])
-                  .join('     ')}
-            <i className="icon-arrow-down-border Font16 Gray_9e"></i>
-          </DropdownPlaceholder>
-        </Dropdown>
+      {type !== 46 && !needHide && (
+        <Fragment>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={allowweek}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))}
+            >
+              <span>{_l('允许选择的星期')}</span>
+            </Checkbox>
+          </div>
+          {allowweek && (
+            <Dropdown
+              trigger={['click']}
+              visible={weekVisible}
+              onVisibleChange={visible => setVisible({ weekVisible: visible })}
+              overlay={
+                <WeekWrap onClick={e => e.stopPropagation()}>
+                  {keys(WEEKDAYS).map((key, index) => (
+                    <div key={key} className="weekItem">
+                      <Checkbox
+                        checked={includes(allowweek, key)}
+                        onClick={checked =>
+                          onChange(
+                            handleAdvancedSettingChange(data, {
+                              allowweek: handleWeekChange(key),
+                            }),
+                          )
+                        }
+                      >
+                        {WEEKDAYS[key]}
+                      </Checkbox>
+                    </div>
+                  ))}
+                </WeekWrap>
+              }
+            >
+              <DropdownPlaceholder
+                className={cx({ active: weekVisible })}
+                style={{ marginBottom: '12px' }}
+                color="#333"
+              >
+                {allowweek.length === 7
+                  ? _l('每天')
+                  : allowweek
+                      .split('')
+                      .map(key => WEEKDAYS[key])
+                      .join('     ')}
+                <i className="icon-arrow-down-border Font16 Gray_9e"></i>
+              </DropdownPlaceholder>
+            </Dropdown>
+          )}
+        </Fragment>
       )}
-      {type === 16 && (
+      {_.includes([16], type) && (
         <Fragment>
           <div className="labelWrap">
             <Checkbox

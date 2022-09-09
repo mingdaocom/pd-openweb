@@ -40,7 +40,11 @@ rewrite (?i)^(/|/portal/)wxauth(.*) /portalLogin.html break;
 
 # 主站
 rewrite (?i)^(/|/portal/)app /index.html break;
+rewrite (?i)^(/|/portal/)worksheet /index.html break;
+rewrite (?i)^(/|/portal/)ExcelErrorPage /index.html break;
 rewrite (?i)^(/|/portal/)print /index.html break;
 rewrite (?i)^(/|/portal/)workflow /index.html break;
 rewrite (?i)^(/|/portal/)gunterExport /index.html break;
 rewrite (?i)^(/|/portal/)printForm /index.html break;
+rewrite (?i)^(/|/portal/)404 /404-portal.html break;
+rewrite (?i)^(/|/portal/) /index.html break;

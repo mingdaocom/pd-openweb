@@ -35,7 +35,7 @@ export default class BaseColor extends Component {
     } else {
       param.colorGroupIndex = null;
       param.customColors = customColors;
-      localStorage.setItem('chartCustomColors', JSON.stringify(customColors));
+      safeLocalStorageSetItem('chartCustomColors', JSON.stringify(customColors));
     }
     param.colorType = type;
     onChange({

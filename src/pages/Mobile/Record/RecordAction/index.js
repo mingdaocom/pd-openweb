@@ -324,7 +324,8 @@ class RecordAction extends Component {
         this.fillRecordId = rowId;
         this.fillRecordProps = {
           formData: rowInfo.receiveControls,
-        };
+          appId: this.props.appId
+        };  
         this.setState({
           fillRecordVisible: true,
         });
@@ -590,10 +591,11 @@ class RecordAction extends Component {
   renderNewRecord() {
     const { activeBtn = {} } = this;
     const { newRecordVisible, rowInfo } = this.state;
-    const { worksheetId, rowId } = this.props;
+    const { worksheetId, rowId, appId } = this.props;
     return (
       newRecordVisible && (
         <NewRecord
+          appId={appId}
           title={activeBtn.name}
           className="worksheetRelateNewRecord"
           worksheetId={this.btnAddRelateWorksheetId}

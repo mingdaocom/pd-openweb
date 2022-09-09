@@ -346,6 +346,7 @@ $.extend(DialogSelectUser.prototype, {
           userSettings={userSettings}
           departmentSettings={departmentSettings}
           groupSettings={groupSettings}
+          isChat={options.isChat}
         />,
         $userContainer[0],
       );

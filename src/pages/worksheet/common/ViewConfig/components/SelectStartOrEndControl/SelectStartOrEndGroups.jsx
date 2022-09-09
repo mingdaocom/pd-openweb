@@ -149,6 +149,7 @@ export default function SelectStartOrEndGroups(props) {
             <SelectStartOrEnd
               {...props}
               allowClear
+              classNames='groupSelectStartOrEnd'
               canAddTimeControl
               i={i}
               begindate={o.begin}

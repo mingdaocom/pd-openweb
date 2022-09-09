@@ -1,4 +1,5 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Dropdown, Checkbox, Tooltip } from 'ming-ui';
 import cx from 'classnames';
@@ -9,7 +10,7 @@ import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/
 import sheetAjax from 'src/api/worksheet';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
-
+import NavShow from './NavShow';
 const Wrap = styled.div`
   .hasData {
     .cancle {
@@ -199,15 +200,24 @@ const Wrap = styled.div`
 
 export default function NavGroup(params) {
   let ajaxInfoFn = null;
-  const { worksheetControls = [], view = {}, updateCurrentView, worksheetId } = params;
+  const { worksheetControls = [], view = {}, updateCurrentView, worksheetId, columns, currentSheetInfo = {} } = params;
   let [navGroup, setData] = useState({});
   let [filterData, setDatas] = useState();
   let [usenav, setUsenav] = useState(); //空或者0：不使用筛选条件作为默认值 1：使用筛选条件作为默认值 ，老数据后端回兼容，新配置需要前端把这个值设为1
   let [showAddCondition, setShowAddCondition] = useState();
   const [relateSheetInfo, setRelateSheetInfo] = useState([]);
+  const [relateControls, setRelateControls] = useState([]);
+  const [{ navshow, navfilters }, setState] = useSetState({
+    navshow: 0,
+    navfilters: '[]',
+  });
   useEffect(() => {
     const { advancedSetting = {} } = view;
     setUsenav(!advancedSetting.usenav || advancedSetting.usenav === '0' ? '0' : '1');
+    setState({
+      navshow: advancedSetting.navshow,
+      navfilters: advancedSetting.navfilters || '[]',
+    });
   }, [view]);
   useEffect(() => {
     const groupData = view.navGroup || [];
@@ -221,26 +231,40 @@ export default function NavGroup(params) {
   const onDelete = () => {
     updateView(undefined);
   };
-  const updateView = navGroup => {
+  const updateView = (navGroup, advancedSetting) => {
     setData(navGroup);
+    let editAttrs = ['navGroup'];
+    let param = { navGroup: navGroup ? [navGroup] : [] };
+    if (!!advancedSetting) {
+      editAttrs.push('advancedSetting');
+      param = {
+        ...param,
+        advancedSetting: updateViewAdvancedSetting(view, {
+          ...advancedSetting,
+        }),
+      };
+    }
     updateCurrentView(
       Object.assign(view, {
-        navGroup: navGroup ? [navGroup] : [],
-        editAttrs: ['navGroup'],
+        ...param,
+        editAttrs: editAttrs,
       }),
     );
   };
   const addNavGroups = data => {
     const d = getSetDefault(data);
-    updateView(d);
+    updateView(d, {
+      navshow: '0',
+      navfilters: JSON.stringify([]),
+      usenav: '1', //新配置需要前端把这个值设为1
+    });
     setShowAddCondition(false);
     data.type === 29 && data.dataSource && getRelate(data.dataSource);
-    updateViewSetUsenav('1'); //新配置需要前端把这个值设为1
   };
 
   const getRelate = worksheetId => {
     ajaxInfoFn && ajaxInfoFn.abort();
-    ajaxInfoFn = sheetAjax.getWorksheetInfo({ worksheetId, getViews: true });
+    ajaxInfoFn = sheetAjax.getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true });
     ajaxInfoFn.then(data => {
       ajaxInfoFn = '';
       const fieldList = data.views
@@ -249,17 +273,21 @@ export default function NavGroup(params) {
           return { value: o.viewId, text: o.name };
         });
       setRelateSheetInfo(fieldList);
+      setRelateControls(_.get(data, ['template', 'controls']));
     });
   };
-  const updateViewSetUsenav = data => {
+  const updateAdvancedSetting = data => {
     updateCurrentView(
       Object.assign(view, {
         advancedSetting: updateViewAdvancedSetting(view, {
-          usenav: data,
+          ...data,
         }),
         editAttrs: ['advancedSetting'],
       }),
     );
+  };
+  const updateViewSetUsenav = data => {
+    updateAdvancedSetting({ usenav: data });
   };
   const renderAdd = ({ width, comp }) => {
     return (
@@ -300,9 +328,46 @@ export default function NavGroup(params) {
         //关联记录不是以层级视图时，没有筛选方式
         return '';
       }
+      if (data.type === 29 && !!navGroup.viewId && o.key === 'navshow') {
+        //关联记录 以层级视图时，没有显示项
+        return '';
+      }
       let value = !navGroup[o.key] && data.type === 29 ? null : navGroup[o.key];
       if (o.key === 'filterType' && [29, 35].includes(data.type)) {
         value = value === 11 ? value : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
+      }
+      if (o.key === 'navshow') {
+        return (
+          <NavShow
+            params={o}
+            value={navshow}
+            onChange={newValue => {
+              updateCurrentView(
+                Object.assign(view, {
+                  advancedSetting: updateViewAdvancedSetting(view, {
+                    ...newValue,
+                  }),
+                  editAttrs: ['advancedSetting'],
+                }),
+              );
+            }}
+            navfilters={navfilters}
+            filterInfo={{
+              relateControls: relateControls,
+              allControls: worksheetControls,
+              globalSheetInfo: _.pick(currentSheetInfo, [
+                'appId',
+                'groupId',
+                'name',
+                'projectId',
+                'roleType',
+                'worksheetId',
+              ]),
+              columns,
+              viewControl: data.controlId,
+            }}
+          />
+        );
       }
       return (
         <React.Fragment>
@@ -313,7 +378,12 @@ export default function NavGroup(params) {
             value={value}
             className="flex"
             onChange={newValue => {
-              updateView({ ...navGroup, [o.key]: newValue });
+              updateView(
+                { ...navGroup, [o.key]: newValue },
+                o.key === 'viewId' && data.type === 29 //关联记录 以层级视图时，没有显示项
+                  ? { navshow: '0', navfilters: JSON.stringify([]) }
+                  : null,
+              );
             }}
             cancelAble={[29, 35].includes(data.type)}
             renderError={() => {

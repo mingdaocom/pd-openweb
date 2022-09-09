@@ -12,7 +12,7 @@ const { DynamicSelectDateControl, SelectControl } = components;
 
 const CALC_TYPE = [
   {
-    text: _l('两个日期间的时长'),
+    text: _l('时长'),
     value: 1,
   },
   {
@@ -39,7 +39,7 @@ export default function FormulaDate(props) {
       return (
         <Fragment>
           <SettingItem>
-            <div className="settingItemTitle">{_l('开始日期')}</div>
+            <div className="settingItemTitle">{_l('开始')}</div>
             <DynamicSelectDateControl
               {...props}
               value={sourceControlId}
@@ -47,7 +47,7 @@ export default function FormulaDate(props) {
             />
           </SettingItem>
           <SettingItem>
-            <div className="settingItemTitle">{_l('结束日期')}</div>
+            <div className="settingItemTitle">{_l('结束')}</div>
             <DynamicSelectDateControl
               {...props}
               value={dataSource}
@@ -76,6 +76,7 @@ export default function FormulaDate(props) {
             <div className="settingItemTitle">{_l('选择日期')}</div>
             <DynamicSelectDateControl
               {...props}
+              disableTimeControl={true}
               value={sourceControlId}
               onChange={value => onChange({ sourceControlId: value })}
             />
@@ -143,6 +144,8 @@ export default function FormulaDate(props) {
               data={[
                 { text: _l('日期+时间'), value: '1' },
                 { text: _l('日期'), value: '3' },
+                { text: _l('时分'), value: '8' },
+                { text: _l('时分秒'), value: '9' },
               ]}
               onChange={value => onChange({ unit: value })}
             />

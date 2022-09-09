@@ -44,7 +44,7 @@ export default class Entry extends Component {
     });
   }
   render() {
-    const { countData, onClick, type, renderContent } = this.props;
+    const { countData, onClick, type, renderContent, className } = this.props;
     const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
     const isNative = type === 'native';
     const { iconColor } = store.getState().appPkg;
@@ -53,7 +53,10 @@ export default class Entry extends Component {
     }
     return type ? (
       <Tooltip text={<span>{_l('流程待办')}</span>}>
-        <div className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'}`} onClick={onClick}>
+        <div
+          className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'} ${className}`}
+          onClick={onClick}
+        >
           <Icon icon={cx('knowledge_file', { appIcon: !isNative })} className="mRight5 Font20" />
           {count ? (
             <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>

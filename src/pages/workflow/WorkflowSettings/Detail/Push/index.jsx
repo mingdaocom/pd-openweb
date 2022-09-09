@@ -388,10 +388,10 @@ export default class Push extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-notifications_11"
           bg="BGBlue"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -437,13 +437,13 @@ export default class Push extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             (_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && data.content.trim()) ||
             (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) && data.appId) ||
             (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId)
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
 
         {showOtherWorksheet && (

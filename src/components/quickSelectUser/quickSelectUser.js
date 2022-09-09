@@ -81,6 +81,7 @@ SelectUser.DEFAULTS = {
   pageSize: 25,
   externalUserList: [], // 外部用户成员列表
   loadNextPage: false,
+  isDynamic: false, // 是否多选，不关闭弹层
 
   // dialogSelectUer settings
   showMoreInvite: true, // 是否呈现更多邀请
@@ -321,6 +322,7 @@ $.extend(SelectUser.prototype, {
         })
         .then(function (data) {
           let renderData = {};
+          renderData.isSameProject = options.isRangeData;
           const currentAccount = data.users.list.find(item => item.accountId === md.global.Account.accountId);
 
           if (currentAccount) {
@@ -566,6 +568,11 @@ $.extend(SelectUser.prototype, {
 
     if ($.isFunction(options.selectCb)) {
       options.selectCb([userObj]);
+    }
+
+    if (options.isDynamic) {
+      this.setPosition();
+      return;
     }
 
     this.closePane();

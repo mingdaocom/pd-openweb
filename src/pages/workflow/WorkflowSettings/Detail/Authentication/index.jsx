@@ -71,29 +71,31 @@ export default class Authentication extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      if (result.appType === APP_TYPE.OAUTH2 && !result.webHookNodes.length) {
-        result.webHookNodes = [
-          {
-            method: 1,
-            url: '',
-            params: [{ name: 'app_id', value: '' }, { name: 'app_secret', value: '' }],
-            headers: [],
-            contentType: 1,
-            formControls: [],
-            body: '',
-            testMap: {},
-          },
-        ];
-      }
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .then(result => {
+        if (result.appType === APP_TYPE.OAUTH2 && !result.webHookNodes.length) {
+          result.webHookNodes = [
+            {
+              method: 1,
+              url: '',
+              params: [{ name: 'app_id', value: '' }, { name: 'app_secret', value: '' }],
+              headers: [],
+              contentType: 1,
+              formControls: [],
+              body: '',
+              testMap: {},
+            },
+          ];
+        }
 
-      this.setState({ data: result });
-      if (this.refreshTime) {
-        this.refreshTime.value = result.expireAfterSeconds;
-      }
-    });
+        this.setState({ data: result });
+        if (this.refreshTime) {
+          this.refreshTime.value = result.expireAfterSeconds;
+        }
+      });
   }
 
   /**
@@ -172,15 +174,18 @@ export default class Authentication extends Component {
     }
 
     flowNode
-      .saveNode({
-        processId: this.props.processId,
-        nodeId: this.props.selectNodeId,
-        flowNodeType: this.props.selectNodeType,
-        name: name.trim(),
-        fields,
-        webHookNodes,
-        expireAfterSeconds,
-      })
+      .saveNode(
+        {
+          processId: this.props.processId,
+          nodeId: this.props.selectNodeId,
+          flowNodeType: this.props.selectNodeType,
+          name: name.trim(),
+          fields,
+          webHookNodes,
+          expireAfterSeconds,
+        },
+        { isIntegration: this.props.isIntegration },
+      )
       .then(result => {
         this.props.updateNodeData(result);
         this.props.closeDetail();
@@ -197,9 +202,8 @@ export default class Authentication extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l('采用此方式，本节点将返回计算后的 Basic Auth 参数供后续节点使用')}
-        </div>
+        <div className="Font16 bold">{_l('Basic Auth 认证')}</div>
+        <div className="mTop5 Gray_9e">{_l('将返回计算后的 Basic Auth 参数供 API 请求参数使用')}</div>
         {data.fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
 
@@ -210,6 +214,7 @@ export default class Authentication extends Component {
                 companyId={this.props.companyId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
+                isIntegration={this.props.isIntegration}
                 sourceNodeId={data.selectNodeId}
                 controls={data.controls}
                 formulaMap={data.formulaMap}
@@ -250,11 +255,10 @@ export default class Authentication extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l('采用此方式，本节点将返回获取到的 Access Token 参数')}
-        </div>
+        <div className="Font16 bold">{_l('OAuth 2.0 认证（客户端凭证 client credentials）')}</div>
+        <div className="mTop5 Gray_9e">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
 
-        <div className="Font13 bold mTop25">{_l('Access Token URL')}</div>
+        <div className="Font13 bold mTop20">{_l('Access Token URL')}</div>
         {data.webHookNodes.map((item, i) => {
           if (_.includes([1, 4, 5], item.method)) {
             delete TABS['3'];
@@ -284,7 +288,7 @@ export default class Authentication extends Component {
               <div className="flexRow mTop10">
                 <div className="flex" />
                 <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => this.switchParameterVisible(i)}>
-                  {_l('隐藏请求参数详情')}
+                  {_.includes(showParameterList, i) ? _l('隐藏请求参数详情') : _l('显示请求参数详情')}
                   <Icon
                     type={_.includes(showParameterList, i) ? 'arrow-up-border' : 'arrow-down-border'}
                     className="Font14 mLeft5"
@@ -340,6 +344,7 @@ export default class Authentication extends Component {
                         key={this.props.selectNodeId + tab}
                         processId={this.props.processId}
                         selectNodeId={this.props.selectNodeId}
+                        isIntegration={this.props.isIntegration}
                         source={item[TABS[tab].sourceKey]}
                         sourceKey={TABS[tab].sourceKey}
                         btnText={TABS[tab].btnText}
@@ -360,6 +365,7 @@ export default class Authentication extends Component {
                         className="minH100"
                         processId={this.props.processId}
                         selectNodeId={this.props.selectNodeId}
+                        isIntegration={this.props.isIntegration}
                         type={2}
                         content={item.body}
                         formulaMap={data.formulaMap}
@@ -500,17 +506,20 @@ export default class Authentication extends Component {
     }
 
     flowNode
-      .webHookTestRequest({
-        processId,
-        nodeId: selectNodeId,
-        method,
-        url,
-        params: JSON.parse(this.formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
-        headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
-        body: this.formatParameters(body, testMap),
-        formControls: formControls.filter(item => item.name),
-        contentType,
-      })
+      .webHookTestRequest(
+        {
+          processId,
+          nodeId: selectNodeId,
+          method,
+          url,
+          params: JSON.parse(this.formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
+          headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
+          body: this.formatParameters(body, testMap),
+          formControls: formControls.filter(item => item.name),
+          contentType,
+        },
+        { isIntegration: this.props.isIntegration },
+      )
       .then(result => {
         if (result.status === 1) {
           this.updateSource({ controls: result.data.controls }, () => {
@@ -531,7 +540,7 @@ export default class Authentication extends Component {
    * 格式化参数
    */
   formatParameters = (source, testMap) => {
-    (source.match(/\$.*?\$/g) || []).forEach(key => {
+    (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
       source = source.replace(key, testMap[key] || '');
     });
 
@@ -568,10 +577,10 @@ export default class Authentication extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-key1"
           bg="BGBlueAsh"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -582,7 +591,7 @@ export default class Authentication extends Component {
             </div>
           </ScrollView>
         </div>
-        <DetailFooter isCorrect onSave={this.onSave} closeDetail={this.props.closeDetail} />
+        <DetailFooter {...this.props} isCorrect onSave={this.onSave} />
       </Fragment>
     );
   }

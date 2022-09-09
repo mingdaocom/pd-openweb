@@ -158,8 +158,8 @@ export default function Container(props) {
             if (savedWidgets.version === version) {
               Dialog.confirm({
                 title: _l('发现有未保存的更改，是否需要恢复 ？'),
-                okText: _l('是，恢复变更'),
-                cancelText: _l('否，放弃恢复'),
+                okText: _l('恢复'),
+                cancelText: _l('取消'),
                 cancelType: 'ghost',
                 onOk: () => {
                   initData(savedWidgets);

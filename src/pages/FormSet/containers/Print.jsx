@@ -2,7 +2,6 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Icon, ScrollView, LoadDiv, Dialog, Support } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
 import * as actions from '../redux/actions/print';
 import cx from 'classnames';
 import './print.less';
@@ -12,57 +11,21 @@ import CSSTransitionGroup from 'react-addons-css-transition-group';
 import PrintTemDialog from '../components/PrintTemDialog';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
-import { getProjectLicenseInfo } from 'src/api/project';
 import { PRINT_TYPE } from 'src/pages/Print/config';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 @withClickAway
 class ActDia extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isNo: null,
       isFree: false,
     };
   }
-  componentWillMount() {
-    const { setFn, projectId } = this.props;
-    if (!projectId) {
-      this.setState({
-        isNo: true,
-      });
-      return;
-    }
-    let projects = md.global.Account.projects.filter(it => it.projectId === projectId);
-    if (projects.length <= 0) {
-      //外部协作
-      getProjectLicenseInfo({
-        projectId: projectId,
-      }).then(data => {
-        let { version = [], licenseType } = data;
-        let { versionId } = version;
-        this.setState({
-          /**
-           * licenseType
-           * 0: 过期
-           * 1: 正式版
-           * 2: 体验版
-           */
-          isNo: versionId === 1 || licenseType === 0,
-          isFree: licenseType === 0,
-        });
-      });
-    } else {
-      let { version = [], licenseType } = projects[0];
-      let { versionId } = version;
-      this.setState({
-        isNo: versionId === 1 || licenseType === 0,
-        isFree: licenseType === 0,
-      });
-    }
-  }
+
   render() {
     const { setFn, projectId } = this.props;
-    const { isNo, isFree } = this.state;
+    let featureType = getFeatureStatus(projectId, 20);
+    
     return (
       <ul className="actDia">
         <li
@@ -79,26 +42,28 @@ class ActDia extends React.Component {
           <Icon icon="print" className="" />
           {_l('通过系统打印创建')}
         </li>
-        <li
-          onClick={() => {
-            if (isNo) {
-              upgradeVersionDialog({ projectId, isFree });
-            } else {
-              setFn({
-                showEditPrint: true,
-              });
-            }
-          }}
-          className={cx('Relative', {})}
-        >
-          <Icon icon="new_word" className="" />
-          {_l('上传 Word 模板')}
-          {isNo && (
-            <span className="upNew">
-              <Icon icon="goprev" className="" />
-            </span>
-          )}
-        </li>
+        {featureType && (
+          <li
+            onClick={() => {
+              if (featureType === '2') {
+                buriedUpgradeVersionDialog(projectId, 20);
+              } else {
+                setFn({
+                  showEditPrint: true,
+                });
+              }
+            }}
+            className={cx('Relative', {})}
+          >
+            <Icon icon="new_word" className="" />
+            {_l('上传 Word 模板')}
+            {featureType === '2' && (
+              <span className="upNew">
+                <Icon icon="goprev" className="" />
+              </span>
+            )}
+          </li>
+        )}
       </ul>
     );
   }

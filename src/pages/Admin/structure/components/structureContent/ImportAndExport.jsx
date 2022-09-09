@@ -246,7 +246,15 @@ class ImportAndExport extends Component {
             <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
             <span className="Font17">{_l('导入模板')}</span>
           </div>
-          <a className="Font16 downloadBtn" href="/staticfiles/template/user.xlsx" target="_blank">
+          <a
+            className="Font16 downloadBtn"
+            href={
+              !md.global.Config.IsLocal || md.global.Config.IsPlatformLocal
+                ? '/staticfiles/template/memberImport.xlsx'
+                : '/staticfiles/template/user.xlsx'
+            }
+            target="_blank"
+          >
             {_l('下载')}
           </a>
         </div>
@@ -259,8 +267,6 @@ class ImportAndExport extends Component {
   renderExport = () => {
     return (
       <div className="exportInfo">
-        {/* <div className="serialTitle mBottom3">{_l('1.导出通讯录')}</div> */}
-        {/* <div className="Gray_75 mBottom10">{_l('导出后，可在本地修改成员信息，上传更新')}</div> */}
         <div className="templateInfo">
           <div>
             <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
@@ -270,7 +276,6 @@ class ImportAndExport extends Component {
             {_l('导出')}
           </div>
         </div>
-        {/* <div className="serialTitle mBottom3">{_l('2.上传完善后的表格')}</div> */}
         <div className="Gray_75 mBottom16">{_l('如果需要修改成员信息，可在本地编辑后，上传表格完成修改')}</div>
         {this.renderUpload()}
       </div>

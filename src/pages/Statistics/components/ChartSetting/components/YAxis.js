@@ -87,7 +87,7 @@ const SortableItem = SortableElement(props => {
             </Tooltip>
           )
         )}
-        <Dropdown overlay={renderOverlay(item, { onNormType, onChangeControlId })} trigger={['click']}>
+        <Dropdown overlay={renderOverlay(item, { onNormType, onChangeControlId })} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon

@@ -55,7 +55,7 @@ export default function SearchInput(props) {
     );
   }
   return (
-    <SearchInputCon>
+    <SearchInputCon className={props.className}>
       <i className="icon icon-search Font18 Gray_9d"></i>
       <input
         ref={inputRef}

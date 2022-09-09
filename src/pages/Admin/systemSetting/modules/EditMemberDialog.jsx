@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
 
 export default class EditMemberDialog extends Component {
@@ -9,58 +9,82 @@ export default class EditMemberDialog extends Component {
       userList: [],
       isSearch: false,
       memberKeywords: '',
-      members: []
+      members: [],
+      isLoading: false,
+      pageSize: 50,
+      pageIndex: 1,
+      isLoadMore: false,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.workSiteId !== this.props.workSiteId) {
-      this.getUserList(nextProps.workSiteId)
+    if (nextProps.workSiteId !== this.props.workSiteId) {
+      this.setState({ isLoading: true }, () => {
+        this.getUserList(nextProps.workSiteId);
+      });
     }
   }
 
   getUserList(workSiteId) {
-    workSiteController.getWorkSiteUsers({
-      workSiteId: workSiteId || this.props.workSiteId,
-      projectId: this.props.projectId,
-      keywords: this.state.memberKeywords,
-    }).then((data) => {
-      this.setState({
-        userList: data.list,
-        members: _.map(data.list, user => user.accountId)
+    let { memberKeywords, pageIndex = 1, pageSize, userList = [] } = this.state;
+    workSiteController
+      .getWorkSiteUsers({
+        workSiteId: workSiteId || this.props.workSiteId,
+        projectId: this.props.projectId,
+        keywords: memberKeywords,
+        pageIndex,
+        pageSize,
       })
-    })
+      .then(data => {
+        let list = pageIndex > 1 ? userList.concat(data.list) : data.list;
+        this.setState({
+          isLoading: false,
+          isLoadMore: data.list.length >= pageSize ? true : false,
+          userList: list,
+          members: _.map(list, user => user.accountId),
+        });
+      });
   }
-
+  onScrollEnd = _.throttle(() => {
+    let { isLoadMore, isLoading } = this.state;
+    if (isLoading || !isLoadMore) return;
+    this.setState({ pageIndex: this.state.pageIndex + 1, isLoadMore: false }, () => {
+      this.getUserList();
+    });
+  });
   renderUserList = () => {
-    const { userList, isSearch } = this.state;
+    const { userList, isSearch, isLoading } = this.state;
+    if (isLoading) {
+      return (
+        <div className="content pBottom10 Font13">
+          <LoadDiv className="top30" />
+        </div>
+      );
+    }
     return (
       <div className="content pBottom10 Font13">
-        {userList.length ? (
-          userList.map(user => {
-            return (
-              <div className="contentUser" key={user.accountId}>
-                <img
-                  className="mLeft10 headIcon"
-                  src={user.avatar}
-                  alt=""
-                  onError={() => '/images/default.gif'}
-                />
-                <div className="contentName overflow_ellipsis">
-                  <span className="mLeft5">{user.fullname}</span>
+        <ScrollView onScrollEnd={this.onScrollEnd}>
+          {userList.length ? (
+            userList.map(user => {
+              return (
+                <div className="contentUser" key={user.accountId}>
+                  <img className="mLeft10 headIcon" src={user.avatar} alt="" onError={() => '/images/default.gif'} />
+                  <div className="contentName overflow_ellipsis">
+                    <span className="mLeft5">{user.fullname}</span>
+                  </div>
+                  <div className="contentJob overflow_ellipsis">
+                    <span>{user.job}</span>
+                  </div>
+                  <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
+                    <span className="ThemeHoverColor3 icon-delete2 deleteMember Gray_9 Hand Font18"></span>
+                  </div>
                 </div>
-                <div className="contentJob overflow_ellipsis">
-                  <span>{user.job}</span>
-                </div>
-                <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
-                  <span className="ThemeHoverColor3 icon-delete2 deleteMember Gray_9 Hand Font18"></span>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="Gray_6 mTop20 TxtCenter">{_l('该工作地点还没有成员')}</div>
-        )}
+              );
+            })
+          ) : (
+            <div className="Gray_6 mTop20 TxtCenter">{_l('该工作地点还没有成员')}</div>
+          )}
+        </ScrollView>
         {isSearch && (
           <div className="nullContent">
             <div>
@@ -74,7 +98,7 @@ export default class EditMemberDialog extends Component {
   };
 
   handleAdd() {
-    const _this = this
+    const _this = this;
     require(['dialogSelectUser'], function () {
       $({}).dialogSelectUser({
         showMoreInvite: false,
@@ -88,59 +112,68 @@ export default class EditMemberDialog extends Component {
           filterAccountIds: _this.state.members, // 过滤指定的用户
           filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
           dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
-          callback: (data) => {
-            workSiteController.addWorkSiteUser({
-              workSiteId: _this.props.workSiteId,
-              accountIds: _.map(data, user => user.accountId),
-              projectId: _this.props.projectId
-            }).then((data) => {
-              if (data) {
-                _this.getUserList()
-                _this.props.getData()
-              } else
-                alert(_l('添加失败'), 2);
-            });
+          callback: data => {
+            workSiteController
+              .addWorkSiteUser({
+                workSiteId: _this.props.workSiteId,
+                accountIds: _.map(data, user => user.accountId),
+                projectId: _this.props.projectId,
+              })
+              .then(data => {
+                if (data) {
+                  _this.getUserList();
+                  _this.props.getData();
+                } else alert(_l('添加失败'), 2);
+              });
           },
         },
-      })
+      });
     });
-  };
+  }
 
   deleteUser(id) {
     var reqData = {
       accountId: id,
       projectId: this.props.projectId,
-    }
-    workSiteController.deleteWorkSiteUser(reqData).then((data) => {
+    };
+    workSiteController.deleteWorkSiteUser(reqData).then(data => {
       if (data) {
-        this.getUserList()
-        this.props.getData()
-      } else
-        alert(_l('删除失败'), 2);
+        this.getUserList();
+        this.props.getData();
+      } else alert(_l('删除失败'), 2);
     });
-  };
+  }
 
   handleSearch(e) {
-    this.setState({
-      memberKeywords: $.trim(e.target.value)
-    }, () => {
-      this.getUserList()
-    })
+    this.setState(
+      {
+        memberKeywords: $.trim(e.target.value),
+      },
+      () => {
+        this.getUserList();
+      },
+    );
   }
 
   render() {
-    const { userList } = this.state
+    const { userCount } = this.props;
     return (
       <Dialog
         visible={this.props.visible}
-        title={_l(`添加成员(${userList.length})`)}
+        title={_l(`添加成员(${userCount})`)}
         width="480"
         overlayClosable={false}
         footer={null}
-        onCancel={() => this.props.closeMenberDialog()}>
+        onCancel={() => this.props.closeMenberDialog()}
+      >
         <div className="editMemberDialog" id="editMemberDialog">
           <div className="Relative">
-            <input type="text" className="ming Input w100 pLeft30" placeholder={_l('搜索')} onKeyUp={(e) => this.handleSearch(e)} />
+            <input
+              type="text"
+              className="ming Input w100 pLeft30"
+              placeholder={_l('搜索')}
+              onKeyUp={e => this.handleSearch(e)}
+            />
             <span className="btnSearch icon-search Gray_9"></span>
           </div>
           <div id="memberList" className="mTop10">

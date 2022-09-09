@@ -78,7 +78,7 @@ export default class AvatarEditor extends Component {
       return;
     }
     //1= 用户头像
-    getToken([{ bucket: 4, ext: '.png' }], 1).then(res => {
+    getToken([{ bucket: 4, ext: '.png' }], this.props.defaultType ? 0 : 1).then(res => {
       if (res.error) {
         alert(res.error);
       } else {

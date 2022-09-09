@@ -13,6 +13,7 @@ import {
   HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
   HAS_EXPLAIN_CONTROL,
   HAVE_CONFIG_CONTROL,
+  HAS_WARNING_CONTROL,
 } from '../config';
 import DynamicDefaultValue from './components/DynamicDefaultValue';
 import { enumWidgetType } from '../util';
@@ -22,8 +23,16 @@ import WidgetVerify from './components/WidgetVerify';
 import ControlSetting from './components/ControlSetting';
 import components from './components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-const { WidgetIntro, WidgetExplain, WidgetDes, WidgetPermission, WidgetName, WidgetWidth, WidgetMobileInput } =
-  components;
+const {
+  WidgetIntro,
+  WidgetExplain,
+  WidgetDes,
+  WidgetPermission,
+  WidgetName,
+  WidgetWidth,
+  WidgetMobileInput,
+  WidgetWarning,
+} = components;
 
 const SettingWrap = styled.div`
   position: relative;
@@ -80,8 +89,8 @@ function WidgetSetting(props) {
           {!includes([34], type) && (
             <Fragment>
               {!rest.withoutIntro && <WidgetIntro {...allProps} />}
-              {/* // 备注字段没名字 */}
-              {type !== 10010 && <WidgetName {...allProps} />}
+              {HAS_WARNING_CONTROL.includes(type) && <WidgetWarning {...allProps} />}
+              <WidgetName {...allProps} />
             </Fragment>
           )}
           {/* rest.type 已指定类型的情况下不可更改 */}
@@ -90,7 +99,9 @@ function WidgetSetting(props) {
           {!rest.quickAddControl && (
             <Fragment>
               {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
-              {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
+              {(!NO_VERIFY_WIDGET.includes(type) || (type === 50 && enumDefault === 2)) && (
+                <WidgetVerify {...allProps} />
+              )}
               {(HAVE_CONFIG_CONTROL.includes(type) ||
                 (type === 10 && advancedSetting.checktype === '1') ||
                 (type === 11 && advancedSetting.showtype !== '2')) && <ControlSetting {...allProps} />}

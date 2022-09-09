@@ -4,6 +4,7 @@ import ChartDialog from 'statistics/ChartDialog';
 import sheetAjax from 'src/api/worksheet';
 import { useSetState } from 'react-use';
 import CreateAnalysis from './CreateAnalysis';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Analysis(props) {
   const { widget, onEdit, onUpdate, onClose, ids, projectId, sheetList } = props;
@@ -42,14 +43,16 @@ export default function Analysis(props) {
           worksheetId={worksheetId}
           viewId={viewId}
           report={report}
-          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportDesc }) => {
+          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportDesc, worksheetId }) => {
+            const { config = {} } = widget;
+            const newConfig = config.objectId ? config : { ...config, objectId: uuidv4() }
             if (reportId) {
-              onEdit({ value: reportId });
+              onEdit({ value: reportId, config: newConfig, worksheetId, name: reportName });
               onClose();
               return;
             }
             if (report.id && reportName !== widget.name) {
-              onEdit({ name: reportName });
+              onEdit({ name: reportName, config: newConfig });
               onClose();
               return;
             }

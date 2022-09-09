@@ -5,6 +5,7 @@ import { func, shape, string, number } from 'prop-types';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 import { Input } from 'ming-ui';
 import { DATE_OPTIONS } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { Option } from './Options';
 import RightSidebar from './RightSidebar';
 import DateTimeList from './DateTimeList';
@@ -27,9 +28,15 @@ export default function DateTime(props) {
   } catch (err) {}
   const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
-  const date = DATE_OPTIONS.map(os => os.filter(o => _.includes(allowedDateRange, o.value))).filter(
-    item => item.length,
-  );
+  const showType = _.get(control, 'advancedSetting.showtype');
+  const valueFormat = getShowFormat(control);
+  const date = _.includes(['4', '5'], showType)
+    ? DATE_OPTIONS.map(os =>
+        os.filter(o => _.includes(showType === '5' ? [15, 16, 17] : [7, 8, 9, 12, 13, 14, 15, 16, 17], o.value)),
+      )
+        .filter(item => item.length)
+        .map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))
+    : DATE_OPTIONS.map(v => v.filter(item => item.value !== 18)).filter(t => !_.isEmpty(t));
   const optionDate = _.flatten(date);
   const startDateValue = minValue ? moment(minValue).toDate() : null;
   const endDateValue = maxValue ? moment(maxValue).toDate() : null;
@@ -44,6 +51,7 @@ export default function DateTime(props) {
     }
   };
   const startDateExtraObj = endDateValue ? { max: new Date(endDateValue) } : {};
+  const precisionObj = { 5: 'year', 4: 'month', 3: 'date', 2: 'hour', 1: 'minite', 6: 'second' };
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
@@ -66,22 +74,15 @@ export default function DateTime(props) {
           {startDateVisible && (
             <MobileDatePicker
               customHeader={_l('开始时间')}
+              precision={precisionObj[showType]}
               isOpen={startDateVisible}
               value={startDateValue ? new Date(startDateValue) : new Date()}
-              precision={
-                control.controlId === 'ctime' || control.controlId === 'utime'
-                  ? 'second'
-                  : control.type === 16
-                  ? 'minite'
-                  : 'date'
-              }
               onSelect={date => {
                 const d =
                   control.controlId === 'ctime' || control.controlId === 'utime'
                     ? moment(date).format('YYYY-MM-DD HH:mm:ss')
-                    : control.type === 16
-                    ? moment(date).format('YYYY-MM-DD HH:mm')
-                    : moment(date).format('YYYY-MM-DD');
+                    : moment(date).format(valueFormat);
+
                 onChange({
                   dateRange: 18,
                   filterType: 31,
@@ -92,6 +93,12 @@ export default function DateTime(props) {
               }}
               onCancel={() => {
                 setStartDateVisible(false);
+                onChange({
+                  dateRange: 18,
+                  filterType: 31,
+                  minValue: null,
+                  maxValue,
+                });
               }}
               {...startDateExtraObj}
             />
@@ -103,7 +110,7 @@ export default function DateTime(props) {
             readOnly
             className="centerAlign"
             placeholder={_l('结束')}
-            value={maxValue}
+            value={maxValue || ''}
             onClick={() => {
               setEndDateVisible(true);
             }}
@@ -114,20 +121,12 @@ export default function DateTime(props) {
               isOpen={endDateVisible}
               value={endDateValue ? new Date(endDateValue) : new Date()}
               min={new Date(startDateValue)}
-              precision={
-                control.controlId === 'ctime' || control.controlId === 'utime'
-                  ? 'second'
-                  : control.type === 16
-                  ? 'minute'
-                  : 'date'
-              }
+              precision={precisionObj[showType]}
               onSelect={date => {
                 const d =
                   control.controlId === 'ctime' || control.controlId === 'utime'
                     ? moment(date).format('YYYY-MM-DD HH:mm:ss')
-                    : control.type === 16
-                    ? moment(date).format('YYYY-MM-DD HH:mm')
-                    : moment(date).format('YYYY-MM-DD');
+                    : moment(date).format(valueFormat);
                 onChange({
                   dateRange: 18,
                   filterType: 31,
@@ -138,6 +137,12 @@ export default function DateTime(props) {
               }}
               onCancel={() => {
                 setEndDateVisible(false);
+                onChange({
+                  dateRange: 18,
+                  filterType: 31,
+                  minValue,
+                  maxValue: null,
+                });
               }}
             />
           )}
@@ -155,9 +160,11 @@ export default function DateTime(props) {
             {item.text}
           </Option>
         ))}
-        <Option className="more" onClick={handleSetMoreVisible}>
-          {_l('更多...')}
-        </Option>
+        {optionDate.length > 10 && (
+          <Option className="more" onClick={handleSetMoreVisible}>
+            {_l('更多...')}
+          </Option>
+        )}
       </div>
       {moreVisible && (
         <RightSidebar name={control.controlName} onHideSidebar={handleSetMoreVisible}>

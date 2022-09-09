@@ -25,8 +25,6 @@ const getValue = (value, type) => {
   return value ? `${value} 23:59` : value;
 };
 
-const { admin: { homePage: { userBuy } }} = window.private;
-
 export default class Portal extends Component {
   constructor(props) {
     super(props);
@@ -298,7 +296,7 @@ export default class Portal extends Component {
             {_l('%0人', limitExternalUserCount - total < 0 ? 0 : limitExternalUserCount - total)}
           </span>
 
-          {allowUpgradeExternalPortal && showOption && !userBuy && (
+          {allowUpgradeExternalPortal && showOption && (
             <span className="mLeft20">
               {/* <span className="Gray_9e mRight5">{_l('%0天后到期', expireDays)}</span> */}
               <Link
@@ -311,14 +309,14 @@ export default class Portal extends Component {
             </span>
           )}
 
-          {showOption && !userBuy && (
+          {/* {showOption && (
             <Link
               className={cx('ThemeColor3 ThemeHoverColor2  NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
               to={`/admin/expansionservice/${this.props.match.params.projectId}/portaluser`}
             >
               {_l('扩充')}
             </Link>
-          )}
+          )} */}
         </div>
 
         {selectedColumnIds.length > 0 ? (

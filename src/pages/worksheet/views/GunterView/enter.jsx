@@ -7,6 +7,7 @@ import { saveView, updateWorksheetControls } from 'worksheet/redux/actions';
 import SelectFieldForStartOrEnd from 'worksheet/views/components/SelectFieldForStartOrEnd';
 import { getAdvanceSetting } from 'src/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import styled from 'styled-components';
 const Wrap = styled.div`
@@ -31,7 +32,14 @@ export default class GunterEnter extends Component {
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate); //开始时间字段已删除
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate); //结束时间字段已删除
-    if (isDelete || !begindate || !enddate || isDeleteEnd) {
+    if (
+      isDelete ||
+      !begindate ||
+      !enddate ||
+      isDeleteEnd ||
+      isIllegal(controls.find(item => item.controlId === begindate) || {}) ||
+      isIllegal(controls.find(item => item.controlId === enddate) || {})
+    ) {
       return (
         <Wrap>
           <SelectField

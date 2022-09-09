@@ -78,6 +78,7 @@ export default function SelectOptionList(props) {
             value={listId || undefined}
             isAppendToBody
             border
+            openSearch
             data={list.map(({ name, collectionId }) => ({ text: name, value: collectionId }))}
             onChange={value => setInfo({ listId: value, listItem: find(list, item => item.collectionId === value) })}
           />

@@ -99,7 +99,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #EAEAEA;
+    border-bottom: 1px solid #eaeaea;
     box-sizing: border-box;
     .detailTitle {
       display: flex;
@@ -120,7 +120,7 @@
           font-size: 15px;
         }
         &.menuTab-active {
-          border-bottom-color: #2196F3;
+          border-bottom-color: #2196f3;
           a {
             color: #333333 !important;
           }
@@ -128,6 +128,9 @@
       }
     }
     .roleListAction {
+      .lineHeight36 {
+        line-height: 36px;
+      }
       .roleApplyRecord {
         color: #9e9e9e;
         font-size: 13px;
@@ -138,7 +141,7 @@
         height: 32px;
         border-radius: 16px;
       }
-      .applyRecordCount {  
+      .applyRecordCount {
         color: #f44336;
         padding: 1px 8px;
         border-radius: 20px;
@@ -150,5 +153,16 @@
   .roleAuthContent {
     flex: 1;
     min-height: 0;
+  }
+  .noPermission {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    img {
+      width: 100px;
+    }
   }
 }

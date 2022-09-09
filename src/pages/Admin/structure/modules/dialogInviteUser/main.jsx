@@ -9,14 +9,16 @@ import utils from '@mdfe/intl-tel-input/build/js/utils';
 import 'dialogSelectUser';
 import Act from './act';
 import DialogSelectDept from 'dialogSelectDept';
-import DialogSelectJob from 'src/components/DialogSelectJob';
 import copy from 'copy-to-clipboard';
 var workSiteController = require('src/api/workSite');
 var importUserController = require('src/api/importUser');
 import { Icon, Radio } from 'ming-ui';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
-import { Tooltip } from 'antd';
+import { Tooltip, Select } from 'antd';
+import { getJobs, addJob } from 'src/api/job';
+
+const { Option } = Select;
 
 const checkUser = ([input, iti]) => {
   if (!input.value) {
@@ -195,12 +197,14 @@ class Main extends Component {
     super(props);
     this.state = _.merge({}, initialState, {
       departmentInfos: this.props.departmentInfos || [], //部门信息
-      jobInfos: this.props.jobInfos || [], //职位信息
       workSites: [],
       workSitesLoaded: false,
       jobsLoaded: false,
       isShowAct: false,
       idAct: '',
+      jobList: [],
+      jobIds: [],
+      keywords: '',
     });
     this.closeDialog = props.closeDialog;
     this.dialogCenter = props.dialogCenter;
@@ -211,12 +215,14 @@ class Main extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleFieldInput = this.handleFieldInput.bind(this);
     this.clearError = this.clearError.bind(this);
+    this.iti = null;
+    this.ajaxRequest = null;
   }
 
   componentDidMount() {
     this.dialogCenter();
     this.itiInviteFn();
-    // this.itiAutonomouslyFn();
+    this.getJobList();
   }
 
   componentDidUpdate() {
@@ -231,6 +237,21 @@ class Main extends Component {
     this.itiInvite.destroy();
     this.itiAutonomously.destroy();
   }
+
+  itiFn = () => {
+    if (this.mobile) {
+      this.iti && this.iti.destroy();
+      this.iti = intlTelInput(this.mobile, {
+        customPlaceholder: '',
+        autoPlaceholder: 'off',
+        initialCountry: 'cn',
+        loadUtils: '',
+        preferredCountries: ['cn'],
+        utilsScript: utils,
+        separateDialCode: true,
+      });
+    }
+  };
 
   itiInviteFn = () => {
     this.itiInvite && this.itiInvite.destroy();
@@ -384,16 +405,12 @@ class Main extends Component {
       }
       if (isInvite || isAutonomously) {
         if (e.target.value.length > 3 && !isNaN(Number(e.target.value))) {
-          $(currentEl)
-            .parent()
-            .removeClass('phoneWrapper');
+          $(currentEl).parent().removeClass('phoneWrapper');
           $('.iti__flag-container').show();
           $(currentEl).css({ 'padding-left': '80px' });
         } else {
           $('.iti__flag-container').hide();
-          $(currentEl)
-            .parent()
-            .addClass('phoneWrapper');
+          $(currentEl).parent().addClass('phoneWrapper');
         }
       }
     };
@@ -447,8 +464,7 @@ class Main extends Component {
       return false;
     } else {
       const { projectId } = this.props;
-
-      const { editable, inviteType, departmentInfos = [], jobInfos = [], jobNumber, workSiteId, contactPhone } = state;
+      const { editable, inviteType, departmentInfos = [], jobNumber, workSiteId, contactPhone, jobIds = [] } = state;
       const copyText =
         inviteType === 'autonomously'
           ? `${_l('登录账号')}: ${autonomously} ${_l('密码')}: ${autonomouslyPasswrod}`
@@ -457,7 +473,7 @@ class Main extends Component {
         projectId,
         accountId: '',
         account: '',
-        jobIds: jobInfos.map(it => it.jobId).join(';'),
+        jobIds: jobIds.join(';'),
         departmentIds: departmentInfos.map(it => it.departmentId).join(';'),
         jobNumber,
         workSiteId,
@@ -476,7 +492,6 @@ class Main extends Component {
       this.setState({
         isUploading: true,
         departmentInfos: [],
-        jobInfos: [],
       });
       importUserController
         .inviteUser(params)
@@ -539,19 +554,6 @@ class Main extends Component {
       },
     });
   };
-  // 添加职位
-  dialogSelectJobFn = e => {
-    const { projectId } = this.props;
-    new DialogSelectJob({
-      projectId,
-      onSave: data => {
-        this.setState({
-          jobInfos: data,
-          // idAct: data[0].departmentId
-        });
-      },
-    });
-  };
 
   renderInvite() {
     const { inviteType, editable, autonomously, autonomouslyPasswrod, errors } = this.state;
@@ -573,7 +575,9 @@ class Main extends Component {
             onClick={this.changeInviteType('invite')}
             text={_l('邀请加入')}
           />
-          <Radio checked={!isInvite} onClick={this.changeInviteType('autonomously')} text={_l('自主创建')} />
+          {!md.global.Config.IsPlatformLocal && (
+            <Radio checked={!isInvite} onClick={this.changeInviteType('autonomously')} text={_l('自主创建')} />
+          )}
         </div>
         {!isInvite ? (
           <div className="formGroup">
@@ -674,6 +678,43 @@ class Main extends Component {
     );
   }
 
+  getJobList = jobName => {
+    const { projectId } = this.props;
+    const { keywords, jobList = [] } = this.state;
+    if (this.ajaxRequest) {
+      this.ajaxRequest.abort();
+    }
+    this.ajaxRequest = getJobs({
+      projectId,
+      keywords,
+      pageIndex: 1,
+      pageSize: 1000,
+    });
+    this.ajaxRequest.then(res => {
+      let newJobInfo = jobName && _.find(res.list, item => item.jobName === jobName);
+      let jobIds = jobName && newJobInfo ? [newJobInfo.jobId] : [];
+      this.setState({
+        jobList: res.list,
+        jobIds: [...this.state.jobIds, ...jobIds],
+      });
+    });
+  };
+
+  handleAddJob = jobName => {
+    const { projectId } = this.props;
+    addJob({
+      projectId,
+      jobName,
+    }).then(res => {
+      if (res) {
+        alert(_l('创建成功'));
+        this.getJobList(jobName);
+      } else {
+        alert(_l('创建失败'), 2);
+      }
+    });
+  };
+
   render() {
     const {
       editable,
@@ -684,12 +725,20 @@ class Main extends Component {
       autonomouslyPasswrod,
       errors,
       isUploading,
-      jobInfos,
-      inviteType,
-      jobs = [],
-      autonomously,
+      jobList = [],
+      jobIds = [],
+      keywords = '',
     } = this.state;
+    let jobResult = [...jobList];
 
+    if (keywords) {
+      jobResult = jobResult.filter(item => item.jobName.indexOf(keywords) > -1);
+    }
+    jobIds.forEach(item => {
+      if ((item || '').toString().indexOf('add_') > -1) {
+        jobResult.push({ jobId: '', jobName: item.split('add_')[1] });
+      }
+    });
     return (
       <div className="dialogContent_invite">
         <div className="formTable">
@@ -722,7 +771,7 @@ class Main extends Component {
         </div>
         {this.renderInvite()}
         <div className="formTable">
-          <div className="formGroup">
+          <div className="formGroup mBottom24">
             <span className="formLabel">{_l('部门')}</span>
             {departmentInfos.map((item, i) => {
               return (
@@ -795,70 +844,58 @@ class Main extends Component {
           </div>
           <div className="formGroup mBottom25">
             <span className="formLabel mTop5">{_l('职位')}</span>
-            <div className="jobBox">
-              {_.map(jobInfos, item => {
-                return (
-                  <span className="itemSpan mAll5">
-                    {item.jobName}
-                    <div className="moreOption">
-                      <Icon
-                        className="Font14 Hand Gray_bd"
-                        icon="moreop"
-                        onClick={e => {
-                          this.setState(
-                            {
-                              isShowAct: !this.state.isShowAct,
-                            },
-                            () => {
-                              if (this.state.isShowAct) {
-                                this.setState({
-                                  idAct: item.jobId,
-                                });
-                              }
-                            },
-                          );
-                        }}
-                      />
-                      {this.state.isShowAct && this.state.idAct === item.jobId && (
-                        <Act
-                          onClickAwayExceptions={[]}
-                          onClickAway={() =>
-                            this.setState({
-                              isShowAct: false,
-                              idAct: '',
-                            })
-                          }
-                          isPosition={true}
-                          isTop={false}
-                          deleteFn={() => {
-                            this.setState({
-                              isShowAct: false,
-                              idAct: '',
-                              jobInfos: this.state.jobInfos.filter(it => it.jobId !== item.jobId),
-                            });
-                          }}
-                          isShowAct={this.state.isShowAct}
-                        />
-                      )}
-                    </div>
-                  </span>
-                );
-              })}
-              <span className="jobChooseIcon Relative">
-                <Icon
-                  className="Font26 Hand Gray_9e mAll5 TxtMiddle"
-                  icon="task_add-02"
-                  onClick={e => {
-                    this.dialogSelectJobFn();
-                  }}
-                />
-                {/*{jobs.length <= 0 && <React.Fragment>
-                  <Icon className="Font26 Hand Gray_9e mAll5 TxtMiddle Red" icon="task-folder-message" />
-                  <span className='Red'>{_l('尚未配置职位')}</span>
-                  <span className='Gray_75'>{_l('前往创建')}</span>
-                </React.Fragment>} */}
-              </span>
-            </div>
+            <Select
+              ref={select => {
+                this.select = select;
+              }}
+              className="w100 jobSelect"
+              dropdownClassName="dropJobList"
+              showSearch
+              allowClear={jobIds.length > 0}
+              listHeight={285}
+              optionLabelProp="label"
+              value={jobIds}
+              placeholder="请选择"
+              suffixIcon={<Icon icon="arrow-down-border Font14" />}
+              filterOption={() => true}
+              notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的职位')}</span>}
+              onSearch={keywords =>
+                this.setState({ keywords, jobIds: jobIds.filter(item => item.indexOf('add_') === -1) })
+              }
+              onDropdownVisibleChange={open => {
+                this.setState({ keywords: '' });
+                !open && this.select.blur();
+              }}
+              mode="multiple"
+              onChange={jobIds => {
+                let newJob = jobIds.find(item => item.indexOf('add_') > -1);
+                if (newJob) {
+                  let jobName = newJob.split('add_')[1];
+                  this.setState({ keywords: '' }, () => {
+                    this.handleAddJob(jobName);
+                  });
+                } else {
+                  this.setState({ jobIds, keywords: '' });
+                }
+              }}
+            >
+              {!!keywords && _.isEmpty(jobList) && (
+                <Option disabled>
+                  <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的职位')}</span>
+                </Option>
+              )}
+              {jobResult.map(item => (
+                <Option key={item.jobId} value={item.jobId} label={item.jobName}>
+                  {item.jobName}
+                </Option>
+              ))}
+
+              {keywords && !jobResult.find(item => item.jobName === keywords) && (
+                <Option value={`add_${keywords}`} label={keywords}>
+                  <span>{_l('创建新职位：%0', keywords)}</span>
+                </Option>
+              )}
+            </Select>
           </div>
         </div>
         <div className="ThemeColor3 Hand mTop20 mBottom25" onClick={this.toggleShowMoreInfo()}>
@@ -867,38 +904,21 @@ class Main extends Component {
         </div>
         {moreInfo ? this.renderMoreInfo(moreInfo) : null}
         <div className="btnGroups">
-          <span className="Hand ThemeHoverColor3" onClick={this.closeDialog}>
+          <span className="Hand cancelBtn" onClick={this.closeDialog}>
             {_l('取消')}
           </span>
           <a
-            className="btnBootstrap btnBootstrap-small mLeft25"
+            className="btnBootstrap mLeft16 addContinueBtn"
             href="javascript:void(0);"
-            style={{
-              lineHeight: '36px',
-              height: '36px',
-              padding: '0 24px',
-              borderRadius: '32px',
-              border: '1px solid #2196F3',
-              background: '#fff',
-              color: '#2196F3',
-            }}
             disabled={isUploading}
             onClick={this.handleSubmit(true)}
           >
             {_l('继续添加')}
           </a>
           <a
-            className="btnBootstrap btnBootstrap-small mLeft25"
+            className="btnBootstrap mLeft16 addBtn"
             href="javascript:void(0);"
             disabled={isUploading}
-            style={{
-              lineHeight: '36px',
-              height: '36px',
-              padding: '0 24px',
-              borderRadius: '32px',
-              background: '#2196F3',
-              color: '#fff',
-            }}
             onClick={this.handleSubmit()}
           >
             {_l('添加')}
@@ -909,6 +929,6 @@ class Main extends Component {
   }
 }
 
-module.exports = function(container, props) {
+module.exports = function (container, props) {
   ReactDom.render(<Main {...props} />, container);
 };

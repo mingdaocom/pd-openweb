@@ -45,7 +45,7 @@ const MobileTableContent = styled.div`
 `;
 
 export default function MobileTable(props) {
-  const { onOpen, controls, rows, isEdit, allowcancel, allowadd, disabled, onDelete } = props;
+  const { onOpen, controls, rows, isEdit, allowcancel, allowadd, disabled, sheetSwitchPermit, onDelete } = props;
   const defaultMaxLength = 10;
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
   const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
@@ -94,6 +94,7 @@ export default function MobileTable(props) {
             >
               <CellControl
                 className="cell flex"
+                sheetSwitchPermit={sheetSwitchPermit}
                 cell={{ ...c, value: row[c.controlId] }}
                 row={row}
                 rowHeight={30}

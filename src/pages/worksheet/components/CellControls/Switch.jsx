@@ -4,7 +4,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Checkbox, Switch as SwitchComponent, RadioGroup } from 'ming-ui';
+import { Checkbox, Switch as SwitchComponent, RadioGroup, Tooltip } from 'ming-ui';
 import { autobind } from 'core-decorators';
 import { FROM } from './enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
@@ -27,6 +27,12 @@ export default class Switch extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.cell.value !== this.props.cell.value) {
+      this.setState({ value: nextProps.cell.value === '1' });
+    }
+  }
+
   @autobind
   handleChange(checked) {
     const { updateCell } = this.props;
@@ -45,7 +51,7 @@ export default class Switch extends React.Component {
   renderContent() {
     const { value } = this.state;
     const {
-      cell: { advancedSetting = {} },
+      cell: { advancedSetting = {}, hint = '' },
       editable,
     } = this.props;
     const checkedValue = value ? '1' : '0';
@@ -80,7 +86,13 @@ export default class Switch extends React.Component {
       );
     }
 
-    return <Checkbox className="InlineBlock" disabled={!editable} checked={value} onClick={this.handleChange} />;
+    return (
+      <Tooltip text={<span>{hint}</span>} popupPlacement="bottom" disable={!hint}>
+        <div className="flexCenter">
+          <Checkbox className="InlineBlock" disabled={!editable} checked={value} onClick={this.handleChange} />
+        </div>
+      </Tooltip>
+    );
   }
 
   render() {

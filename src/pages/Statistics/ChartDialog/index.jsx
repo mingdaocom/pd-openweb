@@ -84,7 +84,7 @@ export default class ChartDialog extends Component {
     }
   }
   getReportConfigDetail(reportType) {
-    const { report = {}, permissions, ownerId, sourceType, filters } = this.props;
+    const { report = {}, permissions, ownerId, sourceType, filters, filtersGroup } = this.props;
     const { reportId, worksheetId, viewId, settingVisible, sheetVisible } = this.state;
     this.props.changeBase({
       permissions,
@@ -95,7 +95,8 @@ export default class ChartDialog extends Component {
       viewId,
       settingVisible,
       sheetVisible,
-      filters
+      filters,
+      filtersGroup
     });
     this.props.getReportConfigDetail({
       reportId,
@@ -122,6 +123,7 @@ export default class ChartDialog extends Component {
         isRequest: true,
         reportId: result.reportId,
         reportName: data.name,
+        worksheetId: data.appId
       });
     });
   }
@@ -251,6 +253,7 @@ export default class ChartDialog extends Component {
               filter={currentReport.filter}
               exportData={{
                 filters: base.filters,
+                filtersGroup: base.filtersGroup,
                 sorts: currentReport.sorts,
                 particleSizeType: currentReport.particleSizeType,
                 ...currentReport.filter

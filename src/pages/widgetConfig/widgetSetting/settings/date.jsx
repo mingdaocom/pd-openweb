@@ -1,7 +1,8 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { RadioGroup } from 'ming-ui';
-import { string } from 'prop-types';
+import React, { Fragment, useEffect } from 'react';
+import { RadioGroup, Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import _ from 'lodash';
 
 const DISPLAY_OPTIONS = [
   {
@@ -14,8 +15,36 @@ const DISPLAY_OPTIONS = [
   },
 ];
 
+const DATE_DISPLAY_OPTION = [
+  {
+    value: '5',
+    text: _l('年'),
+  },
+  { value: '4', text: _l('年-月') },
+  { value: '3', text: _l('年-月-日') },
+];
+
+const DATE_TIME_DISPLAY_OPTION = [
+  {
+    value: '2',
+    text: _l('年-月-日 时'),
+  },
+  { value: '1', text: _l('年-月-日 时:分') },
+  { value: '6', text: _l('年-月-日 时:分:秒') },
+];
+
 export default function Text(props) {
   const { data, onChange } = props;
+  const { showtype } = getAdvanceSetting(data);
+  const types = data.type === 15 ? DATE_DISPLAY_OPTION : DATE_TIME_DISPLAY_OPTION;
+
+  useEffect(() => {
+    // 年、年-月类型隐藏星期、时段、分钟间隔
+    if (_.includes(['4', '5'], showtype)) {
+      onChange(handleAdvancedSettingChange(data, { allowweek: '', allowtime: '', timeinterval: '' }));
+    }
+  }, [showtype]);
+
   return (
     <Fragment>
       <SettingItem>
@@ -23,7 +52,18 @@ export default function Text(props) {
           size="middle"
           checkedValue={data.type}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ type: value })}
+          onChange={value =>
+            onChange({ ...handleAdvancedSettingChange(data, { showtype: value === 15 ? '3' : '1' }), type: value })
+          }
+        />
+      </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('类型')}</div>
+        <Dropdown
+          border
+          data={types}
+          value={showtype}
+          onChange={value => onChange(handleAdvancedSettingChange(data, { showtype: value }))}
         />
       </SettingItem>
     </Fragment>

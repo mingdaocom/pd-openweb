@@ -24,12 +24,12 @@ export default class AdminTools extends Component {
       activeTab: localStorage.getItem('userloginLogTab') ? localStorage.getItem('userloginLogTab') : 'otherTools',
     };
   }
-  componentWillUnmount(){
-    localStorage.removeItem('userloginLogTab')
+  componentWillUnmount() {
+    localStorage.removeItem('userloginLogTab');
   }
   // tab切换
   changeTab = item => {
-    localStorage.setItem('userloginLogTab', item.tabType);
+    safeLocalStorageSetItem('userloginLogTab', item.tabType);
     this.setState({ activeTab: item.tabType });
   };
   render() {

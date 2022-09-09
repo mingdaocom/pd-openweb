@@ -20,7 +20,9 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
   const { dateformulatype = '1', hideneg = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
-      <div className="Font12 Gray_9e mTop5">{_l('距离今天的运算方式为实时运算。不支持作为他表字段或继续用于公式计算')}</div>
+      <div className="Font12 Gray_9e mTop5">
+        {_l('距离今天的运算方式为实时运算。不支持作为他表字段或继续用于公式计算')}
+      </div>
       <SettingItem>
         <div className="settingItemTitle">{_l('计算')}</div>
         <Dropdown
@@ -34,6 +36,7 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
         <div className="settingItemTitle">{_l('选择日期')}</div>
         <DynamicSelectDateControl
           {...rest}
+          disableTimeControl={true}
           value={parseDataSource(sourceControlId)}
           onChange={value => onChange({ sourceControlId: value })}
         />
@@ -46,7 +49,8 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
             checked={hideneg === '1'}
             onClick={checked => {
               onChange(handleAdvancedSettingChange(data, { hideneg: checked ? '0' : '1' }));
-            }}>
+            }}
+          >
             <span style={{ marginRight: '6px' }}>{_l('不显示负值')}</span>
             <Tooltip popupPlacement="bottom" title={<span>{_l('勾选后，当计算结果为负数时，则显示为空')}</span>}>
               <i className="icon-help Gray_bd Font16 pointer"></i>

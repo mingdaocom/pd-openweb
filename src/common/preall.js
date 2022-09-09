@@ -20,6 +20,9 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
   if (transfertoken && urlparams.token) {
     args.token = urlparams.token;
   }
+  if (urlparams.access_token) {
+    window.access_token = urlparams.access_token;
+  }
   parseShareId();
   clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
   global.getGlobalMeta(args).then(data => {
@@ -53,8 +56,9 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
       (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !data['md.global'].Account.isPortal) ||
         (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
     ) {
-      location.href = `${data['md.global'].Account.isPortal ? '' : window.subPath
-        }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+      location.href = `${
+        data['md.global'].Account.isPortal ? '' : window.subPath
+      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
       return;
     }
 
@@ -153,6 +157,10 @@ function parseShareId() {
     window.shareState.isUpdateRecordShare = true;
     window.shareState.shareId = (location.pathname.match(/.*\/recordshare\/(\w{24})/) || '')[1];
   }
+  if (/\/form/.test(location.pathname)) {
+    window.shareState.isPublicQuery = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/form\/(\w{32})/) || '')[1];
+  }
 }
 
 function clearLocalStorage() {
@@ -163,5 +171,5 @@ function clearLocalStorage() {
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
-  } catch (err) { }
+  } catch (err) {}
 }

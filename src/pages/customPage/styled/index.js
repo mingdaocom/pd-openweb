@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { FlexCenter } from '../util';
+
 export const Header = styled(FlexCenter)`
   position: absolute;
   left: 0;
@@ -11,6 +12,7 @@ export const Header = styled(FlexCenter)`
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
   border-radius: 5px 5px 0 0;
   font-size: 17px;
+  z-index: 1;
   .typeName {
     font-weight: bold;
   }

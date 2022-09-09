@@ -22,6 +22,8 @@ import PBC from './PBC';
 import JSONParse from './JSONParse';
 import Authentication from './Authentication';
 import FindSystem from './FindSystem';
+import ApiPackage from './ApiPackage';
+import Api from './Api';
 
 export default {
   0: Start,
@@ -46,6 +48,9 @@ export default {
   20: PBC,
   21: JSONParse,
   22: Authentication,
+  23: Start,
+  24: ApiPackage,
+  25: Api,
   1000: FindSystem,
   1001: FindSystem,
 };

@@ -174,7 +174,9 @@ export function saveView(viewId, newConfig, cb) {
       return;
     }
     // 筛选需要在保存成功后再触发界面更新
-    const updateAfterSave = _.some(['filters', 'moreSort', 'viewControl'].map(k => editAttrs.includes(k)));
+    const updateAfterSave =
+      _.some(['filters', 'moreSort', 'viewControl'].map(k => editAttrs.includes(k))) ||
+      (editAttrs.includes('advancedSetting') && !!_.get(saveParams, ['advancedSetting', 'navfilters']));
     if (!updateAfterSave) {
       dispatch({
         type: 'WORKSHEET_UPDATE_VIEW',
@@ -248,7 +250,6 @@ export function addNewRecord(data, view) {
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
       dispatch(sheetViewAddRecord(data));
-      dispatch(getNavGroupCount());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
@@ -367,29 +368,7 @@ export function updateQuickFilter(filter = [], view) {
   return (dispatch, getState) => {
     dispatch({
       type: 'WORKSHEET_UPDATE_QUICK_FILTER',
-      filter: filter.map(c => {
-        let result = { ...c };
-        if (c.values) {
-          result.values = result.values.filter(_.identity);
-        }
-        // 关联记录 级联
-        if (c.dataType === 29 || c.dataType === 35) {
-          result.values = result.values.map(v => v.rowid);
-        }
-        // 人员
-        if (c.dataType === 26) {
-          result.values = result.values.map(v => v.accountId);
-        }
-        // 部门
-        if (c.dataType === 27) {
-          result.values = result.values.map(v => v.departmentId);
-        }
-        // 地区
-        if (_.includes([19, 23, 24], c.dataType)) {
-          result.values = result.values.map(v => v.id);
-        }
-        return result;
-      }),
+      filter: filter,
     });
     dispatch(refreshSheet(view, { resetPageIndex: true }));
   };

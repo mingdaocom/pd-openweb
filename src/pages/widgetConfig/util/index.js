@@ -360,3 +360,11 @@ export const formatSearchConfigs = res => {
     return { ...item, templates: [{ controls: (res.templates || {})[item.sourceId] || [] }] };
   });
 };
+
+export const getRgbaByColor = (color, alpha) => {
+  let sColorChange = [];
+  for (let i = 1; i < 7; i += 2) {
+    sColorChange.push(parseInt(`0x${color.slice(i, i + 2)}`));
+  }
+  return `rgba(${sColorChange.join(',')},${alpha})`;
+};

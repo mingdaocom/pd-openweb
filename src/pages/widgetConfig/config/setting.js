@@ -90,7 +90,7 @@ export const DEFAULT_TEXT = {
 export const SWITCH_TYPES = [
   {
     value: '0',
-    text: _l('检查框'),
+    text: _l('勾选框'),
   },
   {
     value: '1',
@@ -99,5 +99,28 @@ export const SWITCH_TYPES = [
   {
     value: '2',
     text: _l('是/否'),
+  },
+];
+
+export const DATE_SHOW_TYPES = [
+  {
+    value: '0',
+    text: _l('ISO'),
+    format: _l('YYYY-MM-DD'),
+  },
+  {
+    value: '1',
+    text: _l('中国'),
+    format: _l('YYYY年M月D日'),
+  },
+  {
+    value: '2',
+    text: _l('US'),
+    format: _l('M/D/YYYY'),
+  },
+  {
+    value: '3',
+    text: _l('EU'),
+    format: _l('D/M/YYYY'),
   },
 ];

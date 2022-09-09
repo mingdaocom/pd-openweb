@@ -240,9 +240,14 @@ export default class AttachmentList extends Component {
     this.props.onChange(newFiles, true);
   }
   previewAttachment(index) {
-    const { attachments } = this.props;
+    const { attachments, hideDownload } = this.props;
     const { updateTime } = attachments[index];
     require(['previewAttachments'], previewAttachments => {
+      const hideFunctions = ['editFileName'];
+      if (hideDownload) {
+        /* 是否不可下载 且 不可保存到知识和分享 */
+        hideFunctions.push('download', 'share', 'saveToKnowlege');
+      }
       previewAttachments({
         index: index || 0,
         attachments: updateTime
@@ -258,7 +263,7 @@ export default class AttachmentList extends Component {
             }),
         callFrom: updateTime ? 'player' : 'chat',
         showThumbnail: true,
-        hideFunctions: ['editFileName'],
+        hideFunctions,
       });
     });
   }

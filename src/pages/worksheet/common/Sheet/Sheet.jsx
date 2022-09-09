@@ -38,6 +38,10 @@ const ConView = styled.div`
   position: relative;
 `;
 
+const QuickFilterCon = styled.div`
+  border-bottom: 1px solid #e0e0e0;
+`;
+
 const Drag = styled.div(
   ({ left }) => `
   position: absolute;
@@ -66,8 +70,10 @@ function Sheet(props) {
     activeViewStatus,
     isCharge,
     updateGroupFilter,
+    updateFilters,
     config = {},
     navGroupFilters = [],
+    filtersGroup,
     chartId,
     showControlIds,
     showAsSheetView,
@@ -111,6 +117,12 @@ function Sheet(props) {
   }, [worksheetId, flag]);
 
   useEffect(() => {
+    if (_.isArray(filtersGroup) && !loading) {
+      updateFilters({ filtersGroup }, view);
+    }
+  }, [filtersGroup, loading]);
+
+  useEffect(() => {
     updateGroupFilter([], view);
   }, [view.viewId, worksheetId]);
 
@@ -142,7 +154,9 @@ function Sheet(props) {
             )}
             {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
             {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && !chartId && (
-              <QuickFilter {...basePara} filters={view.fastFilters} />
+              <QuickFilterCon>
+                <QuickFilter {...basePara} filters={view.fastFilters} />
+              </QuickFilterCon>
             )}
             {hasGroupFilter && !chartId ? (
               <ConView>
@@ -154,7 +168,7 @@ function Sheet(props) {
                     onChange={value => {
                       setDragMaskVisible(false);
                       setGroupFilterWidth(value);
-                      window.localStorage.setItem('navGroupWidth', value);
+                      safeLocalStorageSetItem('navGroupWidth', value);
                     }}
                   />
                 )}
@@ -163,7 +177,7 @@ function Sheet(props) {
                   isOpenGroup={isOpenGroup}
                   changeGroupStatus={isOpen => {
                     setIsOpenGroup(isOpen);
-                    window.localStorage.setItem('navGroupIsOpen', isOpen);
+                    safeLocalStorageSetItem('navGroupIsOpen', isOpen);
                     if (isOpen) {
                       setGroupFilterWidth(window.localStorage.getItem('navGroupWidth') || 210);
                     } else {
@@ -214,7 +228,7 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['updateBase', 'loadWorksheet', 'updateGroupFilter', 'openNewRecord']),
+      _.pick(actions, ['updateBase', 'updateFilters', 'loadWorksheet', 'updateGroupFilter', 'openNewRecord']),
       dispatch,
     ),
 )(errorBoundary(Sheet));

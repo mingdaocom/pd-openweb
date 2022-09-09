@@ -67,7 +67,7 @@ export default class Branch extends Component {
     }
 
     updateHideNodes(workflowHideNodes);
-    localStorage.setItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
+    safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
   };
 
   /**

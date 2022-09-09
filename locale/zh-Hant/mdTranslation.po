@@ -36656,3 +36656,2035 @@ msgstr "建立記錄時，以選中列表作為預設值"
 msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
 msgstr "如：在商品表中以商品型別（生鮮、副食、飲料等）作為篩選列表時，如果當前選中了飲料分類，則建立記錄時商品型別預設為飲料。"
 
+#: Disabled references:1
+msgid "选择组织角色"
+msgstr "選擇組織角色"
+
+#: Disabled references:1
+msgid "搜索组织角色"
+msgstr "搜尋組織角色"
+
+#: Disabled references:1
+msgid "仅当前部门"
+msgstr "僅當前部門"
+
+#: Disabled references:1
+msgid "快递单号查询"
+msgstr "快遞單號查詢"
+
+#: Disabled references:1
+msgid "企业名称模糊搜索"
+msgstr "企業名稱模糊搜尋"
+
+#: Disabled references:1
+msgid "未来7日天气查询"
+msgstr "未來7日天氣查詢"
+
+#: Disabled references:1
+msgid "企业工商信息搜索"
+msgstr "企業工商資訊搜尋"
+
+#: Disabled references:1
+msgid "商品条码查询"
+msgstr "商品條碼查詢"
+
+#: Disabled references:1
+msgid "人脸身份核验"
+msgstr "人臉身份核驗"
+
+#: Disabled references:1
+msgid "更多…"
+msgstr "更多…"
+
+#: Disabled references:1
+msgid "安装明道云预集成的API，或自定义添加"
+msgstr "安裝明道雲預整合的API，或自定義新增"
+
+#: Disabled references:1
+msgid "去集成中心安装"
+msgstr "去整合中心安裝"
+
+#: Disabled references:1
+msgid "去集成中心添加"
+msgstr "去整合中心新增"
+
+#: Disabled references:1
+msgid "暂无可用API"
+msgstr "暫無可用API"
+
+#: Disabled references:1
+msgid "搜索API名称"
+msgstr "搜尋API名稱"
+
+#: Disabled references:1
+msgid "暂无签名记录"
+msgstr "暫無簽名記錄"
+
+#: Disabled references:1
+msgid "使用上次签名"
+msgstr "使用上次簽名"
+
+#: Disabled references:1
+msgid "组织角色"
+msgstr "組織角色"
+
+#: Disabled references:1
+msgid "使用分析"
+msgstr "使用分析"
+
+#: Disabled references:1
+msgid "视图分享"
+msgstr "檢視分享"
+
+#: Disabled references:1
+msgid "视图导出"
+msgstr "檢視匯出"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "記錄分享"
+
+#: Disabled references:1
+msgid "附件下载"
+msgstr "附件下載"
+
+#: Disabled references:1
+msgid "记录日志"
+msgstr "記錄日誌"
+
+#: Disabled references:1
+msgid "7天内免登录"
+msgstr "7天內免登入"
+
+#: Disabled references:1
+msgid "点登陆即代表同意"
+msgstr "點登陸即代表同意"
+
+#: Disabled references:1
+msgid "手机验证码错误"
+msgstr "手機驗證碼錯誤"
+
+#: Disabled references:1
+msgid "手机验证码过期或失效"
+msgstr "手機驗證碼過期或失效"
+
+#: Disabled references:1
+msgid "开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。"
+msgstr "開啟時，當使用者被新增、移除、變更角色時會收到系統通知，關閉時，以上操作不通知使用者。"
+
+#: Disabled references:1
+msgid "发送通知"
+msgstr "傳送通知"
+
+#: Disabled references:1
+msgid "允许查看"
+msgstr "允許檢視"
+
+#: Disabled references:1
+msgid "%0 个组织角色"
+msgstr "%0 個組織角色"
+
+#: Disabled references:1
+msgid "筛选组件"
+msgstr "篩選元件"
+
+#: Disabled references:1
+msgid "连接与认证"
+msgstr "連線與認證"
+
+#: Disabled references:1
+msgid "API"
+msgstr "API"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证）"
+msgstr "OAuth 2.0 認證（客戶端憑證）"
+
+#: Disabled references:1
+msgid "无需认证"
+msgstr "無需認證"
+
+#: Disabled references:1
+msgid "该组织已删除"
+msgstr "該組織已刪除"
+
+#: Disabled references:1
+msgid "字段ID"
+msgstr "欄位ID"
+
+#: Disabled references:1
+msgid "网络id"
+msgstr "網路id"
+
+#: Disabled references:1
+msgid "应用id"
+msgstr "應用id"
+
+#: Disabled references:1
+msgid "图标地址"
+msgstr "圖示地址"
+
+#: Disabled references:1
+msgid "应用描述"
+msgstr "應用描述"
+
+#: Disabled references:1
+msgid "应用分组id"
+msgstr "應用分組id"
+
+#: Disabled references:1
+msgid "分组名称"
+msgstr "分組名稱"
+
+#: Disabled references:1
+msgid "分组下应用项id"
+msgstr "分組下應用項id"
+
+#: Disabled references:1
+msgid "应用项图标地址"
+msgstr "應用項圖示地址"
+
+#: Disabled references:1
+msgid "角色类型"
+msgstr "角色型別"
+
+#: Disabled references:1
+msgid "账号Id"
+msgstr "賬號Id"
+
+#: Disabled references:1
+msgid "用户头像链接"
+msgstr "使用者頭像連結"
+
+#: Disabled references:1
+msgid "部门Id"
+msgstr "部門Id"
+
+#: Disabled references:1
+msgid "职位Id"
+msgstr "職位Id"
+
+#: Disabled references:1
+msgid "选项id"
+msgstr "選項id"
+
+#: Disabled references:1
+msgid "工作表ID："
+msgstr "工作表ID："
+
+#: Disabled references:1
+msgid "工作表别名："
+msgstr "工作表別名："
+
+#: Disabled references:1
+msgid "切换至 %0"
+msgstr "切換至 %0"
+
+#: Disabled references:1
+msgid "请正确填写手机号"
+msgstr "請正確填寫手機號"
+
+#: Disabled references:1
+msgid "图形验证码失败"
+msgstr "圖形驗證碼失敗"
+
+#: Disabled references:1
+msgid "该手机号发送过于频繁"
+msgstr "該手機號傳送過於頻繁"
+
+#: Disabled references:1
+msgid "短信余额不足，请联系表单发布者"
+msgstr "簡訊餘額不足，請聯絡表單釋出者"
+
+#: Disabled references:1
+msgid "组织门牌号不能为空"
+msgstr "組織門牌號不能為空"
+
+#: Disabled references:1
+msgid "MM月"
+msgstr "MM月"
+
+#: Disabled references:1
+msgid "DD日"
+msgstr "DD日"
+
+#: Disabled references:1
+msgid "无权限，请联系管理员"
+msgstr "無許可權，請聯絡管理員"
+
+#: Disabled references:1
+msgid "管理配置角色"
+msgstr "管理配置角色"
+
+#: Disabled references:1
+msgid "允许申请管理员"
+msgstr "允許申請管理員"
+
+#: Disabled references:1
+msgid "角色存在成员，无法删除"
+msgstr "角色存在成員，無法刪除"
+
+#: Disabled references:1
+msgid "创建角色"
+msgstr "建立角色"
+
+#: Disabled references:1
+msgid "导入角色"
+msgstr "匯入角色"
+
+#: Disabled references:1
+msgid "导出角色"
+msgstr "匯出角色"
+
+#: Disabled references:1
+msgid "确定要删除此角色？"
+msgstr "確定要刪除此角色？"
+
+#: Disabled references:1
+msgid "删除后无法恢复"
+msgstr "刪除後無法恢復"
+
+#: Disabled references:1
+msgid "暂无角色，可"
+msgstr "暫無角色，可"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色"
+msgstr "可以根據成員屬性去建立角色，如，技術、生產、銷售設定後應用可以直接選擇角色"
+
+#: Disabled references:1
+msgid "总览"
+msgstr "總覽"
+
+#: Disabled references:1
+msgid "按应用"
+msgstr "按應用"
+
+#: Disabled references:1
+msgid "按成员"
+msgstr "按成員"
+
+#: Disabled references:1
+msgid "请升级到专业版本或以上版本"
+msgstr "請升級到專業版本或以上版本"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据（保留最近一年的分析日志）"
+msgstr "截止到%0的最新資料（保留最近一年的分析日誌）"
+
+#: Disabled references:1
+msgid "最近90天"
+msgstr "最近90天"
+
+#: Disabled references:1
+msgid "最近1年"
+msgstr "最近1年"
+
+#: Disabled references:1
+msgid "1.对接信息"
+msgstr "1.對接資訊"
+
+#: Disabled references:1
+msgid "批量操作中的导出功能需额外设置"
+msgstr "批量操作中的匯出功能需額外設定"
+
+#: Disabled references:1
+msgid "组织门牌号 %0"
+msgstr "組織門牌號 %0"
+
+#: Disabled references:1
+msgid "全选%0条可批量审批的记录"
+msgstr "全選%0條可批量審批的記錄"
+
+#: Disabled references:1
+msgid "没有允许批量审批的记录，请打开记录逐条审批"
+msgstr "沒有允許批量審批的記錄，請開啟記錄逐條審批"
+
+#: Disabled references:1
+msgid "（已选择%0/%1条）"
+msgstr "（已選擇%0/%1條）"
+
+#: Disabled references:1
+msgid "（已加载%0条）"
+msgstr "（已載入%0條）"
+
+#: Disabled references:1
+msgid "您的帐号还未绑定微信，请扫描二维码"
+msgstr "您的帳號還未繫結微信，請掃描二維碼"
+
+#: Disabled references:1
+msgid "登录通知"
+msgstr "登入通知"
+
+#: Disabled references:1
+msgid "使用微信扫码绑定账号，开启登录微信提醒"
+msgstr "使用微信掃碼繫結賬號，開啟登入微信提醒"
+
+#: Disabled references:1
+msgid "新消息通知"
+msgstr "新訊息通知"
+
+#: Disabled references:1
+msgid "当有新消息时以何种方式提醒"
+msgstr "當有新訊息時以何種方式提醒"
+
+#: Disabled references:1
+msgid "通知音"
+msgstr "通知音"
+
+#: Disabled references:1
+msgid "浏览器标签闪烁"
+msgstr "瀏覽器標籤閃爍"
+
+#: Disabled references:1
+msgid "Y轴(%0)"
+msgstr "Y軸(%0)"
+
+#: Disabled references:1
+msgid "辅助Y轴(折线图)"
+msgstr "輔助Y軸(折線圖)"
+
+#: Disabled references:1
+msgid "该组织门牌号不存在"
+msgstr "該組織門牌號不存在"
+
+#: Disabled references:1
+msgid "请填写组织门牌号"
+msgstr "請填寫組織門牌號"
+
+#: Disabled references:1
+msgid "组织门牌号可以通过管理员获取"
+msgstr "組織門牌號可以通過管理員獲取"
+
+#: Disabled references:1
+msgid "没有组织门牌号？"
+msgstr "沒有組織門牌號？"
+
+#: Disabled references:1
+msgid "API 名称"
+msgstr "API 名稱"
+
+#: Disabled references:1
+msgid "服务价格"
+msgstr "服務價格"
+
+#: Disabled references:1
+msgid "无相关数据"
+msgstr "無相關資料"
+
+#: Disabled references:1
+msgid "选择授权应用"
+msgstr "選擇授權應用"
+
+#: Disabled references:1
+msgid "搜索应用/拥有者"
+msgstr "搜尋應用/擁有者"
+
+#: Disabled references:1
+msgid "无匹配的结果，换一个关键词试试吧"
+msgstr "無匹配的結果，換一個關鍵詞試試吧"
+
+#: Disabled references:1
+msgid "已选择 %0 应用"
+msgstr "已選擇 %0 應用"
+
+#: Disabled references:1
+msgid "安装"
+msgstr "安裝"
+
+#: Disabled references:1
+msgid "%0 次安装·包含 %1 API"
+msgstr "%0 次安裝·包含 %1 API"
+
+#: Disabled references:1
+msgid "可用返回参数"
+msgstr "可用返回引數"
+
+#: Disabled references:1
+msgid "Basic Auth 参数"
+msgstr "Basic Auth 引數"
+
+#: Disabled references:1
+msgid "已获取"
+msgstr "已獲取"
+
+#: Disabled references:1
+msgid "未获取"
+msgstr "未獲取"
+
+#: Disabled references:1
+msgid "过期时间"
+msgstr "過期時間"
+
+#: Disabled references:1
+msgid "开始配置"
+msgstr "開始配置"
+
+#: Disabled references:1
+msgid "修改配置"
+msgstr "修改配置"
+
+#: Disabled references:1
+msgid "Basic Auth 鉴权认证"
+msgstr "Basic Auth 鑑權認證"
+
+#: Disabled references:1
+msgid "OAuth 鉴权认证"
+msgstr "OAuth 鑑權認證"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时采用的鉴权认证方式"
+msgstr "配置傳送 API 請求時採用的鑑權認證方式"
+
+#: Disabled references:1
+msgid "连接参数"
+msgstr "連線引數"
+
+#: Disabled references:1
+msgid "用于配置鉴权时使用，设置为隐藏后，查看时该参数值将以掩码代替"
+msgstr "用於配置鑑權時使用，設定為隱藏後，檢視時該引數值將以掩碼代替"
+
+#: Disabled references:1
+msgid "保存并继续"
+msgstr "儲存並繼續"
+
+#: Disabled references:1
+msgid "由"
+msgstr "由"
+
+#: Disabled references:1
+msgid "提供 API 连接模板"
+msgstr "提供 API 連線模板"
+
+#: Disabled references:1
+msgid "请升级标准版本或以上版本"
+msgstr "請升級標準版本或以上版本"
+
+#: Disabled references:1
+msgid "立即安装"
+msgstr "立即安裝"
+
+#: Disabled references:1
+msgid "请选择API （%0/%1）"
+msgstr "請選擇API （%0/%1）"
+
+#: Disabled references:1
+msgid "所有 API 都已安装"
+msgstr "所有 API 都已安裝"
+
+#: Disabled references:1
+msgid "申请上架到API 库"
+msgstr "申請上架到API 庫"
+
+#: Disabled references:1
+msgid "共 %0 个API，已选择 %1 个"
+msgstr "共 %0 個API，已選擇 %1 個"
+
+#: Disabled references:1
+msgid "请填入正确的API文档地址"
+msgstr "請填入正確的API文件地址"
+
+#: Disabled references:1
+msgid "已申请，请等待审核"
+msgstr "已申請，請等待稽覈"
+
+#: Disabled references:1
+msgid "申请上架新版本"
+msgstr "申請上架新版本"
+
+#: Disabled references:1
+msgid "申请上架"
+msgstr "申請上架"
+
+#: Disabled references:1
+msgid "上架 API 量"
+msgstr "上架 API 量"
+
+#: Disabled references:1
+msgid "安装量"
+msgstr "安裝量"
+
+#: Disabled references:1
+msgid "上架时间"
+msgstr "上架時間"
+
+#: Disabled references:1
+msgid "以企业组织身份"
+msgstr "以企業組織身份"
+
+#: Disabled references:1
+msgid "以个人身份"
+msgstr "以個人身份"
+
+#: Disabled references:1
+msgid "请选择要上架的 API"
+msgstr "請選擇要上架的 API"
+
+#: Disabled references:1
+msgid "上传logo"
+msgstr "上傳logo"
+
+#: Disabled references:1
+msgid "基础信息设置"
+msgstr "基礎資訊設定"
+
+#: Disabled references:1
+msgid "连接logo"
+msgstr "連線logo"
+
+#: Disabled references:1
+msgid "支持png ,jpg格式图片，不小于80*80px"
+msgstr "支援png ,jpg格式圖片，不小於80*80px"
+
+#: Disabled references:1
+msgid "连接名称"
+msgstr "連線名稱"
+
+#: Disabled references:1
+msgid "例如：订单查询、物流查询"
+msgstr "例如：訂單查詢、物流查詢"
+
+#: Disabled references:1
+msgid "发布失败，请完善API信息"
+msgstr "釋出失敗，請完善API資訊"
+
+#: Disabled references:1
+msgid "复制“%0”"
+msgstr "複製“%0”"
+
+#: Disabled references:1
+msgid "删除“%0”"
+msgstr "刪除“%0”"
+
+#: Disabled references:1
+msgid "注意：当前API正在被组织内引用"
+msgstr "注意：當前API正在被組織內引用"
+
+#: Disabled references:1
+msgid "查看引用"
+msgstr "檢視引用"
+
+#: Disabled references:1
+msgid "请务必确认引用位置不再需要此API，再执行此操作"
+msgstr "請務必確認引用位置不再需要此API，再執行此操作"
+
+#: Disabled references:1
+msgid "API 删除后将不可恢复，确认删除吗？"
+msgstr "API 刪除後將不可恢復，確認刪除嗎？"
+
+#: Disabled references:1
+msgid "最近操作"
+msgstr "最近操作"
+
+#: Disabled references:1
+msgid "安装于"
+msgstr "安裝於"
+
+#: Disabled references:1
+msgid "更新于"
+msgstr "更新於"
+
+#: Disabled references:1
+msgid "创建于"
+msgstr "建立於"
+
+#: Disabled references:1
+msgid "请从"
+msgstr "請從"
+
+#: Disabled references:1
+msgid "安装或创建 API"
+msgstr "安裝或建立 API"
+
+#: Disabled references:1
+msgid "管理第三方 API ，在工作表或工作流中调用"
+msgstr "管理第三方 API ，在工作表或工作流中呼叫"
+
+#: Disabled references:1
+msgid "搜索 API"
+msgstr "搜尋 API"
+
+#: Disabled references:1
+msgid "添加连接"
+msgstr "新增連線"
+
+#: Disabled references:1
+msgid "我的连接"
+msgstr "我的連線"
+
+#: Disabled references:1
+msgid "连接第三方 API 并保存鉴权认证，在工作表或工作流中调用"
+msgstr "連線第三方 API 並儲存鑑權認證，在工作表或工作流中呼叫"
+
+#: Disabled references:1
+msgid "搜索连接"
+msgstr "搜尋連線"
+
+#: Disabled references:1
+msgid "自定义连接"
+msgstr "自定義連線"
+
+#: Disabled references:1
+msgid "组织应用管理员可管理组织下所有API连接"
+msgstr "組織應用管理員可管理組織下所有API連線"
+
+#: Disabled references:1
+msgid "API 库"
+msgstr "API 庫"
+
+#: Disabled references:1
+msgid "暂无相关数据"
+msgstr "暫無相關資料"
+
+#: Disabled references:1
+msgid "API数量"
+msgstr "API數量"
+
+#: Disabled references:1
+msgid "授权应用"
+msgstr "授權應用"
+
+#: Disabled references:1
+msgid "暂无可用连接，请先创建 API 连接"
+msgstr "暫無可用連線，請先建立 API 連線"
+
+#: Disabled references:1
+msgid "创建自定义连接"
+msgstr "建立自定義連線"
+
+#: Disabled references:1
+msgid "API 集成"
+msgstr "API 整合"
+
+#: Disabled references:1
+msgid "人员、部门、组织角色、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。"
+msgstr "人員、部門、組織角色、自由連線、擴充套件值的文字欄位不能用於公開表單，原表單內的以上欄位將被自動隱藏。"
+
+#: Disabled references:1
+msgid "自定义验证码签名"
+msgstr "自定義驗證碼簽名"
+
+#: Disabled references:1
+msgid "自定义签名仅支持国内号码，国际号码验证短信固定使用 【明道云】 短信签名"
+msgstr "自定義簽名僅支援國內號碼，國際號碼驗證簡訊固定使用 【明道雲】 簡訊簽名"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截"
+msgstr "請謹慎填寫您的組織簡稱、網站名、品牌名，2-8個漢字。如簽名不符合規範，將會被運營商攔截"
+
+#: Disabled references:1
+msgid "手机号短信验证"
+msgstr "手機號簡訊驗證"
+
+#: Disabled references:1
+msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。验证码短信0.05元每条，从账户余额扣费，余额不足时无法获取验证码。"
+msgstr "對填寫的手機號欄位進行簡訊驗證，以確保為本人有效手機號。驗證碼簡訊0.05元每條，從賬戶餘額扣費，餘額不足時無法獲取驗證碼。"
+
+#: Disabled references:1
+msgid "【%0】"
+msgstr "【%0】"
+
+#: Disabled references:1
+msgid "表单提交前进行图形验证"
+msgstr "表單提交前進行圖形驗證"
+
+#: Disabled references:1
+msgid "接口查询"
+msgstr "介面查詢"
+
+#: Disabled references:1
+msgid "晚于等于"
+msgstr "晚於等於"
+
+#: Disabled references:1
+msgid "早于等于"
+msgstr "早於等於"
+
+#: Disabled references:1
+msgid "勾选框"
+msgstr "勾選框"
+
+#: Disabled references:1
+msgid "ISO"
+msgstr "ISO"
+
+#: Disabled references:1
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: Disabled references:1
+msgid "中国"
+msgstr "中國"
+
+#: Disabled references:1
+msgid "US"
+msgstr "US"
+
+#: Disabled references:1
+msgid "M/D/YYYY"
+msgstr "M/D/YYYY"
+
+#: Disabled references:1
+msgid "EU"
+msgstr "EU"
+
+#: Disabled references:1
+msgid "D/M/YYYY"
+msgstr "D/M/YYYY"
+
+#: Disabled references:1
+msgid "可输入1～10的数值"
+msgstr "可輸入1～10的數值"
+
+#: Disabled references:1
+msgid "可设为小时分钟秒"
+msgstr "可設為小時分鐘秒"
+
+#: Disabled references:1
+msgid "选择组织中的角色，支持配置选择的组织角色的权限。"
+msgstr "選擇組織中的角色，支援配置選擇的組織角色的許可權。"
+
+#: Disabled references:1
+msgid "API查询"
+msgstr "API查詢"
+
+#: Disabled references:1
+msgid "分割线"
+msgstr "分割線"
+
+#: Disabled references:1
+msgid "没有选择查询模版"
+msgstr "沒有選擇查詢模版"
+
+#: Disabled references:1
+msgid "有必填项未配置"
+msgstr "有必填項未配置"
+
+#: Disabled references:1
+msgid "您不是该组织成员，无法获取其组织角色列表，请联系组织管理员"
+msgstr "您不是該組織成員，無法獲取其組織角色列表，請聯絡組織管理員"
+
+#: Disabled references:1
+msgid "模版为空或已删除"
+msgstr "模版為空或已刪除"
+
+#: Disabled references:1
+msgid "下拉框的必填映射项未配置(选项列表，选项名)"
+msgstr "下拉框的必填對映項未配置(選項列表，選項名)"
+
+#: Disabled references:1
+msgid "最少输入%0个关键字"
+msgstr "最少輸入%0個關鍵字"
+
+#: Disabled references:1
+msgid "没有返回结果"
+msgstr "沒有返回結果"
+
+#: Disabled references:1
+msgid "请在下方空白区域横向书写签名"
+msgstr "請在下方空白區域橫向書寫簽名"
+
+#: Disabled references:1
+msgid "请选择时间"
+msgstr "請選擇時間"
+
+#: Disabled references:1
+msgid "平台使用情况概览"
+msgstr "平臺使用情況概覽"
+
+#: Disabled references:1
+msgid "API集成"
+msgstr "API整合"
+
+#: Disabled references:1
+msgid "接口查询字段"
+msgstr "介面查詢欄位"
+
+#: Disabled references:1
+msgid "调用已集成API节点"
+msgstr "呼叫已整合API節點"
+
+#: Disabled references:1
+msgid "导入%0模板"
+msgstr "匯入%0模板"
+
+#: Disabled references:1
+msgid "导入错误，请检查！"
+msgstr "匯入錯誤，請檢查！"
+
+#: Disabled references:1
+msgid "导入%0"
+msgstr "匯入%0"
+
+#: Disabled references:1
+msgid "移出成员"
+msgstr "移出成員"
+
+#: Disabled references:1
+msgid "不允许申请管理员"
+msgstr "不允許申請管理員"
+
+#: Disabled references:1
+msgid "该角色名称已存在"
+msgstr "該角色名稱已存在"
+
+#: Disabled references:1
+msgid "新建角色"
+msgstr "新建角色"
+
+#: Disabled references:1
+msgid "请填写角色名称"
+msgstr "請填寫角色名稱"
+
+#: Disabled references:1
+msgid "当前组织角色无成员"
+msgstr "當前組織角色無成員"
+
+#: Disabled references:1
+msgid "组织门牌号"
+msgstr "組織門牌號"
+
+#: Disabled references:1
+msgid "成员可输入组织门牌号加入组织"
+msgstr "成員可輸入組織門牌號加入組織"
+
+#: Disabled references:1
+msgid "您已关闭搜索组织门牌号加入"
+msgstr "您已關閉搜尋組織門牌號加入"
+
+#: Disabled references:1
+msgid "组织编号(ID)"
+msgstr "組織編號(ID)"
+
+#: Disabled references:1
+msgid "职位列表"
+msgstr "職位列表"
+
+#: Disabled references:1
+msgid "登录地"
+msgstr "登入地"
+
+#: Disabled references:1
+msgid "IP"
+msgstr "IP"
+
+#: Disabled references:1
+msgid "导出上限10万条，超出限制可以先筛选，再分次导出。"
+msgstr "匯出上限10萬條，超出限制可以先篩選，再分次匯出。"
+
+#: Disabled references:1
+msgid "暂无外部协作者的应用"
+msgstr "暫無外部協作者的應用"
+
+#: Disabled references:1
+msgid "锁定记录"
+msgstr "鎖定記錄"
+
+#: Disabled references:1
+msgid "解锁记录"
+msgstr "解鎖記錄"
+
+#: Disabled references:1
+msgid "锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写"
+msgstr "鎖定狀態在記錄儲存後生效。鎖定的記錄不允許使用者直接編輯，但可以通過自定義動作和工作流進行填寫"
+
+#: Disabled references:1
+msgid "已筛%0项"
+msgstr "已篩%0項"
+
+#: Disabled references:1
+msgid "添加组织角色"
+msgstr "新增組織角色"
+
+#: Disabled references:1
+msgid "仅选择当前部门"
+msgstr "僅選擇當前部門"
+
+#: Disabled references:1
+msgid "选择当前部门下所有子部门"
+msgstr "選擇當前部門下所有子部門"
+
+#: Disabled references:1
+msgid "组织门牌号：%0"
+msgstr "組織門牌號：%0"
+
+#: Disabled references:1
+msgid "至少包含4位字母或数字"
+msgstr "至少包含4位字母或數字"
+
+#: Disabled references:1
+msgid "只能输入数字、字母、中划线"
+msgstr "只能輸入數字、字母、中劃線"
+
+#: Disabled references:1
+msgid "不能以中划线开头或结束"
+msgstr "不能以中劃線開頭或結束"
+
+#: Disabled references:1
+msgid "此名称已被占用"
+msgstr "此名稱已被佔用"
+
+#: Disabled references:1
+msgid "此名称和系统地址冲突，请重新输入"
+msgstr "此名稱和系統地址衝突，請重新輸入"
+
+#: Disabled references:1
+msgid "请正确输入后缀"
+msgstr "請正確輸入字尾"
+
+#: Disabled references:1
+msgid "可定义域名后缀，支持输入字母、数字、中划线"
+msgstr "可定義域名字尾，支援輸入字母、數字、中劃線"
+
+#: Disabled references:1
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
+msgstr "只勾選微信登入後首次掃碼後需要輸入手機號與微信繫結，後續可單獨微信掃碼快速登入。"
+
+#: Disabled references:1
+msgid "验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。"
+msgstr "驗證碼每條0.05元，自動從企業賬戶餘額扣費。為保證業務不受影響，請保持企業賬戶餘額充足。"
+
+#: Disabled references:1
+msgid "关闭后所有人将不能再访问门户"
+msgstr "關閉後所有人將不能再訪問門戶"
+
+#: Disabled references:1
+msgid "关闭门户"
+msgstr "關閉門戶"
+
+#: Disabled references:1
+msgid "数值(辅助Y轴)"
+msgstr "數值(輔助Y軸)"
+
+#: Disabled references:1
+msgid "分组(Y轴)"
+msgstr "分組(Y軸)"
+
+#: Disabled references:1
+msgid "分组(辅助Y轴)"
+msgstr "分組(輔助Y軸)"
+
+#: Disabled references:1
+msgid "辅助Y轴"
+msgstr "輔助Y軸"
+
+#: Disabled references:1
+msgid "输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值"
+msgstr "輸入引數用於在工作表或工作流中使用 API 查詢時，可以傳入動態值"
+
+#: Disabled references:1
+msgid "暂无引用"
+msgstr "暫無引用"
+
+#: Disabled references:1
+msgid "上架时间：%0"
+msgstr "上架時間：%0"
+
+#: Disabled references:1
+msgid "引用量"
+msgstr "引用量"
+
+#: Disabled references:1
+msgid "本组织"
+msgstr "本組織"
+
+#: Disabled references:1
+msgid "被以下工作流引用"
+msgstr "被以下工作流引用"
+
+#: Disabled references:1
+msgid "节点：%0"
+msgstr "節點：%0"
+
+#: Disabled references:1
+msgid "被以下工作表引用"
+msgstr "被以下工作表引用"
+
+#: Disabled references:1
+msgid "字段：%0"
+msgstr "欄位：%0"
+
+#: Disabled references:1
+msgid "耗时"
+msgstr "耗時"
+
+#: Disabled references:1
+msgid "暂无 API 请求记录"
+msgstr "暫無 API 請求記錄"
+
+#: Disabled references:1
+msgid "查看所有引用此 API 发送的请求日志"
+msgstr "檢視所有引用此 API 傳送的請求日誌"
+
+#: Disabled references:1
+msgid "%0 个API"
+msgstr "%0 個API"
+
+#: Disabled references:1
+msgid "已授权给 %0 个应用"
+msgstr "已授權給 %0 個應用"
+
+#: Disabled references:1
+msgid "API 请求参数"
+msgstr "API 請求引數"
+
+#: Disabled references:1
+msgid "配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数"
+msgstr "配置傳送 API 請求時需要的 Query Param、Header、Body 等請求引數"
+
+#: Disabled references:1
+msgid "在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用"
+msgstr "在 API 查詢時，可以將輸出引數的值繫結到工作表欄位或被工作流節點引用"
+
+#: Disabled references:1
+msgid "API设置"
+msgstr "API設定"
+
+#: Disabled references:1
+msgid "请求日志"
+msgstr "請求日誌"
+
+#: Disabled references:1
+msgid "未命名 API"
+msgstr "未命名 API"
+
+#: Disabled references:1
+msgid "API建议命名为动作+名词，如：获取订单列表、删除订单"
+msgstr "API建議命名為動作+名詞，如：獲取訂單列表、刪除訂單"
+
+#: Disabled references:1
+msgid "添加API标题"
+msgstr "新增API標題"
+
+#: Disabled references:1
+msgid "未命名API"
+msgstr "未命名API"
+
+#: Disabled references:1
+msgid "添加说明…"
+msgstr "新增說明…"
+
+#: Disabled references:1
+msgid "发布 API"
+msgstr "釋出 API"
+
+#: Disabled references:1
+msgid "更新失败"
+msgstr "更新失敗"
+
+#: Disabled references:1
+msgid "暂无 API 可用，请先创建新的第三方 API"
+msgstr "暫無 API 可用，請先建立新的第三方 API"
+
+#: Disabled references:1
+msgid "添加 API"
+msgstr "新增 API"
+
+#: Disabled references:1
+msgid "创建 API"
+msgstr "建立 API"
+
+#: Disabled references:1
+msgid "排序出错，请稍后再试"
+msgstr "排序出錯，請稍後再試"
+
+#: Disabled references:1
+msgid "无授权应用"
+msgstr "無授權應用"
+
+#: Disabled references:1
+msgid "API 调用失败时发送错误消息通知给拥有者"
+msgstr "API 呼叫失敗時傳送錯誤訊息通知給擁有者"
+
+#: Disabled references:1
+msgid "将 API 授权给"
+msgstr "將 API 授權給"
+
+#: Disabled references:1
+msgid "连接设置"
+msgstr "連線設定"
+
+#: Disabled references:1
+msgid "API 管理"
+msgstr "API 管理"
+
+#: Disabled references:1
+msgid "授权到应用"
+msgstr "授權到應用"
+
+#: Disabled references:1
+msgid "你暂时没有权限查看该连接！"
+msgstr "你暫時沒有許可權檢視該連線！"
+
+#: Disabled references:1
+msgid "未命名连接"
+msgstr "未命名連線"
+
+#: Disabled references:1
+msgid "已申请上架，请等待审核"
+msgstr "已申請上架，請等待稽覈"
+
+#: Disabled references:1
+msgid "申请失败，请稍后再试"
+msgstr "申請失敗，請稍後再試"
+
+#: Disabled references:1
+msgid "有API被引用，请删除引用后重试"
+msgstr "有API被引用，請刪除引用後重試"
+
+#: Disabled references:1
+msgid "添加连接说明"
+msgstr "新增連線說明"
+
+#: Disabled references:1
+msgid "申请上架到API库"
+msgstr "申請上架到API庫"
+
+#: Disabled references:1
+msgid "删除后将不可恢复，确认删除吗？"
+msgstr "刪除後將不可恢復，確認刪除嗎？"
+
+#: Disabled references:1
+msgid "请选择鉴权方式"
+msgstr "請選擇鑑權方式"
+
+#: Disabled references:1
+msgid "节点数量过多此功能不可用"
+msgstr "節點數量過多此功能不可用"
+
+#: Disabled references:1
+msgid "短信发送需要组织门牌号"
+msgstr "簡訊傳送需要組織門牌號"
+
+#: Disabled references:1
+msgid "配置错误"
+msgstr "配置錯誤"
+
+#: Disabled references:1
+msgid "请求异常"
+msgstr "請求異常"
+
+#: Disabled references:1
+msgid "调用已集成 API"
+msgstr "呼叫已整合 API"
+
+#: Disabled references:1
+msgid "触发者操作"
+msgstr "觸發者操作"
+
+#: Disabled references:1
+msgid "选择 API 连接与认证"
+msgstr "選擇 API 連線與認證"
+
+#: Disabled references:1
+msgid "搜索 API 连接"
+msgstr "搜尋 API 連線"
+
+#: Disabled references:1
+msgid "添加新连接"
+msgstr "新增新連線"
+
+#: Disabled references:1
+msgid "暂无 API 连接可用，请先到集成中心创建新的 API 连接与认证"
+msgstr "暫無 API 連線可用，請先到整合中心建立新的 API 連線與認證"
+
+#: Disabled references:1
+msgid "去集成中心创建"
+msgstr "去整合中心建立"
+
+#: Disabled references:1
+msgid "勾选后，在表单中隐藏字段名称"
+msgstr "勾選後，在表單中隱藏欄位名稱"
+
+#: Disabled references:1
+msgid "加入的%0允许查看记录"
+msgstr "加入的%0允許檢視記錄"
+
+#: Disabled references:1
+msgid "加入的%0允许编辑、删除记录"
+msgstr "加入的%0允許編輯、刪除記錄"
+
+#: Disabled references:1
+msgid "仅用于存储数据"
+msgstr "僅用於儲存資料"
+
+#: Disabled references:1
+msgid "加入的%0不授予任何权限"
+msgstr "加入的%0不授予任何許可權"
+
+#: Disabled references:1
+msgid "当工作表记录超过10w行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。"
+msgstr "當工作表記錄超過10w行時，為保證工作表效能，修改配置後將不再重新整理歷史資料。如果仍需更新歷史資料，請手動進行重新整理。"
+
+#: Disabled references:1
+msgid "年-月"
+msgstr "年-月"
+
+#: Disabled references:1
+msgid "年-月-日"
+msgstr "年-月-日"
+
+#: Disabled references:1
+msgid "年-月-日 时"
+msgstr "年-月-日 時"
+
+#: Disabled references:1
+msgid "年-月-日 时:分"
+msgstr "年-月-日 時:分"
+
+#: Disabled references:1
+msgid "年-月-日 时:分:秒"
+msgstr "年-月-日 時:分:秒"
+
+#: Disabled references:1
+msgid "时分"
+msgstr "時分"
+
+#: Disabled references:1
+msgid "时分秒"
+msgstr "時分秒"
+
+#: Disabled references:1
+msgid "搜索下拉框"
+msgstr "搜尋下拉框"
+
+#: Disabled references:1
+msgid "按钮搜索"
+msgstr "按鈕搜尋"
+
+#: Disabled references:1
+msgid "实时搜索"
+msgstr "實時搜尋"
+
+#: Disabled references:1
+msgid "无需点击按钮，在输入的同时执行请求。当查询付费API时会产生更多额外费用"
+msgstr "無需點選按鈕，在輸入的同時執行請求。當查詢付費API時會產生更多額外費用"
+
+#: Disabled references:1
+msgid "搜索关键字"
+msgstr "搜尋關鍵字"
+
+#: Disabled references:1
+msgid "在点击按钮时请求并获取返回参数"
+msgstr "在點選按鈕時請求並獲取返回引數"
+
+#: Disabled references:1
+msgid "在激活下拉框时请求，将返回的多条数据列表作为下拉菜单的选项进行选择"
+msgstr "在啟用下拉框時請求，將返回的多條資料列表作為下拉選單的選項進行選擇"
+
+#: Disabled references:1
+msgid "最少字数"
+msgstr "最少字數"
+
+#: Disabled references:1
+msgid "当输入满足了最小字数后才会发起请求。当API的搜索参数有字数限制时可以设置此配置"
+msgstr "當輸入滿足了最小字數後才會發起請求。當API的搜尋引數有字數限制時可以設定此配置"
+
+#: Disabled references:1
+msgid "预加载选项"
+msgstr "預載入選項"
+
+#: Disabled references:1
+msgid "勾选后，在激活搜索下拉框时先进行一次请求，此时向接口传入的搜索参数为空，并将返回结果作为预设的选项以供选择。当API的搜索参数支持传空时，可以勾许此项。"
+msgstr "勾選後，在啟用搜尋下拉框時先進行一次請求，此時向介面傳入的搜尋引數為空，並將返回結果作為預設的選項以供選擇。當API的搜尋引數支援傳空時，可以勾許此項。"
+
+#: Disabled references:1
+msgid "在搜索前先进行一次请求"
+msgstr "在搜尋前先進行一次請求"
+
+#: Disabled references:1
+msgid "输入检查内容"
+msgstr "輸入檢查內容"
+
+#: Disabled references:1
+msgid "时:分"
+msgstr "時:分"
+
+#: Disabled references:1
+msgid "时:分:秒"
+msgstr "時:分:秒"
+
+#: Disabled references:1
+msgid "校准数据"
+msgstr "校準資料"
+
+#: Disabled references:1
+msgid "刷新为其他字段的值"
+msgstr "重新整理為其他欄位的值"
+
+#: Disabled references:1
+msgid "刷新数据"
+msgstr "重新整理資料"
+
+#: Disabled references:1
+msgid "此操作仅管理员可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。"
+msgstr "此操作僅管理員可以執行。單次最多重新整理10w行資料，後臺非同步完成後會傳送通知。"
+
+#: Disabled references:1
+msgid "%0个小时"
+msgstr "%0個小時"
+
+#: Disabled references:1
+msgid "当前工作表没有可以校准的字段。"
+msgstr "當前工作表沒有可以校準的欄位。"
+
+#: Disabled references:1
+msgid "当前没有需要校准的字段。"
+msgstr "當前沒有需要校準的欄位。"
+
+#: Disabled references:1
+msgid "刷新字段值"
+msgstr "重新整理欄位值"
+
+#: Disabled references:1
+msgid "刷新选项排序"
+msgstr "重新整理選項排序"
+
+#: Disabled references:1
+msgid "刷新为"
+msgstr "重新整理為"
+
+#: Disabled references:1
+msgid "的值"
+msgstr "的值"
+
+#: Disabled references:1
+msgid "修改描述失败"
+msgstr "修改描述失敗"
+
+#: Disabled references:1
+msgid "工作表说明"
+msgstr "工作表說明"
+
+#: Disabled references:1
+msgid "显示项"
+msgstr "顯示項"
+
+#: Disabled references:1
+msgid "自定义页面说明"
+msgstr "自定義頁面說明"
+
+#: Disabled references:1
+msgid "该组织角色已删除"
+msgstr "該組織角色已刪除"
+
+#: Disabled references:1
+msgid "超出导入数量限制"
+msgstr "超出匯入數量限制"
+
+#: Disabled references:1
+msgid "超出邀请数量限制"
+msgstr "超出邀請數量限制"
+
+#: Disabled references:1
+msgid "可直接输入创建新的职位"
+msgstr "可直接輸入建立新的職位"
+
+#: Disabled references:1
+msgid "创建新职位：%0"
+msgstr "建立新職位：%0"
+
+#: Disabled references:1
+msgid "是否确认将该员工【%0】移除？"
+msgstr "是否確認將該員工【%0】移除？"
+
+#: Disabled references:1
+msgid "开启后允许通过搜索组织门牌号到组织"
+msgstr "開啟後允許通過搜尋組織門牌號到組織"
+
+#: Disabled references:1
+msgid "暂无职位，可"
+msgstr "暫無職位，可"
+
+#: Disabled references:1
+msgid "可以根据成员属性去创建职位，如，技术、生产、销售设置后应用和工作流可以直接选择职位"
+msgstr "可以根據成員屬性去建立職位，如，技術、生產、銷售設定後應用和工作流可以直接選擇職位"
+
+#: Disabled references:1
+msgid "汇总概览"
+msgstr "彙總概覽"
+
+#: Disabled references:1
+msgid "使用情况"
+msgstr "使用情況"
+
+#: Disabled references:1
+msgid "记录创建次数"
+msgstr "記錄建立次數"
+
+#: Disabled references:1
+msgid "记录创建人数"
+msgstr "記錄建立人數"
+
+#: Disabled references:1
+msgid "访问次数"
+msgstr "訪問次數"
+
+#: Disabled references:1
+msgid "访问人数"
+msgstr "訪問人數"
+
+#: Disabled references:1
+msgid "工作流执行数"
+msgstr "工作流執行數"
+
+#: Disabled references:1
+msgid "附件上传量"
+msgstr "附件上傳量"
+
+#: Disabled references:1
+msgid "没有搜索到"
+msgstr "沒有搜尋到"
+
+#: Disabled references:1
+msgid "此列表仅显示产生过数据的成员"
+msgstr "此列表僅顯示產生過資料的成員"
+
+#: Disabled references:1
+msgid "行记录数"
+msgstr "行記錄數"
+
+#: Disabled references:1
+msgid " 次"
+msgstr " 次"
+
+#: Disabled references:1
+msgid " 条"
+msgstr " 條"
+
+#: Disabled references:1
+msgid "用户数"
+msgstr "使用者數"
+
+#: Disabled references:1
+msgid "统计仅包含组织内用户，不包含外部用户"
+msgstr "統計僅包含組織內使用者，不包含外部使用者"
+
+#: Disabled references:1
+msgid "应用访问量"
+msgstr "應用訪問量"
+
+#: Disabled references:1
+msgid "应用访问量统计仅包含组织内用户，不包含外部门户"
+msgstr "應用訪問量統計僅包含組織內使用者，不包含外部門戶"
+
+#: Disabled references:1
+msgid "记录创建量"
+msgstr "記錄建立量"
+
+#: Disabled references:1
+msgid "筛选条件“按部门”不生效"
+msgstr "篩選條件“按部門”不生效"
+
+#: Disabled references:1
+msgid "在输入或提交记录时校验并提示错误，错误时不允许提交"
+msgstr "在輸入或提交記錄時校驗並提示錯誤，錯誤時不允許提交"
+
+#: Disabled references:1
+msgid "按工作表字段配置显示"
+msgstr "按工作表欄位配置顯示"
+
+#: Disabled references:1
+msgid "暂无数据，选项需要用同一个选项集的字段"
+msgstr "暫無資料，選項需要用同一個選項集的欄位"
+
+#: Disabled references:1
+msgid "暂无数据，关联记录需要使用同关联表的字段"
+msgstr "暫無資料，關聯記錄需要使用同關聯表的欄位"
+
+#: Disabled references:1
+msgid "请选择筛选字段"
+msgstr "請選擇篩選欄位"
+
+#: Disabled references:1
+msgid "选择筛选对象的数据源表中的字段进行筛选"
+msgstr "選擇篩選物件的資料來源表中的欄位進行篩選"
+
+#: Disabled references:1
+msgid "选择了来源于多个工作表数据的组件，请选择同类型字段以进行合并筛选"
+msgstr "選擇了來源於多個工作表資料的元件，請選擇同型別欄位以進行合併篩選"
+
+#: Disabled references:1
+msgid "筛选排序"
+msgstr "篩選排序"
+
+#: Disabled references:1
+msgid "此对象的数据源工作表已更改，无法筛选。请删除后重新添加"
+msgstr "此物件的資料來源工作表已更改，無法篩選。請刪除後重新新增"
+
+#: Disabled references:1
+msgid "该筛选对象已删除"
+msgstr "該篩選物件已刪除"
+
+#: Disabled references:1
+msgid "筛选对象"
+msgstr "篩選物件"
+
+#: Disabled references:1
+msgid "勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。"
+msgstr "勾選時，元件內的篩選器使用相同的篩選物件；取消勾選後，可以為每個篩選器設定單獨的篩選物件。"
+
+#: Disabled references:1
+msgid "作为全局配置"
+msgstr "作為全域性配置"
+
+#: Disabled references:1
+msgid "选择统计图表或视图组件"
+msgstr "選擇統計圖表或檢視元件"
+
+#: Disabled references:1
+msgid "组件"
+msgstr "元件"
+
+#: Disabled references:1
+msgid "暂不支持显示筛选组件"
+msgstr "暫不支援顯示篩選元件"
+
+#: Disabled references:1
+msgid "启用筛选按钮"
+msgstr "啟用篩選按鈕"
+
+#: Disabled references:1
+msgid "选择下方预览卡片中的筛选器进行设置"
+msgstr "選擇下方預覽卡片中的篩選器進行設定"
+
+#: Disabled references:1
+msgid "将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。"
+msgstr "將當前所選的篩選物件用於整個元件，其他篩選器的物件將會被重置。"
+
+#: Disabled references:1
+msgid "至少保留一个筛选器"
+msgstr "至少保留一個篩選器"
+
+#: Disabled references:1
+msgid "设置筛选器"
+msgstr "設定篩選器"
+
+#: Disabled references:1
+msgid "筛选器名称"
+msgstr "篩選器名稱"
+
+#: Disabled references:1
+msgid "请配置筛选对象"
+msgstr "請配置篩選物件"
+
+#: Disabled references:1
+msgid "选择筛选方式"
+msgstr "選擇篩選方式"
+
+#: Disabled references:1
+msgid "对本页进行搜索"
+msgstr "對本頁進行搜尋"
+
+#: Disabled references:1
+msgid "暂不支持显示视图组件"
+msgstr "暫不支援顯示檢視元件"
+
+#: Disabled references:1
+msgid "您确认删除模板?"
+msgstr "您確認刪除模板?"
+
+#: Disabled references:1
+msgid "删除后，工作流中新添加的短信节点将不能在选到此模板，之前已使用此模板的节点不受影响"
+msgstr "刪除後，工作流中新新增的簡訊節點將不能在選到此模板，之前已使用此模板的節點不受影響"
+
+#: Disabled references:1
+msgid "已选择%0个模板"
+msgstr "已選擇%0個模板"
+
+#: Disabled references:1
+msgid "当前排队"
+msgstr "當前排隊"
+
+#: Disabled references:1
+msgid "本月新增"
+msgstr "本月新增"
+
+#: Disabled references:1
+msgid "本月消费"
+msgstr "本月消費"
+
+#: Disabled references:1
+msgid "已选择%0条流程"
+msgstr "已選擇%0條流程"
+
+#: Disabled references:1
+msgid "重置排队计数"
+msgstr "重置排隊計數"
+
+#: Disabled references:1
+msgid "将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0"
+msgstr "將所選流程的排隊計數重置為0。長期執行監控時可能偶發計數不準的問題，可通過此操作將計數歸0"
+
+#: Disabled references:1
+msgid "当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，按照字段配置的排序规则返回第一条数据"
+msgstr "當查詢到多個資料時，將按照以下排序規則獲得第一條資料。如果未設定規則，按照欄位配置的排序規則返回第一條資料"
+
+#: Disabled references:1
+msgid "请选择 API 连接与认证"
+msgstr "請選擇 API 連線與認證"
+
+#: Disabled references:1
+msgid "API 接与认证已删除"
+msgstr "API 接與認證已刪除"
+
+#: Disabled references:1
+msgid "变更连接与认证"
+msgstr "變更連線與認證"
+
+#: Disabled references:1
+msgid "请选择 API 模板"
+msgstr "請選擇 API 模板"
+
+#: Disabled references:1
+msgid "API已删除"
+msgstr "API已刪除"
+
+#: Disabled references:1
+msgid "变更API"
+msgstr "變更API"
+
+#: Disabled references:1
+msgid "将返回计算后的 Basic Auth 参数供 API 请求参数使用"
+msgstr "將返回計算後的 Basic Auth 引數供 API 請求引數使用"
+
+#: Disabled references:1
+msgid "OAuth 2.0 认证（客户端凭证 client credentials）"
+msgstr "OAuth 2.0 認證（客戶端憑證 client credentials）"
+
+#: Disabled references:1
+msgid "将返回获取到的 Access Token 值供 API 请求参数使用"
+msgstr "將返回獲取到的 Access Token 值供 API 請求引數使用"
+
+#: Disabled references:1
+msgid "显示请求参数详情"
+msgstr "顯示請求引數詳情"
+
+#: Disabled references:1
+msgid "附件总大小不超过50M"
+msgstr "附件總大小不超過50M"
+
+#: Disabled references:1
+msgid "注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。"
+msgstr "注：此方式最多獲取1000條關聯記錄，如果需要獲取更多資料，請使用“從工作表獲取記錄”的方式。"
+
+#: Disabled references:1
+msgid "调用已集成API数组"
+msgstr "呼叫已整合API陣列"
+
+#: Disabled references:1
+msgid "选择API节点"
+msgstr "選擇API節點"
+
+#: Disabled references:1
+msgid "API数组"
+msgstr "API陣列"
+
+#: Disabled references:1
+msgid "此模式下允许发送10M以内附件"
+msgstr "此模式下允許傳送10M以內附件"
+
+#: Disabled references:1
+msgid "调用API"
+msgstr "呼叫API"
+
+#: Disabled references:1
+msgid "API 连接与认证已错误"
+msgstr "API 連線與認證已錯誤"
+
+#: Disabled references:1
+msgid "从API数组获取数据"
+msgstr "從API陣列獲取資料"
+
+#: Disabled references:1
+msgid "获取发送API请求、调用已集成API、代码块、封装业务流程输入节点的JSON数组对象"
+msgstr "獲取傳送API請求、呼叫已整合API、程式碼塊、封裝業務流程輸入節點的JSON陣列物件"
+
+#: Disabled references:1
+msgid "请升级至标准版本或以上版本"
+msgstr "請升級至標準版本或以上版本"
+
+#: Disabled references:1
+msgid "将所选的数据写入表单字段"
+msgstr "將所選的資料寫入表單欄位"
+
+#: Disabled references:1
+msgid "将其他返回数据写入表单字段"
+msgstr "將其他返回資料寫入表單欄位"
+
+#: Disabled references:1
+msgid "映射规则"
+msgstr "對映規則"
+
+#: Disabled references:1
+msgid "请选择子表"
+msgstr "請選擇子表"
+
+#: Disabled references:1
+msgid "请选择子表中的字段"
+msgstr "請選擇子表中的欄位"
+
+#: Disabled references:1
+msgid "选择文本，或子表字段"
+msgstr "選擇文字，或子表欄位"
+
+#: Disabled references:1
+msgid "没有返回参数, 请检查模版配置"
+msgstr "沒有返回引數, 請檢查模版配置"
+
+#: Disabled references:1
+msgid "建立映射"
+msgstr "建立對映"
+
+#: Disabled references:1
+msgid "选项列表"
+msgstr "選項列表"
+
+#: Disabled references:1
+msgid "请选择返回参数中的多条数据对象"
+msgstr "請選擇返回引數中的多條資料物件"
+
+#: Disabled references:1
+msgid "选项名"
+msgstr "選項名"
+
+#: Disabled references:1
+msgid "选择作为选项名的参数"
+msgstr "選擇作為選項名的引數"
+
+#: Disabled references:1
+msgid "附加显示信息"
+msgstr "附加顯示資訊"
+
+#: Disabled references:1
+msgid "可多选，用于辅助用户选择"
+msgstr "可多選，用於輔助使用者選擇"
+
+#: Disabled references:1
+msgid "将返回数据作为下拉框选项"
+msgstr "將返回資料作為下拉框選項"
+
+#: Disabled references:1
+msgid "将返回数据写入表单字段"
+msgstr "將返回資料寫入表單欄位"
+
+#: Disabled references:1
+msgid "模版已删除"
+msgstr "模版已刪除"
+
+#: Disabled references:1
+msgid "调用已集成API"
+msgstr "呼叫已整合API"
+
+#: Disabled references:1
+msgid "此刻"
+msgstr "此刻"
+
+#: Disabled references:1
+msgid "搜索内容"
+msgstr "搜尋內容"
+
+#: Disabled references:1
+msgid "当前用户的组织角色"
+msgstr "當前使用者的組織角色"
+
+#: Disabled references:1
+msgid "显示格式"
+msgstr "顯示格式"
+
+#: Disabled references:1
+msgid "起始时间"
+msgstr "起始時間"
+
+#: Disabled references:1
+msgid "允许使用上次的签名"
+msgstr "允許使用上次的簽名"
+
+#: Disabled references:1
+msgid "查询表字段"
+msgstr "查詢表欄位"
+
+#: Disabled references:1
+msgid "选择子表字段"
+msgstr "選擇子表欄位"
+
+#: Disabled references:1
+msgid "暂未添加快速筛选"
+msgstr "暫未新增快速篩選"
+
+#: Disabled references:1
+msgid "按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。"
+msgstr "按照記錄當時儲存的選項序號進行排序。當每次修改了選項順序後，需要重新重新整理歷史資料的選項序號以校準排序。"
+
+#: Disabled references:1
+msgid "点击了解更多"
+msgstr "點選瞭解更多"
+
+#: Disabled references:1
+msgid "新增%0行"
+msgstr "新增%0行"
+
+#: Disabled references:1
+msgid "更新%0行"
+msgstr "更新%0行"
+
+#: Disabled references:1
+msgid "其中%0行错误"
+msgstr "其中%0行錯誤"
+
+#: Disabled references:1
+msgid "跳过%0行（%1行重复，%2行错误）"
+msgstr "跳過%0行（%1行重複，%2行錯誤）"
+
+#: Disabled references:1
+msgid "跳过%0行重复"
+msgstr "跳過%0行重複"
+
+#: Disabled references:1
+msgid "跳过%0行错误"
+msgstr "跳過%0行錯誤"
+
+#: Disabled references:1
+msgid "直接获取"
+msgstr "直接獲取"
+
+#: Disabled references:1
+msgid "执行到本节点时获取，并保存当时的数据供流程中的其他节点使用"
+msgstr "執行到本節點時獲取，並儲存當時的資料供流程中的其他節點使用"
+
+#: Disabled references:1
+msgid "每次使用时动态获取"
+msgstr "每次使用時動態獲取"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点数据时，重新获取最新的数据"
+msgstr "每次其他節點使用到本節點資料時，重新獲取最新的資料"
+
+#: Disabled references:1
+msgid "直接计算"
+msgstr "直接計算"
+
+#: Disabled references:1
+msgid "执行到本节点时开始计算，并保存当时的运算结果供流程中的其他节点使用"
+msgstr "執行到本節點時開始計算，並儲存當時的運算結果供流程中的其他節點使用"
+
+#: Disabled references:1
+msgid "每次使用时动态计算"
+msgstr "每次使用時動態計算"
+
+#: Disabled references:1
+msgid "每次其他节点使用到本节点的运算结果时，重新进行最新的计算"
+msgstr "每次其他節點使用到本節點的運算結果時，重新進行最新的計算"
+
+#: Disabled references:1
+msgid "运算方式"
+msgstr "運算方式"
+
+#: Disabled references:1
+msgid "部分附件上传失败，总大小超过50MB"
+msgstr "部分附件上傳失敗，總大小超過50MB"
+
+#: Disabled references:1
+msgid "选择附件"
+msgstr "選擇附件"
+
+#: Disabled references:1
+msgid "请输入日期"
+msgstr "請輸入日期"
+
+#: Disabled references:1
+msgid "请输入人员"
+msgstr "請輸入人員"
+
+#: Disabled references:1
+msgid "请输入部门"
+msgstr "請輸入部門"
+
+#: Disabled references:1
+msgid "选择子表或关联记录"
+msgstr "選擇子表或關聯記錄"
+
+#: Disabled references:1
+msgid "子表 “%0”"
+msgstr "子表 “%0”"
+
+#: Disabled references:1
+msgid "如：A,B,C"
+msgstr "如：A,B,C"
+
+#: Disabled references:1
+msgid "对某个日期添加/减去一定时间段，再对计算结果设置格式，1代表日期，2代表日期时间"
+msgstr "對某個日期新增/減去一定時間段，再對計算結果設定格式，1代表日期，2代表日期時間"
+
+#: Disabled references:1
+msgid "计算两个日期/时间之间的时长，并精确到年、月、天、小时或分"
+msgstr "計算兩個日期/時間之間的時長，並精確到年、月、天、小時或分"
+
+#: Disabled references:1
+msgid "不支持使用年、年月的字段类型"
+msgstr "不支援使用年、年月的欄位型別"
+
+#: Disabled references:1
+msgid "显示有数据的项"
+msgstr "顯示有資料的項"
+
+#: Disabled references:1
+msgid "显示指定项"
+msgstr "顯示指定項"
+
+#: Disabled references:1
+msgid "显示满足筛选条件的项"
+msgstr "顯示滿足篩選條件的項"
+
+#: Disabled references:1
+msgid "选中%0个"
+msgstr "選中%0個"
+
+#: Disabled references:1
+msgid "该角色已存在"
+msgstr "該角色已存在"
+
+#: Disabled references:1
+msgid "格式错误"
+msgstr "格式錯誤"
+
+#: Disabled references:1
+msgid "未匹配到"
+msgstr "未匹配到"
+
+#: Disabled references:1
+msgid "未匹配或匹配到多个"
+msgstr "未匹配或匹配到多個"
+
+#: Disabled references:1
+msgid "跳过错误数据"
+msgstr "跳過錯誤資料"
+
+#: Disabled references:1
+msgid "未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。"
+msgstr "未勾選時，對於錯誤的資料僅跳過錯誤欄位，其他欄位仍然匯入。勾選後將跳過整行資料。"
+
+#: Disabled references:1
+msgid "当数据中存在以下所选错误时，将放弃此行数据导入"
+msgstr "當資料中存在以下所選錯誤時，將放棄此行資料匯入"
+
+#: Disabled references:1
+msgid "截止到%0的最新数据"
+msgstr "截止到%0的最新資料"
+
+#: Disabled references:1
+msgid "保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能"
+msgstr "保留最近一年的使用分析資料，使用分析上線後隔天對使用資料進行分析，且只有開通相應的版本方可使用此功能"
+
+#: Disabled references:1
+msgid "浏览器新消息通知"
+msgstr "瀏覽器新訊息通知"
+
+#: Disabled references:1
+msgid "没有输入参数的 API 请直接保存完成配置"
+msgstr "沒有輸入引數的 API 請直接儲存完成配置"
+
+#: Disabled references:1
+msgid "添加检查项字段"
+msgstr "新增檢查項欄位"
+

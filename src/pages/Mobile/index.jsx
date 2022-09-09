@@ -11,14 +11,15 @@ import { socketInit } from 'src/socket/mobileSocketInit';
 import { ROUTE_CONFIG, PORTAL } from './config';
 import './index.less';
 
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-
 const isIphonex = () => {
   if (typeof window !== 'undefined' && window) {
     return /iphone/gi.test(window.navigator.userAgent) && window.screen.height >= 812;
   }
   return false;
 };
+
+const isMiniprogram = window.navigator.userAgent.toLowerCase().includes('miniprogram');
+const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
 @preall
 @withRouter
@@ -35,8 +36,8 @@ class App extends Component {
     });
 
     this.genRouteComponent = genRouteComponent();
-    if (isWxWork && isIphonex()) {
-      document.body.classList.add('wxworkBody');
+    if (isIphonex() && (isMiniprogram || isWxWork)) {
+      document.body.classList.add('iphoneBody');
     }
     socketInit();
   }

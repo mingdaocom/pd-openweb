@@ -108,6 +108,12 @@ export default class SortableRecordItem extends Component {
     draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
   };
   handleRecordVisible = rowId => {
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+    if (isMingdao) {
+      const { appId, worksheetId, viewId } = this.props;
+      window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
+      return;
+    }
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {

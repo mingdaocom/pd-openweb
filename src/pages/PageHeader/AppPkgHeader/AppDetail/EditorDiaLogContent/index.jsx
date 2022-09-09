@@ -2,8 +2,16 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, RichText } from 'ming-ui';
+import styled from 'styled-components';
 import './index.less';
 import { ADVANCE_AUTHORITY } from '../../config';
+
+const Wrap = styled.div`
+  .ck-editor__main {
+    max-height: ${props => `${props.richTextHeight}px`};
+  };
+`;
+
 export default class Editor extends Component {
   static propTypes = {
     cacheKey: PropTypes.string, // 缓存内容key
@@ -51,7 +59,7 @@ export default class Editor extends Component {
       a.click();
     });
     const { summary } = this.props;
-    this.onChange(summary)
+    this.onChange(summary);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -74,7 +82,7 @@ export default class Editor extends Component {
     const { cacheKey, isEditing } = this.props;
 
     if (cacheKey && isEditing) {
-      localStorage.setItem('mdEditor_' + cacheKey, html);
+      safeLocalStorageSetItem('mdEditor_' + cacheKey, html);
     }
   };
 
@@ -88,7 +96,7 @@ export default class Editor extends Component {
     if (this.state.showCache && cacheSummary && cacheSummary !== summary) {
       return (
         <Fragment>
-          <div className="mdEditorTipColor">{_l('检测到有上次未保存的内容，')}</div>
+          <div className="mdEditorTipColor mLeft10">{_l('检测到有上次未保存的内容，')}</div>
           <div className="pointer ThemeColor3 ThemeHoverColor2" onClick={this.recovery}>
             {_l('点击恢复')}
           </div>
@@ -110,7 +118,7 @@ export default class Editor extends Component {
     const { cacheKey } = this.props;
     const cacheSummary = localStorage.getItem('mdEditor_' + cacheKey);
 
-    this.editorInstance.setContent(cacheSummary, 'html');
+    this.props.onSave(cacheSummary);
     this.setState({ showCache: false });
   };
 
@@ -148,9 +156,13 @@ export default class Editor extends Component {
       toorIsBottom,
     } = this.props;
 
+    const clientHeight = document.body.clientHeight;
+    const distance = isEditing ? 198 : 135;
+    const richTextHeight = clientHeight - distance;
+
     if (!isEditing) {
       return (
-        <div className={cx('mdEditor', { Alpha8: !auth }, className, { pBottom15: summary })} onClick={joinEditing}>
+        <Wrap className={cx('mdEditor', { Alpha8: !auth }, className, { pBottom15: summary })} onClick={joinEditing} richTextHeight={richTextHeight}>
           <header className="appIntroHeader">
             <div className="caption">{title || _l('应用说明')}</div>
             {!isEditing && permissionType >= ADVANCE_AUTHORITY && (
@@ -169,12 +181,12 @@ export default class Editor extends Component {
               backGroundColor={'#fff'}
             />
           ) : null}
-        </div>
+        </Wrap>
       );
     }
 
     return (
-      <div className={cx('mdEditor', className)}>
+      <Wrap className={cx('mdEditor', className)} richTextHeight={richTextHeight}>
         {toorIsBottom && (
           <RichText
             // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
@@ -213,7 +225,7 @@ export default class Editor extends Component {
             changeSetting={changeSetting}
           />
         )}
-      </div>
+      </Wrap>
     );
   }
 }

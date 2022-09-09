@@ -8,13 +8,29 @@ import RelateRecord from './RelateRecord';
 import Cascader from './Cascader';
 import Options from './Options';
 import DateTime from './DateTime';
+import Time from './Time';
 import CheckboxComp from './CheckboxComp';
 import Users from './Users';
 import Departments from './Departments';
+import OrgRole from './OrgRole';
 import Areas from './Areas';
 import UnNormal from './UnNormal';
 import _ from 'lodash';
 import { shape } from 'prop-types';
+
+function getType(control) {
+  let { type } = control;
+  if (type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && control) {
+    type = control.sourceControlType || -10000;
+  }
+  if (type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
+    type = control.enumDefault2 || 6;
+  }
+  if (type === WIDGETS_TO_API_TYPE_ENUM.SEARCH) {
+    type = WIDGETS_TO_API_TYPE_ENUM.TEXT;
+  }
+  return type;
+}
 
 const Comps = {};
 
@@ -72,6 +88,11 @@ export const DateTimeTypes = [
 ];
 mapToComp(DateTimeTypes, DateTime);
 
+export const TimeTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.TIME, //  时间
+];
+mapToComp(TimeTypes, Time);
+
 export const UsersTypes = [
   WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
 ];
@@ -81,6 +102,11 @@ export const DepartmentsTypes = [
   WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门
 ];
 mapToComp(DepartmentsTypes, Departments);
+
+export const RogRoleTypes = [
+  WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色
+];
+mapToComp(RogRoleTypes, OrgRole);
 
 export const AreasTypes = [
   WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
@@ -92,7 +118,7 @@ mapToComp(AreasTypes, Areas);
 mapToComp([-10000], UnNormal); // 异常状态
 
 export function validate(condition) {
-  let dataType = condition.dataType;
+  let dataType = getType({ type: condition.dataType });
   if (
     _.includes(
       [
@@ -110,6 +136,7 @@ export function validate(condition) {
         WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉
         WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
         WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 成员
+        WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色
         WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
         WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
         WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
@@ -148,6 +175,7 @@ export function validate(condition) {
       [
         WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期
         WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间
+        WIDGETS_TO_API_TYPE_ENUM.TIME, // 时间
       ],
       dataType,
     )
@@ -163,13 +191,7 @@ export default function Input(props) {
   const { advancedSetting = {} } = props;
   const { allowitem } = advancedSetting;
   const isMultiple = String(allowitem) === '2';
-  let { type } = props.control;
-  if (type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && props.control) {
-    type = props.control.sourceControlType || -10000;
-  }
-  if (type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && props.control) {
-    type = props.control.enumDefault2 || 6;
-  }
+  const type = getType(props.control);
   const Condition = Comps[type];
   return Condition ? (
     <Condition {...props} isMultiple={isMultiple} value={_.isUndefined(props.value) ? '' : props.value} />

@@ -206,8 +206,8 @@ class PrintForm extends React.Component {
         rules: rules,
         data: res.receiveControls,
       });
-      receiveControls = getControlsForPrint(receiveControls, res.relations);
-      let dat = (res.receiveControls || []).filter(o => o.type !== 43); //去除 文本识别 43
+      receiveControls = getControlsForPrint(receiveControls, res.relations).filter(o => ![43, 49].includes(o.type));
+      let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
       let attributeName = !attribute ? _l('未命名') : renderCellText(attribute) || _l('未命名');
       if (from === fromType.PRINT && printType !== 'workflow') {

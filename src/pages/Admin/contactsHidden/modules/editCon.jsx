@@ -109,7 +109,7 @@ class EditCon extends React.Component {
                 {user.targetType === targetType.dept ? (
                   <React.Fragment>
                     <span className="depIcon">
-                      <Icon className="department Hand" icon="topbar_workflow" />
+                      <Icon className="department Hand" icon="department" />
                     </span>
                     <span className="fullname">{user.targetName}</span>
                   </React.Fragment>

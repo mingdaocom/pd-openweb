@@ -14,6 +14,7 @@ import formSet from 'pages/FormSet/redux/reducer/reducers';
 import customPage from 'src/pages/customPage/redux/reducers';
 import statistics from 'statistics/redux/reducers';
 import portal from 'src/pages/Roles/Portal/redux/reduces';
+import orgManagePage from 'src/pages/Admin/redux';
 
 export function makeRootReducer() {
   return (state = {}, action) => {
@@ -38,6 +39,7 @@ export function makeRootReducer() {
       sheetList,
       statistics,
       portal,
+      orgManagePage,
     })(state, action);
   };
 }

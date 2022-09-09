@@ -37,6 +37,7 @@ function ViewComp(props) {
     sheetSwitchPermit,
     searchData,
     maxCount,
+    filtersGroup,
   } = props;
   const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -69,6 +70,7 @@ function ViewComp(props) {
           chartId={chartId}
           showControlIds={showControlIds}
           showAsSheetView={showAsSheetView}
+          filtersGroup={filtersGroup}
           config={{
             hideColumnFilter: true,
           }}

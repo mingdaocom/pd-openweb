@@ -125,13 +125,13 @@ export const getCellValue = function (cellItem, type) {
     case 29:
       return cellItem.value
         ? JSON.stringify(
-            cellItem.value.map(relateRecordItem => {
-              return {
-                ...relateRecordItem,
-                sourcevalue: {},
-              };
-            }),
-          )
+          cellItem.value.map(relateRecordItem => {
+            return {
+              ...relateRecordItem,
+              sourcevalue: {},
+            };
+          }),
+        )
         : '';
     default:
       return cellItem.value ? (typeof cellItem.value === 'string' ? cellItem.value : cellItem.value.toString()) : '';
@@ -174,14 +174,14 @@ export const getControlValue = function (controlItem) {
         try {
           return JSON.parse(controlItem.value).filter(item => item).length > 0
             ? JSON.parse(controlItem.value).map(item => {
-                return item ? moment(item).format('x') : '';
-              })
+              return item ? moment(item).format('x') : '';
+            })
             : '';
         } catch (error) {
           return controlItem.value.split(',').filter(item => item).length > 0
             ? controlItem.value.split(',').map(item => {
-                return item || '';
-              })
+              return item || '';
+            })
             : '';
         }
       }
@@ -236,7 +236,7 @@ export function getHidedColumnsFromStorage(id) {
 
 // 存储显隐列到lcoalstorage
 export function saveHidedColumnsToStorage(id, hidedColumns) {
-  window.localStorage.setItem(`worksheet_hided_columns_${md.global.Account.accountId}_${id}`, hidedColumns.join(','));
+  safeLocalStorageSetItem(`worksheet_hided_columns_${md.global.Account.accountId}_${id}`, hidedColumns.join(','));
 }
 
 // 是否看板视图、画廊视图

@@ -23,11 +23,13 @@ import utils from '@mdfe/intl-tel-input/build/js/utils';
 import moment from 'moment';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
 import { getDepartmentsByAccountId } from 'src/api/department';
+import { getOrganizesByAccountId } from 'src/api/organize';
 import { getFilterRowsByQueryDefault, getRowDetail } from 'src/api/worksheet';
 import { getCurrentProject } from 'src/util';
+import { checkRuleLocked } from './filterFn';
 import _ from 'lodash';
 
-const initIntlTelInput = () => {
+export const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
     return window.initIntlTelInput;
   }
@@ -47,25 +49,41 @@ const initIntlTelInput = () => {
   return window.initIntlTelInput;
 };
 
+// 时间字段处理
+const formatTimeValue = (control = {}, isCurrent = false, value) => {
+  const mode = control.unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+  if (isCurrent) return moment(moment().format(mode), mode).format('HH:mm:ss');
+  if (!value) return '';
+  return moment(value).year()
+    ? moment(moment(value).format(mode), mode).format('HH:mm:ss')
+    : moment(value, mode).format('HH:mm:ss');
+};
+
 // 处理静态默认值
 const parseStaticValue = (item, staticValue) => {
   // 日期 || 日期时间
   if (item.type === 15 || item.type === 16) {
     const unit = TIME_UNIT[item.unit] || 'd';
     if (staticValue === '2') {
-      return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+      return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
     } else if (staticValue === '3') {
       return moment()
         .add(1, unit)
-        .format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+        .format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
     }
   }
 
+  // 时间(此刻)
+  if (item.type === 46 && staticValue === '2') {
+    return formatTimeValue(item, true);
+  }
+
   // 人员 || 部门
-  if (_.includes([26, 27], item.type)) {
+  if (_.includes([26, 27, 48], item.type)) {
     const value = safeParse(staticValue);
 
     if (value.accountId === 'user-self') {
+      if (window.isPublicWorksheet) return '';
       if ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) return '';
       const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
       if (_.isEmpty(obj)) return '';
@@ -114,8 +132,12 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
           if (_.includes([15, 16], currentItem.type)) {
             return targetControl.value
-              ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm')
+              ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss')
               : '';
+          }
+
+          if (currentItem.type === 46) {
+            return formatTimeValue(currentItem, false, targetControl.value);
           }
 
           //文本类控件(默认值为选项、成员、部门等异化)
@@ -131,8 +153,12 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
         if (_.includes([15, 16], currentItem.type) && _.includes(['ctime', 'utime'], item.cid)) {
           return (sourcevalue ? moment(sourcevalue) : moment()).format(
-            item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm',
+            item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss',
           );
+        }
+
+        if (currentItem.type === 46) {
+          return formatTimeValue(currentItem, _.includes(['ctime', 'utime'], item.cid), sourcevalue);
         }
 
         // 关联表
@@ -215,7 +241,18 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
       }
       if (_.includes([15, 16], currentItem.type) && item.cid === 'ctime') {
-        return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+        return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+      }
+
+      if (currentItem.type === 46) {
+        return formatTimeValue(
+          currentItem,
+          item.cid === 'ctime',
+          _.get(
+            _.find(data, c => c.controlId === item.cid),
+            'value',
+          ),
+        );
       }
 
       //文本类控件、嵌入控件(默认值为选项、成员、部门等多异化)
@@ -234,7 +271,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
     return '';
   });
 
-  if (_.includes([9, 10, 11, 26, 27, 29], currentItem.type)) {
+  if (_.includes([9, 10, 11, 26, 27, 29, 48], currentItem.type)) {
     let source = [];
 
     _.remove(value, o => !o);
@@ -420,6 +457,8 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
               millisecond: 0,
             });
           }
+        } else if (column.type === 46) {
+          timestr = moment('2000-1-1 ' + timestr);
         }
         return timestr;
       }
@@ -434,6 +473,13 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
   if (currentItem.enumDefault === 1) {
     let startTime = getTime(currentItem.sourceControlId, 'start');
     let endTime = getTime(currentItem.dataSource, 'end');
+    const startControl = _.find(data, item => item.controlId === currentItem.sourceControlId.slice(1, -1)) || {};
+    const endControl = _.find(data, item => item.controlId === currentItem.dataSource.slice(1, -1)) || {};
+    if (startControl.type === 46 && endControl.type !== 46) {
+      startTime = moment(endTime).format('YYYY-MM-DD') + moment(startTime).format(' HH:mm:ss');
+    } else if (endControl.type === 46 && startControl.type !== 46) {
+      endTime = moment(startTime).format('YYYY-MM-DD') + moment(endTime).format(' HH:mm:ss');
+    }
     const weekday = currentItem.advancedSetting.weekday || '1234567';
     const unit = parseInt(currentItem.unit);
 
@@ -549,6 +595,11 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         return getControlValue(data, currentItem, matchedControlId);
       }
 
+      if (matchedColumn.type === 46) {
+        const [h, m, s] = moment(matchedColumn.value, 'HH:mm:ss').format('HH:mm:ss').split(':').map(Number);
+        return `${h}h+${m}m+${s}s`;
+      }
+
       if (_.isUndefined(matchedColumn.value) || matchedColumn.value === '') {
         hasUndefinedColumn = true;
       }
@@ -557,10 +608,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
     });
 
     formulaResult = hasUndefinedColumn ? {} : calcDate(date, expression);
-    value =
-      formulaResult.error || hasUndefinedColumn
-        ? ''
-        : formulaResult.result.format(dateColumnType === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+    value = formulaResult.error || hasUndefinedColumn ? '' : formulaResult.result.format('YYYY-MM-DD HH:mm:ss');
   } else if (currentItem.enumDefault === 3) {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
     let today = moment();
@@ -623,7 +671,7 @@ export const checkRequired = item => {
             !JSON.parse(item.value).attachments.length &&
             !JSON.parse(item.value).knowledgeAtts.length &&
             !JSON.parse(item.value).attachmentData.length))) ||
-      (_.includes([21, 26, 27, 29, 35], item.type) &&
+      (_.includes([21, 26, 27, 29, 35, 48], item.type) &&
         _.isArray(safeParse(item.value)) &&
         !JSON.parse(item.value).length) ||
       (item.type === 34 && ((item.value.rows && !item.value.rows.length) || item.value === '0')) ||
@@ -732,6 +780,31 @@ export const onValidator = (item, from, data, masterData) => {
           }
         }
       }
+
+      // 时间
+      if (item.type === 46) {
+        const min = item.advancedSetting.min;
+        const max = item.advancedSetting.max;
+
+        if (!value) {
+          errorType = '';
+        } else if (min || max) {
+          const minDate = min
+            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
+            : '';
+          const maxDate = max
+            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
+            : '';
+
+          if (
+            (minDate && compareWithTime(value, minDate, 'isBefore')) ||
+            (maxDate && compareWithTime(value, maxDate, 'isAfter'))
+          ) {
+            errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
+            errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate, true);
+          }
+        }
+      }
     }
 
     if (isRelateRecordTableControl(item)) {
@@ -763,8 +836,10 @@ export default class DataFormat {
   constructor({
     projectId = '',
     data = [],
+    rules = [],
     isCreate = false,
     disabled = false,
+    ignoreLock = false,
     recordCreateTime = '',
     masterRecordRowId = '',
     masterData,
@@ -793,6 +868,7 @@ export default class DataFormat {
 
     const departmentIds = [];
     const locationIds = [];
+    const organizeIds = [];
     const isInit = true;
 
     // 新建初始化
@@ -868,6 +944,18 @@ export default class DataFormat {
             });
         }
 
+        // 组织角色控件默认值当前用户所在组织角色
+        if (item.type === 48 && item.advancedSetting.defsource) {
+          safeParse(item.advancedSetting.defsource)
+            .filter(obj => obj.isAsync && obj.staticValue)
+            .forEach(obj => {
+              // 当前用户所在的部门
+              if (_.includes(['current', 'user-role'], safeParse(obj.staticValue).organizeId)) {
+                organizeIds.push(item.controlId);
+              }
+            });
+        }
+
         // 定位控件默认选中当前位置
         if (item.type === 40 && item.default === '1') {
           locationIds.push(item.controlId);
@@ -878,6 +966,10 @@ export default class DataFormat {
           this.updateDataSource({ controlId: item.controlId, value: item.value, isInit });
         }
       });
+    }
+
+    if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, this.from)) {
+      disabled = true;
     }
 
     this.data.forEach(item => {
@@ -933,6 +1025,8 @@ export default class DataFormat {
     this.getCurrentDepartment(departmentIds);
     // 获取当前位置
     this.getCurrentLocation(locationIds);
+    // 获取当前用户所在组织角色
+    this.getCurrentOrgRole(organizeIds);
 
     //新建记录初始时,固定值全走
     if (this.searchConfig.length > 0 && isCreate) {
@@ -1187,9 +1281,8 @@ export default class DataFormat {
                 const noUndefinedValues = valuesOfRecords.filter(value => !_.isUndefined(value));
                 if (valuesOfRecords.length) {
                   const isDate =
-                    currentItem.type === 15 ||
-                    currentItem.type === 16 ||
-                    (currentItem.type === 37 && (currentItem.enumDefault2 === 15 || currentItem.enumDefault2 === 16));
+                    _.includes([15, 16, 46], currentItem.type) ||
+                    (currentItem.type === 37 && _.includes([15, 16, 46], currentItem.enumDefault2));
                   switch (currentItem.enumDefault) {
                     case 13: // 已填
                       value = valuesOfRecords.filter(c =>
@@ -1220,13 +1313,20 @@ export default class DataFormat {
                       break;
                     case 2: // 最大 最晚
                       if (isDate) {
-                        const maxDate = _.max(
-                          noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
-                        );
-                        value =
-                          currentItem.enumDefault2 === 15
-                            ? moment(maxDate).format('YYYY-MM-DD')
-                            : moment(maxDate).format('YYYY-MM-DD HH:mm');
+                        if (currentItem.enumDefault2 === 46) {
+                          const maxDate = moment.max(
+                            noUndefinedValues.filter(_.identity).map(c => moment(c, 'HH:mm:ss')),
+                          );
+                          value = formatTimeValue(currentItem, false, maxDate);
+                        } else {
+                          const maxDate = _.max(
+                            noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
+                          );
+                          value =
+                            currentItem.enumDefault2 === 15
+                              ? moment(maxDate).format('YYYY-MM-DD')
+                              : moment(maxDate).format('YYYY-MM-DD HH:mm:ss');
+                        }
                       } else {
                         value = _.max(
                           noUndefinedValues.map(c =>
@@ -1237,13 +1337,20 @@ export default class DataFormat {
                       break;
                     case 3: // 最小 最早
                       if (isDate) {
-                        const minDate = _.min(
-                          noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
-                        );
-                        value =
-                          currentItem.enumDefault2 === 15
-                            ? moment(minDate).format('YYYY-MM-DD')
-                            : moment(minDate).format('YYYY-MM-DD HH:mm');
+                        if (currentItem.enumDefault2 === 46) {
+                          const minDate = moment.min(
+                            noUndefinedValues.filter(_.identity).map(c => moment(c, 'HH:mm:ss')),
+                          );
+                          value = formatTimeValue(currentItem, false, minDate);
+                        } else {
+                          const minDate = _.min(
+                            noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
+                          );
+                          value =
+                            currentItem.enumDefault2 === 15
+                              ? moment(minDate).format('YYYY-MM-DD')
+                              : moment(minDate).format('YYYY-MM-DD HH:mm:ss');
+                        }
                       } else {
                         value = _.min(
                           noUndefinedValues.map(c =>
@@ -1347,8 +1454,11 @@ export default class DataFormat {
   /**
    * 设置异常控件
    */
-  setErrorControl(controlId, errorType, errorMessage, isInit) {
-    const saveIndex = _.findIndex(this.errorItems, e => e.controlId === controlId && e.errorType === errorType);
+  setErrorControl(controlId, errorType, errorMessage, ruleId, isInit) {
+    const saveIndex = _.findIndex(
+      this.errorItems,
+      e => e.controlId === controlId && e.errorType === errorType && (ruleId ? e.ruleId === ruleId : true),
+    );
 
     if (saveIndex > -1) {
       // 移除业务规则错误提示|必填错误
@@ -1371,6 +1481,7 @@ export default class DataFormat {
           errorType,
           showError: true,
           errorMessage,
+          ruleId,
         });
       }
     }
@@ -1435,6 +1546,53 @@ export default class DataFormat {
       ids.forEach(controlId => {
         const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
         const value = enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
+
+        this.updateDataSource({
+          controlId,
+          value,
+          isInit: true,
+        });
+
+        this.onAsyncChange({
+          controlId,
+          value,
+        });
+      });
+    });
+  }
+
+  /**
+   * 获取当前用户所在的组织角色
+   */
+  getCurrentOrgRole(ids) {
+    if (
+      !ids.length ||
+      !md.global.Account.accountId ||
+      window.isPublicWorksheet ||
+      _.isEmpty(getCurrentProject(this.projectId))
+    )
+      return;
+
+    this.setLoadingInfo(ids, true);
+
+    getOrganizesByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] }).then(result => {
+      let organizes = [];
+      this.setLoadingInfo(ids, false);
+
+      result.maps.forEach(item => {
+        item.organizes.forEach(obj => {
+          organizes.push({
+            organizeId: obj.id,
+            organizeName: obj.name,
+          });
+        });
+      });
+
+      organizes = _.uniqBy(organizes, 'organizeId');
+
+      ids.forEach(controlId => {
+        const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
+        const value = enumDefault === 0 ? JSON.stringify(organizes.slice(0, 1)) : JSON.stringify(organizes);
 
         this.updateDataSource({
           controlId,
@@ -1554,9 +1712,9 @@ export default class DataFormat {
     if (_.isEmpty(this.asyncControls)) return;
 
     Object.keys(this.asyncControls).forEach(id => {
-      this.asyncControls[id].forEach(item => {
-        // 部门
-        if (item.type === 27) {
+      (this.asyncControls[id] || []).forEach(item => {
+        // 部门 | 组织角色
+        if (item.type === 27 || item.type === 48) {
           const accounts = safeParse(
             getDynamicValue(
               this.data,
@@ -1571,39 +1729,45 @@ export default class DataFormat {
             this.updateDataSource({ controlId: item.controlId, value: '[]', isInit });
           } else {
             this.setLoadingInfo(item.controlId, true);
-            getDepartmentsByAccountId({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) }).then(
-              result => {
-                let departments = [];
-                this.setLoadingInfo(item.controlId, false);
 
-                result.maps.forEach(item => {
-                  item.departments.forEach(obj => {
-                    departments.push({
-                      departmentId: obj.id,
-                      departmentName: obj.name,
-                    });
+            const INFO_OPTIONS = {
+              27: { id: 'departmentId', name: 'departmentName', ids: 'departments', api: getDepartmentsByAccountId },
+              48: { id: 'organizeId', name: 'organizeName', ids: 'organizes', api: getOrganizesByAccountId },
+            };
+
+            const infoObj = INFO_OPTIONS[item.type];
+
+            infoObj.api({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) }).then(result => {
+              let departments = [];
+              this.setLoadingInfo(item.controlId, false);
+
+              result.maps.forEach(item => {
+                item[infoObj.ids].forEach(obj => {
+                  departments.push({
+                    [infoObj.id]: obj.id,
+                    [infoObj.name]: obj.name,
                   });
                 });
+              });
 
-                departments = JSON.stringify(
-                  item.enumDefault === 0
-                    ? _.uniqBy(departments, 'departmentId').slice(0, 1)
-                    : _.uniqBy(departments, 'departmentId'),
-                );
+              departments = JSON.stringify(
+                item.enumDefault === 0
+                  ? _.uniqBy(departments, infoObj.id).slice(0, 1)
+                  : _.uniqBy(departments, infoObj.id),
+              );
 
-                // 多部门只获取第一个
-                this.updateDataSource({
-                  controlId: item.controlId,
-                  value: departments,
-                  isInit,
-                });
+              // 多部门只获取第一个
+              this.updateDataSource({
+                controlId: item.controlId,
+                value: departments,
+                isInit,
+              });
 
-                this.onAsyncChange({
-                  controlId: item.controlId,
-                  value: departments,
-                });
-              },
-            );
+              this.onAsyncChange({
+                controlId: item.controlId,
+                value: departments,
+              });
+            });
           }
         }
       });
@@ -1776,6 +1940,7 @@ export default class DataFormat {
                     });
                     updateData({
                       action: 'clearAndSet',
+                      isDefault: true,
                       rows: newValue,
                     });
                   } else {

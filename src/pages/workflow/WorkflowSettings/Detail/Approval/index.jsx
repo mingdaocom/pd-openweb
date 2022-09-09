@@ -151,10 +151,7 @@ export default class Approval extends Component {
    */
   renderApprovalUser() {
     const { data } = this.state;
-    const list = [
-      { text: _l('自定义'), value: 0 },
-      { text: _l('按部门层级逐级审批'), value: 1 },
-    ];
+    const list = [{ text: _l('自定义'), value: 0 }, { text: _l('按部门层级逐级审批'), value: 1 }];
 
     return (
       <Fragment>
@@ -197,7 +194,7 @@ export default class Approval extends Component {
 
     return (
       <div className="mTop15">
-        <Member type={NODE_TYPE.APPROVAL} accounts={accounts} updateSource={updateAccounts} />
+        <Member accounts={accounts} updateSource={updateAccounts} />
 
         <div
           className="flexRow mTop12 ThemeColor3 workflowDetailAddBtn"
@@ -413,10 +410,7 @@ export default class Approval extends Component {
                   <Dropdown
                     menuStyle={{ left: 'inherit', right: 0 }}
                     style={{ marginTop: -1 }}
-                    data={[
-                      { text: _l('重新执行流程'), value: 0 },
-                      { text: _l('直接返回审批节点'), value: 1 },
-                    ]}
+                    data={[{ text: _l('重新执行流程'), value: 0 }, { text: _l('直接返回审批节点'), value: 1 }]}
                     value={data.callBackType}
                     onChange={callBackType => {
                       this.updateSource({ callBackType });
@@ -582,10 +576,10 @@ export default class Approval extends Component {
     return (
       <Fragment>
         <DetailHeader
-          data={{ ...data, selectNodeType: this.props.selectNodeType }}
+          {...this.props}
+          data={{ ...data }}
           icon="icon-workflow_ea"
           bg="BGViolet"
-          closeDetail={this.props.closeDetail}
           updateSource={this.updateSource}
         />
         <div className="flex mTop20">
@@ -691,12 +685,12 @@ export default class Approval extends Component {
           </ScrollView>
         </div>
         <DetailFooter
+          {...this.props}
           isCorrect={
             data.selectNodeId &&
             ((!!data.accounts.length && data.multipleLevelType === 0) || data.multipleLevelType !== 0)
           }
           onSave={this.onSave}
-          closeDetail={this.props.closeDetail}
         />
       </Fragment>
     );

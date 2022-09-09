@@ -43,7 +43,7 @@ class Unit extends Component {
         if (value === 0) {
           item.ydot = 2;
         } else if (value === 1) {
-          item.ydot = '';
+          item.ydot = item.controlType === 10000001 ? 2 : (item.dot || 2);
         } else {
           item.ydot = 0;
         }
@@ -64,10 +64,6 @@ class Unit extends Component {
       count = count > 9 ? 9 : count;
     } else {
       count = 0;
-    }
-
-    if (current.magnitude === 1) {
-      return;
     }
 
     const data = _.cloneDeep(yaxisList).map(item => {
@@ -107,7 +103,8 @@ class Unit extends Component {
   };
   render() {
     const { data, isPivotTable } = this.props;
-    const { magnitude, ydot, suffix, fixType } = data;
+    const { magnitude, ydot, dot, suffix, fixType, controlType } = data;
+    const sheetDot = magnitude === 1 && controlType !== 10000001 && ydot == dot;
     return (
       <Fragment>
         <div className="mBottom15">
@@ -131,8 +128,8 @@ class Unit extends Component {
           <div className="mBottom8">{_l('保留小数')}</div>
           <Input
             className="chartInput"
-            value={[1].includes(magnitude) ? '' : ydot}
-            disabled={[1].includes(magnitude)}
+            value={sheetDot ? undefined : ydot}
+            placeholder={sheetDot && _l('按工作表字段配置显示')}
             onChange={event => {
               this.handleChangeYdot(event.target.value, data);
             }}
@@ -225,7 +222,7 @@ export default function unitPanelGenerator(props) {
         <Collapse.Panel header={_l('显示单位')} key="leftUnit" {...collapseProps}>
           {firstYaxis && (
             <Fragment>
-              {isDualAxes && <div className="mBottom12 Bold Gray_75">{_l('左Y轴')}</div>}
+              {isDualAxes && <div className="mBottom12 Bold Gray_75">{_l('Y轴')}</div>}
               <Unit
                 data={firstYaxis}
                 yaxisList={yaxisList}
@@ -243,7 +240,7 @@ export default function unitPanelGenerator(props) {
           )}
           {firstRightYaxis && (
             <Fragment>
-              <div className="mBottom12 Bold Gray_75">{_l('右Y轴')}</div>
+              <div className="mBottom12 Bold Gray_75">{_l('辅助Y轴')}</div>
               <Unit
                 data={firstRightYaxis}
                 yaxisList={rightYaxisList}

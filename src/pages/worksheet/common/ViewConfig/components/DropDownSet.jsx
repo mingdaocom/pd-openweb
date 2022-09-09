@@ -7,6 +7,12 @@ import styled from 'styled-components';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import AddControlDiaLog from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/AddControlDiaLog';
 const DropDownSetChoose = styled.div`
+  position: relative;
+  .Red {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+  }
    {
     .dropDropDownSet {
       width: 100%;
@@ -20,6 +26,10 @@ const DropDownSetChoose = styled.div`
       &.isDelete {
         .ant-select-selector {
           border-color: red !important;
+        }
+        .ant-select-selection-item {
+          opacity: 0;
+          z-index: 1;
         }
       }
     }
@@ -62,8 +72,8 @@ export default class DropDownSet extends React.Component {
     } = this.props;
     const { visible } = this.state;
     const setDataId = this.props.setDataId || _.get(view, ['advancedSetting', key]);
-    let controlData = controlList.find(it => it.controlId === setDataId) || {};
-    let isDelete = setDataId && !worksheetControls.find(it => it.controlId === setDataId);
+    let controlData = controlList.find(it => it.controlId === setDataId);
+    let isDelete = setDataId && !controlData;
     return (
       <React.Fragment>
         <div className="title Font13 bold mTop32">{title}</div>
@@ -72,20 +82,9 @@ export default class DropDownSet extends React.Component {
           <DropDownSetChoose>
             <Select
               className={cx('dropDropDownSet', { isDelete })}
-              value={
-                setDataId ? (
-                  isDelete ? (
-                    <span className="Red">{_l('该字段已删除')}</span>
-                  ) : (
-                    <span className="Gray">
-                      <i className={cx('icon Gray_9e mRight5 Font14', 'icon-' + getIconByType(controlData.type))}></i>
-                      {controlData.controlName}
-                    </span>
-                  )
-                ) : (
-                  <span className="Gray_bd">{_l('请选择')}</span>
-                )
-              }
+              optionLabelProp="label"
+              placeholder={_l('请选择')}
+              value={[setDataId]}
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
               allowClear={setDataId}
               dropdownClassName="dropConOption"
@@ -104,10 +103,15 @@ export default class DropDownSet extends React.Component {
               notFoundContent={notFoundContent || _l('当前工作表中没有可选字段，请先去添加一个')}
             >
               {controlList.map((item, i) => {
-                return (
-                  <Select.Option value={item.controlId} key={i}>
+                const labelNode = (
+                  <div className="">
                     <i className={cx('icon Gray_9e mRight5 Font14', 'icon-' + getIconByType(item.type))}></i>
                     {item.controlName}
+                  </div>
+                );
+                return (
+                  <Select.Option value={item.controlId} key={i} label={labelNode}>
+                    {labelNode}
                   </Select.Option>
                 );
               })}
@@ -118,6 +122,7 @@ export default class DropDownSet extends React.Component {
                 </Select.Option>
               )}
             </Select>
+            {isDelete && <span className="Red">{_l('该字段已删除')}</span>}
           </DropDownSetChoose>
         </div>
         {visible && (
@@ -136,9 +141,9 @@ export default class DropDownSet extends React.Component {
             }}
             onChange={handleChange}
             addName={addName}
-            title={_l('添加日期字段')}
+            title={_l('添加检查项字段')}
             withoutIntro={true}
-            enumType={'DATE'}
+            enumType={'SWITCH'}
             worksheetId={worksheetId}
           />
         )}

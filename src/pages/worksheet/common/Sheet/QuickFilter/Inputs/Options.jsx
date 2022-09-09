@@ -41,6 +41,12 @@ const Con = styled.div`
       .ant-select-selection-search-input {
         height: 30px !important;
       }
+      .ant-select-selection-placeholder {
+        line-height: 30px !important;
+      }
+      .ant-select-selection-item {
+        line-height: 28px !important;
+      }
       .ant-select-selection-item > span {
         margin: 3px 0 !important;
       }

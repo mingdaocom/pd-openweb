@@ -135,10 +135,15 @@ export default class Widgets extends Component {
         const data = result.data.map(item => {
           return {
             value: item.rowid,
-            label: this.renderLabel(item, control),
+            label: control
+              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }))
+              : _l('未命名'),
+            path: item.childrenids || item.path,
             isLeaf: !item.childrenids,
           };
         });
+
+        this.setState({ control });
 
         if (browserIsMobile() && !rowId && !_.isArray(layersName)) {
           this.setState({
@@ -215,6 +220,13 @@ export default class Widgets extends Component {
     const { onChange, advancedSetting } = this.props;
     const { allpath = '0' } = advancedSetting;
     const { keywords } = this.state;
+
+    if (_.isUndefined(ids)) {
+      onChange('');
+      this.setState({ keywords: '', value: undefined });
+      return;
+    }
+
     const lastIndex = ids.length - 1;
     const id = ids[lastIndex];
     let path;
@@ -456,6 +468,7 @@ export default class Widgets extends Component {
       popupAlign,
       treePopupAlign,
       onPopupVisibleChange,
+      control,
     } = this.props;
     const { showtype = '3', anylevel = '0' } = advancedSetting;
     const { visible, options, searchOptions, value, keywords, isError } = this.state;
@@ -553,6 +566,22 @@ export default class Widgets extends Component {
         ref={cascader => {
           this.cascader = cascader;
         }}
+        allowClear
+        showSearch={{
+          filter: (inputValue, result = []) => {
+            return result.some(
+              option =>
+                JSON.parse(option.path || '[]')
+                  .join('/')
+                  .indexOf(inputValue) > -1,
+            );
+          },
+          render: (inputValue, resultArr = []) => {
+            return this.renderLabel({ path: resultArr[0].path }, control);
+          },
+          matchInputWidth: false,
+        }}
+        searchValue={keywords}
         className="w100 customCascader"
         popupClassName={popupClassName}
         popupAlign={popupAlign}
@@ -560,7 +589,7 @@ export default class Widgets extends Component {
         disabled={disabled}
         placeholder={value ? '' : _l('请选择')}
         changeOnSelect={!+anylevel}
-        defaultValue={value ? [value] : []}
+        value={value ? [value] : []}
         displayRender={() => <span>{value}</span>}
         options={keywords ? searchOptions || [] : options || []}
         notFoundContent={
@@ -576,51 +605,16 @@ export default class Widgets extends Component {
         }
         loadData={selectedOptions => this.loadData(selectedOptions[selectedOptions.length - 1].value)}
         onChange={this.cascaderChange}
+        onSearch={value => this.setState({ keywords: value }, this.loadData)}
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
-        {...(_.isUndefined(this.state.popupVisible) ? {} : { popupVisible: this.state.popupVisible })}
-        onPopupVisibleChange={visible => {
+        {...(_.isUndefined(this.state.popupVisible) ? {} : { open: this.state.popupVisible })}
+        onDropdownVisibleChange={visible => {
           this.setState({ visible, keywords: '' });
           visible && !options && this.loadData();
           onPopupVisibleChange(visible);
         }}
-      >
-        {visible && (
-          <Fragment>
-            <input
-              ref={text => {
-                this.text = text;
-              }}
-              type="text"
-              autoComplete="off"
-              className="customFormControlBox customCascaderInput"
-              style={{ paddingRight: value ? 30 : 12 }}
-              placeholder={value || _l('请选择')}
-              value={keywords}
-              onKeyDown={e => e.stopPropagation()}
-              onChange={e => this.setState({ keywords: e.target.value }, this.loadData)}
-            />
-            {value && (
-              <Icon
-                icon="closeelement-bg-circle Font14 customCascaderDel"
-                className="Absolute"
-                onMouseDown={e => {
-                  if (keywords.length) {
-                    e.nativeEvent.stopImmediatePropagation();
-                    this.setState({ keywords: '' }, () => {
-                      setTimeout(() => {
-                        this.text.focus();
-                      }, 10);
-                    });
-                  } else {
-                    this.cascaderChange([], []);
-                    this.cascader.setState({ value: [] });
-                  }
-                }}
-              />
-            )}
-          </Fragment>
-        )}
-      </Cascader>
+        clearIcon={<Icon icon="closeelement-bg-circle Font14 customCascaderDel"></Icon>}
+      ></Cascader>
     );
   }
 }

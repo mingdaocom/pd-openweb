@@ -11,6 +11,7 @@ import { widgets } from '../../enum';
 import Analysis from './analysis';
 import ButtonComp from './button';
 import View from './view';
+import Filter from './filter';
 import RcDialog from 'rc-dialog';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 
@@ -36,6 +37,7 @@ const TYPE_TO_COMPONENTS = {
   analysis: Analysis,
   button: ButtonComp,
   view: View,
+  filter: Filter,
 };
 
 function EditWidget(props) {

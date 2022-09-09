@@ -200,7 +200,7 @@ class DialogSettingInviteRules extends React.Component {
             </span>
             <span className="text">
               <p className="Gray Font13">
-                {_l('组织ID %0', this.state.regCode)}
+                {_l('组织门牌号 %0', this.state.regCode)}
                 <span
                   className="copyBtn Gray_75 Hand mLeft15 regCode"
                   onClick={() => {
@@ -211,7 +211,7 @@ class DialogSettingInviteRules extends React.Component {
                   {_l('复制')}
                 </span>
               </p>
-              <p className="Gray_9e Font13 mTop13">{_l('开启后允许通过搜索组织ID到组织')}</p>
+              <p className="Gray_9e Font13 mTop13">{_l('开启后允许通过搜索组织门牌号到组织')}</p>
             </span>
           </div>
           <div className="listBox borderTopLine">

@@ -53,6 +53,15 @@ const UserItem = styled.div`
   }
 `;
 
+const SingleUserItem = styled.div`
+  font-size: 13px;
+  color: #333;
+  .userHead {
+    display: inline-block !important;
+    margin-right: 8px;
+  }
+`;
+
 const Icon = styled.i`
   cursor: pointer;
   font-size: 13px;
@@ -64,77 +73,114 @@ const Empty = styled.span`
   color: #bdbdbd;
 `;
 export default function Users(props) {
-  const { values = [], projectId, isMultiple, onChange = () => {}, appId } = props;
+  const { values = [], projectId, isMultiple, onChange = () => {}, appId, from } = props;
   const [active, setActive] = useState();
   const conRef = useRef();
   const tabType = getTabTypeBySelectUser(props.control);
   return (
     <Con
+      className={props.className}
       isEmpty={!values.length}
       active={active}
       onClick={() => {
         setActive(true);
-        $(conRef.current).quickSelectUser({
-          showQuickInvite: false,
-          showMoreInvite: false,
-          isTask: false,
-          tabType,
-          appId,
-          includeUndefinedAndMySelf: true,
-          includeSystemField: true,
-          offset: {
-            top: 0,
-            left: 1,
-          },
-          zIndex: 10001,
-          filterAccountIds: [md.global.Account.accountId],
-          SelectUserSettings: {
-            projectId,
-            unique: !isMultiple,
-            callback(users) {
+        if (from === 'NavShow') {
+          $(conRef.current).dialogSelectUser({
+            title: '添加成员',
+            sourceId: 0,
+            fromType: 0,
+            showMoreInvite: false,
+            SelectUserSettings: {
+              includeUndefinedAndMySelf: true,
+              // includeSystemField: true,
+              showMoreInvite: false,
+              projectId,
+              unique: !isMultiple,
+              callback(users) {
+                onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+                setActive(false);
+              },
+            },
+          });
+        } else {
+          $(conRef.current).quickSelectUser({
+            showQuickInvite: false,
+            showMoreInvite: false,
+            isTask: false,
+            tabType,
+            appId,
+            includeUndefinedAndMySelf: true,
+            includeSystemField: true,
+            offset: {
+              top: 0,
+              left: 1,
+            },
+            zIndex: 10001,
+            filterAccountIds: [md.global.Account.accountId],
+            SelectUserSettings: {
+              projectId,
+              unique: !isMultiple,
+              callback(users) {
+                onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+                setActive(false);
+              },
+            },
+            selectCb(users) {
               onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
               setActive(false);
             },
-          },
-          selectCb(users) {
-            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
-            setActive(false);
-          },
-          onClose: () => {
-            setActive(false);
-          },
-        });
+            onClose: () => {
+              setActive(false);
+            },
+          });
+        }
       }}
     >
       <UsersCon ref={conRef}>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
-        {values.map(user => (
-          <UserItem className="ellipsis">
+        {!isMultiple && !!values.length ? (
+          <SingleUserItem>
             <UserHead
               className="userHead"
               alwaysBindCard
               user={{
-                userHead: user.avatar,
-                accountId: user.accountId,
+                userHead: values[0].avatar,
+                accountId: values[0].accountId,
               }}
               size={24}
             />
-            {user.fullname}
-            <i
-              className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
-              onClick={e => {
-                e.stopPropagation();
-                onChange({ values: values.filter(v => v.accountId !== user.accountId) });
-              }}
-            />
-          </UserItem>
-        ))}
+            {values[0].fullname}
+          </SingleUserItem>
+        ) : (
+          values.map(user => (
+            <UserItem className="ellipsis">
+              <UserHead
+                className="userHead"
+                alwaysBindCard
+                user={{
+                  userHead: user.avatar,
+                  accountId: user.accountId,
+                }}
+                size={24}
+              />
+              {user.fullname}
+              <i
+                className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
+                onClick={e => {
+                  e.stopPropagation();
+                  onChange({ values: values.filter(v => v.accountId !== user.accountId) });
+                }}
+              />
+            </UserItem>
+          ))
+        )}
       </UsersCon>
       <Icon className="icon icon-arrow-down-border downIcon" />
       {!!values.length && (
         <Icon
           className="icon icon-cancel clearIcon"
-          onClick={() => {
+          onClick={e => {
+            e.stopPropagation();
             onChange({ values: [] });
           }}
         />

@@ -56,7 +56,7 @@ const ConfigWrap = styled.div`
   }
 `;
 
-export default function SearchConfig(props) {
+export default function ApiSearchConfig(props) {
   const { data, onChange, onClose, controls = [] } = props;
   const [visible, setVisible] = useState(false);
 

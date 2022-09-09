@@ -48,12 +48,21 @@ export default class ImportConfig extends Component {
       }
     });
 
-    const defaultSelectImportSheetIndex = _.findIndex(this.props.fileList, item => item.state && item.total <= md.global.SysSettings.worksheetExcelImportDataLimitCount);
-    const selectRow = Object.assign({}, this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber]);
+    const defaultSelectImportSheetIndex = _.findIndex(
+      this.props.fileList,
+      item => item.state && item.total <= md.global.SysSettings.worksheetExcelImportDataLimitCount,
+    );
+    const selectRow = Object.assign(
+      {},
+      defaultSelectImportSheetIndex !== -1
+        ? this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber]
+        : {},
+    );
 
     if (
+      defaultSelectImportSheetIndex !== -1 &&
       _.findIndex(this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber].cells, item => !item.value) >
-      -1
+        -1
     ) {
       selectRow.cells = _.slice(
         selectRow.cells,

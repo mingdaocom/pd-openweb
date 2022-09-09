@@ -5,6 +5,7 @@ import { widgets } from './enum';
 import { get } from 'lodash';
 import domtoimage from 'dom-to-image';
 import { reportTypes } from 'statistics/Charts/common';
+import { v4 as uuidv4 } from 'uuid';
 
 export const FlexCenter = styled.div`
   display: flex;
@@ -16,7 +17,7 @@ const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5 });
+export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6 });
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
@@ -27,6 +28,8 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
   if (layoutType === 'web') {
     if (type === 'view') {
       return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 6 };
+    } else if (type === 'filter') {
+      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 2, minW: 2, minH: 2 };
     } else {
       return { x: (components.length * 6) % 12, y: Infinity, w: 6, h: 6, minW: 2, minH: 2 };
     }
@@ -36,8 +39,10 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
     const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
     const enumType = getEnumType(type);
     const minW = _.includes(['button'], enumType) ? 2 : 1;
-    if (type === 'view') {
+    if (enumType === 'view') {
       return { x: 0, y: y + h, w: 2, h: titleVisible ? 9 : 8, minW, minH: 4 };
+    } else if (enumType === 'filter') {
+      return { x: 0, y: y + h, w: 2, h: 1, minW, minH: 1 };
     } else {
       return { x: 0, y: y + h, w: 2, h: titleVisible ? 7 : 6, minW, minH: 2 };
     }
@@ -69,6 +74,7 @@ export const getComponentTitleText = component => {
   if (enumType === 'richText') return value.replace(htmlReg, '');
   if (enumType === 'button') return _.get(button, ['buttonList', '0', 'name']);
   if (enumType === 'view') return config.name;
+  if (enumType === 'filter') return _l('筛选组件');
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
@@ -220,3 +226,25 @@ export const parseLink = (link, param) => {
   if (!/^https?:\/\//.test(url)) return `https://${url}`;
   return url;
 };
+
+// 图表和视图组件补充 objectId，便于搜索组件搜索
+export const fillObjectId = components => {
+  return components.map(c => {
+    if ([enumWidgetType.analysis, enumWidgetType.view].includes(c.type)) {
+      const config = _.get(c, 'config') || {};
+      if (config.objectId) {
+        return c;
+      } else {
+        return {
+          ...c,
+          config: {
+            ...config,
+            objectId: uuidv4()
+          }
+        }
+      }
+    }
+    return c;
+  });
+}
+

@@ -43,7 +43,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           'value',
         );
       }
-      return value === '1' ? '✓' : '□';
+      return (
+        <div>
+          <div className="InlineBlock mRight3">{value === '1' ? '☑' : '☐'}</div>
+          {item.hint}
+        </div>
+      );
+    //☑和☐
     case 6:
     case 8:
     case 20:
@@ -197,7 +203,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       return value ? <img src={value} style={{ width: 168 }} /> : '';
     }
     case 45: {
-      return value ? <Embed {...dataItem} from="print" /> : '';
+      return value ? <Embed {...dataItem} formData={dataItem.controls} from="print" /> : '';
     }
     case 47: {
       let barCodeData = { ...dataItem, formData: dataItem.controls };
@@ -283,9 +289,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                       pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
                         ? pictureAttachments[index].previewUrl.replace(
                             /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                            'imageView2/2/w/1200/q/90',
+                            'imageView2/1/w/1200/q/90',
                           )
-                        : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
+                        : `${pictureAttachments[index].previewUrl}&imageView2/1/w/1200/q/90`
                     }
                     alt=""
                   />

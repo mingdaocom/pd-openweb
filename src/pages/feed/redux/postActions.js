@@ -135,9 +135,9 @@ export function loadMore() {
       options.listType === 'ireply'
         ? { maxCommentId: getMaxCommentId(post.ireplyPostIds, post.ireplyPostsById) }
         : {
-            pIndex: post.pageIndex + 1,
-            lastPostAutoID: getLastPostAutoID(post.postIds, post.postsById),
-          },
+          pIndex: post.pageIndex + 1,
+          lastPostAutoID: getLastPostAutoID(post.postIds, post.postsById),
+        },
       options,
       post.postIds.lenth
     ).then(({ postList, more }) => {
@@ -187,7 +187,7 @@ export function loadTop(projectId) {
 }
 
 export function changeFontSize(fontSize) {
-  window.localStorage.setItem(md.global.Account.accountId + '_fontsize', fontSize);
+  safeLocalStorageSetItem(md.global.Account.accountId + '_fontsize', fontSize);
   return {
     type: 'POST_CHANGE_FONT_SIZE',
     fontSize,
@@ -302,15 +302,15 @@ export function remove(postId) {
       postID: postId,
       accountID: md.global.Account.accountId,
     })
-    .then((data) => {
-      const { success } = data;
-      if (success) {
-        alert(_l('删除成功'));
-        dispatch({ type: 'POST_REMOVE_SUCCESS', postId });
-      } else {
-        alert((data && data.message) || _l('删除失败'), 2);
-      }
-    });
+      .then((data) => {
+        const { success } = data;
+        if (success) {
+          alert(_l('删除成功'));
+          dispatch({ type: 'POST_REMOVE_SUCCESS', postId });
+        } else {
+          alert((data && data.message) || _l('删除失败'), 2);
+        }
+      });
   };
 }
 
@@ -522,10 +522,10 @@ export function removeComment(postID, commentID) {
           const postItem = _.clone(getState().post.postsById[postID]);
           const promise = postItem
             ? Promise.resolve(
-                ((postItem.commentCount = postItem.commentCount - 1),
+              ((postItem.commentCount = postItem.commentCount - 1),
                 (postItem.comments = postItem.comments ? postItem.comments.filter(c => c.commentID !== commentID) : []),
                 postItem)
-              )
+            )
             : postAjax.getPostDetail({ postId: postID });
           promise.then((postItemResult) => {
             dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
@@ -542,21 +542,21 @@ export function loadMoreComments(postId) {
       postID: postId,
       accountID: md.global.Account.accountId,
     })
-    .then((data) => {
-      if (data == '-1') {
-        alert(_l('回复加载失败'), 2);
-      } else if (data == 'error') {
-        alert(_l('操作失败'), 2);
-      } else if (data.length > 0) {
-        const postItem = _.clone(getState().post.postsById[postId]);
-        const promise = postItem
-          ? Promise.resolve(((postItem.commentCount = data.length), (postItem.comments = data), postItem))
-          : postAjax.getPostDetail({ postId });
-        promise.then((postItemResult) => {
-          dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
-        });
-      }
-    });
+      .then((data) => {
+        if (data == '-1') {
+          alert(_l('回复加载失败'), 2);
+        } else if (data == 'error') {
+          alert(_l('操作失败'), 2);
+        } else if (data.length > 0) {
+          const postItem = _.clone(getState().post.postsById[postId]);
+          const promise = postItem
+            ? Promise.resolve(((postItem.commentCount = data.length), (postItem.comments = data), postItem))
+            : postAjax.getPostDetail({ postId });
+          promise.then((postItemResult) => {
+            dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
+          });
+        }
+      });
   };
 }
 

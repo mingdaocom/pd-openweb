@@ -127,7 +127,7 @@ class TimePicker extends Component {
     }
   }
 
-  getRef = (panel) => {
+  getRef = panel => {
     this._panel = panel;
   };
 
@@ -147,16 +147,22 @@ class TimePicker extends Component {
     );
   };
 
-  getFormat = (value) => {
+  getFormat = value => {
     const { showHour, showMinute, showSecond } = this.props;
     if (this.props.resultFormatter) {
       return this.props.resultFormatter(value, showHour, showMinute, showSecond);
     } else {
-      return value ? value.format([showHour ? 'HH' : '', showMinute ? 'mm' : '', showSecond ? 'ss' : ''].filter(item => item !== '').join(':')) : '';
+      return value
+        ? value.format(
+            [showHour ? 'HH' : '', showMinute ? 'mm' : '', showSecond ? 'ss' : '']
+              .filter(item => item !== '')
+              .join(':'),
+          )
+        : '';
     }
   };
 
-  withClickAway = (event) => {
+  withClickAway = event => {
     if (this._panel && !isDescendant(this._panel, event.target) && this._timepicker !== event.target) {
       this.handleClose();
     }
@@ -193,7 +199,7 @@ class TimePicker extends Component {
     });
   };
 
-  handleChange = (value) => {
+  handleChange = value => {
     if (!('value' in this.props)) {
       this.setState({ value });
     }
@@ -219,9 +225,20 @@ class TimePicker extends Component {
     return (
       <span className={classNames('ming TimePicker', className)}>
         <span className="TimePicker-input-container">
-          {children ? React.cloneElement(children, { ref: timepicker => (this._timepicker = timepicker) }) : this.getDefaultChildren()}
+          {children
+            ? React.cloneElement(children, {
+                ref: timepicker => (this._timepicker = timepicker),
+                onClick: this.handleFocus,
+              })
+            : this.getDefaultChildren()}
         </span>
-        <PositionContainer visible={visible} bounding={bounding} placement="bottom" onHide={this.handleClose} popupParentNode={popupParentNode}>
+        <PositionContainer
+          visible={visible}
+          bounding={bounding}
+          placement="bottom"
+          onHide={this.handleClose}
+          popupParentNode={popupParentNode}
+        >
           <Panel
             {...others}
             getRef={this.getRef}

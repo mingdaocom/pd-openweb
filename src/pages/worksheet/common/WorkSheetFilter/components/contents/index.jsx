@@ -6,6 +6,7 @@ import Number from './Number';
 import Date from './Date';
 import Options from './Options';
 import Users from './Users';
+import Time from './Time';
 import DiabledInput from './DiabledInput';
 import RelateRecord from './RelateRecord';
 import Cascader from './Cascader';
@@ -55,6 +56,8 @@ export default function (key, props) {
       return <Options {...props} />;
     case CONTROL_FILTER_WHITELIST.USERS.value:
       return <Users {...props} />;
+    case CONTROL_FILTER_WHITELIST.TIME.value:
+      return <Time {...props} />;
     default:
       return <Text {...props} />;
   }

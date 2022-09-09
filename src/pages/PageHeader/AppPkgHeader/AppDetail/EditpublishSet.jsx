@@ -287,17 +287,19 @@ class EditPublishSetDialog extends React.Component {
               </div>
 
               <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
-              <div className="publishAppCourse">
-                {_l('发布到')}
-                <span
-                  className="ThemeHoverColor2"
-                  onClick={() => {
-                    this.getWXProjectSettingInfo();
-                  }}
-                >
-                  {_l('企业微信工作台')}
-                </span>
-              </div>
+              {!md.global.Config.IsPlatformLocal && (
+                <div className="publishAppCourse">
+                  {_l('发布到')}
+                  <span
+                    className="ThemeHoverColor2"
+                    onClick={() => {
+                      this.getWXProjectSettingInfo();
+                    }}
+                  >
+                    {_l('企业微信工作台')}
+                  </span>
+                </div>
+              )}
               <div className="publishAppCourse">
                 {_l('发布到')}
                 <span

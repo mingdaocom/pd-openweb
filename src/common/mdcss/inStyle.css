@@ -500,7 +500,8 @@ input[type="checkbox"]:disabled:checked:after {
   height: 200px;
 }
 
-.fileIcon-doc {
+.fileIcon-doc,
+.fileIcon-docx {
   background: url('newfileIcons/doc.svg') no-repeat;
   width: 175px;
   height: 200px;
@@ -757,7 +758,8 @@ input[type="checkbox"]:disabled:checked:after {
   background-color: #F37C22;
 }
 
-.fileIcon-doc.antiIcon {
+.fileIcon-doc.antiIcon,
+.fileIcon-docx.antiIcon {
   background: url('antiFileIcons/doc.svg') no-repeat;
   background-color: #ACACAC;
 }
@@ -947,7 +949,7 @@ input[type="checkbox"]:disabled:checked:after {
   background-color: #C11187;
 }
 
-.fileIcon-folder, .fileIcon-folderShared, .fileIcon-myfile, .fileIcon-7z, .fileIcon-ai, .fileIcon-doc, .fileIcon-excel, .fileIcon-img, .fileIcon-link, .fileIcon-mmap, .fileIcon-pdf, .fileIcon-ppt, .fileIcon-psd, .fileIcon-rar, .fileIcon-txt, .fileIcon-vsd, .fileIcon-word, .fileIcon-mdy, .fileIcon-xmind, .fileIcon-zip,
+.fileIcon-folder, .fileIcon-folderShared, .fileIcon-myfile, .fileIcon-7z, .fileIcon-ai, .fileIcon-doc, .fileIcon-docx, .fileIcon-excel, .fileIcon-img, .fileIcon-link, .fileIcon-mmap, .fileIcon-pdf, .fileIcon-ppt, .fileIcon-psd, .fileIcon-rar, .fileIcon-txt, .fileIcon-vsd, .fileIcon-word, .fileIcon-mdy, .fileIcon-xmind, .fileIcon-zip,
 .fileIcon-aep, .fileIcon-apk, .fileIcon-ascx, .fileIcon-db, .fileIcon-dmg, .fileIcon-dwg, .fileIcon-eps, .fileIcon-exe, .fileIcon-html, .fileIcon-indd, .fileIcon-iso, .fileIcon-key, .fileIcon-ma, .fileIcon-max, .fileIcon-mp3, .fileIcon-mp4, .fileIcon-numbers, .fileIcon-obj, .fileIcon-pages, .fileIcon-prt, .fileIcon-rp, .fileIcon-skp, .fileIcon-xd, .fileIcon-worksheet  {
   display: inline-block;
   -webkit-background-size: cover !important;
@@ -973,9 +975,12 @@ input[type="checkbox"]:disabled:checked:after {
 }
 
 .flexRow {
-  display: -ms-flexbox;
   display: flex;
-  display: -webkit-flex;
+  min-width: 0;
+}
+
+.inlineFlexRow {
+  display: inline-flex;
   min-width: 0;
 }
 
@@ -987,6 +992,10 @@ input[type="checkbox"]:disabled:checked:after {
 
 .alignItemsCenter {
   align-items: center;
+}
+
+.justifyContentCenter {
+  justify-content: center;
 }
 
 .rc-trigger-popup-mask {

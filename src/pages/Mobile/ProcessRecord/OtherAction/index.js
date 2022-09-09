@@ -161,7 +161,7 @@ export default class extends Component {
     if (passSignature || overruleSignature) {
       return (
         <Flex className="am-textarea-item">
-          <Signature value={signature} onChange={signature => this.setState({ signature })} />
+          <Signature advancedSetting={{ uselast: '1' }} value={signature} onChange={signature => this.setState({ signature })} />
         </Flex>
       );
     }

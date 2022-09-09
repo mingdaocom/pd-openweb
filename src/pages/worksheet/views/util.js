@@ -20,6 +20,7 @@ export const RENDER_RECORD_NECESSARY_ATTR = [
   'advancedSetting',
   'controlPermissions',
   'fieldPermission',
+  'hint',
 ];
 
 // 可作为摘要的控件
@@ -61,7 +62,7 @@ export const filterAndFormatterControls = (
   },
 ) => _.filter(controls, filter).map(formatter);
 
-export const setItem = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+export const setItem = (key, value) => safeLocalStorageSetItem(key, JSON.stringify(value));
 export const getItem = key => JSON.parse(localStorage.getItem(key));
 export const dropItem = key => localStorage.removeItem(key);
 

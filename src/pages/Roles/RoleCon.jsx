@@ -10,6 +10,7 @@ import Trigger from 'rc-trigger';
 import { SortableContainer } from 'react-sortable-hoc';
 import DialogSelectDept from 'dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
+import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import styles from './style.less?module';
 import RoleItem from './RoleItem';
@@ -47,6 +48,7 @@ const RoleList = SortableContainer(
     data,
     updateState,
     addJobToRole,
+    addOrgRole,
     addDepartmentToRole,
     addUserToRole,
     removeUserFromRole,
@@ -83,17 +85,32 @@ const RoleList = SortableContainer(
               // 添加部门
               addDepartmentToRole(role);
             }}
+            addOrgRole={() => {
+              addOrgRole(role);
+            }}
             addUserToRole={() => {
               // 添加成员
               addUserToRole(role);
             }}
-            removeUserFromRole={(userIds, departmentIds, jobIds) => {
+            removeUserFromRole={(userIds, departmentIds, departmentTreeIds, jobIds, projectOrganizeIds) => {
               // 从角色中移除成员
-              return removeUserFromRole(role.roleId, { userIds, departmentIds, jobIds });
+              return removeUserFromRole(role.roleId, {
+                userIds,
+                departmentIds,
+                departmentTreeIds,
+                jobIds,
+                projectOrganizeIds,
+              });
             }}
-            moveUser={(newRoleId, userIds, departmentIds, jobIds) => {
+            moveUser={(newRoleId, userIds, departmentIds, departmentTreeIds, jobIds, projectOrganizeIds) => {
               // 移动角色成员到另一个角色
-              return moveUserToRole(role.roleId, newRoleId, { userIds, departmentIds, jobIds });
+              return moveUserToRole(role.roleId, newRoleId, {
+                userIds,
+                departmentIds,
+                departmentTreeIds,
+                jobIds,
+                projectOrganizeIds,
+              });
             }}
             exitRole={() => {
               // 退出角色
@@ -154,6 +171,8 @@ export default class RoleCon extends PureComponent {
     showPortalSetting: false,
     showPortalRoleSetting: false,
     portalBaseSet: {},
+    orgRoleDialogVisible: false,
+    orgRoles: [],
   };
 
   componentDidMount() {
@@ -218,10 +237,10 @@ export default class RoleCon extends PureComponent {
       },
     } = this.props;
 
-    const request = this.requestMap.add('rolesVisibleConfig', AppAjax.getMemberStatus({ appId }));
+    const request = this.requestMap.add('rolesVisibleConfig', AppAjax.getAppRoleSetting({ appId }));
 
-    request.then(rolesVisibleConfig => {
-      this.setState({ rolesVisibleConfig: String(rolesVisibleConfig) });
+    request.then(data => {
+      this.setState({ rolesVisibleConfig: String(data.appSettingsEnum), notify: data.notify });
     });
   }
 
@@ -272,10 +291,11 @@ export default class RoleCon extends PureComponent {
     const { roles } = this.state;
 
     new DialogSelectJob({
+      showCompanyName: false,
       projectId,
+      isAppRole: true,
       onSave: jobs => {
         const jobIds = roles.filter(o => o.roleId === roleId)[0].jobInfos.map(item => item.jobId);
-
         jobs = jobs.filter(o => jobIds.indexOf(o.jobId) === -1);
 
         if (jobs.length) {
@@ -296,17 +316,30 @@ export default class RoleCon extends PureComponent {
       selectedDepartment: [],
       unique: false,
       showCreateBtn: false,
+      checkIncludeChilren: true, //选中是否包含子级
+      // includeProject: !!projectId && roleType !== ROLE_TYPES.ADMIN,
       allProject: !!projectId && roleType !== ROLE_TYPES.ADMIN,
-      selectFn: departments => {
+      selectFn: (departments, departmentTrees) => {
         const depIds = roles.filter(o => o.roleId === roleId)[0].departmentsInfos.map(dept => dept.departmentId);
+        const depTreeIds = (roles.filter(o => o.roleId === roleId)[0].departmentTreesInfos || []).map(
+          dept => dept.departmentTreeId,
+        );
 
         departments = departments.filter(o => depIds.indexOf(o.departmentId) === -1);
+        departmentTrees = departmentTrees.filter(o => depTreeIds.indexOf(o.departmentId) === -1);
 
-        if (departments.length) {
-          this.addRoleMembers(roleId, { departments });
+        if (departments.length || departmentTrees.length) {
+          this.addRoleMembers(roleId, { departments, departmentTrees });
         }
       },
     });
+  };
+
+  /**
+   * 添加组织角色
+   */
+  addOrgRole = ({ roleId }) => {
+    this.setState({ orgRoleDialogVisible: true, currentRoleId: roleId });
   };
 
   /**
@@ -332,7 +365,7 @@ export default class RoleCon extends PureComponent {
   /**
    * 添加成员提交
    */
-  addRoleMembers(roleId, { users = [], departments = [], jobs = [] }) {
+  addRoleMembers(roleId, { users = [], departments = [], jobs = [], departmentTrees = [], addOrgRoleList = [] }) {
     const { appDetail: { projectId = '', id: appId } = {} } = this.props;
 
     AppAjax.addRoleMembers({
@@ -342,6 +375,8 @@ export default class RoleCon extends PureComponent {
       userIds: _.map(users, ({ accountId }) => accountId),
       departmentIds: _.map(departments, ({ departmentId }) => departmentId),
       jobIds: _.map(jobs, ({ jobId }) => jobId),
+      departmentTreeIds: _.map(departmentTrees, ({ departmentId }) => departmentId),
+      projectOrganizeIds: _.map(addOrgRoleList, ({ organizeId }) => organizeId),
     }).then(res => {
       if (res) {
         this.setState(({ roles }) => {
@@ -364,10 +399,22 @@ export default class RoleCon extends PureComponent {
                       departmentName,
                     })),
                   ),
+                  departmentTreesInfos: (role.departmentTreesInfos || []).concat(
+                    _.map(departmentTrees, ({ departmentId, departmentName }) => ({
+                      departmentTreeId: departmentId,
+                      departmentTreeName: departmentName,
+                    })),
+                  ),
                   jobInfos: role.jobInfos.concat(
                     _.map(jobs, ({ jobId, jobName }) => ({
                       jobId,
                       jobName,
+                    })),
+                  ),
+                  projectOrganizeInfos: (role.projectOrganizeInfos || []).concat(
+                    _.map(addOrgRoleList, ({ organizeId, organizeName }) => ({
+                      projectOrganizeId: organizeId,
+                      projectOrganizeName: organizeName,
                     })),
                   ),
                 };
@@ -417,7 +464,10 @@ export default class RoleCon extends PureComponent {
   /**
    * 删除成员
    */
-  removeUserFromRole = (roleId, { userIds = [], departmentIds = [], jobIds = [] }) => {
+  removeUserFromRole = (
+    roleId,
+    { userIds = [], departmentIds = [], departmentTreeIds = [], jobIds = [], projectOrganizeIds = [] },
+  ) => {
     const { appDetail: { projectId = '', id: appId } = {} } = this.props;
     return AppAjax.removeRoleMembers({
       projectId,
@@ -425,7 +475,9 @@ export default class RoleCon extends PureComponent {
       roleId,
       userIds,
       departmentIds,
+      departmentTreeIds,
       jobIds,
+      projectOrganizeIds,
     }).then(data => {
       if (data.result) {
         if (data.isManager) {
@@ -484,7 +536,11 @@ export default class RoleCon extends PureComponent {
   /**
    * 移动到其他角色
    */
-  moveUserToRole = (sourceAppRoleId, resultAppRoleId, { userIds = [], departmentIds = [], jobIds = [] }) => {
+  moveUserToRole = (
+    sourceAppRoleId,
+    resultAppRoleId,
+    { userIds = [], departmentIds = [], departmentTreeIds = [], jobIds = [], projectOrganizeIds },
+  ) => {
     const { appDetail: { projectId = '', id: appId } = {} } = this.props;
     return AppAjax.removeUserToRole({
       projectId,
@@ -493,7 +549,9 @@ export default class RoleCon extends PureComponent {
       resultAppRoleId,
       userIds,
       departmentIds,
+      departmentTreeIds,
       jobIds,
+      projectOrganizeIds,
     }).then(res => {
       if (res) {
         this.reloadRoleList();
@@ -600,6 +658,19 @@ export default class RoleCon extends PureComponent {
       }
     });
   };
+  updateAppRoleNotify = () => {
+    const {
+      match: {
+        params: { appId },
+      },
+    } = this.props;
+    const { notify } = this.state;
+    AppAjax.updateAppRoleNotify({ appId, notify: !notify }).then(data => {
+      if (data) {
+        this.setState({ notify: !notify });
+      }
+    });
+  };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { appDetail: { id: appId } = {} } = this.props;
@@ -617,7 +688,7 @@ export default class RoleCon extends PureComponent {
 
   render() {
     const { appDetail = {} } = this.props;
-    const { show, roleId, roles, rolesVisibleConfig, loading, editType } = this.state;
+    const { show, roleId, roles, rolesVisibleConfig, notify, loading, editType, orgRoleDialogVisible } = this.state;
     const { projectId = '' } = appDetail;
     const {
       match: {
@@ -639,25 +710,44 @@ export default class RoleCon extends PureComponent {
                     {isAdmin ? _l('你是此应用的管理员，可以配置应用、角色和成员') : ''}
                   </span>
                   {isAdmin && editType === 0 && rolesVisibleConfig !== null && (
-                    <Tooltip
-                      text={
-                        <span>
-                          {_l(
-                            '开启时，普通用户（非管理员）可以查看应用下所有角色和人员。关闭后，普通用户将只能看到应用管理员。',
-                          )}
-                        </span>
-                      }
-                      popupPlacement={'bottomRight'}
-                    >
-                      <div className={styles.roleDisplayConfig} onClick={this.handleSwitchRolesDisplay}>
-                        <span>{_l('允许非管理员查看')}</span>
-                        <Icon
-                          style={{ color: rolesVisibleConfig === ROLE_CONFIG.REFUSE ? '#bdbdbd' : '#43bd36' }}
-                          className={cx('Font24 Hand')}
-                          icon={rolesVisibleConfig === ROLE_CONFIG.REFUSE ? 'ic_toggle_off' : 'ic_toggle_on'}
-                        />
-                      </div>
-                    </Tooltip>
+                    <React.Fragment>
+                      <Tooltip
+                        text={
+                          <span>
+                            {_l('开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。')}
+                          </span>
+                        }
+                        popupPlacement={'bottom'}
+                      >
+                        <div className={styles.roleDisplayConfig} onClick={this.updateAppRoleNotify}>
+                          <span>{_l('发送通知')}</span>
+                          <Icon
+                            style={{ color: !notify ? '#bdbdbd' : '#43bd36' }}
+                            className={cx('Font24 Hand')}
+                            icon={!notify ? 'ic_toggle_off' : 'ic_toggle_on'}
+                          />
+                        </div>
+                      </Tooltip>
+                      <Tooltip
+                        text={
+                          <span>
+                            {_l(
+                              '开启时，普通用户（非管理员）可以查看应用下所有角色和人员。关闭后，普通用户将只能看到应用管理员。',
+                            )}
+                          </span>
+                        }
+                        popupPlacement={'bottom'}
+                      >
+                        <div className={styles.roleDisplayConfig} onClick={this.handleSwitchRolesDisplay}>
+                          <span>{_l('允许查看')}</span>
+                          <Icon
+                            style={{ color: rolesVisibleConfig === ROLE_CONFIG.REFUSE ? '#bdbdbd' : '#43bd36' }}
+                            className={cx('Font24 Hand')}
+                            icon={rolesVisibleConfig === ROLE_CONFIG.REFUSE ? 'ic_toggle_off' : 'ic_toggle_on'}
+                          />
+                        </div>
+                      </Tooltip>
+                    </React.Fragment>
                   )}
                 </div>
                 <RoleList
@@ -666,6 +756,7 @@ export default class RoleCon extends PureComponent {
                   data={{ ...this.state, appDetail }}
                   updateState={obj => this.setState(obj)}
                   addJobToRole={this.addJobToRole}
+                  addOrgRole={this.addOrgRole}
                   addDepartmentToRole={this.addDepartmentToRole}
                   addUserToRole={this.addUserToRole}
                   removeUserFromRole={this.removeUserFromRole}
@@ -688,6 +779,28 @@ export default class RoleCon extends PureComponent {
             appId={appId}
             editCallback={this.reloadRoleList}
             closePanel={() => this.setState({ show: false })}
+          />
+        )}
+
+        {orgRoleDialogVisible && (
+          <DialogSelectOrgRole
+            showCompanyName={false}
+            projectId={projectId}
+            orgRoleDialogVisible={orgRoleDialogVisible}
+            onClose={() => {
+              this.setState({ orgRoleDialogVisible: false, currentRoleId: '' });
+            }}
+            onSave={data => {
+              const { appDetail: { projectId = '' } = {} } = this.props;
+              const { roles, currentRoleId } = this.state;
+              const projectOrganizeIds = roles
+                .filter(o => o.roleId === currentRoleId)[0]
+                .projectOrganizeInfos.map(item => item.projectOrganizeId);
+              let addOrgRoleList = data.filter(o => projectOrganizeIds.indexOf(o.organizeId) === -1);
+              if (!_.isEmpty(addOrgRoleList)) {
+                this.addRoleMembers(currentRoleId, { addOrgRoleList });
+              }
+            }}
           />
         )}
       </React.Fragment>

@@ -243,7 +243,7 @@ export const MENU_LIST = [
         name: 'controlId',
         required: _l('是'),
         type: 'string',
-        desc: _l('控件ID'),
+        desc: _l('字段ID'),
       },
       {
         name: 'pageSize',
@@ -408,22 +408,22 @@ const sameAppRoleParams = [
 
 export const appSuccessData = {
   data: {
-    projectId: '网络id',
-    appId: '应用id',
-    name: '应用名称',
-    iconUrl: '图标地址',
-    color: '图标颜色',
-    desc: '应用描述',
+    projectId: _l('网络id'),
+    appId: _l('应用id'),
+    name: _l('应用名称'),
+    iconUrl: _l('图标地址'),
+    color: _l('图标颜色'),
+    desc: _l('应用描述'),
     sections: [
       {
-        sectionId: '应用分组id',
-        name: '分组名称',
+        sectionId: _l('应用分组id'),
+        name: _l('分组名称'),
         items: [
           {
-            id: '分组下应用项id',
-            name: '应用项名称',
+            id: _l('分组下应用项id'),
+            name: _l('应用项名称'),
             type: 0,
-            iconUrl: '应用项图标地址',
+            iconUrl: _l('应用项图标地址'),
             status: 1,
           },
         ],
@@ -437,27 +437,27 @@ export const appSuccessData = {
 const appRoleSuccessData = {
   data: [
     {
-      roleId: '角色Id',
-      name: '角色名称',
-      roleType: '角色类型',
-      desc: '角色描述',
+      roleId: _l('角色Id'),
+      name: _l('角色名称'),
+      roleType: _l('角色类型'),
+      desc: _l('角色描述'),
       users: [
         {
-          accountId: '账号Id',
-          name: '用户名',
-          avatar: '用户头像链接',
+          accountId: _l('账号Id'),
+          name: _l('用户名'),
+          avatar: _l('用户头像链接'),
         },
       ],
       departments: [
         {
-          departmentId: '部门Id',
-          departmentName: '部门名称',
+          departmentId: _l('部门Id'),
+          departmentName: _l('部门名称'),
         },
       ],
       jobs: [
         {
-          jobId: '职位Id',
-          jobName: '职位名称',
+          jobId: _l('职位Id'),
+          jobName: _l('职位名称'),
         },
       ],
     },
@@ -467,7 +467,7 @@ const appRoleSuccessData = {
 };
 
 export const appRoleErrorData = {
-  error_msg: '具体错误信息',
+  error_msg: _l('具体错误信息'),
   error_code: 10101,
   success: false,
 };
@@ -578,7 +578,7 @@ export const MENU_LIST_APPENDIX = [
         name: 'controlId',
         required: _l('是'),
         type: 'string',
-        desc: _l('控件ID'),
+        desc: _l('字段ID'),
       },
       {
         name: 'dataType',
@@ -1315,7 +1315,7 @@ export const OPTIONS_FUNCTION_LIST = [
           worksheetIds: ['worksheetId'],
           options: [
             {
-              key: '选项id',
+              key: _l('选项id'),
               value: _l('选项值，不允许重复'),
               index: _l('选项排序值: 必须为整数，越小越靠前'),
               isDeleted: _l('该选项是否已被删除'),

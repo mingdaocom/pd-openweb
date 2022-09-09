@@ -118,6 +118,8 @@ export default class ShareUrl extends React.Component {
       qrVisible = true,
       copyTip,
       chatCard,
+      editUrl,
+      editTip,
     } = this.props;
     const { showinput, chatVisible } = this.state;
     const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}`;
@@ -145,9 +147,22 @@ export default class ShareUrl extends React.Component {
                 }}
               />
             ) : (
-              <div className="flex ellipsis" onClick={() => this.setState({ showinput: true })}>
-                {url}
-              </div>
+              <React.Fragment>
+                <div className="flex ellipsis" onClick={() => this.setState({ showinput: true })}>
+                  {url}
+                </div>
+                {editUrl && (
+                  <Tooltip popupPlacement="bottom" text={<span>{editTip}</span>}>
+                    <i
+                      className="icon-new_mail Font18 InlineBlock Hand Gray_9e LineHeight36"
+                      onClick={e => {
+                        e.stopPropagation();
+                        editUrl();
+                      }}
+                    ></i>
+                  </Tooltip>
+                )}
+              </React.Fragment>
             )}
             {inputBtns.map((btn, index) => (
               <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>

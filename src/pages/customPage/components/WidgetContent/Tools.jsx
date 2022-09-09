@@ -128,10 +128,12 @@ const getTools = ({ widgetType, layoutType }) => {
   if (layoutType === 'mobile') {
     return widgetType === 'button' ? MOBILE_BUTTON_TOOLS : MOBILE_CONTENT_TOOLS;
   };
-  if (widgetType === 'view') {
+  if (['view', 'filter'].includes(widgetType)) {
     return WEB_CONTENT_TOOLS.filter(item => !['move', 'copy'].includes(item.type));
   };
-  if (widgetType !== 'analysis') return WEB_CONTENT_TOOLS.filter(item => item.type !== 'move');
+  if (widgetType !== 'analysis') {
+    return WEB_CONTENT_TOOLS.filter(item => item.type !== 'move');
+  };
   return TOOLS_BY_LAYOUT_TYPE[layoutType];
 };
 export default function Tools({ appId, pageId, widget, layoutType, handleToolClick, titleVisible, updatePageInfo }) {

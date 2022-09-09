@@ -96,7 +96,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/ViewLand'),
   },
   workflowRecordLand: {
-    path: '/app/:appId/workflow/record/:id/:workId',
+    path: '/app/:appId/workflowdetail/record/:id/:workId',
     component: () => import('src/pages/worksheet/pages/WorkflowRecordLand'),
   },
   worksheetCustomFiled: {
@@ -134,8 +134,8 @@ export const ROUTE_CONFIG = {
     title: _l('个人账户'),
   },
   privateDeployment: {
-    path: '/privateDeployment',
-    component: () => import('src/pages/privateDeployment'),
+    path: '/privateDeployment/:routeType?',
+    component: () => import('src/pages/NewPrivateDeployment'),
     title: _l('系统配置'),
   },
   appInstallSetting: {
@@ -214,10 +214,7 @@ export const ROUTE_CONFIG = {
   },
   my: {
     path: '/app/my/(group)?/:projectId?/:groupType?/:groupId?',
-    component: () =>
-      localStorage.getItem('oldHome') === '1'
-        ? import('src/pages/AppHomepage/MyApp')
-        : import('src/pages/AppHomepage/AppCenter'),
+    component: () => import('src/pages/AppHomepage/AppCenter'),
     title: _l('我的应用'),
   },
   lib: {
@@ -235,7 +232,21 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/Demos'),
     title: _l('应用'),
   },
-
+  integration: {
+    path: '/integration/:type?/:listType?',
+    component: () => import('src/pages/integration'),
+    title: _l('集成中心'),
+  },
+  integrationConnect: {
+    path: '/integrationConnect/:projectId?/:id?',
+    component: () => import('src/pages/integration/integrationConnect'),
+    title: _l('集成中心'),
+  },
+  integrationApi: {
+    path: '/integrationApi/:projectId?/:apiId?',
+    component: () => import('src/pages/integration/integrationApi'),
+    title: _l('集成中心'),
+  },
   default: {
     path: '/app',
     redirect: '/app/my',
@@ -264,6 +275,7 @@ const withoutHeaderPathList = [
   'mobile',
   'worksheet/uploadTemplateSheet',
   'gunterExport',
+  'integrationConnect',
 ];
 const withoutChatPathList = [
   'demo',
@@ -290,6 +302,8 @@ const withoutChatPathList = [
   'worksheet/uploadTemplateSheet',
   'gunterExport',
   'land',
+  'integrationConnect',
+  'integrationApi'
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

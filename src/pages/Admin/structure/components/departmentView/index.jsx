@@ -5,22 +5,7 @@ import DepartmentTree from './departmentTree';
 class TreeView extends React.Component {
   render() {
     const { root } = this.props;
-    return (
-      <div
-        className="w100 pRight8"
-        style={{
-          position: 'absolute',
-          left: 0,
-          bottom: 0,
-          right: '24px',
-          top: '274px',
-          height: 'auto', // override
-          zIndex: 0,
-        }}
-      >
-        <DepartmentTree id={root} autoLoad={true} isRoot={true} />
-      </div>
-    );
+    return <DepartmentTree id={root} autoLoad={true} isRoot={true} />;
   }
 }
 
