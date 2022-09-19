@@ -10,53 +10,66 @@
     <title>登录中</title>
     <script src="/src/library/jquery/1.8.3/jquery.js"></script>
   </head>
+
   <body>
     <script>
-        var __api_server__ = <%- apiServer %>;
-        const getRequest = () => {
-        const encodeUrl = new URL(location.href.replace('#', encodeURIComponent('#')));
-        const search = encodeUrl.search.replace('?', '');
-        let theRequest = new Object();
-        let strs = search.split('&');
-        for (let i = 0; i < strs.length; i++) {
-            let result = strs[i].split('=');
-            theRequest[result[0]] = decodeURIComponent(result[1]);
-        }
-        return theRequest;
-        };
-        const request = getRequest();
-        const getGlobalMeta = cb => {
-            $.ajax({
-                url: __api_server__.main + 'Global/GetGlobalMeta',
-                type: 'POST',
-                data: JSON.stringify({}),
-                dataType: 'JSON',
-                contentType: 'application/json',
-            }).done(res => {
-                const data = res.data;
-                const ApiUrl = data['md.global'].Config.ApiUrl
-                cb(ApiUrl);
-            })
-        };
-        getGlobalMeta((ApiUrl) => {
-            $.ajax({
-                url: ApiUrl  + "/oauth2/h5login",
-                type: 'POST',
-                data: JSON.stringify(request),
-                dataType: 'JSON',
-                contentType: 'application/json',
-            }).done(res => {
-                const ua = navigator.userAgent;
-                const isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-                const string = JSON.stringify(res);
-                const base64 = window.btoa(string);
-                if (isIOS) {
-                window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
-                } else {
-                window.Android.MD_APP_REQUEST(base64);
-                }
-            })
-        })
+      var __api_server__ = <%- apiServer %>;
+      var getRequest = () => {
+          var encodeUrl = new URL(location.href.replace('#', encodeURIComponent('#')));
+          var search = encodeUrl.search.replace('?', '');
+          var theRequest = new Object();
+          var strs = search.split('&');
+          for (var i = 0; i < strs.length; i++) {
+              var result = strs[i].split('=');
+              theRequest[result[0]] = decodeURIComponent(result[1]);
+          }
+          return theRequest;
+      };
+      var request = getRequest();
+      var getGlobalMeta = cb => {
+          $.ajax({
+              url: __api_server__.main + 'Global/GetGlobalMeta',
+              type: 'POST',
+              data: JSON.stringify({}),
+              dataType: 'JSON',
+              contentType: 'application/json',
+          }).done(res => {
+              var data = res.data;
+              var ApiUrl = data['md.global'].Config.ApiUrl
+              cb(ApiUrl);
+          })
+      };
+      getGlobalMeta((ApiUrl) => {
+          $.ajax({
+              url: ApiUrl + "/oauth2/h5login",
+              type: 'POST',
+              data: JSON.stringify(request),
+              dataType: 'JSON',
+              contentType: 'application/json',
+          }).done(res => {
+              if (res.success) {
+                  var ua = navigator.userAgent;
+                  var isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+                  var info = {
+                        sessonId: '',
+                        type: 'native',
+                        settings: {
+                            action: 'login',
+                            accessTokenInfo: res
+                        }
+                    }
+                  var string = JSON.stringify(info);
+                  var base64 = window.btoa(string);
+                  if (isIOS) {
+                      window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
+                  } else {
+                      window.Android.MD_APP_REQUEST(base64);
+                  }
+              } else {
+                  alert('登录失败!')
+              }
+          })
+      })
     </script>
   </body>
 </html>

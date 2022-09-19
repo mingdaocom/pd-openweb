@@ -361,6 +361,7 @@ class AppHome extends React.Component {
   renderList(data, type) {
     const { myAppData = {} } = this.props;
     const { homeSetting } = myAppData;
+    const currentProject = getProject(localStorage.getItem('currentProjectId')) || {};
     if (data.length <= 0 && type !== 'apps') {
       return;
     } else {
@@ -383,7 +384,7 @@ class AppHome extends React.Component {
               return this.renderItem(item);
             })}
             {(type === 'apps' || type === 'markedGroup') &&
-              !(_.find(md.global.Account.projects, item => item.projectId === data.projectId) || {}).cannotCreateApp &&
+              !currentProject.cannotCreateApp &&
               this.renderItem({
                 id: 'add',
                 iconColor: '#F5F5F5',
@@ -420,7 +421,8 @@ class AppHome extends React.Component {
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const isApp = isWxWork || isWeLink || isDing;
-    const cannotCreateApp = isApp ? _.get(md.global.Account.projects[0], ['cannotCreateApp']) : true;
+    const currentProject = getProject(localStorage.getItem('currentProjectId')) || {};
+    const cannotCreateApp = isApp ? currentProject.cannotCreateApp : true;
 
     const projects = _.get(md, ['global', 'Account', 'projects']);
     if (_.isEmpty(projects)) {

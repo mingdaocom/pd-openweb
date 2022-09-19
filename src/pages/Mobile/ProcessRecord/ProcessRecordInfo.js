@@ -773,9 +773,9 @@ class ProcessRecord extends Component {
     const titleControl = _.find(sheetRow.receiveControls || [], control => control.attribute === 1);
     const defaultTitle = _l('未命名');
     const recordTitle = titleControl ? renderCellText(titleControl) || defaultTitle : defaultTitle;
-    const recordMuster = sheetRow.receiveControls.filter(
+    const recordMuster = _.sortBy(sheetRow.receiveControls.filter(
       item => isRelateRecordTableControl(item) && controlState(item, 6).visible,
-    );
+    ), 'row');
     const tabs = [
       {
         title: _l('详情'),

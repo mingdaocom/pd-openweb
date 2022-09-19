@@ -315,10 +315,13 @@ class BatchOperate extends React.Component {
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
-      if (allWorksheetIsSelected) {
+      if (allWorksheetIsSelected || args.hasFilters) {
         reload();
       } else {
-        updateRows(rowIds, [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })));
+        updateRows(
+          rowIds,
+          [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
+        );
       }
       getWorksheetSheetViewSummary();
     });
@@ -430,9 +433,7 @@ class BatchOperate extends React.Component {
                               name: it.name,
                               isBatch: true,
                             };
-                            let printKey = Math.random()
-                              .toString(36)
-                              .substring(2);
+                            let printKey = Math.random().toString(36).substring(2);
                             add({
                               key: `${printKey}`,
                               value: JSON.stringify(printData),

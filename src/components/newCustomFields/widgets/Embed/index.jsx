@@ -84,7 +84,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId, from = '' } = this.props;
+    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId, from = '', projectId } = this.props;
     const { value, needUpdate } = this.state;
 
     const getContent = () => {
@@ -124,6 +124,7 @@ export default class Widgets extends Component {
               <ChartCard
                 className="embedContainer chartPadding"
                 report={{ id: reportid }}
+                projectId={projectId}
                 sourceType={1}
                 filters={formatFilters}
                 needUpdate={needUpdate}

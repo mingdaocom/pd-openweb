@@ -107,7 +107,10 @@ export default class CustomButtons extends React.Component {
       Dialog.confirm({
         title: (
           <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
-            {_l('最大支持批量执行%0行记录，是否只选中并执行前%0行数据？', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
+            {_l(
+              '最大支持批量执行%0行记录，是否只选中并执行前%0行数据？',
+              md.global.SysSettings.worktableBatchOperateDataLimitCount,
+            )}
           </span>
         ),
         onOk: handleTrigger,
@@ -170,6 +173,7 @@ export default class CustomButtons extends React.Component {
       projectID: targetOptions.projectId,
       newOldControl: newControls,
       btnId: this.activeBtn.btnId,
+      hasFilters: !!this.activeBtn.filters.length,
       btnWorksheetId: worksheetId,
       btnRowId: recordId,
       pushUniqueId: md.global.Config.pushUniqueId,
