@@ -6,6 +6,7 @@ import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import Option from './StyledOption';
 import { BaseSelectedItem } from './Styles';
+import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -90,7 +91,6 @@ export default function Options(props) {
   function handleChange(value) {
     onChange({
       ...value,
-      filterType: 2,
     });
   }
   if (String(direction) === '1') {
@@ -126,6 +126,9 @@ export default function Options(props) {
           value={JSON.stringify(values)}
           selectProps={{
             onChange: newValue => {
+              if (_.isObject(newValue)) {
+                newValue = newValue.value;
+              }
               handleChange({ values: newValue ? [newValue] : [] });
             },
           }}

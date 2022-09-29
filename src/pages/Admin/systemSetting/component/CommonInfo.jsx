@@ -314,7 +314,7 @@ export default class CommonInfo extends Component {
                     <div className="set-describe mTop4">{_l('成员可输入组织门牌号加入组织')}</div>
                   ) : (
                     <div className="set-describe mTop4">
-                      {_l('您已关闭搜索组织门牌号加入')}{' '}
+                      {_l('您已关闭搜索组织门牌号加入')}
                       <span
                         className="mLeft8 open-setting-rules-Txt"
                         onClick={() => this.openAllowProjectCodeJoin({ showDialogSettingInviteRules: true })}

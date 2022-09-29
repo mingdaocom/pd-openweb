@@ -15,7 +15,7 @@ import { parseDataSource, isSingleRelateSheet, updateConfig } from '../../util/s
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
 import { SettingItem, DropdownPlaceholder, DropdownOverlay } from '../../styled';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
-import { isEmpty } from 'lodash';
+import { isEmpty, get, find } from 'lodash';
 
 const SHEET_FIELD_TYPES = [
   {
@@ -33,7 +33,7 @@ export default function SheetField(props) {
     data,
     allControls,
     onChange,
-    status: { saveIndex, saved },
+    status: { saveIndex },
   } = props;
   const { controlId, dataSource, strDefault = '10' } = data;
 
@@ -50,8 +50,12 @@ export default function SheetField(props) {
       dataSourceDisabled: false,
       sheetFieldDisabled: false,
     });
-
-  const isSaved = controlId && !controlId.includes('-');
+  const saveControlId =
+    _.get(
+      _.find(allControls, i => i.controlId === controlId),
+      'controlId',
+    ) || '';
+  const isSaved = controlId && !saveControlId.includes('-');
   // 取关联单条
   const sheetList = filterControlsFromAll(allControls, item => isSingleRelateSheet(item) || item.type === 35);
 
@@ -88,7 +92,7 @@ export default function SheetField(props) {
     const sheetDel = parsedDataSource && !sheetObj;
     const controlDel = data.sourceControlId && !controlObj;
     const oneDelete = sheetDel || controlDel;
-    const tempSaved = (saved || isSaved) && parsedDataSource && data.sourceControlId;
+    const tempSaved = isSaved && parsedDataSource && data.sourceControlId;
     setInfo({
       sheetDel,
       controlDel,

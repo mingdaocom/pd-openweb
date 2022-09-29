@@ -72,8 +72,8 @@ export default function SubListSetting(props) {
 
   useEffect(() => {
     setVisible(batchcids.length > 0);
-    if (dataSource && window.subListSheetConfig[dataSource]) {
-      const { sheetInfo, subQueryConfigs = [] } = window.subListSheetConfig[dataSource] || {};
+    if (dataSource && window.subListSheetConfig[controlId]) {
+      const { sheetInfo, subQueryConfigs = [] } = window.subListSheetConfig[controlId] || {};
       setInfo(sheetInfo);
       setSubQueryConfigs(subQueryConfigs);
     }
@@ -88,7 +88,7 @@ export default function SubListSetting(props) {
 
   useEffect(() => {
     const { saveIndex } = status;
-    if ((window.subListSheetConfig[dataSource] || {}).saveIndex === saveIndex) {
+    if ((window.subListSheetConfig[controlId] || {}).saveIndex === saveIndex) {
       return;
     }
     if (saveIndex && dataSource && !dataSource.includes('-')) {
@@ -107,7 +107,7 @@ export default function SubListSetting(props) {
             showControls,
           });
           window.subListSheetConfig = {
-            [dataSource]: {
+            [controlId]: {
               status: true,
               mode: res.type === 2 ? 'new' : 'relate',
               saveIndex,
@@ -127,8 +127,8 @@ export default function SubListSetting(props) {
       getQueryBySheetId({ worksheetId }).then(res => {
         const formatSearchData = formatSearchConfigs(res);
         setSubQueryConfigs(formatSearchData);
-        window.subListSheetConfig[worksheetId] = {
-          ...(window.subListSheetConfig[worksheetId] || {}),
+        window.subListSheetConfig[controlId] = {
+          ...(window.subListSheetConfig[controlId] || {}),
           subQueryConfigs: formatSearchData || [],
         };
       });
@@ -147,7 +147,7 @@ export default function SubListSetting(props) {
   };
 
   const filterRelationControls = info => {
-    return _.get(info, ['template', 'controls']).filter(
+    return (_.get(info, ['template', 'controls']) || []).filter(
       item => item.controlId !== 'ownerid' && !_.includes([45, 47, 49], item.type),
     );
   };
@@ -159,8 +159,8 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
-    if ((window.subListSheetConfig[dataSource] || {}).status) {
-      setMode(_.get(window.subListSheetConfig[dataSource], 'mode'));
+    if ((window.subListSheetConfig[controlId] || {}).status) {
+      setMode(_.get(window.subListSheetConfig[controlId], 'mode'));
       return;
     }
     setLoading(true);
@@ -169,7 +169,7 @@ export default function SubListSetting(props) {
         const controls = filterRelationControls(res);
         const defaultShowControls = getDefaultShowControls(controls);
         setInfo(res);
-        window.subListSheetConfig[dataSource] = {
+        window.subListSheetConfig[controlId] = {
           status: true,
           mode: res.type === 2 ? 'new' : 'relate',
           saveIndex: status.saveIndex,
@@ -226,8 +226,8 @@ export default function SubListSetting(props) {
         okText: _l('确定'),
         onOk: () => {
           setMode('relate');
-          if (window.subListSheetConfig[dataSource]) {
-            window.subListSheetConfig[dataSource].mode = 'relate';
+          if (window.subListSheetConfig[controlId]) {
+            window.subListSheetConfig[controlId].mode = 'relate';
           }
           changeSheet({
             sourceWorksheetId: currentWorksheetId,

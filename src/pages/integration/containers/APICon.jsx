@@ -29,6 +29,9 @@ const Wrap = styled.div`
     p {
       font-weight: 400;
     }
+    .searchCon {
+      height: 36px;
+    }
     input {
       max-width: 160px;
       font-size: 13px;
@@ -73,7 +76,7 @@ const Wrap = styled.div`
       width: 140px;
     }
     .name {
-      flex: 8;
+      flex: 6;
       overflow: hidden;
       padding: 16px 8px;
     }
@@ -175,10 +178,14 @@ function APICon(props) {
       },
       { isIntegration: true },
     ).then(res => {
-      setState({ loading: false, list: pageIndex > 1 ? list.concat(res) : res, isMore: res.length < PageSize });
+      setState({ loading: false, list: pageIndex > 1 ? list.concat(res) : res, isMore: res.length <= 0 });
     });
   };
   useEffect(() => {
+    if (!props.currentProjectId) {
+      setState({ loading: false });
+      return;
+    }
     fetchData();
   }, [props.currentProjectId, keywords, pageIndex, hasOnchange]);
   /**
@@ -289,7 +296,8 @@ function APICon(props) {
     {
       title: _l('名称'),
       dataIndex: 'name',
-      render: (text, record) => {
+      render: (text, record = {}) => {
+        let { apiPackage } = record;
         return (
           <div
             className="flexRow flex alignItemsCenter Hand nameConTh Relative"
@@ -298,10 +306,10 @@ function APICon(props) {
             }}
           >
             {/* 自建的连接，且没设置logo的情况下不显示角标 */}
-            {!(!record.apiPackage.iconName && record.apiPackage.type === 1) && (
-              <Tooltip text={<span>{record.apiPackage.name}</span>} popupPlacement={'bottom'}>
+            {apiPackage && !(!apiPackage.iconName && apiPackage.type === 1) && (
+              <Tooltip text={<span>{apiPackage.name}</span>} popupPlacement={'bottom'}>
                 <span className="connectLogo">
-                  <ConnectAvator {...record.apiPackage} width={20} size={14} className="" />
+                  <ConnectAvator {...apiPackage} width={20} size={14} className="" />
                 </span>
               </Tooltip>
             )}
@@ -321,6 +329,16 @@ function APICon(props) {
             </div>
           </div>
         );
+      },
+    },
+    {
+      title: _l('来源'),
+      dataIndex: 'status',
+      render: (text, record) => {
+        const { apiPackage = {} } = record;
+        const { info = {}, type } = apiPackage;
+        const { company = '' } = info;
+        return <div className={cx('infoBox overflow_ellipsis WordBreak')}>{type === 1 ? _l('自建') : company}</div>;
       },
     },
     {
@@ -441,20 +459,21 @@ function APICon(props) {
     </div>
   );
   const onScrollEnd = () => {
-    if (loading || isMore) return;
+    if (loading || isMore || show) return;
     setState({ pageIndex: pageIndex + 1 });
   };
   return (
     <ScrollView onScrollEnd={onScrollEnd}>
       <Wrap>
         <div className="desCon">
-          <h3 className="Bold Font24">API</h3>
-          <p className="Font15 mBottom4 mTop8 flexRow">
+          <h3 className="Bold Font24 mBottom0">API</h3>
+          <p className="Font15 mBottom4 mTop8 flexRow alignItemsCenter">
             <span className="flex">
               <span className="TxtMiddle">{_l('管理第三方 API ，在工作表或工作流中调用')}</span>
               <Support type={3} href="https://help.mingdao.com/integration.html#api管理" text={_l('使用帮助')} />
             </span>
             <SearchInput
+              className="searchCon"
               placeholder={_l('搜索 API')}
               value={keywords}
               onChange={v => {
@@ -466,7 +485,7 @@ function APICon(props) {
         {loading && pageIndex === 1 ? (
           <LoadDiv />
         ) : (
-          <TableWrap className="mTop20">
+          <TableWrap className="mTop8">
             {list.length <= 0 ? (
               renderEmpty()
             ) : (

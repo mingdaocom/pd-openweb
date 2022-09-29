@@ -332,7 +332,7 @@ export default ({
                   }
                 />
               </div>
-              {!!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
+              {data.executeTime && !!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
                 <Fragment>
                   <div className="mLeft10">{_l('的')}</div>
                   <div className="mLeft10" style={{ width: 100 }}>

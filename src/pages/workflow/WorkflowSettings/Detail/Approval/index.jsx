@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio, Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
-import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
   SelectUserDropDown,
@@ -76,6 +75,7 @@ export default class Approval extends Component {
       ignoreRequired,
       isCallBack,
       callBackType,
+      callBackMultipleLevel,
       formProperties,
       passBtnName,
       overruleBtnName,
@@ -117,6 +117,7 @@ export default class Approval extends Component {
         ignoreRequired,
         isCallBack,
         callBackType,
+        callBackMultipleLevel,
         formProperties,
         passBtnName: passBtnName.trim() || _l('通过'),
         overruleBtnName: overruleBtnName.trim() || _l('否决'),
@@ -165,6 +166,7 @@ export default class Approval extends Component {
                 onClick={() =>
                   this.updateSource({
                     multipleLevelType: item.value,
+                    callBackType: 0,
                     accounts: [],
                     multipleLevel: -1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
@@ -354,6 +356,15 @@ export default class Approval extends Component {
    */
   renderApprovalSettings() {
     const { data } = this.state;
+    const CALL_BACK = [
+      { text: _l('重新执行流程'), value: 0 },
+      { text: data.multipleLevelType === 0 ? _l('直接返回审批节点') : _l('返回此节点的第一级'), value: 1 },
+      { text: _l('直接返回退回的层级'), value: 2 },
+    ];
+
+    if (data.multipleLevelType === 0) {
+      _.remove(CALL_BACK, o => o.value === 2);
+    }
 
     return (
       <Fragment>
@@ -397,7 +408,7 @@ export default class Approval extends Component {
                 disabled={data.countersignType === 2}
                 checked={data.isCallBack}
                 onClick={checked => {
-                  this.updateSource({ isCallBack: !checked, callBackType: 0 });
+                  this.updateSource({ isCallBack: !checked, callBackType: 0, callBackMultipleLevel: -1 });
                   if (data.selectNodeId && !checked) {
                     this.getCallBackNodeNames(data.selectNodeId, 0);
                   }
@@ -410,12 +421,15 @@ export default class Approval extends Component {
                   <Dropdown
                     menuStyle={{ left: 'inherit', right: 0 }}
                     style={{ marginTop: -1 }}
-                    data={[{ text: _l('重新执行流程'), value: 0 }, { text: _l('直接返回审批节点'), value: 1 }]}
-                    value={data.callBackType}
-                    onChange={callBackType => {
-                      this.updateSource({ callBackType });
+                    data={CALL_BACK}
+                    value={data.callBackType === 1 && data.callBackMultipleLevel === 1 ? 2 : data.callBackType}
+                    onChange={type => {
+                      this.updateSource({
+                        callBackType: type === 2 ? 1 : type,
+                        callBackMultipleLevel: type === 2 ? 1 : -1,
+                      });
                       if (data.selectNodeId) {
-                        this.getCallBackNodeNames(data.selectNodeId, callBackType);
+                        this.getCallBackNodeNames(data.selectNodeId, type === 2 ? 1 : type);
                       }
                     }}
                   />
@@ -523,13 +537,13 @@ export default class Approval extends Component {
           className="mTop15 flexRow"
           text={
             <span>
-              {_l('允许批量审批')}
+              {_l('允许批量 / 快速审批')}
               <Tooltip
                 popupPlacement="bottom"
                 text={
                   <span>
                     {_l(
-                      '允许审批人批量处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见）字段。',
+                      '允许审批人批量、快速处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见、签名）。',
                     )}
                   </span>
                 }

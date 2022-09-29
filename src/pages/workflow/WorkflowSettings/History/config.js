@@ -235,7 +235,7 @@ export const NODE_ICON = {
     bgColor: '#2196f3',
   },
   msg: {
-    icon: 'sms',
+    icon: 'workflow_sms',
     text: _l('短信'),
     bgColor: '#2196f3',
   },

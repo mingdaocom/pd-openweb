@@ -335,7 +335,7 @@ export const formatControlValueDot = (value, data) => {
   const { magnitude, ydot, suffix, dot, controlId, fixType } = data;
   const isRecordCount = controlId === 'record_count';
 
-  const { format } = _.find(numberLevel, { value: magnitude });
+  const { format } = _.find(numberLevel, { value: magnitude || 0 });
   if (magnitude === 0) {
     return format(value, ydot);
   } else if (magnitude === 1) {
@@ -359,7 +359,16 @@ export const formatControlValueDot = (value, data) => {
  */
 export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyValue = true) => {
   if (!value && isHideEmptyValue) {
-    return value;
+    const { emptyShowType } = _.find(yaxisList, { controlId: id }) || {};
+    if (emptyShowType === 0) {
+      return '';
+    } else if (emptyShowType === 1) {
+      return 0;
+    } else if (emptyShowType === 2) {
+      return '--';
+    } else {
+      return value;
+    }
   } else {
     if (isPerPile) {
       const { ydot = 2 } = yaxisList[0] || {};
@@ -386,7 +395,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
       const result = format(value).toFixed(0);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else if (magnitude) {
-      const result = format(value);
+      const result = Number(format(value).toFixed(ydot));
       return magnitude === 1 ? result : fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else {
       return format(value);
@@ -398,6 +407,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
  * 将 `控件名-控件id` 字符格式转成 { name, id }
  */
 export const formatControlInfo = value => {
+  if (_.isNumber(value)) return value;
   let result = value.split(/-md-\w+-chart-/g);
   let name = null;
   let id = null;

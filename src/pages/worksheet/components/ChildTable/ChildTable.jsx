@@ -22,6 +22,7 @@ import {
   parseAdvancedSetting,
   formatRecordToRelateRecord,
   handleSortRows,
+  updateOptionsOfControls,
 } from 'worksheet/util';
 import ColumnHead from '../BaseColumnHead';
 import RowHead from './ChildTableRowHead';
@@ -176,14 +177,11 @@ class ChildTable extends React.Component {
     if (!_.isEqual(this.state, nextState)) {
       return true;
     }
-    if (nextProps.lastAction.type === 'UPDATE_ROW' && !browserIsMobile()) {
-      nextProps.lastAction.type = undefined;
-      return false;
-    }
     return (
       !_.isEqual(this.props.rows, nextProps.rows) ||
       !_.isEqual(this.props.mobileIsEdit, nextProps.mobileIsEdit) ||
-      !_.isEqual(this.props.control.relationControls, nextProps.control.relationControls)
+      !_.isEqual(this.props.control.relationControls, nextProps.control.relationControls) ||
+      !_.isEqual(this.props.control.fieldPermission, nextProps.control.fieldPermission)
     );
   }
 
@@ -321,11 +319,8 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  refresh(nextProps, { noLoading } = {}) {
-    if (!noLoading) {
-      this.setState({ loading: true });
-    }
-    this.setState({ sortedControl: undefined });
+  refresh(nextProps) {
+    this.setState({ loading: true, sortedControl: undefined });
     this.loadRows(nextProps, { needResetControls: true });
   }
 
@@ -535,6 +530,14 @@ class ChildTable extends React.Component {
         control,
       },
     );
+    newRow.isEdited = true;
+    function update() {
+      this.rowsCache[row.rowid] = { ...(this.rowsCache[row.rowid] || {}), [cell.controlId]: cell.value };
+      if (_.isFunction(options.updateSucessCb)) {
+        options.updateSucessCb(newRow);
+      }
+      updateRow({ rowid: row.rowid, value: newRow });
+    }
     // 处理新增自定义选项
     if (
       _.includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], control.type) &&
@@ -546,39 +549,53 @@ class ChildTable extends React.Component {
         key: _.last(JSON.parse(value)),
         ...JSON.parse(_.last(JSON.parse(value))),
       };
-      const newControl = { ...control, options: [...control.options, newOption] };
-      this.setState({
-        controls: controls.map(c => (c.controlId === control.controlId ? newControl : c)),
-      });
+      const newControl = { ...control, options: _.uniqBy([...control.options, newOption], 'key') };
+      this.setState(
+        {
+          controls: controls.map(c => (c.controlId === control.controlId ? newControl : c)),
+        },
+        update,
+      );
+      return;
     }
-    this.rowsCache[row.rowid] = { ...(this.rowsCache[row.rowid] || {}), [cell.controlId]: cell.value };
-    if (_.isFunction(options.updateSucessCb)) {
-      options.updateSucessCb(newRow);
-    }
-    updateRow({ rowid: row.rowid, value: newRow });
+    update.apply(this);
   }
 
   @autobind
   handleRowDetailSave(row, updatedControlIds) {
     const { updateRow, addRow } = this.props;
     const { previewRowIndex, controls } = this.state;
-    row.updatedControlIds = _.isEmpty(row.updatedControlIds)
-      ? updatedControlIds
-      : _.uniqBy(row.updatedControlIds.concat(updatedControlIds));
-    row.updatedControlIds = row.updatedControlIds.concat(
-      controls
-        .filter(c => _.find(updatedControlIds, cid => ((c.advancedSetting || {}).defsource || '').includes(cid)))
-        .map(c => c.controlId),
+    const newControls = updateOptionsOfControls(
+      controls.map(c => ({ ...{}, ...c, value: row[c.controlId] })),
+      row,
     );
-    if (previewRowIndex > -1) {
-      updateRow({ rowid: row.rowid, value: row }).then(() => {
-        try {
-          this.worksheettable.current.table.initControlState();
-        } catch (err) {}
-      });
-    } else {
-      addRow(row);
-    }
+    this.setState(
+      {
+        controls: controls.map(c => {
+          const newControl = _.find(newControls, { controlId: c.controlId });
+          return newControl ? { ...newControl, value: c.value } : c;
+        }),
+      },
+      () => {
+        row.updatedControlIds = _.isEmpty(row.updatedControlIds)
+          ? updatedControlIds
+          : _.uniqBy(row.updatedControlIds.concat(updatedControlIds));
+        row.updatedControlIds = row.updatedControlIds.concat(
+          controls
+            .filter(c => _.find(updatedControlIds, cid => ((c.advancedSetting || {}).defsource || '').includes(cid)))
+            .map(c => c.controlId),
+        );
+        if (previewRowIndex > -1) {
+          updateRow({ rowid: row.rowid, value: row }).then(() => {
+            try {
+              this.worksheettable.current.table.initControlState();
+            } catch (err) {}
+          });
+        } else {
+          addRow(row);
+        }
+      },
+    );
   }
 
   @autobind
@@ -902,6 +919,7 @@ class ChildTable extends React.Component {
         )}
         {recordVisible && (
           <RowDetailComponent
+            ignoreLock={(tableRows[previewRowIndex] || {}).isEdited}
             visible
             aglinBottom={!!recordId}
             from={from}

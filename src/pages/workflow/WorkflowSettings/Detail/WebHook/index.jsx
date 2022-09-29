@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox, Tooltip, Icon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   SelectNodeObject,
@@ -9,8 +9,11 @@ import {
   ParameterList,
   KeyPairs,
   TestParameter,
+  SpecificFieldsValue,
+  FindResult,
 } from '../components';
 import { APP_TYPE, METHODS_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class WebHook extends Component {
   constructor(props) {
@@ -22,6 +25,7 @@ export default class WebHook extends Component {
       showTestDialog: false,
       testArray: [],
       fileArray: [],
+      errorMsgArray: [],
     };
   }
 
@@ -67,7 +71,14 @@ export default class WebHook extends Component {
           });
         }
 
-        this.setState({ data: result });
+        const errorMsgArray = Object.keys(result.errorMap).map(key => {
+          return { key, value: result.errorMap[key] };
+        });
+
+        this.setState({
+          data: result,
+          errorMsgArray: errorMsgArray.length ? errorMsgArray : [{ key: '', value: '' }],
+        });
       });
   }
 
@@ -108,7 +119,7 @@ export default class WebHook extends Component {
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest } = this.state;
+    const { data, saveRequest, errorMsgArray } = this.state;
     const {
       selectNodeId,
       name,
@@ -120,6 +131,9 @@ export default class WebHook extends Component {
       formControls,
       settings,
       testMap,
+      successCode,
+      errorMsg,
+      executeType,
     } = data;
 
     if (data.appType === APP_TYPE.SHEET && !selectNodeId) {
@@ -129,6 +143,25 @@ export default class WebHook extends Component {
 
     if (!sendContent.trim()) {
       alert(_l('API URL必填'), 2);
+      return;
+    }
+
+    let hasError = 0;
+    let errorMap = {};
+    if (errorMsgArray.length) {
+      errorMsgArray
+        .filter(item => item.key || item.value)
+        .forEach(item => {
+          if (!item.key || !item.value) {
+            hasError++;
+          } else {
+            errorMap[item.key] = item.value;
+          }
+        });
+    }
+
+    if (hasError) {
+      alert(_l('指定状态码和错误消息不能为空'), 2);
       return;
     }
 
@@ -150,10 +183,12 @@ export default class WebHook extends Component {
           method,
           contentType,
           formControls: formControls.filter(item => item.name),
-          settings: {
-            openSSL: settings.openSSL,
-          },
+          settings,
           testMap,
+          successCode,
+          errorMap,
+          errorMsg,
+          executeType,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -183,7 +218,7 @@ export default class WebHook extends Component {
           onChange={this.onChange}
         />
 
-        {this.renderUrl()}
+        <div className="mTop20">{this.renderUrl()}</div>
         {this.renderHeaders()}
 
         <div className="Gray_75 mTop15">
@@ -201,6 +236,7 @@ export default class WebHook extends Component {
    * 渲染自定义数据
    */
   renderCustomSource() {
+    const { selectNodeType, isIntegration } = this.props;
     const { data, showTestDialog, testArray, fileArray } = this.state;
 
     return (
@@ -208,6 +244,18 @@ export default class WebHook extends Component {
         {this.renderUrl()}
         {this.renderHeaders()}
         {!_.includes([1, 4, 5], data.method) && this.renderBody()}
+
+        {!md.global.Config.IsLocal && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
+            <div className="mTop10 Gray_9e">
+              {_l('某些第三方平台需要设置可信 IP 才能调用API，以下是系统可能使用的 IP 地址')}
+            </div>
+            <div className="mTop10">{data.realIp}</div>
+          </Fragment>
+        )}
+
+        {this.renderCustomErrorMessage()}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
         <div className="mTop10 Gray_9e">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
@@ -227,6 +275,14 @@ export default class WebHook extends Component {
             <div className="mTop15 bold">{_l('响应 Header')}</div>
             <ParameterList controls={data.controls.filter(item => item.enumDefault === 1)} hideControlType />
           </Fragment>
+        )}
+
+        {!isIntegration && (
+          <FindResult
+            nodeType={selectNodeType}
+            executeType={data.executeType}
+            switchExecuteType={executeType => this.updateSource({ executeType })}
+          />
         )}
 
         {showTestDialog && (
@@ -253,6 +309,7 @@ export default class WebHook extends Component {
       { text: 'form-data', value: 4 },
       { text: 'x-www-form-urlencoded', value: 1 },
       { text: 'raw', value: 2 },
+      { text: 'binary', value: 5 },
     ];
 
     return (
@@ -261,7 +318,11 @@ export default class WebHook extends Component {
         <div className="flexRow mTop15">
           {contentTypes.map((item, i) => {
             return (
-              <div className="flex alignItemsCenter flexRow minHeight30" key={i}>
+              <div
+                className="alignItemsCenter flexRow minHeight30"
+                style={{ flex: item.value === 1 ? 1.2 : 1 }}
+                key={i}
+              >
                 <Radio
                   text={item.text}
                   checked={data.contentType === item.value || (data.contentType === 3 && item.value === 2)}
@@ -269,7 +330,12 @@ export default class WebHook extends Component {
                     this.updateSource({
                       contentType: item.value,
                       body: '',
-                      formControls: [Object.assign({ name: '', value: '' }, item.value === 4 ? { type: 2 } : {})],
+                      formControls: [
+                        Object.assign(
+                          { name: item.value === 5 ? 'file' : '', value: '' },
+                          item.value === 4 ? { type: 2 } : item.value === 5 ? { type: 14 } : {},
+                        ),
+                      ],
                     })
                   }
                 />
@@ -286,9 +352,11 @@ export default class WebHook extends Component {
           })}
         </div>
 
-        {data.contentType === 4 && <div className="Gray_9e mTop5">{_l('此模式下允许发送10M以内附件')}</div>}
+        {_.includes([4, 5], data.contentType) && (
+          <div className="Gray_9e mTop5">{_l('此模式下允许发送10M以内附件')}</div>
+        )}
 
-        {_.includes([1, 4], data.contentType) && (
+        {_.includes([1, 4, 5], data.contentType) && (
           <KeyPairs
             key={this.props.selectNodeId}
             processId={this.props.processId}
@@ -297,8 +365,9 @@ export default class WebHook extends Component {
             source={data.formControls}
             sourceKey="formControls"
             showType={data.contentType === 4}
+            onlyFile={data.contentType === 5}
             formulaMap={data.formulaMap}
-            btnText={data.contentType === 4 ? '+ Form' : '+ key-value pairs'}
+            btnText={data.contentType === 4 ? '+ Form' : data.contentType === 5 ? '' : '+ key-value pairs'}
             updateSource={this.updateSource}
           />
         )}
@@ -331,6 +400,17 @@ export default class WebHook extends Component {
         <div className="Font13 bold">{_l('API URL （必填）')}</div>
         <div className="mTop10 Gray_9e flexRow">
           <div className="flex">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')} </div>
+          <Checkbox
+            className="flexRow"
+            text={_l('使用网络代理')}
+            checked={data.settings.useProxy}
+            onClick={checked =>
+              this.updateSource({ settings: Object.assign({}, data.settings, { useProxy: !checked }) })
+            }
+          />
+          <Tooltip text={<span>{_l('需要管理员在「组织后台-集成-其他」中配置}')}</span>}>
+            <Icon icon="info_outline" className="Gray_9e mTop3 mLeft10 mRight20" />
+          </Tooltip>
           <Checkbox
             className="flexRow"
             text={_l('开启SSL证书验证')}
@@ -496,6 +576,135 @@ export default class WebHook extends Component {
 
     return source;
   };
+
+  /**
+   * 渲染自定义错误消息
+   */
+  renderCustomErrorMessage() {
+    const { isIntegration } = this.props;
+    const { data, errorMsgArray } = this.state;
+
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop20">{_l('请求失败设置')}</div>
+        <div className="mTop10 Gray_9e">{_l('当 API 请求失败时，自定义超时重试次数和错误消息')}</div>
+
+        {isIntegration && (
+          <Fragment>
+            <div className="Font13 mTop15">{_l('请求时长')}</div>
+            <div className="mTop10 flexRow alignItemsCenter">
+              <div style={{ width: 120 }}>
+                <SpecificFieldsValue
+                  processId={this.props.processId}
+                  selectNodeId={this.props.selectNodeId}
+                  updateSource={({ fieldValue }) =>
+                    this.updateSource({ settings: Object.assign({}, data.settings, { timeout: parseInt(fieldValue) }) })
+                  }
+                  type="number"
+                  min={5}
+                  max={30}
+                  hasOtherField={false}
+                  data={{ fieldValue: data.settings.timeout }}
+                />
+              </div>
+              <div className="mLeft10">{_l('秒')}（5 ~ 30）</div>
+
+              <Checkbox
+                style={{ marginLeft: 80 }}
+                text={_l('超时自动重试（最多重试2次）')}
+                checked={data.settings.maxRetries > 0}
+                onClick={checked =>
+                  this.updateSource({ settings: Object.assign({}, data.settings, { maxRetries: checked ? 0 : 2 }) })
+                }
+              />
+            </div>
+          </Fragment>
+        )}
+
+        <div className="Font13 mTop15">{_l('请求成功的 HTTP 状态码')}</div>
+        <div className="flexRow mTop10">
+          <input
+            type="text"
+            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+            placeholder={_l('示例：200,201（多个状态码用英文逗号隔开）')}
+            value={data.successCode}
+            onChange={e => this.updateSource({ successCode: e.target.value.replace(/[^0-9,]/g, '') })}
+          />
+        </div>
+
+        <div className="Font13 mTop15">{_l('指定 HTTP 状态码错误消息')}</div>
+        {errorMsgArray.map((item, i) => {
+          return (
+            <div className="flexRow mTop10 alignItemsCenter" key={i}>
+              <input
+                type="text"
+                style={{ width: 100 }}
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                placeholder={_l('示例：500')}
+                value={item.key}
+                onChange={e => this.updateErrorMsg('key', e.target.value.replace(/[^0-9]/g, ''), i)}
+              />
+
+              <input
+                type="text"
+                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
+                placeholder={_l('请输入错误消息')}
+                value={item.value}
+                onChange={e => this.updateErrorMsg('value', e.target.value, i)}
+                onBlur={e => this.updateErrorMsg('value', e.target.value.trim(), i)}
+              />
+
+              <i
+                className="icon-delete2 Font16 ThemeHoverColor3 pointer Gray_bd mLeft8"
+                onClick={() => this.deleteErrorMsg(i)}
+              />
+            </div>
+          );
+        })}
+
+        <div className="mTop10">
+          <span
+            className="ThemeHoverColor3 pointer Gray_9e"
+            onClick={() => this.setState({ errorMsgArray: errorMsgArray.concat({ key: '', value: '' }) })}
+          >
+            + {_l('状态码')}
+          </span>
+        </div>
+
+        <div className="Font13 mTop15">{_l('返回其他 HTTP 状态码时的默认错误消息')}</div>
+        <div className="flexRow mTop10">
+          <input
+            type="text"
+            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+            placeholder={_l('请输入错误消息')}
+            value={data.errorMsg}
+            onChange={e => this.updateSource({ errorMsg: e.target.value })}
+            onBlur={e => this.updateSource({ errorMsg: e.target.value.trim() })}
+          />
+        </div>
+      </Fragment>
+    );
+  }
+
+  /**
+   * 更新错误消息
+   */
+  updateErrorMsg(key, value, i) {
+    const errorMsgArray = _.cloneDeep(this.state.errorMsgArray);
+
+    errorMsgArray[i][key] = value;
+    this.setState({ errorMsgArray });
+  }
+
+  /**
+   * 删除错误消息
+   */
+  deleteErrorMsg(i) {
+    const errorMsgArray = _.cloneDeep(this.state.errorMsgArray);
+
+    _.remove(errorMsgArray, (o, index) => index === i);
+    this.setState({ errorMsgArray });
+  }
 
   render() {
     const { data } = this.state;

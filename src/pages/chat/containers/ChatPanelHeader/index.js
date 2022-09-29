@@ -282,7 +282,7 @@ class ChatPanelHeader extends Component {
           {isFileTrsnsfer ? (
             undefined
           ) : (
-            <div className={cx('search-wrapper', { hidden: !searchVisible })}>
+            <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
               <i onClick={this.handleSearch.bind(this)} className="icon-search ThemeColor3 iconHover" />
               <input
                 ref={(input) => {

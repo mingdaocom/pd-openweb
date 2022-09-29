@@ -198,7 +198,7 @@ export const getVerifyInfo = (data, { controls }) => {
 
 // 自动编号可选控件
 export const isAutoNumberSelectableControl = item => {
-  const types = [2, 9, 10, 11, 15, 16, 19, 23, 24, 33, 46];
+  const types = [2, 9, 10, 11, 15, 16, 19, 23, 24, 46];
   return types.includes(item.type);
 };
 

@@ -27,6 +27,7 @@ import { updateSheetList, deleteSheet, updateSheetListIsUnfold } from 'worksheet
 import SheetMoreOperate from './SheetMoreOperate';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { getAppFeaturesVisible } from 'src/util';
 import { BatchOperate } from 'worksheet/common';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 
@@ -72,6 +73,8 @@ function SheetHeader(props) {
     changePageIndex,
     refresh,
     refreshWorksheetControls,
+    addRecord,
+    setHighLightOfRows,
     clearChartId,
     clearSelect,
   } = props;
@@ -118,17 +121,21 @@ function SheetHeader(props) {
       clearSelect={clearSelect}
       refresh={refresh}
       refreshWorksheetControls={refreshWorksheetControls}
+      addRecord={addRecord}
+      setHighLightOfRows={setHighLightOfRows}
     />
   );
   if (onlyBatchOperate) {
     return batchOperateComp;
   }
+  const { ln } = getAppFeaturesVisible();
   return (
     <Fragment>
       <Con className="sheetHeader">
         {batchOperateComp}
         <div className="flex">
-          <span className="fixed pointer">
+          {!ln && <span className="mLeft10" />}
+          <span className={cx('fixed pointer', { hide: !ln })}>
             <Tooltip popupPlacement="bottom" text={<span>{isUnfold ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}>
               <i
                 className={cx('icon Font12', isUnfold ? 'icon-back-02' : 'icon-next-02')}
@@ -196,7 +203,7 @@ function SheetHeader(props) {
               controls={controls}
               sheetSwitchPermit={sheetSwitchPermit}
               // funcs
-              setSheetDescVisible={(value) => {
+              setSheetDescVisible={value => {
                 setDescIsEditing(true);
                 setSheetDescVisible(value);
               }}
@@ -379,6 +386,7 @@ export default connect(
         ..._.pick(sheetviewActions, [
           'setRowsEmpty',
           'addRecord',
+          'setHighLightOfRows',
           'fetchRows',
           'updateRows',
           'hideRows',

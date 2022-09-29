@@ -59,12 +59,14 @@ export default class Formula extends Component {
         arr.forEach(obj => {
           formulaValue = formulaValue.replace(
             obj,
-            formulaMap[
-              obj
-                .replace(/\$/g, '')
-                .split(/([a-zA-Z0-9#]{24,32})-/)
-                .filter(item => item)[1]
-            ].name,
+            (
+              formulaMap[
+                obj
+                  .replace(/\$/g, '')
+                  .split(/([a-zA-Z0-9#]{24,32})-/)
+                  .filter(item => item)[1]
+              ] || {}
+            ).name || '',
           );
         });
       }
@@ -77,7 +79,7 @@ export default class Formula extends Component {
 
     return (
       <Fragment>
-        <div className="pLeft8 pRight8">
+        <div className="pLeft8 pRight8 breakAll">
           <span className="Gray_75">{actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}</span>
           {fieldValue + fieldControlName + formulaValue}
         </div>

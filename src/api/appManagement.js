@@ -333,6 +333,7 @@ module.exports = {
   /**
   * 
   * @param {Object} args 请求参数
+  * @param {} args.tokenType 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
   * @param {string} args.worksheetId
   * @param {string} args.viewId
   * @param {Object} options 配置参数

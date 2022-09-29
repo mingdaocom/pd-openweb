@@ -28,6 +28,16 @@ export default ({ data, updateSource, isIntegration }) => {
       desc: _l('按钮'),
     },
   };
+  const PLACEHOLDER = {
+    2: _l('默认值'),
+    6: _l('默认值'),
+    14: '',
+    16: _l('默认值 (2019-10-01 09:00)'),
+    26: _l('默认值 (人员ID)'),
+    27: _l('默认值 (部门ID)'),
+    10000007: _l('默认值 (示例：[] )'),
+    10000008: _l('默认值 (示例：[] )'),
+  };
   const updateControls = (action, value, { controlId, type, dataSource }, isBlur) => {
     const controls = _.cloneDeep(data.controls);
 
@@ -44,6 +54,10 @@ export default ({ data, updateSource, isIntegration }) => {
                 .toString()
                 .padStart(4, '0')
             : value;
+
+        if (action === 'type' && value === 14) {
+          item.value = '';
+        }
       }
     });
 
@@ -165,6 +179,18 @@ export default ({ data, updateSource, isIntegration }) => {
             />
           </div>
           <div className={cx('mTop10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
+            {isIntegration && item.type !== 10000003 && !item.dataSource && (
+              <input
+                type="text"
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                disabled={item.type === 14}
+                style={{ width: 180 }}
+                placeholder={PLACEHOLDER[item.type]}
+                value={item.workflowDefaultValue}
+                onChange={e => updateControls('workflowDefaultValue', e.target.value, item)}
+                onBlur={e => updateControls('workflowDefaultValue', e.target.value.trim(), item, true)}
+              />
+            )}
             <input
               type="text"
               className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"

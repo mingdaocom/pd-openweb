@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  1. 方法：
  *                         |- userAction
  *  action: defaultAction -|- departmentAction
@@ -56,18 +56,7 @@ import Button from 'ming-ui/components/Button';
 import { DataRangeTypes, RenderTypes, ChooseType, UserTabsId } from './constant';
 import NoData from './NoData';
 
-const DefaultUserTabs = (projectId, isChat) => {
-  const href = location.href;
-  const isNetwork =
-    !isChat &&
-    href.indexOf('admin') > -1 &&
-    href.indexOf('admin/structure') === -1 &&
-    href.indexOf('admin/approve') === -1 &&
-    href.indexOf('admin/home') === -1 &&
-    href.indexOf('admin/analytics') === -1 &&
-    href.indexOf('privateDeployment/admin') === -1 &&
-    !!projectId;
-
+const DefaultUserTabs = isNetwork => {
   return [
     {
       id: UserTabsId.CONACT_USER,
@@ -143,6 +132,17 @@ export default class GeneraSelect extends Component {
         ...props.groupSettings.groups.map(group => ({ type: ChooseType.GROUP, data: group })),
       ],
     });
+
+    const href = location.href;
+    this.isNetwork =
+      !props.isChat &&
+      href.indexOf('admin') > -1 &&
+      href.indexOf('admin/structure') === -1 &&
+      href.indexOf('admin/approve') === -1 &&
+      href.indexOf('admin/home') === -1 &&
+      href.indexOf('admin/analytics') === -1 &&
+      href.indexOf('privateDeployment/admin') === -1 &&
+      !!(props.commonSettings || {}).projectId;
   }
 
   /** 已经选中的联系人 */
@@ -231,7 +231,7 @@ export default class GeneraSelect extends Component {
     };
     const defaultUserSettings = {
       _id: 0, // index for defaultTabs
-      defaultTabs: DefaultUserTabs(props.commonSettings.projectId, props.isChat),
+      defaultTabs: DefaultUserTabs(this.isNetwork),
       defaultTabsFilter: function(tabs) {
         return tabs;
       },
@@ -274,9 +274,7 @@ export default class GeneraSelect extends Component {
     let userSettings = this.userSettings;
 
     if (userSettings.defaultTabsFilter) {
-      userSettings.defaultTabs = [].concat(
-        userSettings.defaultTabsFilter(DefaultUserTabs(this.commonSettings.projectId, props.isChat)),
-      );
+      userSettings.defaultTabs = [].concat(userSettings.defaultTabsFilter(DefaultUserTabs(this.isNetwork)));
     }
     // 新添加的tab
     if (userSettings.extraTabs && userSettings.extraTabs.length) {
@@ -374,7 +372,7 @@ export default class GeneraSelect extends Component {
         if (this.state.keywords) {
           doAction = tabItem.actions.getDepartments;
         } else {
-          doAction = departmentController.pagedDepartmentTrees;
+          doAction = departmentController[this.isNetwork ? 'pagedProjectDepartmentTrees' : 'pagedDepartmentTrees'];
           reqData.pageIndex = 1;
           reqData.pageSize = 100;
           reqData.parentId = '';
@@ -1194,6 +1192,7 @@ export default class GeneraSelect extends Component {
         } else {
           return (
             <DepartmentTree
+              isNetwork={this.isNetwork}
               data={
                 (_.isArray(mainData.data) &&
                   mainData.data.map(item => ({

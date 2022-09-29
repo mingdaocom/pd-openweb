@@ -29,6 +29,9 @@ export const CLEAR_HIGHLIGHT = 'CLEAR_HIGHLIGHT';
 export const UPDATE_HIGHLIGHT = 'UPDATE_HIGHLIGHT';
 
 export const UPDATE_IS_LOADING = 'UPDATE_IS_LOADING';
+export const UPDATE_FIRST_LEVEL_LOADING = 'UPDATE_FIRST_LEVEL_LOADING';
+
+const PAGE_SIZE = 2;
 
 // 公司节点
 export const initRoot = () => dispatch => {
@@ -56,7 +59,7 @@ export const updateCollapse = (id = COMPANY_FAKE_ACCOUNTID, open = true) => ({
 
 export const addSubordinates =
   ({ id, accounts }) =>
-  dispatch => {
+  (dispatch, getState) => {
     StructureController.addStructure({
       projectId: Config.projectId,
       isTop: id === COMPANY_FAKE_ACCOUNTID,
@@ -69,6 +72,7 @@ export const addSubordinates =
         if (failedAccountIds && failedAccountIds.length) {
           successAccounts = _.filter(accounts, account => failedAccountIds.indexOf(account.accountId) === -1);
         }
+        const { users = {} } = getState().entities;
         // 添加实体
         dispatch({
           type: ADD_STRUCTURES,
@@ -82,13 +86,15 @@ export const addSubordinates =
           payload: {
             id,
             source: successAccounts,
+            totalCount: !id
+              ? users[id].subTotalCount
+              : users[id].subTotalCount + _.map(accounts, _ => _.accountId).length,
           },
         });
-
-        dispatch(fetchSubordinates(_.map(successAccounts, _ => _.accountId))).then(function () {
-          // 打开当前节点
-          dispatch(updateCollapse(id));
+        _.map(accounts, _ => _.accountId).forEach(n => {
+          dispatch(fetchSubordinates(n));
         });
+        dispatch(updateCollapse(id));
       } else {
         alert(_l('操作失败', 2));
       }
@@ -183,47 +189,50 @@ export const removeStructure =
     });
   };
 
-const fetchRootSubordinates = parentId => dispatch => {
-  dispatch({ type: SUBORDINATES_REQUEST, payload: { id: parentId } });
-  dispatch({ type: UPDATE_IS_LOADING, payload: { data: true } });
-  return StructureController.getProjectStructuresTop({
-    projectId: Config.projectId,
-    isDirect: true,
-    isGetSubordinate: true,
-  }).then(
-    source => {
-      dispatch({ type: ADD_STRUCTURES, payload: { source } });
-      dispatch({ type: UPDATE_ENTITY_CHILDS, payload: { id: parentId, source } });
-      dispatch({ type: UPDATE_IS_LOADING, payload: { data: false } });
-    },
-    error => {
-      dispatch({ type: SUBORDINATES_FAILURE, payload: { id: parentId, error } });
-      dispatch({ type: UPDATE_IS_LOADING, payload: { data: false } });
-    },
-  );
-};
-
-const fetchSubordinates = args => dispatch => {
-  const parentIds = _.isArray(args) ? args : [args];
-  return StructureController.getSubordinateByAccountIds({
-    projectId: Config.projectId,
-    accountIds: parentIds,
-    isDirect: true,
-    isGetParent: false,
-  }).then(source => {
-    dispatch({ type: ADD_STRUCTURES, payload: { source } });
-    return source;
-  });
-};
-
-export const fetchNode =
-  (parentId = COMPANY_FAKE_ACCOUNTID) =>
+export const fetchRootSubordinates =
+  (parentId, pageIndex = 1) =>
   dispatch => {
-    if (parentId !== COMPANY_FAKE_ACCOUNTID) {
-      return dispatch(fetchSubordinates(parentId));
-    } else {
-      return dispatch(fetchRootSubordinates(parentId));
-    }
+    dispatch({ type: SUBORDINATES_REQUEST, payload: { id: parentId } });
+    pageIndex <= 1 && dispatch({ type: UPDATE_IS_LOADING, payload: { data: true } });
+    pageIndex > 1 && dispatch({ type: UPDATE_FIRST_LEVEL_LOADING, payload: { data: true } });
+    return StructureController.pagedTopAccountIdsWith3Level({
+      projectId: Config.projectId,
+      pageIndex,
+      // pageSize: PAGE_SIZE,
+    }).then(
+      ({ totalCount, pagedDatas: source }) => {
+        dispatch({ type: ADD_STRUCTURES, payload: { source } });
+        dispatch({
+          type: UPDATE_ENTITY_CHILDS,
+          payload: { id: parentId, source, pageIndex, moreLoading: false, totalCount },
+        });
+        dispatch({ type: UPDATE_IS_LOADING, payload: { data: false } });
+        dispatch({ type: UPDATE_FIRST_LEVEL_LOADING, payload: { data: false } });
+      },
+      error => {
+        dispatch({ type: SUBORDINATES_FAILURE, payload: { id: parentId, error } });
+        dispatch({ type: UPDATE_IS_LOADING, payload: { data: false } });
+      },
+    );
+  };
+
+export const fetchSubordinates =
+  (parentId, pageIndex = 1) =>
+  dispatch => {
+    dispatch({ type: UPDATE_ENTITY_CHILDS, payload: { id: parentId, source: [], moreLoading: true } });
+    return StructureController.pagedSubIdsWithByAccountId({
+      projectId: Config.projectId,
+      accountId: parentId,
+      pageIndex,
+      // pageSize: PAGE_SIZE,
+    }).then(({ pagedDatas: source, totalCount }) => {
+      dispatch({ type: ADD_STRUCTURES, payload: { source } });
+      dispatch({
+        type: UPDATE_ENTITY_CHILDS,
+        payload: { id: parentId, source, pageIndex, moreLoading: false, totalCount },
+      });
+      return source;
+    });
   };
 
 /**
@@ -239,32 +248,34 @@ export const fetchParent =
     }).then(parents => {
       if (parents && parents.length) {
         const parentIds = _.map(parents, p => p.accountId);
-        dispatch(fetchSubordinates(parentIds))
-          .then(source => {
-            const users = getState().entities.users;
-            const accountIds = _.reduce(
-              source,
-              (result, { accountId }) => {
-                const subordinates = (users[accountId] || {}).subordinates;
-                return result.concat(subordinates || []);
-              },
-              [],
-            );
-            return dispatch(fetchNode(accountIds));
-          })
-          .then(() => {
-            // 获取数据完后全部展开父节点
-            _.forEach(parentIds, id => {
-              dispatch(updateCollapse(id));
-            });
+        parentIds.reverse().forEach(it => {
+          dispatch(fetchSubordinates(it))
+            .then(source => {
+              const users = getState().entities.users;
+              const accountIds = _.reduce(
+                source,
+                (result, { accountId }) => {
+                  const subordinates = (users[accountId] || {}).subordinates;
+                  return result.concat(subordinates || []);
+                },
+                [],
+              );
+              return accountIds;
+            })
+            .then(accountIds => {
+              // 获取数据完后全部展开父节点
+              _.forEach(parentIds.concat(accountIds), id => {
+                dispatch(updateCollapse(id));
+              });
 
-            dispatch({
-              type: UPDATE_HIGHLIGHT,
-              payload: {
-                highLightId: id,
-              },
+              dispatch({
+                type: UPDATE_HIGHLIGHT,
+                payload: {
+                  highLightId: id,
+                },
+              });
             });
-          });
+        });
       } else {
         dispatch({
           type: UPDATE_HIGHLIGHT,
@@ -275,3 +286,11 @@ export const fetchParent =
       }
     });
   };
+
+export const loadMore = (parentId, pageIndex) => dispatch => {
+  if (parentId) {
+    dispatch(fetchSubordinates(parentId, pageIndex));
+  } else {
+    dispatch(fetchRootSubordinates(parentId, pageIndex));
+  }
+};

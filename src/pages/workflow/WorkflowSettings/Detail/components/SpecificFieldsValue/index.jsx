@@ -15,6 +15,7 @@ export default class SpecificFieldsValue extends Component {
   static defaultProps = {
     hasOtherField: true,
     min: 0,
+    max: 0,
   };
 
   renderSelectFieldsValue = () => {
@@ -110,7 +111,7 @@ export default class SpecificFieldsValue extends Component {
   }
 
   renderNumber() {
-    const { type, data, updateSource, hasOtherField, min, noScope } = this.props;
+    const { type, data, updateSource, hasOtherField, min, max, noScope } = this.props;
     const PLACEHOLDER = {
       numberFieldValue: _l('填写天数'),
       hourFieldValue: _l('填写小时数'),
@@ -132,17 +133,22 @@ export default class SpecificFieldsValue extends Component {
             e.target.value = min;
             updateSource({ fieldValue: min.toString() });
           }
+
+          if (max && max < parseInt(e.target.value || 0, 10)) {
+            e.target.value = max;
+            updateSource({ fieldValue: max.toString() });
+          }
         }}
       />
     );
   }
 
   formatVal(value) {
-    const { type, allowedEmpty } = this.props;
+    const { type, allowedEmpty, min } = this.props;
     value = parseInt(value, 10);
 
     if (allowedEmpty && !value && value !== 0) return '';
-    if (typeof value !== 'number' || isNaN(value)) return 0;
+    if (typeof value !== 'number' || isNaN(value)) return min || 0;
 
     switch (type) {
       case 'numberFieldValue':

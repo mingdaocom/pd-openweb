@@ -58,6 +58,8 @@ export default function Departments(props) {
         setActive(true);
         selectOrgRole({
           projectId,
+          showCurrentOrgRole: true,
+          showCompanyName: true,
           unique: !isMultiple,
           onSave: data => {
             if (!data.length) {

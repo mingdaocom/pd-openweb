@@ -126,14 +126,23 @@ export default class CustomFields extends Component {
    * 初始化数据
    */
   initSource(data, disabled, { setStateCb = () => {} } = {}) {
-    const { projectId, initSource, recordId, recordCreateTime, from, onFormDataReady, masterRecordRowId, ignoreLock } =
-      this.props;
+    const {
+      isCreate,
+      projectId,
+      initSource,
+      recordId,
+      recordCreateTime,
+      from,
+      onFormDataReady,
+      masterRecordRowId,
+      ignoreLock,
+    } = this.props;
     const { rules = [] } = this.state;
 
     this.dataFormat = new DataFormat({
       projectId,
       data,
-      isCreate: initSource || !recordId,
+      isCreate: _.isUndefined(isCreate) ? initSource || !recordId : isCreate,
       disabled,
       recordCreateTime,
       masterRecordRowId,

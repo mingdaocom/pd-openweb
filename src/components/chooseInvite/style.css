@@ -207,7 +207,7 @@
   padding-bottom: 200px;
 }
 
-.chooseInviteDialog .inviteAccount>li {
+.chooseInviteDialog .inviteAccount > li {
   position: relative;
 
   display: inline-block;
@@ -328,8 +328,8 @@
   background-size: 80px;
 }
 
-.historyInvitedDialog .historyInviteList>ul,
-.historyInviteLinkDialog .historyLinkList>ul {
+.historyInvitedDialog .historyInviteList > ul,
+.historyInviteLinkDialog .historyLinkList > ul {
   background-color: #fff;
 }
 
@@ -428,4 +428,8 @@
 .inviteMobileAccount .iti__country-list {
   max-width: 290px;
   overflow-x: hidden;
+}
+
+.noAllow {
+  cursor: not-allowed !important;
 }

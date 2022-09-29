@@ -6,20 +6,12 @@ import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import Tooltip from 'ming-ui/components/Tooltip';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { emitter } from 'worksheet/util';
 import sheetAjax from 'src/api/worksheet';
 import SaveWorksheetFilter from '../SaveWorksheetFilter';
 import FilterItem from './components/FilterItem';
+import { FILTER_TYPE, FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST } from './enum';
 import {
-  FILTER_TYPE,
-  FILTER_RELATION_TYPE,
-  CONTROL_FILTER_WHITELIST,
-  FILTER_CONDITION_TYPE,
-  getFilterTypeLabel,
-} from './enum';
-import {
-  getTypeKey,
   checkConditionAvailable,
   formatOriginFilterValue,
   getDefaultCondition,
@@ -129,29 +121,6 @@ export default class WorkSheetFilter extends Component {
       .fail(err => {
         alert(_l('获取筛选列表失败'), 2);
       });
-  }
-  @autobind
-  getFilterTypes(type) {
-    let types = [];
-    const typeKey = getTypeKey(type);
-    if (typeKey) {
-      types = CONTROL_FILTER_WHITELIST[typeKey].types.map(filterType => ({
-        value: filterType,
-        text: getFilterTypeLabel(typeKey, filterType),
-      }));
-    }
-    if (type === 29) {
-      types = [
-        FILTER_CONDITION_TYPE.LIKE,
-        FILTER_CONDITION_TYPE.NCONTAIN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ].map(filterType => ({
-        value: filterType,
-        text: getFilterTypeLabel(typeKey, filterType),
-      }));
-    }
-    return types;
   }
   @autobind
   deleteFilter(filter) {

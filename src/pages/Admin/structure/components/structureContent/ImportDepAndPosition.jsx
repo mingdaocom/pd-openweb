@@ -479,7 +479,7 @@ class ImportDepAndPosition extends Component {
             <div>
               <div>{_l('%0错误，请检查！', importOrExport)}</div>
               <div className="Gray_89 Font14">
-                {_l('请调整后，')}{' '}
+                {_l('请调整后，')}
                 <a className="Hand primaryColor" onClick={this.backAct}>
                   {_l('重新上传')}
                 </a>

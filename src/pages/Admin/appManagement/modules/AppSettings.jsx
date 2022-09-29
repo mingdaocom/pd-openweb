@@ -1,21 +1,22 @@
 import React, { Fragment } from 'react';
 import SvgIcon from 'src/components/SvgIcon';
-import { Select } from 'antd';
+import { Select, InputNumber } from 'antd';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 
 const operationTypeData = [
   { label: _l('不导出'), exampleType: 0 },
-  { label: _l('每张表最多导出100条记录'), exampleType: 1 },
+  { label: _l('每张表最多导出10000条记录'), exampleType: 1 },
   { label: _l('自定义导出的记录数量'), exampleType: 2 },
 ];
 
 const sheetTypeData = [
   { label: _l('不导出'), count: 0 },
-  { label: _l('20'), count: 20 },
   { label: _l('50'), count: 50 },
   { label: _l('100'), count: 100 },
+  { label: _l('全部'), count: 'all', isAll: true },
+  { label: _l('自定义'), count: -1, isCustom: true },
 ];
 
 export default class AppSettings extends React.Component {
@@ -30,7 +31,7 @@ export default class AppSettings extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.list !== this.props.list) {
       this.setState({
-        list: nextProps.list,
+        list: nextProps.list.map(item => ({ ...item, isCustom: false, isAll: false })),
       });
     }
   }
@@ -45,19 +46,55 @@ export default class AppSettings extends React.Component {
               <div className="singleItemHeader mBottom10">
                 <div className="singleItemLeft">
                   <div className="mLeft35">{entity.worksheetName}</div>
+                  <div className="Font12 Gray_9e">{`（${entity.totalRecordNum}）`}</div>
                 </div>
                 <div className="singleItemRight pLeft4">
                   {sheetTypeData.map(sheet => {
+                    let active = sheet.isCustom
+                      ? sheet.isCustom === entity.isCustom
+                      : sheet.isAll
+                      ? sheet.isAll === entity.isAll
+                      : sheet.count === entity.count;
                     return (
                       <div
-                        className={cx('sheetItemOption', { active: sheet.count === entity.count })}
+                        className={cx('sheetItemOption', { active })}
                         key={sheet.count}
                         onClick={() => {
                           const copyEntities = [...entities];
-                          copyEntities[index].count = sheet.count;
+                          copyEntities[index].count =
+                            sheet.count === 'all'
+                              ? copyEntities[index].totalRecordNum <= 10000
+                                ? copyEntities[index].totalRecordNum
+                                : 10000
+                              : sheet.count;
+                          copyEntities[index].isCustom =
+                            sheet.isCustom || (sheet.isAll && copyEntities[index].totalRecordNum > 10000)
+                              ? true
+                              : false;
+                          copyEntities[index].isAll =
+                            sheet.isAll && copyEntities[index].totalRecordNum <= 10000 ? true : false;
+                          let selectedCount = _.reduce(
+                            copyEntities || [],
+                            (total, current) => {
+                              let count =
+                                current.count === -1
+                                  ? 0
+                                  : current.count === 'all'
+                                  ? current.totalRecordNum
+                                  : current.count;
+                              return total + count;
+                            },
+                            0,
+                          );
+                          const disabledExportBtn = this.state.list
+                            .map(child =>
+                              child.appId === item.appId ? { ...child, entities: copyEntities, selectedCount } : child,
+                            )
+                            .some(it => it.selectedCount > 50000);
+                          this.props.getIsDisabledExportBtn(disabledExportBtn);
                           this.setState({
                             list: this.state.list.map(child =>
-                              child.appId === item.appId ? { ...child, entities: copyEntities } : child,
+                              child.appId === item.appId ? { ...child, entities: copyEntities, selectedCount } : child,
                             ),
                           });
                         }}
@@ -66,6 +103,44 @@ export default class AppSettings extends React.Component {
                       </div>
                     );
                   })}
+                  {entity.isCustom && (
+                    <InputNumber
+                      placeholder={_l('请输入')}
+                      className="customInput"
+                      controls={false}
+                      value={entity.count === -1 ? undefined : entity.count}
+                      min={0}
+                      max={10000}
+                      onChange={val => {
+                        const copyEntities = [...entities];
+                        copyEntities[index].count = val;
+                        let selectedCount = _.reduce(
+                          copyEntities || [],
+                          (total, current) => {
+                            let count =
+                              current.count === -1
+                                ? 0
+                                : current.count === 'all'
+                                ? current.totalRecordNum
+                                : current.count;
+                            return total + count;
+                          },
+                          0,
+                        );
+                        let disabledExportBtn = this.state.list
+                          .map(child =>
+                            child.appId === item.appId ? { ...child, entities: copyEntities, selectedCount } : child,
+                          )
+                          .some(it => it.selectedCount > 50000);
+                        this.props.getIsDisabledExportBtn(disabledExportBtn);
+                        this.setState({
+                          list: this.state.list.map(child =>
+                            child.appId === item.appId ? { ...child, entities: copyEntities, selectedCount } : child,
+                          ),
+                        });
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             );
@@ -76,7 +151,8 @@ export default class AppSettings extends React.Component {
   }
 
   render() {
-    const { activeId, list } = this.state;
+    const { activeId, list, selectedCount = 0 } = this.state;
+
     if (!list.length) {
       return <LoadDiv />;
     }
@@ -117,6 +193,14 @@ export default class AppSettings extends React.Component {
                       </Select.Option>
                     ))}
                   </Select>
+                  <span
+                    className={cx('mLeft10', {
+                      Gray_75: item.selectedCount && item.selectedCount <= 50000,
+                      overMax: item.selectedCount && item.selectedCount > 50000,
+                    })}
+                  >
+                    {item.exampleType === 2 && _l('已选 %0 行（最大5万行）', item.selectedCount || 0)}
+                  </span>
                   {activeId !== item.appId && item.exampleType === 2 ? (
                     <span
                       className="ThemeColor3 mLeft15 Hover_49 Hand"

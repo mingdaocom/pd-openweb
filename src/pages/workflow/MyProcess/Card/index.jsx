@@ -281,7 +281,7 @@ export default class Card extends Component {
           event.stopPropagation();
         }}
       >
-        <Tooltip title={disabled ? _l('未开启批量审批或需要填写审批意见、必填项，请单独操作') : null}>
+        <Tooltip title={disabled ? _l('未开启批量审批，请单独操作') : null}>
           <Checkbox
             disabled={disabled}
             checked={approveChecked}

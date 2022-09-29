@@ -4,7 +4,8 @@ import ChangeLang from 'src/components/ChangeLang';
 import Container from './container/registerContainer';
 import RegisterName from './container/registerName';
 import CreateOrAdd from './container/createOrAdd';
-import Create from './container/create';
+import CreateComp from './container/create';
+import createPermissionCheckWrapper from './container/createPermissionCheckWrapper';
 import Add from './container/add';
 import EditInfo from './container/editInfo';
 import InviteLinkExpirate from './container/inviteLinkExpirate';
@@ -17,6 +18,8 @@ import { getRequest, browserIsMobile, htmlEncodeReg } from 'src/util';
 let request = getRequest();
 import preall from 'src/common/preall';
 import { getDataByFilterXSS } from './util';
+
+const Create = createPermissionCheckWrapper(CreateComp);
 class RegisterContainer extends React.Component {
   constructor(props) {
     super(props);

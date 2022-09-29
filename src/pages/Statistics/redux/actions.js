@@ -654,7 +654,7 @@ export const changeControlCheckbox = (event, item) => {
 export const removeXaxes = () => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { xaxes, sorts } = currentReport;
+    const { xaxes, sorts, reportType } = currentReport;
     const id = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
     const data = {
       xaxes: {
@@ -667,6 +667,12 @@ export const removeXaxes = () => {
         xaxisEmpty: false,
       },
       sorts: sorts.filter(item => _.findKey(item) !== id)
+    }
+    if (reportType === reportTypes.FunnelChart) {
+      data.displaySetup = {
+        ...currentReport.displaySetup,
+        showOptionIds: []
+      }
     }
     dispatch(changeCurrentReport(data, true));
   }
@@ -734,6 +740,7 @@ export const addYaxisList = (data, isRequest = true) => {
       suffix: isPercent ? '%' : '',
       ydot: isPercent ? 0 : 2,
       normType: 1,
+      emptyShowType: 0,
       dot: data.dot,
       rename: '',
     }
@@ -840,10 +847,16 @@ export const changeSplit = (data, isRequest = true) => {
       param.split.controlName = data.controlName;
       param.split.controlType = data.type;
       const isTime = isTimeControl(data.type);
-      if (data.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
-        param.split.particleSizeType = 11;
-      } else {
-        param.split.particleSizeType = 10;
+      const isArea = isAreaControl(data.type);
+      if (isTime) {
+        if (data.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
+          param.split.particleSizeType = 11;
+        } else {
+          param.split.particleSizeType = 10;
+        }
+      }
+      if (isArea) {
+        param.split.particleSizeType = 1;
       }
     }
     if (deleteId) {
@@ -866,6 +879,7 @@ export const addRightYaxisList = (data, isRequest = true) => {
       suffix: '',
       ydot: 2,
       normType: 1,
+      emptyShowType: 0,
       dot: data.dot,
       rename: '',
     }

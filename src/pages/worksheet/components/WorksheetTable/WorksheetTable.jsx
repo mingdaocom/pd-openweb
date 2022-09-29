@@ -124,7 +124,7 @@ export default class WorksheetTable extends PureComponent {
 
   updateControlByRulesOfRow(row, controls, rules) {
     const formData = updateRulesData({ rules, data: controls.map(c => ({ ...c, value: row[c.controlId] })) });
-    const isLock = checkRuleLocked(rules, formData);
+    const isLock = !/^temp/.test(row.rowid) && checkRuleLocked(rules, formData);
     const rowControlStates = {};
     formData.forEach((item, index) => {
       if (isLock) {
@@ -237,17 +237,16 @@ export default class WorksheetTable extends PureComponent {
     }
     if (!_.isEqual(data, nextData)) {
       this.updatedRows = {};
-      if (
-        this.state.rules &&
-        this.state.rules.length &&
-        !_.isEqual(
-          nextData.map(c => c.rowid),
-          data.map(c => c.rowid),
-        )
-      ) {
+      if (this.state.rules && this.state.rules.length) {
+        const updatedRowIds = [];
+        nextData.forEach((row, i) => {
+          if (!_.isEqual(row, data[i])) {
+            updatedRowIds.push(row);
+          }
+        });
         this.updateNewRowsFieldPermission({
           props: nextProps,
-          rows: _.differenceBy(nextData, data, 'rowid'),
+          rows: updatedRowIds,
         });
       }
     }

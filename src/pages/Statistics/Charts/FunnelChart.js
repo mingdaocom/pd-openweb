@@ -63,7 +63,7 @@ const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
   return cloneData;
 }
 
-const formatChartData = (data, { isAccumulate }, { xaxisEmpty }) => {
+const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { xaxisEmpty }) => {
   const result = [];
   const cloneData = formatEmptyDataPosition(_.cloneDeep(data), isAccumulate, xaxisEmpty);
   const { value } = cloneData[0] || { value: [] };
@@ -79,20 +79,26 @@ const formatChartData = (data, { isAccumulate }, { xaxisEmpty }) => {
     });
   }
 
-  value.forEach(item => {
+  value.forEach((item, index) => {
     const name = item.x;
-    cloneData.forEach((element, index) => {
+    cloneData.forEach(element => {
       const target = element.value.filter(n => n.x === name);
       if (target.length && target[0].v) {
         result.push({
           id: target[0].originalX,
           groupName: element.key,
+          index: value.length - index,
           value: target[0].v,
           name,
         });
       }
     });
   });
+
+  if (showOptionIds.length) {
+    return result.filter(item => showOptionIds.includes(item.id));
+  }
+
   return result;
 };
 
@@ -123,14 +129,16 @@ export default class extends Component {
     this.FunnelChart && this.FunnelChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { map, displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { map, displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
-      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag
+      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      style.funnelShape !== oldStyle.funnelShape ||
+      style.funnelCurvature !== oldStyle.funnelCurvature
     ) {
       const config = this.getComponentConfig(nextProps);
       this.FunnelChart.update(config);
@@ -191,15 +199,18 @@ export default class extends Component {
     const baseConfig = {
       appendPadding: displaySetup.showChartType === 2 ? [50, 0, 50, 0] : [0, 100, 0, 100],
       xField: 'name',
-      yField: 'value',
+      yField: style.funnelCurvature === 1 ? 'index' : 'value',
       meta: {
         name: {
           type: 'cat',
         },
       },
       tooltip: {
-        formatter: (data) => {
-          const { name, value } = data;
+        formatter: (item) => {
+          if (style.funnelCurvature == 1) {
+            item.value = _.find(data, { index: item.index }).value;
+          }
+          const { name, value } = item;
           const { dot } = yaxisList[0] || {};
           return {
             name,
@@ -208,6 +219,7 @@ export default class extends Component {
         },
       },
       isTransposed: displaySetup.showChartType === 2,
+      shape: style.funnelShape,
       color: colors,
       legend: displaySetup.showLegend
         ? {
@@ -217,7 +229,7 @@ export default class extends Component {
             radio: { style: { r: 6 } },
           }
         : false,
-      conversionTag: displaySetup.showNumber
+      conversionTag: displaySetup.showNumber && style.funnelCurvature !== 1
         ? {
             formatter: data => {
               return _l('转化率%0', `${(data.$$percentage$$ * 100).toFixed(2)}%`);
@@ -226,6 +238,9 @@ export default class extends Component {
         : false,
       label: {
         callback: (xField, yField) => {
+          if (style.funnelCurvature == 1) {
+            yField = _.find(data, { index: yField }).value;
+          }
           return {
             content: `${xField} ${formatrChartValue(yField, false, newYaxisList)}`,
           };

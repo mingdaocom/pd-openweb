@@ -48,7 +48,7 @@ export default class GroupingAxis extends Component {
   handleClear = () => {
     const { split } = this.props;
     this.props.onChangeCurrentReport({
-      controlId: '',
+      controlId: null,
       particleSizeType: 0
     });
   }

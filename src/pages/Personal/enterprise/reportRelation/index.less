@@ -31,7 +31,7 @@
           margin-right: 0;
         }
         &.active {
-          border-bottom: 2px solid #2196F3;
+          border-bottom: 2px solid #2196f3;
           font-weight: bold;
         }
       }
@@ -113,8 +113,18 @@
         top: -64px;
       }
     }
+    .loadMore {
+      padding: 8px 0;
+      margin-top: 20px;
+      color: #2196f3;
+      &:hover {
+        background: #f5f5f5;
+        color: #1185e2;
+      }
+    }
   }
-  .parents.hasAuth, .children {
+  .parents.hasAuth,
+  .children {
     .node:hover {
       .delBtn {
         display: inline;
@@ -149,7 +159,9 @@
       padding-right: 10px;
       display: flex;
       flex-direction: column;
-      .name, .department, .job {
+      .name,
+      .department,
+      .job {
         flex: 1 0 0%;
         max-width: 155px;
         overflow: hidden;
@@ -179,5 +191,5 @@
   }
 }
 .node.disabled .userItem {
-  opacity: .5;
+  opacity: 0.5;
 }

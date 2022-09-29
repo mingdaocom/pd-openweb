@@ -147,15 +147,19 @@ export default class Member extends Component {
   }
 
   /**
-   * 渲染部门 或 职位
+   * 渲染标签
    */
-  renderDepartmentOrJob(item) {
+  renderTags(item) {
     return (
       <div className="flexRow flowDetailMemberBox">
         <span
           className={cx(
             'flowDetailMemberIcon',
-            item.type === USER_TYPE.DEPARTMENT ? 'icon-department blue' : 'icon-limit-principal bd',
+            item.type === USER_TYPE.DEPARTMENT
+              ? 'icon-department blue'
+              : item.type === USER_TYPE.ROLE
+              ? 'icon-limit-principal bd'
+              : 'icon-user bd',
           )}
         />
 
@@ -181,8 +185,8 @@ export default class Member extends Component {
               {item.type === USER_TYPE.ROLE && this.renderRole(item)}
               {item.type === USER_TYPE.CONTROL && this.renderControl(item, i)}
               {item.type === USER_TYPE.TEXT && this.renderText(item)}
-              {item.type === USER_TYPE.DEPARTMENT && this.renderDepartmentOrJob(item)}
-              {item.type === USER_TYPE.JOB && this.renderDepartmentOrJob(item)}
+              {_.includes([USER_TYPE.DEPARTMENT, USER_TYPE.JOB, USER_TYPE.ORGANIZE_ROLE], item.type) &&
+                this.renderTags(item)}
 
               {!(from === 'integration' && accounts.length <= 1) && (
                 <span className="mLeft5 flowDetailMemberDel" data-tip={_l('刪除')} onClick={() => this.removeMember(i)}>

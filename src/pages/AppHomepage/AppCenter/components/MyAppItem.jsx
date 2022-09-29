@@ -3,7 +3,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { string, func, oneOf, bool } from 'prop-types';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, MdLink } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AppOperator from './AppOperator';
@@ -113,40 +113,15 @@ export default class MyAppItem extends Component {
     }
   };
 
-  handleClick = (id, e) => {
-    const commandIsDown = e.metaKey;
-    function run() {
-      const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
-      function navigate(url) {
-        if (commandIsDown) {
-          window.open(url);
-        } else {
-          navigateTo(url);
-        }
-      }
-      if (storage) {
-        const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-        navigate(`/app/${id}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join('/')}`);
-      } else {
-        navigate(`/app/${id}`);
-      }
+  getNavigateUrl = id => {
+    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
+    if (storage) {
+      const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+      return `/app/${id}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join('/')}`;
+    } else {
+      return `/app/${id}`;
     }
-    if (commandIsDown) {
-      run();
-      return;
-    }
-    if (this.clickTimer) return;
-    this.clickTimer = setTimeout(run, 250);
   };
-
-  handleDbClick = () => {
-    const { permissionType } = this.props;
-    if (permissionType < ADVANCE_AUTHORITY) return;
-    this.setState({ selectIconVisible: true });
-    clearTimeout(this.clickTimer);
-    this.clickTimer = null;
-  };
-
   handleApp = mode => {
     const { id: appId, projectId } = this.props;
     this.props.handleApp({ appId, projectId, mode });
@@ -187,7 +162,7 @@ export default class MyAppItem extends Component {
         className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}
       >
         <div className={cx('myAppItemWrap')}>
-          <div className="myAppItem" onClick={e => this.handleClick(id, e)} onDoubleClick={this.handleDbClick}>
+          <MdLink className="myAppItem" to={this.getNavigateUrl(id)}>
             <div className="myAppItemDetail" style={{ backgroundColor: iconColor || '#2196f3' }}>
               <SvgIcon url={iconUrl} fill="#fff" size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />
@@ -206,7 +181,7 @@ export default class MyAppItem extends Component {
             ) : (
               <LineClampTextBox className="appExplain" text={name} title={name} />
             )}
-          </div>
+          </MdLink>
 
           <div
             className="star appItemIcon"

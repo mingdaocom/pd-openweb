@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { emitter, getProject } from 'src/util';
-import { ScrollView, Menu, MenuItem } from 'ming-ui';
+import { ScrollView, Menu, MenuItem, MdLink } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import CommonUserHandle from '../components/CommonUserHandle';
@@ -201,10 +201,12 @@ function AppCenterHeader(props) {
       )}
       <Flex />
       {currentProject && currentProject.isProjectAdmin && (
-        <AdminEntry onClick={() => navigateTo(`/admin/home/${currentProject.projectId}`)}>
-          <i className="icon icon-business" />
-          {_l('组织管理')}
-        </AdminEntry>
+        <MdLink to={`/admin/home/${currentProject.projectId}`}>
+          <AdminEntry>
+            <i className="icon icon-business"></i>
+            {_l('组织管理')}
+          </AdminEntry>
+        </MdLink>
       )}
       <CommonUserHandle />
     </Con>

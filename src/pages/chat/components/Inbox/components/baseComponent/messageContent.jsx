@@ -9,6 +9,7 @@ import ReplyTo from './replyTo';
 import CommentArea from './commentArea';
 import { SOURCE_TYPE } from '../../constants';
 import { cutStringWithHtml } from 'src/util';
+import xss from 'xss';
 
 export default class BaseMessageComponent extends React.Component {
   static propTypes = {
@@ -130,7 +131,7 @@ export default class BaseMessageComponent extends React.Component {
   renderSourceFrom() {
     const { fromLink, fromMessage, fromTitle, sourceId } = this.props;
     if (!fromTitle) return null;
-    const msg = $('<span>').html(fromMessage).text();
+    const msg = $('<span>').html(xss(fromMessage)).text();
     return (
       <div className="mTop5 comeFrom">
         {sourceId ? (

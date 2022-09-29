@@ -95,9 +95,16 @@ export default class Container extends React.Component {
         return;
       }
       this.setState({ loginDisabled: false });
+      safeLocalStorageSetItem(
+        'loginStatus',
+        JSON.stringify({ state: data.state, createStateTime: moment().format('YYYY-MM-DD HH:mm:ss') }),
+      );
       loginCallback(data, !(openLDAP && isNetwork), () => {
         $('.btnForLogin').click();
       });
+      if (accountResult === 15) {
+        location.href = '/cancellation.htm';
+      }
     };
     if (!(openLDAP && isNetwork)) {
       params.account = dialCode + account.trim();

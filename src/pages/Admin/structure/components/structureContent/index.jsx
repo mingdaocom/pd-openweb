@@ -179,7 +179,7 @@ class StructureContent extends Component {
         ) : (
           ''
         )}
-        {(typeCursor === 0 || departmentId) && (
+        {(typeCursor === 0 || typeCursor === 1 || departmentId) && (
           <div className="actList flexRow">
             <div className="actBtn" onClick={this.addUser}>
               {_l('添加成员')}

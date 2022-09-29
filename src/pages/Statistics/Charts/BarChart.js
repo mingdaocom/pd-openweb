@@ -44,7 +44,7 @@ export const formatDataCount = (data, isVertical, newYaxisList) => {
   });
 };
 
-export const formatChartData = (data, yaxisList) => {
+export const formatChartData = (data, yaxisList, splitControlId) => {
   if (_.isEmpty(data)) return [];
   const result = [];
   const { value } = data[0];
@@ -53,15 +53,18 @@ export const formatChartData = (data, yaxisList) => {
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.originalX === item.originalX);
       if (target.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
-        result.push({
-          controlId: element.c_id,
-          groupName: `${rename || element.key}-md-${reportTypes.BarChart}-chart-${element.c_id || index}`,
-          groupKey: element.originalKey,
-          value: target[0].v,
-          name,
-          originalId: item.originalX || name
-        });
+        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const hideEmptyValue = !emptyShowType && !target[0].v;
+        if (!hideEmptyValue) {
+          result.push({
+            controlId: element.c_id,
+            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
+            groupKey: element.originalKey,
+            value: target[0].v,
+            name,
+            originalId: item.originalX || name
+          });
+        }
       }
     });
   });
@@ -187,7 +190,7 @@ export default class extends Component {
       auxiliaryLines,
     } = displaySetup;
     const { position } = getLegendType(legendType);
-    const data = formatChartData(map, yaxisList);
+    const data = formatChartData(map, yaxisList, split.controlId);
     const isVertical = showChartType === 1;
     const newYaxisList = formatYaxisList(data, yaxisList);
     const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : [];
@@ -199,7 +202,26 @@ export default class extends Component {
     const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
     const isCustomColor = style ? (style.colorType === 2 && isAlienationColor) : false;
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList: isPile || isPerPile ? [] : yaxisList, colors });
-    let index = -1;
+    const getColor = () => {
+      if (isOptionsColor) {
+        return getAlienationColor.bind(this, xaxes);
+      } else if (isCustomColor) {
+        return this.getCustomColor.bind(this, data, colors);
+      } else if (style.colorType === 0 && split.controlId && _.get(split, 'options.length')) {
+        const optionsColors = split.options.map(c => c.color).filter(c => c);
+        if (optionsColors.length) {
+          return (item) => {
+            const { id } = formatControlInfo(item.groupName);
+            const option = _.find(split.options, { key: id }) || {};
+            return option.color;
+          }
+        } else {
+          return colors;
+        }
+      } else {
+        return colors;
+      }
+    }
 
     const baseConfig = {
       data,
@@ -230,11 +252,8 @@ export default class extends Component {
         start: 0,
         end: 0.5,
       } : undefined,
-      color: isOptionsColor ? getAlienationColor.bind(this, xaxes) : (isCustomColor ? this.getCustomColor.bind(this, data, colors) : colors),
-      // color: () => {
-      //   index = index + 1;
-      // },
-      legend: showLegend
+      color: getColor(),
+      legend: showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
             position,
             flipPage: true,
@@ -278,8 +297,10 @@ export default class extends Component {
               { type: 'adjust-color' },
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
-            content: ({ value, groupName }) => {
-              return formatrChartValue(value, isPerPile, newYaxisList);
+            content: (data) => {
+              const { value, groupName, controlId } = data;
+              const id = split.controlId ? newYaxisList[0].controlId : controlId;
+              return formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
             },
           }
         : false,
@@ -299,8 +320,9 @@ export default class extends Component {
       baseConfig.isPercent = true;
       baseConfig.isStack = true;
     } else {
+      const splitList = split.controlId ? _.uniqBy(data, 'name') : [];
       // 分组
-      baseConfig.isGroup = (isOptionsColor || isCustomColor) ? false : true;
+      baseConfig.isGroup = (isOptionsColor || isCustomColor || splitList.length === data.length) ? false : true;
     }
 
     return {

@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
 import './edit.less';
-import { Dialog, LoadDiv, Icon } from 'ming-ui';
+import { Dialog, LoadDiv, Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import userController from 'src/api/user';
+import departmentController from 'src/api/department';
 import Act from '../dialogInviteUser/act';
 import DialogSelectDept from 'dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
@@ -103,6 +104,7 @@ class EditInfo extends React.Component {
       jobList: [],
       keywords: '',
       errors: {},
+      fullDepartmentInfo: {}
     };
     this.handleFieldBlur = this.handleFieldBlur.bind(this);
     this.handleFieldInput = this.handleFieldInput.bind(this);
@@ -407,6 +409,43 @@ class EditInfo extends React.Component {
     }
   };
 
+  getJobList = jobName => {
+    const { projectId } = this.props;
+    const { keywords } = this.state;
+    if (this.ajaxRequest) {
+      this.ajaxRequest.abort();
+    }
+    this.ajaxRequest = getJobs({
+      projectId,
+      keywords,
+      pageIndex: 1,
+      pageSize: 1000,
+    });
+    this.ajaxRequest.then(res => {
+      let newJobInfo = jobName && _.find(res.list, item => item.jobName === jobName);
+      let jobIds = jobName && newJobInfo ? [newJobInfo.jobId] : [];
+      this.setState({
+        jobList: res.list,
+        jobIds: [...this.state.jobIds, ...jobIds],
+      });
+    });
+  };
+
+  handleAddJob = jobName => {
+    const { projectId } = this.props;
+    addJob({
+      projectId,
+      jobName,
+    }).then(res => {
+      if (res) {
+        alert(_l('创建成功'));
+        this.getJobList(jobName);
+      } else {
+        alert(_l('创建失败'), 2);
+      }
+    });
+  };
+
   render() {
     const {
       departmentInfos,
@@ -420,9 +459,9 @@ class EditInfo extends React.Component {
       jobList = [],
       jobIds = [],
       keywords = '',
+      fullDepartmentInfo = {},
     } = this.state;
     let jobResult = [...jobList];
-
     if (keywords) {
       jobResult = jobResult.filter(item => item.jobName.indexOf(keywords) > -1);
     }
@@ -459,63 +498,83 @@ class EditInfo extends React.Component {
             <div className="formGroup">
               <span className="formLabel">{_l('部门')}</span>
               {departmentInfos.map((item, i) => {
+                const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/')
                 return (
-                  <span className="itemSpan mAll5">
-                    {item.departmentName}
-                    {i === 0 && <span className="isTopIcon">主</span>}
-                    <div className="moreOption">
-                      <Icon
-                        className="Font14 Hand Gray_bd"
-                        icon="moreop"
-                        onClick={e => {
-                          this.setState(
-                            {
-                              isShowAct: !this.state.isShowAct,
-                            },
-                            () => {
-                              if (this.state.isShowAct) {
-                                this.setState({
-                                  idAct: item.departmentId,
-                                });
-                              }
-                            },
-                          );
-                        }}
-                      />
-                      {this.state.isShowAct && this.state.idAct === item.departmentId && (
-                        <Act
-                          onClickAwayExceptions={[]}
-                          onClickAway={() =>
-                            this.setState({
-                              isShowAct: false,
-                              idAct: '',
-                            })
-                          }
-                          isPosition={false}
-                          isTop={i === 0}
-                          deleteFn={() => {
-                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId) || [];
-                            this.setState({
-                              isShowAct: false,
-                              idAct: '',
-                              departmentInfos: list,
-                            });
+                  <Tooltip
+                    tooltipClass="departmentFullNametip"
+                    popupPlacement="bottom"
+                    text={
+                      <div>
+                        {fullName.map((n, i) => (
+                          <span>
+                            {n}
+                            {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                          </span>
+                        ))}
+                      </div>
+                    }
+                    mouseEnterDelay={0.5}
+                  >
+                    <span
+                      className="itemSpan mAll5"
+                      onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}
+                    >
+                      {item.departmentName}
+                      {i === 0 && <span className="isTopIcon">主</span>}
+                      <div className="moreOption">
+                        <Icon
+                          className="Font14 Hand Gray_bd"
+                          icon="moreop"
+                          onClick={e => {
+                            this.setState(
+                              {
+                                isShowAct: !this.state.isShowAct,
+                              },
+                              () => {
+                                if (this.state.isShowAct) {
+                                  this.setState({
+                                    idAct: item.departmentId,
+                                  });
+                                }
+                              },
+                            );
                           }}
-                          setToTop={() => {
-                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
-                            let data = departmentInfos.find(it => it.departmentId === item.departmentId);
-                            list.unshift(data);
-                            this.setState({
-                              isShowAct: false,
-                              idAct: '',
-                              departmentInfos: list,
-                            });
-                          }}
-                          isShowAct={this.state.isShowAct}
                         />
-                      )}
-                    </div>
-                  </span>
+                        {this.state.isShowAct && this.state.idAct === item.departmentId && (
+                          <Act
+                            onClickAwayExceptions={[]}
+                            onClickAway={() =>
+                              this.setState({
+                                isShowAct: false,
+                                idAct: '',
+                              })
+                            }
+                            isPosition={false}
+                            isTop={i === 0}
+                            deleteFn={() => {
+                              let list = departmentInfos.filter(it => it.departmentId !== item.departmentId) || [];
+                              this.setState({
+                                isShowAct: false,
+                                idAct: '',
+                                departmentInfos: list,
+                              });
+                            }}
+                            setToTop={() => {
+                              let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                              let data = departmentInfos.find(it => it.departmentId === item.departmentId);
+                              list.unshift(data);
+                              this.setState({
+                                isShowAct: false,
+                                idAct: '',
+                                departmentInfos: list,
+                              });
+                            }}
+                            isShowAct={this.state.isShowAct}
+                          />
+                        )}
+                      </div>
+                    </span>
+                  </Tooltip>
                 );
               })}
               <Icon

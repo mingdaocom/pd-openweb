@@ -8,11 +8,6 @@ import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
 
-function handleCopy(content) {
-  copy(content);
-  alert(_l('复制成功'));
-}
-
 const Url = styled(TextBlock)`
   overflow: hidden;
   input {
@@ -96,6 +91,7 @@ export default class ShareUrl extends React.Component {
     ),
     className: PropTypes.string,
     style: PropTypes.shape({}),
+    getCopyContent: PropTypes.func,
   };
 
   constructor(props) {
@@ -104,7 +100,11 @@ export default class ShareUrl extends React.Component {
       showinput: false,
     };
   }
-
+  async handleCopy(content) {
+    const { getCopyContent } = this.props;
+    copy(_.isFunction(getCopyContent) ? await getCopyContent(content) : content);
+    alert(_l('复制成功'));
+  }
   render() {
     const {
       url,
@@ -148,7 +148,14 @@ export default class ShareUrl extends React.Component {
               />
             ) : (
               <React.Fragment>
-                <div className="flex ellipsis" onClick={() => this.setState({ showinput: true })}>
+                <div
+                  className="flex ellipsis"
+                  onClick={() => {
+                    this.setState({ showinput: true });
+                    copy(url);
+                    alert(_l('复制成功'));
+                  }}
+                >
                   {url}
                 </div>
                 {editUrl && (
@@ -175,19 +182,19 @@ export default class ShareUrl extends React.Component {
           {customBtns.map(renderButtons)}
           {copyShowText ? (
             !copyTip ? (
-              <TextIcon theme={theme} onClick={() => handleCopy(url)}>
+              <TextIcon theme={theme} onClick={() => this.handleCopy(url)}>
                 <span className="text">{_l('复制')}</span>
               </TextIcon>
             ) : (
               <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
-                <TextIcon theme={theme} onClick={() => handleCopy(url)}>
+                <TextIcon theme={theme} onClick={() => this.handleCopy(url)}>
                   <span className="text">{_l('复制')}</span>
                 </TextIcon>
               </Tooltip>
             )
           ) : (
             <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
-              <Icon theme={theme} onClick={() => handleCopy(url)}>
+              <Icon theme={theme} onClick={() => this.handleCopy(url)}>
                 <i className="icon-content-copy"></i>
               </Icon>
             </Tooltip>

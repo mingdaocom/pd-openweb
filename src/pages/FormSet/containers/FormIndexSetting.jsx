@@ -379,7 +379,7 @@ function FormIndexSetting(props) {
                                 systemIndexName: item.systemIndexName,
                               }).then(res => {
                                 if (res.responseEnum === 0) {
-                                  alert(_l('删除成功'));
+                                  alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
                                   getIndexesInfo();
                                 } else if (res.responseEnum === -1) {
                                   alert(_l('删除失败'));

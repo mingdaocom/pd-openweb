@@ -48,6 +48,9 @@
   }
   .singleItemRight {
     width: 60%;
+    .overMax {
+      color: #f44336;
+    }
   }
   .singleItemLeft,
   .singleItemRight {
@@ -105,7 +108,7 @@
 }
 
 .singleItemAppContent {
-  width: 720px;
+  width: 920px;
   margin-left: -24px;
   max-height: 450px;
   box-sizing: border-box;
@@ -129,8 +132,8 @@
     .sheetItemOption {
       cursor: pointer;
       width: 85px;
-      height: 30px;
-      line-height: 28px;
+      height: 32px;
+      line-height: 30px;
       text-align: center;
       border: 1px solid #eaeaea;
       margin-right: -1px;
@@ -142,6 +145,11 @@
       &:hover {
         color: #333333;
       }
+    }
+    .customInput {
+      border: 1px solid #eaeaea;
+      margin-left: 8px;
+      box-shadow: unset;
     }
   }
 }

@@ -77,7 +77,7 @@ export default class HeaderDisplaySetup extends Component {
     const { displaySetup, xAxisisTime, mapKeys, reportType, chartType, title } = this.props;
     const isPile = [reportTypes.LineChart, reportTypes.BarChart].includes(reportType) && mapKeys.length >= 2;
     const isPerPile = (reportType === reportTypes.BarChart || (reportType === reportTypes.LineChart && displaySetup.showChartType === 2)) && mapKeys.length >= 2;
-    const isAccumulate = reportTypes.FunnelChart === reportType ? true : reportTypes.LineChart === reportType && xAxisisTime;
+    const isAccumulate = reportTypes.LineChart === reportType && xAxisisTime;
     const isHide = !isPile && !isPerPile && !isAccumulate;
     return (
       <Fragment>

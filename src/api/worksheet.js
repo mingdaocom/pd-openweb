@@ -1,5 +1,32 @@
 module.exports = {
   /**
+  * 修改表单名称
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {string} args.name
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintFormName: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditPrintFormName', args, options);
+   },
+  /**
+  * 修改打印模板范围
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {} args.range 范围类型 1=全部记录。2=未指定试图 3=勾选试图配置
+  * @param {array} args.viewsIds 视图Ids
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintRange: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditPrintRange', args, options);
+   },
+  /**
   * 删除打印模板
   * @param {Object} args 请求参数
   * @param {string} args.id
@@ -518,6 +545,7 @@ module.exports = {
   * @param {string} args.controlId 控件id
   * @param {string} args.apiTemplateId api模板id
   * @param {string} args.apkId 应用id
+  * @param {string} args.formId 公开表单id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -579,6 +607,7 @@ module.exports = {
   * @param {boolean} args.isCopyRows 是否复制行数据
   * @param {string} args.appId 应用id
   * @param {string} args.appSectionId 分组id
+  * @param {array} args.relationControlIds 复制的关联控件ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -782,6 +811,35 @@ module.exports = {
    getRowByID: function (args, options = {}) {
      
      return $.api('Worksheet', 'GetRowByID', args, options);
+   },
+  /**
+  * 获取 附件详情
+  * @param {Object} args 请求参数
+  * @param {string} args.attachmentShareId 附件分享Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachmentDetail: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetAttachmentDetail', args, options);
+   },
+  /**
+  * 获取 附件分享Id
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.rowId 行记录Id
+  * @param {string} args.controlId 控件Id
+  * @param {string} args.fileId 附件Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachmentShareId: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetAttachmentShareId', args, options);
    },
   /**
   * 获取记录详情
@@ -1278,6 +1336,7 @@ module.exports = {
   * @param {string} args.appId 应用Id
   * @param {array} args.fastFilters
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1426,6 +1485,7 @@ module.exports = {
   * @param {string} args.appId 应用Id
   * @param {array} args.fastFilters
   * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2055,32 +2115,5 @@ module.exports = {
    editPrintName: function (args, options = {}) {
      
      return $.api('Worksheet', 'EditPrintName', args, options);
-   },
-  /**
-  * 修改表单名称
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {string} args.name
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrintFormName: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditPrintFormName', args, options);
-   },
-  /**
-  * 修改打印模板范围
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {} args.range 范围类型 1=全部记录。2=未指定试图 3=勾选试图配置
-  * @param {array} args.viewsIds 视图Ids
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrintRange: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditPrintRange', args, options);
    },
 };

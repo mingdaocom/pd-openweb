@@ -1,4 +1,37 @@
-﻿export const sameParameters = [
+﻿export const AddWorksheetParam = [
+  {
+    name: 'appKey',
+    required: _l('是'),
+    type: 'string',
+    desc: 'AppKey',
+  },
+  {
+    name: 'sign',
+    required: _l('是'),
+    type: 'string',
+    desc: _l('签名'),
+  },
+  {
+    name: 'name',
+    required: _l('是'),
+    type: 'string',
+    desc: _l('工作表名称'),
+  },
+  {
+    name: 'alias',
+    required: _l('否'),
+    type: 'string',
+    desc: _l('别名'),
+  },
+  {
+    name: 'controls',
+    required: _l('是'),
+    type: 'list',
+    desc: _l('控件数据'),
+  },
+];
+
+export const sameParameters = [
   {
     name: 'appKey',
     required: _l('是'),
@@ -424,6 +457,7 @@ export const appSuccessData = {
             name: _l('应用项名称'),
             type: 0,
             iconUrl: _l('应用项图标地址'),
+            alias: _l('工作表别名'),
             status: 1,
           },
         ],
@@ -1409,3 +1443,95 @@ export const SIDEBAR_LIST = [
     title: _l('获取应用信息'),
   },
 ];
+
+export const ADD_API_CONTROLS = [
+  {
+      controlName: _l('文本'),//控件名称
+      alias: _l('字段别名'),
+      type:2,//控件编号 2:文本,3:手机,4:座机,5:邮箱,15:日期,16:日期时间,19:地区—省,23:地区—省—市,24:地区—省—市—县
+      required:true //true：必填,false：非必填
+  },
+  {
+      controlName: _l('数值'),//控件名称
+      alias: _l('字段别名'),
+      type:6, // 6:数值,8:金额
+      dot:2, //保留小数位（0-14）
+      required: true //true：必填,false：非必填
+  },
+  {
+      controlName: _l('单选'),//控件名称
+      alias: _l('字段别名'),
+      type: 11,//控件编号 11:单选,10:多选
+      options:[
+        {
+          value: _l('选项名称1'),
+          index: 1, //排序
+        },
+        {
+          value: _l('选项名称2'),
+          index: 2, //排序
+        }
+     ],
+      required: true //true：必填,false：非必填
+  },
+  {
+      controlName: _l('多选'),//控件名称
+      alias: _l('字段别名'),
+      type: 10,//控件编号 11:单选,10:多选
+      options:[
+        {
+          value: _l('选项名称1'),
+          index: 1, //排序
+        },
+        {
+          value: _l('选项名称2'),
+          index: 2, //排序
+        },
+        {
+          value: _l('选项名称3'),
+          index: 3, //排序
+        },
+     ],
+      required: true //true：必填,false：非必填
+  },
+  {
+    controlName: _l('时间-时分'),
+    alias: _l('字段别名'),
+    type: 46,
+    required: true,
+    unit: 1 // 1时分，6时分秒
+  },
+  {
+    controlName: _l('时间-时分秒'),
+    alias: _l('字段别名'),
+    type: 46,
+    required: true,
+    unit: 6 // 1时分，6时分秒
+  },
+  {
+    controlName: _l('成员-单选'),
+    type: 26,
+    alias: _l('字段别名'),
+    enumDefault: 0,
+    required: true
+  },
+  {
+    controlName: _l('成员-多选'),
+    type: 26,
+    alias: _l('字段别名'),
+    enumDefault: 1,
+    required: true
+  },
+  {
+    controlName: _l('附件'),
+    alias: _l('字段别名'),
+    type: 14,
+    required: true,
+  }
+];
+
+export const ADD_WORKSHEET_SUCCESS = {
+  "data": _l("工作表ID"),
+  "success": true,
+  "error_code": 1
+};

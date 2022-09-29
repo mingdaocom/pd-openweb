@@ -288,6 +288,9 @@ body .Hidden {
 .Hover_49:hover {
   color: #49adfc !important;
 }
+.Hover_21:hover {
+  color: #2196F3 !important;
+}
 .ShaYellow {
   color: #c3af64 !important;
 }
@@ -1972,4 +1975,8 @@ body > object {
 /* 强制显示五星红旗 */
 .iti__tw {
   background-position: -1049px 0 !important;
+}
+
+.cursorDefault {
+  cursor: default !important;
 }

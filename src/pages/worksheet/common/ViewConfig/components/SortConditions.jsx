@@ -215,11 +215,15 @@ export default class SortConditions extends React.Component {
           )}
           <Dropdown
             border
+            openSearch
             isAppendToBody
-            menuStyle={{ width: 180 }}
+            menuStyle={{ width: 200 }}
             className="flex mBottom10 mRight10 filterColumns Width120"
             value={condition.controlId}
             data={this.getCanSelectColumns(condition.controlId)}
+            searchNull={() => {
+              return <div className="TxtCenter">{_l('暂无搜索结果')}</div>;
+            }}
             onChange={value => {
               if (value !== condition.controlId) {
                 this.handleChangeSortControl(index, value);

@@ -5,12 +5,13 @@ import Ajax from 'src/api/workWeiXin';
 import projectAjax from 'src/api/project';
 import Api from 'api/homeApp';
 import color from 'color';
-import { Icon, LoadDiv, Button } from 'ming-ui';
+import { Icon, LoadDiv, Button, Input } from 'ming-ui';
 import cx from 'classnames';
 import html2canvas from 'html2canvas';
 import { navigateTo } from '../../../../router/navigateTo';
 import { compareProps } from 'pages/PageHeader/util.js';
 import SvgIcon from 'src/components/SvgIcon';
+import CreateLinkDialog from './CreateLinkDialog';
 
 const passApplyConfig = {
   1: 'dingAppCourse',
@@ -35,6 +36,8 @@ export default class DingSyncCourse extends React.Component {
       isWX: false,
       AgentId: null,
       Secret: null,
+      baseUrl: '',
+      createLinkVisible: false
     };
   }
 
@@ -97,6 +100,7 @@ export default class DingSyncCourse extends React.Component {
             homeUrlN: res.item2,
             AgentId: res.item3,
             Secret: res.item4,
+            baseUrl: res.item6,
           });
           this.getDetail(apkId);
         } else {
@@ -117,6 +121,7 @@ export default class DingSyncCourse extends React.Component {
             serverIp: res.ip,
             pcHomeUrl: res.pcHomeUrl,
             AgentId: res.agentId,
+            baseUrl: res.baseUrl,
           });
           if (this.state.addApp) {
             this.getDetail(apkId);
@@ -265,6 +270,12 @@ export default class DingSyncCourse extends React.Component {
             {_l('复制')}
           </span>
         </div>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">
+          <span className="Red mRight2">*</span>
+          {_l('如您想个性化部署应用，把某一张表部署为一个应用，可把链接复制到输入框内直接')}
+          <a onClick={() => { this.setState({ createLinkVisible: true }) }}>{_l('生成企业微信链接，')}</a>
+          {_l('生成链接后复制进”应用首页链接“、”PC端首页地址“即可使用')}
+        </p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/wx/6.png" alt={_l('点击“应用主页”，填写“网页地址”')} />
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/wx/7.png" alt={_l('点击“应用主页”，填写“网页地址”')} />
         <h3 className="Font18 Gray mTop40">{_l('5. 配置完成后，即可在客户端使用此应用')}</h3>
@@ -336,6 +347,12 @@ export default class DingSyncCourse extends React.Component {
             {_l('复制')}
           </span>
         </div>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">
+          <span className="Red mRight2">*</span>
+          {_l('如您想个性化部署应用，把某一张表部署为一个应用，可把链接复制到输入框内直接')}
+          <a onClick={() => { this.setState({ createLinkVisible: true }) }}>{_l('生成钉钉链接，')}</a>
+          {_l('生成链接后复制进”应用首页链接“、”PC端首页地址“即可使用')}
+        </p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-1.png" alt={_l('完善接口信息')} />
         {this.state.addApp ? null : (
           <Fragment>
@@ -470,6 +487,15 @@ export default class DingSyncCourse extends React.Component {
             </div>
           </div>
         )}
+        <CreateLinkDialog
+          visible={this.state.createLinkVisible}
+          isWX={this.state.isWX}
+          baseUrl={this.state.baseUrl}
+          projectId={this.state.projectId}
+          onCancel={() => {
+            this.setState({ createLinkVisible: false });
+          }}
+        />
       </div>
     );
   }

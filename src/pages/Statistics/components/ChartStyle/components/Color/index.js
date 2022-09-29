@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { ConfigProvider, Modal, Button, Input } from 'antd';
 import { Icon, Tooltip } from 'ming-ui';
-import { colorGroup } from 'statistics/Charts/common';
+import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import styled from 'styled-components';
 import BaseColor from './BaseColor';
@@ -29,9 +29,10 @@ export default class ColorEntrance extends Component {
     }
   }
   getColorName() {
-    const { style } = this.props.currentReport;
+    const { style, reportType, split } = this.props.currentReport;
+    const isBarChart = reportType === reportTypes.BarChart;
     const defaultColorName = `${colorGroup[0].name}${_l('配色')}`;
-    const isAlienationColor = getIsAlienationColor(this.props.currentReport);
+    const isAlienationColor = getIsAlienationColor(this.props.currentReport) || (isBarChart && _.get(split, 'options.length'));
     if (_.isEmpty(style)) {
       return defaultColorName;
     } else {

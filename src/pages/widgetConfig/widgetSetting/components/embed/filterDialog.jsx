@@ -46,6 +46,7 @@ export default function FilterDialog(props) {
     controls,
     allControls, //动态字段值显示的Controls
     globalSheetInfo,
+    sourceControlId,
   } = props;
 
   const [filters, setFilters] = useState(getAdvanceSetting(data, 'filters'));
@@ -79,6 +80,7 @@ export default function FilterDialog(props) {
           appId={globalSheetInfo.appId}
           columns={controls}
           conditions={filters}
+          sourceControlId={sourceControlId}
           from={'relateSheet'}
           currentColumns={allControls}
           onConditionsChange={conditions => {

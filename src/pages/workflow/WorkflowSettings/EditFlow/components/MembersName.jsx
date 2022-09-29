@@ -8,9 +8,15 @@ export default ({ accounts }) => {
     if (obj.type === USER_TYPE.TEXT) {
       return obj.entityId + split;
     }
+
     if (obj.type === USER_TYPE.USER) {
       return obj.roleName + split;
     }
+
+    if (obj.type === USER_TYPE.ORGANIZE_ROLE) {
+      return obj.entityName + split;
+    }
+
     if (_.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB], obj.type)) {
       if (obj.count === 0) {
         return (
@@ -30,8 +36,13 @@ export default ({ accounts }) => {
           </Fragment>
         );
       }
+
       return (
-        obj.roleName + (obj.roleTypeId ? ` - ${obj.controlType !== 27 ? USER_ORGANIZE[obj.roleTypeId] : DEPARTMENT_ORGANIZE[obj.roleTypeId]}` : '') + split
+        obj.roleName +
+        (obj.roleTypeId
+          ? ` - ${obj.controlType !== 27 ? USER_ORGANIZE[obj.roleTypeId] : DEPARTMENT_ORGANIZE[obj.roleTypeId]}`
+          : '') +
+        split
       );
     }
   });

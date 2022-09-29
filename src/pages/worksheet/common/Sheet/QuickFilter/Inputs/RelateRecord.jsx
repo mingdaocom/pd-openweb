@@ -44,10 +44,11 @@ const Dropdown = styled(RelateRecordDropdown)`
 `;
 
 export default function RelateRecord(props) {
-  const { values = [], advancedSetting, onChange = () => {} } = props;
+  const { from, values = [], advancedSetting, onChange = () => {} } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
+      ...(from === 'selectRecordDialog' ? { filters: controlAdvancedSetting.filters } : {}),
       searchcontrol: controlAdvancedSetting.searchcontrol,
     },
   });
@@ -58,7 +59,6 @@ export default function RelateRecord(props) {
   let renderSelected;
   function handleChange(value) {
     onChange({
-      filterType: 24,
       ...value,
     });
   }

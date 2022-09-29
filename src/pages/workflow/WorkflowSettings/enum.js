@@ -160,12 +160,28 @@ export const CONTROLS_NAME = {
 };
 
 export const CONDITION_TYPE = {
-  1: _l('是'),
-  2: _l('不是'),
-  3: _l('包含'),
-  4: _l('不包含'),
-  5: _l('开始为'),
-  6: _l('结尾为'),
+  1: {
+    custom: _l('等于'),
+    default: _l('是其中一个'),
+  },
+  2: {
+    custom: _l('不等于'),
+    default: _l('不是任何一个'),
+  },
+  3: {
+    area: _l('下级包含'),
+    relation: _l('标题包含'),
+    custom: _l('包含其中一个'),
+    default: _l('包含'),
+  },
+  4: {
+    area: _l('下级不包含'),
+    relation: _l('标题不包含'),
+    custom: _l('不包含任何一个'),
+    default: _l('不包含'),
+  },
+  5: _l('开头是'),
+  6: _l('结尾是'),
   7: _l('不为空'),
   8: _l('为空'),
   9: _l('等于'),
@@ -200,8 +216,14 @@ export const CONDITION_TYPE = {
   },
   31: _l('不为空'),
   32: _l('为空'),
-  33: _l('是'),
-  34: _l('不是'),
+  33: {
+    single: _l('是其中一个'),
+    multi: _l('包含其中一个'),
+  },
+  34: {
+    single: _l('不是任何一个'),
+    multi: _l('不包含任何一个'),
+  },
   35: _l('属于'),
   36: _l('不属于'),
   37: _l('在范围内'),
@@ -210,6 +232,11 @@ export const CONDITION_TYPE = {
   40: _l('晚于等于'),
   41: _l('早于'),
   42: _l('早于等于'),
+  43: _l('同时包含'),
+  44: _l('开头不是'),
+  45: _l('结尾不是'),
+  48: _l('下级包含'),
+  49: _l('下级不包含'),
 };
 
 export const USER_TYPE = {
@@ -219,6 +246,7 @@ export const USER_TYPE = {
   TEXT: 7,
   DEPARTMENT: 8,
   JOB: 9,
+  ORGANIZE_ROLE: 10,
 };
 
 export const USER_ORGANIZE = {

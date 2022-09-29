@@ -7,7 +7,6 @@ import Conditions from './Conditions';
 
 const Con = styled.div`
   position: relative;
-  padding: 8px 0 0;
   display: flex;
   flex-direction: row;
 `;
@@ -130,7 +129,8 @@ function QuickFilter(props) {
         controls={controls.filter(c =>
           _.includes(FASTFILTER_CONDITION_TYPE, c.type === 30 ? c.sourceControlType : c.type),
         )}
-        filters={visibleFilters}
+        hideStartIndex={visibleFilters.length}
+        filters={filters}
         colNum={colNum}
         fullShow={isConfigMode || _fullShow}
         showExpand={showExpand}

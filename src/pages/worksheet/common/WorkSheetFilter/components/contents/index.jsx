@@ -41,7 +41,11 @@ export default function (key, props) {
   }
   if (
     key === CONTROL_FILTER_WHITELIST.RELATE_RECORD.value &&
-    (props.type === FILTER_CONDITION_TYPE.RCEQ || props.type === FILTER_CONDITION_TYPE.RCNE)
+    (props.type === FILTER_CONDITION_TYPE.RCEQ ||
+      props.type === FILTER_CONDITION_TYPE.RCNE ||
+      props.type === FILTER_CONDITION_TYPE.ARREQ ||
+      props.type === FILTER_CONDITION_TYPE.ARRNE ||
+      props.type === FILTER_CONDITION_TYPE.ALLCONTAIN)
   ) {
     return <RelateRecord {...props} />;
   }

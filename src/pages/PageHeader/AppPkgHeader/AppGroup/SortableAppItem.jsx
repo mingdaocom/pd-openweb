@@ -6,13 +6,10 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
-import Icon from 'ming-ui/components/Icon';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME, ADVANCE_AUTHORITY } from '../config';
 import { compareProps, getIds } from '../../util';
-import { navigateTo } from '../../../../router/navigateTo';
 
 @connect(state => state, dispatch => bindActionCreators({ changeBoardViewData }, dispatch))
 @SortableElement
@@ -93,24 +90,15 @@ export default class SortableAppItem extends Component {
     this.setState({ dbClickedAppGroupId: appSectionId }, ensurePointerVisible);
   };
 
-  handleAppGroupClick = appSectionId => {
-    const { changeBoardViewData } = this.props;
-    const { appId, groupId } = getIds(this.props);
-    this.clickTimer = setTimeout(() => {
-      const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
-      const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
-      const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
-      if (groupId !== appSectionId) {
-        changeBoardViewData([]);
-      }
-      navigateTo(`/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}`);
-    }, 250);
-  };
-
-  handleGroupNameClick = appSectionId => {
-    setTimeout(() => {
-      this.handleAppGroupClick(appSectionId);
-    }, 250);
+  getNavigateUrl = appSectionId => {
+    let { appId } = getIds(this.props);
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
+    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+    const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
+    const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
+    return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}`;
   };
 
   handleKeyDown = e => {
@@ -122,15 +110,24 @@ export default class SortableAppItem extends Component {
   };
 
   render() {
-    const { value = {}, focusGroupId, permissionType, onAppItemConfigClick } = this.props;
+    const { value = {}, focusGroupId, permissionType, onAppItemConfigClick, changeBoardViewData } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
     const { groupId } = this.ids;
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
     const isShowConfigIcon = appSectionId === groupId && !isFocus && permissionType >= ADVANCE_AUTHORITY;
+    const url = this.getNavigateUrl(appSectionId);
     return (
       <li className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}>
-        <div className="sortableItem" onClick={() => this.handleAppGroupClick(appSectionId)}>
+        <MdLink
+          className="sortableItem"
+          to={url}
+          onClick={() => {
+            if (this.ids.groupId !== appSectionId) {
+              changeBoardViewData([]);
+            }
+          }}
+        >
           {isFocus ? (
             <input
               defaultValue={name}
@@ -141,14 +138,11 @@ export default class SortableAppItem extends Component {
               onKeyDown={this.handleKeyDown}
             />
           ) : (
-            <span
-              title={name}
-              onClick={() => this.handleGroupNameClick(appSectionId)}
-              onDoubleClick={() => this.handleDbClick(appSectionId)}>
+            <span title={name} onDoubleClick={() => this.handleDbClick(appSectionId)}>
               {name}
             </span>
           )}
-        </div>
+        </MdLink>
         {permissionType >= ADVANCE_AUTHORITY && (
           <Trigger
             action={['click']}
@@ -167,12 +161,14 @@ export default class SortableAppItem extends Component {
                     onClick={() =>
                       this.switchVisible({ visible: false }, () => onAppItemConfigClick({ id: type, appSectionId }))
                     }
-                    {...rest}>
+                    {...rest}
+                  >
                     <span>{text}</span>
                   </MenuItem>
                 ))}
               </Menu>
-            }>
+            }
+          >
             <div
               className="topTri"
               style={{ display: isShowConfigIcon ? 'block' : 'none' }}

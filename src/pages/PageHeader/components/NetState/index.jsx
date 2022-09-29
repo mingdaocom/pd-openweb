@@ -143,7 +143,7 @@ class NetState extends Component {
     // 事件处理函数参数
     const para = { projectId, serviceType, versionType };
 
-    const { hint, explain, btnText, operationText } = displayObj || {};
+    const { hint, explain = '', btnText, operationText } = displayObj || {};
 
     return (
       <div className="netStateWrap">

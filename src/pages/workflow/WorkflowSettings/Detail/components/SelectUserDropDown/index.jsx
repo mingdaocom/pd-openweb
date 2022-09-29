@@ -9,6 +9,7 @@ import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE, CONTROLS_NAME } from '../../../enum';
 import flowNode from '../../../../api/flowNode';
 import DialogSelectJob from 'src/components/DialogSelectJob';
+import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
 
 export default class SelectUserDropDown extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ export default class SelectUserDropDown extends Component {
     this.state = {
       showSelectAppUserDialog: false,
       fieldsData: [],
+      showSelectRoleDialog: false,
     };
   }
 
@@ -87,6 +89,12 @@ export default class SelectUserDropDown extends Component {
             <React.Fragment>
               <MenuItem icon={<i className="icon-department" />} onClick={this.addDepartment}>
                 {_l('部门')}
+              </MenuItem>
+              <MenuItem
+                icon={<i className="icon-user" />}
+                onClick={() => this.setState({ showSelectRoleDialog: true })}
+              >
+                {_l('组织角色')}
               </MenuItem>
               <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
                 {_l('职位')}
@@ -285,6 +293,32 @@ export default class SelectUserDropDown extends Component {
   };
 
   /**
+   * 添加组织角色
+   */
+  selectRole = roles => {
+    const accounts = _.cloneDeep(this.props.accounts);
+    const { unique, updateSource, onClose } = this.props;
+    const ids = accounts.map(dept => dept.entityId);
+
+    roles = roles
+      .filter(o => ids.indexOf(o.organizeId) === -1)
+      .map(o => {
+        return {
+          type: USER_TYPE.ORGANIZE_ROLE,
+          entityId: o.organizeId,
+          entityName: o.organizeName,
+          roleId: '',
+          roleName: '',
+          avatar: '',
+        };
+      });
+
+    onClose();
+    updateSource({ accounts: unique ? roles : accounts.concat(roles) });
+    this.setState({ showSelectRoleDialog: false });
+  };
+
+  /**
    * 节点人员选择
    */
   handleFieldClick = ({
@@ -321,7 +355,7 @@ export default class SelectUserDropDown extends Component {
 
   render() {
     const { visible, appId, companyId, onClose, unique } = this.props;
-    const { fieldsData, showSelectAppUserDialog } = this.state;
+    const { fieldsData, showSelectAppUserDialog, showSelectRoleDialog } = this.state;
 
     if (!visible) {
       return null;
@@ -338,6 +372,22 @@ export default class SelectUserDropDown extends Component {
           onCancel={() => {
             onClose();
             this.setState({ showSelectAppUserDialog: false });
+          }}
+        />
+      );
+    }
+
+    // 选择组织角色
+    if (showSelectRoleDialog) {
+      return (
+        <DialogSelectOrgRole
+          projectId={companyId}
+          orgRoleDialogVisible
+          unique={unique}
+          onSave={this.selectRole}
+          onClose={() => {
+            onClose();
+            this.setState({ showSelectRoleDialog: false, visibleRoleDialog: false });
           }}
         />
       );

@@ -44,7 +44,7 @@ class AppLib extends Component {
         });
       }
     });
-    $('.appManagementHeaderWrap .active').on('click', () => {
+    $('.libraryEntry.active').on('click', () => {
       location.href = '/app/lib';
     });
   }

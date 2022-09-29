@@ -8,7 +8,6 @@ import {
   TriggerCondition,
   SelectNodeObject,
   FindResult,
-  FindMode,
 } from '../components';
 import { APP_TYPE, ACTION_ID, NODE_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';

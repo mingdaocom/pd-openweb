@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
+import DocumentTitle from 'react-document-title';
 import * as postController from 'src/api/post';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
@@ -25,6 +26,7 @@ import { getPssId } from 'src/util/pssId';
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {
+    showTitle: PropTypes.bool,
     attachments: PropTypes.array,
     actions: PropTypes.object,
     onClose: PropTypes.func,
@@ -149,7 +151,7 @@ class AttachmentsPreview extends React.Component {
     if (!this.props.attachments.length) {
       return <LoadDiv />;
     }
-    const { attachments, index, showAttInfo, hideFunctions, extra, error, options = {} } = this.props;
+    const { showTitle, attachments, index, showAttInfo, hideFunctions, extra, error, options = {} } = this.props;
     const currentAttachment = attachments[index];
     const { ext, name, previewAttachmentType } = currentAttachment;
     let { previewType } = currentAttachment;
@@ -172,6 +174,7 @@ class AttachmentsPreview extends React.Component {
         style={this.state.style}
         onWheel={this.onWheel}
       >
+        {showTitle && <DocumentTitle title={name + '.' + ext} />}
         <PreviewHeader onClose={this.props.onClose} />
         <div className="previewPanel" style={!this.state.attInfoFolded && showAttInfo ? { right: 328 } : {}}>
           <div
@@ -261,8 +264,8 @@ class AttachmentsPreview extends React.Component {
                           width="100%"
                           height="100%"
                           frameborder="0"
-                          src={`/preview/pdf/web/viewer.html?url=` + currentAttachment.sourceNode.privateDownloadUrl}
-                        ></iframe>
+                          src={`/preview/pdf/web/viewer.html?url=${currentAttachment.sourceNode.privateDownloadUrl}&showDownload=${showDownload}`}
+                        />
                       );
                       */}
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {

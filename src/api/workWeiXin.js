@@ -403,10 +403,48 @@ module.exports = {
      return $.api('WorkWeiXin', 'EditWXProjectJobnumberMappingField', args, options);
    },
   /**
+  * 编辑企业微信标签自定义匹配的字段
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.fieldName 企业微信自定义匹配的字段名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editWXProjectTagMappingField: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'EditWXProjectTagMappingField', args, options);
+   },
+  /**
+  * 检测企业微信自建应用集成通讯录同步到明道云
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkWorkWXToMingByApp: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'CheckWorkWXToMingByApp', args, options);
+   },
+  /**
+  * 获取企业微信通讯录
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.keywords
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWXStructureInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWorkWXStructureInfo', args, options);
+   },
+  /**
   * 企业微信自建应用集成通讯录同步到明道云
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {boolean} args.check 是否只检测
+  * @param {object} args.userMaps 明道用户和微信的手动映射关系
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -414,6 +452,36 @@ module.exports = {
    syncWorkWXToMingByApp: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'SyncWorkWXToMingByApp', args, options);
+   },
+  /**
+  * 获取企业微信和明道云用户绑定关系列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.platformKeyword
+  * @param {string} args.workwxKeyword
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWxUserRelations: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWorkWxUserRelations', args, options);
+   },
+  /**
+  * 解绑企业微信用户和明道云用户关系
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.mingdaoAccountId
+  * @param {string} args.workwxUserId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   unbindWorkWxUserRelation: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'UnbindWorkWxUserRelation', args, options);
    },
   /**
   * 转换网络企业微信集成状态
@@ -650,5 +718,68 @@ module.exports = {
    getIntergrationInfo: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'GetIntergrationInfo', args, options);
+   },
+  /**
+  * 获取明道授权许可信息详情
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWxLicenseDetailByApp: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('WorkWeiXin', 'GetWorkWxLicenseDetailByApp', args, options);
+   },
+  /**
+  * 获取创建订单信息提示
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWxLicenseCreateOrderDetailByApp: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('WorkWeiXin', 'GetWorkWxLicenseCreateOrderDetailByApp', args, options);
+   },
+  /**
+  * 创建订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   createWorkWxLicenseOrder: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'CreateWorkWxLicenseOrder', args, options);
+   },
+  /**
+  * 查看订单列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.startTime 开始时间,下单时间。可不填。但是不能单独指定该字段，start_time跟end_time必须同时指定。
+  * @param {string} args.endTime 结束时间,下单时间。起始时间跟结束时间不能超过31天。可不填。但是不能单独指定该字段，start_time跟end_time必须同时指定。
+  * @param {integer} args.pageIndex 用于分页查询的游标，字符串类型，由上一次调用返回，首次调用可不填
+  * @param {integer} args.pageSize 返回的最大记录数，整型，最大值1000，默认值500
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWxLicenseOrderList: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWorkWxLicenseOrderList', args, options);
+   },
+  /**
+  * 订单详情
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.orderId 订单id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorkWxLicenseOrderDetail: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWorkWxLicenseOrderDetail', args, options);
    },
 };

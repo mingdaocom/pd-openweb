@@ -59,7 +59,7 @@ export default function SubControlConfig({
   updateSubQueryConfigs,
   ...rest
 }) {
-  const { controlId, type } = control || {};
+  const { controlId, type, advancedSetting = {} } = control || {};
   const { controlName, dataSource: subListSheetId } = subListData;
   const SettingModel = Setting[enumWidgetType[type]];
   const handleChange = obj => {
@@ -98,7 +98,9 @@ export default function SubControlConfig({
         <DynamicDefaultValue {..._.omit(rest, 'onChange')} {...subListProps} fromCondition={'relateSheet'} />
       )}
       {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...subListProps} />}
-      {HAVE_CONFIG_SUB_LIST.includes(type) && <ControlSetting {...subListProps} />}
+      {(HAVE_CONFIG_SUB_LIST.includes(type) ||
+        (type === 10 && advancedSetting.checktype === '1') ||
+        (type === 11 && advancedSetting.showtype !== '2')) && <ControlSetting {...subListProps} />}
       {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...subListProps} />}
       {/* {!_.includes(NO_CONTENT_CONTROL, type) && (
         <div className="widgetCommonConfig">

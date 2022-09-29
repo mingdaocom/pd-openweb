@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { CreateNode, NodeOperate } from '../components';
-import { CONDITION_TYPE } from '../../enum';
 import { addFlowNode } from '../../../redux/actions';
+import { getFilterText } from '../../utils';
 
 export default class BranchItem extends Component {
   constructor(props) {
@@ -56,9 +56,7 @@ export default class BranchItem extends Component {
                       </span>
                       <span className="ellipsis maxWidth">
                         <span className="mRight5 Gray_75">
-                          {_.includes(['29', '30'], obj.conditionId)
-                            ? CONDITION_TYPE[obj.conditionId][_.get(obj, 'advancedSetting.showtype') || '0']
-                            : CONDITION_TYPE[obj.conditionId]}
+                          {getFilterText(Object.assign({}, obj, { type: obj.filedTypeId }), obj.conditionId)}
                           {isOldCondition && '*'}
                         </span>
                         {this.renderSingleValue(obj)}

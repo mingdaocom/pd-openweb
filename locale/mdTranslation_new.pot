@@ -1,29 +1,21 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2022/8/4 16:47:43+08:00"
+"POT-Creation-Date: 2022/9/1 20:15:39+08:00"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8"
 "Content-Transfer-Encoding: 8bit"
 "X-Generator: i18n.POTGenerator"
 
 #: Disabled references:1
-msgid "截止到%0的最新数据"
+msgid "%0 个企业微信用户需要被同步，已超出组织用户数量限制，请先增购组织用户"
 msgstr ""
 
 #: Disabled references:1
-msgid "保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能"
+msgid "新增组织用户 "
 msgstr ""
 
 #: Disabled references:1
-msgid "浏览器新消息通知"
-msgstr ""
-
-#: Disabled references:1
-msgid "没有输入参数的 API 请直接保存完成配置"
-msgstr ""
-
-#: Disabled references:1
-msgid "添加检查项字段"
+msgid "; 同步企业微信用户 "
 msgstr ""
 

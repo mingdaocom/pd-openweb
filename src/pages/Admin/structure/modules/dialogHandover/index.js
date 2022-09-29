@@ -132,7 +132,7 @@ class InvoiceSetting extends Component {
           <div className="LineHeight24">
             <a href={'/user_' + user.accountId} className="ThemeColor3 Bold" title={user.fullname}>
               {user.fullname}
-            </a>{' '}
+            </a>
             <span>{_l('仍是某协作模块负责人，可移交给企业小秘书')}</span>
           </div>
           <div className="LineHeight24">{_l('或 指定另一名同事负责交接')}</div>

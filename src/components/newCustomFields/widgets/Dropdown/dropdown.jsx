@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { isLightColor } from 'src/util';
 import { Select } from 'antd';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -90,7 +91,7 @@ export default class Widgets extends Component {
     const checkIds = JSON.parse(value || '[]');
 
     checkIds.forEach(item => {
-      if ((item || '').toString().indexOf('add_') > -1) {
+      if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
         noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
     });
@@ -131,8 +132,10 @@ export default class Widgets extends Component {
     if (keywords.length) {
       noDelOptions = noDelOptions.filter(item => item.value.indexOf(keywords) > -1);
     }
-
-    const checkedItems = noDelOptions.concat(delOptions).filter(item => _.includes(checkIds, item.key));
+    const checkItems = noDelOptions
+      .concat(delOptions)
+      .filter(i => _.includes(checkIds, i.key))
+      .map(c => ({ value: c.key, label: this.renderTitle(c) }));
 
     return (
       <Select
@@ -145,10 +148,10 @@ export default class Widgets extends Component {
         showSearch
         allowClear={checkIds.length > 0}
         listHeight={320}
-        optionLabelProp="label"
-        value={checkIds}
+        value={checkItems}
         placeholder={_l('请选择')}
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
+        labelInValue={true}
         filterOption={() => true}
         notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
         onSearch={keywords => this.setState({ keywords })}
@@ -156,7 +159,11 @@ export default class Widgets extends Component {
           this.setState({ keywords: '' });
           !open && this.select.blur();
         }}
-        onChange={value => {
+        onChange={da => {
+          let value = da;
+          if (typeof da === 'object') {
+            value = da.value;
+          }
           // keywords判断是为了直接点击删除
           if (value || !keywords.length) {
             this.onChange(value);
@@ -165,21 +172,19 @@ export default class Widgets extends Component {
         {...selectProps}
       >
         {!keywords.length && advancedSetting.allowadd === '1' && (
-          <Select.Option disabled>
+          <Select.Option disabled className="cursorDefault">
             <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
           </Select.Option>
         )}
 
         {noDelOptions.map((item, i) => {
-          const labelNode = this.renderList(item);
           return (
             <Select.Option
               value={item.key}
               key={i}
               className={cx({ 'ant-select-item-option-selected': _.includes(checkIds, item.key) })}
-              label={labelNode}
             >
-              {labelNode}
+              {this.renderList(item)}
             </Select.Option>
           );
         })}

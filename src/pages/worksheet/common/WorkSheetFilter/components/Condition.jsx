@@ -79,7 +79,11 @@ export default class Condition extends Component {
     {
       /* // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选 */
     }
-    return from === 'relateSheet' && !_.includes(listType, type) && !_.includes(listControlType, controlType);
+    return (
+      from === 'relateSheet' &&
+      !(!_.includes([27], condition.controlType) && _.includes(listType, type)) &&
+      !_.includes(listControlType, controlType)
+    );
   };
 
   @autobind
@@ -88,7 +92,7 @@ export default class Condition extends Component {
     const overrideValue = getConditionOverrideValue(type, condition);
     onChange(overrideValue);
 
-    if (_.includes(listType, type)) {
+    if (_.includes(listType, type) && !_.includes([27], condition.controlType)) {
       this.setState({ isDynamicsource: false });
     }
   }
@@ -160,7 +164,7 @@ export default class Condition extends Component {
       isSheetFieldError,
       conditionItemForDynamicStyle,
     } = this.props;
-    let conditionFilterTypes = getFilterTypes(control, condition.type);
+    let conditionFilterTypes = getFilterTypes(control, condition.type, from);
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
         conditionFilterTypes = conditionFilterTypes.filter(
@@ -197,7 +201,7 @@ export default class Condition extends Component {
     }
     const isDynamicStyle = from === 'relateSheet'; // 动态值选择的特定样式
     const isDynamicValue =
-      !_.includes(listType, condition.type) &&
+      !(!_.includes([27], condition.controlType) && _.includes(listType, condition.type)) &&
       !_.includes(listControlType, condition.controlType) &&
       !isCustomOptions(control);
     return (

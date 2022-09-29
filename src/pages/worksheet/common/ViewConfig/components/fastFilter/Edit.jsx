@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import { Dropdown, Icon, Checkbox } from 'ming-ui';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import {
+  MULTI_SELECT_FILTER_TYPE,
   TEXT_FILTER_TYPE,
   NUMBER_FILTER_TYPE,
   RELA_FILTER_TYPE,
@@ -117,7 +119,7 @@ const Wrap = styled.div`
         background: #ffffff;
         // border: 1px solid #dddddd;
         border-radius: 4px;
-        margin: 8px 0;
+        margin-top: 8px;
         box-sizing: border-box;
         & > div {
           flex: 1;
@@ -195,6 +197,7 @@ function Edit(params) {
   let [fastFilters, setData] = useState();
   let [control, setControl] = useState();
   let [fastFilterDataControls, setDatas] = useState();
+  let [dataControls, setDataControls] = useState({});
   let boxConT = useRef(null);
   let [advancedSetting, setAdvancedSetting] = useState();
   let [dataType, setDataType] = useState();
@@ -213,6 +216,7 @@ function Edit(params) {
     });
     setDatas(controlsFilter);
     let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
+    setDataControls(dd);
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId);
     if (!controlNew) {
       controlNew = {
@@ -283,9 +287,9 @@ function Edit(params) {
         <div className="title">{data.txt}</div>
         <Radio.Group
           onChange={e => {
-            // 单选只支持下拉
+            // 单选只支持下拉 筛选方式默认等于
             if (data.key === 'allowitem' && e.target.value === 1) {
-              updateViewSet({ [data.key]: e.target.value, direction: 2 });
+              updateViewSet({ [data.key]: e.target.value, direction: 2, filterType: FILTER_CONDITION_TYPE.EQ });
             } else {
               updateViewSet({ [data.key]: e.target.value });
             }
@@ -466,7 +470,24 @@ function Edit(params) {
             return renderDrop(o);
           }
         })}
-        {[OPTIONS_ALLOWITEM, DIRECTION_TYPE, SHOW_RELATE_TYPE].map(o => {
+        {[OPTIONS_ALLOWITEM].map(o => {
+          if (o.keys.includes(dataType)) {
+            return renderShowType(o);
+          }
+        })}
+        {[MULTI_SELECT_FILTER_TYPE].map(o => {
+          //多选类型字段 且 允许选择数量为多选 =>支持设置筛选方式  多选 => 人员、部门、组织角色enumDefault：1; 关联字段enumDefault: 2 ;多选字段
+          if (
+            o.keys.includes(dataType) &&
+            (([26, 27, 48].includes(dataType) && dataControls.enumDefault === 1) ||
+              (dataType === 29 && dataControls.enumDefault === 2) ||
+              dataType === 10) &&
+            Number(advancedSetting.allowitem) === 2
+          ) {
+            return renderDrop(o);
+          }
+        })}
+        {[DIRECTION_TYPE, SHOW_RELATE_TYPE].map(o => {
           if (o.keys.includes(dataType)) {
             return renderShowType(o);
           }

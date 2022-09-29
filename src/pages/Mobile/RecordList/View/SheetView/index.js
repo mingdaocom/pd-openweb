@@ -1,7 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import styled from 'styled-components';
 import * as actions from 'mobile/RecordList/redux/actions';
@@ -99,21 +98,12 @@ const BatchOptBtn = styled.div`
 }
 `;
 
-const formatParams = params => {
-  const { appId, viewId } = params;
-  return {
-    ...params,
-    appId: ['null', 'undefined'].includes(appId) ? '' : appId,
-    viewId: ['null', 'undefined'].includes(viewId) ? '' : viewId,
-  };
-};
 const CUSTOM_BUTTOM_CLICK_TYPE = {
   IMMEDIATELY: 1,
   CONFIRM: 2,
   FILL_RECORD: 3,
 };
 
-@withRouter
 class SheetView extends Component {
   constructor(props) {
     super(props);
@@ -131,7 +121,7 @@ class SheetView extends Component {
     this.props.changeBatchOptVisible(false);
   }
   renderWithoutRows() {
-    const { match, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view } = this.props;
+    const { appId, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view } = this.props;
 
     if (filters.keyWords) {
       return <WithoutRows text={_l('没有搜索结果')} />;
@@ -152,7 +142,7 @@ class SheetView extends Component {
                 className="addRecordBtn valignWrapper mTop10"
                 onClick={() => {
                   window.mobileNavigateTo(
-                    `/mobile/addRecord/${match.params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
+                    `/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
                   );
                 }}
               >
@@ -486,7 +476,6 @@ class SheetView extends Component {
       quickFilter,
       batchOptCheckedData,
       batchOptVisible,
-      match,
       sheetSwitchPermit,
       appDetail,
       appId,
@@ -494,7 +483,6 @@ class SheetView extends Component {
       viewId,
     } = this.props;
     const { detail } = appDetail;
-    const { params } = match;
     let { customBtns = [], showButtons, customButtonLoading } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
     const viewFilters = view.fastFilters

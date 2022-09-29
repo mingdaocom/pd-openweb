@@ -175,7 +175,7 @@ class DialogSettingInviteRules extends React.Component {
                   <span>
                     <Icon className="Font14 Hand Gray_bd mLeft5" icon="help" />
                   </span>
-                </Tooltip>{' '}
+                </Tooltip>
               </p>
               <p className="Gray_9e Font13 mTop13">{_l('非管理员通过邮箱或手机号邀请他人加入组织是否需要审核')}</p>
             </span>

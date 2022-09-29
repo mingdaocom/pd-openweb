@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Dialog } from 'ming-ui';
 import account from 'src/api/account';
 import { htmlEncodeReg } from 'src/util';
 import './index.less';
@@ -32,7 +33,18 @@ export default class ExitDialog extends Component {
       },
     });
   }
-
+  toLogout = () => {
+    const { projectId, companyName } = this.props;
+    Dialog.confirm({
+      title: <spam className="Font15 Bold">{_l('您是组织【%0】超级管理员', companyName)}</spam>,
+      description: <span className="Font13 Gray">{_l('请先注销组织或交接后方可注销。')}</span>,
+      okText: _l('前往注销'),
+      showCancel: false,
+      onOk: () => {
+        navigateTo('/admin/sysinfo/' + projectId);
+      },
+    });
+  };
   handleExit() {
     var accountId = this.state.userInfo.accountId;
     if (this.props.needTransfer && !accountId) {
@@ -55,6 +67,9 @@ export default class ExitDialog extends Component {
             break;
           case 3:
             this.props.transferAdminProject(this.props.projectId, this.props.companyName, thi.props.password, result);
+            break;
+          case 4:
+            this.toLogout();
             break;
           case 2:
           default:

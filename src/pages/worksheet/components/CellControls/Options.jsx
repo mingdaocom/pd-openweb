@@ -172,14 +172,12 @@ export default class Options extends React.Component {
           />
         ) : (
           <Dropdown
-            {...{
-              ...cell,
-              advancedSetting: { ...cell.advancedSetting, allowadd: isSubList ? '0' : cell.advancedSetting.allowadd },
-            }}
+            {...cell}
             dropdownClassName="scrollInTable"
             value={value}
             selectProps={{
               open: true,
+              noPushAdd_: true,
               autoFocus: true,
               defaultOpen: true,
               getPopupContainer,
@@ -189,7 +187,12 @@ export default class Options extends React.Component {
                 }
                 this.isChanging = false;
               },
-              onChange: value => this.handleChange(value),
+              onChange: value => {
+                if (_.isObject(value)) {
+                  value = value.value;
+                }
+                this.handleChange(value);
+              },
             }}
           />
         )}

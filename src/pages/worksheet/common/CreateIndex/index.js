@@ -332,6 +332,8 @@ class CreateIndex extends Component {
                       className="col1 mRight8"
                       value={item.fieldId}
                       onChange={value => this.changeIndexField(value, index)}
+                      showSearch={true}
+                      filterOption={(val, option) => option.children.toLowerCase().includes(val.toLowerCase())}
                     >
                       {(item.selectFiledsList || []).map(f => (
                         <Option value={f.id} key={f.id}>

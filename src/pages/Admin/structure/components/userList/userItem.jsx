@@ -5,8 +5,14 @@ import classNames from 'classnames';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import importUserController from 'src/api/importUser';
-import userController from 'src/api/user';
-import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
+import userController from 'src/api/user.js';
+import {
+  loadUsers,
+  loadInactiveUsers,
+  loadApprovalUsers,
+  loadAllUsers,
+  updateFullDepartmentInfo,
+} from '../../actions/entities';
 import { updateUserOpList, addUserToSet, removeUserFromSet, emptyUserSet, fetchApproval } from '../../actions/current';
 import cx from 'classnames';
 import TransferDialog from '../../modules/dialogHandover';
@@ -127,7 +133,7 @@ class OpList extends Component {
                   </li>
                 )}
                 <li className="opItem" onClick={handleApprovalClick}>
-                  {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('审批') : ''}
+                  {user.status == 2 ? _l('重新审核') : user.status == 3 ? _l('审批') : ''}
                 </li>
               </React.Fragment>
             )}
@@ -224,6 +230,7 @@ class UserItem extends Component {
       isMinSc: false, // document.body.clientWidth <= 1380
       showDialogApproval: false,
       showRefuseUserJoin: false,
+      fullDepartmentInfo: {},
       password: '',
     };
   }
@@ -522,6 +529,8 @@ class UserItem extends Component {
       isHideCurrentColumn,
       departmentId,
       columnsInfo = [],
+      dispatch,
+      fullDepartmentInfo = {},
     } = this.props;
     const { isMinSc } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, department = '', job = '' } = user;
@@ -543,16 +552,13 @@ class UserItem extends Component {
     let departmentTitle = _.isArray(departmentData)
       ? departmentData
           .map((it, i) => {
-            if (departmentData.length - 1 > i) {
-              return `${it.name || it.departmentName} ; `;
-            }
             return `${it.name || it.departmentName}`;
           })
           .join('')
       : departmentData;
     return (
       <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
-        {typeCursor === 0 && (
+        {(typeCursor === 0 || typeCursor === 1) && (
           <td
             className={classNames('checkBox', {
               showCheckBox: isChecked,
@@ -630,18 +636,52 @@ class UserItem extends Component {
         {/* {isSearch ? <td title={user.department}>{user.department}</td> : null} */}
         {isHideCurrentColumn('department') && (
           <td className="departmentTh">
-            {
-              <div className="WordBreak overflow_ellipsis" title={departmentTitle}>
-                {typeCursor === 2
-                  ? departmentData
-                  : (departmentData || []).map((it, i) => {
-                      if (departmentData.length - 1 > i) {
-                        return `${it.name || it.departmentName} ; `;
-                      }
-                      return `${it.name || it.departmentName}`;
-                    })}
-              </div>
-            }
+            <div
+              className="WordBreak overflow_ellipsis"
+              onMouseEnter={() => {
+                const departmentIds = departmentData.map(item => item.id || item.departmentId);
+                dispatch(updateFullDepartmentInfo(projectId, departmentIds));
+              }}
+            >
+              <Tooltip
+                tooltipClass="departmentFullNametip"
+                popupPlacement="bottom"
+                text={
+                  <div>
+                    {typeCursor === 2
+                      ? departmentData
+                      : (departmentData || []).map((it, depIndex) => {
+                          const fullName = (
+                            fullDepartmentInfo[it.id] ||
+                            fullDepartmentInfo[it.departmentId] ||
+                            ''
+                          ).split('/');
+                          return (
+                            <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
+                              {fullName.map((n, i) => (
+                                <span>
+                                  {n}
+                                  {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        })}
+                  </div>
+                }
+                mouseEnterDelay={0.5}
+              >
+                <span className="ellipsis InlineBlock wMax100 space">
+                  {typeCursor === 2
+                    ? departmentData
+                    : (departmentData || [])
+                        .map(it => {
+                          return `${it.name || it.departmentName}`;
+                        })
+                        .join(';')}
+                </span>
+              </Tooltip>
+            </div>
           </td>
         )}
         {isHideCurrentColumn('adress') && (
@@ -720,6 +760,7 @@ class UserItem extends Component {
 const mapStateToProps = (state, ownProps) => {
   const {
     current: { projectId, departmentId, activeAccountId, selectedAccountIds, typeCursor, isSelectAll },
+    entities: { fullDepartmentInfo = {} },
     pagination: {
       userList: { pageIndex },
     },
@@ -735,6 +776,7 @@ const mapStateToProps = (state, ownProps) => {
     pageIndex,
     typeCursor,
     selectCount: selectedAccountIds.length,
+    fullDepartmentInfo,
   };
 };
 

@@ -32,6 +32,7 @@ import AppGroup from 'src/pages/PageHeader/AppPkgHeader/AppGroup';
 import TelDialog from './TelDialog';
 import DelDialog from './DelDialog';
 import PortalMessage from './PortalMessage';
+import { getAppId } from 'src/pages/PortalAccount/util.js';
 const WrapHeader = styled.div`
   .cover {
     position: fixed;
@@ -323,7 +324,7 @@ export default class PortalAppHeader extends Component {
    * 参数补齐
    */
   completePara = () => {
-    const appId = this.props.appId || this.props.match.params.appId;
+    const appId = this.props.appId || getAppId(this.props.match.params);
     api.getAppFirstInfo({ appId }).then(({ appSectionId, workSheetId }) => {
       if (appSectionId) {
         this.setState({
@@ -347,12 +348,12 @@ export default class PortalAppHeader extends Component {
 
   getInfo = () => {
     const { name, syncAppDetail } = this.props;
-    const appId = this.props.appId || this.props.match.params.appId;
+    const appId = this.props.appId || getAppId(this.props.match.params);
     if (!appId) {
       return;
     }
     if (!name) {
-      api.getAppDetail({ appId }, { silent: true }).then(data => {
+      api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
         this.setState({
           iconUrl: data.iconUrl,
           name: data.name,
@@ -379,13 +380,13 @@ export default class PortalAppHeader extends Component {
       });
     }
     getLoginUrl({
-      appId,
+      appId: appId,
     }).then(res => {
       this.setState({
         url: res,
       });
     });
-    api.getAppInfo({ appId }).then(data => {
+    api.getAppInfo({ appId: appId }).then(data => {
       this.props.updateAppGroup(data);
       const { appSectionDetail = [] } = data;
       this.setState({
@@ -394,7 +395,7 @@ export default class PortalAppHeader extends Component {
     });
     getDetail({
       exAccountId: md.global.Account.accountId,
-      appId,
+      appId: appId,
     }).then(res => {
       const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
       this.setState(
@@ -415,11 +416,9 @@ export default class PortalAppHeader extends Component {
       if (data) {
         removePssId();
         //删除自动登录的key
-        const appId = this.props.appId || this.props.match.params.appId;
+        const appId = this.props.appId || getAppId(this.props.match.params);
         window.localStorage.removeItem(`PortalLoginInfo-${appId}`);
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        // const appId = this.props.appId || this.props.match.params.appId;
-        // const url = `${location.origin}${window.subPath || ''}/app/${appId}`;
         location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(this.state.url)}`; // 跳转到登录
       }
     });
@@ -443,7 +442,7 @@ export default class PortalAppHeader extends Component {
           editAvatar={res => {
             ///更新数据 /////
             saveUserDetail({
-              appId: this.props.appId || this.props.match.params.appId,
+              appId: this.props.appId || getAppId(this.props.match.params),
               exAccountId: md.global.Account.accountId,
               newCell: currentData
                 .filter(o => ['avatar'].includes(o.alias))
@@ -687,7 +686,7 @@ export default class PortalAppHeader extends Component {
         )}
         {showUserInfoDialog && (
           <UserInfoDialog
-            appId={this.props.appId || this.props.match.params.appId}
+            appId={this.props.appId || getAppId(this.props.match.params)}
             classNames={browserIsMobile() ? 'forMobilePortal' : ''}
             show={showUserInfoDialog}
             currentData={currentData
@@ -707,7 +706,7 @@ export default class PortalAppHeader extends Component {
             onOk={(data, ids) => {
               ///更新数据 /////
               saveUserDetail({
-                appId: this.props.appId || this.props.match.params.appId,
+                appId: this.props.appId || getAppId(this.props.match.params),
                 exAccountId: md.global.Account.accountId,
                 newCell: data.filter(o => ids.includes(o.controlId)).map(formatControlToServer),
               }).then(res => {
@@ -719,7 +718,7 @@ export default class PortalAppHeader extends Component {
         {showTelDialog && (
           //更换手机号
           <TelDialog
-            appId={this.props.appId || this.props.match.params.appId}
+            appId={this.props.appId || getAppId(this.props.match.params)}
             classNames={browserIsMobile() ? 'forMobilePortal' : ''}
             show={showTelDialog}
             data={currentData.find(o => ['portal_mobile'].includes(o.controlId)).value}
@@ -734,7 +733,7 @@ export default class PortalAppHeader extends Component {
           //注销
           <DelDialog
             url={this.state.url}
-            appId={this.props.appId || this.props.match.params.appId}
+            appId={this.props.appId || getAppId(this.props.match.params)}
             classNames={browserIsMobile() ? 'forMobilePortal' : ''}
             show={showDelDialog}
             data={currentData.find(o => ['portal_mobile'].includes(o.controlId)).value}

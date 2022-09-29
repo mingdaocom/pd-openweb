@@ -230,106 +230,242 @@ export function compareControlType(widget, type) {
 }
 
 export function getFilterTypes(control = {}, conditionType, from) {
-  let types = [];
+  let typeEnums = [];
   const { type } = control;
   const typeKey = getTypeKey(type);
-  if (_.includes([19, 23, 24], type)) {
-    return [
-      FILTER_CONDITION_TYPE.EQ,
-      FILTER_CONDITION_TYPE.NE,
-      FILTER_CONDITION_TYPE.ISNULL,
-      FILTER_CONDITION_TYPE.HASVALUE,
-      FILTER_CONDITION_TYPE.BETWEEN,
-      FILTER_CONDITION_TYPE.NBETWEEN,
-      ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
-    ].map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control),
-    }));
+  switch (type) {
+    // 文本类型
+    case 2: // 文本框
+    case 3: // 电话号码
+    case 4: // 座机
+    case 5: // 邮件地址
+    case 7: // 证件
+    case 32: // 文本组合
+    case 33: // 自动编号
+      typeEnums = [
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.LIKE,
+        FILTER_CONDITION_TYPE.NCONTAIN,
+        FILTER_CONDITION_TYPE.START,
+        FILTER_CONDITION_TYPE.N_START,
+        FILTER_CONDITION_TYPE.END,
+        FILTER_CONDITION_TYPE.N_END,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 6: // 数值
+    case 8: // 金额
+    case 25: // 大写金额
+    case 31: // 公式
+    case 37: // 汇总
+      typeEnums = [
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.GT,
+        FILTER_CONDITION_TYPE.LT,
+        FILTER_CONDITION_TYPE.GTE,
+        FILTER_CONDITION_TYPE.LTE,
+        FILTER_CONDITION_TYPE.BETWEEN,
+        FILTER_CONDITION_TYPE.NBETWEEN,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 14: // 附件
+    case 21: // 自由连接
+    case 36: // 检查框
+    case 40: // 定位
+    case 42: // 签名
+      typeEnums = [FILTER_CONDITION_TYPE.HASVALUE, FILTER_CONDITION_TYPE.ISNULL];
+      break;
+    case 28: // 等级
+      typeEnums = [
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 48: // 角色权限
+      typeEnums = [
+        FILTER_CONDITION_TYPE.ARREQ,
+        FILTER_CONDITION_TYPE.ARRNE,
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 11: // 选项
+    case 10: // 多选
+    case 9: // 单选 平铺
+      typeEnums = [
+        FILTER_CONDITION_TYPE.ARREQ,
+        FILTER_CONDITION_TYPE.ARRNE,
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        ...(type === 10 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 15: // 日期
+    case 16: //  日期时间
+      typeEnums = [
+        ...(type === 15
+          ? [FILTER_CONDITION_TYPE.DATEENUM, FILTER_CONDITION_TYPE.NDATEENUM]
+          : [FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE]),
+        FILTER_CONDITION_TYPE.DATE_LT,
+        FILTER_CONDITION_TYPE.DATE_GT,
+        FILTER_CONDITION_TYPE.DATE_LTE,
+        FILTER_CONDITION_TYPE.DATE_GTE,
+        FILTER_CONDITION_TYPE.DATE_BETWEEN,
+        FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 19:
+    case 23:
+    case 24:
+      typeEnums = [
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.BETWEEN,
+        FILTER_CONDITION_TYPE.NBETWEEN,
+        ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 26: // 人员
+      typeEnums = [
+        FILTER_CONDITION_TYPE.ARREQ,
+        FILTER_CONDITION_TYPE.ARRNE,
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ].concat(
+        _.includes(['caid', 'ownerid'], control.controlId)
+          ? [FILTER_CONDITION_TYPE.NORMALUSER, FILTER_CONDITION_TYPE.PORTALUSER]
+          : [],
+      );
+      break;
+    case 27: // 部门
+      typeEnums = [
+        FILTER_CONDITION_TYPE.ARREQ,
+        FILTER_CONDITION_TYPE.ARRNE,
+        FILTER_CONDITION_TYPE.EQ,
+        FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.BETWEEN,
+        FILTER_CONDITION_TYPE.NBETWEEN,
+        ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
+        ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 35: // 级联
+      typeEnums = [
+        FILTER_CONDITION_TYPE.RCEQ,
+        FILTER_CONDITION_TYPE.RCNE,
+        FILTER_CONDITION_TYPE.BETWEEN,
+        FILTER_CONDITION_TYPE.NBETWEEN,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    case 29: // 关联
+      typeEnums =
+        conditionType &&
+        (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
+          ? [
+              FILTER_CONDITION_TYPE.ARREQ,
+              FILTER_CONDITION_TYPE.ARRNE,
+              FILTER_CONDITION_TYPE.LIKE,
+              FILTER_CONDITION_TYPE.NCONTAIN,
+              FILTER_CONDITION_TYPE.RCEQ,
+              FILTER_CONDITION_TYPE.RCNE,
+              ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+              FILTER_CONDITION_TYPE.ISNULL,
+              FILTER_CONDITION_TYPE.HASVALUE,
+            ]
+          : [
+              FILTER_CONDITION_TYPE.ARREQ,
+              FILTER_CONDITION_TYPE.ARRNE,
+              FILTER_CONDITION_TYPE.RCEQ,
+              FILTER_CONDITION_TYPE.RCNE,
+              ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+              FILTER_CONDITION_TYPE.ISNULL,
+              FILTER_CONDITION_TYPE.HASVALUE,
+            ];
+      break;
+    case 34: // 子表
+      typeEnums = [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE];
+      break;
+    case 46: // 时间字段
+      typeEnums = [
+        FILTER_CONDITION_TYPE.DATEENUM,
+        FILTER_CONDITION_TYPE.NDATEENUM,
+        FILTER_CONDITION_TYPE.DATE_LT,
+        FILTER_CONDITION_TYPE.DATE_GT,
+        FILTER_CONDITION_TYPE.DATE_LTE,
+        FILTER_CONDITION_TYPE.DATE_GTE,
+        FILTER_CONDITION_TYPE.DATE_BETWEEN,
+        FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+        FILTER_CONDITION_TYPE.ISNULL,
+        FILTER_CONDITION_TYPE.HASVALUE,
+      ];
+      break;
+    default:
+      typeEnums = [];
   }
-  if (type === 27) {
-    return [
-      FILTER_CONDITION_TYPE.EQ,
-      FILTER_CONDITION_TYPE.NE,
-      FILTER_CONDITION_TYPE.BETWEEN,
-      FILTER_CONDITION_TYPE.NBETWEEN,
-      ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
-      FILTER_CONDITION_TYPE.ISNULL,
-      FILTER_CONDITION_TYPE.HASVALUE,
-    ].map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control),
-    }));
+  if (from === 'subTotal') {
+    typeEnums = typeEnums.filter(type => type !== FILTER_CONDITION_TYPE.ALLCONTAIN);
   }
-  if (type === 29) {
-    const typeEnums =
-      conditionType &&
-      (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN)
-        ? [
-            FILTER_CONDITION_TYPE.LIKE,
-            FILTER_CONDITION_TYPE.NCONTAIN,
-            FILTER_CONDITION_TYPE.RCEQ,
-            FILTER_CONDITION_TYPE.RCNE,
-            FILTER_CONDITION_TYPE.ISNULL,
-            FILTER_CONDITION_TYPE.HASVALUE,
-          ]
-        : [
-            FILTER_CONDITION_TYPE.RCEQ,
-            FILTER_CONDITION_TYPE.RCNE,
-            FILTER_CONDITION_TYPE.ISNULL,
-            FILTER_CONDITION_TYPE.HASVALUE,
-          ];
-    types = typeEnums.map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control),
-    }));
-    return types;
+  return typeEnums.map(filterType => ({
+    value: filterType,
+    text: getFilterTypeLabel(typeKey, filterType, control),
+  }));
+}
+
+function getDefaultFilterType(control) {
+  // 文本类
+  if (_.includes([2, 3, 4, 5, 7, 32, 33], control.type)) {
+    return FILTER_CONDITION_TYPE.LIKE;
   }
-  if (type === 26 && _.includes(['caid', 'ownerid'], control.controlId)) {
-    return [
-      FILTER_CONDITION_TYPE.EQ,
-      FILTER_CONDITION_TYPE.NE,
-      FILTER_CONDITION_TYPE.ISNULL,
-      FILTER_CONDITION_TYPE.HASVALUE,
-      FILTER_CONDITION_TYPE.NORMALUSER,
-      FILTER_CONDITION_TYPE.PORTALUSER,
-    ].map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control),
-    }));
+  // 数值类
+  if (_.includes([6, 8, 25, 31, 37], control.type)) {
+    return FILTER_CONDITION_TYPE.BETWEEN;
   }
-  if (_.includes([15, 16], type)) {
-    let typeEnums = [
-      ...(type === 15
-        ? [FILTER_CONDITION_TYPE.DATEENUM, FILTER_CONDITION_TYPE.NDATEENUM]
-        : [FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE]),
-      FILTER_CONDITION_TYPE.DATE_LT,
-      FILTER_CONDITION_TYPE.DATE_GT,
-      FILTER_CONDITION_TYPE.DATE_LTE,
-      FILTER_CONDITION_TYPE.DATE_GTE,
-      FILTER_CONDITION_TYPE.DATE_BETWEEN,
-      FILTER_CONDITION_TYPE.DATE_NBETWEEN,
-      FILTER_CONDITION_TYPE.ISNULL,
-      FILTER_CONDITION_TYPE.HASVALUE,
-    ];
-    return typeEnums.map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control),
-    }));
+  if (_.includes([15, 46], control.type)) {
+    return FILTER_CONDITION_TYPE.DATEENUM;
   }
-  if (typeKey) {
-    types = CONTROL_FILTER_WHITELIST[typeKey].types.map(filterType => ({
-      value: filterType,
-      text: getFilterTypeLabel(typeKey, filterType, control, type),
-    }));
+  if (control.type === 16) {
+    return FILTER_CONDITION_TYPE.DATE_EQ;
   }
-  return types;
+  if (_.includes([15, 46], control.type)) {
+    return FILTER_CONDITION_TYPE.DATEENUM;
+  }
+  if (_.includes([29, 35], control.type)) {
+    return FILTER_CONDITION_TYPE.RCEQ;
+  }
 }
 
 export function getDefaultCondition(control) {
   const conditionGroupKey = getTypeKey(control.type);
   const conditionGroupType =
     CONTROL_FILTER_WHITELIST[conditionGroupKey] && CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
+  const filterTypesOfControl = getFilterTypes(control);
+  let defaultFilterType = getDefaultFilterType(control) || FILTER_CONDITION_TYPE.EQ || filterTypesOfControl[0].value;
+  if (_.isUndefined(defaultFilterType) || !_.find(filterTypesOfControl, c => c.value === defaultFilterType)) {
+    defaultFilterType = filterTypesOfControl[0].value;
+  }
   const baseCondition = {
     controlId: control.controlId,
     controlType: control.type,
@@ -337,9 +473,7 @@ export function getDefaultCondition(control) {
     control,
     conditionGroupType,
     type:
-      conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value
-        ? FILTER_CONDITION_TYPE.HASVALUE
-        : getFilterTypes(control)[0].value,
+      conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value ? FILTER_CONDITION_TYPE.HASVALUE : defaultFilterType,
   };
   if (conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value && control.type === 36) {
     baseCondition.type = FILTER_CONDITION_TYPE.EQ;

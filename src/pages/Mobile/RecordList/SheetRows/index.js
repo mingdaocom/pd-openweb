@@ -54,6 +54,7 @@ class SheetRows extends Component {
           key={item.rowid}
           data={item}
           view={view}
+          appId={base.appId}
           controls={worksheetControls}
           allowAdd={worksheetInfo.allowAdd}
           batchOptVisible={batchOptVisible}

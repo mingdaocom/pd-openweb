@@ -1,4 +1,5 @@
-.AppAdminWorkflowEdit {
+.AppAdminWorkflowEdit,
+.integration {
   .dropdownTrigger {
     .ming.Menu {
       width: 100%;
@@ -470,19 +471,6 @@
         border-style: solid;
       }
     }
-    .errorColor {
-      color: #f44336 !important;
-    }
-    .errorBorder {
-      &.ming.Dropdown {
-        .Dropdown--border {
-          border-color: #f44336 !important;
-        }
-      }
-    }
-    .errorBG {
-      background: #fff2f2 !important;
-    }
     .clearBorderRadius {
       border-top-right-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
@@ -819,6 +807,7 @@
     &::after {
       width: 250px !important;
       white-space: normal;
+      word-break: break-all;
     }
   }
   .fomulaFnList {
@@ -1069,6 +1058,19 @@
     .CodeMirror-lines {
       cursor: pointer;
     }
+  }
+  .errorColor {
+    color: #f44336 !important;
+  }
+  .errorBorder {
+    &.ming.Dropdown {
+      .Dropdown--border {
+        border-color: #f44336 !important;
+      }
+    }
+  }
+  .errorBG {
+    background: #fff2f2 !important;
   }
 }
 

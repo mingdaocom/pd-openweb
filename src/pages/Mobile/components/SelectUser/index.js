@@ -529,7 +529,9 @@ export default class SelectUser extends Component {
                               department => department.departmentId === item.departmentId,
                             ).length;
                             let children = this.getChildren(this.state.treeData, item.departmentId);
-                            let temp = selectedUsers.filter(it => !_.includes(children, it.departmentId));
+                            let temp = selectedUsers.filter(it =>
+                              selectDepartmentType === 'current' ? !_.includes(children, it.departmentId) : true,
+                            );
                             if (onlyOne) {
                               this.setState({
                                 selectedUsers: isSelected ? [] : [item],

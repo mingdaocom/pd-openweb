@@ -211,8 +211,8 @@ export default class ExportSheet extends Component {
       } = this.props;
       const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type } = this.state;
 
-      // 获取Token
-      const token = await appManagement.getToken({ worksheetId, viewId });
+      // 获取Token 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+      const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 3 });
       const systemColumn = [];
       const exportControlsId = [];
       _.forEach(columnsSelected, (value, key) => {

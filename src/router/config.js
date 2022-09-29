@@ -70,6 +70,11 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/kc/share'),
     title: _l('知识'),
   },
+  recordFile: {
+    path: '/land/record/file',
+    component: () => import('src/pages/kc/share'),
+    title: _l('记录附件'),
+  },
 
   // 工作表
   newRecord: {
@@ -303,7 +308,7 @@ const withoutChatPathList = [
   'gunterExport',
   'land',
   'integrationConnect',
-  'integrationApi'
+  'integrationApi',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

@@ -89,6 +89,7 @@ module.exports = function (entryType) {
       }),
       // new BundleAnalyzerPlugin(),
     ],
+    devtool: undefined,
     output: Object.assign({}, webpackConfig.output, {
       path: path.join(__dirname, `../build/dist/${entryType}/pack`),
     }),

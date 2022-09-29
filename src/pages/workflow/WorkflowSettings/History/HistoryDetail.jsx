@@ -160,7 +160,7 @@ export default class HistoryDetail extends Component {
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
-    const showRetry = (data.status === 3 && _.includes([20001, 20002], cause)) || data.status === 4;
+    const showRetry = (data.status === 3 && _.includes([20001, 20002], cause)) || (status === 4 && cause !== 7777);
     const showSuspend = data.status === 1;
 
     if ((showRetry || showSuspend) && !disabled) {

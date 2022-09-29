@@ -197,7 +197,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
               showSystemControls
               columns={controls}
               conditions={items}
-              // from="relateSheet"
+              from="portal"
               conditionItemForDynamicStyle
               globalSheetControls={allControls}
               onConditionsChange={conditions => {

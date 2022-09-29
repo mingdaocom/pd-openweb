@@ -6,13 +6,7 @@ import WorkSheetComment from './WorkSheetComment';
 import WorkSheetFileList from './WorkSheetFileList';
 import WorksheetLog from './WorksheetLog';
 import './DiscussLogFile.less';
-import styled from 'styled-components';
-const Wrap = styled.span(
-  ({ value }) => `
-  display: inline-block;
-max-width: calc(${value}% - 28px)!important;
-`,
-);
+
 class DiscussLogFile extends Component {
   static propTypes = {
     workflow: PropTypes.element,
@@ -58,8 +52,7 @@ class DiscussLogFile extends Component {
       <div className="discussLogFile flexRow">
         <div className="header">
           {this.showTabs.map(tab => (
-            <Wrap
-              value={100 / this.showTabs.length}
+            <span
               key={tab.id}
               className={cx(
                 'talk ThemeHoverColor3 ThemeHoverBorderColor3 Font14 tab' + tab.id,
@@ -74,8 +67,15 @@ class DiscussLogFile extends Component {
                 }
               }}
             >
-              {tab.text}
-            </Wrap>
+              <span
+                className={cx(
+                  'txt InlineBlock overflow_ellipsis WordBreak',
+                  this.state.status === tab.id && 'ThemeColor3 ThemeBorderColor3 border2',
+                )}
+              >
+                {tab.text}
+              </span>
+            </span>
           ))}
         </div>
         {!loading && (

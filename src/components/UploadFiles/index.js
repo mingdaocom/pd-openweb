@@ -20,6 +20,8 @@ import {
 } from './utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { formatFileSize, getToken, upgradeVersionDialog } from 'src/util';
+import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import plupload from 'plupload';
 
 export const errorCode = {
@@ -33,6 +35,7 @@ export const errorCode = {
 }
 
 export default class UploadFiles extends Component {
+  static contextType = RecordInfoContext;
   static propTypes = {
     /**
      * 不限制上传的量
@@ -58,6 +61,10 @@ export default class UploadFiles extends Component {
      * 文件的最大宽度
      */
     maxWidth: PropTypes.number,
+    /**
+     * 文件的高度
+     */
+    height: PropTypes.number,
     /**
      * 是否能上传
      */
@@ -128,6 +135,7 @@ export default class UploadFiles extends Component {
     canAddLink: false,
     minWidth: 140,
     maxWidth: 200,
+    height: 118,
     isUpload: true,
     showAttInfo: true,
     isInitCall: false,
@@ -197,6 +205,20 @@ export default class UploadFiles extends Component {
         originCount: nextProps.originCount,
       });
     }
+  }
+
+  handleOpenControlAttachmentInNewTab(fileID) {
+    const { controlId } = this.props;
+    const recordBaseInfo = _.get(this, 'context.recordBaseInfo');
+    if (!recordBaseInfo) {
+      return;
+    }
+    openControlAttachmentInNewTab(
+      _.assign(_.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']), {
+        controlId,
+        fileId: fileID,
+      }),
+    );
   }
 
   initPlupload() {
@@ -288,8 +310,9 @@ export default class UploadFiles extends Component {
             return false;
           }
 
-          const temporaryDataLength = _this.state.temporaryData.filter(attachment => attachment.fileExt !== '.url')
-            .length;
+          const temporaryDataLength = _this.state.temporaryData.filter(
+            attachment => attachment.fileExt !== '.url',
+          ).length;
           const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
           const currentFileLength = temporaryDataLength + filesLength;
 
@@ -354,12 +377,7 @@ export default class UploadFiles extends Component {
           uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1
-              ? file.name
-                  .split('.')
-                  .slice(0, -1)
-                  .join('.')
-              : file.name,
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
         },
@@ -661,6 +679,7 @@ export default class UploadFiles extends Component {
             }
           }
         },
+        openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
       },
     );
   }
@@ -680,48 +699,63 @@ export default class UploadFiles extends Component {
 
     if (mdIndex >= 0) {
       let hideFunctions = ['editFileName'];
-      previewAttachments({
-        attachments: mdData.map(item => item.twice),
-        index: mdIndex,
-        callFrom: 'player',
-        hideFunctions: hideFunctions,
-      });
+      previewAttachments(
+        {
+          attachments: mdData.map(item => item.twice),
+          index: mdIndex,
+          callFrom: 'player',
+          hideFunctions: hideFunctions,
+        },
+        {
+          openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
+        },
+      );
     } else if (quIndex >= 0) {
       let hideFunctions = ['editFileName'];
-      previewAttachments({
-        attachments: quData.map(item => {
-          const twice = item.twice || {};
-          const result = {
-            name: `${item.originalFileName || '未命名'}${item.fileExt}`,
-            path: item.previewUrl
-              ? `${item.previewUrl}`
-              : item.url
-              ? `${item.url}&imageView2/1/w/200/h/140`
-              : `${item.serverName}${item.key}`,
-            previewAttachmentType: 'QINIU',
-            size: item.fileSize,
-            fileid: item.fileID,
-          };
-          if (item.fileExt === '.url') {
-            result.linkUrl = item.originLinkUrl;
-          }
-          return result;
-        }),
-        index: quIndex,
-        callFrom: 'chat',
-        hideFunctions: hideFunctions,
-      });
+      previewAttachments(
+        {
+          attachments: quData.map(item => {
+            const twice = item.twice || {};
+            const result = {
+              name: `${item.originalFileName || '未命名'}${item.fileExt}`,
+              path: item.previewUrl
+                ? `${item.previewUrl}`
+                : item.url
+                ? `${item.url}&imageView2/1/w/200/h/140`
+                : `${item.serverName}${item.key}`,
+              previewAttachmentType: 'QINIU',
+              size: item.fileSize,
+              fileid: item.fileID,
+            };
+            if (item.fileExt === '.url') {
+              result.linkUrl = item.originLinkUrl;
+            }
+            return result;
+          }),
+          index: quIndex,
+          callFrom: 'chat',
+          hideFunctions: hideFunctions,
+        },
+        {
+          openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
+        },
+      );
     }
   }
   onKcPreview(id, index) {
     const { kcAttachmentData } = this.state;
     let res = kcAttachmentData.filter(item => item.node);
-    previewAttachments({
-      attachments: res.map(item => item.node),
-      index: findIndex(res, id),
-      callFrom: 'kc',
-      hideFunctions: ['editFileName'],
-    });
+    previewAttachments(
+      {
+        attachments: res.map(item => item.node),
+        index: findIndex(res, id),
+        callFrom: 'kc',
+        hideFunctions: ['editFileName'],
+      },
+      {
+        openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
+      },
+    );
   }
   onKcTwicePreview(id, index, event) {
     let { kcAttachmentData } = this.state;
@@ -730,17 +764,28 @@ export default class UploadFiles extends Component {
 
     if (preview[0].updater) {
       // 知识中心
-      previewAttachments({
-        attachments: preview,
-        index: findIndex(attachments, id),
-        callFrom: 'kc',
-      });
+      previewAttachments(
+        {
+          attachments: preview,
+          index: findIndex(attachments, id),
+          callFrom: 'kc',
+        },
+        {
+          openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
+        },
+      );
     } else {
-      previewAttachments({
-        attachments: preview,
-        index: findIndex(attachments, id),
-        callFrom: 'player',
-      });
+      // 明道云
+      previewAttachments(
+        {
+          attachments: preview,
+          index: findIndex(attachments, id),
+          callFrom: 'player',
+        },
+        {
+          openControlAttachmentInNewTab: this.props.controlId && this.handleOpenControlAttachmentInNewTab.bind(this),
+        },
+      );
     }
   }
   onReplaceAttachment(newAttachment) {
@@ -757,7 +802,7 @@ export default class UploadFiles extends Component {
     }
   }
   render() {
-    let { isUpload, arrowLeft, minWidth, maxWidth, canAddLink } = this.props;
+    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
@@ -765,6 +810,7 @@ export default class UploadFiles extends Component {
     let style = {
       minWidth: minWidth,
       maxWidth: maxWidth,
+      height,
     };
     let { hideDownload = false } = this.props;
     return (
@@ -833,6 +879,9 @@ export default class UploadFiles extends Component {
               onReplaceAttachment={this.onReplaceAttachment.bind(this)}
               onPreview={this.onMDPreview.bind(this)}
               isDeleteFile={this.props.isDeleteFile}
+              {...(controlId
+                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
+                : {})}
             />
           ))}
           {temporaryData.map((item, index) => (
@@ -847,6 +896,9 @@ export default class UploadFiles extends Component {
               onDeleteFile={this.onDeleteFile.bind(this)}
               removeUploadingFile={this.removeUploadingFile.bind(this)}
               onPreview={this.onPreview.bind(this)}
+              {...(controlId
+                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
+                : {})}
             />
           ))}
           {kcAttachmentData.map((item, index) => (
@@ -861,6 +913,9 @@ export default class UploadFiles extends Component {
               onDeleteKcFile={this.onDeleteKcFile.bind(this)}
               onPreview={this.onKcPreview.bind(this)}
               onKcTwicePreview={this.onKcTwicePreview.bind(this)}
+              {...(controlId
+                ? { handleOpenControlAttachmentInNewTab: () => this.handleOpenControlAttachmentInNewTab(item.fileID) }
+                : {})}
             />
           ))}
           {emptys.map((item, index) => (

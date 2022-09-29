@@ -29,11 +29,12 @@ export default class HubContainer extends React.Component {
   }
 
   reload = () => {
-    const projectInfo = getProject(localStorage.getItem('currentProjectId'));
-    safeLocalStorageSetItem('currentProjectId', projectInfo.projectId);
+    const projectInfo = getProject(localStorage.getItem('currentProjectId')) || {};
+    const { projectId = '', isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
+    safeLocalStorageSetItem('currentProjectId', projectId);
     this.setState({
-      isSuperAdmin: projectInfo.isSuperAdmin || projectInfo.isProjectAppManager,
-      currentProjectId: projectInfo.projectId,
+      isSuperAdmin: isSuperAdmin || isProjectAppManager,
+      currentProjectId: projectId,
     });
   };
 

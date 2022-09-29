@@ -23,9 +23,9 @@ export default class SelectNodeObject extends Component {
             <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
             <span className="Font14 mLeft5 bold">{`“${item.appName}”`}</span>
           </Fragment>
-        ) : (
+        ) : !_.isEmpty(item) ? (
           <span className="Font14 mLeft5 Gray_9e">{_l('工作表已删除')}</span>
-        )}
+        ) : null}
       </Fragment>
     );
   }
@@ -41,10 +41,9 @@ export default class SelectNodeObject extends Component {
         {item.appId && item.appName ? (
           <Fragment>
             <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
-            <span
-              className="Font14 mLeft5 bold flowDropdownGray ellipsis"
-              style={{ maxWidth: 150 }}
-            >{`“${item.appName}”`}</span>
+            <span className="Font14 mLeft5 bold flowDropdownGray ellipsis" style={{ maxWidth: 150 }}>{`“${
+              item.appName
+            }”`}</span>
           </Fragment>
         ) : (
           <span className="Font14 mLeft5 Gray_75">

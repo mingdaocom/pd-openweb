@@ -39,6 +39,7 @@ const SortableList = SortableContainer(({ filteredColumns, selected, handleItemC
 
 export default class ChangeColumn extends Component {
   static propTypes = {
+    placeholder: PropTypes.string,
     layout: PropTypes.number, // 呈现方式 1 dropdown 2 平铺
     noShowCount: PropTypes.bool,
     showColumnLength: PropTypes.number,
@@ -58,6 +59,7 @@ export default class ChangeColumn extends Component {
     dragable: false,
     selected: [],
     columns: [],
+    placeholder: _l('搜索字段')
   };
 
   constructor(props) {
@@ -120,6 +122,7 @@ export default class ChangeColumn extends Component {
 
   render() {
     const {
+      placeholder,
       noShowCount,
       layout,
       showColumnLength,
@@ -174,7 +177,7 @@ export default class ChangeColumn extends Component {
             <i className="icon icon-search"></i>
             <Input
               value={search}
-              placeholder={_l('搜索字段')}
+              placeholder={placeholder}
               className="flex"
               onChange={value => {
                 this.setState({ search: value.trim() });

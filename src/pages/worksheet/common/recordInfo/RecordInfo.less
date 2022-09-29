@@ -180,20 +180,17 @@
             > .talk {
               position: relative;
               line-height: 50px;
-              margin: 0 14px;
+              padding: 0 14px;
               font-size: 14px !important;
               font-weight: 500;
-              max-width: calc(~'20% - 28px');
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
+              max-width: 25%;
               &.tab0 {
-                margin-right: 37px;
-                max-width: calc(~'20% - 37px');
+                padding-right: 14px;
+                max-width: 25%;
                 &:after {
                   content: ' ';
                   position: absolute;
-                  right: -26px;
+                  right: 0;
                   top: 14px;
                   width: 1px;
                   height: 16px;
@@ -201,7 +198,7 @@
                 }
               }
               &:first-child {
-                margin-left: 0px;
+                padding-left: 0px;
               }
             }
           }

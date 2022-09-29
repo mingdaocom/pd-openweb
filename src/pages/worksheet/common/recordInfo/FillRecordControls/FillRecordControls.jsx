@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { Modal, LoadDiv } from 'ming-ui';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
@@ -202,10 +202,10 @@ class FillRecordControls extends React.Component {
     const { recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
     const { submitLoading, formData, showError, isSubmitting } = this.state;
     return (
-      <Dialog
+      <Modal
+        allowScale
+        // type="fixed"
         className={cx('fillRecordControls', className)}
-        overlayClosable={false}
-        anim={false}
         width={900}
         onCancel={() => {
           hideDialog();
@@ -243,7 +243,7 @@ class FillRecordControls extends React.Component {
             onSave={this.onSave.bind(this)}
           />
         </div>
-      </Dialog>
+      </Modal>
     );
   }
 }

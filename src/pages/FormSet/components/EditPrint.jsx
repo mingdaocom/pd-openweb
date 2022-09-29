@@ -5,6 +5,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import './editPrint.less';
 import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
 import { getUrlByBucketName } from 'src/util';
+import { getToken } from 'src/api/appManagement';
 
 @withClickAway
 class EditPrint extends React.Component {
@@ -255,12 +256,17 @@ class EditPrint extends React.Component {
         <div className="activeBox">
           <span
             className={cx('sure', { disa: !this.state.hasChange })}
-            onClick={() => {
+            onClick={async () => {
               if (!this.state.hasChange) {
                 return;
               }
               let ajaxUrl;
               let option;
+              //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+              const token = await getToken({
+                worksheetId: worksheetId || templateId,
+                tokenType: 5,
+              });
               if (templateId) {
                 ajaxUrl = downLoadUrl + '/ExportWord/UploadWord';
                 option = {
@@ -268,6 +274,7 @@ class EditPrint extends React.Component {
                   accountId: md.global.Account.accountId,
                   doc: this.state.key,
                   name: fileName,
+                  token,
                 };
               } else {
                 ajaxUrl = downLoadUrl + '/ExportWord/CreateWord';
@@ -276,6 +283,7 @@ class EditPrint extends React.Component {
                   accountId: md.global.Account.accountId,
                   doc: this.state.key,
                   name: fileName,
+                  token,
                 };
               }
               $.ajax({

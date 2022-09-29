@@ -8,17 +8,19 @@ import DialogSelectDept from 'dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
 import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
-import { getConditionList, getConditionNumber } from '../../../utils';
+import { getConditionList, getConditionNumber, getFilterText } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { Tooltip, TimePicker } from 'antd';
+import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
     processId: PropTypes.string,
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
+    isIntegration: PropTypes.bool,
     Header: PropTypes.func,
     isNodeHeader: PropTypes.bool,
     controls: PropTypes.array,
@@ -47,6 +49,7 @@ export default class TriggerCondition extends Component {
       showControlsIndex: '',
       moreFieldsIndex: '',
       controlsData: this.getFieldData(props.controls),
+      visibleRoleDialog: false,
     };
   }
 
@@ -57,6 +60,7 @@ export default class TriggerCondition extends Component {
   }
 
   cacheCityPickerData = [];
+  cacheOptions = {};
 
   /**
    * 获取字段
@@ -165,7 +169,7 @@ export default class TriggerCondition extends Component {
         }
 
         return {
-          text: _.includes(['29', '30'], id) ? CONDITION_TYPE[id][showType] : CONDITION_TYPE[id],
+          text: getFilterText(single || {}, id),
           value: id,
         };
       });
@@ -198,9 +202,7 @@ export default class TriggerCondition extends Component {
             renderTitle={() =>
               item.conditionId && (
                 <span>
-                  {(_.includes(['29', '30'], item.conditionId)
-                    ? CONDITION_TYPE[item.conditionId][showType] || ''
-                    : CONDITION_TYPE[item.conditionId]) + (typeof conditionIndex === 'number' ? '*' : '')}
+                  {getFilterText(single || {}, item.conditionId) + (typeof conditionIndex === 'number' ? '*' : '')}
                 </span>
               )
             }
@@ -416,7 +418,7 @@ export default class TriggerCondition extends Component {
 
     const { filedId, filedTypeId, conditionValues, enumDefault, conditionId } = item;
 
-    // 文本 || 手机号码 || 电话号码 || 邮箱 || 证件  || 关联单条 || 文本组合 || 自动编号
+    // 文本 || 手机号码 || 电话号码 || 邮箱 || 证件  || 关联单条 || 文本组合 || 自动编号 || api查询
     if (
       filedTypeId === 1 ||
       filedTypeId === 2 ||
@@ -426,7 +428,8 @@ export default class TriggerCondition extends Component {
       filedTypeId === 7 ||
       filedTypeId === 29 ||
       filedTypeId === 32 ||
-      filedTypeId === 33
+      filedTypeId === 33 ||
+      filedTypeId === 50
     ) {
       return (
         <div className="flex relative flexRow">
@@ -434,7 +437,7 @@ export default class TriggerCondition extends Component {
             this.renderSelectFieldsValue(conditionValues[0], i, j)
           ) : (
             <TagInput
-              disable={_.includes(['33', '34'], item.conditionId)}
+              disable={_.includes(['9', '10', '33', '34', '43'], item.conditionId) && filedTypeId === 29}
               className="flex clearBorderRadius"
               tags={conditionValues.map(obj => obj.value)}
               createTag={val => this.updateConditionValue({ value: val, i, j })}
@@ -755,8 +758,8 @@ export default class TriggerCondition extends Component {
       );
     }
 
-    // 人员 || 部门
-    if (filedTypeId === 26 || filedTypeId === 27 || filedTypeId === 10000001) {
+    // 人员 || 部门 || 组织角色
+    if (filedTypeId === 26 || filedTypeId === 27 || filedTypeId === 48 || filedTypeId === 10000001) {
       return (
         <div className="flex relative flexRow">
           {conditionValues[0] && conditionValues[0].controlId ? (
@@ -775,19 +778,31 @@ export default class TriggerCondition extends Component {
                     j,
                     _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
                   );
-                } else {
+                } else if (filedTypeId === 27) {
                   this.selectDepartment(
                     conditionValues,
                     i,
                     j,
                     _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
                   );
+                } else {
+                  this.cacheOptions = {
+                    oldRoles: conditionValues,
+                    i,
+                    j,
+                    unique: _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
+                  };
+                  this.setState({ visibleRoleDialog: true });
                 }
               }}
             >
               {!conditionValues.length ? (
                 <div className="Gray_bd pLeft10 pRight10">
-                  {_.includes([26, 10000001], filedTypeId) ? _l('请选择人员') : _l('请选择部门')}
+                  {_.includes([26, 10000001], filedTypeId)
+                    ? _l('请选择人员')
+                    : filedTypeId === 27
+                    ? _l('请选择部门')
+                    : _l('请选择组织角色')}
                 </div>
               ) : (
                 <ul className="pLeft6 tagWrap">
@@ -993,7 +1008,7 @@ export default class TriggerCondition extends Component {
     const { updateSource } = this.props;
     const { filedTypeId } = data[i][j];
 
-    // 文本 || 手机号码 || 电话号码 || 邮箱 || 证件  || 关联单条 || 文本组合 || 自动编号
+    // 文本 || 手机号码 || 电话号码 || 邮箱 || 证件  || 关联单条 || 文本组合 || 自动编号 || api查询
     if (
       filedTypeId === 1 ||
       filedTypeId === 2 ||
@@ -1003,7 +1018,8 @@ export default class TriggerCondition extends Component {
       filedTypeId === 7 ||
       filedTypeId === 29 ||
       filedTypeId === 32 ||
-      filedTypeId === 33
+      filedTypeId === 33 ||
+      filedTypeId === 50
     ) {
       if (_.includes(data[i][j].conditionValues.map(obj => obj.value), value)) {
         _.remove(data[i][j].conditionValues, obj => obj.value === value);
@@ -1047,30 +1063,26 @@ export default class TriggerCondition extends Component {
       }
     }
 
-    // 人员
-    if (_.includes([26, 10000001], filedTypeId)) {
-      if (typeof value === 'string') {
-        _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
-      } else if (isSingle) {
-        data[i][j].conditionValues = [{ value: { key: value[0].accountId, value: value[0].fullname } }];
-      } else {
-        value.forEach(item => {
-          data[i][j].conditionValues.push({ value: { key: item.accountId, value: item.fullname } });
-        });
-      }
-    }
+    // 人员 || 部门 || 组织角色
+    if (_.includes([26, 27, 48, 10000001], filedTypeId)) {
+      const KEY = {
+        26: { id: 'accountId', name: 'fullname' },
+        27: { id: 'departmentId', name: 'departmentName' },
+        48: { id: 'organizeId', name: 'organizeName' },
+        10000001: { id: 'accountId', name: 'fullname' },
+      };
 
-    // 部门
-    if (filedTypeId === 27) {
       if (typeof value === 'string') {
         _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
       } else if (isSingle) {
         data[i][j].conditionValues = [
-          { value: { key: (value[0] || {}).departmentId, value: (value[0] || {}).departmentName } },
+          { value: { key: (value[0] || {})[KEY[filedTypeId].id], value: (value[0] || {})[KEY[filedTypeId].name] } },
         ];
       } else {
         value.forEach(item => {
-          data[i][j].conditionValues.push({ value: { key: item.departmentId, value: item.departmentName } });
+          data[i][j].conditionValues.push({
+            value: { key: item[KEY[filedTypeId].id], value: item[KEY[filedTypeId].name] },
+          });
         });
       }
     }
@@ -1105,7 +1117,7 @@ export default class TriggerCondition extends Component {
    * 更多节点的值
    */
   renderOtherFields(item, i, j, second = false) {
-    const { processId, selectNodeId, sourceAppId, controls } = this.props;
+    const { processId, selectNodeId, sourceAppId, isIntegration, controls } = this.props;
     const { moreFieldsIndex } = this.state;
     let dataSource = '';
 
@@ -1131,6 +1143,7 @@ export default class TriggerCondition extends Component {
         processId={processId}
         selectNodeId={selectNodeId}
         sourceAppId={sourceAppId}
+        isIntegration={isIntegration}
         conditionId={item.conditionId}
         dataSource={dataSource}
         handleFieldClick={obj => this.updateDynamicConditionValue({ ...obj, i, j, second })}
@@ -1234,16 +1247,41 @@ export default class TriggerCondition extends Component {
   };
 
   render() {
-    const { Header, data } = this.props;
+    const { projectId, Header, data } = this.props;
+    const { visibleRoleDialog } = this.state;
 
     return (
       <Fragment>
         <Header />
-        <div className="flowDetailTigger">
+        <div className="flowDetailTrigger">
           {data.map((item, i) =>
             item.map((source, j) => this.renderItem(source, i, j, i === data.length - 1, j === item.length - 1)),
           )}
         </div>
+
+        {visibleRoleDialog && (
+          <DialogSelectOrgRole
+            projectId={projectId}
+            orgRoleDialogVisible
+            unique={this.cacheOptions.unique}
+            onSave={roles => {
+              const unique = this.cacheOptions.unique;
+
+              if (!unique) {
+                const oldIds = this.cacheOptions.oldRoles.map(item => item.value.key);
+                _.remove(roles, item => _.includes(oldIds, item.organizeId));
+              }
+
+              this.updateConditionValue({
+                value: roles,
+                i: this.cacheOptions.i,
+                j: this.cacheOptions.j,
+                isSingle: unique,
+              });
+            }}
+            onClose={() => this.setState({ visibleRoleDialog: false })}
+          />
+        )}
       </Fragment>
     );
   }

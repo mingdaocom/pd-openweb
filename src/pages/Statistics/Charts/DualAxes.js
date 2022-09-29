@@ -137,9 +137,9 @@ export default class extends Component {
     let sortLineXAxis = [];
     let data =
       yreportType === reportTypes.LineChart
-        ? formatLineChartData(map, yaxisList, displaySetup)
-        : formatBarChartData(map, yaxisList);
-    let lineData = _.isEmpty(contrastMap) ? [] : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display });
+        ? formatLineChartData(map, yaxisList, displaySetup, splitId)
+        : formatBarChartData(map, yaxisList, splitId);
+    let lineData = _.isEmpty(contrastMap) ? [] : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display }, _.get(rightY, 'split.controlId'));
     let names = [];
 
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -197,8 +197,9 @@ export default class extends Component {
               { type: 'adjust-color' },
               { type: 'limit-in-plot' },
             ],
-            content: ({ value, groupName }) => {
-              return formatrChartValue(value, false, newYaxisList);
+            content: ({ value, groupName, controlId }) => {
+              const id = split.controlId ? newYaxisList[0].controlId : controlId;
+              return formatrChartValue(value, false, newYaxisList, value ? undefined : id);
             },
           }
         : false
@@ -224,7 +225,10 @@ export default class extends Component {
             layout: [displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null],
             content: ({ rightValue, value, groupName }) => {
               const { id } = formatControlInfo(groupName);
-              return formatrChartValue(rightValue || value, false, rightValue ? newRightYaxisList : newYaxisList);
+              const contentValue = rightValue || value;
+              const yaxisList = rightValue ? newRightYaxisList : newYaxisList;
+              const controlId = _.get(rightY, 'split.controlId') ? yaxisList[0].controlId : id;
+              return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
             },
           }
         : false

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { Support, ScrollView } from 'ming-ui';
@@ -12,6 +12,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import ConnectWrap from './ConnectWrap';
 import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+
 const Wrap = styled.div`
   background: #fff;
   min-height: 100%;
@@ -75,6 +76,14 @@ const WrapListHeader = styled.div`
     height: 36px;
   }
 `;
+const WrapLib = styled.div`
+  padding: 32px 50px;
+  max-width: 1600px;
+  margin: 0 auto;
+  .searchCon {
+    height: 36px;
+  }
+`;
 let ajaxPromise = null;
 const list = [
   {
@@ -86,6 +95,7 @@ const list = [
     name: _l('我的连接'),
   },
 ];
+
 function ConnectAndAuthCon(props) {
   const cache = useRef({ pgIndex: 1 });
   const { match = { params: {} } } = props;
@@ -109,9 +119,8 @@ function ConnectAndAuthCon(props) {
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, 3);
-
   const fetchData = () => {
-    if (loading || !props.currentProjectId) {
+    if (tab === 'connectList' && !props.currentProjectId) {
       return;
     }
     if (ajaxPromise) {
@@ -133,7 +142,7 @@ function ConnectAndAuthCon(props) {
       setState({
         loading: false,
         listData: pageIndex <= 1 ? res : listData.concat(res),
-        noMore: res.length < PageSize,
+        noMore: res.length <= 0,
       });
       cache.current.pgIndex = pageIndex;
     });
@@ -150,6 +159,17 @@ function ConnectAndAuthCon(props) {
       hasChange: hasChange + 1,
     });
   };
+
+  const handleSearch = useCallback(
+    _.throttle(v => {
+      setState({
+        keywords: v,
+        pageIndex: 1,
+        noMore: false,
+      });
+    }, 500),
+    [],
+  );
 
   const onScrollEnd = () => {
     if (loading || noMore) {
@@ -179,6 +199,43 @@ function ConnectAndAuthCon(props) {
     });
   }, [hasChange]);
 
+  const listConRender = () => {
+    if (!(listData.length <= 0 && !keywords))
+      return (
+        <React.Fragment>
+          <WrapListHeader className={cx('headCon flexRow', { pBottom12: !props.isSuperAdmin })}>
+            <div className="flex">
+              <SearchInput
+                className="searchCon"
+                placeholder={_l('搜索连接')}
+                value={keywords}
+                onChange={handleSearch}
+              />
+            </div>
+            {featureType && (
+              <span
+                className="addConnect Bold Hand"
+                onClick={() => {
+                  const projectId = props.currentProjectId;
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(projectId, 3);
+                  } else {
+                    setState({ showConnect: true, connectData: null });
+                  }
+                }}
+              >
+                <i className="icon-add" />
+                {_l('自定义连接')}
+              </span>
+            )}
+          </WrapListHeader>
+          {props.isSuperAdmin && (
+            <div className="Font13 Gray_75 mTop24 tips">{_l('组织应用管理员可管理组织下所有API连接')}</div>
+          )}
+        </React.Fragment>
+      );
+  };
+
   const renderCon = () => {
     const param = {
       ...props,
@@ -194,6 +251,9 @@ function ConnectAndAuthCon(props) {
     };
     const onCreate = () => {
       const projectId = props.currentProjectId;
+      if (!projectId) {
+        return alert(_l('请创建或申请加入一个组织', 3));
+      }
       if (featureType === '2') {
         buriedUpgradeVersionDialog(projectId, 3);
       } else {
@@ -201,20 +261,41 @@ function ConnectAndAuthCon(props) {
       }
     };
     if (md.global.Config.IsLocal) {
-      return <ConnectList {...param} onCreate={onCreate} featureType={featureType} />;
+      return (
+        <React.Fragment>
+          {listConRender()}
+          <ConnectList {...param} onCreate={onCreate} featureType={featureType} />
+        </React.Fragment>
+      );
     }
     switch (tab) {
       case 'connectLib':
         return (
-          <ConnectLib
-            {...param}
-            onShowConnect={id => {
-              setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
-            }}
-          />
+          <WrapLib>
+            <div className="flexRow alignItemsCenter ">
+              <h5 className="Bold Font17 flex mBottom0">{_l('API 库')}</h5>
+              <SearchInput
+                className="searchCon"
+                placeholder={_l('搜索连接/API/厂商')}
+                value={keywords}
+                onChange={handleSearch}
+              />
+            </div>
+            <ConnectLib
+              {...param}
+              onShowConnect={id => {
+                setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
+              }}
+            />
+          </WrapLib>
         );
       default:
-        return <ConnectList {...param} onCreate={onCreate} featureType={featureType} />;
+        return (
+          <React.Fragment>
+            {listConRender()}
+            <ConnectList {...param} onCreate={onCreate} featureType={featureType} />
+          </React.Fragment>
+        );
     }
   };
   return (
@@ -260,48 +341,7 @@ function ConnectAndAuthCon(props) {
                 </ul>
               </div>
             )}
-            <div className={cx('Con', { mTop40: md.global.Config.IsLocal })}>
-              {!(tab !== 'connectList' || (listData.length <= 0 && !keywords)) && (
-                <React.Fragment>
-                  <WrapListHeader className={cx('headCon flexRow', { pBottom12: !props.isSuperAdmin })}>
-                    <div className="flex">
-                      <SearchInput
-                        className="searchCon"
-                        placeholder={_l('搜索连接')}
-                        value={keywords}
-                        onChange={v => {
-                          setState({
-                            keywords: v,
-                            pageIndex: 1,
-                            noMore: false,
-                          });
-                        }}
-                      />
-                    </div>
-                    {featureType && (
-                      <span
-                        className="addConnect Bold Hand"
-                        onClick={() => {
-                          const projectId = props.currentProjectId;
-                          if (featureType === '2') {
-                            buriedUpgradeVersionDialog(projectId, 3);
-                          } else {
-                            setState({ showConnect: true, connectData: null });
-                          }
-                        }}
-                      >
-                        <i className="icon-add" />
-                        {_l('自定义连接')}
-                      </span>
-                    )}
-                  </WrapListHeader>
-                  {props.isSuperAdmin && (
-                    <div className="Font13 Gray_75 mTop24 tips">{_l('组织应用管理员可管理组织下所有API连接')}</div>
-                  )}
-                </React.Fragment>
-              )}
-              {renderCon()}
-            </div>
+            <div className={cx('Con', { mTop40: md.global.Config.IsLocal })}>{renderCon()}</div>
           </React.Fragment>
         </div>
         {showConnect && (

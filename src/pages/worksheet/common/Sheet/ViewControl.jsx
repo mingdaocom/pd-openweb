@@ -88,12 +88,9 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
-  useEffect(
-    () => {
-      setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
-    },
-    [activeBtnId, sheetButtons],
-  );
+  useEffect(() => {
+    setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
+  }, [activeBtnId, sheetButtons]);
   return (
     <Con>
       <ViewItems
@@ -132,6 +129,7 @@ function ViewControl(props) {
               viewId,
               title: view.name,
             },
+            getCopyContent: (type, url) => (type === 'private' ? url : `${url} ${worksheetInfo.name}-${view.name}`),
             onUpdate: value => {
               updateView(Object.assign({}, view, value));
             },
@@ -176,8 +174,8 @@ function ViewControl(props) {
         onViewConfigVisible={() => {
           setViewConfigVisible(true);
         }}
-        onSelectView={selectedView => {
-          navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`);
+        getNavigateUrl={selectedView => {
+          return `/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`;
         }}
       />
       {/**本表层级视图、甘特图 */}

@@ -2,20 +2,23 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Radio, Input } from 'antd';
 import { Icon } from 'ming-ui';
-import { colorGroup } from 'statistics/Charts/common';
+import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import './BaseColor.less';
 
 export default class BaseColor extends Component {
   constructor(props) {
     super(props);
-    const { style, xaxes } = props.currentReport;
+    const { style, xaxes, split, reportType } = props.currentReport;
+    const isBarChart = reportType === reportTypes.BarChart;
     const { colorType, colorGroupIndex, customColors } = style ? style : {};
     const defaultColors = colorGroup[0].value;
     const defaultCustomColors = defaultColors.map(item => defaultColors[0]);
     const storeCustomColors = JSON.parse(localStorage.getItem('chartCustomColors'));
-    const controlColors = xaxes.options ? xaxes.options.map(item => item.color) : [];
-    this.isAlienationColor = getIsAlienationColor(props.currentReport);
+    const xaxesOptions = (xaxes.options || []).map(item => item.color);
+    const splitOptions = (split.options || []).map(item => item.color);
+    const controlColors = splitOptions.length ? splitOptions : xaxesOptions;
+    this.isAlienationColor = getIsAlienationColor(props.currentReport) || (isBarChart && splitOptions.length);
     const type = [1, 2].includes(colorType) ? colorType : ((_.isEmpty(controlColors) || !this.isAlienationColor) ? 1 : 0);
     const defaultType = _.isEmpty(style) ? 1 : type;
     this.state = {

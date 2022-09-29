@@ -163,6 +163,7 @@ class UserTable extends React.Component {
       typeCursor,
       usersCurrentPage = [],
       chargeUsers,
+      searchId = [],
     } = props;
     let { columnsInfo, dropDownVisible } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
@@ -179,11 +180,11 @@ class UserTable extends React.Component {
       }
     });
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
-    let actWidth = $('.listInfo').height() > 48 * usersCurrentPage.length ? 80 : 90;
+    let actWidth = $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length ? 80 : 90;
     return (
       <thead>
         <tr>
-          {typeCursor === 0 && (
+          {(typeCursor === 0 || typeCursor === 1) && (
             <th
               className={classNames('checkBox', {
                 showCheckBox: isCheck || selectCount > 0,
@@ -252,6 +253,7 @@ class UserTable extends React.Component {
               trigger={['click']}
               visible={dropDownVisible}
               onVisibleChange={this.handleVisibleChange}
+              placement="bottomRight"
             >
               <Tooltip text={<span>{_l('自定义显示列')} </span>} popupPlacement="top">
                 <Icon
@@ -295,6 +297,7 @@ class UserTable extends React.Component {
           // onInputChange={handleInputChange}
           isHideCurrentColumn={this.isHideCurrentColumn}
           columnsInfo={temp}
+          dateNow={Date.now()}
         />
       );
     });

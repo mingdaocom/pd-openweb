@@ -711,6 +711,7 @@ export default class AppManagement extends Component {
                           if (featureType === '2') {
                             this.setState({ moreVisible: false });
                             buriedUpgradeVersionDialog(projectId, item.featureId);
+                            this.setState({ moreVisible: false });
                             return;
                           }
                           this[item.action]();

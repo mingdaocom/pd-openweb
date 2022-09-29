@@ -1,4 +1,5 @@
 export { default as ActionFields } from './ActionFields';
+export { default as AddOptions } from './AddOptions';
 export { default as ButtonName } from './ButtonName';
 export { default as CustomTextarea } from './CustomTextarea';
 export { default as DetailFooter } from './DetailFooter';

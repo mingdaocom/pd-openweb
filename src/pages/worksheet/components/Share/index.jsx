@@ -32,7 +32,7 @@ function genCard(from, type = 'public', params = {}) {
 }
 
 export default function Share(props) {
-  const { from, title, isCharge, isPublic, card, params = {}, onUpdate = () => {}, onClose } = props;
+  const { from, title, isCharge, isPublic, card, params = {}, onUpdate = () => {}, onClose, getCopyContent } = props;
   const [url, setUrl] = useState();
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
   const privateVisible = !_.includes(['report'], from);
@@ -95,6 +95,11 @@ export default function Share(props) {
                 onClick: () => window.open(url),
               },
             ]}
+            {...(_.isFunction(getCopyContent)
+              ? {
+                  getCopyContent: urlForCopy => getCopyContent('private', urlForCopy),
+                }
+              : {})}
           />
           <Hr style={{ margin: '25px 0 22px' }} />
         </React.Fragment>
@@ -120,6 +125,11 @@ export default function Share(props) {
               },
             ]}
             url={publicUrl}
+            {...(_.isFunction(getCopyContent)
+              ? {
+                  getCopyContent: urlForCopy => getCopyContent('public', urlForCopy),
+                }
+              : {})}
           />
           {from === 'newRecord' && (
             <a

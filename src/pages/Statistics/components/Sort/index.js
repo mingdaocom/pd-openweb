@@ -462,7 +462,7 @@ export default class Sort extends Component {
         {split && split.controlId && this.renderItem({
           ...split,
           originalControlId: split.controlId,
-          controlId: split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId
+          controlId: split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId,
         }, this.handleChangeYSort)}
         {rightYaxisList.map(yItem => this.renderItem(yItem, this.handleChangeYSort))}
         {rightY && rightY.split.controlId && this.renderItem({

@@ -22,8 +22,19 @@ const OPTIONS_DISPLAY = [
   },
 ];
 
+const MULTI_SELECT_DISPLAY = [
+  {
+    value: '0',
+    text: _l('横向'),
+  },
+  {
+    value: '1',
+    text: _l('纵向'),
+  },
+];
+
 export default function DropdownCom({ data, onChange, globalSheetInfo, fromPortal }) {
-  const { showtype = '0' } = getAdvanceSetting(data);
+  const { showtype = '0', direction = '0' } = getAdvanceSetting(data);
   const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
   return (
     <Fragment>
@@ -46,6 +57,17 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
           />
         </div>
       </SettingItem>
+      {showtype === '2' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('移动端显示')}</div>
+          <Dropdown
+            border
+            value={direction}
+            data={MULTI_SELECT_DISPLAY}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
+          />
+        </SettingItem>
+      )}
       <OptionList.SelectOptions
         data={data}
         globalSheetInfo={globalSheetInfo}

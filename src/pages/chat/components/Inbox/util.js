@@ -1,6 +1,6 @@
 import { MSGTYPES, APPID, SOURCE_TYPE } from './constants';
 import { browserIsMobile } from 'src/util';
-
+import { replacePorTalUrl } from 'src/pages/PortalAccount/util'
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};
   const { accountId, fullname, avatar } = createUser;
@@ -252,7 +252,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId) {
           linkUrl = ' /worksheet/' + sourceId + '/row/' + childId + '?share';
         } else {
           linkUrl = !browserIsMobile()
-            ? `/app/${appId}/${sourceId}/${viewId}/row/${childId}?share`
+            ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?share`)
             : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}`;//h5跳到记录详情
         }
       } else {

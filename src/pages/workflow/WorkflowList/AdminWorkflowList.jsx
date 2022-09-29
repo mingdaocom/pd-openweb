@@ -252,7 +252,7 @@ export default class AdminWorkflowList extends Component {
    * 渲染单个列表项
    */
   renderListItem(item) {
-    const { list } = this.state;
+    const { list, loading } = this.state;
 
     return (
       <div className="flexRow manageList" key={item.id}>
@@ -271,7 +271,7 @@ export default class AdminWorkflowList extends Component {
             <div className="ellipsis Font12 Gray_bd">{item.apkName}</div>
           </div>
         </div>
-        <div className="columnWidth">{item.count.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
+        <div className="columnWidth">{loading ? '-' : item.count.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
         <div className="columnWidth">
           <PublishBtn list={list} item={item} updateSource={list => this.setState({ list })} />
         </div>
@@ -365,6 +365,7 @@ export default class AdminWorkflowList extends Component {
     if (activeTab !== 'workflowList') {
       this.setState({ dateNow: Date.now() });
     } else {
+      this.setState({ loading: true });
       processVersion
         .init({
           companyId: projectId,
@@ -390,8 +391,11 @@ export default class AdminWorkflowList extends Component {
                 this.setState({
                   list: res.processes,
                   count: res.count,
+                  loading: false,
                 });
               });
+          } else {
+            this.setState({ loading: false });
           }
         });
     }
@@ -440,7 +444,7 @@ export default class AdminWorkflowList extends Component {
           </div>
           <div className="pre">
             <div
-              className={cx('refresh Hand Font20', { mRight40: activeTab === 'workflowList' })}
+              className={cx('refresh Hand Font20', { mRight24: activeTab === 'workflowList' })}
               onClick={this.refresh}
             >
               <Icon icon="task-later" />

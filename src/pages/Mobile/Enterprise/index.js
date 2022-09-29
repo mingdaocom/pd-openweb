@@ -235,7 +235,7 @@ class Enterprise extends Component {
           className="externalEntry WhiteBG pTop20 pBottom20 pLeft16 pRight16 mBottom20 Font18"
           onClick={() => this.checkCurrentProject({ projectId: 'external' })}
         >
-          <Radio checked={checkedProjectId === 'external'}>{_l('外部协作')}</Radio>{' '}
+          <Radio checked={checkedProjectId === 'external'}>{_l('外部协作')}</Radio>
         </div>
       </Fragment>
     );

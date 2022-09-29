@@ -23,7 +23,7 @@ const SortableItem = SortableElement(({ item, ...other }) => {
         <SvgIcon size="22" fill={item.color} url={item.iconUrl}/>
       </div>
       <div>{item.name}</div>
-      <div className="url">{item.linkParams ? item.linkParams.url : '-'}</div>
+      <div className="url ellipsis">{item.linkParams ? item.linkParams.url : '-'}</div>
       <div>
         <span className={item.predefined ? 'Gray_9e' : 'edit pointer'} onClick={() => { onEdit(item.id) }}>{_l('编辑')}</span>
         {!item.predefined && <span className="edit pointer mLeft20" onClick={() => { onDelete(item.id) }}>{_l('删除')}</span>}

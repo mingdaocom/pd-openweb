@@ -33,16 +33,20 @@ export default class AccountChart extends React.Component {
   }
 
   getData() {
-    this.setState({ loading: true });
-    $.when(this.getList(), this.getUntreatAuthList()).then((project, auth) => {
-      this.setState({
-        list: project.list,
-        count: project.allCount,
-        isEnterprise: project.allCount > 0,
-        authCount: auth.count,
-        loading: false,
+    if (getRequest().type === 'enterprise') {
+      this.setState({ loading: true });
+      $.when(this.getList(), this.getUntreatAuthList()).then((project, auth) => {
+        this.setState({
+          list: project.list,
+          count: project.allCount,
+          isEnterprise: project.allCount > 0,
+          authCount: auth.count,
+          loading: false,
+        });
       });
-    });
+    } else {
+      this.setState({ isEnterprise: getRequest().type });
+    }
   }
 
   //列表
@@ -64,7 +68,7 @@ export default class AccountChart extends React.Component {
       <Fragment>
         {list &&
           list.map(card => {
-            return <EnterpriseCard card={card} key={card.projectId} getData={() => this.getData()} />;
+            return <EnterpriseCard card={card} key={card.projectId} getData={() => this.get()} />;
           })}
       </Fragment>
     );
@@ -189,7 +193,10 @@ export default class AccountChart extends React.Component {
                     {authCount > 99 ? '99+' : authCount}
                   </span>
                 </span>
-                <span className="Font14 Hand mLeft40 mRight30 itemCreat InlineBlock" onClick={() => this.handleCreate()}>
+                <span
+                  className="Font14 Hand mLeft40 mRight30 itemCreat InlineBlock"
+                  onClick={() => this.handleCreate()}
+                >
                   {_l('创建组织')}
                 </span>
                 <span className="addBtn Hand" onClick={() => this.handleAdd()}>

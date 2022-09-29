@@ -6,6 +6,7 @@ dayjs.extend(isBetween);
 import _ from 'lodash';
 import { calcDate } from 'worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { returnMasterPage } from 'src/pages/widgetConfig/util';
 
 function newDate(dateStr) {
   return new Date(dayjs(dateStr).valueOf());
@@ -237,6 +238,9 @@ export const functions = {
   },
   // 求余
   MOD: function (number, divisor) {
+    if (typeof number === 'undefined') {
+      return;
+    }
     number = Number(number);
     divisor = Number(divisor);
     if (!_.isNumber(number) || _.isNaN(number)) {
@@ -320,7 +324,7 @@ export const functions = {
   },
   // 求和
   SUM: function (...args) {
-    args = args.filter(a => !_.isUndefined(a));
+    args = args.map(item => (_.isUndefined(item) ? 0 : item));
     if (!args.length) {
       throw new Error(_l('没有参数'));
     }

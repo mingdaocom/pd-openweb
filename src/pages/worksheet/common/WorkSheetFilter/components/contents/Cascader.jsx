@@ -137,23 +137,18 @@ export default class RelateRecord extends React.Component {
         </div>
         <div onClick={e => e.stopPropagation()}>
           {selectRecordVisible && (
-            <div className="cascaderDropdown">
+            <div
+              className="cascaderDropdown"
+              style={
+                isTree
+                  ? {
+                      marginTop: 14,
+                    }
+                  : {}
+              }
+            >
               <CascaderDropdown
                 popupClassName="worksheetFilterCascaderPopup"
-                popupAlign={{
-                  offset: [8, 0],
-                  overflow: {
-                    adjustX: true,
-                    adjustY: true,
-                  },
-                }}
-                treePopupAlign={{
-                  offset: [16, 0],
-                  overflow: {
-                    adjustX: true,
-                    adjustY: true,
-                  },
-                }}
                 visible={selectRecordVisible}
                 disabled={disabled}
                 onChange={this.handleChange}

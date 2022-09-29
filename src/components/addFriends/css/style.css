@@ -59,6 +59,13 @@
   cursor: pointer;
 }
 
+.safeWarning{
+  background-color: #FFF9D9;
+  margin: 16px 0 24px;
+  padding: 14px;
+  border-radius: 3px;
+}
+
 #addNewFriends .addUserItem {
   display: flex;
   padding-top: 40px;
@@ -110,4 +117,8 @@
 
 #addNewFriends .addFriendSearchResult {
   min-height: 80px;
+}
+
+.hidden{
+  display: none;
 }

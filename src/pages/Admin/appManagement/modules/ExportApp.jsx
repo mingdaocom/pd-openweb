@@ -5,6 +5,7 @@ import { Checkbox, Tooltip, Support, Dialog } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import { getRandomString } from 'src/util';
+import cx from 'classnames';
 
 export default class ExportApp extends React.Component {
   constructor(props) {
@@ -27,7 +28,7 @@ export default class ExportApp extends React.Component {
             ...item,
             exampleType: 0,
             entities: item.entities.map(entity => {
-              return { ...entity, count: 0 };
+              return { ...entity, count: 0, totalRecordNum: entity.count };
             }),
           };
         });
@@ -38,6 +39,8 @@ export default class ExportApp extends React.Component {
 
   //立即导出
   handleExportApp() {
+    const { disabledExportBtn = false } = this.state;
+    if (disabledExportBtn) return;
     const { list = [] } = this.settings.state;
     const params = {
       token: this.state.token,
@@ -46,7 +49,7 @@ export default class ExportApp extends React.Component {
       appConfig: list.map(item => {
         const { entities = [] } = item;
         const sheetConfig = entities.map(entity => {
-          return { worksheetId: entity.worksheetId, count: entity.count };
+          return { worksheetId: entity.worksheetId, count: entity.count > 0 ? entity.count : 0 };
         });
         return { appId: item.appId, exampleType: item.exampleType, sheetConfig };
       }),
@@ -117,6 +120,11 @@ export default class ExportApp extends React.Component {
     );
   }
 
+  // 选择导出数量
+  getIsDisabledExportBtn = flag => {
+    this.setState({ disabledExportBtn: flag });
+  };
+
   //导出应用及子表设置
   renderAppSettingContent() {
     const { exportList } = this.state;
@@ -127,7 +135,11 @@ export default class ExportApp extends React.Component {
           <div className="Gray_75 singleItemLeft Bold">{_l('应用')}</div>
           <div className="Gray_75 singleItemRight Bold">{_l('导出示例数据')}</div>
         </div>
-        <AppSettings ref={con => (this.settings = con)} list={exportList} />
+        <AppSettings
+          ref={con => (this.settings = con)}
+          list={exportList}
+          getIsDisabledExportBtn={this.getIsDisabledExportBtn}
+        />
       </Fragment>
     );
   }
@@ -142,13 +154,13 @@ export default class ExportApp extends React.Component {
   }
 
   render() {
-    const { relation } = this.state;
+    const { relation, disabledExportBtn = false } = this.state;
     const options = {
       title: this.renderHeader(),
       visible: true,
       footer: null,
       className: 'exportSingleAppDialog',
-      width: '720',
+      width: '920',
       type: 'scroll',
       overlayClosable: false,
       onCancel: () => this.props.closeDialog(),
@@ -173,7 +185,9 @@ export default class ExportApp extends React.Component {
           <div className="mTop32 mBottom20 clearfix selectAppOptionBtns">
             <button
               type="button"
-              className="ming Button Right Button--primary nextBtn Bold"
+              className={cx('ming Button Right Button--primary nextBtn Bold', {
+                'Button--disabled': disabledExportBtn,
+              })}
               onClick={() => this.handleExportApp()}
             >
               {_l('立即导出')}

@@ -69,7 +69,7 @@ export class Count extends Component {
           </div>
         )}
         <div className="mBottom16">
-          <div className="mBottom8">{_l('名称')}</div>
+          <div className="mBottom8">{_l('提示')}</div>
           <Input
             value={summary.name}
             className="chartInput w100"

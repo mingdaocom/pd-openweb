@@ -67,25 +67,19 @@ class DialogSelectDept extends React.Component {
     const selectFn = this.props.selectFn;
     selectFn.call(
       null,
-      _.map(
-        selectedDepartment.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1),
-        dept => ({
-          departmentId: dept.departmentId,
-          departmentName: dept.departmentName,
-          haveSubDepartment: dept.haveSubDepartment,
-          userCount: dept.userCount,
-        }),
-      ),
+      _.map(selectedDepartment.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1), dept => ({
+        departmentId: dept.departmentId,
+        departmentName: dept.departmentName,
+        haveSubDepartment: dept.haveSubDepartment,
+        userCount: dept.userCount,
+      })),
       checkIncludeChilren
-        ? _.map(
-            selectedDepartment.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0),
-            dept => ({
-              departmentId: dept.departmentId,
-              departmentName: dept.departmentName,
-              haveSubDepartment: dept.haveSubDepartment,
-              userCount: dept.userCount,
-            }),
-          )
+        ? _.map(selectedDepartment.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0), dept => ({
+            departmentId: dept.departmentId,
+            departmentName: dept.departmentName,
+            haveSubDepartment: dept.haveSubDepartment,
+            userCount: dept.userCount,
+          }))
         : null,
     );
   }
@@ -146,7 +140,13 @@ class DialogSelectDept extends React.Component {
       ? { ...param, pageIndex: this.state.rootPageIndex, pageSize: this.state.pageSize }
       : param;
     this.promise = departmentController[
-      isAnalysis ? 'pagedDepartmentTrees' : isAdmin ? 'searchProjectDepartment2' : 'searchDepartment2'
+      isAnalysis && isAdmin
+        ? 'pagedProjectDepartmentTrees'
+        : isAnalysis
+        ? 'pagedDepartmentTrees'
+        : isAdmin
+        ? 'searchProjectDepartment2'
+        : 'searchDepartment2'
     ](param)
       .done(data => {
         let showProjectAll = true;
@@ -234,7 +234,9 @@ class DialogSelectDept extends React.Component {
               };
 
         departmentController[
-          this.props.isAnalysis
+          this.props.isAnalysis && location.href.indexOf('admin') > -1
+            ? 'pagedProjectDepartmentTrees'
+            : this.props.isAnalysis
             ? 'pagedDepartmentTrees'
             : location.href.indexOf('admin') > -1
             ? 'pagedSubDepartments'
@@ -604,7 +606,7 @@ class DialogSelectDept extends React.Component {
   }
 }
 
-module.exports = function (opts) {
+module.exports = function(opts) {
   const DEFAULTS = {
     title: _l('选择部门'),
     dialogBoxID: 'dialogSelectDept',
@@ -615,7 +617,7 @@ module.exports = function (opts) {
     includeProject: false,
     checkIncludeChilren: false,
     allProject: false,
-    selectFn: function (depts) {
+    selectFn: function(depts) {
       // console.log(depts);
     },
   };
@@ -629,7 +631,7 @@ module.exports = function (opts) {
     container: {
       header: options.title,
     },
-    callback: function () {
+    callback: function() {
       if (typeof opts.onClose === 'function') {
         opts.onClose();
       }

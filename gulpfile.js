@@ -50,11 +50,6 @@ gulp.task(
   webpackTaskFactory(merge(getWebpackSingleConfig('single'), { entry: findEntryMap('single') }), false),
 );
 
-gulp.task(
-  'sheetsingleEntryWebpack',
-  webpackTaskFactory(merge(getWebpackSingleConfig('sheetsingle'), { entry: findEntryMap('sheetsingle') }), false),
-);
-
 /** MdFunction 库构建 */
 gulp.task('mdFunctionWebpack', webpackTaskFactory(webpackConfigForMdFunction, false));
 
@@ -149,7 +144,7 @@ gulp.task('dev:main', done => {
 });
 
 /** 构建 ->  webpack 编译 js 代码，生成至 ./build/dist */
-gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryWebpack', 'sheetsingleEntryWebpack'));
+gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryWebpack'));
 
 /** 清理 sourceMap, LICENSE 文件 */
 gulp.task('clean-file', done => {

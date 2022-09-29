@@ -5,6 +5,8 @@ const userSchema = new Schema('users', {
   idAttribute: 'accountId',
   defaults: {
     collapsed: true, // 折叠状态
+    pageIndex: 1,
+    moreLoading: false,
   },
 });
 
@@ -26,11 +28,14 @@ const updateSingleEntity = (user, action) => {
     case ACTIONS.SUBORDINATES_REQUEST:
       return { ...user };
     case ACTIONS.UPDATE_ENTITY_CHILDS:
-      const { source } = payload;
+      const { source, id, moreLoading, pageIndex, totalCount } = payload;
       const result = parse(source).result;
       return {
         ...user,
         subordinates: _.uniqBy((user.subordinates || []).concat(result)),
+        moreLoading: moreLoading || false,
+        pageIndex: pageIndex ? pageIndex : user.pageIndex,
+        subTotalCount: totalCount || user.subTotalCount || 0,
       };
       break;
     case ACTIONS.OPEN_COLLAPSE:
@@ -45,6 +50,7 @@ const updateSingleEntity = (user, action) => {
       return {
         ...user,
         subordinates: _.filter(subordinates, id => id !== removeId),
+        subTotalCount: user.subTotalCount - 1,
       };
     case ACTIONS.ADD_PARENT_CHILDREN:
       const { addId } = payload;
@@ -52,6 +58,7 @@ const updateSingleEntity = (user, action) => {
       return {
         ...user,
         subordinates: subordinates.concat(addId),
+        subTotalCount: user.subTotalCount ? user.subTotalCount + 1 : 0,
       };
   }
 };
@@ -111,10 +118,12 @@ export default (state = initialState, action) => {
         ...state,
         entities: {
           ...state.entities,
-          users: {
-            ...users,
-            [id]: updateSingleEntity(user, action),
-          },
+          users: user
+            ? {
+                ...users,
+                [id]: updateSingleEntity(user, action),
+              }
+            : users,
         },
       };
     case ACTIONS.UPDATE_CURRENT_CHILDREN:
@@ -149,7 +158,13 @@ export default (state = initialState, action) => {
         ...state,
         isLoading: payload.data,
       };
+    case ACTIONS.UPDATE_FIRST_LEVEL_LOADING:
+      return {
+        ...state,
+        firstLevelLoading: payload.data,
+      };
     default:
       return state;
   }
 };
+

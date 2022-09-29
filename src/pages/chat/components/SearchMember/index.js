@@ -83,22 +83,27 @@ export default class SearchMember extends Component {
   }
   handleChange(event) {
     const { value } = event.target;
-    const { result, contentVisible, loading } = this.state;
+    const { result } = this.state;
+    const isWindows = navigator.userAgent.toLocaleLowerCase().includes('windows');
     this.setState({
       value,
-      result: value ? result : [],
-      contentVisible: value ? contentVisible : false,
       flattenResult: [],
       currentIndex: -1,
     });
-    if (value.trim()) {
-      const style = this.getInnerHeight();
-      this.getAllAddressbookByKeywords(value.trim());
+    setTimeout(() => {
+      const { result, contentVisible } = this.state;
       this.setState({
-        style,
-        contentVisible: true,
+        contentVisible: value ? contentVisible : false,
       });
-    }
+      if (value.trim()) {
+        const style = this.getInnerHeight();
+        this.getAllAddressbookByKeywords(value.trim());
+        this.setState({
+          style,
+          contentVisible: true,
+        });
+      }
+    }, isWindows ? 500 : 0);
   }
   handleKeyDown(event) {
     const { flattenResult, currentIndex } = this.state;

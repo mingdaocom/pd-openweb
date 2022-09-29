@@ -158,12 +158,14 @@ export default function SheetMoreOperate(props) {
               <span className="text">{_l('从 Excel 导入数据')}</span>
             </MenuItem>
           )}
+
           <MenuItem
             icon={<Icon icon="recycle" />}
             onClick={() => {
               openWorkSheetTrash({
                 appId,
                 worksheetInfo,
+                projectId,
                 isCharge,
                 isAdmin: isCharge,
                 controls,
@@ -175,6 +177,7 @@ export default function SheetMoreOperate(props) {
           >
             <span className="text">{_l('回收站')}</span>
           </MenuItem>
+
           {isCharge && (
             <MenuItem
               icon={<Icon icon="delete2" />}

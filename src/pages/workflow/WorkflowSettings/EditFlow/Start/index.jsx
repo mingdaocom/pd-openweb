@@ -272,7 +272,7 @@ export default class Start extends Component {
               {
                 errorShadow:
                   (item.appId && !item.appName && item.appType !== APP_TYPE.PBC) ||
-                  (item.appType === APP_TYPE.DATE && item.isException),
+                  (_.includes([APP_TYPE.DATE, APP_TYPE.PBC], item.appType) && item.isException),
               },
               { active: selectNodeId === item.id },
             )}

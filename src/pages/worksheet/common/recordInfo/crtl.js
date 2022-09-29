@@ -11,7 +11,7 @@ import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
-
+import { replacePorTalUrl } from 'src/pages/PortalAccount/util'
 export function getWorksheetInfo(...args) {
   return getWorksheetInfoApi(...args);
 }
@@ -84,7 +84,7 @@ export function updateRecord(
     triggerUniqueError,
     updateSuccess,
   },
-  callback = () => {},
+  callback = () => { },
 ) {
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
@@ -244,7 +244,7 @@ function isOwner(ownerAccount, formdata) {
       .filter(c => c.type === 26 && c.userPermission === 2)
       .map(u => JSON.parse(u.value))
       .filter(c => c && c.length);
-  } catch (err) {}
+  } catch (err) { }
   accountsOfOwner.forEach(accounts => {
     accounts.forEach(account => {
       if (account.accountId === md.global.Account.accountId) {
@@ -332,6 +332,7 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
         rowId: recordId,
         title: recordTitle,
       },
+      getCopyContent: (type, url) => `${url} ${row.entityName}：${recordTitle}`,
     });
   } catch (err) {
     alert(_l('分享失败'));
@@ -362,25 +363,26 @@ export async function handleCreateTask({ appId, worksheetId, viewId, recordId })
 }
 
 export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId }) {
+  if (md.global.Account.isPortal) {
+    appId = md.global.Account.appId;
+  }
   if (!appId) {
     const res = await getWorksheetInfo({ worksheetId });
     appId = res.appId;
   }
   const appFeaturesPath = getAppFeaturesPath();
   if (viewId) {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${appFeaturesPath ? '?' + appFeaturesPath : ''
+      }`;
   } else {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${appFeaturesPath ? '?' + appFeaturesPath : ''
+      }`;
   }
 }
 
 export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {
   const url = await getRecordLandUrl({ appId, worksheetId, viewId, recordId });
-  window.open(url);
+  window.open(replacePorTalUrl(url));
 }
 
 export function handleCustomWidget(worksheetId) {

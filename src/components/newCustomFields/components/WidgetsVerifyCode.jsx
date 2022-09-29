@@ -72,8 +72,12 @@ export default class WidgetsVerifyCode extends Component {
       });
     };
 
+    let onCancel = () => {
+      this.setState({ isSubmit: false });
+    };
+
     if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(cb);
+      new captcha(cb, onCancel);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
     }

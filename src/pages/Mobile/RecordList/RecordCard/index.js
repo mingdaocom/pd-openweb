@@ -5,7 +5,6 @@ import { Checkbox } from 'antd-mobile';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import worksheetAjax from 'src/api/worksheet';
-import { withRouter } from 'react-router-dom';
 import './index.less';
 
 function getCoverControlData(data) {
@@ -19,7 +18,6 @@ const coverTypes = {
   3: 'rectangle',
 };
 
-@withRouter
 export default class RecordCard extends Component {
   constructor(props) {
     super(props);
@@ -92,16 +90,15 @@ export default class RecordCard extends Component {
   };
   handleChangeCheckbox = e => {
     const { checked } = this.state;
-    const { data, view, controls, match } = this.props;
-    const { params } = match;
+    const { appId, data, view, controls } = this.props;
     const control = _.find(controls, { controlId: view.advancedSetting.checkradioid });
     const newChecked = !checked;
     worksheetAjax
       .updateWorksheetRow({
-        appId: params.appId,
+        appId,
         rowId: data.rowid,
-        viewId: params.viewId,
-        worksheetId: params.worksheetId,
+        viewId: view.viewId,
+        worksheetId: view.worksheetId,
         newOldControl: [
           {
             controlId: control.controlId,

@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import Icon from 'ming-ui/components/Icon';
+import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import ViewDisplayMenu from './viewDisplayMenu';
@@ -167,21 +165,6 @@ export default class Item extends Component {
       </Menu>
     );
   };
-  handleClick = (view, event) => {
-    const { isEdit } = this.state;
-    if (this.timer || isEdit) return;
-    this.timer = setTimeout(() => {
-      clearTimeout(this.timer);
-      this.timer = null;
-      this.props.onSelectView(view);
-    }, 200);
-  };
-  handleDbClick = view => {
-    this.setState({ isEdit: true });
-    this.props.onSelectView(view);
-    clearTimeout(this.timer);
-    this.timer = null;
-  };
   handleSaveName = event => {
     const value = event.target.value.trim();
     const { item } = this.props;
@@ -195,7 +178,7 @@ export default class Item extends Component {
     });
   };
   render() {
-    const { item, currentViewId, isCharge, sheetSwitchPermit, currentView } = this.props;
+    const { item, currentViewId, isCharge, sheetSwitchPermit, currentView, getNavigateUrl } = this.props;
     const { isEdit } = this.state;
     return (
       <div
@@ -203,12 +186,11 @@ export default class Item extends Component {
           active: currentViewId === item.viewId,
         })}
       >
-        <div
+        <MdLink
           className={cx('name valignWrapper overflowHidden h100', {
             pRight20: !(isCharge || this.canExport()),
           })}
-          onClick={() => this.handleClick(item)}
-          onDoubleClick={isCharge ? () => this.handleDbClick(item) : _.noop}
+          to={getNavigateUrl(item)}
         >
           {isEdit ? (
             <input
@@ -225,7 +207,7 @@ export default class Item extends Component {
           ) : (
             <span className="ellipsis bold">{item.name}</span>
           )}
-        </div>
+        </MdLink>
         {isCharge || this.canExport() || this.canShare() ? (
           <Trigger
             popupVisible={this.state.visible}

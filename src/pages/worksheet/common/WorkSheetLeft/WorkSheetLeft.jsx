@@ -1,21 +1,23 @@
+import React, { Component, Fragment, useState, useEffect } from 'react';
 import cx from 'classnames';
-import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { ScrollView, Dialog, Tooltip, Menu, MenuItem } from 'ming-ui';
+import { ScrollView, Dialog, Tooltip, Menu, MenuItem, Checkbox, LoadDiv } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import color from 'color';
 import Skeleton from 'src/router/Application/Skeleton';
 import Guidance from 'src/pages/worksheet/components/Guidance';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
+import sheetApi from 'src/api/worksheet';
 import CreateNew from './CreateNew';
 import WorkSheetItem from './WorkSheetItem';
 import './WorkSheetLeft.less';
 import { browserIsMobile, getAppFeaturesVisible } from 'src/util';
+import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 
 function getProjectfoldedFromStorage() {
   let result = {};
@@ -33,6 +35,101 @@ function getProjectfoldedFromStorage() {
 
 function convertColor(colorStr) {
   return colorStr ? color(colorStr).alpha(0.2) : '#bbdefb';
+}
+
+const CopySheetConfirmDescription = props => {
+  const { workSheetId, type } = props;
+  const [loading, setLoading] = useState(true);
+  const [controls, setControls] = useState([]);
+  const [isCopyRelevance, setIsCopyRelevance] = useState(false);
+  const [selectIds, setSelectIds] = useState([]);
+
+  useEffect(() => {
+    if (!type && _.isEmpty(props.controls)) {
+      sheetApi.getWorksheetInfo({
+        getTemplate: true,
+        worksheetId: workSheetId
+      }).then(data => {
+        const controls = _.get(data, 'template.controls');
+        setLoading(false);
+        setControls(controls.filter(c => c.type === 29));
+      });
+    } else {
+      setLoading(false);
+      setControls(props.controls.filter(c => c.type === 29));
+    }
+  }, []);
+
+  useEffect(() => {
+    props.onChanegSelectIds(selectIds);
+  }, [selectIds]);
+
+  return (
+    type ? (
+      _l('仅复制当前自定义页面的所有配置')
+    ) : (
+      <Fragment>
+        <div>{_l('仅复制目标工作表的所有配置，工作表下的数据不会被复制')}</div>
+        {loading && <LoadDiv className="mTop10" />}
+        {!!controls.length && (
+          <Fragment>
+            <div className="mTop24 mBottom20 Font14">
+              <Checkbox
+                className="mBottom10 Font14 Gray"
+                checked={isCopyRelevance}
+                text={<span className="Font14">{_l('同时复制关联关系')}</span>}
+                onClick={() => {
+                  setIsCopyRelevance(!isCopyRelevance);
+                }}
+              />
+              <div className="Gray_9e mLeft25">{_l('未勾选时，所有关联记录字段将被复制为文本字段')}</div>
+              <div className="Gray_9e mLeft25">{_l('勾选时，选中的关联记录字段将会完整复制与其他表的关联关系')}</div>
+            </div>
+            {isCopyRelevance && (
+              <Fragment>
+                <Checkbox
+                  checked={selectIds.length === controls.length}
+                  indeterminate={selectIds.length === controls.length ? false : selectIds.length}
+                  className="mBottom10"
+                  text={(
+                    <Fragment>
+                      <span className="Font14 Gray mRight2">{_l('全选')}</span>
+                      <span className="Font14 Gray_9e">{`${selectIds.length}/${controls.length}`}</span>
+                    </Fragment>
+                  )}
+                  onClick={(value) => {
+                    if (value) {
+                      setSelectIds([]);
+                    } else {
+                      setSelectIds(controls.map(c => c.controlId));
+                    }
+                  }}
+                />
+                <div className="mLeft25" style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {controls.map(c => (
+                    <Checkbox
+                      key={c.controlId}
+                      className="mBottom10 Gray"
+                      checked={selectIds.includes(c.controlId)}
+                      text={<span className="Font14">{c.controlName}</span>}
+                      onClick={(value) => {
+                        if (value) {
+                          setSelectIds(selectIds.filter(id => id !== c.controlId));
+                        } else {
+                          const data = selectIds.concat(c.controlId);
+                          setSelectIds(data);
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </Fragment>
+            )}
+          </Fragment>
+        )}
+      </Fragment>
+    )
+  );
 }
 
 const SortableItem = SortableElement(({ sheet, index, ...other }) => {
@@ -145,18 +242,27 @@ class WorkSheetLeft extends Component {
     this.props.sheetListActions.sortSheetList(appId, groupId, newSheetList);
   }
   handleCopy = ({ workSheetId, workSheetName, icon, iconColor, iconUrl, type = 0 }) => {
-    const { appId, groupId, sheetListActions } = this.props;
+    const { id, appId, groupId, sheetListActions, controls } = this.props;
     const copyArgs = {
       worksheetId: workSheetId,
       appId,
       appSectionId: groupId,
       name: workSheetName,
+      relationControlIds: []
     };
     Dialog.confirm({
-      title: type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName),
-      description: type
-        ? _l('将复制当前自定义页面的所有配置')
-        : _l('将复制目标工作表的所有配置。工作表下的数据不会被复制'),
+      width: 480,
+      title: <span className="bold">{type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName)}</span>,
+      description: (
+        <CopySheetConfirmDescription
+          type={type}
+          workSheetId={workSheetId}
+          controls={id === workSheetId ? controls : []}
+          onChanegSelectIds={(ids) => {
+            copyArgs.relationControlIds = ids;
+          }}
+        />
+      ),
       okText: _l('复制'),
       onOk: () => {
         if (type === 1) {
@@ -333,6 +439,7 @@ const mapStateToProps = state => ({
   isUnfold: state.sheetList.isUnfold,
   appPkg: state.appPkg,
   guidanceVisible: state.sheetList.guidanceVisible,
+  controls: state.sheet.controls
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkSheetLeft);

@@ -101,7 +101,7 @@ export function selectUser({ title, accountId, unique, isSetParent, callback }) 
   });
 }
 
-export function searchUser({ keywords, pageIndex = 1, pageSize = 9999 }) {
+export function searchUser({ keywords, pageIndex = 1, pageSize = 100 }) {
   return structureController.getStructureUsers({
     projectId: Config.projectId,
     keywords,

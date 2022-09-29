@@ -117,7 +117,9 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     }
     if (action === 1 && value) {
       const { btnId } = item;
+      isMobile && Toast.loading(_l('加载中，请稍后'));
       const { appId } = await getAppSimpleInfo({ workSheetId: value });
+      isMobile && Toast.hide();
       const param = { visible: true, value, viewId, appId, name };
       if (isMingdao) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
@@ -125,14 +127,18 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         return;
       }
       if (btnId) {
+        isMobile && Toast.loading(_l('加载中，请稍后'));
         const { writeControls } = await getWorksheetBtnByID({ appId, worksheetId: value, btnId });
+        isMobile && Toast.hide();
         setInfo({ ...param, writeControls });
       } else {
         setInfo(param);
       }
     }
     if (_.includes([2, 3], action) && value) {
+      isMobile && Toast.loading(_l('加载中，请稍后'));
       const { appId, appSectionId } = await getAppSimpleInfo({ workSheetId: value });
+      isMobile && Toast.hide();
       const getUrl = () => {
         let urlName = '/app';
         if (isMobile) {
@@ -254,7 +260,9 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     // 文本，搜索打开记录
     if (config.text === 1 && value && viewId) {
       const { isFilter } = config;
+      isMobile && Toast.loading(_l('加载中，请稍后'));
       const { appId } = await getAppSimpleInfo({ workSheetId: value });
+      isMobile && Toast.hide();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
       window.mobileNavigateTo(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`);

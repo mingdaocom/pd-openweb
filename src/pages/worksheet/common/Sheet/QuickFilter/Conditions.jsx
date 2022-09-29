@@ -126,6 +126,9 @@ function turnControl(control) {
 
 function conditionAdapter(condition) {
   delete condition.control;
+  if (condition.dataType === 29 && condition.filterType === 2) {
+    condition.filterType = 24;
+  }
   return condition;
 }
 
@@ -148,6 +151,7 @@ export default function Conditions(props) {
     setFullShow,
     controls = [],
     filters = [],
+    hideStartIndex,
     updateQuickFilter,
     resetQuickFilter,
     onFilterClick,
@@ -180,7 +184,7 @@ export default function Conditions(props) {
     const quickFilter = items
       .map((filter, i) => ({
         ...filter,
-        filterType: filter.filterType || 1,
+        filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
         spliceType: filter.spliceType || 1,
         ...valuesToUpdate[i],
       }))
@@ -216,8 +220,8 @@ export default function Conditions(props) {
     }
   }, []);
   return (
-    <Con className={className} isConfigMode={isConfigMode}>
-      {items.map((item, i) => (
+    <Con className={className} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
+      {items.slice(0, _.isNumber(hideStartIndex) ? hideStartIndex : undefined).map((item, i) => (
         <Item
           isConfigMode={isConfigMode}
           isLastLine={
@@ -246,6 +250,7 @@ export default function Conditions(props) {
           </Label>
           <Content className="content">
             <FilterInput
+              from={from}
               appendToBody={isFilterComp}
               projectId={projectId}
               appId={appId}

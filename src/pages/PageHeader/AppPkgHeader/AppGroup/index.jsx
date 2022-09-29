@@ -68,7 +68,10 @@ export default class extends Component {
   handledAppItemId = '';
 
   getData = () => {
-    const { appId } = this.ids;
+    let { appId } = this.ids;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     if (!appId) return;
     api.getAppInfo({ appId }).then(({ appRoleType, isLock, appSectionDetail: data = [] }) => {
       const isCharge = isHaveCharge(appRoleType, isLock);
@@ -136,11 +139,7 @@ export default class extends Component {
     const { appId } = this.ids;
     const { data } = this.state;
     const sortedAppGroupIds = data.map(({ appSectionId }) => appSectionId);
-    api.updateAppSectionSort({ appId, appSectionIds: sortedAppGroupIds }).then(res => {
-      if (res) {
-        this.updateAppGroup(data);
-      }
-    });
+    api.updateAppSectionSort({ appId, appSectionIds: sortedAppGroupIds });
   };
 
   // 确认滚动指示器状态

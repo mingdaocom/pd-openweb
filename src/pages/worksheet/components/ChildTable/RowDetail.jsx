@@ -5,6 +5,7 @@ import CustomFields from 'src/components/newCustomFields';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
+    ignoreLock: PropTypes.bool,
     disabled: PropTypes.bool,
     className: PropTypes.string,
     projectId: PropTypes.string,
@@ -98,6 +99,7 @@ export default class RowDetail extends React.Component {
 
   render() {
     const {
+      ignoreLock,
       disabled,
       worksheetId,
       projectId,
@@ -125,6 +127,7 @@ export default class RowDetail extends React.Component {
     return (
       <div ref={this.formcon}>
         <CustomFields
+          ignoreLock={ignoreLock}
           ignoreHideControl
           worksheetId={worksheetId}
           disabled={disabled}
@@ -132,11 +135,10 @@ export default class RowDetail extends React.Component {
           sheetSwitchPermit={sheetSwitchPermit}
           columnNumber={1}
           from={2}
+          isCreate={false}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}
-          data={formdata
-            .map(c => ({ ...c, advancedSetting: { ...c.advancedSetting, allowadd: '0' }, isSubList: true }))
-            .filter(c => c.type !== 34)}
+          data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
           getMasterFormData={getMasterFormData}
           flag={flag}
           projectId={projectId}

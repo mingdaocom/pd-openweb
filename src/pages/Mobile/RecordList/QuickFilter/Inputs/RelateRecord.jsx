@@ -29,7 +29,6 @@ export default function RelateRecord(props) {
 
   function handleChange(value) {
     onChange({
-      filterType: 24,
       ...value,
     });
   }
@@ -70,7 +69,9 @@ export default function RelateRecord(props) {
         <div className="Font14 bold flex ellipsis">{control.controlName}</div>
         {!_.isEmpty(values) && (
           <div className="selected ellipsis">
-            {isMultiple ? _l('选择%0项', values.length) : (_.get(values[0], 'name') || getTitleTextFromControls(control.relationControls, values[0]))}
+            {isMultiple
+              ? _l('选择%0项', values.length)
+              : _.get(values[0], 'name') || getTitleTextFromControls(control.relationControls, values[0])}
           </div>
         )}
       </div>

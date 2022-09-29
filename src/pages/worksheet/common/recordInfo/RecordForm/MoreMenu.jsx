@@ -27,7 +27,7 @@ export default function MoreMenu(props) {
       shows={['share', 'share', 'print', 'task', 'copy', 'editform', cx({ openinnew: !notDialog })]}
       isCharge={isCharge}
       allowDelete={allowDelete}
-      allowCopy={allowAdd}
+      allowCopy={allowAdd && recordinfo.allowEdit}
       projectId={projectId}
       appId={appId}
       viewId={viewId}

@@ -15,7 +15,6 @@ import {
   getSuffix,
   accountResultAction,
   setAutoLoginKey,
-  getCurrentAppId,
   getCurrentId,
 } from './util';
 import { getTpLoginUrlInfo, getPortalSetByAppId, autoLogin } from 'src/api/externalPortal';

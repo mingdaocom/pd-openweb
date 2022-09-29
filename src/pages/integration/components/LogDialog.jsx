@@ -4,7 +4,8 @@ import { LoadDiv, Dialog } from 'ming-ui';
 import { useSetState } from 'react-use';
 import JsonView from 'react-json-view';
 import { getHistoryDetail } from 'src/pages/workflow/api/packageVersion';
-
+import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
+import _ from 'lodash';
 import cx from 'classnames';
 const TABLIST = ['请求参数', '返回值'];
 const Wrap = styled.div`
@@ -132,6 +133,15 @@ export default function LogDialog(props) {
                       ? ''
                       : moment(props.info.completeDate).diff(moment(props.info.createDate), 'seconds'),
                   )}
+                  ，{_l('请求结果')}
+                  <span className={cx('mLeft5', { Red: props.info.status === 4 })}>
+                    {FLOW_STATUS[props.info.status].text}
+                    {props.info.status === 4
+                      ? _.get(props, ['info', 'instanceLog', 'causeMsg'])
+                        ? `: ${_.get(props, ['info', 'instanceLog', 'causeMsg'])}`
+                        : ''
+                      : ''}
+                  </span>
                 </React.Fragment>
               )}
             </p>

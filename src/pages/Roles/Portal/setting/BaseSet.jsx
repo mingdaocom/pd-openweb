@@ -481,7 +481,7 @@ export default function BaseSet(props) {
             />
             <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('用户协议和隐私条款')}</div>
           </SwitchStyle>
-          <div style={{ 'margin-left': '36px' }}>
+          <div style={{ 'margin-left': '44px' }}>
             {!!portalSetModel.termsAndAgreementEnable ? (
               <React.Fragment>
                 <p className="Gray_9e mTop6 LineHeight24 mBottom8">

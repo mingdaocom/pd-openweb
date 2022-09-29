@@ -186,6 +186,7 @@ class Dropdown extends Component {
     cancelAble: PropTypes.bool, //可取消的
     renderError: PropTypes.func, // 错误结果显示
     disabledClickElement: PropTypes.string, // 禁止点击的元素（id、class）
+    renderItem: PropTypes.func,
   };
   /* eslint-enable */
   static defaultProps = {
@@ -299,7 +300,11 @@ class Dropdown extends Component {
     const { keywords } = this.state;
     const text = typeof item.text === 'string' ? item.text : item.searchText || '';
 
-    return String(text).toLowerCase().indexOf(keywords.toLowerCase()) > -1;
+    return (
+      String(text)
+        .toLowerCase()
+        .indexOf(keywords.toLowerCase()) > -1
+    );
   }
 
   checkIsNull(item) {
@@ -310,7 +315,7 @@ class Dropdown extends Component {
   }
 
   renderListItem(data) {
-    const { showItemTitle, currentItemClass, value } = this.props;
+    const { showItemTitle, currentItemClass, value, renderItem } = this.props;
 
     return data.map((item, index) => {
       if (_.isArray(item)) {
@@ -348,7 +353,7 @@ class Dropdown extends Component {
                 }}
                 title={showItemTitle && item.text}
               >
-                <div className="itemText">{item.text}</div>
+                {renderItem ? renderItem(item) : <div className="itemText">{item.text}</div>}
               </MenuItem>
             )}
           </Fragment>
@@ -366,7 +371,8 @@ class Dropdown extends Component {
 
   displayMenu = () => {
     const { showMenu, keywords } = this.state;
-    const { data, maxHeight, menuStyle, menuClass, noData, children, isAppendToBody, openSearch } = this.props;
+    const { data, maxHeight, menuStyle, menuClass, noData, children, isAppendToBody, openSearch, searchNull } =
+      this.props;
 
     const searchData = [];
 
@@ -431,7 +437,7 @@ class Dropdown extends Component {
           this.renderListItem(searchData)
         ) : (
           <MenuItem disabled>
-            <div>{keywords ? _l('暂无搜索结果') : noData}</div>
+            <div>{keywords ? (searchNull ? searchNull() : _l('暂无搜索结果')) : noData}</div>
           </MenuItem>
         )}
         {children}

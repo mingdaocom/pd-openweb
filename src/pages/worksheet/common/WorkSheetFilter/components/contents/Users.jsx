@@ -5,6 +5,7 @@ import cx from 'classnames';
 import 'dialogSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { FILTER_CONDITION_TYPE } from '../../enum';
 
 export default class Users extends Component {
   static propTypes = {
@@ -37,6 +38,12 @@ export default class Users extends Component {
         .filter(_.identity),
     };
   }
+  get selectSingle() {
+    return (
+      _.get(this.props, 'control.enumDefault') === 0 &&
+      _.includes([FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE], this.props.type)
+    );
+  }
   selectUser(title, projectId, options, callback) {
     $().dialogSelectUser({
       title,
@@ -65,8 +72,8 @@ export default class Users extends Component {
       showQuickInvite: false,
       showMoreInvite: false,
       isTask: false,
-      includeUndefinedAndMySelf: from !== 'rule',
-      includeSystemField: from !== 'rule' && from !== 'subTotal',
+      includeUndefinedAndMySelf: !_.includes(['rule', 'portal'], from),
+      includeSystemField: !_.includes(['rule', 'portal', 'subTotal'], from),
       tabType,
       offset: {
         top: 0,
@@ -75,6 +82,7 @@ export default class Users extends Component {
       zIndex: 10001,
       appId,
       SelectUserSettings: {
+        unique: this.selectSingle,
         projectId,
         callback(users) {
           _this.addUsers(users);
@@ -89,6 +97,10 @@ export default class Users extends Component {
   addUsers(selectusers) {
     const { users } = this.state;
     const newUsers = users.concat(selectusers);
+    if (this.selectSingle) {
+      this.changeUsers(selectusers.slice(0, 1));
+      return;
+    }
     if (!selectusers[0] || _.find(users, option => option.accountId === selectusers[0].accountId)) {
       alert(_l('该用户已存在'), 3);
       return;

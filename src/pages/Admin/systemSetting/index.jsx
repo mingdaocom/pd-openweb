@@ -15,6 +15,11 @@ export default class OrgInfo extends Component {
       level: 1,
     };
   }
+  componentWillMount() {
+    if (this.props.location.search === '?destroy') {
+      this.setState({ level: 4 });
+    }
+  }
 
   renderBodyContent = () => {
     const { level } = this.state;

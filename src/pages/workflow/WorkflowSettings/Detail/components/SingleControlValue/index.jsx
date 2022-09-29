@@ -12,6 +12,7 @@ import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'previewAttachments';
+import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
 
 export default class SingleControlValue extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ export default class SingleControlValue extends Component {
     this.state = {
       moreFieldsIndex: '',
       isUploading: false,
+      visibleRoleDialog: false,
     };
 
     // 缓存当前的附件的量
@@ -28,6 +30,7 @@ export default class SingleControlValue extends Component {
   }
 
   cacheFile = [];
+  cacheOptions = {};
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.item.fieldId !== this.props.item.fieldId) {
@@ -208,13 +211,18 @@ export default class SingleControlValue extends Component {
   /**
    * 部门选择
    */
-  selectDepartment(i, unique) {
+  selectDepartment(item, i, unique) {
     new DialogSelectDept({
       projectId: this.props.companyId,
       selectedDepartment: [],
       unique,
       showCreateBtn: false,
       selectFn: departments => {
+        if (!unique) {
+          const oldIds = JSON.parse(item.fieldValue).map(item => item.departmentId);
+          _.remove(departments, item => _.includes(oldIds, item.departmentId));
+        }
+
         departments = departments.map(obj => {
           return {
             departmentId: obj.departmentId,
@@ -222,20 +230,27 @@ export default class SingleControlValue extends Component {
           };
         });
 
-        this.updateSingleControlValue({ fieldValue: JSON.stringify(departments) }, i);
+        this.updateSingleControlValue(
+          {
+            fieldValue: unique
+              ? JSON.stringify(departments)
+              : JSON.stringify(JSON.parse(item.fieldValue).concat(departments)),
+          },
+          i,
+        );
       },
     });
   }
 
   /**
-   * 刪除 成员 or 部门
+   * 刪除 成员 or 部门 or 组织橘色
    */
-  deleteUserOrDepartment(id, i) {
+  deleteTags(id, i) {
     const { updateSource } = this.props;
     const fields = _.cloneDeep(this.props.fields);
 
     fields[i].fieldValue = JSON.parse(fields[i].fieldValue);
-    _.remove(fields[i].fieldValue, item => item.accountId === id || item.departmentId === id);
+    _.remove(fields[i].fieldValue, item => item.accountId === id || item.departmentId === id || item.organizeId);
     fields[i].fieldValue = JSON.stringify(fields[i].fieldValue);
 
     updateSource({ fields });
@@ -338,7 +353,7 @@ export default class SingleControlValue extends Component {
 
   render() {
     const { controls, item, i } = this.props;
-    const { isUploading } = this.state;
+    const { isUploading, visibleRoleDialog } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
 
@@ -785,9 +800,27 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 人员 || 部门
-    if (item.type === 26 || item.type === 27) {
+    // 人员 || 部门 || 组织角色
+    if (item.type === 26 || item.type === 27 || item.type === 48) {
       const unique = (_.find(controls, obj => obj.controlId === item.fieldId) || {}).enumDefault === 0;
+      const TYPES = {
+        26: {
+          name: 'fullName',
+          id: 'accountId',
+          placeholder: _l('选择人员'),
+        },
+        27: {
+          name: 'departmentName',
+          id: 'departmentId',
+          placeholder: _l('选择部门'),
+        },
+        48: {
+          name: 'organizeName',
+          id: 'organizeId',
+          placeholder: _l('选择组织角色'),
+        },
+      };
+
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
@@ -798,28 +831,29 @@ export default class SingleControlValue extends Component {
               onClick={evt => {
                 if (item.type === 26) {
                   this.selectUser(evt, item, i, unique);
+                } else if (item.type === 27) {
+                  this.selectDepartment(item, i, unique);
                 } else {
-                  this.selectDepartment(i, unique);
+                  this.cacheOptions = { item, i, unique };
+                  this.setState({ visibleRoleDialog: true });
                 }
               }}
             >
               <ul className="pLeft6 tagWrap">
                 {!JSON.parse(item.fieldValue || '[]').length && (
-                  <span className="Gray_bd LineHeight34 mLeft4">
-                    {item.type === 26 ? _l('选择人员') : _l('选择部门')}
-                  </span>
+                  <span className="Gray_bd LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
                 )}
                 {JSON.parse(item.fieldValue || '[]').map((list, index) => {
                   return (
                     <li key={index} className="tagItem flexRow">
-                      <span className="tag bold" title={list.fullName || list.departmentName}>
-                        {list.fullName || list.departmentName}
+                      <span className="tag bold" title={list[TYPES[item.type].name]}>
+                        {list[TYPES[item.type].name]}
                       </span>
                       <span
                         className="delTag"
                         onClick={e => {
                           e.stopPropagation();
-                          this.deleteUserOrDepartment(list.accountId || list.departmentId, i);
+                          this.deleteTags(list[TYPES[item.type].id], i);
                         }}
                       >
                         <Icon icon="close" className="pointer" />
@@ -831,6 +865,39 @@ export default class SingleControlValue extends Component {
             </div>
           )}
           {this.renderOtherFields(item, i)}
+
+          {visibleRoleDialog && (
+            <DialogSelectOrgRole
+              projectId={this.props.companyId}
+              orgRoleDialogVisible
+              unique={this.cacheOptions.unique}
+              onSave={roles => {
+                const unique = this.cacheOptions.unique;
+
+                if (!unique) {
+                  const oldIds = JSON.parse(this.cacheOptions.item.fieldValue || '[]').map(item => item.organizeId);
+                  _.remove(roles, item => _.includes(oldIds, item.organizeId));
+                }
+
+                roles = roles.map(item => {
+                  return {
+                    organizeId: item.organizeId,
+                    organizeName: item.organizeName,
+                  };
+                });
+
+                this.updateSingleControlValue(
+                  {
+                    fieldValue: unique
+                      ? JSON.stringify(roles)
+                      : JSON.stringify(JSON.parse(item.fieldValue).concat(roles)),
+                  },
+                  i,
+                );
+              }}
+              onClose={() => this.setState({ visibleRoleDialog: false })}
+            />
+          )}
         </div>
       );
     }

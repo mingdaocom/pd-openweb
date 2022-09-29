@@ -157,7 +157,7 @@ export default class RoleAuth extends React.Component {
                   {count ? <span className="applyRecordCount">{count}</span> : null}
                 </Button>
 
-                {md.global.Account.projects.find(o => o.projectId === params.projectId).isHrVisible && (
+                {/*md.global.Account.projects.find(o => o.projectId === params.projectId).isHrVisible && (
                   <button
                     type="button"
                     className="ming Button Button--primary roleCreateBtn"
@@ -167,7 +167,7 @@ export default class RoleAuth extends React.Component {
                   >
                     {_l('创建角色权限')}
                   </button>
-                )}
+                )*/}
 
                 {this.state.showCreateRole ? (
                   <CreateRole

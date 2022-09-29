@@ -1,8 +1,38 @@
-import { getRowDetail, addWorksheetRow as addWorksheetRowApi } from 'src/api/worksheet';
+import {
+  getRowDetail,
+  addWorksheetRow as addWorksheetRowApi,
+  copyRow as copyRowApi,
+  getAttachmentShareId,
+} from 'src/api/worksheet';
+import { getNodeDetail } from 'src/api/kc';
+import { getAttachmentDetail } from 'src/api/attachment';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { updateOptionsOfControls, checkCellIsEmpty } from 'worksheet/util';
+
+export async function downloadAttachmentById({ fileId, refId }) {
+  try {
+    if (!fileId && !refId) {
+      throw new Error();
+    }
+    let data;
+    if (refId) {
+      data = await getNodeDetail({
+        actionType: 14,
+        id: refId,
+      });
+    } else {
+      data = await getAttachmentDetail({
+        fileId,
+      });
+    }
+    window.open(data.downloadUrl);
+  } catch (err) {
+    console.error(err);
+    alert(_l('下载附件失败', 3));
+  }
+}
 
 export function getFormDataForNewRecord({
   worksheetInfo,
@@ -196,4 +226,48 @@ export function submitNewRecord(props) {
         alert(err || _l('记录添加失败'), 3);
       }
     });
+}
+
+export function copyRow({ worksheetId, viewId, rowIds }, done = () => {}) {
+  copyRowApi({
+    worksheetId,
+    viewId,
+    rowIds,
+  })
+    .then(res => {
+      if (res && res.resultCode === 1) {
+        alert(_l('复制成功'));
+        done(res.data);
+      } else if (res && res.resultCode === 7) {
+        alert(_l('复制失败，权限不足！'), 3);
+      } else if (res && res.resultCode === 9) {
+        alert(_l('复制失败，超过最大数量！'), 3);
+      } else if (res && res.resultCode === 11) {
+        alert(_l('复制失败，当前表存在唯一字段'), 3);
+      } else {
+        alert(_l('复制失败！'), 3);
+      }
+    })
+    .fail(err => {
+      console.log(err);
+      alert(_l('复制失败！'), 3);
+    });
+}
+
+export async function openControlAttachmentInNewTab({ appId, controlId, fileId, recordId, viewId, worksheetId }) {
+  if (!controlId || !fileId || !recordId || !worksheetId) {
+    console.error('参数不全');
+    return;
+  }
+  const shareId = await getAttachmentShareId({
+    appId,
+    controlId,
+    fileId,
+    rowId: recordId,
+    viewId,
+    worksheetId,
+  });
+  if (shareId) {
+    window.open(`${window.subPath ? window.subPath : ''}/recordfile/${shareId}`);
+  }
 }

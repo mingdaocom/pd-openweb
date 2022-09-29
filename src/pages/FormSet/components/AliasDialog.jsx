@@ -228,10 +228,19 @@ export default class AliasDialog extends React.Component {
                             ],
                           })
                           .then(data => {
-                            // alert(_l('修改成功'));
-                            this.setState({
-                              controlsOriginal: controls,
-                            });
+                            if (data.code === 15) {
+                              this.setState({
+                                isChange: false,
+                                controls: controlsOriginal,
+                                isError: false,
+                              });
+                              alert(_l('该别名与系统字段的别名相同，请重新输入'), 2);
+                            } else {
+                              // alert(_l('修改成功'));
+                              this.setState({
+                                controlsOriginal: controls,
+                              });
+                            }
                           })
                           .fail(err => {
                             alert(_l('修改失败'), 2);

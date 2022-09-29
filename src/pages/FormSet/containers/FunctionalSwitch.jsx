@@ -47,7 +47,7 @@ function FunctionalSwitch(props) {
 
   const getSwitchData = () => {
     sheetAjax.getSwitch({ worksheetId: info.worksheetId }).then(res => {
-      let data = res.filter(o => o.type !== 26); //批量复制暂时隐藏，7.4还没做
+      let data = res;
       // //测试
       // data.push(
       //   ...[//25, 26, 27, 28,

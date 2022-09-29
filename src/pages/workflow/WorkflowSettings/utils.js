@@ -1,4 +1,4 @@
-import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID } from './enum';
+import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE } from './enum';
 
 /**
  * 遍历获取统计id
@@ -235,8 +235,8 @@ export const replaceField = (text, fieldMap, connector = '>') => {
  */
 export const checkJSON = value => {
   try {
-    JSON.parse((value || '').replace(/\$[^ \r\n]+?\$/g, 1));
-    return true;
+    value = JSON.parse((value || '').replace(/\$[^ \r\n]+?\$/g, 1));
+    return _.isObject(value);
   } catch (e) {
     return false;
   }
@@ -258,59 +258,61 @@ export const getConditionList = (type, enumDefault) => {
     case 32:
     case 33:
     case 41:
-      list = { ids: ['1', '2', '3', '4', '5', '6', '8', '7'], defaultConditionId: '1' };
+    case 50:
+      list = { ids: ['1', '2', '3', '4', '5', '44', '6', '45', '8', '7'], defaultConditionId: '1' };
       break;
     case 6:
     case 8:
     case 31:
-      list = { ids: ['9', '10', '11', '12', '13', '14', '15', '16', '8', '7'], defaultConditionId: '9' };
+      list = { ids: ['9', '10', '12', '11', '14', '13', '15', '16', '8', '7'], defaultConditionId: '9' };
       break;
     case 9:
     case 11:
       list = { ids: ['9', '10', '1', '2', '8', '7'], defaultConditionId: '9' };
       break;
     case 10:
-      list = { ids: ['9', '10', '3', '4', '8', '7'], defaultConditionId: '9' };
+      list = { ids: ['9', '10', '3', '4', '43', '8', '7'], defaultConditionId: '9' };
       break;
     case 14:
     case 21:
     case 40:
     case 42:
-      list = { ids: ['31', '32'], defaultConditionId: '31' };
+      list = { ids: ['32', '31'], defaultConditionId: '31' };
       break;
     case 15:
     case 16:
     case 46:
-      list = { ids: ['9', '10', '41', '42', '39', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
+      list = { ids: ['9', '10', '41', '39', '42', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       break;
     case 19:
     case 23:
     case 24:
-      list = { ids: ['1', '2', '3', '4', '35', '36', '8', '7'], defaultConditionId: '1' };
+      list = { ids: ['1', '2', '35', '36', '3', '4', '8', '7'], defaultConditionId: '1' };
       break;
     case 28:
       list = { ids: ['1', '2', '8', '7'], defaultConditionId: '1' };
       break;
     case 26:
+    case 48:
     case 10000001:
       if (enumDefault === 0) {
         list = { ids: ['9', '10', '1', '2', '8', '7'], defaultConditionId: '9' };
       } else {
-        list = { ids: ['9', '10', '3', '4', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '3', '4', '43', '8', '7'], defaultConditionId: '9' };
       }
       break;
     case 27:
       if (enumDefault === 0) {
-        list = { ids: ['9', '10', '1', '2', '35', '36', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '1', '2', '35', '36', '48', '49', '8', '7'], defaultConditionId: '9' };
       } else {
-        list = { ids: ['9', '10', '3', '4', '35', '36', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '3', '4', '35', '36', '48', '49', '43', '8', '7'], defaultConditionId: '9' };
       }
       break;
     case 29:
       if (enumDefault === 1) {
-        list = { ids: ['33', '34', '3', '4', '31', '32'], defaultConditionId: '33' };
+        list = { ids: ['9', '10', '33', '34', '3', '4', '32', '31'], defaultConditionId: '33' };
       } else {
-        list = { ids: ['33', '34', '31', '32'], defaultConditionId: '33' };
+        list = { ids: ['9', '10', '33', '34', '43', '32', '31'], defaultConditionId: '33' };
       }
       break;
     case 36:
@@ -318,9 +320,9 @@ export const getConditionList = (type, enumDefault) => {
       break;
     case 38:
       if (enumDefault === 1) {
-        list = { ids: ['9', '10', '11', '12', '13', '14', '15', '16', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '12', '11', '14', '13', '15', '16', '8', '7'], defaultConditionId: '9' };
       } else {
-        list = { ids: ['9', '10', '41', '42', '39', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
+        list = { ids: ['9', '10', '41', '39', '42', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
       break;
   }
@@ -357,6 +359,11 @@ export const getConditionNumber = id => {
     case '40':
     case '41':
     case '42':
+    case '43':
+    case '44':
+    case '45':
+    case '48':
+    case '49':
       count = 1;
       break;
     case '7':
@@ -404,4 +411,39 @@ export const parameterNameValidation = ({ list, key, value, uniqueKey, uniqueVal
   });
 
   return errors;
+};
+
+/**
+ * 获取筛选条件对应的文案
+ */
+export const getFilterText = (item, conditionId) => {
+  if (_.includes(['29', '30'], conditionId)) {
+    return CONDITION_TYPE[conditionId][_.get(item || {}, 'advancedSetting.showtype')];
+  }
+
+  if (_.includes(['3', '4'], conditionId) && _.includes([19, 23, 24], item.type)) {
+    return CONDITION_TYPE[conditionId].area;
+  }
+
+  if (_.includes(['3', '4'], conditionId) && item.type === 29) {
+    return CONDITION_TYPE[conditionId].relation;
+  }
+
+  if (_.includes(['3', '4'], conditionId)) {
+    return _.includes([10, 19, 23, 24, 26, 27, 29, 48, 10000001], item.type)
+      ? CONDITION_TYPE[conditionId].custom
+      : CONDITION_TYPE[conditionId].default;
+  }
+
+  if (_.includes(['1', '2'], conditionId)) {
+    return _.includes([1, 2, 3, 4, 5, 7, 28, 32, 33, 41, 50], item.type)
+      ? CONDITION_TYPE[conditionId].custom
+      : CONDITION_TYPE[conditionId].default;
+  }
+
+  if (_.includes(['33', '34'], conditionId) && item.type === 29) {
+    return item.enumDefault === 1 ? CONDITION_TYPE[conditionId].single : CONDITION_TYPE[conditionId].multi;
+  }
+
+  return CONDITION_TYPE[conditionId];
 };

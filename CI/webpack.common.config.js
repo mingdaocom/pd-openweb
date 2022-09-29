@@ -111,10 +111,10 @@ module.exports = {
     (isProduction
       ? []
       : [
-        {
-          loader: 'style-loader',
-        },
-      ]
+          {
+            loader: 'style-loader',
+          },
+        ]
     ).concat([
       {
         loader: 'css-loader',
@@ -125,12 +125,6 @@ module.exports = {
       {
         loader: 'less-loader',
         options: { sourceMap: true },
-      },
-      {
-        loader: 'sass-resources-loader',
-        options: {
-          resources: path.join(__dirname, '../src/common/mdcss/Themes/themeVariables.less'),
-        },
       },
     ]),
 };

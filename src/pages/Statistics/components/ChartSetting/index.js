@@ -6,7 +6,8 @@ import GroupingAxis from './components/GroupingAxis';
 import PivotTableAxis from './components/PivotTableAxis';
 import Filter from './components/Filter';
 import AreaScope from './components/AreaScope';
-import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes } from '../../common';
+import Accumulate from './components/Accumulate';
+import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes, funnelShapeList, funnelCurvatureList } from '../../common';
 import { reportTypes } from '../../Charts/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,7 +16,7 @@ import './index.less';
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'filterItem'])
+    ..._.pick(state.statistics, ['currentReport', 'reportData', 'axisControls', 'worksheetInfo', 'filterItem'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -38,9 +39,15 @@ export default class ChartSetting extends Component {
   }
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
+    const isFunnelChart = reportType == reportTypes.FunnelChart;
     return (
-      <div className="mBottom20">
-        <div className="mBottom10 Bold Font13">{_l('图形')}</div>
+      <div className={isFunnelChart ? 'mBottom15' : 'mBottom20'}>
+        {isFunnelChart && <div className="mBottom15 Bold Font13">{_l('图形')}</div>}
+        <div
+          className={cx('mBottom10 Font13', isFunnelChart ? 'mBottom8' : 'mBottom10' ,{ Bold: !isFunnelChart })}
+        >
+          {chartType[reportType].title}
+        </div>
         <div className="chartTypeSelect flexRow valignWrapper">
           {
             chartType[reportType].items.map(item => (
@@ -65,6 +72,72 @@ export default class ChartSetting extends Component {
           }
         </div>
       </div>
+    );
+  }
+  renderShape() {
+    const { style } = this.props.currentReport;
+    return (
+      <div className="mBottom15">
+        <div className="mBottom8 Font13">{_l('形状')}</div>
+        <div className="chartTypeSelect flexRow valignWrapper">
+          {
+            funnelShapeList.map(item => (
+              <div
+                key={item.value}
+                className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelShape || 'funnel') == item.value })}
+                onClick={() => {
+                  this.props.changeCurrentReport({
+                    style: {
+                      ...style,
+                      funnelShape: item.value,
+                    }
+                  });
+                }}
+              >
+                {item.name}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    );
+  }
+  renderCurvature() {
+    const { style } = this.props.currentReport;
+    return (
+      <div className="mBottom15">
+        <div className="mBottom8 Font13">{_l('曲率')}</div>
+        <div className="chartTypeSelect flexRow valignWrapper">
+          {
+            funnelCurvatureList.map(item => (
+              <div
+                key={item.value}
+                className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelCurvature || 2) == item.value })}
+                onClick={() => {
+                  this.props.changeCurrentReport({
+                    style: {
+                      ...style,
+                      funnelCurvature: item.value,
+                    }
+                  });
+                }}
+              >
+                {item.name}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    );
+  }
+  renderAccumulate() {
+    const { reportData, currentReport, changeCurrentReport } = this.props;
+    return (
+      <Accumulate
+        reportData={reportData}
+        currentReport={currentReport}
+        changeCurrentReport={changeCurrentReport}
+      />
     );
   }
   renderPivotTableAxis(x, y) {
@@ -234,6 +307,9 @@ export default class ChartSetting extends Component {
           )
         }
         {(chartType[reportType] && displaySetup) && this.renderChartType()}
+        {reportType === reportTypes.FunnelChart && this.renderShape()}
+        {reportType === reportTypes.FunnelChart && this.renderCurvature()}
+        {reportType === reportTypes.FunnelChart && this.renderAccumulate()}
         <Filter
           projectId={projectId}
           filterItem={filterItem}

@@ -767,11 +767,24 @@ export function mdAppResponse(param) {
 }
 
 /**
+ * 获取路由参数
+ */
+export const parseSearchParams = searchParamsString => {
+  return searchParamsString.split('?').reduce((searchParams, curKV) => {
+    const [k, v] = curKV.split('=').map(decodeURIComponent);
+    searchParams[k] = v;
+
+    return searchParams;
+  }, {});
+};
+
+/**
  * 升级版本dialog
  */
 export const upgradeVersionDialog = options => {
   const hint = options.hint || _l('当前版本无法使用此功能');
   const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
+  const versionType = options.versionType ? options.versionType : undefined;
 
   if (options.dialogType === 'content') {
     return (
@@ -834,33 +847,37 @@ export function getFeatureStatus(projectId, featureId) {
 export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
   const { Versions = [] } = md.global || {};
   const { licenseType } = getSyncLicenseInfo(projectId);
-  let upgradeName;
+  let upgradeName, versionType;
 
   if (!md.global.Config.IsLocal) {
     const getFeatureType = versionIdV2 => {
       const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
-
       return {
         versionName: versionInfo.Name,
+        versionType: versionInfo.VersionIdV2,
         type: (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type,
       };
     };
     upgradeName = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(item => item.type === '1')[0]
       .versionName;
+    versionType = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(item => item.type === '1')[0]
+      .versionType;
   }
 
   if (dialogType === 'content') {
     return upgradeVersionDialog({
       projectId,
-      isFree: licenseType === 0,
+      isFree: licenseType === 0 || licenseType === 2,
       explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
       dialogType,
+      versionType,
     });
   } else {
     upgradeVersionDialog({
       projectId,
-      isFree: licenseType === 0,
+      isFree: licenseType === 0 || licenseType === 2,
       explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
+      versionType,
     });
   }
 }

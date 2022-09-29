@@ -398,6 +398,10 @@ $.extend(SelectUser.prototype, {
     // bind userItem click
     _this.$coOperationList.add(_this.$searchResultList).on('click', '.userItem', function (e) {
       _this.selectItem($(this));
+      _this.options.keywords = '';
+      _this.$input.val('');
+      _this.toggleListContainer(false);
+      _this.$input.focus();
       e.stopPropagation();
     });
 
@@ -409,6 +413,16 @@ $.extend(SelectUser.prototype, {
         .toggleClass('hover', e.type === 'mouseenter');
     });
 
+    require(['mdBusinessCard'], () => {
+      _this.$coOperationList.add(_this.$searchResultList).on('mouseenter mouseleave', '.userHead', function (e) {
+        const accountId = $(this).parent().data('accountid');
+        $(this).mdBusinessCard({
+          accountId,
+          projectId: options.SelectUserSettings.projectId,
+        });
+      });
+    });
+
     _this.$input.focus().on('keyup input', function (event) {
       var $this = $(this);
       var canInvite = !options.isSearching && !options.hasData && options.showQuickInvite;
@@ -418,6 +432,9 @@ $.extend(SelectUser.prototype, {
         } else if (canInvite) {
           _this.buildInviteDialog();
         }
+        _this.options.keywords = '';
+        _this.$input.val('');
+        _this.toggleListContainer(false);
       } else if (event.keyCode === KEYMAPS.UP || event.keyCode === KEYMAPS.DOWN) {
         _this.handleArrowEvent(event);
       } else if ($.trim($this.val()) !== options.keywords) {

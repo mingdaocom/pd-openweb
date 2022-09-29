@@ -495,4 +495,59 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
      
      return $.api('ProjectSetting', 'UpdateLdapState', args, options);
    },
+  /**
+  * 开启api网络代理
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {boolean} args.state api网络代理开启状态
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setApiProxyState: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'SetApiProxyState', args, options);
+   },
+  /**
+  * 获取api网络代理设置开启状态
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getApiProxyState: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetApiProxyState', args, options);
+   },
+  /**
+  * 获取api网络代理配置信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getApiProxySettings: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetApiProxySettings', args, options);
+   },
+  /**
+  * 保存api网络代理配置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.type 0-all 1-http 2-https
+  * @param {string} args.ip 服务器地址
+  * @param {integer} args.port 端口
+  * @param {boolean} args.openIdentityValidate 开启身份验证
+  * @param {string} args.userName 用户名
+  * @param {string} args.password 密码
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editApiProxySettings: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'EditApiProxySettings', args, options);
+   },
 };

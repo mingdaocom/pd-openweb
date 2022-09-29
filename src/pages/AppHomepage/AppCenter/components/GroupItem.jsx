@@ -5,10 +5,10 @@ import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { navigateTo } from 'router/navigateTo';
 import SvgIcon from 'src/components/SvgIcon';
-import { Menu, MenuItem, Icon, Tooltip } from 'ming-ui';
+import { Menu, MenuItem, Icon, Tooltip, MdLink } from 'ming-ui';
 import { VerticalMiddle, FlexSpacer } from 'worksheet/components/Basics';
 
-const GroupItemLink = styled.div`
+const GroupItemLink = styled(MdLink)`
   &.draggingItem > div {
     background: #f1f1f1;
   }
@@ -137,6 +137,7 @@ export default function GroupItem(props) {
     active,
     itemType,
     id,
+    to,
     groupType,
     fontIcon,
     icon,
@@ -239,13 +240,11 @@ export default function GroupItem(props) {
       </VerticalMiddle>
     </GroupItemCon>
   );
-  if (id) {
+  if (id || to) {
     return (
       <GroupItemLink
         className={cx({ isDragging })}
-        onClick={e => {
-          navigateTo(`/app/my/group/${projectId}/${groupType}/${id}${itemType === 'star' ? '#star' : ''}`);
-        }}
+        to={to || `/app/my/group/${projectId}/${groupType}/${id}${itemType === 'star' ? '#star' : ''}`}
       >
         {content}
       </GroupItemLink>

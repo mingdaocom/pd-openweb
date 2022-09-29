@@ -156,6 +156,7 @@ export default class Widgets extends Component {
       from,
       sheetSwitchPermit = [],
       strDefault = '10',
+      controlId,
       projectId,
       viewIdForPermit = '',
       enumDefault2,
@@ -319,12 +320,15 @@ export default class Widgets extends Component {
         )}
 
         <UploadFiles
+          controlId={controlId}
           projectId={projectId}
           from={from}
           hideDownload={hideDownload}
           className="UploadFiles-exhibition"
           canAddLink={false}
-          minWidth={130}
+          minWidth={160}
+          maxWidth={220}
+          height={140}
           showAttInfo={false}
           attachmentData={[]}
           onUploadComplete={isComplete => this.setState({ isComplete })}
@@ -335,9 +339,13 @@ export default class Widgets extends Component {
         />
 
         <UploadFiles
+          controlId={controlId}
           projectId={projectId}
           hideDownload={hideDownload}
           from={from}
+          minWidth={160}
+          maxWidth={220}
+          height={140}
           isDeleteFile={!disabled}
           removeDeleteFilesFn={true}
           showAttInfo={false}

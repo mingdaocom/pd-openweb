@@ -7,6 +7,8 @@ import CustomPageContent from 'worksheet/components/CustomPageContent';
 import { LoadDiv } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
 import UnusualContent from 'src/router/Application/UnusualContent';
+import { socketInit } from 'src/socket/mobileSocketInit';
+import { browserIsMobile } from 'src/util';
 import './index.less';
 import 'src/router/Application/index.less';
 
@@ -32,10 +34,13 @@ export default class EmbedPage extends Component {
       .fail(() => {
         location.href = '/login';
       });
+    if (browserIsMobile()) {
+      socketInit();
+    }
   }
   renderPage() {
     const { data, status } = this.state;
-    const ids = {};
+    const ids = { appId: this.appId };
     if (status !== 1) {
       return <UnusualContent status={status} appId={this.appId} />;
     }

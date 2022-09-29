@@ -176,6 +176,8 @@ export default function HomePage({ match, location: routerLocation }) {
       formatValue(value)
     );
   };
+  const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
+
   return (
     <HomePageWrap>
       <div className="infoWrap">
@@ -254,13 +256,15 @@ export default function HomePage({ match, location: routerLocation }) {
                   </li>
                 ))}
               </ul>
-              <div className="inviteUserWrap">
-                <div className="inviteUserBox">
-                  <div className="inviteUser" onClick={() => handleActionClick('addPerson')}>
-                    {_l('邀请成员')}
+              {isShowInviteUser && (
+                <div className="inviteUserWrap">
+                  <div className="inviteUserBox">
+                    <div className="inviteUser" onClick={() => handleActionClick('addPerson')}>
+                      {_l('邀请成员')}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomF
 import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { checkIsTextControl } from '../../util';
+import { accDiv } from 'src/util';
 
 import renderText from './renderText';
 import Text from './Text';
@@ -168,8 +169,12 @@ export default class CellControl extends React.Component {
   }
 
   @autobind
-  onValidate(value) {
+  onValidate(value, returnObject = false) {
     const { cell, row, checkRulesErrorOfControl, formdata, clearCellError } = this.props;
+    // 百分比值处理
+    if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
+      value = accDiv(value, 100);
+    }
     const errorType = this.validate({ ...cell, value }, row);
     let errorText;
     if (_.includes([15, 16], cell.type) && errorType && errorType !== 'REQUIRED') {
@@ -189,6 +194,12 @@ export default class CellControl extends React.Component {
     this.setState({
       error: errorText || null,
     });
+    if (returnObject) {
+      return {
+        errorType,
+        errorText,
+      };
+    }
     return !errorType;
   }
 

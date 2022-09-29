@@ -9,6 +9,7 @@
 import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as utils from 'src/pages/chat/utils';
+import departmentController from 'src/api/department';
 
 var BusinessCard = function (element, options) {
   this.type = null;
@@ -72,6 +73,7 @@ BusinessCard.DEFAULTS = {
     currentJobNumber: '', //工号
     orgName: '', //本组织（部门+职位）
   },
+  fullDepartmentPath: {},
   reset: false,
   force: false,
   opHtml: null,
@@ -308,6 +310,24 @@ BusinessCard.prototype.bindEvent = function () {
   $dialog.on('webkitAnimationEnd animationend', function () {
     $(this).removeClass('animationsUp animationsDown');
   });
+
+  $dialog.on('hover', '.orgName', function () {
+    const { departmentId } = options.data || {};
+    if (!departmentId || options.fullDepartmentPath[departmentId]) {
+      const fullPath = options.fullDepartmentPath[departmentId];
+      $(this).attr('title', fullPath);
+      return;
+    }
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId: options.projectId,
+        departmentIds: [JSON.parse(JSON.stringify(departmentId))],
+      })
+      .then(res => {
+        options.fullDepartmentPath[departmentId] = res[0].name.split('/').join('/');
+        $(this).attr('title', options.fullDepartmentPath[departmentId]);
+      });
+  });
 };
 
 BusinessCard.prototype.applyPlacement = function () {
@@ -393,11 +413,10 @@ BusinessCard.prototype.formatData = function (result) {
     data.sameProjectIds = result.sameProjectIds || [];
     data.currentProjectName = this.options.projectId ? !!result.currentProjectName : true;
     data.currentJobNumber = result.currentJobNumber;
-    data.orgName =
-      result.currentDepartmentName && result.profession
-        ? [result.currentDepartmentName, result.profession].join('/')
-        : result.currentDepartmentName || result.profession;
+    data.orgName = result.currentDepartmentName;
+    data.profession = result.profession;
     data.nodata = !!data.currentProjectName ? data.orgName && data.currentJobNumber : data.companyName;
+    data.departmentId = result.currentDepartmentId;
   } else if (type === TYPES.GROUP) {
     data.groupName = result.name;
     data.avatar = result.avatar;

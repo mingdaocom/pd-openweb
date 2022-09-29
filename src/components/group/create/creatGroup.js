@@ -1,6 +1,6 @@
 ﻿import './createGroup.css';
 import 'poshytip';
-import { getStringBytes } from 'src/util';
+import { getStringBytes, upgradeVersionDialog } from 'src/util';
 
 var doT = require('dot');
 var utils = require('src/util');
@@ -38,6 +38,16 @@ var tips = {
 CreateGroup.createInit = function (settings) {
   CreateGroup.options = $.extend(true, {}, DEFAULTS, { settings: settings });
   CreateGroup.options.selectedDeptSetting = null;
+  const _projectId = CreateGroup.options.settings.projectId;
+  const licenseType = ((md.global.Account.projects || []).find(o => o.projectId === _projectId) || {}).licenseType;
+  if (licenseType === 0) {
+    upgradeVersionDialog({
+      projectId: _projectId,
+      explainText: _l('请升级至付费版解锁开启'),
+      isFree: true,
+    });
+    return;
+  }
 
   if (CreateGroup.options.settings.projectId) {
     CreateGroup.options.isProject = true;

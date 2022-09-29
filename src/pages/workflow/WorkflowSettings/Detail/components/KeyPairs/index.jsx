@@ -20,6 +20,7 @@ export default ({
   pairsOnlyText = false,
   updateSource = () => {},
   showType = false,
+  onlyFile = false,
 }) => {
   const [fieldsVisible, setFieldsVisible] = useState('');
 
@@ -103,18 +104,20 @@ export default ({
       {source.map((item, i) => {
         return (
           <div className="flexRow" key={i}>
-            <input
-              type="text"
-              className="mTop10 ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-              style={{ width: 140 }}
-              placeholder={keyPlaceholder}
-              value={item.name}
-              onChange={evt => updateKeyValues(keyName, evt.target.value, i)}
-            />
+            {!onlyFile && (
+              <input
+                type="text"
+                className="mTop10 ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                style={{ width: 140 }}
+                placeholder={keyPlaceholder}
+                value={item.name}
+                onChange={evt => updateKeyValues(keyName, evt.target.value, i)}
+              />
+            )}
 
             {showType && (
               <Dropdown
-                className="flowDropdown mTop10 mLeft10"
+                className="flowDropdown mTop10 mRight10"
                 style={{ width: 100 }}
                 data={[{ text: _l('文本'), value: 2 }, { text: _l('附件'), value: 14 }]}
                 value={item.type || 2}
@@ -123,7 +126,7 @@ export default ({
               />
             )}
 
-            <div className="flex mLeft10" style={{ minWidth: 0 }}>
+            <div className="flex mRight8" style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
                 <Textarea
                   className="mTop10"
@@ -156,27 +159,32 @@ export default ({
                 />
               )}
             </div>
-            <i
-              className="icon-delete2 Font16 mLeft8 mTop20 ThemeHoverColor3 pointer Gray_bd"
-              onClick={() => deleteKeys(i)}
-            />
+            {!onlyFile && (
+              <i
+                className="icon-delete2 Font16 mTop20 ThemeHoverColor3 pointer Gray_bd"
+                onClick={() => deleteKeys(i)}
+              />
+            )}
           </div>
         );
       })}
-      <div className="mTop10">
-        <span
-          className="ThemeHoverColor3 pointer Gray_9e"
-          onClick={() =>
-            updateSource({
-              [sourceKey]: source.concat(
-                Object.assign({ [keyName]: '', [pairsName]: '' }, showType ? { type: 2 } : {}),
-              ),
-            })
-          }
-        >
-          {btnText}
-        </span>
-      </div>
+
+      {btnText && (
+        <div className="mTop10">
+          <span
+            className="ThemeHoverColor3 pointer Gray_9e"
+            onClick={() =>
+              updateSource({
+                [sourceKey]: source.concat(
+                  Object.assign({ [keyName]: '', [pairsName]: '' }, showType ? { type: 2 } : {}),
+                ),
+              })
+            }
+          >
+            {btnText}
+          </span>
+        </div>
+      )}
     </Fragment>
   );
 };

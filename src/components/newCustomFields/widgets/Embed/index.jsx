@@ -103,9 +103,13 @@ export default class Widgets extends Component {
           <div className="embedContainer">
             <iframe
               ref={this.iframe}
-              className="overflowHidden Border0 TxtTop"
               width="100%"
               height="100%"
+              frameborder="0"
+              allowtransparency="true"
+              webkitallowfullscreen="true"
+              mozallowfullscreen="true"
+              allowfullscreen="true"
               src={value}
             ></iframe>
           </div>

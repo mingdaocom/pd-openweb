@@ -151,8 +151,8 @@ md.staticglobal = md.global = {
     return window.localStorage.getItem('captchaType')
       ? parseInt(window.localStorage.getItem('captchaType'))
       : navigator.userAgent.toLowerCase().match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
-        ? 1
-        : md.global.Config.CaptchaType || 0;
+      ? 1
+      : md.global.Config.CaptchaType || 0;
   },
   domainSuffix: 'mingdao.com',
   SysSettings: {
@@ -269,6 +269,7 @@ window.safeLocalStorageSetItem = (...args) => {
 window.safeParseArray = str => {
   return window.safeParse(str, 'array');
 };
+
 /**
  * 格式化时间
  * @param {string} dateStr 具体的日期字符串，格式为 yyyy-MM-dd HH:mm:ss
@@ -281,14 +282,8 @@ window.createTimeSpan = dateStr => {
   let year = dateTime.getFullYear();
   let month = dateTime.getMonth();
   let day = dateTime.getDate();
-  let hour = dateTime
-    .getHours()
-    .toString()
-    .padStart(2, '0');
-  let minute = dateTime
-    .getMinutes()
-    .toString()
-    .padStart(2, '0');
+  let hour = dateTime.getHours().toString().padStart(2, '0');
+  let minute = dateTime.getMinutes().toString().padStart(2, '0');
 
   let now = new Date();
 
@@ -462,11 +457,11 @@ window.createTimeSpan = dateStr => {
     }
 
     let alert = options.silent
-      ? function () { }
+      ? function () {}
       : function (msg, level) {
-        level = level || 3;
-        window.alert(msg, level);
-      };
+          level = level || 3;
+          window.alert(msg, level);
+        };
 
     let ajax;
     let dfd = $.Deferred();
@@ -523,8 +518,8 @@ window.createTimeSpan = dateStr => {
             contentType: 'application/json',
             xhrFields: !ajaxOptions.url
               ? {
-                withCredentials: true,
-              }
+                  withCredentials: true,
+                }
               : null,
             converters: {
               'text json': function (result) {
@@ -557,13 +552,11 @@ window.createTimeSpan = dateStr => {
               }
             } catch (error) {
               try {
-                let textErrorMessage = $(jqXHR.responseText)
-                  .find('#textErrorMessage')
-                  .val();
+                let textErrorMessage = $(jqXHR.responseText).find('#textErrorMessage').val();
                 if (textErrorMessage) {
                   /* TODO: 处理服务端返回的错误信息*/
                 }
-              } catch (htmlError) { }
+              } catch (htmlError) {}
             }
           }
         })

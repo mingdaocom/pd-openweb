@@ -43,7 +43,6 @@ class RecordAction extends Component {
       fillRecordVisible: false,
       newRecordVisible: false,
       btnDisable: {},
-      shareUrl: '',
       rowInfo: {},
       previewRecord: {},
       percent: 0,
@@ -59,12 +58,6 @@ class RecordAction extends Component {
     IM.socket.on('workflow_push', this.receiveWorkflowPush);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.recordActionVisible && !this.props.recordActionVisible && !this.state.shareUrl) {
-      const { appId } = this.props;
-      if (navigator.share && appId) {
-        this.getWorksheetShareUrl();
-      }
-    }
     if (nextProps.runInfoVisible !== this.props.runInfoVisible) {
       this.setState({ runInfoVisible: nextProps.runInfoVisible });
     }
@@ -74,22 +67,6 @@ class RecordAction extends Component {
     IM.socket.off('workflow', this.receiveWorkflow);
     IM.socket.off('workflow', this.receiveWorkflowPush);
     clearTimeout(timeout);
-  }
-  getWorksheetShareUrl() {
-    const { appId, worksheetId, rowId, viewId } = this.props;
-    worksheetAjax
-      .getWorksheetShareUrl({
-        appId,
-        worksheetId,
-        rowId,
-        viewId,
-        objectType: 2,
-      })
-      .then(shareUrl => {
-        this.setState({
-          shareUrl,
-        });
-      });
   }
   // 自定义按钮
   receiveWorkflow = data => {
@@ -456,19 +433,6 @@ class RecordAction extends Component {
     const { appId, worksheetId, viewId, rowId } = this.props;
     window.mobileNavigateTo(`/mobile/discuss/${appId}/${worksheetId}/${viewId}/${rowId}`);
   };
-  handleOpenShare = () => {
-    const { shareUrl } = this.state;
-    const { sheetRow } = this.props;
-    navigator
-      .share({
-        title: _l('系统'),
-        text: document.title,
-        url: shareUrl,
-      })
-      .then(() => {
-        alert(_l('分享成功'));
-      });
-  };
   handleDeleteAlert = () => {
     const { hideRecordActionVisible } = this.props;
     Modal.alert(this.isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?'), '', [
@@ -645,7 +609,7 @@ class RecordAction extends Component {
       switchPermit,
       isMobileOperate,
     } = this.props;
-    const { btnDisable, shareUrl } = this.state;
+    const { btnDisable } = this.state;
     return (
       <Modal
         popup
@@ -685,10 +649,10 @@ class RecordAction extends Component {
           </div>
           {appId && !isMobileOperate ? (
             <div className="extrBtnBox">
-              {shareUrl && isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) && (
+              {isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
                 <div className="flexRow extraBtnItem">
                   <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
-                  <div className="flex delTxt Font13 Gray" onClick={this.handleOpenShare}>
+                  <div className="flex delTxt Font13 Gray" onClick={this.props.onShare}>
                     {_l('分享')}
                   </div>
                 </div>

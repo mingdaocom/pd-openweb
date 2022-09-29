@@ -19,17 +19,19 @@
     padding-top: 24px;
     box-sizing: border-box;
     padding-left: 20px;
-    span {
+    & > span {
       display: inline-block;
       color: #9e9e9e;
       cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin: 0 8px;
+      padding: 0 8px;
       line-height: 28px;
-      padding: 0 5px;
+      .txt {
+        padding: 0 5px;
+        border-bottom: 3px solid transparent;
+      }
     }
     .talk {
-      margin-left: 0;
+      padding-left: 0;
     }
   }
   .body {

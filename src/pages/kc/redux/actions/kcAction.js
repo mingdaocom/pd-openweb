@@ -64,7 +64,7 @@ export function fetchKcNodes(path, id, cb) {
   return (dispatch, getState) => {
     let type;
     const kcState = getState().kc;
-    path = path || kcState.path || '';
+    path = decodeURIComponent(path || kcState.path || '');
     const { keywords, skip, limit, sortBy, sortType } = kcState.params.toObject();
     let getNodeIdPromise = {};
     let status = NODE_STATUS.NORMAL;

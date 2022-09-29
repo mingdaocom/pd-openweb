@@ -20,7 +20,7 @@ function addViewCount(attachment) {
       fromType: attachment.sourceNode.fromType,
     });
   } else if (attachment.previewAttachmentType === 'KC') {
-    addNodeViewCount(attachment.sourceNode.id);
+    addNodeViewCount(attachment.sourceNode.refId || attachment.sourceNode.id);
   }
 }
 

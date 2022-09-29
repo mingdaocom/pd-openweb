@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon } from 'ming-ui';
+import { ScrollView, LoadDiv, Icon, Tooltip } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ProcessParameters } from '../components';
 import cx from 'classnames';
 import DialogIntegrationApi from 'src/components/DialogIntegrationApi';
 import SvgIcon from 'src/components/SvgIcon';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
-import _, { times } from 'lodash';
 
 export default class Api extends Component {
   constructor(props) {
@@ -166,9 +165,11 @@ export default class Api extends Component {
                 style={{ backgroundColor: getRgbaByColor(data.app.iconColor || '#757575', '0.08') }}
               >
                 <SvgIcon url={data.app.iconName} fill={data.app.iconColor} size={32} />
-                <div className="workflowApiIconSubscript">
-                  {data.app.otherApkName ? <img src={data.app.otherApkName} /> : <Icon icon="connect" />}
-                </div>
+                <Tooltip popupPlacement="bottom" text={<span>{data.app.otherApkId || _l('未命名连接')}</span>}>
+                  <div className="workflowApiIconSubscript workflowDetailTipsWidth tip-bottom-right">
+                    {data.app.otherApkName ? <img src={data.app.otherApkName} /> : <Icon icon="connect" />}
+                  </div>
+                </Tooltip>
               </div>
               <div className="mLeft12 flexColumn" style={{ maxWidth: 600 }}>
                 <div className="Font15">

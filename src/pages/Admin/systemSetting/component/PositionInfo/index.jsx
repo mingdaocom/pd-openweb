@@ -269,6 +269,7 @@ class PositionInfo extends Component {
                 projectId={projectId}
                 currentPosition={currentPosition}
                 getPositionList={this.props.getPositionList}
+                updatePositionList={this.props.updatePositionList}
               />
             )}
           </div>

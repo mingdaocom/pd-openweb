@@ -336,6 +336,13 @@
   }
 }
 
+.ghostSelectOptionWrapper {
+  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: normal;
+    background-color: #f5f5f5;
+  }
+}
+
 .chartSelect() {
   .chartSelect {
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {

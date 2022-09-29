@@ -4,12 +4,13 @@ import { Steps } from 'ming-ui';
 
 export default class Widgets extends Component {
   render() {
-    const { disabled, advancedSetting: { showtype } = {}, value, options = [], enumDefault2 } = this.props;
-
+    const { disabled, advancedSetting: { showtype, direction } = {}, value, options = [], enumDefault2 } = this.props;
+    
     if (showtype === '2') {
       return (
         <Steps
           from="recordInfo"
+          direction={direction}
           value={JSON.parse(value || '[]')[0]}
           disabled={disabled}
           data={{ options, enumDefault2 }}

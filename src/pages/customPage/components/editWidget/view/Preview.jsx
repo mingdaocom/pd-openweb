@@ -138,16 +138,18 @@ export function View(props) {
         maxCount={config.maxCount}
         filtersGroup={filtersGroup}
         headerLeft={(
-          <span
-            className={cx('SingleViewName Font15 bold Gray flex ellipsis', { pointer: config.openView })}
-            onClick={() => {
-              if (config.openView) {
-                navigateToView(value, viewId);
-              }
-            }}
-          >
-            {config.name}
-          </span>
+          <div className="SingleViewName flex ellipsis">
+            <span
+              className={cx('Font15 bold Gray', { pointer: config.openView })}
+              onClick={() => {
+                if (config.openView) {
+                  navigateToView(value, viewId);
+                }
+              }}
+            >
+              {config.name}
+            </span>
+          </div>
         )}
       />
     </ViewWrap>

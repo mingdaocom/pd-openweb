@@ -16,6 +16,9 @@ import {
   SIDEBAR_LIST,
   appRoleErrorData,
   appSuccessData,
+  AddWorksheetParam,
+  ADD_API_CONTROLS,
+  ADD_WORKSHEET_SUCCESS
 } from './config';
 import homeApp from 'src/api/homeApp';
 import { Icon, Dialog, Textarea, LoadDiv, ScrollView } from 'ming-ui';
@@ -310,7 +313,7 @@ class WorksheetApi extends Component {
                 return (
                   <div
                     key={item.workSheetId + o.id}
-                    className={cx('worksheetApiMenuItem pLeft58', { active: selectId === item.workSheetId + o.id })}
+                    className={cx('worksheetApiMenuItem pLeft58 overflow_ellipsis', { active: selectId === item.workSheetId + o.id })}
                     onClick={() => this.setSelectId({ selectId: item.workSheetId + o.id })}
                   >
                     {o.title}
@@ -329,17 +332,23 @@ class WorksheetApi extends Component {
   renderWorksheetSide() {
     const { worksheetList = [], selectId } = this.state;
     const isOpen =
-      _.findIndex(worksheetList, i => selectId.indexOf(i.workSheetId) > -1) > -1 || selectId === 'worksheetFormInfo';
+      _.findIndex(worksheetList, i => selectId.indexOf(i.workSheetId) > -1) > -1 || ['worksheetFormInfo', 'worksheetCreateForm'].indexOf(selectId) > -1;
     return (
       <div className="worksheetApiMenu">
-        <div className="worksheetApiMenuTitle" onClick={() => this.setSelectId({ selectId: 'worksheetFormInfo' })}>
+        <div className="worksheetApiMenuTitle" onClick={() => this.setSelectId({ selectId: 'worksheetCreateForm' })}>
           <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {_l('工作表')}
         </div>
         {isOpen ? (
           <Fragment>
             <div
-              className={cx('worksheetApiMenuItem', { active: selectId === 'worksheetFormInfo' })}
+              className={cx('worksheetApiMenuItem overflow_ellipsis', { active: selectId === 'worksheetCreateForm' })}
+              onClick={() => this.setSelectId({ selectId: 'worksheetCreateForm' })}
+            >
+              {_l('新建工作表')}
+            </div>
+            <div
+              className={cx('worksheetApiMenuItem overflow_ellipsis', { active: selectId === 'worksheetFormInfo' })}
               onClick={() => this.setSelectId({ selectId: 'worksheetFormInfo' })}
             >
               {_l('获取工作表结构信息')}
@@ -373,7 +382,7 @@ class WorksheetApi extends Component {
           pbcList.map(item => {
             return (
               <div
-                className={cx('worksheetApiMenuItem', { active: item.id === selectWorkflowId })}
+                className={cx('worksheetApiMenuItem overflow_ellipsis', { active: item.id === selectWorkflowId })}
                 onClick={() => this.setSelectId({ selectId: 'workflowInfo', workflowId: item.id })}
               >
                 {item.name + ' POST'}
@@ -425,7 +434,7 @@ class WorksheetApi extends Component {
               return (
                 <div
                   key={o.id}
-                  className={cx('worksheetApiMenuItem', { active: selectId === o.id })}
+                  className={cx('worksheetApiMenuItem overflow_ellipsis', { active: selectId === o.id })}
                   onClick={() => this.setSelectId({ selectId: o.id })}
                 >
                   {o.title}
@@ -532,6 +541,51 @@ class WorksheetApi extends Component {
         })}
       </Fragment>
     );
+  }
+
+  /**
+   * 渲染新建工作表
+   */
+  renderCreateWorksheet() {
+    const { data = [] } = this.state;
+    return (
+      <Fragment>
+        <div className="worksheetApiContent1">
+          <div className='Font22 bold'>{_l('新建工作表 POST')}</div>
+          <input
+            className="mTop24 worksheetApiInput"
+            value={_l('请求URL：') + data[0].apiUrl + 'worksheet/addWorksheet'}
+          />
+          <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
+            <div className="w32">{_l('参数')}</div>
+            <div className="mLeft30 w18">{_l('必选')}</div>
+            <div className="mLeft30 w14">{_l('类型')}</div>
+            <div className="mLeft30 w36">{_l('说明')}</div>
+          </div>
+          {AddWorksheetParam.map(o => {
+            return (
+              <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
+                <div className="w32">{o.name}</div>
+                <div className="mLeft30 w18">{o.required}</div>
+                <div className="mLeft30 w14">{o.type}</div>
+                <div className="mLeft30 w36">{o.desc}</div>
+              </div>
+            );
+          })}
+        </div>
+        {this.renderRightContent({
+          data: {
+            appKey: data[0].appKey || 'APPKEY',
+            sign: data[0].sign || 'SIGN',
+            name: data[0].name || 'NAME',
+            alias: data[0].alias,
+            controls: ADD_API_CONTROLS,
+          },
+          successData: ADD_WORKSHEET_SUCCESS,
+          errorData: appRoleErrorData,
+        })}
+      </Fragment>
+    )
   }
 
   /**
@@ -1599,6 +1653,9 @@ class WorksheetApi extends Component {
                 </div>
                 <div className="flexRow worksheetApiLi" id="appInfo-content">
                   {this.renderAppInfo()}
+                </div>
+                <div className="flexRow worksheetApiLi" id="worksheetCreateForm-content">
+                  {this.renderCreateWorksheet()}
                 </div>
                 <div className="flexRow worksheetApiLi" id="worksheetFormInfo-content">
                   {this.renderWorksheetInfo()}

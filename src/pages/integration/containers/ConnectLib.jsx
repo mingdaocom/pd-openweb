@@ -7,14 +7,19 @@ import InstallDialog from '../components/InstallDialog';
 
 import { LoadDiv } from 'ming-ui';
 const Wrap = styled.div`
-  padding: 33px 50px;
-  max-width: 1600px;
-  @media screen and (min-width: 1600px) {
-    // padding: 33px 0;
-  }
-  margin: 0 auto;
   .lib {
     margin: 0 auto;
+  }
+  .noData {
+    .iconCon {
+      width: 130px;
+      height: 130px;
+      line-height: 130px;
+      background: #f5f5f5;
+      border-radius: 50%;
+      margin: 120px auto 0;
+      color: #9e9e9e;
+    }
   }
 `;
 
@@ -28,9 +33,17 @@ function ConnectLib(props) {
   }
   return (
     <Wrap>
-      <h5 className="Bold Font17">{_l('API 库')}</h5>
-      <div className="lib">
-        {props.list.length <= 0 && <p className="TxtCenter Gray_9e mTop20">{_l('暂无相关数据')}</p>}
+      <div className="lib mTop24">
+        {props.list.length <= 0 && (
+          <div className="noData TxtCenter">
+            <span className="iconCon InlineBlock TxtCenter ">
+              <i className={`icon-connect Font64 TxtMiddle`} />
+            </span>
+            <p className="Gray_9e mTop20 mBottom0">
+              {props.keywords ? _l('未搜索到API，换个关键词试试吧') : _l('暂无相关数据')}
+            </p>
+          </div>
+        )}
         {props.list.map((o, i) => {
           return (
             <Card

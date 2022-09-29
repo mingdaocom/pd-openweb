@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
-import { SingleControlValue } from '../';
+import { SingleControlValue, AddOptions } from '../';
 
 export default class UpdateFields extends Component {
   static defaultProps = {
@@ -112,7 +112,7 @@ export default class UpdateFields extends Component {
     ) {
       return (
         <Dropdown
-          className="flowAddTypeDropdown mTop10"
+          className="flowAddTypeDropdown"
           data={TYPES}
           value={item.addType}
           onChange={addType => this.updateOperatorType(addType, i)}
@@ -121,7 +121,7 @@ export default class UpdateFields extends Component {
     }
 
     return (
-      <div className="mTop10 Gray_9e" style={{ lineHeight: '20px' }}>
+      <div className="Gray_9e" style={{ lineHeight: '20px' }}>
         {_l('设为')}
       </div>
     );
@@ -194,7 +194,17 @@ export default class UpdateFields extends Component {
                   onChange={fields => this.switchFields(fields, i)}
                 />
 
-                {this.renderOperatorType(item, i)}
+                <div className="mTop10 flexRow alignItemsCenter">
+                  <div className="flex">{this.renderOperatorType(item, i)}</div>
+                  {type === 1 && _.includes([9, 10, 11], item.type) && item.fieldValueId && (
+                    <AddOptions
+                      checked={item.allowAddOptions || false}
+                      fields={fields}
+                      index={i}
+                      updateSource={updateSource}
+                    />
+                  )}
+                </div>
 
                 <SingleControlValue
                   showClear

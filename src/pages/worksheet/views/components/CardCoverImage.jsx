@@ -3,6 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { getAdvanceSetting, getClassNameByExt, browserIsMobile } from 'src/util';
+import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { filter, includes, head, get } from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -147,7 +148,7 @@ const COVER_IMAGE_POSITION = {
 export default function CardCoverImage(props) {
   const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '' } = props;
   const { allAttachments = [], coverData = {}, formData, rowId } = data;
-  const { type } = coverData;
+  const { type, controlId } = coverData;
   const { previewUrl, ext } = head(allAttachments) || {};
   const { viewType, appId, worksheetId } = currentView;
   const isGalleryView = String(viewType) === '3';
@@ -176,16 +177,32 @@ export default function CardCoverImage(props) {
         /* 是否不可下载 且 不可保存到知识和分享 */
         hideFunctions.push('download', 'share', 'saveToKnowlege');
       }
-      previewAttachments({
-        index: 0,
-        attachments: allAttachments.map(attachment =>
-          Object.assign({}, attachment, {
-            previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
-          }),
-        ),
-        showThumbnail: true,
-        hideFunctions: hideFunctions,
-      });
+      previewAttachments(
+        {
+          index: 0,
+          attachments: allAttachments.map(attachment =>
+            Object.assign({}, attachment, {
+              previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+            }),
+          ),
+          showThumbnail: true,
+          hideFunctions: hideFunctions,
+        },
+        {
+          openControlAttachmentInNewTab: recordAttachmentSwitch
+            ? fileId => {
+                openControlAttachmentInNewTab({
+                  controlId,
+                  fileId,
+                  appId,
+                  recordId: rowId,
+                  viewId,
+                  worksheetId,
+                });
+              }
+            : undefined,
+        },
+      );
     });
   };
 

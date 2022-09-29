@@ -91,28 +91,26 @@ export default class DepartmentTree extends Component {
   };
   getNextPageDepartmentTrees = id => {
     const { pagedDepartmentIndex, pagedDepartmentSize } = this.state;
-    const { projectId } = this.props;
+    const { projectId, isNetwork } = this.props;
     this.setState({ departmentLoading: true });
-    departmentController
-      .pagedDepartmentTrees({
-        projectId,
-        pageIndex: pagedDepartmentIndex + 1,
-        pageSize: pagedDepartmentSize,
-        parentId: id,
-      })
-      .then(res => {
-        let temp =
-          (_.isArray(res) &&
-            res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }))) ||
-          [];
-        const department = this.state.department.concat(temp);
-        this.setState({
-          isMoreDepartment: department.length % pagedDepartmentSize <= 0,
-          departmentLoading: false,
-          pagedDepartmentIndex: pagedDepartmentIndex + 1,
-          department,
-        });
+    departmentController[isNetwork ? 'pagedProjectDepartmentTrees' : 'pagedDepartmentTrees']({
+      projectId,
+      pageIndex: pagedDepartmentIndex + 1,
+      pageSize: pagedDepartmentSize,
+      parentId: id,
+    }).then(res => {
+      let temp =
+        (_.isArray(res) &&
+          res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }))) ||
+        [];
+      const department = this.state.department.concat(temp);
+      this.setState({
+        isMoreDepartment: department.length % pagedDepartmentSize <= 0,
+        departmentLoading: false,
+        pagedDepartmentIndex: pagedDepartmentIndex + 1,
+        department,
       });
+    });
   };
   handleLoadAll = id => {
     const { pageIndex } = this.state;
@@ -169,20 +167,18 @@ export default class DepartmentTree extends Component {
     });
   };
   expandNext = id => {
-    const { projectId } = this.props;
+    const { projectId, isNetwork } = this.props;
     let { department } = this.state;
     this.setState({ departmentLoading: true });
-    departmentController
-      .pagedDepartmentTrees({
-        projectId,
-        pageIndex: 1,
-        pageSize: 100,
-        parentId: id,
-      })
-      .then(res => {
-        let data = res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }));
-        this.setState({ department: this.updateTreeData(department, id, data), departmentLoading: false });
-      });
+    departmentController[isNetwork ? 'pagedProjectDepartmentTrees' : 'pagedDepartmentTrees']({
+      projectId,
+      pageIndex: 1,
+      pageSize: 100,
+      parentId: id,
+    }).then(res => {
+      let data = res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }));
+      this.setState({ department: this.updateTreeData(department, id, data), departmentLoading: false });
+    });
   };
 
   renderDepartment(item) {

@@ -81,7 +81,9 @@ export default class PrintList extends Component {
         workId,
         id: instanceId,
       };
-      let printKey = Math.random().toString(36).substring(2);
+      let printKey = Math.random()
+        .toString(36)
+        .substring(2);
       add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -135,7 +137,7 @@ export default class PrintList extends Component {
           popup={
             <div className="">
               {/* 打印模板 */}
-              {tempList.length > 0 && featureType && (
+              {tempList.length > 0 && (
                 <div
                   className={cx('tempList', {
                     noDefaultPrint: !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
@@ -151,7 +153,7 @@ export default class PrintList extends Component {
                             alert(_l('预览模式下，不能操作'), 3);
                             return;
                           }
-                          if (featureType === '2') {
+                          if (it.type !== 0 && featureType === '2') {
                             buriedUpgradeVersionDialog(projectId, FEATURE_ID);
                             return;
                           }
@@ -169,7 +171,9 @@ export default class PrintList extends Component {
                             name: it.name,
                             attriData: attriData[0],
                           };
-                          let printKey = Math.random().toString(36).substring(2);
+                          let printKey = Math.random()
+                            .toString(36)
+                            .substring(2);
                           add({
                             key: `${printKey}`,
                             value: JSON.stringify(printData),

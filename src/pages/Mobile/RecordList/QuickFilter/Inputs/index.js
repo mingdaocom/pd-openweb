@@ -27,6 +27,9 @@ export function conditionAdapter(condition) {
   ) {
     condition.filterType = 1;
   }
+  if (condition.dataType === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && condition.filterType === 2) {
+    condition.filterType = 24;
+  }
   delete condition.control;
   return condition;
 }
@@ -35,7 +38,7 @@ export const formatQuickFilter = filter => {
   return filter.map(c => {
     return {
       ...c,
-      values: formatFilterValuesToServer(c.dataType, c.values)
+      values: formatFilterValuesToServer(c.dataType, c.values),
     };
   });
 };
@@ -126,6 +129,7 @@ export function validate(condition) {
         WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
         WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
         WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 级联选择
+        WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色
       ],
       dataType,
     )

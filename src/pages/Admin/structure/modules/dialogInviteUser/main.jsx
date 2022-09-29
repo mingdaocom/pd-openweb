@@ -12,11 +12,13 @@ import DialogSelectDept from 'dialogSelectDept';
 import copy from 'copy-to-clipboard';
 var workSiteController = require('src/api/workSite');
 var importUserController = require('src/api/importUser');
+import departmentController from 'src/api/department';
 import { Icon, Radio } from 'ming-ui';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import { Tooltip, Select } from 'antd';
 import { getJobs, addJob } from 'src/api/job';
+import cx from 'classnames';
 
 const { Option } = Select;
 
@@ -205,6 +207,7 @@ class Main extends Component {
       jobList: [],
       jobIds: [],
       keywords: '',
+      fullDepartmentInfo: {},
     });
     this.closeDialog = props.closeDialog;
     this.dialogCenter = props.dialogCenter;
@@ -715,6 +718,24 @@ class Main extends Component {
     });
   };
 
+  getDepartmentFullName = (departmentId = '') => {
+    let { projectId } = this.props;
+    let { fullDepartmentInfo = {} } = this.state
+    const departmentIds = [departmentId].filter(it => !fullDepartmentInfo[it])
+    if (_.isEmpty(departmentIds)) {
+      return;
+    }
+    departmentController.getDepartmentFullNameByIds({
+      projectId,
+      departmentIds: [departmentId],
+    }).then(res => {
+      res.forEach(it => {
+        fullDepartmentInfo[it.id] = it.name;
+      })
+      this.setState({ fullDepartmentInfo })
+    });
+  };
+
   render() {
     const {
       editable,
@@ -728,6 +749,7 @@ class Main extends Component {
       jobList = [],
       jobIds = [],
       keywords = '',
+      fullDepartmentInfo = {}
     } = this.state;
     let jobResult = [...jobList];
 
@@ -774,62 +796,82 @@ class Main extends Component {
           <div className="formGroup mBottom24">
             <span className="formLabel">{_l('部门')}</span>
             {departmentInfos.map((item, i) => {
+              const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/')
               return (
-                <span className="itemSpan mAll5">
-                  {item.departmentName}
-                  {i === 0 && <span className="isTopIcon">主</span>}
-                  <div className="moreOption">
-                    <Icon
-                      className="Font14 Hand Gray_bd"
-                      icon="moreop"
-                      onClick={e => {
-                        this.setState(
-                          {
-                            isShowAct: !this.state.isShowAct,
-                          },
-                          () => {
-                            if (this.state.isShowAct) {
-                              this.setState({
-                                idAct: item.departmentId,
-                              });
-                            }
-                          },
-                        );
-                      }}
-                    />
-                    {this.state.isShowAct && this.state.idAct === item.departmentId && (
-                      <Act
-                        onClickAwayExceptions={[]}
-                        onClickAway={() =>
-                          this.setState({
-                            isShowAct: false,
-                          })
-                        }
-                        isPosition={false}
-                        isTop={i === 0}
-                        deleteFn={() => {
-                          let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
-                          this.setState({
-                            isShowAct: false,
-                            idAct: '',
-                            departmentInfos: list,
-                          });
+                <Tooltip
+                  tooltipClass="departmentFullNametip"
+                  popupPlacement="bottom"
+                  title={
+                    <div>
+                      {fullName.map((n, i) => (
+                        <span>
+                          {n}
+                          {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                        </span>
+                      ))}
+                    </div>
+                  }
+                  mouseEnterDelay={0.5}
+                >
+                  <span
+                    className="itemSpan mAll5"
+                    onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}
+                  >
+                    {item.departmentName}
+                    {i === 0 && <span className="isTopIcon">主</span>}
+                    <div className="moreOption">
+                      <Icon
+                        className="Font14 Hand Gray_bd"
+                        icon="moreop"
+                        onClick={e => {
+                          this.setState(
+                            {
+                              isShowAct: !this.state.isShowAct,
+                            },
+                            () => {
+                              if (this.state.isShowAct) {
+                                this.setState({
+                                  idAct: item.departmentId,
+                                });
+                              }
+                            },
+                          );
                         }}
-                        setToTop={() => {
-                          let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
-                          let data = departmentInfos.find(it => it.departmentId === item.departmentId);
-                          list.unshift(data);
-                          this.setState({
-                            isShowAct: false,
-                            idAct: '',
-                            departmentInfos: list,
-                          });
-                        }}
-                        isShowAct={this.state.isShowAct}
                       />
-                    )}
-                  </div>
-                </span>
+                      {this.state.isShowAct && this.state.idAct === item.departmentId && (
+                        <Act
+                          onClickAwayExceptions={[]}
+                          onClickAway={() =>
+                            this.setState({
+                              isShowAct: false,
+                            })
+                          }
+                          isPosition={false}
+                          isTop={i === 0}
+                          deleteFn={() => {
+                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                            this.setState({
+                              isShowAct: false,
+                              idAct: '',
+                              departmentInfos: list,
+                            });
+                          }}
+                          setToTop={() => {
+                            let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                            let data = departmentInfos.find(it => it.departmentId === item.departmentId);
+                            list.unshift(data);
+                            this.setState({
+                              isShowAct: false,
+                              idAct: '',
+                              departmentInfos: list,
+                            });
+                          }}
+                          isShowAct={this.state.isShowAct}
+                        />
+                      )}
+                    </div>
+                  </span>
+                </Tooltip>
               );
             })}
             <Icon
@@ -899,7 +941,7 @@ class Main extends Component {
           </div>
         </div>
         <div className="ThemeColor3 Hand mTop20 mBottom25" onClick={this.toggleShowMoreInfo()}>
-          <span className={moreInfo ? 'icon-arrow-up' : 'icon-arrow-down'} />{' '}
+          <span className={moreInfo ? 'icon-arrow-up' : 'icon-arrow-down'} />
           <span className="mLeft5"> {moreInfo ? _l('收起更多') : _l('展开更多')} </span>
         </div>
         {moreInfo ? this.renderMoreInfo(moreInfo) : null}

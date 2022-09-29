@@ -14,14 +14,26 @@
     padding: 0;
     line-height: 1;
   }
-
+  .ant-tabs {
+    height: 100%;
+  }
   .ant-tabs-nav {
     padding: 0 25px;
+  }
+  .ant-tabs-content {
+    height: 100%;
+    overflow: auto;
   }
   .stepItem {
     padding: 20px 0;
     margin: 0 25px;
     border-bottom: 1px solid #eaeaea;
+  }
+  .stepItem:last-child {
+    border: none;
+  }
+  .ThemeColor {
+    color: #2196f3 !important;
   }
 
   .infoTips {
@@ -121,13 +133,22 @@
   }
 
   .radioGroupWrapper {
-    margin-top: 17px;
     .ant-radio-wrapper {
-      margin-top: 17px;
+      margin-top: 9px;
     }
     .ant-radio-input {
       position: absolute !important;
     }
+    .width225 {
+      display: inline-block;
+      width: 225px;
+    }
+  }
+  .pTop22 {
+    padding-top: 22px;
+  }
+  .mTop11 {
+    margin-top: 11px;
   }
 
   .customFieldWrapper {
@@ -224,6 +245,18 @@
       }
     }
   }
+  .syncRow {
+    .mLeft110 {
+      margin-left: 110px;
+    }
+    .Checkbox-box {
+      margin-right: 16px;
+      margin-top: -2px;
+    }
+    &.height32 {
+      height: 32px;
+    }
+  }
   .tabStyle {
     .ant-tabs-tab-active {
       height: 46px;
@@ -240,4 +273,9 @@
 .workwxPopoverWrapper .ant-popover-inner-content {
   padding: 0;
 }
-
+.helpEntry {
+  color: #2196f3;
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -92,7 +92,7 @@ Invite.inviteToFriend = function(users, cb) {
   })
     .done(function(result) {
       require(['mdFunction'], function(mdFunction) {
-        mdFunction.existAccountHint(result, cb);
+        mdFunction.existAccountHint(result, cb(result));
       });
     })
     .fail(function() {

@@ -323,17 +323,17 @@ export default class ConfigControl extends Component {
     // 获取先前保存的导入配置
     let configObjState = {
       errorSkip: configData.data.errorSkip,
+      edited: configData.data.edited,
     };
 
     if (configData.resultCode === 1) {
-      let { tigger, edited, repeatConfig, configs } = configData.data;
+      let { tigger, repeatConfig, configs } = configData.data;
       repeatConfig = repeatConfig ? repeatConfig : {};
       const currentRepeatItem = _.find(data.template.controls, item => item.controlId === repeatConfig.controlId) || {};
 
       configObjState = Object.assign({}, configObjState, {
         tigger,
         repeatRecord: repeatConfig.controlId ? true : false,
-        edited,
         showStar: repeatConfig.controlId || null,
       });
 

@@ -21,8 +21,10 @@ export default class TextInput extends Component {
     const { dynamicValue, data, clearOldDefault, onDynamicValueChange } = this.props;
     const { default: defaultValue } = data;
     if (defaultValue) {
-      onDynamicValueChange(dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue }));
+      const newDynamicValue = dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue });
+      onDynamicValueChange(newDynamicValue);
       clearOldDefault();
+      this.setDynamicValue(newDynamicValue);
     } else {
       this.setDynamicValue(dynamicValue);
     }

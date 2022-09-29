@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch } from 'antd';
+import { Collapse, Checkbox, Switch, Input } from 'antd';
 import { Count, Location } from './components/Count';
 import DataFilter from './components/DataFilter';
 import Label from './components/Label';
@@ -193,10 +193,40 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+  handleChangeLineSummary = (data, isRequest = true) => {
+    const { pivotTable = {} } = this.props.currentReport;
+    this.props.changeCurrentReport(
+      {
+        pivotTable: {
+          ...pivotTable,
+          lineSummary: {
+            ...pivotTable.lineSummary,
+            ...data,
+          },
+        },
+      },
+      isRequest
+    );
+  }
+  handleChangeColumnSummary = (data, isRequest = true) => {
+    const { pivotTable = {} } = this.props.currentReport;
+    this.props.changeCurrentReport(
+      {
+        pivotTable: {
+          ...pivotTable,
+          columnSummary: {
+            ...pivotTable.columnSummary,
+            ...data,
+          },
+        },
+      },
+      isRequest
+    );
+  }
   renderPivotTableLineCount() {
     const { reportType, displaySetup, yaxisList, pivotTable = {} } = this.props.currentReport;
     const { showLineTotal, lineSummary = {} } = pivotTable;
-    const { controlList = [] } = lineSummary;
+    const { controlList = [], rename } = lineSummary;
     return (
       <Collapse.Panel
         key="lineCount"
@@ -224,6 +254,21 @@ export default class ChartStyle extends Component {
         }
       >
         <Fragment>
+          <div className="mBottom16">
+            <div className="mBottom8">{_l('名称')}</div>
+            <Input
+              defaultValue={rename || _l('行汇总')}
+              className="chartInput w100"
+              onChange={event => {
+                this.handleChangeLineSummary(
+                  {
+                    rename: event.target.value.slice(0, 20),
+                  },
+                  false,
+                );
+              }}
+            />
+          </div>
           {yaxisList.map(item => (
             <Count
               key={item.controlId}
@@ -303,20 +348,7 @@ export default class ChartStyle extends Component {
           <Location
             summary={lineSummary}
             locationType="line"
-            onChangeSummary={(data) => {
-              this.props.changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...pivotTable,
-                    lineSummary: {
-                      ...pivotTable.lineSummary,
-                      ...data,
-                    },
-                  },
-                },
-                true
-              );
-            }}
+            onChangeSummary={this.handleChangeLineSummary}
           />
         </Fragment>
       </Collapse.Panel>
@@ -325,7 +357,7 @@ export default class ChartStyle extends Component {
   renderPivotTableColumnCount() {
     const { reportType, displaySetup, yaxisList, pivotTable = {} } = this.props.currentReport;
     const { showColumnTotal, columnSummary = {} } = pivotTable;
-    const { controlList = [] } = columnSummary;
+    const { controlList = [], rename } = columnSummary;
     return (
       <Collapse.Panel
         key="columnCount"
@@ -353,6 +385,21 @@ export default class ChartStyle extends Component {
         }
       >
         <Fragment>
+          <div className="mBottom16">
+            <div className="mBottom8">{_l('名称')}</div>
+            <Input
+              defaultValue={rename || _l('列汇总')}
+              className="chartInput w100"
+              onChange={event => {
+                this.handleChangeColumnSummary(
+                  {
+                    rename: event.target.value.slice(0, 20),
+                  },
+                  false,
+                );
+              }}
+            />
+          </div>
           {yaxisList.map(item => (
             <Count
               key={item.controlId}
@@ -432,20 +479,7 @@ export default class ChartStyle extends Component {
           <Location
             summary={columnSummary}
             locationType="column"
-            onChangeSummary={(data) => {
-              this.props.changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...pivotTable,
-                    columnSummary: {
-                      ...pivotTable.columnSummary,
-                      ...data,
-                    },
-                  },
-                },
-                true
-              );
-            }}
+            onChangeSummary={this.handleChangeColumnSummary}
           />
         </Fragment>
       </Collapse.Panel>
@@ -526,7 +560,12 @@ export default class ChartStyle extends Component {
     );
   }
   renderLegend() {
-    const { displaySetup } = this.props.currentReport;
+    const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
+
+    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && !(yaxisList.length > 1 || split.controlId)) {
+      return null;
+    }
+
     return (
       <Collapse.Panel
         key="legend"

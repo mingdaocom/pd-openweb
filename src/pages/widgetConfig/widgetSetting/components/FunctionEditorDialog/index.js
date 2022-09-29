@@ -26,7 +26,7 @@ export default function FunctionEditorDialog(props) {
       closeSize={50}
       onCancel={onClose}
       style={{ minWidth: width }}
-      bodyStyle={{ padding: 0, position: 'relative', height }}
+      bodyStyle={{ padding: 0, position: 'relative', height, flex: 'none' }}
     >
       <Function {...props} />
     </Modal>

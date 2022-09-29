@@ -20,7 +20,7 @@ export const permissionObj = {
     'sysroles',
     'rolelog',
     'systools',
-    'ldap',
+    'integration_others',
     'weixin',
     'thirdapp',
   ],
@@ -334,10 +334,10 @@ export const menuList = [
       {
         icon: 'icon-integration_instructions',
         name: _l('其他'),
-        key: 'ldap',
+        key: 'integration_others',
         routes: [
           {
-            path: '/admin/ldap/:projectId',
+            path: '/admin/integration_others/:projectId',
             component: () => import('./others'),
           },
         ],

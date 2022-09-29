@@ -41,7 +41,10 @@ class WorkSheet extends Component {
       $(document.body).addClass('isPublicApp');
     }
     const id = this.getValidedWorksheetId(this.props);
-    const { appId, groupId, viewId } = match.params;
+    let { appId, groupId, viewId } = match.params;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     updateBase({
       appId,
       viewId,
@@ -59,7 +62,7 @@ class WorkSheet extends Component {
       return;
     }
     const id = this.getValidedWorksheetId(nextProps);
-    const { appId, groupId, viewId } = nextProps.match.params;
+    let { appId, groupId, viewId } = nextProps.match.params;
     if (appId !== this.props.match.params.appId || groupId !== this.props.match.params.groupId) {
       updateWorksheetLoading(true);
     }
@@ -69,6 +72,9 @@ class WorkSheet extends Component {
       groupId !== this.props.match.params.groupId ||
       id !== worksheetId
     ) {
+      if (md.global.Account.isPortal) {
+        appId = md.global.Account.appId;
+      }
       updateBase({
         appId,
         viewId,
@@ -91,7 +97,10 @@ class WorkSheet extends Component {
    * 设置缓存
    */
   setCache(params) {
-    const { appId, groupId, worksheetId, viewId } = params;
+    let { appId, groupId, worksheetId, viewId } = params;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     let storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`));
 
     if (!worksheetId) {
@@ -104,7 +113,7 @@ class WorkSheet extends Component {
         );
         storage.lastWorksheetId = '';
         storage.lastViewId = '';
-        safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
+        safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
       }
       return;
     }
@@ -123,7 +132,7 @@ class WorkSheet extends Component {
     storage.lastWorksheetId = worksheetId;
     storage.lastViewId = viewId;
 
-    safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${params.appId}`, JSON.stringify(storage));
+    safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
   }
   getValidedWorksheetId(props) {
     const { match, sheetList, isCharge } = props || this.props;
@@ -141,7 +150,10 @@ class WorkSheet extends Component {
   handleCreateItem = (obj, callback) => {
     if (this.pending) return;
     const { match, addWorkSheet, updatePageInfo, updateEditPageVisible } = this.props;
-    const { appId, groupId, viewId } = match.params;
+    let { appId, groupId, viewId } = match.params;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     const { iconColor, projectId } = store.getState().appPkg;
     const { type, name } = obj;
     this.pending = true;
@@ -200,7 +212,10 @@ class WorkSheet extends Component {
   render() {
     let { visible, sheetList = [], pageId, match, isCharge } = this.props;
     const { projectId } = store.getState().appPkg;
-    const { appId, groupId } = match.params;
+    let { appId, groupId } = match.params;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     const id = this.getValidedWorksheetId();
     const currentSheet = _.find(sheetList, { workSheetId: id }) || {};
 

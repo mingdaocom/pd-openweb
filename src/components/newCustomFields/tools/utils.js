@@ -1,10 +1,11 @@
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM, FORM_ERROR_TYPE } from './config';
+import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul } from 'src/util';
+import { getStringBytes, accMul, browserIsMobile } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import _ from 'lodash';
 
 export const convertControl = type => {
   switch (type) {
@@ -435,7 +436,10 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           (currentControl.type === 38 && currentControl.enumDefault === 2)
         ) {
           item.dateRange = 18;
-          item.value = currentControl.value;
+          if (currentControl.value) {
+            const valueFormat = getDatePickerConfigs(currentControl).formatMode;
+            item.value = moment(currentControl.value).format(valueFormat);
+          }
           return;
         }
         //单选
@@ -506,6 +510,10 @@ export const getCurrentValue = (item, data, control) => {
         //关联记录单条
         case 29:
           const formatData = JSON.parse(data || '[]')[0] || {};
+          if (!formatData.name) {
+            const titleControl = _.find(item.relationControls || [], r => r.attribute === 1) || {};
+            return JSON.parse((JSON.parse(data || '[]')[0] || {}).sourcevalue || '{}')[titleControl.controlId] || '';
+          }
           return formatData.name;
         //公式
         case 31:
@@ -610,4 +618,12 @@ export const checkMobileVerify = (data, smsVerificationFiled) => {
     return false;
   if (!selectControl.value) return false;
   return true;
+};
+
+// 查询文本类失焦校验(文本扫码特殊处理)
+export const unTextSearch = item => {
+  return (
+    _.includes(UN_TEXT_TYPE, item.type) ||
+    (item.type === 2 && browserIsMobile() && (item.strDefault || '10').split('')[1] === '1')
+  );
 };

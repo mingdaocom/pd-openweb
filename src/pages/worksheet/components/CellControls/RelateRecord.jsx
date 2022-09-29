@@ -100,14 +100,23 @@ export default class RelateRecord extends React.Component {
 
   @autobind
   handleVisibleChange(visible) {
-    const { cell, updateEditingStatus, updateCell } = this.props;
+    const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
     if (!visible && this.changed) {
+      const newValue = JSON.stringify(
+        formatRecordToRelateRecord(cell.relationControls, this.records).map(r => ({
+          ..._.pick(r, ['sid', 'name', 'sourcevalue', 'row']),
+        })),
+      );
+      const validateResult = onValidate(newValue, true);
+      if (validateResult.errorType === 'REQUIRED') {
+        this.changed = false;
+        this.setState({ records: this.parseValue(this.props.cell.value) });
+        updateEditingStatus(false);
+        alert(_l('%0不能为空', cell.controlName), 3);
+        return;
+      }
       updateCell({
-        value: JSON.stringify(
-          formatRecordToRelateRecord(cell.relationControls, this.records).map(r => ({
-            ..._.pick(r, ['sid', 'name', 'sourcevalue', 'row']),
-          })),
-        ),
+        value: newValue,
       });
       this.changed = false;
     }
@@ -180,10 +189,8 @@ export default class RelateRecord extends React.Component {
             coverCid={cell.coverCid}
             required={cell.required}
             showControls={cell.showControls}
-            controls={cell.relationControls}
             allowOpenRecord={allowlink === '1'}
             showCoverAndControls={ddset === '1' || parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD}
-            selected={records}
             isediting={isediting}
             popupContainer={() => document.body}
             multiple={cell.enumDefault === 2}

@@ -305,6 +305,19 @@ module.exports = {
      return $.api('Department', 'GetDepartmentFullNameById', args, options);
    },
   /**
+  * 根据部门Ids 获取完整的部门路径
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {array} args.departmentIds 部门id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDepartmentFullNameByIds: function (args, options = {}) {
+     
+     return $.api('Department', 'GetDepartmentFullNameByIds', args, options);
+   },
+  /**
   * 根据部门父Id获取子部门,departmentId为null表示父部门是网络
   * @param {Object} args 请求参数
   * @param {integer} args.pageIndex
@@ -366,6 +379,23 @@ module.exports = {
    pagedDepartmentTrees: function (args, options = {}) {
      
      return $.api('Department', 'PagedDepartmentTrees', args, options);
+   },
+  /**
+  * 获取 部门所有下级（树结构，可取全网络）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.parentId
+  * @param {string} args.keyword 关键字搜索
+  * @param {boolean} args.onlyMyJoin 仅看我加入的部门
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pagedProjectDepartmentTrees: function (args, options = {}) {
+     
+     return $.api('Department', 'PagedProjectDepartmentTrees', args, options);
    },
   /**
   * 按关键词搜索部门，同时搜索部门下的用户，通用邀请层使用

@@ -270,6 +270,7 @@ const entities = (state = initialState, action) => {
     isShowExport,
     importExportType,
     importExportResult = {},
+    fullDepartmentInfo = {},
   } = action;
   let { getDepartmentIds, newDepartments, departments } = state;
   if (type === 'UPDATE_IMPORT_EXPORT_RESULT') {
@@ -288,6 +289,12 @@ const entities = (state = initialState, action) => {
     return {
       ...state,
       importExportType,
+    };
+  }
+  if (type === 'UPDATE_FULL_DEPARTMENT_INFO') {
+    return {
+      ...state,
+      fullDepartmentInfo,
     };
   }
   if (type === 'PROJECT_ID_CHANGED') return initialState;

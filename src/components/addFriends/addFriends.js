@@ -38,7 +38,11 @@ $.extend(AddFriends.prototype, {
     _this.render();
   },
   render: function () {
+    const { projects = [] } = md.global.Account;
     var _this = this;
+    const { IsLocal } = md.global.Config;
+    _this.isPayUsers = projects.some(item => item.licenseType !== 0) || IsLocal;
+
     require(['./tpl/addNewFriendsLayer.html', 'mdDialog', 'chooseInvite'], function (tpl, dialog) {
       var $content = $(doT.template(tpl)());
       var $dialog = dialog.index({
@@ -65,6 +69,7 @@ $.extend(AddFriends.prototype, {
           _this.$searchClear = _this.$container.find('.searchClear');
           _this.$searchResult = _this.$container.find('.addFriendSearchResult');
           _this.$inviteBox = _this.$container.find('.inviteBox');
+          _this.$safeWarning = _this.$container.find('.safeWarning');
           _this.bindEvent();
 
           _this.$container.find('.inviteBox').chooseInvite({
@@ -77,6 +82,11 @@ $.extend(AddFriends.prototype, {
             },
           });
           _this.$input.focus();
+          if (_this.isPayUsers) {
+            _this.$safeWarning.addClass('hidden');
+          } else {
+            _this.$searchResult.addClass('hidden');
+          }
         },
       });
     });
@@ -105,7 +115,7 @@ $.extend(AddFriends.prototype, {
 
     _this.$btn.on({
       click: function () {
-        if (_this.Settings.account === _this.$input.val()) return;
+        if (_this.Settings.account === _this.$input.val() || !$.trim(_this.$input.val()) || !_this.isPayUsers) return;
         _this.getResult();
       },
     });
@@ -132,15 +142,16 @@ $.extend(AddFriends.prototype, {
             fullname: '',
           },
         ],
-        function () {
+        function (data) {
+          if (!data || !data.sendMessageResult) return;
           $this.parent().text(_l('已邀请'));
-        }
+        },
       );
     });
   },
   toggleBtnState: function () {
     var _this = this;
-    if (!$.trim(_this.$input.val())) {
+    if (!$.trim(_this.$input.val()) || !_this.isPayUsers) {
       _this.$btn.removeClass('active');
       _this.$searchClear.hide();
       _this.$inviteBox.fadeIn();
@@ -166,7 +177,13 @@ $.extend(AddFriends.prototype, {
 
     Settings.promise = Requests.getAccountByAccount({
       account: keywords,
-    }).done($.proxy(_this.renderList, _this));
+    })
+      .done($.proxy(_this.renderList, _this))
+      .fail(err => {
+        if (err) {
+          alert(_l('请输入手机号/邮箱地址'), 3);
+        }
+      });
   },
   renderList: function (data) {
     var _this = this;

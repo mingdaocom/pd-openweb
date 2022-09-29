@@ -12,7 +12,7 @@ import {
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 
-const formatChartData = (data, yaxisList) => {
+const formatChartData = (data, yaxisList, splitControlId) => {
   const result = [];
   const { value } = data[0];
   value.forEach(item => {
@@ -20,14 +20,17 @@ const formatChartData = (data, yaxisList) => {
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.x === name);
       if (target.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
-        result.push({
-          groupName: `${rename || element.key}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
-          groupKey: element.originalKey,
-          value: target[0].v,
-          name,
-          originalId: item.originalX || name
+        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const hideEmptyValue = !emptyShowType && !target[0].v;
+        if (!hideEmptyValue) {
+          result.push({
+            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
+            groupKey: element.originalKey,
+            value: target[0].v,
+            name,
+            originalId: item.originalX || name
         });
+        }
       }
     });
   });
@@ -110,8 +113,8 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, yaxisList, style } = props.reportData;
-    const data = formatChartData(map, yaxisList);
+    const { map, displaySetup, yaxisList, style, split } = props.reportData;
+    const data = formatChartData(map, yaxisList, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style);
@@ -183,7 +186,7 @@ export default class extends Component {
           };
         },
       },
-      legend: displaySetup.showLegend
+      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
             position,
             flipPage: true,
@@ -199,8 +202,9 @@ export default class extends Component {
         : false,
       label: displaySetup.showNumber
         ? {
-            content: ({ value }) => {
-              return formatrChartValue(value, false, newYaxisList);
+            content: ({ value, controlId }) => {
+              const id = split.controlId ? newYaxisList[0].controlId : controlId;
+              return formatrChartValue(value, false, newYaxisList, value ? undefined : id);
             },
           }
         : false,

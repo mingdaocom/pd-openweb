@@ -14,6 +14,10 @@ import { accDiv } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 
+const isEmptyValue = value => {
+  return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '' || _.isNaN(Number(value));
+};
+
 const TIME_OPTIONS = {
   1: 'year ',
   2: 'month',
@@ -277,7 +281,7 @@ export const filterFn = (filterData, originControl, data = []) => {
       compareValue = currentControl.value;
       //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
     } else if (
-      _.includes([2, 6], filterType) &&
+      _.includes([2, 6, 26, 27], filterType) &&
       ((_.includes([5], conditionGroupType) && _.includes([9, 11, 27, 48], dataType)) ||
         _.includes([6], conditionGroupType))
     ) {
@@ -413,7 +417,8 @@ export const filterFn = (filterData, originControl, data = []) => {
             return _.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(compareValue || 0) === parseFloat(value || 0);
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          return parseFloat(compareValue) === parseFloat(value);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           let isInValue = false;
           _.map(compareValues, it => {
@@ -427,7 +432,7 @@ export const filterFn = (filterData, originControl, data = []) => {
         default:
           return true;
       }
-    //   START: 3, // 开头为
+    //   START: 3, // 开头是
     case FILTER_CONDITION_TYPE.START:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.TEXT.value:
@@ -441,7 +446,21 @@ export const filterFn = (filterData, originControl, data = []) => {
         default:
           return true;
       }
-    //   END: 4, // 结尾为
+    //   N_START: 9, // 开头不是
+    case FILTER_CONDITION_TYPE.N_START:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.TEXT.value:
+          let isInValue = true;
+          _.map(compareValues, it => {
+            if (value.startsWith(it)) {
+              isInValue = false;
+            }
+          });
+          return isInValue;
+        default:
+          return true;
+      }
+    //   END: 4, // 结尾是
     case FILTER_CONDITION_TYPE.END:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.TEXT.value:
@@ -449,6 +468,20 @@ export const filterFn = (filterData, originControl, data = []) => {
           _.map(compareValues, function (it) {
             if (value.endsWith(it)) {
               isInValue = true;
+            }
+          });
+          return isInValue;
+        default:
+          return true;
+      }
+    //   N_END: 10, // 结尾不是
+    case FILTER_CONDITION_TYPE.N_END:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.TEXT.value:
+          var isInValue = true;
+          _.map(compareValues, function (it) {
+            if (value.endsWith(it)) {
+              isInValue = false;
             }
           });
           return isInValue;
@@ -555,6 +588,7 @@ export const filterFn = (filterData, originControl, data = []) => {
             return !_.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
           return parseFloat(compareValue || 0) !== parseFloat(value || 0);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           let isInValue1 = true;
@@ -729,9 +763,10 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_BETWEEN:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
+          if (isEmptyValue(value)) return false;
           return (
-            parseFloat(value || 0) <= parseFloat(filterData.maxValue || 0) &&
-            parseFloat(value || 0) >= parseFloat(filterData.minValue || 0)
+            parseFloat(value) <= parseFloat(filterData.maxValue || 0) &&
+            parseFloat(value) >= parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
           return value
@@ -773,9 +808,10 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
+          if (isEmptyValue(value)) return true;
           return (
-            parseFloat(value || 0) > parseFloat(filterData.maxValue || 0) ||
-            parseFloat(value || 0) < parseFloat(filterData.minValue || 0)
+            parseFloat(value) > parseFloat(filterData.maxValue || 0) ||
+            parseFloat(value) < parseFloat(filterData.minValue || 0)
           );
         case CONTROL_FILTER_WHITELIST.DATE.value:
           return value
@@ -817,7 +853,8 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_GT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value || 0) > parseFloat(compareValue || 0);
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          return parseFloat(value) > parseFloat(compareValue);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
           return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isAfter(day, timeLevel);
@@ -834,7 +871,8 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_GTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value || 0) >= parseFloat(compareValue || 0);
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          return parseFloat(value) >= parseFloat(compareValue);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
           return !value || (!!dynamicSource.length && !compareValue)
@@ -853,7 +891,8 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_LT:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value || 0) < parseFloat(compareValue || 0);
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          return parseFloat(value) < parseFloat(compareValue);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, true, currentControl.type);
           return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isBefore(day, timeLevel);
@@ -870,7 +909,8 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.DATE_GTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          return parseFloat(value || 0) <= parseFloat(compareValue || 0);
+          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          return parseFloat(value) <= parseFloat(compareValue);
         case CONTROL_FILTER_WHITELIST.DATE.value:
           let day = dayFn(filterData, compareValue, false, currentControl.type);
           return !value || (!!dynamicSource.length && !compareValue)
@@ -988,6 +1028,164 @@ export const filterFn = (filterData, originControl, data = []) => {
         default:
           return true;
       }
+    // ARREQ：26, // 数组等于
+    case FILTER_CONDITION_TYPE.ARREQ:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.USERS.value: // ???
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+          return _.isEqual(
+            compareValues.map((it = {}) => it.id || it.accountId).sort(),
+            safeParse(value)
+              .map(its => its.accountId)
+              .sort(),
+          );
+        case CONTROL_FILTER_WHITELIST.OPTIONS.value:
+          // 部门
+          if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            return _.isEqual(
+              compareValues.map((it = {}) => it.id || it.departmentId).sort(),
+              safeParse(value)
+                .map(its => its.departmentId)
+                .sort(),
+            );
+            // 组织角色
+          } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            return _.isEqual(
+              compareValues.map((it = {}) => it.id || it.organizeId).sort(),
+              safeParse(value)
+                .map(its => its.organizeId)
+                .sort(),
+            );
+            // 选项
+          } else if (
+            [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
+          ) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            return _.isEqual(safeParse(value).sort(), compareValues.sort());
+          }
+        // 关联记录
+        case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+          return _.isEqual(
+            compareValues
+              .map(it =>
+                dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
+              )
+              .sort(),
+            safeParse(value || '[]')
+              .map(item => item.sid)
+              .sort(),
+          );
+        default:
+          return true;
+      }
+    // ARRNE：27, // 数组不等于
+    case FILTER_CONDITION_TYPE.ARRNE:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.USERS.value: // ???
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+
+          return !_.isEqual(
+            compareValues.map((it = {}) => it.id || it.accountId).sort(),
+            safeParse(value)
+              .map(its => its.accountId)
+              .sort(),
+          );
+        case CONTROL_FILTER_WHITELIST.OPTIONS.value:
+          // 部门
+          if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+
+            return !_.isEqual(
+              compareValues.map((it = {}) => it.id || it.departmentId).sort(),
+              safeParse(value)
+                .map(its => its.departmentId)
+                .sort(),
+            );
+            // 组织角色
+          } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+
+            return !_.isEqual(
+              compareValues.map((it = {}) => it.id || it.organizeId).sort(),
+              safeParse(value)
+                .map(its => its.organizeId)
+                .sort(),
+            );
+            // 选项
+          } else if (
+            [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
+          ) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+
+            return !_.isEqual(safeParse(value).sort(), compareValues.sort());
+          }
+        // 关联记录
+        case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+
+          return !_.isEqual(
+            compareValues
+              .map(it =>
+                dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
+              )
+              .sort(),
+            safeParse(value || '[]')
+              .map(item => item.sid)
+              .sort(),
+          );
+        default:
+          return true;
+      }
+    // ALLCONTAIN：28, // 数组同时包含
+    case FILTER_CONDITION_TYPE.ALLCONTAIN:
+      switch (conditionGroupType) {
+        case CONTROL_FILTER_WHITELIST.USERS.value: // ???
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+          const userCompareArr = compareValues.map((it = {}) => it.id || it.accountId);
+          const userArr = safeParse(value).map(it => it.accountId);
+          return _.every(userCompareArr, its => _.includes(userArr, its));
+        case CONTROL_FILTER_WHITELIST.OPTIONS.value:
+          // 部门
+          if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            const deptCompareArr = compareValues.map((it = {}) => it.id || it.departmentId);
+            const deptArr = safeParse(value).map(it => it.departmentId);
+            return _.every(deptCompareArr, its => _.includes(deptArr, its));
+            // 组织角色
+          } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            const orgCompareArr = compareValues.map((it = {}) => it.id || it.organizeId);
+            const orgArr = safeParse(value).map(it => it.organizeId);
+            return _.every(orgCompareArr, its => _.includes(orgArr, its));
+            // 选项
+          } else if (dataType === API_ENUM_TO_TYPE.OPTIONS_10) {
+            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+            return _.every(compareValues, its => _.includes(safeParse(value), its));
+          }
+        // 关联记录
+        case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
+          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+
+          const reCompareArr = compareValues.map(it =>
+            dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
+          );
+          const reArr = safeParse(value).map(it => it.sid);
+          return _.every(reCompareArr, its => _.includes(reArr, its));
+        default:
+          return true;
+      }
     default:
       return true;
   }
@@ -1095,7 +1293,7 @@ export const checkAllValueAvailable = (rules = [], data = [], from) => {
 };
 
 //判断所有业务规则是否有锁定状态
-export const checkRuleLocked = (rules = [], data = [], from) => {
+export const checkRuleLocked = (rules = [], data = []) => {
   let isLocked = false;
   const filterRules = getAvailableFilters(rules, data);
   if (filterRules && filterRules.length > 0) {
@@ -1103,7 +1301,7 @@ export const checkRuleLocked = (rules = [], data = [], from) => {
       if (isLocked) return;
       rule.ruleItems.map(item => {
         if (item.type === 7) {
-          const { isAvailable } = checkValueAvailable(rule, data, from);
+          const { isAvailable } = checkValueAvailable(rule, data);
           isAvailable && (isLocked = true);
         }
       });

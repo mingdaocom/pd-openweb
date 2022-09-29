@@ -16,7 +16,7 @@ const DeleteConfirmWrap = styled.div`
   }
   .hint {
     color: #757575;
-    margin: 16px 0 32px 0;
+    margin: 6px 0 20px 0;
   }
   .btnList {
     display: flex;

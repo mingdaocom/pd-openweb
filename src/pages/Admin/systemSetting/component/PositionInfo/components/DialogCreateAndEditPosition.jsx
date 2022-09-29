@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog } from 'ming-ui';
 import './dialogCreateAndEditRole.less';
 import { checkSensitive } from 'src/api/fixedData.js';
-import { addJob, deleteJobs } from 'src/api/job';
+import { addJob, deleteJobs, editJobName } from 'src/api/job';
 import cx from 'classnames';
 
 class DialogCreateAndEditPosition extends React.Component {
@@ -16,7 +16,7 @@ class DialogCreateAndEditPosition extends React.Component {
   footer = () => {
     const { filed, positionList, projectId, currentPosition } = this.props;
     const { exsistCurrentName } = this.state;
-    let jobName = this.state.jobName.trim()
+    let jobName = this.state.jobName.trim();
     return (
       <div className="createPositionDialogFooter">
         {filed === 'edit' ? (
@@ -67,17 +67,37 @@ class DialogCreateAndEditPosition extends React.Component {
               if (res) {
                 return alert(_l('输入内容包含敏感词，请重新填写'), 3);
               }
-              addJob({ jobName: jobName, projectId }).then(res => {
-                if (res) {
-                  alert(_l('创建成功'));
-                  let roleInfo = (positionList && !_.isEmpty(positionList) && positionList[0]) || {};
-                  this.props.updateCurrentPosition(roleInfo);
-                  this.props.getPositionList();
-                } else {
-                  alert(_l('创建失败'), 2);
-                }
-                this.props.onCancel();
-              });
+              if (filed === 'edit') {
+                editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId }).then(res => {
+                  if (res) {
+                    alert(_l('修改成功'));
+                    let roleInfo = { ...currentPosition, jobName };
+                    this.props.updateCurrentPosition(roleInfo);
+                    let list = positionList.map(it => {
+                      if (it.jobId === currentPosition.jobId) {
+                        return { ...it, jobName };
+                      }
+                      return it;
+                    });
+                    this.props.updatePositionList(list);
+                  } else {
+                    alert(_l('修改失败'), 2);
+                  }
+                  this.props.onCancel();
+                });
+              } else {
+                addJob({ jobName: jobName, projectId }).then(res => {
+                  if (res) {
+                    alert(_l('创建成功'));
+                    let roleInfo = (positionList && !_.isEmpty(positionList) && positionList[0]) || {};
+                    this.props.updateCurrentPosition(roleInfo);
+                    this.props.getPositionList();
+                  } else {
+                    alert(_l('创建失败'), 2);
+                  }
+                  this.props.onCancel();
+                });
+              }
             });
           }}
         >

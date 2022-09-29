@@ -3,10 +3,11 @@ import { calcDate } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
-import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, UN_TEXT_TYPE } from './config';
+import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT } from './config';
 import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import {
   controlState,
@@ -17,6 +18,7 @@ import {
   specialTelVerify,
   compareWithTime,
   getEmbedValue,
+  unTextSearch,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -437,7 +439,13 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       if (!column) {
         return;
       } else {
-        let timestr = formatColumnToText(column, true);
+        let timestr;
+        if (_.includes([15, 16, 46, 30], column.type)) {
+          timestr = column.value;
+        }
+        if (column.type === 29) {
+          timestr = _.get(safeParse(column.value), '0.name');
+        }
         if (!timestr) {
           return;
         }
@@ -688,7 +696,7 @@ export const onValidator = (item, from, data, masterData) => {
   let errorType = '';
   let errorText = '';
 
-  if (!item.hidden && !item.disabled && controlState(item, from).editable) {
+  if (!item.hidden && !item.disabled) {
     errorType = checkRequired(item);
 
     if (!errorType) {
@@ -968,7 +976,7 @@ export default class DataFormat {
       });
     }
 
-    if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, this.from)) {
+    if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data)) {
       disabled = true;
     }
 
@@ -1065,9 +1073,15 @@ export default class DataFormat {
               this.getCurrentRelateData(item);
             }
 
+            // 日期
+            if (_.includes([15, 16], item.type) && value) {
+              const { formatMode } = getDatePickerConfigs(item);
+              item.value = moment(value, formatMode).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+            }
+
             // 工作表查询
             const needSearch = this.getFilterConfigs(item, 'onBlur');
-            if (currentSearchByChange ? _.includes(UN_TEXT_TYPE, item.type) : needSearch.length > 0) {
+            if (currentSearchByChange ? unTextSearch(item) : needSearch.length > 0) {
               this.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
 

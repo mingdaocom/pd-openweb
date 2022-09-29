@@ -28,7 +28,8 @@ export default class ReportRelation extends Component {
       me: {},
       children: [],
       loading: false,
-      projectId: getRequest().projectId
+      pageIndex: 1,
+      projectId: getRequest().projectId,
     };
   }
 
@@ -45,19 +46,19 @@ export default class ReportRelation extends Component {
       }
     });
 
-    $.when(this.fetchAdmin(), this.fetchAllow(), this.fetchParent(), this.fetchSubordinates()).then(
-      (isAdmin, res, parents, accounts) => {
-        if (accounts && accounts.length) {
-          const me = _.find(accounts, ({ accountId }) => accountId === md.global.Account.accountId);
+    $.when(this.fetchAdmin(), this.fetchAllow(), this.fetchSubordinates()).then(
+      (isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount }) => {
+        if (!_.isEmpty(mySelf) && this.state.pageIndex === 1) {
           this.setState({
             companyName,
             isAdmin,
             allowStructureForAll: res.allowStructureForAll,
             allowStructureSelfEdit: res.allowStructureSelfEdit,
-            parents,
-            me,
-            children: me.subordinates,
+            parents: !_.isEmpty(parent) ? [parent] : [],
+            me: mySelf,
+            children: subordinates,
             loading: false,
+            subTotalCount,
           });
         } else {
           alert(_l('获取失败', 2));
@@ -66,37 +67,26 @@ export default class ReportRelation extends Component {
     );
   }
 
-  fetchRender() {
-    $.when(this.fetchParent(), this.fetchSubordinates()).then((parents, accounts) => {
-      if (accounts && accounts.length) {
-        const me = _.find(accounts, ({ accountId }) => accountId === md.global.Account.accountId);
+  fetchRender(pageIndex) {
+    $.when(this.fetchSubordinates(pageIndex)).then(({ parent = {}, mySelf = {}, subordinates = [], subTotalCount }) => {
+      if (!_.isEmpty(mySelf) && pageIndex === 1) {
         this.setState({
-          parents,
-          me,
-          children: me.subordinates
+          parent,
+          me: mySelf,
+          children: subordinates,
+          subTotalCount,
         });
       } else {
         alert(_l('获取失败', 2));
       }
-    })
-  }
-
-  //父级
-  fetchParent() {
-    return structureController.getParentsByAccountId({
-      projectId: this.state.projectId,
-      isDirect: true, // 直属
-      accountId: md.global.Account.accountId,
     });
   }
 
   //子级
-  fetchSubordinates() {
-    return structureController.getSubordinateByAccountIds({
+  fetchSubordinates(pageIndex = 1) {
+    return structureController.myStructures({
       projectId: this.state.projectId,
-      isDirect: true, // 直属
-      isGetParent: true,
-      accountIds: [md.global.Account.accountId],
+      pageIndex,
     });
   }
 
@@ -121,7 +111,7 @@ export default class ReportRelation extends Component {
   handleAddSub() {
     const { projectId } = this.state;
     const _this = this;
-    require(['dialogSelectUser'], function() {
+    require(['dialogSelectUser'], function () {
       var accountId = md.global.Account.accountId;
       var dialogSelectUserObj = $({}).dialogSelectUser({
         title: _l('添加下属'),
@@ -141,7 +131,7 @@ export default class ReportRelation extends Component {
               type: 4,
               page: true,
               actions: {
-                getUsers: function(args) {
+                getUsers: function (args) {
                   args = $.extend({}, args, {
                     accountId,
                     projectId: projectId,
@@ -151,7 +141,7 @@ export default class ReportRelation extends Component {
               },
             },
           ],
-          callback: function(accounts) {
+          callback: function (accounts) {
             structureController
               .addStructure({
                 accountIds: _.map(accounts, ({ accountId }) => accountId),
@@ -159,9 +149,9 @@ export default class ReportRelation extends Component {
                 isTop: false,
                 projectId: projectId,
               })
-              .then(function(res) {
+              .then(function (res) {
                 if (res && res.success) {
-                  _this.fetchRender();
+                  _this.fetchRender(1);
                 } else {
                   alert(_l('操作失败', 2));
                 }
@@ -183,15 +173,16 @@ export default class ReportRelation extends Component {
         cancel: _l('取消'),
         confirm: _l('确认'),
       },
-      function() {
+      function () {
         structureController
           .removeParentID({
             accountId,
             projectId,
           })
-          .then(function(res) {
+          .then(function (res) {
             if (res) {
-              _this.fetchRender();
+              _this.setState({ pageIndex: 1 });
+              _this.fetchRender(1);
             } else {
               alert(_l('操作失败', 2));
             }
@@ -205,7 +196,7 @@ export default class ReportRelation extends Component {
   }
 
   renderContent() {
-    const { isAdmin, parents, me, children, allowStructureSelfEdit } = this.state;
+    const { isAdmin, parents, me, children, allowStructureSelfEdit, subTotalCount, loadMoreLoading } = this.state;
     return (
       <div className="layoutWrapper">
         <div>
@@ -223,13 +214,30 @@ export default class ReportRelation extends Component {
           <div className="list">{this.renderBuildItem(me)}</div>
         </div>
         <div>
-          <div className={cx("listTitle", { Hidden: !allowStructureSelfEdit&&!children.length})}>{_l('我的下属')}</div>
+          <div className={cx('listTitle', { Hidden: !allowStructureSelfEdit && !children.length })}>
+            {_l('我的下属')}
+          </div>
           <div className="list children">
             {children.length ? this.renderList(children) : null}
             {allowStructureSelfEdit && (
               <div className="node Font16 LineHeight80 Gray_bd addSub Hand" onClick={() => this.handleAddSub()}>
                 <span className="Font24 mRight15 mLeft24 TxtMiddle icon-add-member2" />
                 <span className="TxtMiddle">{_l('添加我的下属')}</span>
+              </div>
+            )}
+            {subTotalCount > children.length && (
+              <div
+                className="Hand loadMore"
+                onClick={() => {
+                  if (loadMoreLoading) return;
+                  this.setState({ pageIndex: this.state.pageIndex + 1, loadMoreLoading: true }, () => {
+                    this.fetchSubordinates(this.state.pageIndex).then(({ subordinates = [] }) => {
+                      this.setState({ children: this.state.children.concat(subordinates), loadMoreLoading: false });
+                    });
+                  });
+                }}
+              >
+                {loadMoreLoading ? _l('加载中') : _l('更多')}
               </div>
             )}
           </div>
@@ -245,8 +253,7 @@ export default class ReportRelation extends Component {
   }
 
   renderBuildItem(param) {
-    const { allowStructureSelfEdit } = this.state;
-    const subordinates = param.subordinates || [];
+    const { allowStructureSelfEdit, subTotalCount } = this.state;
     return (
       <div className={cx('node', param.status === 4 ? 'disabled' : 'ThemeHoverBorderColor3')}>
         <div className="userItem">
@@ -256,10 +263,10 @@ export default class ReportRelation extends Component {
             <div className="department">{param.department}</div>
             <div className="job">{param.job}</div>
           </div>
-          {subordinates.length ? (
+          {param.accountId === md.global.Account.accountId && subTotalCount ? (
             <div className="subordinateCount">
               <span className="icon-charger Gray_a TxtMiddle Font14"></span>
-              <span className="TxtMiddle Gray mLeft5">{subordinates.length}</span>
+              <span className="TxtMiddle Gray mLeft5">{subTotalCount}</span>
             </div>
           ) : null}
           {allowStructureSelfEdit ? (

@@ -43,7 +43,16 @@ const updateUserSet = (state, action) => {
 };
 
 export default (state = initialState(), action) => {
-  const { departmentId, type, accountId, typeNum, typeCursor, isSelectAll, selectedAccountIds } = action;
+  const {
+    departmentId,
+    type,
+    accountId,
+    typeNum,
+    typeCursor,
+    isSelectAll,
+    selectedAccountIds,
+    fullDepartmentInfo = {},
+  } = action;
   switch (type) {
     case 'PROJECT_ID_CHANGED':
       return initialState();

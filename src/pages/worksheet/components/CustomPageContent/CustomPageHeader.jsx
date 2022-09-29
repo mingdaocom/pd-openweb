@@ -165,11 +165,11 @@ export default function CustomPageHeader(props) {
               title={null}
               placement="bottomLeft"
               overlayClassName="sheetDescPopoverOverlay"
-              content={(
+              content={
                 <div className="popoverContent">
                   <RichText data={desc || ''} disabled={true} />
                 </div>
-              )}
+              }
             >
               <Icon
                 icon="knowledge-message Font18 Gray_9"
@@ -232,7 +232,7 @@ export default function CustomPageHeader(props) {
         desc={desc || ''}
         isEditing={descIsEditing}
         onClose={() => {
-          handleVisibleChange(false, 'editIntroVisible')
+          handleVisibleChange(false, 'editIntroVisible');
         }}
         onSave={value => {
           handleUpdatePage({ desc: value });
@@ -265,6 +265,9 @@ export default function CustomPageHeader(props) {
             worksheetId: pageId,
             title: name,
           }}
+          getCopyContent={(type, url) =>
+            type === 'private' ? url : `${url} ${apk.appName}-${currentSheet.workSheetName}`
+          }
           onClose={() => setShareDialogVisible(false)}
         />
       )}

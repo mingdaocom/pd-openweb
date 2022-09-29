@@ -535,6 +535,20 @@ export default class AccountChart extends React.Component {
     }
   };
 
+  // 注销
+  dealLoagout = () => {
+    account.validateLogoffAccount().then(res => {
+      if (res === 1) {
+        location.href = '/cancellation.htm';
+      } else if (res === 20) {
+        alert(_l('您是平台唯一管理员，无法注销'));
+      } else if (res === 30) {
+        alert(_l('您尚有未退出的组织，请先至 个人中心-我的组织 退出所有组织，方可注销'));
+      }
+    });
+  };
+
+
   render() {
     const {
       email,
@@ -672,7 +686,7 @@ export default class AccountChart extends React.Component {
           </div>
         )}
 
-        {!md.global.Config.IsLocal && (
+        {!md.global.Config.IsLoal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">
               {_l('两步验证')}
@@ -681,7 +695,7 @@ export default class AccountChart extends React.Component {
             <Switch checked={isTwoauthentication} onClick={this.openVerify} />
           </div>
         )}
-        {!md.global.Config.IsLocal && (
+        {!md.global.Config.IsLoal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">
               {_l('微信通知')}
@@ -690,6 +704,12 @@ export default class AccountChart extends React.Component {
             <Switch checked={this.state.openWeixinLogin} onClick={this.openopenWeixinLogin} />
           </div>
         )}
+        <div className="accountRowItem">
+          <div className="accountLabel Gray_75">{_l('账户注销')}</div>
+          <div className="logout Hand" onClick={this.dealLoagout}>
+            {_l('注销')}
+          </div>
+        </div>
 
         <div className="Font17 Bold Gray mBottom40 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}

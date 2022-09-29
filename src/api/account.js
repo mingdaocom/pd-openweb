@@ -594,4 +594,48 @@ module.exports = {
      
      return $.api('Account', 'UnbindMobile', args, options);
    },
+  /**
+  * 验证是否 可以注销账户
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   validateLogoffAccount: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('Account', 'ValidateLogoffAccount', args, options);
+   },
+  /**
+  * 申请注销账户
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   applyLogOffAccount: function (args, options = {}) {
+     
+     return $.api('Account', 'ApplyLogOffAccount', args, options);
+   },
+  /**
+  * 查询注销状态
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getApplyLogOffAccount: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('Account', 'GetApplyLogOffAccount', args, options);
+   },
+  /**
+  * 取消申请注销
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   cancelLogOffAccount: function (args, options = {}) {
+     
+     return $.api('Account', 'CancelLogOffAccount', args, options);
+   },
 };

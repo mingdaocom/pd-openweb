@@ -14,6 +14,8 @@ import { validateFileName } from '../../../utils';
 import * as previewUtil from '../constant/util';
 import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import EditableBlock from '../editableBlock';
+import _ from 'lodash';
+import 'rc-trigger/assets/index.css';
 const VersionList = require('../versionList');
 
 class PreviewHeader extends React.Component {
@@ -223,7 +225,6 @@ class PreviewHeader extends React.Component {
                 });
               }}
               action={['click']}
-              popupClassName="DropdownPanelTrigger"
               popupPlacement="bottom"
               builtinPlacements={{
                 bottom: {
@@ -285,6 +286,25 @@ class PreviewHeader extends React.Component {
               </div>
             </Trigger>
           )}
+          {_.isFunction(extra.openControlAttachmentInNewTab) &&
+            canDownload &&
+            showDownload &&
+            ((attachment.originNode || attachment.sourceNode || {}).fileID ||
+              (attachment.originNode || attachment.sourceNode || {}).fileId) && (
+              <div className="openNewPage">
+                <span className="normal" data-tip={_l('新页面打开')}>
+                  <i
+                    className="icon-launch Font20 Hand"
+                    onClick={() => {
+                      extra.openControlAttachmentInNewTab(
+                        (attachment.originNode || attachment.sourceNode).fileID ||
+                          (attachment.originNode || attachment.sourceNode).fileId,
+                      );
+                    }}
+                  />
+                </span>
+              </div>
+            )}
           {canDownload && showShare && !md.global.Account.isPortal && (
             <div className="shareNode">
               <span className="normal" data-tip={_l('分享')}>

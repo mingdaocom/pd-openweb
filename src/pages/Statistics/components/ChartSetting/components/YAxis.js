@@ -5,7 +5,7 @@ import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
 import RenameModal from './RenameModal';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import { isNumberControl, normTypes } from 'statistics/common';
+import { isNumberControl, normTypes, emptyShowTypes } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
@@ -27,10 +27,10 @@ const SortableItemContent = styled.div`
   }
 `;
 
-const renderOverlay = ({ controlId, controlType, normType }, { onNormType, onChangeControlId }) => {
+const renderOverlay = ({ controlId, controlType, normType, emptyShowType }, { onNormType, onEmptyShowType, onChangeControlId, reportType }) => {
   const isNumber = isNumberControl(controlType, false);
   return (
-    <Menu className="chartControlMenu chartMenu">
+    <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
       <Menu.Item
         onClick={() => {
           onChangeControlId(controlId);
@@ -53,12 +53,36 @@ const renderOverlay = ({ controlId, controlType, normType }, { onNormType, onCha
           ))}
         </Menu.SubMenu>
       )}
+      {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (
+        <Menu.SubMenu
+          popupClassName="chartMenu"
+          title={(
+            <div className="flexRow valignWrapper w100">
+              <div className="flex">{_l('空值显示')}</div>
+              <div className="Font12 Gray_75 emptyTypeName">{_.find(emptyShowTypes, { value: emptyShowType }).text}</div>
+            </div>
+          )}
+          popupOffset={[0, -15]}
+        >
+          {emptyShowTypes.map(item => (
+            <Menu.Item
+              style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onEmptyShowType(controlId, item.value);
+              }}
+            >
+              {item.text}
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      )}
     </Menu>
   );
 }
 
 const SortableItem = SortableElement(props => {
-  const { item, onClear, onNormType, onChangeControlId, axisControls, allControls } = props;
+  const { item, onClear, onNormType, onEmptyShowType, onChangeControlId, axisControls, allControls, reportType } = props;
   const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
   const isNumber = isNumberControl(item.controlType, false);
   const axis = _.find(axisControls, { controlId: item.controlId });
@@ -87,7 +111,7 @@ const SortableItem = SortableElement(props => {
             </Tooltip>
           )
         )}
-        <Dropdown overlay={renderOverlay(item, { onNormType, onChangeControlId })} trigger={['click']} placement="bottomRight">
+        <Dropdown overlay={renderOverlay(item, { onNormType, onEmptyShowType, onChangeControlId, reportType })} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon
@@ -144,6 +168,18 @@ export default class YAxis extends Component {
     const newYaxisList = yaxisList.map(item => {
       if (item.controlId === id) {
         item.normType = value;
+      }
+      return item;
+    });
+    onChangeCurrentReport({
+      yaxisList: newYaxisList,
+    });
+  }
+  handleEmptyShowType = (id, value) => {
+    const { yaxisList, onChangeCurrentReport } = this.props;
+    const newYaxisList = yaxisList.map(item => {
+      if (item.controlId === id) {
+        item.emptyShowType = value;
       }
       return item;
     });
@@ -210,9 +246,11 @@ export default class YAxis extends Component {
           list={yaxisList}
           allControls={allControls}
           axisControls={axisControls}
+          reportType={reportType}
           shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
           onClear={this.props.onRemoveAxis}
           onNormType={this.handleNormType}
+          onEmptyShowType={this.handleEmptyShowType}
           onChangeControlId={this.handleChangeControlId}
           onSortEnd={this.handleSortEnd}
         />

@@ -1,12 +1,30 @@
 import React, { Component, Fragment } from 'react';
 import { Select, DatePicker, Menu, Divider, Input, Dropdown } from 'antd';
 import { Icon } from 'ming-ui';
-import { dropdownScopeData, dropdownDayData, isPastAndFuture } from 'statistics/common';
+import { dropdownScopeData, dropdownDayData, isPastAndFuture, rangeDots } from 'statistics/common';
 import cx from 'classnames';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
+import styled from 'styled-components';
 
 const { RangePicker } = DatePicker;
+
+const RangeDayWrap = styled.div`
+  input.ant-input {
+    height: auto !important;
+    line-height: 26px !important;
+  }
+  .ant-input-affix-wrapper {
+    border-radius: 4px 0 0 4px !important;
+  }
+  .ant-select-selector {
+    border-radius: 0 4px 4px 0 !important;
+  }
+  .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused,
+  .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    box-shadow: none;
+  }
+`;
 
 export default class TimeModal extends Component {
   constructor(props) {
@@ -102,6 +120,7 @@ export default class TimeModal extends Component {
   renderRangeDay() {
     const { rangeValue, customRangeDay } = this.state;
     const range = _.find(dropdownDayData, { value: rangeValue });
+
     return (
       <div className="pAll10">
         <Dropdown overlay={this.renderRangeDayOverlay()} trigger={['click']}>
@@ -123,6 +142,29 @@ export default class TimeModal extends Component {
           />
         </Dropdown>
       </div>
+    );
+    return (
+      <RangeDayWrap className="pAll10 flexRow valignWrapper">
+        <Input.Group compact>
+          <Dropdown overlay={this.renderRangeDayOverlay()} trigger={['click']}>
+            <Input
+              style={{ width: '60%' }}
+              value={customRangeDay === false ? (range ? range.text : _l('%0天', rangeValue)) : customRangeDay}
+              suffix={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              defaultValue="Xihu District, Hangzhou"
+            />
+          </Dropdown>
+          <Select
+            defaultValue={1}
+            style={{ width: '40%' }}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          >
+            {rangeDots.map(item => (
+              <Select.Option className="ghostSelectOptionWrapper" value={item.value}>{item.text}</Select.Option>
+            ))}
+          </Select>
+        </Input.Group>
+      </RangeDayWrap>
     );
   }
   renderRangePicker() {
@@ -152,7 +194,11 @@ export default class TimeModal extends Component {
   render() {
     const { rangeType } = this.state;
     return (
-      <div className="chartModal chartTimeModal" style={{ height: document.body.clientHeight / 2 }} ref={(el) => this.scrollViewEl = el}>
+      <div
+        className="chartModal chartTimeModal"
+        style={{ height: document.body.clientHeight / 2, width: 216 }}
+        ref={(el) => this.scrollViewEl = el}
+      >
         {this.renderFilterRange()}
         <Divider className="mTop10 mBottom10" />
         <div className="Font13 Gray_75 pLeft10 pRight10 mBottom10">{_l('选择范围')}</div>

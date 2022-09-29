@@ -82,9 +82,12 @@ function SwitchProject(props) {
   const projectId = _.get(props, 'match.params.projectId');
   const projects = md.global.Account.projects;
   const createRef = useRef();
-  const [currentProject, setCurrentProject] = useState('');
+  const [currentProject, setCurrentProject] = useState({});
   useEffect(() => {
     const project = getProject(projectId || localStorage.getItem('currentProjectId'));
+    if (!project || !project.projectId) {
+      return;
+    }
     setCurrentProject(project);
     safeLocalStorageSetItem('currentProjectId', project.projectId);
   }, []);

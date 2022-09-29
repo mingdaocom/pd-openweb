@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { addWorkSheet } from 'src/pages/worksheet/redux/actions/sheetList.js';
+import { addWorkSheet, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
 import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
 import Input from 'ming-ui/components/Input';
 import Button from 'ming-ui/components/Button';
@@ -10,6 +10,8 @@ import store from 'redux/configureStore';
 import cx from 'classnames';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import './WorksheetEmpty.less';
+
+const findCache = {};
 
 class WorksheetEmpty extends Component {
   static propTypes = {
@@ -21,6 +23,16 @@ class WorksheetEmpty extends Component {
       createType: '',
       flag: true,
     };
+  }
+  componentDidMount() {
+    const { appId, groupId, worksheetId, isCharge, getSheetList } = this.props;
+    if (!isCharge && worksheetId && !findCache[worksheetId]) {
+      findCache[worksheetId] = true;
+      getSheetList({
+        appId,
+        appSectionId: groupId
+      });
+    }
   }
   handleCreateSheet() {
     const { appId, groupId } = this.props;
@@ -158,8 +170,10 @@ class WorksheetEmpty extends Component {
 export default connect(
   state => ({
     isValidAppSectionId: state.sheetList.isValidAppSectionId,
+    worksheetId: state.sheet.base.worksheetId
   }),
   dispatch => ({
     addWorkSheet: bindActionCreators(addWorkSheet, dispatch),
+    getSheetList: bindActionCreators(getSheetList, dispatch),
   }),
 )(WorksheetEmpty);

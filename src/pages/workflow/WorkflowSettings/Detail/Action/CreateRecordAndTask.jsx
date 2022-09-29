@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dropdown, Radio } from 'ming-ui';
 import cx from 'classnames';
 import { APP_TYPE, RELATION_TYPE } from '../../enum';
-import { SingleControlValue, SelectNodeObject } from '../components';
+import { SingleControlValue, SelectNodeObject, AddOptions } from '../components';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 
 const getAppList = data =>
@@ -50,10 +50,7 @@ export default class CreateRecordAndTask extends Component {
     const { showOtherWorksheet, isBatch } = this.state;
     const { data, updateSource } = this.props;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
-    const fields = [].concat(
-      data.fields.filter(v => v.type !== 29),
-      data.fields.filter(v => v.type === 29),
-    );
+    const fields = [].concat(data.fields.filter(v => v.type !== 29), data.fields.filter(v => v.type === 29));
     const otherWorksheet = [
       {
         text: _l('其它应用下的工作表'),
@@ -148,10 +145,22 @@ export default class CreateRecordAndTask extends Component {
 
           return (
             <div key={item.fieldId} className="relative">
-              <div className="mTop15 ellipsis Font13">
-                {controlName}
-                {singleObj.required && <span className="mLeft5 red">*</span>}
-                {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+              <div className="flexRow alignItemsCenter mTop15">
+                <div className="ellipsis Font13 flex mRight20">
+                  {controlName}
+                  {singleObj.required && <span className="mLeft5 red">*</span>}
+                  {singleObj.type === 29 && (
+                    <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
+                  )}
+                </div>
+                {data.appType === APP_TYPE.SHEET && _.includes([9, 10, 11], item.type) && item.fieldValueId && (
+                  <AddOptions
+                    checked={item.allowAddOptions || false}
+                    fields={fields}
+                    index={i}
+                    updateSource={updateSource}
+                  />
+                )}
               </div>
               <SingleControlValue
                 companyId={this.props.companyId}

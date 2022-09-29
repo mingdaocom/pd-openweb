@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import TableCom from '../TableCom';
 import 'dialogSelectUser';
 import { usageStatisticsForDimension } from 'src/api/appManagement';
+import { getDepartmentFullNameByIds } from 'src/api/department';
 import UserHead from 'src/pages/feed/components/userHead';
 import styled from 'styled-components';
 import { selectDateList, formatter } from '../../util';
 import { formatFileSize } from 'src/util';
+import cx from 'classnames';
 
 const { Option } = Select;
 
@@ -61,6 +63,7 @@ export default class ByUser extends Component {
       loading: false,
       pageIndex: 1,
       isMore: false,
+      fullDepartmentInfo: {},
     };
     this.columns = [
       {
@@ -87,8 +90,51 @@ export default class ByUser extends Component {
         },
       },
       {
+        dataIndex: 'department',
+        title: _l('部门'),
+        className: 'flex pRight8 overflowHidden',
+        render: item => {
+          const { user = {} } = item;
+          const { departments = [] } = user;
+          return (
+            <div className="ellipsis" onMouseEnter={() => this.getDepartmentFullName(departments)}>
+              <Tooltip
+                tooltipClass="departmentFullNametip"
+                popupPlacement="bottom"
+                text={
+                  <div>
+                    {departments.map((v, depIndex) => {
+                      const fullName = (this.state.fullDepartmentInfo[v.departmentId] || '').split('/');
+                      return (
+                        <div className={cx({ mBottom8: depIndex < departments.length - 1 })}>
+                          {fullName.map((n, i) => (
+                            <span>
+                              {n}
+                              {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                }
+                mouseEnterDelay={0.5}
+              >
+                <span className="ellipsis InlineBlock wMax100 space">
+                  {departments
+                    .map((it, i) => {
+                      return `${it.departmentName}`;
+                    })
+                    .join(';')}
+                </span>
+              </Tooltip>
+            </div>
+          );
+        },
+      },
+      {
         dataIndex: 'appAccess',
-        title: _l('访问次数'),
+        title: _l('应用访问次数'),
         className: 'width150',
         sorter: true,
         render: item => {
@@ -118,6 +164,25 @@ export default class ByUser extends Component {
   componentDidMount() {
     this.getList();
   }
+
+  getDepartmentFullName = (departmentData = []) => {
+    let { projectId } = this.props;
+    let { fullDepartmentInfo = {} } = this.state;
+    const departmentIds = departmentData.map(item => item.departmentId).filter(it => !fullDepartmentInfo[it]);
+    if (_.isEmpty(departmentIds)) {
+      return;
+    }
+    getDepartmentFullNameByIds({
+      projectId,
+      departmentIds,
+    }).then(res => {
+      res.forEach(it => {
+        fullDepartmentInfo[it.id] = it.name;
+      });
+      this.setState({ fullDepartmentInfo: fullDepartmentInfo });
+    });
+  };
+
   updateState = () => {};
   // 筛选登录人
   handleSleelctUser = () => {

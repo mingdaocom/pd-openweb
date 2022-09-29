@@ -170,16 +170,20 @@ const ORIGIN = [
     match: TEXT,
     value: 2009,
   },
-
-  {
-    text: _l('销售方地址/电话'),
-    match: TEXT,
-    value: 2010,
-  },
   {
     text: _l('销售方名称'),
     match: TEXT,
     value: 2011,
+  },
+  {
+    text: _l('销售方纳税人识别号'),
+    match: TEXT,
+    value: 2013,
+  },
+  {
+    text: _l('销售方地址/电话'),
+    match: TEXT,
+    value: 2010,
   },
   {
     text: _l('销售方开户行及账号'),

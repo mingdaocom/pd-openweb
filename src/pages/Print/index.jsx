@@ -14,6 +14,7 @@ import { renderCellText } from 'worksheet/components/CellControls';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import axios from 'axios';
 import { getControlsForPrint, sysToPrintData, isRelation } from './util';
+import { getToken } from 'src/api/appManagement';
 class PrintForm extends React.Component {
   constructor(props) {
     super(props);
@@ -132,7 +133,9 @@ class PrintForm extends React.Component {
           {
             downLoadUrl: res.downLoadUrl,
           },
-          () => {
+          async () => {
+            //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+            const token = await getToken({ worksheetId, viewId, tokenType: 5 });
             let payload = {
               id: printId,
               rowId: rowId,
@@ -142,6 +145,7 @@ class PrintForm extends React.Component {
               projectId,
               t: new Date().getTime(),
               viewId,
+              token,
             };
             $.ajax({
               url: res.downLoadUrl + '/ExportWord/GetWordPath',

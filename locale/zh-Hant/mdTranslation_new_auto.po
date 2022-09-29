@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mingdao-web\n"
-"POT-Creation-Date:  2022/8/4 16:47:44+08:00\n"
+"POT-Creation-Date:  2022/9/1 20:15:40+08:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,25 +10,17 @@ msgstr ""
 "Last-Translator: ""\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date:  2022/8/4 16:47:44-0400\n"
+"PO-Revision-Date:  2022/9/1 20:15:40-0400\n"
 
 #: Disabled references:1
-msgid "截止到%0的最新数据"
-msgstr "截止到%0的最新資料"
+msgid "%0 个企业微信用户需要被同步，已超出组织用户数量限制，请先增购组织用户"
+msgstr "%0 個企業微信使用者需要被同步，已超出組織使用者數量限制，請先增購組織使用者"
 
 #: Disabled references:1
-msgid "保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能"
-msgstr "保留最近一年的使用分析資料，使用分析上線後隔天對使用資料進行分析，且只有開通相應的版本方可使用此功能"
+msgid "新增组织用户 "
+msgstr "新增組織使用者 "
 
 #: Disabled references:1
-msgid "浏览器新消息通知"
-msgstr "瀏覽器新訊息通知"
-
-#: Disabled references:1
-msgid "没有输入参数的 API 请直接保存完成配置"
-msgstr "沒有輸入引數的 API 請直接儲存完成配置"
-
-#: Disabled references:1
-msgid "添加检查项字段"
-msgstr "新增檢查項欄位"
+msgid "; 同步企业微信用户 "
+msgstr "; 同步企業微信使用者 "
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Switch } from 'react-router-dom';
 import genRouteComponent from '../genRouteComponent';
 import ROUTE_CONFIG from './config';
+import PORTAL_ROUTE_CONFIG from './portalConfig';
 import ajaxRequest from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
 import UnusualContent from './UnusualContent';
@@ -22,8 +23,10 @@ export default class Application extends Component {
   }
 
   componentDidMount() {
-    const { appId, worksheetId } = this.props.match.params;
-
+    let { appId, worksheetId } = this.props.match.params;
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     if (appId) {
       this.checkApp(appId);
     }
@@ -44,6 +47,9 @@ export default class Application extends Component {
    * 检测应用有效性
    */
   checkApp(appId) {
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     ajaxRequest
       .checkApp({ appId }, { silent: true })
       .then(status => {
@@ -80,7 +86,10 @@ export default class Application extends Component {
       location: { pathname },
       appPkg,
     } = this.props;
-    const { appId } = getIds(this.props);
+    let { appId } = getIds(this.props);
+    if (md.global.Account.isPortal) {
+      appId = md.global.Account.appId;
+    }
     const { permissionType, fixed, pcDisplay } = appPkg;
     const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
     if (status === 0) {
@@ -90,7 +99,7 @@ export default class Application extends Component {
       return <FixedContent appPkg={appPkg} isNoPublish={pcDisplay} />;
     }
     if (_.includes([1], status) || (status === 5 && _.includes(pathname, 'role'))) {
-      return <Switch>{this.genRouteComponent(ROUTE_CONFIG)}</Switch>;
+      return <Switch>{this.genRouteComponent(md.global.Account.isPortal ? PORTAL_ROUTE_CONFIG : ROUTE_CONFIG)}</Switch>;
     }
     return <UnusualContent status={status} appId={appId} />;
   }

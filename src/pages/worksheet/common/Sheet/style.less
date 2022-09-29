@@ -1,3 +1,4 @@
+@import '/src/common/mdcss/Themes/themeVariables.less';
 .worksheetSheet {
   .sheetHeader {
     .fixed {
@@ -28,10 +29,7 @@
     .moreOperate {
       position: relative;
       top: 3px;
-      .icon-more_horiz {
-        position: relative;
-        z-index: 18;
-      }
+      display: inline-block;
       .splitLine {
         border: 1px solid #ddd;
         border-top: none;
@@ -61,7 +59,8 @@
           padding-left: 49px;
         }
       }
-      .sheetMoveMenu, .subMenu {
+      .sheetMoveMenu,
+      .subMenu {
         width: 180px;
         max-height: 300px;
         overflow: auto;

@@ -335,7 +335,7 @@ export default class Header extends Component {
               className="more flexRow tip-bottom mLeft30"
               onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
             >
-              <div className="iconWrap flexRow" data-tip="更多操作">
+              <div className="iconWrap flexRow" data-tip={_l('更多操作')}>
                 <Icon icon="more_horiz Gray_9e ThemeHoverColor3" />
               </div>
 

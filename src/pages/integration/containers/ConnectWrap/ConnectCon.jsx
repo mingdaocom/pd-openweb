@@ -191,6 +191,9 @@ function ConnectCon(props) {
     isChange: false,
     isConnectOwner: false,
   });
+  const cache = useRef({
+    isFix: false,
+  });
   const headerRef = useRef();
   const WrapRef = useRef();
   const [authType, setAuthType] = useState(_.get(props, ['data', 'authType']));
@@ -209,7 +212,10 @@ function ConnectCon(props) {
   }, []);
   useEffect(() => {
     window.addEventListener('scroll', HandleScroll, true);
-  }, [isFix]);
+    return () => {
+      window.removeEventListener('scroll', HandleScroll, true);
+    };
+  }, []);
 
   useEffect(() => {
     setState({
@@ -221,10 +227,11 @@ function ConnectCon(props) {
     e.stopPropagation();
     if (!WrapRef.current) return;
     let toFix = $(WrapRef.current).offset().top <= 50;
-    if (!_.isEqual(toFix, isFix)) {
+    if (toFix !== cache.current.isFix) {
       setState({
         isFix: toFix,
       });
+      cache.current.isFix = toFix;
     }
   };
   // 获取基本详情
@@ -461,7 +468,7 @@ function ConnectCon(props) {
   }
   return (
     <ScrollView>
-      <Wrap className="" id="scrollDom">
+      <Wrap>
         <div className={cx('head', { isFix })} ref={headerRef}>
           <div className="flexRow leftCon">
             <ActWrap

@@ -608,7 +608,7 @@ export default function Container(props) {
                         {termsAndAgreementEnable && (
                           <div className=" mTop12">
                             <div className="InlineBlock Gray_9e mLeft5 TxtTop LineHeight22">
-                              {_l('点登陆即代表同意')}
+                              {_l('点登录即代表同意')}
                               <span
                                 className="ThemeColor3 Hand mRight5 mLeft5"
                                 onClick={() => {

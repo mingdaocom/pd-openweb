@@ -5,7 +5,7 @@ import Checkbox from 'ming-ui/components/Checkbox';
 import Node from './components/node';
 import SearchInput from './components/searchBox';
 
-import { initRoot, fetchNode, updateCollapse } from './actions';
+import { initRoot, fetchRootSubordinates, updateCollapse } from './actions';
 import { getAuth, setStructureForAll, setStructureSelfEdit } from './common';
 import cx from 'classnames';
 
@@ -25,7 +25,7 @@ class Root extends Component {
   componentWillMount() {
     const { dispatch } = this.props;
     dispatch(initRoot());
-    dispatch(fetchNode());
+    dispatch(fetchRootSubordinates(''));
     dispatch(updateCollapse());
 
     getAuth().done(auth => {
@@ -87,12 +87,18 @@ class Root extends Component {
             <div className="Font17 flex Bold">{_l('汇报关系')}</div>
             {isProjectAdmin && (
               <Fragment>
-                <span data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')} className="rootBoardHeaderTips">
+                <span
+                  data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')}
+                  className="rootBoardHeaderTips"
+                >
                   <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
                     {_l('允许员工自行管理下属')}
                   </Checkbox>
                 </span>
-                <span data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')} className="rootBoardHeaderTips">
+                <span
+                  data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')}
+                  className="rootBoardHeaderTips"
+                >
                   <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
                     {_l('全员可以查看汇报关系')}
                   </Checkbox>
@@ -108,7 +114,8 @@ class Root extends Component {
               className="wrapper"
               ref={el => {
                 this.wrapper = el;
-              }}>
+              }}
+            >
               <Node auth={auth} />
             </div>
           </div>

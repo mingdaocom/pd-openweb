@@ -512,7 +512,7 @@ export default class extends Component {
     const sumData = columnSummary.controlList.length === 1 ? columnSummary.controlList[0] : {};
 
     const data = {
-      title: sumData.name ? `${_l('列汇总')} (${sumData.name})` : _l('列汇总'),
+      title: sumData.name ? `${columnSummary.rename || _l('列汇总')} (${sumData.name})` : columnSummary.rename || _l('列汇总'),
       children: [],
       rowSpan: columns.length,
       colSpan: yaxisList.length
@@ -572,7 +572,7 @@ export default class extends Component {
       key: 'sum'
     };
     const sum = {
-      value: _l('行汇总'),
+      value: lineSummary.rename || _l('行汇总'),
       length: linesData.length,
       sum: true
     };
@@ -588,7 +588,7 @@ export default class extends Component {
     result.forEach((item, i) => {
       const value = _.isNumber(item.sum) ? formatrChartValue(item.sum, false, yaxisList, item.t_id, false) : '';
       const sumData = _.find(lineSummary.controlList, { controlId: item.t_id }) || {};
-      summary[`${item.t_id}-${i}`] = value ? (sumData.name ? `${sumData.name} ${value}` : value) : '';
+      summary[`${item.t_id}-${i}`] = value ? (sumData.name && !item.summary_col ? `${sumData.name} ${value}` : value) : '';
     });
 
     if (showLineTotal && lineSummary.location == 1) {

@@ -434,7 +434,7 @@ export default class RecordInfo extends Component {
     }
     function getControls(controlId) {
       try {
-        return cellObjs[controlId].cell.controls;
+        return _.get(cellObjs, controlId + '.cell.state.controls') || cellObjs[controlId].cell.controls;
       } catch (err) {
         return;
       }
@@ -567,10 +567,9 @@ export default class RecordInfo extends Component {
   }
 
   updateLockStatus(formData) {
-    const { from } = this.props;
     const { recordinfo } = this.state;
     this.setState({
-      isLock: checkRuleLocked(recordinfo.rules, formData || recordinfo.formData, from),
+      isLock: checkRuleLocked(recordinfo.rules, formData || recordinfo.formData),
     });
   }
 
@@ -722,7 +721,11 @@ export default class RecordInfo extends Component {
     return (
       <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
         <RecordInfoContext.Provider
-          value={{ api: new RecordApi({ appId, worksheetId, viewId, recordId }), updateWorksheetControls }}
+          value={{
+            api: new RecordApi({ appId, worksheetId, viewId, recordId }),
+            updateWorksheetControls,
+            recordBaseInfo: recordbase,
+          }}
         >
           {this.renderDialogs()}
           {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && (
@@ -798,7 +801,9 @@ export default class RecordInfo extends Component {
                     recordId: row.rowid,
                     currentIndex: currentIndex + 1,
                   });
-                  handleAddSheetRow(row, afterRowId);
+                  if (_.isFunction(handleAddSheetRow)) {
+                    handleAddSheetRow(row, afterRowId);
+                  }
                 }}
               />
             )}

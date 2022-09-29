@@ -22,7 +22,12 @@ export default function widthProvider(GridOutComponent) {
       if (nextProps.sheetListVisible !== this.props.sheetListVisible) {
         // 增减左侧列表展开收起之间的宽度差值
         const width = nextProps.sheetListVisible ? -176 : 176;
-        this.onWindowResize(width);
+        const countryLayerChart = document.querySelector('.countryLayerChart');
+        if (countryLayerChart) {
+          setTimeout(() => this.onWindowResize(width), 0);
+        } else {
+          this.onWindowResize(width);
+        }
       }
       if (this.props.isFullscreen !== nextProps.isFullscreen && !nextProps.isFullscreen) {
         setTimeout(() => {

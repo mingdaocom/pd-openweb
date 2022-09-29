@@ -1,7 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Support, Icon, Menu, MenuItem, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Dialog, Support, Icon, Menu, MenuItem, Dropdown, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, JSONAnalysis } from '../components';
+import {
+  DetailHeader,
+  DetailFooter,
+  SelectNodeObject,
+  JSONAnalysis,
+  FindResult,
+  TriggerCondition,
+  CustomTextarea,
+} from '../components';
 import { FIELD_TYPE_LIST } from '../../enum';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -9,6 +17,7 @@ import JsonView from 'react-json-view';
 import copy from 'copy-to-clipboard';
 import { v4 as uuidv4, validate } from 'uuid';
 import _ from 'lodash';
+import { checkConditionsIsNull } from '../../utils';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
 
@@ -180,7 +189,7 @@ export default class JSONParse extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, outputs } = data;
+    const { name, selectNodeId, outputs, conditions, errorMessage, executeType } = data;
     let hasError = false;
 
     if (!selectNodeId) {
@@ -193,6 +202,16 @@ export default class JSONParse extends Component {
         hasError = true;
       }
     });
+
+    if (checkConditionsIsNull(conditions)) {
+      alert(_l('筛选条件的判断值不能为空'), 2);
+      return;
+    }
+
+    if (conditions.length && !errorMessage) {
+      alert(_l('指定的错误消息不能为空'), 2);
+      return;
+    }
 
     if (hasError) {
       alert(_l('输出参数配置有误'), 2);
@@ -212,6 +231,9 @@ export default class JSONParse extends Component {
           name: name.trim(),
           selectNodeId,
           outputs,
+          conditions,
+          errorMessage,
+          executeType,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -227,8 +249,12 @@ export default class JSONParse extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { isIntegration } = this.props;
+    const { isIntegration, selectNodeType } = this.props;
     const { data } = this.state;
+    const ERROR_TYPES = [
+      { text: _l('不定义错误消息'), value: 0 },
+      { text: _l('从输出参数中获取返回值作为错误消息'), value: 1 },
+    ];
 
     return (
       <Fragment>
@@ -267,6 +293,63 @@ export default class JSONParse extends Component {
             >
               {_l('+ 输出参数')}
             </div>
+
+            <div className="mTop20 bold">{_l('定义错误消息')}</div>
+            <div className="Gray_75 mTop10">
+              {_l('当返回匹配错误结果的 JSON 时，可以自定义中止输出参数时的错误消息')}
+            </div>
+
+            {ERROR_TYPES.map(item => (
+              <div className="mTop15" key={item.value}>
+                <Radio
+                  text={item.text}
+                  checked={
+                    (item.value === 0 && !data.conditions.length) || (item.value === 1 && data.conditions.length)
+                  }
+                  onClick={() =>
+                    this.updateSource({ conditions: item.value === 0 ? [] : [[{}]], executeType: 0, errorMessage: '' })
+                  }
+                />
+              </div>
+            ))}
+
+            {!!data.conditions.length && (
+              <Fragment>
+                <div className="mTop10 mLeft30 Gray_9e">{_l('当参数返回值满足以下条件时触发错误')}</div>
+                <div className="mLeft30">
+                  <TriggerCondition
+                    processId={this.props.processId}
+                    selectNodeId={this.props.selectNodeId}
+                    isIntegration={isIntegration}
+                    controls={data.outputs.filter(
+                      item => !item.dataSource && !_.includes([10000007, 10000008], item.type),
+                    )}
+                    data={data.conditions}
+                    updateSource={data => this.updateSource({ conditions: data })}
+                    projectId={this.props.companyId}
+                  />
+                </div>
+                <div className="mTop20 bold">{_l('指定触发错误时返回的错误消息')}</div>
+                <CustomTextarea
+                  processId={this.props.processId}
+                  selectNodeId={this.props.selectNodeId}
+                  isIntegration={isIntegration}
+                  type={2}
+                  height={0}
+                  content={data.errorMessage}
+                  formulaMap={data.formulaMap}
+                  onChange={(err, value, obj) => this.updateSource({ errorMessage: value })}
+                  updateSource={this.updateSource}
+                />
+                {!isIntegration && (
+                  <FindResult
+                    nodeType={selectNodeType}
+                    executeType={data.executeType}
+                    switchExecuteType={executeType => this.updateSource({ executeType })}
+                  />
+                )}
+              </Fragment>
+            )}
 
             {!!data.outputs.length && (
               <div className="mTop25 webhookBox">
@@ -690,10 +773,15 @@ export default class JSONParse extends Component {
    */
   removeParameters(controlId) {
     const { data } = this.state;
-    const { outputs } = data;
+    const { outputs, conditions } = data;
 
     _.remove(outputs, o => o.controlId === controlId || o.dataSource === controlId);
-    this.updateSource({ outputs });
+
+    conditions.forEach(item => {
+      _.remove(item, o => o.filedId === controlId);
+    });
+
+    this.updateSource({ outputs, conditions: conditions.filter(item => item.length) });
   }
 
   /**

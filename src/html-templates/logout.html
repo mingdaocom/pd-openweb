@@ -55,8 +55,8 @@
                             } else {
                                 location.href =
                                     location.href.indexOf('?ReturnUrl') > -1
-                                        ? `${window.subPath || ''}/network${location.search}`
-                                        : `${window.subPath || ''}/network`;
+                                        ? (window.subPath || '') + '/network' + location.search
+                                        : (window.subPath || '') + '/network';
                             }
                         }
                     } catch (err) {}

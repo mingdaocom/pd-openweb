@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ScrollView, EditingBar } from 'ming-ui';
+import { getPublicWorksheetInfo } from 'src/api/publicWorksheet';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import {
@@ -146,7 +147,7 @@ function NewRecordForm(props) {
                   `${control.controlId}.cell.worksheettable.current.table.state.rules`,
                 ),
               },
-              _.get(cellObjs.current, `${control.controlId}.cell.controls`) || control.relationControls,
+              _.get(cellObjs.current, `${control.controlId}.cell.state.controls`) || control.relationControls,
               control.showControls,
               2,
             ),
@@ -276,17 +277,17 @@ function NewRecordForm(props) {
       setRelateRecordData(parsedData.relateRecordData);
       removeFromLocal('tempNewRecord', viewId);
     }
-  }
+  };
   const onTempNewRecordCancel = () => {
     setRestoreVisible(false);
     if (viewId) {
       removeFromLocal('tempNewRecord', viewId);
     }
-  }
+  };
   return (
     <Con>
-      {tempNewRecord && (
-        isMobile ? (
+      {tempNewRecord &&
+        (isMobile ? (
           <MobileRecordRecoverConfirm
             visible={restoreVisible}
             title={_l('有上次未提交的内容，是否恢复？')}
@@ -308,8 +309,7 @@ function NewRecordForm(props) {
               onCancel={onTempNewRecordCancel}
             />
           </EditingBarCon>
-        )
-      )}
+        ))}
       <RecordCon>
         {!window.isPublicApp && shareVisible && (
           <Share
@@ -324,6 +324,16 @@ function NewRecordForm(props) {
               worksheetId,
               title: recordTitle,
             }}
+            getCopyContent={(type, url) =>
+              new Promise(async resolve => {
+                if (type === 'private') {
+                  resolve(`${url} ${recordTitle}`);
+                  return;
+                }
+                const res = await getPublicWorksheetInfo({ worksheetId });
+                resolve(`${url} ${res.name}`);
+              })
+            }
             onClose={() => setShareVisible(false)}
           />
         )}

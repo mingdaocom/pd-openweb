@@ -178,6 +178,7 @@ export default class CardAppearance extends Component {
                   }}
                   navfilters={navfilters}
                   filterInfo={{
+                    relateControls: worksheetControls,
                     allControls: worksheetControls,
                     globalSheetInfo: _.pick(currentSheetInfo, [
                       'appId',

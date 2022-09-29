@@ -17,6 +17,8 @@ import socketInit from '../socket';
 import './index.less';
 import { Dialog, Icon } from 'ming-ui';
 import { getAppFeaturesVisible } from 'src/util';
+import api from 'src/api/homeApp';
+import { getSuffix } from 'src/pages/PortalAccount/util';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
 import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
@@ -88,7 +90,17 @@ export default class App extends Component {
       // 系统消息 有的带protocol和hostname有的不带
       // 从parsedLink里取出pathname, search和hash
       const { pathname, search, hash } = parsedLink;
-      const url = `${pathname}${search}${hash}`;
+      let url = `${pathname}${search}${hash}`;
+      //外部门户 worksheet老地址兼容处理
+      if (md.global.Account.isPortal && url.startsWith('/worksheet/')) {
+        that.compatibleWorksheetRoute(
+          url
+            .split(/\/worksheet\/(.*)/)
+            .filter(o => o)[0]
+            .split(/\/(.*)/)[0],
+        );
+        return;
+      }
 
       if (isMDClient && that.checkClientOpenWindow(url)) {
         window.open(url);
@@ -117,6 +129,19 @@ export default class App extends Component {
     if (nextProps.location !== this.props.location) {
       this.setState({ prevPath: this.props.location });
     }
+  }
+
+  compatibleWorksheetRoute(worksheetId) {
+    //工作表老路由id补齐
+    api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
+      if (appId && appSectionId) {
+        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
+          navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+        } else {
+          navigateTo(`/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`, true);
+        }
+      }
+    });
   }
 
   parseUrl(url) {
@@ -168,7 +193,7 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function(e) {
+    $(document).on('keypress', function (e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;

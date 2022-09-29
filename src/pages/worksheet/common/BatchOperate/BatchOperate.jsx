@@ -8,8 +8,9 @@ import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { Tooltip, Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
 import { startProcess } from 'src/pages/workflow/api/process';
-import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows } from 'src/api/worksheet';
-import { getPrintList } from 'src/api/worksheet';
+import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows, getPrintList } from 'src/api/worksheet';
+import { copyRow } from 'worksheet/controllers/record';
+import { getProjectLicenseInfo } from 'src/api/project';
 import { add } from 'src/api/webCache';
 import { editRecord } from 'worksheet/common/editRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
@@ -20,10 +21,11 @@ import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
 import SubButton from './SubButton';
 import Buttons from './Buttons';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog } from 'src/util';
 import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 
 const CancelTextContent = styled.div`
   display: flex;
@@ -65,6 +67,7 @@ class BatchOperate extends React.Component {
       printListLoading: false,
       tempList: [],
       isNo: null, // 是否没有有批量打印权限
+      isFree: false,
     };
   }
 
@@ -98,7 +101,49 @@ class BatchOperate extends React.Component {
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
+    if (!_.isEqual(this.props.worksheetInfo, nextProps.worksheetInfo) && !!nextProps.worksheetInfo.projectId) {
+      this.projectLicenseInfo(nextProps);
+    }
   }
+
+  projectLicenseInfo = props => {
+    const { worksheetInfo } = props;
+    const { projectId } = worksheetInfo;
+    if (!projectId) {
+      this.setState({
+        isNo: true,
+      });
+      return;
+    }
+    let projects = (_.get(md, ['global', 'Account', 'projects']) || []).filter(it => it.projectId === projectId);
+    if (projects.length <= 0) {
+      // 外部协作
+      getProjectLicenseInfo({
+        projectId: projectId,
+      }).then(data => {
+        let { version = [], licenseType } = data;
+        let { versionId } = version;
+        this.setState({
+          /**
+           * licenseType
+           * 0: 过期
+           * 1: 正式版
+           * 2: 体验版
+           */
+          // 只有旗舰版/专业版可用
+          isNo: !_.includes([2, 3], versionId) || licenseType === 0,
+          isFree: licenseType === 0,
+        });
+      });
+    } else {
+      let { version = [], licenseType } = projects[0];
+      let { versionId } = version;
+      this.setState({
+        isNo: !_.includes([2, 3], versionId) || licenseType === 0,
+        isFree: licenseType === 0,
+      });
+    }
+  };
 
   loadCustomButtons(rowId) {
     const { appId, worksheetId, viewId } = this.props;
@@ -276,7 +321,8 @@ class BatchOperate extends React.Component {
       refreshWorksheetControls,
     } = this.props;
     const rowIds = selectedRows.map(row => row.rowid);
-    const controls = args.newOldControl.filter(c => !checkCellIsEmpty(c.value));
+    const controls =
+      rowIds.length === 1 ? args.newOldControl : args.newOldControl.filter(c => !checkCellIsEmpty(c.value));
     delete args.newOldControl;
     const updateArgs = {
       ...args,
@@ -349,7 +395,6 @@ class BatchOperate extends React.Component {
     if (allWorksheetIsSelected || (tempList.length <= 0 && !IsQrCodeSwitch)) {
       return '';
     }
-    const featureType = getFeatureStatus(projectId, 20);
     if (!printListLoading) {
       if (tempList.length <= 0) {
         return IsQrCodeSwitch ? (
@@ -514,11 +559,15 @@ class BatchOperate extends React.Component {
       clearSelect,
       sheetSwitchPermit,
       refresh,
+      addRecord,
+      setHighLightOfRows,
     } = this.props;
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
     const { projectId, entityName, downLoadUrl } = worksheetInfo;
-    const { select1000, printListLoading, customButtonLoading, customButtons } = this.state;
+    const { select1000, printListLoading, customButtonLoading } = this.state;
+    let { customButtons } = this.state;
+    customButtons = customButtons.filter(b => !b.disabled);
     const selectedRow = selectedRows.length === 1 && selectedRows[0];
     const showExport = isOpenPermit(permitList.export, sheetSwitchPermit, viewId);
     const showCusTomBtn =
@@ -530,6 +579,9 @@ class BatchOperate extends React.Component {
       (!selectedRow || selectedRow.allowdelete);
     const canEdit =
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
+    const canCopy =
+      !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.copy, sheetSwitchPermit, viewId);
+
     return (
       <ReactCSSTransitionGroup
         transitionName="batchOperateCon"
@@ -597,6 +649,40 @@ class BatchOperate extends React.Component {
                     } else {
                       handleEdit();
                     }
+                  }}
+                />
+              )}
+              {!allWorksheetIsSelected && permission && canCopy && (!selectedRow || selectedRow.allowedit) && (
+                <IconText
+                  icon="copy"
+                  text={_l('复制')}
+                  onClick={() => {
+                    if (window.isPublicApp) {
+                      alert(_l('预览模式下，不能操作'), 3);
+                      return;
+                    }
+                    if (selectedRows.length > 20) {
+                      alert(_l('批量复制不能超过20行'), 3);
+                      return;
+                    }
+                    Dialog.confirm({
+                      title: _l('您确认复制这%0条记录吗？', selectedRows.length),
+                      onOk: () => {
+                        const rowIds = selectedRows.map(r => r.rowid);
+                        copyRow(
+                          {
+                            worksheetId,
+                            viewId,
+                            rowIds,
+                          },
+                          newRows => {
+                            addRecord(newRows, _.last(rowIds));
+                            clearSelect();
+                            setHighLightOfRows(newRows.map(r => r.rowid));
+                          },
+                        );
+                      },
+                    });
                   }}
                 />
               )}

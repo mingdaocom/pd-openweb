@@ -112,7 +112,7 @@ export default class UpgradeService extends Component {
   handleChange(item) {
     this.setState({
       versionName: item.name,
-      versionId: item.versionId,
+      versionId: item.versionIdV2,
     }, () => {
       this.getUpgradeOrderPrice();
     });
@@ -179,13 +179,13 @@ export default class UpgradeService extends Component {
                       versions.map(item => {
                         return (
                           <li
-                            key={item.versionId}
+                            key={item.versionIdV2}
                             onClick={() => this.handleChange(item)}
-                            className={cx(versionId === item.versionId ? 'selectProduct' : '')}
+                            className={cx(versionId === item.versionIdV2 ? 'selectProduct' : '')}
                           >
                             <span className="color_b Font15 Bold">{item.name}</span>
                             <span className="color_9e mTop12">
-                              {_l('%0 rmb / 人 / 年', versionPrice[parseInt(item.versionId)])}
+                              {_l('%0 rmb / 人 / 年', versionPrice[parseInt(item.versionIdV2)])}
                             </span>
                           </li>
                         );

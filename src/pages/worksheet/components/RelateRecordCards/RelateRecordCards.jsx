@@ -387,6 +387,7 @@ export default class RelateRecordCards extends Component {
     } = control;
     const { showAddRecord, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
+    const allowNewRecord = editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !window.isPublicWorksheet;
     const isMobile = browserIsMobile();
     const isScanQR = getIsScanQR();
     const isCard =
@@ -459,6 +460,7 @@ export default class RelateRecordCards extends Component {
                 ) : (
                   <RecordInfoWrapper
                     visible
+                    allowAdd={allowNewRecord}
                     appId={appId}
                     viewId={viewId}
                     from={1}
@@ -479,7 +481,7 @@ export default class RelateRecordCards extends Component {
                   from={from}
                   keyWords={this.state.mobileRecordkeyWords}
                   control={control}
-                  allowNewRecord={editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !window.isPublicWorksheet}
+                  allowNewRecord={allowNewRecord}
                   disabledManualWrite={disabledManualWrite}
                   multiple={enumDefault === 2}
                   coverCid={coverCid}
@@ -537,6 +539,7 @@ export default class RelateRecordCards extends Component {
                 projectId={projectId}
                 worksheetId={dataSource}
                 filterControls={filterControls}
+                parentWorksheetId={worksheetId}
                 onChange={data => {
                   this.handleAdd([data]);
                 }}

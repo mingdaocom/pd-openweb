@@ -404,7 +404,7 @@ class UserItem extends Component {
                     </li>
                   )}
                   <li className="opItem" onClick={this.handleApprovalClick}>
-                    {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('审批') : ''}
+                    {user.status == 2 ? _l('重新审核') : user.status == 3 ? _l('审批') : ''}
                   </li>
                 </Fragment>
               )}

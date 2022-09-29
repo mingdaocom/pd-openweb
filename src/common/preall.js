@@ -57,7 +57,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
         (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
     ) {
       location.href = `${
-        data['md.global'].Account.isPortal ? '' : window.subPath
+        data['md.global'].Account.isPortal ? '' : window.subPath || ''
       }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
       return;
     }

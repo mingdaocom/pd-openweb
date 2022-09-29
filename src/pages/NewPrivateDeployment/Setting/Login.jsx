@@ -70,12 +70,11 @@ const Login = props => {
       <div className="flexRow">
         <div className="flex flexColumn">
           <div className="Font14 bold mBottom7">{_l('注册入口')}</div>
-          <div className="Gray_9e">{_l('关闭/隐藏登录界面注册入口')}</div>
+          <div className="Gray_9e">{_l('显示登录界面注册入口')}</div>
         </div>
         <Switch
-          checked={hideRegister}
+          checked={!hideRegister}
           onClick={value => {
-            value = !value;
             updateSysSettings({
               hideRegister: value
             }, () => {
@@ -92,8 +91,8 @@ const Login = props => {
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom25">{_l('登录')}</div>
       {renderDeclare()}
-      {!IsPlatformLocal && <Divider className="mTop20 mBottom20" /> }
-      {!IsPlatformLocal && renderHideRegister()}
+      <Divider className="mTop20 mBottom20" />
+      {renderHideRegister()}
     </div>
   );
 }

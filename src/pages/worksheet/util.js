@@ -256,17 +256,17 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
           ' ' +
           units[1] +
           ' ' +
-          (value % hourMinute > 0 ? (value % hourMinute) + unitStr : '');
+          (value % hourMinute >= 0 ? (value % hourMinute) + unitStr : '');
       } else {
         content =
           Math.floor(value / dayMinute) +
           ' ' +
           units[2] +
           ' ' +
-          (Math.floor((value % dayMinute) / hourMinute) > 0
+          (Math.floor((value % dayMinute) / hourMinute) >= 0
             ? Math.floor((value % dayMinute) / hourMinute) + ' ' + units[1] + ' '
             : '') +
-          (value % hourMinute ? (value % hourMinute).toFixed(dot) + unitStr : '');
+          (value % hourMinute >= 0 ? (value % hourMinute).toFixed(dot) + unitStr : '');
       }
       break;
     case '2':
@@ -278,7 +278,7 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
           ' ' +
           units[2] +
           ' ' +
-          (value % dayHour > 0 ? (value % dayHour).toFixed(dot) + unitStr : '');
+          (value % dayHour >= 0 ? (value % dayHour).toFixed(dot) + unitStr : '');
       }
       break;
     default:

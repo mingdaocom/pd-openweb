@@ -55,28 +55,32 @@ export function loadWorksheet(worksheetId) {
       type: 'WORKSHEET_FETCH_START',
     });
 
-    Promise.all([
-      getWorksheetInfo({
-        worksheetId,
-        reportId: chartId || undefined,
-        getViews: true,
-        getTemplate: true,
-        getRules: true,
-      }),
-      getQueryBySheetId({ worksheetId }, { silent: true }),
-    ])
-      .then(([res, searchConfig]) => {
-        dispatch({
-          type: 'WORKSHEET_INIT',
-          value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
-        });
-        dispatch(setViewLayout(viewId));
-        dispatch({
-          type: 'WORKSHEET_SEARCH_CONFIG_INIT',
-          value: formatSearchConfigs(searchConfig),
-        });
+    getWorksheetInfo({
+      worksheetId,
+      reportId: chartId || undefined,
+      getViews: true,
+      getTemplate: true,
+      getRules: true,
+    })
+      .then(async res => {
+        let queryRes;
+        if (res.isWorksheetQuery) {
+          queryRes = await getQueryBySheetId({ worksheetId }, { silent: true });
+        }
+
+        if (!res.isWorksheetQuery || queryRes) {
+          dispatch({
+            type: 'WORKSHEET_INIT',
+            value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
+          });
+          dispatch(setViewLayout(viewId));
+          dispatch({
+            type: 'WORKSHEET_SEARCH_CONFIG_INIT',
+            value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
+          });
+        }
       })
-      .catch(err => {
+      .fail(err => {
         dispatch({
           type: 'WORKSHEET_INIT_FAIL',
         });

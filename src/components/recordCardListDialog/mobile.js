@@ -315,7 +315,7 @@ export default class RecordCardListDialog extends Component {
   }
   renderSearchWrapper() {
     const isScanQR = getIsScanQR();
-    const { relateSheetId, onOk, onClose, control, formData } = this.props;
+    const { relateSheetId, onOk, onClose, control, formData, parentWorksheetId } = this.props;
     const { keyWords, worksheet, worksheetInfo } = this.state;
     const filterControls = getFilter({ control, formData });
     return (
@@ -342,6 +342,7 @@ export default class RecordCardListDialog extends Component {
               projectId={worksheet.projectId}
               worksheetId={relateSheetId}
               filterControls={filterControls}
+              parentWorksheetId={parentWorksheetId}
               onChange={data => {
                 onOk([data]);
                 onClose();

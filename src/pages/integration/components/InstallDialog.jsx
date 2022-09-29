@@ -167,6 +167,9 @@ export default function InstallDialog(props) {
                 <span
                   className={cx('Install Hand Font13 Bold', { disable: selectedList.length <= 0 })}
                   onClick={() => {
+                    if (!projectId) {
+                      return alert(_l('请创建或申请加入一个组织', 3));
+                    }
                     if (selectedList.length <= 0) {
                       return;
                     }

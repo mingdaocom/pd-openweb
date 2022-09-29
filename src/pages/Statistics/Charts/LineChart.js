@@ -51,7 +51,7 @@ const formatPerPileChartData = result => {
   return perPileResult;
 };
 
-export const formatChartData = (data, yaxisList, { isPile, isAccumulate }) => {
+export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, splitControlId) => {
   if (_.isEmpty(data)) return [];
   const result = [];
   const cloneData = _.cloneDeep(data);
@@ -78,15 +78,18 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }) => {
         return n.originalX === name;
       });
       if (current.length) {
-        const { rename } = _.find(yaxisList, { controlId: element.c_id }) || {};
-        result.push({
-          controlId: element.c_id,
-          groupName: `${rename || element.key}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
-          groupKey: element.originalKey,
-          value: current[0].v,
-          name: item.x,
-          originalId: item.originalX || item.x
-        });
+        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const hideEmptyValue = !emptyShowType && !current[0].v;
+        if (!hideEmptyValue) {
+          result.push({
+            controlId: element.c_id,
+            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
+            groupKey: element.originalKey,
+            value: current[0].v,
+            name: item.x,
+            originalId: item.originalX || item.x
+          });
+        }
       }
     });
   });
@@ -213,16 +216,16 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {} } = props.reportData;
+    const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {}, split } = props.reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
     const { position } = getLegendType();
     const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;
     const isPercentStackedArea = displaySetup.showChartType == 2 && isPerPile;
     const LineValue = isPercentStackedArea ? 0 : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
-    const sortData = formatChartData(map, yaxisList, displaySetup);
+    const sortData = formatChartData(map, yaxisList, displaySetup, split.controlId);
     const newYaxisList = formatYaxisList(sortData, yaxisList);
-    const maxValue = getMaxValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup) : null);
-    const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup) : null);
+    const maxValue = getMaxValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
+    const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
@@ -260,7 +263,7 @@ export default class extends Component {
         start: 0,
         end: 0.5,
       } : undefined,
-      legend: displaySetup.showLegend
+      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
             position,
             flipPage: true,
@@ -337,8 +340,9 @@ export default class extends Component {
               displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null,
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
-            content: ({ value, groupName }) => {
-              return formatrChartValue(value, isPercentStackedArea, newYaxisList);
+            content: ({ value, groupName, controlId }) => {
+              const id = split.controlId ? newYaxisList[0].controlId : controlId;
+              return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
             },
           }
         : false,
@@ -376,6 +380,7 @@ export default class extends Component {
         }),
         yaxisList,
         displaySetup,
+        split.controlId
       );
       const newData = mergeDataTime(sortData, contrastData);
       return {

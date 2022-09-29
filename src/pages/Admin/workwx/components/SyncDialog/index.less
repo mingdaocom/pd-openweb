@@ -1,0 +1,192 @@
+.syncDialog {
+  height: calc(~'100% - 64px') !important;
+  .mui-dialog-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+  }
+  .searchConditionWrap {
+    .searchInput {
+      width: 220px;
+      height: 32px;
+      .ant-input-prefix {
+        color: #bdbdbd;
+      }
+    }
+  }
+  .bindTable {
+    overflow-y: hidden;
+  }
+  .tableHeader {
+    height: 36px;
+    border: 1px solid rgba(0, 0, 0, 0.09);
+    background-color: #fcfcfc;
+  }
+  .tableBody {
+    height: calc(~'100% - 36px');
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-top: none;
+    .row {
+      height: 55px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+      .avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #1e88e5;
+        margin-right: 5px;
+      }
+      .orgInfo {
+        border-right: 1px solid #eaeaea;
+        .userInfo {
+          width: calc(~'100% - 41px');
+        }
+      }
+      .workwxInfo {
+        .userInfo {
+          width: calc(~'100% - 155px');
+        }
+        .addUser {
+          color: #a8a8a8;
+        }
+      }
+      .userInfo {
+        min-height: 0;
+      }
+      .matchInfo {
+        border-radius: 10px;
+        padding: 1px 8px;
+        color: #757575;
+        background-color: #d9f5da;
+        margin-right: 40px;
+        font-size: 12px;
+      }
+      .remove {
+        width: 50px;
+        color: #bdbdbd;
+      }
+      .cancelBind {
+        color: #bdbdbd;
+      }
+    }
+  }
+  .cancelBind {
+    width: 80px;
+  }
+  .pagination {
+    display: flex;
+    padding: 25px 0 6px 0;
+    .ant-pagination {
+      .ant-pagination-prev,
+      .ant-pagination-next {
+        height: unset;
+        line-height: unset;
+        a {
+          display: inline-block;
+          padding: 3px 8px;
+          border: 1px solid #ccc;
+          color: #666;
+          font-size: 12px;
+        }
+      }
+      .ant-pagination-disabled {
+        border: 1px solid #ccc;
+        a {
+          color: #ccc;
+          border: 1px solid #fff;
+          font-size: 12px;
+        }
+      }
+      .ant-pagination-item {
+        height: unset;
+        line-height: unset;
+        margin-right: 10px;
+        min-width: 0;
+        border: 1px solid #fff;
+        border-radius: 3px;
+        a {
+          color: #666;
+          display: inline-block;
+          padding: 3px 8px;
+          text-align: center;
+          vertical-align: middle;
+          border: 1px solid #fff;
+          font-size: 12px;
+        }
+        a:hover {
+          border: 1px solid #ccc;
+          color: #666;
+        }
+      }
+      .ant-pagination-item-active {
+        // border: none;
+        border: 1px solid #fff;
+        color: #333;
+        a {
+          // border: none;
+          border: 1px solid #fff;
+          text-decoration: underline;
+          color: #333;
+        }
+      }
+      .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
+      .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
+        color: #666;
+      }
+      .ant-pagination-options {
+        display: none;
+      }
+    }
+  }
+  .emptyWrap {
+    .emptyIconWrap {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #c2c3c3;
+      background-color: #f5f5f5;
+      margin-bottom: 20px;
+    }
+  }
+}
+
+.selectUserWrap {
+  width: 460px;
+  height: 438px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+  border-radius: 4px;
+  background-color: #fff;
+  .searchBox {
+    width: 100%;
+    height: 45px;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    > input {
+      font-size: 14px;
+      flex: 1;
+      border: none;
+      font-size: 14px;
+    }
+  }
+  .userList {
+    .listItem {
+      padding: 0 24px;
+      height: 59px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 1px solid #f0f0f0;
+      &:hover{
+        background-color: #f5f5f5;
+        cursor: pointer;
+      }
+    }
+  }
+}

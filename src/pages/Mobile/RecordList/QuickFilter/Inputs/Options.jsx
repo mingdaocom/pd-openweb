@@ -47,7 +47,6 @@ export default function Options(props) {
   function handleChange(value) {
     onChange({
       ...value,
-      filterType: 2,
     });
   }
 

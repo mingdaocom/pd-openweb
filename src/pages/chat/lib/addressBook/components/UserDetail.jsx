@@ -1,10 +1,8 @@
 ﻿import React from 'react';
 import cx from 'classnames';
 
-import Icon from 'ming-ui/components/Icon';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import DropDown from 'ming-ui/components/Dropdown';
-import ScrollView from 'ming-ui/components/ScrollView';
+import Dropdown from 'ming-ui/components/Dropdown';
+import { Tooltip, Icon, LoadDiv, ScrollView } from 'ming-ui';
 
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
@@ -15,6 +13,7 @@ import AddFriend from './AddFriend';
 
 import API, { removeFriend } from '../api';
 import { config } from '../config';
+import departmentController from 'src/api/department';
 
 const AddFriendConfirm = require('addFriendConfirm');
 const Confirm = require('confirm');
@@ -27,6 +26,7 @@ const defaultState = {
   hasProjects: false,
   activeProjectId: '',
   dropDownValue: '',
+  fullDepartmentInfo: {},
 };
 
 export default class UserDetail extends React.Component {
@@ -319,7 +319,7 @@ export default class UserDetail extends React.Component {
       return (
         <React.Fragment>
           {renderTab(prefix)}
-          <DropDown
+          <Dropdown
             className={cx('detail-tab', {
               'ThemeColor3 ThemeBorderColor3': otherProjectIds.indexOf(activeProjectId) !== -1,
               Gray_75: otherProjectIds.indexOf(activeProjectId) === -1,
@@ -331,14 +331,34 @@ export default class UserDetail extends React.Component {
     }
   }
 
+  getDepartmentFullName = (departmentData = []) => {
+    let { fullDepartmentInfo = {} } = this.state;
+    const departmentIds = departmentData.map(item => item.departmentId).filter(it => !fullDepartmentInfo[it]);
+    if (_.isEmpty(departmentIds)) {
+      return;
+    }
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId: this.state.activeProjectId,
+        departmentIds,
+      })
+      .then(res => {
+        res.forEach(it => {
+          fullDepartmentInfo[it.id] = it.name;
+        });
+        this.setState({ fullDepartmentInfo });
+      });
+  };
+
   renderProjectCard() {
     const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
     const {
       data: { userCards },
       activeProjectId,
+      fullDepartmentInfo = {},
     } = this.state;
     const project = _.find(userCards, project => project.projectId === activeProjectId);
-    const { companyName, department, job, jobNumber, workSite, contactPhone } = project;
+    const { companyName, department, job, jobNumber, workSite, contactPhone, departmentInfos } = project;
     return (
       <div className="pTop5 Font13 mTop">
         <div className="detail-info-row">
@@ -347,7 +367,34 @@ export default class UserDetail extends React.Component {
         </div>
         <div className="detail-info-row">
           <span className="Gray_75">{_l('部门')}：</span>
-          {department || placeHolder}
+          {department ? (
+            <Tooltip
+              tooltipClass="departmentFullNametip"
+              popupPlacement="bottom"
+              text={
+                <div>
+                  {departmentInfos.map((v, depIndex) => {
+                    const fullName = (this.state.fullDepartmentInfo[v.departmentId] || '').split('/');
+                    return (
+                      <div className={cx({ mBottom8: depIndex < departmentInfos.length - 1 })}>
+                        {fullName.map((n, i) => (
+                          <span>
+                            {n}
+                            {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              }
+              mouseEnterDelay={0.5}
+            >
+              <span onMouseEnter={() => this.getDepartmentFullName(departmentInfos)}>{department}</span>
+            </Tooltip>
+          ) : (
+            <span>{placeHolder}</span>
+          )}
         </div>
         <div className="detail-info-row">
           <span className="Gray_75">{_l('职位')}：</span>

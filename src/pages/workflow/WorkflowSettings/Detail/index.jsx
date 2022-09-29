@@ -16,7 +16,7 @@ class Detail extends Component {
     relationType: PropTypes.number,
     flowInfo: PropTypes.any,
     selectNodeId: PropTypes.string.isRequired,
-    selectNodeType: PropTypes.number.isRequired,
+    selectNodeType: PropTypes.string.isRequired,
     selectNodeName: PropTypes.string,
     isCopy: PropTypes.bool,
     closeDetail: PropTypes.func.isRequired,

@@ -290,6 +290,23 @@ export const setHighLight = (tableId, rowIndex) => {
   };
 };
 
+export const setHighLightOfRows = (rowIds, tableId) => {
+  return (dispatch, getState) => {
+    const { sheetview } = getState().sheet;
+    const { rows } = sheetview.sheetViewData;
+    dispatch(clearHighLight(tableId));
+    rowIds.forEach(rowId => {
+      let rowIndex = _.findIndex(rows, row => row.rowid === rowId);
+      if (_.isUndefined(rowIndex)) {
+        return;
+      }
+      rowIndex = rowIndex + 1;
+      $(`${tableId ? `.mdTable.id-${tableId}-id` : '.mdTable'} .cell.row-${rowIndex}`).addClass('highlight');
+      window[`sheettablehighlightrow${tableId}`] = rowIndex;
+    });
+  };
+};
+
 export const clearSelect = () => ({
   type: 'WORKSHEET_SHEETVIEW_CLEAR_SELECT',
 });
@@ -570,20 +587,23 @@ export function changeWorksheetSheetViewSummaryType({ controlId, value }) {
   };
 }
 
-export function addRecord(record, afterRowId) {
+export function addRecord(records, afterRowId) {
   return (dispatch, getState) => {
     const { sheetview } = getState().sheet;
     const { rows, count } = sheetview.sheetViewData;
+    if (!_.isArray(records)) {
+      records = [records];
+    }
     dispatch(updateNavGroup());
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
-      count: count + 1,
+      count: count + records.length,
     });
     if (afterRowId) {
       const afterRowIndex = _.findIndex(rows, row => row.rowid === afterRowId);
       const newRows = _.isUndefined(afterRowId)
-        ? [record, ...rows]
-        : [...rows.slice(0, afterRowIndex + 1), record, ...rows.slice(afterRowIndex + 1)];
+        ? [...records, ...rows]
+        : [...rows.slice(0, afterRowIndex + 1), ...records, ...rows.slice(afterRowIndex + records.length)];
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS',
         rows: newRows,
@@ -592,7 +612,7 @@ export function addRecord(record, afterRowId) {
     } else {
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS',
-        rows: [record, ...rows],
+        rows: [...records, ...rows],
         count: count + 1,
       });
     }

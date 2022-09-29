@@ -10,7 +10,6 @@ import kcService from 'src/pages/kc/api/service';
 import { editLinkAttachment } from 'src/api/attachment';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, isVideo, downloadFile, getClassNameByExt } from 'src/util';
-
 const vertical = {
   WebkitBoxOrient: 'vertical',
 };
@@ -27,7 +26,6 @@ export default class FileComponent extends Component {
       menuVisible: false,
       penelVisible: false,
       moreVisible: false,
-      menuOffset: -90,
       imageSrc: false,
       imageWidth: false,
       viewImage: true,
@@ -39,7 +37,7 @@ export default class FileComponent extends Component {
     let { UploadFile } = this;
     let { width } = UploadFile.getBoundingClientRect();
   }
-  onEdit(event) {
+  handleEdit = event => {
     event.stopPropagation();
     let { isEdit } = this.state;
     setTimeout(
@@ -65,22 +63,30 @@ export default class FileComponent extends Component {
       },
       isEdit ? 200 : 0,
     );
-  }
-  onKeyDown(id, event) {
+  };
+  handleKeyDown = (event, id) => {
     if (event.which === 13) {
       this.props.resetFileName(id, event.target.value);
-      this.onEdit(event);
+      this.handleEdit(event);
     }
-  }
-  onDownload(isDownload, url, event) {
+  };
+  handleDownload = (event, isDownload, url) => {
     event.stopPropagation();
     if (!isDownload) {
       alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
     } else {
       window.open(downloadFile(url));
     }
-  }
-  onShare(isDownload, event) {
+  };
+  handleOpenNewPage = event => {
+    const { handleOpenControlAttachmentInNewTab } = this.props;
+    event.stopPropagation();
+    this.setState({
+      menuVisible: false,
+    });
+    handleOpenControlAttachmentInNewTab();
+  };
+  handleShare = (event, isDownload) => {
     event.stopPropagation();
 
     if (!md.global.Account.accountId) {
@@ -147,8 +153,8 @@ export default class FileComponent extends Component {
         },
       });
     });
-  }
-  onSaveToKc(isDownload, event) {
+  };
+  handleSaveToKc = (event, isDownload) => {
     event.stopPropagation();
 
     if (!md.global.Account.accountId) {
@@ -197,8 +203,8 @@ export default class FileComponent extends Component {
           .fail(() => {});
       });
     });
-  }
-  onEditLink() {
+  };
+  handleEditLink = () => {
     const _this = this;
     const { data } = this.props;
     require(['src/components/addLinkFile/addLinkFile'], addLinkFile => {
@@ -238,44 +244,48 @@ export default class FileComponent extends Component {
         },
       });
     });
-  }
-  onOpenMenu(event) {
+  };
+  handleOpenMenu = event => {
     event.stopPropagation();
     this.setState({ menuVisible: true });
-  }
-  onConfirmDelete(fn) {
+  };
+  handleConfirmDelete(fn) {
     this.setState({
       isDelete: true,
     });
     this.deleteFn = fn;
   }
-  onDelete(event) {
+  handleDelete = event => {
+    event.stopPropagation();
     this.deleteFn && this.deleteFn();
-    this.onCancel(event);
-  }
-  onCancel(event) {
+    this.handleCancel(event);
+  };
+  handleCancel = event => {
+    event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     this.setState({
       isDelete: false,
     });
-  }
+  };
   renderPreview(fileResponse, fileClassName, isDoc, isVid, isKc) {
     return isDoc ? (
       <Fragment>
         <div className={cx(fileClassName, 'UploadFiles-fileIcon', 'UploadFiles-previewIcon')} />
         {this.renderFileImage(fileResponse.previewUrl)}
         <div className="UploadFiles-fileName UploadFiles-previewFileName">
-          <span>{fileResponse.originalFilename}</span>
-          <span>{fileResponse.ext}</span>
+          <span>
+            {fileResponse.originalFilename}
+            {fileResponse.ext}
+          </span>
         </div>
       </Fragment>
     ) : (
       <Fragment>
-        {isKc ? (
+        {isKc && (
           <div className="UploadFiles-video-kcIcon">
             <i className="icon icon-knowledge1" />
           </div>
-        ) : null}
+        )}
         {this.renderFileImage(fileResponse.previewUrl)}
         <div className="UploadFiles-video">
           <i className="icon icon-video2" />
@@ -318,11 +328,11 @@ export default class FileComponent extends Component {
 
     return isPicture ? (
       <Fragment>
-        {isKc ? (
+        {isKc && (
           <div className="UploadFiles-kcIcon">
             <i className="icon icon-knowledge1" />
           </div>
-        ) : null}
+        )}
         {this.renderFileImage(twice.previewUrl ? twice.previewUrl : `${fileResponse.viewUrl}|imageView2/1/w/200/h/140`)}
       </Fragment>
     ) : (
@@ -336,8 +346,10 @@ export default class FileComponent extends Component {
           <div className={cx(fileClassName, 'UploadFiles-fileIcon')} />
         </div>
         <div className="UploadFiles-fileName">
-          <span>{fileResponse.originalFileName}</span>
-          <span>{fileResponse.fileExt}</span>
+          <span>
+            {fileResponse.originalFileName}
+            {fileResponse.fileExt}
+          </span>
         </div>
       </div>
     );
@@ -388,8 +400,12 @@ export default class FileComponent extends Component {
               type="text"
               className="UploadFiles-editInput"
               defaultValue={fileResponse.originalFileName}
-              onBlur={this.onEdit.bind(this)}
-              onKeyDown={this.onKeyDown.bind(this, fileResponse.fileID)}
+              onBlur={event => {
+                this.handleEdit(event);
+              }}
+              onKeyDown={event => {
+                this.handleKeyDown(event, fileResponse.fileID);
+              }}
             />
           ) : (
             <div className={textClass} title={`${fileResponse.originalFileName}${fileResponse.fileExt}`}>
@@ -406,13 +422,13 @@ export default class FileComponent extends Component {
         <div className="UploadFiles-panelBtns">
           <div />
           {isKc ? (
-            this.props.isDeleteKcFile ? (
+            this.props.isDeleteKcFile && (
               <div>
                 <div
                   onClick={event => {
                     event.nativeEvent.stopImmediatePropagation();
                     event.stopPropagation();
-                    this.onConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
+                    this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
                   }}
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                   data-tip={_l('删除')}
@@ -420,7 +436,7 @@ export default class FileComponent extends Component {
                   <i className="icon-task-new-delete" />
                 </div>
               </div>
-            ) : null
+            )
           ) : (
             <div>
               <div
@@ -436,7 +452,9 @@ export default class FileComponent extends Component {
                 <i className="icon-task-new-delete" />
               </div>
               <div
-                onClick={this.onEdit.bind(this)}
+                onClick={event => {
+                  this.handleEdit(event);
+                }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 data-tip={_l('重命名')}
               >
@@ -487,8 +505,10 @@ export default class FileComponent extends Component {
           <div className={cx(fileClassName, 'UploadFiles-fileIcon')} />
         </div>
         <div className="UploadFiles-fileName">
-          <span>{fileResponse.originalFileName}</span>
-          <span>{fileResponse.fileExt}</span>
+          <span>
+            {fileResponse.originalFileName}
+            {fileResponse.fileExt}
+          </span>
         </div>
       </div>
     );
@@ -536,8 +556,12 @@ export default class FileComponent extends Component {
               type="text"
               className="UploadFiles-editInput"
               defaultValue={fileResponse.originalFileName}
-              onBlur={this.onEdit.bind(this)}
-              onKeyDown={this.onKeyDown.bind(this, fileResponse.fileID)}
+              onBlur={event => {
+                this.handleEdit(event);
+              }}
+              onKeyDown={event => {
+                this.handleKeyDown(event, fileResponse.fileID);
+              }}
             />
           ) : (
             <div className={textClass} title={`${fileResponse.originalFileName}${fileResponse.fileExt}`}>
@@ -559,7 +583,7 @@ export default class FileComponent extends Component {
                 onClick={event => {
                   event.nativeEvent.stopImmediatePropagation();
                   event.stopPropagation();
-                  // this.onConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
+                  // this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
                   this.props.onDeleteKcFile(fileResponse.refId, event);
                 }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
@@ -583,7 +607,9 @@ export default class FileComponent extends Component {
                 <i className="icon-task-new-delete" />
               </div>
               <div
-                onClick={this.onEdit.bind(this)}
+                onClick={event => {
+                  this.handleEdit(event);
+                }}
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 data-tip={_l('重命名')}
               >
@@ -648,8 +674,10 @@ export default class FileComponent extends Component {
         </div>
         {browse ? (
           <div className="UploadFiles-fileName">
-            <span>{fileResponse.originalFilename}</span>
-            <span>{fileResponse.ext}</span>
+            <span>
+              {fileResponse.originalFilename}
+              {fileResponse.ext}
+            </span>
           </div>
         ) : (
           <div className="UploadFiles-fileName">
@@ -660,9 +688,9 @@ export default class FileComponent extends Component {
     );
   }
   renderMDPenel(fileResponse, index) {
-    const { hideDownload = false } = this.props;
+    const { hideDownload = false, handleOpenControlAttachmentInNewTab } = this.props;
     let browse = true;
-    let { menuOffset, penelVisible, moreVisible } = this.state;
+    let { penelVisible, moreVisible, isDelete } = this.state;
     let { isUpload } = this.props;
     let isKc = !!fileResponse.refId;
     let isPicture = File.isPicture(fileResponse.ext) || (isVideo(fileResponse.ext) && fileResponse.previewUrl);
@@ -732,101 +760,121 @@ export default class FileComponent extends Component {
             </div>
           )}
         </div>
-        <div className="UploadFiles-panelBtns">
-          <div>
-            {this.props.isDeleteFile ? (
-              <div
-                onClick={event => {
-                  event.nativeEvent.stopImmediatePropagation();
-                  event.stopPropagation();
-                  this.onConfirmDelete(this.props.onDeleteMDFile.bind(this, fileResponse, event));
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}
-              >
-                <i className="icon-task-new-delete" />
-              </div>
-            ) : undefined}
+        {isDelete ? (
+          <div className="flexRow UploadFiles-filePanel-confirm">
+            <div className="delete" onClick={this.handleDelete}>
+              {_l('删除')}
+            </div>
+            <div className="cancel" onClick={this.handleCancel}>
+              {_l('取消')}
+            </div>
           </div>
-          <div className={cx({ hide: !browse })}>
-            {/* 是否不可下载 */}
-            {!hideDownload && (
-              <div
-                onClick={this.onDownload.bind(this, isDownload, downloadUrl)}
-                className="UploadFiles-panelBtn"
-                data-tip={_l('下载')}
-              >
-                <i className="ThemeHoverColor3 icon-download" />
-              </div>
-            )}
-            {((!isMDLink && !hideDownload) ||
-              !hideDownload ||
-              (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
-              !md.global.Account.isPortal && (
-                <div className="UploadFiles-panelBtn" onClick={this.onOpenMenu.bind(this)}>
-                  <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
-                  <div
-                    className="UploadFiles-panelBtnMask"
-                    data-tip={_l('更多')}
-                    onMouseEnter={() => {
-                      this.setState({ moreVisible: true });
-                    }}
-                    onMouseLeave={() => {
-                      this.setState({ moreVisible: false });
-                    }}
-                  />
-                  <Menu
-                    style={{ width: 120, left: menuOffset, top: 30, zIndex: 100 }}
-                    className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
-                    onClickAway={() => this.setState({ menuVisible: false })}
-                  >
-                    {/* 是否不可下载 且 不可保存到知识和分享 */}
-                    {!isMDLink && !hideDownload && (
-                      <MenuItem onClick={this.onShare.bind(this, isDownload)}>
-                        <Icon icon="share" />
-                        <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
-                      </MenuItem>
-                    )}
-                    {/* 是否不可下载 且 不可保存到知识和分享 */}
-                    {!hideDownload && (
-                      <MenuItem onClick={this.onSaveToKc.bind(this, isDownload)}>
-                        <Icon icon="knowledge-cloud" />
-                        <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
-                      </MenuItem>
-                    )}
-                    {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
-                      <MenuItem onClick={this.onEditLink.bind(this)}>
-                        <Icon icon="hr_edit" />
-                        <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
-                      </MenuItem>
-                    )}
-                  </Menu>
+        ) : (
+          <div className="UploadFiles-panelBtns">
+            <div>
+              {this.props.isDeleteFile && (
+                <div
+                  onClick={event => {
+                    event.nativeEvent.stopImmediatePropagation();
+                    event.stopPropagation();
+                    this.handleConfirmDelete(this.props.onDeleteMDFile.bind(this, fileResponse, event));
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                  data-tip={_l('删除')}
+                >
+                  <i className="icon-task-new-delete" />
                 </div>
               )}
+            </div>
+            <div className={cx({ hide: !browse })}>
+              {/* 是否不可下载 */}
+              {!hideDownload && (
+                <div
+                  onClick={event => {
+                    this.handleDownload(event, isDownload, downloadUrl);
+                  }}
+                  className="UploadFiles-panelBtn"
+                  data-tip={_l('下载')}
+                >
+                  <i className="ThemeHoverColor3 icon-download" />
+                </div>
+              )}
+              {((!isMDLink && !hideDownload) ||
+                !hideDownload ||
+                (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
+                !md.global.Account.isPortal && (
+                  <div
+                    className="UploadFiles-panelBtn"
+                    onClick={event => {
+                      this.handleOpenMenu(event);
+                    }}
+                  >
+                    <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
+                    <div
+                      className="UploadFiles-panelBtnMask"
+                      data-tip={_l('更多')}
+                      onMouseEnter={() => {
+                        this.setState({ moreVisible: true });
+                      }}
+                      onMouseLeave={() => {
+                        this.setState({ moreVisible: false });
+                      }}
+                    />
+                    <Menu
+                      style={{ width: 120, right: 0, top: 0, zIndex: 100 }}
+                      className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
+                      onClickAway={() => this.setState({ menuVisible: false })}
+                    >
+                      {handleOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+                        <MenuItem
+                          onClick={event => {
+                            this.handleOpenNewPage(event);
+                          }}
+                        >
+                          <Icon icon="launch" />
+                          <span className="UploadFiles-menuWrapper-text">{_l('新页面打开')}</span>
+                        </MenuItem>
+                      )}
+                      {/* 是否不可下载 且 不可保存到知识和分享 */}
+                      {!isMDLink && !hideDownload && (
+                        <MenuItem
+                          onClick={event => {
+                            this.handleShare(event, isDownload);
+                          }}
+                        >
+                          <Icon icon="share" />
+                          <span className="UploadFiles-menuWrapper-text">{_l('分享')}</span>
+                        </MenuItem>
+                      )}
+                      {/* 是否不可下载 且 不可保存到知识和分享 */}
+                      {!hideDownload && (
+                        <MenuItem
+                          onClick={event => {
+                            this.handleSaveToKc(event, isDownload);
+                          }}
+                        >
+                          <Icon icon="knowledge-cloud" />
+                          <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
+                        </MenuItem>
+                      )}
+                      {isMDLink && fileResponse.accountId === md.global.Account.accountId && (
+                        <MenuItem onClick={this.handleEditLink}>
+                          <Icon icon="hr_edit" />
+                          <span className="UploadFiles-menuWrapper-text">{_l('编辑')}</span>
+                        </MenuItem>
+                      )}
+                    </Menu>
+                  </div>
+                )}
+            </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-  renderDelete() {
-    return (
-      <div className="UploadFiles-filePanel UploadFiles-filePanel-confirm">
-        <div className="text">{_l('确定删除此文件 ?')}</div>
-        <div className="btns">
-          <div className="delete" onClick={this.onDelete.bind(this)}>
-            {_l('删除')}
-          </div>
-          <div className="cancel" onClick={this.onCancel.bind(this)}>
-            {_l('取消')}
-          </div>
-        </div>
+        )}
       </div>
     );
   }
   render() {
     let { data, style, index, isUpload } = this.props;
     let { progress, base, accountId, sourceID, twice } = data;
-    let { isDelete } = this.state;
 
     return (
       <div
@@ -837,7 +885,6 @@ export default class FileComponent extends Component {
         style={style}
       >
         <div className="UploadFiles-file">
-          {isDelete ? this.renderDelete() : undefined}
           {twice
             ? this.renderTwiceView(data)
             : accountId || sourceID

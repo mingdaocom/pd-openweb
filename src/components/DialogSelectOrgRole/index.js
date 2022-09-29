@@ -9,6 +9,7 @@ class DialogSelectOrgRole extends Component {
     projectId: '',
     showCompanyName: false,
     orgRoleDialogVisible: false,
+    showCurrentOrgRole: false,
     unique: false,
     onSave: () => {},
     onClose: () => {},
@@ -32,6 +33,13 @@ class DialogSelectOrgRole extends Component {
   fetchData() {
     const { projectId } = this.props;
     const { keywords, data = [], pageIndex = 1 } = this.state;
+    let isShowRole =
+      !md.global.Account.isPortal &&
+      (md.global.Account.projects || []).some(it => it.projectId === this.props.projectId);
+    if (!isShowRole) {
+      this.setState({ loading: false });
+      return;
+    }
     this.setState({ isMore: false });
     if (this.promise && this.promise.state() === 'pending' && this.promise.abort) {
       this.promise.abort();
@@ -75,7 +83,7 @@ class DialogSelectOrgRole extends Component {
   };
   renderContent() {
     const { loading, data = [], keywords, selectData } = this.state;
-    const { unique } = this.props
+    const { unique } = this.props;
 
     if (loading) {
       return <LoadDiv />;
@@ -94,12 +102,8 @@ class DialogSelectOrgRole extends Component {
         <ScrollView onScrollEnd={this.onScrollEnd}>
           {data.map((item, i) => {
             return (
-              <div className='roleItem pointer ellipsis' key={i} onClick={checked => this.toggle(item, !checked)}>
-                <Radio
-                  checked={!!_.find(selectData, o => o.organizeId === item.organizeId)}
-                >
-                  {item.organizeName}
-                </Radio>
+              <div className="roleItem pointer ellipsis" key={i} onClick={checked => this.toggle(item, !checked)}>
+                <Radio checked={!!_.find(selectData, o => o.organizeId === item.organizeId)}>{item.organizeName}</Radio>
               </div>
             );
           })}
@@ -140,9 +144,15 @@ class DialogSelectOrgRole extends Component {
     });
   }
 
+  getCurrentUserOrgRoleChecked() {
+    return !!this.state.selectData.filter(item => item.organizeId === 'user-role').length;
+  }
+
   render() {
     const { onClose, projectId, onSave, showCompanyName, orgRoleDialogVisible } = this.props;
     const { keywords, selectData } = this.state;
+    let isShowRole =
+      !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
 
     return (
       <Dialog
@@ -158,7 +168,7 @@ class DialogSelectOrgRole extends Component {
         }}
       >
         <div className="selectJobContainer">
-          <div className="selectJobContainer_search">
+          <div className="selectJobContainer_search pLeft5">
             <span className="searchIcon icon-search" />
             <input
               type="text"
@@ -177,8 +187,43 @@ class DialogSelectOrgRole extends Component {
               onClick={() => this.setState({ keywords: '' })}
             />
           </div>
+          {isShowRole && this.props.showCurrentOrgRole && (
+            <div className="mTop24 Font13 overflow_ellipsis Hand pBottom10 pLeft5">
+              {this.props.unique ? (
+                <Radio
+                  className="GSelect-department--checkbox mRight0"
+                  checked={this.getCurrentUserOrgRoleChecked()}
+                  text={_l('当前用户所在的组织角色')}
+                  onClick={checked =>
+                    this.toggle(
+                      {
+                        organizeId: 'user-role',
+                        organizeName: _l('当前用户所在的组织角色'),
+                      },
+                      checked,
+                    )
+                  }
+                />
+              ) : (
+                <Checkbox
+                  className="GSelect-department--checkbox"
+                  checked={this.getCurrentUserOrgRoleChecked()}
+                  text={_l('当前用户所在的组织角色')}
+                  onClick={checked =>
+                    this.toggle(
+                      {
+                        organizeId: 'user-role',
+                        organizeName: _l('当前用户所在的组织角色'),
+                      },
+                      !checked,
+                    )
+                  }
+                />
+              )}
+            </div>
+          )}
           {showCompanyName && (
-            <div className="mTop12 Font13 overflow_ellipsis">
+            <div className="mTop12 Font13 overflow_ellipsis pLeft5">
               {(_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).companyName}
             </div>
           )}

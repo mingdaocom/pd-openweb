@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import styled from 'styled-components';
-import { copyRow, getWorksheetBtns } from 'src/api/worksheet';
+import { getWorksheetBtns } from 'src/api/worksheet';
+import { copyRow } from 'worksheet/controllers/record';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import {
   handleShare,
@@ -309,28 +310,16 @@ export default function RecordOperate(props) {
                   Dialog.confirm({
                     title: _l('您确认复制这条记录吗？'),
                     onOk: () => {
-                      copyRow({
-                        worksheetId,
-                        viewId,
-                        rowIds: [recordId],
-                      })
-                        .then(res => {
-                          if (res && res.resultCode === 1) {
-                            alert(_l('复制成功'));
-                            onCopySuccess(res.data, recordId);
-                          } else if (res && res.resultCode === 7) {
-                            alert(_l('复制失败，权限不足！'), 3);
-                          } else if (res && res.resultCode === 9) {
-                            alert(_l('复制失败，超过最大数量！'), 3);
-                          } else if (res && res.resultCode === 11) {
-                            alert(_l('复制失败，当前表存在唯一字段'), 3);
-                          } else {
-                            alert(_l('复制失败！'), 3);
-                          }
-                        })
-                        .fail(err => {
-                          alert(_l('复制失败！'), 3);
-                        });
+                      copyRow(
+                        {
+                          worksheetId,
+                          viewId,
+                          rowIds: [recordId],
+                        },
+                        newRows => {
+                          onCopySuccess(newRows[0], recordId);
+                        },
+                      );
                     },
                   });
                 }

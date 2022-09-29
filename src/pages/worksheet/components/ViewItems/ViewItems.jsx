@@ -239,24 +239,6 @@ export default class ViewItems extends Component {
       false,
     );
   };
-  renderMore() {
-    const { currentViewId, viewList } = this.props;
-    return (
-      <Menu className={cx('workSheetViewsMenu', { hide: !viewList.length })}>
-        {viewList.map((item, index) => (
-          <MenuItem
-            className={cx({ active: currentViewId === item.viewId })}
-            onClick={() => {
-              this.props.onSelectView(item);
-            }}
-            key={index}
-          >
-            <span className="text">{item.name}</span>
-          </MenuItem>
-        ))}
-      </Menu>
-    );
-  }
   handleAdd = id => {
     this.handleAddView(id);
     this.setState({ addMenuVisible: false });
@@ -302,7 +284,7 @@ export default class ViewItems extends Component {
             onSortEnd={this.handleSortEnd}
             onRemoveView={this.handleRemoveView}
             onOpenView={this.handleOpenView}
-            onSelectView={this.props.onSelectView}
+            getNavigateUrl={this.props.getNavigateUrl}
             onCopyView={this.handleCopyView}
             onShare={this.props.onShare}
             onExport={this.props.onExport}

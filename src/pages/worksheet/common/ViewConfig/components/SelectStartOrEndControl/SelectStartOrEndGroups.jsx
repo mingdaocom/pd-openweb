@@ -192,6 +192,7 @@ export default function SelectStartOrEndGroups(props) {
                 key={i + 'input'}
                 ref={showInput === i ? $ref : null}
                 onChange={e => {
+                  setShowInput(i);
                   setCalendarcids(
                     calendarcids.map(item => {
                       if (item.begin === o.begin && item.end === o.end) {

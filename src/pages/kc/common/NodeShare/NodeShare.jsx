@@ -1,10 +1,24 @@
 ﻿import React from 'react';
-import qs from 'query-string';
 import preall from 'src/common/preall';
-import service from '../../api/service';
-import shareajax from 'src/api/share';
+import styled from 'styled-components';
+import { getAttachment } from './controller';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { NODE_TYPE } from '../../constant/enum';
+
+const Abnormal = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  color: #333;
+  font-size: 17px;
+  > i {
+    font-size: 66px;
+    color: #f78c00;
+  }
+`;
 
 let AttachmentsPreview;
 
@@ -21,23 +35,7 @@ class NodeShare extends React.Component {
     this._isMounted = true;
     require.ensure([], require => {
       AttachmentsPreview = require('../AttachmentsPreview');
-      let promise, shareId;
-      try {
-        shareId = location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1];
-      } catch (err) {}
-      if (shareId) {
-        promise = shareajax.getShareNode({ shareId }).then(data => {
-          this.actionResult = data.actionResult;
-          return data.node;
-        });
-      } else if (location.search) {
-        const query = qs.parse(location.search.slice(1, location.search.length));
-        if (query.id) {
-          promise = service.getNodeById(query.id);
-        }
-      }
-
-      $.when(promise).then(node => {
+      getAttachment().then(({ node, allowDownload = true } = {}) => {
         if (!node) {
           this.setState({ loading: false });
           return;
@@ -45,8 +43,9 @@ class NodeShare extends React.Component {
         if (node.type === NODE_TYPE.FOLDER) {
           node = null;
         }
-        document.title = `${node.name}.${node.ext}`;
-        this._isMounted && this.setState({ node, loading: false });
+        if (this._isMounted) {
+          this.setState({ node, allowDownload, loading: false });
+        }
       });
     });
   }
@@ -56,27 +55,26 @@ class NodeShare extends React.Component {
   }
 
   render() {
-    if (!AttachmentsPreview || this.state.loading) {
+    const { loading, allowDownload } = this.state;
+    if (!AttachmentsPreview || loading) {
       return <LoadDiv size="big" />;
     } else if (!this.state.node) {
-      if (this.actionResult === 2) {
-        window._alert(_l('请先登录'));
-        location.href =
-          md.global.Config.WebUrl +
-          'login?ReturnUrl=' +
-          encodeURIComponent(window.location.href.replace('checked=login', ''));
-      } else {
-        window._alert(_l('当前文件不存在或您没有权限查看此文件'));
-      }
-      return '';
+      return (
+        <Abnormal>
+          <i className="icon-task-folder-message"></i>
+          <div className="mTop20">{_l('当前文件不存在或您没有权限查看此文件')}</div>
+        </Abnormal>
+      );
     } else {
       return (
         <AttachmentsPreview
+          showTitle
           options={{
             attachments: [this.state.node],
-            callFrom: 'kc',
+            callFrom: this.state.node.isKc ? 'kc' : 'player',
             fromType: 6,
             index: 0,
+            hideFunctions: allowDownload ? [] : ['download', 'share', 'saveToKnowlege'],
           }}
         />
       );

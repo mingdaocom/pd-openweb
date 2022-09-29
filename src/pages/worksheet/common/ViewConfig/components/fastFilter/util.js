@@ -19,6 +19,12 @@ const NUMBER_TYPE = [
   { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.BETWEEN },
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
 ];
+// 多选的筛选方式
+const MULTI_SELECT_TYPE = [
+  { text: _l('等于'), value: FILTER_CONDITION_TYPE.ARREQ },
+  { text: _l('包含其中一个'), value: FILTER_CONDITION_TYPE.EQ },
+  { text: _l('同时包含'), value: FILTER_CONDITION_TYPE.ALLCONTAIN },
+];
 // 数量
 const OPTIONS_TYPE = [
   { text: _l('单选'), value: 1 },
@@ -68,7 +74,20 @@ export const DATE_TYPE = [
     { text: _l('将来30天'), value: 33 },
   ],
 ];
-
+//多选类型字段 且 允许选择数量为多选 =>支持设置筛选方式  多选 => 人员、部门、组织角色enumDefault：1; 关联字段enumDefault: 2 ;多选字段
+export const MULTI_SELECT_FILTER_TYPE = {
+  key: 'filterType',
+  types: MULTI_SELECT_TYPE,
+  default: FILTER_CONDITION_TYPE.EQ,
+  keys: [
+    10, // 多选
+    29, // 关联表
+    26, // 成员
+    27, // 部门
+    48, // 组织角色
+  ],
+  txt: '筛选方式',
+};
 //筛选方式
 export const TEXT_FILTER_TYPE = {
   //文本
@@ -207,6 +226,7 @@ export const FAST_FILTERS_WHITELIST = [
   APP_ALLOWSCAN,
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
+  MULTI_SELECT_FILTER_TYPE,
 ];
 // 支持快速筛选的字段
 export const FASTFILTER_CONDITION_TYPE = [

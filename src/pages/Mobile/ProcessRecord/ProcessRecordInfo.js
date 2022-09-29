@@ -86,7 +86,6 @@ class ProcessRecord extends Component {
             worksheetId,
           },
           () => {
-            viewId && this.loadCustomBtns();
             this.loadRow();
           },
         );
@@ -127,6 +126,7 @@ class ProcessRecord extends Component {
         instance,
         random: Date.now(),
       }, () => {
+        viewId && this.loadCustomBtns();
         this.loadSwitchPermit();
       });
     });

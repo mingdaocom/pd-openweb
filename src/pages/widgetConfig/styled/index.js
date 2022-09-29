@@ -97,6 +97,9 @@ export const SettingItem = styled.div`
     align-items: center;
     justify-content: space-between;
   }
+  .Calendar-column-header {
+    flex: 1;
+  }
 `;
 export const RelateInfo = styled.div`
   margin-top: 12px;

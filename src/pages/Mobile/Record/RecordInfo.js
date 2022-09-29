@@ -5,7 +5,8 @@ import { getRequest } from 'src/util';
 import { Icon, WaterMark, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Flex, ActivityIndicator, WingBlank, Button, Tabs, Modal } from 'antd-mobile';
+import { Flex, ActivityIndicator, WingBlank, Button, Tabs, Modal, ActionSheet, Toast } from 'antd-mobile';
+import copy from 'copy-to-clipboard';
 import worksheetAjax from 'src/api/worksheet';
 import RelationList from 'mobile/RelationRow/RelationList';
 import RelationAction from 'mobile/RelationRow/RelationAction';
@@ -130,6 +131,106 @@ class Record extends Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
+  handleMoreOperation = ({ allowDelete, allowShare }) => {
+    const BUTTONS = [
+      allowShare ? { name: _l('分享'), icon: 'share', iconClass: 'Font18 Gray_9e', fn: this.handleShare } : null,
+      allowDelete ? { name: _l('删除'), icon: 'delete2', iconClass: 'Font22 Red', class: 'Red', fn: this.handleDeleteAlert } : null,
+    ].filter(_ => _);
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: BUTTONS.map(item => (
+          <div className={cx('flexRow valignWrapper w100', item.class)} onClick={item.fn}>
+            <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
+            <span className="Bold">{item.name}</span>
+          </div>
+        )),
+        message: (
+          <div className="flexRow header">
+            <span className="Font13">{_l('更多操作')}</span>
+            <div
+              className="closeIcon"
+              onClick={() => ActionSheet.close()}
+            >
+              <Icon icon="close" />
+            </div>
+          </div>
+        ),
+      }
+    );
+  }
+  handleShare = () => {
+    const BUTTONS = [
+      { name: _l('内部成员访问'), info: _l('仅限内部成员登录系统后根据权限访问'), icon: 'share', iconClass: 'Font18 Gray_9e', fn: this.getRecordUrl, className: 'mBottom10' },
+      { name: _l('对外公开分享'), info: _l('获得链接的所有人都可以查看'), icon: 'delete2', iconClass: 'Font22 Red', fn: this.getWorksheetShareUrl },
+    ];
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: BUTTONS.map(item => (
+          <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
+            <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
+              <span className="Bold">{item.name}</span>
+              <span className="Font12 Gray_75">{item.info}</span>
+            </div>
+            <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
+          </div>
+        )),
+        message: (
+          <div className="flexRow header">
+            <span className="Font13">{_l('分享')}</span>
+            <div
+              className="closeIcon"
+              onClick={() => ActionSheet.close()}
+            >
+              <Icon icon="close" />
+            </div>
+          </div>
+        ),
+      }
+    );
+  }
+  getRecordUrl = () => {
+    const baseIds = this.getBaseIds();
+    const { appId, worksheetId, rowId, viewId } = baseIds;
+    const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
+    if (navigator.share) {
+      navigator.share({
+        title: _l('系统'),
+        text: document.title,
+        url: shareUrl,
+      }).then(() => {
+        Toast.info(_l('分享成功'));
+      });
+    } else {
+      copy(shareUrl);
+      Toast.info(_l('复制成功'));
+    }
+  }
+  getWorksheetShareUrl = () => {
+    const baseIds = this.getBaseIds();
+    const { appId, worksheetId, rowId, viewId } = baseIds;
+    Toast.loading();
+    worksheetAjax.getWorksheetShareUrl({
+      appId,
+      worksheetId,
+      rowId,
+      viewId,
+      objectType: 2,
+    }).then(shareUrl => {
+      Toast.hide();
+      if (navigator.share) {
+        navigator.share({
+          title: _l('系统'),
+          text: document.title,
+          url: shareUrl,
+        }).then(() => {
+          Toast.info(_l('分享成功'));
+        });
+      } else {
+        copy(shareUrl);
+        Toast.info(_l('复制成功'));
+      }
+    });
+  }
   onSave = (error, { data, updateControlIds }) => {
     if (error) {
       this.setState({ submitLoading: false });
@@ -231,6 +332,7 @@ class Record extends Component {
         loadRow={this.loadRow}
         loadCustomBtns={this.loadCustomBtns}
         recordActionVisible={this.state.recordActionVisible}
+        onShare={this.handleShare}
         hideRecordActionVisible={() => {
           this.setState({ recordActionVisible: false });
         }}
@@ -293,9 +395,12 @@ class Record extends Component {
     ]);
   };
   renderRecordBtns() {
-    const { isSubList, editable } = this.props;
+    const { isSubList, editable, sheetSwitchPermit } = this.props;
     const { isEdit, sheetRow, customBtns } = this.state;
+    const baseIds = this.getBaseIds();
     const allowEdit = sheetRow.allowEdit || editable;
+    const allowDelete = sheetRow.allowDelete || (isSubList && editable);
+    const allowShare = isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, baseIds.viewId);
     let copyCustomBtns = _.cloneDeep(customBtns);
     let showBtnsOut =
       copyCustomBtns.length && copyCustomBtns.length >= 2
@@ -373,11 +478,10 @@ class Record extends Component {
                   </WingBlank>
                 );
               })}
-              {(sheetRow.allowDelete || (isSubList && editable)) && customBtns.length < 2 && (
+              {(allowDelete || allowShare) && customBtns.length < 2 && (
                 <WingBlank className="flex mLeft6 mRight6" size="sm">
-                  <Button className="Font13 delete letterSpacing" onClick={this.handleDeleteAlert}>
-                    <Icon icon="delete2" className="mRight7 Font15" />
-                    <span>{_l('删除')}</span>
+                  <Button className="Font13" type="primary" onClick={() => { this.handleMoreOperation({ allowDelete, allowShare }) }}>
+                    <span>{_l('更多操作')}</span>
                   </Button>
                 </WingBlank>
               )}

@@ -12,7 +12,7 @@ import {
   updateShowExport,
   updateImportType,
 } from '../../actions/entities';
-import { updateCursor, updateTypeCursor, fetchInActive } from '../../actions/current';
+import { updateCursor, updateTypeCursor, fetchInActive, fetchApproval } from '../../actions/current';
 import './index.less';
 import cx from 'classnames';
 
@@ -24,12 +24,13 @@ const shouldLoadDepartments = props => {
 class TabList extends React.Component {
   constructor(props) {
     super(props);
-    const { projectId, fetchInActive = () => {} } = props;
+    const { projectId, fetchInActive = () => {}, fetchApproval = () => {} } = props;
     this.state = {
       showPositionDialog: false,
       isNew: true,
     };
     fetchInActive(projectId);
+    fetchApproval(projectId);
   }
 
   handleClick = typeCursor => {
@@ -170,5 +171,6 @@ export default connect(mapStateToProps, {
   updateCursor,
   updateTypeCursor,
   fetchInActive,
+  fetchApproval,
   updateImportType,
 })(TabList);

@@ -158,7 +158,7 @@ const HierarchyViewSettingWrap = styled.div`
 
 export default function HierarchyViewSetting(props) {
   const { view, currentSheetInfo, updateCurrentView, appId, filteredColumns } = props;
-  const { viewControls = [], childType, advancedSetting } = view;
+  const { viewControls = [], childType, advancedSetting, layersName } = view;
 
   const [{ activeIndex, delIndex }, setSetting] = useSetState({
     activeIndex: -1,
@@ -227,13 +227,18 @@ export default function HierarchyViewSetting(props) {
             worksheetName: currentSheetInfo.name,
           },
         ],
-        editAttrs: ['viewControls'],
+        layersName: [currentSheetInfo.name],
+        editAttrs: ['viewControls', 'layersName'],
       });
       setControls({
         availableControls: getSelectableControls(currentSheetInfo),
       });
     } else {
-      handleChange({ viewControls: viewControls.slice(0, index), editAttrs: ['viewControls'] });
+      handleChange({
+        viewControls: viewControls.slice(0, index),
+        layersName: layersName.slice(0, index),
+        editAttrs: ['viewControls', 'layersName'],
+      });
     }
   };
 
@@ -365,7 +370,9 @@ export default function HierarchyViewSetting(props) {
             <div className={cx('display Hand', { borderBottomNone: visible })} onClick={() => switchActive(index)}>
               <div className="info">
                 <i className="icon-link2 Gray_9e Font18"></i>
-                <div className="controlName overflow_ellipsis Font14 Bold">{item.controlName}</div>
+                <div className="controlName overflow_ellipsis Font14 Bold">
+                  {item.controlName || item.worksheetName}
+                </div>
                 <div className="sheetInfo Gray_9e overflow_ellipsis">{_l('( 工作表: %0 )', item.worksheetName)}</div>
               </div>
               <div className="handle">

@@ -272,10 +272,10 @@ export default class ResignList extends React.Component {
                 }}
               />
             </td>
-            <td className="pAll10 pLeft16 TxtMiddle tableUser overflow_ellipsis">
+            <td className="pAll10 TxtMiddle tableUser overflow_ellipsis">
               <div className="flexRow userBox">
                 <UserHead
-                  className="mLeft10 mRight10 InlineBlock TxtMiddle"
+                  className="mRight10 InlineBlock TxtMiddle"
                   user={{ ...user, userHead: user.avatar }}
                   size={40}
                   lazy={'false'}

@@ -135,6 +135,10 @@ import copy from 'copy-to-clipboard';
     init: function () {
       var options = this.options;
       var coverClass = this.options.sourceId ? '' : ' coverIcon';
+      const { projects = [] } = md.global.Account;
+      const { IsLocal } = md.global.Config;
+      var _this = this;
+      _this.isPayUsers = projects.some(item => item.licenseType !== 0) || IsLocal;
 
       let html = `
         <div class='chooseInvite'>
@@ -153,13 +157,6 @@ import copy from 'copy-to-clipboard';
         </div>
         <div class='lblTxt'>
         ${ChooseInvite.tips.qq}</div>
-        </li>
-        <li class='${coverClass}' type=5>
-        <div class='chooseInviteIcon inviteDingIcon'>
-        <i class='icon-invite-ding'></i>
-        </div>
-        <div class='lblTxt'>
-        ${ChooseInvite.tips.ding}</div>
         </li>
         <li type=101>
         <div class='chooseInviteIcon inviteEmailIcon'>
@@ -207,8 +204,12 @@ import copy from 'copy-to-clipboard';
       var _this = this;
 
       var $chooseInvite = _this.$el.find('.chooseInvite');
+      if (!this.isPayUsers) {
+        $chooseInvite.find('li').addClass('noAllow');
+      }
 
       $chooseInvite.find('li').on('click', function () {
+        if (!_this.isPayUsers) return;
         var $this = $(this);
         if ($this.hasClass('coverIcon')) {
           alert(ChooseInvite.tips.createTip, 3);
@@ -269,13 +270,6 @@ import copy from 'copy-to-clipboard';
             linkFromType: options.Types.qq,
             tipText: ChooseInvite.tips.qqTipTitle,
             tipDesc: ChooseInvite.tips.weixinQQTipText,
-          });
-          break;
-        case options.Types.dingding:
-          _this.getExternalQrCodeData({
-            linkFromType: options.Types.dingding,
-            tipText: ChooseInvite.tips.dingdingTipTitle,
-            tipDesc: ChooseInvite.tips.dingdingTipText,
           });
           break;
         case options.Types.email:
@@ -358,10 +352,12 @@ import copy from 'copy-to-clipboard';
         options.linkUrl = data.linkUrl;
         options.linkUrlToken = data.token;
 
-        $('.linkBtn').off().on('click', function () {
-          copy(options.linkUrl);
-          alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-        });
+        $('.linkBtn')
+          .off()
+          .on('click', function () {
+            copy(options.linkUrl);
+            alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+          });
       });
     },
 
@@ -492,11 +488,6 @@ import copy from 'copy-to-clipboard';
           colorClass = 'inviteQQIcon';
           iconClass = 'icon-invite-qq';
           title = ChooseInvite.tips.qq;
-          break;
-        case options.Types.dingding:
-          colorClass = 'inviteDingIcon';
-          iconClass = 'icon-invite-ding';
-          title = ChooseInvite.tips.ding;
           break;
         case options.Types.email:
           colorClass = 'inviteEmailIcon';
@@ -672,10 +663,11 @@ import copy from 'copy-to-clipboard';
     bindSendInviteEvent: function () {
       var _this = this;
       var options = _this.options;
-
+      let isPayUsers = false;
       var $chooseInviteBtn = _this.$contentContainer.find('.chooseInviteBtn');
 
       $chooseInviteBtn.on('click', function () {
+        if (isPayUsers) return;
         var $this = $(this);
         var $inviteAccount = _this.$contentContainer.find('.inviteAccount');
         var $errorInputArr = $inviteAccount.find('input.errorFlag');
@@ -957,9 +949,6 @@ import copy from 'copy-to-clipboard';
           break;
         case options.Types.qrcode:
           return _l('二维码邀请QRCode');
-          break;
-        case options.Types.dingding:
-          return _l('钉钉邀请QRCode');
           break;
       }
     },

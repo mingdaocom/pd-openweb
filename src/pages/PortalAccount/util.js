@@ -19,8 +19,30 @@ export const getSuffix = url => {
   let addressSuffix = decodeURIComponent(url)
     .replace(/http(s)?:\/\/([^/]+)\//i, '')
     .split(/portal\/(.*)/)
-    .filter(o => o)[0];
+    .filter(o => o)[0].split(/\/(.*)/)[0];
   return addressSuffix;
+};
+
+export const replacePorTalUrl = (url) => {
+  //是外部门户 当前环境以自定义后缀访问
+  if (
+    md.global.Account.isPortal &&
+    md.global.Account.addressSuffix &&
+    getSuffix(location.href) === md.global.Account.addressSuffix &&
+    url.indexOf(md.global.Account.addressSuffix) < 0 &&
+    url.indexOf('app/') >= 0
+  ) {
+    url = url.replace('app/' + md.global.Account.appId, md.global.Account.addressSuffix);
+  }
+  return url
+}
+
+export const getAppId = params => {
+  let { appId } = params;
+  if (md.global.Account.isPortal) {
+    appId = md.global.Account.appId;
+  }
+  return appId;
 };
 
 export const toApp = appId => {
@@ -32,21 +54,6 @@ export const toApp = appId => {
   }
 };
 
-export const getCurrentAppId = async () => {
-  const request = getRequest();
-  const { ReturnUrl = '' } = request;
-  let href = decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href);
-  let currentAppId = ''
-  urlList.map(o => {
-    if (href.indexOf(o) >= 0) {
-      currentAppId = href.substr(href.indexOf(o) + o.length, 36);
-    }
-  });
-  currentAppId = !currentAppId
-    ? await getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) })
-    : currentAppId;
-  return currentAppId;
-};
 
 export const getCurrentId = (cb) => {
   const request = getRequest();
@@ -75,20 +82,12 @@ export const goApp = (sessionId, appId) => {
   setPssId(sessionId);
   const request = getRequest();
   const { ReturnUrl = '' } = request;
-  if (ReturnUrl) {
-    let domainName = '';
-    let href = decodeURIComponent(ReturnUrl);
-    urlList.map(o => {
-      if (href.indexOf(o) >= 0) {
-        domainName = href.substr(href.indexOf(o) + o.length, 36);
-      }
-    });
-    if (domainName) {
-      window.location.replace(ReturnUrl);
-    } else {
-      toApp(appId);
-    }
+  if (ReturnUrl && !browserIsMobile()) {
+
+    window.location.replace(ReturnUrl);
+
   } else {
+    //h5暂不处理后缀
     toApp(appId);
   }
 };

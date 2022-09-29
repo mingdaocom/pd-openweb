@@ -172,7 +172,7 @@ export default class Widgets extends Component {
         {...selectProps}
       >
         {!keywords.length && advancedSetting.allowadd === '1' && (
-          <Select.Option disabled>
+          <Select.Option disabled className="cursorDefault">
             <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
           </Select.Option>
         )}

@@ -57,11 +57,11 @@ export default class SystemMessage extends PureComponent {
         // 群组 和 好友
         if (href.indexOf('addresslist') > -1) {
           evt.preventDefault();
-          const { type, gId } = getRequest(href.slice(href.indexOf('?')));
+          const { type, gid } = getRequest(href.slice(href.indexOf('?')));
 
-          if (type === 'group' && gId) {
+          if (type === 'group' && gid) {
             settingGroups({
-              groupId: gId,
+              groupId: gid,
               viewType: 1,
             });
           } else {

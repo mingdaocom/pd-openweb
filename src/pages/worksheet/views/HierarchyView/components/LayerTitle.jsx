@@ -65,7 +65,11 @@ export default function LayerTitle({ layerLength = 1, layersName = [], updateLay
                 }}
                 onBlur={() => {
                   setIndex(-1);
-                  updateLayersName(titles);
+                  let names = [];
+                  for (let i = 0; i < titles.length; i++) {
+                    names = [...names, titles[i] || ''];
+                  }
+                  updateLayersName(names);
                 }}
               />
             ) : (

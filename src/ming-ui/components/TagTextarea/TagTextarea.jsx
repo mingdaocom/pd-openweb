@@ -64,7 +64,7 @@ export default class TagTextarea extends React.Component {
       }
       if (defaultValue) {
         this.updateTextareaView();
-        this.cmObj.execCommand('goDocEnd');
+        // this.cmObj.execCommand('goDocEnd');
       }
       this.cmObj.on('change', this.handleCMChange);
       this.cmObj.on('beforeChange', (cm, obj) => {

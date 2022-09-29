@@ -20,9 +20,18 @@ export default class MoreOverlay extends Component {
       showPageMove: false,
     };
   }
-  handleExportExcel = (exportType) => {
+  handleExportExcel = exportType => {
     const { report, worksheetId, exportData } = this.props;
-    const { filters = [], filtersGroup = [], sorts, filterControls, filterRangeId, rangeType, rangeValue, particleSizeType } = exportData;
+    const {
+      filters = [],
+      filtersGroup = [],
+      sorts,
+      filterControls,
+      filterRangeId,
+      rangeType,
+      rangeValue,
+      particleSizeType,
+    } = exportData;
     reportApi
       .export({
         exportType,
@@ -33,7 +42,7 @@ export default class MoreOverlay extends Component {
         rangeType,
         rangeValue,
         sorts,
-        filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n))
+        filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
       })
       .then(result => {
         if (!result) {
@@ -50,17 +59,21 @@ export default class MoreOverlay extends Component {
     confirm({
       title: <span className="Red">{_l('您确定要删除表“%0” ?', name)}</span>,
       onOk: () => {
-        reportConfig.deleteReport({
-          reportId: id
-        }).then(result => {
-          this.props.onRemove(id);
-          if (filter.filterId) {
-            sheetApi.deleteWorksheetFilter({
-              appId: appId,
-              filterId: filter.filterId,
-            }).then();
-          }
-        });
+        reportConfig
+          .deleteReport({
+            reportId: id,
+          })
+          .then(result => {
+            this.props.onRemove(id);
+            if (filter.filterId) {
+              sheetApi
+                .deleteWorksheetFilter({
+                  appId: appId,
+                  filterId: filter.filterId,
+                })
+                .then();
+            }
+          });
       },
     });
   };
@@ -79,11 +92,26 @@ export default class MoreOverlay extends Component {
       });
   };
   renderOverlay() {
-    const { reportType, report, ownerId, reportStatus, isMove, isCharge, onOpenFilter, onOpenSetting, onRemove, getPopupContainer } =
-      this.props;
+    const {
+      reportType,
+      report,
+      ownerId,
+      reportStatus,
+      isMove,
+      isCharge,
+      onOpenFilter,
+      onOpenSetting,
+      onRemove,
+      getPopupContainer,
+    } = this.props;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType);
     return (
-      <Menu className="chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} getPopupContainer={getPopupContainer} style={{ width: 180 }}>
+      <Menu
+        className="chartMenu"
+        expandIcon={<Icon icon="arrow-right-tip" />}
+        getPopupContainer={getPopupContainer}
+        style={{ width: 180 }}
+      >
         {onOpenSetting && (
           <Menu.Item className="pLeft10" onClick={onOpenSetting}>
             <div className="flexRow valignWrapper">
@@ -120,10 +148,22 @@ export default class MoreOverlay extends Component {
             icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
             popupOffset={[0, 0]}
           >
-            <Menu.Item style={{ width: 180 }} className="pLeft20" onClick={() => { this.handleExportExcel(0) }}>
+            <Menu.Item
+              style={{ width: 180 }}
+              className="pLeft20"
+              onClick={() => {
+                this.handleExportExcel(0);
+              }}
+            >
               <div className="flexRow valignWrapper">{_l('按照原值导出')}</div>
             </Menu.Item>
-            <Menu.Item style={{ width: 180 }} className="pLeft20" onClick={() => { this.handleExportExcel(1) }}>
+            <Menu.Item
+              style={{ width: 180 }}
+              className="pLeft20"
+              onClick={() => {
+                this.handleExportExcel(1);
+              }}
+            >
               <div className="flexRow valignWrapper">{_l('按显示单位导出')}</div>
             </Menu.Item>
           </Menu.SubMenu>
@@ -188,6 +228,7 @@ export default class MoreOverlay extends Component {
               worksheetId,
               title: report.name,
             }}
+            getCopyContent={(type, url) => (type === 'private' ? url : `${url} ${report.name}`)}
             onClose={() => this.setState({ shareVisible: false })}
           />
         )}

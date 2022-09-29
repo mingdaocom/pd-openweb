@@ -197,12 +197,17 @@ function APISetting(props) {
   const InputRef = useRef();
   const InputDesRef = useRef();
   const TipRef = useRef();
+  const cache = useRef({
+    isFix: false,
+  });
 
   useEffect(() => {
-    window.addEventListener('scroll', HandleScroll, true);
-  }, [isFix]);
-  useEffect(() => {
     window.addEventListener('keydown', keyDownListener, false);
+    window.addEventListener('scroll', HandleScroll, true);
+    return () => {
+      window.removeEventListener('keydown', keyDownListener, false);
+      window.removeEventListener('scroll', HandleScroll, true);
+    };
   }, []);
   const keyDownListener = e => {
     if (
@@ -243,10 +248,11 @@ function APISetting(props) {
     e.stopPropagation();
     if (!WrapRef.current) return;
     let toFix = $(WrapRef.current).offset().top <= 50;
-    if (!_.isEqual(toFix, isFix)) {
+    if (toFix !== cache.current.isFix) {
       setState({
         isFix: toFix,
       });
+      cache.current.isFix = toFix;
     }
   };
   // 获取API详情
@@ -433,7 +439,7 @@ function APISetting(props) {
   };
   if (loading) {
     return (
-      <Wrap className={props.className} id="scrollDom">
+      <Wrap className={props.className}>
         <LoadDiv />
       </Wrap>
     );
@@ -540,7 +546,7 @@ function APISetting(props) {
     );
   };
   return (
-    <Wrap className={props.className} id="scrollDom">
+    <Wrap className={props.className}>
       <div className="conSetting" style={{ background: tab === 2 ? '#fff' : 'none' }}>
         <div className={cx('headTop', { isFix })} ref={headerRef}>
           <div className="flexRow leftCon">

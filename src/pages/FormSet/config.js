@@ -13,7 +13,7 @@ export const listConfigStr = {
   22: _l('快捷编辑'), // quickSwitch
   25: _l('批量操作'), // BatchGroup
   24: _l('编辑'), //
-  // 26: _l('复制'), //
+  26: _l('复制'), //
   23: _l('打印二维码'), //
   27: _l('导出'), //
   28: _l('删除'), //
@@ -27,12 +27,8 @@ export const listConfigStr = {
   35: _l('记录讨论'), // recordDiscussSwitch
   36: _l('记录复制'), // recordCopySwitch
 };
-export const batch = [24,
-  // 26,
-   23, 27, 28, 29]; //批量操作下的操作
-export const listPermit = [10, 11, 12, 13, 20, 21, 22, 25, 24,
-  // 26,
-   23, 27, 28, 29, 30, 36, 35, 32, 33, 34];
+export const batch = [24, 26, 23, 27, 28, 29]; //批量操作下的操作
+export const listPermit = [10, 11, 12, 13, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34];
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论
@@ -43,7 +39,7 @@ export const permitList = {
   quickSwitch: 22, // quickSwitch	 快捷操作
   batchGroup: 25, //BatchGroup 批量操作
   batchEdit: 24, //	 批量编辑
-  // copy: 26, //复制
+  copy: 26, //复制
   QrCodeSwitch: 23, // 	 打印二维码
   export: 27, // 	 导出
   delete: 28, // 	 删除
@@ -68,7 +64,7 @@ export const MODULE_TYPE_TO_NAME = {
   indexSetting: _l('检索加速'),
 };
 
-export  const SUBMIT_NEXT_ACTION_LIST = [
+export const SUBMIT_NEXT_ACTION_LIST = [
   {
     value: '1',
     text: _l('关闭弹层'),

@@ -233,7 +233,7 @@ class Card extends Component {
             )}
             {needRefresh && !!reportData.status && (
               <span onClick={() => this.getData(this.props, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
-                <Icon icon="rotate" />
+                <Icon className="Font20" icon="refresh1" />
               </span>
             )}
             {needEnlarge && !!reportData.status && (
@@ -250,7 +250,7 @@ class Card extends Component {
                 <Icon icon="task-new-fullscreen" />
               </span>
             )}
-            {needEnlarge && !this.isPublicShare && (
+            {needEnlarge && !this.isPublicShare && (sourceType ? !!reportData.status : true) && (
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
                 permissions={sourceType ? null : permissions}

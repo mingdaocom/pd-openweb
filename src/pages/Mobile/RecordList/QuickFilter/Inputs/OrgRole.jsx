@@ -53,6 +53,10 @@ export default function OrgRole(props) {
   const onSave = data => {
     onChange({ values: isMultiple ? _.uniqBy([...values, ...data], 'organizeId') : data });
   };
+  const deleteCurrentRoles = item => {
+    onChange({ values: values.filter(v => v.organizeId !== item.organizeId) });
+  };
+  
   return (
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15">{control.controlName}</div>
@@ -60,7 +64,7 @@ export default function OrgRole(props) {
         {values.map(item => (
           <OrgRoleItem>
             <span className="userName">{item.organizeName}</span>
-            <Icon icon="close" />
+            <Icon icon="close" onClick={() => deleteCurrentRoles(item)} />
           </OrgRoleItem>
         ))}
         {((!isMultiple && _.isEmpty(values)) || isMultiple) && (

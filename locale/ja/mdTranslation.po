@@ -7339,7 +7339,7 @@ msgid "申请通过后，可将明道云应用安装到企业微信工作台！"
 msgstr "申請が承認されると、Mingdao CloudアプリをEnterprise WeChat Workbenchにインストールすることができます!"
 
 #: Disabled references:1
-msgid "企业微信扫码登陆"
+msgid "企业微信扫码登录"
 msgstr "エンタープライズWeChatのスイープコードログイン"
 
 #: Disabled references:1
@@ -7347,7 +7347,7 @@ msgid "开启后，在二级域名下使用企业微信扫一扫，直接登录"
 msgstr "開封後、Enterprise WeChatを使って第2レベルドメインの下にスワイプし、直接ログインします"
 
 #: Disabled references:1
-msgid "如何实现企业微信扫码登陆？"
+msgid "如何实现企业微信扫码登录？"
 msgstr "エンタープライズWeChatコードログインを導入するにはどうすればよいですか？"
 
 #: Disabled references:1
@@ -8667,7 +8667,7 @@ msgid "繁体中文"
 msgstr "中国語（繁体字"
 
 #: Disabled references:1
-msgid "您的账号绑定微信后，方可开启微信登陆提醒"
+msgid "您的账号绑定微信后，方可开启微信登录提醒"
 msgstr "WeChatのログインアラートは、お客様のアカウントがWeChatに接続されている場合のみ有効です。"
 
 #: Disabled references:1
@@ -8679,7 +8679,7 @@ msgid "我已经绑定了微信账号"
 msgstr "WeChatのアカウントを紐付けました"
 
 #: Disabled references:1
-msgid "开启微信登陆提醒"
+msgid "开启微信登录提醒"
 msgstr "WeChatのログインアラートをオンにする"
 
 #: Disabled references:1
@@ -15175,7 +15175,7 @@ msgid "发布新创建的应用。最后回到“应用管理”，设置“可�
 msgstr "新しく作成したアプリケーションを公開する。最後に、\"アプリケーション管理 \"に戻り、\"可視範囲 \"を設定します。"
 
 #: Disabled references:1
-msgid "企业微信扫码登陆（可选）"
+msgid "企业微信扫码登录（可选）"
 msgstr "エンタープライズWeChatのスイープコードログイン（オプション）"
 
 #: Disabled references:1
@@ -40183,7 +40183,7 @@ msgid "7天内免登录"
 msgstr "7日間ログイン不可"
 
 #: Disabled references:1
-msgid "点登陆即代表同意"
+msgid "点登录即代表同意"
 msgstr "ログインボタンをクリックすることで、以下の内容に同意したものとみなされます。"
 
 #: Disabled references:1
@@ -42113,4 +42113,1312 @@ msgstr "入力パラメータのないAPIは、完了した構成を直接保存
 #: Disabled references:1
 msgid "添加检查项字段"
 msgstr "検査項目フィールドの追加"
+
+#: Disabled references:1
+msgid "记录附件"
+msgstr "レコードの添付ファイル"
+
+#: Disabled references:1
+msgid "请升级版本"
+msgstr "標準バージョンでは、1つのワークシートに10万行まで作成できますが、より多くの行を作成する場合は、バージョンをアップしてください"
+
+#: Disabled references:1
+msgid "请升级至%0解锁开启"
+msgstr "ロックを解除するには %0 にアップグレードしてください。"
+
+#: Disabled references:1
+msgid "当前用户所在的组织角色"
+msgstr "現在のユーザーの組織的役割"
+
+#: Disabled references:1
+msgid "请输入手机号/邮箱地址"
+msgstr "携帯電話番号/Eメールアドレスを入力してください"
+
+#: Disabled references:1
+msgid "平底"
+msgstr "平底"
+
+#: Disabled references:1
+msgid "尖底"
+msgstr "ポインテッドベース"
+
+#: Disabled references:1
+msgid "平滑"
+msgstr "スムーズ"
+
+#: Disabled references:1
+msgid "实际"
+msgstr "実際のスタート - 実際のエンド。"
+
+#: Disabled references:1
+msgid "验证密码错误！"
+msgstr "認証パスワードが違います"
+
+#: Disabled references:1
+msgid "您尚有未退出的组织，请先至 个人中心-我的组织 退出所有组织，方可注销！"
+msgstr "まだログアウトしていない組織がある場合は、パーソナルセンター - マイ組織で、すべての組織をログアウトしてからログアウトしてください"
+
+#: Disabled references:1
+msgid "账号已申请注销！"
+msgstr "アカウントの取り消しを要求されました。"
+
+#: Disabled references:1
+msgid "state过期或错误！"
+msgstr "の状態が失効しているか、間違っている!"
+
+#: Disabled references:1
+msgid "账户注销 - 明道云 | APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用"
+msgstr "アカウントキャンセル - Mindo Cloud｜APaaSプラットフォーム、ゼロコード、hpaPaaS、iPaaS、BaaS、高速開発ツール、ミドルオフィスアプリケーション"
+
+#: Disabled references:1
+msgid "请输入登录密码确认注销操作"
+msgstr "ログアウトの操作を確認するために、ログインパスワードを入力してください。"
+
+#: Disabled references:1
+msgid "明道云用户使用条款"
+msgstr "Mindo Cloud ユーザー利用規約"
+
+#: Disabled references:1
+msgid "最新更新：2021年11月30日"
+msgstr "最新更新日：2021年11月30日"
+
+#: Disabled references:1
+msgid "一、约定"
+msgstr "I. エンゲージメント"
+
+#: Disabled references:1
+msgid "1.本协议是明道云用户（包括使用的个人和代表的企业）与明道云运营企业上海万企明道软件有限公司之间的协议，用户注册明道云服务即代表接受本协议的约束，并自注册成功之时即成为本协议一方，付费版用户签署本协议并回传（包括使用传真，电子邮件等电子通信手段）给明道云即代表接受本协议中的计费和支付协议，并自发出协议之时即受该等协议约束。"
+msgstr "1.本規約は、MingDaoクラウドの利用者（利用する個人およびその代表企業を含みます）とMingDaoクラウド運営会社の上海万奇明道軟件有限公司（以下「当社」といいます）との間のものです。は、本契約に含まれる請求および支払に関する合意を受諾し、それらが発行された時点から当該合意に拘束されるものとします。"
+
+#: Disabled references:1
+msgid "2. 本协议受中华人民共和国法律管辖，合同的签约地为上海。"
+msgstr "2. 本契約は中華人民共和国の法律に準拠するものとし、契約地は上海とします。"
+
+#: Disabled references:1
+msgid "3.请您务必审慎阅读、充分理解各协议内容，特别是免除或者限制责任的协议、争议解决和法律适用协议。免除或者限制责任的协议可能将以加粗字体显示，您应重点阅读。"
+msgstr "3.各契約の内容、特に責任を排除または制限する契約、紛争解決および法律の適用を読み、十分に理解することが重要です。責任を除外または制限する契約は、太字で表示されることがあり、強調して読む必要があります。"
+
+#: Disabled references:1
+msgid "下文中的“明道云”指应用平台“明道云”（包括但不限于明道云网页、明道云App以及明道云微信小程序）或其运营企业上海万企明道软件有限公司，也是本协议的契约方之一。"
+msgstr "以下、「明道クラウド」とは、アプリケーションプラットフォーム「明道クラウド」（明道クラウドWeb、明道クラウドアプリ、明道クラウドWeChatアプリを含むがこれに限らない）またはその運営者である上海万治明道軟件有限公司（以下「万治明道」）をいいます。"
+
+#: Disabled references:1
+msgid "二、账号管理"
+msgstr "II.アカウント管理"
+
+#: Disabled references:1
+msgid "1.明道云用户注册账号时应提交真实、准确、完整的信息，不得违反国家法律法规及本使用协议，未经他人许可不得使用他人名义注册账号，不得恶意注册账号。"
+msgstr "1.Mingdao Cloudのユーザーは、アカウント登録時に真実、正確かつ完全な情報を提出しなければならず、国内の法令および本利用規約に違反してはならず、他人の名前を使用して許可なくアカウント登録したり、悪意を持ってアカウント登録してはならないものとします。"
+
+#: Disabled references:1
+msgid "2.明道云账号的所有权及相关权益属于明道云所有，明道云用户不得以任何方式转让或向提供他人使用其使用的明道云账号，否则明道云有权立即不经通知收回该账号，由此带来的因明道云用户使用明道云产品产生的全部数据、信息等被清空、丢失等损失，明道云用户应自行承担。"
+msgstr "2.MingDaoクラウドアカウントの所有権と関連する権利と利益は、MingDaoクラウドに属する、MingDaoクラウドのユーザーは、いかなる方法でも転送またはMingDaoクラウドアカウントの使用を使用する他の人を提供することはできません、それ以外の場合はMingDaoクラウドに予告なしにすぐにアカウントを取り戻す権利があります、これはすべてのデータ、情報、などによって生成MingDaoクラウド製品を使用し、MingDaoクラウドユーザーがもたらした空、失われたと他の損失は、MingDaoクラウドユーザーは自分を負担しなければならないです。"
+
+#: Disabled references:1
+msgid "3.明道云用户应当对其明道云账户下的一切行为负责，包括发布的任何内容以及由此产生的任何后果。明道云不对用户使用明道云服务而上传、存储或共享的内容承担任何责任。"
+msgstr "3.MingDaoCloudユーザーは、MingDaoCloudアカウントで行われるすべての行為（投稿されたコンテンツとそこから生じる結果を含む）について責任を負うものとします。明道雲は、ユーザーが明道雲サービスを利用してアップロード、保存、共有したコンテンツについて、一切の責任を負いません。"
+
+#: Disabled references:1
+msgid " 4.明道云的用户可以通过"
+msgstr " 4.Mindo Cloud のユーザーは、以下の方法でクラウドにアクセスできます。"
+
+#: Disabled references:1
+msgid "《明道云隐私政策》"
+msgstr "ミンドクラウド・プライバシーポリシー"
+
+#: Disabled references:1
+msgid "中所述方式注销账户。"
+msgstr "に記載された方法で、アカウントを抹消する。"
+
+#: Disabled references:1
+msgid " 5.明道云用户注销明道云账户的行为，将导致明道云终止提供服务，也将终止给明道云用户提供的外部门户服务。注销成功后，明道云将删除用户的个人信息，使其保持不可被检索、访问的状态，或对其进行匿名化处理。如果明道云用户仍执意注销账户，其账户需同时满足以下条件："
+msgstr " 5.MingDaoCloudユーザーのMingDaoCloudアカウントを解約すると、MingDaoCloudが提供するサービスおよびMingDaoCloudユーザーに提供される外部ポータルサービスが終了することになります。解約に成功した場合、明道雲はユーザーの個人情報を復元不可能、アクセス不可能、または匿名化された状態で削除します。それでもなお、MingDaoCloudユーザーがアカウントの取り消しを希望する場合、そのアカウントは以下の条件も満たしている必要があります。"
+
+#: Disabled references:1
+msgid "1)明道云账户中无资产、无欠款；"
+msgstr "1）ミンドークラウドの口座には資産も貸金もない。"
+
+#: Disabled references:1
+msgid " 2)不存在已提供服务但未支付的功能/服务；"
+msgstr " 2) サービスが提供されたが対価が支払われていない機能/サービスはない。"
+
+#: Disabled references:1
+msgid " 3)账户为正常使用中的账户且无任何账户被限制的记录；"
+msgstr " 3) アカウントは通常使用されており、アカウントが制限された記録はない。"
+
+#: Disabled references:1
+msgid "4)账户下无任何纠纷，包括投诉举报和被投诉举报；"
+msgstr "4) 苦情によって報告され、報告された苦情を含め、アカウントに基づく紛争がないこと。"
+
+#: Disabled references:1
+msgid "5)账户已经解除了与其他第三方账户的绑定。"
+msgstr "5) 他の第三者のアカウントからアンバンドルされていること。"
+
+#: Disabled references:1
+msgid " 6.在明道云账户注销期间，如果用户的明道云账户涉及争议纠纷，包括但不限于投诉、举报、诉讼、仲裁、国家有权机关调查等，明道云有权自行终止本账户的注销而无需另行获得明道云用户的同意。"
+msgstr " 6.解約期間中、ユーザーのMingDaoCloudアカウントが苦情、報告、訴訟、仲裁、国家機関の調査などの紛争に巻き込まれた場合、MingDaoCloudは、MingDaoCloudユーザーから別途同意を得ずに、独自の裁量でこのアカウントの解約を終了できる権利を留保します。"
+
+#: Disabled references:1
+msgid " 7.请明道云用户在提交注销申请前，务必解绑其他相关的第三方账户，具体操作方式可与我们的客服联系。"
+msgstr " 7.解約依頼をする前に、関連する他の第三者のアカウントを必ずアンバンドルしてください。詳細については、当社のカスタマーサービスにお問い合わせください。"
+
+#: Disabled references:1
+msgid "8.明道云账户一旦被注销将不可恢复，请明道云用户在操作之前自行备份账户相关的所有信息和数据。注销明道云账户，明道云用户将无法再使用本明道云账户，也将无法找回用户的明道云账户中及与账户相关的任何内容或信息（即使使用相同的手机号码再次注册并使用明道云软件），包括但不限于："
+msgstr "8.一度解約したアカウントは元に戻すことができませんので、アカウントに関連するすべての情報とデータをバックアップしてから手続きを行ってください。MingDaoCloudアカウントを解約すると、MingDaoCloudユーザーは、このMingDaoCloudアカウントを使用できなくなり、ユーザーのMingDaoCloudアカウント内のコンテンツや関連情報を取得できなくなります（同じ携帯電話番号を使用してMingDaoCloudソフトウェアを再度登録および使用する場合でも、これらに限定されません）。"
+
+#: Disabled references:1
+msgid " 1)无法登录、使用明道云账户；"
+msgstr " 1) Mindo Cloudのアカウントにログインして使用することができない。"
+
+#: Disabled references:1
+msgid " 2)明道云账户的个人资料和历史信息都将无法找回；"
+msgstr " 2) Mindo Cloud アカウントの個人情報および履歴情報の両方が検索できなくなります。"
+
+#: Disabled references:1
+msgid "3)通过明道云账号进行登录的明道云旗下APP（包括但不限于明道云APP等）所有记录都将无法找回。无法再登录、使用前述服务，曾获得的SaaS服务、外部用户包、工作流执行行数付费包、应用附件上传量扩充包等视为自行放弃，将无法继续使用。明道云用户应当理解并同意，明道云无法协助重新恢复前述服务。"
+msgstr "3) お客様がMingDaoCloudアカウントを通じてログインしたMingDaoCloudのアプリ（MingDaoCloudアプリなどを含むがこれに限定されない）のすべての記録は、検索されないことになります。前述のサービスにログインして利用することができなくなった場合、お客様が取得したSaaSサービス、外部ユーザーパッケージ、ワークフロー実行ライン決済パッケージ、アプリケーション添付アップロード容量拡張パッケージ等は放棄されたものとみなし、継続して利用することができなくなります。Mindo Cloud利用者は、Mindo Cloudが前述のサービスの復旧を支援することができないことを理解し、同意するものとします。"
+
+#: Disabled references:1
+msgid "9.注销本明道云账户并不代表本明道云账户注销前用户在该账户下的行为和相关责任得到豁免或减轻。"
+msgstr "9.このミンドークラウドアカウントの解約は、このミンドークラウドアカウントの解約前のアカウントに基づく行為および関連する債務を免除または免除するものではありません。"
+
+#: Disabled references:1
+msgid "三、合法使用"
+msgstr "III.法的利用"
+
+#: Disabled references:1
+msgid "1.明道云服务限于提供给客户用作正常和合法业务工具，客户如果使用明道云产品从事以下行为，将导致根本性违约，明道云有权随时停止服务、解除本协议，并追讨因此带来的损失："
+msgstr "1.ミンデレクラウドサービスは、通常の正当なビジネスツールとしてお客様に提供されるものに限られ、お客様がミンデレクラウド製品を使用して以下の行為を行った場合、根本的な契約違反となり、ミンデレクラウドはいつでもサービスを中止し、この契約を解除し、それによって生じた損害を回復する権利を有するものとします。"
+
+#: Disabled references:1
+msgid "1)客户使用明道云用于违反法律的业务；"
+msgstr "1) お客様が、法令に違反する業務に Mindo Cloud を使用すること。"
+
+#: Disabled references:1
+msgid "2)对明道云产品进行了任何形式的对其他第三方的再授权使用，销售或转让；"
+msgstr "2) 他の第三者へのMindo Cloud製品のサブライセンス、販売または譲渡のいかなる形態も。"
+
+#: Disabled references:1
+msgid "3)为设计开发竞争产品对明道云产品进行任何形式的反向工程，或在竞争产品抄袭模仿明道云的设计；"
+msgstr "3) 競合製品の設計・開発を目的としたMingDaoCloud製品のあらゆる種類のリバースエンジニアリング、またはMingDaoCloudの設計を競合製品にコピーし模倣すること。"
+
+#: Disabled references:1
+msgid "4)滥用明道云产品的通信功能发送垃圾邮件和短信；"
+msgstr "4) Mindo Cloud製品の通信機能を悪用し、スパムメールやSMSを送信すること。"
+
+#: Disabled references:1
+msgid "5)对明道云的连续服务和商誉构成损害的其他行为，包括对明道云服务器的攻击。"
+msgstr "5) その他、ミンドクラウドのサーバーに対する攻撃など、ミンドクラウドの継続的なサービスや信用を毀損する行為。"
+
+#: Disabled references:1
+msgid " 2.明道云使用客户所拥有的手机号作为用户权证的唯一识别信息。当客户不再拥有在明道云登记的手机号时，明道云有权终止提供服务，客户亦可以通过变更手机号的方式继续使用明道云服务。在付费版下，系统支持多个域名电子邮件地址，当最早登记的主域名权属发生改变时，明道云有权终止提供服务。"
+msgstr " 2.MingDaoCloudは、お客様が所有する携帯電話番号を、ユーザー認証のための固有の識別情報として使用します。お客様がミンドクラウドに登録した携帯電話番号がなくなった場合、ミンドクラウドはサービスを終了する権利を有し、お客様は携帯電話番号を変更することにより、ミンドクラウドサービスを継続して利用することができます。有料版では、複数のドメイン名のメールアドレスに対応し、最も早く登録された主ドメイン名の所有者が変更された場合、MingDaoCloudはサービスを終了する権利があります。"
+
+#: Disabled references:1
+msgid " 3.明道云用户须对自己在网上的言论和行为承担法律责任，若在明道云产品上散布和传播反动、色情或其它违反国家法律的信息，本公司的系统记录有可能作为明道云用户违反法律的证据。"
+msgstr " 3.MingDaoCloudユーザーは、オンライン上での言動に法的責任があり、MingDaoCloud製品上で反動的、ポルノ的またはその他の国内法に違反する情報を拡散、普及させた場合、当社のシステム記録がMingDaoCloudユーザーが法律に違反した証拠として使用されることがあります。"
+
+#: Disabled references:1
+msgid " 4.本使用协议依据国家相关法律法规规章制定，明道云用户同意严格遵守以下义务：（1）不得利用明道云产品从事洗钱、窃取商业秘密、窃取个人信息等违法犯罪活动；（2）不得干扰明道云产品的正常运转，不得明道云产品及国家计算机信息系统；（3）不得传输或发表任何违法犯罪的、骚扰性的、中伤他人的、辱骂性的、恐吓性的、伤害性的、庸俗的、不文明的等信息；（4）不得教唆他人从事违法违规或本使用协议所禁止的行为；（5）不得利用在明道云注册的账户买卖进行牟利性经营活动；（6）不得发布任何侵犯他人个人信息、著作权、商标权等知识产权或合法权利的内容；"
+msgstr " 4.この使用契約は、関連する国内法令に基づき、明珠クラウドユーザーは、以下の義務を厳格に遵守することに同意します。（1）明珠クラウド製品を使用して、マネーロンダリング、商業秘密の盗難、個人情報の盗難、その他の違法および犯罪行為を行ってはならない（2）明珠クラウド製品、明珠クラウド製品と国家のコンピュータ情報システムの正常な動作を妨害してはならない（3）いかなる違法および犯罪行為を送信または公開してはならない（4）明珠クラウド製品を使用しての違法行為、犯罪行為、その他の犯罪行為、または、その他の犯罪行為、または、その他の犯罪行為。(4) 他人の違法行為や本利用規約で禁止されている行為を教唆しないこと (5) 明道クラウド取引に登録したアカウントを営利目的の営業活動に使用しないこと (6) 他人の個人情報、著作権、商標権などの知的財産権や法的権利を侵害する情報を公開しないこと。の内容です。"
+
+#: Disabled references:1
+msgid "5.除非法律允许或本公司书面许可，使用明道云产品过程中不得从事下列行为：（1）删除明道云产品及其副本上关于著作权的信息；（2）对明道云产品进行反向工程、反向汇编、反向编译，或者以其他方式尝试发现明道云产品的源代码；（3）对明道云拥有知识产权的内容进行使用、出租、出借、复制、修改、链接、转载、汇编、发表、出版、建立镜像站点等；（4）对明道云产品或其运行过程中释放到任何终端内存中的数据、运行过程中客户端与服务器端的交互数据，以及明道云产品运行所必需的系统数据，进行复制、修改、增加、删除、挂接运行或创作任何衍生作品，形式包括但不限于使用插件、外挂或非经明道云授权的第三方工具/服务接入明道云产品和相关系统；（5）通过修改或伪造明道云产品运行中的指令、数据，增加、删减、变动明道云产品的功能或运行效果，或者将用于上述用途的软件、方法进行运营或向公众传播，无论这些行为是否为商业目的；（6）通过非明道云开发、授权的第三方软件、插件、外挂、系统，登录或使用明道云产品及服务，或制作、发布、传播上述工具；（7）自行或者授权他人、第三方软件对明道云产品及其组件、模块、数据进行干扰。"
+msgstr "5.(3) MingDaoCloudが知的財産権を有するコンテンツの使用、レンタル、貸与、コピー、修正、リンク、複製、編集、出版、ミラーサイトの設置など (4) MingDaoCloud製品またはその運用過程で端末のメモリに解放されたデータ、その運用過程でクライアントとサーバー間の相互作用データ、MingDaoCloud製品の運用に必要なシステムデータについて、コピー、修正、追加、削除、フックアップ、実行、派生物の作成などの形態での利用をする。これには、プラグイン、プラグインまたは明道クラウドに承認されていない第三者のツール／サービスを使用して明道クラウド製品および関連システムにアクセスすることを含みますが、これに限定されません。 (5) 明道クラウド製品の操作における指示およびデータを修正または改ざんすることにより、明道クラウド製品の機能または操作効果を追加、削除または変更すること、および上記の目的で使用したソフトウェアまたは方法を操作または公衆に流布する行為（これらが商業目的かどうかにかかわらず）は、いずれも認められません。(6) 明道クラウドが開発または認可していない第三者のソフトウェア、プラグイン、プラグインまたはシステムを通じて明道クラウド製品およびサービスをログインまたは使用すること、または上記のツールを作成、公開または普及させること (7) 自分または他人または第三者のソフトウェアを認可して明道クラウド製品およびそのコンポーネント、モジュール、データに干渉すること。"
+
+#: Disabled references:1
+msgid "6.明道云用户不得制作、传输或发表以下违法信息：反对宪法所确定的基本原则的；危害国家安全，泄露国家秘密，颠覆国家政权，破坏国家统一的；损害国家荣誉和利益的；歪曲、丑化、亵渎、否定英雄烈士事迹和精神，以侮辱、诽谤或者其他方式侵害英雄烈士的姓名、肖像、名誉、荣誉的；宣扬恐怖主义、极端主义或者煽动实施恐怖活动、极端主义活动的；煽动民族仇恨、民族歧视，破坏民族团结的；破坏国家宗教政策，宣扬邪教和封建迷信的；散布谣言，扰乱经济秩序和社会秩序的；散布淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；侮辱或者诽谤他人，侵害他人名誉、隐私和其他合法权益的；法律、行政法规禁止的其他内容。"
+msgstr "6.明道クラウドの利用者は、憲法が定める基本原則に反し、国家の安全を危険にさらし、国家機密を漏洩し、国家権力を転覆させ、国家統一を損ない、国家の名誉と利益を損ない、英雄や殉教者の行為と精神を歪め、冒涜し、否定し、侮辱、中傷などの方法でその名前、肖像、評判、名誉を侵害する違法情報を作成、送信、公表してはいけません。例えば、テロリズム、過激派を助長し、またはテロリズムや過激派活動を扇動する行為、民族憎悪、民族差別を扇動し、または国家統一を損なう行為、国家の宗教政策を損ない、邪教や封建的迷信を助長する行為、経済・社会秩序を乱す噂を流布し、卑猥、ポルノ、賭博、暴力、殺人、テロ、犯罪教唆を行い、侮辱・中傷して他人を侵害し、その権利を侵害する行為、などが挙げられます。その他、法律や行政規則で禁止されている内容。"
+
+#: Disabled references:1
+msgid "7.明道云用户必须防范和抵制制作、复制、发布含有下列内容的不良信息：使用夸张标题，内容与标题严重不符的；炒作绯闻、丑闻、劣迹等的；不当评述自然灾害、重大事故等灾难的；带有性暗示、性挑逗等易使人产生性联想的；展现血腥、惊悚、残忍等致人身心不适的；煽动人群歧视、地域歧视等的；宣扬低俗、庸俗、媚俗内容的；可能引发未成年人模仿不安全行为和违反社会公德行为、诱导未成年人不良嗜好等的；其他对网络生态造成不良影响的内容。"
+msgstr "7.下品・低俗・低俗を助長するもの、未成年者が危険な行為を模倣したり社会道徳に違反したり、未成年者の悪習を誘発するもの、その他インターネットの生態系に悪影響を与えるもの。"
+
+#: Disabled references:1
+msgid " 四、数据和程序归属权"
+msgstr " IV.データおよびプロセスの帰属権"
+
+#: Disabled references:1
+msgid " 1.用户在明道云平台创建的独创性数据归属客户所有，客户有权进行任何形式的处置，包括从平台中复制、导出和删除。"
+msgstr " 1.お客様が Mindo Cloud Platform で作成したオリジナルデータは、お客様の所有物であり、お客様は、コピー、エクスポート、プラットフォームからの削除など、いかなる形でもこれを処分する権利を有します。"
+
+#: Disabled references:1
+msgid " 2.除非另有书面声明，明道云的网站、应用程序、源代码、LOGO、界面设计、应用程序编程接口（API）、以及明道云产品中的内容、图表、版式设计、网页、文字、图片、图像、色彩、地图、图标、音频、视频、电子文档、数据资料等，以及用于开发、维护、运营上述内容和信息的基础设施和平台，包括但不限于软件、网站、应用程序及其源代码、系统数据等所关联的所有知识产权（包括但不限于专利权、著作权、商标权、商业秘密及对数据享有的财产性权利）均归属上海万企明道软件有限公司。"
+msgstr " 2.書面による別段の定めがない限り、MingDaoCloudのウェブサイト、アプリケーション、ソースコード、ロゴ、インターフェースデザイン、アプリケーションプログラミングインターフェース（API）、およびMingDaoCloudの製品のコンテンツ、グラフィック、レイアウト、ウェブページ、テキスト、画像、色、地図、アイコン、オーディオ、ビデオ、電子文書、データ資料などに関するすべての知的財産権（特許、著作権、商標、企業秘密、データに対する財産権など）とこれらのコンテンツや情報の開発、維持、運用に使用するインフラやプラットフォームについて、一切の責任を負いません。ソフトウェア、ウェブサイト、アプリケーションおよびそのソースコード、システムデータなど、インフラおよびプラットフォームに関連するすべての知的財産権（特許権、著作権、商標権、企業秘密、データに関する財産権など）は、上海万治明道軟件有限公司が所有するものです。"
+
+#: Disabled references:1
+msgid "五、用户隐私权"
+msgstr "V. ユーザーのプライバシー"
+
+#: Disabled references:1
+msgid "1.明道云应当从组织结构和技术角度尽最大努力保护用户数据安全，只根据用户在网站上的行为指示来分发用户的信息。明道云永远不会将用户产生的具体数据提供给任何无关第三方。"
+msgstr "1.ミンドクラウドは、組織的および技術的な観点から利用者情報の安全保護に最善を尽くし、利用者情報をウェブサイト上での利用者の行動の指示にのみ従って配布するものとします。Mindo Cloud は、特定のユーザー生成データを、無関係の第三者に提供することはありません。"
+
+#: Disabled references:1
+msgid "2.明道云保留使用汇总统计性信息的权利，这些信息应当是匿名，且不是针对特定用户的。"
+msgstr "2.ミンドクラウドは、匿名かつ特定のユーザーを識別できないように集計された統計情報を使用する権利を有します。"
+
+#: Disabled references:1
+msgid " 3.明道云保留面向免费模式用户刊载广告的权利，这些广告刊载过程中将可能使用必要的定向技术来提高广告相关度，但明道云不会将用户的个人信息透露给广告商，而只会在匿名的基础上通过自动化匹配技术实现广告优化刊载。"
+msgstr " 3.ミンドクラウドは、無料モデルユーザーのために広告を掲載する権利を有し、広告の関連性を高めるために必要なターゲティング技術を使用することができますが、ミンドクラウドはユーザーの個人情報を広告主に開示せず、自動マッチング技術によって匿名ベースで広告の掲載を最適化するのみです。"
+
+#: Disabled references:1
+msgid " 4.如果明道云用户想要行使个人信息权利，或者想了解明道云如何处理其个人信息，请认真阅读《明道云隐私政策》，明道云将按照本协议以及《明道云隐私政策》的规定收集、使用、共享、储存和保护明道云用户的个人信息。本使用协议对个人信息保护相关内容未作明确规定的，均应以《明道云隐私政策》的内容为准。"
+msgstr " 4.MingDaoCloudのユーザーが個人情報に関する権利を行使したい場合、またはMingDaoCloudがどのように個人情報を取り扱うかを理解したい場合には、MingDaoCloudプライバシーポリシーをよくお読みください。 MingDaoCloudは、本契約およびMingDaoCloudプライバシーポリシーに従い、ユーザーの個人情報を収集、使用、共有、保管、保護します。本利用規約において、個人情報の保護について明示的に定めていない場合は、明道クラウドプライバシーポリシーの内容が優先されるものとします。"
+
+#: Disabled references:1
+msgid "5.《明道云隐私政策》构成本使用协议不可分割的一部分。"
+msgstr "5.ミンドークラウドプライバシーポリシーは、本利用規約と一体を成すものです。"
+
+#: Disabled references:1
+msgid "六、服务连续性"
+msgstr "VI. サービスの継続性"
+
+#: Disabled references:1
+msgid "1.明道云将尽最大努力保障软件平台的连续可靠运行，对付费版用户，明道云承诺99%以上的正常在线率，低于此比例，明道云有义务按照服务中断时间比例向客户退还相应的服务费用，客户理解该等赔偿。明道云对免费模式用户不提供任何补偿。"
+msgstr "1.MingDaoCloudは、ソフトウェアプラットフォームの継続的かつ信頼性の高い動作を確保するために最善を尽くします。有料版のユーザーのために、MingDaoCloudは、通常のオンラインレートの99％以上を約束し、この割合以下、MingDaoCloudはサービスの中断時間に比例して顧客に対応するサービス料を返金する義務があり、顧客はその補償を理解しています。明道雲は、無料モードのユーザーに対して、いかなる補償も行いません。"
+
+#: Disabled references:1
+msgid "2.明道云将尽最大努力保障客户数据的安全备份，对付费版用户，明道云承诺在有任何用户数据因服务器存储设备损坏时以最快的速度从最近的备份中恢复数据，但无法承诺100%的数据恢复，对因数据丢失带来的其他连带或间接损失不承担任何责任。"
+msgstr "2.Mindray Cloudは、お客様のデータの安全なバックアップを保証するために最善を尽くします。 有料版のユーザーに対して、Mindray Cloudは、ユーザーデータがサーバーストレージ装置で破損した場合、できるだけ早く最も近いバックアップからデータを復元することを約束しますが、100％のデータ復元は約束できず、データ損失によるその他の付帯または間接損失に対して責任を負いません。"
+
+#: Disabled references:1
+msgid "3.在发生需要从备份文件中恢复数据的情形时，明道云通常需要4小时，最长48小时完成，在此时间范围内的数据恢复视作服务是连续的。"
+msgstr "3.バックアップファイルからデータを復元する必要がある場合、Mindo Cloud は通常 4 時間から最長 48 時間で完了し、この時間枠内のデータ復元は継続的なサービスとして扱われます。"
+
+#: Disabled references:1
+msgid "七、责任限制"
+msgstr "VII. 責任の制限"
+
+#: Disabled references:1
+msgid "1.服务将按照“现状”和“可得到”的状态提供。明道云在此明确声明，除本协议有明确约定外，明道云对服务不作任何明示或暗示的保证，包括但不限于对服务的适用性、准确性、持续性、可靠性、服务没有错误或疏漏等。"
+msgstr "1.本サービスは、「現状有姿」かつ「利用可能」な状態で提供されます。MingDaoCloud は、本契約で明示的に規定されている場合を除き、本サービスに関して、特定目的への適合性、正確性、継続性、信頼性、およびエラーや脱落がないことの保証を含むが、これに限らず、明示または暗示のすべての保証を明確に否認するものとします。"
+
+#: Disabled references:1
+msgid "2.不论在何种情况下，明道云不对由于网络连接故障、电脑或系统故障、电力故障、罢工、暴乱、火灾、洪水、爆炸、战争、政府行为、疫情等情况造成的不能服务或延迟服务承担任何责任。"
+msgstr "2.明道雲は、ネットワーク接続障害、コンピュータまたはシステムの故障、停電、ストライキ、暴動、火災、洪水、爆発、戦争、政府の行為、疫病などによるサービスの失敗や遅延について、その状況にかかわらず一切の責任を負わないものとします。"
+
+#: Disabled references:1
+msgid "3.明道云不对任何间接的、惩罚性的、突发性的损害或利益损失承担责任。"
+msgstr "3.Mindray Cloud は、間接的、懲罰的、または結果的な損害、あるいは利益の損失に対して責任を負わないも のとします。"
+
+#: Disabled references:1
+msgid "4.如因用户违反本协议、法律法规要求、用户未能履行付款义务或用户注销账户等造成数据丢失、删除、毁损的，明道云不承担任何责任，用户应自行负责对数据进行备份。"
+msgstr "4.ユーザーが本規約、法令、規制要求事項に違反した場合、ユーザーが支払義務を履行しない場合、ユーザーがアカウントを解約した場合等によってデータが消失、削除、破壊された場合、明道雲はいかなる責任も負わないものとし、ユーザーは自己の責任においてデータのバックアップを行うものとします。"
+
+#: Disabled references:1
+msgid "5.在法律允许的范围内，明道云对因：（1）明道云产品受到计算机病毒、木马或其他恶意程序、黑客攻击的破坏；（2）明道云用户操作不当或用户通过非明道云授权的方式使用本服务；（3）程序版本过时、设备的老化和/或其兼容性问题；（4）其他明道云无法控制或合理预见的情形，导致的明道云服务中断或终止，不承担赔偿责任。"
+msgstr "5.(1) コンピュータウィルス、トロイの木馬などの悪意のあるプログラムやハッカーの攻撃によりMingDaoCloudの製品に損害が生じた場合、(2) MingDaoCloudのユーザーによる不適切な操作やMingDaoCloudが認めていない手段によるユーザーのサービスの使用、 (3) プログラムの旧バージョン、機器の老朽化、互換性の問題、 (4) MingDaoCloudが制御できない、または合理的に予測できない他の状況、などについて、法律上認められる範囲において、当社は責任を負わないものとします。ミンダオクラウドは、ミンダオクラウドに起因するサービスの中断または終了について、一切の責任を負わないものとします。"
+
+#: Disabled references:1
+msgid "八、第三方产品和服务"
+msgstr "viii. 第三者の製品およびサービス"
+
+#: Disabled references:1
+msgid "在向用户提供服务的过程中，明道云可能会接入第三方的产品或服务，该产品或服务由明道云以外的第三方提供。在法律允许的范围内，明道云不对第三方的产品或服务承担任何责任。用户需遵守所有第三方的产品或服务的使用条款和隐私政策。"
+msgstr "明道雲は、利用者にサービスを提供する過程で、明道雲以外の第三者が提供する製品またはサービスにアクセスすることがあります。明道雲は、法律で認められている範囲内において、第三者の製品またはサービスに対して責任を負うものではありません。ユーザーは、すべての第三者の製品またはサービスの使用条件およびプライバシーポリシーに従うものとします。"
+
+#: Disabled references:1
+msgid "九、违约与赔偿"
+msgstr "IX. 契約違反と補償"
+
+#: Disabled references:1
+msgid "1.如果明道云用户违反本协议，明道云有权根据独立判断，采取适当的处置措施，包括但不限于随时删除或屏蔽内容，或暂停向用户提供部分或全部服务等。"
+msgstr "1.MingDaoCloudのユーザーが本規約に違反した場合、MingDaoCloudは、いつでもコンテンツを削除またはブロックしたり、ユーザーに対する一部またはすべてのサービスの提供を停止するなど、独自の判断に基づき適切な処分措置を取る権利を留保しています。"
+
+#: Disabled references:1
+msgid "2.如果用户违反相关法律法规，明道云有权采取适当的法律措施，并根据相关法律法规的要求保存相关信息，并向有关主管部门报告、配合有关主管部门调查。"
+msgstr "2.ユーザーが関連法令に違反した場合、MingDaoCloudは、関連法令の要求に従って、適切な法的措置を取り、関連情報を保存し、関連主務官庁に報告し、関連主務官庁の調査に協力する権利を有しています。"
+
+#: Disabled references:1
+msgid "3.若因用户违反本协议或其他应当遵守的条款引起的任何索赔、要求或损失，用户应当承担全部责任。由此给明道云或关联方等主体造成的任何损失，用户也应承当全部赔偿责任。"
+msgstr "3.ユーザーは、本規約およびユーザーが遵守すべきその他の条件に違反したことにより生じたいかなるクレーム、請求または損失についても、全面的に責任を負うものとします。また、これによって明道雲や関係者などの対象に損害が発生した場合、ユーザーはすべての責任を負うものとします。"
+
+#: Disabled references:1
+msgid "十、计费和支付"
+msgstr "X. 請求と支払い"
+
+#: Disabled references:1
+msgid "1.明道云付费版用户包中所限定的用户数是指客户网络中所有生效的用户总数，包括正常用户，屏蔽、移除、标疑但当月有过登录记录的用户，员工离职后正常关闭且实际无登录的用户不计算。"
+msgstr "1.Mindo Cloud 有料版ユーザーパッケージの限定ユーザー数は、お客様のネットワークで有効なユーザーの総数を指し、通常のユーザー、ブロックや削除、不審者扱いされているが月内にログインしているユーザー、従業員の退職後に通常閉鎖され実際にはログインしていないユーザーはカウントされていません。"
+
+#: Disabled references:1
+msgid "2.客户应当按照本订单载明的支付义务及时支付价款，用户逾期支付账单超过30天后系统会停止付费版服务，而转入免费模式，用户在付费版下的设定参数数据可能因此丢失或恢复缺省设置。即使在停止付费版服务后，任何未支付的账单均会作为客户的欠款，明道云保留追讨欠款及滞纳金的权利，滞纳金将根据拖欠天数，每天按欠款金额的万分之五计收。"
+msgstr "2.お客様は、本注文書に定める支払義務に従って代金を支払うものとします。 ユーザーが30日以上料金の支払を遅延した場合、システムは有料版サービスを停止し、無料モードに移行します。その結果、ユーザーが有料版で設定したパラメータのデータが失われたり、初期設定に戻されたりする場合があります。有料版サービスの停止後も、未払いの請求は未払いとして扱われ、ミンデレクラウドは未払い金額および延滞金を回収する権利を有し、延滞日数に応じて1日あたり未払い金額の5％が課金されます。"
+
+#: Disabled references:1
+msgid "十一、付费版服务终止"
+msgstr "XI. 有料版のサービス終了について"
+
+#: Disabled references:1
+msgid "明道云授权期限到期后，如果未能及时购买续约包，用户付费版自动终止。用户如需要继续使用明道云付费版，需要在授权到期前至少三个工作日内签订续约订单。"
+msgstr "Ming Dao Cloudのライセンス期間終了後、更新パッケージの購入が間に合わなかった場合、ユーザーの有料版は自動的に終了します。Ming Dao Cloudの有料版を継続して使用する必要があるユーザーは、ライセンスの有効期限が切れる3営業日前までに更新の注文をする必要があります。"
+
+#: Disabled references:1
+msgid "十二、协议修订"
+msgstr "XII. 契約の変更"
+
+#: Disabled references:1
+msgid "1.明道云有权随时对本协议的协议进行修订，并在修订生效日前一个工作日更新在明道云网站。"
+msgstr "1.MindoCloud は、改正の発効日の 1 営業日前に MindoCloud のホームページを更新することにより、いつでも本契約を改正することができる権利を留保します。"
+
+#: Disabled references:1
+msgid "2.明道云有权对付费版的定价进行修订，并在修订生效日前一个月通告给所有付费版用户。"
+msgstr "2.Mindray Cloud は、有料版の価格を改定する権利を有し、改定の発効日の 1 ヶ月前に有料版の全ユーザーに通知するものとします。"
+
+#: Disabled references:1
+msgid "3.修订的协议始终公开在：www.mingdao.com/terms"
+msgstr "3.改訂された契約書は、常に以下のサイトで公開されます： www.mingdao.com/terms"
+
+#: Disabled references:1
+msgid "十三、争议解决"
+msgstr "XIII. 紛争解決"
+
+#: Disabled references:1
+msgid "如果就本协议的解释或执行发生争议，双方应首先力争通过友好协商解决该争议。如果在一方向其他方送达要求开始协商的书面通知后六十天内未能通过协商解决争议，那么任何一方均可将争议提交至中国国际经济贸易仲裁委员会上海分会，按照其届时有效的规则进行仲裁。仲裁裁决是终局的，对各方均有约束力，不可上诉。仲裁费用由败诉方承担，除非仲裁裁决另有规定。当任何争议发生时以及在对任何争议进行仲裁时，除争议事项外，各方应继续行使各自在本协议项下的其他权利，履行各自在本协议项下的其他义务。"
+msgstr "本契約の解釈または履行に関して紛争が生じた場合、両当事者は、まず、友好的な交渉によって当該紛争を解決するよう努めるものとします。当事者の一方が相手方当事者に書面による通知を送達し、交渉の開始を要求してから60日以内に、紛争が交渉によって解決されない場合、当事者の一方は、その時点で有効な規則に従って、中国国際経済貿易仲裁委員会上海支部に仲裁を求めるために紛争を提出することができます。仲裁判断は、最終的なものであり、当事者を拘束し、不服申立ての対象とならないものとします。仲裁の費用は、仲裁判断に別段の定めがない限り、敗訴当事者が負担するものとします。紛争が発生し、その仲裁が行われた場合、当事者は、紛争事項を除き、本契約に基づくそれぞれの他の権利を行使し、それぞれの他の義務を履行し続けるものとします。"
+
+#: Disabled references:1
+msgid "十四、联系我们"
+msgstr "XIV.お問い合わせ"
+
+#: Disabled references:1
+msgid "如果您对本协议或明道云产品有任何意见或建议，可通过feedback@mingdao.com与我们取得联系，我们会给予您必要的帮助。"
+msgstr "本契約または Mindo クラウド製品に関してご意見またはご提案がある場合、可通过feedback@mingdao.com与我们取得联系 は、お客様に必要な支援を行います。"
+
+#: Disabled references:1
+msgid "同意（注销后15天内可撤销操作）"
+msgstr "同意（解約後15日以内であれば、操作の取り消し可）"
+
+#: Disabled references:1
+msgid "确认注销"
+msgstr "解約の確認"
+
+#: Disabled references:1
+msgid " %0 分 %1 秒"
+msgstr " 0 分 %1 秒"
+
+#: Disabled references:1
+msgid " %0 分"
+msgstr "％0分"
+
+#: Disabled references:1
+msgid " %0 秒"
+msgstr " 0秒"
+
+#: Disabled references:1
+msgid " %0 天 %1 小时"
+msgstr " 0日 %1時間"
+
+#: Disabled references:1
+msgid " %0 天"
+msgstr "％0日"
+
+#: Disabled references:1
+msgid " %0 小时"
+msgstr "期日を過ぎてから0時間"
+
+#: Disabled references:1
+msgid " 1 小时"
+msgstr "1時間ポーズ"
+
+#: Disabled references:1
+msgid "您于%0  申请账号注销"
+msgstr "あなたは%0  日にアカウントの取り消しを要求しました。"
+
+#: Disabled references:1
+msgid "账号将在"
+msgstr "アカウントは、以下のサイトで公開されます。"
+
+#: Disabled references:1
+msgid "后正式注销，不可撤销！"
+msgstr "その後の正式なキャンセル、取り消し不可!"
+
+#: Disabled references:1
+msgid "如需撤销，请在 "
+msgstr "退会する必要がある場合は"
+
+#: Disabled references:1
+msgid " 内撤销申请"
+msgstr " 出願期間内に出願を取り下げた場合"
+
+#: Disabled references:1
+msgid "账号注销"
+msgstr "アカウントの取り消し"
+
+#: Disabled references:1
+msgid "您的账号已申请注销"
+msgstr "アカウントの取り消しを要求されました"
+
+#: Disabled references:1
+msgid "API Key 或无需鉴权"
+msgstr "APIキーまたは認証不要"
+
+#: Disabled references:1
+msgid "选项名称1"
+msgstr "オプション名1"
+
+#: Disabled references:1
+msgid "选项名称2"
+msgstr "オプション名2"
+
+#: Disabled references:1
+msgid "选项名称3"
+msgstr "オプション名3"
+
+#: Disabled references:1
+msgid "时间-时分"
+msgstr "時間-時、分"
+
+#: Disabled references:1
+msgid "时间-时分秒"
+msgstr "時間 - 時、分、秒"
+
+#: Disabled references:1
+msgid "成员-单选"
+msgstr "メンバー - シングルチョイス"
+
+#: Disabled references:1
+msgid "成员-多选"
+msgstr "メンバー - 複数選択可"
+
+#: Disabled references:1
+msgid "新建工作表 POST"
+msgstr "新しいワークシートのPOST"
+
+#: Disabled references:1
+msgid "近期有不法分子利用平台进行诈骗活动。为了保障平台安全，暂时只允许付费组织中的用户发起邀请。对您使用造成的不便，深表歉意！"
+msgstr "最近、このプラットフォームを悪用した不正行為が行われています。なお、当面は、プラットフォームを保護するため、有料組織に所属するユーザーのみが招待を開始できるようにします。ご利用の皆様にはご不便をおかけいたしますが、何卒よろしくお願いいたします"
+
+#: Disabled references:1
+msgid "您是平台超级管理员，请交接后方可注销"
+msgstr "あなたはプラットフォームのスーパー管理者です、ログアウトする前に引き継いでください"
+
+#: Disabled references:1
+msgid "账户注销"
+msgstr "アカウントの取り消し"
+
+#: Disabled references:1
+msgid "API网络代理"
+msgstr "API ウェブプロキシ"
+
+#: Disabled references:1
+msgid "代理服务器设置"
+msgstr "プロキシサーバーの設定"
+
+#: Disabled references:1
+msgid "接口类型"
+msgstr "インターフェースタイプ"
+
+#: Disabled references:1
+msgid "HTTP"
+msgstr "JSONデータは、対応するHTTPアドレスにPOST形式で送信されます"
+
+#: Disabled references:1
+msgid "HTTPS"
+msgstr "エイチティーティーピーエス"
+
+#: Disabled references:1
+msgid "请选择接口类型"
+msgstr "インターフェースの種類を選択してください"
+
+#: Disabled references:1
+msgid "服务器地址"
+msgstr "サーバーアドレス"
+
+#: Disabled references:1
+msgid "端口号"
+msgstr "ポート番号"
+
+#: Disabled references:1
+msgid "请输入服务器地址"
+msgstr "サーバーのアドレスを入力してください"
+
+#: Disabled references:1
+msgid "IP地址格式不正确"
+msgstr "IPアドレスの形式が正しくない"
+
+#: Disabled references:1
+msgid "无效的端口号"
+msgstr "無効なポート番号"
+
+#: Disabled references:1
+msgid "身份验证"
+msgstr "本人確認が必要"
+
+#: Disabled references:1
+msgid "请输入用户名"
+msgstr "ユーザー名を入力してください。"
+
+#: Disabled references:1
+msgid "启用后，您可以在发送API请求时选择通过设置的代理服务器发送"
+msgstr "有効にすると、APIリクエストを送信する際に、設定したプロキシサーバーを経由するかどうかを選択できます。"
+
+#: Disabled references:1
+msgid "账号绑定关系列表"
+msgstr "アカウントのバインド関係一覧"
+
+#: Disabled references:1
+msgid "扫码登录与同步"
+msgstr "スワイプでログイン・同期"
+
+#: Disabled references:1
+msgid "企业微信字段同步"
+msgstr "企業向けWeChatフィールドシンク"
+
+#: Disabled references:1
+msgid "同步企业微信标签"
+msgstr "企業のWeChatタグを同期させる"
+
+#: Disabled references:1
+msgid "同步到"
+msgstr "期間データは休暇データとして休暇出勤情報に同期されます"
+
+#: Disabled references:1
+msgid "同步企业微信用户账号 或 自定义信息字段 到工号字段"
+msgstr "企業向けWeChatユーザーアカウントまたはカスタムメッセージフィールドを勤務先番号フィールドに同期させる"
+
+#: Disabled references:1
+msgid "企业微信用户账号和企业微信自定义字段只可选择一个同步到工号字段"
+msgstr "勤務番号フィールドに同期するために選択できるのは、1つのエンタープライズWeChatユーザーアカウントと1つのエンタープライズWeChatカスタムフィールドのみです。"
+
+#: Disabled references:1
+msgid "同步到工号字段"
+msgstr "ワークナンバーフィールドにシンク"
+
+#: Disabled references:1
+msgid "如何同步？"
+msgstr "同期方法は？"
+
+#: Disabled references:1
+msgid "接口许可"
+msgstr "インターフェイスライセンス"
+
+#: Disabled references:1
+msgid "自建"
+msgstr "セルフビルド"
+
+#: Disabled references:1
+msgid "请创建或申请加入一个组织"
+msgstr "組織を作成するか、参加申請してください"
+
+#: Disabled references:1
+msgid "搜索连接/API/厂商"
+msgstr "接続先/API/ベンダーの検索"
+
+#: Disabled references:1
+msgid "未搜索到API，换个关键词试试吧"
+msgstr "APIが検索されない場合は、別のキーワードをお試しください。"
+
+#: Disabled references:1
+msgid "隐藏参数会加密存储，不可取消隐藏"
+msgstr "隠しパラメータは暗号化されて保存され、元に戻すことはできません。"
+
+#: Disabled references:1
+msgid "请求结果"
+msgstr "リクエスト結果"
+
+#: Disabled references:1
+msgid "是其中一个"
+msgstr "は、その一つです。"
+
+#: Disabled references:1
+msgid "不是任何一个"
+msgstr "どれでもない"
+
+#: Disabled references:1
+msgid "包含其中一个"
+msgstr "のいずれかを含む。"
+
+#: Disabled references:1
+msgid "不包含任何一个"
+msgstr "を含まない。"
+
+#: Disabled references:1
+msgid "开头是"
+msgstr "を始めとする"
+
+#: Disabled references:1
+msgid "结尾是"
+msgstr "で終了します。"
+
+#: Disabled references:1
+msgid "同时包含"
+msgstr "も収録されています。"
+
+#: Disabled references:1
+msgid "开头不是"
+msgstr "はじめからない"
+
+#: Disabled references:1
+msgid "结尾不是"
+msgstr "エンディングは"
+
+#: Disabled references:1
+msgid "您无权访问或已删除"
+msgstr "アクセス権がない、または削除されている"
+
+#: Disabled references:1
+msgid "下载附件失败"
+msgstr "添付ファイルのダウンロードに失敗しました"
+
+#: Disabled references:1
+msgid "无标题"
+msgstr "タイトルなし"
+
+#: Disabled references:1
+msgid "推荐"
+msgstr "オススメ"
+
+#: Disabled references:1
+msgid "所有应用中每自然年的外部用户注册量，各版本赠送100人"
+msgstr "すべてのアプリケーションで自然年あたりの外部ユーザー登録数、各バージョンで100件の無償提供"
+
+#: Disabled references:1
+msgid "发送API请求时可以使用您配置的代理服务器"
+msgstr "APIリクエストを送信する際に、設定したプロキシサーバーを使用することができます。"
+
+#: Disabled references:1
+msgid "封装业务流程API响应"
+msgstr "ビジネスプロセスAPIレスポンスのカプセル化"
+
+#: Disabled references:1
+msgid "封装业务流程（PBP）开启平台API能力后，可以直接响应返回值给请求方，不必使用callbackURL"
+msgstr "カプセル化されたビジネスプロセス（PBP）により、コールバックURLを必要とせずに、プラットフォームAPI機能が要求者に直接応答することができます。"
+
+#: Disabled references:1
+msgid "联系我们"
+msgstr "お問い合わせ"
+
+#: Disabled references:1
+msgid "您是组织【%0】超级管理员"
+msgstr "あなたは組織 [%0] のスーパー アドミニストレータです。"
+
+#: Disabled references:1
+msgid "请先注销组织或交接后方可注销。"
+msgstr "編成や引き渡しをキャンセルしてからにしてください。"
+
+#: Disabled references:1
+msgid "前往注销"
+msgstr "キャンセルへ"
+
+#: Disabled references:1
+msgid "每张表最多导出10000条记录"
+msgstr "1テーブルあたり最大10,000レコードまで書き出し可能"
+
+#: Disabled references:1
+msgid "已选 %0 行（最大5万行）"
+msgstr "選択された %0 行 (最大 50,000 行)"
+
+#: Disabled references:1
+msgid "url 格式不正确"
+msgstr "URLの書式が正しくありません"
+
+#: Disabled references:1
+msgid "生成%0链接"
+msgstr "リンク生成 %0"
+
+#: Disabled references:1
+msgid "应用内链接"
+msgstr "アプリ内リンク"
+
+#: Disabled references:1
+msgid "可以使用应用、视图、自定义页面、表单等链接"
+msgstr "アプリケーション、ビュー、カスタムページ、フォームなどへのリンクが使用可能"
+
+#: Disabled references:1
+msgid "生成链接"
+msgstr "リンクの再生"
+
+#: Disabled references:1
+msgid "%0链接"
+msgstr "0リンク"
+
+#: Disabled references:1
+msgid "如您想个性化部署应用，把某一张表部署为一个应用，可把链接复制到输入框内直接"
+msgstr "アプリケーションをパーソナライズして、テーブルをアプリケーションとして展開したい場合は、リンクを入力ボックスに直接コピーしてください"
+
+#: Disabled references:1
+msgid "生成企业微信链接，"
+msgstr "企業weiboへのリンクを生成する。"
+
+#: Disabled references:1
+msgid "生成链接后复制进”应用首页链接“、”PC端首页地址“即可使用"
+msgstr "リンクを生成し、「アプリケーションホームリンク」と「PCホームアドレス」にコピーして使用します"
+
+#: Disabled references:1
+msgid "生成钉钉链接，"
+msgstr "ピン留めリンクの生成"
+
+#: Disabled references:1
+msgid "形状"
+msgstr "形状"
+
+#: Disabled references:1
+msgid "曲率"
+msgstr "曲率"
+
+#: Disabled references:1
+msgid "办理"
+msgstr "オンボーディングを処理した"
+
+#: Disabled references:1
+msgid "纵向"
+msgstr "縦型"
+
+#: Disabled references:1
+msgid "未开启批量审批，请单独操作"
+msgstr "一括承認が有効になっていませんので、別途操作してください。"
+
+#: Disabled references:1
+msgid "JSON格式有错误"
+msgstr "JSON形式にエラーがある"
+
+#: Disabled references:1
+msgid "直接返回固定文本给请求地址"
+msgstr "固定テキストを要求アドレスに直接返す"
+
+#: Disabled references:1
+msgid "对方请求时，立即以返回一段固定文本给请求方"
+msgstr "相手から要求があった場合、即座に定型文を返します"
+
+#: Disabled references:1
+msgid "直接返回流程节点数据对象给请求地址"
+msgstr "プロセスノードデータオブジェクトを要求アドレスに直接返す。"
+
+#: Disabled references:1
+msgid "选择一个代码块、发送API请求、JSON解析或调用已集成API节点，把它的返回数据对象立即返回给请求方；请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限"
+msgstr "コードのブロックを選択し、APIリクエストを送信、JSONパース、または統合APIノードを呼び出し、その戻りデータオブジェクトをリクエスト元に直ちに返す。リクエストの頻度は1時間に100以下、プロセスの実行時間は30秒以下に抑え、プライベートデプロイは無制限に行う。"
+
+#: Disabled references:1
+msgid "直接返回流程节点的字段值给请求地址"
+msgstr "プロセスノードのフィールド値を要求アドレスに直接返す。"
+
+#: Disabled references:1
+msgid "将所选节点的字段值作为文本结果立即返回给请求方；请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限"
+msgstr "選択したノードのフィールド値をテキスト結果として直ちに要求側に返す。要求頻度を100リクエスト/時間未満に、処理実行時間を30秒未満に制御してください。"
+
+#: Disabled references:1
+msgid "直接返回输出参数给请求地址"
+msgstr "出力パラメータを要求アドレスに直接返す"
+
+#: Disabled references:1
+msgid "请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限"
+msgstr "リクエスト頻度を100リクエスト/時間以内、処理実行時間を30秒以内、プライベートデプロイメントを制限されないでください。"
+
+#: Disabled references:1
+msgid "使用应用授权"
+msgstr "アプリケーションライセンスの使用"
+
+#: Disabled references:1
+msgid "无需授权"
+msgstr "認可不要"
+
+#: Disabled references:1
+msgid "请求鉴权认证"
+msgstr "リクエスト認証"
+
+#: Disabled references:1
+msgid "可以使用 GET/POST 方式发送参数。当使用 POST 时，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json"
+msgstr "パラメータはGET/POSTメソッドで送信することができます。POSTを使用する場合は、リクエストのボディがJSON形式であり、HTTPヘッダーのContent-Typeがapplication/jsonに設定されている必要があります。"
+
+#: Disabled references:1
+msgid "批量复制不能超过20行"
+msgstr "一括コピーで20行を超えることはできません"
+
+#: Disabled references:1
+msgid "您确认复制这%0条记录吗？"
+msgstr "この %0 レコードを本当にコピーしますか?"
+
+#: Disabled references:1
+msgid "仅复制当前自定义页面的所有配置"
+msgstr "現在のカスタムページの設定のみをすべてコピーする"
+
+#: Disabled references:1
+msgid "仅复制目标工作表的所有配置，工作表下的数据不会被复制"
+msgstr "コピー先のワークシートの全構成のみをコピーし、ワークシート下のデータはコピーされない"
+
+#: Disabled references:1
+msgid "同时复制关联关系"
+msgstr "所属の同時コピー"
+
+#: Disabled references:1
+msgid "未勾选时，所有关联记录字段将被复制为文本字段"
+msgstr "チェックを外すと、関連するすべてのレコードフィールドがテキストフィールドとしてコピーされます。"
+
+#: Disabled references:1
+msgid "勾选时，选中的关联记录字段将会完整复制与其他表的关联关系"
+msgstr "チェックした場合、選択した関連レコードのフィールドは、他のテーブルと完全に複製されます"
+
+#: Disabled references:1
+msgid "获取附件详情失败"
+msgstr "添付ファイルの詳細の取得に失敗しました"
+
+#: Disabled references:1
+msgid "确认同步？"
+msgstr "同期の確認？"
+
+#: Disabled references:1
+msgid "检索到未绑定组织用户的企微用户 %0 个，平台会为这 %0 个用户创建新的组织账号绑定"
+msgstr "組織に関連付けられていない %0 の Enterprise Micro ユーザを取得し、プラットフォームはこれらの %0 ユーザのために新しい組織アカウントを作成します。"
+
+#: Disabled references:1
+msgid "同步成功"
+msgstr "同期に成功"
+
+#: Disabled references:1
+msgid "搜索姓名、部门、职位"
+msgstr "名前、部署、役職で検索"
+
+#: Disabled references:1
+msgid "确定解绑"
+msgstr "アンバンドリングの確認"
+
+#: Disabled references:1
+msgid "企微账号与平台账号解绑后，将不能通过平台官网登录；后续点击同步可以重新选择账号绑定。"
+msgstr "Enterprise Microアカウントがプラットフォームアカウントからアンバンドルされた後、プラットフォームウェブサイトからログインできなくなります。その後、シンクをクリックすると、アカウントバインディングを再選択することができます。"
+
+#: Disabled references:1
+msgid "绑定关系"
+msgstr "バインド関係"
+
+#: Disabled references:1
+msgid "同步账号"
+msgstr "アカウントの同期"
+
+#: Disabled references:1
+msgid "搜索组织用户"
+msgstr "組織ユーザーの検索"
+
+#: Disabled references:1
+msgid "搜索企业微信用户"
+msgstr "ビジネスWeChatユーザーの検索"
+
+#: Disabled references:1
+msgid "同步企业微信用户 "
+msgstr "企業向けWeChatのユーザーを同期させる"
+
+#: Disabled references:1
+msgid " 个；绑定到已有组织用户 "
+msgstr " 既存組織のユーザーとバインドされる"
+
+#: Disabled references:1
+msgid " 个； 新增组织用户 "
+msgstr " 新規組織ユーザー"
+
+#: Disabled references:1
+msgid " 个"
+msgstr " 個々"
+
+#: Disabled references:1
+msgid "；解除与组织用户绑定关系"
+msgstr "組織のユーザーからバインドを解除する"
+
+#: Disabled references:1
+msgid "将未绑定过 "
+msgstr "バインドされていないものをバインドする"
+
+#: Disabled references:1
+msgid "企业微信的组织用户"
+msgstr "企業向けWeChatの組織的なユーザー"
+
+#: Disabled references:1
+msgid "与"
+msgstr "彼と一緒に取り組んだタスク"
+
+#: Disabled references:1
+msgid "本次同步的企微用户 "
+msgstr "このシンクのEnterprise Microユーザー"
+
+#: Disabled references:1
+msgid "建立绑定关系"
+msgstr "拘束力のある関係を構築する"
+
+#: Disabled references:1
+msgid "没有查询到未绑定企业微信用户的组织用户"
+msgstr "エンタープライズWeChatユーザーに縛られない組織ユーザー向けのクエリーはありません。"
+
+#: Disabled references:1
+msgid "组织用户"
+msgstr "組織的なユーザー"
+
+#: Disabled references:1
+msgid "组织用户（%0/%1）"
+msgstr "組織的なユーザー (%0/%1)"
+
+#: Disabled references:1
+msgid "企业微信用户"
+msgstr "企業WeChatユーザーアカウント"
+
+#: Disabled references:1
+msgid "手机匹配"
+msgstr "携帯電話のマッチング"
+
+#: Disabled references:1
+msgid "姓名匹配"
+msgstr "ネームマッチ"
+
+#: Disabled references:1
+msgid "绑定企业微信用户"
+msgstr "企業のWeChatユーザーを束縛する"
+
+#: Disabled references:1
+msgid "购买账号"
+msgstr "アカウントの購入"
+
+#: Disabled references:1
+msgid "续期账号"
+msgstr "更新用口座番号"
+
+#: Disabled references:1
+msgid "历史企业迁移订单"
+msgstr "過去の業務移管命令"
+
+#: Disabled references:1
+msgid "待支付"
+msgstr "支払い待ち"
+
+#: Disabled references:1
+msgid "已支付"
+msgstr "有償"
+
+#: Disabled references:1
+msgid "已取消"
+msgstr "取消し済み"
+
+#: Disabled references:1
+msgid "未支付，订单已过期"
+msgstr "未入金、注文期限切れ"
+
+#: Disabled references:1
+msgid "申请退款中"
+msgstr "払い戻し請求中"
+
+#: Disabled references:1
+msgid "退款成功"
+msgstr "返金成功"
+
+#: Disabled references:1
+msgid "退款被拒绝"
+msgstr "払い戻し拒否"
+
+#: Disabled references:1
+msgid "订单已失效"
+msgstr "ご注文は無効です"
+
+#: Disabled references:1
+msgid "为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由明道云承担支付，您无需额外支付，您只需提交申请购买即可"
+msgstr "最初の統合の90日後に正常な使用を確保するために、WeChatからインターフェースライセンスを購入する必要があり、購入ライセンス料はMingDaoCloudが負担し、あなたは余分に支払う必要はありません、あなただけの購入申請書を提出する必要があります。"
+
+#: Disabled references:1
+msgid "已同步账号：%0个"
+msgstr "同期されたアカウント: %0"
+
+#: Disabled references:1
+msgid "已购买许可：%0个"
+msgstr "購入したアクセス権: %0"
+
+#: Disabled references:1
+msgid "申请购买"
+msgstr "購入のお申し込み"
+
+#: Disabled references:1
+msgid "接口许可续期"
+msgstr "インターフェースライセンス更新"
+
+#: Disabled references:1
+msgid "接口许可购买"
+msgstr "インターフェースライセンス購入"
+
+#: Disabled references:1
+msgid "定价规则来源于企业微信"
+msgstr "企業向けWeChatの価格設定ルール"
+
+#: Disabled references:1
+msgid "企业客户ID"
+msgstr "法人顧客ID"
+
+#: Disabled references:1
+msgid "企业客户名称"
+msgstr "取引先企業名"
+
+#: Disabled references:1
+msgid "定价"
+msgstr "価格について"
+
+#: Disabled references:1
+msgid "许可账号"
+msgstr "ライセンスアカウント番号"
+
+#: Disabled references:1
+msgid "购买时长"
+msgstr "購入期間"
+
+#: Disabled references:1
+msgid "%0个月"
+msgstr "0ヶ月後に開始"
+
+#: Disabled references:1
+msgid "（截止到接口许可到期时间）"
+msgstr "(インターフェイスライセンスの有効期限まで）"
+
+#: Disabled references:1
+msgid "（截止到版本到期时间）"
+msgstr "(バージョン有効期限時)"
+
+#: Disabled references:1
+msgid "¥%0元"
+msgstr "%0 $"
+
+#: Disabled references:1
+msgid "申请续期"
+msgstr "更新申請"
+
+#: Disabled references:1
+msgid "申请下单"
+msgstr "注文を申し込む"
+
+#: Disabled references:1
+msgid "购买费用由明道云支付，您只需申请下单即可"
+msgstr "購入はミンドクラウドが負担、必要なのは発注依頼だけ"
+
+#: Disabled references:1
+msgid "已同步账号："
+msgstr "アカウントの同期化"
+
+#: Disabled references:1
+msgid "已购买许可："
+msgstr "パーミッションは購入済み。"
+
+#: Disabled references:1
+msgid "接口许可到期时间："
+msgstr "インターフェースライセンスの有効期限。"
+
+#: Disabled references:1
+msgid "续期"
+msgstr "リニューアル"
+
+#: Disabled references:1
+msgid "购买订单"
+msgstr "発注書"
+
+#: Disabled references:1
+msgid "订单号"
+msgstr "注文番号"
+
+#: Disabled references:1
+msgid "账号数量"
+msgstr "アカウント数"
+
+#: Disabled references:1
+msgid "下单时间"
+msgstr "注文時間"
+
+#: Disabled references:1
+msgid "下单人"
+msgstr "でのご注文"
+
+#: Disabled references:1
+msgid "应用访问次数"
+msgstr "アプリケーション訪問回数"
+
+#: Disabled references:1
+msgid "请选择显示项"
+msgstr "表示項目を選択してください"
+
+#: Disabled references:1
+msgid "每层累计之后所有的值"
+msgstr "各レベルの蓄積後の全数値"
+
+#: Disabled references:1
+msgid "自定义显示项"
+msgstr "カスタマイズされたディスプレイアイテム"
+
+#: Disabled references:1
+msgid "设置漏斗图中显示的项，未显示项仅在图形中隐藏，仍会向上累计"
+msgstr "ファネルチャートに表示する項目を設定します。未表示の項目はグラフに表示されないだけで、上方に蓄積されます。"
+
+#: Disabled references:1
+msgid "搜索选项"
+msgstr "検索オプション"
+
+#: Disabled references:1
+msgid "空值显示"
+msgstr "空値表示"
+
+#: Disabled references:1
+msgid "返回此节点的第一级"
+msgstr "このノードの最初のレベルを返します。"
+
+#: Disabled references:1
+msgid "直接返回退回的层级"
+msgstr "返品されたレベルへのダイレクトリターン"
+
+#: Disabled references:1
+msgid "允许批量 / 快速审批"
+msgstr "一括/高速承認が可能"
+
+#: Disabled references:1
+msgid "允许审批人批量、快速处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填内容（字段、审批意见、签名）。"
+msgstr "承認者が承認タスクを一括かつ迅速に処理できるようにします（モバイルでは、承認待ちリストのボタンを直接クリックして承認することができます）。フォーム内の必須コンテンツ（フィールド、承認コメント、署名）は、承認の一括処理時に無視されます。"
+
+#: Disabled references:1
+msgid "指定的错误消息不能为空"
+msgstr "指定されたエラーメッセージを空にすることはできません"
+
+#: Disabled references:1
+msgid "不定义错误消息"
+msgstr "エラーメッセージが定義されていない"
+
+#: Disabled references:1
+msgid "从输出参数中获取返回值作为错误消息"
+msgstr "出力パラメータからエラーメッセージとして戻り値を取得する"
+
+#: Disabled references:1
+msgid "定义错误消息"
+msgstr "エラーメッセージの定義"
+
+#: Disabled references:1
+msgid "当返回匹配错误结果的 JSON 时，可以自定义中止输出参数时的错误消息"
+msgstr "エラー結果にマッチしたJSONを返す場合、出力パラメータを中止する際のエラーメッセージをカスタマイズすることができる"
+
+#: Disabled references:1
+msgid "当参数返回值满足以下条件时触发错误"
+msgstr "パラメータの戻り値が以下の条件を満たした場合、エラーが発生します。"
+
+#: Disabled references:1
+msgid "指定触发错误时返回的错误消息"
+msgstr "エラーが発生したときに返すエラーメッセージを指定する。"
+
+#: Disabled references:1
+msgid "默认值 (2019-10-01 09:00)"
+msgstr "初期値（2019-10-01 09:00）です。"
+
+#: Disabled references:1
+msgid "默认值 (人员ID)"
+msgstr "初期値（個人ID）"
+
+#: Disabled references:1
+msgid "默认值 (部门ID)"
+msgstr "初期値（部門ID）"
+
+#: Disabled references:1
+msgid "默认值 (示例：[] )"
+msgstr "デフォルト値（例：[] )"
+
+#: Disabled references:1
+msgid "指定状态码和错误消息不能为空"
+msgstr "ステータスコードとエラーメッセージが空でないことを指定する。"
+
+#: Disabled references:1
+msgid "可信 IP 地址"
+msgstr "信頼できるIPアドレス"
+
+#: Disabled references:1
+msgid "某些第三方平台需要设置可信 IP 才能调用API，以下是系统可能使用的 IP 地址"
+msgstr "一部のサードパーティプラットフォームでは、APIを呼び出すために信頼できるIPを設定する必要がありますが、システムで使用できるIPアドレスは次のとおりです。"
+
+#: Disabled references:1
+msgid "使用网络代理"
+msgstr "Webプロキシを利用する"
+
+#: Disabled references:1
+msgid "需要管理员在「组织后台-集成-其他」中配置}"
+msgstr "は、管理者が'Organisation Back Office - Integration - Other'で設定する必要があります}。"
+
+#: Disabled references:1
+msgid "请求失败设置"
+msgstr "リクエスト失敗の設定"
+
+#: Disabled references:1
+msgid "当 API 请求失败时，自定义超时重试次数和错误消息"
+msgstr "APIリクエスト失敗時のタイムアウト再試行回数とエラーメッセージをカスタム設定可能"
+
+#: Disabled references:1
+msgid "请求时长"
+msgstr "要求の長さ"
+
+#: Disabled references:1
+msgid "超时自动重试（最多重试2次）"
+msgstr "タイムアウト後の自動再試行（最大2回まで再試行可能）"
+
+#: Disabled references:1
+msgid "请求成功的 HTTP 状态码"
+msgstr "リクエストに成功した場合のHTTPステータスコード"
+
+#: Disabled references:1
+msgid "示例：200,201（多个状态码用英文逗号隔开）"
+msgstr "例：200,201（複数のステータスコードを英語のカンマで区切ったもの）"
+
+#: Disabled references:1
+msgid "指定 HTTP 状态码错误消息"
+msgstr "HTTPステータスコードのエラーメッセージを指定する"
+
+#: Disabled references:1
+msgid "示例：500"
+msgstr "例：500"
+
+#: Disabled references:1
+msgid "请输入错误消息"
+msgstr "エラーメッセージを入力してください"
+
+#: Disabled references:1
+msgid "状态码"
+msgstr "ステータスコード"
+
+#: Disabled references:1
+msgid "返回其他 HTTP 状态码时的默认错误消息"
+msgstr "他のHTTPステータスコードを返した場合のデフォルトのエラーメッセージ"
+
+#: Disabled references:1
+msgid "勾选后，如果流程节点对象的值不在备选项中，可以将其自动添加至选项列表"
+msgstr "チェックした場合、プロセスノードオブジェクトの値がオプションリストにない場合、自動的にオプションリストに追加されることがあります。"
+
+#: Disabled references:1
+msgid "之后节点在使用本节点对象或数据时将跳过无法匹配值的项"
+msgstr "このノードからオブジェクトやデータを使用する場合、後続のノードでは値が一致しない項目はスキップされます。"
+
+#: Disabled references:1
+msgid "请求超时或请求失败时"
+msgstr "要求がタイムアウトまたは失敗したとき"
+
+#: Disabled references:1
+msgid "触发错误时"
+msgstr "エラーが発生した場合"
+
+#: Disabled references:1
+msgid "请选择组织角色"
+msgstr "組織的な役割を選択してください"
+
+#: Disabled references:1
+msgid "最早的在前"
+msgstr "前者では最も早く"
+
+#: Disabled references:1
+msgid "最晚的在前"
+msgstr "遅くとも"
+
+#: Disabled references:1
+msgid "平台会给未绑定组织用户的企业微信用户创建一个组织账号绑定"
+msgstr "プラットフォームは、組織ユーザーをバインドしていないエンタープライズWeChatユーザーに組織アカウントバインドを作成します"
+
+#: Disabled references:1
+msgid "显示%0项字段"
+msgstr "%0エントリフィールドを表示"
+
+#: Disabled references:1
+msgid " 个；匹配到已有组织用户 "
+msgstr " 個既存の組織ユーザーと照合 "
+
+#: Disabled references:1
+msgid "%0 个企业微信用户需要被同步，已超出组织用户数量限制，请先增购组织用户"
+msgstr "%0のエンタープライズ・ウィーチャット・ユーザーは、組織ユーザー数の制限を超えて同期化される必要があります。まず組織ユーザーを追加してください"
+
+#: Disabled references:1
+msgid "新增组织用户 "
+msgstr "新規組織ユーザー"
+
+#: Disabled references:1
+msgid "; 同步企业微信用户 "
+msgstr "; 同期エンタープライズWeChatユーザー "
 

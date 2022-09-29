@@ -169,6 +169,7 @@ export function initConfigDetail(id, data, currentReport) {
     }
 
     result.xaxes = currentReport.xaxes;
+    result.split = currentReport.split;
 
     if ([reportTypes.NumberChart, reportTypes.FunnelChart, reportTypes.PieChart, reportTypes.CountryLayer].includes(reportType)) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
@@ -190,6 +191,7 @@ export function initConfigDetail(id, data, currentReport) {
       if (isTimeControl(currentReport.xaxes.controlType)) {
         result.xaxes = {};
       }
+      result.split = {};
     }
     if (reportTypes.PivotTable === reportType) {
       result.yaxisList = currentReport.yaxisList;
@@ -320,7 +322,8 @@ export function getSortData(type) {
     type === WIDGETS_TO_API_TYPE_ENUM.AUTO_ID ||
     type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST ||
     type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER ||
-    type === 10000000
+    type === 10000000 ||
+    type === 10000001
   ) {
     return [
       {
@@ -825,6 +828,28 @@ export const chartType = {
 };
 
 /**
+ * 漏斗图图形样式
+ */
+export const funnelShapeList = [{
+  name: _l('平底'),
+  value: 'funnel',
+}, {
+  name: _l('尖底'),
+  value: 'pyramid',
+}];
+
+/**
+ * 漏斗图曲率样式
+ */
+export const funnelCurvatureList = [{
+  name: _l('平滑'),
+  value: 1,
+}, {
+  name: _l('实际'),
+  value: 2,
+}];
+
+/**
  * 为图表的空数据添加空key值
  */
 export const fillMapKey = result => {
@@ -916,10 +941,11 @@ export const fillValueMap = result => {
  * 合并拿一些后端计算后的值
  */
 export const mergeReportData = (currentReport, result, id) => {
-  const alreadySelectControlId = getAlreadySelectControlId(currentReport);
+  const isBarChart = result.reportType === reportTypes.BarChart;
+  const isPivotTable = result.reportType === reportTypes.PivotTable;
   const param = {}
   if (result.status) {
-    if (result.reportType === reportTypes.PivotTable) {
+    if (isPivotTable) {
       param.pivotTable = {
         showColumnCount: result.showColumnCount,
         showColumnTotal: result.showColumnTotal,
@@ -939,16 +965,15 @@ export const mergeReportData = (currentReport, result, id) => {
           summary: result.rightY.summary,
         };
       }
-      if (_.isEmpty(id) && _.isEmpty(result.style) && getIsAlienationColor(result)) {
+      const { style, split } = result;
+      const isOptionColor = getIsAlienationColor(result) || (isBarChart && _.get(split, 'options.length'));
+      if (_.isEmpty(id) && _.isEmpty(style) && isOptionColor) {
         param.style = {
           colorType: 0,
         }
       }
     }
   }
-  // if (!alreadySelectControlId.length) {
-  //   param.reportType = null;
-  // }
   return param;
 }
 
@@ -1159,6 +1184,24 @@ export const normTypes = [
 ];
 
 /**
+ * 空值显示类型
+ */
+export const emptyShowTypes = [
+  {
+    text: _l('隐藏'),
+    value: 0,
+  },
+  {
+    text: _l('显示为 0'),
+    value: 1,
+  },
+  {
+    text: _l('显示为 --'),
+    value: 2,
+  }
+];
+
+/**
  * 关联附件图片的尺寸
  */
 export const relevanceImageSize = [
@@ -1166,6 +1209,12 @@ export const relevanceImageSize = [
   { text: _l('中'), value: 2, px: 60, fileIconSize: { width: 53, height: 60 } },
   { text: _l('大'), value: 3, px: 90, fileIconSize: { width: 79, height: 90 } },
   { text: _l('超大'), value: 4, px: 120, fileIconSize: { width: 120, height: 105 } },
+];
+
+export const rangeDots = [
+  { text: _l('天'), value: 1 },
+  { text: _l('月'), value: 2 },
+  { text: _l('年'), value: 3 },
 ];
 
 /**

@@ -90,6 +90,7 @@ export default function Header(props) {
         >
           <Popup>
             <Conditions
+              from="selectRecordDialog"
               className="selectRecordConditions"
               showQueryBtn
               colNum={1}
