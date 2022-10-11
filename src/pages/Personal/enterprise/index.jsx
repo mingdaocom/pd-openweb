@@ -68,7 +68,7 @@ export default class AccountChart extends React.Component {
       <Fragment>
         {list &&
           list.map(card => {
-            return <EnterpriseCard card={card} key={card.projectId} getData={() => this.get()} />;
+            return <EnterpriseCard card={card} key={card.projectId} getData={() => this.getData()} />;
           })}
       </Fragment>
     );
@@ -139,7 +139,11 @@ export default class AccountChart extends React.Component {
 
   //创建
   handleCreate() {
-    window.open('/enterpriseRegister.htm?type=create');
+    if ((md.global.Account.superAdmin || (md.global.Config.IsPlatformLocal && md.global.SysSettings.enableCreateProject))) {
+      window.open('/enterpriseRegister.htm?type=create');
+    } else {
+      alert('权限不足，无法创建组织', 3);
+    }
   }
 
   renderContent() {

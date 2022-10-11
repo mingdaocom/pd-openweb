@@ -72,7 +72,7 @@ class RegisterContainer extends React.Component {
 
   componentDidMount() {
     if (md.global.SysSettings.hideRegister && (location.href.indexOf('/register') > -1 || (location.href.toLowerCase().indexOf('linkinvite.htm') > -1 && request.projectId))) {
-      location.href = '/login.htm';
+      alert("系统已关闭注册功能", 3, 3000, function () { location.href = '/login.htm' });
       return;
     }
     $('html').addClass('registerContainerCon');

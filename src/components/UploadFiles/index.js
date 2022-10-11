@@ -23,6 +23,7 @@ import { formatFileSize, getToken, upgradeVersionDialog } from 'src/util';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import plupload from 'plupload';
+import { navigateTo } from 'src/router/navigateTo';
 
 export const errorCode = {
   40001: _l('鉴权失败'),

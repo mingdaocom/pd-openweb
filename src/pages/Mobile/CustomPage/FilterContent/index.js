@@ -46,6 +46,8 @@ const DrawerWrap = styled(Drawer)`
   }
 `;
 
+const isPublicShare = location.href.includes('public/page');
+
 function FilterContent(props) {
   const { ids = {}, apk = {}, widget, className } = props;
   const { value } = widget;
@@ -60,7 +62,7 @@ function FilterContent(props) {
   const otherFilters = filters.filter(item => !TextTypes.includes(item.dataType));
 
   useEffect(() => {
-    if (value) {
+    if (value && !isPublicShare) {
       worksheetApi.getFiltersGroupByIds({
         appId: ids.appId,
         filtersGroupIds: [value],
@@ -107,6 +109,14 @@ function FilterContent(props) {
       <Flex justify="center" align="center" className="h100">
         <ActivityIndicator size="large" />
       </Flex>
+    );
+  }
+
+  if (isPublicShare) {
+    return (
+      <Wrap className={cx('flexRow valignWrapper WhiteBG h100', className)}>
+        <div className="Font15 Gray_9e w100 TxtCenter">{_l('暂不支持显示筛选组件')}</div>
+      </Wrap>
     );
   }
 

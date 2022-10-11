@@ -252,9 +252,9 @@ export const updateViewConfig = (view) => {
       endZeroFormat: endControl.type === 16 ? 'YYYY-MM-DD 00:00' : 'YYYY-MM-DD',
       startType: startControl.type,
       endType: endControl.type,
-      startDisable: startControl.fieldPermission === '101',
-      endDisable: endControl.fieldPermission === '101',
-      titleDisable: titleControl.fieldPermission === '101'
+      startDisable: (startControl.fieldPermission || '').split('')[1] === '0',
+      endDisable: (endControl.fieldPermission || '').split('')[1] === '0',
+      titleDisable: (titleControl.fieldPermission || '').split('')[1] === '0'
     }
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: newConfig });
   }

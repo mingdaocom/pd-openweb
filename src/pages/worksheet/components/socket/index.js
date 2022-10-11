@@ -179,7 +179,7 @@ export default function initWorksheetSocket() {
       notification.open({
         content: <NotificationContent className="workflowNoticeContentWrap" {...props} />,
         key: `batchUpdateWorkflowNotice${storeId}`,
-        duration: null,
+        duration: 5,
         maxCount: 3,
       });
     } else {

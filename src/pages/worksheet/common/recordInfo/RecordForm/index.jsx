@@ -208,11 +208,11 @@ export default function RecordForm(props) {
     setRelateNumOfControl({});
   }, [recordId]);
   useEffect(() => {
-    if (!loading && _.get(scrollRef, 'current.triggerNanoScroller')) {
-      setTimeout(() => {
+    setTimeout(() => {
+      if (!loading && _.get(scrollRef, 'current.triggerNanoScroller')) {
         scrollRef.current.triggerNanoScroller();
-      }, 200);
-    }
+      }
+    }, 200);
   }, [loading]);
   function setSplit(value) {
     if (value) {

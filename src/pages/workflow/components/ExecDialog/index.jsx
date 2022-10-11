@@ -81,20 +81,22 @@ export default class ExecDialog extends Component {
     getWorkItem({
       instanceId: id,
       workId: workId,
-    }).then(res => {
-      getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
-        this.setState({
-          sheetSwitchPermit,
-          viewId: res.viewId,
-          worksheetId: res.worksheetId,
-          rowId: res.rowId,
-          loading: false,
+    })
+      .then(res => {
+        getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
+          this.setState({
+            sheetSwitchPermit,
+            viewId: res.viewId,
+            worksheetId: res.worksheetId,
+            rowId: res.rowId,
+            loading: false,
+          });
         });
+      })
+      .fail(res => {
+        onError();
+        onClose();
       });
-    }).fail((res) => {
-      onError();
-      onClose();
-    });
   };
 
   /**
@@ -128,7 +130,7 @@ export default class ExecDialog extends Component {
     return (
       <RecordInfoWrapperComp
         notDialog={isLand}
-        from={4}
+        from={_.get(currentWork, 'flowNode.type') === 5 ? 3 : 4}
         sheetSwitchPermit={sheetSwitchPermit}
         viewId={viewId}
         recordId={rowId}

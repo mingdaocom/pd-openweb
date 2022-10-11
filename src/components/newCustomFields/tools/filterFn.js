@@ -906,7 +906,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     //   LTE: 16, // <=
     //   DATE_LTE: 36, // <= 早于等于
     case FILTER_CONDITION_TYPE.LTE:
-    case FILTER_CONDITION_TYPE.DATE_GTE:
+    case FILTER_CONDITION_TYPE.DATE_LTE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
           if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;

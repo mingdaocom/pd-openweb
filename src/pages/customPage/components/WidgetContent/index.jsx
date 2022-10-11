@@ -49,6 +49,7 @@ const LayoutContent = styled.div`
     &.filter.mobile {
       background-color: transparent;
       box-shadow: none;
+      padding: 0;
       +span.react-resizable-handle {
         display: none;
       }

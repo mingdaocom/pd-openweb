@@ -7,7 +7,7 @@ import userController from 'src/api/user';
 import UserHead from 'src/pages/feed/components/userHead';
 import { LoadDiv, Checkbox, Dialog } from 'ming-ui';
 import { Input } from 'antd';
-
+import captcha from 'src/components/captcha';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);

@@ -13,14 +13,14 @@ const MobileTableContent = styled.div`
     background-color: #f7f7f7;
   }
   .tableIndex {
-    width: 30px !important;
+    width: 20px !important;
     .icon-task-new-delete {
       margin-left: -4px;
     }
   }
   .mobileTableItem {
     width: 0;
-    padding: 8px 0 8px 10px;
+    padding: 8px 0 8px 6px;
     min-height: 36px;
     .editableCellCon {
       flex: 1;
@@ -39,7 +39,7 @@ const MobileTableContent = styled.div`
     justify-content: center;
   }
   .icon-arrow-right-tip {
-    width: 30px;
+    width: 15px;
     text-align: center;
   }
 `;
@@ -56,14 +56,13 @@ export default function MobileTable(props) {
       <div className="mobileTableHeader flexRow valignWrapper">
         {!_.isEmpty(showRows) && <div className="mobileTableItem tableIndex"></div>}
         {showControls.map((c, cIndex) => (
-          <div key={cIndex} className={cx('mobileTableItem flex', { mRight30: cIndex === showControls.length - 1 })}>
-            {' '}
-            {c.controlName}{' '}
+          <div key={cIndex} className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}>
+            {c.controlName}
           </div>
         ))}
       </div>
       {showRows.map((row, i) => (
-        <div className="flexRow valignWrapper" key={i}>
+        <div className="flexRow valignWrapper Font12" key={i}>
           <div className="mobileTableItem tableIndex">
             {isEdit && !(disabled || (!/^temp/.test(row.rowid) && (!allowadd || !allowcancel))) ? (
               <i

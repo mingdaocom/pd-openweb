@@ -15,17 +15,10 @@ import { PRINT_TYPE } from 'src/pages/Print/config';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 @withClickAway
 class ActDia extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isFree: false,
-    };
-  }
-
   render() {
     const { setFn, projectId } = this.props;
     let featureType = getFeatureStatus(projectId, 20);
-    
+
     return (
       <ul className="actDia">
         <li

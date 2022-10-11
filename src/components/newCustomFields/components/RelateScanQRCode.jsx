@@ -36,13 +36,13 @@ export default class Widgets extends Component {
     });
   }
   handleRelateRow = content => {
-    const { worksheetId } = this.props;
+    const currentWorksheetId = this.props.worksheetId;
     if (content.includes('worksheetshare')) {
       const shareId = content.match(/\/worksheetshare\/(.*)/)[1];
       sheetAjax.getShareInfoByShareId({
         shareId,
       }).then(result => {
-        if (worksheetId === result.worksheetId) {
+        if (currentWorksheetId === result.worksheetId) {
           this.getRowById(result);
         } else {
           Toast.fail(_l('无法关联，此记录不在可关联的范围内'));
@@ -50,7 +50,23 @@ export default class Widgets extends Component {
       });
       return;
     } else {
-      this.props.onOpenRecordCardListDialog(content);
+      const result = content.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/);
+      if (result) {
+        const [url, appId, worksheetId, viewId, rowId] = result;
+        if (appId && worksheetId && viewId && rowId) {
+          if (currentWorksheetId === worksheetId) {
+            this.getRowById({
+              appId, worksheetId, viewId, rowId
+            });
+          } else {
+            Toast.fail(_l('无法关联，此记录不在可关联的范围内'));
+          }
+        } else {
+          this.props.onOpenRecordCardListDialog(content);
+        }
+      } else {
+        this.props.onOpenRecordCardListDialog(content);
+      }
     }
   }
   render() {

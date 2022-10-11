@@ -85,6 +85,7 @@ export default class UploadTemplateSheet extends React.Component {
           controls.filter(i => [29, 34].includes(i.type)),
           'dataSource',
         ),
+        handControlSource: true,
       });
 
       const commonControls = [];
@@ -310,7 +311,7 @@ export default class UploadTemplateSheet extends React.Component {
   /**
    * 兼容他表字段
    */
-  strForFile = data => {
+   strForFile = data => {
     let o = data.type === 30 ? { ...data, type: !data.sourceControlType ? data.type : data.sourceControlType } : data;
     return o.type === 42 || o.type === 14 || o.controlId === 'qrCode'
       ? `$[${o.type === 42 ? '48*20' : o.type === 14 ? '90*auto' : '20*20'}]$`

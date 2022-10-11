@@ -213,7 +213,7 @@ class Enterprise extends Component {
     return (
       <Fragment>
         <EmptyProject>
-          <div className="Gray Font17">{_l('您未拥有任何组织，创建或申请加入组织')}</div>
+          <div className="Gray Font17">{_l('您未拥有任何组织，申请加入组织')}</div>
           <div className="flexRow mTop28">
             <button
               type="button"
@@ -222,13 +222,13 @@ class Enterprise extends Component {
             >
               {_l('加入组织')}
             </button>
-            <button
+            {/*<button
               type="button"
               className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
               onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
             >
               {_l('创建组织')}
-            </button>
+            </button>*/}
           </div>
         </EmptyProject>
         <div

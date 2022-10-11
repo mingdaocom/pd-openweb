@@ -10,7 +10,6 @@ import { notification, NotificationContent } from 'ming-ui/components/Notificati
 import { startProcess } from 'src/pages/workflow/api/process';
 import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows, getPrintList } from 'src/api/worksheet';
 import { copyRow } from 'worksheet/controllers/record';
-import { getProjectLicenseInfo } from 'src/api/project';
 import { add } from 'src/api/webCache';
 import { editRecord } from 'worksheet/common/editRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
@@ -21,7 +20,7 @@ import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
 import SubButton from './SubButton';
 import Buttons from './Buttons';
-import { upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -66,8 +65,6 @@ class BatchOperate extends React.Component {
       printListExpanded: false,
       printListLoading: false,
       tempList: [],
-      isNo: null, // 是否没有有批量打印权限
-      isFree: false,
     };
   }
 
@@ -101,49 +98,7 @@ class BatchOperate extends React.Component {
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
-    if (!_.isEqual(this.props.worksheetInfo, nextProps.worksheetInfo) && !!nextProps.worksheetInfo.projectId) {
-      this.projectLicenseInfo(nextProps);
-    }
   }
-
-  projectLicenseInfo = props => {
-    const { worksheetInfo } = props;
-    const { projectId } = worksheetInfo;
-    if (!projectId) {
-      this.setState({
-        isNo: true,
-      });
-      return;
-    }
-    let projects = (_.get(md, ['global', 'Account', 'projects']) || []).filter(it => it.projectId === projectId);
-    if (projects.length <= 0) {
-      // 外部协作
-      getProjectLicenseInfo({
-        projectId: projectId,
-      }).then(data => {
-        let { version = [], licenseType } = data;
-        let { versionId } = version;
-        this.setState({
-          /**
-           * licenseType
-           * 0: 过期
-           * 1: 正式版
-           * 2: 体验版
-           */
-          // 只有旗舰版/专业版可用
-          isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-          isFree: licenseType === 0,
-        });
-      });
-    } else {
-      let { version = [], licenseType } = projects[0];
-      let { versionId } = version;
-      this.setState({
-        isNo: !_.includes([2, 3], versionId) || licenseType === 0,
-        isFree: licenseType === 0,
-      });
-    }
-  };
 
   loadCustomButtons(rowId) {
     const { appId, worksheetId, viewId } = this.props;
@@ -364,10 +319,7 @@ class BatchOperate extends React.Component {
       if (allWorksheetIsSelected || args.hasFilters) {
         reload();
       } else {
-        updateRows(
-          rowIds,
-          [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
-        );
+        updateRows(rowIds, [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })));
       }
       getWorksheetSheetViewSummary();
     });
@@ -392,6 +344,8 @@ class BatchOperate extends React.Component {
       !allWorksheetIsSelected &&
       selectedLength <= 100 &&
       isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
+    const featureType = getFeatureStatus(projectId, 20);
+
     if (allWorksheetIsSelected || (tempList.length <= 0 && !IsQrCodeSwitch)) {
       return '';
     }
@@ -407,6 +361,7 @@ class BatchOperate extends React.Component {
         selectedRows.map(it => {
           selectedRowIds.push(it.rowid);
         });
+
         return (
           <div className="iconText Hand">
             {/* <span
@@ -461,35 +416,36 @@ class BatchOperate extends React.Component {
                     {tempList.map(it => (
                       <MenuItem
                         className=""
-                        onClick={evt => {
+                        onClick={() => {
                           if (featureType === '2') {
                             buriedUpgradeVersionDialog(projectId, 20);
-                          } else {
-                            let printId = it.id;
-                            let printData = {
-                              printId,
-                              isDefault: false, // word模板
-                              worksheetId,
-                              projectId,
-                              rowId: selectedRowIds.join(','),
-                              getType: 1,
-                              viewId,
-                              appId,
-                              name: it.name,
-                              isBatch: true,
-                            };
-                            let printKey = Math.random().toString(36).substring(2);
-                            add({
-                              key: `${printKey}`,
-                              value: JSON.stringify(printData),
-                            });
-                            window.open(
-                              `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`,
-                            );
-                            this.setState({
-                              printListExpanded: false,
-                            });
+                            return;
                           }
+
+                          let printId = it.id;
+                          let printData = {
+                            printId,
+                            isDefault: false, // word模板
+                            worksheetId,
+                            projectId,
+                            rowId: selectedRowIds.join(','),
+                            getType: 1,
+                            viewId,
+                            appId,
+                            name: it.name,
+                            isBatch: true,
+                          };
+                          let printKey = Math.random()
+                            .toString(36)
+                            .substring(2);
+                          add({
+                            key: `${printKey}`,
+                            value: JSON.stringify(printData),
+                          });
+                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
+                          this.setState({
+                            printListExpanded: false,
+                          });
                         }}
                       >
                         <span title={it.name}>{it.name}</span>

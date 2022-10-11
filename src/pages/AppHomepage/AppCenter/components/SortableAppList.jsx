@@ -93,7 +93,10 @@ export default class SortableComponent extends Component {
         transitionDuration={0}
         helperClass="sortableItemHelperClass"
         distance={3}
-        items={sortedIds.map(id => _.find(items, { id })).filter(_.identity)}
+        items={sortedIds
+          .map(id => _.find(items, { id }))
+          .concat(items.filter(item => !_.includes(sortedIds, item.id)))
+          .filter(_.identity)}
         onSortEnd={this.onSortEnd}
       />
     );

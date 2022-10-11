@@ -429,7 +429,7 @@ class AppHome extends React.Component {
       return (
         <div className={cx('noNetworkBox flexColumn', { h100: !noProject })}>
           <div className="noNetworkBoxBG" />
-          <div className="Font17 bold mTop40">{_l('创建或申请加入一个组织，开始创建应用')}</div>
+          <div className="Font17 bold mTop40">{_l('申请加入一个组织，开始创建应用')}</div>
           <div className="flexRow mTop28">
             <button
               type="button"
@@ -438,13 +438,13 @@ class AppHome extends React.Component {
             >
               {_l('加入组织')}
             </button>
-            <button
+            {/*<button
               type="button"
               className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
               onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
             >
               {_l('创建组织')}
-            </button>
+            </button>*/}
           </div>
         </div>
       );

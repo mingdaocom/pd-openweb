@@ -135,9 +135,9 @@ function SwitchProject(props) {
                 <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=add')}>
                   {_l('加入组织')}
                 </NewMenuItem>
-                <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
+                {/*<NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
                   {_l('创建组织')}
-                </NewMenuItem>
+                </NewMenuItem>*/}
               </Menu>
             }
             getPopupContainer={() => createRef.current}
@@ -146,7 +146,7 @@ function SwitchProject(props) {
             <div ref={createRef}>
               <NewMenuItem className="ThemeColor3">
                 <i className="icon icon-add ThemeColor3 Font16 mRight6"></i>
-                <span className="Font15">{_l('加入/创建组织')}</span>
+                <span className="Font15">{_l('加入组织')}</span>
               </NewMenuItem>
             </div>
           </Trigger>

@@ -69,7 +69,6 @@ export default class MobileCheckbox extends Component {
               <input
                 className="flex"
                 type="search"
-                autoFocus
                 placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
                 value={keywords}
                 onChange={evt => this.setState({ keywords: evt.target.value })}

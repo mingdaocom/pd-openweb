@@ -54,6 +54,22 @@ const LayoutContent = styled.div`
   }
 `;
 
+const EmptyData = styled.div`
+  .iconWrap {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-color: #e6e6e6;
+    text-align: center;
+    padding-top: 35px;
+    i {
+      font-size: 60px;
+      color: #bdbdbd;
+    }
+  }
+`;
+
 @withRouter
 @AppPermissions
 export default class CustomPage extends Component {
@@ -139,7 +155,12 @@ export default class CustomPage extends Component {
   renderWithoutData() {
     return (
       <Flex justify="center" align="center" className="h100">
-        <div>{_l('此页面下暂无内容')}</div>
+        <EmptyData>
+          <div className="iconWrap">
+            <i className="icon-custom_widgets"></i>
+          </div>
+          <p className="Gray_75 TxtCenter">{_l('没有内容')}</p>
+        </EmptyData>
       </Flex>
     );
   }

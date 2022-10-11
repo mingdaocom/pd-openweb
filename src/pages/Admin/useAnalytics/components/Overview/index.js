@@ -232,30 +232,38 @@ export default class Overview extends Component {
           totalNumberOfRow: formatter(totalNumberOfRow) + _l(' 条'),
           recordTotal: formatter(recordTotal) + _l(' 人'),
           recordStatisticsResult: [
-            rowStatisticsResult.map(item => ({
-              ...item,
-              value1: item.value,
-              category: _l('行记录数'),
-            })),
-            personStatisticsResult.map(item => ({
-              ...item,
-              value2: item.value,
-              category: _l('人数'),
-            })),
+            _.isEmpty(rowStatisticsResult)
+              ? [{ value1: 10000, value: 10000, category: _l('行记录数') }]
+              : rowStatisticsResult.map(item => ({
+                  ...item,
+                  value1: item.value,
+                  category: _l('行记录数'),
+                })),
+            _.isEmpty(personStatisticsResult)
+              ? [{ value1: 10000, value: 10000, category: _l('人数') }]
+              : personStatisticsResult.map(item => ({
+                  ...item,
+                  value2: item.value,
+                  category: _l('人数'),
+                })),
           ],
           totalDegree: formatter(totalDegree) + _l(' 次'),
           appTotal: formatter(appTotal) + _l(' 人'),
           appStatisticsResult: [
-            degreeStatisticsResult.map(item => ({
-              ...item,
-              value1: item.value,
-              category: _l('次数'),
-            })),
-            apppersonStatisticsResult.map(item => ({
-              ...item,
-              value2: item.value,
-              category: _l('人数'),
-            })),
+            _.isEmpty(degreeStatisticsResult)
+              ? [{ value1: 10000, value: 10000, category: _l('次数') }]
+              : degreeStatisticsResult.map(item => ({
+                  ...item,
+                  value1: item.value,
+                  category: _l('次数'),
+                })),
+            _.isEmpty(apppersonStatisticsResult)
+              ? [{ value2: 10000, value: 10000, category: _l('人数') }]
+              : apppersonStatisticsResult.map(item => ({
+                  ...item,
+                  value2: item.value,
+                  category: _l('人数'),
+                })),
           ],
           loading: false,
         });
@@ -271,7 +279,7 @@ export default class Overview extends Component {
       ((selectedDate === 2 || selectedDate === 3 || selectedDate === 4) && currentDimension === '1d') ||
       (selectedDate === 4 && currentDimension === '1w');
     let isEmpty = _.isArray(data[0]) ? _.isEmpty(data[0]) && _.isEmpty(data[1]) : _.isEmpty(data);
-    
+
     return (
       <div className="w100 chartCon Relative">
         {!loading && !isEmpty && <span className="Absolute totalTxt">{_l('总计：')}</span>}

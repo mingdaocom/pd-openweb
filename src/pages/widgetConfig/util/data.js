@@ -339,13 +339,13 @@ export const dealControlPos = controls => {
   return _.flatten(sortableControls.map((item, row) => item.map((control, col) => ({ ...control, row, col }))));
 };
 
-export const formatControlsData = (controls = []) => {
+export const formatControlsData = (controls = [], fromSub = false) => {
   return controls.map(data => {
     const { type } = data;
 
     // 子表控件递归处理其中的字段
     if (type === 34) {
-      return { ...data, relationControls: formatControlsData(data.relationControls) };
+      return { ...data, relationControls: formatControlsData(data.relationControls, true) };
     }
 
     // 数字控件处理极值
@@ -374,7 +374,9 @@ export const formatControlsData = (controls = []) => {
         data = handleFilters(data);
       }
       // 关联表sid处理
-      return omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls');
+      return fromSub
+        ? omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls', 'sourceControl')
+        : omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls');
     }
     // 汇总 筛选values 处理成 [id, id]
     if (type === 37) {

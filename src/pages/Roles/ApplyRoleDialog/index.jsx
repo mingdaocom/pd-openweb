@@ -122,7 +122,7 @@ export default class extends React.PureComponent {
                   }}
                   className={styles.roleAvatar}
                 />
-                <div className={styles.memberName}>{user.fullName}</div>
+                <div className={styles.memberName} title={user.fullName}>{user.fullName}</div>
               </div>
               <div className={styles.applyRemark} title={remark}>
                 {remark}

@@ -73,18 +73,6 @@ class InfoTop extends React.PureComponent {
                 </span>
               </div>
             )}
-            <div className="Height30 pLeft15 Gray_6">
-              <div className="Right mRight30 mTop3">
-                {_l('积分：')}
-                <span className="ThemeColor3">{userInfo.mark}</span>
-                <span className="ThemeColor3 mLeft20">{userInfo.grade}</span>
-              </div>
-              <div className="gradePrograssBar mTop15 Left" id="gradePrograssBar">
-                <div className="prograssBarBG ThemeBGColor6 boderRadAll_5">
-                  <div className="prograssBar ThemeBGColor3 boderRadAll_5" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div className="w100 clearfix">

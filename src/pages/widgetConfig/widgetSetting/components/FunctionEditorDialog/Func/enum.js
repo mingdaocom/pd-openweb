@@ -6,7 +6,6 @@ dayjs.extend(isBetween);
 import _ from 'lodash';
 import { calcDate } from 'worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
-import { returnMasterPage } from 'src/pages/widgetConfig/util';
 
 function newDate(dateStr) {
   return new Date(dayjs(dateStr).valueOf());
