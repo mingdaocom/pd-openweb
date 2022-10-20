@@ -129,6 +129,7 @@ function Buttons(props) {
               style={{ position: 'relative' }}
               onClickAway={() => setPopupVisible(false)}
               onClickAwayExceptions={[
+                '.mdModalWrap',
                 '.mdDialog',
                 '.mui-dialog-container',
                 '.dropdownTrigger',

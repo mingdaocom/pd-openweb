@@ -104,7 +104,7 @@ class PositionInfo extends Component {
           clickBackList={() => {
             this.props.updateIsImportRole(false);
           }}
-          downLoadUrl={'/staticfiles/template/职位导入模板.xlsx'}
+          downLoadUrl={'/staticfiles/template/positionImport.xlsx'}
           updateList={() => {
             this.props.updatePositionPageInfo({ pageIndex: 1, isMore: false });
             this.props.getPositionList();

@@ -59,10 +59,13 @@ class StructureContent extends Component {
   };
 
   renderUserCount() {
-    const { allCount, departmentId } = this.props;
-    return typeof allCount !== 'undefined' ? (
-      <span className={cx('color_9e mLeft6 mRight8', { TxtMiddle: departmentId })}>{allCount}</span>
-    ) : null;
+    const { allCount, departmentId, typeCursor, approveNumber } = this.props;
+
+    return (
+      <span className={cx('color_9e mLeft6 mRight8', { TxtMiddle: departmentId })}>
+        {typeCursor === 3 && !_.isUndefined(approveNumber) ? approveNumber : _.isUndefined(allCount) ? allCount : ''}
+      </span>
+    );
   }
   // 添加成员
   addUser = () => {
@@ -243,7 +246,8 @@ export default connect(
       current,
       pagination: { userList = [] },
     } = state;
-    const { departmentId, root, projectId, typeNum, typeCursor, selectedAccountIds, isSelectAll } = current;
+    const { departmentId, root, projectId, typeNum, typeCursor, selectedAccountIds, isSelectAll, approveNumber } =
+      current;
     const isRoot = departmentId === root;
     const { departments } = state.entities;
     let departmentInfos = departments[departmentId];
@@ -264,6 +268,7 @@ export default connect(
       isSelectAll,
       userList,
       departmentInfos,
+      approveNumber,
     };
   },
   dispatch =>

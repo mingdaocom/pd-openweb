@@ -8,17 +8,17 @@ export default function confirm(props) {
   const container = document.createElement('div');
   document.body.appendChild(container);
 
-  function handleClose(needExecCancel = true) {
+  const handleClose = (needExecCancel = true, isOkBtn) => {
     setTimeout(() => {
       const res = ReactDOM.unmountComponentAtNode(container);
       if (res && container.parentNode) {
         container.parentNode.removeChild(container);
       }
       if (needExecCancel && _.isFunction(props.onCancel)) {
-        props.onCancel();
+        props.onCancel(isOkBtn);
       }
     }, 0);
-  }
+  };
 
   let footer = (
     <div className="Dialog-footer-btns">
@@ -33,7 +33,7 @@ export default function confirm(props) {
       )}
       <ConfirmButton
         action={props.onOk}
-        onClose={() => handleClose(!props.onlyClose)}
+        onClose={() => handleClose(!props.onlyClose, true)}
         type={props.buttonType || 'primary'}
       >
         {props.okText || '确认'}

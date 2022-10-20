@@ -159,7 +159,7 @@ export default class CustomPage extends Component {
           <div className="iconWrap">
             <i className="icon-custom_widgets"></i>
           </div>
-          <p className="Gray_75 TxtCenter">{_l('没有内容')}</p>
+          <p className="Gray_75 TxtCenter mTop16">{_l('没有内容')}</p>
         </EmptyData>
       </Flex>
     );

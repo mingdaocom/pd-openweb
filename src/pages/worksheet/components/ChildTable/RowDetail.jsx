@@ -143,7 +143,7 @@ export default class RowDetail extends React.Component {
           flag={flag}
           projectId={projectId}
           appId={appId}
-          checkCellUnique={handleUniqueValidate}
+          checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
           onChange={this.handleChange}
           onRulesLoad={onRulesLoad}
         />

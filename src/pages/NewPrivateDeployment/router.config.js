@@ -58,7 +58,7 @@ const settingMenus = [{
 }];
 
 const managementMenus = [{
-  title: _l('秘钥管理'),
+  title: _l('密钥管理'),
   icon: 'key1',
   type: 'privateKey',
   routes: [{

@@ -83,7 +83,7 @@ class RoleManage extends Component {
           clickBackList={() => {
             this.props.updateIsImportRole(false);
           }}
-          downLoadUrl={'/staticfiles/template/职位导入模板.xlsx'}
+          downLoadUrl={'/staticfiles/template/positionImport.xlsx'}
           updateList={() => {
             this.props.updateRolePageInfo({ pageIndex: 1, isMore: false });
             this.props.getRoleList();

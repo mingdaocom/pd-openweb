@@ -36,6 +36,7 @@ export default function RowHead(props) {
   const [confirmVisible, setConfirmVisible] = useState();
   const {
     allowAdd,
+    allowOpenRecord,
     layoutChangeVisible,
     allowRemoveRelation,
     className,
@@ -99,7 +100,10 @@ export default function RowHead(props) {
               allowCopy
               allowAdd={allowAdd}
               isRelateRecordTable
-              shows={cx('share', 'print', 'copy', { openinnew: viewId, removeRelation: allowRemoveRelation })}
+              shows={cx('share', 'print', 'copy', {
+                openinnew: viewId && allowOpenRecord,
+                removeRelation: allowRemoveRelation,
+              })}
               formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
               disableLoadCustomButtons={!viewId}
               allowDelete={row.allowdelete}

@@ -299,6 +299,7 @@ export default class SelectUser extends Component {
   };
   renderSearch() {
     const { searchValue } = this.state;
+    const { type } = this.props;
     return (
       <div className="searchWrapper">
         <Icon icon="h5_search" />
@@ -311,7 +312,7 @@ export default class SelectUser extends Component {
         >
           <input
             type="text"
-            placeholder={_l('搜索人员')}
+            placeholder={type === 'user' ? _l('搜索人员') : _l('搜索部门')}
             className="Font14"
             value={searchValue}
             onChange={e => {
@@ -704,10 +705,10 @@ export default class SelectUser extends Component {
   }
   renderContent() {
     const { departmentVisible } = this.state;
-    const { userType = 1 } = this.props;
+    const { userType = 1, type } = this.props;
     return (
       <div className="flex flexColumn">
-        {this.renderSearch()}
+        {((type === 'user' && !departmentVisible) || type === 'department') && this.renderSearch()}
         {this.renderSelected()}
         {departmentVisible && (userType === 1 || userType === 3) ? this.renderDepartment() : null}
         {!departmentVisible ? this.renderUsers() : null}

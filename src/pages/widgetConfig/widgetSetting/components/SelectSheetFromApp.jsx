@@ -6,6 +6,7 @@ import { getWorksheetsByAppId } from 'src/api/homeApp';
 import { getAppForManager } from 'src/api/appManagement';
 import { useSetState } from 'react-use';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 const SelectItem = styled.div`
   .title {
@@ -59,20 +60,29 @@ export default function SelectSheetFromApp(props) {
 
   useEffect(() => {
     getAppForManager({ projectId, type: 0 }).then(res => {
+      let selectAppId = '';
       const getFormatApps = () => {
         const currentIndex = _.findIndex(res, item => item.appId === currentAppId);
         const currentApp = currentIndex > -1 ? res[currentIndex] : [];
         const appList = [currentApp].concat(update(res, { $splice: [[currentIndex, 1]] }));
         if (appList.length < 1) return [];
+        if (sheetId) {
+          appList.forEach(i => {
+            if (_.find(i.workSheetInfo || [], w => w.workSheetId === sheetId)) {
+              selectAppId = i.appId;
+            }
+          });
+        }
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
             ? { text: _l('%0  (本应用)', appName), value: appId }
             : { text: appName, value: appId },
         );
       };
-      setData({
-        app: getFormatApps(),
-      });
+      setData({ app: getFormatApps() });
+      if (selectAppId) {
+        setIds({ appId: selectAppId });
+      }
     });
   }, []);
 

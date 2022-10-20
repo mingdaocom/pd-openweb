@@ -172,7 +172,7 @@ function CustomPageContent(props) {
             <div className="iconWrap">
               <i className="icon-custom_widgets"></i>
             </div>
-            <p>{_l('没有内容')}</p>
+            <p className='mTop16'>{_l('没有内容')}</p>
           </div>
         }
       />

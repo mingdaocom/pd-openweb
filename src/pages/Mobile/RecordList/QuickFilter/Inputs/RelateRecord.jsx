@@ -90,7 +90,7 @@ export default function RelateRecord(props) {
           selectedCount={values.length}
           from={5}
           control={control}
-          allowNewRecord={true}
+          allowNewRecord={false}
           multiple={isMultiple}
           coverCid={coverCid}
           filterRowIds={[]}

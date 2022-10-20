@@ -335,10 +335,7 @@ export default class Text extends React.Component {
                 );
               } else {
                 return (
-                  <div
-                    className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}
-                    title={text}
-                  >
+                  <div className={cx({ linelimit: needLineLimit, ellipsis: isMobile })} title={text}>
                     {text}
                   </div>
                 );

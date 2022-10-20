@@ -375,11 +375,19 @@ class ProcessRecord extends Component {
     const { submitLoading } = this.state;
     if (submitLoading) return;
     this.setState({ submitLoading: true, otherActionVisible: false });
-    instance[action]({ id: instanceId, workId, ...restPara }).then(() => {
+    instance[action]({ id: instanceId, workId, ...restPara }).then((data) => {
       if (isModal) {
         onClose({id: instanceId});
       } else {
         window.mobileNavigateTo('/mobile/processMatters');
+      }
+      if (_.get(window, 'JSBridgeAdapter.approvalEvent') && _.includes(['pass', 'overrule'], action)) {
+        window.JSBridgeAdapter.approvalEvent({
+          type: action === 'pass' ? 1 : 2,
+          enterType: 2,
+          result: data,
+          workData: this.state.instance
+        });
       }
     });
   };
@@ -648,6 +656,7 @@ class ProcessRecord extends Component {
         <div className="flex" ref={con => (this.con = con)}>
           <CustomFields
             from={6}
+            ignoreLock={true}
             flag={random.toString()}
             appId={app.id}
             ref={this.customwidget}

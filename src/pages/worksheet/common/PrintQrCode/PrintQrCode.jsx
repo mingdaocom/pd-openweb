@@ -116,7 +116,7 @@ export default class PrintQrCode extends Component {
     if (shareType === 1) {
       this.getShortUrl(execute);
     } else {
-      execute(selectedRows.map(r => `${location.origin}/app/${appId}/${worksheetId}/row/${r.rowid}`));
+      execute(selectedRows.map(r => `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`));
     }
   }
   getSizeData(type) {

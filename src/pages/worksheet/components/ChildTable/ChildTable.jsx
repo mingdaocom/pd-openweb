@@ -128,7 +128,7 @@ class ChildTable extends React.Component {
     const isAddRecord = !nextProps.recordId;
     const valueChanged = !_.isEqual(control.value, nextControl.value);
     if (nextProps.recordId !== this.props.recordId) {
-      this.refresh(nextProps);
+      this.refresh(nextProps, { needResetControls: false });
     } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
       initRows([]);
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'reset') {
@@ -319,9 +319,9 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  refresh(nextProps) {
+  refresh(nextProps, { needResetControls = true } = {}) {
     this.setState({ loading: true, sortedControl: undefined });
-    this.loadRows(nextProps, { needResetControls: true });
+    this.loadRows(nextProps, { needResetControls });
   }
 
   getShowColumns() {
@@ -474,10 +474,10 @@ class ChildTable extends React.Component {
 
   @autobind
   handleAddRowsFromRelateRecord(batchAddControls) {
-    const { addRows, entityName } = this.props;
+    const { addRows, entityName, control } = this.props;
     const { controls } = this.state;
-    const control = batchAddControls[0];
-    if (!control) {
+    const relateRecordControl = batchAddControls[0];
+    if (!relateRecordControl) {
       return;
     }
     this.updateDefsourceOfControl();
@@ -487,18 +487,20 @@ class ChildTable extends React.Component {
       entityName,
       canSelectAll: true,
       multiple: true,
-      control,
+      control: relateRecordControl,
+      controlId: control.controlId,
+      parentWorksheetId: control.dataSource,
       allowNewRecord: false,
-      viewId: control.viewId,
-      relateSheetId: control.dataSource,
+      viewId: relateRecordControl.viewId,
+      relateSheetId: relateRecordControl.dataSource,
       formData: controls.map(c => ({ ...c, value: tempRow[c.controlId] })).concat(this.props.masterData.formData),
       onOk: selectedRecords => {
         addRows(
           selectedRecords.map(selectedRecord => {
             const row = this.rowUpdate({
               row: this.newRow(),
-              controlId: control.controlId,
-              value: JSON.stringify(formatRecordToRelateRecord(control.relationControls, [selectedRecord])),
+              controlId: relateRecordControl.controlId,
+              value: JSON.stringify(formatRecordToRelateRecord(relateRecordControl.relationControls, [selectedRecord])),
             });
             return row;
           }),
@@ -627,9 +629,9 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  handleUniqueValidate(controlId, value) {
+  handleUniqueValidate(controlId, value, rowId) {
     const { rows } = this.props;
-    return !_.find(rows, row => row[controlId] === value);
+    return !_.find(rowId ? rows.filter(row => row.rowid !== rowId) : rows, row => row[controlId] === value);
   }
 
   @autobind

@@ -4,6 +4,7 @@ import { Table } from 'antd';
 import Config from '../../config';
 import jobController from 'src/api/job';
 import departmentController from 'src/api/department';
+import captcha from 'src/components/captcha';
 import UploadFile from '../UploadFile';
 import styled from 'styled-components';
 import cx from 'classnames';

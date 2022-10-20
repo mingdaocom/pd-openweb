@@ -152,7 +152,7 @@ export default class CellControl extends React.Component {
     const { tableFromModule, cellUniqueValidate, clearCellError, formdata } = this.props;
     let { errorType } = onValidator(cell, undefined, formdata());
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
-      errorType = cellUniqueValidate(cell.controlId, cell.value) ? '' : 'UNIQUE';
+      errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
     }
     this.errorCleared = !errorType;
     return errorType;

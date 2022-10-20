@@ -890,7 +890,7 @@ export default class SingleControlValue extends Component {
                   {
                     fieldValue: unique
                       ? JSON.stringify(roles)
-                      : JSON.stringify(JSON.parse(item.fieldValue).concat(roles)),
+                      : JSON.stringify(JSON.parse(item.fieldValue || '[]').concat(roles)),
                   },
                   i,
                 );

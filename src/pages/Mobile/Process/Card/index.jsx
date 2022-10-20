@@ -57,6 +57,14 @@ export default class Card extends Component {
           alert(_l('操作成功'));
           onApproveDone(item);
         }
+        if (_.get(window, 'JSBridgeAdapter.approvalEvent')) {
+          window.JSBridgeAdapter.approvalEvent({
+            type: action === 'pass' ? 1 : 2,
+            enterType: 1,
+            result: data,
+            workData: this.props.item
+          });
+        }
       });
     }
   }

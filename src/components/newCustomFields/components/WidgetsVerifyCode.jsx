@@ -72,7 +72,8 @@ export default class WidgetsVerifyCode extends Component {
       });
     };
 
-    let onCancel = () => {
+    let onCancel = isOk => {
+      if (isOk) return;
       this.setState({ isSubmit: false });
     };
 

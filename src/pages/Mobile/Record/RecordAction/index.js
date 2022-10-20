@@ -148,7 +148,7 @@ class RecordAction extends Component {
     }
     if (pushType === PUSH_TYPE.CREATE) {
       this.getAppSimpleInfo(worksheetId).then(({ appId }) => {
-        location.href = `/mobile/addRecord/${appId}/${worksheetId}/${viewId}`;
+        location.href = `/mobile/addRecord/${appId}/${worksheetId}/${this.props.viewId}`;
       });
     }
     if (pushType === PUSH_TYPE.DETAIL) {

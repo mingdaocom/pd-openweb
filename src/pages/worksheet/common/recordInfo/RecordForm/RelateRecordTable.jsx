@@ -401,11 +401,14 @@ export default function RelateRecordTable(props) {
     if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
       if (isNewRecord) {
         onRelateRecordsChange(records);
-      } else {
-        setRelateNumOfControl(count);
       }
     }
-  }, [count, records, lastAction]);
+  }, [records, lastAction]);
+  useEffect(() => {
+    if (!isNewRecord) {
+      setRelateNumOfControl(count);
+    }
+  }, [count]);
   const columns = tableControls.length
     ? tableControls.filter(c => !_.find(sheetHiddenColumnIds, id => c.controlId === id))
     : [{ controlId: 'tip' }];
@@ -495,6 +498,7 @@ export default function RelateRecordTable(props) {
         sheetViewHighlightRows={highlightRows}
         renderRowHead={({ className, style, rowIndex, row }) => (
           <RowHead
+            allowOpenRecord={allowlink !== '0'}
             className={className}
             style={style}
             rowIndex={rowIndex}

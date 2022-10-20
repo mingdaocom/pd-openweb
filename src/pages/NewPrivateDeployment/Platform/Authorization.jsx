@@ -41,18 +41,18 @@ const Wrap = styled.div`
 
 const columns = [
   {
-    title: _l('更新秘钥时间'),
+    title: _l('更新密钥时间'),
     dataIndex: 'logTime',
     key: 'logTime'
   },
   {
-    title: _l('秘钥生效时间'),
+    title: _l('密钥生效时间'),
     dataIndex: 'startDate',
     key: 'startDate',
     render: (_, data) => moment(data.startDate).format('YYYY-MM-DD')
   },
   {
-    title: _l('秘钥到期时间'),
+    title: _l('密钥到期时间'),
     dataIndex: 'expirationDate',
     key: 'expirationDate',
     render: (_, data) => moment(data.expirationDate).format('YYYY-MM-DD')
@@ -122,7 +122,7 @@ const AuthorizationInfo = props => {
       ) : (
         <div className="flexRow">
           <div className="flexColumn valignWrapper flex">
-            <div className="Font14 Gray_9e mBottom10 pBottom2">{_l('秘钥到期时间')}</div>
+            <div className="Font14 Gray_9e mBottom10 pBottom2">{_l('密钥到期时间')}</div>
             <div className="Font17 mBottom10 bold">{formatDate(platformLicenseInfo.expirationDate)}</div>
             <div className="Font13 Gray_bd">{_l('%0到期', moment(platformLicenseInfo.expirationDate).format('YYYY年MM月DD日') )}</div>
           </div>
@@ -171,7 +171,7 @@ const VersionsInfo = props => {
               <div>{serverInfo.systemVersion}</div>
             </div>
             <div className="flexRow valignWrapper mBottom15">
-              <div className="Gray_75 Font13 label">{_l('秘钥版本')}</div>
+              <div className="Gray_75 Font13 label">{_l('密钥版本')}</div>
               <div>{serverInfo.licenseTemplateVersion}</div>
             </div>
             <div className="flexRow valignWrapper mBottom15">
@@ -231,7 +231,7 @@ const Log = props => {
           className="updatePrivateKey pointer bold"
           onClick={() => setPrivateKeyDialogVisible(true)}
         >
-          {_l('更新秘钥')}
+          {_l('更新密钥')}
         </div>
       </div>
       <PrivateKeyDialog

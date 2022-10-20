@@ -437,6 +437,7 @@ const GroupFilter = props => {
     setDrawerVisible(!drawerVisible);
   };
   const getDefaultValueInCreate = () => {
+    if (_.isEmpty(mobileNavGroupFilters)) return;
     let data = mobileNavGroupFilters[0];
     if ([9, 10, 11].includes(data.dataType)) {
       return { [data.controlId]: JSON.stringify([data.values[0]]) };

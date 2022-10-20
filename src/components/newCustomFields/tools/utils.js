@@ -499,9 +499,30 @@ export const getCurrentValue = (item, data, control) => {
         case 10:
         case 11:
           const ids = JSON.parse(data || '[]');
-          return (item.options || [])
-            .filter(item => _.includes(ids, item.key) && !item.isDeleted)
-            .map(i => i.value)
+          return ids
+            .map(i => {
+              let d = '';
+
+              try {
+                const da = JSON.parse(i);
+                if (typeof da === 'object') {
+                  return da.value;
+                } else {
+                  d = i;
+                }
+              } catch (e) {
+                d = i;
+              }
+              if (d.toString().indexOf('add_') > -1) {
+                return d.split('add_')[1];
+              }
+              return (
+                _.get(
+                  _.find(item.options || [], t => t.key === d && !t.isDeleted),
+                  'value',
+                ) || ''
+              );
+            })
             .join('、');
         case 15:
         case 16:

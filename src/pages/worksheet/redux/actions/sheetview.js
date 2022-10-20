@@ -189,14 +189,15 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
-          dispatch({
-            type: 'WORKSHEET_SHEETVIEW_UPDATE_ROW_CACHE',
-            recordId,
-            controlId,
-            value: res.data[controlId],
-          });
           if (_.isFunction(options.updateSucessCb)) {
             options.updateSucessCb(res.data);
+          } else {
+            dispatch({
+              type: 'WORKSHEET_SHEETVIEW_UPDATE_ROW_CACHE',
+              recordId,
+              controlId,
+              value: res.data[controlId],
+            });
           }
           dispatch(getWorksheetSheetViewSummary());
           // 处理新增自定义选项

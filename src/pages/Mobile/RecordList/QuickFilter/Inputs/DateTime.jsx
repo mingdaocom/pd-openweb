@@ -18,7 +18,7 @@ const InputCon = styled(Input)`
 `;
 
 export default function DateTime(props) {
-  const { dateRange, minValue, maxValue, advancedSetting = {}, onChange = () => {}, control } = props;
+  const { dateRange, minValue, maxValue, advancedSetting = {}, onChange = () => {}, onRemove = () => {}, control } = props;
   const [moreVisible, setMoreVisible] = useState(false);
   const [startDateVisible, setStartDateVisible] = useState(false);
   const [endDateVisible, setEndDateVisible] = useState(false);
@@ -93,12 +93,16 @@ export default function DateTime(props) {
               }}
               onCancel={() => {
                 setStartDateVisible(false);
-                onChange({
-                  dateRange: 18,
-                  filterType: 31,
-                  minValue: null,
-                  maxValue,
-                });
+                if (maxValue) {
+                  onChange({
+                    dateRange: 18,
+                    filterType: 31,
+                    minValue: null,
+                    maxValue,
+                  });
+                } else {
+                  onRemove();
+                }
               }}
               {...startDateExtraObj}
             />
@@ -137,12 +141,16 @@ export default function DateTime(props) {
               }}
               onCancel={() => {
                 setEndDateVisible(false);
-                onChange({
-                  dateRange: 18,
-                  filterType: 31,
-                  minValue,
-                  maxValue: null,
-                });
+                if (minValue) {
+                  onChange({
+                    dateRange: 18,
+                    filterType: 31,
+                    minValue,
+                    maxValue: null,
+                  });
+                } else {
+                  onRemove();
+                }
               }}
             />
           )}

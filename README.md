@@ -19,7 +19,7 @@
 # 联系我们
 
 * 提交 issue
-* 零代码社区 http://bbs.mingdao.net
+* 零代码社区 http://bbs.mingdao.net/
 
 # 许可证
 [Apache 2.0 License.](/LICENSE)

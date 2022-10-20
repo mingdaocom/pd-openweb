@@ -16,6 +16,7 @@ const Con = styled.div`
     overflow-y: auto;
     z-index: 1;
     background: #fff;
+    padding-bottom: 30px;
   }
 `;
 

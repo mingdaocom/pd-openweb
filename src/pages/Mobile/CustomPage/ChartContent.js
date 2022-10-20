@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Fragment, useRef } from 'react';
+import { useDeepCompareEffect } from 'react-use';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
@@ -81,11 +82,9 @@ function ChartContent(props) {
   const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
   const request = useRef(null);
 
-  useEffect(() => {
-    if (Object.keys(props.filtersGroup).length) {
-      handleReportRequest();
-    }
-  }, [props.filtersGroup]);
+  useDeepCompareEffect(() => {
+    handleReportRequest();
+  }, [filtersGroup]);
 
   useEffect(() => {
     handleReportRequest();
@@ -116,6 +115,9 @@ function ChartContent(props) {
     setLoading(true);
     if (request.current && request.current.state() === 'pending' && request.current.abort) {
       request.current.abort();
+    }
+    if (request.current && request.current.state() === 'resolved') {
+      setData({ name });
     }
     request.current = report.getData(requestParam, (shareAuthor || accessToken) ? { headersConfig } : { fireImmediately: true });
     request.current.then(data => {

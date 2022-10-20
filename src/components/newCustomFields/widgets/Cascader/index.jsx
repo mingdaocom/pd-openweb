@@ -9,6 +9,7 @@ import { Modal, List } from 'antd-mobile';
 import { FROM } from '../../tools/config';
 import nzh from 'nzh';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -569,7 +570,11 @@ export default class Widgets extends Component {
         allowClear
         showSearch={{
           filter: (inputValue, result = []) => {
-            return result.some(
+            let filterResult = result;
+            if (+anylevel) {
+              filterResult = result.filter(i => !_.find(this.cacheData, da => da.pid === i.value));
+            }
+            return filterResult.some(
               option =>
                 JSON.parse(option.path || '[]')
                   .join('/')

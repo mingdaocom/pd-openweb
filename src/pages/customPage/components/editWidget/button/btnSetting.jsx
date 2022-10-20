@@ -722,19 +722,21 @@ function BtnSetting(props) {
 
   const changeAction = (value) => {
     const data = { ...btnSetting, ...initConfigData, action: value };
+
     if (value === 5) {
       data.config = {
         ...data.config,
         ...ScanDefaultConfig,
         inputs: [],
       }
-    }
-    if (value === 6) {
+    } else if (value === 6) {
       data.config = {
         ...data.config,
         ...ProcessDefaultConfig,
         inputs: [],
       }
+    } else {
+      data.config = {}
     }
 
     if (_.get(data, ['config', 'isNewBtn'])) {

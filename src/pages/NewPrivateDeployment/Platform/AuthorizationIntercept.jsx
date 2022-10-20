@@ -68,7 +68,7 @@ const AuthorizationIntercept = () => {
       ) : (
         <Fragment>
           <div className="Font24 bold mBottom18">{_l('请输入密钥')}</div>
-          <div className="Font13 Gray_75 mBottom2">{_l('秘钥版本')}: {serverInfo.licenseTemplateVersion}</div>
+          <div className="Font13 Gray_75 mBottom2">{_l('密钥版本')}: {serverInfo.licenseTemplateVersion}</div>
           <div className="Font13 Gray_75">
             {_l('服务器ID')}: {serverInfo.serverId}
             <Icon

@@ -124,7 +124,12 @@ export default class SelectFields extends Component {
     const { onMultiUserChange, dynamicValue } = this.props;
     const newValue = checked
       ? update(dynamicValue, {
-          $push: [{ cid: fieldId, rcid: relateSheetControlId, staticValue: '' }],
+          $push: [
+            {
+              ...{ cid: fieldId, rcid: relateSheetControlId, staticValue: '' },
+              ...(para.isAsync ? { isAsync: true } : {}),
+            },
+          ],
         })
       : update(dynamicValue, {
           $splice: [[_.findIndex(dynamicValue, item => item.cid === fieldId && item.rcid === relateSheetControlId), 1]],
@@ -179,6 +184,7 @@ export default class SelectFields extends Component {
                               this.handleMultiUserClick({
                                 checked: !checked,
                                 ...ids,
+                                isAsync: data.type === 27 && type === 26,
                               });
                             }}
                           >
