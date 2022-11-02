@@ -120,7 +120,6 @@ function DefaultValue(props) {
     onChangeConfig({
       ...config,
       temporaryWriteControls: writeControls,
-      controls,
       isEmptyWriteControls: writeControls.length ? undefined : true
     });
   }

@@ -97,6 +97,7 @@ const createActions = (dispatch, state) => ({
         count: data.count,
         pageIndex,
         pageSize,
+        filterControls,
         loading: false,
       });
     });
@@ -139,13 +140,23 @@ export default function WorkSheetTrash(props) {
   const [selectRows, setSelectRows] = useState([]);
   const [sortControl, setSortControl] = useState();
   const [state, dispatch] = useReducer(trashReducer, { records: [] });
-  const { loading = true, count = 0, pageIndex = 1, pageSize = PAGE_SIZE, records = [], searchText = '' } = state;
+  const {
+    loading = true,
+    count = 0,
+    pageIndex = 1,
+    pageSize = PAGE_SIZE,
+    records = [],
+    filterControls,
+    searchText = '',
+  } = state;
   const lineNumberBegin = (pageIndex - 1) * pageSize;
   const hasAuthRows = selectRows.filter(item => item.allowedit || item.allowEdit);
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
   const actions = createActions(dispatch, state);
   function loadRows(args) {
-    actions.loadRows(Object.assign({}, { appId, worksheetId, pageIndex, pageSize, sortControls: [sortControl] }, args));
+    actions.loadRows(
+      Object.assign({}, { appId, worksheetId, pageIndex, pageSize, sortControls: [sortControl], filterControls }, args),
+    );
   }
   useEffect(() => {
     loadRows({ appId, worksheetId, pageIndex, sortControls: [sortControl] });

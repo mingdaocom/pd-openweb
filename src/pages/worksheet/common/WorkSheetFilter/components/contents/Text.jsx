@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes, { string } from 'prop-types';
+import filterXSS from 'xss';
 import 'selectize';
 
 export default class Text extends Component {
@@ -35,7 +36,7 @@ export default class Text extends Component {
         },
         render: {
           option_create(data, escape) {
-            return `<div class="create ThemeColor3">${_l('使用"%0"', data.input)}</div>`;
+            return `<div class="create ThemeColor3">${_l('使用"%0"', filterXSS(data.input))}</div>`;
           },
         },
         onInitialize: function () {

@@ -17,7 +17,7 @@ import CustomFields from 'src/components/newCustomFields';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import Back from '../components/Back';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, getSubListError } from 'worksheet/util';
 import { renderCellText } from 'worksheet/components/CellControls';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -54,6 +54,7 @@ class Record extends Component {
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     };
     this.refreshEvents = {};
+    this.cellObjs = {};
   }
   componentDidMount() {
     this.loadRow();
@@ -232,15 +233,75 @@ class Record extends Component {
     });
   }
   onSave = (error, { data, updateControlIds }) => {
-    if (error) {
-      this.setState({ submitLoading: false });
-      return;
-    }
+    let hasError = false;
     const baseIds = this.getBaseIds();
     const { sheetRow, originalData } = this.state;
     const cells = data
       .filter(item => updateControlIds.indexOf(item.controlId) > -1 && item.type !== 30)
       .map(formatControlToServer);
+
+    const { cellObjs } = this;
+    const subListControls = data.filter(item => item.type === 34).filter(c => controlState(c).editable);
+    function getRows(controlId) {
+      try {
+        return cellObjs[controlId].cell.props.rows;
+      } catch (err) {
+        return [];
+      }
+    }
+    function getControls(controlId) {
+      try {
+        return cellObjs[controlId].cell.controls;
+      } catch (err) {
+        return;
+      }
+    }
+    if (subListControls.length) {
+      const errors = subListControls
+        .map(control => ({
+          id: control.controlId,
+          value: getSubListError(
+            {
+              rows: getRows(control.controlId),
+              rules: _.get(cellObjs || {}, `${control.controlId}.cell.props.rules`),
+            },
+            getControls(control.controlId) || control.relationControls,
+            control.showControls,
+            3,
+          ),
+        }))
+        .filter(c => !_.isEmpty(c.value));
+      if (errors.length) {
+        hasError = true;
+        errors.forEach(error => {
+          const errorSublist = cellObjs[error.id];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: !_.isEmpty(error.value),
+              cellErrors: error.value,
+            });
+          }
+        });
+      } else {
+        subListControls.forEach(control => {
+          const errorSublist = cellObjs[control.controlId];
+          if (errorSublist) {
+            errorSublist.cell.setState({
+              error: false,
+              cellErrors: {},
+            });
+          }
+        });
+      }
+      if (this.con.querySelector('.cellControlErrorTip')) {
+        hasError = true;
+      }
+    }
+
+    if (error || hasError) {
+      this.setState({ submitLoading: false });
+      return;
+    }
 
     if (_.isEmpty(cells)) {
       this.setState({
@@ -506,7 +567,7 @@ class Record extends Component {
     const { sheetSwitchPermit } = this.props;
     const { sheetRow, isEdit, random, rules, isWorksheetQuery } = this.state;
     return (
-      <div className="flex customFieldsWrapper">
+      <div className={cx('flex customFieldsWrapper', { edit: isEdit })} ref={con => (this.con = con)}>
         <CustomFields
           projectId={sheetRow.projectId}
           appId={baseIds.appId || ''}
@@ -520,6 +581,7 @@ class Record extends Component {
               this.refreshEvents[id] = fn;
             },
           }}
+          registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           isWorksheetQuery={isWorksheetQuery}
           disabled={!isEdit}
           recordCreateTime={sheetRow.createTime}

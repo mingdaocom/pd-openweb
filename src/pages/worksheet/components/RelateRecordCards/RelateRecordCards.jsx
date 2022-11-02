@@ -201,9 +201,6 @@ export default class RelateRecordCards extends Component {
   getDefaultRelateSheetValue() {
     try {
       const { formData, controlId, recordId, worksheetId } = this.props.control;
-      if (!recordId) {
-        return;
-      }
       const titleControl = _.find(formData, control => control.attribute === 1);
       const defaultRelatedSheetValue = {
         name: titleControl.value,

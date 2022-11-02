@@ -167,6 +167,7 @@ export default function Btn(props) {
           <BtnSetting
             {...props}
             explain={explain}
+            activeIndex={activeIndex}
             btnSetting={buttonList[activeIndex]}
             btnConfig={config}
             setBtnSetting={setBtnSetting}

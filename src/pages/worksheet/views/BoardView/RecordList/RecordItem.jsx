@@ -223,8 +223,8 @@ function SortableRecordItem(props) {
           />
         </Components.RecordPortal>
       )}
-      {recordInfoVisible && (
-        isMobile ? (
+      {recordInfoVisible &&
+        (isMobile ? (
           <RecordInfoModal
             className="full"
             visible={recordInfoVisible}
@@ -254,7 +254,7 @@ function SortableRecordItem(props) {
             hideRows={() => {
               setState({ recordInfoVisible: false });
             }}
-            updateRows={(ids, newItem, updateControls) => {
+            updateRows={(ids, newItem, updateControls = {}) => {
               // 如果当前看板控件发生改变 则记录所属看板需要调整 需要传递target参数
               const getPara = () => {
                 // 取当前的记录id， 因为记录详情弹层可以上下切换
@@ -264,6 +264,7 @@ function SortableRecordItem(props) {
                   key: keyType,
                   rowId: currentRowId,
                   item: {
+                    ...prevRow,
                     ...newItem,
                     ..._.pick(prevRow, ['allowdelete', 'allowedit']),
                   },
@@ -295,8 +296,7 @@ function SortableRecordItem(props) {
             viewId={isRelationSheetType ? _.get(selectControl, 'viewId') : viewId}
             deleteRows={() => delBoardViewRecord({ key: keyType, rowId })}
           />
-        )
-      )}
+        ))}
     </div>
   );
 }

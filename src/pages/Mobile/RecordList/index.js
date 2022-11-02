@@ -142,7 +142,11 @@ class RecordList extends Component {
     const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
     return (
       <Fragment>
-        <div className="flexColumn h100">
+        <div
+          className={cx('flexColumn h100', {
+            portalWrapHeight: md.global.Account.isPortal && appNaviStyle === 2,
+          })}
+        >
           <DocumentTitle title={name} />
           {!batchOptVisible && (
             <div className={cx('viewTabs z-depth-1', { isPortal: md.global.Account.isPortal })}>

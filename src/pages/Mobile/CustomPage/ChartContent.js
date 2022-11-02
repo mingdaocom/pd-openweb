@@ -117,7 +117,7 @@ function ChartContent(props) {
       request.current.abort();
     }
     if (request.current && request.current.state() === 'resolved') {
-      setData({ name });
+      setData({ ...data, map: [] });
     }
     request.current = report.getData(requestParam, (shareAuthor || accessToken) ? { headersConfig } : { fireImmediately: true });
     request.current.then(data => {

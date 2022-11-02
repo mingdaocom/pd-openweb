@@ -205,7 +205,7 @@ export function getConditionOverrideValue(type, condition) {
       } else {
         return Object.assign({}, base, {
           dateRange: dateRange || 1,
-          value: formatDateValue({ type, value }),
+          value: _.includes([10, 11], dateRange) ? value : formatDateValue({ type, value }),
           dateRangeType: dateRangeType || 1,
         });
       }

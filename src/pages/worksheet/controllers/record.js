@@ -195,7 +195,7 @@ export function submitNewRecord(props) {
   addWorksheetRowApi(args)
     .then(res => {
       if (res.resultCode === 1 && !res.data) {
-        alert(_l('记录添加失败'), 3);
+        alert(_l('记录添加成功'));
         onSubmitEnd();
         setRequesting(false);
         return;

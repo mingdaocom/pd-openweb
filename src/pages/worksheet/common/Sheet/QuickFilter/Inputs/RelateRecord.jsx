@@ -48,7 +48,7 @@ export default function RelateRecord(props) {
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
-      ...(from === 'selectRecordDialog' ? { filters: controlAdvancedSetting.filters } : {}),
+      // ...(from === 'selectRecordDialog' ? { filters: controlAdvancedSetting.filters } : {}), // 薛老板说去掉 后面加开关 https://www.mingdao.com/app/eed8e526-6c6e-4e05-9ab7-e25550aa990c/5cc4391adb8d4e0001ee6618/5cc4391adb8d4e0001ee6619/row/2d774b9c-40a1-4b3c-83ce-84cf8fa7ac42
       searchcontrol: controlAdvancedSetting.searchcontrol,
     },
   });

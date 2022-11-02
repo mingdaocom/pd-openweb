@@ -129,7 +129,8 @@ export default (state = initialState, action) => {
     case ACTIONS.UPDATE_CURRENT_CHILDREN:
       id = payload.id;
       user = users[id];
-      const { subordinates } = users[payload.replacedAccountId] || {};
+      const { subordinates, subTotalCount = 0 } = users[payload.replacedAccountId] || {};
+
       return {
         ...state,
         entities: {
@@ -137,7 +138,8 @@ export default (state = initialState, action) => {
             ...users,
             [id]: {
               ...user,
-              subordinates,
+              subTotalCount: user.subTotalCount ? user.subTotalCount + subTotalCount : subTotalCount,
+              subordinates: user.subordinates ? user.subordinates.concat(subordinates) : subordinates,
             },
           },
         },

@@ -372,7 +372,7 @@ export default function RecordForm(props) {
                     const num = value;
                     const changes = { [controlId]: num };
                     setRelateNumOfControl({ ...relateNumOfControl, ...changes });
-                    updateRows([recordId], changes);
+                    updateRows([recordId], changes, changes);
                     updateRelateRecordNum(controlId, num);
                   }}
                   onRelateRecordsChange={onRelateRecordsChange}

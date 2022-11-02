@@ -147,7 +147,18 @@ export function handleCondition(condition) {
   if (_.includes([19, 23, 24, 26, 27, 29, 35, 48], condition.dataType) && condition.values) {
     return {
       ...condition,
-      values: condition.values.map(value => safeParse(value || '{}').id),
+      values: condition.values.map(value => {
+        try {
+          const da = JSON.parse(value);
+          if (typeof da === 'object') {
+            return da.id;
+          } else {
+            return value;
+          }
+        } catch (e) {
+          return value;
+        }
+      }),
     };
   } else {
     return condition;

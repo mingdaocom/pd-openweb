@@ -113,7 +113,7 @@ export const HAS_WARNING_CONTROL = [30, 31, 32, 37, 38];
 export const CAN_NOT_AS_TEXT_GROUP = [14, 21, 22, 34, 36, 41, 42, 43, 45, 47, 49, 10010];
 
 // 不能被他表字段引用的控件
-export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 35, 43, 45, 47, 49, 10010];
+export const CAN_NOT_AS_OTHER_FIELD = [20, 22, 25, 29, 34, 35, 43, 45, 47, 49, 50, 10010];
 
 // 需要单独显示样式的控件
 export const NEED_SPECIAL_DISPLAY_CONTROLS = [

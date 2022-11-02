@@ -47,10 +47,14 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     const nextWorksheetId = nextProps.match.params.worksheetId;
+    const appNaviStyle = _.get(nextProps, 'appDetail.detail.appNaviStyle');
     if (nextWorksheetId !== this.props.match.params.worksheetId) {
       this.setState({
         selectedTab: nextWorksheetId ? nextWorksheetId : 'more',
       });
+      if (appNaviStyle === 2 && nextWorksheetId) {
+        safeLocalStorageSetItem('currentNavWorksheetId', nextWorksheetId);
+      }
     }
   }
 

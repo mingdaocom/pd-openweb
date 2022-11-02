@@ -97,7 +97,7 @@ export default function MobileTable(props) {
                 cell={{ ...c, value: row[c.controlId] }}
                 row={row}
                 rowHeight={30}
-                from={1}
+                from={4}
                 mode="mobileSub"
               />
             </div>

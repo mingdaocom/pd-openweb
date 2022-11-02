@@ -48,18 +48,9 @@ class Node extends Component {
   };
 
   renderChilds() {
-    const {
-      subordinates,
-      collapsed,
-      id,
-      auth,
-      pageIndex,
-      dispatch,
-      moreLoading,
-      subTotalCount,
-      firstLevelLoading,
-    } = this.props;
-    if (subordinates && subTotalCount && !collapsed) {
+    const { subordinates, collapsed, id, auth, pageIndex, dispatch, moreLoading, subTotalCount, firstLevelLoading } =
+      this.props;
+    if (subordinates && !collapsed) {
       return (
         <div className="childNodeList">
           {subordinates.map((child, index) => {

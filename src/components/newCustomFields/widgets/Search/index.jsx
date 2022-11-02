@@ -54,9 +54,10 @@ export default class Widgets extends Component {
 
   componentDidMount() {
     if (_.get(this.props, 'defaultSelectProps.open')) {
-      if (this.props.enumDefault !== 2) {
+      if (this.props.enumDefault !== 2 || _.get(this.props, 'advancedSetting.searchfirst') === '1') {
         this.handleSearch();
-      } else if (this.props.enumDefault === 2 && this.box) {
+      }
+      if (this.box) {
         setTimeout(() => {
           try {
             this.box.querySelector('.ant-select-selection-search-input').focus();

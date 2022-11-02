@@ -138,7 +138,7 @@ const Wrap = styled.div`
 `;
 
 
-const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型企业版')];
+const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型企业版'), _l('教学版')];
 
 const formatDate = date => {
   const year = moment(date).format('YYYY');

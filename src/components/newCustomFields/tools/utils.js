@@ -255,10 +255,12 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       parsedValue = JSON.parse(control.value);
       result.value = _.isArray(parsedValue)
         ? JSON.stringify(
-            parsedValue.map(item => ({
-              name: item.name,
-              sid: item.sid,
-            })),
+            parsedValue
+              .map(item => ({
+                name: item.name,
+                sid: item.sid,
+              }))
+              .filter(item => !_.isEmpty(item.sid)),
           )
         : '';
       break;
@@ -353,7 +355,7 @@ export function getTitleTextFromRelateControl(control = {}, data) {
 }
 
 // 控件状态
-export const controlState = (data, from) => {
+export const controlState = (data = {}, from) => {
   const controlPermissions = data.controlPermissions || '111';
   const fieldPermission = data.fieldPermission || '111';
   let state = {

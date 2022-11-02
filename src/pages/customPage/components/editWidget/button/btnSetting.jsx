@@ -237,11 +237,14 @@ const ProcessDefaultConfig = {
   sureName: _l('确认')
 };
 
+let sheetRequest = null;
+
 function BtnSetting(props) {
-  const { appPkg = {}, ids = {}, btnSetting, btnConfig, explain, setBtnSetting, setSetting, onDel } = props;
+  const { activeIndex, appPkg = {}, ids = {}, btnSetting, btnConfig, explain, setBtnSetting, setSetting, onDel } = props;
   const { appId, pageId } = ids;
   const [displayType, setDisplayType] = useState('setting');
   const [paras, setParas] = useState(btnSetting.param || []);
+  const [sheetLoading, setSheetLoading] = useState(true);
 
   const projectId = appPkg.projectId || appPkg.id;
 
@@ -280,22 +283,35 @@ function BtnSetting(props) {
 
   useEffect(() => {
     if (value && _.includes([1, 2, 5], action)) {
-      sheetAjax
-        .getWorksheetInfo({
-          worksheetId: value,
-          getTemplate: true,
-          getViews: true,
-          appId,
-        })
-        .then(res => {
-          const { views = [], template } = res;
-          setDataSource({
-            views: views.map(({ viewId, name }) => ({ text: name, value: viewId })),
-            controls: template.controls
-          });
+      if (sheetRequest && sheetRequest.state() === 'pending' && sheetRequest.abort) {
+        sheetRequest.abort();
+      }
+      setSheetLoading(true);
+      sheetRequest = sheetAjax.getWorksheetInfo({
+        worksheetId: value,
+        getTemplate: true,
+        getViews: true,
+        appId,
+      });
+      sheetRequest.then(res => {
+        const { views = [], template } = res;
+        setDataSource({
+          views: views.map(({ viewId, name }) => ({ text: name, value: viewId })),
+          controls: template.controls
         });
+        if (action === 1) {
+          setBtnSetting({
+            ...btnSetting,
+            config: {
+              ...config,
+              controls: template.controls
+            }
+          });
+        }
+        setSheetLoading(false);
+      });
     }
-  }, [value, action]);
+  }, [value, action, activeIndex]);
 
   const renderConfig = () => {
     // 创建记录
@@ -322,7 +338,7 @@ function BtnSetting(props) {
               }}
             />
           </div>
-          {value && !_.isEmpty(controls) && (
+          {value && !_.isEmpty(controls) && !sheetLoading && (
             <DefaultValue
               appId={appId}
               btnId={btnId}

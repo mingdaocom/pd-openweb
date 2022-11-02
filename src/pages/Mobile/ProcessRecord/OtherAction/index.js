@@ -96,12 +96,10 @@ export default class extends Component {
     );
   }
   renderInfo() {
-    const { backFlowNodes, backFlowNode, signature } = this.state;
+    const { backFlowNodes, backFlowNode } = this.state;
     const { action, selectedUser, instance } = this.props;
     const currentAction = ACTION_TO_TEXT[action];
-    const { isCallBack, auth } = (instance || {}).flowNode || {};
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
-    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+    const { isCallBack } = (instance || {}).flowNode || {};
 
     if (isCallBack && action === 'overrule' && backFlowNodes.length) {
       const node = backFlowNodes.filter(item => item.id === backFlowNode)[0];
@@ -158,6 +156,14 @@ export default class extends Component {
         </List>
       );
     }
+  }
+  renderSignature() {
+    const { signature } = this.state;
+    const { action, instance } = this.props;
+    const { auth } = (instance || {}).flowNode || {};
+    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+
     if (passSignature || overruleSignature) {
       return (
         <Flex className="am-textarea-item">
@@ -185,6 +191,7 @@ export default class extends Component {
             });
           }}
         />
+        {this.renderSignature()}
         {this.renderInfo()}
         <div className="flexRow actionBtnWrapper">
           {isOverruleBack ? (

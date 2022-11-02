@@ -201,6 +201,7 @@ export default class RecordInfo extends Component {
       hideRows,
       hideRecordInfo,
       sheetSwitchPermit,
+      onError = _.noop,
     } = props || this.props;
     const { tempFormData } = this.state;
     try {
@@ -261,6 +262,9 @@ export default class RecordInfo extends Component {
       this.updateLockStatus(data.formData);
     } catch (err) {
       console.error(err);
+      if (instanceId && workId && err.errorCode === 10) {
+        onError(err);
+      }
       this.setState({
         abnormal: true,
         loading: false,
@@ -898,6 +902,9 @@ export default class RecordInfo extends Component {
                         }
                       });
                     });
+                  if (_.isFunction(this.refreshEvents.loadcustombtns)) {
+                    this.refreshEvents.loadcustombtns();
+                  }
                 }}
                 onSave={this.onSave}
                 onCancel={this.handleCancelChange}

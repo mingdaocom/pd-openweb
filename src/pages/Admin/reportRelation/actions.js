@@ -91,9 +91,15 @@ export const addSubordinates =
               : users[id].subTotalCount + _.map(accounts, _ => _.accountId).length,
           },
         });
-        _.map(accounts, _ => _.accountId).forEach(n => {
-          dispatch(fetchSubordinates(n));
-        });
+
+        if (id) {
+          _.map(accounts, _ => _.accountId).forEach(n => {
+            dispatch(fetchSubordinates(n));
+          });
+        } else {
+          dispatch(fetchRootSubordinates(''));
+        }
+
         dispatch(updateCollapse(id));
       } else {
         alert(_l('操作失败', 2));
